@@ -39,30 +39,15 @@ describe("EvidenceSigil", () => {
     expect(JSON.stringify(a)).not.toBe(JSON.stringify(b));
   });
 
-  it("colors the perimeter by identifiability band", () => {
-    const getStroke = (): string => {
-      const svg = screen.getByRole("img");
-      return svg.querySelector("g")?.getAttribute("stroke") ?? "";
-    };
-    const { unmount: unmountLow } = render(
-      <EvidenceSigil bundleHash="deadbeef" identifiability={0.1} />,
-    );
-    expect(getStroke()).toMatch(/status-rejected|ember/);
-    unmountLow();
-    const { unmount: unmountMid } = render(
-      <EvidenceSigil bundleHash="deadbeef" identifiability={0.5} />,
-    );
-    expect(getStroke()).toMatch(/status-pending|gold/);
-    unmountMid();
-    render(<EvidenceSigil bundleHash="deadbeef" identifiability={0.9} />);
-    expect(getStroke()).toMatch(/status-approved|teal/);
-  });
-
-  it("reflects fresc profile via data attribute and dot count", () => {
-    render(<EvidenceSigil bundleHash="deadbeef" frescProfile="replicated" />);
+  it("uses neutral clothing and derives inner geometry only from the hash", () => {
+    render(<EvidenceSigil bundleHash="deadbeef" />);
     const svg = screen.getByRole("img");
-    expect(svg.getAttribute("data-fresc-profile")).toBe("replicated");
-    expect(svg.querySelectorAll("circle").length).toBe(4);
+    expect(svg).not.toHaveAttribute("data-fresc-profile");
+    expect(svg).not.toHaveAttribute("data-identifiability");
+    expect(svg.querySelector("g")?.getAttribute("stroke")).toBe("currentColor");
+    expect(svg.querySelectorAll("circle").length).toBe(
+      sigilGeometryFromHash("deadbeef").innerIndex + 1,
+    );
   });
 });
 

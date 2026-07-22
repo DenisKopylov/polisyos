@@ -1,14 +1,9 @@
-import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  HelpCircle,
-} from "lucide-react";
+import { Circle } from "lucide-react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge } from "@polisyos/atlas-ui";
 
-import { saliencePercent, significanceTone, topDeltas } from "./compare-math";
+import { saliencePercent, topDeltas } from "./compare-math";
 import type { DeltaQuantity } from "./compare-types";
 
 type CausalDeltaStripProps = {
@@ -34,7 +29,6 @@ export function CausalDeltaStrip({
       </p>
       <ol className="space-y-2">
         {visible.map((delta) => {
-          const Icon = iconFor(delta.significance);
           const active = activeMetricId === delta.metric_id;
           return (
             <li key={delta.metric_id}>
@@ -48,11 +42,8 @@ export function CausalDeltaStrip({
                 aria-current={active ? "true" : undefined}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <Icon className="size-4 shrink-0" aria-hidden="true" />
-                  <Badge
-                    kind={significanceTone(delta.significance)}
-                    className="px-2 py-1"
-                  >
+                  <Circle className="size-4 shrink-0" aria-hidden="true" />
+                  <Badge kind="neutral" className="px-2 py-1">
                     {saliencePercent(delta)}%
                   </Badge>
                 </div>
@@ -76,17 +67,4 @@ export function CausalDeltaStrip({
       ) : null}
     </nav>
   );
-}
-
-function iconFor(significance: DeltaQuantity["significance"]) {
-  if (significance === "improved") {
-    return ArrowUpRight;
-  }
-  if (significance === "worsened") {
-    return ArrowDownRight;
-  }
-  if (significance === "mixed") {
-    return ArrowRight;
-  }
-  return HelpCircle;
 }

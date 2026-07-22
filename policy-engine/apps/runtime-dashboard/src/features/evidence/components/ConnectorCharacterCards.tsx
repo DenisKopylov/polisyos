@@ -83,10 +83,6 @@ export function ConnectorCharacterCards({
                   <span>{t("phase32.connectors.cost")}</span>
                   <strong>{card.costTier}</strong>
                 </div>
-                <div className="compact-metric">
-                  <span>{t("phase32.connectors.retry")}</span>
-                  <strong>{card.retryProfile}</strong>
-                </div>
               </div>
 
               <div>

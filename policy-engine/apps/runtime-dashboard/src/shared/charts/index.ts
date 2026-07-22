@@ -11,7 +11,6 @@ export type {
   SpecificationPoint,
   RadarDimension,
   RadarSeries,
-  ConfidenceLevel,
   QuantileSeriesPoint,
   QuantileSeries,
   IdentifiabilityState,
@@ -20,13 +19,11 @@ export type {
   SampleRealizationPoint,
   SampleRealization,
 } from "./types";
-export { classifyConfidence, confidenceColor } from "./types";
 
 /* ── Theme ── */
 export {
   chartTheme,
   ciColors,
-  confidenceColors,
   waterfallColors,
   categoricalPalette,
   chartDefaults,

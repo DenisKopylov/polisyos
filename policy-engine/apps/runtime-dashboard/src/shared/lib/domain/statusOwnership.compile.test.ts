@@ -6,6 +6,7 @@ import {
   type InteractionState,
   presentAuthority,
 } from "./statusOwnership";
+import type { SimulationMetric } from "./simulation";
 
 describe("status ownership compile barriers", () => {
   it("rejects divergent DisputeStatus vocabularies", () => {
@@ -31,5 +32,22 @@ describe("status ownership compile barriers", () => {
 
     expect(compileOnly).toBeTypeOf("function");
     expectTypeOf(transport).toEqualTypeOf<InteractionState<"open">>();
+  });
+
+  it("rejects C21 presentation taxonomies at authority slots", () => {
+    expectTypeOf<
+      SimulationMetric["severity"]
+    >().toEqualTypeOf<InteractionState>();
+
+    const simulation = createInteractionState(
+      "future_magnitude",
+      "candidate_display",
+    );
+    const compileOnly = () => {
+      // @ts-expect-error Candidate simulation state cannot enter authority.
+      presentAuthority(simulation);
+    };
+
+    expect(compileOnly).toBeTypeOf("function");
   });
 });

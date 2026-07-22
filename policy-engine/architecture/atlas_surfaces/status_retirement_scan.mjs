@@ -261,6 +261,521 @@ function functionReturnExpressions(node) {
   return expressions;
 }
 
+function returnedStringMembers(node) {
+  if (!ts.isFunctionLike(node)) return null;
+  const members = [];
+  const collect = (current) => {
+    current = unwrapExpression(current);
+    if (
+      ts.isStringLiteral(current) ||
+      ts.isNoSubstitutionTemplateLiteral(current)
+    ) {
+      members.push(current.text);
+      return;
+    }
+    if (ts.isConditionalExpression(current)) {
+      collect(current.whenTrue);
+      collect(current.whenFalse);
+      return;
+    }
+    ts.forEachChild(current, collect);
+  };
+  for (const expression of functionReturnExpressions(node)) collect(expression);
+  const unique = [...new Set(members)].sort();
+  return unique.length > 1 ? unique : null;
+}
+
+function genericVocabularyMembers(node, sourceFile) {
+  if (ts.isUnionTypeNode(node)) return stringUnionMembers(node);
+  if (ts.isEnumDeclaration(node)) return enumMembers(node);
+  if (ts.isVariableDeclaration(node) && node.initializer) {
+    const operand = constAssertionOperand(node.initializer, sourceFile);
+    return operand ? constVocabularyMembers(operand) : null;
+  }
+  return returnedStringMembers(node);
+}
+
+const PRESENTATION_SINK_ATTRIBUTES = new Set([
+  "badgeKind",
+  "className",
+  "color",
+  "intent",
+  "kind",
+  "severity",
+  "status",
+  "style",
+  "tone",
+  "variant",
+]);
+
+const LAYOUT_ONLY_CLASS =
+  /^(?:(?:[a-z0-9-]+):)*(?:(?:inline-)?grid|grid-(?:cols|rows)-\S+|(?:col|row)-(?:auto|span-\S+|start-\S+|end-\S+)|(?:inline-)?flex|block|inline|inline-block|hidden|contents|flow-root|items-\S+|justify-\S+|content-\S+|self-\S+|place-\S+|gap(?:-[xy])?-\S+|space-[xy]-\S+|order-\S+|basis-\S+|grow(?:-\S+)?|shrink(?:-\S+)?|[wh]-\S+|(?:min|max)-[wh]-\S+|[pm][trblxy]?-\S+|inset(?:-[xy])?-\S+|top-\S+|right-\S+|bottom-\S+|left-\S+|overflow(?:-[xy])?-\S+|static|fixed|absolute|relative|sticky)$/u;
+
+function isLayoutOnlyClassVocabulary(members) {
+  return [...members].every((member) => {
+    const tokens = member.trim().split(/\s+/u).filter(Boolean);
+    return (
+      tokens.length > 0 &&
+      tokens.every((token) => LAYOUT_ONLY_CLASS.test(token))
+    );
+  });
+}
+
+function containsThresholdComparison(node) {
+  let found = false;
+  const visit = (current) => {
+    if (current !== node && ts.isFunctionLike(current)) return;
+    if (
+      ts.isBinaryExpression(current) &&
+      [
+        ts.SyntaxKind.GreaterThanToken,
+        ts.SyntaxKind.GreaterThanEqualsToken,
+        ts.SyntaxKind.LessThanToken,
+        ts.SyntaxKind.LessThanEqualsToken,
+      ].includes(current.operatorToken.kind)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return found;
+}
+
+function mergePresentationFacts(...facts) {
+  const members = new Set();
+  const thresholdMembers = new Set();
+  for (const fact of facts) {
+    if (!fact) continue;
+    for (const member of fact.members) members.add(member);
+    for (const member of fact.thresholdMembers) thresholdMembers.add(member);
+  }
+  return members.size > 0 ? { members, thresholdMembers } : null;
+}
+
+function samePresentationFact(left, right) {
+  if (!left || !right) return left === right;
+  if (
+    left.members.size !== right.members.size ||
+    left.thresholdMembers.size !== right.thresholdMembers.size
+  ) {
+    return false;
+  }
+  return (
+    [...left.members].every((member) => right.members.has(member)) &&
+    [...left.thresholdMembers].every((member) =>
+      right.thresholdMembers.has(member),
+    )
+  );
+}
+
+function commonPresentationMembers(facts) {
+  const common = new Set(facts[0]?.members ?? []);
+  for (const fact of facts.slice(1)) {
+    for (const member of common) {
+      if (!fact.members.has(member)) common.delete(member);
+    }
+  }
+  return common;
+}
+
+function collectThresholdPresentationRevivals(
+  sourceFile,
+  matching,
+  relative,
+  checker,
+) {
+  const staticFacts = new Map();
+  const functionFacts = new Map();
+  const valueFacts = new Map();
+  const objectFacts = new Map();
+  const functionNodes = [];
+  const variableNodes = [];
+  const assignmentNodes = [];
+  const propertyNodes = [];
+
+  const binding = (node) => {
+    if (!node) return undefined;
+    const symbol = symbolIdentity(checker, node);
+    const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
+    return declaration
+      ? `${declaration.getSourceFile().fileName}:${declaration.pos}:${declaration.end}:${symbol.name}`
+      : undefined;
+  };
+  const functionBinding = (node) => {
+    if (node.name) return binding(node.name);
+    const parent = node.parent;
+    if (
+      ts.isVariableDeclaration(parent) ||
+      ts.isPropertyAssignment(parent) ||
+      ts.isPropertyDeclaration(parent)
+    ) {
+      return binding(parent.name);
+    }
+    return undefined;
+  };
+  const storeFact = (target, identity, fact) => {
+    if (!identity || !fact) return false;
+    const merged = mergePresentationFacts(target.get(identity), fact);
+    if (samePresentationFact(target.get(identity), merged)) return false;
+    target.set(identity, merged);
+    return true;
+  };
+
+  const expressionFact = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return null;
+    seen.add(current);
+    if (
+      ts.isStringLiteral(current) ||
+      ts.isNoSubstitutionTemplateLiteral(current)
+    ) {
+      return {
+        members: new Set([current.text]),
+        thresholdMembers: new Set(),
+      };
+    }
+    if (
+      ts.isIdentifier(current) ||
+      ts.isPropertyAccessExpression(current) ||
+      ts.isElementAccessExpression(current)
+    ) {
+      const identity = binding(current);
+      return identity
+        ? (valueFacts.get(identity) ?? staticFacts.get(identity) ?? null)
+        : null;
+    }
+    if (ts.isCallExpression(current)) {
+      const callee = binding(current.expression);
+      return mergePresentationFacts(
+        callee ? functionFacts.get(callee) : null,
+        ...current.arguments.map((argument) => expressionFact(argument, seen)),
+      );
+    }
+    if (ts.isConditionalExpression(current)) {
+      const branches = [
+        expressionFact(current.whenTrue, seen),
+        expressionFact(current.whenFalse, seen),
+      ].filter(Boolean);
+      const fact = mergePresentationFacts(...branches);
+      if (fact && containsThresholdComparison(current.condition)) {
+        const commonMembers = commonPresentationMembers(branches);
+        const thresholdMembers = new Set(fact.thresholdMembers);
+        for (const member of fact.members) {
+          if (!commonMembers.has(member)) thresholdMembers.add(member);
+        }
+        return { ...fact, thresholdMembers };
+      }
+      return fact;
+    }
+    if (ts.isTemplateExpression(current)) {
+      return mergePresentationFacts(
+        ...current.templateSpans.map((span) =>
+          expressionFact(span.expression, seen),
+        ),
+      );
+    }
+    if (
+      ts.isAwaitExpression(current) ||
+      ts.isYieldExpression(current) ||
+      ts.isSpreadElement(current)
+    ) {
+      return current.expression
+        ? expressionFact(current.expression, seen)
+        : null;
+    }
+    if (ts.isBinaryExpression(current)) {
+      if (
+        [
+          ts.SyntaxKind.EqualsEqualsToken,
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.SyntaxKind.GreaterThanToken,
+          ts.SyntaxKind.GreaterThanEqualsToken,
+          ts.SyntaxKind.LessThanToken,
+          ts.SyntaxKind.LessThanEqualsToken,
+        ].includes(current.operatorToken.kind)
+      ) {
+        return null;
+      }
+      return mergePresentationFacts(
+        expressionFact(current.left, seen),
+        expressionFact(current.right, seen),
+      );
+    }
+    return null;
+  };
+
+  const discoverNodes = (node) => {
+    if (ts.isFunctionLike(node)) functionNodes.push(node);
+    if (ts.isVariableDeclaration(node)) variableNodes.push(node);
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
+      assignmentNodes.push(node);
+    }
+    if (ts.isPropertyAssignment(node)) propertyNodes.push(node);
+    ts.forEachChild(node, discoverNodes);
+  };
+  discoverNodes(sourceFile);
+
+  let staticChanged = true;
+  while (staticChanged) {
+    staticChanged = false;
+    for (const node of [...variableNodes, ...propertyNodes]) {
+      if (!node.initializer) continue;
+      const fact = expressionFact(node.initializer);
+      if (fact && fact.thresholdMembers.size === 0) {
+        staticChanged =
+          storeFact(staticFacts, binding(node.name), fact) || staticChanged;
+      }
+    }
+  }
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const node of functionNodes) {
+      const returnFacts = functionReturnExpressions(node)
+        .map((expression) => expressionFact(expression))
+        .filter(Boolean);
+      const returned = mergePresentationFacts(...returnFacts);
+      if (returned) {
+        const bodyHasThreshold = Boolean(
+          node.body && containsThresholdComparison(node.body),
+        );
+        const commonMembers = commonPresentationMembers(returnFacts);
+        const fact = {
+          members: returned.members,
+          thresholdMembers:
+            returned.thresholdMembers.size > 0
+              ? returned.thresholdMembers
+              : bodyHasThreshold
+                ? new Set(
+                    [...returned.members].filter(
+                      (member) => !commonMembers.has(member),
+                    ),
+                  )
+                : new Set(),
+        };
+        if (fact.thresholdMembers.size > 0) {
+          changed =
+            storeFact(functionFacts, functionBinding(node), fact) || changed;
+        }
+      }
+    }
+    for (const node of variableNodes) {
+      if (!node.initializer) continue;
+      const fact = expressionFact(node.initializer);
+      if (fact && fact.thresholdMembers.size > 0) {
+        changed = storeFact(valueFacts, binding(node.name), fact) || changed;
+      }
+    }
+    for (const node of propertyNodes) {
+      const fact = expressionFact(node.initializer);
+      if (fact && fact.thresholdMembers.size > 0) {
+        changed = storeFact(valueFacts, binding(node.name), fact) || changed;
+      }
+    }
+    for (const node of assignmentNodes) {
+      const fact = expressionFact(node.right);
+      if (fact && fact.thresholdMembers.size > 0) {
+        changed = storeFact(valueFacts, binding(node.left), fact) || changed;
+      }
+    }
+  }
+  const mergeObjectEntries = (...entryGroups) => {
+    const entries = new Map();
+    for (const group of entryGroups) {
+      for (const entry of group ?? []) {
+        const key = `${entry.attributeName}:${[...entry.fact.members]
+          .sort()
+          .join("\0")}:${[...entry.fact.thresholdMembers].sort().join("\0")}`;
+        entries.set(key, entry);
+      }
+    }
+    return [...entries.values()];
+  };
+  const objectEntries = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return [];
+    seen.add(current);
+    if (
+      ts.isIdentifier(current) ||
+      ts.isPropertyAccessExpression(current) ||
+      ts.isElementAccessExpression(current)
+    ) {
+      const identity = binding(current);
+      return identity ? (objectFacts.get(identity) ?? []) : [];
+    }
+    if (!ts.isObjectLiteralExpression(current)) return [];
+    const entries = [];
+    for (const property of current.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        entries.push(...objectEntries(property.expression, seen));
+        continue;
+      }
+      if (ts.isPropertyAssignment(property)) {
+        const attributeName = propertyNameText(property.name);
+        const fact = expressionFact(property.initializer);
+        if (attributeName && fact && fact.thresholdMembers.size > 0) {
+          entries.push({ attributeName, fact });
+        }
+        continue;
+      }
+      if (ts.isShorthandPropertyAssignment(property)) {
+        const fact = expressionFact(property.name);
+        if (fact && fact.thresholdMembers.size > 0) {
+          entries.push({ attributeName: property.name.text, fact });
+        }
+      }
+    }
+    return entries;
+  };
+
+  let objectChanged = true;
+  while (objectChanged) {
+    objectChanged = false;
+    for (const node of [...variableNodes, ...propertyNodes]) {
+      if (!node.initializer) continue;
+      const entries = objectEntries(node.initializer);
+      const identity = binding(node.name);
+      if (!identity || entries.length === 0) continue;
+      const merged = mergeObjectEntries(objectFacts.get(identity), entries);
+      if (merged.length !== (objectFacts.get(identity)?.length ?? 0)) {
+        objectFacts.set(identity, merged);
+        objectChanged = true;
+      }
+    }
+    for (const node of assignmentNodes) {
+      const entries = objectEntries(node.right);
+      const identity = binding(node.left);
+      if (!identity || entries.length === 0) continue;
+      const merged = mergeObjectEntries(objectFacts.get(identity), entries);
+      if (merged.length !== (objectFacts.get(identity)?.length ?? 0)) {
+        objectFacts.set(identity, merged);
+        objectChanged = true;
+      }
+    }
+  }
+
+  const sinkFacts = [];
+  const addSink = (attributeName, fact, node) => {
+    if (
+      !PRESENTATION_SINK_ATTRIBUTES.has(attributeName) ||
+      !fact ||
+      fact.thresholdMembers.size < 2 ||
+      (attributeName === "className" &&
+        isLayoutOnlyClassVocabulary(fact.thresholdMembers))
+    ) {
+      return;
+    }
+    sinkFacts.push({ fact, line: lineOf(sourceFile, node) });
+  };
+  const discoverSinks = (node) => {
+    if (
+      ts.isJsxAttribute(node) &&
+      node.initializer &&
+      ts.isJsxExpression(node.initializer) &&
+      node.initializer.expression
+    ) {
+      const attributeName = propertyNameText(node.name);
+      if (attributeName === "style") {
+        for (const entry of objectEntries(node.initializer.expression)) {
+          addSink(entry.attributeName, entry.fact, node);
+        }
+      }
+      if (attributeName) {
+        addSink(
+          attributeName,
+          expressionFact(node.initializer.expression),
+          node,
+        );
+      }
+    }
+    if (ts.isJsxSpreadAttribute(node)) {
+      for (const entry of objectEntries(node.expression)) {
+        addSink(entry.attributeName, entry.fact, node);
+      }
+    }
+    ts.forEachChild(node, discoverSinks);
+  };
+  discoverSinks(sourceFile);
+
+  return sinkFacts.flatMap(({ fact, line }) =>
+    matching
+      .filter(
+        (descriptor) =>
+          Array.isArray(descriptor.members) &&
+          descriptor.members.length === fact.thresholdMembers.size,
+      )
+      .map((descriptor) => ({
+        candidateId: descriptor.candidateId,
+        path: relative,
+        line,
+      })),
+  );
+}
+
+function collectProtectedRevivals(
+  sourceFiles,
+  protectedDefinitions,
+  pathOf,
+  checker,
+) {
+  const descriptors = Array.isArray(protectedDefinitions)
+    ? protectedDefinitions
+    : [];
+  const revivals = new Map();
+  for (const sourceFile of sourceFiles) {
+    const relative = pathOf(sourceFile);
+    const matching = descriptors.filter(
+      (descriptor) =>
+        Array.isArray(descriptor.paths) && descriptor.paths.includes(relative),
+    );
+    if (matching.length === 0) continue;
+    for (const fact of collectThresholdPresentationRevivals(
+      sourceFile,
+      matching,
+      relative,
+      checker,
+    )) {
+      revivals.set(`${fact.candidateId}:${fact.path}:${fact.line}`, fact);
+    }
+    const visit = (node) => {
+      const members = genericVocabularyMembers(node, sourceFile);
+      if (members) {
+        for (const descriptor of matching) {
+          const expected = Array.isArray(descriptor.members)
+            ? [...descriptor.members].sort()
+            : [];
+          if (
+            members.length === expected.length &&
+            members.every((member, index) => member === expected[index])
+          ) {
+            const fact = {
+              candidateId: descriptor.candidateId,
+              path: relative,
+              line: lineOf(sourceFile, node),
+            };
+            revivals.set(`${fact.candidateId}:${fact.path}:${fact.line}`, fact);
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return [...revivals.values()].sort((left, right) =>
+    `${left.candidateId}:${left.path}:${left.line}`.localeCompare(
+      `${right.candidateId}:${right.path}:${right.line}`,
+    ),
+  );
+}
+
 function collectInteractionLeaks(sourceFiles, identities) {
   const taintedValues = new Set();
   const taintedFunctions = new Set();
@@ -470,7 +985,7 @@ function symbolIdentity(checker, node) {
   return symbol;
 }
 
-function collectProgramFacts(program) {
+function collectProgramFacts(program, protectedDefinitions = []) {
   const checker = program.getTypeChecker();
   const definitions = [];
   const authorityCandidates = [];
@@ -675,7 +1190,18 @@ function collectProgramFacts(program) {
       return relativePath(sourceFile.fileName);
     },
   });
-  return { authorityCandidates, definitions, interactionLeaks };
+  const protectedRevivals = collectProtectedRevivals(
+    definitionSources,
+    protectedDefinitions,
+    (sourceFile) => relativePath(sourceFile.fileName),
+    checker,
+  );
+  return {
+    authorityCandidates,
+    definitions,
+    interactionLeaks,
+    protectedRevivals,
+  };
 }
 
 function overrideInteractionIdentities(sourceFile, relative) {
@@ -745,20 +1271,71 @@ function overrideInteractionIdentities(sourceFile, relative) {
   };
 }
 
-function collectOverrideFacts(overrides) {
+function createOverrideProgram(overrides) {
+  const sources = new Map(
+    Object.entries(overrides).map(([relative, source]) => [
+      path.resolve(repoRoot, relative),
+      source,
+    ]),
+  );
+  const options = {
+    jsx: ts.JsxEmit.ReactJSX,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    noResolve: true,
+    skipLibCheck: true,
+    target: ts.ScriptTarget.Latest,
+  };
+  const host = ts.createCompilerHost(options, true);
+  const defaultFileExists = host.fileExists.bind(host);
+  const defaultGetSourceFile = host.getSourceFile.bind(host);
+  const defaultReadFile = host.readFile.bind(host);
+  const canonical = (fileName) => path.resolve(fileName);
+  host.fileExists = (fileName) =>
+    sources.has(canonical(fileName)) || defaultFileExists(fileName);
+  host.readFile = (fileName) =>
+    sources.get(canonical(fileName)) ?? defaultReadFile(fileName);
+  host.getSourceFile = (
+    fileName,
+    languageVersion,
+    onError,
+    shouldCreateNewSourceFile,
+  ) => {
+    const source = sources.get(canonical(fileName));
+    return source === undefined
+      ? defaultGetSourceFile(
+          fileName,
+          languageVersion,
+          onError,
+          shouldCreateNewSourceFile,
+        )
+      : ts.createSourceFile(
+          fileName,
+          source,
+          ts.ScriptTarget.Latest,
+          true,
+          fileName.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+        );
+  };
+  return ts.createProgram({
+    host,
+    options,
+    rootNames: [...sources.keys()],
+  });
+}
+
+function collectOverrideFacts(overrides, protectedDefinitions = []) {
   const facts = {
     authorityCandidates: [],
     definitions: [],
     interactionLeaks: [],
+    protectedRevivals: [],
   };
-  for (const [relative, source] of Object.entries(overrides)) {
-    const sourceFile = ts.createSourceFile(
-      relative,
-      source,
-      ts.ScriptTarget.Latest,
-      true,
-      relative.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-    );
+  const program = createOverrideProgram(overrides);
+  const checker = program.getTypeChecker();
+  for (const relative of Object.keys(overrides)) {
+    const sourceFile = program.getSourceFile(path.resolve(repoRoot, relative));
+    if (!sourceFile) throw new Error(`missing override source: ${relative}`);
     const visit = (node) => {
       const constFact = constVocabularyFact(node, sourceFile, relative);
       if (constFact) {
@@ -831,6 +1408,14 @@ function collectOverrideFacts(overrides) {
         overrideInteractionIdentities(sourceFile, relative),
       ),
     );
+    facts.protectedRevivals.push(
+      ...collectProtectedRevivals(
+        [sourceFile],
+        protectedDefinitions,
+        () => relative,
+        checker,
+      ),
+    );
   }
   return facts;
 }
@@ -841,7 +1426,12 @@ const request = input.trim() ? JSON.parse(input) : {};
 
 if (request.sourceOverrides) {
   process.stdout.write(
-    JSON.stringify(collectOverrideFacts(request.sourceOverrides)),
+    JSON.stringify(
+      collectOverrideFacts(
+        request.sourceOverrides,
+        request.protectedDefinitions,
+      ),
+    ),
   );
 } else {
   const configPath = path.join(dashboardRoot, "tsconfig.app.json");
@@ -859,5 +1449,7 @@ if (request.sourceOverrides) {
     rootNames: parsed.fileNames,
     options: parsed.options,
   });
-  process.stdout.write(JSON.stringify(collectProgramFacts(program)));
+  process.stdout.write(
+    JSON.stringify(collectProgramFacts(program, request.protectedDefinitions)),
+  );
 }

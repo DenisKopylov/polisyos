@@ -46,7 +46,6 @@ export type ConnectorCharacterCard = {
   namespace: string;
   profileCount: number;
   profileIds: string[];
-  retryProfile: "steady" | "watch" | "exhausted";
   version: string;
 };
 
@@ -301,11 +300,6 @@ export function buildConnectorCharacterCards(input: {
       namespace: connector.namespace,
       profileCount: connector.profileIds.length,
       profileIds: connector.profileIds,
-      retryProfile: connector.loaded
-        ? errorBudgetBurnPoint > 0.7
-          ? "watch"
-          : "steady"
-        : "exhausted",
       version: connector.version,
     };
   });

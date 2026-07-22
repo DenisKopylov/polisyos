@@ -78,12 +78,10 @@ export type RunDeckSnapshot = {
           kind: "quantity";
           label: string;
           quantity: QuantityValueOutput;
-          tone: "neutral" | "ok" | "warn";
         }
       | {
           kind: "text";
           label: string;
-          tone: "neutral" | "ok" | "warn";
           value: string;
         }
     >;
@@ -199,12 +197,10 @@ function buildDeckMetrics(
         kind: "quantity" as const,
         label: "Impact delta",
         quantity: primaryImpact.quantity,
-        tone: "neutral" as const,
       } satisfies RunDeckSnapshot["metrics"]["cards"][number])
     : ({
         kind: "text" as const,
         label: "Impact delta",
-        tone: "neutral" as const,
         value: primaryImpactLabel?.ownerLabel || "Unknown",
       } satisfies RunDeckSnapshot["metrics"]["cards"][number]);
 
@@ -213,19 +209,16 @@ function buildDeckMetrics(
       kind: "quantity" as const,
       label: "Decision score",
       quantity: report.decisionScore,
-      tone: "neutral" as const,
     },
     {
       kind: "text" as const,
       label: "Blocker state",
-      tone: "neutral" as const,
       value: String(report.blockerCount),
     },
     impactCard,
     {
       kind: "text" as const,
       label: "Artifact continuity",
-      tone: "neutral" as const,
       value: String(report.artifactRefs.length),
     },
   ];

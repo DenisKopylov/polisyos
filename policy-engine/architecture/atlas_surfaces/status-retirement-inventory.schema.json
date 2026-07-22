@@ -17,7 +17,7 @@
   ],
   "properties": {
     "$schema": { "const": "./status-retirement-inventory.schema.json" },
-    "schema_version": { "const": "1.1" },
+    "schema_version": { "const": "1.2" },
     "inventory_id": { "const": "atlas-ds4-status-retirement" },
     "as_of": { "type": "string", "format": "date-time" },
     "authority": { "$ref": "#/$defs/authority" },
@@ -247,7 +247,10 @@
             "C15",
             "C16",
             "C17",
-            "C18"
+            "C18",
+            "C21",
+            "C22",
+            "C23"
           ]
         },
         "rationale": { "$ref": "#/$defs/nonEmpty" },
@@ -256,9 +259,38 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/nonEmpty" }
         },
+        "protected_source_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/path" }
+        },
         "authority_slot_barrier_ref": { "$ref": "#/$defs/nonEmpty" },
         "does_not_change_ds1_denominator": { "const": true }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "disposition": { "const": "interaction_state" } }
+          },
+          "then": { "required": ["authority_slot_barrier_ref"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "current_definition_state": { "const": "retired" },
+              "disposition": { "const": "retirement_debt" },
+              "target_cluster": { "const": "C21" }
+            },
+            "required": [
+              "current_definition_state",
+              "disposition",
+              "target_cluster"
+            ]
+          },
+          "then": { "required": ["protected_source_paths"] }
+        }
+      ]
     },
     "entry": {
       "type": "object",
@@ -328,7 +360,10 @@
             "C15",
             "C16",
             "C17",
-            "C18"
+            "C18",
+            "C21",
+            "C22",
+            "C23"
           ]
         },
         "verification_refs": {

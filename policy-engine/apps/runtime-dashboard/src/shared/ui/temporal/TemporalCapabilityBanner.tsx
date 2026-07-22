@@ -3,7 +3,6 @@ import { cn } from "@/shared/lib/utils";
 type TemporalCapabilityBannerProps = {
   title?: string;
   body?: string;
-  tone?: "gap" | "unsupported";
   className?: string;
 };
 
@@ -16,13 +15,11 @@ export function TemporalCapabilityBanner({
   body = DEFAULT_COPY.body,
   className,
   title = DEFAULT_COPY.title,
-  tone = "gap",
 }: TemporalCapabilityBannerProps) {
   return (
     <div
       className={cn(
         "border-line bg-panel text-text rounded-[var(--radius-card)] border px-3 py-2 text-xs",
-        tone === "unsupported" && "border-warning/40 bg-warning/10",
         className,
       )}
       role="status"

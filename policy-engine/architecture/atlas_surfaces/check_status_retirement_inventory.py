@@ -38,6 +38,37 @@ EXPECTED_WAIST_TARGETS = {
     "ds4-waist-decision-grade": "C14",
     "ds4-waist-cgf-disposition": "C19",
 }
+C21_INTERACTION_IDS = frozenset(
+    {
+        "semantic-simulation-severity",
+        "semantic-quick-insights-panel-level",
+        "semantic-insight-callout-insight-level",
+    }
+)
+C21_RETIRED_IDS = frozenset(
+    {
+        "semantic-types-confidence-level",
+        "semantic-janus-glyph-janus-glyph-intent",
+        "semantic-temporal-capability-banner-tone",
+        "semantic-production-slice-retry-profile",
+        "semantic-use-chat-store-confidence-level",
+        "semantic-compare-tone-81",
+        "semantic-compare-tone-86",
+        "semantic-outcome-delta-tone",
+        "semantic-evidence-sigil-fresc-profile",
+        "semantic-confidence-colors",
+    }
+)
+C22_REMAINDER_IDS = frozenset(
+    {
+        "semantic-status-run-badge-kind",
+        "semantic-glyph-glyph-intent",
+        "semantic-simulation-to-severity",
+        "semantic-composer-resolve-launch-badge-kind",
+        "semantic-launch-run-resolve-status-kind",
+        "semantic-workflow-dag-status-kind",
+    }
+)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -79,12 +110,33 @@ def _scan_json(request_json: str) -> dict[str, Any]:
     return result
 
 
-def _scan(source_overrides: Mapping[str, str] | None = None) -> dict[str, Any]:
+def _protected_semantic_definitions(
+    inventory: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Project retired C21 rows into generic path/member revival guards."""
+    return [
+        {
+            "candidateId": row["candidate_id"],
+            "members": sorted(row["literal_members"]),
+            "paths": sorted(row.get("protected_source_paths", [])),
+        }
+        for row in inventory.get("semantic_exemptions", [])
+        if row.get("candidate_id") in C21_RETIRED_IDS
+    ]
+
+
+def _scan(
+    source_overrides: Mapping[str, str] | None = None,
+    *,
+    inventory: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     request = (
         {"sourceOverrides": dict(sorted(source_overrides.items()))}
         if source_overrides is not None
         else {}
     )
+    if inventory is not None:
+        request["protectedDefinitions"] = _protected_semantic_definitions(inventory)
     return _scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 
@@ -382,6 +434,65 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
             )
             if completed.returncode != 0 or completed.stdout.strip() != evidence["git_blob"]:
                 errors.append(f"removal_blob_drift:{unit_id}")
+    for row in inventory.get("semantic_exemptions", []):
+        if row.get("disposition") != "interaction_state":
+            continue
+        candidate_id = str(row.get("candidate_id", "unknown"))
+        reference = str(row.get("authority_slot_barrier_ref", ""))
+        if not reference or not (REPO_ROOT / reference.split("#", 1)[0]).exists():
+            errors.append(f"authority_slot_barrier_ref_missing:{candidate_id}")
+    return errors
+
+
+def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
+    """Require the architect-approved exact C21/C22 semantic partition."""
+    rows = inventory.get("semantic_exemptions", [])
+    by_id = {
+        str(row.get("candidate_id")): row
+        for row in rows
+        if isinstance(row, Mapping)
+    }
+    errors: list[str] = []
+    c21 = {
+        candidate_id
+        for candidate_id, row in by_id.items()
+        if row.get("target_cluster") == "C21"
+    }
+    c22 = {
+        candidate_id
+        for candidate_id, row in by_id.items()
+        if row.get("target_cluster") == "C22"
+    }
+    expected_c21 = C21_INTERACTION_IDS | C21_RETIRED_IDS
+    if c21 != expected_c21:
+        errors.append("c21_semantic_partition_drift")
+    if c22 != C22_REMAINDER_IDS:
+        errors.append("c22_semantic_partition_drift")
+    if any(row.get("target_cluster") == "C23" for row in by_id.values()):
+        errors.append("c23_definition_row_forbidden")
+    for candidate_id in C21_INTERACTION_IDS:
+        row = by_id.get(candidate_id, {})
+        if (
+            row.get("current_definition_state") != "retired"
+            or row.get("disposition") != "interaction_state"
+            or not row.get("authority_slot_barrier_ref")
+        ):
+            errors.append(f"c21_interaction_disposition_drift:{candidate_id}")
+    for candidate_id in C21_RETIRED_IDS:
+        row = by_id.get(candidate_id, {})
+        if (
+            row.get("current_definition_state") != "retired"
+            or row.get("disposition") != "retirement_debt"
+            or not row.get("protected_source_paths")
+        ):
+            errors.append(f"c21_retirement_disposition_drift:{candidate_id}")
+    for candidate_id in C22_REMAINDER_IDS:
+        row = by_id.get(candidate_id, {})
+        if (
+            row.get("current_definition_state") != "present"
+            or row.get("disposition") != "retirement_debt"
+        ):
+            errors.append(f"c22_remainder_disposition_drift:{candidate_id}")
     return errors
 
 
@@ -390,7 +501,7 @@ def _validate_live_scan(
 ) -> list[str]:
     errors: list[str] = []
     if scan is None:
-        scan = _scan()
+        scan = _scan(inventory=inventory)
     facts = {_entry_key_from_fact(fact): fact for fact in scan["definitions"]}
     present_entries = {
         _entry_key(entry): entry
@@ -445,6 +556,11 @@ def _validate_live_scan(
         errors.append(
             "interaction_state_reaches_authority_slot:"
             + Path(leak["path"]).name
+        )
+    for revival in scan.get("protectedRevivals", []):
+        errors.append(
+            "retired_semantic_definition_survives:"
+            + str(revival.get("candidateId", "unknown"))
         )
     errors.extend(_validate_semantic_candidates(inventory, scan))
     return errors
@@ -540,7 +656,7 @@ def _validate_source_overrides(
     inventory: Mapping[str, Any], source_overrides: Mapping[str, str]
 ) -> list[str]:
     errors: list[str] = []
-    scan = _scan(source_overrides)
+    scan = _scan(source_overrides, inventory=inventory)
     definition_identities = {
         _fact_identity(fact) for fact in scan.get("definitions", [])
     }
@@ -569,6 +685,11 @@ def _validate_source_overrides(
     for leak in scan.get("interactionLeaks", []):
         errors.append(
             f'interaction_state_reaches_authority_slot:{Path(leak["path"]).name}'
+        )
+    for revival in scan.get("protectedRevivals", []):
+        errors.append(
+            "retired_semantic_definition_survives:"
+            + str(revival.get("candidateId", "unknown"))
         )
     return errors
 
@@ -649,6 +770,7 @@ def validate_inventory(
     errors.extend(_validate_denominators(inventory))
     errors.extend(_validate_generated_anchors(inventory))
     errors.extend(_validate_refs_and_removals(inventory))
+    errors.extend(_validate_c21_partition(inventory))
     errors.extend(_validate_waist_debt(debt))
     if live_probes:
         errors.extend(_validate_live_scan(inventory))

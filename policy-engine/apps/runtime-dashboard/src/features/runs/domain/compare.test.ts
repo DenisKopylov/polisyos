@@ -170,7 +170,7 @@ describe("run comparison helpers", () => {
     );
     expect(
       unknownDeck.metrics.cards.find((card) => card.label === "Decision score"),
-    ).toMatchObject({ tone: "neutral" });
+    ).not.toHaveProperty("tone");
   });
 
   it("keeps owner decision and impact labels opaque without minting a deck recommendation", () => {
@@ -217,12 +217,9 @@ describe("run comparison helpers", () => {
       deck.metrics.cards.find((card) => card.label === "Impact delta"),
     ).toMatchObject({
       kind: "text",
-      tone: "neutral",
       value: "+2.4 owner units",
     });
-    expect(deck.metrics.cards.every((card) => card.tone === "neutral")).toBe(
-      true,
-    );
+    expect(deck.metrics.cards.every((card) => !("tone" in card))).toBe(true);
     expect(
       JSON.stringify({ close: deck.close, tradeoff: deck.tradeoff }),
     ).not.toMatch(/\b(?:ratify|hold|recommendation)\b/iu);

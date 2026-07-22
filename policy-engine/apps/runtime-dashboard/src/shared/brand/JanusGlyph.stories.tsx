@@ -9,17 +9,12 @@ const meta = {
   args: {
     size: 24,
     variant: "mark",
-    intent: "default",
   },
   argTypes: {
     size: { control: { type: "inline-radio" }, options: [16, 24, 32] },
     variant: {
       control: { type: "inline-radio" },
       options: ["mark", "line", "serif-punctuation"],
-    },
-    intent: {
-      control: { type: "inline-radio" },
-      options: ["default", "verified", "blocked", "pending"],
     },
   },
 } satisfies Meta<typeof JanusGlyph>;

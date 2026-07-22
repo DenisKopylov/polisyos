@@ -10,12 +10,6 @@ export const ciColors = {
   boundsStroke: "var(--color-bounds-stroke)",
 } as const;
 
-export const confidenceColors = {
-  high: "var(--color-confidence-high)",
-  medium: "var(--color-confidence-medium)",
-  low: "var(--color-confidence-low)",
-} as const;
-
 export const waterfallColors = {
   positive: "var(--color-waterfall-positive)",
   negative: "var(--color-waterfall-negative)",

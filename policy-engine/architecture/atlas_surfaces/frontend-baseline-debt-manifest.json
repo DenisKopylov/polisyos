@@ -2118,13 +2118,13 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx",
         "roles": ["consumer"],
-        "sha256": "fb548237bd9dc339afa789cd6788913dce5f564f03fcc478c9cb68e46326d0b6"
+        "sha256": "67237740c66f93f7156c28fd23231d65a16f4ede419ccb88ceb3447d5738ae94"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
         "roles": ["implementation"],
-        "sha256": "7b1bc9a0e913a032d6ee83453e17ef4197f021453a7c8c22f865da828ab9b5f6"
+        "sha256": "f369a8a8c0279e02775da0a1c872ce272587bf116fb38f2d17ed9644bcc1b39d"
       },
       {
         "cluster_id": "C06",
@@ -2154,7 +2154,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
         "roles": ["implementation"],
-        "sha256": "0c178ad2855256e1126d9f31ee57faaacfe8390d19c609bd53c601e3dd585c04"
+        "sha256": "9ceb932f8ced4037734cdd28bbfd8e28c483f1933d89ee0ab1d2fb26e252a11f"
       },
       {
         "cluster_id": "C06",
@@ -2190,13 +2190,13 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts",
         "roles": ["closure_test", "consumer"],
-        "sha256": "a086d44a67ffe2ea4f8bb2f42ace597f97fc38c2a717ebb523ac937c63224071"
+        "sha256": "41b09fb14f22065a4c0ded9b808a1a4451ce9dfc264dd7922cf1af569353643e"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
         "roles": ["implementation"],
-        "sha256": "4912e565377b3102a11d6f18de3996fa1ac848cf1cec69b369309267730c9853"
+        "sha256": "eda52e7297c89ceeca040e89f710d396424389083aea022cb131e960174e7f2a"
       },
       {
         "cluster_id": "C06",
@@ -2346,13 +2346,13 @@
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.test.tsx",
         "roles": ["consumer"],
-        "sha256": "0eb93a672a53b946b3996440dc36188fcc944351d3165e0e32be588a8f2c65c8"
+        "sha256": "d6fa76c0e9698ba4d49683be3f798057af49c26758647b9bff84e01a62a53559"
       },
       {
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "99afe0b477666e1b0ba0bf8bd97dfe31cb447a6dfd3a1acd0129dc11f661e2b1"
+        "sha256": "560d586cd5f181aae86f4e57f910153c3b7a1e7d25d14727d577e0ab6d76f570"
       },
       {
         "cluster_id": "C08",

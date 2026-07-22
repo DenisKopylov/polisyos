@@ -11,6 +11,10 @@ import {
   parseMetricValidationComparisonRows,
   parseMetricValidationFamilyAdjustment,
 } from "./metricValidation";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "./statusOwnership";
 
 export type SimulationMetric = {
   key: string;
@@ -18,7 +22,7 @@ export type SimulationMetric = {
   value: number;
   formatted: string;
   unit: string;
-  severity: "low" | "medium" | "high";
+  severity: InteractionState;
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
@@ -224,7 +228,7 @@ function formatMetric(
     value: scaled,
     formatted: `${scaled >= 0 ? "+" : ""}${scaled.toFixed(maxFraction)}`,
     unit: spec.unit,
-    severity: "low",
+    severity: createInteractionState("low", "candidate_display"),
     ciLower: bounds?.lower ?? null,
     ciUpper: bounds?.upper ?? null,
     ciLevel: bounds?.ciLevel ?? null,
@@ -388,7 +392,10 @@ function parseMetrics(
   return metrics
     .map((metric) => ({
       ...metric,
-      severity: toSeverity(metric.value, maxAbs),
+      severity: createInteractionState(
+        toSeverity(metric.value, maxAbs),
+        "candidate_display",
+      ),
     }))
     .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
 }

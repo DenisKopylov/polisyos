@@ -1,9 +1,6 @@
-import { AlertTriangle, CheckCircle2, CircleSlash } from "lucide-react";
-
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge } from "@polisyos/atlas-ui";
 
-import { comparabilityTone } from "./compare-math";
 import type { ComparabilityReport, ComparisonFrame } from "./compare-types";
 
 type ComparisonFramePanelProps = {
@@ -16,12 +13,6 @@ export function ComparisonFramePanel({
   frame,
 }: ComparisonFramePanelProps) {
   const { t } = useI18n();
-  const Icon =
-    comparability.status === "compatible"
-      ? CheckCircle2
-      : comparability.status === "warning"
-        ? AlertTriangle
-        : CircleSlash;
   return (
     <section
       className="panel space-y-4 rounded-[var(--radius-panel)] p-4"
@@ -43,10 +34,7 @@ export function ComparisonFramePanel({
             · {frame.unit_policy}
           </p>
         </div>
-        <Badge kind={comparabilityTone(comparability.status)}>
-          <Icon className="mr-1.5 size-3.5" aria-hidden="true" />
-          {t(`pages.runs.policyDiff.status.${comparability.status}`)}
-        </Badge>
+        <Badge kind="neutral">{comparability.status}</Badge>
       </div>
 
       <dl className="grid gap-3 text-sm md:grid-cols-3">

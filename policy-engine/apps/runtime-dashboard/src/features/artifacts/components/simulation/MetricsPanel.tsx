@@ -34,16 +34,6 @@ type MetricsPanelProps = {
   showUncertainty: boolean;
 };
 
-function barClass(severity: SimulationMetric["severity"]): string {
-  if (severity === "high") {
-    return "bg-danger";
-  }
-  if (severity === "medium") {
-    return "bg-warning";
-  }
-  return "bg-success";
-}
-
 function normalizeMagnitude(value: number, max: number): number {
   if (max <= 0) {
     return 0.1;
@@ -169,7 +159,10 @@ export default function MetricsPanel({
                   ) : null}
                   <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
-                      className={`h-1.5 rounded-full ${barClass(metric.severity)}`}
+                      className="bg-accent h-1.5 rounded-full"
+                      data-interaction-purpose={
+                        metric.severity.authorityPurpose
+                      }
                       style={{ width }}
                     />
                   </div>

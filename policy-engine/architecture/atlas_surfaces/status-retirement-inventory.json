@@ -1,6 +1,6 @@
 {
   "$schema": "./status-retirement-inventory.schema.json",
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "inventory_id": "atlas-ds4-status-retirement",
   "as_of": "2026-07-22T19:08:17+03:00",
   "authority": {
@@ -459,11 +459,6 @@
         {
           "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
           "line": 24,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
-          "line": 34,
           "kind": "prop"
         },
         {
@@ -1862,8 +1857,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
-        "start_line": 27,
-        "end_line": 27,
+        "start_line": 28,
+        "end_line": 28,
         "field_name": "status"
       },
       "literal_members": ["available", "missing", "partial"],
@@ -1871,12 +1866,12 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
-          "line": 233,
+          "line": 234,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
-          "line": 237,
+          "line": 238,
           "kind": "prop"
         }
       ],
@@ -2813,11 +2808,11 @@
       "literal_members": ["fail", "ok", "unknown", "warn"],
       "type_expression": "\"ok\" | \"fail\" | \"warn\" | \"unknown\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "RunBadgeKind in apps/runtime-dashboard/src/features/runs/domain/status.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C22",
+      "rationale": "C22 owns the structural run-lifecycle repair; C21 leaves this open-label classifier live and does not absorb it.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -2834,11 +2829,11 @@
       "literal_members": ["blocked", "default", "pending", "verified"],
       "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "GlyphIntent in apps/runtime-dashboard/src/shared/brand/Glyph.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C22",
+      "rationale": "C22 owns the provenance-intent structural repair; C21 leaves this generated-provenance binding gap live.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -2887,7 +2882,7 @@
     },
     {
       "candidate_id": "semantic-types-confidence-level",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/charts/types.ts",
@@ -2898,17 +2893,24 @@
       "literal_members": ["high", "low", "medium"],
       "type_expression": "\"high\" | \"medium\" | \"low\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "ConfidenceLevel in apps/runtime-dashboard/src/shared/charts/types.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes threshold-derived chart confidence coloring; numeric progress and frequency remain neutral presentation without a local confidence authority tier.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        ".superpowers/sdd/task-C21-report.md",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/charts/types.ts",
+        "apps/runtime-dashboard/src/shared/charts/FrequencyDots.tsx",
+        "apps/runtime-dashboard/src/shared/charts/AnimatedProgress.tsx",
+        "apps/runtime-dashboard/src/shared/charts/index.ts"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-janus-glyph-janus-glyph-intent",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx",
@@ -2919,17 +2921,21 @@
       "literal_members": ["blocked", "default", "pending", "verified"],
       "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "JanusGlyphIntent in apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the unused Janus intent vocabulary and its authority-colored palette; the brand mark remains neutral currentColor geometry.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        ".superpowers/sdd/task-C21-report.md",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-simulation-severity",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
@@ -2939,18 +2945,21 @@
       },
       "literal_members": ["high", "low", "medium"],
       "type_expression": "\"low\" | \"medium\" | \"high\"",
-      "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "severity in apps/runtime-dashboard/src/shared/lib/domain/simulation.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "disposition": "interaction_state",
+      "target_cluster": "C21",
+      "rationale": "C21 replaces the naked severity union with a candidate-display InteractionState; its label remains inspectable but cannot enter an authority slot or choose authority clothing.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts",
+        "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
       ],
-      "does_not_change_ds1_denominator": true
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-c21-presentation-taxonomies-at-authority-slots"
     },
     {
       "candidate_id": "semantic-temporal-capability-banner-tone",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalCapabilityBanner.tsx",
@@ -2961,11 +2970,15 @@
       "literal_members": ["gap", "unsupported"],
       "type_expression": "\"gap\" | \"unsupported\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "tone in apps/runtime-dashboard/src/shared/ui/temporal/TemporalCapabilityBanner.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the unused temporal tone fork; capability-gap copy renders with one neutral presentation and does not imply authority severity.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        ".superpowers/sdd/task-C21-report.md",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/ui/temporal/TemporalCapabilityBanner.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3037,7 +3050,7 @@
     },
     {
       "candidate_id": "semantic-production-slice-retry-profile",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
@@ -3048,11 +3061,16 @@
       "literal_members": ["exhausted", "steady", "watch"],
       "type_expression": "\"steady\" | \"watch\" | \"exhausted\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "retryProfile in apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the locally synthesized retry profile; the dashboard retains measured connector facts without inventing retry authority.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+        "apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3080,7 +3098,7 @@
     },
     {
       "candidate_id": "semantic-use-chat-store-confidence-level",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
@@ -3091,17 +3109,24 @@
       "literal_members": ["high", "low", "medium"],
       "type_expression": "\"high\" | \"medium\" | \"low\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "ConfidenceLevel in apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 widens the Clerk candidate confidence label to opaque string transport; unseen labels survive verbatim and receive no guessed authority color.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.test.tsx",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx",
+        "apps/runtime-dashboard/src/features/clerk/components/ExportConversation.tsx",
+        "apps/runtime-dashboard/src/features/clerk/index.ts"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-compare-tone-81",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
@@ -3112,17 +3137,23 @@
       "literal_members": ["neutral", "ok", "warn"],
       "type_expression": "\"neutral\" | \"ok\" | \"warn\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "tone in apps/runtime-dashboard/src/features/runs/domain/compare.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the first unused comparison-deck tone and neutralizes the sibling comparability classifier instead of recoloring producer status.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/runs/domain/compare.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-compare-tone-86",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
@@ -3133,17 +3164,23 @@
       "literal_members": ["neutral", "ok", "warn"],
       "type_expression": "\"neutral\" | \"ok\" | \"warn\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "tone in apps/runtime-dashboard/src/features/runs/domain/compare.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the second unused comparison-deck tone and keeps comparison labels opaque under neutral presentation.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/runs/domain/compare.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-outcome-delta-tone",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx",
@@ -3154,17 +3191,25 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"fail\" | \"warn\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "tone in apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes significance-to-tone classification from OutcomeDelta and its sibling strip; producer significance labels remain visible in neutral clothing.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/runs/compare/compare-math.test.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.test.tsx",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx",
+        "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.tsx",
+        "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+        "apps/runtime-dashboard/src/features/runs/compare/CausalDeltaStrip.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-quick-insights-panel-level",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.tsx",
@@ -3174,18 +3219,21 @@
       },
       "literal_members": ["alert", "info", "success", "warning"],
       "type_expression": "\"info\" | \"success\" | \"warning\" | \"alert\"",
-      "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "level in apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "disposition": "interaction_state",
+      "target_cluster": "C21",
+      "rationale": "C21 wraps the candidate insight level as InteractionState; the label stays byte-preserving while the panel uses neutral candidate clothing.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.test.tsx",
+        "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
       ],
-      "does_not_change_ds1_denominator": true
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.test.tsx#rejects-quick-insight-presentation-state-at-authority-slots"
     },
     {
       "candidate_id": "semantic-insight-callout-insight-level",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx",
@@ -3195,18 +3243,21 @@
       },
       "literal_members": ["critical", "info", "insight", "warning"],
       "type_expression": "\"info\" | \"insight\" | \"warning\" | \"critical\"",
-      "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "InsightLevel in apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "disposition": "interaction_state",
+      "target_cluster": "C21",
+      "rationale": "C21 wraps narrative callout level as candidate-display InteractionState; the component renders the label neutrally and cannot promote it.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.test.tsx",
+        "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
       ],
-      "does_not_change_ds1_denominator": true
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.test.tsx#rejects-narrative-presentation-state-at-authority-slots"
     },
     {
       "candidate_id": "semantic-evidence-sigil-fresc-profile",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
@@ -3223,11 +3274,15 @@
       ],
       "type_expression": "| \"unclassified\"\n  | \"reconnaissance\"\n  | \"corroborated\"\n  | \"replicated\"\n  | \"canonical\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "FrescProfile in apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the local FRESC profile-to-density authority tier while retaining deterministic hash geometry.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.test.tsx",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3275,7 +3330,7 @@
     },
     {
       "candidate_id": "semantic-confidence-colors",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "const",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/charts/theme.ts",
@@ -3290,11 +3345,16 @@
       ],
       "type_expression": "{\n  high: \"var(--color-confidence-high)\",\n  medium: \"var(--color-confidence-medium)\",\n  low: \"var(--color-confidence-low)\",\n} as const",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "The chart palette encodes a local confidence presentation vocabulary; C18 must retire or neutralize it rather than let color imply owner authority.",
+      "target_cluster": "C21",
+      "rationale": "C21 removes the chart confidence palette and all threshold-driven consumers; neutral chart color remains configurable without authority implication.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        ".superpowers/sdd/task-C21-report.md",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/charts/theme.ts",
+        "apps/runtime-dashboard/src/shared/charts/index.ts"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3348,18 +3408,18 @@
       "definition_kind": "return",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
-        "start_line": 181,
-        "end_line": 193,
+        "start_line": 185,
+        "end_line": 197,
         "declaration_name": "toSeverity"
       },
       "literal_members": ["high", "low", "medium"],
       "type_expression": "\"low\" | \"medium\" | \"high\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
-      "rationale": "toSeverity is a local return vocabulary that assigns authority-like severity posture and remains registered for C18 retirement.",
+      "target_cluster": "C22",
+      "rationale": "C22 owns removal of the structural return vocabulary; C21 only confines its current result inside a candidate-display InteractionState.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3376,11 +3436,11 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
+      "target_cluster": "C22",
       "rationale": "resolveLaunchBadgeKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3397,11 +3457,11 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
+      "target_cluster": "C22",
       "rationale": "resolveLaunchStatusKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -3418,11 +3478,11 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C18",
+      "target_cluster": "C22",
       "rationale": "statusKind maps workflow owner labels into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
       ],
       "does_not_change_ds1_denominator": true
     }

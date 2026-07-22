@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { createInteractionState } from "@/shared/lib/domain/statusOwnership";
 import { cn } from "@/shared/lib/utils";
 import { Card } from "@polisyos/atlas-ui";
 import {
@@ -264,7 +265,7 @@ export function RunNarrativeView({
             {narrative.method.alternatives &&
               narrative.method.alternatives.length > 0 && (
                 <InsightCallout
-                  level="info"
+                  level={createInteractionState("info", "candidate_display")}
                   title={t("pages.runs.narrative.alternativesConsidered")}
                 >
                   {narrative.method.alternatives.join(", ")}
@@ -413,7 +414,10 @@ export function RunNarrativeView({
             {narrative.governance.blockers &&
               narrative.governance.blockers.length > 0 && (
                 <InsightCallout
-                  level="critical"
+                  level={createInteractionState(
+                    "critical",
+                    "candidate_display",
+                  )}
                   title={t("pages.runs.narrative.blockers")}
                 >
                   <ul className="space-y-1">
@@ -464,7 +468,7 @@ export function RunNarrativeView({
             {narrative.recommendation.caveats &&
               narrative.recommendation.caveats.length > 0 && (
                 <InsightCallout
-                  level="warning"
+                  level={createInteractionState("warning", "candidate_display")}
                   title={t("pages.runs.narrative.caveats")}
                 >
                   <ul className="space-y-1">

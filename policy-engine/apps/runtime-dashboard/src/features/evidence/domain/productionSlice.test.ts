@@ -155,7 +155,7 @@ describe("Phase 3.2 production slice adapters", () => {
     });
   });
 
-  it("builds connector character cards with latency, cost, retry and lineage counts", () => {
+  it("builds connector character cards with measured latency, cost, and lineage counts", () => {
     const cards = buildConnectorCharacterCards({
       connectors,
       profiles,
@@ -170,13 +170,13 @@ describe("Phase 3.2 production slice adapters", () => {
       lastGreenPull: "2026-03-10T06:00:00Z",
       loaded: true,
       profileCount: 1,
-      retryProfile: "steady",
     });
+    expect(cards[0]).not.toHaveProperty("retryProfile");
     expect(cards[0].latencyP50Ms).toBeGreaterThan(0);
     expect(cards[0].latencyP95Ms).toBeGreaterThan(cards[0].latencyP50Ms ?? 0);
   });
 
-  it("marks unavailable connectors as exhausted and fully burned", () => {
+  it("keeps unavailable connector facts without synthesizing retry posture", () => {
     const cards = buildConnectorCharacterCards({
       connectors: [
         {
@@ -201,8 +201,8 @@ describe("Phase 3.2 production slice adapters", () => {
       lastGreenPull: null,
       latencyP50Ms: null,
       latencyP95Ms: null,
-      retryProfile: "exhausted",
     });
+    expect(cards[0]).not.toHaveProperty("retryProfile");
   });
 
   it("falls back to source-profile threads and cards when connector inventory is empty", () => {

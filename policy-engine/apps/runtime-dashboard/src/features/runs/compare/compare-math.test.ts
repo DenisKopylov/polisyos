@@ -5,6 +5,7 @@ import {
   significanceLabel,
   topDeltas,
 } from "./compare-math";
+import * as compareMath from "./compare-math";
 import { policyDiffFixture } from "./fixtures";
 
 describe("compare-math", () => {
@@ -20,5 +21,10 @@ describe("compare-math", () => {
     expect(deltas).toHaveLength(1);
     expect(deltas[0].metric_id).toBe("employment_rate_delta");
     expect(saliencePercent(deltas[0])).toBe(82);
+  });
+
+  it("does not reclassify producer comparability or significance into badge tones", () => {
+    expect(compareMath).not.toHaveProperty("comparabilityTone");
+    expect(compareMath).not.toHaveProperty("significanceTone");
   });
 });

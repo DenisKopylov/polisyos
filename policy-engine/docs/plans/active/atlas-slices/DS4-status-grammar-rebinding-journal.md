@@ -1845,3 +1845,117 @@ producer`, with the original deep edge retained only as immutable provenance.
   explicit-empty comparator, source-byte verification, and corruption probes
   pass, as do scoped Python syntax lint/compile, schema JSON parsing, and diff
   checks. No manifest resolution or status count changed.
+
+## 2026-07-22 — DS4-C21 bounded semantic retirement
+
+### Size, RED, and pattern pass
+
+- Preflight measured 41–45 paths; independent review added the two missing
+  `GovernanceRadarDiff` implementation/test paths, so the amended final scope is
+  47 physical paths. That evidence-bound addition remains well below C14's
+  86-file stop threshold and did not absorb another semantic family.
+- Governance failed RED in 22 subcases before production edits: missing C21–C23
+  schema targets and the exact 13/6 partition, absent interaction-state authority
+  barriers, and revival escapes through rename, alias, reordered union,
+  inline/const/helper reconstruction, sibling consumers, and protected-source
+  flips. The strengthened scanner derives those probes from the inventory rather
+  than a list of semantic names.
+- The semantic RED was 9 failing files / 13 failing tests out of 12 files / 35
+  tests. Each failure identified one of the authorized presentation or mechanical
+  owners; the first GREEN was 12 files / 35 tests. After feature-local compile
+  barriers and the review repair were added, the final suite is 13 files / 39
+  tests.
+- Relevant patterns are P04/P05/P15 (glass may project but not mint authority),
+  P29/P31 (real consumers and authority slots exercise the rule), and P32/P33
+  (generic behavioral census plus generated corruption variants).
+
+### Exact 19 -> 6 retirement result
+
+- Three naked presentation taxonomies are now branded `InteractionState`
+  candidate displays: simulation magnitude, quick-insight level, and narrative
+  callout level. Their novel labels survive verbatim, their live consumers use
+  neutral clothing, and compile barriers reject them at authority slots.
+- Ten mechanical definitions are retired: chart confidence level/palette,
+  Janus intent, temporal-banner tone, connector retry profile, Clerk confidence
+  union, two deck tone fields, outcome/significance tone, FRESC density/profile,
+  and confidence colors. Threshold perturbations no longer recolor chart
+  authority; comparison significance/comparability is visibly neutral; the
+  EvidenceSigil retains hash geometry only.
+- The six architect-assigned C22 identities remain present and unchanged as the
+  live retirement denominator: `RunBadgeKind`, generated-provenance
+  `GlyphIntent`, `toSeverity`, `resolveLaunchBadgeKind`,
+  `resolveLaunchStatusKind`, and workflow `statusKind`. DS1 remains 47 rows,
+  semantic history remains 55, and the three DS5 waist rows remain open.
+- The existing `ConnectorCharacterCards.tsx:8 burnKind` finding was reviewed as
+  directed and not absorbed. Its only sink is an inert `data-kind` attribute;
+  it neither changes clothing nor enters an authority slot, so the evidence UI
+  family remains its owner as non-authority diagnostic presentation. DS5's
+  behavioral status lint is the closure signal: any future styled or authority
+  sink must force branding or retirement rather than silently minting posture.
+
+### Independent-review amendment
+
+- `GovernanceRadarDiff` still converted producer `significance`, salience, and
+  lineage facts into invented `80/30`, `85/25`, and `75/20` percentages under
+  `status-pending` color. Its two exact RED tests failed 2 / 2 before the repair:
+  `preserves a novel producer significance label without synthesized governance
+  percentages` and `changing significance does not change numeric posture or
+  authority color`. The panel now projects raw producer facts in a neutral
+  definition list, uses explicit `Unavailable` for typed absence, and contains
+  no synthesized percentage, progress bar, or authority color. Its source and
+  test are protected by the `semantic-outcome-delta-tone` inventory row. Review
+  then mutation-proved the negative: a temporary significance-dependent
+  section-level `color-status-error` class failed the whole-panel presentation
+  tree comparison, and the mutation was removed before the GREEN rerun.
+- The protected-source scanner admitted a marker-free threshold helper returning
+  synonymous `strong/moderate/weak` values into a visual sink. The exact RED
+  `test_inventory_generated_c21_synonym_helper_revival_fails_closed` failed 1 / 1.
+  Follow-up review proved four equivalent escapes (wrapper return, later
+  assignment, JSX props spread, and object-indirected labels) and one false
+  positive for a three-way responsive grid classifier; the expanded exact test
+  failed all five subcases before the second repair. The scanner now uses a
+  TypeScript checker for declaration-bound identities (including an in-memory
+  program for corruption sources), propagates actual returned members through
+  functions, assignments, object properties, and spread sinks, and exempts
+  layout-only class vocabularies. The exact adversaries and the live 55-row
+  inventory are GREEN without a name-shaped semantic marker list. Final
+  re-review then caught two common `cx("p-2", classification)` compositions;
+  both failed RED because the base class inflated the alternative count. The
+  fact model now tracks threshold alternatives separately from unconditional
+  members and removes members common to every return branch. The final exact
+  re-review found the same base class inside nested conditional branches; its
+  exact RED failed before common-member subtraction was applied recursively to
+  conditional expressions. The final exact method is GREEN across eight revival
+  paths plus the responsive-layout counterexample.
+- Re-running the exact four-file companion/axe denominator corrected the prior
+  false-green receipt: 37 / 38 tests pass. The sole failure is
+  `A11yCoverage.a11y.test.tsx > keeps an a11y test next to every component unless
+  explicitly allowlisted`, reporting missing `LocalizedJsonPreview.tsx`. Both
+  files and the failure are unchanged at `HEAD^`; the component originated in
+  C15 commit `b171c4708`. This is recorded without suppression or manifest
+  widening for the C19 harness/a11y wave, which owns the closure. C21 does not
+  absorb that earlier-cluster identity (P34).
+
+### Verification and governance receipts
+
+| Gate | Result |
+| --- | --- |
+| focused semantic tests | PASS; 13 files / 39 tests |
+| affected comparison/axe tests | HONESTLY RED; 4 files / 38 tests, 37 pass; sole C15-origin `LocalizedJsonPreview.tsx` census identity is recorded for C19 |
+| dashboard | PASS; typecheck, exact changed-file ESLint, production build with 3,884 transformed modules, PWA 106 entries, postbuild security and atlas-ui Tailwind-source proof |
+| dashboard architecture | PASS; custom checker and dependency-cruiser absolute 0 across 1,002 modules / 4,104 dependencies |
+| status governance | PASS; corruption probes and 29 unit tests in 43.900s; 47 DS1 / 21 current authored / 55 semantic history / 6 live retirement / 3 waist |
+| baseline lifecycle | PASS; 30 tests; resolution-content hashes refreshed for only the seven touched C06/C08 witnesses, with no identity or denominator change |
+| frontend disposition | PASS; 261 roots / 23 seeded negatives, source-byte validation and corruption probes |
+| atlas-ui package | PASS; typecheck, 18 files / 86 tests, lint, and 36-source architecture |
+
+### Fence and bounded non-claims
+
+- `pnpm-lock.yaml` is byte-unchanged at SHA-256
+  `01c66675e43b2620f46e69dbf146b20284a216d0711c6c712299b0c7de86769b`.
+  No DS19 disposition row changes in C21; the status inventory is the sole
+  semantic disposition authority.
+- Backend `src/**`, schemas, generated runtime client, v15 archive, frozen
+  locale, master plan, package sources, main, other worktrees, and lockfile are
+  untouched. C21 does not absorb the six C22 structural repairs, C23 containment,
+  the DS5 waist, or DS16 producer work. No push or merge is performed.

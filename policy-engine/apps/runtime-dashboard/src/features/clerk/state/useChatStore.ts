@@ -3,8 +3,6 @@ import { persist } from "zustand/middleware";
 
 export type ChatRole = "user" | "system";
 
-export type ConfidenceLevel = "high" | "medium" | "low";
-
 export type SourceCitation = {
   id: string;
   label: string;
@@ -21,7 +19,7 @@ export type KeyFactor = {
 export type StructuredResponseData = {
   verdict?: string;
   confidence?: number;
-  confidenceLevel?: ConfidenceLevel;
+  confidenceLevel?: string;
   keyFactors?: KeyFactor[];
   sources?: SourceCitation[];
   methodology?: string;

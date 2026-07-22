@@ -143,12 +143,7 @@ export function PipelineProgressViz({
         </div>
       </div>
 
-      <AnimatedProgress
-        value={progressPct}
-        height={6}
-        colorByConfidence
-        label={resolvedTitle}
-      />
+      <AnimatedProgress value={progressPct} height={6} label={resolvedTitle} />
 
       {/* DAG visualization */}
       <div className="flex gap-2 overflow-x-auto py-2">

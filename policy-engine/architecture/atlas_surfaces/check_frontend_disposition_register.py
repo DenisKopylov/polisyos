@@ -221,6 +221,7 @@ ATLAS_UI_DEFINE_ONCE_PRIMITIVES = {
     "EvidenceLink",
 }
 ATLAS_UI_SUPPORT_MODULES = {"evidenceTypes"}
+ATLAS_UI_OTHER_EXPORTS = {"JsonPreview", "VirtualList", "VirtualTable"}
 UI_PRIMITIVES_DASHBOARD_REBOUND = {"ApiErrorAlert", "ProvenanceStrip"}
 UI_PRIMITIVES_MEMBER_RULES = {
     "DropdownMenu": {
@@ -290,6 +291,49 @@ UI_PRIMITIVES_RETAINED_PATHS = {
 }
 UI_PRIMITIVES_BARREL = "apps/runtime-dashboard/src/shared/ui/primitives/index.ts"
 ATLAS_UI_INDEX = "packages/atlas-ui/src/index.ts"
+C15_ROOT_ID = "ui-compounds-root"
+C15_PACKAGE_MIGRATED = {"JsonPreview", "VirtualList", "VirtualTable"}
+C15_DASHBOARD_USE_AS_IS = {"DataTable", "MetricCard", "LineageGraph"}
+C15_JSON_PREVIEW_ADAPTER = (
+    "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx"
+)
+C15_SUCCESSOR_ID = "atlas-ui-root-compounds-and-dashboard-transitional-winners"
+C15_CONSUMER_REFS = [
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/compounds/JsonPreview.tsx",
+    "packages/atlas-ui/src/compounds/VirtualList.tsx",
+    "packages/atlas-ui/src/compounds/VirtualTable.tsx",
+    "packages/atlas-ui/tests/compoundComponents.test.tsx",
+    "packages/atlas-ui/tests/compoundComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+    "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+    "apps/runtime-dashboard/src/shared/ui/DataTable.tsx",
+    "apps/runtime-dashboard/src/shared/ui/MetricCard.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LineageGraph.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx",
+    "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+]
+C15_MIXED_RATIONALE = (
+    "C15 records an explicit mixed six-component receipt: JsonPreview, VirtualList, "
+    "and VirtualTable are package-migrated with symbol-derived live dashboard consumers, "
+    "JsonPreview translation remains app-owned through a typed labels adapter, and their "
+    "dashboard owners are strangled; DataTable and MetricCard remain dashboard-owned use_as_is "
+    "transitional "
+    "winners until their exact DS2 sunset condition is met by DS4 consumer routing, DS6 "
+    "negative/browser/accessibility evidence, and old-import removal; LineageGraph remains "
+    "dashboard-owned use_as_is until a DS16 typed adapter and DS6 degraded/keyboard/table/export "
+    "evidence exist, while C15 only removes its local status-to-authority color guessing. This "
+    "receipt claims no DS2, DS6, or DS16 completion."
+)
 
 _TS_MODULE_FACTS_SCRIPT = r"""
 import ts from "typescript";
@@ -400,6 +444,43 @@ for (const [path] of Object.entries(sources)) {
     }
     scan(file);
     return used;
+  }
+  function bindingHasJsxElementUse(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return false;
+    let used = false;
+    function scan(node) {
+      if (used) return;
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        ts.isIdentifier(node.tagName) &&
+        checker.getSymbolAtLocation(node.tagName) === bindingSymbol
+      ) {
+        used = true;
+        return;
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return used;
+  }
+  function namespaceJsxElementNames(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return [];
+    const names = new Set();
+    function scan(node) {
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        ts.isPropertyAccessExpression(node.tagName) &&
+        ts.isIdentifier(node.tagName.expression) &&
+        checker.getSymbolAtLocation(node.tagName.expression) === bindingSymbol
+      ) {
+        names.add(node.tagName.name.text);
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return [...names];
   }
   function bindingNames(name) {
     if (ts.isIdentifier(name)) return [name.text];
@@ -572,6 +653,7 @@ for (const [path] of Object.entries(sources)) {
       if (clause && !clause.isTypeOnly) {
         const names = [];
         const usedNames = [];
+        const jsxElementNames = [];
         let namespace = null;
         let namespaceUsed = false;
         let defaultUsed = false;
@@ -583,11 +665,13 @@ for (const [path] of Object.entries(sources)) {
               const importedName = (element.propertyName ?? element.name).text;
               names.push(importedName);
               if (bindingHasValueUse(element.name)) usedNames.push(importedName);
+              if (bindingHasJsxElementUse(element.name)) jsxElementNames.push(importedName);
             }
           }
         } else if (bindings && ts.isNamespaceImport(bindings)) {
           namespace = bindings.name.text;
           namespaceUsed = bindingHasValueUse(bindings.name);
+          jsxElementNames.push(...namespaceJsxElementNames(bindings.name));
         }
         facts.push({
           path,
@@ -596,6 +680,7 @@ for (const [path] of Object.entries(sources)) {
           names,
           exported_names: [],
           used_names: usedNames,
+          jsx_element_names: jsxElementNames,
           namespace_usages: namespace ? [...(propertyUses.get(namespace) ?? [])] : [],
           value_binding_used: defaultUsed || namespaceUsed || usedNames.length > 0,
           line: line(node),
@@ -754,6 +839,54 @@ def _atlas_ui_value_consumer_refs_from_sources(
             and fact.get("value_binding_used") is True
         }
     )
+
+
+def _c15_migrated_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive used production dashboard imports for each C15 compound."""
+    observed: dict[str, set[str]] = {
+        component: set() for component in C15_PACKAGE_MIGRATED
+    }
+    for fact in _typescript_module_facts(sources):
+        source_path = fact["path"]
+        if not source_path.startswith("apps/runtime-dashboard/src/"):
+            continue
+        if re.search(
+            r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$",
+            source_path,
+        ):
+            continue
+        if fact["module"] != "@polisyos/atlas-ui":
+            continue
+        if fact["kind"] != "static":
+            continue
+        used_names = set(fact.get("jsx_element_names", []))
+        reference = f"{source_path}:{fact['line']}"
+        for component in used_names & C15_PACKAGE_MIGRATED:
+            observed[component].add(reference)
+    return {
+        component: sorted(references)
+        for component, references in sorted(observed.items())
+    }
+
+
+def _c15_migrated_consumer_errors(sources: Mapping[str, str]) -> list[str]:
+    """Require localized, used dashboard imports for every C15 compound."""
+    consumers = _c15_migrated_consumer_map_from_sources(sources)
+    errors = [
+        f"ui_compounds_root_production_consumer_missing:{component}"
+        for component in sorted(C15_PACKAGE_MIGRATED)
+        if not consumers[component]
+    ]
+    for reference in consumers["JsonPreview"]:
+        consumer_path = reference.split(":", 1)[0]
+        if consumer_path != C15_JSON_PREVIEW_ADAPTER:
+            errors.append(
+                "ui_compounds_root_unlocalized_json_preview_consumer:"
+                f"{consumer_path}"
+            )
+    return errors
 
 
 def _ui_primitives_successor_evidence_errors(
@@ -2358,6 +2491,7 @@ def _ui_primitives_source_state_errors(
         - UI_PRIMITIVES_PACKAGE_MIGRATED
         - ATLAS_UI_DEFINE_ONCE_PRIMITIVES
         - ATLAS_UI_SUPPORT_MODULES
+        - ATLAS_UI_OTHER_EXPORTS
     )
     if missing_package:
         errors.append(f"ui_primitives_package_exports_missing:{missing_package}")
@@ -2447,6 +2581,114 @@ def _validate_ui_primitives_receipt_semantics(
 
     if live_probes:
         errors.extend(_live_ui_primitives_source_state_errors())
+
+
+def _validate_c15_mixed_receipt(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C15 mixed receipt to exact ownership and DS2 non-claims."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_compounds_root_mixed_transition_invalid")
+    if entry["seed_rule"] != "ds4_c15_mixed_rebind_complete":
+        errors.append("ui_compounds_root_mixed_seed_rule_invalid")
+    if entry["rationale"] != C15_MIXED_RATIONALE:
+        errors.append("ui_compounds_root_mixed_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C15_SUCCESSOR_ID:
+        errors.append("ui_compounds_root_successor_invalid")
+    if successor.get("consumer_refs") != C15_CONSUMER_REFS:
+        errors.append("ui_compounds_root_consumer_refs_drift")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    transitional_condition = (
+        "Keep the mapped live v4 family as the transitional winner until DS4 routes a real "
+        "consumer through one governed replacement, DS6 passes its negative/browser/accessibility "
+        "evidence, and the old import path is removed."
+    )
+    lineage_chart_condition = (
+        "Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after "
+        "generated/source ownership, consumer migration, drift checks, and the owning slice's "
+        "DS6 evidence are complete."
+    )
+    expected_ds2 = {
+        "component-data-table": ("DataTable", transitional_condition),
+        "component-metric-card": ("MetricCard", transitional_condition),
+        "component-provenance-graph": ("ProvenanceGraph", transitional_condition),
+        "viz-chart-provenance-lineage": (
+            "Provenance Lineage chart",
+            lineage_chart_condition,
+        ),
+    }
+    for adoption_id, (title, condition) in expected_ds2.items():
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["title"] != title:
+            errors.append(f"ui_compounds_root_ds2_binding_drift:{adoption_id}")
+        elif row["sunset_condition"] != condition:
+            errors.append(f"ui_compounds_root_ds2_condition_drift:{adoption_id}")
+
+    if not live_probes:
+        return
+
+    for component in C15_PACKAGE_MIGRATED:
+        package_owner = REPO_ROOT / f"packages/atlas-ui/src/compounds/{component}.tsx"
+        dashboard_owner = REPO_ROOT / f"apps/runtime-dashboard/src/shared/ui/{component}.tsx"
+        if not package_owner.is_file():
+            errors.append(f"ui_compounds_root_package_owner_missing:{component}")
+        if dashboard_owner.exists():
+            errors.append(f"ui_compounds_root_dashboard_owner_survives:{component}")
+
+    retired_dashboard_support = [
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.a11y.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.stories.tsx",
+        "apps/runtime-dashboard/src/shared/ui/VirtualList.a11y.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/VirtualTable.a11y.test.tsx",
+    ]
+    for relative in retired_dashboard_support:
+        if (REPO_ROOT / relative).exists():
+            errors.append(f"ui_compounds_root_dashboard_support_survives:{relative}")
+
+    for component in C15_DASHBOARD_USE_AS_IS:
+        dashboard_owner = REPO_ROOT / f"apps/runtime-dashboard/src/shared/ui/{component}.tsx"
+        package_counterpart = REPO_ROOT / f"packages/atlas-ui/src/compounds/{component}.tsx"
+        if not dashboard_owner.is_file():
+            errors.append(f"ui_compounds_root_transitional_owner_missing:{component}")
+        if package_counterpart.exists():
+            errors.append(f"ui_compounds_root_package_twin_created:{component}")
+
+    package_exports = _owner_exports(
+        ATLAS_UI_INDEX,
+        (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+        "./compounds/",
+    )
+    if package_exports & C15_DASHBOARD_USE_AS_IS:
+        errors.append("ui_compounds_root_transitional_export_created")
+    if not C15_PACKAGE_MIGRATED <= package_exports:
+        errors.append("ui_compounds_root_package_exports_missing")
+
+    sources = _typescript_production_sources(
+        [
+            "apps/runtime-dashboard/src",
+            "packages/atlas-ui/src",
+            "packages/atlas-ui/tests",
+        ]
+    )
+    consumer_map = _c15_migrated_consumer_map_from_sources(sources)
+    errors.extend(_c15_migrated_consumer_errors(sources))
+    successor_paths = set(successor.get("consumer_refs", []))
+    for component, references in consumer_map.items():
+        for reference in references:
+            consumer_path = reference.split(":", 1)[0]
+            if consumer_path not in successor_paths:
+                errors.append(
+                    "ui_compounds_root_live_consumer_ref_missing:"
+                    f"{component}:{consumer_path}"
+                )
 
 
 def validate_register(
@@ -2549,6 +2791,12 @@ def validate_register(
         entry_by_id[UI_PRIMITIVES_ROOT_ID],
         ds2,
         censuses,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c15_mixed_receipt(
+        entry_by_id[C15_ROOT_ID],
+        ds2,
         errors,
         live_probes=live_probes,
     )
@@ -2945,6 +3193,15 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ]["files"][0]["git_blob"] = "0" * 40
     probes.append(("ui-primitives-resurrection-blob-drift", mixed_blob_drift))
 
+    c15_rationale_drift = copy.deepcopy(data)
+    compounds = next(
+        entry
+        for entry in c15_rationale_drift["entries"]
+        if entry["unit_id"] == C15_ROOT_ID
+    )
+    compounds["rationale"] = "C15 complete."
+    probes.append(("ui-compounds-root-mixed-rationale-drift", c15_rationale_drift))
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
@@ -2959,6 +3216,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         UI_PRIMITIVES_PACKAGE_MIGRATED
         | ATLAS_UI_DEFINE_ONCE_PRIMITIVES
         | ATLAS_UI_SUPPORT_MODULES
+        | ATLAS_UI_OTHER_EXPORTS
     )
     unexpected_module_errors = _ui_primitives_source_state_errors(
         existing_paths={
@@ -2978,6 +3236,54 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         for error in unexpected_module_errors
     ):
         failures.append("ui-primitives-unexpected-support-module")
+
+    c15_consumers = {
+        C15_JSON_PREVIEW_ADAPTER: (
+            'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+            "const localizedPreview = <JsonPreview data={{}} />;\n"
+        ),
+        "apps/runtime-dashboard/src/features/c15-valid.tsx": (
+            'import { VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const consumers = <><VirtualList /><VirtualTable /></>;\n"
+        ),
+        "packages/atlas-ui/src/compounds/owners.tsx": (
+            'import { JsonPreview, VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const owners = [JsonPreview, VirtualList, VirtualTable];\n"
+        ),
+        "packages/atlas-ui/tests/compoundComponents.test.tsx": (
+            'import { JsonPreview, VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const tests = [JsonPreview, VirtualList, VirtualTable];\n"
+        ),
+    }
+    if _c15_migrated_consumer_errors(c15_consumers):
+        failures.append("ui-compounds-root-valid-production-consumers")
+    unlocalized_consumers = {
+        **c15_consumers,
+        "apps/runtime-dashboard/src/features/c15-unlocalized.tsx": (
+            'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+            "const preview = <JsonPreview data={{}} />;\n"
+        ),
+    }
+    if (
+        "ui_compounds_root_unlocalized_json_preview_consumer:"
+        "apps/runtime-dashboard/src/features/c15-unlocalized.tsx"
+        not in _c15_migrated_consumer_errors(unlocalized_consumers)
+    ):
+        failures.append("ui-compounds-root-unlocalized-json-preview")
+    c15_consumers[C15_JSON_PREVIEW_ADAPTER] = (
+        'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+        "void JsonPreview;\n"
+    )
+    c15_consumers["apps/runtime-dashboard/src/features/c15-valid.tsx"] = (
+        'import { VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+        "const markers = [VirtualList, VirtualTable];\n"
+    )
+    expected_missing_consumers = [
+        f"ui_compounds_root_production_consumer_missing:{component}"
+        for component in sorted(C15_PACKAGE_MIGRATED)
+    ]
+    if _c15_migrated_consumer_errors(c15_consumers) != expected_missing_consumers:
+        failures.append("ui-compounds-root-production-consumption-removed")
     return failures
 
 

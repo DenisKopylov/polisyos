@@ -114,12 +114,8 @@
     {
       "census_id": "census-browser-signing-protected-live",
       "captured_at": "2026-07-17T10:30:00+03:00",
-      "covers_unit_ids": [
-        "derivation-browser-signature"
-      ],
-      "ds1_evidence_ids": [
-        "derivation-browser-signature"
-      ],
+      "covers_unit_ids": ["derivation-browser-signature"],
+      "ds1_evidence_ids": ["derivation-browser-signature"],
       "result": "protected_live_chain",
       "probes": [
         {
@@ -154,13 +150,13 @@
             "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1137",
             "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1199",
             "apps/runtime-dashboard/src/features/runs/route.tsx:151",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:109",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:128",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:138",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:160",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:71",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:80",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:99",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:109",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:128",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:138",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:160",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:71",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:80",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:99",
             "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
             "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:169"
           ]
@@ -194,9 +190,7 @@
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/collaboration"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/collaboration"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -232,19 +226,13 @@
     {
       "census_id": "census-onboarding-delete",
       "captured_at": "2026-07-17T11:38:00+03:00",
-      "covers_unit_ids": [
-        "feature-onboarding-orphan"
-      ],
-      "ds1_evidence_ids": [
-        "feature-onboarding-orphan"
-      ],
+      "covers_unit_ids": ["feature-onboarding-orphan"],
+      "ds1_evidence_ids": ["feature-onboarding-orphan"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/onboarding"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/onboarding"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -277,28 +265,20 @@
     {
       "census_id": "census-layout-placeholder-delete",
       "captured_at": "2026-07-17T11:40:00+03:00",
-      "covers_unit_ids": [
-        "feature-layout-empty"
-      ],
-      "ds1_evidence_ids": [
-        "feature-layout-empty"
-      ],
+      "covers_unit_ids": ["feature-layout-empty"],
+      "ds1_evidence_ids": ["feature-layout-empty"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/layout"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/layout"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": [
-            "features/layout"
-          ],
+          "targets": ["features/layout"],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -367,29 +347,20 @@
     {
       "census_id": "census-duplicate-clerk-index-delete",
       "captured_at": "2026-07-17T11:47:00+03:00",
-      "covers_unit_ids": [
-        "route-home-clerk-duplicate"
-      ],
-      "ds1_evidence_ids": [
-        "route-home-clerk-duplicate"
-      ],
+      "covers_unit_ids": ["route-home-clerk-duplicate"],
+      "ds1_evidence_ids": ["route-home-clerk-duplicate"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/clerk/route.tsx"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/clerk/route.tsx"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": [
-            "clerkChatRoute",
-            "routeId: \"clerk.chat\""
-          ],
+          "targets": ["clerkChatRoute", "routeId: \"clerk.chat\""],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -413,10 +384,7 @@
         "cache-whatif-scenarios",
         "feature-whatif::legacy-local-whatif-subgraph"
       ],
-      "ds1_evidence_ids": [
-        "cache-whatif-scenarios",
-        "feature-whatif"
-      ],
+      "ds1_evidence_ids": ["cache-whatif-scenarios", "feature-whatif"],
       "result": "zero_consumers",
       "probes": [
         {
@@ -463,12 +431,8 @@
     {
       "census_id": "census-ds4-c03b-dormant-primitives",
       "captured_at": "2026-07-18T16:20:00+03:00",
-      "covers_unit_ids": [
-        "ui-primitives-root"
-      ],
-      "ds1_evidence_ids": [
-        "ui-primitives-root"
-      ],
+      "covers_unit_ids": ["ui-primitives-root"],
+      "ds1_evidence_ids": ["ui-primitives-root"],
       "result": "zero_consumers",
       "probes": [
         {
@@ -480,10 +444,7 @@
             "Sheet",
             "Tabs"
           ],
-          "scan_roots": [
-            "apps/runtime-dashboard/src",
-            "packages"
-          ],
+          "scan_roots": ["apps/runtime-dashboard/src", "packages"],
           "expected_count": 0,
           "observed_refs": [],
           "checked_import_forms": [
@@ -1422,12 +1383,39 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "atlas-ui-root-compounds-and-dashboard-transitional-winners",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "packages/atlas-ui/src/compounds/JsonPreview.tsx",
+          "packages/atlas-ui/src/compounds/VirtualList.tsx",
+          "packages/atlas-ui/src/compounds/VirtualTable.tsx",
+          "packages/atlas-ui/tests/compoundComponents.test.tsx",
+          "packages/atlas-ui/tests/compoundComponents.a11y.test.tsx",
+          "packages/atlas-ui/tests/oneOwner.test.ts",
+          "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+          "apps/runtime-dashboard/src/shared/ui/DataTable.tsx",
+          "apps/runtime-dashboard/src/shared/ui/MetricCard.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LineageGraph.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx",
+          "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
+          "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c15_mixed_rebind_complete",
+      "rationale": "C15 records an explicit mixed six-component receipt: JsonPreview, VirtualList, and VirtualTable are package-migrated with symbol-derived live dashboard consumers, JsonPreview translation remains app-owned through a typed labels adapter, and their dashboard owners are strangled; DataTable and MetricCard remain dashboard-owned use_as_is transitional winners until their exact DS2 sunset condition is met by DS4 consumer routing, DS6 negative/browser/accessibility evidence, and old-import removal; LineageGraph remains dashboard-owned use_as_is until a DS16 typed adapter and DS6 degraded/keyboard/table/export evidence exist, while C15 only removes its local status-to-authority color guessing. This receipt claims no DS2, DS6, or DS16 completion."
     },
     {
       "unit_id": "ui-operator-diagnostics",
@@ -1688,9 +1676,7 @@
       "unit_id": "ui-temporal",
       "evidence_link": {
         "ds1_entry_id": "ui-temporal",
-        "ds2_adoption_ids": [
-          "component-decision-timeline"
-        ]
+        "ds2_adoption_ids": ["component-decision-timeline"]
       },
       "disposition": "rebind_pending",
       "strangle_status": "strangled",
@@ -4942,9 +4928,7 @@
       "unit_id": "route-app-layout::ru-ui-catalog",
       "parent_ds1_entry_id": "route-app-layout",
       "scope_kind": "legacy_continuity",
-      "scope_refs": [
-        "apps/runtime-dashboard/src/shared/i18n/locales/ru.json"
-      ],
+      "scope_refs": ["apps/runtime-dashboard/src/shared/i18n/locales/ru.json"],
       "disposition": "frozen_legacy_continuity",
       "strangle_status": "not_applicable",
       "continuity_guard": {
@@ -5120,9 +5104,7 @@
       "negative_id": "DS1-N001",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:813",
       "lifecycle": "still_required",
-      "affected_unit_ids": [
-        "derivation-browser-signature"
-      ],
+      "affected_unit_ids": ["derivation-browser-signature"],
       "may_count_as_passing_test": false,
       "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
     },
@@ -5234,12 +5216,8 @@
       "negative_id": "DS1-N015",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:827",
       "lifecycle": "partially_reduced",
-      "affected_unit_ids": [
-        "feature-whatif::legacy-local-whatif-subgraph"
-      ],
-      "deletion_census_ids": [
-        "census-whatif-local-subgraph-delete"
-      ],
+      "affected_unit_ids": ["feature-whatif::legacy-local-whatif-subgraph"],
+      "deletion_census_ids": ["census-whatif-local-subgraph-delete"],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the unpartitioned local WhatIf store removes one named cache case, but Clerk, causal, dispute, review-attention, operator-craft, and composer local-state cases still require their owning slices."
     },
@@ -5261,9 +5239,7 @@
         "flag-enable-command-palette",
         "flag-enable-what-if-analysis"
       ],
-      "deletion_census_ids": [
-        "census-collaboration-delete"
-      ],
+      "deletion_census_ids": ["census-collaboration-delete"],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the orphan collaboration surface removes one formerly reachable feature case, but the other three consumer-missing flags still require DS5 wiring and the collaboration key still requires DS5 retirement."
     },
@@ -5284,9 +5260,7 @@
         "worker-dag-layout",
         "worker-json-parse"
       ],
-      "deletion_census_ids": [
-        "census-zero-consumer-workers-delete"
-      ],
+      "deletion_census_ids": ["census-zero-consumer-workers-delete"],
       "may_count_as_passing_test": false,
       "rationale": "All three zero-consumer worker substrates named by this negative were deleted under a fresh census; the negative is obsolete by scope reduction and is not counted as a passing test."
     },
@@ -5312,9 +5286,7 @@
         "transport-rest-collaboration",
         "transport-ws-collaboration"
       ],
-      "deletion_census_ids": [
-        "census-collaboration-delete"
-      ],
+      "deletion_census_ids": ["census-collaboration-delete"],
       "may_count_as_passing_test": false,
       "rationale": "The five phantom collaboration HTTP/WS paths are deleted, while the real review WebSocket and SSE channels still require DS3 governed contract coverage."
     },

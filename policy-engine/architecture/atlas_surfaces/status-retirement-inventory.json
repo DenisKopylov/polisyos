@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:90a6a2b381c26895a7f990b06cbb0f78cc88886f89ca6ea0e8c53a90466cb2ad"
+      "sha256": "sha256:c9a316dd069e39c2fb74f1e701504f3bec1d3e8a8e2241904bf3631ca35b1c46"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -1174,7 +1174,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-          "line": 1270,
+          "line": 1273,
           "kind": "prop"
         }
       ],
@@ -1298,7 +1298,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-          "line": 1208,
+          "line": 1211,
           "kind": "prop"
         },
         {

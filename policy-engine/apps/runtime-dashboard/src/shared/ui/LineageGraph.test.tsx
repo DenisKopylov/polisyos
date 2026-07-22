@@ -73,4 +73,29 @@ describe("LineageGraph", () => {
       "/artifacts/artifact-root",
     );
   });
+
+  it("keeps novel producer statuses opaque instead of guessing authority colors", () => {
+    renderWithProviders(
+      <LineageGraph
+        nodes={[
+          { artifact_id: "artifact-ok", depth: 0, status: "ok" },
+          { artifact_id: "artifact-partial", depth: 0, status: "partial" },
+          {
+            artifact_id: "artifact-novel",
+            depth: 0,
+            status: "awaiting_external_attestation",
+          },
+        ]}
+        edges={[]}
+      />,
+    );
+
+    const renderedColors = [
+      screen.getByText("ok"),
+      screen.getByText("partial"),
+      screen.getByText("awaiting_external_attestation"),
+    ].map((status) => status.style.color);
+
+    expect(new Set(renderedColors).size).toBe(1);
+  });
 });

@@ -80,6 +80,12 @@ const EVIDENCE_FAMILIES = {
   EvidenceLink: ["EvidenceLink"],
 } as const;
 
+const COMPOUND_FAMILIES = {
+  JsonPreview: ["JsonPreview"],
+  VirtualList: ["VirtualList", "VIRTUALIZATION_THRESHOLD"],
+  VirtualTable: ["VirtualTable"],
+} as const;
+
 type PrimitiveFamilies = Record<string, readonly string[]>;
 
 function walkTypeScriptFiles(directory: string): string[] {
@@ -116,13 +122,19 @@ function sourceUnit(
   };
 }
 
-function exportedNames(source: ts.SourceFile): Set<string> {
+function exportedNames(file: string, source: ts.SourceFile): Set<string> {
   const names = new Set<string>();
   const isExported = (node: ts.Node) =>
     ts.canHaveModifiers(node) &&
     ts
       .getModifiers(node)
       ?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
+  const isDefaultExport = (node: ts.Node) =>
+    ts.canHaveModifiers(node) &&
+    ts
+      .getModifiers(node)
+      ?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword);
+  const fileOwnerName = path.parse(file).name;
 
   for (const statement of source.statements) {
     if (
@@ -130,10 +142,14 @@ function exportedNames(source: ts.SourceFile): Set<string> {
         ts.isClassDeclaration(statement) ||
         ts.isInterfaceDeclaration(statement) ||
         ts.isTypeAliasDeclaration(statement)) &&
-      isExported(statement) &&
-      statement.name
+      isExported(statement)
     ) {
-      names.add(statement.name.text);
+      if (statement.name) {
+        names.add(statement.name.text);
+      }
+      if (isDefaultExport(statement)) {
+        names.add(fileOwnerName);
+      }
     }
     if (ts.isVariableStatement(statement) && isExported(statement)) {
       for (const declaration of statement.declarationList.declarations) {
@@ -149,6 +165,28 @@ function exportedNames(source: ts.SourceFile): Set<string> {
     ) {
       for (const element of statement.exportClause.elements) {
         names.add(element.name.text);
+        if (element.propertyName) {
+          names.add(element.propertyName.text);
+        }
+        if (
+          element.name.text === "default" ||
+          element.propertyName?.text === "default"
+        ) {
+          names.add(fileOwnerName);
+          if (
+            statement.moduleSpecifier &&
+            ts.isStringLiteral(statement.moduleSpecifier)
+          ) {
+            names.add(path.parse(statement.moduleSpecifier.text).name);
+          }
+        }
+      }
+    }
+    if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+      names.add("default");
+      names.add(fileOwnerName);
+      if (ts.isIdentifier(statement.expression)) {
+        names.add(statement.expression.text);
       }
     }
   }
@@ -183,18 +221,19 @@ function packageReexports({ file, source }: SourceUnit): string[] {
 function ownershipViolations(
   families: PrimitiveFamilies,
   units: SourceUnit[],
+  ownerDirectory = "primitives",
 ): string[] {
   const violations: string[] = [];
 
   for (const [family, symbols] of Object.entries(families)) {
     const owners = units
-      .filter(({ source }) => {
-        const names = exportedNames(source);
+      .filter(({ file, source }) => {
+        const names = exportedNames(file, source);
         return symbols.some((symbol) => names.has(symbol));
       })
       .map(({ file }) => path.relative(productRoot, file))
       .sort();
-    const expectedOwner = `packages/atlas-ui/src/primitives/${family}.tsx`;
+    const expectedOwner = `packages/atlas-ui/src/${ownerDirectory}/${family}.tsx`;
     if (owners.length !== 1 || owners[0] !== expectedOwner) {
       violations.push(`${family}: ${owners.join(", ") || "owner missing"}`);
     }
@@ -419,6 +458,124 @@ describe("evidence primitive ownership", () => {
       expect.arrayContaining([
         expect.stringContaining("AuthorityBadge:"),
         "package re-export: apps/runtime-dashboard/src/shared/ui/EvidenceCompatibilityShim.ts -> @polisyos/atlas-ui",
+      ]),
+    );
+  });
+});
+
+describe("compound ownership", () => {
+  it("rejects a migrated compound with a surviving dashboard implementation", () => {
+    const roots = [
+      path.join(packageRoot, "src/compounds"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const units = roots
+      .flatMap(walkTypeScriptFiles)
+      .map((file) => sourceUnit(file));
+
+    expect(ownershipViolations(COMPOUND_FAMILIES, units, "compounds")).toEqual(
+      [],
+    );
+
+    const duplicate = path.join(
+      dashboardRoot,
+      "src/shared/ui/VirtualTable.tsx",
+    );
+    const compatibilityShim = path.join(
+      dashboardRoot,
+      "src/shared/ui/CompoundCompatibilityShim.ts",
+    );
+    const corruptedUnits = [
+      ...units,
+      sourceUnit(duplicate, "export function VirtualTable() { return null; }"),
+      sourceUnit(
+        compatibilityShim,
+        'export { JsonPreview } from "@polisyos/atlas-ui";',
+      ),
+    ];
+
+    expect(
+      ownershipViolations(COMPOUND_FAMILIES, corruptedUnits, "compounds"),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("VirtualTable:"),
+        "package re-export: apps/runtime-dashboard/src/shared/ui/CompoundCompatibilityShim.ts -> @polisyos/atlas-ui",
+      ]),
+    );
+  });
+
+  it("rejects default-export compound owners and default re-exports", () => {
+    const roots = [
+      path.join(packageRoot, "src/compounds"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const units = roots
+      .flatMap(walkTypeScriptFiles)
+      .map((file) => sourceUnit(file));
+    const defaultOwner = path.join(
+      dashboardRoot,
+      "src/shared/ui/VirtualTable.tsx",
+    );
+    const defaultReexport = path.join(
+      dashboardRoot,
+      "src/shared/ui/JsonPreview.tsx",
+    );
+    const corruptedUnits = [
+      ...units,
+      sourceUnit(
+        defaultOwner,
+        "function LegacyVirtualTable() { return null; }\nexport default LegacyVirtualTable;",
+      ),
+      sourceUnit(
+        defaultReexport,
+        'export { default } from "./LegacyJsonPreview";',
+      ),
+    ];
+
+    expect(
+      ownershipViolations(COMPOUND_FAMILIES, corruptedUnits, "compounds"),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("JsonPreview:"),
+        expect.stringContaining("VirtualTable:"),
+      ]),
+    );
+  });
+
+  it("binds anonymous default compound owners to their family filenames", () => {
+    const roots = [
+      path.join(packageRoot, "src/compounds"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const units = roots
+      .flatMap(walkTypeScriptFiles)
+      .map((file) => sourceUnit(file));
+    const anonymousFunctionOwner = path.join(
+      dashboardRoot,
+      "src/shared/ui/VirtualList.tsx",
+    );
+    const anonymousClassOwner = path.join(
+      dashboardRoot,
+      "src/shared/ui/JsonPreview.tsx",
+    );
+    const corruptedUnits = [
+      ...units,
+      sourceUnit(
+        anonymousFunctionOwner,
+        "export default function () { return null; }",
+      ),
+      sourceUnit(anonymousClassOwner, "export default class {}"),
+    ];
+
+    expect(
+      ownershipViolations(COMPOUND_FAMILIES, corruptedUnits, "compounds"),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("JsonPreview:"),
+        expect.stringContaining("VirtualList:"),
       ]),
     );
   });

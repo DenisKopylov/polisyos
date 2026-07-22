@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 
-vi.mock("@/shared/ui/VirtualList", async () => {
-  const actual = await vi.importActual<
-    typeof import("@/shared/ui/VirtualList")
-  >("@/shared/ui/VirtualList");
+vi.mock("@polisyos/atlas-ui", async () => {
+  const actual =
+    await vi.importActual<typeof import("@polisyos/atlas-ui")>(
+      "@polisyos/atlas-ui",
+    );
 
   return {
     ...actual,

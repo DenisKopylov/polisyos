@@ -24,6 +24,8 @@ import {
   Input,
   PanelSkeleton,
   Select,
+  VirtualTable,
+  VIRTUALIZATION_THRESHOLD,
 } from "@polisyos/atlas-ui";
 import {
   copyRow,
@@ -31,8 +33,6 @@ import {
   exportCsv,
   exportJson,
   FilterPanel,
-  VirtualTable,
-  VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";
 import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
 

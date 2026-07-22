@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **12396**
-- Application lines deleted: **12277**
-- Net application LOC reduction: **-119**
-- Application files deleted: **66**
+- Application lines added: **14547**
+- Application lines deleted: **12848**
+- Net application LOC reduction: **-1699**
+- Application files deleted: **74**
 
 ## Wave-end full verification
 
@@ -303,7 +303,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `feature-runs` | `feature-runs` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `feature-whatif` | `feature-whatif` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `strangled` | `DS4` | `census-ds4-c03b-dormant-primitives` |
-| `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `strangled` | `DS4` | `atlas-ui-root-compounds-and-dashboard-transitional-winners` |
 | `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-operator-diagnostic-generated-evidence-rebind` |
 | `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
 | `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `strangled` | `DS4` | `dashboard-compound-evidence-generated-waist-rebind` |
@@ -514,6 +514,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `228eb35d6 refactor(atlas-ui): migrate root compounds`
+- `e5730cf6a refactor(dashboard): rebind compound evidence families`
+- `7486eaa08 docs(atlas): authorize DS4 re-cut — clusters C21-C23`
 - `f444ba719 refactor(dashboard): fail closed on counterfactual projections`
 - `a59efb3dc refactor(dashboard): rebind operator evidence primitives`
 - `8a8c8169e refactor(dashboard): rebind trust view authority`

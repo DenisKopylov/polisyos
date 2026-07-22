@@ -1,24 +1,30 @@
-import type { CSSProperties, HTMLAttributes } from "react";
-import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import { useEffect, useRef } from "react";
 
-import { cn } from "@/shared/lib/utils";
-import type { DataTableColumn } from "@/shared/ui/DataTable";
+import { cn } from "../lib/cn";
 
-type VirtualTableProps<Row> = {
+export type VirtualTableColumn<Row> = {
+  className?: string;
+  header: ReactNode;
+  key: string;
+  render: (row: Row) => ReactNode;
+};
+
+export type VirtualTableProps<Row> = {
   activeIndex?: number;
   ariaLabel?: string;
   className?: string;
-  columns: Array<DataTableColumn<Row>>;
+  columns: Array<VirtualTableColumn<Row>>;
   estimateRowHeight?: number;
-  maxHeight?: number;
-  overscan?: number;
-  rowKey: (row: Row, index: number) => string;
-  rows: Row[];
-  rowClassName?: (row: Row, index: number) => string;
-  rowProps?: (row: Row, index: number) => HTMLAttributes<HTMLTableRowElement>;
   initialScrollTop?: number;
+  maxHeight?: number;
   onScrollPositionChange?: (scrollTop: number) => void;
+  overscan?: number;
+  rowClassName?: (row: Row, index: number) => string;
+  rowKey: (row: Row, index: number) => string;
+  rowProps?: (row: Row, index: number) => HTMLAttributes<HTMLTableRowElement>;
+  rows: Row[];
 };
 
 export function VirtualTable<Row>({

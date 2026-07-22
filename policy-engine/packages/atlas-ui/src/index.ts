@@ -34,3 +34,6 @@ export {
   governedAuthorityPurposePresentation,
 } from "./primitives/evidenceTypes";
 export * from "./generated/tokens";
+export * from "./compounds/JsonPreview";
+export * from "./compounds/VirtualList";
+export * from "./compounds/VirtualTable";

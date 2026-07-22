@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
 import type { RunTimelineEvent } from "@polisyos/runtime-api-client";
 
-import { Badge, EmptyState } from "@polisyos/atlas-ui";
-import { VirtualList, VIRTUALIZATION_THRESHOLD } from "@/shared/ui/VirtualList";
+import {
+  Badge,
+  EmptyState,
+  VirtualList,
+  VIRTUALIZATION_THRESHOLD,
+} from "@polisyos/atlas-ui";
 
 export type StatusTimelineItem = {
   id: string;

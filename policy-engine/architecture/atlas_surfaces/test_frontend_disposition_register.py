@@ -7,7 +7,7 @@ import importlib.util
 import json
 import unittest
 from pathlib import Path
-
+from unittest import mock
 
 ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
@@ -442,6 +442,101 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
                 "ui_primitives_successor_test_consumer_missing",
             ],
         )
+
+
+class C15CompoundReceiptTests(unittest.TestCase):
+    """Prove migrated compounds retain localized production consumers."""
+
+    def test_rejects_inert_value_mentions_as_live_consumption(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        entry = next(
+            row for row in data["entries"] if row["unit_id"] == checker.C15_ROOT_ID
+        )
+        ds2 = json.loads(checker.DS2_PATH.read_text(encoding="utf-8"))
+        marker_only_sources = {
+            "apps/runtime-dashboard/src/features/marker.tsx": (
+                'import { JsonPreview, VirtualList, VirtualTable } '
+                'from "@polisyos/atlas-ui";\n'
+                "void JsonPreview;\n"
+                "const componentMarkers = [VirtualList, VirtualTable];\n"
+            ),
+            "packages/atlas-ui/src/compounds/owners.tsx": (
+                'import { JsonPreview, VirtualList, VirtualTable } '
+                'from "@polisyos/atlas-ui";\n'
+                "void JsonPreview; void VirtualList; void VirtualTable;\n"
+            ),
+            "packages/atlas-ui/tests/compoundComponents.test.tsx": (
+                'import { JsonPreview, VirtualList, VirtualTable } '
+                'from "@polisyos/atlas-ui";\n'
+                "void JsonPreview; void VirtualList; void VirtualTable;\n"
+            ),
+        }
+        errors: list[str] = []
+
+        with mock.patch.object(
+            checker,
+            "_typescript_production_sources",
+            return_value=marker_only_sources,
+        ):
+            checker._validate_c15_mixed_receipt(
+                entry,
+                ds2,
+                errors,
+                live_probes=True,
+            )
+
+        assert [
+            error for error in errors if "production_consumer_missing" in error
+        ] == [
+            "ui_compounds_root_production_consumer_missing:JsonPreview",
+            "ui_compounds_root_production_consumer_missing:VirtualList",
+            "ui_compounds_root_production_consumer_missing:VirtualTable",
+        ]
+
+    def test_accepts_current_live_jsx_consumers(self) -> None:
+        sources = checker._typescript_production_sources(
+            ["apps/runtime-dashboard/src"]
+        )
+
+        errors = checker._c15_migrated_consumer_errors(sources)
+
+        assert [
+            error
+            for error in errors
+            if "production_consumer_missing" in error
+            or "unlocalized_json_preview_consumer" in error
+        ] == []
+
+    def test_rejects_raw_json_preview_consumers_outside_the_locale_adapter(self) -> None:
+        sources = {
+            "apps/runtime-dashboard/src/features/unlocalized.tsx": (
+                'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+                "const preview = <JsonPreview data={{ status: 'ok' }} />;\n"
+            ),
+        }
+
+        errors = checker._c15_migrated_consumer_errors(sources)
+
+        assert (
+            "ui_compounds_root_unlocalized_json_preview_consumer:"
+            "apps/runtime-dashboard/src/features/unlocalized.tsx"
+        ) in errors
+
+    def test_rejects_raw_namespace_json_preview_and_counts_namespace_jsx(self) -> None:
+        sources = {
+            "apps/runtime-dashboard/src/features/unlocalized.tsx": (
+                'import * as Atlas from "@polisyos/atlas-ui";\n'
+                "const preview = <Atlas.JsonPreview data={{ status: 'ok' }} />;\n"
+                "const virtual = <><Atlas.VirtualList /><Atlas.VirtualTable /></>;\n"
+            ),
+        }
+
+        errors = checker._c15_migrated_consumer_errors(sources)
+
+        assert errors == [
+            "ui_compounds_root_unlocalized_json_preview_consumer:"
+            "apps/runtime-dashboard/src/features/unlocalized.tsx"
+        ]
 
 
 if __name__ == "__main__":

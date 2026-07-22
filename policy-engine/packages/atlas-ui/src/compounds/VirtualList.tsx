@@ -1,12 +1,12 @@
+import { useVirtualizer } from "@tanstack/react-virtual";
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 export const VIRTUALIZATION_THRESHOLD = 30;
 
-type VirtualListProps<Item> = {
+export type VirtualListProps<Item> = {
   className?: string;
   estimateSize?: number;
   itemKey: (item: Item, index: number) => string;

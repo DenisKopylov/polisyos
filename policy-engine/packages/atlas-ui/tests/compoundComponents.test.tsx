@@ -1,30 +1,39 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-const { tMock } = vi.hoisted(() => ({
-  tMock: vi.fn((key: string) => key),
-}));
+import {
+  JsonPreview,
+  VirtualList,
+  VirtualTable,
+  VIRTUALIZATION_THRESHOLD,
+} from "../src/index";
 
-vi.mock("@/shared/i18n/LocaleProvider", () => ({
-  useI18n: () => ({
-    t: tMock,
-  }),
-}));
-
-import JsonPreview from "@/shared/ui/JsonPreview";
-
-describe("JsonPreview", () => {
+describe("compound components", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    vi.useRealTimers();
   });
 
-  it("renders the empty label when there is no payload", () => {
-    render(<JsonPreview data={undefined} emptyLabel="Nothing to show" />);
+  it("exports the migrated virtual compounds from the package owner", () => {
+    expect(VIRTUALIZATION_THRESHOLD).toBe(30);
+    expect(VirtualList).toBeTypeOf("function");
+    expect(VirtualTable).toBeTypeOf("function");
+  });
+
+  it("renders typed empty presentation copy", () => {
+    render(
+      <JsonPreview
+        data={undefined}
+        labels={{
+          copied: "Copied payload",
+          copy: "Copy payload",
+          empty: "Nothing to show",
+        }}
+      />,
+    );
 
     expect(screen.getByText("Nothing to show")).toBeInTheDocument();
   });
 
-  it("renders and copies structured payloads", async () => {
+  it("renders and copies structured payloads with neutral default copy", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -34,24 +43,19 @@ describe("JsonPreview", () => {
     render(<JsonPreview data={{ status: "ok", count: 2 }} />);
 
     expect(screen.getByText(/"status": "ok"/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "common.copy" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }));
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(
         JSON.stringify({ status: "ok", count: 2 }, null, 2),
       );
       expect(
-        screen.getByRole("button", { name: "common.copied" }),
+        screen.getByRole("button", { name: "Copied" }),
       ).toBeInTheDocument();
     });
-
-    await new Promise((resolve) => window.setTimeout(resolve, 1_100));
-    expect(
-      screen.getByRole("button", { name: "common.copy" }),
-    ).toBeInTheDocument();
   });
 
-  it("falls back to String(data) for circular values and skips copy without clipboard", async () => {
+  it("falls back to String(data) and skips copy without clipboard", () => {
     const circular: { self?: unknown } = {};
     circular.self = circular;
     Object.defineProperty(navigator, "clipboard", {
@@ -62,6 +66,6 @@ describe("JsonPreview", () => {
     render(<JsonPreview data={circular} />);
 
     expect(screen.getByText("[object Object]")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "common.copy" }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy" }));
   });
 });

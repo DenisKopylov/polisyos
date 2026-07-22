@@ -2340,7 +2340,7 @@
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "cf7871b7787e016b58c9e8a46f2224f0530600335d103e50ad38b45a127e04e6"
+        "sha256": "38b1e6c941369f872c68529f90492a523771485940c2d06842aac76383c95ed9"
       },
       {
         "cluster_id": "C08",

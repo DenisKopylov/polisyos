@@ -11,10 +11,10 @@ import {
   toDisplayLabel,
 } from "@/shared/lib/parsing";
 import { formatNumber } from "@/shared/lib/utils";
-import { Badge } from "@polisyos/atlas-ui";
-import { JsonPreview } from "@/shared/ui";
+import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
+import { Badge } from "@polisyos/atlas-ui";
 
 const DecisionCardView = lazy(() => import("./DecisionCardView"));
 const SimulationResultsViewer = lazy(

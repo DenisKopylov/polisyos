@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@polisyos/runtime-api-client": "workspace:*",
+    "@tanstack/react-virtual": "^3.13.21",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-popover": "^1.1.15",

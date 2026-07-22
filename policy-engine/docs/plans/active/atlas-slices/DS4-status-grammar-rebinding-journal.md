@@ -1474,3 +1474,121 @@ pipeline tests green; scoped lint green; disposition lifecycle and status
 inventory checkers plus corruption probes green; `git diff --check` green; no
 fence or lockfile movement. The earlier production build and broad C14 run are
 useful provisional evidence, not closure receipts after the final audit edits.
+
+## 2026-07-22 — DS4-C15 root compounds: three package migrations, three bounded use-as-is
+
+### Red-first receipt and pattern pass
+
+- The required architecture negative failed first on four live dashboard edges:
+  `JsonPreview -> shared/i18n`, `VirtualList -> shared/lib`, and the two
+  `VirtualTable -> shared/lib/DataTable` imports. Its AST corruption witnesses
+  reject static import, dynamic import, and re-export bypasses (P29/P31/P33).
+- The required one-owner negative failed first on the three surviving dashboard
+  owners, including the `JsonPreview` barrel re-export. Its corruption witnesses
+  reject both a duplicate implementation and an atlas-ui compatibility shim
+  (P28/P31).
+- The LineageGraph semantic negative failed first with three distinct colors for
+  `ok`, `partial`, and the novel `awaiting_external_attestation` producer label.
+  The target property is label opacity, not a marker: all producer labels now
+  follow one neutral presentation path (P05/P10/P15).
+
+### Binding DS2 adjudication and mixed receipt
+
+- The C15 denominator remains exactly six components. `JsonPreview`,
+  `VirtualList`, and `VirtualTable` are package-migrated and directly exported
+  from `@polisyos/atlas-ui`; all dashboard implementations, tests, story, and
+  barrel exports for those three are removed. `VirtualTableColumn` is a
+  presentation-only package type, not a second DataTable owner. `JsonPreview`
+  accepts typed presentation labels and has neutral package defaults; it has no
+  dashboard i18n dependency.
+- `DataTable` and `MetricCard` remain dashboard-owned `use_as_is`. Their exact
+  DS2 condition is: “Keep the mapped live v4 family as the transitional winner
+  until DS4 routes a real consumer through one governed replacement, DS6 passes
+  its negative/browser/accessibility evidence, and the old import path is
+  removed.” DS6 owns that missing negative/browser/accessibility evidence and
+  old-import closure signal. C15 creates no package twin and claims no sunset.
+- `LineageGraph` remains dashboard-owned `use_as_is`. The component condition
+  above still applies; the chart condition is: “Archive admission alone sunsets
+  nothing. DS4 may remove a mapped loser only after generated/source ownership,
+  consumer migration, drift checks, and the owning slice's DS6 evidence are
+  complete.” DS16 owns the missing typed value/basis/provenance/missing-data
+  adapter; DS6 owns degraded, keyboard, table, and export evidence. C15 only
+  removes local status-to-authority color guessing and claims neither closure.
+- The `ui-compounds-root` row is an explicit mixed receipt: 3
+  `package_migrated` + 3 dashboard `use_as_is`. Its exact rationale, successor
+  paths, source-state invariant, symbol-derived production-consumer map, and
+  DS2 conditions are checker-enforced. The checker excludes package owners and
+  tests from consumer evidence and its corruption probe removes every real
+  value use while retaining import/name markers. The inherited
+  `component-run-card` mapping remains untouched and is not represented as C15
+  implementation evidence.
+
+### Independent-review correction receipt
+
+- The live `ErrorsPanel` witness failed first because the migrated package
+  component rendered `Copy` instead of Ukrainian `Копіювати`. All eight live
+  dashboard `JsonPreview` render sites now pass through one app-owned
+  `LocalizedJsonPreview` adapter, which derives the typed `copied`, `copy`, and
+  `empty` labels from `useI18n`; the package imports no app authority and the
+  locale catalogs are unchanged.
+- The C15 consumer negative failed first because package/test use and unused
+  dashboard imports produced no `production_consumer_missing` errors. Its
+  follow-up corruption witness proved that `void JsonPreview` and an array of
+  imported `VirtualList`/`VirtualTable` values were still falsely admitted.
+  The checker now derives JSX-element use for each migrated symbol from the
+  production TypeScript AST. Current evidence is one localized `JsonPreview`
+  adapter, two `VirtualList` consumers, and two `VirtualTable` consumers.
+- The namespace-form corruption witness then failed first: `<Atlas.JsonPreview
+  />` was not mapped back to the package symbol, so it escaped the adapter-only
+  rule. The same AST path now maps only JSX member expressions for the imported
+  namespace; inert namespace markers remain non-consumers. It rejects the raw
+  `JsonPreview` render and recognizes namespace `VirtualList`/`VirtualTable`
+  JSX use (P29/P32/P33).
+- The one-owner negative failed first because `export default
+  LegacyVirtualTable` and a local `export { default }` re-export produced no
+  violations. Its follow-up witness proves anonymous `export default
+  function () {}` and `export default class {}` in legacy family filenames
+  also bind owner identity. Default assignments, declarations, aliases, and
+  re-exports now bind the file/module owner identity, closing the
+  alternate-export bypass.
+- These repairs close P29/P31/P32/P33 for the reviewed seams without changing
+  the six-component denominator, DS2/DS6/DS16 non-claims, or package ownership.
+
+### Exact denominators and verification
+
+| Measure | Before | After | Receipt |
+| --- | ---: | ---: | --- |
+| C15 component denominator | 6 pending | 3 package + 3 `use_as_is` | exact six-way mixed classification |
+| atlas-ui source files | 31 | 34 | package architecture PASS |
+| atlas-ui tests | 14 files / 72 tests | 16 files / 80 tests | full package PASS |
+| dashboard architecture debt | 1 | 1 | baseline comparator PASS; only C18-owned `app/workspaces.ts -> features/runs/api/useRunsSample` |
+| DS19 root entries | 261 | 261 | dispositions unchanged: 200 rebind, 15 deleted, 25 retire, 16 wire, 5 use-as-is |
+| status-retirement DS1 rows | 47 | 47 | 21 current authored, 55 exemptions, 19 retirement debts, 3 waist debts |
+
+| Gate | Result |
+| --- | --- |
+| required/focused dashboard behavior | PASS; 4 files / 9 tests |
+| affected consumers and a11y | PASS; 11 files / 32 tests |
+| atlas-ui | PASS; typecheck, 16 files / 80 tests, lint, 34-source architecture |
+| C15 correction negatives | PASS; 4 Python checker tests and 8 one-owner tests | JSX-only direct/namespace consumer and anonymous-default owner witnesses |
+| dashboard typecheck/build | PASS; 3,883 transformed modules, PWA 106 entries, postbuild security, atlas-ui Tailwind-source proof |
+| dashboard lint | changed-file scope PASS; full repository lint exceeded 90 seconds without diagnostics and was terminated (tooling non-receipt, exit 130) |
+| dashboard full Vitest identity | exceeded 90 seconds under the JSON reporter without a completed result and was terminated (tooling non-receipt, exit 130); no inherited-manifest comparison claimed |
+| frontend disposition | PASS; schema/live source/report parity, architecture 1 -> 1 comparison, and corruption probes |
+| status retirement | PASS; live scanner and corruption probes with unchanged denominators |
+
+### Lockfile, debt, and fence receipt
+
+- `packages/atlas-ui` adds the already-resolved workspace dependency
+  `@tanstack/react-virtual` at specifier `^3.13.21`, resolution `3.13.24`.
+  The lockfile delta is importer-addition-only; no package resolution moves.
+- No new DS4 waist-debt row is created: the existing strict register is for the
+  three absent generated-client waist vocabularies. The DS6/DS16 closure
+  conditions are recorded instead in the mixed disposition authority and this
+  journal, without laundering them into implemented evidence.
+- The fence is limited to atlas-ui compounds/tests/public surface/dependency,
+  direct dashboard consumers and legacy deletions, LineageGraph and its
+  semantic test, Atlas disposition/status artifacts, generated disposition
+  reference, and this journal. Backend `src/**`, schemas, generated client,
+  v15 archive, frozen `ru` locale, master plan, main, and other worktrees are
+  untouched.

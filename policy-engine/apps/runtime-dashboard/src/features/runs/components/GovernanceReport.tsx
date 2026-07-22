@@ -5,9 +5,9 @@ import {
   normalizeGovernanceIssues,
   summarizeGovernanceIssues,
 } from "@/shared/lib/domain/governance";
-import { Badge } from "@polisyos/atlas-ui";
-import { JsonPreview } from "@/shared/ui";
+import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
+import { Badge } from "@polisyos/atlas-ui";
 
 type GovernanceReportProps = {
   data: GovernanceDebugPayload["debug"];

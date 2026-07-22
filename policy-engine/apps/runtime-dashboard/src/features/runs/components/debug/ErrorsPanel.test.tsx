@@ -83,4 +83,34 @@ describe("ErrorsPanel", () => {
     expect(screen.getByText(/"retry": true/)).toBeInTheDocument();
     expect(screen.getByText(/"severity": "high"/)).toBeInTheDocument();
   });
+
+  it("passes localized JsonPreview labels through a live dashboard consumer", () => {
+    const translations: Record<string, string> = {
+      "common.copied": "Скопійовано",
+      "common.copy": "Копіювати",
+      "common.noPayload": "Немає payload",
+    };
+    useI18nMock.mockReturnValue({
+      t: (key: string) => translations[key] ?? key,
+    });
+
+    render(
+      <ErrorsPanel
+        errors={[
+          {
+            code: "WF-1",
+            details: { attempt: 1 },
+            message: "Workflow report missing a verdict.",
+            node_alias: "governance",
+            source: "workflow_report",
+            timestamp: "2026-03-10T10:00:00Z",
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Копіювати" }),
+    ).toBeInTheDocument();
+  });
 });

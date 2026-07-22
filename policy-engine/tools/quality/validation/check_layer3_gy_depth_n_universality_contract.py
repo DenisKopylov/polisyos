@@ -1846,7 +1846,8 @@ _HISTORICAL_N4_CONTEXT_REBIND_FIELD_PATTERN = re.compile(
 )
 _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN = re.compile(
     r"^grounding_dispositions\[\d+\]\.(?:identified_atom_id|"
-    r"rejected_cause\.cg1_critical_contradictions(?:\.length|\[\d+\]))$"
+    r"rejected_cause\.(?:cg1_critical_contradictions|cg2_open_obligations)"
+    r"(?:\.length|\[\d+\]))$"
 )
 
 
@@ -2038,6 +2039,7 @@ def _build_n4_atom_readdress_witnesses(
         for disposition in (historical, replayed):
             cause = _mapping(disposition.get("rejected_cause"))
             critical = _strings(cause.get("cg1_critical_contradictions"))
+            open_obligations = _strings(cause.get("cg2_open_obligations"))
             if (
                 disposition.get("disposition") == "shadow_bound"
                 or disposition.get("candidate_id")
@@ -2045,6 +2047,7 @@ def _build_n4_atom_readdress_witnesses(
                 or disposition.get("status") not in {None, "candidate_unverified"}
                 or cause.get("cg2_decision") not in {None, "abstain"}
                 or not critical
+                or not open_obligations
             ):
                 raise UniversalityContractError(
                     "proof_n4_atom_readdress_authority_growth"
@@ -2071,14 +2074,38 @@ def _build_n4_atom_readdress_witnesses(
                     "cg1_critical_contradictions"
                 )
             ),
-            "authority_transition": (
-                "identity_only_readdress"
-                if semantic_equivalence
-                else "refusal_preserved_owner_supersession"
+            "historical_cg2_open_obligations": _strings(
+                _mapping(historical.get("rejected_cause")).get(
+                    "cg2_open_obligations"
+                )
             ),
-            "reissue_registry_content_hash": registry_hash,
-            "reissue_registry_row": copy.deepcopy(registry_row),
+            "reissued_cg2_open_obligations": _strings(
+                _mapping(replayed.get("rejected_cause")).get(
+                    "cg2_open_obligations"
+                )
+            ),
         }
+        projection_semantic_equivalence = (
+            semantic_equivalence
+            and witness["historical_critical_contradictions"]
+            == witness["reissued_critical_contradictions"]
+            and witness["historical_cg2_open_obligations"]
+            == witness["reissued_cg2_open_obligations"]
+        )
+        witness.update(
+            {
+                "projection_semantic_equivalence": (
+                    projection_semantic_equivalence
+                ),
+                "authority_transition": (
+                    "identity_only_readdress"
+                    if projection_semantic_equivalence
+                    else "refusal_preserved_owner_supersession"
+                ),
+                "reissue_registry_content_hash": registry_hash,
+                "reissue_registry_row": copy.deepcopy(registry_row),
+            }
+        )
         witness["witness_content_hash"] = _semantic_hash(witness)
         witnesses.append(witness)
     if not witnesses:

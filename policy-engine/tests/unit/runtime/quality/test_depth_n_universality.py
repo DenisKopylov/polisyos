@@ -2602,6 +2602,7 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
                 "rejected_cause": {
                     "cg1_critical_contradictions": ["op", "sign"],
                     "cg2_decision": "abstain",
+                    "cg2_open_obligations": ["no_unresolved_critical_axis"],
                 },
             }
         ]
@@ -2669,6 +2670,21 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
         validator._build_n4_atom_readdress_witnesses(
             historical_projection,
             no_veto,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+
+    no_open_obligations = copy.deepcopy(replayed_projection)
+    no_open_obligations["grounding_dispositions"][0]["rejected_cause"][
+        "cg2_open_obligations"
+    ] = []
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_atom_readdress_authority_growth",
+    ):
+        validator._build_n4_atom_readdress_witnesses(
+            historical_projection,
+            no_open_obligations,
             current_atoms={current_atom.atom_id: current_atom},
             reissue_registry=registry,
         )

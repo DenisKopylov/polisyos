@@ -11,6 +11,7 @@ informs:
   - docs/plans/active/layer3-slices/GY-engine-subordination.md
 related:
   - docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
+  - docs/system-design-decisions/policyos-identity-and-custody-boundary.md
   - docs/system-design-decisions/policy-design-execution-topology.md
   - docs/reference/policy-design-case-failure-patterns.md
 ---
@@ -153,3 +154,14 @@ promote → deploy → observe) is the first turn of this OS; the world model is
 engine (`foundry`) + the data substrate; acquisition is demand paging; the firewalls are
 the safety kernel. GY-N0..N7 (the `GY-engine-subordination` plan, Phase 5) build the first
 real cycle; the post-deployment two-contour observation loop is the next horizon beyond it.
+
+## 10. Identity and boundary (ratified 2026-07-20)
+
+The OS metaphor now has a ratified kernel boundary: the system is the **epistemic
+custodian of policy justification** — it owns everything it signs for as long as the
+signature stands, consumes everything others sign as typed evidence, and makes no claims
+it cannot custody. §6's "the policy keeps living" is therefore not an optional next
+horizon but the second half of the identity. The decades-scale horizon (a policy OS for
+institutions — fleets, portfolios, interagency reliance) is reached by institutional
+**adoption** of this custodial core, never by building an ERP. Scope adjudication:
+`policyos-identity-and-custody-boundary.md`.

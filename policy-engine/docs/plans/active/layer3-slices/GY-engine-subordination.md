@@ -4,7 +4,7 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-07-08
+revised: 2026-07-20 (Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
 revision: 15
 slice: GY
 scope: cross-slice
@@ -1440,6 +1440,16 @@ default, or an authorial proof is **not done**, regardless of local test status.
   validate non-pinned cases). Done when: the GX validator runs on the tourism case, not
   only the pinned ua-msme `data_home`.
 
+**Suspension-forward-compatibility note (Rev 19, custody).** Under the ratified identity, an
+`acquisition_required` terminal is destined to become a **governed long-term suspension**, not
+just a search exit: the Wave-2 custody runtime research (`OPS-R1` `CaseSuspensionRecord` /
+typed wake conditions / resume gates) will consume today's terminal records. Until that lands,
+no task may **discard or make unrecoverable** the fields a suspension needs — the
+world-version/snapshot refs, open obligations, budgets spent/remaining, next-best actions, and
+the acquisition/decision requests already carried by `SearchIncompletenessRecord` and the exit
+contract. Cheap to preserve now; expensive to re-derive later. This is a constraint on future
+edits, not a new task.
+
 ### Parallel / near-term and follow-on
 
 - **GY-J — Graded-outcome routing (fork-independent near-term).** wire. Finding: F17.
@@ -1926,6 +1936,21 @@ re-architecting.
   inherit epoch validity from their inputs (Rev 17, §3.5.12-D6)** — an input revision (agencies
   revise series) marks dependent derivations `revalidation_required`, and because the
   derivation certificate IS the recipe, revalidation is an automatic recompute.
+  **Post-publication perturbation cascade rider (Rev 18, distillation §6.5 · M36/M25):**
+  incidents, appeals, corrections, retractions, legal changes and discovered bias are
+  **distinct** revision-trigger classes, not one "reopen" — each is authoritative only for
+  `review_required`/`contested`/annotation **until adjudicated**, then bounded to
+  `annotation_only`/`invalidate`/`reissue`/`supersede`/`withdraw` (a single upheld appeal is
+  instance-scope, not class-scope; a renumbered rule with an unchanged logic-hash is
+  `annotation_only`, not supersession). A closed case is **never silently mutated** — it stays
+  replay-valid under its closure epoch and gets a superseding/reissue link. Source-status
+  invalidity propagates as a replayable `EvidenceValidityEvent` (source → evidence-line → claim →
+  publication) — no authority survives after its support is lost. Reuse `case_lifecycle` +
+  `core.contracts.rule_evolution` + `scientist/governance/continuous`
+  (`incident`/`invalidation`/`reissue`/`lifecycle_bridge`); do **not** build a parallel owner.
+  **P29 rider:** the δ-accounting this epoch layer gates is complete only **relative to the declared
+  obligation set** — OpenWorldRisk must carry that conditional; an unconditional "risk ≤ δ" is
+  false (this is the INT-R1 obligation-completeness dependency, not a solved property).
   `P07`/`P08`/`P29`.
 - **GY-N13a — Acquisition-layer reality census (data + sampled-live probes; NEW, Rev 16).**
   census task, GY-0-class, zero engine-behavior change. The acquisition layer exists but is dark
@@ -2089,6 +2114,49 @@ validation property** (the gate goes red if owner-validation is removed while th
 valid). A cycle task whose runtime is correct but whose contract would not catch that regression is
 **not done**.
 
+#### Phase-5 authority producers (NEW, Rev 18; post-N11 additions from distillation §6.5)
+
+*Three genuinely-missing producers surfaced by the CPA distillation half (§6.3). All three are
+backend `runtime.quality` producers, sequenced **after GY-N11** (they consume the completed cycle),
+and each is reuse-first over adjacent primitives — not a new governance subsystem. Their frontend
+duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
+
+- **GY-PA1 — `NormativeAuthorizationRecord` producer (value-schedule authorization; M33 / CPA-R3).**
+  build-new producer over the existing value organs. Emit a typed record that stores **who**
+  authorized **which** aggregation under **what** mandate / scope / dissent / TTL — a recorded
+  *permission to aggregate*, not ground truth. Reuse GY-N-V `ValueOuterSet` + GY-N8 value gate +
+  `participation_requirement`. `authoritative_for = value_schedule_for_ranking`;
+  `may_not_use_for = legal_competence / democratic_legitimacy / claim_evidence`. **Done when:** a
+  case with no authorized schedule cannot emit a single ranked recommendation (only frontier + a
+  typed `NormativeDecisionRequest`); an authority-lane mismatch (legal competence but wrong
+  decision-rights role) returns `blocked`; a fixture injecting a **silent equal-weight /
+  historical-prior / proxy-as-priority default goes red**. `P05`/`P15`.
+- **GY-PA2 — D3 delegation gate producer (pre-action agent authority; M37 / CPA-R22·R24).**
+  build-new producer closing the D3 `contract_only`/`producer_missing` gap. Before any agent
+  external action (search / tool_call / draft / data_request / external_interaction) emit a
+  mandate-bounded least-privilege replay-linked packet:
+  `autonomous_action_allowed = verified_identity ∩ explicit_permission ∩ mandate-bounded delegation
+  ∩ operation-in-envelope ∩ live accountability`. Out-of-envelope → typed `HumanDecisionRequest` →
+  five-rights `HumanDecisionRecord`. Authority is **non-monotone** (search ↛ data_request); `draft`
+  is typed by audience/externality; agent memory/tools/inputs are **untrusted surfaces** needing
+  governed admission. Reuse `OperationContract`/`OperationInvocationRecord`/`AuthorityBoundary`/
+  candidate-firewall + the `DelegationContract`/`HumanDecisionRequest`/`HumanDecisionRecord`
+  contracts. **Done when:** a click by the wrong role / after TTL fails; search-authority does not
+  grant data_request; a memory record masquerading as a policy fact does not pass the gate.
+  `P26`/`P05`.
+- **GY-PA3 — Compression-loss ledger producer (orchestration authority-delta; M38 / CPA-R23).**
+  build-new producer closing the named G6 gap (G6 emits prompt/tool/search/orchestration/replay
+  ledgers but **no compression ledger**). Every load-bearing orchestration choice
+  (evidence-selection / tool-choice / framing / compression) leaves a typed authority-delta
+  (candidate universe + rejected set + decision-policy + explicit authority effect,
+  `authoritative_for = ∅`). A `CompressionLossReceipt` records retained vs dropped claims /
+  limitations / denied-uses / counterevidence; compression that cannot preserve retained-limitations
+  or denied-uses **fails closed**, never emits a clean summary. Reuse the G6 bounded-agent ledgers +
+  `projection_semantics` + `public_export`. **Done when:** a compression dropping a retained-limitation
+  goes red; a low-`k_eff` selected set presented as broad consensus goes red; a framing-narrowing
+  that changes governance burden without a recorded delta goes red. Feeds Atlas DS14 + INT-R8.
+  `P05`/`P10`/`P14`.
+
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 
 The cycle (Phase 5) produces a grounded-or-honestly-limited design. The north-star's product
@@ -2104,6 +2172,19 @@ classes landing in ONE growing world.)* It runs **two contours with different au
 the candidate→authority firewall. (Scope note: this phase may spin into its own follow-on
 slice; it is planned here so the Phase-5 cycle designs its deployment hooks for it. Each task is
 scoped to a roughly comparable amount of work.)
+
+**Identity & research-input rider (Rev 19).** Phase 6 is the **learning-loop role** of the
+ratified identity (`docs/system-design-decisions/policyos-identity-and-custody-boundary.md`):
+observation of deployed effects is OWN-core; executing the deployment is not — realized metrics,
+implementation status, and appeal outcomes enter as **typed integrate-evidence**, never as
+functions this phase operates. Any follow-on slice spun from this phase adjudicates new tasks
+against the four-way boundary test. **Binding research input:** the Wave-2 `INT-R4`
+`DeploymentLearningSafetyCase` (post-deployment learning under performative / endogenous
+feedback — the deployed rule changes the observation environment itself: gaming, selective
+monitoring, eligibility reshaping the observed sample, policy-induced measurement change,
+spillovers, absent-reporting-channel censoring). O1–O3 as specified below carry its two
+load-bearing riders; the O-block must not close while `INT-R4` remains undelivered unless its
+riders are independently satisfied and recorded.
 
 - **GY-O0 — Attempted-evaluation safety gate (EvalSafety; the Phase 5→6 bridge; NEW, Rev 11).**
   build-new gate. The Phase-5 value gate (GY-N8) declares the **six evaluation modes**; this task
@@ -2133,7 +2214,13 @@ scoped to a roughly comparable amount of work.)
   effect update. **Universality rider (Rev 15, §3.5.8):** the realized-vs-predicted comparison is
   generic over the **typed effect/outcome carriers** the (N10-generalized) value gate produces (U1)
   — never panel-scalar-specific; an effect type the updater cannot yet compare gets an honest typed
-  refusal (U4), not a coerced scalar. `P14`.
+  refusal (U4), not a coerced scalar. **Performativity rider (Rev 19, INT-R4):** before any
+  posterior update, the realized-vs-predicted delta must be **typed to a cause class** —
+  `prediction_error` / `implementation_failure` / `measurement_change` / `behavioral_response`
+  (gaming, adaptation, sample reshaping) — and only `prediction_error` may update the effect
+  posterior; the other three route to their own lanes (delivery evidence, semantic epoch,
+  mechanism-design review). An undiagnosable delta is `diagnosis_unresolved` and **freezes**
+  the update — never a default attribution to the effect. `P14`.
 - **GY-O2 — Exploratory anomaly→hypothesis controller (low authority).** build-new controller
   over reusable detectors. Monitor the broader variable space for anomalies the model did
   **not** predict — reuse the DDM drift / performance / readiness detectors + the
@@ -2150,7 +2237,12 @@ scoped to a roughly comparable amount of work.)
   substrate — so future designs ground against a richer world. Done when: a confirmed deployed
   finding produces a **new versioned `WorldModelRecord` branch** with the added / updated
   coupling + provenance, and a subsequent Phase-5 cycle run grounds against the updated world;
-  an unconfirmed finding **cannot** write back. `P29`.
+  an unconfirmed finding **cannot** write back. **Self-confirmation red-first negative (Rev 19,
+  INT-R4):** the adversarial case — the deployed policy changes data availability or the
+  measurement process, and the system then reads the new data structure as confirmation of its
+  own model — must exist as a frozen fixture and go **red** before O3 is done: a candidate edge
+  whose confirming evidence is causally downstream of the policy's own effect on the
+  *observation process* (not on the outcome) is quarantined, never written. `P29`.
 
 **Phase-6 acceptance:** a deployed design's effect is Bayesian-updated from observation
 (confirmatory) and written to `fabric/world`; an exploratory anomaly is discovered under FDR
@@ -2176,6 +2268,13 @@ pattern: the validator re-derives the claim from live code/artifacts and fails o
 drift), and a repo-quality negative test. The success criterion honors Rule 5: the win
 is **honest, measurement-rooted, replayable outcomes with firewalls intact** — *not* a
 high `useful_design_rate`. Forcing useful-design credit is a failure of this phase.
+*(Rev 19: when the Wave-2 custody-cycle capstone (`OPS-R15`, the 18–24-month simulated
+calendar) is delivered, it joins the V-battery as the lifetime-custody proof — the
+V-tasks below prove the cycle works once; the capstone proves its signatures stay honest
+over time. Additionally, the first positive governed promotion this phase may produce is
+governed by the `INT-R9` FirstPromotionEvaluationProtocol — pre-registered case and
+criteria, no selection after seeing results, sealed holdout — which must be ratified
+BEFORE any promotion candidate is inspected.)*
 
 - **GY-V1 — Coverage-matrix closure (the progress meter).** Re-derive the repo-wide
   capability coverage matrix post-implementation. Prove every row a GY task acted on

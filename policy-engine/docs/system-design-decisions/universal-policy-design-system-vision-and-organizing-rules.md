@@ -3,7 +3,7 @@ title: Universal Policy Design — System Vision And Organizing Rules
 status: draft design decision — organizing constitution (post-S14 synthesis)
 owner: team-architecture
 created: 2026-06-03
-last_reviewed: 2026-06-06
+last_reviewed: 2026-07-20 (additive amendment to §1: identity and the custody boundary; acceptance record in policyos-identity-and-custody-boundary.md)
 decision_status: proposed — the durable laws that govern how the Layer 2 system is built and extended
 supersedes: nothing
 informs:
@@ -12,6 +12,7 @@ informs:
 source_design_doc: docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 related:
   - docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
+  - docs/system-design-decisions/policyos-identity-and-custody-boundary.md
   - docs/reference/policy-design-case-failure-patterns.md
   - docs/adr/0174-policy-evidence-capability-graph.md
   - architecture/policy_design_case/cluster_ownership_map.toml
@@ -58,6 +59,20 @@ The honest target is to convert genuinely hard cases into **typed counterexample
 valid refinements, robust/limited designs, acquisition plans, or honest
 abstentions — without weakening floors**. The envelope may shrink. That is a
 feature.
+
+**Identity and the custody boundary (amendment, ratified 2026-07-20).** The system's
+identity is the **epistemic custodian of policy justification across the whole life of a
+policy**. The honesty promise above has a time dimension: a claim honest at t0 silently
+becomes false when law, data, calibration, or the world changes — so custody of every
+published signature, for as long as it publicly stands, is the *completion* of this
+vision, not an extension of it. The boundary rule: **PolicyOS owns everything it signs,
+for exactly as long as the signature stands; it consumes everything others sign as typed
+evidence; it makes no claims it cannot custody.** It is therefore a design authority, a
+justification custodian, and a post-deployment learning loop — and explicitly **not** an
+administrator, executor, case-management system, court, notification channel, or payment
+system. Scope questions are adjudicated by the four-way test (`own / integrate / observe /
+out_of_scope`) in `docs/system-design-decisions/policyos-identity-and-custody-boundary.md`,
+which is the human-principal acceptance record for this amendment (per §12).
 
 ## 2. The Two Roles
 

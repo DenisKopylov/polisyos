@@ -7,8 +7,9 @@ created: 2026-07-20
 revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16; Batch 8 — Foundry Phase 11 P11.01..P11.15; Batch 9 — Cross-cutting Public Authority CPA-R1..R17; Batch 10 — Cross-cutting Public Authority CPA-R18..R28 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
-authoritative_for: [research_finding_triage, consolidation_candidate_registry]
+authoritative_for: [research_finding_triage, consolidation_candidate_registry, move_adoption_gating]
 may_not_use_for: [capability_claim, authority_grant, task_execution_contract]
+note: "§6 is the per-move gate that authorizes a *specific* move to become a mandatory input to a *named* plan task (plan_adopted). A move NOT carrying plan_adopted in §6.2 remains under may_not_use_for. The raw §2 reports are never capability claims."
 ---
 
 # Deep-Research Value Distillation Ledger
@@ -2255,3 +2256,194 @@ genuinely new move into §1 (M-series), update §3 routing and §5. Consolidatio
 later** deliberate act — only after the backlog is fully distilled. Running totals: **139 reports** across 10
 batches, **40 cross-cutting moves**, ~90 candidate records flagged for [[M30]]×[[M31]] consolidation (over ~6–8
 existing owners, not ~90 families).
+
+---
+
+## §6 Assurance & adoption layer — all 40 moves
+
+**Purpose.** §1–§5 answered *"what was valuable in the research?"* This section answers the harder question that
+gates plan edits: *"which moves are re-verified enough to become a **mandatory input to a named plan task**?"* This
+is the deliberate crossing of the frontmatter `may_not_use_for: task_execution_contract` boundary — but only for a
+move that earns `plan_adopted` **here**, per-move, not for the raw reports (which stay untrusted content, [[M2]]).
+
+**Method.** Three disciplines, applied to *all* 40 moves: (a) a **tier** (how much re-verification before it may
+gate a task); (b) a **red-test / falsifier** — the single check that, if it *passes*, means the move was violated
+(this is what a fixture must encode, [[M8]]); (c) **[[M3]] turned on the report corpus itself** (§6.4) — the CPA
+consensus is inflated by shared NIST/OECD/OMB/ATRS/EU-AI-Act anchors, so a move backed by "12 reports agree" is
+*not* 12-independent; we weight distinct primary anchors, not report count.
+
+**Standing constraint (from the owner).** Every plan edit derived here (§6.5) is sequenced **after** the in-flight
+**GY-N11** task (main plan) and **after** the in-flight **DS4** task (frontend plan). Nothing in §6 touches N11 or
+DS4 themselves; N11/DS4 are treated as immovable predecessors.
+
+### §6.1 Tiering & status schema
+
+| Tier | Meaning | Gate before it may become a task input |
+| --- | --- | --- |
+| **T1** | Adopt-as-reinforcement. `REINFORCES-EXISTING` and/or a real repo primitive was cited. | One-line confirm against the named primitive; no new research. |
+| **T2** | Adopt-with-verification. `ADOPT-CANDIDATE`, novel, touches an active/imminent lane. | Needs a false-pass/false-block fixture ([[M8]]) **and** an owner before it gates a task. |
+| **T3** | Hold-as-candidate. Deferred, not-yet-needed, or conditional on an open research question. | Do not adopt; revisit when its dependency closes. |
+
+Status codes (per move, §6.2): `RV` research_validated (≥1 independent primary anchor + internal coherence) · `RepoV`
+repo_verified (a real named primitive cited — still re-check in code before it gates) · `FX` fixture_needed · `PROD✗`
+producer_missing · `GAP` named-gap (surface unbuilt) · `COND(P29)` conditional on obligation-completeness (§6.3).
+`plan_adopted` is **not** set until Phase 2 lands the edit.
+
+### §6.2 Master adoption table (grouped by principle-family)
+
+*My synthesis: the 40 moves collapse into 8 families. "Plan consumer" tags marked **(research)** route to the
+proposed INT-R integration backlog, not to the two plans.*
+
+**F1 · Envelope & authority-boundary**
+
+| M | Tier | Red-test (turns it red) | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M1 | T1 | remove the envelope → consumer still grants authority | DS4 (envelope = first-class field); every GY producer | RepoV (`runtime.quality.authority`) |
+| M2 | T1 | a research finding rewrites a spine artifact | process discipline (this doc) | RepoV |
+| M9 | T1 | a producer blocks waiting on a parallel track instead of typing the assumption | GY-N7/N13 | RV |
+| M21 | T2 | a nearest-name match passes as a bind | GY-N4 / CGF §3.5.11 | RV · FX |
+| M30 | T1-design | ~90 records → ~90 authority families **or** one mega-scalar | the consolidation act (design, not research) | RV · OWN=consolidation |
+| M31 | T2 | a passing lane compensates a failing lane; **or** 7 axes become 7 lattices (must compose to ONE — DS4 dep.) | DS4 composition rule; every CPA producer | RepoV (`capability_authority` min-of-load-bearing) |
+| M40 | T2 | an ATRS record / NIST profile / "no AIID match" fills an authority slot | external-regime ingestion (lex↔obligation_rules) | RV · open-Q(lex boundary) |
+
+**F2 · Claim-type / axis separation**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M11 | T1 | two axes collapse into one score | Fabric passport; GY-N13b | RepoV (Fabric self-labels) |
+| M15 | T1 | an estimate is read as a certificate | GY value/causal; Foundry outputs | RV |
+| M16 | T1-design | a scalar ranking hides the Pareto / partial-order | DS16–18 set-valued surfaces; GY value | RV |
+| M20 | T1 | aggregation hides a subgroup flip | GY value/causal; DS attribution | RV |
+| M22 | T1 | a wrong-regime method runs with no triage gate | Foundry dispatch; GY causal | RV |
+| M27 | T2 | a relabeled opaque latent dim treated as substance; a metric/embedding swap silently changes the "finding" | GY substrate; **INT-R6** (language-as-representation) **(research)** | RV |
+| M29 | T1 | a veto is averaged away | GY value engine (nested composition) | RV |
+
+**F3 · Effective-independence / no-inflation**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M3 | T1 | N lineage-sharing sources counted as N independent supports | GY-N9 promotion; Foundry judge-stack; **§6.4 (this pass)** | RV |
+| M12 | T1 | an "absolved/safe" claim passes by default | Fabric detect; GY | RV |
+| M14 | T1 | a single lane's "clear" passes as detection | Fabric detect; **INT-R8** **(research)** | RV |
+| M19 | T1 | free tuning with no accountable ledger | GY search controller; N11 δ-budget (selection *spends*) | RV |
+
+**F4 · Proof-over-presence / verifier discipline**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M7 | T1 | a measurement/diagnostic artifact is used as a control/authority artifact (or vice-versa) | GY honest-diagnostics; **INT-R3** control-vs-measurement at the UI **(research)** | RV |
+| M8 | T1 | a structural-only test greens while the property is deleted | every producer's verification; **INT-R3/R9** **(research)** | RV |
+| M18 | T1 | the generator self-certifies | GY bounded agent | RV |
+| M28 | T1 | a convergence flag stands in for a decision-unit bound | Foundry method certs; GY | RV |
+| M34 | T2 | an "Appeal here" link bound to nothing passes; an explanation that raises confidence but not understanding passes | DS9/DS12; **INT-R3** **(research)** | RepoV (`graded_outcomes`,`human_review`) |
+| M35 | T2 | a vendor-run eval counts as independent; "no AIID match" = "no incidents" | CPA supplier evidence; **INT-R7** **(research)** | RV |
+| M39 | T2 | single-number fit / non-independent validation / aggregation-jump passes | GY substrate | RepoV (`construct_registry.py`) |
+
+**F5 · Sealing / projection / contamination**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M4 | T1 | a derivative leaks back into the sealed raw | GY contamination containment; CGF | RV |
+| M10 | T1 | a projection mints authority, or a MACHINE projection drops reconstructable refs | DS12–15; **INT-R8** **(research)** | RV |
+| M13 | T1 | a redaction is reconstructable from diffs/hashes/ordering | DS12–14; **INT-R8** **(research)** | RV |
+| M38 | T2 | compression drops retained-limitations and greens; framing-narrowing changes governance burden silently | **compression ledger (NEW task)**; DS12–14 | **GAP** (no compression ledger exists) |
+
+**F6 · Regime-triage / validity-by-structure**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M5 | T1 | a mandatory gate encoded as a buyable-back penalty term | GY-N11 obligation-class gates, N9 | RV · COND(P29) |
+| M17 | T1 | a convenient method used outside its decision structure | Foundry dispatch; GY | RV |
+| M23 | T2 | non-identification collapsed to a wide interval instead of a set/abstention; `unknown` treated as zero | DS16–18; GY value (ValueOuterSet); **INT-R1** **(research)** | RV · COND(P29) |
+| M24 | T1 | a tail/process claim rests on a cancelling average | GY value; ex-post value (CPA-R9) | RV |
+| M26 | T1 | a universal claim where impossibility is provable | GY; DS `incomparable` surface | RV |
+
+**F7 · Time / lifecycle / recompute-not-pin**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M6 | T1-design | a status pinned/trusted-by-presence instead of recomputed; a parallel lattice appears | DS4 (one-lattice, recompute-not-pin) | RepoV (DS4 direction) |
+| M25 | T1 | a newer source outranks by recency alone; a silent edit replaces a versioned record | GY-N12 epochs; DS18 staleness | RV |
+| M36 | T2 | a single upheld appeal invalidates the class; a closed case is silently mutated instead of superseded | GY-N12; DS13/DS18 (reuse `case_lifecycle`+`rule_evolution`+`scientist/governance/continuous`) | RepoV (`case_lifecycle` seam) |
+
+**F8 · Capacity / permission / delivery**
+
+| M | Tier | Red-test | Plan consumer | Status |
+| --- | --- | --- | --- | --- |
+| M32 | T2 | a calibrated model with an unstaffed appeal queue passes as deliverable; a local pilot extrapolates to national | CPA delivery gates | RV · caveat(CHAOSS-privacy) |
+| M33 | T2 | silent equal-weight / historical-prior / proxy-as-priority scalarization | **NormativeAuthorizationRecord producer (NEW task)**; DS16–18 | **PROD✗** |
+| M37 | T2 | a click by the wrong role / after TTL passes; search-authority grants data-request/write | **D3 delegation gate (NEW task)**; DS9/DS20; **INT-R5** | **PROD✗** / `contract_only` |
+
+### §6.3 Load-bearing conditionals, missing producers, named gaps, actionable defects
+
+- **The P29 conditional — the one thing that must never be presented unconditionally.** M5/M19/M23/M31 *feed* the
+  δ-bound N11 computes, but that bound is **conditional on obligation-completeness**, which is formalized-not-solved
+  (P29 regress). Any plan task or public surface that consumes these moves must carry the explicit rider "risk ≤ δ
+  *relative to the declared obligation set*." This is precisely the dependency the proposed **INT-R1** closes; until
+  it does, `COND(P29)` moves may gate *mechanism* tasks but not *public-claim* surfaces (DS12). This is the single
+  most important adoption constraint in the whole ledger.
+- **Three genuinely-missing producers (→ NEW tasks, §6.5).** (1) **M33** `NormativeAuthorizationRecord` — the value
+  authorization producer; adjacent primitives exist, the producer does not. (2) **M37** the **D3 delegation gate** —
+  `DelegationContract`/`HumanDecisionRequest`/`HumanDecisionRecord` are still `contract_only`/`producer_missing`.
+  (3) **M38** the **compression ledger** — G6 emits prompt/tool/search/orchestration/replay ledgers but *no*
+  compression ledger, so the compression-laundering surface is unbuilt.
+- **Everything else is reuse, not build.** The ~90 candidate records collapse to [[M30]]×[[M31]] payloads over ~6–8
+  existing owners; status-lattice consolidation is DS4 design work; M36's cascade reuses `case_lifecycle` +
+  `rule_evolution` + `scientist/governance/continuous`; M39 reuses `construct_registry.py`. None of these is a
+  research task.
+- **Three actionable repo defects (verify-in-code first — reports are untrusted).** These are *tickets*, not
+  move-adoptions, and per the standing constraint they queue **after** N11/DS4: (1) `tests/_golden/foundry/signature_baseline.json`
+  `method_count: 0` (empty method-inventory golden, confirmed 3×). (2) **safety-relevant:** `agent_sim/rl.py` PPO
+  advantage-normalization mixes active/inactive agents (`FOUNDRY_REMEDIATION_PLAN`) — flag for an out-of-band check
+  even though its ticket queues after N11. (3) `del targets, identification_mode` in a Foundry adapter (P6.13/P9.03)
+  — silently drops `identification_mode`. **Verify each exists before filing.**
+
+### §6.4 Report-corpus lineage map — [[M3]] applied to the reports themselves
+
+The honest deflation: the CPA half (R1–R28) reaches near-identical conclusions in part because the reports draw on a
+**small shared anchor set** — NIST AI RMF, OECD AI Principles/AIM, OMB M-25-21/M-25-22, UK ATRS, EU AI Act. So
+"many CPA reports converge on the 7-axis rule" is high-`k_eff`-illusion: the *distinct primary anchors* number far
+fewer than the reports. Adoption weighting that follows:
+
+- **High independent grounding (weight the move strongly):** the *engine* moves (M11–M29 from Scientist/Fabric/Foundry)
+  rest on genuinely diverse method literatures + real repo primitives — low shared-lineage risk. M31/M34/M39 also
+  have *independent repo anchors* (`capability_authority`, `graded_outcomes`/`human_review`, `construct_registry`),
+  which is stronger than external-anchor consensus.
+- **Shared-anchor consensus (adopt the *shape*, not the "N reports agree" strength):** M32/M35/M36/M37/M40 and the
+  seven-axis framing lean heavily on the shared NIST/OECD/OMB/ATRS/EU set. Their *structure* is sound and repo-aligned,
+  but a plan task must cite them as "a jurisdiction-neutral contract + one example mapping," never as settled
+  cross-jurisdiction law (the reports say this themselves).
+- **Practical rule for Phase 2:** when a task-addition cites a CPA move, cite the **repo primitive it reuses** as the
+  authority and the external regime as the *example mapping* — never the report count. This keeps [[M3]] honored at
+  the plan level.
+
+### §6.5 Derived plan-edit manifest (Phase-2 bridge — all edits post-N11 / post-DS4)
+
+*Proposed mapping of adoption-ready moves to concrete plan edits. Exact insertion anchors (task IDs, section numbers)
+are pinned in Phase 2 by reading the two plan files; nothing here is applied yet, and every item is sequenced strictly
+after the named predecessor.*
+
+**Main plan — `docs/plans/active/layer3-slices/GY-engine-subordination.md` (all after GY-N11):**
+
+| Edit | Type | Moves folded | Intent |
+| --- | --- | --- | --- |
+| **NormativeAuthorizationRecord producer** | NEW task | M33 (·M16·M29·M31) | value-schedule = recorded permission to aggregate; `pareto_only` + `NormativeDecisionRequest` absent authorization |
+| **D3 delegation gate producer** | NEW task | M37 (·M18·M5) | pre-action mandate-bounded authority packet; agent = untrusted transducer |
+| **Augment GY-N12 (epochs/stale)** | augment | M36·M25 (+CPA-R21/R26 `EvidenceValidityEvent`) | typed post-publication cascade; no silent mutation of closed cases; reuse `case_lifecycle`/`rule_evolution`/`continuous` |
+| **Augment N9 / post-N11 δ-hardening** | augment | M5·M19·M3 · **COND(P29)** | gate-first (mandatory gate ≠ buyable penalty); selection *spends* budget; k_eff on promotion — with the explicit P29 rider |
+| **Grounding/CGF §3.5.11** | augment | M21·M4 | anchored-support (versioned source + span + scope-algebra), not nearest-name |
+
+**Frontend plan — `docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md` (all after DS4):**
+
+| Edit | Type | Moves folded | Intent |
+| --- | --- | --- | --- |
+| **Augment DS16–18 (set-valued/risk-spend/staleness)** | augment | M23·M16·M24·M26 | set-valued/abstention surfaces; full-structure-not-scalar; `incomparable` as no-admissible-ranking |
+| **Augment the DS4-successor status surfaces** | augment | M31·M6·M29 | weakest-boundary composition into ONE lattice; recompute-not-pin; no veto-erasure |
+| **Augment DS9/DS12 (human decision / publication gate)** | augment | M34·M10·M35 | contestability proven not gestured; four-projection transparency; MACHINE keeps reconstructable refs |
+| **Compression ledger** | NEW task | M38·M13·M14 | close the named G6 gap; `CompressionLossReceipt`; composition budget across repeated disclosures |
+| **Augment DS18 staleness chrome** | augment | M25·M36 | vintage/as-of first-class; supersede-not-silent-edit |
+
+**Not in this manifest (kept separate on purpose):** the INT-R integration/epistemic-closure research wave
+(obligation-completeness, generalized acquisition, operator-comprehension, performative post-deployment learning,
+etc.) is a *new research backlog*, not a plan edit — it belongs in `remaining-integration-and-epistemic-closure-backlog.md`,
+downstream of this pass. The three actionable defects (§6.3) are *tickets*, also post-N11/DS4.

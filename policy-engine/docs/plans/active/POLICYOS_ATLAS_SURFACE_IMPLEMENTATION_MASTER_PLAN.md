@@ -4,7 +4,7 @@ status: ACTIVE - Revision 3 grounded in Phase-A measured reality; activation sat
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-07-20 (Revision 3.2 - DS20 + DS20-B server authorization floor CLOSED & MERGED 03ebc1ce8; typed cross-fence limitations B3/B5/scorecard/Helm registered as debt with owners; DS4 remains the sole active Phase-B parallel lane)
+revised: 2026-07-20 (Revision 3.5 - DS4 stop-law resolution: re-cut authorized as slice clusters C21-C23 (bounded retirement / structural adapters / readiness-scientific containment), and DS16 gains the inherited producer-binding debt for PublicSectorReadiness + ScientificDepth, which DS4-C23 only contains. | Revision 3.4 - identity-decision audit of all post-DS4 slices [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: DS5 gains the previously-unapplied §6.5 manifest row [M31·M6·M29 weakest-boundary/one-lattice/recompute-not-pin lints] + the INT-R6 semantic-ID locale rule; DS6's honesty-comprehension protocol seeded as the INT-R3 behavioral benchmark joining the stable bar for interactive authority surfaces; DS11 posture anchored in the ratified custodial identity + anti-role negative; DS12's gate extended with the before-first-public-record research inputs INT-R1/R7/R8 + pre-registered INT-R9; DS15 renders non-data gap routes typed [INT-R2]; DS17 renders the δ obligation-set conditional chip [COND(P29)/INT-R1]. | Revision 3.3 - deep-research distillation §6.5 adoption, sequenced strictly after the in-flight DS4: augment bullets on DS9 [M34·M37 delegation packet + contestability-proven], DS12 [M10·M34·M35 + the P29 "risk ≤ δ relative to the declared obligation set" public-claim rider], DS14 [M38·M13 compression-loss surface + cross-projection disclosure budget], DS16 [M16·M23·M24·M26·M33 full-structure/incomparable/authorization], DS18 [M25·M36 perturbation cascade + supersede-not-silent-edit]; their backend producer duals are GY-PA1/PA2/PA3 in the GY plan; the "Rev 18" tag in those bullets cross-references the distillation ledger's move-series, not the Atlas revision number. | Revision 3.2 - DS20 + DS20-B server authorization floor CLOSED & MERGED 03ebc1ce8; typed cross-fence limitations B3/B5/scorecard/Helm registered as debt with owners; DS4 remains the sole active Phase-B parallel lane)
 last_reviewed: 2026-07-20
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
@@ -705,6 +705,18 @@ is implied by DS0 closure.
   hand-written fetch to an authority endpoint fails CI; a PUBLIC-class request
   for REVIEWER data is denied server-side in a contract test; an authority
   action enqueued offline fails its negative test.
+- **Distillation augment (Rev 3.4, post-DS4; §6.5 · M31·M6·M29 — the manifest row
+  previously unapplied):** the lints enforce **weakest-boundary composition into the ONE
+  lattice** — a composed status is the minimum over its load-bearing inputs, a passing lane
+  can never lint-silently compensate a failing one, and a veto (`blocked`, rights-bar) can
+  never be averaged away in any client-side aggregation; **recompute-not-pin** becomes
+  mechanical — a status trusted by presence (pinned, cached without as-of revalidation,
+  copied between stores) turns the lint red, extending the DS1 cache policy from payloads
+  to statuses. **Research input (INT-R6):** the duplicate-label/static-copy and i18n
+  enforcement anchor on **canonical semantic IDs, never string comparison**; a translation
+  that upgrades a status's semantic strength (`limited` → "confirmed with caveat",
+  `may_not_use_for` → optional recommendation) is the red-first negative of the locale
+  lint — pending the D4 language-policy ratification it depends on.
 - **Not yet:** enforcement covers the waist and existing strangled panels;
   un-migrated legacy features carry honest lint-debt entries in the ledger.
 
@@ -725,6 +737,15 @@ is implied by DS0 closure.
 - **Negative controls:** a component claiming `stable` without stored evidence
   fails the validator; a ledger entry claiming `implemented` without its
   negative/semantic test fails CI.
+- **Research-input augment (Rev 3.4, post-DS4; INT-R3):** the honesty-comprehension
+  protocol is the seed of the Wave-2 `AuthorityUIComprehensionBenchmark` — when that
+  research lands, the reviewer-task procedure upgrades from "find the weakest link" to the
+  **behavioral** battery (`false_action`, `false_pass`, `missed_blocker`,
+  `unsafe_override`, time-to-correct, confidence-vs-correctness calibration; `unknown` ≠
+  zero ≠ missing; `incomparable` = no-admissible-ranking; refusal of stale/quarantined —
+  under keyboard-only, screen-reader, low-numeracy, time-pressure) and its thresholds
+  join the `stable` bar for every **interactive authority surface** (DS7/DS9/DS15–DS18).
+  DS6 owns the instrument; the benchmark's content arrives from INT-R3, not invented here.
 - **Not yet:** no product surfaces; DS6 measures, it does not ship screens.
 
 ### Phase C — Workspace Surfaces
@@ -808,8 +829,14 @@ is implied by DS0 closure.
 - **Negative controls:** P26 negatives — a rubber-stamp approval (no evidence
   opened, no mandate shown) is blocked and surfaced; an approval attempted
   from the offline queue is rejected pending revalidation.
-- **Not yet:** no delegation-chain UI beyond what `HumanDecisionRecord`
-  carries; no public rendering of decisions (DS12).
+- **Distillation augment (Rev 18, post-DS4; §6.5 · M34·M37):** render the **GY-PA2** delegation
+  packet as a **pre-action gate**, not a post-hoc log — identity ∩ permission ∩ mandate-bounded
+  delegation ∩ envelope ∩ live accountability; a wrong-role or expired-TTL approval, and a
+  search-authority reused for `data_request`, both render `blocked` with reason. Contestability is
+  **proven, not gestured**: an "Appeal here" control bound to no case, and a rubber-stamp review
+  (reviewer independence / change-authority absent), both fail red.
+- **Not yet:** delegation-chain UI now lands via **GY-PA2** (superseding the base deferral); no
+  public rendering of decisions (DS12).
 
 #### DS10 — Capability Discovery
 
@@ -851,18 +878,33 @@ is implied by DS0 closure.
   conformance evidence surfaces; supported/planned/blocked register; MACHINE
   twin of the register.
 - **Laws:** 5, 6.
+- **Identity augment (Rev 3.4, post-DS4):** the posture story is anchored in the
+  **ratified identity** (`docs/system-design-decisions/policyos-identity-and-custody-boundary.md`):
+  the public copy states what the system IS — the epistemic custodian of policy
+  justification (grounded design or costed refusal; signatures kept honest over time) —
+  and what it is NOT (the binding anti-roles: not an administrator, executor,
+  case-management system, court, notification channel, or payment system). The claims
+  register carries the custody promise as a first-class claim family: "every published
+  signature is watched for staleness and superseded, never silently edited."
 - **Negative controls:** P05 negative — copy that upgrades `planned` or
-  `candidate` to `supported` fails the claims-register check.
+  `candidate` to `supported` fails the claims-register check; posture copy implying an
+  anti-role capability (e.g., "manages your cases") fails the identity check.
 - **Not yet:** no grounded-performance claims until the runtime earns them.
 
 #### DS12 — Public Publication Foundation
 
-- **Gate (constitutional, re-stated in Revision 2):** the **first governed
-  promotion** exists — a design promoted through the GY-N9 gate with GY-N11
-  δ-accounting and GY-N12 epoch validity live — **and** DS11. Per Rule 5 the
-  runtime never forces this milestone; the public surface waits honestly.
-  Before it, the public-facing story is DS11 posture + the Cycle Board's
-  public-safe projection (honest status, not recommendations).
+- **Gate (constitutional, re-stated in Revision 2; research inputs added in
+  Rev 3.4):** the **first governed promotion** exists — a design promoted through the
+  GY-N9 gate with GY-N11 δ-accounting and GY-N12 epoch validity live — **and** DS11,
+  **and** the Wave-2 research inputs that must close **before the first public record,
+  not during it**: `INT-R7` (public-verification key lifecycle: rotation, revocation,
+  archival verification, anti-equivocation, offline verification), `INT-R8`
+  (compression-loss + cross-projection disclosure budget for the public views), `INT-R1`
+  (the δ-conditional the public claim must carry), and the `INT-R9` first-promotion
+  protocol **pre-registered before any promotion candidate is inspected**. Per Rule 5
+  the runtime never forces this milestone; the public surface waits honestly. Before it,
+  the public-facing story is DS11 posture + the Cycle Board's public-safe projection
+  (honest status, not recommendations).
 - **Goal:** the first honest public surface: one promoted decision record,
   published end-to-end, verifiable by a citizen.
 - **Producer & bridge work (in-slice):** public record/certificate endpoints;
@@ -886,6 +928,14 @@ is implied by DS0 closure.
   the public boundary; a public page ahead of the runtime envelope fails the
   envelope check; an unauthenticated request for non-PUBLIC data is denied
   server-side.
+- **Distillation augment (Rev 18, post-DS4; §6.5 · M10·M34·M35 + P29 rider):** any public δ /
+  promotion claim carries the explicit obligation-completeness conditional — **"risk ≤ δ *relative
+  to the declared obligation set*"**, never unconditional (the INT-R1 dependency; distillation §6.3).
+  The audience views are **one substrate → four projections** (PUBLIC/REVIEWER/EXPERT/MACHINE); the
+  MACHINE twin must preserve reconstructable source/authority/audit refs (a projection that drops
+  them is red). Contestability is proven (real recourse to a competent, change-authorized reviewer),
+  not an "Appeal here" link. Any third-party model/data behind the claim carries a **graded
+  supplier-evidence envelope** (vendor-run eval ≠ independent; "no incident found" ≠ "no incidents").
 - **Not yet:** one record published well beats many published loosely;
   dispute/consultation/history surfaces arrive in DS13.
 
@@ -931,6 +981,13 @@ is implied by DS0 closure.
 - **Negative controls:** P15 negatives — fluent agent text cannot populate an
   authority slot, an approval field, or a public claim; orchestration choices
   render with their audit trail.
+- **Distillation augment (Rev 18, post-DS4; §6.5 · M38·M13·M14):** render the **GY-PA3**
+  compression-loss ledger — each orchestration choice (selection / tool / framing / compression)
+  shows its **authority delta** (candidate universe + rejected set + decision-policy;
+  `authoritative_for = ∅`). A `CompressionLossReceipt` surfaces retained vs dropped limitations /
+  denied-uses / counterevidence; a summary that dropped a retained-limitation renders **blocked, not
+  clean**. Add a **cross-projection disclosure budget**: repeated PUBLIC/REVIEWER/MACHINE reveals
+  cannot let a hidden fact be reconstructed via diff / hash / ordering / timing.
 - **Not yet:** no agent output on PUBLIC surfaces; agent surfaces stay
   REVIEWER/EXPERT until a separate, explicit decision.
 
@@ -968,6 +1025,15 @@ is implied by DS0 closure.
   quarantined, never as world data (P05 at the data plane); an acquisition
   approval from the offline queue is rejected; the growth backlog cannot be
   reordered client-side against its VOI ranking without showing the override.
+- **Research-input augment (Rev 3.4, post-DS4; INT-R2):** the route detail view renders
+  **non-data gap types as typed, visually distinct routes** — grounding-relation gap,
+  estimand-binding gap, owner-writability gap, legal-mandate gap, capacity-evidence gap,
+  human-decision gap — never forced into dataset-acquisition clothing (the N13a finding:
+  the capstone routes were structural, not data gaps). Each type shows its own
+  sufficiency bar and authority ceiling from the `GapAcquisitionCase` union when INT-R2
+  lands; until then the surface renders the honest typed refusal, not a generic
+  "fetch more data" affordance. **Falsifier (rendered):** adding rows must visibly NOT
+  advance a relation/estimand/mandate route.
 - **Not yet:** no auto-execution UX — acquisition stays a gated human
   decision; no PUBLIC projection of the backlog before DS12's gate.
 
@@ -996,8 +1062,30 @@ is implied by DS0 closure.
   visual regression; a derived series rendered without its provenance class
   fails the semantic test; a class-(iv) model output styled as observed data
   is the data-plane P15 and must fail.
+- **Distillation augment (Rev 18, post-DS4; §6.5 · M16·M23·M24·M26·M33):** the canonical object is
+  the full set / partial-order — a scalar is a lossy view, never the authority. `incomparable`
+  renders as **"no admissible ranking exists"**, distinct from `unknown` (missing) and from zero. A
+  tail / worst-case-over-process value may **not** be shown as a cancelling average. A single ranked
+  recommendation renders **only** when a **GY-PA1** `NormativeAuthorizationRecord` authorizes the
+  aggregation; absent it, the surface shows the frontier + a `NormativeDecisionRequest`, never a
+  silent scalarization.
+- **Inherited debt from DS4-C23 (registered 2026-07-20, owner: DS16):** the DS4
+  return-union census found two surfaces **minting** evidence-grade authority the
+  runtime never produced — `PublicSectorReadinessPanel` composed readiness from
+  local thresholds/regexes/dwell-state/disputes, and `ScientificDepthPanel`
+  invented remedies, acquisition refs, **E-values, claim extinction, cohort
+  timelines, and stress rankings** (`P15`/`P05`; "dashboards may project
+  authority, they may not mint it"). **DS4-C23 performs containment only** —
+  it strips the synthesis and renders `unavailable`/opaque. **DS16 owns the
+  binding**: define/consume the typed producer contract for readiness
+  composition and scientific-depth values, so these surfaces render a producer
+  value or an honest `unknown`, never a locally computed one. *Closure signal:*
+  each named value resolves to a generated field or a registered typed
+  refusal; the DS4 containment negatives stay green afterwards. This is
+  value/uncertainty semantics, which is why it is not DS4 work.
 - **Not yet:** no transform-planner UI (the GY plan defers transform chains);
-  single-transform provenance only.
+  single-transform provenance only; the DS4-C23 producer binding above is
+  DS16-owned but not started.
 
 #### DS17 — Confidence-Ledger & Risk-Spend Surface
 
@@ -1016,6 +1104,14 @@ is implied by DS0 closure.
 - **Negative controls:** an over-spent scope cannot render as promotable; a
   Bayesian credible interval without a coverage argument cannot appear as a
   promotion certificate (the N11 negative, surfaced).
+- **Distillation augment (Rev 3.4, post-DS4; §6.3 COND(P29) · INT-R1):** every rendered
+  δ figure carries its **obligation-set conditional visibly** — "≤ δ *relative to the
+  declared obligation set*" — as a first-class chip resolving to the
+  `ObligationCoverageEnvelope` (declared scope, searched sources, exclusions, unknown
+  remainder, TTL) once INT-R1 lands; until then the chip renders the honest
+  `open_world_unresolved` state. A δ number displayed without its conditional is the
+  surface-level P29 and fails the semantic test — the ledger's math is only as complete
+  as the obligations the system knows.
 - **Not yet:** no public δ claims before DS12; the view is REVIEWER/EXPERT
   accounting, not a marketing score.
 
@@ -1038,6 +1134,13 @@ is implied by DS0 closure.
   semantic test; a chart without `as_of` on a decision-bearing surface fails
   the DS5 lint battery (extended here); crossing an epoch boundary in a replay
   view must show the boundary, not blend across it.
+- **Distillation augment (Rev 18, post-DS4; §6.5 · M25·M36):** render the GY-N12 **post-publication
+  perturbation cascade** — incident / appeal / correction / retraction / legal-change / bias are
+  *distinct* event classes (not one "reopen"), each downgrade-only until adjudicated; a single upheld
+  appeal shows **instance-scope, not class-scope**. A published record is **superseded with visible
+  lineage, never silently edited** (recency ≠ strength); an `EvidenceValidityEvent` on an underlying
+  source propagates source → evidence-line → claim → publication, and a claim that lost its support
+  cannot stay current.
 - **Not yet:** epoch chrome does not invent time semantics — it renders GY-N12
   and §3.5.12-D6 outputs only; scopes without regime data render honest
   `epoch_scope_unresolved`.

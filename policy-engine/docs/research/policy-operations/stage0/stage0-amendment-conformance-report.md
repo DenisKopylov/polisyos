@@ -182,6 +182,7 @@ artifacts. Any such markers in a frozen source remain inert historical bytes.
 | Forbidden marker scan in amendment-authored files | Pass |
 | Disposition-ID count and uniqueness | Pass: 20 + 18 + 22 |
 | Frozen-source SHA-256 verification | Pass |
+| Primary external-link audit | Pass after replacing one retired GOV.UK path and superseded RFC 6962 with their current primary references |
 | `git diff --check` on amendment-authored files | Pass |
 | Full staged `git diff --check` | One expected warning: the byte-identical frozen OPS-R15 source contains its original terminal blank line |
 | Targeted PDC/reissue/core-audit/Fabric tests | Pass: 32/32 |

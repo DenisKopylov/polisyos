@@ -184,6 +184,8 @@ artifacts. Any such markers in a frozen source remain inert historical bytes.
 | Frozen-source SHA-256 verification | Pass |
 | `git diff --check` on amendment-authored files | Pass |
 | Full staged `git diff --check` | One expected warning: the byte-identical frozen OPS-R15 source contains its original terminal blank line |
+| Targeted PDC/reissue/core-audit/Fabric tests | Pass: 32/32 |
+| Docs gate/lifecycle tests | 31 passed / 2 inherited baseline failures |
 
 The checks were repeated after this report was added.
 
@@ -198,19 +200,25 @@ PYTHONPATH=src:. python3 tools/quality/validation/check_docs_lifecycle.py --repo
 returns three existing findings:
 
 1. `architecture/atlas_surfaces/atlas-v15-adoption-ledger.json` contains the
-   retired `frontend/runtime-dashboard` path;
+   retired pre-`apps/` runtime-dashboard path;
 2. `architecture/atlas_surfaces/atlas-v15-archive-map.json` contains the same
    retired path;
 3. `docs/reference/frontend/atlas-v15-adjudication.md` contains the same
    retired path.
 
-The amendment neither edits those files nor introduces that string. These are
-inherited repository findings, not resolved or suppressed here.
+All three require the canonical `apps/runtime-dashboard` path. The amendment
+neither edits those files nor repeats the retired literal. A follow-up audit
+caught and removed that literal from this report itself: before the correction,
+the lifecycle validator reported a fourth amendment-introduced finding; after
+the correction, the amendment overlay and clean base both report exactly the
+same three findings above.
 
 The path-aware docs gate selected the docs-freshness baseline for the nine
-changed paths. Its `uv run` wrapper could not start because the execution
-environment exposes `/root/.local/share/uv/python` as read-only. Direct
-execution of the selected validator reported:
+changed paths. Initial execution of its `uv run` wrapper could not start because
+the environment exposed `/root/.local/share/uv/python` as read-only. A follow-up
+run on the exact amendment plus the draft CI-repair tree
+`a5acf91c3444ecd8bcf317fa7475d206c0e1379e`, with audit-only uv caches under
+`/tmp`, completed dependency synchronization and ran the wrapper. It reported:
 
 1. the docs-freshness exception baseline has expired;
 2. expected violation count `0`, observed `6`;
@@ -223,13 +231,22 @@ hash, were reproduced in a detached clean worktree at the amendment base
 commit. They are therefore inherited from the stacked base rather than
 introduced by these nine files.
 
-## 6.3 Test-runner environment limitation
+## 6.3 Targeted test evidence and remaining limitation
 
-The requested targeted pytest command could not start because the available
-Python environment lacks `pytest`, and the isolated runtime cannot download
-the missing wheel dependencies. This report therefore does not claim a pytest
-pass. The directly callable lifecycle validator and amendment-specific static
-checks are reported separately and exactly.
+The initial amendment environment lacked `pytest`. The follow-up CI-repair
+overlay resolved that bootstrap limitation and ran only the review-relevant
+test set:
+
+- 32/32 targeted PDC waist, partial-reissue, core-audit, and Fabric
+  `SourceContract` tests passed;
+- the docs gate/lifecycle suite returned 31 passed and the same two base
+  failures: the three retired-path findings above are asserted by one test, and
+  the expired/drifted freshness baseline is asserted by the other.
+
+No repository-wide test pass is claimed. These local tests establish narrow
+contract and documentation-integration evidence only; they do not implement or
+validate PolicyMatter, a production boundary register, H2 custody, partner
+evidence, or an independent OPS-R15 oracle.
 
 # 7. Open Research Blockers
 

@@ -188,7 +188,7 @@ authority:
   objects, events, agents, and rights;
 - [Memento, RFC 7089](https://www.rfc-editor.org/rfc/rfc7089.html) supports
   historical representations;
-- [Certificate Transparency, RFC 6962](https://www.rfc-editor.org/rfc/rfc6962)
+- [Certificate Transparency Version 2.0, RFC 9162](https://www.rfc-editor.org/rfc/rfc9162.html)
   illustrates append-only public evidence and consistency proofs;
 - [Akoma Ntoso](https://docs.oasis-open.org/legaldocml/akn-core/v1.0/)
   distinguishes legal-document identity and versions;

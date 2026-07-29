@@ -186,7 +186,7 @@ authority:
 - the [EU AI Act](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) distinguishes
   providers, deployers, oversight persons, and competent authorities within its
   scope;
-- [UK Government Service Standard roles](https://www.gov.uk/service-manual/the-team/service-owner)
+- [GOV.UK Service Manual roles](https://www.gov.uk/service-manual/the-team/what-each-role-does-in-service-team)
   illustrate end-to-end service ownership; a metric renderer is not the
   delivery operator;
 - [eIDAS](https://eur-lex.europa.eu/eli/reg/2014/910/oj) illustrates why

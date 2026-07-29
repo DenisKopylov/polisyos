@@ -38,7 +38,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
-        python3 -m tools.cli workspace bootstrap \
+        python3 -m tools.devx.workspace.bootstrap \
           --profile "${{ inputs.profile }}" \
           --skip-frontend \
           --skip-playwright \

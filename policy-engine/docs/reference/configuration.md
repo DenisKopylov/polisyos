@@ -56,9 +56,15 @@ Selected extras declared in `pyproject.toml`:
 | `runtime-http`, `multi-tenant`                                                | FastAPI runtime surface and tenant-aware DB backends                             |
 | `security`                                                                    | SPIFFE, Sigstore, SBOM, and PII tooling                                          |
 | `observability`                                                               | Prometheus client surface on top of the base OTel stack                          |
-| `rag`, `rag-local`, `academic-skg`, `table-extraction`                        | Retrieval/document ingestion helpers                                             |
+| `rag`, `rag-local`, `academic-skg`                                             | Retrieval/document ingestion helpers                                             |
 | `sandbox`, `shapesafe`, `hotreload`                                           | Optional safety/dev tooling                                                      |
 | `test`, `dev`                                                                 | Contributor validation and local authoring tooling                               |
+
+`table-extraction` is intentionally not exposed as an installable extra on the
+Python 3.14 baseline. The released `marker-pdf`/`surya-ocr` chain pins an
+unsupported Pillow line, so PolicyOS keeps this path unavailable rather than
+claiming an installable capability. See
+`docs/reference/dependency-platform.md`.
 
 ## Execution Profiles
 

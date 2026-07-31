@@ -17,10 +17,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.pdc import (
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     ArtifactRef,
     AuthorityBoundary,
     AuthorityDerivationTrace,
@@ -43,7 +45,20 @@ from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
     Layer2S7DelegationPostureInput,
     Layer2S8ValuePostureInput,
 )
-from polisyos.runtime.quality.credal_reference import CredalReference  # noqa: TC001
+from polisyos.runtime.quality.confidence_ledger import (
+    DEFAULT_REGISTRY_RELATIVE_PATH,
+    ConfidenceLedgerCheck,
+    ConfidenceLedgerError,
+    ConfidenceLedgerReceipt,
+    ConfidenceLedgerSession,
+    ConfidenceRiskBudgetScope,
+    N9PromotionCertificateProjection,
+    PredictableClaimSpec,
+    load_confidence_ledger_registry,
+    project_n9_promotion_certificate,
+    validate_confidence_ledger_receipt,
+)
+from polisyos.runtime.quality.credal_reference import CredalReference
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
     DesignProblem,
@@ -82,6 +97,7 @@ _ALLOWED_POLICY_PROMOTION_CALLERS = frozenset(
 _G4_PROMOTION_RECORDS_PATH = Path(
     "architecture/policy_design_case/layer3_g4_promotion_records.json"
 )
+_VERIFICATION_NON_PROMOTABLE_REASON = "verification_only_replay"
 
 
 @dataclass(frozen=True)
@@ -91,18 +107,57 @@ class _CG2OwnerPromotabilityAttempt:
     error: str | None = None
 
 
+@dataclass(frozen=True)
+class _ExpectedPromotionCheck:
+    request_key: str
+    obligation_class: PromotionObligationClass
+    instrument_id: str
+    certificate_ref: str
+    claim: PredictableClaimSpec
+
+
 class _StrictModel(BaseModel):
     """Strict immutable base for N9 runtime DTOs."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
 
+class N9DesignProblemBinding(_StrictModel):
+    """Narrow owner binding from one real design problem into N9 and N11."""
+
+    design_problem_id: str = Field(..., min_length=1)
+    problem_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    model_spec_ref: str | None = None
+    problem_schema_version: str = Field(..., min_length=1)
+
+    @classmethod
+    def from_problem(cls, problem: DesignProblem) -> N9DesignProblemBinding:
+        """Derive the binding from the complete typed problem owner."""
+
+        return cls(
+            design_problem_id=problem.design_problem_id,
+            problem_content_hash=gy_content_hash(problem.model_dump(mode="json")),
+            model_spec_ref=problem.model_spec_ref,
+            problem_schema_version=problem.schema_version,
+        )
+
+
+class CredalReferencePromotabilityProjection(_StrictModel):
+    """Narrow CG2 dependency used by the owner-store promotability resolver."""
+
+    schema_version: str = Field(..., min_length=1)
+    reference_epoch: str = Field(..., min_length=1)
+    reference_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    as_of: str = Field(..., min_length=1)
+
+
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v1"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v2"] = (
         GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
+    design_problem_binding: N9DesignProblemBinding
     candidate_summary: CandidateSummary
     value_receipt: ValueGateReceipt | None = None
     world_model_record: WorldModelRecord | None = None
@@ -126,22 +181,82 @@ class CanonicalPromotionInput(_StrictModel):
     effective_independence: bool = True
     admissibility: bool = True
     force_proof_timeout: bool = False
-    risk_budget_delta: float = Field(default=0.01, ge=0.0)
-    risk_spends: tuple[PromotionRiskSpendRecord, ...] = ()
+
+    @model_validator(mode="after")
+    def _owner_candidates_are_coherent(self) -> CanonicalPromotionInput:
+        if (
+            self.value_receipt is not None
+            and self.value_receipt.candidate_id != self.candidate_summary.candidate_id
+        ):
+            raise ValueError("promotion_value_candidate_binding_mismatch")
+        return self
+
+
+class CanonicalPromotionOwnerProjection(_StrictModel):
+    """Content-bound owner inputs sufficient to replay one N9 decision."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"] = (
+        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
+    )
+    design_problem_binding: N9DesignProblemBinding
+    candidate_summary: CandidateSummary
+    value_receipt: ValueGateReceipt | None = None
+    world_model_record: WorldModelRecord | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = None
+    credal_reference: CredalReferencePromotabilityProjection | None = None
+    s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
+    s8_value_posture: Layer2S8ValuePostureInput | None = None
+    operation_invocation_id: str = Field(..., min_length=1)
+    declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
+    producer_root_classes: tuple[str, ...]
+    producer_root_refs: tuple[ArtifactRef, ...]
+    verifier_refs: tuple[str, ...]
+    g4_governed_promotion_ref: str | None
+    effective_independence: bool
+    admissibility: bool
+    force_proof_timeout: bool
+    projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("value_receipt", mode="before")
+    @classmethod
+    def _load_persisted_value_receipt(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        value_outer_set = payload.get("value_outer_set")
+        if isinstance(value_outer_set, Mapping):
+            payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(value_outer_set)
+        return ValueGateReceipt.model_validate(payload)
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> CanonicalPromotionOwnerProjection:
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_owner_projection_hash_mismatch")
+        return self
 
 
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v1"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v2"] = (
         GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
+    owner_projection: CanonicalPromotionOwnerProjection
     candidate_id: str = Field(..., min_length=1)
     status: Literal["grounded_partial_admissible", "shadow", "abstention"]
     promoted: bool
     terminal_kind: SearchTerminalKind
     obligations: tuple[PromotionObligationRecord, ...]
     risk_spend: PromotionRiskSpendSummary
+    confidence_ledger_scope_ref: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    confidence_ledger_head_id: str = Field(
+        pattern=r"^(?:confidence-event|confidence-ledger-root):sha256:[0-9a-f]{64}$"
+    )
+    confidence_ledger_head_ref: str = Field(min_length=1, max_length=500)
+    confidence_ledger_receipt_id: str = Field(pattern=r"^confidence-ledger:sha256:[0-9a-f]{64}$")
+    confidence_ledger_projection: N9PromotionCertificateProjection
     computed_authority_boundary: AuthorityBoundary
     authority_derivation_trace: AuthorityDerivationTrace | None = None
     gate_outcome_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -157,6 +272,22 @@ class CanonicalPromotionReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _promoted_requires_trace(self) -> CanonicalPromotionReceipt:
+        expected_scope = confidence_risk_scope_for_problem(
+            self.owner_projection.design_problem_binding
+        )
+        if (
+            self.owner_projection.candidate_summary.candidate_id != self.candidate_id
+            or self.confidence_ledger_projection.risk_scope != expected_scope
+        ):
+            raise ValueError("promotion_receipt_owner_projection_mismatch")
+        if (
+            self.confidence_ledger_projection.scope_id != self.confidence_ledger_scope_ref
+            or self.confidence_ledger_projection.head_event_id != self.confidence_ledger_head_id
+            or self.confidence_ledger_projection.head_event_ref != self.confidence_ledger_head_ref
+            or self.confidence_ledger_projection.ledger_receipt_id
+            != self.confidence_ledger_receipt_id
+        ):
+            raise ValueError("promotion_receipt_confidence_ledger_locator_mismatch")
         if self.promoted and self.authority_derivation_trace is None:
             raise ValueError("promoted_receipt_requires_authority_derivation_trace")
         if self.promoted and self.status != "grounded_partial_admissible":
@@ -165,6 +296,11 @@ class CanonicalPromotionReceipt(_StrictModel):
             raise ValueError("consumer_promotable_requires_promoted_receipt")
         if self.consumer_promotable and self.promotion_lane != "production":
             raise ValueError("consumer_promotable_requires_production_lane")
+        if self.confidence_ledger_projection.authority_provenance == "verification" and (
+            self.consumer_promotable
+            or self.non_promotable_reason != _VERIFICATION_NON_PROMOTABLE_REASON
+        ):
+            raise ValueError("verification_receipt_cannot_be_consumer_promotable")
         if self.promotion_lane == "contract_testing" and not self.non_promotable_reason:
             raise ValueError("contract_lane_receipt_requires_non_promotable_reason")
         scope_gaps = [
@@ -172,8 +308,10 @@ class CanonicalPromotionReceipt(_StrictModel):
             for obligation in self.obligations
             if obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
         ]
-        if self.promoted and scope_gaps and (
-            self.promotion_lane != "contract_testing" or self.consumer_promotable
+        if (
+            self.promoted
+            and scope_gaps
+            and (self.promotion_lane != "contract_testing" or self.consumer_promotable)
         ):
             raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
         return self
@@ -213,6 +351,106 @@ PromotionContextProvider = Callable[
 ]
 
 
+def confidence_risk_scope_for_problem(
+    binding: N9DesignProblemBinding,
+) -> ConfidenceRiskBudgetScope:
+    """Derive the only N11 risk scope admissible for one N9 problem binding."""
+
+    return ConfidenceRiskBudgetScope(
+        scope_owner_ref=PROMOTION_SEQUENCE_REF,
+        authority_purpose="n9_promotion",
+        owner_scope_key=f"design-problem:{binding.design_problem_id}",
+        owner_projection_hash=binding.problem_content_hash,
+        epoch_ref=None,
+        model_ref=binding.model_spec_ref,
+        rule_ref=GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        schema_ref=binding.problem_schema_version,
+    )
+
+
+def _owner_projection_from_input(
+    promotion_input: CanonicalPromotionInput,
+) -> CanonicalPromotionOwnerProjection:
+    reference = promotion_input.credal_reference
+    payload: dict[str, Any] = {
+        "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+        "design_problem_binding": promotion_input.design_problem_binding,
+        "candidate_summary": promotion_input.candidate_summary,
+        "value_receipt": promotion_input.value_receipt,
+        "world_model_record": promotion_input.world_model_record,
+        "grounding_decision_certificate": (promotion_input.grounding_decision_certificate),
+        "credal_reference": (
+            CredalReferencePromotabilityProjection(
+                schema_version=reference.schema_version,
+                reference_epoch=reference.reference_epoch,
+                reference_hash=reference.reference_hash,
+                as_of=reference.as_of,
+            )
+            if reference is not None
+            else None
+        ),
+        "s6_blind_spot_posture": promotion_input.s6_blind_spot_posture,
+        "s7_delegation_posture": promotion_input.s7_delegation_posture,
+        "s8_value_posture": promotion_input.s8_value_posture,
+        "operation_invocation_id": promotion_input.operation_invocation_id,
+        "declared_authority_transform": promotion_input.declared_authority_transform,
+        "producer_root_classes": promotion_input.producer_root_classes,
+        "producer_root_refs": promotion_input.producer_root_refs,
+        "verifier_refs": promotion_input.verifier_refs,
+        "g4_governed_promotion_ref": promotion_input.g4_governed_promotion_ref,
+        "effective_independence": promotion_input.effective_independence,
+        "admissibility": promotion_input.admissibility,
+        "force_proof_timeout": promotion_input.force_proof_timeout,
+    }
+    payload["projection_hash"] = gy_content_hash(
+        CanonicalPromotionOwnerProjection.model_construct(
+            **payload,
+            projection_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="json", exclude={"projection_hash"})
+    )
+    return CanonicalPromotionOwnerProjection.model_validate(payload)
+
+
+def _input_from_owner_projection(
+    projection: CanonicalPromotionOwnerProjection,
+    *,
+    repo_root: Path | None,
+) -> CanonicalPromotionInput:
+    reference = projection.credal_reference
+    return CanonicalPromotionInput(
+        design_problem_binding=projection.design_problem_binding,
+        candidate_summary=projection.candidate_summary,
+        value_receipt=projection.value_receipt,
+        world_model_record=projection.world_model_record,
+        grounding_decision_certificate=projection.grounding_decision_certificate,
+        credal_reference=(
+            CredalReference(
+                schema_version=reference.schema_version,
+                reference_epoch=reference.reference_epoch,
+                reference_hash=reference.reference_hash,
+                as_of=reference.as_of,
+                component_versions={},
+                essential_edges={},
+            )
+            if reference is not None
+            else None
+        ),
+        s6_blind_spot_posture=projection.s6_blind_spot_posture,
+        s7_delegation_posture=projection.s7_delegation_posture,
+        s8_value_posture=projection.s8_value_posture,
+        repo_root=repo_root,
+        operation_invocation_id=projection.operation_invocation_id,
+        declared_authority_transform=projection.declared_authority_transform,
+        producer_root_classes=projection.producer_root_classes,
+        producer_root_refs=projection.producer_root_refs,
+        verifier_refs=projection.verifier_refs,
+        g4_governed_promotion_ref=projection.g4_governed_promotion_ref,
+        effective_independence=projection.effective_independence,
+        admissibility=projection.admissibility,
+        force_proof_timeout=projection.force_proof_timeout,
+    )
+
+
 class CanonicalN9PromotionPort:
     """N6 PromotionPort implementation backed by the canonical N9 sequence."""
 
@@ -224,6 +462,45 @@ class CanonicalN9PromotionPort:
     ) -> None:
         self._context_provider = context_provider
         self._repo_root = repo_root
+        self._ledger_root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
+
+    def _open_confidence_ledger_session(
+        self,
+        binding: N9DesignProblemBinding,
+    ) -> ConfidenceLedgerSession:
+        """Open or resume the durable N9 risk scope owned by one design problem."""
+
+        return ConfidenceLedgerSession.from_repo(
+            self._ledger_root,
+            risk_scope=confidence_risk_scope_for_problem(binding),
+        )
+
+    @classmethod
+    def _for_verification(
+        cls,
+        *,
+        repo_root: Path,
+        confidence_ledger_session: ConfidenceLedgerSession,
+    ) -> _VerificationN9PromotionPort:
+        """Build a private port whose receipts can never authorize N6."""
+
+        del cls
+        if (
+            confidence_ledger_session.is_authority_session
+            or confidence_ledger_session.authority_provenance != "verification"
+        ):
+            raise ValueError("confidence_ledger_verification_session_required")
+        owner_root = repo_root.resolve()
+        if owner_root != Path(__file__).resolve().parents[4]:
+            raise ValueError("verification_owner_repo_root_invalid")
+        _require_canonical_verification_registry(
+            confidence_ledger_session,
+            repo_root=owner_root,
+        )
+        return _VerificationN9PromotionPort(
+            repo_root=owner_root,
+            confidence_ledger_session=confidence_ledger_session,
+        )
 
     def __call__(
         self,
@@ -233,105 +510,288 @@ class CanonicalN9PromotionPort:
     ) -> PromotionPortObservation:
         """Certify candidates only through the canonical N9 sequence."""
 
-        receipts: list[CanonicalPromotionReceipt] = []
-        for summary in summaries:
-            context = (
-                dict(self._context_provider(summary, problem))
-                if self._context_provider is not None
-                else {}
+        problem_binding = N9DesignProblemBinding.from_problem(problem)
+        try:
+            confidence_ledger_session = self._open_confidence_ledger_session(problem_binding)
+        except ConfidenceLedgerError as exc:
+            return PromotionPortObservation(
+                status="not_promoted",
+                certified_candidate_ids=(),
+                reason=f"confidence_ledger_refused:{exc.code}",
+                receipts=(),
+                strangle_receipt=LegacyPromotionStrangleReceipt.recompute(
+                    self._repo_root
+                ).model_dump(mode="json"),
             )
-            value_receipt = context.get("value_receipt", summary.value_receipt)
-            promotion_input = CanonicalPromotionInput(
-                candidate_summary=summary,
-                value_receipt=value_receipt,
-                world_model_record=context.get("world_model_record"),
-                grounding_decision_certificate=context.get("grounding_decision_certificate"),
-                credal_reference=context.get("credal_reference"),
-                s6_blind_spot_posture=context.get("s6_blind_spot_posture"),
-                s7_delegation_posture=context.get("s7_delegation_posture"),
-                s8_value_posture=context.get("s8_value_posture"),
-                repo_root=self._repo_root,
-                operation_invocation_id=str(
-                    context.get("operation_invocation_id")
-                    or f"n9.{problem.design_problem_id}.{summary.candidate_id}"
-                ),
-                declared_authority_transform=dict(
-                    context.get("declared_authority_transform") or {}
-                ),
-                producer_root_classes=tuple(
-                    str(item)
-                    for item in context.get(
-                        "producer_root_classes",
-                        ("deterministic_producer",),
-                    )
-                ),
-                producer_root_refs=tuple(context.get("producer_root_refs") or ()),
-                verifier_refs=tuple(context.get("verifier_refs") or ()),
-                g4_governed_promotion_ref=context.get(
-                    "g4_governed_promotion_ref",
-                    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-                ),
-                effective_independence=bool(context.get("effective_independence", True)),
-                admissibility=bool(context.get("admissibility", True)),
-                risk_budget_delta=float(context.get("risk_budget_delta", 0.01)),
-                risk_spends=tuple(context.get("risk_spends") or ()),
-                force_proof_timeout=bool(context.get("force_proof_timeout", False)),
-            )
-            receipts.append(run_canonical_promotion_sequence(promotion_input))
-        certified = tuple(
-            receipt.candidate_id
-            for receipt in receipts
-            if receipt.promoted and receipt.consumer_promotable
+        return _run_n9_promotion_port_batch(
+            summaries=summaries,
+            problem=problem,
+            problem_binding=problem_binding,
+            context_provider=self._context_provider,
+            repo_root=self._repo_root,
+            confidence_ledger_session=confidence_ledger_session,
         )
-        return PromotionPortObservation(
-            status="certified_current_valid" if certified else "not_promoted",
-            certified_candidate_ids=certified,
-            reason=(
-                "canonical_n9_sequence_certified_current_valid"
-                if certified
+
+
+class _VerificationN9PromotionPort:
+    """Private N6 checker port over one isolated verification ledger."""
+
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        confidence_ledger_session: ConfidenceLedgerSession,
+    ) -> None:
+        self._repo_root = repo_root.resolve()
+        self._confidence_ledger_session = confidence_ledger_session
+
+    def __call__(
+        self,
+        *,
+        summaries: Sequence[CandidateSummary],
+        problem: DesignProblem,
+    ) -> PromotionPortObservation:
+        """Replay owners while emitting no consumer certification."""
+
+        return _run_n9_promotion_port_batch(
+            summaries=summaries,
+            problem=problem,
+            problem_binding=N9DesignProblemBinding.from_problem(problem),
+            context_provider=None,
+            repo_root=self._repo_root,
+            confidence_ledger_session=self._confidence_ledger_session,
+        )
+
+
+def _run_n9_promotion_port_batch(
+    *,
+    summaries: Sequence[CandidateSummary],
+    problem: DesignProblem,
+    problem_binding: N9DesignProblemBinding,
+    context_provider: PromotionContextProvider | None,
+    repo_root: Path | None,
+    confidence_ledger_session: ConfidenceLedgerSession,
+) -> PromotionPortObservation:
+    """Run one adaptive batch against a pre-authorized ledger session."""
+
+    expected_scope = confidence_risk_scope_for_problem(problem_binding)
+    if confidence_ledger_session.risk_scope != expected_scope:
+        raise ValueError("confidence_ledger_scope_binding_mismatch")
+    verification = confidence_ledger_session.authority_provenance == "verification"
+    receipts_with_inputs: list[tuple[CanonicalPromotionReceipt, CanonicalPromotionInput]] = []
+    for summary in summaries:
+        context = dict(context_provider(summary, problem)) if context_provider is not None else {}
+        value_receipt = context.get("value_receipt", summary.value_receipt)
+        promotion_input = CanonicalPromotionInput(
+            design_problem_binding=problem_binding,
+            candidate_summary=summary,
+            value_receipt=value_receipt,
+            world_model_record=context.get("world_model_record"),
+            grounding_decision_certificate=context.get("grounding_decision_certificate"),
+            credal_reference=context.get("credal_reference"),
+            s6_blind_spot_posture=context.get("s6_blind_spot_posture"),
+            s7_delegation_posture=context.get("s7_delegation_posture"),
+            s8_value_posture=context.get("s8_value_posture"),
+            repo_root=repo_root,
+            operation_invocation_id=str(
+                context.get("operation_invocation_id")
+                or f"n9.{problem.design_problem_id}.{summary.candidate_id}"
+            ),
+            declared_authority_transform=dict(context.get("declared_authority_transform") or {}),
+            producer_root_classes=tuple(
+                str(item)
+                for item in context.get(
+                    "producer_root_classes",
+                    ("deterministic_producer",),
+                )
+            ),
+            producer_root_refs=tuple(context.get("producer_root_refs") or ()),
+            verifier_refs=tuple(context.get("verifier_refs") or ()),
+            g4_governed_promotion_ref=context.get(
+                "g4_governed_promotion_ref",
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            ),
+            effective_independence=bool(context.get("effective_independence", True)),
+            admissibility=bool(context.get("admissibility", True)),
+            force_proof_timeout=bool(context.get("force_proof_timeout", False)),
+        )
+        runner = (
+            _run_canonical_promotion_sequence_for_verification
+            if verification
+            else run_canonical_promotion_sequence
+        )
+        receipts_with_inputs.append(
+            (
+                runner(
+                    promotion_input,
+                    confidence_ledger_session=confidence_ledger_session,
+                ),
+                promotion_input,
+            )
+        )
+    final_ledger_receipt = confidence_ledger_session.receipt()
+    final_ledger_projection = project_n9_promotion_certificate(
+        final_ledger_receipt,
+        session=confidence_ledger_session,
+    )
+    receipts = [
+        _rebind_promotion_receipt_to_ledger_head(
+            receipt,
+            promotion_input=promotion_input,
+            ledger_receipt=final_ledger_receipt,
+            ledger_projection=final_ledger_projection,
+        )
+        for receipt, promotion_input in receipts_with_inputs
+    ]
+    certified = tuple(
+        receipt.candidate_id
+        for receipt in receipts
+        if (not verification and receipt.promoted and receipt.consumer_promotable)
+    )
+    return PromotionPortObservation(
+        status="certified_current_valid" if certified else "not_promoted",
+        certified_candidate_ids=certified,
+        reason=(
+            "canonical_n9_sequence_certified_current_valid"
+            if certified
+            else (
+                "verification_n9_sequence_non_consumer"
+                if verification
                 else "canonical_n9_sequence_returned_shadow"
-            ),
-            receipts=tuple(receipt.model_dump(mode="json") for receipt in receipts),
-            strangle_receipt=LegacyPromotionStrangleReceipt.recompute(
-                self._repo_root
-            ).model_dump(mode="json"),
-        )
+            )
+        ),
+        receipts=tuple(receipt.model_dump(mode="json") for receipt in receipts),
+        strangle_receipt=LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
+            mode="json"
+        ),
+    )
 
 
-def run_canonical_promotion_sequence(
+def _expected_calibration_check(
     promotion_input: CanonicalPromotionInput,
-) -> CanonicalPromotionReceipt:
-    """Run the single canonical N9 sequence over the real owner contracts."""
-
-    cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
-    obligations = _compile_obligations(promotion_input, cg2_attempt=cg2_attempt)
-    risk_spend = _risk_spend_summary(promotion_input)
-    if not risk_spend.within_budget:
-        obligations = _replace_obligation(
-            obligations,
-            PromotionObligationClass.CALIBRATION,
-            _failed_obligation(
-                obligation_class=PromotionObligationClass.CALIBRATION,
-                gate_id=PromotionGateId.N8_CALIBRATION,
-                owner_ref="polisyos.runtime.quality.promotion_sequence._risk_spend_summary",
-                detail=(
-                    "Declared probabilistic promotion spends exceed the N9 budget delta "
-                    f"({risk_spend.total_declared_delta} > {risk_spend.budget_delta})."
-                ),
-                reason=PromotionFailClosedReason.JOINT_OBLIGATION_INCONSISTENCY,
+) -> _ExpectedPromotionCheck:
+    value_receipt = promotion_input.value_receipt
+    calibration_ref = (
+        value_receipt.calibration_receipt.calibration_record_ref
+        if value_receipt is not None
+        else None
+    ) or f"n8://calibration/{promotion_input.candidate_summary.candidate_id}"
+    return _ExpectedPromotionCheck(
+        request_key=(
+            f"n9://{promotion_input.candidate_summary.candidate_id}/"
+            f"{PromotionObligationClass.CALIBRATION.value}/{calibration_ref}"
+        ),
+        obligation_class=PromotionObligationClass.CALIBRATION,
+        instrument_id="fixed_time_confidence_interval",
+        certificate_ref=calibration_ref,
+        claim=PredictableClaimSpec(
+            claim_ref=(
+                f"n9://candidate/{promotion_input.candidate_summary.candidate_id}/"
+                "calibration-promotion"
             ),
+            null_ref="n9://null/calibration-claim-not-promotion-valid",
+            claim_scope_ref=(
+                f"n9://candidate-summary/{promotion_input.candidate_summary.content_hash}"
+            ),
+            data_window_ref=calibration_ref,
+            certificate_role="promotion",
+            claim_polarity="false_accept",
+        ),
+    )
+
+
+def _resolve_expected_ledger_check(
+    ledger_receipt: ConfidenceLedgerReceipt,
+    expected: _ExpectedPromotionCheck,
+) -> ConfidenceLedgerCheck:
+    matches = [
+        check for check in ledger_receipt.checks if check.request_key == expected.request_key
+    ]
+    if len(matches) != 1:
+        raise ConfidenceLedgerError(
+            "promotion_expected_ledger_check_missing",
+            expected.request_key,
         )
-    promotion_lane = _promotion_lane(cg2_attempt)
+    check = matches[0]
+    claim = expected.claim
+    if (
+        check.obligation_class != expected.obligation_class
+        or check.instrument_id != expected.instrument_id
+        or check.certificate_ref != expected.certificate_ref
+        or check.claim_ref != claim.claim_ref
+        or check.null_ref != claim.null_ref
+        or check.claim_scope_ref != claim.claim_scope_ref
+        or check.data_window_ref != claim.data_window_ref
+        or check.certificate_role != claim.certificate_role
+        or check.claim_polarity != claim.claim_polarity
+    ):
+        raise ConfidenceLedgerError("promotion_expected_ledger_check_mismatch")
+    return check
+
+
+def _calibration_refusal_from_ledger(
+    check: ConfidenceLedgerCheck,
+    *,
+    risk_spend: PromotionRiskSpendSummary,
+) -> PromotionObligationRecord:
+    return _failed_obligation(
+        obligation_class=PromotionObligationClass.CALIBRATION,
+        gate_id=PromotionGateId.N8_CALIBRATION,
+        owner_ref=("polisyos.runtime.quality.confidence_ledger.validate_confidence_ledger_receipt"),
+        detail=(
+            "N8 calibration cannot support promotion: confidence ledger refusal "
+            f"{check.refusal_code or 'owner_reverification_failed'}."
+        ),
+        reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+    ).model_copy(
+        update={
+            "evidence_refs": [check.check_id],
+            "risk_spend": risk_spend.spend_records[-1],
+        }
+    )
+
+
+def _build_promotion_receipt_from_owners(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    ledger_receipt: ConfidenceLedgerReceipt,
+    ledger_projection: N9PromotionCertificateProjection,
+    cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
+    base_obligations: tuple[PromotionObligationRecord, ...] | None = None,
+) -> CanonicalPromotionReceipt:
+    expected_check = _expected_calibration_check(promotion_input)
+    calibration_check = _resolve_expected_ledger_check(
+        ledger_receipt,
+        expected_check,
+    )
+    attempt = cg2_attempt or _resolve_cg2_owner_promotability(promotion_input)
+    obligations = base_obligations or _compile_obligations(
+        promotion_input,
+        cg2_attempt=attempt,
+    )
+    risk_spend = _risk_spend_summary((calibration_check,), ledger_projection)
+    obligations = _replace_obligation(
+        obligations,
+        PromotionObligationClass.CALIBRATION,
+        _calibration_refusal_from_ledger(
+            calibration_check,
+            risk_spend=risk_spend,
+        ),
+    )
+    promotion_lane = _promotion_lane(attempt)
     gate_hash = _gate_outcome_hash(obligations)
     boundary = _computed_authority_boundary(promotion_input)
     refusal_reasons = _refusal_reasons(
         obligations,
         risk_spend=risk_spend,
-        allow_non_authoritative_contract_scope_gaps=promotion_lane == "contract_testing",
+        allow_non_authoritative_contract_scope_gaps=(promotion_lane == "contract_testing"),
     )
     promoted = not refusal_reasons
-    consumer_promotable = promoted and _cg2_resolution_is_production_promotable(cg2_attempt)
-    non_promotable_reason = _non_promotable_reason(cg2_attempt, promoted=promoted)
+    consumer_promotable = promoted and _cg2_resolution_is_production_promotable(attempt)
+    non_promotable_reason = _non_promotable_reason(attempt, promoted=promoted)
+    if ledger_projection.authority_provenance == "verification":
+        consumer_promotable = False
+        non_promotable_reason = _VERIFICATION_NON_PROMOTABLE_REASON
     trace = None
     trace_hash = None
     if promoted:
@@ -341,10 +801,13 @@ def run_canonical_promotion_sequence(
             boundary=boundary,
             gate_hash=gate_hash,
             risk_spend=risk_spend,
+            confidence_ledger_receipt=ledger_receipt,
+            confidence_ledger_projection=ledger_projection,
         )
         trace_hash = recompute_authority_trace_hash(trace)
         trace = trace.model_copy(update={"trace_content_hash": trace_hash})
     return CanonicalPromotionReceipt(
+        owner_projection=_owner_projection_from_input(promotion_input),
         candidate_id=promotion_input.candidate_summary.candidate_id,
         status="grounded_partial_admissible" if promoted else "shadow",
         promoted=promoted,
@@ -355,6 +818,11 @@ def run_canonical_promotion_sequence(
         ),
         obligations=obligations,
         risk_spend=risk_spend,
+        confidence_ledger_scope_ref=ledger_projection.scope_id,
+        confidence_ledger_head_id=ledger_projection.head_event_id,
+        confidence_ledger_head_ref=ledger_projection.head_event_ref,
+        confidence_ledger_receipt_id=ledger_projection.ledger_receipt_id,
+        confidence_ledger_projection=ledger_projection,
         computed_authority_boundary=boundary,
         authority_derivation_trace=trace,
         gate_outcome_hash=gate_hash,
@@ -374,25 +842,314 @@ def run_canonical_promotion_sequence(
         consumer_promotable=consumer_promotable,
         non_promotable_reason=non_promotable_reason,
         cg2_resolution_reason=(
-            cg2_attempt.resolution.reason if cg2_attempt.resolution is not None else None
+            attempt.resolution.reason if attempt.resolution is not None else None
         ),
+    )
+
+
+def run_canonical_promotion_sequence(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    confidence_ledger_session: ConfidenceLedgerSession,
+) -> CanonicalPromotionReceipt:
+    """Run the single canonical N9 sequence over the real owner contracts."""
+
+    if not isinstance(confidence_ledger_session, ConfidenceLedgerSession):
+        raise TypeError("confidence_ledger_session_must_be_confidence_ledger_session")
+    if not confidence_ledger_session.is_authority_session:
+        raise ValueError("confidence_ledger_authority_session_required")
+    return _run_promotion_sequence_with_bound_session(
+        promotion_input,
+        confidence_ledger_session=confidence_ledger_session,
+    )
+
+
+def _run_canonical_promotion_sequence_for_verification(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    confidence_ledger_session: ConfidenceLedgerSession,
+) -> CanonicalPromotionReceipt:
+    """Replay N9 in an isolated namespace that can never authorize a consumer."""
+
+    if not isinstance(confidence_ledger_session, ConfidenceLedgerSession):
+        raise TypeError("confidence_ledger_session_must_be_confidence_ledger_session")
+    if (
+        confidence_ledger_session.is_authority_session
+        or confidence_ledger_session.authority_provenance != "verification"
+    ):
+        raise ValueError("confidence_ledger_verification_session_required")
+    _require_canonical_verification_registry(
+        confidence_ledger_session,
+        repo_root=Path(__file__).resolve().parents[4],
+    )
+    return _run_promotion_sequence_with_bound_session(
+        promotion_input,
+        confidence_ledger_session=confidence_ledger_session,
+    )
+
+
+def _run_promotion_sequence_with_bound_session(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    confidence_ledger_session: ConfidenceLedgerSession,
+) -> CanonicalPromotionReceipt:
+    """Execute one sequence after its authority mode has been checked by a wrapper."""
+
+    expected_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
+    if confidence_ledger_session.risk_scope != expected_scope:
+        raise ValueError("confidence_ledger_scope_binding_mismatch")
+    expected_check = _expected_calibration_check(promotion_input)
+    try:
+        calibration_check = confidence_ledger_session.prepare_check(
+            history_token=confidence_ledger_session.observe_history(),
+            request_key=expected_check.request_key,
+            obligation_class=expected_check.obligation_class,
+            instrument_id=expected_check.instrument_id,
+            certificate_ref=expected_check.certificate_ref,
+            claim=expected_check.claim,
+        )
+    except ConfidenceLedgerError as exc:
+        if exc.code not in {"non_anytime_valid", "coverage_argument_missing"}:
+            raise
+        calibration_check = _ledger_check_for_request(
+            confidence_ledger_session,
+            request_key=expected_check.request_key,
+        )
+    cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
+    obligations = _compile_obligations(promotion_input, cg2_attempt=cg2_attempt)
+    if calibration_check.outcome == "prepared":
+        calibration_check = confidence_ledger_session.execute_check(calibration_check)
+    ledger_receipt = confidence_ledger_session.receipt()
+    ledger_projection = project_n9_promotion_certificate(
+        ledger_receipt,
+        session=confidence_ledger_session,
+    )
+    return _build_promotion_receipt_from_owners(
+        promotion_input,
+        ledger_receipt=ledger_receipt,
+        ledger_projection=ledger_projection,
+        cg2_attempt=cg2_attempt,
+        base_obligations=obligations,
+    )
+
+
+def _rebind_promotion_receipt_to_ledger_head(
+    receipt: CanonicalPromotionReceipt,
+    *,
+    promotion_input: CanonicalPromotionInput,
+    ledger_receipt: ConfidenceLedgerReceipt,
+    ledger_projection: N9PromotionCertificateProjection,
+) -> CanonicalPromotionReceipt:
+    """Recompute one candidate decision against the batch's final ledger head."""
+
+    del receipt
+    return _build_promotion_receipt_from_owners(
+        promotion_input,
+        ledger_receipt=ledger_receipt,
+        ledger_projection=ledger_projection,
+    )
+
+
+def _ledger_check_for_request(
+    session: ConfidenceLedgerSession,
+    *,
+    request_key: str,
+) -> ConfidenceLedgerCheck:
+    matches = [check for check in session.receipt().checks if check.request_key == request_key]
+    if len(matches) != 1:
+        raise ConfidenceLedgerError("ledger_request_resolution_failed", request_key)
+    return matches[0]
+
+
+def _open_projected_confidence_ledger_session(
+    projection: N9PromotionCertificateProjection,
+    *,
+    repo_root: Path | None,
+) -> ConfidenceLedgerSession:
+    root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
+    return ConfidenceLedgerSession.from_repo(
+        root,
+        risk_scope=projection.risk_scope,
     )
 
 
 def validate_canonical_promotion_receipt(
     receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
 ) -> tuple[dict[str, Any], ...]:
-    """Behaviorally validate a frozen N9 receipt without live re-derivation."""
+    """Recompute an authority-bearing N9 receipt from the canonical deployment."""
+
+    return _validate_promotion_receipt_with_bound_session(
+        receipt,
+        repo_root=repo_root,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+        confidence_ledger_session=None,
+        expected_authority_provenance="canonical_repo",
+    )
+
+
+def _validate_canonical_promotion_receipt_for_verification(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path,
+    confidence_ledger_session: ConfidenceLedgerSession,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Recompute a non-authority replay receipt against its isolated current head."""
+
+    if repo_root.resolve() != Path(__file__).resolve().parents[4]:
+        return ({"code": "verification_owner_repo_root_invalid"},)
+    try:
+        _require_canonical_verification_registry(
+            confidence_ledger_session,
+            repo_root=repo_root.resolve(),
+        )
+    except ValueError:
+        return ({"code": "confidence_ledger_verification_registry_invalid"},)
+    return _validate_promotion_receipt_with_bound_session(
+        receipt,
+        repo_root=repo_root,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+        confidence_ledger_session=confidence_ledger_session,
+        expected_authority_provenance="verification",
+    )
+
+
+def _require_canonical_verification_registry(
+    session: ConfidenceLedgerSession,
+    *,
+    repo_root: Path,
+) -> None:
+    """Bind private replay to the registry owned by the loaded checkout."""
+
+    canonical = load_confidence_ledger_registry(repo_root / DEFAULT_REGISTRY_RELATIVE_PATH)
+    if (
+        session.registry.content_hash != canonical.content_hash
+        or session.registry.source_payload() != canonical.source_payload()
+    ):
+        raise ValueError("confidence_ledger_verification_registry_invalid")
+
+
+def _validate_promotion_receipt_with_bound_session(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path | None,
+    candidate_summary: CandidateSummary | None,
+    design_problem: DesignProblem | None,
+    value_receipt: ValueGateReceipt | None,
+    confidence_ledger_session: ConfidenceLedgerSession | None,
+    expected_authority_provenance: Literal["canonical_repo", "verification"],
+) -> tuple[dict[str, Any], ...]:
+    """Recompute one receipt after its authority mode is fixed by a wrapper."""
 
     if not isinstance(receipt, CanonicalPromotionReceipt):
         try:
             receipt = CanonicalPromotionReceipt.model_validate(receipt)
         except ValueError as exc:
             return ({"code": "promotion_receipt_invalid", "error": str(exc)},)
+    if receipt.confidence_ledger_projection.authority_provenance != expected_authority_provenance:
+        return ({"code": "confidence_ledger_authority_provenance_invalid"},)
+    if expected_authority_provenance == "verification" and (
+        confidence_ledger_session is None
+        or confidence_ledger_session.is_authority_session
+        or confidence_ledger_session.authority_provenance != "verification"
+    ):
+        return ({"code": "confidence_ledger_verification_session_required"},)
     issues: list[dict[str, Any]] = []
+    if candidate_summary is not None and (
+        candidate_summary.model_dump(mode="json")
+        != receipt.owner_projection.candidate_summary.model_dump(mode="json")
+    ):
+        issues.append({"code": "promotion_candidate_owner_binding_invalid"})
+    try:
+        replay_input = _input_from_owner_projection(
+            receipt.owner_projection,
+            repo_root=repo_root,
+        )
+    except ValueError as exc:
+        issues.append(
+            {
+                "code": "promotion_owner_projection_invalid",
+                "error": str(exc),
+            }
+        )
+        return tuple(issues)
+    expected_scope = confidence_risk_scope_for_problem(replay_input.design_problem_binding)
+    if receipt.confidence_ledger_projection.risk_scope != expected_scope:
+        issues.append({"code": "confidence_ledger_scope_binding_mismatch"})
+    if design_problem is not None and (
+        N9DesignProblemBinding.from_problem(design_problem) != replay_input.design_problem_binding
+    ):
+        issues.append({"code": "promotion_problem_owner_binding_invalid"})
+    if value_receipt is not None and (
+        receipt.value_receipt_ref != value_receipt.value_ref
+        or replay_input.value_receipt != value_receipt
+    ):
+        issues.append({"code": "promotion_value_owner_binding_invalid"})
+    session = confidence_ledger_session
+    validated_ledger: ConfidenceLedgerReceipt | None = None
+    try:
+        if session is None:
+            session = _open_projected_confidence_ledger_session(
+                receipt.confidence_ledger_projection,
+                repo_root=repo_root,
+            )
+        if session.risk_scope != expected_scope:
+            raise ConfidenceLedgerError("confidence_ledger_scope_binding_mismatch")
+        validated_ledger = validate_confidence_ledger_receipt(
+            session.receipt(),
+            session=session,
+        )
+        expected_projection = project_n9_promotion_certificate(
+            validated_ledger,
+            session=session,
+        )
+    except (ConfidenceLedgerError, OSError, ValueError) as exc:
+        issues.append(
+            {
+                "code": "confidence_ledger_recomputation_failed",
+                "reason": getattr(exc, "code", type(exc).__name__),
+                "detail": getattr(exc, "detail", str(exc)),
+            }
+        )
+        expected_projection = None
+    if (
+        expected_projection is not None
+        and receipt.confidence_ledger_projection != expected_projection
+    ):
+        issues.append({"code": "confidence_ledger_projection_drift"})
+    if (
+        receipt.risk_spend.total_declared_delta
+        != float(receipt.confidence_ledger_projection.total_spend.fraction)
+        or receipt.risk_spend.budget_delta
+        != float(receipt.confidence_ledger_projection.budget_delta.fraction)
+        or receipt.risk_spend.within_budget
+        is not receipt.confidence_ledger_projection.within_budget
+    ):
+        issues.append({"code": "risk_spend_not_derived_from_confidence_ledger"})
+    ledger_checks = (
+        {item.check_id: item for item in validated_ledger.checks}
+        if expected_projection is not None
+        else {}
+    )
+    promotion_rows_by_class: dict[PromotionObligationClass, list[object]] = {}
+    if expected_projection is not None:
+        for row in expected_projection.promotion_rows:
+            promotion_rows_by_class.setdefault(row.obligation_class, []).append(row)
     classes = tuple(item.obligation_class for item in receipt.obligations)
     expected = tuple(PromotionObligationClass)
-    if classes != expected:
+    denominator_complete = classes == expected
+    if not denominator_complete:
         issues.append(
             {
                 "code": "promotion_obligation_denominator_mismatch",
@@ -400,7 +1157,45 @@ def validate_canonical_promotion_receipt(
                 "actual": [item.value for item in classes],
             }
         )
+    expected_probabilistic_check = _expected_calibration_check(replay_input)
     for obligation in receipt.obligations:
+        spend = obligation.risk_spend
+        if spend is not None:
+            check_ref = spend.n11_confidence_ledger_ref
+            check = ledger_checks.get(check_ref or "")
+            if (
+                check is None
+                or check.obligation_class != obligation.obligation_class
+                or check.certificate_ref != spend.certificate_ref
+                or check.instrument_id != spend.instrument
+                or float(check.spend.fraction) != spend.declared_delta_spend
+            ):
+                issues.append(
+                    {
+                        "code": "obligation_confidence_ledger_binding_invalid",
+                        "obligation_class": obligation.obligation_class.value,
+                    }
+                )
+        class_rows = promotion_rows_by_class.get(obligation.obligation_class, [])
+        ledger_required = (
+            obligation.obligation_class == expected_probabilistic_check.obligation_class
+        )
+        if (
+            obligation.status == PromotionObligationStatus.SATISFIED
+            and ledger_required
+            and not any(
+                getattr(row, "eligible_for_promotion", False)
+                and spend is not None
+                and spend.n11_confidence_ledger_ref == getattr(row, "check_id", None)
+                for row in class_rows
+            )
+        ):
+            issues.append(
+                {
+                    "code": "probabilistic_certificate_bypassed_confidence_ledger",
+                    "obligation_class": obligation.obligation_class.value,
+                }
+            )
         if (
             obligation.status == PromotionObligationStatus.SATISFIED
             and obligation.semantic_scope == "scope_insufficient"
@@ -421,13 +1216,105 @@ def validate_canonical_promotion_receipt(
                     "obligation_class": obligation.obligation_class.value,
                 }
             )
+    decision_risk_spend = receipt.risk_spend.model_copy(
+        update={
+            "total_declared_delta": (
+                float(expected_projection.total_spend.fraction)
+                if expected_projection is not None
+                else receipt.risk_spend.total_declared_delta
+            ),
+            "budget_delta": (
+                float(expected_projection.budget_delta.fraction)
+                if expected_projection is not None
+                else receipt.risk_spend.budget_delta
+            ),
+            "within_budget": (
+                expected_projection.within_budget if expected_projection is not None else False
+            ),
+        }
+    )
+    expected_refusal_reasons = _refusal_reasons(
+        receipt.obligations,
+        risk_spend=decision_risk_spend,
+        allow_non_authoritative_contract_scope_gaps=(receipt.promotion_lane == "contract_testing"),
+    )
+    if not denominator_complete:
+        expected_refusal_reasons.append("promotion_obligation_denominator_mismatch")
+    if expected_projection is None:
+        expected_refusal_reasons.append("confidence_ledger_recomputation_failed")
+    expected_refusal_reasons = list(dict.fromkeys(expected_refusal_reasons))
+    expected_promoted = not expected_refusal_reasons
+    expected_status = "grounded_partial_admissible" if expected_promoted else "shadow"
+    expected_terminal_kind = (
+        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE
+        if expected_promoted
+        else SearchTerminalKind.GROUNDED_ABSTENTION
+    )
+    expected_consumer_promotable = bool(
+        expected_promoted
+        and receipt.promotion_lane == "production"
+        and receipt.non_promotable_reason is None
+    )
+    if receipt.refusal_reasons != tuple(expected_refusal_reasons):
+        issues.append(
+            {
+                "code": "promotion_refusal_reasons_drift",
+                "expected": expected_refusal_reasons,
+                "actual": list(receipt.refusal_reasons),
+            }
+        )
+    if receipt.promoted is not expected_promoted:
+        issues.append(
+            {
+                "code": "promotion_promoted_drift",
+                "expected": expected_promoted,
+                "actual": receipt.promoted,
+            }
+        )
+    if receipt.status != expected_status:
+        issues.append(
+            {
+                "code": "promotion_status_drift",
+                "expected": expected_status,
+                "actual": receipt.status,
+            }
+        )
+    if receipt.terminal_kind != expected_terminal_kind:
+        issues.append(
+            {
+                "code": "promotion_terminal_kind_drift",
+                "expected": expected_terminal_kind.value,
+                "actual": receipt.terminal_kind.value,
+            }
+        )
+    if receipt.consumer_promotable is not expected_consumer_promotable:
+        issues.append(
+            {
+                "code": "promotion_consumer_promotable_drift",
+                "expected": expected_consumer_promotable,
+                "actual": receipt.consumer_promotable,
+            }
+        )
+    trace_present = receipt.authority_derivation_trace is not None
+    trace_hash_present = receipt.trace_content_hash is not None
+    if trace_present is not expected_promoted or trace_hash_present is not expected_promoted:
+        issues.append(
+            {
+                "code": "promotion_trace_presence_drift",
+                "expected": expected_promoted,
+                "trace_present": trace_present,
+                "trace_hash_present": trace_hash_present,
+            }
+        )
     scope_gaps = [
         obligation
         for obligation in receipt.obligations
         if obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     ]
-    if receipt.promoted and scope_gaps and (
-        receipt.promotion_lane != "contract_testing" or receipt.consumer_promotable
+    if (
+        receipt.promoted
+        and scope_gaps
+        and (receipt.promotion_lane != "contract_testing" or receipt.consumer_promotable)
     ):
         issues.append(
             {
@@ -459,6 +1346,76 @@ def validate_canonical_promotion_receipt(
             )
         if trace.gate_outcome_hash != receipt.gate_outcome_hash:
             issues.append({"code": "authority_trace_gate_hash_mismatch"})
+        if (
+            trace.confidence_ledger_receipt_id != receipt.confidence_ledger_receipt_id
+            or trace.confidence_ledger_projection_hash
+            != receipt.confidence_ledger_projection.projection_hash
+        ):
+            issues.append({"code": "authority_trace_confidence_ledger_mismatch"})
+    expected_receipt: CanonicalPromotionReceipt | None = None
+    if validated_ledger is not None and expected_projection is not None:
+        try:
+            expected_receipt = _build_promotion_receipt_from_owners(
+                replay_input,
+                ledger_receipt=validated_ledger,
+                ledger_projection=expected_projection,
+            )
+        except ConfidenceLedgerError as exc:
+            if exc.code in {
+                "promotion_expected_ledger_check_missing",
+                "promotion_expected_ledger_check_mismatch",
+            }:
+                if not any(
+                    issue["code"] == "probabilistic_certificate_bypassed_confidence_ledger"
+                    for issue in issues
+                ):
+                    issues.append(
+                        {
+                            "code": ("probabilistic_certificate_bypassed_confidence_ledger"),
+                            "reason": exc.code,
+                        }
+                    )
+            else:
+                issues.append(
+                    {
+                        "code": "promotion_owner_recomputation_failed",
+                        "reason": exc.code,
+                    }
+                )
+    owner_fields = (
+        "owner_projection",
+        "candidate_id",
+        "status",
+        "promoted",
+        "terminal_kind",
+        "obligations",
+        "risk_spend",
+        "computed_authority_boundary",
+        "authority_derivation_trace",
+        "gate_outcome_hash",
+        "trace_content_hash",
+        "refusal_reasons",
+        "value_receipt_ref",
+        "value_method_family",
+        "promotion_lane",
+        "consumer_promotable",
+        "non_promotable_reason",
+        "cg2_resolution_reason",
+        "sequence_ref",
+    )
+    if expected_receipt is not None and not issues:
+        changed = [
+            field
+            for field in owner_fields
+            if getattr(receipt, field) != getattr(expected_receipt, field)
+        ]
+        if changed:
+            issues.append(
+                {
+                    "code": "promotion_owner_recomputation_drift",
+                    "fields": changed,
+                }
+            )
     return tuple(issues)
 
 
@@ -471,10 +1428,7 @@ def recompute_authority_trace_hash(trace: AuthorityDerivationTrace) -> str:
 def _resolve_cg2_owner_promotability(
     promotion_input: CanonicalPromotionInput,
 ) -> _CG2OwnerPromotabilityAttempt:
-    owner_ref = (
-        "polisyos.runtime.quality.grounding_bind."
-        "resolve_grounding_decision_promotability"
-    )
+    owner_ref = "polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability"
     certificate = promotion_input.grounding_decision_certificate
     reference = promotion_input.credal_reference
     if certificate is None or reference is None:
@@ -743,8 +1697,7 @@ def _identification_obligation(
             gate_id=PromotionGateId.CGF_GROUNDING,
             owner_ref="polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
             detail=(
-                "CGF grounding did not produce current_valid "
-                f"(status={summary.grounding_status})."
+                f"CGF grounding did not produce current_valid (status={summary.grounding_status})."
             ),
         )
     if cg2_attempt.error is not None:
@@ -1017,15 +1970,29 @@ def _replace_obligation(
     )
 
 
-def _risk_spend_summary(promotion_input: CanonicalPromotionInput) -> PromotionRiskSpendSummary:
-    records = tuple(promotion_input.risk_spends)
-    total = round(sum(float(item.declared_delta_spend) for item in records), 12)
-    budget = float(promotion_input.risk_budget_delta)
+def _risk_spend_summary(
+    checks: Sequence[ConfidenceLedgerCheck],
+    projection: N9PromotionCertificateProjection,
+) -> PromotionRiskSpendSummary:
+    records = [
+        PromotionRiskSpendRecord(
+            obligation_class=check.obligation_class,
+            certificate_ref=check.certificate_ref,
+            instrument=check.instrument_id,
+            certificate_role=check.certificate_role,
+            claim_polarity=check.claim_polarity,
+            declared_delta_spend=float(check.spend.fraction),
+            deterministic_proof=check.deterministic_proof,
+            n11_confidence_ledger_ref=check.check_id,
+        )
+        for check in checks
+    ]
     return PromotionRiskSpendSummary(
-        total_declared_delta=total,
-        budget_delta=budget,
-        within_budget=total <= budget,
-        spend_records=list(records),
+        total_declared_delta=float(projection.total_spend.fraction),
+        budget_delta=float(projection.budget_delta.fraction),
+        within_budget=projection.within_budget,
+        spend_records=records,
+        caveat=PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     )
 
 
@@ -1038,9 +2005,7 @@ def _computed_authority_boundary(promotion_input: CanonicalPromotionInput) -> Au
     value_grade = "unsupported"
     if receipt is not None:
         decision = receipt.value_outer_set.promotion_decision()
-        value_grade = (
-            "advisory_admissible" if decision.promotable else "unsupported"
-        )
+        value_grade = "advisory_admissible" if decision.promotable else "unsupported"
     boundary = AuthorityBoundary(
         boundary_id=f"n9.{_slug(promotion_input.candidate_summary.candidate_id)}.base",
         authoritative_for=["grounded_partial_admissible_policy_design"],
@@ -1090,9 +2055,7 @@ def _refusal_reasons(
             and not allow_non_authoritative_contract_scope_gaps
         ):
             reason = obligation.reason.value if obligation.reason else "unknown"
-            reasons.append(
-                f"{obligation.obligation_class.value}:{reason}"
-            )
+            reasons.append(f"{obligation.obligation_class.value}:{reason}")
     if not risk_spend.within_budget:
         reasons.append("risk_budget_delta_exceeded")
     return list(dict.fromkeys(reasons))
@@ -1105,6 +2068,8 @@ def _authority_derivation_trace(
     boundary: AuthorityBoundary,
     gate_hash: str,
     risk_spend: PromotionRiskSpendSummary,
+    confidence_ledger_receipt: ConfidenceLedgerReceipt,
+    confidence_ledger_projection: N9PromotionCertificateProjection,
 ) -> AuthorityDerivationTrace:
     declared = dict(promotion_input.declared_authority_transform)
     requested_grade = declared.get("requested_decision_grade")
@@ -1131,9 +2096,7 @@ def _authority_derivation_trace(
         computed_decision_grade=computed_grade,  # type: ignore[arg-type]
         producer_root_classes=list(promotion_input.producer_root_classes),
         method_classification="canonical_n9_owner_sequence",
-        applicability_result_ref=(
-            "n9://obligations/" + gate_hash.removeprefix("sha256:")[:16]
-        ),
+        applicability_result_ref=("n9://obligations/" + gate_hash.removeprefix("sha256:")[:16]),
         calibration_refs=[
             ref
             for obligation in obligations
@@ -1148,6 +2111,10 @@ def _authority_derivation_trace(
         transform_mismatch_disposition=disposition,
         promotion_sequence_ref=PROMOTION_SEQUENCE_REF,
         gate_outcome_hash=gate_hash,
+        confidence_ledger_scope_ref=confidence_ledger_projection.scope_id,
+        confidence_ledger_head_id=confidence_ledger_projection.head_event_id,
+        confidence_ledger_receipt_id=confidence_ledger_receipt.receipt_id,
+        confidence_ledger_projection_hash=confidence_ledger_projection.projection_hash,
         risk_spend_total=risk_spend.total_declared_delta,
         risk_budget_delta=risk_spend.budget_delta,
     )
@@ -1158,9 +2125,7 @@ def _requested_grade_exceeds_boundary(
     boundary: AuthorityBoundary,
 ) -> bool:
     try:
-        requested_boundary = boundary.model_copy(
-            update={"decision_grade": requested_grade}
-        )
+        requested_boundary = boundary.model_copy(update={"decision_grade": requested_grade})
     except ValueError:
         return False
     return boundary.permits_at_most(requested_boundary) and not requested_boundary.permits_at_most(
@@ -1231,8 +2196,12 @@ __all__ = [
     "PROMOTION_STRANGLE_REF",
     "CanonicalN9PromotionPort",
     "CanonicalPromotionInput",
+    "CanonicalPromotionOwnerProjection",
     "CanonicalPromotionReceipt",
+    "CredalReferencePromotabilityProjection",
     "LegacyPromotionStrangleReceipt",
+    "N9DesignProblemBinding",
+    "confidence_risk_scope_for_problem",
     "recompute_authority_trace_hash",
     "run_canonical_promotion_sequence",
     "validate_canonical_promotion_receipt",

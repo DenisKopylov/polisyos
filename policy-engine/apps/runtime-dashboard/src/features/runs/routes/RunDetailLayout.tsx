@@ -771,13 +771,13 @@ function RunInspectorContent() {
                   </div>
                 </section>
 
-                <ScientificDepthPanel runId={runId} summary={summary} />
+                <ScientificDepthPanel />
                 {run.operator_diagnostic ? (
                   <OperatorDiagnosticPanel
                     diagnostic={run.operator_diagnostic}
                   />
                 ) : null}
-                <PublicSectorReadinessPanel runId={runId} summary={summary} />
+                <PublicSectorReadinessPanel />
                 <PublicationReadinessPanel runId={runId} summary={summary} />
                 <OperatorCraftPanel runId={runId} summary={summary} />
               </Card>

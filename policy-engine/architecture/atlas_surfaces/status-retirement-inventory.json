@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:230db1d7b0536149114308c56280d2e41181cc26253dcd9478d46594852add61"
+      "sha256": "sha256:d07a82a0ef26455ba311071b0083d7beda659202388e289bb787cf206ebe00d9"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -671,8 +671,8 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.test.ts",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
     },
@@ -1298,7 +1298,7 @@
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx",
-          "line": 65,
+          "line": 63,
           "kind": "prop"
         }
       ],
@@ -1748,8 +1748,8 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
     },
@@ -1788,8 +1788,8 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
@@ -1842,8 +1842,8 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
@@ -2391,7 +2391,7 @@
     },
     {
       "candidate_id": "semantic-readiness-section-id",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
@@ -2411,10 +2411,10 @@
       "type_expression": "| \"objections\"\n  | \"fairness\"\n  | \"harm\"\n  | \"provenance\"\n  | \"uncertainty\"\n  | \"identifiability\"\n  | \"revocation\"",
       "disposition": "non_status_taxonomy",
       "target_cluster": "C05",
-      "rationale": "ReadinessSectionId addresses sections and carries no readiness outcome.",
+      "rationale": "C23 deletes the local readiness surface and its section taxonomy; DS16 remains the separate typed producer-binding debt owner.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "does_not_change_ds1_denominator": true
     },
@@ -2435,8 +2435,8 @@
       "rationale": "C14 deletes client-composed readiness severity; diagnostic presentation uses interaction-only state while decision validity remains generated-owner data.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "does_not_change_ds1_denominator": true
     },

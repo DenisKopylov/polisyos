@@ -158,7 +158,7 @@
             "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:80",
             "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:99",
             "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
-            "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:169"
+            "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:139"
           ]
         }
       ]
@@ -3637,12 +3637,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-agent-step",
@@ -4041,12 +4049,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-readiness-gate",
@@ -4055,12 +4071,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-readiness-review",
@@ -4069,12 +4093,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-run-narrative",
@@ -5137,6 +5169,28 @@
       "decision_date": "2026-07-17",
       "repair_commit": "d01eaa572",
       "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed."
+    },
+    {
+      "finding_id": "producer-binding-readiness-scientific-depth",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS16",
+      "capability_states": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:956",
+        "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx"
+      ],
+      "rationale": "dashboard-local synthesis removed because no typed producer field/refusal exists",
+      "closure_signal": "each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green",
+      "decision_date": "2026-07-17"
     },
     {
       "finding_id": "run-lifecycle-terminal-fact",

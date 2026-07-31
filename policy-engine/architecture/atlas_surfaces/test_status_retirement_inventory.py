@@ -1136,6 +1136,30 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         errors = checker.validate_inventory(anchor_mutation, debt, live_probes=False)
         self.assertIn("generated_anchor_drift:status-scenario", errors)
 
+    def test_generated_anchor_accepts_only_retired_historical_source_absence(self) -> None:
+        inventory, debt = _artifacts()
+        historical = next(
+            entry
+            for entry in inventory["entries"]
+            if entry["unit_id"] == "status-inline-readiness-gate"
+        )
+        self.assertEqual("retired", historical["current_definition_state"])
+        self.assertNotIn(
+            "generated_source_missing:status-inline-readiness-gate",
+            checker.validate_inventory(inventory, debt, live_probes=False),
+        )
+
+        mutation = copy.deepcopy(inventory)
+        row = next(
+            entry
+            for entry in mutation["entries"]
+            if entry["unit_id"] == "status-inline-readiness-gate"
+        )
+        row["current_definition_state"] = "present"
+        errors = checker.validate_inventory(mutation, debt, live_probes=False)
+
+        self.assertIn("generated_source_missing:status-inline-readiness-gate", errors)
+
     def test_rejects_a_fourth_waist_row_or_non_ds5_owner(self) -> None:
         inventory, debt = _artifacts()
         fourth = copy.deepcopy(debt)

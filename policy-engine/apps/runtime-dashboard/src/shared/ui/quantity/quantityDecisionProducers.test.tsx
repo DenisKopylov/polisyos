@@ -6,6 +6,7 @@ import {
   quantityControlIdentities,
   quantityDecisionProducerProbes,
   readAbsentDecisionScore,
+  renderContainedPublicSectorConsumer,
   readKnownConfidenceWithoutScore,
   removedAuthorityGuessIdentities,
   renderAbsentDecisionScoreConsumer,
@@ -157,6 +158,20 @@ describe("quantity decision producers", () => {
     expect(removedAuthorityGuessIdentities.map(identityKey).sort()).toEqual(
       diagnostics.map(identityKey).sort(),
     );
+  });
+
+  it("does not produce or render the removed Public Sector fallback guesses", () => {
+    expect(
+      quantityDecisionProducerProbes.some(
+        (probe) => probe.expectedPoint === -0.12 || probe.expectedPoint === -0.5,
+      ),
+    ).toBe(false);
+
+    renderWithProviders(renderContainedPublicSectorConsumer());
+
+    expect(screen.queryByText("-0.12")).not.toBeInTheDocument();
+    expect(screen.queryByText("-0.5")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("quantity")).not.toBeInTheDocument();
   });
 
   it("marks typed fixture authority without parsing a quantity reason code", () => {

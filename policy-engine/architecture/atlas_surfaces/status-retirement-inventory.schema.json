@@ -320,6 +320,7 @@
         "unit_id": { "type": "string", "pattern": "^status-[a-z0-9-]+$" },
         "definition_kind": { "enum": ["named", "inline", "deleted"] },
         "current_definition_state": {
+          "description": "A present generated binding requires a live source; a retired historical definition may retain its generated anchor after its source was deleted.",
           "enum": ["present", "retired", "deleted"]
         },
         "source_span": { "$ref": "#/$defs/sourceSpan" },

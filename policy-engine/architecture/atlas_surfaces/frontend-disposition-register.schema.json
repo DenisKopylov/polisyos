@@ -787,6 +787,7 @@
     },
     "supplementalFinding": {
       "type": "object",
+      "description": "Supplemental debt is descriptor-derived; producer-binding debt remains open until a typed producer, artifact, bridge, and semantic closure exist.",
       "additionalProperties": false,
       "required": [
         "finding_id",

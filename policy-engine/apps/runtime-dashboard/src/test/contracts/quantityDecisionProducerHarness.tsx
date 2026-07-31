@@ -6,22 +6,16 @@ import {
   type ConnectorCharacterCard,
 } from "@/features/evidence/domain/productionSlice";
 import { AtlasRunDeck } from "@/features/runs/components/AtlasRunDeck";
-import * as explainabilityModule from "@/features/runs/components/RunExplainabilityPanel";
 import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
+import * as explainabilityModule from "@/features/runs/components/RunExplainabilityPanel";
 import { PublicationPacketPanel } from "@/features/runs/components/PublicationPacketPanel";
 import { ATLAS_STANDALONE_DECK_TEMPLATE } from "@/features/runs/domain/deckTemplate";
-import {
-  buildFairnessAuditView,
-  buildPublicSectorReadinessSnapshot,
-  createDefaultReviewAttentionState,
-} from "@/features/runs/domain/publicSectorReadiness";
 import {
   buildSignedPublicDecisionPacket,
   type SignedPublicDecisionPacket,
 } from "@/features/runs/domain/publicationPacket";
 import * as runSummaryModule from "@/features/runs/routes/useRunDetailSummary";
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
-import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -55,16 +49,6 @@ const baseDecisionView: DecisionCardViewModel = {
   sourceKind: "decision_packet",
   totalDurationMs: 10,
   verdict: "REVIEW",
-};
-
-const governanceIssue: GovernanceIssueView = {
-  code: "fairness_gap",
-  durationMs: 10,
-  message: "Protected cohort evidence is incomplete.",
-  passId: "fairness-pass",
-  path: null,
-  raw: {},
-  severity: "blocker",
 };
 
 function offlineConnectorCards(): ConnectorCharacterCard[] {
@@ -151,20 +135,6 @@ function runExplainabilityConsumer(input: {
   );
 }
 
-function fairnessIssueView() {
-  return buildFairnessAuditView({
-    decisionView: null,
-    governanceIssues: [governanceIssue],
-  });
-}
-
-function missingFairnessView() {
-  return buildFairnessAuditView({
-    decisionView: null,
-    governanceIssues: [],
-  });
-}
-
 function publicationPacket(confidence: DecisionCardViewModel["confidence"]) {
   return buildSignedPublicDecisionPacket({
     decisionView: { ...baseDecisionView, confidence },
@@ -179,27 +149,12 @@ function publicationFallbackQuantity(packet: SignedPublicDecisionPacket) {
     ?.quantity;
 }
 
-function publicSectorSnapshot() {
-  return buildPublicSectorReadinessSnapshot({
-    decisionView: null,
-    disputes: [],
-    evidenceContext: null,
-    governanceIssues: [],
-    lens: "operator",
-    now: "2026-04-01T12:00:00.000Z",
-    reviewState: createDefaultReviewAttentionState(),
-    runId: "run-c06",
-  });
-}
-
 const productionPath =
   "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts";
 const explainabilityPath =
   "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx";
 const deckPath =
   "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts";
-const readinessPath =
-  "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts";
 const publicationPath =
   "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts";
 const summaryPath =
@@ -269,50 +224,6 @@ export const quantityDecisionProducerProbes: QuantityProducerProbe[] = [
     ),
   })),
   {
-    column: 26,
-    expectedMetricId: "fairness.primary_delta.issue_fallback",
-    expectedPoint: -0.12,
-    line: 420,
-    path: readinessPath,
-    read: () =>
-      (fairnessIssueView().groups[0] as UnknownRecord | undefined)
-        ?.primaryDelta,
-    renderConsumer: () => (
-      <PublicSectorReadinessPanel
-        runId="run-c06"
-        summary={
-          {
-            decisionView: null,
-            evidenceContext: null,
-            governanceIssues: [governanceIssue],
-          } as never
-        }
-      />
-    ),
-  },
-  {
-    column: 28,
-    expectedMetricId: "fairness.primary_delta.missing_evidence",
-    expectedPoint: -0.5,
-    line: 428,
-    path: readinessPath,
-    read: () =>
-      (missingFairnessView().groups[0] as UnknownRecord | undefined)
-        ?.primaryDelta,
-    renderConsumer: () => (
-      <PublicSectorReadinessPanel
-        runId="run-c06"
-        summary={
-          {
-            decisionView: null,
-            evidenceContext: null,
-            governanceIssues: [],
-          } as never
-        }
-      />
-    ),
-  },
-  {
     column: 18,
     expectedMetricId: "public.decision_metric.fallback",
     expectedPoint: null,
@@ -326,6 +237,16 @@ export const quantityDecisionProducerProbes: QuantityProducerProbe[] = [
 ];
 
 export const removedAuthorityGuessIdentities = [
+  {
+    column: 26,
+    line: 420,
+    path: "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+  },
+  {
+    column: 28,
+    line: 428,
+    path: "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+  },
   { column: 21, line: 384, path: explainabilityPath },
   { column: 13, line: 188, path: summaryPath },
   { column: 15, line: 190, path: summaryPath },
@@ -339,6 +260,10 @@ export function renderRepresentativeProducerConsumers(): ReactElement[] {
   return quantityDecisionProducerProbes.flatMap((probe) =>
     probe.renderConsumer ? [probe.renderConsumer()] : [],
   );
+}
+
+export function renderContainedPublicSectorConsumer(): ReactElement {
+  return <PublicSectorReadinessPanel />;
 }
 
 export function renderTypedFixtureAuthorityConsumer(): ReactElement {

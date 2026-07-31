@@ -854,27 +854,12 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("run-detail-uncertainty-visual"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("scientific-depth-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("identifiability-surface-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("identifiability-summary")).toBeInTheDocument();
-    expect(screen.getByTestId("sensitivity-rotor-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("sensitivity-decision-bearing-share"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("cohort-time-traveler-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("stress-test-theatre-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("public-sector-readiness-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("fairness-audit-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("harm-assessment-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("embargo-overlay-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("slow-review-mode-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("revocation-ledger-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
+    expect(screen.getByTestId("public-sector-readiness-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
     expect(screen.getByTestId("publication-packet-panel")).toBeInTheDocument();
     expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
     expect(
@@ -1273,6 +1258,29 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("public-sector-readiness-panel"),
     ).toBeInTheDocument();
+  });
+
+  it("renders both contained panels unavailable without producer inputs", () => {
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(screen.getByTestId("public-sector-readiness-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
+    expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
+  });
+
+  it("renders public-sector containment in Governance", async () => {
+    renderRoute(
+      "/runs/run-1/governance",
+      "/runs/:runId/:tab",
+      <GovernanceTab />,
+    );
+
+    expect(await screen.findByTestId("public-sector-readiness-panel")).toHaveTextContent(
+      "unavailable",
+    );
   });
 
   it("persists locally added dispute objections across governance remounts", async () => {

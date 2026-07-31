@@ -208,6 +208,25 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             errors,
         )
 
+    def test_c06_reclassifies_the_removed_readiness_fallbacks(self) -> None:
+        manifest = _manifest()
+        resolutions = [
+            row
+            for row in manifest["lint"]["resolutions"]
+            if row["cluster_id"] == "C06"
+        ]
+
+        self.assertEqual(
+            {"quantity_enveloped": 8, "authority_guess_removed": 9, "collection_control": 2, "parser_control": 1},
+            dict(checker.Counter(row["classification"] for row in resolutions)),
+        )
+        by_origin = {row["origin_identity_sha256"]: row for row in resolutions}
+        for origin_id in (
+            "4159737e7aac6623c40d68894cff3363d4532f1378c48141c463396799d768a9",
+            "4b9c4586ac6aa14f97e0b28129e18894fd948ff2f8239740a24a4648b8df690b",
+        ):
+            self.assertEqual(by_origin[origin_id]["classification"], "authority_guess_removed")
+
     def test_c07_chart_resolution_classifications_are_exact_and_content_bound(self) -> None:
         manifest = _manifest()
         resolutions = [

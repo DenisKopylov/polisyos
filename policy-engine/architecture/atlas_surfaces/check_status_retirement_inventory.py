@@ -337,7 +337,10 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
         if entry["owner_type"].get("query") != expected_query:
             errors.append(f"generated_query_drift:{unit_id}")
         source_path = REPO_ROOT / entry["source_span"]["path"]
-        if (
+        if not source_path.exists():
+            if entry["current_definition_state"] == "present":
+                errors.append(f"generated_source_missing:{unit_id}")
+        elif (
             '["' in entry.get("type_expression", "")
             and "@polisyos/runtime-api-client"
             in source_path.read_text(encoding="utf-8")

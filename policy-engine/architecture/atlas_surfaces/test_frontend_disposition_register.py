@@ -817,7 +817,10 @@ class ProducerBindingDebtTests(unittest.TestCase):
 
     def test_run_lifecycle_terminal_debt_is_derived_from_one_descriptor(self) -> None:
         descriptors = getattr(checker, "PRODUCER_BINDING_DEBT_DESCRIPTORS", {})
-        self.assertEqual({self.finding_id}, set(descriptors))
+        self.assertEqual(
+            {self.finding_id, "producer-binding-readiness-scientific-depth"},
+            set(descriptors),
+        )
         self.assertEqual(
             checker.BASE_EXPECTED_FINDING_IDS | set(descriptors),
             checker.EXPECTED_FINDING_IDS,
@@ -831,6 +834,22 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(
             {key: expected[key] for key in descriptors[self.finding_id]},
             descriptors[self.finding_id],
+        )
+
+    def test_readiness_scientific_debt_is_derived_from_one_descriptor(self) -> None:
+        finding_id = "producer-binding-readiness-scientific-depth"
+        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
+        generated = {
+            row["finding_id"]: row for row in checker._supplemental_findings()
+        }
+
+        self.assertEqual(
+            {
+                "finding_id": finding_id,
+                **descriptor,
+                "decision_date": checker.DECISION_DATE,
+            },
+            generated[finding_id],
         )
 
     def test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set(
@@ -933,6 +952,30 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     errors,
                 )
 
+    def test_rejects_readiness_scientific_debt_drift_in_every_governed_field(
+        self,
+    ) -> None:
+        finding_id = "producer-binding-readiness-scientific-depth"
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
+        for field, expected in descriptor.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == finding_id
+                )
+                row[field] = list(reversed(expected)) if isinstance(expected, list) else "drift"
+                errors = checker.validate_register(
+                    mutation,
+                    live_probes=False,
+                    report_parity=False,
+                )
+                self.assertIn(
+                    f"producer_binding_debt_drift:{finding_id}:{field}", errors
+                )
+
     def test_report_projects_capability_states_and_closure_signal(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         data["supplemental_findings"] = checker._supplemental_findings()
@@ -953,6 +996,13 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertIn("`producer_missing`, `surface_missing`", producer_line)
         self.assertIn(str(self._producer_row()["closure_signal"]), producer_line)
         self.assertIn("| — | — |", ordinary_line)
+        readiness_line = next(
+            line
+            for line in projection.splitlines()
+            if "`producer-binding-readiness-scientific-depth`" in line
+        )
+        self.assertIn("`artifact_missing`", readiness_line)
+        self.assertIn("registered typed refusal", readiness_line)
 
 
 if __name__ == "__main__":

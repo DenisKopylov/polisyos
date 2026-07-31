@@ -216,6 +216,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `dependency-workbox-routing` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
 | `dependency-workbox-window` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
 | `fixture-policy-design-case-audience` | `fixture_contract_drift` | `use_as_is` | `DS19` | — | — | `repaired` — The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed. |
+| `producer-binding-readiness-scientific-depth` | `producer_binding_debt` | `rebind_pending` | `DS16` | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green | `open_debt` — dashboard-local synthesis removed because no typed producer field/refusal exists |
 | `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS3` | `producer_missing`, `surface_missing` | DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green. | `open_debt` — RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority. |
 
 ### Seeded-negative lifecycle
@@ -426,7 +427,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-narrative-chapter` | `status-narrative-chapter` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-dispute-run` | `status-dispute-run` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-publication-argument-node` | `status-publication-argument-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-stress-scene` | `status-stress-scene` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-stress-scene` | `status-stress-scene` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
 | `status-agent-step` | `status-agent-step` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-agent-pipeline-step-status` |
 | `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-performance-budget-interaction-state` |
 | `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-run-workflow-node-status` |
@@ -450,9 +451,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-choreography-transition` | `status-inline-choreography-transition` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-publication-claim` | `status-inline-publication-claim` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-publication-ground` | `status-inline-publication-ground` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-evidence` | `status-inline-readiness-evidence` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-gate` | `status-inline-readiness-gate` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-review` | `status-inline-readiness-review` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-readiness-evidence` | `status-inline-readiness-evidence` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
+| `status-inline-readiness-gate` | `status-inline-readiness-gate` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
+| `status-inline-readiness-review` | `status-inline-readiness-review` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
 | `status-inline-run-narrative` | `status-inline-run-narrative` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-left` | `status-inline-governance-comparison-left` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-right` | `status-inline-governance-comparison-right` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |

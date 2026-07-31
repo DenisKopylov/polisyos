@@ -450,9 +450,9 @@
         },
         "cluster_id": "C06",
         "semantic_kind": "decision_bearing",
-        "classification": "quantity_enveloped",
+        "classification": "authority_guess_removed",
         "implementation_refs": [
-          "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
         ],
         "consumer_refs": [
           "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
@@ -500,9 +500,9 @@
         },
         "cluster_id": "C06",
         "semantic_kind": "decision_bearing",
-        "classification": "quantity_enveloped",
+        "classification": "authority_guess_removed",
         "implementation_refs": [
-          "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
         ],
         "consumer_refs": [
           "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
@@ -2141,8 +2141,8 @@
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-        "roles": ["consumer"],
-        "sha256": "6394295f2dbab12ef623bdf87f363cca16848b1b0ec6dadf111c6296e1d2c558"
+        "roles": ["consumer", "implementation"],
+        "sha256": "4610ec10607f7dd1b9898e5815aa519e6ce15947084cabca13f17938f893c3bd"
       },
       {
         "cluster_id": "C06",
@@ -2170,15 +2170,9 @@
       },
       {
         "cluster_id": "C06",
-        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "roles": ["implementation"],
-        "sha256": "9b592b86f57431ea10402bc4d23c983cd1c5cb93fc597d573365a97a2ca4fe62"
-      },
-      {
-        "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "roles": ["consumer"],
-        "sha256": "93248fc7e46bffa5dec836f63e8f05de43cf4a2999e025b2a4556accd4ccfed5"
+        "sha256": "811c69cfa3c0b9b31cc4c0e000c168ec514b4285fc194121e20095c221869cde"
       },
       {
         "cluster_id": "C06",
@@ -2202,7 +2196,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx",
         "roles": ["closure_test"],
-        "sha256": "54d26eaca0eab91045b95c1a7e0e994503fbb8a29a7cf6d9d6eab1609b40dfa0"
+        "sha256": "31da2cddda302b3eee0d142a29b1d7a2116b1bbff5375e20e502101787f49b34"
       },
       {
         "cluster_id": "C07",

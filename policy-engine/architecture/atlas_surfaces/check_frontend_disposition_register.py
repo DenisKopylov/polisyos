@@ -1422,6 +1422,26 @@ BASE_EXPECTED_FINDING_IDS = {
 }
 
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
+    "producer-binding-readiness-scientific-depth": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS16",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23",
+            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:956",
+            "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx",
+        ],
+        "rationale": "dashboard-local synthesis removed because no typed producer field/refusal exists",
+        "closure_signal": "each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green",
+    },
     "run-lifecycle-terminal-fact": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
@@ -1451,6 +1471,25 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         ),
     }
 }
+
+C23_ROOT_IDS = frozenset(
+    {
+        "status-stress-scene",
+        "status-inline-readiness-evidence",
+        "status-inline-readiness-gate",
+        "status-inline-readiness-review",
+    }
+)
+C23_SUCCESSOR_ID = "c23-readiness-scientific-containment"
+C23_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+]
+C23_RATIONALE = (
+    "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels "
+    "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
+)
 
 EXPECTED_FINDING_IDS = (
     BASE_EXPECTED_FINDING_IDS | set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
@@ -2441,8 +2480,8 @@ def validate_baseline_manifest(
         if row["cluster_id"] == "C06"
     )
     if c06_classifications != {
-        "quantity_enveloped": 10,
-        "authority_guess_removed": 7,
+        "quantity_enveloped": 8,
+        "authority_guess_removed": 9,
         "collection_control": 2,
         "parser_control": 1,
     }:
@@ -3354,6 +3393,25 @@ def _validate_producer_binding_debt_findings(
             )
 
 
+def _validate_c23_containment_roots(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind all deleted readiness/scientific roots to one containment receipt."""
+    for unit_id in C23_ROOT_IDS:
+        entry = entries.get(unit_id, {})
+        successor = entry.get("successor") or {}
+        if (
+            entry.get("disposition") != "rebind_pending"
+            or entry.get("strangle_status") != "strangled"
+            or entry.get("owner_slice") != "DS4"
+            or entry.get("seed_rule") != "ds4_c23_containment"
+            or entry.get("rationale") != C23_RATIONALE
+            or successor.get("unit_id") != C23_SUCCESSOR_ID
+            or successor.get("consumer_refs") != C23_SUCCESSOR_REFS
+        ):
+            errors.append(f"c23_containment_root_drift:{unit_id}")
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -3477,6 +3535,7 @@ def validate_register(
         errors,
         live_probes=live_probes,
     )
+    _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
 

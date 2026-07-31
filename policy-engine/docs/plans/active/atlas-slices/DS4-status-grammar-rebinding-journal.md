@@ -2386,3 +2386,78 @@ findings **ADDRESSED**, no new Critical/Important breakage, Task quality
 - Retired production searches are empty and the baseline diff contains only
   the two authorized simulation resolution-content hashes. The independent
   approval and controller receipts add no path and precede the scoped commit.
+
+## 2026-07-31 — DS4-C23 readiness and scientific containment
+
+### Scope and pattern pass
+
+- C23 is a containment repair, not a DS16 producer implementation. The two
+  dashboard-local models and their domain tests are deleted; the three live
+  mounts now have no inputs and emit only the existing
+  `t("common.unavailable")` neutral value.
+- Relevant failures were P04/P05/P15 (a dashboard-local status and authority
+  claim), P29 (a marker-only retirement proof), P31 (site-by-site fallback
+  suppression), and P32 (trusting a plausible local synthesis as evidence).
+  The correct pattern is one constant consumer boundary, a graph-derived
+  containment test, and an explicit `producer_missing`/`artifact_missing`/
+  `bridge_missing`/`semantic_test_missing` DS16 debt record.
+- The capability remains `producer_missing`, `artifact_missing`,
+  `bridge_missing`, and `semantic_test_missing`; no C23 artifact is presented
+  as a real readiness or scientific-depth decision. DS16 closes it only with
+  producer-signed fields or a registered typed refusal.
+
+### RED, implementation, and governance closure
+
+- The exact focused C23 run was RED before product edits: five expected
+  failures covering no-input/neutral panel behavior, the live import graph,
+  the three mounts, and both historical fallback quantities. The a11y tests
+  were also authored against the old input-bearing panels before containment.
+- `publicSectorReadiness` and `scientificDepth`, including their domain tests,
+  are gone. `RunDetailLayout` mounts readiness once and scientific depth once;
+  `GovernanceTab` owns the second readiness mount. Each retained component is a
+  parameterless section whose only content is `unavailable`.
+- The structural test derives every reachable production mount from cached
+  TypeScript AST/import edges, overlays and reparses only corruption sources,
+  and self-generates direct-helper, import-alias, arbitrary-key, wrapper,
+  prop-spread, conditional, extra-text, binding-alias, control-flow,
+  off-JSX-call, and reachable sibling fourth-mount corruptions. This is the
+  P29/P33 repair: the graph, not a known pair of routes, determines the census.
+- Cached analysis returned the isolated structural suite in 4.40 seconds; the
+  exact focused five-file receipt passed twice in 12.09 and 13.25 seconds,
+  below Vitest's 15-second test timeout without increasing it.
+- The two panels bind only the existing `useI18n` / `t("common.unavailable")`
+  shape. Two `local/no-hardcoded-strings` RED findings required the binding;
+  no locale catalog, including frozen `ru`, changed. The exact structural
+  grammar permits only the sanctioned const binding followed by the exact
+  section return and its one returned translation call.
+  The C06 quantity harness checks the removed `-0.12` and `-0.5` authority
+  guesses cannot reappear through the contained consumer.
+- The four DS19 readiness roots are `rebind_pending`/`strangled` with the
+  C23 successor. The baseline debt origins are immutable and reclassified
+  `authority_guess_removed`. The status inventory retires the historical
+  generated readiness section while preserving its historical anchor; its
+  checker fails if a current `present` entry loses its generated source.
+
+### Verification boundary
+
+| Gate | Result |
+| --- | --- |
+| focused C23 product | PASS; five files / 32 tests |
+| contained-panel a11y | PASS; two files / two tests |
+| dashboard | PASS; typecheck, build, scoped 12-file ESLint, architecture 0 over 1,009 modules / 4,113 dependencies |
+| atlas-ui | PASS; typecheck, 18 files / 86 tests, lint, 36-source architecture |
+| DS19/front-end governance | PASS; baseline-byte verification and corruption probes, 261 roots / 13 supplemental, 61 unit tests |
+| status governance | PASS; checker corruption probes, `47/15/55/0/3`, 36 unit tests |
+
+- Exact scope is 29 physical paths: 28 tracked production/test/governance/
+  journal paths and the ignored C23 report. No DS16 producer, backend,
+  generated client, lockfile, workspace, package source, other worktree,
+  main, or remote change belongs to C23.
+- A mistaken root-level a11y invocation was a tooling non-receipt only; the
+  corrected dashboard-local a11y receipt passed. It did not alter scope or
+  substitute for a test result.
+- Closeout pattern pass: P04/P05/P15 are closed by constant neutral surfaces
+  plus explicit open debt; P29 by AST/import-graph and corruption receipts;
+  P31 by deleting the local model rather than overriding individual values;
+  P32 by requiring future producer evidence or a typed refusal. The fresh
+  independent review approved this exact scope before the scoped C23 commit.

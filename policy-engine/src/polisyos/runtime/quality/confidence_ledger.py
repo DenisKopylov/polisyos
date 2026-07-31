@@ -14,6 +14,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
+import sysconfig
 import threading
 import tomllib
 from collections.abc import Callable, Iterable, Mapping
@@ -114,6 +116,10 @@ _EVENT_SCHEMA = artifacts.SchemaInfo(
 _RECEIPT_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.confidence-ledger-receipt", version="1.0.0"
 )
+_DEPLOYMENT_DRIFT_POISON_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.confidence-ledger-deployment-drift-poison",
+    version="1.0.0",
+)
 
 try:  # pragma: no cover - POSIX is the authority-bearing backend.
     import fcntl as _fcntl
@@ -122,6 +128,8 @@ except ImportError:  # pragma: no cover
 
 _LOCKS_GUARD = threading.Lock()
 _PATH_LOCKS: dict[Path, threading.RLock] = {}
+_INVOCATION_LOCKS_GUARD = threading.Lock()
+_INVOCATION_LOCKS: dict[Path, threading.Lock] = {}
 
 
 class _StrictModel(BaseModel):
@@ -475,6 +483,14 @@ class OwnerCertificateBinding(_StrictModel):
     verification_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class OwnerInvocationLockIdentity(_StrictModel):
+    """Stable process/OS lock identity for exactly one owner execution."""
+
+    nonce: str = Field(pattern=r"^confidence-owner-invocation-lock:sha256:[0-9a-f]{64}$")
+    device: int = Field(ge=0)
+    inode: int = Field(gt=0)
+
+
 class ConfidenceLedgerRoot(_StrictModel):
     """Immutable CAS root binding a scope to exactly one risk policy."""
 
@@ -538,6 +554,7 @@ class ConfidenceLedgerCheck(_StrictModel):
         default=None,
         pattern=r"^confidence-owner-invocation:sha256:[0-9a-f]{64}$",
     )
+    owner_invocation_lock_identity: OwnerInvocationLockIdentity | None = None
     deterministic_proof: bool
     anytime_valid: bool
     spend: RationalSpec
@@ -563,6 +580,8 @@ class ConfidenceLedgerCheck(_StrictModel):
             raise ValueError("unstarted_execution_identity")
         if self.owner_invocation_claim_id is not None and self.execution_id is None:
             raise ValueError("owner_invocation_claim_without_execution")
+        if (self.execution_id is None) != (self.owner_invocation_lock_identity is None):
+            raise ValueError("owner_invocation_lock_identity_incomplete")
         if (
             self.outcome
             in {
@@ -634,6 +653,36 @@ class _LedgerHead(_StrictModel):
     head_event_id: str
     head_event_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     revision: int = Field(ge=0)
+
+
+class _ScopeJournalRecord(_StrictModel):
+    """One hash-chained WAL record for a scope-local CAS artifact."""
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    revision: int = Field(gt=0)
+    previous_record_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    record_type: Literal["intent", "commit"]
+    artifact_kind: Literal["event", "receipt", "deployment_drift_poison"]
+    artifact_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    payload: dict[str, Any] | None
+    record_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _DeploymentDriftPoison(_StrictModel):
+    """Irreversible same-scope denial after canonical deployment drift."""
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    authority_provenance: Literal["canonical_repo"]
+    expected_deployment_identity: str = Field(
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$"
+    )
+    observed_deployment_identity: str = Field(
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$"
+    )
+    reason: Literal["canonical_deployment_identity_changed"]
+    poison_id: str = Field(pattern=r"^confidence-deployment-drift-poison:sha256:[0-9a-f]{64}$")
 
 
 class ConfidenceLedgerReceipt(_StrictModel):
@@ -752,12 +801,16 @@ class ConfidenceLedgerSession:
         "_artifact_store",
         "_authority_provenance",
         "_authority_repo_root",
+        "_cas_reconciled",
         "_certificate_resolver",
         "_certificate_verifier",
         "_deployment_identity",
         "_execution_claims",
         "_execution_claims_lock",
         "_head_path",
+        "_journal_offset",
+        "_journal_path",
+        "_journal_records",
         "_lock_path",
         "_registry",
         "_risk_scope",
@@ -779,6 +832,7 @@ class ConfidenceLedgerSession:
             "_authority_repo_root",
             "_deployment_identity",
             "_head_path",
+            "_journal_path",
             "_lock_path",
             "_scope_tombstone_path",
             "_is_authority_session",
@@ -843,12 +897,16 @@ class ConfidenceLedgerSession:
         self._authority_provenance = authority_provenance
         self._authority_repo_root = authority_repo_root
         self._deployment_identity = deployment_identity
+        self._cas_reconciled = False
         self._execution_claims: set[str] = set()
         self._execution_claims_lock = threading.Lock()
         self._state_root.mkdir(parents=True, exist_ok=True)
         scope_hex = risk_scope.scope_id.rsplit(":", 1)[-1]
         self._head_path = self._state_root / f"{scope_hex}.head.json"
         self._lock_path = self._state_root / f"{scope_hex}.lock"
+        self._journal_path = self._state_root / f"{scope_hex}.append.wal"
+        self._journal_offset = 0
+        self._journal_records: list[_ScopeJournalRecord] = []
         self._scope_tombstone_path = self._state_root / f"{scope_hex}.scope.json"
         self._initialize_or_validate_root()
         object.__setattr__(self, "_session_sealed", True)
@@ -1107,6 +1165,10 @@ class ConfidenceLedgerSession:
                 schedule_query_index=schedule_index,
                 spend=spend,
             )
+            invocation_lock_identity = self._create_owner_invocation_lock_locked(
+                execution_id=execution_id,
+                request_fingerprint=current.request_fingerprint,
+            )
             started = current.model_copy(
                 update={
                     "execution_status": "started",
@@ -1114,6 +1176,7 @@ class ConfidenceLedgerSession:
                     "execution_ordinal": ordinal,
                     "schedule_query_index": schedule_index,
                     "execution_id": execution_id,
+                    "owner_invocation_lock_identity": invocation_lock_identity,
                     "spend": _rational_spec(spend),
                     "spend_decimal": _fraction_display(spend),
                     "claim_execution_binding_hash": binding_hash,
@@ -1137,13 +1200,19 @@ class ConfidenceLedgerSession:
         started = offered if offered.outcome == "started" else self.start_check(offered)
         if started.outcome != "started":
             return started
-        started = self._claim_owner_invocation(started)
-        if started.outcome != "started":
-            return started
-        profile = self._registry.resolve_proof_profile(started.proof_profile_id)
+        with self._owner_invocation_lock(started, blocking=True):
+            claimed = self._claim_owner_invocation(started)
+            return self._execute_claimed_check(claimed)
+
+    def _execute_claimed_check(self, claimed: ConfidenceLedgerCheck) -> ConfidenceLedgerCheck:
+        """Run a proof kernel while the caller holds the invocation locks."""
+
+        if claimed.outcome != "started":
+            return claimed
+        profile = self._registry.resolve_proof_profile(claimed.proof_profile_id)
         if profile.proof_kernel_id == "closed_constant_unit_e_process_v1":
             return self._complete(
-                started,
+                claimed,
                 outcome="not_supported",
                 supports_obligation=False,
                 eligible_for_promotion=False,
@@ -1151,10 +1220,10 @@ class ConfidenceLedgerSession:
             )
         if profile.proof_kernel_id == "deterministic_owner_v1":
             try:
-                binding, supports = self._resolve_bind_verify_owner(started)
+                binding, supports = self._resolve_bind_verify_owner(claimed)
             except ConfidenceLedgerError as exc:
                 return self._complete(
-                    started,
+                    claimed,
                     outcome="refused",
                     supports_obligation=False,
                     eligible_for_promotion=False,
@@ -1163,7 +1232,7 @@ class ConfidenceLedgerSession:
                 )
             except (ValueError, TypeError, KeyError):
                 return self._complete(
-                    started,
+                    claimed,
                     outcome="refused",
                     supports_obligation=False,
                     eligible_for_promotion=False,
@@ -1172,11 +1241,11 @@ class ConfidenceLedgerSession:
                 )
             eligible = bool(
                 supports
-                and started.certificate_role == "promotion"
-                and started.claim_polarity == "false_accept"
+                and claimed.certificate_role == "promotion"
+                and claimed.claim_polarity == "false_accept"
             )
             return self._complete(
-                started,
+                claimed,
                 outcome="supported" if supports else "not_supported",
                 supports_obligation=supports,
                 eligible_for_promotion=eligible,
@@ -1184,7 +1253,7 @@ class ConfidenceLedgerSession:
                 owner_binding=binding,
             )
         return self._complete(
-            started,
+            claimed,
             outcome="refused",
             supports_obligation=False,
             eligible_for_promotion=False,
@@ -1213,27 +1282,38 @@ class ConfidenceLedgerSession:
     ) -> ConfidenceLedgerCheck:
         """Record an owner failure without refunding an already burned slot."""
 
-        started = self._claim_owner_invocation(started)
-        return self._complete(
-            started,
-            outcome=outcome,
-            supports_obligation=False,
-            eligible_for_promotion=False,
-            refusal_code=code,
-            proof_detail=detail,
-        )
+        with self._owner_invocation_lock(started, blocking=True):
+            claimed = self._claim_owner_invocation(started)
+            return self._complete(
+                claimed,
+                outcome=outcome,
+                supports_obligation=False,
+                eligible_for_promotion=False,
+                refusal_code=code,
+                proof_detail=detail,
+            )
 
     def recover_started(self, started: ConfidenceLedgerCheck) -> ConfidenceLedgerCheck:
         """Close a crash-open start without re-executing or refunding it."""
 
-        return self._complete(
-            started,
-            outcome="recovered_crash",
-            supports_obligation=False,
-            eligible_for_promotion=False,
-            refusal_code="started_check_recovered_without_reexecution",
-            proof_detail="crash-open execution retained its full burn",
-        )
+        with self._owner_invocation_lock(started, blocking=False), self._exclusive_lock():
+            head, root, events = self._load_state_locked()
+            current = _current_checks(events).get(started.request_key)
+            if current is None or current.request_fingerprint != started.request_fingerprint:
+                raise ConfidenceLedgerError("started_check_not_canonical")
+            if current.outcome != "started":
+                return current
+            return self._complete_locked(
+                head=head,
+                root=root,
+                events=events,
+                current=current,
+                outcome="recovered_crash",
+                supports_obligation=False,
+                eligible_for_promotion=False,
+                refusal_code="started_check_recovered_without_reexecution",
+                proof_detail="crash-open execution retained its full burn",
+            )
 
     def _claim_owner_invocation(
         self,
@@ -1261,6 +1341,7 @@ class ConfidenceLedgerSession:
                     "scope_id": current.scope_id,
                     "execution_id": current.execution_id,
                     "request_fingerprint": current.request_fingerprint,
+                    "lock_identity": current.owner_invocation_lock_identity,
                 },
             )
             claimed = current.model_copy(
@@ -1290,28 +1371,32 @@ class ConfidenceLedgerSession:
         """Persist a validated receipt and return its CAS locator."""
 
         validated = validate_confidence_ledger_receipt(receipt, session=self)
-        ref = self._put_json(
-            validated.model_dump(mode="json"),
-            kind="runtime.quality.confidence_ledger.receipt",
-            schema=_RECEIPT_SCHEMA,
-        )
-        return str(ref.artifact_id)
+        with self._exclusive_lock():
+            head, root, events = self._load_state_locked()
+            if validated != self._build_receipt(head, root, events):
+                raise ConfidenceLedgerError("receipt_not_canonical_head")
+            ref = self._journaled_put_json_locked(
+                validated.model_dump(mode="json"),
+                artifact_kind="receipt",
+            )
+            return str(ref.artifact_id)
 
     def _initialize_or_validate_root(self) -> None:
         with self._exclusive_lock():
+            self._ensure_scope_journal_locked()
             anchor_payload = self._scope_anchor_payload()
             expected_anchor_ref = _cas_json_artifact_ref(anchor_payload)
             expected_registry_ref = _cas_json_artifact_ref(self._registry.source_payload())
             expected_root = self._expected_root_binding(expected_registry_ref)
             expected_root_ref = _cas_json_artifact_ref(expected_root)
-            prior_scope_exists = self._prior_scope_artifact_exists()
-            existing_scope = (
+            obvious_scope = (
                 self._head_path.exists()
                 or self._scope_tombstone_path.exists()
                 or self._artifact_store.has(expected_anchor_ref)
                 or self._artifact_store.has(expected_root_ref)
-                or prior_scope_exists
             )
+            prior_scope_exists = False if obvious_scope else self._prior_scope_artifact_exists()
+            existing_scope = obvious_scope or prior_scope_exists
             if existing_scope:
                 if not self._scope_tombstone_path.exists() or not self._artifact_store.has(
                     expected_anchor_ref
@@ -1366,6 +1451,7 @@ class ConfidenceLedgerSession:
                 revision=0,
             )
             atomic_write_json(self._head_path, head.model_dump(mode="json"))
+            self._cas_reconciled = True
 
     def _load_state_locked(
         self,
@@ -1400,13 +1486,28 @@ class ConfidenceLedgerSession:
         registry_payload = self._read_cas_json(root.registry_artifact_ref, _REGISTRY_SCHEMA)
         if registry_payload != self._registry.source_payload():
             raise ConfidenceLedgerError("registry_binding_invalid")
-        events = self._reconstruct_event_lineage_locked(root, root_ref=root_ref)
+        artifact_refs = self._scope_artifact_refs_locked(root, root_ref=root_ref)
+        if artifact_refs["deployment_drift_poison"]:
+            for poison_ref in artifact_refs["deployment_drift_poison"]:
+                self._validate_deployment_drift_poison_ref(poison_ref)
+            raise ConfidenceLedgerError("deployment_drift_poisoned")
+        events = self._reconstruct_event_lineage_locked(
+            root,
+            root_ref=root_ref,
+            event_refs=artifact_refs["event"],
+        )
         _validate_chain_semantics(
             events,
             scope_id=root.scope_id,
             ledger_root_id=root.ledger_root_id,
             ledger_root_ref=root_ref,
             registry=self._registry,
+        )
+        self._validate_persisted_receipt_witnesses_locked(
+            root=root,
+            root_ref=root_ref,
+            events=events,
+            receipt_refs=artifact_refs["receipt"],
         )
         tail = events[-1] if events else None
         derived_head = _LedgerHead(
@@ -1430,44 +1531,167 @@ class ConfidenceLedgerSession:
             atomic_write_json(self._head_path, derived_head.model_dump(mode="json"))
         return derived_head, root, events
 
-    def _reconstruct_event_lineage_locked(
+    def _scope_artifact_refs_locked(
         self,
         root: ConfidenceLedgerRoot,
         *,
         root_ref: str,
-    ) -> tuple[ConfidenceLedgerEvent, ...]:
-        """Rebuild the unique maximal same-scope/root event chain from immutable CAS."""
+    ) -> dict[str, set[str]]:
+        """Replay the scope WAL and reconcile shared CAS once per session."""
 
-        children: dict[tuple[str, str], list[ConfidenceLedgerEvent]] = {}
-        all_event_ids: set[str] = set()
-        expected_root_ref = root_ref
+        refs = self._replay_scope_journal_locked()
+        if self._cas_reconciled:
+            return refs
+        artifact_kinds = {
+            "runtime.quality.confidence_ledger.event": "event",
+            "runtime.quality.confidence_ledger.receipt": "receipt",
+            "runtime.quality.confidence_ledger.deployment_drift_poison": (
+                "deployment_drift_poison"
+            ),
+        }
         for artifact_id in self._artifact_store.iter_artifact_ids():
             try:
                 manifest = self._artifact_store.get_manifest(artifact_id)
             except (OSError, ValueError):
                 continue
-            if manifest.producer != _LEDGER_PRODUCER:
-                continue
             artifact_ref = str(artifact_id)
             if manifest.kind == "runtime.quality.confidence_ledger.root":
-                if manifest.artifact_schema != _ROOT_SCHEMA:
-                    continue
-                payload = self._read_cas_json(artifact_ref, _ROOT_SCHEMA)
                 if (
-                    isinstance(payload, Mapping)
-                    and payload.get("scope_id") == root.scope_id
-                    and artifact_ref != expected_root_ref
+                    manifest.producer == _LEDGER_PRODUCER
+                    and manifest.artifact_schema == _ROOT_SCHEMA
                 ):
-                    raise ConfidenceLedgerError("ledger_scope_binding_mismatch")
+                    payload = self._read_cas_json(artifact_ref, _ROOT_SCHEMA)
+                    if (
+                        isinstance(payload, Mapping)
+                        and payload.get("scope_id") == root.scope_id
+                        and artifact_ref != root_ref
+                    ):
+                        raise ConfidenceLedgerError("ledger_scope_binding_mismatch")
                 continue
-            if (
-                manifest.kind != "runtime.quality.confidence_ledger.event"
-                or manifest.artifact_schema != _EVENT_SCHEMA
-            ):
+            artifact_kind = artifact_kinds.get(manifest.kind)
+            if artifact_kind is None:
                 continue
-            payload = self._read_cas_json(artifact_ref, _EVENT_SCHEMA)
+            report = self._artifact_store.verify(artifact_id)
+            if not report.ok:
+                raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
+            try:
+                payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            except (OSError, ValueError, TypeError) as exc:
+                raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
             if not isinstance(payload, Mapping) or payload.get("scope_id") != root.scope_id:
                 continue
+            _, expected_schema = _journal_artifact_contract(artifact_kind)
+            if manifest.producer != _LEDGER_PRODUCER or manifest.artifact_schema != expected_schema:
+                code = (
+                    "ledger_receipt_witness_invalid"
+                    if artifact_kind == "receipt"
+                    else "ledger_scope_journal_invalid"
+                )
+                raise ConfidenceLedgerError(code)
+            payload_dict = dict(payload)
+            if artifact_ref not in refs[artifact_kind]:
+                self._append_scope_journal_intent(
+                    artifact_kind=artifact_kind,
+                    artifact_ref=artifact_ref,
+                    payload=payload_dict,
+                )
+                self._append_scope_journal_commit(
+                    artifact_kind=artifact_kind,
+                    artifact_ref=artifact_ref,
+                )
+                refs[artifact_kind].add(artifact_ref)
+        self._cas_reconciled = True
+        return refs
+
+    def _replay_scope_journal_locked(self) -> dict[str, set[str]]:
+        """Complete WAL intents and return committed scope artifact refs."""
+
+        records = self._read_new_scope_journal_records_locked()
+        intents: dict[str, _ScopeJournalRecord] = {}
+        commits: set[str] = set()
+        refs: dict[str, set[str]] = {
+            "event": set(),
+            "receipt": set(),
+            "deployment_drift_poison": set(),
+        }
+        for record in records:
+            if record.record_type == "intent":
+                existing = intents.get(record.artifact_ref)
+                if existing is not None and (
+                    existing.artifact_kind != record.artifact_kind
+                    or existing.payload != record.payload
+                ):
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+                intents[record.artifact_ref] = record
+            else:
+                intent = intents.get(record.artifact_ref)
+                if intent is None or intent.artifact_kind != record.artifact_kind:
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+                commits.add(record.artifact_ref)
+        for artifact_ref, intent in intents.items():
+            payload = intent.payload
+            if payload is None:
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            if _cas_json_artifact_ref(payload) != artifact_ref:
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            kind, schema = _journal_artifact_contract(intent.artifact_kind)
+            if self._artifact_store.has(artifact_ref):
+                if self._read_cas_json(artifact_ref, schema) != payload:
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            elif artifact_ref in commits:
+                code = (
+                    "ledger_receipt_witness_invalid"
+                    if intent.artifact_kind == "event"
+                    else "ledger_scope_journal_invalid"
+                )
+                raise ConfidenceLedgerError(code)
+            else:
+                ref = self._put_json(payload, kind=kind, schema=schema)
+                if str(ref.artifact_id) != artifact_ref:
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            if artifact_ref not in commits:
+                self._append_scope_journal_commit(
+                    artifact_kind=intent.artifact_kind,
+                    artifact_ref=artifact_ref,
+                )
+            refs[intent.artifact_kind].add(artifact_ref)
+        return refs
+
+    def _validate_deployment_drift_poison_ref(self, artifact_ref: str) -> None:
+        """Validate one terminal same-scope canonical deployment denial."""
+
+        payload = self._read_cas_json(
+            artifact_ref,
+            _DEPLOYMENT_DRIFT_POISON_SCHEMA,
+        )
+        try:
+            poison = _DeploymentDriftPoison.model_validate(payload)
+        except ValueError as exc:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid", str(exc)) from exc
+        expected_id = _identity(
+            "confidence-deployment-drift-poison",
+            poison.model_dump(mode="json", exclude={"poison_id"}),
+        )
+        if (
+            poison.scope_id != self._risk_scope.scope_id
+            or poison.expected_deployment_identity != self._deployment_identity
+            or poison.poison_id != expected_id
+        ):
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid")
+
+    def _reconstruct_event_lineage_locked(
+        self,
+        root: ConfidenceLedgerRoot,
+        *,
+        root_ref: str,
+        event_refs: set[str],
+    ) -> tuple[ConfidenceLedgerEvent, ...]:
+        """Rebuild the unique maximal same-scope/root event chain from immutable CAS."""
+
+        children: dict[tuple[str, str], list[ConfidenceLedgerEvent]] = {}
+        all_event_ids: set[str] = set()
+        for artifact_ref in sorted(event_refs):
+            payload = self._read_cas_json(artifact_ref, _EVENT_SCHEMA)
             try:
                 stored = _StoredLedgerEvent.model_validate(payload)
             except ValueError as exc:
@@ -1502,6 +1726,61 @@ class ConfidenceLedgerSession:
             raise ConfidenceLedgerError("ledger_event_unreachable")
         return tuple(lineage)
 
+    def _validate_persisted_receipt_witnesses_locked(
+        self,
+        *,
+        root: ConfidenceLedgerRoot,
+        root_ref: str,
+        events: tuple[ConfidenceLedgerEvent, ...],
+        receipt_refs: set[str],
+    ) -> None:
+        """Require every same-scope receipt to witness an exact CAS prefix."""
+
+        for artifact_ref in sorted(receipt_refs):
+            payload = self._read_cas_json(artifact_ref, _RECEIPT_SCHEMA)
+            try:
+                receipt = validate_confidence_ledger_receipt_structure(
+                    payload,
+                    registry=self._registry,
+                )
+                prefix = events[: len(receipt.events)]
+                if receipt.events != prefix or len(prefix) != len(receipt.events):
+                    raise ConfidenceLedgerError("ledger_receipt_witness_invalid")
+                for witnessed in receipt.events:
+                    stored_payload = self._read_cas_json(
+                        witnessed.event_ref,
+                        _EVENT_SCHEMA,
+                    )
+                    stored = _StoredLedgerEvent.model_validate(stored_payload)
+                    materialized = ConfidenceLedgerEvent(
+                        **stored.model_dump(mode="python"),
+                        event_ref=witnessed.event_ref,
+                    )
+                    if materialized != witnessed:
+                        raise ConfidenceLedgerError("ledger_receipt_witness_invalid")
+                tail = receipt.events[-1] if receipt.events else None
+                prefix_head = _LedgerHead(
+                    schema_version=CONFIDENCE_LEDGER_SCHEMA_VERSION,
+                    scope_id=root.scope_id,
+                    scope_anchor_ref=root.scope_anchor_ref,
+                    authority_provenance=root.authority_provenance,
+                    ledger_root_id=root.ledger_root_id,
+                    ledger_root_ref=root_ref,
+                    head_event_id=(tail.event_id if tail is not None else root.ledger_root_id),
+                    head_event_ref=tail.event_ref if tail is not None else root_ref,
+                    revision=len(receipt.events),
+                )
+                expected = self._build_receipt(prefix_head, root, receipt.events)
+                if receipt != expected:
+                    raise ConfidenceLedgerError("ledger_receipt_witness_invalid")
+            except (ConfidenceLedgerError, ValueError) as exc:
+                if (
+                    isinstance(exc, ConfidenceLedgerError)
+                    and exc.code == "ledger_receipt_witness_invalid"
+                ):
+                    raise
+                raise ConfidenceLedgerError("ledger_receipt_witness_invalid", str(exc)) from exc
+
     def _scope_anchor_payload(self) -> dict[str, Any]:
         """Return the immutable scope identity independent of mutable root bindings."""
 
@@ -1521,6 +1800,7 @@ class ConfidenceLedgerSession:
             **self._scope_anchor_payload(),
             "scope_anchor_ref": anchor_ref,
             "lock_identity": self._lock_identity(),
+            "journal_identity": self._journal_identity(),
         }
 
     def _lock_identity(self) -> dict[str, int]:
@@ -1531,6 +1811,378 @@ class ConfidenceLedgerSession:
         except OSError as exc:
             raise ConfidenceLedgerError("ledger_lock_identity_invalid", str(exc)) from exc
         return {"device": stat.st_dev, "inode": stat.st_ino}
+
+    def _ensure_scope_journal_locked(self) -> None:
+        """Create the WAL once, refusing replacement of an established journal."""
+
+        if self._journal_path.exists():
+            return
+        if self._head_path.exists() or self._scope_tombstone_path.exists():
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            fd = os.open(self._journal_path, flags, 0o600)
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    def _journal_identity(self) -> dict[str, int]:
+        """Return the inode identity of the scope-bound append WAL."""
+
+        try:
+            stat = self._journal_path.lstat()
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        return {"device": stat.st_dev, "inode": stat.st_ino}
+
+    def _read_new_scope_journal_records_locked(
+        self,
+    ) -> tuple[_ScopeJournalRecord, ...]:
+        """Incrementally validate records appended by this or another process."""
+
+        identity = self._journal_identity()
+        try:
+            size = self._journal_path.stat().st_size
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        if size < self._journal_offset:
+            raise ConfidenceLedgerError("ledger_scope_journal_rollback_detected")
+        if size == self._journal_offset:
+            return tuple(self._journal_records)
+        try:
+            with self._journal_path.open("rb") as handle:
+                handle.seek(self._journal_offset)
+                appended = handle.read()
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        if not appended.endswith(b"\n"):
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        previous_hash = (
+            self._journal_records[-1].record_hash
+            if self._journal_records
+            else _scope_journal_genesis_hash(self._risk_scope.scope_id)
+        )
+        revision = len(self._journal_records)
+        for raw_line in appended.splitlines():
+            try:
+                record = _ScopeJournalRecord.model_validate_json(raw_line)
+            except ValueError as exc:
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+            expected_hash = _scope_journal_record_hash(record)
+            if (
+                record.scope_id != self._risk_scope.scope_id
+                or record.revision != revision + 1
+                or record.previous_record_hash != previous_hash
+                or record.record_hash != expected_hash
+                or (record.record_type == "intent") != (record.payload is not None)
+            ):
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            self._journal_records.append(record)
+            revision += 1
+            previous_hash = record.record_hash
+        self._journal_offset = size
+        if self._journal_identity() != identity:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        return tuple(self._journal_records)
+
+    def _append_scope_journal_record_locked(
+        self,
+        *,
+        record_type: Literal["intent", "commit"],
+        artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+        artifact_ref: str,
+        payload: dict[str, Any] | None,
+    ) -> None:
+        """Append and fsync one hash-chained WAL record."""
+
+        self._read_new_scope_journal_records_locked()
+        previous_hash = (
+            self._journal_records[-1].record_hash
+            if self._journal_records
+            else _scope_journal_genesis_hash(self._risk_scope.scope_id)
+        )
+        values: dict[str, Any] = {
+            "schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
+            "scope_id": self._risk_scope.scope_id,
+            "revision": len(self._journal_records) + 1,
+            "previous_record_hash": previous_hash,
+            "record_type": record_type,
+            "artifact_kind": artifact_kind,
+            "artifact_ref": artifact_ref,
+            "payload": payload,
+        }
+        values["record_hash"] = _content_hash(values)
+        record = _ScopeJournalRecord.model_validate(values)
+        encoded = f"{_canonical_json(record)}\n".encode()
+        flags = os.O_WRONLY | os.O_APPEND
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        expected_identity = self._journal_identity()
+        try:
+            fd = os.open(self._journal_path, flags)
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        try:
+            held = os.fstat(fd)
+            if (held.st_dev, held.st_ino) != (
+                expected_identity["device"],
+                expected_identity["inode"],
+            ):
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            written = 0
+            while written < len(encoded):
+                written += os.write(fd, encoded[written:])
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        self._journal_records.append(record)
+        self._journal_offset += len(encoded)
+
+    def _append_scope_journal_intent(
+        self,
+        *,
+        artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+        artifact_ref: str,
+        payload: dict[str, Any],
+    ) -> None:
+        """Durably record reconstructible bytes before their CAS write."""
+
+        records = self._read_new_scope_journal_records_locked()
+        existing = [
+            record
+            for record in records
+            if record.record_type == "intent" and record.artifact_ref == artifact_ref
+        ]
+        if existing:
+            if any(
+                record.artifact_kind != artifact_kind or record.payload != payload
+                for record in existing
+            ):
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            return
+        self._append_scope_journal_record_locked(
+            record_type="intent",
+            artifact_kind=artifact_kind,
+            artifact_ref=artifact_ref,
+            payload=payload,
+        )
+
+    def _append_scope_journal_commit(
+        self,
+        *,
+        artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+        artifact_ref: str,
+    ) -> None:
+        """Commit one WAL intent after its CAS artifact verifies."""
+
+        if artifact_kind not in {"event", "receipt", "deployment_drift_poison"}:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        records = self._read_new_scope_journal_records_locked()
+        if any(
+            record.record_type == "commit" and record.artifact_ref == artifact_ref
+            for record in records
+        ):
+            return
+        if not any(
+            record.record_type == "intent"
+            and record.artifact_ref == artifact_ref
+            and record.artifact_kind == artifact_kind
+            for record in records
+        ):
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        self._append_scope_journal_record_locked(
+            record_type="commit",
+            artifact_kind=artifact_kind,
+            artifact_ref=artifact_ref,
+            payload=None,
+        )
+
+    def _journaled_put_json_locked(
+        self,
+        payload: dict[str, Any],
+        *,
+        artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+    ) -> artifacts.ArtifactRef:
+        """Write one artifact through WAL intent, CAS verification, and commit."""
+
+        kind, schema = _journal_artifact_contract(artifact_kind)
+        artifact_ref = _cas_json_artifact_ref(payload)
+        self._append_scope_journal_intent(
+            artifact_kind=artifact_kind,
+            artifact_ref=artifact_ref,
+            payload=payload,
+        )
+        ref = self._put_json(payload, kind=kind, schema=schema)
+        if str(ref.artifact_id) != artifact_ref:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+        self._read_cas_json(artifact_ref, schema)
+        self._append_scope_journal_commit(
+            artifact_kind=artifact_kind,
+            artifact_ref=artifact_ref,
+        )
+        return ref
+
+    def _owner_invocation_lock_path(self, execution_id: str) -> Path:
+        """Return the stable local lock path for one execution identity."""
+
+        execution_hex = execution_id.rsplit(":", 1)[-1]
+        return self._state_root / "owner_invocations" / f"{execution_hex}.lock"
+
+    def _create_owner_invocation_lock_locked(
+        self,
+        *,
+        execution_id: str,
+        request_fingerprint: str,
+    ) -> OwnerInvocationLockIdentity:
+        """Create the stable invocation lock before publishing a started event."""
+
+        path = self._owner_invocation_lock_path(execution_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        nonce = _identity(
+            "confidence-owner-invocation-lock",
+            {
+                "scope_id": self._risk_scope.scope_id,
+                "execution_id": execution_id,
+                "request_fingerprint": request_fingerprint,
+            },
+        )
+        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            fd = os.open(path, flags, 0o600)
+        except FileExistsError:
+            return self._adopt_unpublished_owner_invocation_lock(
+                path=path,
+                nonce=nonce,
+            )
+        except OSError as exc:
+            raise ConfidenceLedgerError("owner_invocation_lock_invalid", str(exc)) from exc
+        try:
+            os.write(fd, f"{nonce}\n".encode())
+            os.fsync(fd)
+            held = os.fstat(fd)
+            linked = path.lstat()
+            if (held.st_dev, held.st_ino) != (linked.st_dev, linked.st_ino):
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            return OwnerInvocationLockIdentity(
+                nonce=nonce,
+                device=held.st_dev,
+                inode=held.st_ino,
+            )
+        finally:
+            os.close(fd)
+
+    def _adopt_unpublished_owner_invocation_lock(
+        self,
+        *,
+        path: Path,
+        nonce: str,
+    ) -> OwnerInvocationLockIdentity:
+        """Adopt an exact crash-orphan lock only after proving it is not live."""
+
+        thread_lock = _path_invocation_thread_lock(path)
+        if not thread_lock.acquire(blocking=False):
+            raise ConfidenceLedgerError("owner_invocation_still_live")
+        fd: int | None = None
+        filesystem_locked = False
+        try:
+            flags = os.O_RDWR
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            try:
+                fd = os.open(path, flags)
+                held = os.fstat(fd)
+                linked = path.lstat()
+            except OSError as exc:
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid", str(exc)) from exc
+            if (held.st_dev, held.st_ino) != (linked.st_dev, linked.st_ino):
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            os.lseek(fd, 0, os.SEEK_SET)
+            if os.read(fd, 512) != f"{nonce}\n".encode():
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            try:
+                _fcntl.flock(fd, _fcntl.LOCK_EX | _fcntl.LOCK_NB)
+            except BlockingIOError as exc:
+                raise ConfidenceLedgerError("owner_invocation_still_live") from exc
+            filesystem_locked = True
+            return OwnerInvocationLockIdentity(
+                nonce=nonce,
+                device=held.st_dev,
+                inode=held.st_ino,
+            )
+        finally:
+            if fd is not None:
+                if filesystem_locked:
+                    _fcntl.flock(fd, _fcntl.LOCK_UN)
+                os.close(fd)
+            thread_lock.release()
+
+    @contextmanager
+    def _owner_invocation_lock(
+        self,
+        check: ConfidenceLedgerCheck,
+        *,
+        blocking: bool,
+    ) -> Iterable[None]:
+        """Hold the process and filesystem locks for one owner invocation."""
+
+        execution_id = check.execution_id
+        identity = check.owner_invocation_lock_identity
+        if execution_id is None or identity is None:
+            raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+        path = self._owner_invocation_lock_path(execution_id)
+        thread_lock = _path_invocation_thread_lock(path)
+        if not thread_lock.acquire(blocking=blocking):
+            raise ConfidenceLedgerError("owner_invocation_still_live")
+        fd: int | None = None
+        filesystem_locked = False
+        try:
+            flags = os.O_RDWR
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            try:
+                fd = os.open(path, flags)
+                held = os.fstat(fd)
+                linked = path.lstat()
+            except OSError as exc:
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid", str(exc)) from exc
+            if (held.st_dev, held.st_ino) != (identity.device, identity.inode) or (
+                linked.st_dev,
+                linked.st_ino,
+            ) != (identity.device, identity.inode):
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            os.lseek(fd, 0, os.SEEK_SET)
+            if os.read(fd, 512) != f"{identity.nonce}\n".encode():
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            lock_flags = _fcntl.LOCK_EX | (0 if blocking else _fcntl.LOCK_NB)
+            try:
+                _fcntl.flock(fd, lock_flags)
+            except BlockingIOError as exc:
+                raise ConfidenceLedgerError("owner_invocation_still_live") from exc
+            filesystem_locked = True
+            held = os.fstat(fd)
+            try:
+                linked = path.lstat()
+            except OSError as exc:
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid", str(exc)) from exc
+            if (held.st_dev, held.st_ino) != (identity.device, identity.inode) or (
+                linked.st_dev,
+                linked.st_ino,
+            ) != (identity.device, identity.inode):
+                raise ConfidenceLedgerError("owner_invocation_lock_invalid")
+            yield
+        finally:
+            if fd is not None:
+                if filesystem_locked:
+                    _fcntl.flock(fd, _fcntl.LOCK_UN)
+                os.close(fd)
+            thread_lock.release()
 
     def _prior_scope_artifact_exists(self) -> bool:
         """Find an older chain even when mutable pointers and anchors were removed."""
@@ -1700,6 +2352,7 @@ class ConfidenceLedgerSession:
             "schedule_query_index": None,
             "execution_id": None,
             "owner_invocation_claim_id": None,
+            "owner_invocation_lock_identity": None,
             "deterministic_proof": bool(profile and profile.deterministic),
             "anytime_valid": bool(profile and profile.anytime_valid),
             "spend": _rational_spec(Fraction()),
@@ -1730,6 +2383,7 @@ class ConfidenceLedgerSession:
         event_type: Literal["prepared", "started", "completed"],
         check: ConfidenceLedgerCheck,
     ) -> ConfidenceLedgerEvent:
+        self._assert_deployment_identity_locked()
         revision = head.revision + 1
         event_core = {
             "event_type": event_type,
@@ -1763,10 +2417,9 @@ class ConfidenceLedgerSession:
         )
         if _recompute_event_id(stored) != event_id:
             raise ConfidenceLedgerError("ledger_event_identity_invalid")
-        ref = self._put_json(
+        ref = self._journaled_put_json_locked(
             stored.model_dump(mode="json"),
-            kind="runtime.quality.confidence_ledger.event",
-            schema=_EVENT_SCHEMA,
+            artifact_kind="event",
         )
         event = ConfidenceLedgerEvent(
             **stored.model_dump(mode="python"), event_ref=str(ref.artifact_id)
@@ -1783,6 +2436,7 @@ class ConfidenceLedgerSession:
             revision=revision,
         )
         atomic_write_json(self._head_path, next_head.model_dump(mode="json"))
+        self._assert_deployment_identity_locked()
         return event
 
     def _complete_unstarted(
@@ -1828,36 +2482,68 @@ class ConfidenceLedgerSession:
                 raise ConfidenceLedgerError("started_check_not_canonical")
             if current.outcome != "started":
                 return current
-            if outcome != "recovered_crash" and current.owner_invocation_claim_id is None:
-                raise ConfidenceLedgerError("owner_invocation_claim_missing")
-            status: ExecutionStatus = "executed"
-            if outcome in {"owner_refused", "owner_error", "recovered_crash", "refused"}:
-                status = "refused"
-            good_event_id = None
-            if not current.deterministic_proof and current.execution_ordinal is not None:
-                good_event_id = _identity(
-                    "confidence-good-event",
-                    {
-                        "execution_id": current.execution_id,
-                        "spend": current.spend,
-                        "protected_error": current.claim_polarity,
-                    },
-                )
-            completed = current.model_copy(
-                update={
-                    "execution_status": status,
-                    "outcome": outcome,
-                    "supports_obligation": supports_obligation,
-                    "eligible_for_promotion": eligible_for_promotion,
-                    "refusal_code": refusal_code,
-                    "proof_detail": proof_detail,
-                    "owner_binding": owner_binding,
-                    "good_event_id": good_event_id,
-                }
+            return self._complete_locked(
+                head=head,
+                root=root,
+                events=events,
+                current=current,
+                outcome=outcome,
+                supports_obligation=supports_obligation,
+                eligible_for_promotion=eligible_for_promotion,
+                proof_detail=proof_detail,
+                refusal_code=refusal_code,
+                owner_binding=owner_binding,
             )
-            return self._append_event_locked(
-                head=head, root=root, event_type="completed", check=completed
-            ).check
+
+    def _complete_locked(
+        self,
+        *,
+        head: _LedgerHead,
+        root: ConfidenceLedgerRoot,
+        events: tuple[ConfidenceLedgerEvent, ...],
+        current: ConfidenceLedgerCheck,
+        outcome: CompletionOutcome,
+        supports_obligation: bool,
+        eligible_for_promotion: bool,
+        proof_detail: str,
+        refusal_code: str | None = None,
+        owner_binding: OwnerCertificateBinding | None = None,
+    ) -> ConfidenceLedgerCheck:
+        """Append one completion while the caller holds the scope lock."""
+
+        del events
+        if current.outcome != "started":
+            return current
+        if outcome != "recovered_crash" and current.owner_invocation_claim_id is None:
+            raise ConfidenceLedgerError("owner_invocation_claim_missing")
+        status: ExecutionStatus = "executed"
+        if outcome in {"owner_refused", "owner_error", "recovered_crash", "refused"}:
+            status = "refused"
+        good_event_id = None
+        if not current.deterministic_proof and current.execution_ordinal is not None:
+            good_event_id = _identity(
+                "confidence-good-event",
+                {
+                    "execution_id": current.execution_id,
+                    "spend": current.spend,
+                    "protected_error": current.claim_polarity,
+                },
+            )
+        completed = current.model_copy(
+            update={
+                "execution_status": status,
+                "outcome": outcome,
+                "supports_obligation": supports_obligation,
+                "eligible_for_promotion": eligible_for_promotion,
+                "refusal_code": refusal_code,
+                "proof_detail": proof_detail,
+                "owner_binding": owner_binding,
+                "good_event_id": good_event_id,
+            }
+        )
+        return self._append_event_locked(
+            head=head, root=root, event_type="completed", check=completed
+        ).check
 
     def _resolve_bind_verify_owner(
         self, check: ConfidenceLedgerCheck
@@ -2004,7 +2690,12 @@ class ConfidenceLedgerSession:
                 if (held.st_dev, held.st_ino) != (linked.st_dev, linked.st_ino):
                     raise ConfidenceLedgerError("ledger_lock_identity_invalid")
                 self._assert_deployment_identity_locked()
-                yield
+                if self._journal_path.exists():
+                    self._assert_no_deployment_drift_poison_locked()
+                try:
+                    yield
+                finally:
+                    self._assert_deployment_identity_locked()
             finally:
                 _fcntl.flock(fd, _fcntl.LOCK_UN)
                 os.close(fd)
@@ -2015,12 +2706,49 @@ class ConfidenceLedgerSession:
         if self._authority_provenance != "canonical_repo":
             return
         root = self._authority_repo_root
-        if (
-            root is None
-            or root != _loaded_policy_engine_root()
-            or self._deployment_identity != _policy_engine_deployment_identity(root)
-        ):
+        observed: str | None = None
+        if root is not None and root == _loaded_policy_engine_root():
+            try:
+                observed = _policy_engine_deployment_identity(root)
+            except ConfidenceLedgerError:
+                observed = None
+        if observed != self._deployment_identity:
+            if self._journal_path.exists():
+                self._persist_deployment_drift_poison_locked(observed)
             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
+
+    def _persist_deployment_drift_poison_locked(self, observed: str | None) -> None:
+        """Persist an irreversible denial before reporting canonical source drift."""
+
+        observed_identity = observed or _identity(
+            "policy-engine-deployment",
+            {"status": "unavailable"},
+        )
+        payload: dict[str, Any] = {
+            "schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
+            "scope_id": self._risk_scope.scope_id,
+            "authority_provenance": "canonical_repo",
+            "expected_deployment_identity": self._deployment_identity,
+            "observed_deployment_identity": observed_identity,
+            "reason": "canonical_deployment_identity_changed",
+        }
+        payload["poison_id"] = _identity(
+            "confidence-deployment-drift-poison",
+            payload,
+        )
+        self._journaled_put_json_locked(
+            payload,
+            artifact_kind="deployment_drift_poison",
+        )
+
+    def _assert_no_deployment_drift_poison_locked(self) -> None:
+        """Treat every valid same-scope deployment poison as terminal."""
+
+        refs = self._replay_scope_journal_locked()["deployment_drift_poison"]
+        for artifact_ref in refs:
+            self._validate_deployment_drift_poison_ref(artifact_ref)
+        if refs:
+            raise ConfidenceLedgerError("deployment_drift_poisoned")
 
 
 def load_confidence_ledger_registry(
@@ -2360,6 +3088,7 @@ def _validate_chain_semantics(
                             "scope_id": check.scope_id,
                             "execution_id": check.execution_id,
                             "request_fingerprint": check.request_fingerprint,
+                            "lock_identity": check.owner_invocation_lock_identity,
                         },
                     )
                     if (
@@ -2510,6 +3239,7 @@ def _validate_started_binding_unchanged(
         "execution_ordinal",
         "schedule_query_index",
         "execution_id",
+        "owner_invocation_lock_identity",
         "spend",
         "spend_decimal",
         "claim_execution_binding_hash",
@@ -2821,6 +3551,32 @@ def _path_thread_lock(path: Path) -> threading.RLock:
         return _PATH_LOCKS.setdefault(path, threading.RLock())
 
 
+def _path_invocation_thread_lock(path: Path) -> threading.Lock:
+    with _INVOCATION_LOCKS_GUARD:
+        return _INVOCATION_LOCKS.setdefault(path, threading.Lock())
+
+
+def _scope_journal_genesis_hash(scope_id: str) -> str:
+    return _content_hash({"scope_id": scope_id, "journal": "genesis"})
+
+
+def _scope_journal_record_hash(record: _ScopeJournalRecord) -> str:
+    return _content_hash(record.model_dump(mode="json", exclude={"record_hash"}))
+
+
+def _journal_artifact_contract(
+    artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
+) -> tuple[str, artifacts.SchemaInfo]:
+    return {
+        "event": ("runtime.quality.confidence_ledger.event", _EVENT_SCHEMA),
+        "receipt": ("runtime.quality.confidence_ledger.receipt", _RECEIPT_SCHEMA),
+        "deployment_drift_poison": (
+            "runtime.quality.confidence_ledger.deployment_drift_poison",
+            _DEPLOYMENT_DRIFT_POISON_SCHEMA,
+        ),
+    }[artifact_kind]
+
+
 def _rational_spec(value: Fraction) -> RationalSpec:
     return RationalSpec(numerator=value.numerator, denominator=value.denominator)
 
@@ -2846,11 +3602,19 @@ def _loaded_policy_engine_root() -> Path:
 def _policy_engine_deployment_identity(repo_root: Path) -> str:
     """Bind authority to loaded deployment bytes without persisting absolute paths."""
 
-    relative_paths = (
-        Path("pyproject.toml"),
-        Path("src/polisyos/__init__.py"),
-        Path("src/polisyos/runtime/quality/confidence_ledger.py"),
-    )
+    relative_paths = [Path("pyproject.toml"), Path("uv.lock")]
+    source_root = repo_root / "src/polisyos"
+    try:
+        relative_paths.extend(
+            sorted(
+                (path.relative_to(repo_root) for path in source_root.rglob("*.py")),
+                key=lambda path: path.as_posix(),
+            )
+        )
+    except OSError as exc:
+        raise ConfidenceLedgerError("canonical_deployment_identity_invalid") from exc
+    if len(relative_paths) == 2:
+        raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
     files: dict[str, str] = {}
     for relative in relative_paths:
         path = repo_root / relative
@@ -2861,7 +3625,37 @@ def _policy_engine_deployment_identity(repo_root: Path) -> str:
                 "canonical_deployment_identity_invalid", relative.as_posix()
             ) from exc
         files[relative.as_posix()] = f"sha256:{hashlib.sha256(content).hexdigest()}"
-    return _identity("policy-engine-deployment", {"files": files})
+    return _identity(
+        "policy-engine-deployment",
+        {
+            "files": files,
+            "python_runtime": _python_runtime_manifest(),
+        },
+    )
+
+
+def _python_runtime_manifest() -> dict[str, object]:
+    """Return ABI-relevant interpreter identity without machine-local paths."""
+
+    version = sys.version_info
+    return {
+        "implementation": sys.implementation.name,
+        "version": {
+            "major": version.major,
+            "minor": version.minor,
+            "micro": version.micro,
+            "releaselevel": version.releaselevel,
+            "serial": version.serial,
+        },
+        "cache_tag": sys.implementation.cache_tag,
+        "hexversion": sys.hexversion,
+        "abiflags": getattr(sys, "abiflags", ""),
+        "byteorder": sys.byteorder,
+        "soabi": sysconfig.get_config_var("SOABI"),
+        "multiarch": sysconfig.get_config_var("MULTIARCH"),
+        "py_debug": sysconfig.get_config_var("Py_DEBUG"),
+        "gil_disabled": sysconfig.get_config_var("Py_GIL_DISABLED"),
+    }
 
 
 def _require_unique(values: Iterable[str], code: str) -> None:

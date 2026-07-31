@@ -4,6 +4,7 @@ import inspect
 import json
 import os
 import select
+import threading
 import time
 from collections.abc import Callable
 from fractions import Fraction
@@ -123,7 +124,9 @@ def _install_loaded_deployment(repo_root: Path, monkeypatch: pytest.MonkeyPatch)
     _install_canonical_registry(repo_root)
     for relative in (
         Path("pyproject.toml"),
+        Path("uv.lock"),
         Path("src/polisyos/__init__.py"),
+        Path("src/polisyos/core/canon/canon_json.py"),
         Path("src/polisyos/runtime/quality/confidence_ledger.py"),
     ):
         target = repo_root / relative
@@ -263,6 +266,146 @@ def test_orphan_started_event_fast_forwards_head_and_preserves_burn(
     assert receipt.head_event_id == receipt.events[-1].event_id
 
 
+def test_retry_adopts_exact_lock_created_before_started_event_crash(
+    sessions: _SessionFactory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = sessions()
+    prepared = _prepare(session)
+    real_append = ConfidenceLedgerSession._append_event_locked
+    injected = False
+
+    def fail_after_lock_creation(
+        current: ConfidenceLedgerSession,
+        *,
+        head: object,
+        root: object,
+        event_type: str,
+        check: ConfidenceLedgerCheck,
+    ) -> object:
+        nonlocal injected
+        if current is session and event_type == "started" and not injected:
+            injected = True
+            raise OSError("injected crash after invocation lock creation")
+        return real_append(
+            current,
+            head=head,
+            root=root,
+            event_type=event_type,
+            check=check,
+        )
+
+    monkeypatch.setattr(
+        ConfidenceLedgerSession,
+        "_append_event_locked",
+        fail_after_lock_creation,
+    )
+    with pytest.raises(OSError, match="after invocation lock creation"):
+        session.start_check(prepared)
+    monkeypatch.setattr(
+        ConfidenceLedgerSession,
+        "_append_event_locked",
+        real_append,
+    )
+
+    started = sessions().start_check(prepared)
+
+    assert started.outcome == "started"
+    assert started.owner_invocation_lock_identity is not None
+    assert started.spend.fraction > 0
+
+
+def test_multi_transition_session_performs_only_one_full_cas_reconciliation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    calls = 0
+    real_iter = factory.store.iter_artifact_ids
+
+    def counted_iter() -> list[ArtifactID]:
+        nonlocal calls
+        calls += 1
+        return real_iter()
+
+    monkeypatch.setattr(factory.store, "iter_artifact_ids", counted_iter)
+    session = factory()
+    for index in range(3):
+        session.execute_check(
+            _prepare(
+                session,
+                request_key=f"request://unit/bounded-scan/{index}",
+                certificate_ref=(f"construction://constant-unit-e-process/bounded-scan/{index}"),
+            )
+        )
+
+    assert calls <= 1
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork semantics")
+def test_open_session_recovers_writer_killed_after_event_cas_before_journal_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory = _SessionFactory(tmp_path)
+    writer = factory()
+    prepared = _prepare(writer)
+    already_open = factory()
+    ready_read, ready_write = os.pipe()
+    release_read, release_write = os.pipe()
+    real_commit = ConfidenceLedgerSession._append_scope_journal_commit
+
+    def stop_before_started_commit(
+        current: ConfidenceLedgerSession,
+        *,
+        artifact_kind: str,
+        artifact_ref: str,
+    ) -> None:
+        if artifact_kind == "event" and current is writer:
+            os.write(ready_write, b"1")
+            readable, _, _ = select.select([release_read], [], [], 5.0)
+            if not readable:
+                raise RuntimeError("test journal release timed out")
+            os.read(release_read, 1)
+        real_commit(
+            current,
+            artifact_kind=artifact_kind,
+            artifact_ref=artifact_ref,
+        )
+
+    monkeypatch.setattr(
+        ConfidenceLedgerSession,
+        "_append_scope_journal_commit",
+        stop_before_started_commit,
+    )
+    pid = os.fork()
+    if pid == 0:
+        os.close(ready_read)
+        os.close(release_write)
+        try:
+            writer.start_check(prepared)
+        except BaseException:
+            os._exit(2)
+        os._exit(0)
+    os.close(ready_write)
+    os.close(release_read)
+    try:
+        readable, _, _ = select.select([ready_read], [], [], 5.0)
+        assert readable, "writer did not reach the post-CAS journal boundary"
+        assert os.read(ready_read, 1) == b"1"
+        os.kill(pid, 9)
+        os.waitpid(pid, 0)
+
+        recovered = already_open.receipt()
+    finally:
+        os.close(release_write)
+        os.close(ready_read)
+
+    assert recovered.checks[0].outcome == "started"
+    assert recovered.total_spend.fraction > 0
+    assert len(recovered.events) == 2
+
+
 def test_valid_older_head_is_fast_forwarded_to_unique_maximal_lineage(
     sessions: _SessionFactory,
 ) -> None:
@@ -286,6 +429,79 @@ def test_valid_older_head_is_fast_forwarded_to_unique_maximal_lineage(
     persisted_head = json.loads(session._head_path.read_text(encoding="utf-8"))
     assert persisted_head["head_event_id"] == maximal.head_event_id
     assert persisted_head["revision"] == len(maximal.events)
+
+
+def test_persisted_receipt_witness_prevents_deleted_events_from_resetting_spend(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    witnessed = session.receipt()
+    session.persist_receipt(witnessed)
+    assert witnessed.total_spend.fraction > 0
+    for event in witnessed.events:
+        blob, manifest = session._artifact_store.get_paths(
+            ArtifactID.model_validate(event.event_ref)
+        )
+        blob.unlink()
+        manifest.unlink()
+    session._head_path.unlink()
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_receipt_witness_invalid"):
+        sessions()
+
+
+def test_valid_older_persisted_receipt_remains_a_prefix_of_longer_lineage(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    older = session.receipt()
+    session.persist_receipt(older)
+    session.execute_check(
+        _prepare(
+            session,
+            request_key="request://unit/after-persisted-prefix",
+            certificate_ref="construction://constant-unit-e-process/after-prefix",
+        )
+    )
+    maximal = session.receipt()
+
+    assert sessions().receipt() == maximal
+    assert tuple(maximal.events[: len(older.events)]) == older.events
+
+
+@pytest.mark.parametrize("invalid_manifest_field", ["producer", "schema"])
+def test_invalid_same_scope_receipt_manifest_fails_closed(
+    sessions: _SessionFactory,
+    invalid_manifest_field: str,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    receipt = session.receipt()
+    producer = ledger_module._LEDGER_PRODUCER
+    schema = ledger_module._RECEIPT_SCHEMA
+    if invalid_manifest_field == "producer":
+        producer = ledger_module.artifacts.ProducerInfo(
+            component="forged.confidence.ledger", version="1.0.0"
+        )
+    else:
+        schema = ledger_module.artifacts.SchemaInfo(
+            name="forged.confidence-ledger-receipt", version="1.0.0"
+        )
+    session._artifact_store.put_json(
+        receipt.model_dump(mode="json"),
+        ledger_module.artifacts.PutOptions(
+            kind="runtime.quality.confidence_ledger.receipt",
+            media_type="application/json",
+            schema=schema,
+            producer=producer,
+        ),
+        canon_spec=ledger_module._CAS_CANON_SPEC,
+    )
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_receipt_witness_invalid"):
+        sessions()
 
 
 def test_authority_opener_exposes_no_caller_selectable_storage_or_registry() -> None:
@@ -365,6 +581,112 @@ def test_canonical_session_fails_closed_when_loaded_deployment_bytes_change(
 
     with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
         session.observe_history()
+
+
+def test_deployment_identity_covers_every_python_module_addition_and_removal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    original = ledger_module._policy_engine_deployment_identity(repo_root)
+    kernel = repo_root / "src/polisyos/core/canon/canon_json.py"
+    kernel_bytes = kernel.read_bytes()
+    kernel.write_bytes(kernel_bytes + b"\n# imported kernel drift\n")
+    assert ledger_module._policy_engine_deployment_identity(repo_root) != original
+    kernel.write_bytes(kernel_bytes)
+    added = repo_root / "src/polisyos/new_authority_kernel.py"
+    added.write_text("AUTHORITY = 'candidate'\n", encoding="utf-8")
+    with_addition = ledger_module._policy_engine_deployment_identity(repo_root)
+    assert with_addition != original
+    added.unlink()
+    assert ledger_module._policy_engine_deployment_identity(repo_root) == original
+
+
+def test_deployment_identity_binds_uv_lock_and_python_runtime_manifest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    original = ledger_module._policy_engine_deployment_identity(repo_root)
+    uv_lock = repo_root / "uv.lock"
+    uv_lock_bytes = uv_lock.read_bytes()
+    uv_lock.write_bytes(uv_lock_bytes + b"\n# dependency drift\n")
+    assert ledger_module._policy_engine_deployment_identity(repo_root) != original
+    uv_lock.write_bytes(uv_lock_bytes)
+    runtime = ledger_module._python_runtime_manifest()
+    monkeypatch.setattr(
+        ledger_module,
+        "_python_runtime_manifest",
+        lambda: {**runtime, "cache_tag": f"{runtime['cache_tag']}-drift"},
+    )
+    assert ledger_module._policy_engine_deployment_identity(repo_root) != original
+
+
+def test_canonical_session_is_invalidated_by_direct_kernel_or_module_set_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    first_root = tmp_path / "kernel-authority-repo"
+    _install_loaded_deployment(first_root, monkeypatch)
+    first = ConfidenceLedgerSession.from_repo(first_root, risk_scope=_scope())
+    kernel = first_root / "src/polisyos/core/canon/canon_json.py"
+    kernel.write_bytes(kernel.read_bytes() + b"\n# imported kernel drift\n")
+    with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
+        first.observe_history()
+
+    second_root = tmp_path / "module-authority-repo"
+    _install_loaded_deployment(second_root, monkeypatch)
+    second = ConfidenceLedgerSession.from_repo(
+        second_root,
+        risk_scope=_scope(owner_scope_key="design-problem:module-set-drift"),
+    )
+    added = second_root / "src/polisyos/new_authority_kernel.py"
+    added.write_text("AUTHORITY = 'candidate'\n", encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
+        second.observe_history()
+
+
+def test_mid_operation_deployment_drift_poison_is_irreversible(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    history = session.observe_history()
+    kernel = repo_root / "src/polisyos/core/canon/canon_json.py"
+    kernel_bytes = kernel.read_bytes()
+    real_load = ConfidenceLedgerSession._load_state_locked
+    injected = False
+
+    def load_then_drift(
+        current: ConfidenceLedgerSession,
+    ) -> tuple[object, object, object]:
+        nonlocal injected
+        loaded = real_load(current)
+        if current is session and not injected:
+            kernel.write_bytes(kernel_bytes + b"\n# drift after lock entry\n")
+            injected = True
+        return loaded
+
+    monkeypatch.setattr(ConfidenceLedgerSession, "_load_state_locked", load_then_drift)
+    try:
+        with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
+            session.prepare_check(
+                history_token=history,
+                request_key="request://unit/mid-operation-drift",
+                obligation_class=PromotionObligationClass.CALIBRATION,
+                instrument_id="constant_unit_e_process",
+                certificate_ref="construction://constant-unit-e-process/drift",
+                claim=_claim(),
+            )
+    finally:
+        kernel.write_bytes(kernel_bytes)
+
+    with pytest.raises(ConfidenceLedgerError, match="deployment_drift_poisoned"):
+        ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
 
 
 def test_deleted_head_cannot_reset_same_scope_with_changed_owner_projection(
@@ -563,6 +885,196 @@ def test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal(
     assert restarted.receipt().total_spend.fraction == (
         started.spend.fraction + second.spend.fraction
     )
+
+
+def test_same_process_recovery_cannot_close_a_live_owner_invocation(
+    sessions: _SessionFactory,
+) -> None:
+    entered = threading.Event()
+    release = threading.Event()
+    results: list[ConfidenceLedgerCheck | BaseException] = []
+
+    def resolver(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
+        entered.set()
+        if not release.wait(5.0):
+            raise RuntimeError("test resolver release timed out")
+        return _deterministic_evidence(check.claim_execution_binding_hash)
+
+    claimant = sessions(resolver=resolver, verifier=_deterministic_verification)
+    started = claimant.start_check(
+        _prepare(
+            claimant,
+            obligation_class=PromotionObligationClass.DATA,
+            instrument_id="deterministic_owner_proof",
+            certificate_ref="certificate://deterministic/1",
+            certificate_class="owner_data_gap",
+            claim=_claim(role="refusal", polarity="confident_wrong_refusal"),
+        )
+    )
+
+    def execute() -> None:
+        try:
+            results.append(claimant.execute_check(started))
+        except BaseException as exc:  # pragma: no cover - asserted below.
+            results.append(exc)
+
+    worker = threading.Thread(target=execute, daemon=True)
+    worker.start()
+    assert entered.wait(5.0), "owner resolver did not start"
+    try:
+        with pytest.raises(ConfidenceLedgerError, match="owner_invocation_still_live"):
+            sessions(
+                resolver=resolver,
+                verifier=_deterministic_verification,
+            ).recover_started(started)
+    finally:
+        release.set()
+        worker.join(5.0)
+    assert not worker.is_alive()
+    assert len(results) == 1
+    assert isinstance(results[0], ConfidenceLedgerCheck)
+    assert results[0].outcome == "supported"
+
+
+def test_recursive_same_thread_recovery_observes_live_invocation(
+    sessions: _SessionFactory,
+) -> None:
+    recovery_codes: list[str] = []
+    session: ConfidenceLedgerSession
+
+    def resolver(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
+        try:
+            session.recover_started(check)
+        except ConfidenceLedgerError as exc:
+            recovery_codes.append(exc.code)
+        return _deterministic_evidence(check.claim_execution_binding_hash)
+
+    session = sessions(resolver=resolver, verifier=_deterministic_verification)
+    completed = session.execute_check(
+        _prepare(
+            session,
+            obligation_class=PromotionObligationClass.DATA,
+            instrument_id="deterministic_owner_proof",
+            certificate_ref="certificate://deterministic/1",
+            certificate_class="owner_data_gap",
+            claim=_claim(role="refusal", polarity="confident_wrong_refusal"),
+        )
+    )
+
+    assert recovery_codes == ["owner_invocation_still_live"]
+    assert completed.outcome == "supported"
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork semantics")
+def test_cross_process_recovery_cannot_close_a_live_owner_invocation(
+    tmp_path: Path,
+) -> None:
+    ready_read, ready_write = os.pipe()
+    release_read, release_write = os.pipe()
+
+    def resolver(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
+        os.write(ready_write, b"1")
+        readable, _, _ = select.select([release_read], [], [], 5.0)
+        if not readable:
+            raise RuntimeError("test resolver release timed out")
+        os.read(release_read, 1)
+        return _deterministic_evidence(check.claim_execution_binding_hash)
+
+    factory = _SessionFactory(tmp_path)
+    claimant = factory(resolver=resolver, verifier=_deterministic_verification)
+    started = claimant.start_check(
+        _prepare(
+            claimant,
+            obligation_class=PromotionObligationClass.DATA,
+            instrument_id="deterministic_owner_proof",
+            certificate_ref="certificate://deterministic/1",
+            certificate_class="owner_data_gap",
+            claim=_claim(role="refusal", polarity="confident_wrong_refusal"),
+        )
+    )
+    pid = os.fork()
+    if pid == 0:
+        os.close(ready_read)
+        os.close(release_write)
+        try:
+            claimant.execute_check(started)
+        except BaseException:
+            os._exit(2)
+        os._exit(0)
+    os.close(ready_write)
+    os.close(release_read)
+    try:
+        readable, _, _ = select.select([ready_read], [], [], 5.0)
+        assert readable, "owner resolver did not start"
+        assert os.read(ready_read, 1) == b"1"
+        with pytest.raises(ConfidenceLedgerError, match="owner_invocation_still_live"):
+            factory(
+                resolver=resolver,
+                verifier=_deterministic_verification,
+            ).recover_started(started)
+    finally:
+        os.write(release_write, b"1")
+        os.close(release_write)
+        os.close(ready_read)
+        _wait_for_children((pid,))
+
+    assert factory().receipt().checks[0].outcome == "supported"
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork semantics")
+def test_replaced_lock_for_crash_open_claim_fails_closed(tmp_path: Path) -> None:
+    ready_read, ready_write = os.pipe()
+    release_read, release_write = os.pipe()
+
+    def resolver(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
+        os.write(ready_write, b"1")
+        readable, _, _ = select.select([release_read], [], [], 5.0)
+        if not readable:
+            raise RuntimeError("test resolver release timed out")
+        os.read(release_read, 1)
+        return _deterministic_evidence(check.claim_execution_binding_hash)
+
+    factory = _SessionFactory(tmp_path)
+    claimant = factory(resolver=resolver, verifier=_deterministic_verification)
+    started = claimant.start_check(
+        _prepare(
+            claimant,
+            obligation_class=PromotionObligationClass.DATA,
+            instrument_id="deterministic_owner_proof",
+            certificate_ref="certificate://deterministic/1",
+            certificate_class="owner_data_gap",
+            claim=_claim(role="refusal", polarity="confident_wrong_refusal"),
+        )
+    )
+    pid = os.fork()
+    if pid == 0:
+        os.close(ready_read)
+        os.close(release_write)
+        try:
+            claimant.execute_check(started)
+        except BaseException:
+            os._exit(2)
+        os._exit(0)
+    os.close(ready_write)
+    os.close(release_read)
+    readable, _, _ = select.select([ready_read], [], [], 5.0)
+    assert readable, "owner resolver did not start"
+    assert os.read(ready_read, 1) == b"1"
+    os.kill(pid, 9)
+    os.waitpid(pid, 0)
+    os.close(release_write)
+    os.close(ready_read)
+    execution_hex = started.execution_id.rsplit(":", 1)[-1]
+    lock_path = factory.state_root / "owner_invocations" / f"{execution_hex}.lock"
+    assert lock_path.exists()
+    lock_path.unlink()
+    lock_path.touch(mode=0o600)
+
+    with pytest.raises(ConfidenceLedgerError, match="owner_invocation_lock_invalid"):
+        factory(
+            resolver=resolver,
+            verifier=_deterministic_verification,
+        ).recover_started(started)
 
 
 def test_started_check_retry_cannot_invoke_owner_twice(

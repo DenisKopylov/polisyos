@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import type { RunLaunchResponse } from "@polisyos/runtime-api-client";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useLlmProfiles } from "@/api/hooks/useLlmProfiles";
@@ -16,13 +17,14 @@ import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import { Badge, Button } from "@polisyos/atlas-ui";
 import { ProvenanceStrip } from "@/shared/ui";
 import { parseComposerSearchParams } from "../domain/searchParams";
+import { launchStatusTone } from "../domain/launchPresentation";
 import {
   NaturalLanguageComposerSection,
   WorkflowComposerSection,
 } from "./ComposerModeSections";
 
 type Mode = "workflow" | "nl";
-type RecentLaunch = { runId: string; status: string };
+type RecentLaunch = { runId: string; status: RunLaunchResponse["status"] };
 type CapabilityHighlight = NonNullable<ReturnType<typeof getCapability>>;
 
 const composerHeroProvenance: ProvenanceItem[] = [
@@ -55,22 +57,6 @@ const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
 
 function resolveCapabilityGlyph(key: string): GlyphName {
   return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
-
-function resolveLaunchStatusKind(
-  status: string,
-): "ok" | "warn" | "fail" | "neutral" {
-  const normalized = status.trim().toLowerCase();
-  if (["accepted", "completed", "succeeded", "success"].includes(normalized)) {
-    return "ok";
-  }
-  if (["blocked", "failed", "error", "rejected"].includes(normalized)) {
-    return "fail";
-  }
-  if (["pending", "queued", "review"].includes(normalized)) {
-    return "warn";
-  }
-  return "neutral";
 }
 
 function ComposerSummaryMetric({
@@ -236,7 +222,7 @@ function ComposerRecentLaunchRail({
                 {launch.runId}
               </span>
               <Badge
-                kind={resolveLaunchStatusKind(launch.status)}
+                kind={launchStatusTone(launch.status)}
                 className="px-2 py-1 text-[10px]"
               >
                 {launch.status}
@@ -384,7 +370,7 @@ export default function LaunchRunPage() {
     ? fromRunId
     : t("pages.composer.newScenario");
 
-  function addRecentLaunch(runId: string, status: string) {
+  function addRecentLaunch(runId: string, status: RunLaunchResponse["status"]) {
     setRecentLaunches((previous) =>
       [{ runId, status }, ...previous].slice(0, 5),
     );

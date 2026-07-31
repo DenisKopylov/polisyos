@@ -11,10 +11,6 @@ import {
   parseMetricValidationComparisonRows,
   parseMetricValidationFamilyAdjustment,
 } from "./metricValidation";
-import {
-  createInteractionState,
-  type InteractionState,
-} from "./statusOwnership";
 
 export type SimulationMetric = {
   key: string;
@@ -22,7 +18,6 @@ export type SimulationMetric = {
   value: number;
   formatted: string;
   unit: string;
-  severity: InteractionState;
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
@@ -182,20 +177,6 @@ function toNumberArray(value: unknown): number[] {
     .filter((item): item is number => item !== null);
 }
 
-function toSeverity(value: number, maxAbs: number): "low" | "medium" | "high" {
-  if (maxAbs <= 0) {
-    return "low";
-  }
-  const ratio = Math.abs(value) / maxAbs;
-  if (ratio >= 0.66) {
-    return "high";
-  }
-  if (ratio >= 0.33) {
-    return "medium";
-  }
-  return "low";
-}
-
 function formatMetric(
   key: string,
   value: number,
@@ -228,7 +209,6 @@ function formatMetric(
     value: scaled,
     formatted: `${scaled >= 0 ? "+" : ""}${scaled.toFixed(maxFraction)}`,
     unit: spec.unit,
-    severity: createInteractionState("low", "candidate_display"),
     ciLower: bounds?.lower ?? null,
     ciUpper: bounds?.upper ?? null,
     ciLevel: bounds?.ciLevel ?? null,
@@ -385,19 +365,9 @@ function parseMetrics(
     ),
   );
 
-  const maxAbs = Math.max(
-    ...metrics.map((metric) => Math.abs(metric.value)),
-    0,
+  return metrics.sort(
+    (left, right) => Math.abs(right.value) - Math.abs(left.value),
   );
-  return metrics
-    .map((metric) => ({
-      ...metric,
-      severity: createInteractionState(
-        toSeverity(metric.value, maxAbs),
-        "candidate_display",
-      ),
-    }))
-    .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
 }
 
 function seriesFromSingleArray(

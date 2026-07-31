@@ -160,9 +160,6 @@ export default function MetricsPanel({
                   <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
                       className="bg-accent h-1.5 rounded-full"
-                      data-interaction-purpose={
-                        metric.severity.authorityPurpose
-                      }
                       style={{ width }}
                     />
                   </div>

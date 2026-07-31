@@ -6,7 +6,7 @@ import {
   type WorkflowNodeView,
 } from "@/shared/lib/domain/workflow";
 import { formatDuration, formatNumber } from "@/shared/lib/utils";
-import { Badge, EmptyState } from "@polisyos/atlas-ui";
+import { Badge, EmptyState, type BadgeTone } from "@polisyos/atlas-ui";
 import { chartTheme } from "@/shared/ui";
 
 type WorkflowDagPanelProps = {
@@ -21,20 +21,12 @@ const NODE_HEIGHT = 72;
 const PADDING_X = 28;
 const PADDING_Y = 20;
 
-function statusKind(
-  status: WorkflowNodeView["status"],
-): "ok" | "warn" | "fail" | "neutral" {
-  if (status === "ok") {
-    return "ok";
-  }
-  if (status === "skip") {
-    return "warn";
-  }
-  if (status === "fail") {
-    return "fail";
-  }
-  return "neutral";
-}
+const WORKFLOW_STATUS_TONE: Record<WorkflowNodeView["status"], BadgeTone> = {
+  ok: "ok",
+  skip: "warn",
+  fail: "fail",
+  unknown: "neutral",
+};
 
 function heatColor(heat: number): string {
   const clamped = Math.max(0, Math.min(1, heat));
@@ -184,7 +176,9 @@ export default function WorkflowDagPanel({
               >
                 <div className="mb-1 flex items-center justify-between gap-2">
                   <p className="truncate text-xs font-semibold">{node.label}</p>
-                  <Badge kind={statusKind(node.status)}>{node.status}</Badge>
+                  <Badge kind={WORKFLOW_STATUS_TONE[node.status]}>
+                    {node.status}
+                  </Badge>
                 </div>
                 <p className="text-muted truncate font-mono text-[11px]">
                   {node.nodeId ?? "-"}
@@ -233,7 +227,9 @@ export default function WorkflowDagPanel({
                   ) : null}
                 </td>
                 <td className="px-3 py-3">
-                  <Badge kind={statusKind(node.status)}>{node.status}</Badge>
+                  <Badge kind={WORKFLOW_STATUS_TONE[node.status]}>
+                    {node.status}
+                  </Badge>
                 </td>
                 <td className="px-3 py-3">{formatNumber(node.depth)}</td>
                 <td className="px-3 py-3">{formatDuration(node.durationMs)}</td>

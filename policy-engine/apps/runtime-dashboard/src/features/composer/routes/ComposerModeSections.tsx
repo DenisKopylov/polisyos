@@ -16,6 +16,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import type { RunLaunchResponse } from "@polisyos/runtime-api-client";
 
 import { useLaunchNlRun } from "@/api/hooks/useLaunchNlRun";
 import { useLaunchRun } from "@/api/hooks/useLaunchRun";
@@ -50,6 +51,7 @@ import {
   type WorkflowLaunchFormValues,
   workflowLaunchSchema,
 } from "../domain/forms";
+import { launchStatusTone } from "../domain/launchPresentation";
 import {
   buildComposerDraftKey,
   deleteComposerDraft,
@@ -69,14 +71,14 @@ type CapabilityHighlight = {
 
 type RecentLaunch = {
   runId: string;
-  status: string;
+  status: RunLaunchResponse["status"];
 };
 
 type SectionSharedProps = {
   autoMaterializationEnabled: boolean;
   capabilityHighlights: CapabilityHighlight[];
   fromRunId: string | null;
-  onLaunchCreated: (runId: string, status: string) => void;
+  onLaunchCreated: (runId: string, status: RunLaunchResponse["status"]) => void;
   preflightEnabled: boolean;
   recentLaunches: RecentLaunch[];
 };
@@ -119,22 +121,6 @@ function providerBadge(provider: string) {
 
 function resolveCapabilityGlyph(key: string): GlyphName {
   return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
-
-function resolveLaunchBadgeKind(
-  status: string,
-): "ok" | "warn" | "fail" | "neutral" {
-  const normalized = status.trim().toLowerCase();
-  if (["accepted", "completed", "success", "succeeded"].includes(normalized)) {
-    return "ok";
-  }
-  if (["blocked", "error", "failed", "rejected"].includes(normalized)) {
-    return "fail";
-  }
-  if (["pending", "queued", "review"].includes(normalized)) {
-    return "warn";
-  }
-  return "neutral";
 }
 
 function AtlasFormSection({
@@ -336,7 +322,7 @@ function LaunchReceipt({ runId, status }: RecentLaunch) {
           {runId}
         </PrefetchLink>
         <Badge
-          kind={resolveLaunchBadgeKind(status)}
+          kind={launchStatusTone(status)}
           className="px-2 py-1 text-[10px]"
         >
           {status}

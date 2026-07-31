@@ -1,6 +1,101 @@
+import { spawnSync } from "node:child_process";
+import { resolve } from "node:path";
+
 import { normalizeWorkflow } from "@/shared/lib/domain/workflow";
 
 describe("workflow domain", () => {
+  it("source flips reject every C22d return vocabulary revival", () => {
+    const repositoryRoot = resolve(process.cwd(), "../..");
+    const script = String.raw`
+import json
+from pathlib import Path
+from architecture.atlas_surfaces import check_status_retirement_inventory as checker
+
+inventory = json.loads(Path("architecture/atlas_surfaces/status-retirement-inventory.json").read_text())
+debt = json.loads(Path("architecture/atlas_surfaces/ds4-waist-debt-register.json").read_text())
+paths = {
+    "semantic-simulation-to-severity": [
+        "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.tsx",
+    ],
+    "semantic-composer-resolve-launch-badge-kind": [
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+    ],
+    "semantic-launch-run-resolve-status-kind": [
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+    ],
+    "semantic-workflow-dag-status-kind": [
+        "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx",
+    ],
+}
+rows = {}
+for row in inventory["semantic_exemptions"]:
+    candidate_id = row["candidate_id"]
+    if candidate_id in paths:
+        row["current_definition_state"] = "retired"
+        row["protected_source_paths"] = paths[candidate_id]
+        rows[candidate_id] = row
+
+failures = []
+live_errors = checker.validate_inventory(inventory, debt)
+if live_errors:
+    failures.append("live source: " + "; ".join(live_errors))
+
+for candidate_id, row in rows.items():
+    members = ", ".join(repr(member) for member in row["literal_members"])
+    source = f"export const REVIVED = [{members}] as const;\n"
+    errors = checker.validate_inventory(
+        inventory,
+        debt,
+        source_overrides={row["source_span"]["path"]: source},
+        live_probes=False,
+    )
+    expected = f"retired_semantic_definition_survives:{candidate_id}"
+    if expected not in errors and not any(
+        error.startswith("unregistered_semantic_definition:") for error in errors
+    ):
+        failures.append(candidate_id + ": source flip escaped")
+
+fake_owner = "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts"
+fake_consumer = "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"
+lookalike_errors = checker.validate_inventory(
+    inventory,
+    debt,
+    source_overrides={
+        fake_owner: (
+            "export interface RunLaunchResponse { status: 'accepted' | 'rejected' }\n"
+            "export type BadgeTone = 'ok' | 'fail';\n"
+            "export function launchStatusTone(status: RunLaunchResponse['status']): BadgeTone {\n"
+            "  return status === 'accepted' ? 'ok' : 'fail';\n}\n"
+        ),
+        fake_consumer: (
+            "import { launchStatusTone, type RunLaunchResponse } from '../domain/launchPresentation';\n"
+            "import { Badge } from '@polisyos/atlas-ui';\n"
+            "export const Probe = ({ status }: { status: RunLaunchResponse['status'] }) => "
+            "<Badge kind={launchStatusTone(status)}>x</Badge>;\n"
+        ),
+    },
+    live_probes=False,
+)
+if not any(error.startswith("retired_semantic_definition_survives:") for error in lookalike_errors):
+    failures.append("local generated-looking launch owner escaped symbol-origin guard")
+
+if failures:
+    print("\n".join(failures))
+    raise SystemExit(1)
+`;
+    const result = spawnSync("python3", ["-c", script], {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+      timeout: 60_000,
+    });
+
+    expect(`${result.stdout}${result.stderr}`).toBe("");
+    expect(result.status).toBe(0);
+  }, 65_000);
+
   it("normalizes workflow payloads and derives summary defaults", () => {
     const model = normalizeWorkflow({
       edges: [

@@ -3011,15 +3011,21 @@
       "type_expression": "\"low\" | \"medium\" | \"high\"",
       "disposition": "interaction_state",
       "target_cluster": "C21",
-      "rationale": "C21 replaces the naked severity union with a candidate-display InteractionState; its label remains inspectable but cannot enter an authority slot or choose authority clothing.",
+      "rationale": "C21 first confined the naked severity union inside a candidate-display InteractionState; C22d removes that temporary successor completely, so SimulationMetric exposes quantity, intervals, significance, and assumption warnings without local severity or authority clothing.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts",
         "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts",
+        "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.test.tsx",
+        ".superpowers/sdd/task-C22d-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c21--bounded-mechanical-retirement"
       ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.tsx"
+      ],
       "does_not_change_ds1_denominator": true,
-      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-c21-presentation-taxonomies-at-authority-slots"
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#simulationmetric-exposes-no-locally-ranked-severity"
     },
     {
       "candidate_id": "semantic-temporal-capability-banner-tone",
@@ -3074,8 +3080,8 @@
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
-        "start_line": 154,
-        "end_line": 154,
+        "start_line": 140,
+        "end_line": 140,
         "field_name": "tone"
       },
       "literal_members": ["accent", "default"],
@@ -3096,8 +3102,8 @@
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
-        "start_line": 82,
-        "end_line": 82,
+        "start_line": 68,
+        "end_line": 68,
         "field_name": "tone"
       },
       "literal_members": ["accent", "default"],
@@ -3468,7 +3474,7 @@
     },
     {
       "candidate_id": "semantic-simulation-to-severity",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "return",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
@@ -3480,16 +3486,24 @@
       "type_expression": "\"low\" | \"medium\" | \"high\"",
       "disposition": "retirement_debt",
       "target_cluster": "C22d",
-      "rationale": "C22 owns removal of the structural return vocabulary; C21 only confines its current result inside a candidate-display InteractionState.",
+      "rationale": "C22d removes toSeverity, its magnitude thresholds, and the temporary InteractionState successor; simulation metrics retain numeric quantity and scientific uncertainty fields without a replacement tier or authority clothing.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts",
+        "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts",
+        "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.test.tsx",
+        ".superpowers/sdd/task-C22d-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-composer-resolve-launch-badge-kind",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "return",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
@@ -3501,16 +3515,23 @@
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
       "target_cluster": "C22d",
-      "rationale": "resolveLaunchBadgeKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
+      "rationale": "C22d removes resolveLaunchBadgeKind and binds ComposerModeSections to the single generated RunLaunchResponse status adapter returning Atlas BadgeTone.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.test.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx",
+        ".superpowers/sdd/task-C22d-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-launch-run-resolve-status-kind",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "return",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
@@ -3522,16 +3543,23 @@
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
       "target_cluster": "C22d",
-      "rationale": "resolveLaunchStatusKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
+      "rationale": "C22d removes resolveLaunchStatusKind and binds LaunchRunPage to the single generated RunLaunchResponse status adapter returning Atlas BadgeTone.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.test.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx",
+        ".superpowers/sdd/task-C22d-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },
     {
       "candidate_id": "semantic-workflow-dag-status-kind",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "return",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx",
@@ -3543,10 +3571,16 @@
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
       "target_cluster": "C22d",
-      "rationale": "statusKind maps workflow owner labels into a local semantic posture and remains registered for C18 retirement.",
+      "rationale": "C22d removes statusKind and uses an exhaustive BadgeTone record keyed by generated WorkflowNodeView status; runtime-invalid payloads normalize to generated unknown and render neutral.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/workflow.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+        ".superpowers/sdd/task-C22d-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx"
       ],
       "does_not_change_ds1_denominator": true
     }

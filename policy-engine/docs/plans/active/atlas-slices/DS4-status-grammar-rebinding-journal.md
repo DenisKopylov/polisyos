@@ -2280,3 +2280,109 @@ findings **ADDRESSED**, no new Critical/Important breakage, Task quality
   warning remains an accurate separate harness receipt.
 - This approval closeout is documentation-only, introduces no additional path,
   and creates no commit. The physical denominator remains exactly 25.
+
+## 2026-07-31 — DS4-C22d return-vocabulary retirement preflight
+
+- Stable clean base is `31134a9fa40531f12c68e230388b93039a51d000` in the
+  isolated `codex/atlas-ds4-status-grammar` worktree. The exact denominator is
+  17 physical paths: six production, seven tests, three tracked governance
+  paths, and the ignored `.superpowers/sdd/task-C22d-report.md`; no split or
+  companion path is authorized.
+- Thirteen paths exist at preflight. C22d creates only
+  `features/composer/domain/launchPresentation.ts`, its test,
+  `MetricsPanel.test.tsx`, and the ignored report. Backend, schemas, generated
+  runtime client, Atlas v15, frozen `ru`, lock/workspace files, package source,
+  other worktrees, main, and remotes remain outside the fence.
+- Pre-edit governance is `47/19/55/4/3`, classifications `15/24/8`; the
+  existing focused five-file baseline passes 24 tests. Strict TDD now requires
+  all seven exact-title RED witnesses before any production edit.
+- Pattern pass: P04/P05 prohibit local launch/workflow status authority and
+  metric-magnitude severity clothing; P29 requires runtime plus source-flip
+  proof beyond a compile witness; P31 requires one shared composer adapter,
+  one generated-key workflow map, and total simulation-severity deletion;
+  P32 requires resolved generated symbol provenance and fail-closed unknown
+  normalization rather than lookalikes, synonyms, or defaults.
+
+### C22d RED receipt
+
+- All seven exact titles preceded production edits. Accepted focused RED was
+  seven files, six failed / one passed, with seven failures / 22 passes. Live
+  failures exposed `SimulationMetric.severity`, threshold-derived `toSeverity`,
+  MetricsPanel's authority-purpose consumer, the absent launch adapter, both
+  composer helpers, and workflow `statusKind`; the lifecycle-flipped scanner
+  named all four C22d candidate IDs.
+- Typecheck RED produced exactly the desired three errors: the severity-less
+  metric fixture violated the still-live interface, the adapter was absent,
+  and the compile barrier's `@ts-expect-error` was unused while severity still
+  existed. A first adapter-suite import-resolution stop was corrected in test
+  code so the exact title itself executed and failed before product edits.
+
+### C22d implementation and governance closure
+
+- Simulation severity is deleted producer through consumer: no field,
+  InteractionState default, threshold helper, ranking pass, data attribute,
+  tier, intent, constant label, or color successor survives. Quantity,
+  intervals, significance, and assumption warnings remain.
+- The exact generated `RunLaunchResponse["status"]` to Atlas `BadgeTone`
+  adapter is the single composer owner and accepts only `accepted` / `rejected`.
+  Workflow uses one exhaustive `Record<WorkflowNodeView["status"], BadgeTone>`;
+  runtime-invalid input reaches the existing generated-domain normalizer and
+  renders generated `unknown` with neutral clothing.
+- Exactly four C22d rows are retired. The historical C21 simulation row keeps
+  its classification and records the C22d successor deletion. Two unrelated
+  composer interaction-only `tone` spans moved with helper deletion and were
+  rebound without reclassification. Only the authorized simulation source and
+  test resolution-content hashes changed, to
+  `66fa63a016eeec285aa1f9725a8c305a0162b1d14f680b99f8d797241e2ad4a1`
+  and
+  `8cf24e66840ee5b87ba6fe48b9b7ccb253768d5cc16c349383ea3c97f9d61ba6`.
+
+### C22d verification boundary
+
+| Gate | Result |
+| --- | --- |
+| focused product | PASS; seven files / 29 tests |
+| whole-C22 exact union | PASS; 27 files / 139 tests |
+| status governance | PASS; corruption probes, 35 / 35 tests, `47/15/55/0/3`, classifications `15/24/8` |
+| DS19/front-end governance | PASS; 261 roots / 12 supplemental, root dispositions `15/200/25/16/5`, 58 / 58 tests |
+| dashboard | PASS; typecheck, exact 13-path ESLint, build 3,885 modules / PWA 106, architecture 0 over 1,008 modules / 4,114 dependencies |
+| atlas-ui | PASS; typecheck, 18 files / 86 tests, lint, 36-source architecture |
+| searches/baseline | PASS; retired definitions absent, generated mappings exact, only two allowed simulation hashes changed |
+
+- Exact scope is 17 physical paths: six production, seven tests, three tracked
+  governance paths, and the ignored C22d report. No checker/test companion,
+  backend, schema, generated client, Atlas v15, frozen `ru`, lock/workspace,
+  package source, other worktree, main, or remote change exists.
+- Non-receipts remain explicit: scanner subprocess limits at 15 seconds and,
+  under the 27-file concurrent load, 30 seconds returned `status=null` with no
+  product output; the bounded 60/65-second correction passed. Initial exact
+  ESLint found two test-only direct-node violations and passed after the
+  rendered-DOM correction. The build retained its standard large-chunk
+  advisory.
+- The dispatched read-only independent reviewer returned no findings because
+  its external usage limit was exhausted. That failed review is a tooling
+  non-receipt, not approval; a controller-procured independent review remains
+  mandatory before commit.
+- Closeout pattern pass: P04/P05 are closed by generated-owner projection and
+  unsigned-simulation neutrality; P29 by runtime/compile/live-scan/source-flip/
+  corruption receipts; P31 by the single launch adapter, single workflow map,
+  and total severity deletion; P32 by generated-symbol provenance, a rejected
+  local lookalike, and fail-closed neutral `unknown`. C22d is ready for
+  independent review and intentionally uncommitted.
+
+### C22d independent review and controller closeout
+
+- The first reviewer attempt remains an external usage-limit non-receipt. A
+  fresh independent reviewer checked `/tmp/atlas-c22d-review.1fhMas` and found
+  C22d spec compliant, React quality approved, no Critical/Important/Minor
+  findings, and Task quality **Approved**. It specifically confirmed that the
+  60-second scanner subprocess timeout preserves failure on `status=null`,
+  nonzero status, or emitted output.
+- Fresh controller receipts after review: focused seven files / 29 tests;
+  whole-C22 27 files / 139 tests; Python governance 58 + 35 = 93 tests; DS19
+  261 roots / 12 supplemental; status `47/15/55/0/3`; dashboard build 3,885
+  modules / PWA 106 and architecture 1,008 modules / 4,114 dependencies;
+  changed-file ESLint over 13 paths; atlas-ui 18 files / 86 tests. All pass.
+- Retired production searches are empty and the baseline diff contains only
+  the two authorized simulation resolution-content hashes. The independent
+  approval and controller receipts add no path and precede the scoped commit.

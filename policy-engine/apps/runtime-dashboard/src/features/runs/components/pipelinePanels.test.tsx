@@ -60,6 +60,36 @@ describe("pipeline surfaces", () => {
     normalizeWorkflowMock.mockReset();
   });
 
+  it("workflow DAG uses generated node status and neutral unknown", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/workflow")
+    >("@/shared/lib/domain/workflow");
+    normalizeWorkflowMock.mockImplementation(actual.normalizeWorkflow);
+
+    renderWithProviders(
+      <WorkflowDagPanel
+        payload={{
+          nodes: [
+            {
+              alias: "mystery_node",
+              depth: 0,
+              duration_ms: 10,
+              heat: 0,
+              status: "running",
+            },
+          ],
+        }}
+        runId="run-unknown"
+      />,
+    );
+
+    const unknownBadges = screen.getAllByText("unknown");
+    expect(unknownBadges).toHaveLength(2);
+    for (const badge of unknownBadges) {
+      expect(badge).toHaveClass("bg-white/65", "text-muted");
+    }
+  });
+
   it("renders workflow DAG summaries, notes, edges, and debug links", () => {
     normalizeWorkflowMock.mockReturnValue({
       edges: [{ fromAlias: "prepare", toAlias: "score" }],

@@ -6,7 +6,10 @@ import {
   type InteractionState,
   presentAuthority,
 } from "./statusOwnership";
-import type { SimulationMetric } from "./simulation";
+import {
+  normalizeSimulationPayload,
+  type SimulationMetric,
+} from "./simulation";
 
 describe("status ownership compile barriers", () => {
   it("rejects divergent DisputeStatus vocabularies", () => {
@@ -34,20 +37,17 @@ describe("status ownership compile barriers", () => {
     expectTypeOf(transport).toEqualTypeOf<InteractionState<"open">>();
   });
 
-  it("rejects C21 presentation taxonomies at authority slots", () => {
-    expectTypeOf<
-      SimulationMetric["severity"]
-    >().toEqualTypeOf<InteractionState>();
-
-    const simulation = createInteractionState(
-      "future_magnitude",
-      "candidate_display",
-    );
+  it("SimulationMetric exposes no locally ranked severity", () => {
     const compileOnly = () => {
-      // @ts-expect-error Candidate simulation state cannot enter authority.
-      presentAuthority(simulation);
+      // @ts-expect-error SimulationMetric deliberately has no severity slot.
+      type ForbiddenSeverity = SimulationMetric["severity"];
+      return undefined as unknown as ForbiddenSeverity;
     };
+    const model = normalizeSimulationPayload("foundry.metrics", {
+      values: { outcome: 0.75 },
+    });
 
     expect(compileOnly).toBeTypeOf("function");
+    expect(model?.metrics[0]).not.toHaveProperty("severity");
   });
 });

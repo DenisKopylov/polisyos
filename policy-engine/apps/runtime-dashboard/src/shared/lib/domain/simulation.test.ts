@@ -1,5 +1,4 @@
 import { normalizeSimulationPayload } from "@/shared/lib/domain/simulation";
-import { isInteractionState } from "@/shared/lib/domain/statusOwnership";
 
 describe("simulation domain", () => {
   it("normalizes metrics payloads with bounds, series, and embedded distributional data", () => {
@@ -121,11 +120,6 @@ describe("simulation domain", () => {
         label: "GDP Change",
         pAdj: 0.01,
         pValue: 0.01,
-        severity: expect.objectContaining({
-          authorityPurpose: "candidate_display",
-          label: "high",
-          purpose: "interaction_only",
-        }),
         significant: true,
         testLabel: "Paired t-test",
         unit: "%",
@@ -138,11 +132,6 @@ describe("simulation domain", () => {
         formatted: "-3.00",
         key: "inflation_change",
         label: "Inflation Change",
-        severity: expect.objectContaining({
-          authorityPurpose: "candidate_display",
-          label: "low",
-          purpose: "interaction_only",
-        }),
         unit: "%",
         value: -3,
       },
@@ -317,11 +306,6 @@ describe("simulation domain", () => {
           formatted: "+2.50",
           key: "custom_delta",
           label: "Custom Delta",
-          severity: expect.objectContaining({
-            authorityPurpose: "candidate_display",
-            label: "high",
-            purpose: "interaction_only",
-          }),
           value: 2.5,
         }),
       ],
@@ -330,18 +314,20 @@ describe("simulation domain", () => {
     });
   });
 
-  it("keeps relative magnitude labels inside candidate interaction state", () => {
-    const model = normalizeSimulationPayload("foundry.metrics", {
-      values: { larger: 100, smaller: 1 },
+  it("threshold perturbations cannot add authority clothing", () => {
+    const belowThreshold = normalizeSimulationPayload("foundry.metrics", {
+      values: { anchor: 100, observed: 32 },
+    });
+    const aboveThreshold = normalizeSimulationPayload("foundry.metrics", {
+      values: { anchor: 100, observed: 67 },
     });
 
-    expect(model?.metrics.map((metric) => metric.severity.label)).toEqual([
-      "high",
-      "low",
-    ]);
-    expect(
-      model?.metrics.every((metric) => isInteractionState(metric.severity)),
-    ).toBe(true);
+    for (const model of [belowThreshold, aboveThreshold]) {
+      expect(model?.metrics).toHaveLength(2);
+      expect(
+        model?.metrics.every((metric) => !("severity" in metric)),
+      ).toBe(true);
+    }
   });
 
   it("adds empty-state notes for ref-only simulation artifacts", () => {

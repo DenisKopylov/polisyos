@@ -20,7 +20,6 @@ import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
 import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
-import { getRunBadgeKind } from "@/features/runs/domain/status";
 import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
@@ -58,10 +57,6 @@ import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-
-function badgeKind(kind: ReturnType<typeof getRunBadgeKind>) {
-  return kind === "unknown" ? "neutral" : kind;
-}
 
 function runDetailProvenance(
   summary: ReturnType<typeof useRunInspector>,
@@ -431,9 +426,7 @@ function RunInspectorContent() {
                   <p className="topbar-subtitle">{t("pages.runs.subtitle")}</p>
                 </div>
                 <div className="topbar-actions">
-                  <Badge kind={badgeKind(getRunBadgeKind(run.status))}>
-                    {label("runStatuses", run.status, run.status)}
-                  </Badge>
+                  <Badge kind="neutral">{run.status}</Badge>
                   <Badge kind="neutral">
                     {label("runSourceKinds", run.source_kind, run.source_kind)}
                   </Badge>

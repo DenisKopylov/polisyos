@@ -45,6 +45,13 @@ export const initialRunsLiveState: RunsLiveState = {
   status: "connecting",
 };
 
+function withProducerTerminal(
+  event: RunsLiveStreamEvent,
+  terminal: unknown,
+): RunsLiveStreamEvent {
+  return typeof terminal === "boolean" ? { ...event, terminal } : event;
+}
+
 export function reduceRunsLiveState(
   state: RunsLiveState,
   action: RunsLiveAction,
@@ -173,47 +180,55 @@ export function parseRunsLiveEvent(input: {
         eventKind === "governance.waiting" ||
         eventKind === "human_gate.waiting"
       ) {
-        return {
-          cursor,
-          entity,
-          event: eventKind,
-          kind: "governance.waiting",
-          runId,
-          status,
-          terminal: parsed.terminal === true,
-        };
+        return withProducerTerminal(
+          {
+            cursor,
+            entity,
+            event: eventKind,
+            kind: "governance.waiting",
+            runId,
+            status,
+          },
+          parsed.terminal,
+        );
       }
       if (eventKind === "node.progress" || eventKind === "node.updated") {
-        return {
-          cursor,
-          entity,
-          event: eventKind,
-          kind: "run.node",
-          runId,
-          status,
-          terminal: parsed.terminal === true,
-        };
+        return withProducerTerminal(
+          {
+            cursor,
+            entity,
+            event: eventKind,
+            kind: "run.node",
+            runId,
+            status,
+          },
+          parsed.terminal,
+        );
       }
       if (eventKind === "status.updated" || eventKind === "status") {
-        return {
+        return withProducerTerminal(
+          {
+            cursor,
+            entity,
+            event: eventKind,
+            kind: "run.status",
+            runId,
+            status,
+          },
+          parsed.terminal,
+        );
+      }
+      return withProducerTerminal(
+        {
           cursor,
           entity,
-          event: eventKind,
-          kind: "run.status",
+          event: typeof eventKind === "string" ? eventKind : "snapshot",
+          kind: "run.snapshot",
           runId,
           status,
-          terminal: parsed.terminal === true,
-        };
-      }
-      return {
-        cursor,
-        entity,
-        event: typeof eventKind === "string" ? eventKind : "snapshot",
-        kind: "run.snapshot",
-        runId,
-        status,
-        terminal: parsed.terminal === true,
-      };
+        },
+        parsed.terminal,
+      );
     }
     return {
       cursor,

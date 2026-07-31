@@ -158,6 +158,51 @@ describe("RunsListPage", () => {
     expect(secondRow).toHaveAttribute("tabindex", "-1");
   });
 
+  it("keeps run labels opaque and leaves lifecycle counts unavailable", async () => {
+    useRunsMock.mockReturnValue({
+      data: {
+        page: {
+          count: 2,
+          cursor: null,
+          limit: 50,
+          next_cursor: null,
+          total: 2,
+        },
+        runs: [
+          {
+            duration_ms: 1_200,
+            root_artifact_count: 0,
+            run_id: "run-opaque",
+            source_kind: "core_run",
+            started_at: "2026-03-09T10:00:00Z",
+            status: "awaiting_external_attestation",
+          },
+          {
+            duration_ms: 1_400,
+            root_artifact_count: 0,
+            run_id: "run-known-shaped",
+            source_kind: "core_run",
+            started_at: "2026-03-09T10:00:01Z",
+            status: "completed",
+          },
+        ],
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRunsListPage();
+
+    expect(await screen.findAllByText("awaiting_external_attestation")).not.toHaveLength(
+      0,
+    );
+    for (const status of screen.getAllByText("completed")) {
+      expect(status).toHaveClass("bg-white/65", "text-muted");
+    }
+    expect(screen.getAllByText("common.unavailable")).toHaveLength(2);
+  });
+
   it("supports j/k navigation and Enter to open the active run when a row is focused", async () => {
     const user = userEvent.setup();
     renderRunsListPage();

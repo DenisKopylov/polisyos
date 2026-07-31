@@ -218,7 +218,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
         self.assertEqual(55, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
-        self.assertEqual(6, checker._summary(inventory, debt)["semantic_retirement_debt"])
+        self.assertEqual(5, checker._summary(inventory, debt)["semantic_retirement_debt"])
 
     def test_c22_subcluster_partition_is_exact(self) -> None:
         inventory, debt = _artifacts()
@@ -248,7 +248,70 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
         self.assertFalse(any(row["target_cluster"] == "C22" for row in rows))
         self.assertFalse(any(row["target_cluster"] == "C23" for row in rows))
-        self.assertEqual(6, checker._summary(inventory, debt)["semantic_retirement_debt"])
+        self.assertEqual(5, checker._summary(inventory, debt)["semantic_retirement_debt"])
+
+    def test_c22_remainder_retirement_requires_absent_definition_and_evidence(
+        self,
+    ) -> None:
+        inventory, _debt = _artifacts()
+        row = next(
+            entry
+            for entry in inventory["semantic_exemptions"]
+            if entry["candidate_id"] == "semantic-status-run-badge-kind"
+        )
+
+        self.assertEqual("retired", row["current_definition_state"])
+        self.assertEqual(20, checker._summary(inventory, _debt)["current_authored"])
+        self.assertNotIn(
+            "c22_remainder_disposition_drift:semantic-status-run-badge-kind",
+            checker._validate_c21_partition(inventory),
+        )
+
+        missing_evidence = copy.deepcopy(inventory)
+        missing_evidence_row = next(
+            entry
+            for entry in missing_evidence["semantic_exemptions"]
+            if entry["candidate_id"] == row["candidate_id"]
+        )
+        missing_evidence_row.pop("protected_source_paths")
+        self.assertIn(
+            "c22_remainder_disposition_drift:semantic-status-run-badge-kind",
+            checker._validate_c21_partition(missing_evidence),
+        )
+
+        revived_source = {
+            row["source_span"]["path"]: (
+                'export type RunBadgeKind = "ok" | "fail" | "warn" '
+                '| "unknown";\n'
+            )
+        }
+        self.assertIn(
+            "retired_semantic_definition_survives:semantic-status-run-badge-kind",
+            checker._validate_source_overrides(inventory, revived_source),
+        )
+
+    def test_authored_summary_uses_lifecycle_state_not_candidate_ids(self) -> None:
+        inventory, debt = _artifacts()
+        baseline = checker._summary(inventory, debt)["current_authored"]
+        synthetic = copy.deepcopy(
+            next(
+                row
+                for row in inventory["semantic_exemptions"]
+                if row["target_cluster"] == "C22d"
+            )
+        )
+        synthetic["candidate_id"] = "semantic-synthetic-future-retirement"
+        synthetic["current_definition_state"] = "retired"
+        synthetic["protected_source_paths"] = [
+            "apps/runtime-dashboard/src/synthetic/futureRetirement.ts"
+        ]
+        inventory["semantic_exemptions"].append(synthetic)
+
+        self.assertNotIn(synthetic["candidate_id"], checker.C22_REMAINDER_IDS)
+        self.assertEqual(
+            baseline - 1,
+            checker._summary(inventory, debt)["current_authored"],
+        )
 
     def test_every_retired_semantic_row_drives_generic_revival_protection(
         self,

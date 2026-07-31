@@ -274,25 +274,6 @@ function performanceIssueBadgeKind(
   return "neutral";
 }
 
-function calibrationBadgeKind(
-  status: string | null | undefined,
-  signalCodes: string[],
-): BadgeTone {
-  if (
-    status === "fail" ||
-    signalCodes.some((code) => code.includes("_fail_"))
-  ) {
-    return "fail";
-  }
-  if (status === "warn" || signalCodes.length > 0) {
-    return "warn";
-  }
-  if (status === "pass") {
-    return "ok";
-  }
-  return "neutral";
-}
-
 function formatMilliseconds(value: number | null): string {
   if (value === null) {
     return "unknown";
@@ -318,7 +299,7 @@ function shouldRenderQuality(job: ControlJobResponse | null | undefined) {
   return Boolean(
     job?.quality_status &&
     job.quality_status !== "pass" &&
-    (job.state === "completed" || job.execution_status === "completed"),
+    job.state === "completed",
   );
 }
 
@@ -583,12 +564,7 @@ function approvalReadinessFromJob(
       evidenceRefs?.evidence_bundle,
       evidenceRefs?.quality_evidence_bundle,
     ),
-    executionStatus:
-      stringFromUnknown(eligibility?.execution_status) ??
-      stringFromUnknown(scorecardRecord.execution_status) ??
-      job?.execution_status ??
-      job?.state ??
-      null,
+    executionStatus: job?.state ?? null,
     humanReviewCalibration: humanReviewCalibrationFromScorecard(
       scorecardRecord,
       evidenceRefs,
@@ -623,11 +599,7 @@ function approvalReadinessFromJob(
       null,
     reasons: [...new Set(reasons)],
     requiresOverride: booleanFromUnknown(eligibility?.requires_override),
-    runtimeState:
-      stringFromUnknown(jobRecord?.runtime_state) ??
-      job?.execution_status ??
-      job?.state ??
-      null,
+    runtimeState: job?.state ?? null,
     scorecardRef: firstSanitizedRef(
       jobRecord?.authoritative_scorecard_ref,
       job?.quality_scorecard_ref,
@@ -656,8 +628,7 @@ function shouldRenderApproval(
   readiness: ApprovalReadiness | null,
 ) {
   return Boolean(
-    readiness &&
-    (job?.state === "completed" || job?.execution_status === "completed"),
+    readiness && job?.state === "completed",
   );
 }
 
@@ -759,9 +730,7 @@ function shouldRenderScientistProgress(
 ) {
   return Boolean(
     progress &&
-    (job?.state === "pending" ||
-      job?.state === "running" ||
-      job?.execution_status === "running"),
+    (job?.state === "pending" || job?.state === "running"),
   );
 }
 
@@ -802,12 +771,7 @@ function ControlApprovalPanel({
           <Badge kind="warn">{t("controlJob.overrideRequired")}</Badge>
         ) : null}
         {calibration ? (
-          <Badge
-            kind={calibrationBadgeKind(
-              calibration.status,
-              calibration.signalCodes,
-            )}
-          >
+          <Badge kind="neutral">
             {t("controlJob.humanReviewBadge", {
               status: calibration.status ?? "unknown",
             })}
@@ -1132,7 +1096,7 @@ function ControlQualityPanel({ job }: { job: ControlJobResponse }) {
         </Badge>
         <Badge kind="neutral">
           {t("controlJob.executionBadge", {
-            status: job.execution_status ?? job.state,
+            status: job.state,
           })}
         </Badge>
       </div>

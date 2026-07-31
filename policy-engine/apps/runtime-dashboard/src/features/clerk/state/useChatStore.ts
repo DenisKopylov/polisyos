@@ -40,6 +40,7 @@ export type ChatMessage = {
   runId?: string;
   controlJobId?: string;
   runStatus?: string;
+  runFinishedAt?: string;
   error?: string;
   /** Structured data for rich response rendering. */
   structured?: StructuredResponseData;
@@ -48,6 +49,12 @@ export type ChatMessage = {
   /** Whether this message is still being progressively built. */
   isProgressive?: boolean;
 };
+
+export function hasProducerFinishedAt(
+  value: string | null | undefined,
+): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
 
 export type ConversationSession = {
   id: string;

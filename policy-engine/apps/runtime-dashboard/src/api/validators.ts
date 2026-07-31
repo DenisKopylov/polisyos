@@ -164,6 +164,7 @@ const runSummarySchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
   status: z.string(),
+  decision_review_required: z.boolean().optional(),
   started_at: z.string().nullable().optional(),
   finished_at: z.string().nullable().optional(),
   duration_ms: z.number().nullable().optional(),

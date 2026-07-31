@@ -5,16 +5,8 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatDuration } from "@/shared/lib/utils";
 import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
-function statusToBadgeKind(status: string | undefined) {
-  if (!status) return "neutral" as const;
-  if (status === "completed") return "ok" as const;
-  if (status === "failed" || status === "error") return "fail" as const;
-  if (status === "running" || status === "pending") return "info" as const;
-  return "neutral" as const;
-}
-
 export default function ClerkRunSummaryPage() {
-  const { label, locale, t } = useI18n();
+  const { locale, t } = useI18n();
   const { runId } = useParams<{ runId: string }>();
   const runQuery = useRunDetails(runId ?? "");
 
@@ -41,12 +33,8 @@ export default function ClerkRunSummaryPage() {
       <Card className="p-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Badge kind={statusToBadgeKind(run.status)}>
-              {label(
-                "runStatuses",
-                run.status,
-                run.status ?? t("common.unknown"),
-              )}
+            <Badge kind="neutral">
+              {run.status ?? t("common.unavailable")}
             </Badge>
           </div>
 

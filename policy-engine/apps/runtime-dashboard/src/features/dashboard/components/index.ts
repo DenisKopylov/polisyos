@@ -3,7 +3,6 @@ export { DashboardToolbar } from "./DashboardToolbar";
 export { WidgetContainer } from "./WidgetContainer";
 export { QuickInsightsPanel } from "./QuickInsightsPanel";
 export type { QuickInsight } from "./QuickInsightsPanel";
-export { RecentRunsTimeline } from "./RecentRunsTimeline";
 export { DataFreshnessMatrix } from "./DataFreshnessMatrix";
 export type {
   DataFreshnessDisplayState,

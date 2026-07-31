@@ -21,12 +21,8 @@ import { useLexGraphStats } from "@/api/hooks/useLexGraphStats";
 import { useSuspenseHealth } from "@/api/hooks/useHealth";
 import {
   getAverageRunDuration,
-  getBlockedRunCount,
   getDecisionQueue,
-  getRunBadgeKind,
   groupRunsByStatus,
-  isRunRunning,
-  isRunSuccess,
   useSuspenseRunsSample,
 } from "@/features/runs";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -39,7 +35,6 @@ import {
 } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
-  type BadgeTone,
   Badge,
   Button,
   Card,
@@ -48,16 +43,6 @@ import {
   PanelSkeleton,
 } from "@polisyos/atlas-ui";
 import { DataFreshnessBadge, chartTheme } from "@/shared/ui";
-
-function formatStatusLabel(value: string) {
-  return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function resolveBadgeKind(kind: "ok" | "warn" | "fail" | "unknown") {
-  return kind === "unknown" ? "neutral" : kind;
-}
 
 function DashboardMetric({
   label,
@@ -97,19 +82,8 @@ function DashboardHeroContent() {
   );
 
   const runs = runsQuery.data?.runs ?? [];
-  const activeRuns = useMemo(
-    () => runs.filter((run) => isRunRunning(run.status)),
-    [runs],
-  );
   const decisionQueue = useMemo(() => getDecisionQueue(runs), [runs]);
   const avgDurationMs = useMemo(() => getAverageRunDuration(runs), [runs]);
-  const healthKind: BadgeTone =
-    healthQuery.data?.status === "ok"
-      ? "ok"
-      : healthQuery.data?.status
-        ? "warn"
-        : "neutral";
-
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -122,7 +96,7 @@ function DashboardHeroContent() {
           </p>
         </div>
         <div className="topbar-actions">
-          <Badge kind={healthKind}>
+          <Badge kind="neutral">
             {t("pages.dashboard.healthStatus", {
               status: healthQuery.data?.status ?? t("common.unknown"),
             })}
@@ -144,7 +118,7 @@ function DashboardHeroContent() {
               {t("pages.dashboard.activeRuns")}
             </span>
             <strong className="mt-2 block text-2xl font-semibold">
-              {formatNumber(activeRuns.length)}
+              {t("common.unavailable")}
             </strong>
           </div>
           <div>
@@ -207,9 +181,7 @@ function DashboardActionQueueContent() {
                 })}
               </p>
             </div>
-            <Badge kind={resolveBadgeKind(getRunBadgeKind(run.status))}>
-              {formatStatusLabel(run.status)}
-            </Badge>
+            <Badge kind="neutral">{run.status}</Badge>
           </div>
         </PrefetchLink>
       ))}
@@ -222,31 +194,25 @@ function DashboardMetricsContent() {
   const runsQuery = useSuspenseRunsSample();
   const indexStatsQuery = useSuspenseDataIndexStats();
   const runs = runsQuery.data?.runs ?? [];
-  const activeRuns = runs.filter((run) => isRunRunning(run.status));
-  const successCount = runs.filter((run) => isRunSuccess(run.status)).length;
-  const blockedRuns = getBlockedRunCount(runs);
+  const unavailable = t("common.unavailable");
 
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <DashboardMetric
         label={t("pages.dashboard.activeRuns")}
-        value={formatNumber(activeRuns.length)}
+        value={unavailable}
         hint={t("pages.dashboard.activeRunsHint")}
-        badge={<Badge kind="warn">{t("common.active")}</Badge>}
+        badge={<Badge kind="neutral">{unavailable}</Badge>}
       />
       <DashboardMetric
         label={t("pages.dashboard.blockedRuns")}
-        value={formatNumber(blockedRuns)}
+        value={unavailable}
         hint={t("pages.dashboard.blockedRunsHint")}
-        badge={
-          <Badge kind={blockedRuns > 0 ? "fail" : "ok"}>
-            {t("common.blocked")}
-          </Badge>
-        }
+        badge={<Badge kind="neutral">{unavailable}</Badge>}
       />
       <DashboardMetric
         label={t("pages.dashboard.successRateTitle")}
-        value={formatPercent(runs.length > 0 ? successCount / runs.length : 0)}
+        value={unavailable}
         hint={t("pages.dashboard.successRateHint", {
           count: formatNumber(runs.length),
         })}
@@ -269,28 +235,26 @@ function DashboardNarrativeContent() {
   const promotionCandidatesQuery = useSuspenseDataPromotionCandidates();
   const runs = runsQuery.data?.runs ?? [];
   const decisionQueue = getDecisionQueue(runs);
-  const activeRuns = runs.filter((run) => isRunRunning(run.status));
-  const blockedRuns = getBlockedRunCount(runs);
-  const successCount = runs.filter((run) => isRunSuccess(run.status)).length;
+  const unavailable = t("common.unavailable");
   const docsAdded = indexStatsQuery.data?.stats.docs_added_last_run ?? 0;
   const promotions = promotionCandidatesQuery.data?.candidates?.length ?? 0;
 
   const items = [
     {
       body: t("pages.dashboard.narrativeAttentionBody", {
-        blocked: formatNumber(blockedRuns),
-        count: formatNumber(activeRuns.length),
+        blocked: unavailable,
+        count: unavailable,
       }),
       label: t("pages.dashboard.narrativeAttention"),
-      value: `${formatNumber(activeRuns.length)} / ${formatNumber(blockedRuns)}`,
+      value: unavailable,
     },
     {
       body: t("pages.dashboard.narrativeThroughputBody", {
-        success: formatNumber(successCount),
-        total: formatNumber(runs.length),
+        success: unavailable,
+        total: unavailable,
       }),
       label: t("pages.dashboard.narrativeThroughput"),
-      value: formatPercent(runs.length > 0 ? successCount / runs.length : 0),
+      value: unavailable,
     },
     {
       body: t("pages.dashboard.narrativeQueueBody", {
@@ -351,7 +315,6 @@ function DashboardStatusChartContent() {
           <CartesianGrid stroke={chartTheme.grid} vertical={false} />
           <XAxis
             dataKey="status"
-            tickFormatter={formatStatusLabel}
             stroke={chartTheme.axis}
             fontSize={12}
           />
@@ -361,7 +324,7 @@ function DashboardStatusChartContent() {
               formatNumber(Number(value)),
               t("pages.dashboard.runsTooltipLabel"),
             ]}
-            labelFormatter={(value) => formatStatusLabel(String(value))}
+            labelFormatter={(value) => String(value)}
           />
           <Bar
             dataKey="count"

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import type { RunNodeRecord } from "@polisyos/runtime-api-client";
 
 import type { NodeDebugPayload, RunNodesPayload } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -6,18 +7,18 @@ import { formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
 import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { Badge, Select } from "@polisyos/atlas-ui";
 
-function statusKind(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized === "completed" || normalized === "ok") {
-    return "ok" as const;
+function nodeStatusKind(status: RunNodeRecord["status"]) {
+  switch (status) {
+    case "ok":
+      return "ok" as const;
+    case "fail":
+      return "fail" as const;
+    case "skip":
+      return "warn" as const;
+    case "unknown":
+    case undefined:
+      return "neutral" as const;
   }
-  if (normalized === "fail" || normalized === "failed") {
-    return "fail" as const;
-  }
-  if (normalized === "running" || normalized === "skip") {
-    return "warn" as const;
-  }
-  return "neutral" as const;
 }
 
 type NodeDebugPanelProps = {
@@ -72,7 +73,7 @@ export default function NodeDebugPanel({
                   {debugData.record.node_id ?? "-"}
                 </p>
               </div>
-              <Badge kind={statusKind(debugData.record.status)}>
+              <Badge kind={nodeStatusKind(debugData.record.status)}>
                 {debugData.record.status}
               </Badge>
             </div>
@@ -186,9 +187,7 @@ export default function NodeDebugPanel({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Badge kind={statusKind(event.event)}>
-                          {event.event}
-                        </Badge>
+                        <Badge kind="neutral">{event.event}</Badge>
                         <span className="text-muted text-xs">
                           {event.phase}
                         </span>

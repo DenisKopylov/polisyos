@@ -1,13 +1,8 @@
 import {
-  getBlockedRunCount,
   getDecisionQueue,
-  getRunBadgeKind,
   groupRunsByStatus,
-  isRunFailed,
-  isRunRunning,
-  isRunSuccess,
-  isRunTerminal,
 } from "./status";
+import * as runStatus from "./status";
 
 describe("run status helpers", () => {
   const runs = [
@@ -31,16 +26,31 @@ describe("run status helpers", () => {
     },
   ];
 
-  it("classifies statuses consistently", () => {
-    expect(isRunSuccess("completed")).toBe(true);
-    expect(isRunFailed("blocked_preflight")).toBe(true);
-    expect(isRunRunning("running")).toBe(true);
-    expect(isRunTerminal("completed")).toBe(true);
-    expect(getRunBadgeKind("blocked_preflight")).toBe("fail");
+  it("preserves raw producer labels and exposes no lifecycle or badge classifier", () => {
+    expect(
+      groupRunsByStatus([
+        { status: "awaiting_external_attestation" },
+        { status: "awaiting_external_attestation" },
+        { status: " completed_future " },
+      ]),
+    ).toEqual([
+      { status: "awaiting_external_attestation", count: 2 },
+      { status: " completed_future ", count: 1 },
+    ]);
+    expect(Object.keys(runStatus)).not.toEqual(
+      expect.arrayContaining([
+        "getBlockedRunCount",
+        "getRunBadgeKind",
+        "isRunFailed",
+        "isRunInReview",
+        "isRunRunning",
+        "isRunSuccess",
+        "isRunTerminal",
+      ]),
+    );
   });
 
-  it("derives blocked count and decision queue", () => {
-    expect(getBlockedRunCount(runs)).toBe(1);
+  it("derives the artifact-backed decision queue without inspecting status", () => {
     expect(getDecisionQueue(runs).map((run) => run.run_id)).toEqual([
       "run-2",
       "run-3",
@@ -49,9 +59,9 @@ describe("run status helpers", () => {
 
   it("groups runs by status", () => {
     expect(groupRunsByStatus(runs)).toEqual([
-      { status: "blocked_preflight", count: 1, badgeKind: "fail" },
-      { status: "completed", count: 1, badgeKind: "ok" },
-      { status: "running", count: 1, badgeKind: "warn" },
+      { status: "blocked_preflight", count: 1 },
+      { status: "completed", count: 1 },
+      { status: "running", count: 1 },
     ]);
   });
 });

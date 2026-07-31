@@ -811,6 +811,28 @@ describe("run detail surfaces", () => {
     expect(screen.queryByTestId("run-replan-link")).not.toBeInTheDocument();
   });
 
+  it("keeps the open run status label opaque and neutral", async () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: {
+          duration_ms: 1_200,
+          root_artifacts: [],
+          run_id: "run-1",
+          source_kind: "core_run",
+          started_at: "2026-03-09T10:00:00Z",
+          status: "completed_future",
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(await screen.findByText("completed_future")).toHaveClass(
+      "bg-white/65",
+      "text-muted",
+    );
+  });
+
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs/run-1/overview");
 

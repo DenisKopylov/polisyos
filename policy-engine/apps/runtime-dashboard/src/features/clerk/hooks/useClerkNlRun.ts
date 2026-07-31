@@ -10,7 +10,10 @@ import {
 } from "@/features/composer";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { buildClerkFormDefaults } from "../domain/clerkDefaults";
-import { useChatStore } from "../state/useChatStore";
+import {
+  hasProducerFinishedAt,
+  useChatStore,
+} from "../state/useChatStore";
 
 export function useClerkNlRun() {
   const { locale } = useI18n();
@@ -55,7 +58,6 @@ export function useClerkNlRun() {
           store.updateSystemMessage(systemMsgId, {
             content: result.message ?? "Launch rejected",
             controlJobId: result.job_id,
-            runStatus: "rejected",
             error: result.message,
           });
           store.setStreaming(false);
@@ -66,7 +68,6 @@ export function useClerkNlRun() {
         store.setCurrentRunId(runId);
         store.updateSystemMessage(systemMsgId, {
           runId,
-          runStatus: "running",
           content: "",
         });
 
@@ -82,16 +83,24 @@ export function useClerkNlRun() {
                   status?: string;
                   finished_at?: string;
                 };
-                const status = payload.status ?? "running";
-                store.updateSystemMessage(systemMsgId, {
-                  runStatus: status,
-                });
+                const messageUpdate: {
+                  runFinishedAt?: string;
+                  runStatus?: string;
+                } = {};
+                if (typeof payload.status === "string") {
+                  messageUpdate.runStatus = payload.status;
+                }
+                const runIsFinished = hasProducerFinishedAt(
+                  payload.finished_at,
+                );
+                if (runIsFinished) {
+                  messageUpdate.runFinishedAt = payload.finished_at;
+                }
+                if (Object.keys(messageUpdate).length > 0) {
+                  store.updateSystemMessage(systemMsgId, messageUpdate);
+                }
 
-                if (
-                  payload.finished_at ||
-                  status === "completed" ||
-                  status === "failed"
-                ) {
+                if (runIsFinished) {
                   store.setStreaming(false);
                   store.setCurrentRunId(null);
                   sseRef.current?.close();
@@ -102,9 +111,6 @@ export function useClerkNlRun() {
               }
             },
             onError: () => {
-              store.updateSystemMessage(systemMsgId, {
-                runStatus: "unknown",
-              });
               store.setStreaming(false);
             },
           },
@@ -113,7 +119,6 @@ export function useClerkNlRun() {
         store.updateSystemMessage(systemMsgId, {
           content:
             err instanceof Error ? err.message : "Failed to launch analysis",
-          runStatus: "failed",
           error: err instanceof Error ? err.message : "Unknown error",
         });
         store.setStreaming(false);

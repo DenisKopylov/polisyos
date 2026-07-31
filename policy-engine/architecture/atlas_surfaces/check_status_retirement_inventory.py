@@ -500,10 +500,18 @@ def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
             for cluster, candidate_ids in C22_SUBCLUSTER_IDS.items()
             if candidate_id in candidate_ids
         )
+        state = row.get("current_definition_state")
         if (
-            row.get("current_definition_state") != "present"
+            state not in {"present", "retired"}
             or row.get("disposition") != "retirement_debt"
             or row.get("target_cluster") != expected_cluster
+            or (
+                state == "retired"
+                and (
+                    not row.get("protected_source_paths")
+                    or not row.get("verification_refs")
+                )
+            )
         ):
             errors.append(f"c22_remainder_disposition_drift:{candidate_id}")
     return errors
@@ -904,11 +912,22 @@ def _corruption_probes(
 
 
 def _summary(inventory: Mapping[str, Any], debt: Mapping[str, Any]) -> dict[str, Any]:
+    retired_c22_definitions = sum(
+        row.get("target_cluster") in C22_SUBCLUSTER_IDS
+        and row.get("disposition") == "retirement_debt"
+        and row.get("current_definition_state") == "retired"
+        and bool(row.get("protected_source_paths"))
+        and bool(row.get("verification_refs"))
+        for row in inventory["semantic_exemptions"]
+    )
     return {
         "classifications": dict(
             sorted(Counter(entry["classification"] for entry in inventory["entries"]).items())
         ),
-        "current_authored": inventory["denominators"]["current_total"],
+        "current_authored": (
+            inventory["denominators"]["current_total"]
+            - retired_c22_definitions
+        ),
         "ds1_rows": inventory["denominators"]["ds1_rows"],
         "semantic_exemptions": len(inventory["semantic_exemptions"]),
         "semantic_retirement_debt": sum(

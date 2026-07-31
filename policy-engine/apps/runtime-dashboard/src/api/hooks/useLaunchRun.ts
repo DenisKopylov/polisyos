@@ -2,14 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
-import {
-  applyOptimisticRunToCache,
-  buildLaunchedRunSummary,
-  createOptimisticRun,
-  replaceOptimisticRunInCache,
-  restoreRunsQueries,
-  snapshotRunsQueries,
-} from "../optimistic";
 import { queryKeys } from "../queryKeys";
 import type { components } from "../types";
 import { useControlPlaneMutation } from "../useControlPlaneMutation";
@@ -40,52 +32,13 @@ export function useLaunchRun() {
     blockWhenOffline: true,
     errorToast: {
       title: "Run launch failed",
-      description:
-        "Atlas restored the optimistic run and kept existing data intact.",
+      description: "Existing run data remains unchanged.",
       tone: "error",
     },
     mutationId: "runs.launch",
     mutationFn: launchRun,
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.runsRoot() });
-      const runsSnapshot = snapshotRunsQueries(queryClient);
-      const optimisticRun = createOptimisticRun(`launch-pending-${Date.now()}`);
-      applyOptimisticRunToCache(queryClient, optimisticRun);
-      return {
-        optimisticRun,
-        runsSnapshot,
-      };
-    },
-    onError: (_error, _variables, context) => {
-      if (!context) {
-        return;
-      }
-      restoreRunsQueries(queryClient, context.runsSnapshot);
-      queryClient.removeQueries({
-        queryKey: queryKeys.run(context.optimisticRun.run_id),
-        exact: true,
-      });
-    },
-    onSuccess: (data, _variables, context) => {
-      if (context) {
-        replaceOptimisticRunInCache(
-          queryClient,
-          context.optimisticRun.run_id,
-          buildLaunchedRunSummary(
-            data,
-            context.optimisticRun.started_at ?? new Date().toISOString(),
-          ),
-        );
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.runsRoot() });
-    },
-    onSettled: (_data, _error, _variables, context) => {
-      if (context?.optimisticRun) {
-        queryClient.removeQueries({
-          queryKey: queryKeys.run(context.optimisticRun.run_id),
-          exact: true,
-        });
-      }
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.runsRoot() });
     },
     successToast: (data) => ({
       title:

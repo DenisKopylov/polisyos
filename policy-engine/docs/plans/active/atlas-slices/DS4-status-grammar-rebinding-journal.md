@@ -2047,3 +2047,91 @@ producer`, with the original deep edge retained only as immutable provenance.
   `01c66675e43b2620f46e69dbf146b20284a216d0711c6c712299b0c7de86769b`.
   Backend, schemas, generated client, v15 archive, frozen locale, master plan,
   main, other worktrees, and remotes remain untouched.
+
+## 2026-07-31 — DS4-C22b run-lifecycle inference retirement
+
+- Stable base: `0e9aa6eef1608e05b80b15211066fdde6c49864e`. Final blast radius is
+  exactly 44 tracked/untracked product-governance paths plus the ignored
+  `.superpowers/sdd/task-C22b-report.md`: 23 production, 16 tests, five tracked
+  governance paths, and one ignored report = 45 physical paths. The additional
+  production path over the planned 22 is the already-touched
+  `apps/runtime-dashboard/src/api/validators.ts`, now explicitly protected by
+  the retired inventory row; no sixth finish-round path was introduced.
+- Pattern pass: the touched class implicated P04/P05 status and authority
+  ambiguity, P31 instance-patching, P33 witness-as-spec, and P34 premature
+  green. The closed pattern is one producer-fact boundary: raw run labels are
+  byte-preserving neutral display, while only producer `finished_at`, generated
+  control-job `state`, generated node state, and explicit SSE `terminal` facts
+  affect lifecycle. DS3 retains the honest `producer_missing` +
+  `surface_missing` debt for a generated terminal/completion fact.
+- Inherited product RED was valid at 16 files: 15 failed / one passed, 19
+  behavioral failures / 69 passes. Finish-round RED added one failing generic
+  inventory-transition test, two failing neutral-clothing tests, and an exact
+  changed-file ESLint receipt with two `no-misused-promises` errors. All were
+  repaired at their source; the final focused suite is 16 files / 87 tests
+  PASS, and the combined Python governance suite is 92 / 92 PASS.
+- The C21 partition validator is progressive over the existing C22 partition:
+  an approved remainder row may be `present` or `retired`; retirement requires
+  the existing disposition, cluster, verification refs, and protected paths.
+  Live semantic reconciliation still proves the runtime definition is absent
+  and rejects a source-level revival. Summary accounting now decreases
+  generically as C22 rows retire. Final status receipt is 47 DS1 / 20 current
+  authored / 55 semantic history / 5 live retirement / 3 waist, with
+  classifications 15 lattice-derived / 24 interaction / 8 removed.
+- Independent scanner closeout removed the three live survivors: calibration
+  status and health status no longer select Badge clothing, and Runs List now
+  carries keyboard-focus intent as a numeric row index rather than comparing a
+  producer-derived run id against an indexed DOM string. The `j`/`k` + Enter
+  interaction remains covered. `protectedRevivals` is empty.
+- Baseline closeout changed only the matching C06 `resolution_content` digest
+  for `RunDetailLayout.tsx` to
+  `fa599a60a08919f5d8853d327701ba401efe45ec02f9ba61af1f6379c7409cd5`;
+  immutable origins, identities, counts, and every other resolution are
+  unchanged. The inventory rationale now states C22b removal, opaque labels,
+  and DS3 producer debt, and protects `api/validators.ts`.
+
+### C22b verification boundary
+
+| Gate | Result |
+| --- | --- |
+| focused C22b product | PASS; 16 files / 87 tests |
+| Python governance | PASS; 92 / 92 tests |
+| status governance | PASS; corruption probes; 47/20/55/5/3 and 15/24/8 classifications |
+| DS19 | PASS; 261 roots, 23 seeded negatives, 12 supplemental findings; 15 deleted / 200 rebind-pending / 25 retire / 16 wire / 5 use-as-is |
+| dashboard | PASS; typecheck, exact changed-file ESLint, build with 3,884 modules and PWA 106 entries, architecture 0 across 1,005 modules / 4,104 dependencies |
+| atlas-ui | PASS; typecheck, 18 files / 86 tests, lint, and 36-source architecture |
+| baseline lifecycle | PASS; 30 / 30 tests; one matching resolution-content digest changed |
+
+- Whole-class searches contain none of the retired run classifiers, no Clerk
+  run-status completion branch, no `execution_status` lifecycle override, no
+  `dataset.runRowId` focus comparison, and no `RecentRunsTimeline` reference.
+  The broad Clerk search has one deliberate non-lifecycle match in
+  `performanceIssueBadgeKind` for performance-budget issue status.
+- `pnpm-lock.yaml`, backend `src/**`, schemas, generated runtime client, v15,
+  frozen `ru`, master plan, package sources, other worktrees, and remotes remain
+  untouched. C22b does not claim the missing DS3 producer fact. No commit,
+  merge, or push is performed before independent review.
+
+### C22b independent review fix round 1 of 5
+
+- Review RED exposed three remaining classes: Header translated an open health
+  label into authority clothing/copy; whitespace-only `finished_at` survived
+  intake and unlocked two sibling completion consumers; and authored summary
+  accounting enumerated known candidate IDs.
+- The repair keeps every present health label byte-preserving and neutral,
+  centralizes trimmed non-empty producer completion at intake and consumption,
+  and computes retirement progress from validated cluster/disposition/state/
+  evidence lifecycle facts. The metamorphic witness uses an unknown synthetic
+  candidate ID.
+- Exact RED: frontend 4 files / 20 tests with 4 expected failures; checker one
+  expected `19 != 20` failure. Exact GREEN: frontend adversarial 4 / 20,
+  focused product 16 / 91, targeted checker 2 / 2, Python governance 93 / 93,
+  status corruption receipt 47/20/55/5/3 and 15/24/8, DS19 corruption/source
+  bytes, dashboard typecheck/lint/build/architecture all PASS.
+- Scope remains 44 tracked/untracked paths plus the ignored report = 45
+  physical paths. No commit was created; DS3 `producer_missing` +
+  `surface_missing` remains the honest completion-fact debt.
+
+Independent re-review checked `/tmp/atlas-c22b-fix1-delta.MplfAj`: all three
+findings **ADDRESSED**, no new Critical/Important breakage, Task quality
+**Approved**.

@@ -3,16 +3,8 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate } from "@/shared/lib/utils";
 import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
-function statusToBadgeKind(status: string | undefined) {
-  if (!status) return "neutral" as const;
-  if (status === "completed") return "ok" as const;
-  if (status === "failed" || status === "error") return "fail" as const;
-  if (status === "running" || status === "pending") return "info" as const;
-  return "neutral" as const;
-}
-
 export function ClerkHistoryList() {
-  const { label, locale, t } = useI18n();
+  const { locale, t } = useI18n();
   const runsQuery = useRuns({ limit: 20 });
 
   if (runsQuery.isLoading) {
@@ -50,12 +42,8 @@ export function ClerkHistoryList() {
         <Card key={run.run_id} className="p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Badge kind={statusToBadgeKind(run.status)}>
-                {label(
-                  "runStatuses",
-                  run.status,
-                  run.status ?? t("common.unknown"),
-                )}
+              <Badge kind="neutral">
+                {run.status ?? t("common.unavailable")}
               </Badge>
               <span className="text-sm font-semibold text-[var(--ink)]">
                 {run.run_id.slice(0, 12)}...

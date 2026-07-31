@@ -4,6 +4,9 @@ import inspect
 import json
 import os
 import select
+import shutil
+import subprocess
+import sys
 import threading
 import time
 from collections.abc import Callable
@@ -122,13 +125,8 @@ def _install_loaded_deployment(repo_root: Path, monkeypatch: pytest.MonkeyPatch)
     """Install all bytes used to identify a test-loaded policy-engine checkout."""
 
     _install_canonical_registry(repo_root)
-    for relative in (
-        Path("pyproject.toml"),
-        Path("uv.lock"),
-        Path("src/polisyos/__init__.py"),
-        Path("src/polisyos/core/canon/canon_json.py"),
-        Path("src/polisyos/runtime/quality/confidence_ledger.py"),
-    ):
+    shutil.copytree(REPO_ROOT / "src", repo_root / "src")
+    for relative in (Path("pyproject.toml"), Path("uv.lock")):
         target = repo_root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((REPO_ROOT / relative).read_bytes())
@@ -406,6 +404,141 @@ def test_open_session_recovers_writer_killed_after_event_cas_before_journal_comm
     assert len(recovered.events) == 2
 
 
+def _append_and_fsync(path: Path, payload: bytes) -> None:
+    with path.open("ab") as handle:
+        handle.write(payload)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def test_torn_first_wal_record_is_truncated_to_empty_verified_prefix(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    assert session._journal_path.stat().st_size == 0
+    _append_and_fsync(session._journal_path, b'{"schema_version":"torn')
+
+    reopened = sessions()
+
+    assert reopened.receipt().events == ()
+    assert reopened._journal_path.read_bytes() == b""
+
+
+def test_torn_intent_tail_is_removed_after_complete_committed_prefix(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    expected = session.receipt()
+    verified_prefix = session._journal_path.read_bytes()
+    _append_and_fsync(session._journal_path, b'{"record_type":"intent","payload":')
+
+    reopened = sessions()
+
+    assert reopened.receipt() == expected
+    assert reopened._journal_path.read_bytes() == verified_prefix
+
+
+def test_torn_commit_tail_replays_complete_intent_and_commits_it(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    receipt = session.receipt()
+    payload = receipt.model_dump(mode="json")
+    artifact_ref = ledger_module._cas_json_artifact_ref(payload)
+    with session._exclusive_lock():
+        session._append_scope_journal_intent(
+            artifact_kind="receipt",
+            artifact_ref=artifact_ref,
+            payload=payload,
+        )
+    _append_and_fsync(
+        session._journal_path,
+        b'{"record_type":"commit","artifact_ref":"sha256:torn',
+    )
+
+    reopened = sessions()
+
+    assert reopened.receipt() == receipt
+    assert reopened._artifact_store.has(artifact_ref)
+    assert reopened._journal_path.read_bytes().endswith(b"\n")
+
+
+def test_complete_invalid_wal_line_is_not_repaired_or_truncated(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    _append_and_fsync(session._journal_path, b'{"complete":"but-invalid"}\n')
+    corrupted = session._journal_path.read_bytes()
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_scope_journal_invalid"):
+        sessions()
+
+    assert session._journal_path.read_bytes() == corrupted
+
+
+def test_cached_wal_prefix_rewrite_fails_closed(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    original = session._journal_path.read_bytes()
+    rewritten = bytes([original[0] ^ 1]) + original[1:]
+    with session._journal_path.open("r+b") as handle:
+        handle.write(rewritten)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_scope_journal_rollback_detected"):
+        session.receipt()
+
+
+def test_wal_shrink_below_cached_offset_is_not_torn_tail_repair(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    original_size = session._journal_path.stat().st_size
+    with session._journal_path.open("r+b") as handle:
+        handle.truncate(original_size - 1)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_scope_journal_rollback_detected"):
+        session.receipt()
+
+    assert session._journal_path.stat().st_size == original_size - 1
+
+
+def test_complete_wal_record_hash_mismatch_is_not_repaired(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    previous_hash = ledger_module._scope_journal_genesis_hash(session.risk_scope.scope_id)
+    payload = {
+        "schema_version": ledger_module.CONFIDENCE_LEDGER_SCHEMA_VERSION,
+        "scope_id": session.risk_scope.scope_id,
+        "revision": len(session._journal_records) + 1,
+        "previous_record_hash": previous_hash,
+        "record_type": "commit",
+        "artifact_kind": "event",
+        "artifact_ref": _HASH_1,
+        "payload": None,
+        "record_hash": "sha256:" + "0" * 64,
+    }
+    _append_and_fsync(
+        session._journal_path,
+        f"{ledger_module._canonical_json(payload)}\n".encode(),
+    )
+    corrupted = session._journal_path.read_bytes()
+
+    with pytest.raises(ConfidenceLedgerError, match="ledger_scope_journal_invalid"):
+        session.receipt()
+
+    assert session._journal_path.read_bytes() == corrupted
+
+
 def test_valid_older_head_is_fast_forwarded_to_unique_maximal_lineage(
     sessions: _SessionFactory,
 ) -> None:
@@ -624,6 +757,80 @@ def test_deployment_identity_binds_uv_lock_and_python_runtime_manifest(
     assert ledger_module._policy_engine_deployment_identity(repo_root) != original
 
 
+def test_steady_state_canonical_locks_do_not_rehash_source_tree(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    source_reads: list[Path] = []
+    read_bytes = Path.read_bytes
+
+    def track_source_reads(path: Path) -> bytes:
+        if path.is_relative_to(repo_root / "src/polisyos"):
+            source_reads.append(path)
+        return read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", track_source_reads)
+
+    session.observe_history()
+    session.receipt()
+
+    assert source_reads == []
+
+
+def test_deployment_quick_fence_rehashes_once_then_poisons_changed_content(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    full_recomputations = 0
+    deployment_baseline = ledger_module._deployment_baseline
+
+    def count_full_recomputation(root: Path) -> str:
+        nonlocal full_recomputations
+        full_recomputations += 1
+        return deployment_baseline(root)
+
+    monkeypatch.setattr(ledger_module, "_deployment_baseline", count_full_recomputation)
+    source = repo_root / "src/polisyos/core/canon/canon_json.py"
+    source.write_bytes(source.read_bytes() + b"\n# quick-fence content drift\n")
+
+    with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
+        session.observe_history()
+
+    assert full_recomputations == 1
+
+
+def test_content_equal_metadata_churn_refreshes_quick_fence_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    full_recomputations = 0
+    deployment_baseline = ledger_module._deployment_baseline
+
+    def count_full_recomputation(root: Path) -> str:
+        nonlocal full_recomputations
+        full_recomputations += 1
+        return deployment_baseline(root)
+
+    monkeypatch.setattr(ledger_module, "_deployment_baseline", count_full_recomputation)
+    source = repo_root / "src/polisyos/core/canon/canon_json.py"
+    stat = source.stat()
+    os.utime(source, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000))
+
+    session.observe_history()
+    session.receipt()
+
+    assert full_recomputations == 1
+
+
 def test_canonical_session_is_invalidated_by_direct_kernel_or_module_set_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -646,6 +853,119 @@ def test_canonical_session_is_invalidated_by_direct_kernel_or_module_set_drift(
     added.write_text("AUTHORITY = 'candidate'\n", encoding="utf-8")
     with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
         second.observe_history()
+
+
+def test_from_repo_rejects_disk_mutation_after_authority_dependency_was_imported(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "isolated-authority-repo"
+    shutil.copytree(REPO_ROOT / "src", repo_root / "src")
+    shutil.copytree(REPO_ROOT / "architecture", repo_root / "architecture")
+    for relative in (Path("pyproject.toml"), Path("uv.lock")):
+        target = repo_root / relative
+        target.write_bytes((REPO_ROOT / relative).read_bytes())
+    script = """
+import sys
+from pathlib import Path
+
+from polisyos.runtime.quality.confidence_ledger import (
+    ConfidenceLedgerError,
+    ConfidenceLedgerSession,
+    ConfidenceRiskBudgetScope,
+)
+
+repo_root = Path(sys.argv[1]).resolve()
+dependency = repo_root / "src/polisyos/core/canon/canon_json.py"
+dependency.write_bytes(dependency.read_bytes() + b"\\n# changed after import\\n")
+scope = ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:loaded-code-mismatch",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+try:
+    ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope)
+except ConfidenceLedgerError as exc:
+    print(exc.code)
+    raise SystemExit(0 if exc.code == "canonical_loaded_runtime_mismatch" else 2)
+raise SystemExit(3)
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(repo_root / "src")
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script, str(repo_root)],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
+
+
+def test_from_repo_rejects_dependency_loaded_before_its_source_changes(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "isolated-authority-repo"
+    shutil.copytree(REPO_ROOT / "src", repo_root / "src")
+    shutil.copytree(REPO_ROOT / "architecture", repo_root / "architecture")
+    for relative in (Path("pyproject.toml"), Path("uv.lock")):
+        target = repo_root / relative
+        target.write_bytes((REPO_ROOT / relative).read_bytes())
+    script = """
+import sys
+from pathlib import Path
+
+import polisyos.core.canon.canon_json
+
+repo_root = Path(sys.argv[1]).resolve()
+dependency = repo_root / "src/polisyos/core/canon/canon_json.py"
+source = dependency.read_text(encoding="utf-8")
+changed = source.replace('return "0"', 'return "changed-after-import"', 1)
+assert changed != source
+dependency.write_text(changed, encoding="utf-8")
+
+from polisyos.runtime.quality import confidence_ledger as ledger
+
+assert not ledger._IMPORT_TIME_LOADED_CODE_CONSISTENT
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:old-loaded-dependency",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+try:
+    ledger.ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope)
+except ledger.ConfidenceLedgerError as exc:
+    print(exc.code)
+    raise SystemExit(0 if exc.code == "canonical_loaded_runtime_mismatch" else 2)
+raise SystemExit(3)
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(repo_root / "src")
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script, str(repo_root)],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
 
 
 def test_mid_operation_deployment_drift_poison_is_irreversible(
@@ -687,6 +1007,45 @@ def test_mid_operation_deployment_drift_poison_is_irreversible(
 
     with pytest.raises(ConfidenceLedgerError, match="deployment_drift_poisoned"):
         ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+
+
+def test_deployment_drift_poison_rejects_equal_expected_and_observed_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+
+    with (
+        session._exclusive_lock(),
+        pytest.raises(ConfidenceLedgerError, match="deployment_drift_poison_invalid"),
+    ):
+        session._persist_deployment_drift_poison_locked(session._deployment_identity)
+
+
+def test_historical_deployment_drift_poison_is_terminal_for_newer_session_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+    observed = ledger_module._identity(
+        "policy-engine-deployment",
+        {"status": "changed"},
+    )
+    with session._exclusive_lock():
+        session._persist_deployment_drift_poison_locked(observed)
+
+    object.__setattr__(
+        session,
+        "_deployment_identity",
+        ledger_module._identity("policy-engine-deployment", {"status": "newer"}),
+    )
+
+    with pytest.raises(ConfidenceLedgerError, match="deployment_drift_poisoned"):
+        session._assert_no_deployment_drift_poison_locked()
 
 
 def test_deleted_head_cannot_reset_same_scope_with_changed_owner_projection(

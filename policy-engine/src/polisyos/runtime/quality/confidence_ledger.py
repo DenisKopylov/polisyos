@@ -11,13 +11,16 @@ verifier fail closed.
 
 from __future__ import annotations
 
+import ast
 import hashlib
+import importlib.util
 import json
 import os
 import sys
 import sysconfig
 import threading
 import tomllib
+import types
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from fractions import Fraction
@@ -77,6 +80,8 @@ type CertificateRole = Literal[
     "admission",
 ]
 type SessionAuthorityProvenance = Literal["canonical_repo", "verification"]
+type _DeploymentFileFence = tuple[str, int, int, int, int, int]
+type _DeploymentQuickFence = tuple[tuple[_DeploymentFileFence, ...], str]
 type ExecutionStatus = Literal["prepared", "started", "executed", "refused", "unexecuted"]
 type CompletionOutcome = Literal[
     "prepared",
@@ -674,6 +679,8 @@ class _DeploymentDriftPoison(_StrictModel):
 
     schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
     scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    ledger_root_id: str = Field(pattern=r"^confidence-ledger-root:sha256:[0-9a-f]{64}$")
+    ledger_root_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     authority_provenance: Literal["canonical_repo"]
     expected_deployment_identity: str = Field(
         pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$"
@@ -683,6 +690,12 @@ class _DeploymentDriftPoison(_StrictModel):
     )
     reason: Literal["canonical_deployment_identity_changed"]
     poison_id: str = Field(pattern=r"^confidence-deployment-drift-poison:sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _requires_actual_drift(self) -> Self:
+        if self.expected_deployment_identity == self.observed_deployment_identity:
+            raise ValueError("deployment_drift_poison_identity_equal")
+        return self
 
 
 class ConfidenceLedgerReceipt(_StrictModel):
@@ -805,11 +818,13 @@ class ConfidenceLedgerSession:
         "_certificate_resolver",
         "_certificate_verifier",
         "_deployment_identity",
+        "_deployment_quick_fence",
         "_execution_claims",
         "_execution_claims_lock",
         "_head_path",
         "_journal_offset",
         "_journal_path",
+        "_journal_prefix_hash",
         "_journal_records",
         "_lock_path",
         "_registry",
@@ -870,6 +885,7 @@ class ConfidenceLedgerSession:
             authority_provenance="verification",
             authority_repo_root=None,
             deployment_identity=_policy_engine_deployment_identity(_loaded_policy_engine_root()),
+            deployment_quick_fence=None,
         )
 
     def _initialize(
@@ -885,6 +901,7 @@ class ConfidenceLedgerSession:
         authority_provenance: SessionAuthorityProvenance,
         authority_repo_root: Path | None,
         deployment_identity: str,
+        deployment_quick_fence: _DeploymentQuickFence | None,
     ) -> None:
         object.__setattr__(self, "_session_sealed", False)
         self._registry = registry
@@ -897,6 +914,7 @@ class ConfidenceLedgerSession:
         self._authority_provenance = authority_provenance
         self._authority_repo_root = authority_repo_root
         self._deployment_identity = deployment_identity
+        self._deployment_quick_fence = deployment_quick_fence
         self._cas_reconciled = False
         self._execution_claims: set[str] = set()
         self._execution_claims_lock = threading.Lock()
@@ -906,6 +924,7 @@ class ConfidenceLedgerSession:
         self._lock_path = self._state_root / f"{scope_hex}.lock"
         self._journal_path = self._state_root / f"{scope_hex}.append.wal"
         self._journal_offset = 0
+        self._journal_prefix_hash = hashlib.sha256(b"").digest()
         self._journal_records: list[_ScopeJournalRecord] = []
         self._scope_tombstone_path = self._state_root / f"{scope_hex}.scope.json"
         self._initialize_or_validate_root()
@@ -925,7 +944,12 @@ class ConfidenceLedgerSession:
         loaded_root = _loaded_policy_engine_root()
         if root != loaded_root:
             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
-        deployment_identity = _policy_engine_deployment_identity(root)
+        deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(root)
+        _assert_loaded_runtime_matches_import_baseline(
+            root,
+            deployment_baseline=deployment_baseline,
+        )
+        deployment_identity = _deployment_identity_from_baseline(deployment_baseline)
         registry = load_confidence_ledger_registry(root / DEFAULT_REGISTRY_RELATIVE_PATH)
         session = object.__new__(cls)
         session._initialize(
@@ -939,6 +963,7 @@ class ConfidenceLedgerSession:
             authority_provenance="canonical_repo",
             authority_repo_root=root,
             deployment_identity=deployment_identity,
+            deployment_quick_fence=deployment_quick_fence,
         )
         return session
 
@@ -997,7 +1022,7 @@ class ConfidenceLedgerSession:
             and self._state_root == root / ".polisyos/runtime/confidence_ledger"
             and self._artifact_store.root == root / ".polisyos/cas"
             and root == _loaded_policy_engine_root()
-            and self._deployment_identity == _policy_engine_deployment_identity(root)
+            and self._deployment_quick_fence == _deployment_quick_fence(root)
         )
 
     @property
@@ -1672,10 +1697,25 @@ class ConfidenceLedgerSession:
             "confidence-deployment-drift-poison",
             poison.model_dump(mode="json", exclude={"poison_id"}),
         )
+        try:
+            root = ConfidenceLedgerRoot.model_validate(
+                self._read_cas_json(poison.ledger_root_ref, _ROOT_SCHEMA)
+            )
+        except (ConfidenceLedgerError, ValueError) as exc:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid", str(exc)) from exc
+        expected_root_id = _identity(
+            "confidence-ledger-root",
+            root.model_dump(mode="json", exclude={"ledger_root_id"}),
+        )
         if (
             poison.scope_id != self._risk_scope.scope_id
-            or poison.expected_deployment_identity != self._deployment_identity
             or poison.poison_id != expected_id
+            or poison.ledger_root_id != root.ledger_root_id
+            or root.ledger_root_id != expected_root_id
+            or poison.ledger_root_ref != _cas_json_artifact_ref(root)
+            or root.scope_id != poison.scope_id
+            or root.authority_provenance != "canonical_repo"
+            or root.deployment_identity != poison.expected_deployment_identity
         ):
             raise ConfidenceLedgerError("deployment_drift_poison_invalid")
 
@@ -1843,51 +1883,79 @@ class ConfidenceLedgerSession:
     def _read_new_scope_journal_records_locked(
         self,
     ) -> tuple[_ScopeJournalRecord, ...]:
-        """Incrementally validate records appended by this or another process."""
+        """Validate the WAL and repair only an incomplete final record suffix."""
 
         identity = self._journal_identity()
+        flags = os.O_RDWR
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
         try:
-            size = self._journal_path.stat().st_size
+            fd = os.open(self._journal_path, flags)
         except OSError as exc:
             raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
-        if size < self._journal_offset:
-            raise ConfidenceLedgerError("ledger_scope_journal_rollback_detected")
-        if size == self._journal_offset:
-            return tuple(self._journal_records)
         try:
-            with self._journal_path.open("rb") as handle:
-                handle.seek(self._journal_offset)
-                appended = handle.read()
-        except OSError as exc:
-            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
-        if not appended.endswith(b"\n"):
-            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
-        previous_hash = (
-            self._journal_records[-1].record_hash
-            if self._journal_records
-            else _scope_journal_genesis_hash(self._risk_scope.scope_id)
-        )
-        revision = len(self._journal_records)
-        for raw_line in appended.splitlines():
-            try:
-                record = _ScopeJournalRecord.model_validate_json(raw_line)
-            except ValueError as exc:
-                raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
-            expected_hash = _scope_journal_record_hash(record)
-            if (
-                record.scope_id != self._risk_scope.scope_id
-                or record.revision != revision + 1
-                or record.previous_record_hash != previous_hash
-                or record.record_hash != expected_hash
-                or (record.record_type == "intent") != (record.payload is not None)
+            held = os.fstat(fd)
+            if (held.st_dev, held.st_ino) != (
+                identity["device"],
+                identity["inode"],
             ):
                 raise ConfidenceLedgerError("ledger_scope_journal_invalid")
-            self._journal_records.append(record)
-            revision += 1
-            previous_hash = record.record_hash
-        self._journal_offset = size
-        if self._journal_identity() != identity:
-            raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            if held.st_size < self._journal_offset:
+                raise ConfidenceLedgerError("ledger_scope_journal_rollback_detected")
+            chunks: list[bytes] = []
+            while True:
+                chunk = os.read(fd, 1024 * 1024)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            journal_bytes = b"".join(chunks)
+            if len(journal_bytes) != held.st_size:
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            if (
+                self._journal_offset
+                and hashlib.sha256(journal_bytes[: self._journal_offset]).digest()
+                != self._journal_prefix_hash
+            ):
+                raise ConfidenceLedgerError("ledger_scope_journal_rollback_detected")
+
+            last_newline = journal_bytes.rfind(b"\n")
+            verified_size = last_newline + 1
+            verified_bytes = journal_bytes[:verified_size]
+            torn_suffix = journal_bytes[verified_size:]
+            records: list[_ScopeJournalRecord] = []
+            previous_hash = _scope_journal_genesis_hash(self._risk_scope.scope_id)
+            for raw_line in verified_bytes.splitlines():
+                try:
+                    record = _ScopeJournalRecord.model_validate_json(raw_line)
+                except ValueError as exc:
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+                expected_hash = _scope_journal_record_hash(record)
+                if (
+                    record.scope_id != self._risk_scope.scope_id
+                    or record.revision != len(records) + 1
+                    or record.previous_record_hash != previous_hash
+                    or record.record_hash != expected_hash
+                    or (record.record_type == "intent") != (record.payload is not None)
+                ):
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+                records.append(record)
+                previous_hash = record.record_hash
+
+            if self._journal_identity() != identity:
+                raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            if torn_suffix:
+                os.ftruncate(fd, verified_size)
+                os.fsync(fd)
+                _fsync_directory(self._journal_path.parent)
+                if self._journal_identity() != identity:
+                    raise ConfidenceLedgerError("ledger_scope_journal_invalid")
+            self._journal_records = records
+            self._journal_offset = verified_size
+            self._journal_prefix_hash = hashlib.sha256(verified_bytes).digest()
+        except OSError as exc:
+            raise ConfidenceLedgerError("ledger_scope_journal_invalid", str(exc)) from exc
+        finally:
+            os.close(fd)
         return tuple(self._journal_records)
 
     def _append_scope_journal_record_locked(
@@ -1940,8 +2008,7 @@ class ConfidenceLedgerSession:
             os.fsync(fd)
         finally:
             os.close(fd)
-        self._journal_records.append(record)
-        self._journal_offset += len(encoded)
+        self._read_new_scope_journal_records_locked()
 
     def _append_scope_journal_intent(
         self,
@@ -2709,9 +2776,19 @@ class ConfidenceLedgerSession:
         observed: str | None = None
         if root is not None and root == _loaded_policy_engine_root():
             try:
-                observed = _policy_engine_deployment_identity(root)
+                quick_fence = _deployment_quick_fence(root)
+            except ConfidenceLedgerError:
+                quick_fence = None
+            if quick_fence == self._deployment_quick_fence:
+                return
+            try:
+                deployment_baseline, stable_fence = _stable_deployment_snapshot(root)
+                observed = _deployment_identity_from_baseline(deployment_baseline)
             except ConfidenceLedgerError:
                 observed = None
+            if observed == self._deployment_identity:
+                self._deployment_quick_fence = stable_fence
+                return
         if observed != self._deployment_identity:
             if self._journal_path.exists():
                 self._persist_deployment_drift_poison_locked(observed)
@@ -2724,9 +2801,24 @@ class ConfidenceLedgerSession:
             "policy-engine-deployment",
             {"status": "unavailable"},
         )
+        if observed_identity == self._deployment_identity:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid")
+        registry_ref = _cas_json_artifact_ref(self._registry.source_payload())
+        root = self._expected_root_binding(registry_ref)
+        root_ref = _cas_json_artifact_ref(root)
+        try:
+            stored_root = ConfidenceLedgerRoot.model_validate(
+                self._read_cas_json(root_ref, _ROOT_SCHEMA)
+            )
+        except (ConfidenceLedgerError, ValueError) as exc:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid", str(exc)) from exc
+        if stored_root != root:
+            raise ConfidenceLedgerError("deployment_drift_poison_invalid")
         payload: dict[str, Any] = {
             "schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
             "scope_id": self._risk_scope.scope_id,
+            "ledger_root_id": root.ledger_root_id,
+            "ledger_root_ref": root_ref,
             "authority_provenance": "canonical_repo",
             "expected_deployment_identity": self._deployment_identity,
             "observed_deployment_identity": observed_identity,
@@ -3564,6 +3656,19 @@ def _scope_journal_record_hash(record: _ScopeJournalRecord) -> str:
     return _content_hash(record.model_dump(mode="json", exclude={"record_hash"}))
 
 
+def _fsync_directory(path: Path) -> None:
+    """Durably persist a directory entry update."""
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    fd = os.open(path, flags)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def _journal_artifact_contract(
     artifact_kind: Literal["event", "receipt", "deployment_drift_poison"],
 ) -> tuple[str, artifacts.SchemaInfo]:
@@ -3600,23 +3705,42 @@ def _loaded_policy_engine_root() -> Path:
 
 
 def _policy_engine_deployment_identity(repo_root: Path) -> str:
-    """Bind authority to loaded deployment bytes without persisting absolute paths."""
+    """Bind authority to disk bytes, runtime ABI, and actually loaded code."""
 
-    relative_paths = [Path("pyproject.toml"), Path("uv.lock")]
-    source_root = repo_root / "src/polisyos"
-    try:
-        relative_paths.extend(
-            sorted(
-                (path.relative_to(repo_root) for path in source_root.rglob("*.py")),
-                key=lambda path: path.as_posix(),
-            )
-        )
-    except OSError as exc:
-        raise ConfidenceLedgerError("canonical_deployment_identity_invalid") from exc
-    if len(relative_paths) == 2:
-        raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
+    return _deployment_identity_from_baseline(_deployment_baseline(repo_root))
+
+
+def _deployment_identity_from_baseline(deployment_baseline: str) -> str:
+    """Compose the authority identity from a content-complete baseline."""
+
+    return _identity(
+        "policy-engine-deployment",
+        {
+            "current_deployment": deployment_baseline,
+            "authority_import_closure": _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+            "loaded_code_manifest": _IMPORT_TIME_LOADED_CODE_MANIFEST,
+        },
+    )
+
+
+def _assert_loaded_runtime_matches_import_baseline(
+    repo_root: Path,
+    *,
+    deployment_baseline: str | None = None,
+) -> None:
+    """Reject authority if disk or runtime differs from the importing process."""
+
+    if (
+        deployment_baseline or _deployment_baseline(repo_root)
+    ) != _IMPORT_TIME_DEPLOYMENT_BASELINE or not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+
+def _deployment_baseline(repo_root: Path) -> str:
+    """Return a path-normalized full source, lock, project, and ABI baseline."""
+
     files: dict[str, str] = {}
-    for relative in relative_paths:
+    for relative in _deployment_relative_paths(repo_root):
         path = repo_root / relative
         try:
             content = path.read_bytes()
@@ -3625,13 +3749,371 @@ def _policy_engine_deployment_identity(repo_root: Path) -> str:
                 "canonical_deployment_identity_invalid", relative.as_posix()
             ) from exc
         files[relative.as_posix()] = f"sha256:{hashlib.sha256(content).hexdigest()}"
-    return _identity(
-        "policy-engine-deployment",
+    return _canonical_json(
         {
             "files": files,
             "python_runtime": _python_runtime_manifest(),
-        },
+        }
     )
+
+
+def _stable_deployment_snapshot(repo_root: Path) -> tuple[str, _DeploymentQuickFence]:
+    """Capture content only when the cheap file/runtime fence remains stable."""
+
+    before = _deployment_quick_fence(repo_root)
+    baseline = _deployment_baseline(repo_root)
+    after = _deployment_quick_fence(repo_root)
+    if before != after:
+        raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
+    return baseline, after
+
+
+def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
+    """Return a cheap path/inode/size/time fence for authority deployment files."""
+
+    entries: list[_DeploymentFileFence] = []
+    for relative in _deployment_relative_paths(repo_root):
+        path = repo_root / relative
+        try:
+            stat = path.stat()
+        except OSError as exc:
+            raise ConfidenceLedgerError(
+                "canonical_deployment_identity_invalid", relative.as_posix()
+            ) from exc
+        entries.append(
+            (
+                relative.as_posix(),
+                stat.st_dev,
+                stat.st_ino,
+                stat.st_size,
+                stat.st_mtime_ns,
+                stat.st_ctime_ns,
+            )
+        )
+    return tuple(entries), _canonical_json(_python_runtime_manifest())
+
+
+def _deployment_relative_paths(repo_root: Path) -> tuple[Path, ...]:
+    """Return the generic sorted deployment file set."""
+
+    source_root = repo_root / "src/polisyos"
+    try:
+        source_paths = sorted(
+            (path.relative_to(repo_root) for path in source_root.rglob("*.py")),
+            key=lambda path: path.as_posix(),
+        )
+    except OSError as exc:
+        raise ConfidenceLedgerError("canonical_deployment_identity_invalid") from exc
+    if not source_paths:
+        raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
+    return (Path("pyproject.toml"), Path("uv.lock"), *source_paths)
+
+
+def _resolve_authority_import_closure(
+    repo_root: Path,
+    entry_module: str,
+) -> tuple[tuple[str, str], ...]:
+    """Resolve the entry module's repository-local static import closure."""
+
+    resolved: dict[str, Path] = {}
+    pending = {entry_module}
+    while pending:
+        module_name = min(pending)
+        pending.remove(module_name)
+        if module_name in resolved:
+            continue
+        relative = _repository_module_source(repo_root, module_name)
+        if relative is None:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"unresolved repository import: {module_name}",
+            )
+        resolved[module_name] = relative
+        package = module_name if relative.name == "__init__.py" else module_name.rpartition(".")[0]
+        try:
+            tree = ast.parse((repo_root / relative).read_bytes(), filename=relative.as_posix())
+        except (OSError, SyntaxError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                relative.as_posix(),
+            ) from exc
+        discovered: set[str] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "polisyos" or alias.name.startswith("polisyos."):
+                        if _repository_module_source(repo_root, alias.name) is None:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unresolved repository import: {alias.name}",
+                            )
+                        discovered.add(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                base = _resolve_import_from_base(node, package)
+                if base is None or not (base == "polisyos" or base.startswith("polisyos.")):
+                    continue
+                if _repository_module_source(repo_root, base) is None:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"unresolved repository import: {base}",
+                    )
+                discovered.add(base)
+                for alias in node.names:
+                    if alias.name == "*":
+                        continue
+                    candidate = f"{base}.{alias.name}"
+                    if _repository_module_source(repo_root, candidate) is not None:
+                        discovered.add(candidate)
+        for discovered_module in tuple(discovered):
+            parts = discovered_module.split(".")
+            for length in range(1, len(parts)):
+                parent = ".".join(parts[:length])
+                if _repository_module_source(repo_root, parent) is not None:
+                    discovered.add(parent)
+        pending.update(discovered - resolved.keys())
+    return tuple(
+        (module_name, resolved[module_name].as_posix()) for module_name in sorted(resolved)
+    )
+
+
+def _resolve_import_from_base(node: ast.ImportFrom, package: str) -> str | None:
+    """Resolve one absolute or relative ``from`` import base."""
+
+    if node.level == 0:
+        return node.module
+    relative_name = "." * node.level + (node.module or "")
+    try:
+        return importlib.util.resolve_name(relative_name, package)
+    except (ImportError, ValueError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous relative import: {relative_name}",
+        ) from exc
+
+
+def _repository_module_source(repo_root: Path, module_name: str) -> Path | None:
+    """Resolve one repository Python module without importing it."""
+
+    if module_name != "polisyos" and not module_name.startswith("polisyos."):
+        return None
+    module_parts = module_name.split(".")
+    package_path = Path("src", *module_parts, "__init__.py")
+    module_path = Path("src", *module_parts).with_suffix(".py")
+    matches = [
+        relative for relative in (package_path, module_path) if (repo_root / relative).is_file()
+    ]
+    if len(matches) > 1:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous repository module: {module_name}",
+        )
+    return matches[0] if matches else None
+
+
+def _loaded_code_manifest(
+    repo_root: Path,
+    closure: tuple[tuple[str, str], ...],
+) -> tuple[str, bool]:
+    """Capture normalized code objects for closure modules already loaded."""
+
+    manifest: dict[str, object] = {}
+    all_consistent = True
+    for module_name, relative_path in closure:
+        module = sys.modules.get(module_name)
+        if module is None:
+            continue
+        spec = getattr(module, "__spec__", None)
+        loader = getattr(spec, "loader", None)
+        get_code = getattr(loader, "get_code", None)
+        origin = getattr(spec, "origin", None)
+        if not callable(get_code) or not isinstance(origin, str):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository module has no code provenance: {module_name}",
+            )
+        try:
+            origin_relative = Path(origin).resolve().relative_to(repo_root).as_posix()
+            code = get_code(module_name)
+        except (ImportError, OSError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository module provenance invalid: {module_name}",
+            ) from exc
+        if origin_relative != relative_path or not isinstance(code, types.CodeType):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository module provenance invalid: {module_name}",
+            )
+        live_defined_code = _live_defined_code_manifest(
+            module,
+            module_name,
+            source_path=(repo_root / relative_path).resolve(),
+        )
+        loader_code_hashes = _loader_code_hashes_by_qualname(code)
+        live_loader_bindings: dict[str, object] = {}
+        module_consistent = True
+        for label, live_code in live_defined_code.items():
+            qualname = str(live_code["qualname"])
+            loader_hashes = loader_code_hashes.get(qualname, ())
+            live_hash = str(live_code["normalized_code_hash"])
+            matches_loader = live_hash in loader_hashes
+            module_consistent = module_consistent and matches_loader
+            live_loader_bindings[label] = {
+                **live_code,
+                "loader_normalized_code_hashes": list(loader_hashes),
+                "matches_loader": matches_loader,
+            }
+        all_consistent = all_consistent and module_consistent
+        try:
+            source_hash = _bytes_hash((repo_root / relative_path).read_bytes())
+        except OSError as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository source unavailable: {module_name}",
+            ) from exc
+        manifest[module_name] = {
+            "relative_path": relative_path,
+            "source_hash": source_hash,
+            "loader_module_code_hash": _content_hash(_normalize_code_object(code)),
+            "live_defined_code": live_loader_bindings,
+            "live_loader_consistent": module_consistent,
+        }
+    return _canonical_json(manifest), all_consistent
+
+
+def _live_defined_code_manifest(
+    module: object,
+    module_name: str,
+    *,
+    source_path: Path,
+) -> dict[str, dict[str, str]]:
+    """Capture function code that is already live in one imported module."""
+
+    found: dict[str, types.FunctionType] = {}
+    seen_classes: set[int] = set()
+
+    def add_function(label: str, function: types.FunctionType) -> None:
+        if (
+            function.__module__ == module_name
+            and Path(function.__code__.co_filename).resolve() == source_path
+        ):
+            found[label] = function
+
+    def walk_class(label: str, cls: type[object]) -> None:
+        if id(cls) in seen_classes or cls.__module__ != module_name:
+            return
+        seen_classes.add(id(cls))
+        for name, value in sorted(vars(cls).items()):
+            member_label = f"{label}.{name}"
+            if isinstance(value, types.FunctionType):
+                add_function(member_label, value)
+            elif isinstance(value, (classmethod, staticmethod)):
+                add_function(member_label, value.__func__)
+            elif isinstance(value, property):
+                for accessor_name in ("fget", "fset", "fdel"):
+                    accessor = getattr(value, accessor_name)
+                    if isinstance(accessor, types.FunctionType):
+                        add_function(f"{member_label}.{accessor_name}", accessor)
+            elif isinstance(value, type):
+                walk_class(member_label, value)
+
+    namespace = getattr(module, "__dict__", {})
+    if not isinstance(namespace, dict):
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"loaded repository module namespace invalid: {module_name}",
+        )
+    for name, value in sorted(namespace.items()):
+        if isinstance(value, types.FunctionType):
+            add_function(name, value)
+        elif isinstance(value, type):
+            walk_class(name, value)
+    return {
+        label: {
+            "qualname": function.__qualname__,
+            "normalized_code_hash": _content_hash(_normalize_code_object(function.__code__)),
+        }
+        for label, function in sorted(found.items())
+    }
+
+
+def _loader_code_hashes_by_qualname(code: types.CodeType) -> dict[str, tuple[str, ...]]:
+    """Index compiled source code by stable qualified name."""
+
+    hashes: dict[str, set[str]] = {}
+
+    def walk(current: types.CodeType) -> None:
+        hashes.setdefault(current.co_qualname, set()).add(
+            _content_hash(_normalize_code_object(current))
+        )
+        for constant in current.co_consts:
+            if isinstance(constant, types.CodeType):
+                walk(constant)
+
+    walk(code)
+    return {qualname: tuple(sorted(values)) for qualname, values in sorted(hashes.items())}
+
+
+def _normalize_code_object(code: types.CodeType) -> dict[str, object]:
+    """Normalize executable code while excluding machine-local filenames."""
+
+    return {
+        "argcount": code.co_argcount,
+        "posonlyargcount": code.co_posonlyargcount,
+        "kwonlyargcount": code.co_kwonlyargcount,
+        "nlocals": code.co_nlocals,
+        "stacksize": code.co_stacksize,
+        "flags": code.co_flags,
+        "code_hash": _bytes_hash(code.co_code),
+        "consts": [_normalize_code_constant(value) for value in code.co_consts],
+        "names": list(code.co_names),
+        "varnames": list(code.co_varnames),
+        "freevars": list(code.co_freevars),
+        "cellvars": list(code.co_cellvars),
+        "name": code.co_name,
+        "qualname": code.co_qualname,
+        "firstlineno": code.co_firstlineno,
+        "linetable_hash": _bytes_hash(code.co_linetable),
+        "exceptiontable_hash": _bytes_hash(code.co_exceptiontable),
+    }
+
+
+def _normalize_code_constant(value: object) -> object:
+    """Return a canonical representation of a code-object constant."""
+
+    if isinstance(value, types.CodeType):
+        return {"code": _normalize_code_object(value)}
+    if isinstance(value, bytes):
+        return {"bytes_hash": _bytes_hash(value)}
+    if isinstance(value, tuple):
+        return {"tuple": [_normalize_code_constant(item) for item in value]}
+    if isinstance(value, slice):
+        return {
+            "slice": [
+                _normalize_code_constant(value.start),
+                _normalize_code_constant(value.stop),
+                _normalize_code_constant(value.step),
+            ]
+        }
+    if isinstance(value, frozenset):
+        items = [_normalize_code_constant(item) for item in value]
+        return {"frozenset": sorted(items, key=_canonical_json)}
+    if isinstance(value, float):
+        return {"float_hex": value.hex()}
+    if isinstance(value, complex):
+        return {"complex": [value.real.hex(), value.imag.hex()]}
+    if value is Ellipsis:
+        return {"singleton": "ellipsis"}
+    if isinstance(value, (str, int, bool)) or value is None:
+        return value
+    raise ConfidenceLedgerError(
+        "canonical_loaded_runtime_mismatch",
+        f"unsupported code constant: {type(value).__name__}",
+    )
+
+
+def _bytes_hash(value: bytes) -> str:
+    return f"sha256:{hashlib.sha256(value).hexdigest()}"
 
 
 def _python_runtime_manifest() -> dict[str, object]:
@@ -3729,3 +4211,21 @@ __all__ = [
     "validate_confidence_ledger_receipt",
     "validate_confidence_ledger_receipt_structure",
 ]
+
+_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
+    _loaded_policy_engine_root(),
+    __name__,
+)
+(
+    _IMPORT_TIME_DEPLOYMENT_BASELINE,
+    _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
+) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+(
+    _IMPORT_TIME_LOADED_CODE_MANIFEST,
+    _IMPORT_TIME_LOADED_CODE_CONSISTENT,
+) = _loaded_code_manifest(
+    _loaded_policy_engine_root(),
+    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+)
+if _deployment_quick_fence(_loaded_policy_engine_root()) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
+    raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")

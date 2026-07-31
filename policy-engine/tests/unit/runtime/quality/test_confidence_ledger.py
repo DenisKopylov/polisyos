@@ -968,6 +968,44 @@ raise SystemExit(3)
     assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
 
 
+def test_deployment_identity_binds_preimport_rebound_authority_callable() -> None:
+    script = """
+import sys
+from pathlib import Path
+
+import polisyos.fabric.io.atomic as atomic
+
+marker = sys.argv[1]
+def bind(value):
+    def replacement(*args, **kwargs):
+        return value
+    return replacement
+atomic.atomic_write_json = bind(marker)
+
+from polisyos.runtime.quality import confidence_ledger as ledger
+
+assert ledger.atomic_write_json(None) == marker
+print(ledger._policy_engine_deployment_identity(Path.cwd()))
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src")
+
+    identities = []
+    for marker in ("A", "B"):
+        completed = subprocess.run(
+            [sys.executable, "-c", script, marker],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stdout + completed.stderr
+        identities.append(completed.stdout.strip())
+
+    assert identities[0] != identities[1]
+
+
 def test_mid_operation_deployment_drift_poison_is_irreversible(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

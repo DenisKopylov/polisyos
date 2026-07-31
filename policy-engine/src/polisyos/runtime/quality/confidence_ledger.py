@@ -23,6 +23,7 @@ import tomllib
 import types
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
+from enum import Enum
 from fractions import Fraction
 from pathlib import Path
 from typing import Any, Literal, Self
@@ -3954,10 +3955,12 @@ def _loaded_code_manifest(
         module_consistent = True
         for label, live_code in live_defined_code.items():
             qualname = str(live_code["qualname"])
-            loader_hashes = loader_code_hashes.get(qualname, ())
             live_hash = str(live_code["normalized_code_hash"])
-            matches_loader = live_hash in loader_hashes
-            module_consistent = module_consistent and matches_loader
+            defined_locally = bool(live_code["defined_locally"])
+            loader_hashes = loader_code_hashes.get(qualname, ()) if defined_locally else ()
+            matches_loader = live_hash in loader_hashes if defined_locally else None
+            if defined_locally:
+                module_consistent = module_consistent and bool(matches_loader)
             live_loader_bindings[label] = {
                 **live_code,
                 "loader_normalized_code_hashes": list(loader_hashes),
@@ -3986,18 +3989,18 @@ def _live_defined_code_manifest(
     module_name: str,
     *,
     source_path: Path,
-) -> dict[str, dict[str, str]]:
-    """Capture function code that is already live in one imported module."""
+) -> dict[str, dict[str, object]]:
+    """Capture every live function bound into one authority module namespace."""
 
-    found: dict[str, types.FunctionType] = {}
+    found: dict[str, tuple[types.FunctionType, bool]] = {}
     seen_classes: set[int] = set()
 
     def add_function(label: str, function: types.FunctionType) -> None:
-        if (
+        defined_locally = bool(
             function.__module__ == module_name
             and Path(function.__code__.co_filename).resolve() == source_path
-        ):
-            found[label] = function
+        )
+        found[label] = (function, defined_locally)
 
     def walk_class(label: str, cls: type[object]) -> None:
         if id(cls) in seen_classes or cls.__module__ != module_name:
@@ -4031,10 +4034,123 @@ def _live_defined_code_manifest(
     return {
         label: {
             "qualname": function.__qualname__,
+            "declared_module": function.__module__,
+            "defined_locally": defined_locally,
             "normalized_code_hash": _content_hash(_normalize_code_object(function.__code__)),
+            "normalized_binding_hash": _content_hash(_normalize_function_binding(function)),
         }
-        for label, function in sorted(found.items())
+        for label, (function, defined_locally) in sorted(found.items())
     }
+
+
+def _normalize_function_binding(
+    function: types.FunctionType,
+    *,
+    seen: set[int] | None = None,
+) -> dict[str, object]:
+    """Bind executable code together with defaults and closed-over state."""
+
+    active = set() if seen is None else set(seen)
+    active.add(id(function))
+    closure: list[object] = []
+    for cell in function.__closure__ or ():
+        try:
+            value = cell.cell_contents
+        except ValueError:
+            closure.append({"empty_cell": True})
+        else:
+            closure.append(_normalize_runtime_binding_value(value, seen=active))
+    return {
+        "declared_module": function.__module__,
+        "qualname": function.__qualname__,
+        "code": _normalize_code_object(function.__code__),
+        "defaults": _normalize_runtime_binding_value(
+            function.__defaults__,
+            seen=active,
+        ),
+        "kwdefaults": _normalize_runtime_binding_value(
+            function.__kwdefaults__,
+            seen=active,
+        ),
+        "closure": closure,
+    }
+
+
+def _normalize_runtime_binding_value(value: object, *, seen: set[int]) -> object:
+    """Return a deterministic, path-safe representation of bound runtime state."""
+
+    if isinstance(value, (str, int, bool)) or value is None:
+        return value
+    if isinstance(value, float):
+        return {"float_hex": value.hex()}
+    if isinstance(value, complex):
+        return {"complex": [value.real.hex(), value.imag.hex()]}
+    if isinstance(value, bytes):
+        return {"bytes_hash": _bytes_hash(value)}
+    if value is Ellipsis:
+        return {"singleton": "ellipsis"}
+    if isinstance(value, Fraction):
+        return {"fraction": [value.numerator, value.denominator]}
+    if isinstance(value, Path):
+        rendered = value.as_posix()
+        return {
+            "path_kind": "absolute_hash" if value.is_absolute() else "relative",
+            "value": _bytes_hash(rendered.encode()) if value.is_absolute() else rendered,
+        }
+    if isinstance(value, Enum):
+        return {
+            "enum_type": _runtime_type_ref(type(value)),
+            "name": value.name,
+            "value": _normalize_runtime_binding_value(value.value, seen=seen),
+        }
+    object_id = id(value)
+    if object_id in seen:
+        return {"cycle": _runtime_type_ref(type(value))}
+    nested_seen = {*seen, object_id}
+    if isinstance(value, tuple):
+        return {
+            "tuple": [_normalize_runtime_binding_value(item, seen=nested_seen) for item in value]
+        }
+    if isinstance(value, list):
+        return {
+            "list": [_normalize_runtime_binding_value(item, seen=nested_seen) for item in value]
+        }
+    if isinstance(value, (set, frozenset)):
+        items = [_normalize_runtime_binding_value(item, seen=nested_seen) for item in value]
+        return {
+            "set" if isinstance(value, set) else "frozenset": sorted(
+                items,
+                key=_canonical_json,
+            )
+        }
+    if isinstance(value, Mapping):
+        items = [
+            [
+                _normalize_runtime_binding_value(key, seen=nested_seen),
+                _normalize_runtime_binding_value(item, seen=nested_seen),
+            ]
+            for key, item in value.items()
+        ]
+        return {"mapping": sorted(items, key=_canonical_json)}
+    if isinstance(value, types.FunctionType):
+        return {
+            "function": _normalize_function_binding(value, seen=nested_seen),
+        }
+    if isinstance(value, type):
+        return {"type": _runtime_type_ref(value)}
+    state = getattr(value, "__dict__", None)
+    if isinstance(state, dict) and state:
+        return {
+            "object_type": _runtime_type_ref(type(value)),
+            "state": _normalize_runtime_binding_value(state, seen=nested_seen),
+        }
+    return {"singleton_type": _runtime_type_ref(type(value))}
+
+
+def _runtime_type_ref(value: type[object]) -> str:
+    """Return a stable type name without a filesystem path or memory address."""
+
+    return f"{value.__module__}.{value.__qualname__}"
 
 
 def _loader_code_hashes_by_qualname(code: types.CodeType) -> dict[str, tuple[str, ...]]:

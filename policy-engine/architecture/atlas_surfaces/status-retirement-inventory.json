@@ -2860,7 +2860,7 @@
     },
     {
       "candidate_id": "semantic-glyph-glyph-intent",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/brand/Glyph.tsx",
@@ -2872,10 +2872,32 @@
       "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
       "disposition": "retirement_debt",
       "target_cluster": "C22c",
-      "rationale": "C22 owns the provenance-intent structural repair; C21 leaves this generated-provenance binding gap live.",
+      "rationale": "C22c removes the local Glyph/provenance intent taxonomy and its unused inference producer. ProvenanceStrip projects posture only from generated VerificationMetadata through the existing trust-view adapter; missing metadata, copy shape, counts, timestamps, truthiness, feature enablement, and dispute text remain neutral owner facts.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/brand/Glyph.test.tsx",
+        "apps/runtime-dashboard/src/shared/brand/Glyph.a11y.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.a11y.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+        "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.test.tsx",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx",
+        "apps/runtime-dashboard/src/shared/charts/DisputedMarker.test.tsx",
+        "apps/runtime-dashboard/src/shared/brand/Glyph.stories.tsx",
+        "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx",
+        ".superpowers/sdd/task-C22c-report.md",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c22--structural-adapters-and-function-return-vocabularies"
+      ],
+      "protected_source_paths": [
+        "apps/runtime-dashboard/src/shared/brand/Glyph.tsx",
+        "apps/runtime-dashboard/src/shared/brand/provenance-adapter.ts",
+        "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/reading-view/reading-view-tokens.ts",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "apps/runtime-dashboard/src/shared/charts/DisputedMarker.tsx"
       ],
       "does_not_change_ds1_denominator": true
     },

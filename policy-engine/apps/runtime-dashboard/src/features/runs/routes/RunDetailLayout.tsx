@@ -66,7 +66,6 @@ function runDetailProvenance(
       id: "intervention",
       glyph: "intervention",
       label: "Policy run",
-      intent: "default",
     },
   ];
   if (summary.blockerCount > 0) {
@@ -74,21 +73,18 @@ function runDetailProvenance(
       id: "governance",
       glyph: "blocker",
       label: "Governance blocked",
-      intent: "blocked",
     });
   } else {
     items.push({
       id: "governance",
       glyph: "governance-pass",
       label: "Governance pass",
-      intent: "verified",
     });
   }
   items.push({
     id: "reproducibility",
     glyph: "reproducibility",
     label: "Replayable",
-    intent: "default",
   });
   return items;
 }

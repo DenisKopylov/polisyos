@@ -49,17 +49,15 @@ export function DisputedMarker({
             )}
             style={{
               borderColor: uncertaintyTokens.disputed,
-              color: uncertaintyTokens.disputed,
             }}
             aria-label={`${label}. ${summary}`}
           >
             <Glyph
               name="counterfactual"
               size={12}
-              intent="blocked"
               title={label}
             />
-            <span>{label}</span>
+            <span style={{ color: uncertaintyTokens.disputed }}>{label}</span>
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-72 space-y-1">

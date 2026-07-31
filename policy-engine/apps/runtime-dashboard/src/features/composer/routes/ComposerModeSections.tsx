@@ -780,7 +780,6 @@ function CapabilityHighlightsSection({
                 <span className="grid size-8 place-items-center rounded-full bg-white/8">
                   <Glyph
                     decorative
-                    intent="verified"
                     name={resolveCapabilityGlyph(feature.key)}
                     size={14}
                   />

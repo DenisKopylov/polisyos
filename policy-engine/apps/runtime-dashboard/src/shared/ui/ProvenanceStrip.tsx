@@ -5,6 +5,7 @@ import { cn } from "@/shared/lib/utils";
 import { Glyph, type GlyphSize } from "@/shared/brand/Glyph";
 import { GLYPH_ANCHORS } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
+import { VerificationStatus } from "@/shared/ui/trust-view";
 
 export type ProvenanceStripDensity = "comfortable" | "compact" | "condensed";
 
@@ -100,12 +101,10 @@ export function ProvenanceStrip({
             key={item.id}
             className="inline-flex items-center gap-1.5"
             data-glyph={item.glyph}
-            data-intent={item.intent ?? "default"}
           >
             <Glyph
               name={item.glyph}
               size={GLYPH_SIZE[density]}
-              intent={item.intent}
               strokeStyle={item.strokeStyle ?? "solid"}
               title={item.label}
             />
@@ -117,6 +116,9 @@ export function ProvenanceStrip({
             >
               {item.label}
             </Text>
+            {item.trustMetadata ? (
+              <VerificationStatus metadata={item.trustMetadata} />
+            ) : null}
           </li>
         ))}
       </ul>

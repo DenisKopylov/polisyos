@@ -1,22 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { VerificationMetadata } from "@polisyos/runtime-api-client";
 
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
 import { ProvenanceStrip } from "./ProvenanceStrip";
 
 const comfortableItems: ProvenanceItem[] = [
-  { id: "freshness", glyph: "freshness", label: "Fresh", intent: "verified" },
+  { id: "freshness", glyph: "freshness", label: "Fresh" },
   {
     id: "governance",
     glyph: "governance-pass",
     label: "Governance pass",
-    intent: "verified",
   },
   {
     id: "evidence",
     glyph: "evidence",
     label: "Strong evidence",
-    intent: "verified",
   },
   {
     id: "intervention",
@@ -25,20 +24,33 @@ const comfortableItems: ProvenanceItem[] = [
   },
 ];
 
+const verifiedMetadata = {
+  dispute_status: "none",
+  freshness: "current",
+  verification_method: "content_hash",
+  verification_status: "verified",
+  verified_at: "2026-07-31T10:00:00Z",
+  verified_by: "runtime-verifier",
+} satisfies VerificationMetadata;
+
 const compactItems: ProvenanceItem[] = [
-  { id: "freshness", glyph: "freshness", label: "Stale", intent: "blocked" },
+  {
+    id: "freshness",
+    glyph: "freshness",
+    label: "Fresh",
+    trustMetadata: verifiedMetadata,
+  },
   {
     id: "governance",
-    glyph: "blocker",
-    label: "Governance blocked",
-    intent: "blocked",
+    glyph: "governance-pass",
+    label: "Governance pass",
+    trustMetadata: verifiedMetadata,
   },
   {
     id: "evidence",
     glyph: "evidence",
-    label: "Weak evidence",
-    intent: "pending",
-    strokeStyle: "dashed",
+    label: "Verified evidence",
+    trustMetadata: verifiedMetadata,
   },
 ];
 
@@ -65,7 +77,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const Compact: Story = {
+export const GeneratedVerificationMetadata: Story = {
   args: { items: compactItems, density: "compact", title: "Provenance" },
 };
 
@@ -74,10 +86,14 @@ export const DualDensity: Story = {
     <div className="space-y-3">
       <ProvenanceStrip
         items={comfortableItems}
-        title="Comfortable"
+        title="No verification metadata"
         density="comfortable"
       />
-      <ProvenanceStrip items={compactItems} title="Compact" density="compact" />
+      <ProvenanceStrip
+        items={compactItems}
+        title="Generated verification metadata"
+        density="compact"
+      />
     </div>
   ),
 };

@@ -2135,3 +2135,148 @@ producer`, with the original deep edge retained only as immutable provenance.
 Independent re-review checked `/tmp/atlas-c22b-fix1-delta.MplfAj`: all three
 findings **ADDRESSED**, no new Critical/Important breakage, Task quality
 **Approved**.
+
+## 2026-07-31 — DS4-C22c provenance posture preflight
+
+- Stable clean base is `d2dceae95ddf83954885f0b83a718f4139e03fc1` in the
+  isolated `codex/atlas-ds4-status-grammar` worktree. The pre-edit denominator
+  is exactly 24 physical paths: nine production, nine tests/deletion, two
+  stories, three tracked governance paths, and the ignored
+  `.superpowers/sdd/task-C22c-report.md`; no split is required.
+- The exact pre-edit census finds `evidenceFabricItemToProvenance` and
+  `provenanceFromFabricItems` only in their adapter definition and dedicated
+  test, with no production consumer. The authorized closure is deletion of
+  those inference functions and `provenance-adapter.test.ts`, while preserving
+  `ProvenanceItem` as the shared type home and the existing generated-metadata
+  adapter as the sole trust-presentation owner.
+- Pattern pass: P04/P05 require producer-signed authority instead of a local
+  status vocabulary; P29 requires behavioral DOM/a11y RED and GREEN rather than
+  a compile-only witness; P31 requires deleting the common Glyph intent
+  intake/emission path rather than patching individual colors; P32 requires
+  absence and form-shaped substitutes to fail closed. The target invariant is
+  that only complete generated `VerificationMetadata` may project posture;
+  label shape, blocker count, timestamps, truthiness, feature enablement, and
+  dispute copy remain neutral owner facts.
+
+### C22c RED receipt
+
+- All nine exact behavioral titles were authored before product edits. The
+  focused regular command is valid RED at six files / 44 tests: eight expected
+  failures and 36 passes, exposing the live Glyph/default intent attributes,
+  intent-selected colors, blocker/enablement-selected clothing, and absent
+  generated-metadata projection.
+- The focused a11y command is valid RED at two files / two tests: axe completed,
+  then both behavioral assertions rejected the live local intent attributes.
+  The dashboard typecheck is also valid RED with exactly three intended API
+  errors: `Glyph.intent` still makes the `@ts-expect-error` unused and
+  `trustMetadata` is not yet admitted by `ProvenanceItem` in the regular/a11y
+  fixtures. No product path was edited before these receipts.
+
+### C22c authorized governance companion: 24 -> 25 paths
+
+- After the live status checker reached the required `47/19/55/4/3`, the
+  mandated full status unittest exposed three clean-base C22b checkpoint
+  assertions: the C21-remainder and C22-partition tests each hard-coded live
+  debt `5`, and the C22b retirement-evidence test hard-coded current authored
+  `20`. The exact RED was three failures / 32 passes.
+- DS4/current-cluster governance authorized exactly one companion path,
+  `architecture/atlas_surfaces/test_status_retirement_inventory.py`, because
+  those assertions are part of C22c's mandatory gate and necessarily stale at
+  the valid transition. Final C22c scope is therefore exactly 25 physical paths,
+  still one cluster with no product-tail absorption or canonical-owner gap.
+- The repair replaces only those three constants with lifecycle-derived
+  expectations over validated C22 cluster membership, state, disposition,
+  protected paths, and verification refs. It does not accept ranges, skip the
+  gate, weaken the checker, or enumerate implementation symbols.
+
+### C22c implementation and structural closure
+
+- The shared value-level authority vocabulary is deleted: `GlyphIntent`, its
+  color/default/attribute emission, and all nine scoped production consumers no
+  longer accept or pass local intent. The preflight-proven unused freshness,
+  governance-boolean, and evidence-strength inference functions plus their
+  dedicated test are deleted.
+- `ProvenanceItem` remains the single shared type home and accepts generated
+  `VerificationMetadata | null` as `trustMetadata`. `ProvenanceStrip` renders
+  the existing trust-view `VerificationStatus` only when that metadata exists;
+  absence emits no posture, fallback color, or verification data attribute.
+- The generic protected-revival guard found one real sibling path after the
+  first product GREEN: Glyph's computed ARIA object spread carried an authored
+  projection into a presentation spread. Direct ARIA attributes preserve title,
+  decorative, and accessible behavior and leave `protectedRevivals` empty.
+  Source-line preservation keeps the untouched C22d definitions stable without
+  editing or executing C22d work.
+- The inventory retires only `semantic-glyph-glyph-intent`, protects all nine
+  C22c production paths, and cites regular/a11y/story behavior plus the review
+  report. The baseline manifest changes only RunDetail's current
+  `resolution_content` digest to
+  `93248fc7e46bffa5dec836f63e8f05de43cf4a2999e025b2a4556accd4ccfed5`.
+
+### C22c verification boundary
+
+| Gate | Result |
+| --- | --- |
+| focused product | PASS; regular six files / 44 tests; a11y two / two |
+| focused stories | Product PASS; two files / six tests, exit 0; inherited PostCSS and post-close warnings remain explicit |
+| status governance | PASS; 35 / 35 unittests, corruption probes, `47/19/55/4/3`, classifications `15/24/8`, protected revivals empty |
+| DS19/front-end governance | PASS; 261 roots / 12 supplemental and unchanged root dispositions; 58 / 58 unittests |
+| dashboard | PASS; typecheck; exact changed-path ESLint behavior; build 3,884 modules / PWA 106; architecture 1,004 modules / 4,105 dependencies, zero violations |
+| atlas-ui | PASS; typecheck; 18 files / 86 tests; lint; 36-source architecture |
+| search/baseline/lock | PASS; zero retired local-intent or inference-function matches; only allowed RunDetail digest changed; lock byte-identical |
+
+- Final denominator is exactly 25 physical paths: 24 tracked changed/deleted
+  paths plus the ignored `.superpowers/sdd/task-C22c-report.md`. Backend,
+  schemas, generated client, v15, frozen `ru`, lock/workspace files,
+  `packages/atlas-ui`, other worktrees, main, and remotes remain untouched.
+- Tooling concerns are not laundered: the literal ESLint snippet's destructive
+  temp cleanup was policy-rejected before execution, so the same path derivation
+  and lint ran without cleanup and passed; both exact Storybook attempts passed
+  six tests with exit 0 but emitted inherited PostCSS ordering and post-close
+  handle warnings. No commit is created before independent review.
+- Closeout pattern pass: P04/P05 are closed by deleting the local taxonomy and
+  keeping generated metadata as the only posture input; P29 is live behavioral
+  and corruption proof; P31 is shared-intake/emission deletion plus nine-path
+  generic protection; P32 negatives prove copy shape, counts, timestamps,
+  truthiness, feature enablement, dispute text, and absence cannot mint trust.
+
+### C22c independent review fix round 1 of 5
+
+- Independent review found one Important P31/P33 sibling clothing bypass. The
+  capability tile still mapped `feature.enabled` to the Badge `ok`/`neutral`
+  variants, and `DisputedMarker` put its dispute token on the Glyph's parent,
+  which recolored the `currentColor` SVG through inheritance. The first-round
+  tests only inspected Glyph inline color and retired attributes.
+- Behavioral TDD RED preceded product changes: two covering files, ten tests,
+  exactly two failures / eight passes. One failure exposed approved Badge
+  classes for enabled features against neutral classes for disabled features;
+  the other exposed `var(--color-uncertainty-disputed)` on the Glyph trigger.
+- The minimal structural repair keeps all capability Badges neutral. The
+  owner-supplied dispute remains an allowed fact and remains visibly disputed
+  through the trigger border and separately styled text span; the Glyph parent
+  no longer supplies a semantic color.
+- Focused GREEN is two files / ten tests. Final verification is regular six
+  files / 44 tests, a11y two / two, stories two / six with exit 0, dashboard
+  typecheck, exact changed-file ESLint, status corruption probes at
+  `47/19/55/4/3` and classifications `15/24/8`, and status unittests 35 / 35.
+  Diff check, lock check, and retired-symbol searches pass.
+- The exact fence remains 24 tracked changed/deleted paths plus the ignored
+  C22c report = 25 physical paths. No new path or commit was introduced. The
+  only repeated warning is the inherited Storybook PostCSS import ordering
+  output already recorded in the closeout concerns.
+
+### C22c scoped re-review and controller closeout
+
+- Scoped re-review of `/tmp/atlas-c22c-fix1-delta.Jc3F1x` records the exact
+  outcome: prior P31/P33 finding **ADDRESSED**; no new Critical/Important
+  breakage; Task quality **Approved**.
+- Controller post-fix receipts are regular six files / 44 tests; a11y two / two;
+  Storybook two files / six tests with exit 0; Python governance 58 + 35 = 93
+  tests; DS19 261 roots / 12 supplemental findings; status
+  `47/19/55/4/3`; dashboard build 3,884 modules / PWA 106 entries and
+  architecture 1,004 modules / 4,105 dependencies; changed-file ESLint over 19
+  paths; and atlas-ui 18 files / 86 tests.
+- The controller Storybook run repeated the inherited PostCSS import-order
+  warnings and emitted no post-close warning. The earlier local post-close
+  warning remains an accurate separate harness receipt.
+- This approval closeout is documentation-only, introduces no additional path,
+  and creates no commit. The physical denominator remains exactly 25.

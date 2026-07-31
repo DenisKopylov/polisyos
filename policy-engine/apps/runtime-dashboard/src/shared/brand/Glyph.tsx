@@ -5,16 +5,9 @@ import { cn } from "@/shared/lib/utils";
 import { GLYPH_ANCHORS, type GlyphName } from "./glyph-vocabulary";
 
 export type GlyphSize = 12 | 14 | 16 | 24;
-export type GlyphIntent = "default" | "verified" | "blocked" | "pending";
+
 export type GlyphStrokeStyle = "solid" | "dashed" | "double";
 export type GlyphDiacritic = "strict" | "assumed" | "scoped";
-
-const INTENT_COLOR: Record<GlyphIntent, string> = {
-  default: "var(--ink, currentColor)",
-  verified: "var(--color-status-approved, var(--teal, #1C8B82))",
-  blocked: "var(--color-status-rejected, var(--ember, #B7412A))",
-  pending: "var(--color-status-pending, var(--gold, #B58B2B))",
-};
 
 const SIZE_STROKE: Record<GlyphSize, number> = {
   12: 1.25,
@@ -115,7 +108,6 @@ const STROKE_DASHARRAY: Record<GlyphStrokeStyle, string | undefined> = {
 export type GlyphProps = {
   name: GlyphName;
   size?: GlyphSize;
-  intent?: GlyphIntent;
   strokeStyle?: GlyphStrokeStyle;
   diacritic?: GlyphDiacritic;
   title?: string;
@@ -126,7 +118,6 @@ export type GlyphProps = {
 export function Glyph({
   name,
   size = 14,
-  intent = "default",
   strokeStyle = "solid",
   diacritic,
   title,
@@ -135,7 +126,6 @@ export function Glyph({
   ...rest
 }: GlyphProps) {
   const strokeWidth = SIZE_STROKE[size];
-  const color = INTENT_COLOR[intent];
   const dash = STROKE_DASHARRAY[strokeStyle];
   const geometry = GLYPH_GEOMETRY[name];
   const diacriticGeometry = diacritic ? DIACRITIC_GEOMETRY[diacritic] : null;
@@ -158,25 +148,18 @@ export function Glyph({
   );
 
   const style: CSSProperties = {
-    color,
     width: size,
     height: size,
   };
 
-  const ariaProps = decorative
-    ? { "aria-hidden": true as const, role: "presentation" as const }
-    : {
-        role: "img" as const,
-        "aria-label": title ?? name,
-      };
-
   return (
     <svg
       {...rest}
-      {...ariaProps}
+      aria-hidden={decorative || undefined}
+      aria-label={decorative ? undefined : (title ?? name)}
+      role={decorative ? "presentation" : "img"}
       className={cn("brand-glyph", `brand-glyph--${name}`, className)}
       data-glyph-name={name}
-      data-glyph-intent={intent}
       data-glyph-stroke-style={strokeStyle}
       data-glyph-size={size}
       data-glyph-diacritic={diacritic ?? undefined}

@@ -10,16 +10,11 @@ const meta = {
   args: {
     name: "intervention",
     size: 24,
-    intent: "default",
     strokeStyle: "solid",
   },
   argTypes: {
     name: { control: { type: "select" }, options: GLYPH_NAMES },
     size: { control: { type: "inline-radio" }, options: [12, 14, 16, 24] },
-    intent: {
-      control: { type: "inline-radio" },
-      options: ["default", "verified", "blocked", "pending"],
-    },
     strokeStyle: {
       control: { type: "inline-radio" },
       options: ["solid", "dashed", "double"],
@@ -48,23 +43,6 @@ export const AllRadicalsAtEverySize: Story = {
           ))}
         </div>
       ))}
-    </div>
-  ),
-};
-
-export const IntentPalette: Story = {
-  render: () => (
-    <div className="grid grid-cols-5 items-center gap-4">
-      {(["default", "verified", "blocked", "pending"] as const).map((intent) =>
-        GLYPH_NAMES.map((name) => (
-          <Glyph
-            key={`${intent}-${name}`}
-            name={name}
-            intent={intent}
-            size={24}
-          />
-        )),
-      )}
     </div>
   ),
 };

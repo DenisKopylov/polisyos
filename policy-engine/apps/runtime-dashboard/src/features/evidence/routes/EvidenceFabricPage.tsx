@@ -52,19 +52,16 @@ const evidenceHeroProvenance: ProvenanceItem[] = [
     id: "provenance",
     glyph: "provenance",
     label: "Source chain",
-    intent: "default",
   },
   {
     id: "evidence",
     glyph: "evidence",
     label: "Observations",
-    intent: "default",
   },
   {
     id: "freshness",
     glyph: "freshness",
     label: "Live",
-    intent: "verified",
   },
 ];
 

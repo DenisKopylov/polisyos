@@ -179,6 +179,83 @@ describe("LaunchRunPage", () => {
     expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
   });
 
+  it("feature enabled state cannot select Glyph authority clothing", () => {
+    loadComposerDraftMock.mockReturnValue(new Promise(() => undefined));
+    const features = [
+      {
+        category: "governance",
+        description: "Multi-model natural language runs",
+        key: "multimodel_nl",
+        label: "Multi-model",
+      },
+      {
+        category: "governance",
+        description: "Required preflight checks",
+        key: "required_preflight",
+        label: "Preflight",
+      },
+      {
+        category: "governance",
+        description: "Automatic materialization",
+        key: "auto_materialization",
+        label: "Auto materialization",
+      },
+      {
+        category: "governance",
+        description: "Promotion lane",
+        key: "promotion_lane",
+        label: "Promotion lane",
+      },
+    ];
+    const capabilities = (enabled: boolean) => ({
+      data: {
+        constraints: {
+          max_nl_iterations: 4,
+          max_parallel_models: 3,
+        },
+        features: features.map((feature) => ({ ...feature, enabled })),
+      },
+    });
+    const clothing = (tiles: HTMLElement) => ({
+      badges: within(tiles)
+        .getAllByText("governance")
+        .map((badge) => badge.className),
+      glyphs: within(tiles)
+        .getAllByRole("presentation", { hidden: true })
+        .map((glyph) => ({
+          color: glyph.style.color,
+          intent: glyph.getAttribute("data-glyph-intent"),
+        })),
+    });
+
+    useCapabilitiesMock.mockReturnValue(capabilities(true));
+    const enabledView = renderLaunchRunPage();
+    const enabledClothing = clothing(
+      screen.getByTestId("composer-capability-tiles"),
+    );
+    enabledView.unmount();
+
+    useCapabilitiesMock.mockReturnValue(capabilities(false));
+    renderLaunchRunPage();
+    const disabledClothing = clothing(
+      screen.getByTestId("composer-capability-tiles"),
+    );
+
+    expect(enabledClothing).toEqual(disabledClothing);
+    expect(
+      enabledClothing.glyphs.every(
+        ({ color, intent }) => color === "" && intent === null,
+      ),
+    ).toBe(true);
+    expect(
+      enabledClothing.badges.every(
+        (className) =>
+          className.includes("bg-white/65") &&
+          className.includes("text-muted"),
+      ),
+    ).toBe(true);
+  });
+
   it("does not raise readiness from local model-count scoring", () => {
     useLlmProfilesMock.mockReturnValue({
       data: {

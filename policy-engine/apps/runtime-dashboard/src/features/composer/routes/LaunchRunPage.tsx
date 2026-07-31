@@ -30,22 +30,22 @@ const composerHeroProvenance: ProvenanceItem[] = [
     id: "intervention",
     glyph: "intervention",
     label: "Interventions",
-    intent: "default",
   },
   {
     id: "evidence",
     glyph: "evidence",
     label: "Evidence",
-    intent: "default",
   },
   {
     id: "governance",
     glyph: "governance-pass",
     label: "Guardrails",
-    intent: "verified",
   },
 ];
 
+// Glyphs carry owner facts without deriving authority posture.
+// Generated VerificationMetadata is the only trust-clothing input.
+// Capability flags therefore cannot recolor these glyphs.
 const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
   auto_materialization: "evidence",
   multimodel_nl: "counterfactual",
@@ -149,15 +149,11 @@ function ComposerCapabilityTile({ feature }: { feature: CapabilityHighlight }) {
         <span className="grid size-9 place-items-center rounded-full bg-[rgba(23,25,29,0.06)]">
           <Glyph
             decorative
-            intent={feature.enabled ? "verified" : "default"}
             name={resolveCapabilityGlyph(feature.key)}
             size={16}
           />
         </span>
-        <Badge
-          kind={feature.enabled ? "ok" : "neutral"}
-          className="px-2 py-1 text-[10px]"
-        >
+        <Badge kind="neutral" className="px-2 py-1 text-[10px]">
           {feature.category}
         </Badge>
       </div>

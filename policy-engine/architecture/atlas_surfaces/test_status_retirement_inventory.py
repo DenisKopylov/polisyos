@@ -218,7 +218,17 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
         self.assertEqual(55, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
-        self.assertEqual(5, checker._summary(inventory, debt)["semantic_retirement_debt"])
+        live_c22_rows = {
+            row["candidate_id"]
+            for row in rows
+            if row["target_cluster"] in checker.C22_SUBCLUSTER_IDS
+            and row["disposition"] == "retirement_debt"
+            and row["current_definition_state"] == "present"
+        }
+        self.assertEqual(
+            len(live_c22_rows),
+            checker._summary(inventory, debt)["semantic_retirement_debt"],
+        )
 
     def test_c22_subcluster_partition_is_exact(self) -> None:
         inventory, debt = _artifacts()
@@ -248,7 +258,15 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
         self.assertFalse(any(row["target_cluster"] == "C22" for row in rows))
         self.assertFalse(any(row["target_cluster"] == "C23" for row in rows))
-        self.assertEqual(5, checker._summary(inventory, debt)["semantic_retirement_debt"])
+        live_partition_rows = sum(
+            row["current_definition_state"] == "present"
+            for row in rows
+            if row["target_cluster"] in expected
+        )
+        self.assertEqual(
+            live_partition_rows,
+            checker._summary(inventory, debt)["semantic_retirement_debt"],
+        )
 
     def test_c22_remainder_retirement_requires_absent_definition_and_evidence(
         self,
@@ -261,7 +279,18 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
 
         self.assertEqual("retired", row["current_definition_state"])
-        self.assertEqual(20, checker._summary(inventory, _debt)["current_authored"])
+        retired_c22_rows = sum(
+            entry["target_cluster"] in checker.C22_SUBCLUSTER_IDS
+            and entry["disposition"] == "retirement_debt"
+            and entry["current_definition_state"] == "retired"
+            and bool(entry.get("protected_source_paths"))
+            and bool(entry.get("verification_refs"))
+            for entry in inventory["semantic_exemptions"]
+        )
+        self.assertEqual(
+            inventory["denominators"]["current_total"] - retired_c22_rows,
+            checker._summary(inventory, _debt)["current_authored"],
+        )
         self.assertNotIn(
             "c22_remainder_disposition_drift:semantic-status-run-badge-kind",
             checker._validate_c21_partition(inventory),

@@ -907,6 +907,59 @@ describe("run detail surfaces", () => {
     );
   });
 
+  it("label text shape blocker count timestamp and truthiness do not change posture", async () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        blockerCount: 9,
+        governancePass: true,
+        transportStatus: "verified",
+        verifiedAt: "2026-07-31T10:00:00Z",
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const strip = await screen.findByTestId("provenance-strip");
+    expect(strip).toHaveTextContent("Governance blocked");
+    expect(within(strip).queryByLabelText("verified")).not.toBeInTheDocument();
+    for (const item of within(strip).getAllByRole("listitem")) {
+      expect(item).not.toHaveAttribute("data-intent");
+    }
+    for (const glyph of within(strip).getAllByRole("img")) {
+      expect(glyph).not.toHaveAttribute("data-glyph-intent");
+    }
+  });
+
+  it("blocker counts cannot select provenance clothing", async () => {
+    useRunInspectorMock.mockReturnValue(createSummary({ blockerCount: 7 }));
+    const blockedView = renderNestedRunDetail("/runs/run-1/overview");
+    const blockedStrip = await screen.findByTestId("provenance-strip");
+    const blockedClothing = within(blockedStrip)
+      .getAllByRole("img")
+      .map((glyph) => ({
+        color: glyph.style.color,
+        intent: glyph.getAttribute("data-glyph-intent"),
+      }));
+    blockedView.unmount();
+
+    useRunInspectorMock.mockReturnValue(createSummary({ blockerCount: 0 }));
+    renderNestedRunDetail("/runs/run-1/overview");
+    const passingStrip = await screen.findByTestId("provenance-strip");
+    const passingClothing = within(passingStrip)
+      .getAllByRole("img")
+      .map((glyph) => ({
+        color: glyph.style.color,
+        intent: glyph.getAttribute("data-glyph-intent"),
+      }));
+
+    expect(blockedClothing).toEqual(passingClothing);
+    expect(
+      passingClothing.every(
+        ({ color, intent }) => color === "" && intent === null,
+      ),
+    ).toBe(true);
+  });
+
   it("renders honest-diagnostics operator root cause fields from run projection", async () => {
     useRunInspectorMock.mockReturnValue(
       createSummary({

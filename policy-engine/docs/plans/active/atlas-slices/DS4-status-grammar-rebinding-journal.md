@@ -1,9 +1,9 @@
 ---
 title: "DS4 Status-Grammar Rebinding Journal"
 type: execution-journal
-status: in_progress - architect-authorized authority-neutral partial re-cut
+status: implementation_complete_no_merge_baseline_red - architect review pending
 created: 2026-07-18
-revised: 2026-07-18
+revised: 2026-08-01
 slice: DS4
 plan: ./DS4-status-grammar-rebinding.md
 branch: codex/atlas-ds4-status-grammar
@@ -2832,4 +2832,39 @@ the source identity.
 - Final C19b scope is 21 physical paths: 17 dashboard paths, two Atlas register
   artifacts, the generated register projection, and this journal. It is inside
   the writable fence. The C19b diff does not touch the lockfile; the cumulative
-  branch lock delta remains the authorized three-line workspace importer only.
+  branch lock delta is 106 additions / 0 deletions, entirely inside workspace
+  importer declarations with no package/snapshot resolution movement.
+
+## 2026-08-01 — DS4-C20 closure wave
+
+- C20 began from clean committed C19b state `470a802d4`. Frozen install passed
+  for all six workspaces without resolution work. The full live lint,
+  architecture, and Vitest JSON artifacts were recomputed and accepted by the
+  baseline comparator; no count-only or copied receipt is used.
+- Dashboard typecheck and production build pass at 3,885 modules and PWA 108.
+  Lint is absolute-green. Architecture is zero across the custom checker and
+  dependency-cruiser (1,019 modules / 4,150 dependencies). Full Vitest is
+  baseline-green at 311 / 312 files and 890 / 893 tests: only the three
+  untouched DS6 i18n identities remain.
+- The automated a11y denominator is green: all static gates, 84 / 84 component
+  files and 85 / 85 tests, and 21 / 21 browser tests. The four exact C01/C06/
+  C09/C14 translucent-or-gradient contrast clusters recorded above remain axe
+  `incomplete`, are not suppressed, and are not counted as passing contrast.
+  Storybook is 44 / 44 files and 97 / 97 tests. Atlas-ui passes typecheck, lint,
+  36-source architecture, 18 / 18 files and 86 / 86 tests, official DTCG schema
+  validation, and token projection drift.
+- Visual closure is honestly 17 / 18. The same DS8-owned run-detail A4 product
+  defect remains red, independently reproduced, registered, and unmodified;
+  C20 does not count it green. DS19 and status source-byte/corruption checks
+  remain green at 261 / 13 / 23 / 8 and `47/15/55/0/3` respectively; the three
+  governance unittest modules pass 98 / 98. The generated DS19 reference
+  projection was refreshed through C19b commit `470a802d4`.
+- The architect handoff is
+  `DS4-status-grammar-rebinding-closure.md`. It reconciles the pre-Ruling-3
+  35 / 42 / 12 plan to the authoritative post-ruling
+  27-package / 41-rebind / 18-use-as-is / 3-retired accounting, lists all
+  commits and debt owners, and records the final fence/lock proof. No merge or
+  push is performed.
+- `git diff --check` passes. The attempted Markdown Prettier check is a tooling
+  non-receipt because no repository-local `prettier` executable is installed;
+  it is not reported as a product failure or formatting success.

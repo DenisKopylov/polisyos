@@ -516,6 +516,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `470a802d4 test(dashboard): reconcile governed visual baselines`
 - `0faf33e7b test(dashboard): prove authority posture on a real panel`
 - `2d83e3264 fix(dashboard): name provenance popover dialog`
 - `bfb30c82b fix(dashboard): restore counterfactual text contrast`

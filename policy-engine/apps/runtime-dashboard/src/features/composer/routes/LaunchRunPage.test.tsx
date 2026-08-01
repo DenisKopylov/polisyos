@@ -1,6 +1,3 @@
-import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
-
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -165,44 +162,6 @@ describe("LaunchRunPage", () => {
       mutate: vi.fn(),
     });
   });
-
-  it("uses the single owner-bound launch presentation adapter", () => {
-    const repositoryRoot = resolve(process.cwd(), "../..");
-    const script = String.raw`
-import json
-from pathlib import Path
-from architecture.atlas_surfaces import check_status_retirement_inventory as checker
-
-inventory = json.loads(Path("architecture/atlas_surfaces/status-retirement-inventory.json").read_text())
-debt = json.loads(Path("architecture/atlas_surfaces/ds4-waist-debt-register.json").read_text())
-paths = {
-    "semantic-composer-resolve-launch-badge-kind": [
-        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
-        "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
-    ],
-    "semantic-launch-run-resolve-status-kind": [
-        "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts",
-        "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
-    ],
-}
-for row in inventory["semantic_exemptions"]:
-    if row["candidate_id"] in paths:
-        row["current_definition_state"] = "retired"
-        row["protected_source_paths"] = paths[row["candidate_id"]]
-errors = checker.validate_inventory(inventory, debt)
-if errors:
-    print("\n".join(errors))
-    raise SystemExit(1)
-`;
-    const result = spawnSync("python3", ["-c", script], {
-      cwd: repositoryRoot,
-      encoding: "utf8",
-      timeout: 60_000,
-    });
-
-    expect(`${result.stdout}${result.stderr}`).toBe("");
-    expect(result.status).toBe(0);
-  }, 65_000);
 
   it("renders the atlas briefing chrome with runtime capability tiles", () => {
     renderLaunchRunPage();

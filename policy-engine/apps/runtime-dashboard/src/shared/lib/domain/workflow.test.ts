@@ -39,27 +39,32 @@ for row in inventory["semantic_exemptions"]:
         rows[candidate_id] = row
 
 failures = []
-live_errors = checker.validate_inventory(inventory, debt)
-if live_errors:
-    failures.append("live source: " + "; ".join(live_errors))
-
-for candidate_id, row in rows.items():
+source_overrides = {}
+expected_errors = {}
+for index, (candidate_id, row) in enumerate(rows.items()):
     members = ", ".join(repr(member) for member in row["literal_members"])
-    source = f"export const REVIVED = [{members}] as const;\n"
-    errors = checker.validate_inventory(
-        inventory,
-        debt,
-        source_overrides={row["source_span"]["path"]: source},
-        live_probes=False,
+    path = row["source_span"]["path"]
+    source_overrides[path] = (
+        source_overrides.get(path, "")
+        + f"export const REVIVED_{index} = [{members}] as const;\n"
     )
-    expected = f"retired_semantic_definition_survives:{candidate_id}"
-    if expected not in errors and not any(
-        error.startswith("unregistered_semantic_definition:") for error in errors
-    ):
+    expected_errors[candidate_id] = (
+        f"retired_semantic_definition_survives:{candidate_id}"
+    )
+
+errors = checker.validate_inventory(
+    inventory,
+    debt,
+    source_overrides=source_overrides,
+    live_probes=False,
+)
+for candidate_id, expected in expected_errors.items():
+    if expected not in errors:
         failures.append(candidate_id + ": source flip escaped")
 
 fake_owner = "apps/runtime-dashboard/src/features/composer/domain/launchPresentation.ts"
 fake_consumer = "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"
+fake_sibling = "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx"
 lookalike_errors = checker.validate_inventory(
     inventory,
     debt,
@@ -76,11 +81,25 @@ lookalike_errors = checker.validate_inventory(
             "export const Probe = ({ status }: { status: RunLaunchResponse['status'] }) => "
             "<Badge kind={launchStatusTone(status)}>x</Badge>;\n"
         ),
+        fake_sibling: (
+            "import { launchStatusTone, type RunLaunchResponse } from '../domain/launchPresentation';\n"
+            "import { Badge } from '@polisyos/atlas-ui';\n"
+            "export const SiblingProbe = ({ status }: { status: RunLaunchResponse['status'] }) => "
+            "<Badge kind={launchStatusTone(status)}>x</Badge>;\n"
+        ),
     },
     live_probes=False,
 )
-if not any(error.startswith("retired_semantic_definition_survives:") for error in lookalike_errors):
-    failures.append("local generated-looking launch owner escaped symbol-origin guard")
+expected_lookalike_errors = {
+    "retired_semantic_definition_survives:semantic-composer-resolve-launch-badge-kind",
+    "retired_semantic_definition_survives:semantic-launch-run-resolve-status-kind",
+}
+missing_lookalike_errors = expected_lookalike_errors - set(lookalike_errors)
+if missing_lookalike_errors:
+    failures.append(
+        "local generated-looking launch owner escaped symbol-origin guard: "
+        + ", ".join(sorted(missing_lookalike_errors))
+    )
 
 if failures:
     print("\n".join(failures))

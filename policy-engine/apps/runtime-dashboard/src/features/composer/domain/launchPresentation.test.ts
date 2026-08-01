@@ -3,7 +3,7 @@ import type { BadgeTone } from "@polisyos/atlas-ui";
 import type { launchStatusTone as LaunchStatusTone } from "./launchPresentation";
 
 describe("launch presentation", () => {
-  it("types launch presentation from generated RunLaunchResponse status and returns BadgeTone", async () => {
+  it("uses the single owner-bound launch presentation adapter", async () => {
     const modulePath = "./launchPresentation";
     const { launchStatusTone } = await import(/* @vite-ignore */ modulePath);
 

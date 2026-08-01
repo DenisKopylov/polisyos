@@ -13,7 +13,6 @@ import contextlib
 import copy
 import functools
 import hashlib
-import io
 import json
 import os
 import re
@@ -21,7 +20,7 @@ import subprocess
 import sys
 import time
 import tomllib
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -4594,15 +4593,30 @@ def check_provenance_stability(repo_root: Path) -> dict[str, Any]:
 
 @functools.lru_cache(maxsize=2)
 def _cached_provenance_stability(repo_root: str) -> dict[str, Any]:
-    # Imported owners may emit informational registration diagnostics. The capstone
-    # validator owns one machine-readable output document, so those non-contract
-    # side effects are contained at the single owner-intake boundary.
-    owner_stdout = io.StringIO()
-    owner_stderr = io.StringIO()
-    with contextlib.redirect_stdout(owner_stdout), contextlib.redirect_stderr(
-        owner_stderr
-    ):
-        return _derive_provenance_stability(repo_root)
+    return _derive_provenance_stability(repo_root)
+
+
+@contextlib.contextmanager
+def _suppress_non_contract_process_output() -> Iterator[None]:
+    """Contain diagnostics, including sinks bound to process file descriptors."""
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+    stdout_fd = os.dup(1)
+    stderr_fd = os.dup(2)
+    try:
+        with open(os.devnull, "w", encoding="utf-8") as sink:  # noqa: PTH123
+            os.dup2(sink.fileno(), 1)
+            os.dup2(sink.fileno(), 2)
+            with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+                yield
+    finally:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os.dup2(stdout_fd, 1)
+        os.dup2(stderr_fd, 2)
+        os.close(stdout_fd)
+        os.close(stderr_fd)
 
 
 def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
@@ -6619,7 +6633,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
-    report, exit_code = _main_report(args)
+    # Recomputing owners may emit diagnostics through sinks bound before Python-level
+    # redirection, or through descendants. Keep one structural emission boundary so
+    # the validator always owns exactly one machine-readable output document.
+    with _suppress_non_contract_process_output():
+        report, exit_code = _main_report(args)
     report["wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
     if args.output_format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))

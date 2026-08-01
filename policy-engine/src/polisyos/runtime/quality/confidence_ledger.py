@@ -31,7 +31,7 @@ from typing import Any, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.fabric.io.atomic import atomic_write_json
+from polisyos.fabric import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
 
 CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.registry.v1"
@@ -729,6 +729,120 @@ class ConfidenceLedgerReceipt(_StrictModel):
     receipt_id: str = Field(pattern=r"^confidence-ledger:sha256:[0-9a-f]{64}$")
 
 
+class ConfidenceLedgerSemanticOwnerBinding(_StrictModel):
+    """Stable owner/verifier identity from a fully verified live binding."""
+
+    certificate_ref: str = Field(min_length=1)
+    certificate_class: str = Field(min_length=1)
+    certificate_route_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_ref: str = Field(min_length=1)
+    owner_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_ref: str = Field(min_length=1)
+    verifier_kernel_id: str = Field(min_length=1)
+    binding_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ConfidenceLedgerSemanticCheck(_StrictModel):
+    """Operational-identity-free projection of one ledger check."""
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    request_key: str = Field(min_length=1)
+    request_fingerprint: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    obligation_class: PromotionObligationClass
+    instrument_id: str = Field(min_length=1)
+    instrument_family: str = Field(min_length=1)
+    proof_profile_id: str = Field(min_length=1)
+    certificate_ref: str = Field(min_length=1)
+    certificate_class: str | None = Field(default=None, min_length=1)
+    certificate_route_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    certificate_role: CertificateRole
+    claim_polarity: ClaimPolarity
+    claim_ref: str = Field(min_length=1)
+    null_ref: str = Field(min_length=1)
+    claim_scope_ref: str = Field(min_length=1)
+    data_window_ref: str = Field(min_length=1)
+    filtration_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    instrument_definition_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    proof_profile_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    execution_status: ExecutionStatus
+    outcome: CompletionOutcome
+    execution_ordinal: int | None = Field(default=None, ge=0)
+    schedule_query_index: int | None = Field(default=None, ge=0)
+    execution_id: str | None = Field(
+        default=None,
+        pattern=r"^confidence-execution:sha256:[0-9a-f]{64}$",
+    )
+    deterministic_proof: bool
+    anytime_valid: bool
+    spend: RationalSpec
+    spend_decimal: str = Field(pattern=r"^(0|[0-9]+(?:\.[0-9]+)?)$")
+    supports_obligation: bool
+    eligible_for_promotion: bool
+    refusal_code: str | None = Field(default=None, min_length=1)
+    proof_detail: str = Field(min_length=1)
+    owner_invocation_claim_projection_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    good_event_id: str | None = Field(
+        default=None,
+        pattern=r"^confidence-good-event:sha256:[0-9a-f]{64}$",
+    )
+    owner_binding: ConfidenceLedgerSemanticOwnerBinding | None
+    claim_execution_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    check_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ConfidenceLedgerSemanticEvent(_StrictModel):
+    """Stable semantic append transition with an explicit parent hash."""
+
+    event_type: Literal["prepared", "started", "completed"]
+    revision: int = Field(gt=0)
+    parent_event_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    check: ConfidenceLedgerSemanticCheck
+    event_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ConfidenceLedgerSemanticReceiptProjection(_StrictModel):
+    """Stable semantic lineage projected from a verified live receipt."""
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    projection_scope: Literal[
+        "n11_real_accounting_append_lineage",
+        "n11_conformance_append_lineage",
+    ]
+    authority_provenance: SessionAuthorityProvenance
+    deployment_identity: str = Field(pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$")
+    risk_scope: ConfidenceRiskBudgetScope
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    scope_anchor_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_profile_id: str = Field(min_length=1)
+    schedule_profile_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    budget_delta: RationalSpec
+    budget_delta_decimal: str
+    root_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    events: tuple[ConfidenceLedgerSemanticEvent, ...]
+    checks: tuple[ConfidenceLedgerSemanticCheck, ...]
+    head_event_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    total_spend: RationalSpec
+    total_spend_decimal: str
+    within_budget: bool
+    good_event_clause: Literal[GOOD_EVENT_CLAUSE]
+    conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
+    maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
+    projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 class N9PromotionLedgerRow(_StrictModel):
     """Typed promotion-claim row; other certificate roles are not projected."""
 
@@ -760,6 +874,7 @@ class N9PromotionCertificateProjection(_StrictModel):
     deployment_identity: str = Field(pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$")
     risk_scope: ConfidenceRiskBudgetScope
     scope_id: str
+    scope_anchor_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     ledger_root_id: str
     ledger_root_ref: str
     head_event_id: str
@@ -787,7 +902,9 @@ class N12EpochReferenceProjection(_StrictModel):
     projection_scope: Literal["n12_epoch_reference"]
     authority_provenance: SessionAuthorityProvenance
     deployment_identity: str = Field(pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$")
+    risk_scope: ConfidenceRiskBudgetScope
     scope_id: str
+    scope_anchor_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     ledger_root_id: str
     ledger_root_ref: str
     head_event_id: str
@@ -1825,14 +1942,7 @@ class ConfidenceLedgerSession:
     def _scope_anchor_payload(self) -> dict[str, Any]:
         """Return the immutable scope identity independent of mutable root bindings."""
 
-        return {
-            "schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
-            "scope_id": self._risk_scope.scope_id,
-            "scope_owner_ref": self._risk_scope.scope_owner_ref,
-            "authority_purpose": self._risk_scope.authority_purpose,
-            "owner_scope_key": self._risk_scope.owner_scope_key,
-            "epoch_ref": self._risk_scope.epoch_ref,
-        }
+        return _confidence_scope_anchor_payload(self._risk_scope)
 
     def _scope_tombstone_payload(self, anchor_ref: str) -> dict[str, Any]:
         """Return the stable local scope index independent of root revisions."""
@@ -2961,6 +3071,237 @@ def validate_confidence_ledger_receipt(
     return canonical
 
 
+def _semantic_owner_binding(
+    check: ConfidenceLedgerCheck,
+) -> ConfidenceLedgerSemanticOwnerBinding | None:
+    """Project a verified owner binding without invocation-local proof hashes."""
+
+    binding = check.owner_binding
+    if binding is None:
+        return None
+    values: dict[str, Any] = {
+        "certificate_ref": binding.certificate_ref,
+        "certificate_class": binding.certificate_class,
+        "certificate_route_hash": binding.certificate_route_hash,
+        "owner_ref": binding.owner_ref,
+        "owner_projection_hash": binding.owner_projection_hash,
+        "verifier_ref": binding.verifier_ref,
+        "verifier_kernel_id": binding.verifier_kernel_id,
+    }
+    values["binding_projection_hash"] = _content_hash(values)
+    return ConfidenceLedgerSemanticOwnerBinding.model_validate(values)
+
+
+def _semantic_claim_execution_projection_hash(
+    check: ConfidenceLedgerCheck,
+    *,
+    filtration_projection_hash: str,
+) -> str:
+    """Bind a draw to predictable semantic history without physical CAS identity."""
+
+    return _content_hash(
+        {
+            "scope_id": check.scope_id,
+            "request_fingerprint": check.request_fingerprint,
+            "claim_ref": check.claim_ref,
+            "null_ref": check.null_ref,
+            "claim_scope_ref": check.claim_scope_ref,
+            "data_window_ref": check.data_window_ref,
+            "filtration_projection_hash": filtration_projection_hash,
+            "certificate_role": check.certificate_role,
+            "claim_polarity": check.claim_polarity,
+            "execution_id": check.execution_id,
+            "execution_ordinal": check.execution_ordinal,
+            "schedule_query_index": check.schedule_query_index,
+            "reserved_alpha": check.spend,
+            "registry_content_hash": check.registry_content_hash,
+            "instrument_definition_hash": check.instrument_definition_hash,
+            "proof_profile_hash": check.proof_profile_hash,
+        }
+    )
+
+
+def _semantic_check_projection(
+    check: ConfidenceLedgerCheck,
+    *,
+    filtration_projection_hash: str,
+) -> ConfidenceLedgerSemanticCheck:
+    """Project one verified live check onto stable semantic identities."""
+
+    values: dict[str, Any] = {
+        "schema_version": check.schema_version,
+        "scope_id": check.scope_id,
+        "request_key": check.request_key,
+        "request_fingerprint": check.request_fingerprint,
+        "obligation_class": check.obligation_class,
+        "instrument_id": check.instrument_id,
+        "instrument_family": check.instrument_family,
+        "proof_profile_id": check.proof_profile_id,
+        "certificate_ref": check.certificate_ref,
+        "certificate_class": check.certificate_class,
+        "certificate_route_hash": check.certificate_route_hash,
+        "certificate_role": check.certificate_role,
+        "claim_polarity": check.claim_polarity,
+        "claim_ref": check.claim_ref,
+        "null_ref": check.null_ref,
+        "claim_scope_ref": check.claim_scope_ref,
+        "data_window_ref": check.data_window_ref,
+        "filtration_projection_hash": filtration_projection_hash,
+        "registry_content_hash": check.registry_content_hash,
+        "instrument_definition_hash": check.instrument_definition_hash,
+        "proof_profile_hash": check.proof_profile_hash,
+        "execution_status": check.execution_status,
+        "outcome": check.outcome,
+        "execution_ordinal": check.execution_ordinal,
+        "schedule_query_index": check.schedule_query_index,
+        "execution_id": check.execution_id,
+        "deterministic_proof": check.deterministic_proof,
+        "anytime_valid": check.anytime_valid,
+        "spend": check.spend,
+        "spend_decimal": check.spend_decimal,
+        "supports_obligation": check.supports_obligation,
+        "eligible_for_promotion": check.eligible_for_promotion,
+        "refusal_code": check.refusal_code,
+        "proof_detail": check.proof_detail,
+        "owner_invocation_claim_projection_hash": (
+            _content_hash(
+                {
+                    "scope_id": check.scope_id,
+                    "request_fingerprint": check.request_fingerprint,
+                    "execution_id": check.execution_id,
+                    "execution_ordinal": check.execution_ordinal,
+                    "schedule_query_index": check.schedule_query_index,
+                    "owner_invocation_claimed": True,
+                }
+            )
+            if check.owner_invocation_claim_id is not None
+            else None
+        ),
+        "good_event_id": check.good_event_id,
+        "owner_binding": _semantic_owner_binding(check),
+        "claim_execution_projection_hash": _semantic_claim_execution_projection_hash(
+            check,
+            filtration_projection_hash=filtration_projection_hash,
+        ),
+    }
+    values["check_projection_hash"] = _content_hash(values)
+    return ConfidenceLedgerSemanticCheck.model_validate(values)
+
+
+def _semantic_ledger_root_values(
+    *,
+    receipt: ConfidenceLedgerReceipt,
+    risk_scope: ConfidenceRiskBudgetScope,
+    projection_scope: str,
+) -> dict[str, Any]:
+    """Return the stable semantic root payload for a verified receipt."""
+
+    return {
+        "schema_version": receipt.schema_version,
+        "projection_scope": projection_scope,
+        "authority_provenance": receipt.authority_provenance,
+        "deployment_identity": receipt.deployment_identity,
+        "risk_scope": risk_scope,
+        "scope_id": receipt.scope_id,
+        "scope_anchor_ref": receipt.scope_anchor_ref,
+        "registry_content_hash": receipt.registry_content_hash,
+        "schedule_profile_id": receipt.schedule_profile_id,
+        "schedule_profile_hash": receipt.schedule_profile_hash,
+        "schedule_projection_hash": receipt.schedule_projection_hash,
+        "budget_delta": receipt.budget_delta,
+        "budget_delta_decimal": receipt.budget_delta_decimal,
+        "conditionality_clause": receipt.conditionality_clause,
+        "maintained_assumptions": receipt.maintained_assumptions,
+    }
+
+
+def project_confidence_ledger_semantic_receipt(
+    receipt: ConfidenceLedgerReceipt | Mapping[str, object],
+    *,
+    session: ConfidenceLedgerSession,
+    projection_scope: Literal[
+        "n11_real_accounting_append_lineage",
+        "n11_conformance_append_lineage",
+    ],
+) -> ConfidenceLedgerSemanticReceiptProjection:
+    """Project a fully verified live receipt onto stable append semantics."""
+
+    validated = validate_confidence_ledger_receipt(receipt, session=session)
+    risk_scope = session.risk_scope
+    expected_authority_purpose = {
+        "n11_real_accounting_append_lineage": "n11_real_n10_n13b_accounting",
+        "n11_conformance_append_lineage": "n11_probabilistic_conformance",
+    }[projection_scope]
+    if risk_scope.authority_purpose != expected_authority_purpose:
+        raise ConfidenceLedgerError("semantic_projection_scope_authority_mismatch")
+    if (
+        validated.scope_id != risk_scope.scope_id
+        or validated.scope_anchor_ref != recompute_confidence_scope_anchor_ref(risk_scope)
+    ):
+        raise ConfidenceLedgerError("semantic_projection_scope_binding_invalid")
+    root_values = _semantic_ledger_root_values(
+        receipt=validated,
+        risk_scope=risk_scope,
+        projection_scope=projection_scope,
+    )
+    root_projection_hash = _content_hash(root_values)
+    head_projection_hash = root_projection_hash
+    filtration_by_request: dict[str, str] = {}
+    current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
+    projected_events: list[ConfidenceLedgerSemanticEvent] = []
+    for event in validated.events:
+        request_key = event.check.request_key
+        if event.event_type == "prepared" or (
+            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
+        ):
+            if request_key in filtration_by_request:
+                raise ConfidenceLedgerError("semantic_projection_duplicate_preparation")
+            filtration_by_request[request_key] = head_projection_hash
+        try:
+            filtration_projection_hash = filtration_by_request[request_key]
+        except KeyError as exc:  # pragma: no cover - live receipt validation owns this guard.
+            raise ConfidenceLedgerError("semantic_projection_missing_preparation") from exc
+        projected_check = _semantic_check_projection(
+            event.check,
+            filtration_projection_hash=filtration_projection_hash,
+        )
+        event_values: dict[str, Any] = {
+            "event_type": event.event_type,
+            "revision": event.revision,
+            "parent_event_projection_hash": head_projection_hash,
+            "check": projected_check,
+        }
+        event_values["event_projection_hash"] = _content_hash(event_values)
+        projected_event = ConfidenceLedgerSemanticEvent.model_validate(event_values)
+        projected_events.append(projected_event)
+        current_checks[request_key] = projected_check
+        head_projection_hash = projected_event.event_projection_hash
+    live_current = {check.request_key: check for check in validated.checks}
+    if set(live_current) != set(current_checks):  # pragma: no cover - receipt validation guard.
+        raise ConfidenceLedgerError("semantic_projection_current_check_denominator_drift")
+    for request_key, live_check in live_current.items():
+        expected = _semantic_check_projection(
+            live_check,
+            filtration_projection_hash=filtration_by_request[request_key],
+        )
+        if expected != current_checks[request_key]:  # pragma: no cover - receipt validation guard.
+            raise ConfidenceLedgerError("semantic_projection_current_check_drift")
+    checks = tuple(current_checks[key] for key in sorted(current_checks))
+    values: dict[str, Any] = {
+        **root_values,
+        "root_projection_hash": root_projection_hash,
+        "events": tuple(projected_events),
+        "checks": checks,
+        "head_event_projection_hash": head_projection_hash,
+        "total_spend": validated.total_spend,
+        "total_spend_decimal": validated.total_spend_decimal,
+        "within_budget": validated.within_budget,
+        "good_event_clause": validated.good_event_clause,
+    }
+    values["projection_hash"] = _content_hash(values)
+    return ConfidenceLedgerSemanticReceiptProjection.model_validate(values)
+
+
 def project_n9_promotion_certificate(
     receipt: ConfidenceLedgerReceipt | Mapping[str, object],
     *,
@@ -3000,6 +3341,7 @@ def project_n9_promotion_certificate(
         "deployment_identity": validated.deployment_identity,
         "risk_scope": session.risk_scope,
         "scope_id": validated.scope_id,
+        "scope_anchor_ref": validated.scope_anchor_ref,
         "ledger_root_id": validated.ledger_root_id,
         "ledger_root_ref": validated.ledger_root_ref,
         "head_event_id": validated.head_event_id,
@@ -3037,7 +3379,9 @@ def project_n12_epoch_reference(
         "projection_scope": "n12_epoch_reference",
         "authority_provenance": validated.authority_provenance,
         "deployment_identity": validated.deployment_identity,
+        "risk_scope": scope,
         "scope_id": validated.scope_id,
+        "scope_anchor_ref": validated.scope_anchor_ref,
         "ledger_root_id": validated.ledger_root_id,
         "ledger_root_ref": validated.ledger_root_ref,
         "head_event_id": validated.head_event_id,
@@ -3054,6 +3398,12 @@ def project_n12_epoch_reference(
     }
     payload["projection_hash"] = _content_hash(payload)
     return N12EpochReferenceProjection.model_validate(payload)
+
+
+def recompute_confidence_scope_anchor_ref(risk_scope: ConfidenceRiskBudgetScope) -> str:
+    """Recompute the immutable CAS anchor for one declared risk scope."""
+
+    return _cas_json_artifact_ref(_confidence_scope_anchor_payload(risk_scope))
 
 
 def _validate_receipt_event_lineage(
@@ -4266,6 +4616,21 @@ def _identity(prefix: str, payload: object) -> str:
     return f"{prefix}:{_content_hash(payload)}"
 
 
+def _confidence_scope_anchor_payload(
+    risk_scope: ConfidenceRiskBudgetScope,
+) -> dict[str, Any]:
+    """Return the sole canonical scope-anchor payload."""
+
+    return {
+        "schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
+        "scope_id": risk_scope.scope_id,
+        "scope_owner_ref": risk_scope.scope_owner_ref,
+        "authority_purpose": risk_scope.authority_purpose,
+        "owner_scope_key": risk_scope.owner_scope_key,
+        "epoch_ref": risk_scope.epoch_ref,
+    }
+
+
 def _content_hash(payload: object) -> str:
     return "sha256:" + hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
 
@@ -4310,6 +4675,10 @@ __all__ = [
     "ConfidenceLedgerHistoryToken",
     "ConfidenceLedgerReceipt",
     "ConfidenceLedgerRegistry",
+    "ConfidenceLedgerSemanticCheck",
+    "ConfidenceLedgerSemanticEvent",
+    "ConfidenceLedgerSemanticOwnerBinding",
+    "ConfidenceLedgerSemanticReceiptProjection",
     "ConfidenceLedgerSession",
     "ConfidenceRiskBudgetScope",
     "N9PromotionCertificateProjection",
@@ -4321,9 +4690,11 @@ __all__ = [
     "PredictableClaimSpec",
     "RationalSpec",
     "load_confidence_ledger_registry",
+    "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
     "project_n12_epoch_reference",
     "recompute_confidence_schedule_projection_hash",
+    "recompute_confidence_scope_anchor_ref",
     "validate_confidence_ledger_receipt",
     "validate_confidence_ledger_receipt_structure",
 ]

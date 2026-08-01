@@ -98,7 +98,7 @@
     "non_cached_run_visibility": "rederive_audit_only",
     "owner_io": "zero"
   },
-  "contract_content_hash": "sha256:fee24a58ce1cb9b287427c615ef0e7ed45be79ed8242625af8c9b25d73fb8a36",
+  "contract_content_hash": "sha256:5e7cafbe9e9aabc64e022a3dd5e42e2f67eb3e1588cdc9217d7598602e5730b1",
   "contract_id": "policyos.runtime.generation_cycle_controller",
   "denominators": {
     "counts": {
@@ -272,6 +272,7 @@
           "seed"
         ],
         "grounding": {
+          "acquisition_requirement": null,
           "adversarial_validation_ref": "cg4_quarantine_1111111111111111",
           "candidate_id": "candidate_lane0_cycle_001",
           "cgf_certificate_refs": [
@@ -560,7 +561,303 @@
       },
       {
         "acquisition_receipt": null,
-        "acquisition_routing_report": null,
+        "acquisition_routing_report": {
+          "acquisition_records": [
+            {
+              "accepted_deficit_ref": null,
+              "acquisition_id": "acquisition:n7-routing:industrial_resilience_retooling:1:requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "authority_boundary": {
+                "authoritative_for": [
+                  "gap_detected",
+                  "eligible_strategies",
+                  "ineligible_strategies",
+                  "voi_ranking_considered",
+                  "decision_owner",
+                  "terminal_disposition",
+                  "producer_expected",
+                  "calibration_feedback_target"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "source_family_satisfaction",
+                  "data_quality",
+                  "method_validity",
+                  "participation_representativeness",
+                  "claim_support",
+                  "closeout_pass"
+                ]
+              },
+              "authority_level": "research",
+              "blocker_ref": null,
+              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+              "commit_authority": "advisory_recommendation_only",
+              "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+              "decision_owner": "runtime_planner",
+              "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+              "eligible_strategies": [
+                "production_snapshot_build",
+                "rerun",
+                "accepted_deficit"
+              ],
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2.json",
+              "gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "gap_type": "data_snapshot_release",
+              "ineligible_strategies": [
+                "academic_retrieval",
+                "agency_request",
+                "closeout_block",
+                "consultation",
+                "legal_corpus_expansion",
+                "method_remediation",
+                "proxy_with_degraded_authority",
+                "public_registry",
+                "publish_with_limitation",
+                "source_contract_remediation",
+                "survey"
+              ],
+              "ineligible_strategy_records": [
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "academic_retrieval",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "agency_request",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "closeout_block",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "consultation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "legal_corpus_expansion",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "method_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "proxy_with_degraded_authority",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "public_registry",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "publish_with_limitation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "source_contract_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "survey",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "limitation_ref": null,
+              "mandatory_gate_refs": [
+                "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+              ],
+              "mandatory_gate_state": "none",
+              "missing_requirement_fields": [
+                "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+              ],
+              "next_actions": [
+                {
+                  "action": "build_production_snapshot",
+                  "blocks_closeout": false,
+                  "commit_required": false,
+                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2.json",
+                  "message": "Acquire or remediate evidence via production_snapshot_build for grounding-claim:candidate_lane0_cycle_002.",
+                  "owner": "polisyos.runtime.quality.acquisition_planner",
+                  "producer_expected": "data_forge.snapshot",
+                  "strategy": "production_snapshot_build"
+                }
+              ],
+              "planner_posture": "advisory",
+              "producer_expected": "data_forge.snapshot",
+              "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+              "public_projection_effect": "no_public_effect_until_producer_output",
+              "recommended_strategy": "production_snapshot_build",
+              "requirement_family": "data_requirement",
+              "requirement_gap_ref": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "runtime_event_ref": "event://runtime/acquisition/n7-routing-industrial-resilience-retooling-1/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2",
+              "scenario_requirement_refs": [
+                "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+              ],
+              "schema_version": "policyos.runtime.acquisition_planner.v1",
+              "status": "ready",
+              "strategy_records": [
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "build_production_snapshot",
+                  "strategy": "production_snapshot_build",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "rerun",
+                  "strategy": "rerun",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "accept_deficit",
+                  "strategy": "accepted_deficit",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "terminal_disposition": "acquire",
+              "voi_ranking_ref": null
+            }
+          ],
+          "adr_refs": [
+            "ADR-0166"
+          ],
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "capability_reality_status": "implemented",
+          "generated_at": "2026-07-05T00:00:00Z",
+          "pattern_refs": [
+            "P01",
+            "P09",
+            "P10"
+          ],
+          "run_id": "n7-routing:industrial_resilience_retooling:1",
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "pass",
+          "summary": {
+            "accepted_deficit": 0,
+            "acquire": 1,
+            "blocked": 0,
+            "eligible_strategy_count": 3,
+            "ineligible_strategy_count": 11,
+            "limited": 0,
+            "record_count": 1,
+            "rerun": 0
+          }
+        },
         "candidate_ids": [
           "candidate_lane0_cycle_002"
         ],
@@ -593,6 +890,50 @@
           "lever:resilience_grant:adversarial_validate:shadow_bound"
         ],
         "grounding": {
+          "acquisition_requirement": {
+            "authority_level": "research",
+            "calibration_feedback_ref": null,
+            "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+            "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+            "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+            "gap_type": "data_snapshot_release",
+            "limitation_permitted": false,
+            "mandatory_gate_refs": [
+              "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+            ],
+            "mandatory_gate_state": "none",
+            "metadata": {
+              "acquisition_family": "COV",
+              "authority_level": "research",
+              "authority_purpose": "routing_only",
+              "candidate_binding": {
+                "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "candidate_id": "candidate_lane0_cycle_002",
+                "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+              },
+              "evidence_refs": [],
+              "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+              "issue_codes": [
+                "candidate_cgf_proposal_id_mismatch",
+                "candidate_cgf_raw_hash_mismatch"
+              ],
+              "satisfaction_status": "unsatisfied",
+              "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "source": "cgf_grounding_coverage"
+            },
+            "missing_requirement_fields": [
+              "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+            ],
+            "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+            "requirement_family": "data_requirement",
+            "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+            "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+            "scenario_requirement_refs": [
+              "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+              "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+            ],
+            "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+          },
           "adversarial_validation_ref": null,
           "candidate_id": "candidate_lane0_cycle_002",
           "cgf_certificate_refs": [],
@@ -606,7 +947,7 @@
             "candidate_cgf_raw_hash_mismatch"
           ],
           "quarantine_action": "none",
-          "report_ref": null,
+          "report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
           "status": "grounding_unavailable"
         },
         "introduced_grammar_elements": [
@@ -621,16 +962,14 @@
           "consumed_counterexample_refs": [
             "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
           ],
-          "decision": "human_decision",
+          "decision": "acquire",
           "decision_id": "gy.n6.refinement.industrial_resilience_retooling.002",
           "decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
           "governance_decision_class": null,
-          "governance_decision_class_ref": "governance://gy/n6/industrial_resilience_retooling/terminal/002",
-          "governance_refs": [
-            "governance://gy/n6/industrial_resilience_retooling/terminal/002"
-          ],
+          "governance_decision_class_ref": null,
+          "governance_refs": [],
           "next_candidate_ref": null,
-          "reason": "terminal_requires_escalation:a_spec_gap; terminal=a_spec_gap",
+          "reason": "terminal_requires_escalation:acquisition_required; terminal=acquisition_required",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
           "stakes_band": "moderate",
           "value_of_information": {
@@ -650,14 +989,11 @@
         },
         "revision_driver": "counterexample",
         "revision_request": {
-          "new_grammar_elements": [
-            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
-          ],
-          "next_candidate_ref": "candidate://pending/9c596e3b9ad92bc5",
+          "new_grammar_elements": [],
+          "next_candidate_ref": "candidate://pending/d7eb7cd271341e36",
           "next_grammar_elements": [
             "seed",
-            "lever:resilience_grant:adversarial_validate:shadow_bound",
-            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
+            "lever:resilience_grant:adversarial_validate:shadow_bound"
           ],
           "previous_candidate_ref": "candidate_lane0_cycle_002",
           "previous_grammar_elements": [
@@ -743,25 +1079,71 @@
             "runtime_hints": {
               "generation_cycle_grammar": [
                 "seed",
-                "lever:resilience_grant:adversarial_validate:shadow_bound",
-                "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
+                "lever:resilience_grant:adversarial_validate:shadow_bound"
               ],
               "generation_cycle_revision": {
-                "new_grammar_elements": [
-                  "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
-                ],
+                "new_grammar_elements": [],
                 "previous_candidate_ref": "candidate_lane0_cycle_002",
-                "revision_strategy": "spec_gap_reframe",
+                "revision_strategy": "acquire_or_elicit",
                 "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
                 "strategy_payload": {
+                  "acquisition_request": {
+                    "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                    "cycle_index": 1,
+                    "driver": "candidate_cgf_proposal_id_mismatch",
+                    "network_policy": "record_replay_required_for_routine_check",
+                    "reentry": "same_generation_cycle_index",
+                    "request_kind": "owner_grounding_evidence",
+                    "requirement_gap": {
+                      "authority_level": "research",
+                      "calibration_feedback_ref": null,
+                      "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+                      "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+                      "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                      "gap_type": "data_snapshot_release",
+                      "limitation_permitted": false,
+                      "mandatory_gate_refs": [
+                        "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+                      ],
+                      "mandatory_gate_state": "none",
+                      "metadata": {
+                        "acquisition_family": "COV",
+                        "authority_level": "research",
+                        "authority_purpose": "routing_only",
+                        "candidate_binding": {
+                          "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "candidate_id": "candidate_lane0_cycle_002",
+                          "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+                        },
+                        "evidence_refs": [],
+                        "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                        "issue_codes": [
+                          "candidate_cgf_proposal_id_mismatch",
+                          "candidate_cgf_raw_hash_mismatch"
+                        ],
+                        "satisfaction_status": "unsatisfied",
+                        "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                        "source": "cgf_grounding_coverage"
+                      },
+                      "missing_requirement_fields": [
+                        "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+                      ],
+                      "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                      "requirement_family": "data_requirement",
+                      "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+                      "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                      "scenario_requirement_refs": [
+                        "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                        "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+                      ],
+                      "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+                    }
+                  },
                   "issue": "candidate_cgf_proposal_id_mismatch",
                   "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                  "spec_gap": {
-                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                    "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
-                  },
-                  "strategy": "spec_gap_reframe",
-                  "terminal_kind": "a_spec_gap"
+                  "strategy": "acquire_or_elicit",
+                  "terminal_kind": "acquisition_required"
                 }
               }
             },
@@ -776,18 +1158,67 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.industrial_resilience_retooling.002",
-          "revision_strategy": "spec_gap_reframe",
+          "revision_strategy": "acquire_or_elicit",
           "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-          "source_terminal_kind": "a_spec_gap",
+          "source_terminal_kind": "acquisition_required",
           "strategy_payload": {
+            "acquisition_request": {
+              "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+              "cycle_index": 1,
+              "driver": "candidate_cgf_proposal_id_mismatch",
+              "network_policy": "record_replay_required_for_routine_check",
+              "reentry": "same_generation_cycle_index",
+              "request_kind": "owner_grounding_evidence",
+              "requirement_gap": {
+                "authority_level": "research",
+                "calibration_feedback_ref": null,
+                "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+                "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+                "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                "gap_type": "data_snapshot_release",
+                "limitation_permitted": false,
+                "mandatory_gate_refs": [
+                  "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+                ],
+                "mandatory_gate_state": "none",
+                "metadata": {
+                  "acquisition_family": "COV",
+                  "authority_level": "research",
+                  "authority_purpose": "routing_only",
+                  "candidate_binding": {
+                    "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    "candidate_id": "candidate_lane0_cycle_002",
+                    "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+                  },
+                  "evidence_refs": [],
+                  "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                  "issue_codes": [
+                    "candidate_cgf_proposal_id_mismatch",
+                    "candidate_cgf_raw_hash_mismatch"
+                  ],
+                  "satisfaction_status": "unsatisfied",
+                  "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                  "source": "cgf_grounding_coverage"
+                },
+                "missing_requirement_fields": [
+                  "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+                ],
+                "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                "requirement_family": "data_requirement",
+                "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+                "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                "scenario_requirement_refs": [
+                  "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                  "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+                ],
+                "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+              }
+            },
             "issue": "candidate_cgf_proposal_id_mismatch",
             "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-            "spec_gap": {
-              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-              "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
-            },
-            "strategy": "spec_gap_reframe",
-            "terminal_kind": "a_spec_gap"
+            "strategy": "acquire_or_elicit",
+            "terminal_kind": "acquisition_required"
           }
         },
         "search_iteration": {
@@ -797,7 +1228,7 @@
           ],
           "iteration_id": "gy.n6.iteration.industrial_resilience_retooling.002",
           "refinement_decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
-          "status": "governance_required"
+          "status": "acquisition_required"
         },
         "selected_candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "selected_candidate_ref": "candidate_lane0_cycle_002",
@@ -821,7 +1252,7 @@
           "status": "simulation_blocked",
           "uncertainty_kind": null
         },
-        "terminal_kind": "a_spec_gap",
+        "terminal_kind": "acquisition_required",
         "value_port": {
           "acquisition_requirement": null,
           "authority_blockers": [
@@ -847,10 +1278,10 @@
           "candidate_id": "candidate_lane0_cycle_002",
           "next_action": "escalate",
           "priority": 0.46,
-          "reason": "terminal_requires_escalation:a_spec_gap",
+          "reason": "terminal_requires_escalation:acquisition_required",
           "scheduler_action": "reject",
           "scheduler_reason": "roi_below_threshold",
-          "terminal_kind": "a_spec_gap"
+          "terminal_kind": "acquisition_required"
         }
       }
     ],
@@ -884,7 +1315,7 @@
     },
     "promotion_port": {
       "certified_candidate_ids": [],
-      "reason": "canonical_n9_sequence_returned_shadow",
+      "reason": "verification_n9_sequence_non_consumer",
       "receipts": [
         {
           "authority_derivation_trace": null,
@@ -912,13 +1343,107 @@
             ],
             "posture": "governed",
             "rule_version_refs": [
-              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
             ],
             "source_authority": "deterministic_producer"
           },
+          "confidence_ledger_head_id": "confidence-event:sha256:41607da84230258b209db89d4713a707c8dc9f001ac391f86854558b71466500",
+          "confidence_ledger_head_ref": "sha256:33863afb94c84fcd16dcaaa8e51f83418d3314159a1d3d04c6170a305215d18b",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:7ca06e3f138f752426535cac3ca165a174915c205e36e8caa0a23395a16b7bfc",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:41607da84230258b209db89d4713a707c8dc9f001ac391f86854558b71466500",
+            "head_event_ref": "sha256:33863afb94c84fcd16dcaaa8e51f83418d3314159a1d3d04c6170a305215d18b",
+            "ledger_receipt_id": "confidence-ledger:sha256:dc30f8076983693ed7bd86d9307f62c1b3b214b508e64444df2db18bb3b51e25",
+            "ledger_receipt_ref": "sha256:9130a1f972290a93efeab5566b0b79cae0895a819c31bba7f19746d4cdd2deb9",
+            "ledger_root_id": "confidence-ledger-root:sha256:f399a89abc48c30cc40473a4fdf14f4926dab275d4d01dbe089cffaa1a131404",
+            "ledger_root_ref": "sha256:b128d5f4eb713f11ecdd42a8a9c6a68f82a986455af88ba98dcb92f23a6b213e",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:643623ad4569dcd4b3b9279ea7f43368f7c6299980016dab04d7aae0a27a54e7",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d6d2387038b3fa38b4474bd006410363d6adc9fd58a9855d58d4d5090c9588d6",
+                "claim_execution_binding_hash": "sha256:017dd9a87e3d39deec5ebe99756c54e6fcdf6a8b23c33750dc54abb4a5f45e5f",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:24f4a44fa2e6ee01912a25cddc570696d2894fab3d45483605bc8f702de49498",
+                "claim_execution_binding_hash": "sha256:7fd5d72ce69a5300373d04fca0fe19b60126b148b1a777953cc29d8418c29701",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:2d299b00516414f6db79b982dcff5e4b14ba73218cf08afb868e760920e386ad",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:9f466188daf6310fbbf01d1229e966aff7c822cecce5dbb5388eaff452504e77",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:dc30f8076983693ed7bd86d9307f62c1b3b214b508e64444df2db18bb3b51e25",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
           "consumer_promotable": false,
-          "gate_outcome_hash": "sha256:c9d587cc9938b76d320c841ccc3307d3da3891c62f9559fbaeae2c56424db348",
-          "non_promotable_reason": null,
+          "gate_outcome_hash": "sha256:8040b4858f1c26f6710a547a8792a2c3e22c74fbac569afbb045bf76324eca69",
+          "non_promotable_reason": "verification_only_replay",
           "obligations": [
             {
               "detail": "Strict N9 input model validated with extra fields forbidden.",
@@ -1000,13 +1525,24 @@
               "status": "failed"
             },
             {
-              "detail": "N8 calibration receipt is missing.",
-              "evidence_refs": [],
+              "detail": "N8 calibration cannot support promotion: confidence ledger refusal non_anytime_valid.",
+              "evidence_refs": [
+                "confidence-check:sha256:d6d2387038b3fa38b4474bd006410363d6adc9fd58a9855d58d4d5090c9588d6"
+              ],
               "gate_id": "n8_calibration",
               "obligation_class": "calibration",
-              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "owner_ref": "polisyos.runtime.quality.confidence_ledger.validate_confidence_ledger_receipt",
               "reason": "single_obligation_fail",
-              "risk_spend": null,
+              "risk_spend": {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:d6d2387038b3fa38b4474bd006410363d6adc9fd58a9855d58d4d5090c9588d6",
+                "obligation_class": "calibration"
+              },
               "semantic_scope": "real_semantics",
               "status": "failed"
             },
@@ -1088,6 +1624,60 @@
               "status": "failed"
             }
           ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "completed_shadow_only",
+              "candidate_id": "candidate_lane0_cycle_001",
+              "certified_by_n9": false,
+              "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "quarantine",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "shadow_bound",
+              "grounding_score": 0.2,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounded_shadow",
+              "high_proxy": true,
+              "low_grounding": true,
+              "proxy_score": 0.91,
+              "quarantine_action": "adversarial_validate",
+              "value_blockers": [
+                "value_gate_pending_n8"
+              ],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.74
+            },
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "industrial_resilience_retooling",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.industrial_resilience_retooling.candidate_lane0_cycle_001",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:214798f1b691884551f7045d2f4cf2157b61576de9eef5d0d245b3cfc084fcea",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
           "promoted": false,
           "promotion_lane": "unresolved",
           "refusal_reasons": [
@@ -1104,12 +1694,23 @@
           ],
           "risk_spend": {
             "budget_delta": 0.01,
-            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
-            "spend_records": [],
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:d6d2387038b3fa38b4474bd006410363d6adc9fd58a9855d58d4d5090c9588d6",
+                "obligation_class": "calibration"
+              }
+            ],
             "total_declared_delta": 0.0,
             "within_budget": true
           },
-          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
           "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
           "status": "shadow",
           "terminal_kind": "grounded_abstention",
@@ -1143,13 +1744,107 @@
             ],
             "posture": "governed",
             "rule_version_refs": [
-              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
             ],
             "source_authority": "deterministic_producer"
           },
+          "confidence_ledger_head_id": "confidence-event:sha256:41607da84230258b209db89d4713a707c8dc9f001ac391f86854558b71466500",
+          "confidence_ledger_head_ref": "sha256:33863afb94c84fcd16dcaaa8e51f83418d3314159a1d3d04c6170a305215d18b",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:7ca06e3f138f752426535cac3ca165a174915c205e36e8caa0a23395a16b7bfc",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:41607da84230258b209db89d4713a707c8dc9f001ac391f86854558b71466500",
+            "head_event_ref": "sha256:33863afb94c84fcd16dcaaa8e51f83418d3314159a1d3d04c6170a305215d18b",
+            "ledger_receipt_id": "confidence-ledger:sha256:dc30f8076983693ed7bd86d9307f62c1b3b214b508e64444df2db18bb3b51e25",
+            "ledger_receipt_ref": "sha256:9130a1f972290a93efeab5566b0b79cae0895a819c31bba7f19746d4cdd2deb9",
+            "ledger_root_id": "confidence-ledger-root:sha256:f399a89abc48c30cc40473a4fdf14f4926dab275d4d01dbe089cffaa1a131404",
+            "ledger_root_ref": "sha256:b128d5f4eb713f11ecdd42a8a9c6a68f82a986455af88ba98dcb92f23a6b213e",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:643623ad4569dcd4b3b9279ea7f43368f7c6299980016dab04d7aae0a27a54e7",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d6d2387038b3fa38b4474bd006410363d6adc9fd58a9855d58d4d5090c9588d6",
+                "claim_execution_binding_hash": "sha256:017dd9a87e3d39deec5ebe99756c54e6fcdf6a8b23c33750dc54abb4a5f45e5f",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:24f4a44fa2e6ee01912a25cddc570696d2894fab3d45483605bc8f702de49498",
+                "claim_execution_binding_hash": "sha256:7fd5d72ce69a5300373d04fca0fe19b60126b148b1a777953cc29d8418c29701",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:2d299b00516414f6db79b982dcff5e4b14ba73218cf08afb868e760920e386ad",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:9f466188daf6310fbbf01d1229e966aff7c822cecce5dbb5388eaff452504e77",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:dc30f8076983693ed7bd86d9307f62c1b3b214b508e64444df2db18bb3b51e25",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
           "consumer_promotable": false,
-          "gate_outcome_hash": "sha256:0a49d2ee3cbf076e19b81091bccb4e050863fd78a8a043bc349fa2c2a064e87e",
-          "non_promotable_reason": null,
+          "gate_outcome_hash": "sha256:b20b75a63d3c416df1c0e6dd0e22ed31b86e7b244449a4c03cb37a0af40ed7ba",
+          "non_promotable_reason": "verification_only_replay",
           "obligations": [
             {
               "detail": "Strict N9 input model validated with extra fields forbidden.",
@@ -1231,13 +1926,24 @@
               "status": "failed"
             },
             {
-              "detail": "N8 calibration receipt is missing.",
-              "evidence_refs": [],
+              "detail": "N8 calibration cannot support promotion: confidence ledger refusal non_anytime_valid.",
+              "evidence_refs": [
+                "confidence-check:sha256:24f4a44fa2e6ee01912a25cddc570696d2894fab3d45483605bc8f702de49498"
+              ],
               "gate_id": "n8_calibration",
               "obligation_class": "calibration",
-              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "owner_ref": "polisyos.runtime.quality.confidence_ledger.validate_confidence_ledger_receipt",
               "reason": "single_obligation_fail",
-              "risk_spend": null,
+              "risk_spend": {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:24f4a44fa2e6ee01912a25cddc570696d2894fab3d45483605bc8f702de49498",
+                "obligation_class": "calibration"
+              },
               "semantic_scope": "real_semantics",
               "status": "failed"
             },
@@ -1319,6 +2025,60 @@
               "status": "failed"
             }
           ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "candidate_lane0_cycle_002",
+              "certified_by_n9": false,
+              "content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 1,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": null,
+              "grounding_score": 0.0,
+              "grounding_source": "grounding_unavailable",
+              "grounding_status": "grounding_unavailable",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.31,
+              "quarantine_action": "none",
+              "value_blockers": [
+                "value_gate_pending_n8"
+              ],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.22
+            },
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "industrial_resilience_retooling",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.industrial_resilience_retooling.candidate_lane0_cycle_002",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:97678f8db8f44276d60b7bf658973ab3a0fad9e50dda6220972f5e7d5e523e5c",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
           "promoted": false,
           "promotion_lane": "unresolved",
           "refusal_reasons": [
@@ -1335,12 +2095,23 @@
           ],
           "risk_spend": {
             "budget_delta": 0.01,
-            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
-            "spend_records": [],
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:24f4a44fa2e6ee01912a25cddc570696d2894fab3d45483605bc8f702de49498",
+                "obligation_class": "calibration"
+              }
+            ],
             "total_declared_delta": 0.0,
             "within_budget": true
           },
-          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
           "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
           "status": "shadow",
           "terminal_kind": "grounded_abstention",
@@ -1365,8 +2136,8 @@
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
-        "src/polisyos/runtime/quality/workspace/loop.py:905",
-        "src/polisyos/runtime/quality/workspace/loop.py:937"
+        "src/polisyos/runtime/quality/workspace/loop.py:898",
+        "src/polisyos/runtime/quality/workspace/loop.py:930"
       ],
       "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
       "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
@@ -1477,10 +2248,10 @@
         "candidate_id": "candidate_lane0_cycle_002",
         "next_action": "escalate",
         "priority": 0.46,
-        "reason": "terminal_requires_escalation:a_spec_gap",
+        "reason": "terminal_requires_escalation:acquisition_required",
         "scheduler_action": "reject",
         "scheduler_reason": "roi_below_threshold",
-        "terminal_kind": "a_spec_gap"
+        "terminal_kind": "acquisition_required"
       }
     ]
   },
@@ -1496,8 +2267,8 @@
   ],
   "strangle_receipt": {
     "allowed_fixture_callers": [
-      "src/polisyos/runtime/quality/workspace/loop.py:905",
-      "src/polisyos/runtime/quality/workspace/loop.py:937"
+      "src/polisyos/runtime/quality/workspace/loop.py:898",
+      "src/polisyos/runtime/quality/workspace/loop.py:930"
     ],
     "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
     "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",

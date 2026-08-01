@@ -1,0 +1,206 @@
+schema_version = "policyos.runtime.confidence_ledger.registry.v1"
+
+[policy]
+delta = { numerator = 1, denominator = 100 }
+default_schedule_profile_id = "default_basel_square"
+conditionality_clause = "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29)."
+
+[[schedule_profiles]]
+profile_id = "default_basel_square"
+proof_kernel_id = "basel_square_v1"
+mass = { numerator = 1, denominator = 1 }
+
+[[schedule_profiles]]
+profile_id = "half_mass_basel_square"
+proof_kernel_id = "basel_square_v1"
+mass = { numerator = 1, denominator = 2 }
+
+[[obligation_pools]]
+pool_id = "value"
+weight = { numerator = 1, denominator = 5 }
+obligation_classes = ["normative", "value"]
+
+[[obligation_pools]]
+pool_id = "ground"
+weight = { numerator = 3, denominator = 20 }
+obligation_classes = ["syntax", "type", "slot", "param"]
+
+[[obligation_pools]]
+pool_id = "id"
+weight = { numerator = 1, denominator = 5 }
+obligation_classes = ["effect", "identification", "measurement"]
+
+[[obligation_pools]]
+pool_id = "cal"
+weight = { numerator = 3, denominator = 20 }
+obligation_classes = ["calibration"]
+
+[[obligation_pools]]
+pool_id = "data"
+weight = { numerator = 1, denominator = 10 }
+obligation_classes = ["data"]
+
+[[obligation_pools]]
+pool_id = "eval"
+weight = { numerator = 1, denominator = 10 }
+obligation_classes = ["implementation", "eval_safety"]
+
+[[obligation_pools]]
+pool_id = "mc"
+weight = { numerator = 1, denominator = 10 }
+obligation_classes = ["coupling", "equilibrium"]
+
+[[proof_profiles]]
+profile_id = "closed_constant_unit_e_process"
+proof_kernel_id = "closed_constant_unit_e_process_v1"
+guarantee_kind = "e_process"
+deterministic = false
+anytime_valid = true
+permits_obligation_satisfaction = false
+
+[[proof_profiles]]
+profile_id = "owner_theorem_unavailable"
+proof_kernel_id = "owner_theorem_unavailable_v1"
+guarantee_kind = "owner_theorem_unavailable"
+deterministic = false
+anytime_valid = false
+permits_obligation_satisfaction = false
+refusal_code = "owner_theorem_unavailable"
+
+[[proof_profiles]]
+profile_id = "deterministic_owner"
+proof_kernel_id = "deterministic_owner_v1"
+guarantee_kind = "proof"
+deterministic = true
+anytime_valid = true
+permits_obligation_satisfaction = true
+
+[[proof_profiles]]
+profile_id = "bayesian_credible_interval_ineligible"
+proof_kernel_id = "ineligible_v1"
+guarantee_kind = "bayesian_credible_interval"
+deterministic = false
+anytime_valid = false
+permits_obligation_satisfaction = false
+refusal_code = "coverage_argument_missing"
+
+[[proof_profiles]]
+profile_id = "fixed_time_ineligible"
+proof_kernel_id = "ineligible_v1"
+guarantee_kind = "fixed_time_interval"
+deterministic = false
+anytime_valid = false
+permits_obligation_satisfaction = false
+refusal_code = "non_anytime_valid"
+
+[[instruments]]
+instrument_id = "constant_unit_e_process"
+instrument_family = "e_process"
+proof_profile_id = "closed_constant_unit_e_process"
+certificate_roles = ["promotion_conformance"]
+
+[[instruments]]
+instrument_id = "owner_verified_confidence_sequence"
+instrument_family = "confidence_sequence"
+proof_profile_id = "owner_theorem_unavailable"
+certificate_roles = ["promotion", "refusal", "admission"]
+
+[[instruments]]
+instrument_id = "owner_verified_e_value"
+instrument_family = "e_value"
+proof_profile_id = "owner_theorem_unavailable"
+certificate_roles = ["promotion", "refusal", "admission"]
+
+[[instruments]]
+instrument_id = "owner_verified_e_process"
+instrument_family = "e_process"
+proof_profile_id = "owner_theorem_unavailable"
+certificate_roles = ["promotion", "refusal", "admission"]
+
+[[instruments]]
+instrument_id = "owner_verified_sequential_test"
+instrument_family = "sequential_test"
+proof_profile_id = "owner_theorem_unavailable"
+certificate_roles = ["promotion", "refusal", "admission"]
+
+[[instruments]]
+instrument_id = "deterministic_owner_proof"
+instrument_family = "deterministic_proof"
+proof_profile_id = "deterministic_owner"
+certificate_roles = ["promotion", "refusal", "acquisition", "admission"]
+
+[[instruments]]
+instrument_id = "bayesian_credible_interval"
+instrument_family = "bayesian_credible_interval"
+proof_profile_id = "bayesian_credible_interval_ineligible"
+certificate_roles = ["promotion"]
+
+[[instruments]]
+instrument_id = "fixed_time_confidence_interval"
+instrument_family = "confidence_interval"
+proof_profile_id = "fixed_time_ineligible"
+certificate_roles = ["promotion"]
+
+[[instruments]]
+instrument_id = "causal_sensitivity_e_value"
+instrument_family = "unmeasured_confounding_robustness_metric"
+proof_profile_id = "fixed_time_ineligible"
+certificate_roles = ["promotion"]
+
+[[instruments]]
+instrument_id = "ddm_online_fdr_controller"
+instrument_family = "false_discovery_rate_controller"
+proof_profile_id = "fixed_time_ineligible"
+certificate_roles = ["promotion"]
+
+[[instruments]]
+instrument_id = "foundry_empirical_confidence_sequence"
+instrument_family = "empirical_confidence_proxy"
+proof_profile_id = "fixed_time_ineligible"
+certificate_roles = ["promotion"]
+
+[[instruments]]
+instrument_id = "split_conformal_interval"
+instrument_family = "marginal_conformal_interval"
+proof_profile_id = "fixed_time_ineligible"
+certificate_roles = ["promotion"]
+
+[[certificate_class_routes]]
+certificate_class = "owner_acquisition_route"
+instrument_id = "deterministic_owner_proof"
+obligation_class = "data"
+certificate_role = "acquisition"
+claim_polarity = "confident_wrong_refusal"
+owner_ref = "tools.quality.validation.layer3_gy_n13a_acquisition_census.extract_route_projection"
+verifier_kernel_id = "n10_route_projection_recompute_v1"
+verifier_ref = "tools.quality.validation.check_layer3_gy_depth_n_universality_contract.validate_payload"
+
+[[certificate_class_routes]]
+certificate_class = "estimand_binding_refusal"
+instrument_id = "deterministic_owner_proof"
+obligation_class = "identification"
+certificate_role = "refusal"
+claim_polarity = "confident_wrong_refusal"
+owner_ref = "tools.quality.validation.layer3_gy_n13a_acquisition_census.extract_route_projection"
+verifier_kernel_id = "n10_route_projection_recompute_v1"
+verifier_ref = "tools.quality.validation.check_layer3_gy_depth_n_universality_contract.validate_payload"
+
+[[certificate_class_routes]]
+certificate_class = "owner_data_gap"
+instrument_id = "deterministic_owner_proof"
+obligation_class = "data"
+certificate_role = "refusal"
+claim_polarity = "confident_wrong_refusal"
+owner_ref = "tools.quality.validation.layer3_gy_n13a_acquisition_census.extract_route_projection"
+verifier_kernel_id = "n10_route_projection_recompute_v1"
+verifier_ref = "tools.quality.validation.check_layer3_gy_depth_n_universality_contract.validate_payload"
+
+[[certificate_class_routes]]
+certificate_class = "admission_passport"
+instrument_id = "deterministic_owner_proof"
+obligation_class = "data"
+certificate_role = "admission"
+claim_polarity = "confident_wrong_admission"
+owner_ref = "polisyos.runtime.quality.acquisition_executor.build_admission_passport"
+verifier_kernel_id = "n13b_passport_revalidate_v1"
+verifier_ref = "polisyos.runtime.quality.acquisition_executor.revalidate_admission_passport"

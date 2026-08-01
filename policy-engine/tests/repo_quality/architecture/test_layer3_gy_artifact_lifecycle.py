@@ -1491,6 +1491,76 @@ def test_layer3_gy_registered_artifact_families_have_lifecycle_metadata() -> Non
             assert (REPO_ROOT / output).is_file()
 
 
+def test_layer3_gy_n11_confidence_ledger_has_one_frozen_lifecycle_owner() -> None:
+    family_id = "policy-design-case-layer3-gy-n11-confidence-ledger"
+    output = "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+    catalog_path = (
+        "production_data/datasets_full_phase3full_20260327_183054/"
+        "dataset_catalog.duckdb"
+    )
+    l5_path = (
+        "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/"
+        "runtime_calibration_internals/calibration/d2/measurement_registry.json"
+    )
+    payload = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())
+    matching = [
+        family
+        for family in payload["family"]
+        if family["id"] == family_id
+    ]
+
+    assert len(matching) == 1
+    family = matching[0]
+    assert family["lifecycle"] == "generated_committed"
+    assert family["gy_lifecycle_family"] is True
+    assert family["stale_output_behavior"] == "fail"
+    assert family["drift_gate"] == "automated"
+    assert family["outputs"] == [output]
+    assert family["regenerate_commands"] == [
+        "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test "
+        "python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write "
+        f"--catalog-path {catalog_path} --l5-path {l5_path}"
+    ]
+    assert family["workflow"] == (
+        "tools/quality/validation/check_layer3_gy_confidence_ledger.py"
+    )
+    assert family["check_command"] == [
+        "env",
+        "JAX_PLATFORMS=cpu",
+        "uv",
+        "run",
+        "--extra",
+        "analytics",
+        "--extra",
+        "solvers",
+        "--extra",
+        "test",
+        "python",
+        "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+        "--check",
+        "--catalog-path",
+        catalog_path,
+        "--l5-path",
+        l5_path,
+    ]
+
+    report = check_layer3_gy_generated_public_lifecycle_audit.validate_gy_lifecycle_registry(
+        REPO_ROOT
+    )
+    n11_issues = [
+        issue
+        for issue in report["issues"]
+        if issue.get("family_id") == family_id or issue.get("path") == output
+    ]
+
+    assert report["family_ids"].count(family_id) == 1
+    assert report["registered_outputs"].count(output) == 1
+    assert report["producer_declared_outputs"].count(output) == 1
+    assert report["discovered_artifacts"].count(output) == 1
+    assert report["registered_artifacts"].count(output) == 1
+    assert n11_issues == []
+
+
 def test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications() -> None:
     payload = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())
     families = {family["id"]: family for family in payload["family"]}

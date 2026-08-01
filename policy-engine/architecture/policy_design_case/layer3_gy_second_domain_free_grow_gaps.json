@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:d257516d924c17199f45273d47a9113424d6c52650757dc44149eccc42f0173e",
+  "gap_report_content_hash": "sha256:366fc9a168d6d81b41367cebc9fbf584fb56ec1636af1191a773347dd02a28c5",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
@@ -216,7 +216,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:fd33d073f44d760c232244a623cf3c01df260841883bb1ecb5d316266e129ee1",
+      "gap_content_hash": "sha256:e74dccf74ee9efaee4f2763bef6a38e82deb70e1179c4d282cf2c0fa07a7823f",
       "gap_id": "s0_to_n4_l6_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -266,7 +266,7 @@
           ],
           "generation_channel": "n4_owner",
           "lever_source_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-          "n4_owner_capture_content_hash": "sha256:ad3893fedf703daaaeb9d8c126ff531f81d9730c626ab73492c18f4c4bba1c13",
+          "n4_owner_capture_content_hash": "sha256:d55877fab1dea65875fe981149b5382ccffc9371a40f0f76d07a94830d203958",
           "owner": "polisyos.runtime.quality.design_generation.generate_design_candidate_bundle_under_a",
           "owner_status": "generated",
           "prompt_slice_content_hash": "sha256:9ac89bd842639f495fbcd49882166a955254e0af4129106895148f75e1701318",
@@ -296,7 +296,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:f18339a51607b319a38781b1c8301f46066664b03c1205a69c62cdc2a6b4e66c",
+      "gap_content_hash": "sha256:ac7381f5c6b697f16e66aeffacc0ea6da85781d41786f7ef0c1883f3c45caee4",
       "gap_id": "s0_to_n5_wmr_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -332,7 +332,7 @@
             "tuple",
             "world_model_record_content_hash"
           ],
-          "segment_content_hash": "sha256:e90eac660f535d1dfee1fd89e4705113089a2ffec01c91aa4f7176a66da95471",
+          "segment_content_hash": "sha256:39897405140bda970a5c32ac805c3edca0c3e1523142b2abbb4930b6a4efe37e",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "_build_boundary_world_model_record"
         },
@@ -357,7 +357,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:db0907e4ab4d85c4613b72680bb10825ee77fc45ae78b83638ec8c00712097a0",
+      "gap_content_hash": "sha256:2ab3c485e0905cd50bfa81c25a5db85ec7d5c53b3c4d736fe27bd0c36572828a",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
         "first_vertical_method_family": "panel",
@@ -380,7 +380,7 @@
             "str",
             "tuple"
           ],
-          "segment_content_hash": "sha256:e148a74c62a47cbcb4a9947bc86447be0c429f4b0879a857152ae549e7c006c7",
+          "segment_content_hash": "sha256:9b77a54ad2c25792d62a7e0d2bf9cb30d966bdf4e4a8142a7b5ed4c53dcb56e3",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "_build_candidate_selection_diagram"
         },
@@ -410,7 +410,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:e05ce9be4b5cfda8b676e38b989140f4d8ddb1af3cadc7f9d0ddeb0e96fc5ac2",
+      "gap_content_hash": "sha256:a7c846e5252d3c82677f654b8d5358a898c5d80525a104bcc9fe85358d562a84",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [],
@@ -436,7 +436,7 @@
             "summary_by_id.get",
             "tuple"
           ],
-          "segment_content_hash": "sha256:bf4ac814b9ef4f68dd8ddd00a5db1e57c10a35eaf99b6d5a440df1739085aecb",
+          "segment_content_hash": "sha256:28f4f68adebabbd7ec0829c955ed4db484b0058ed2ad7804d1d67dcf7980b6ab",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
@@ -444,12 +444,12 @@
           "closed": true,
           "cycle_count": 1,
           "reason_code": "n6_coherent_single_terminal_accepted",
-          "receipt_ref": "sha256:28cc1205cd8d0dfe99a3848e23bd50d35a17f8d7fba19ce910b992808157c626",
-          "run_content_hash": "sha256:d880f8a0c617d4be5a087f84f89d4113392ec6b1d85a2fd87a6bf0ec4f9d3dd2",
+          "receipt_ref": "sha256:580eabf1a441e6cb6d2d07e4a52a168f7ecf25eb38204eb1618b14640a8e0890",
+          "run_content_hash": "sha256:6a83f6b54332e45c28f1ddd81b83d5d6ac9a082078c0d9a0cd98c8eafb8df919",
           "terminal_kind": "acquisition_required",
           "validation_issues": []
         },
-        "trace_content_hash": "sha256:fbe1642220ab758807bb06a718afd4e0dcfe6a82061555e9eab9b2f0320d86c2"
+        "trace_content_hash": "sha256:0aa553893e75fa6a0e2d1d4c3d3a3d2349d7d38a74456e7f343821813c33493a"
       },
       "status": "closed"
     }

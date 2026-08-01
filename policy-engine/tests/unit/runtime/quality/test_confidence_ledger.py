@@ -30,6 +30,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     PredictableClaimSpec,
     RationalSpec,
     load_confidence_ledger_registry,
+    project_confidence_ledger_semantic_receipt,
     project_n9_promotion_certificate,
     project_n12_epoch_reference,
     validate_confidence_ledger_receipt,
@@ -44,10 +45,11 @@ def _scope(
     *,
     owner_projection_hash: str = _HASH_1,
     owner_scope_key: str = "design-problem:durable-ledger-test",
+    authority_purpose: str = "n9_promotion",
 ) -> ConfidenceRiskBudgetScope:
     return ConfidenceRiskBudgetScope(
         scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
-        authority_purpose="n9_promotion",
+        authority_purpose=authority_purpose,
         owner_scope_key=owner_scope_key,
         owner_projection_hash=owner_projection_hash,
         epoch_ref=None,
@@ -1619,6 +1621,217 @@ def test_nonrejecting_constant_unit_e_process_burns_but_cannot_promote(
     assert check.eligible_for_promotion is False
 
 
+def test_caller_supplied_all_one_trace_is_not_a_coverage_argument(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        _prepare(
+            session,
+            instrument_id="constant_unit_e_process",
+            certificate_ref="caller-trace://all-one-realization",
+            claim=_claim(role="promotion"),
+        )
+
+    check = session.receipt().checks[0]
+    assert exc_info.value.code == "certificate_role_not_permitted"
+    assert check.instrument_family == "e_process"
+    assert check.anytime_valid is True
+    assert check.outcome == "preflight_refusal"
+    assert check.supports_obligation is False
+    assert check.eligible_for_promotion is False
+    assert check.spend.fraction == 0
+
+
+def test_adaptive_claim_selection_requires_conditional_validity_given_prior_filtration(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    stale_history = session.observe_history()
+    prior = session.execute_check(_prepare(session))
+    adaptive_claim = _claim(claim_ref=f"claim://unit/adaptive-after-{prior.outcome}")
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        session.prepare_check(
+            history_token=stale_history,
+            request_key="request://unit/adaptive/stale",
+            obligation_class=PromotionObligationClass.CALIBRATION,
+            instrument_id="constant_unit_e_process",
+            certificate_ref="construction://constant-unit-e-process/adaptive-stale",
+            claim=adaptive_claim,
+        )
+
+    assert exc_info.value.code == "ledger_head_conflict"
+    current_history = session.observe_history()
+    prepared = session.prepare_check(
+        history_token=current_history,
+        request_key="request://unit/adaptive/current",
+        obligation_class=PromotionObligationClass.CALIBRATION,
+        instrument_id="constant_unit_e_process",
+        certificate_ref="construction://constant-unit-e-process/adaptive-current",
+        claim=adaptive_claim,
+    )
+    receipt = session.receipt()
+
+    assert prepared.filtration_ref == current_history.filtration_ref
+    assert prepared.precheck_history_hash == current_history.precheck_history_hash
+    assert prepared.claim_ref == adaptive_claim.claim_ref
+    assert receipt.conditionality_clause == CONDITIONAL_VALIDITY_CLAUSE
+    assert receipt.maintained_assumptions == (
+        "obligation_completeness",
+        "validator_soundness",
+    )
+
+
+def test_every_valid_history_prefix_preserves_the_delta_bound_at_user_stop(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    prior_total = Fraction()
+    budget = session.registry.policy.delta.fraction
+
+    for index in range(3):
+        prepared = _prepare(
+            session,
+            request_key=f"request://unit/anytime-stop/{index}",
+            certificate_ref=f"construction://constant-unit-e-process/anytime-stop/{index}",
+        )
+        prepared_receipt = validate_confidence_ledger_receipt(
+            session.receipt(),
+            session=session,
+        )
+        started = session.start_check(prepared)
+        started_receipt = validate_confidence_ledger_receipt(
+            session.receipt(),
+            session=session,
+        )
+        session.execute_check(started)
+        completed_receipt = validate_confidence_ledger_receipt(
+            session.receipt(),
+            session=session,
+        )
+
+        assert prepared_receipt.total_spend.fraction == prior_total
+        assert prior_total < started_receipt.total_spend.fraction <= budget
+        assert completed_receipt.total_spend == started_receipt.total_spend
+        assert prepared_receipt.within_budget is True
+        assert started_receipt.within_budget is True
+        assert completed_receipt.within_budget is True
+        prior_total = completed_receipt.total_spend.fraction
+
+
+def test_claim_instrument_and_slot_are_bound_before_outcome_is_observed(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    claim = _claim(claim_ref="claim://unit/pre-outcome-binding")
+    prepared = _prepare(
+        session,
+        certificate_ref="construction://constant-unit-e-process/pre-outcome-binding",
+        claim=claim,
+    )
+    started = session.start_check(prepared)
+
+    assert started.outcome == "started"
+    assert started.claim_ref == claim.claim_ref
+    assert started.instrument_id == "constant_unit_e_process"
+    assert started.instrument_definition_hash is not None
+    assert started.execution_ordinal == 0
+    assert started.schedule_query_index == 0
+    assert started.spend.fraction > 0
+    assert started.claim_execution_binding_hash != prepared.claim_execution_binding_hash
+    assert started.good_event_id is None
+
+    completed = session.execute_check(started)
+
+    assert completed.outcome == "not_supported"
+    assert completed.request_fingerprint == started.request_fingerprint
+    assert completed.claim_execution_binding_hash == started.claim_execution_binding_hash
+    assert completed.execution_ordinal == started.execution_ordinal
+    assert completed.schedule_query_index == started.schedule_query_index
+    assert completed.spend == started.spend
+
+
+def test_certificate_cannot_be_rebound_to_a_different_claim_snapshot_or_polarity(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    request_key = "request://unit/immutable-certificate-binding"
+    certificate_ref = "construction://constant-unit-e-process/immutable-binding"
+    original = _prepare(
+        session,
+        request_key=request_key,
+        certificate_ref=certificate_ref,
+    )
+    rebound_claims = (
+        _claim(claim_ref="claim://unit/different-snapshot"),
+        _claim(role="admission", polarity="confident_wrong_admission"),
+    )
+
+    for rebound_claim in rebound_claims:
+        with pytest.raises(ConfidenceLedgerError) as exc_info:
+            session.prepare_check(
+                history_token=session.observe_history(),
+                request_key=request_key,
+                obligation_class=PromotionObligationClass.CALIBRATION,
+                instrument_id="constant_unit_e_process",
+                certificate_ref=certificate_ref,
+                claim=rebound_claim,
+            )
+        assert exc_info.value.code == "idempotency_binding_mismatch"
+
+    current = session.receipt().checks[0]
+    assert current.request_fingerprint == original.request_fingerprint
+    assert current.claim_ref == original.claim_ref
+    assert current.claim_polarity == "conformance_only"
+
+
+def test_probabilistic_refusal_burns_against_confident_wrong_refusal_event(
+    sessions: _SessionFactory,
+) -> None:
+    registry = load_confidence_ledger_registry(
+        REPO_ROOT / "architecture/production_quality/confidence_ledger.toml"
+    )
+    payload = registry.source_payload()
+    constant_e_process = next(
+        item
+        for item in payload["instruments"]
+        if item["instrument_id"] == "constant_unit_e_process"
+    )
+    constant_e_process["certificate_roles"].append("refusal")
+    session = sessions(registry_source=payload)
+    prepared = _prepare(
+        session,
+        obligation_class=PromotionObligationClass.DATA,
+        instrument_id="constant_unit_e_process",
+        certificate_ref="construction://constant-unit-e-process/refusal",
+        claim=_claim(role="refusal", polarity="confident_wrong_refusal"),
+    )
+    started = session.start_check(prepared)
+
+    assert started.claim_polarity == "confident_wrong_refusal"
+    assert started.spend.fraction > 0
+    assert session.receipt().total_spend == started.spend
+    assert started.supports_obligation is False
+
+    completed = session.execute_check(started)
+    expected_good_event_id = ledger_module._identity(
+        "confidence-good-event",
+        {
+            "execution_id": completed.execution_id,
+            "spend": completed.spend,
+            "protected_error": "confident_wrong_refusal",
+        },
+    )
+
+    assert completed.outcome == "not_supported"
+    assert completed.good_event_id == expected_good_event_id
+    assert completed.supports_obligation is False
+    assert completed.eligible_for_promotion is False
+    assert session.receipt().total_spend == started.spend
+
+
 @pytest.mark.parametrize("outcome", ["owner_refused", "owner_error"])
 def test_started_owner_refusal_or_error_does_not_refund_slot(
     sessions: _SessionFactory,
@@ -1714,6 +1927,97 @@ def test_non_anytime_valid_instrument_cannot_support_promotion(
 
     assert exc_info.value.code == "non_anytime_valid"
     assert session.receipt().checks[0].eligible_for_promotion is False
+
+
+def test_marginal_split_conformal_interval_is_not_adaptive_promotion_certificate(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        _prepare(
+            session,
+            instrument_id="split_conformal_interval",
+            certificate_ref="foundry://split-conformal/marginal-coverage",
+            claim=_claim(role="promotion"),
+        )
+
+    check = session.receipt().checks[0]
+    assert exc_info.value.code == "non_anytime_valid"
+    assert check.instrument_family == "marginal_conformal_interval"
+    assert check.anytime_valid is False
+    assert check.outcome == "preflight_refusal"
+    assert check.spend.fraction == 0
+    assert check.eligible_for_promotion is False
+
+
+def test_foundry_anytime_valid_label_without_owner_theorem_is_refused(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        _prepare(
+            session,
+            instrument_id="foundry_empirical_confidence_sequence",
+            certificate_ref="foundry://confidence-sequence?anytime_valid=true",
+            claim=_claim(role="promotion"),
+        )
+
+    check = session.receipt().checks[0]
+    assert exc_info.value.code == "non_anytime_valid"
+    assert check.instrument_family == "empirical_confidence_proxy"
+    assert check.proof_profile_id == "fixed_time_ineligible"
+    assert check.anytime_valid is False
+    assert check.refusal_code == "non_anytime_valid"
+    assert check.spend.fraction == 0
+
+
+def test_ir_sensitivity_e_value_is_not_resolved_as_betting_e_value(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        _prepare(
+            session,
+            instrument_id="causal_sensitivity_e_value",
+            certificate_ref="ir://analytics/sensitivity/e-value-result",
+            claim=_claim(role="promotion"),
+        )
+
+    check = session.receipt().checks[0]
+    assert exc_info.value.code == "non_anytime_valid"
+    assert check.instrument_family == "unmeasured_confounding_robustness_metric"
+    assert check.instrument_family != "e_value"
+    assert check.anytime_valid is False
+    assert check.spend.fraction == 0
+    assert check.eligible_for_promotion is False
+
+
+def test_ddm_online_fdr_decision_is_not_a_promotion_ledger_receipt(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        _prepare(
+            session,
+            instrument_id="ddm_online_fdr_controller",
+            certificate_ref="ddm://online-fdr/reject-decision",
+            claim=_claim(role="promotion"),
+        )
+
+    projection = project_n9_promotion_certificate(session.receipt(), session=session)
+    assert exc_info.value.code == "non_anytime_valid"
+    assert projection.total_spend.fraction == 0
+    assert len(projection.promotion_rows) == 1
+    row = projection.promotion_rows[0]
+    assert row.instrument_family == "false_discovery_rate_controller"
+    assert row.outcome == "preflight_refusal"
+    assert row.anytime_valid is False
+    assert row.supports_obligation is False
+    assert row.eligible_for_promotion is False
 
 
 def test_certificate_role_and_error_polarity_are_bound_and_checked(
@@ -2494,16 +2798,127 @@ def test_conditionality_clause_is_required_in_receipt_and_both_projections(
     assert n9.conditionality_clause == CONDITIONAL_VALIDITY_CLAUSE
     assert n12.conditionality_clause == CONDITIONAL_VALIDITY_CLAUSE
     assert n9.scope_id == receipt.scope_id
+    assert n9.scope_anchor_ref == receipt.scope_anchor_ref
     assert n9.head_event_id == receipt.head_event_id
     assert n9.head_event_ref == receipt.head_event_ref
     assert receipt.deployment_identity.startswith("policy-engine-deployment:sha256:")
     assert n9.deployment_identity == receipt.deployment_identity
     assert n12.deployment_identity == receipt.deployment_identity
+    assert n12.scope_anchor_ref == receipt.scope_anchor_ref
+    assert n12.risk_scope == session.risk_scope
     with pytest.raises(ConfidenceLedgerError, match="conditionality_clause_missing"):
         validate_confidence_ledger_receipt(
             receipt.model_copy(update={"conditionality_clause": "unconditional"}),
             session=session,
         )
+
+
+def test_semantic_receipt_projection_is_stable_across_physical_lock_identities(
+    tmp_path: Path,
+) -> None:
+    scope = _scope(authority_purpose="n11_probabilistic_conformance")
+    first_session = _SessionFactory(tmp_path / "first")(scope=scope)
+    second_session = _SessionFactory(tmp_path / "second")(scope=scope)
+    first_session.execute_check(_prepare(first_session))
+    second_session.execute_check(_prepare(second_session))
+    first_receipt = validate_confidence_ledger_receipt(
+        first_session.receipt(),
+        session=first_session,
+    )
+    second_receipt = validate_confidence_ledger_receipt(
+        second_session.receipt(),
+        session=second_session,
+    )
+
+    first_lock = first_receipt.checks[0].owner_invocation_lock_identity
+    second_lock = second_receipt.checks[0].owner_invocation_lock_identity
+    assert first_lock is not None
+    assert second_lock is not None
+    assert first_lock.inode != second_lock.inode
+    assert first_receipt.model_dump_json() != second_receipt.model_dump_json()
+
+    first_projection = project_confidence_ledger_semantic_receipt(
+        first_receipt,
+        session=first_session,
+        projection_scope="n11_conformance_append_lineage",
+    )
+    second_projection = project_confidence_ledger_semantic_receipt(
+        second_receipt,
+        session=second_session,
+        projection_scope="n11_conformance_append_lineage",
+    )
+
+    assert first_projection == second_projection
+    assert first_projection.checks[0].owner_invocation_claim_projection_hash is not None
+    assert first_projection.checks[0].good_event_id == first_receipt.checks[0].good_event_id
+
+
+def test_semantic_receipt_projection_rejects_scope_authority_mismatch(
+    sessions: _SessionFactory,
+) -> None:
+    real_scope = _scope(authority_purpose="n11_real_n10_n13b_accounting")
+    session = sessions(scope=real_scope)
+    session.execute_check(_prepare(session))
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match="semantic_projection_scope_authority_mismatch",
+    ):
+        project_confidence_ledger_semantic_receipt(
+            session.receipt(),
+            session=session,
+            projection_scope="n11_conformance_append_lineage",
+        )
+
+
+def test_semantic_receipt_projection_excludes_physical_ledger_identities(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions(scope=_scope(authority_purpose="n11_probabilistic_conformance"))
+    session.execute_check(_prepare(session))
+    receipt = session.receipt()
+    projection = project_confidence_ledger_semantic_receipt(
+        receipt,
+        session=session,
+        projection_scope="n11_conformance_append_lineage",
+    )
+
+    def nested_keys(value: object) -> set[str]:
+        if isinstance(value, dict):
+            return set(value).union(*(nested_keys(item) for item in value.values()))
+        if isinstance(value, list):
+            return set().union(*(nested_keys(item) for item in value))
+        return set()
+
+    physical_fields = {
+        "check_id",
+        "claim_execution_binding_hash",
+        "event_id",
+        "event_ref",
+        "filtration_ref",
+        "head_event_id",
+        "head_event_ref",
+        "ledger_root_id",
+        "ledger_root_ref",
+        "owner_invocation_claim_id",
+        "owner_invocation_lock_identity",
+        "parent_event_id",
+        "parent_event_ref",
+        "precheck_history_hash",
+        "prepared_event_id",
+        "receipt_id",
+        "registry_artifact_ref",
+        "started_event_id",
+    }
+    raw_keys = nested_keys(receipt.model_dump(mode="json"))
+    semantic_keys = nested_keys(projection.model_dump(mode="json"))
+
+    assert physical_fields <= raw_keys
+    assert physical_fields.isdisjoint(semantic_keys)
+    assert projection.risk_scope == session.risk_scope
+    assert projection.scope_id == session.risk_scope.scope_id
+    assert projection.checks[0].owner_invocation_claim_projection_hash is not None
+    assert projection.checks[0].good_event_id is not None
 
 
 def test_n9_projection_excludes_conformance_and_non_promotion_rows(
@@ -2527,6 +2942,7 @@ def test_n12_projection_carries_explicit_epoch_placeholders(
     assert n12.rule_ref == "policyos.layer3.gy.n9.v1"
     assert n12.schema_ref == "policyos.runtime.design_problem.v1"
     assert n12.validity == "epoch_not_implemented"
+    assert n12.scope_anchor_ref == session.receipt().scope_anchor_ref
 
 
 def test_obligation_budget_split_is_total_over_n9_taxonomy() -> None:
@@ -2577,6 +2993,55 @@ def test_schedule_mass_above_one_is_rejected() -> None:
 
     with pytest.raises(ValueError, match="schedule_total_mass_above_one"):
         load_confidence_ledger_registry(payload)
+
+
+def test_exact_rational_basel_slot_is_below_declared_ideal_weight(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    started = session.start_check(_prepare(session))
+    delta = session.registry.policy.delta.fraction
+    obligation_weight = session.registry.obligation_weights[PromotionObligationClass.CALIBRATION]
+    executable_coefficient = Fraction(6 * 113**2, 355**2)
+    expected_slot = delta * obligation_weight * executable_coefficient
+
+    # Exact rational upper enclosure of pi at 50 decimal places. Dividing by
+    # its square gives a strict rational lower witness for the symbolic ideal.
+    pi_upper = Fraction(
+        314159265358979323846264338327950288419716939937511,
+        10**50,
+    )
+    ideal_coefficient_lower_witness = Fraction(6, 1) / pi_upper**2
+
+    assert started.spend.fraction == expected_slot
+    assert executable_coefficient == Fraction(76614, 126025)
+    assert executable_coefficient < ideal_coefficient_lower_witness
+    assert expected_slot < delta * obligation_weight * ideal_coefficient_lower_witness
+
+
+def test_upward_rounded_schedule_rendering_is_rejected(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    session.execute_check(_prepare(session))
+    receipt = session.receipt()
+    check = receipt.checks[0]
+    decimal_scale = 10**48
+    downward_rendering = Fraction(check.spend_decimal)
+    upward_rendering = downward_rendering + Fraction(1, decimal_scale)
+    scaled_upward = upward_rendering * decimal_scale
+    assert scaled_upward.denominator == 1
+    whole, decimals = divmod(scaled_upward.numerator, decimal_scale)
+    upward_text = f"{whole}.{decimals:048d}"
+
+    assert downward_rendering <= check.spend.fraction < upward_rendering
+    forged_check = check.model_copy(update={"spend_decimal": upward_text})
+    forged_receipt = receipt.model_copy(update={"checks": (forged_check,)})
+
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        validate_confidence_ledger_receipt(forged_receipt, session=session)
+
+    assert exc_info.value.code == "spend_decimal_drift"
 
 
 def test_fraction_display_is_48_decimal_digit_directed_downward() -> None:

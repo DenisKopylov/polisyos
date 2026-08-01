@@ -15,15 +15,17 @@ admission evidence.
 block, and sections 3.5.6, 3.5.7 E1-E10, 3.5.8 U1-U4, 3.5.10, and 3.5.11. This document sequences
 that approved design. It does not create a second statistics stack or another promotion owner.
 
-**Architecture:** One new runtime owner resolves data-registered instrument definitions, binds them
-to owner-verifiable certificate evidence, derives schedule slots, records executed checks, and
-recomputes the good-event/union-bound receipt. N9 is the sole promotion chokepoint and consumes only
-the ledger's narrow promotion-certificate projection. The generation-cycle consumer revalidates the
-typed N9 receipt and its embedded ledger before it trusts promotion booleans. A separate frozen N11
-artifact accounts real N10/N13b refusal and admission-gate evidence through narrow, acyclic owner
-projections. Its future N12 projection carries epoch-reference fields but implements no epoch logic.
+**Architecture:** One new runtime owner resolves data-registered instrument definitions, binds the
+claim, polarity, filtration, and predictable schedule slot to owner-verifiable certificate evidence,
+durably burns the slot before observing an executed check's outcome, and recomputes the
+good-event/union-bound receipt from an append-only lineage. N9 is the sole promotion chokepoint and
+consumes only the ledger's narrow promotion-certificate projection. The generation-cycle consumer
+revalidates the typed N9 receipt and its embedded ledger before it trusts promotion booleans. A
+separate frozen N11 artifact accounts real N10/N13b refusal and admission-gate evidence through
+narrow, acyclic owner projections. Its future N12 projection carries epoch-reference fields but
+implements no epoch logic.
 
-**Tech stack:** Python 3.14, Pydantic v2 strict DTOs, `Decimal`/exact rational allocation metadata,
+**Tech stack:** Python 3.14, Pydantic v2 strict DTOs, `Fraction`/directed-downward decimal rendering,
 TOML registry/config, existing artifact/CAS and proof-provenance contracts, pytest, Ruff, canonical
 JSON writers. `statsmodels 0.14.6`, `ortools 9.15.6755`, and JAX CPU are available in the isolated
 worktree environment; N11 does not add a generic confidence-sequence/e-process implementation.
@@ -73,25 +75,86 @@ global violations, and the HTTP-redaction flake remains in the Atlas/HTTP lane.
 | --- | --- | --- |
 | `pdc/_impl/gy_waist.py` `PromotionRiskSpendRecord/Summary` | Typed N9 bridge exists, but spend is caller-declared and the ledger ref is an unchecked string. | Extend in place; remove caller authority. |
 | `runtime/quality/promotion_sequence.py` | Canonical N9 owner and complete 15-class obligation denominator exist; `_risk_spend_summary` only sums declarations. | Reuse N9 and replace only its spend hook. |
-| `ddm/calibration/multiple_testing.py` | `MultipleTestingPlan`, Bonferroni allocation, and an online FDR controller exist for monitoring/O2. Runtime cannot import DDM under the architecture policy, and these contracts do not prove anytime validity or owner provenance. | Do not fork or copy; record as the O2 family census result. |
+| `ddm/calibration/multiple_testing.py` | `MultipleTestingPlan` is a float-valued finite-family sum check. `OnlineFDRController` is mutable in-memory alpha wealth with no durable history, filtration/claim binding, restart/fork defense, or theorem-bearing owner receipt; it can also apply its alpha floor after wealth reaches zero. Runtime cannot import DDM under the architecture policy. | Do not fork or copy. Keep it in the O2 monitoring family; it cannot authorize N9 promotion or serve as N11's durable budget owner. |
 | `ddm/integration/events.py` | Carries p-value/e-value/ERT evidence but does not establish a promotion-valid guarantee. | Never treat shape/presence as authority. |
-| `foundry/methods/selection/advisor.py` `ConfidenceSequence` | Labels an empirical Hoeffding proxy `anytime_valid=True` without a content-bound coverage proof. | Explicitly ineligible for promotion until an owner-verifiable argument exists. |
+| `foundry/methods/catalog/causal/conformal_ci.py` | `conformal_calibrate_interval` returns a tuple and method label for split-conformal marginal coverage under held-out/exchangeable calibration. It carries no assumption, filtration, adaptive-selection, stopping-rule, claim, or owner-proof binding. | Reuse only as producer mathematics after an owner supplies the missing guarantee; current output is not an adaptive promotion certificate. |
+| `foundry/methods/catalog/forecasting/uncertainty.py` | Residual/reconciled conformal bundles explicitly target marginal or per-horizon coverage and record exchangeability/dependence assumptions; several fallback paths are uncertified. | Preserve their honest scope. Marginal conformal coverage is not silently upgraded to conditional validity under adaptive N9 selection. |
+| `foundry/methods/selection/advisor.py` `ConfidenceSequence` | The frozen dataclass defaults `anytime_valid=True`; its `empirical_hoeffding_anytime_proxy` radius is a diagnostic formula without a theorem receipt, filtration, boundedness/dependence proof, or content-bound owner verification. | Explicitly ineligible for promotion until an owner-verifiable theorem establishes the guarantee for the bound process actually used. The boolean/estimator label is not evidence. |
+| `ir/analytics/sensitivity.py` `EValueResult` | This is the causal-sensitivity **E-value** (risk-ratio robustness to unmeasured confounding), not a betting e-value or e-process. Its name and `e_value >= 1` shape carry no sequential testing semantics. | Keep as sensitivity evidence. Never resolve or relabel it as an N11 e-value instrument by name/shape. |
 | `ir/analytics/proof_composability.py` | `ProofComposabilityCertificate`, its witness/index refs, and `persist_*/load_*` helpers already provide typed proof status, artifact-store persistence, and content-addressed input graphs. | Reuse its proof-provenance and persisted-ref patterns for resolve -> bind -> verify intake; do not repurpose its causal-replay statuses as statistical validity. |
 | N13b registry/derivation owner | Generic TOML family registration, content-bound receipt, structural verification, and data-only second-family precedent. | Copy the pattern, not its domain types. |
 | `statsmodels` | Fixed-time statistical machinery is installed. No existing repo primitive supplies the required adaptive-promotion guarantee. | Do not wrap fixed-time intervals as anytime-valid. |
+| `scientist/orchestration/engine/budget_ledger.py` `FileBudgetLedger` | Reuses a process lock plus fail-closed POSIX `fcntl` lock and reloads mutable state under that lock. Its bounded in-place journal permits release/refund and has no immutable CAS lineage, predictable-claim binding, or fork-proof head. | Reuse the lock/reload/atomic-replace precedent only. Do not reuse its refundable budget semantics as N11 authority. |
 
 There is no `scientist/analytics` package or reusable sequential-test/e-process confidence owner in
-the current tree. The IR analytics census found proof-carrying certificate persistence, not an
-anytime-valid statistical primitive. The DDM and foundry candidates above remain outside runtime's
+the current tree. The IR analytics census found proof-carrying certificate persistence and a
+same-name causal-sensitivity E-value, not an anytime-valid statistical primitive. DDM supplies O2
+multiple-testing diagnostics but not a durable promotion ledger. Foundry supplies useful conformal
+and diagnostic interval producers, but none binds the conditional guarantee required after adaptive
+claim selection to N9's filtration and executed claim. Those candidates remain outside runtime's
 import boundary or lack the owner-verifiable coverage argument N11 requires.
 
 **Verdict:** the narrow genuinely missing kernel is a typed promotion confidence **accounting** owner:
-registry resolution, proof-bearing instrument eligibility, predictable slot derivation, exact spend
-accounting, union-bound composition, and projections. N11 does not implement generic e-process,
-confidence-sequence, sequential-test, or FDR algorithms. Certificate producers remain responsible
-for their mathematics; N11 verifies the registered proof contract and accounts its guarantee.
+registry resolution, proof-bearing instrument eligibility, predictable slot derivation, durable
+append-only execution accounting, exact spend accounting, union-bound composition, and projections.
+N11 does not implement generic e-process, confidence-sequence, sequential-test, or FDR algorithms.
+Certificate producers remain responsible for their mathematics; N11's trusted proof kernel verifies
+a supported theorem schema and the registry binds an instrument to that schema. Registry data
+cannot invent a theorem.
+
+The census also found no useful producer-owned anytime-valid certificate that can honestly turn a
+current obligation GREEN. To exercise the probabilistic accounting path without inventing power,
+the one owner may expose a construction-verified constant-unit e-process witness: `E_t = 1` is
+recomputed by the owner for every index, is a nonnegative martingale under every null, and cannot
+cross `1/alpha` for `alpha < 1`. Its exact slot is burned at `started` before the owner returns
+`crossed=false`, but it can never satisfy or promote an obligation. Checking a caller-supplied
+all-one realization is forbidden; validity must follow from the closed constructor and a
+remove-the-constructor flip. All current real statistical offerings remain typed refusals, and
+positive certificates remain future free-grow.
 
 ## Mathematical and semantic invariants
+
+### Adaptive filtration, claim binding, and execution protocol
+
+Let `F_(t-1)` be the durable ledger history before global executed-check ordinal `t`. Candidate
+selection may use all prior outcomes, but the exact claim identity, obligation class `q_t`, claim
+polarity/error event, instrument definition and theorem, owner evidence/data snapshot, filtration
+ref, and schedule slot must all be `F_(t-1)`-measurable. They are content-bound into one
+`claim_execution_binding` before the owner can observe or return the check outcome. A certificate for
+one estimand, null/alternative, direction, data snapshot, or refusal/admission/bind polarity cannot
+be replayed against another, even if its numeric payload is unchanged.
+
+For a probabilistic instrument, owner verification must prove the conditional guarantee actually
+needed by adaptive composition:
+
+`P(false_claim_t | F_(t-1), maintained assumptions) <= alpha*_(t,q_t)`.
+
+An unconditional fixed-time or marginal-coverage statement is insufficient after adaptive claim
+selection. A confidence sequence/e-process/sequential test must bind the process, filtration,
+stopping rule or time-uniform theorem, and protected claim event; a terminal value plus an
+`anytime_valid` label is insufficient. This conditional step guarantee, predictability of the slot,
+and a pathwise total budget at most `delta` are what permit tower-property plus union-bound
+composition at every stopping time.
+
+Execution has a durable three-state append protocol. `prepared` resolves and verifies the
+definition and claim binding without observing an outcome and spends nothing. Immediately before
+invoking the owner, `started` atomically appends the unique ordinal, parent-head hash,
+executed-check ID, binding, slot, and full burn. Once `started` exists, a non-rejection, typed
+statistical refusal, owner error, timeout, or crash cannot refund the slot. `completed` appends the
+outcome or refusal afterward. Unknown or ineligible instruments rejected during `prepared` never
+execute and spend zero; a check already executed outside this handshake is an unaccounted bypass
+and cannot reach promotion.
+
+The history is append-only and has one compare-and-swap canonical head per owner-derived risk-budget
+scope. The root ledger ID binds that scope and registered delta policy; a caller cannot mint a new
+root for the same scope, and N11 has no “fresh budget” API. Restart resolves the durable head and
+continues at `max(t) + 1`; a caller cannot reset to an earlier receipt to recover large early slots.
+Two children of one head cannot both become canonical: a stale branch gets `ledger_head_conflict`
+and must reprepare at a fresh ordinal. An exact idempotent request may read the existing completed
+receipt only when it does not execute again. Any retry that observes new output receives a new
+executed-check ID, ordinal, and burn; reused IDs with different content and duplicate ordinals/slots
+are corruption. Every started deterministic or probabilistic attempt receives one global ordinal,
+while only eligible probabilistic `started` rows have nonzero spend.
 
 ### Obligation split
 
@@ -114,29 +177,67 @@ duplicate, extra, or certificate-type-keyed allocation is RED.
 
 ### Predictable schedule and spend law
 
-For zero-based query index `t` and typed obligation class `q`, the default config declares:
+For global zero-based executed-check ordinal `t` and typed obligation class `q`, the default config
+declares the ideal Basel envelope:
 
-`alpha*_(t,q) = delta * obligation_weight(q) * 6 / (pi^2 * (t + 1)^2)`.
+`alpha^ideal_(t,q) = delta * obligation_weight(q) * 6 / (pi^2 * (t + 1)^2)`.
 
-The symbolic Basel schedule proves `sum_t sum_q alpha*_(t,q) <= delta`. The executed receipt stores
-the exact inputs and a canonical decimal rendering; the validator recomputes it from registry/config
-and never trusts the recorded value. A probabilistic check spends its full recomputed slot only when
-executed. An unexecuted slot spends zero. An executed probabilistic check without a unique schedule
-slot cannot spend and fails closed. Deterministic owner proofs spend exactly zero.
+No binary float or rounded-up decimal participates in authority. The proof kernel derives the
+executable coefficient from the certified rational upper enclosure `pi < 355/113`:
+
+`c_B = 6 * 113^2 / 355^2 = 76614 / 126025 < 6 / pi^2`,
+
+and allocates the exact rational burn
+
+`alpha*_(t,q) = delta * obligation_weight(q) * c_B / (t + 1)^2`.
+
+Thus every executable slot is a conservative downward realization of the declared default, and
+`sum_t sum_q alpha*_(t,q) < delta` follows from the Basel theorem without floating-point summation.
+`delta`, pool/member weights, profile mass, every slot, and cumulative spend are canonical
+numerator/denominator pairs. A decimal field is display-only, rendered with directed rounding toward
+zero, and the validator rejects a rendering above its exact fraction.
+
+At `started`, a probabilistic check irrevocably spends its full recomputed slot before the outcome is
+known. An unexecuted `prepared` row or untouched schedule slot spends zero. An executed
+probabilistic check without a unique precommitted schedule slot cannot execute through the owner and
+fails closed if presented post hoc. A failed, non-rejecting, or refusing executed check does not
+refund risk. Deterministic owner proofs execute at a unique ordinal but spend exactly zero.
 
 The schedule mass is tunable as data without changing the runtime branch structure. The registered
 Basel-square profile stores an exact rational `mass` and derives
-`weight_t = mass * 6 / (pi^2 * (t + 1)^2)`; the default mass is one. The generic profile verifier
-accepts only a proof-kernel-supported predictable family and recomputes its symbolic total-mass
-upper bound. A custom half-mass profile must account end-to-end; a profile whose recomputed total
-mass exceeds one is invalid even when its recorded bound says otherwise. No arbitrary recorded
-normalization or finite-prefix claim is trusted.
+`weight_t = mass * c_B / (t + 1)^2`; the default mass is one. The proof kernel recomputes the
+symbolic ideal envelope, the exact downward coefficient, and total-mass bound. A custom half-mass
+profile must account end-to-end; a profile whose recomputed mass exceeds one is invalid even when
+its recorded bound says otherwise. No arbitrary recorded normalization, decimal approximation, or
+finite-prefix claim is trusted.
+
+### Proof-kernel and registry boundary
+
+Instrument families and certificate-class routes remain data-registered, but mathematical truth is
+not. The TOML may select a proof-kernel theorem ID, declare exact parameters and maintained
+assumptions, name the owner verifier, and bind those declarations into the receipt. It cannot define
+a new theorem, verifier semantics, or arbitrary proof program. The trusted Python kernel contains a
+small typed set of theorem schemas: deterministic owner proof, time-uniform confidence-sequence
+coverage, Ville/e-process thresholding, sequential-test type-I control, and the Basel-square schedule
+bound. Each schema recomputes its premises from owner evidence; unknown theorem IDs fail closed.
+
+Engine control flow is generic over instrument records and dispatches only on the proof theorem
+schema, never on instrument-family or certificate-class names. Consequently U3 may add a new
+instrument type in TOML only by reusing an already implemented theorem schema and owner verifier.
+A genuinely new statistical theorem is code/proof-kernel work and cannot be smuggled through the
+data-only universality lane.
 
 ### Good event and conditionality
 
-For each executed probabilistic check, owner verification must establish its registered guarantee
-on event `G_(t,q)`. The ledger defines `Omega_delta` as the intersection of those good events and
-uses only the union bound; it does not claim independence. The single canonical clause is:
+For each executed probabilistic check, owner verification must establish
+`P(G_t^c | F_(t-1), maintained assumptions) <= alpha*_(t,q_t)` for the exact adaptively selected
+claim and protected error polarity. The claim/slot selection is predictable, and cumulative exact
+burn is pathwise at most `delta`; applying the tower property and union bound therefore gives the
+same bound for any user stopping time. The ledger defines `Omega_delta` as the intersection of
+those good events and does not claim independence, exchangeability, or optional-stopping validity
+unless the selected owner theorem proves the needed premise. In the N9 projection `false_claim_t`
+specializes to false promotion; refusal and admission rows retain their own confident-wrong error
+events and polarity-specific spent subset under the same union bound. The single canonical clause is:
 
 `P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).`
 
@@ -147,20 +248,45 @@ and the frozen artifact. Deleting or paraphrasing it in a projection is corrupti
 
 - Instrument IDs/families are strings resolved from
   `architecture/production_quality/confidence_ledger.toml`; no engine enum names certificate types.
-- Initial registered mathematics cover confidence sequences, e-values, e-processes, sequential
-  tests, and deterministic owner proofs. The registry also describes fixed-time Bayesian credible
-  intervals as non-eligible unless a separately verified coverage argument upgrades the actual
-  certificate.
+- Initial definitions cover confidence sequences, betting e-values/e-processes, sequential tests,
+  and deterministic owner proofs by selecting supported proof-kernel schemas. The causal-sensitivity
+  `EValueResult` is explicitly not a betting e-value. The registry also describes fixed-time
+  Bayesian credible intervals and marginal conformal intervals as non-eligible unless a separately
+  verified coverage argument upgrades the actual adaptively selected certificate.
 - A registry boolean such as `anytime_valid=true` is not evidence. Intake is one
-  resolve -> content-bind -> verifier-provenance path. The runtime owner verifies the generic proof
-  language and certificate owner; a rehashed self-attestation cannot satisfy it.
+  resolve -> content-bind -> verifier-provenance path. The runtime owner verifies the selected
+  proof-kernel theorem and certificate owner; a rehashed self-attestation or registry-declared new
+  theorem cannot satisfy it.
+- The constant-unit e-process is a no-power conformance witness only. Its owner generates and
+  recomputes the process from construction, binds its filtration, derives the threshold from the
+  pre-outcome burned slot, forces `crossed=false`, and rejects any satisfaction/promotion claim. It
+  is never evidence of real statistical power or the source of the real artifact's non-vacuity.
 - `unknown_instrument`, `coverage_argument_missing`, `non_anytime_valid`,
-  `schedule_slot_missing`, `registry_binding_invalid`, and `owner_reverification_failed` are typed
-  refusals. None can silently bypass accounting.
+  `conditional_validity_missing`, `claim_binding_invalid`, `claim_polarity_mismatch`,
+  `schedule_slot_missing`, `ledger_head_conflict`, `duplicate_execution_conflict`,
+  `unknown_proof_theorem`, `registry_binding_invalid`, and `owner_reverification_failed` are typed
+  accounting refusals. None supports the underlying policy claim or silently bypasses accounting.
+  Pre-execution refusals spend zero; once `started` is durable, the same refusal/error outcome keeps
+  the full burn.
 - N10 evidence classes `owner_acquisition_route`, `estimand_binding_refusal`, and
   `owner_data_gap` and the N13b admission-passport class are registry-addressable. Current real data
   contains two of the three N10 classes, zero `owner_data_gap` rows, and zero persisted N13b passport
   instances. The real run must record those zero denominators and must not mint phantom rows.
+
+### Claim polarity and honest refusal accounting
+
+Every accounted row binds a protected claim polarity and its false-claim event: false positive
+bind/promotion, confident-wrong refusal, or confident-wrong admission. Direction is mathematical,
+not presentation metadata: a lower-bound theorem cannot certify an upper-bound refusal, and a
+certificate cannot be reused merely by negating its label. The proof-kernel verifier recomputes the
+null/alternative, estimand, direction, decision rule, and error event from the owner certificate.
+
+An accounting refusal such as `unknown_instrument` means “this offered instrument cannot authorize
+the policy claim”; it is not evidence that the policy claim itself is false. Conversely, a real N10
+`estimand_binding_refusal` is an affirmative, owner-custodied refusal claim. If that claim rests on a
+probabilistic instrument, it burns risk against the confident-wrong-refusal event exactly as a
+positive bind burns risk against false promotion. The current real refusals spend zero only because
+their structural owner proofs are deterministic, never because negative polarity is assumed safe.
 
 ### Day-one evidence instruments and spend semantics
 
@@ -216,9 +342,11 @@ the unique scheduled slot exactly like a positive bind certificate.
 | --- | --- | --- |
 | N10 capstone | Route ID, structurally recomputed evidence kind, owner gap/source, terminal/blocker evidence, and projection hash. Reuse the N10/N13a route projection algebra. | N11 refusal/acquisition rows; never the whole capstone hash. |
 | N13b | Authority-owner, quarantine, world-growth, admission denominator, and any actual passport identity after `revalidate_admission_passport`. | N11 admission/refusal rows; zero real passports stays zero. |
-| N11 registry/config | Registry section hashes, schedule proof, obligation partition, rule/schema versions, and conditionality clause. | Every ledger receipt and both exported projections. |
-| N11 `n9_promotion_certificate` | Ledger receipt ID, executed promotion rows, registry/schedule projection hashes, total spend, delta, good-event clause, and projection hash. | N9 runtime and frozen N9 artifact bind only this projection. |
-| N11 `n12_epoch_reference` | Ledger receipt ID, nullable epoch/model/rule/schema refs, validity placeholder, conditionality clause, and projection hash. | Future N12 only; N11 implements no epochs. |
+| N11 registry/config | Registry section hashes, selected proof-kernel theorem IDs, exact rational schedule proof, obligation partition, rule/schema versions, and conditionality clause. | Every ledger receipt and both exported projections. Registry data never supplies theorem semantics. |
+| N11 append lineage | Owner-derived risk-budget scope/root ID, canonical head/parent hashes, unique executed-check ordinals/IDs, prepared/started/completed events, claim/filtration/polarity bindings, exact burns, and cumulative spend. | Runtime recovery and owner recomputation; an alternate root, earlier prefix, or competing fork cannot become a fresh budget. |
+| N11 frozen semantic append lineage | Stable scope/authority/deployment and registry/schedule/budget bindings; semantic parent/check/event hashes; predictable-filtration projection; execution ordinal/ID; stable owner-invocation-claim and good-event identities; exact burns and current-check projection. Physical lock inode, CAS refs, runtime event/check/head/receipt IDs, and their contaminated hashes are excluded only after the full live receipt validates. | Frozen N11 artifact, frozen N9 audit projection, and frozen N12 locator. The runtime durability receipt remains intact and is never accepted interchangeably with this projection. |
+| N11 `n9_promotion_certificate` | At runtime: canonical live receipt/head plus executed promotion rows. In the frozen audit artifact: the producer-owned semantic ledger projection hash, stable promotion rows with ordinal and claim projection binding, registry/schedule hashes, exact total spend, delta, good-event clause, and projection hash. | N9 runtime consumes only the live projection; the frozen artifact records only its narrow stable audit projection. |
+| N11 `n12_epoch_reference` | Stable semantic-ledger projection hash, nullable epoch/model/rule/schema refs, validity placeholder, conditionality clause, and projection hash. | Future N12 only; N11 implements no epochs. |
 
 Declared artifact edges are acyclic: `N10/N13b -> N11 -> N9/N12`. N11 never binds the frozen N9
 artifact back into itself.
@@ -227,12 +355,14 @@ artifact back into itself.
 
 ### One new runtime mathematics/accounting owner
 
-- `src/polisyos/runtime/quality/confidence_ledger.py` (new): registry models/loader, generic proof
-  verifier, predictable schedule, executed-check intake, union-bound receipt, owner recomputation,
-  and narrow projections. This is the only new instrument-mathematics owner.
+- `src/polisyos/runtime/quality/confidence_ledger.py` (new): registry models/loader, typed proof
+  kernel, exact predictable schedule, claim/filtration binding, durable compare-and-swap append
+  intake, executed-check ordinal/recovery rules, union-bound receipt, owner recomputation, and narrow
+  projections. This is the only new instrument-mathematics owner.
 - `architecture/production_quality/confidence_ledger.toml` (new): delta policy, seven-pool mapping,
-  full 15-class partition, schedule law, instrument definitions, proof profiles, and data-only
-  certificate-class routing.
+  full 15-class partition, schedule theorem selection, instrument definitions, theorem parameters,
+  owner-verifier bindings, and data-only certificate-class routing. It contains no executable or
+  self-authored theorem semantics.
 
 ### Existing contracts and chokepoints to extend
 
@@ -275,17 +405,20 @@ artifact back into itself.
   content-bound current-WMR reissue while preserving historical recording/provider bytes.
 - `tools/quality/validation/capture_layer3_gy_design_generation_replay.py`: remove the pinned
   `a258...` default and resolve the current WMR owner for any future capture.
-- Canonical reissue order:
+- Canonical reissue order before the clean capstone boundary:
   1. `layer3_gy_intervention_substrate_contract.json`;
   2. `layer3_gy_design_generation_contract.json`;
   3. `layer3_gy_n10_cg1_l2_relation_census.json` from a full offline rederive;
   4. `layer3_gy_value_gate_contract.json` after independently rebinding its two Fork-B hashes;
   5. all five `layer3_gy_second_domain_{census,pack,smoke_design_problem,cycle_entry_trace,free_grow_gaps}.json` artifacts;
   6. `layer3_gy_composition_certificates.json`;
-  7. clean upstream commit, then `layer3_gy_depth_n_universality_contract.json`.
+  7. grounding CG0-CG6 in owner order;
+  8. clean upstream commit, then `layer3_gy_depth_n_universality_contract.json` as a second batch.
 - The grounding CG0-CG6 frozen chain also embeds the old WMR/N4 graph and is canonically reissued in
   owner order: credal reference, relation, bind, admission, phrasing defense, active controller,
-  benchmark scoreboard. N13a/N13b are validate-only and must remain byte-stable if their declared
+  benchmark scoreboard. CG0-CG5 require writer x2 byte identity; CG6 deliberately excludes latency
+  from semantic drift, so use write -> check -> write -> check rather than raw-byte equality.
+  N13a/N13b are validate-only and must remain byte-stable if their declared
   projections correctly exclude WMR identity. The source-committed disposition ledger is
   validate-only after N8.
 
@@ -296,17 +429,24 @@ artifact back into itself.
   - N9 caller supplies risk records and `_risk_spend_summary` trusts them (P05/P32).
   - The generation-cycle consumer trusts raw promotion booleans (P31).
   - N8's fixed-time pass/interval shapes carry no anytime-valid promotion proof (P14/P15).
+  - Existing diagnostic `anytime_valid`/conformal/e-value-shaped records do not bind an adaptively
+    selected claim, filtration, theorem, or protected error polarity (P14/P32).
+  - A receipt-only spend sum would permit outcome-conditioned refunds, restart-to-early-slot budget
+    resets, and competing forks from one prefix (P05/P07/P31).
   - N4 replay pins an obsolete WMR and masks one upstream ripple as seven strangle failures
     (P07/P29/P34).
   - No frozen N11 artifact, producer, bridge, consumer, or surface exists.
-- Smallest correct pattern: one registry, one resolve/bind/verify intake, one schedule/accounting
-  owner, one N9 draw, one typed consumer revalidation, two narrow projections, one recomputing
+- Smallest correct pattern: one registry selecting a small trusted proof kernel, one
+  resolve/bind/verify intake, one durable append-only schedule/accounting owner with pre-outcome
+  burn, one N9 draw, one typed consumer revalidation, two narrow projections, one recomputing
   checker, and one real refusal/acquisition run.
 - Capability labels before work: `producer_missing`, `artifact_missing`, `bridge_missing`,
   `consumer_missing`, `verification_missing`, `surface_missing`, and `semantic_test_missing`.
-- Acceptance signal: an executed probabilistic N9 check receives its recomputed schedule spend and
-  can promote only through a valid ledger projection; every bypass/refusal turns RED; real N10/N13b
-  evidence produces owner-recomputed rows; the frozen artifact is byte-stable and lifecycle-visible.
+- Acceptance signal: an adaptive probabilistic N9 attempt binds its claim/filtration/slot to the
+  prior durable head, burns its exact rational spend before outcome, and can promote only through a
+  valid completed ledger projection; restart/fork/refund/rebind bypasses turn RED; real N10/N13b
+  evidence produces owner-recomputed polarity-correct rows; the frozen artifact is byte-stable and
+  lifecycle-visible.
 
 ## Red-first test denominator
 
@@ -324,7 +464,7 @@ artifact back into itself.
 - `test_executed_check_without_schedule_slot_fails_closed`
 - `test_over_spend_is_rejected`
 - `test_bayesian_credible_interval_without_coverage_argument_is_typed_refusal`
-- `test_unknown_instrument_fails_closed_without_spend`
+- `test_unknown_instrument_preflight_fails_closed_without_execution_or_spend`
 - `test_non_anytime_valid_instrument_cannot_support_promotion`
 - `test_deterministic_proof_requires_zero_spend`
 - `test_forged_spend_row_is_recomputed_from_schedule`
@@ -334,6 +474,30 @@ artifact back into itself.
 - `test_duplicate_schedule_slot_is_rejected`
 - `test_custom_predictable_schedule_profile_accounts_end_to_end`
 - `test_custom_schedule_total_mass_above_one_is_rejected`
+- `test_constant_unit_e_process_burns_preoutcome_slot_but_cannot_promote`
+- `test_caller_supplied_all_one_trace_is_not_a_coverage_argument`
+- `test_adaptive_claim_selection_requires_conditional_validity_given_prior_filtration`
+- `test_every_valid_history_prefix_preserves_the_delta_bound_at_user_stop`
+- `test_claim_instrument_and_slot_are_bound_before_outcome_is_observed`
+- `test_certificate_cannot_be_rebound_to_a_different_claim_snapshot_or_polarity`
+- `test_marginal_split_conformal_interval_is_not_adaptive_promotion_certificate`
+- `test_foundry_anytime_valid_label_without_owner_theorem_is_refused`
+- `test_ir_sensitivity_e_value_is_not_resolved_as_betting_e_value`
+- `test_ddm_online_fdr_decision_is_not_a_promotion_ledger_receipt`
+- `test_nonrejecting_executed_check_irrevocably_burns_full_slot`
+- `test_executed_owner_refusal_or_error_does_not_refund_slot`
+- `test_crash_after_started_event_burns_slot_on_recovery`
+- `test_same_budget_scope_cannot_mint_a_fresh_ledger_root`
+- `test_restart_continues_unique_monotone_executed_check_ordinal`
+- `test_stale_fork_cannot_reuse_ancestor_budget_or_ordinal`
+- `test_duplicate_execution_id_is_idempotent_only_without_reexecution`
+- `test_retry_after_observed_output_gets_fresh_ordinal_and_burn`
+- `test_exact_rational_basel_slot_is_below_declared_ideal_weight`
+- `test_upward_rounded_schedule_rendering_is_rejected`
+- `test_registry_cannot_self_declare_a_new_proof_theorem`
+- `test_data_only_instrument_reuses_existing_proof_kernel_theorem`
+- `test_probabilistic_refusal_burns_against_confident_wrong_refusal_event`
+- `test_deterministic_refusal_is_zero_spend_by_proof_not_negative_polarity`
 
 ### N9 and the decision-front consumer
 
@@ -376,33 +540,36 @@ The checker patches source, observes RED, and restores bytes in `try/finally` fo
 16. `source_flip_non_anytime_instrument_promoted`
 17. `source_flip_projection_drops_conditionality_or_binds_whole_contract`
 
-Nested corrupt-field coverage includes schedule weight, obligation membership, registry hash,
-instrument proof profile, execution status, spend amount, owner projection hash, conditionality
-clause, promotion projection hash, and future epoch-reference fields.
+Nested corrupt-field coverage includes exact schedule numerator/denominator and display rounding,
+obligation membership, registry hash, proof-kernel theorem ID, ledger/parent head, executed-check ID
+and ordinal, filtration/claim/polarity binding, prepared/started/completed status, spend amount, owner
+projection hash, conditionality clause, promotion projection hash, and future epoch-reference fields.
 
 ## Workstream 0 — Restore the inherited receipt chain through canonical owners
 
-- [ ] Add the four N4 reissue tests RED. Prove the current writer cannot repair the pin.
-- [ ] Add one offline current-WMR reissue path that resolves `production_composed_world_model_record`,
+- [x] Add the four N4 reissue tests RED. Prove the current writer cannot repair the pin.
+- [x] Add one offline current-WMR reissue path that resolves `production_composed_world_model_record`,
   preserves historical recording/raw response/prompt identities, changes only the WMR-bound semantic
   projection, and records old -> new owner evidence.
-- [ ] Remove the capture utility's pinned WMR default; future capture resolves the owner at runtime.
-- [ ] Run focused N4/N8/N10a/capstone tests and Ruff.
-- [ ] Execute the canonical writer ripple exactly in the ownership order above; writer x2 plus
+- [x] Remove the capture utility's pinned WMR default; future capture resolves the owner at runtime.
+- [x] Run focused N4/N8/N10a/capstone tests and Ruff.
+- [x] Execute the canonical writer ripple exactly in the ownership order above; writer x2 plus
   byte-hash equality and `--check` after every node. Recompute the full CG1/L2 census; do not transplant
   expected hashes.
-- [ ] Reissue grounding CG0-CG6 serially, then run the warm shared-cache closeout sweep.
-- [ ] Validate N13a and N13b without writing and prove their narrow projections remained byte-stable.
-- [ ] Re-run the disposition ledger. Its seven N8 cascade findings must disappear.
-- [ ] Commit the complete batch as one measured replay ripple before the capstone writer's clean-tree
+- [x] Reissue grounding CG0-CG6 serially, then run the warm shared-cache closeout sweep.
+- [x] Validate N13a and N13b without writing and prove their narrow projections remained byte-stable.
+- [x] Re-run the disposition ledger. Its seven N8 cascade findings must disappear.
+- [x] Commit the complete batch as one measured replay ripple before the capstone writer's clean-tree
   requirement; split only where an existing writer explicitly requires a clean upstream commit.
 
 ## Workstream 1 — Land strict contracts and observe the ledger REDs
 
 - [ ] Extend `gy_waist.py` with strict receipt/check/refusal/projection DTOs and the exact
-  conditionality constant. Keep the existing obligation taxonomy; do not add a second enum.
-- [ ] Add the 15 ledger-core tests and PDC strictness tests. Observe failures because the runtime
-  owner and registry do not exist.
+  conditionality constant. Include exact rational spend, claim/polarity/filtration binding,
+  append-event/head, and unique executed-check ordinal fields. Keep the existing obligation
+  taxonomy; do not add a second enum.
+- [ ] Add the complete ledger-core denominator above and PDC strictness tests. Observe failures
+  because the runtime owner and registry do not exist.
 - [ ] Add N9/consumer REDs showing caller spend, ledger bypass, raw-dict promotion, and fixed-time
   calibration can currently pass too far.
 - [ ] Record the RED commands/results in the execution journal; do not commit an intentionally red
@@ -410,15 +577,22 @@ clause, promotion projection hash, and future epoch-reference fields.
 
 ## Workstream 2 — Implement the generic ledger baseline
 
-- [ ] Add the TOML schema with content-addressed schedule, full typed obligation partition, proof
-  profiles, and initial instrument definitions.
-- [ ] Implement `confidence_ledger.py`: strict loader, unique resolution, generic proof verification,
-  symbolic schedule metadata, exact slot derivation, executed-only spend, deterministic-zero law,
-  typed refusals, owner recomputation, good-event receipt, and two narrow projections.
-- [ ] Validate the config-declared predictable schedule profile generically: prove the symbolic
-  total mass, exercise a half-mass Basel profile end-to-end, and reject a recomputed mass above one.
+- [ ] Add the TOML schema with content-addressed schedule, full typed obligation partition,
+  proof-kernel theorem selections/parameters, owner verifiers, and initial instrument definitions;
+  reject registry-authored theorem semantics.
+- [ ] Implement `confidence_ledger.py`: strict loader, unique resolution, typed proof kernel,
+  adaptive claim/filtration/polarity binding, exact rational/downward Basel slots, durable
+  compare-and-swap prepared -> started -> completed append protocol, unique global ordinals,
+  pre-outcome burn, deterministic-zero law, restart/fork/duplicate defenses, typed refusals, owner
+  recomputation, conditional good-event receipt, and two narrow projections.
+- [ ] Validate the config-declared predictable schedule profile through the trusted kernel: prove
+  the symbolic ideal and exact rational downward total mass, reject upward display rounding,
+  exercise a half-mass Basel profile end-to-end, and reject a recomputed mass above one.
 - [ ] Ensure a present/rehashed registry row cannot attest its own validity. Coverage/proof evidence
   must resolve to the certificate owner and verifier provenance.
+- [ ] Add only the construction-verified constant-unit e-process as the no-power probabilistic
+  conformance witness. It burns its pre-outcome slot, always recomputes `crossed=false`, and cannot
+  make any obligation pass; caller-supplied all-one traces fail closed.
 - [ ] Turn the core tests GREEN. Add unseen/malformed registry probes and remove-the-owner-validation
   P29 behavior.
 - [ ] Focused tests + Ruff + architecture guardrails. Commit the generic baseline.
@@ -426,12 +600,15 @@ clause, promotion projection hash, and future epoch-reference fields.
 ## Workstream 3 — Make N9 draw from the ledger and close the sibling consumer
 
 - [ ] Delete `CanonicalPromotionInput.risk_spends` and the context-provider forwarding path.
-- [ ] Compile obligations, resolve actual certificate handshakes, execute ledger draws, and decide
-  promotion only after ledger validation. A missing handshake for a probabilistic pass is typed
+- [ ] Compile obligations, resolve the canonical ledger head, and route each probabilistic owner
+  execution through durable prepare -> pre-outcome start/burn -> complete. Bind the adaptively
+  selected claim and prior-history filtration before invoking the owner; N9 may decide promotion
+  only after the completed lineage validates. A missing handshake for a probabilistic pass is typed
   refusal, not zero-spend success.
 - [ ] Bind the exact N11 promotion projection into the N9 receipt and authority trace.
-- [ ] Recompute registry, certificate evidence, schedule slot, spend, total, and projection in
-  `validate_canonical_promotion_receipt`.
+- [ ] Recompute registry/theorem binding, claim/polarity/filtration evidence, canonical
+  head/ordinal chain, exact schedule slot and burn, cumulative total, certificate evidence, and
+  projection in `validate_canonical_promotion_receipt`.
 - [ ] Replace the generation-cycle raw-dict predicate with typed receipt parsing and revalidation.
 - [ ] Turn all N9/consumer REDs GREEN; preserve the total 15-class obligation semantics and unseen
   non-panel probe.
@@ -442,7 +619,8 @@ clause, promotion projection hash, and future epoch-reference fields.
 
 - [ ] Build N10 projections by structurally recomputing evidence kinds from owners. Current measured
   rows are education `estimand_binding_refusal`, first-vertical `owner_acquisition_route`, and unseen
-  `owner_acquisition_route`; record `owner_data_gap` denominator zero.
+  `owner_acquisition_route`; record `owner_data_gap` denominator zero. Bind refusal polarity and
+  false-refusal scope explicitly; spend zero only after deterministic owner-proof verification.
 - [ ] Build N13b projections from its typed owner models. Record 5 live attempts, 2 raw responses,
   zero admitted responses/overlay rows/world growth, and zero persisted passports. Exercise the real
   passport verifier in a warm owner test, but do not represent it as a real frozen passport row.
@@ -451,8 +629,10 @@ clause, promotion projection hash, and future epoch-reference fields.
 - [ ] Expose an E2 one-process closeout sweep with E5 per-stage/overall timings, E8 effective-config
   journaling, and E9 heartbeats/objective stop diagnostics.
 - [ ] Add the canonical writer/checker and the frozen artifact. Declare projection scopes/edges and
-  exclude operational values through the shared canonical GY hash policy only.
-- [ ] Run writer x2, compare file hashes, run nested corrupt lane, and run the 17 source flips.
+  exclude invocation-local lock/CAS identities through one typed producer semantic projection
+  after full live-receipt validation. Do not broaden the shared GY volatile-field policy or weaken
+  the runtime durability receipt.
+- [ ] Run writer x2, compare file hashes, run nested corrupt lane, and run the required source flips.
 - [ ] Register the artifact lifecycle and regenerate reference docs. Prove zero phantoms.
 - [ ] Focused tests + Ruff + architecture guardrails. Commit the generic frozen baseline.
 
@@ -460,7 +640,8 @@ clause, promotion projection hash, and future epoch-reference fields.
 
 - [ ] Record the generic-baseline commit hash.
 - [ ] Add a genuinely new instrument type and certificate-class route in TOML only. Route a real
-  owner-recomputed refusal through the existing generic proof kernel; do not add a Python branch.
+  owner-recomputed refusal through an already implemented proof-kernel theorem and owner verifier;
+  do not add a Python branch or declare new theorem semantics in TOML.
 - [ ] Re-run the canonical writer so the new type is accounted end-to-end in the universality proof.
 - [ ] Commit only data/config and writer-generated artifact/reference changes.
 - [ ] Prove `git diff <generic-baseline>..<data-only-commit> -- '*.py'` is empty.
@@ -474,8 +655,8 @@ clause, promotion projection hash, and future epoch-reference fields.
 - [ ] Run the E2 one-process warm sweep and inspect its E5/E8/E9 run record; a warm wall time above
   about five minutes is a finding requiring cache/profile diagnosis.
 - [ ] Run Ruff on every changed Python path and architecture guardrails.
-- [ ] Run N11 writer/checker x2, corrupt lane, 17 source flips, and validate the canonical receipt
-  chain serially: census -> N4 -> N8 -> composition -> capstone -> N13a -> N13b -> disposition.
+- [ ] Run N11 writer/checker x2, corrupt lane, required source flips, and validate the canonical
+  receipt chain serially: census -> N4 -> N8 -> composition -> capstone -> N13a -> N13b -> disposition.
 - [ ] Run the Layer-3 GY validator census: expected raw 41, accepted 40 after excluding the
   operational acquisition executor (accepted 39 -> 40).
 - [ ] Run one Lane-2 cold N11 closeout with analytics + solvers and JAX CPU. Do not repeat it per

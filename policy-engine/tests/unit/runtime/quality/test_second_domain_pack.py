@@ -54,8 +54,7 @@ def _rehash_gap_report_and_pack(bundle: dict[str, object]) -> None:
 
     gaps = bundle["gaps"]
     gaps["gaps"] = [
-        second_domain_pack._with_content_hash(gap, "gap_content_hash")
-        for gap in gaps["gaps"]
+        second_domain_pack._with_content_hash(gap, "gap_content_hash") for gap in gaps["gaps"]
     ]
     bundle["gaps"] = second_domain_pack._with_content_hash(gaps, "gap_report_content_hash")
     bundle["pack"]["gap_report_content_hash"] = bundle["gaps"]["gap_report_content_hash"]
@@ -121,6 +120,8 @@ def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
     assert [row["raw_response_hash"] for row in refreshed["responses"]] == [
         row["raw_response_hash"] for row in historical_capture["responses"]
     ]
+    assert refreshed["owner_result_projection"] != historical_capture["owner_result_projection"]
+    assert refreshed["historical_replay_receipt"] == historical_capture["historical_replay_receipt"]
     assert refreshed["input_binding"]["design_problem_ref"] == gy_content_hash(
         live_bundle["smoke_problem"]["design_problem"]
     )
@@ -132,9 +133,7 @@ def test_historical_n4_capture_validation_uses_frozen_trace_l6_identity(
     """A canonical rebaseline validates old capture bytes without current-L6 admission."""
 
     frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
-    problem = DesignProblem.model_validate(
-        frozen["smoke_problem"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
 
     def reject_current_l6_load(_repo_root: Path) -> object:
         raise AssertionError("historical capture validation loaded the current L6")
@@ -145,12 +144,15 @@ def test_historical_n4_capture_validation_uses_frozen_trace_l6_identity(
         reject_current_l6_load,
     )
 
-    assert second_domain_pack._historical_n4_owner_capture_issues(
-        REPO_ROOT,
-        bundle=frozen,
-        capture=frozen["cycle_trace"]["n4_owner_capture"],
-        problem=problem,
-    ) == []
+    assert (
+        second_domain_pack._historical_n4_owner_capture_issues(
+            REPO_ROOT,
+            bundle=frozen,
+            capture=frozen["cycle_trace"]["n4_owner_capture"],
+            problem=problem,
+        )
+        == []
+    )
 
 
 def test_historical_n4_replay_rejects_rehashed_non_identity_drift(
@@ -162,22 +164,14 @@ def test_historical_n4_replay_rejects_rehashed_non_identity_drift(
     corrupted = copy.deepcopy(frozen["cycle_trace"]["n4_owner_capture"])
     corrupted["owner_result_projection"]["status"] = "blocked"
     corrupted["recording_content_hash"] = second_domain_pack._hash(
-        {
-            key: value
-            for key, value in corrupted.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in corrupted.items() if key != "recording_content_hash"}
     )
-    problem = DesignProblem.model_validate(
-        live_bundle["smoke_problem"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(live_bundle["smoke_problem"]["design_problem"])
     context = second_domain_pack._build_cycle_substrate_context_from_bundle(
         REPO_ROOT,
         bundle=live_bundle,
         design_problem=problem,
-        intervention_substrate=second_domain_pack.load_l6_intervention_substrate(
-            REPO_ROOT
-        ),
+        intervention_substrate=second_domain_pack.load_l6_intervention_substrate(REPO_ROOT),
     )
 
     with pytest.raises(
@@ -198,9 +192,7 @@ def test_historical_n4_capture_inner_raw_hash_survives_outer_rehash() -> None:
     """Rehashing the envelope cannot launder tampered raw response bytes."""
 
     frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
-    problem = DesignProblem.model_validate(
-        frozen["smoke_problem"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
     context = second_domain_pack._build_frozen_cycle_substrate_context(
         REPO_ROOT,
         bundle=frozen,
@@ -210,11 +202,7 @@ def test_historical_n4_capture_inner_raw_hash_survives_outer_rehash() -> None:
     corrupted["responses"][0]["raw_response"] += " "
     corrupted["responses"][0]["raw_llm_response"] += " "
     corrupted["recording_content_hash"] = second_domain_pack._hash(
-        {
-            key: value
-            for key, value in corrupted.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in corrupted.items() if key != "recording_content_hash"}
     )
 
     issues = second_domain_pack._n4_owner_capture_issues(
@@ -241,17 +229,13 @@ def _candidate_unbound_world_identity_witness() -> tuple[dict[str, object], dict
             "selected_registry_entry_hash": "sha256:" + "4" * 64,
             "substrate_input_content_hash": trace["substrate_input_content_hash"],
             "context_binding_hash": "sha256:" + "5" * 64,
-            "world_model_record_content_hash": trace[
-                "world_model_record_content_hash"
-            ],
+            "world_model_record_content_hash": trace["world_model_record_content_hash"],
         },
         "world_model": {
             "object_identity_reused": False,
             "identity_evidence_kind": "grounding_candidate_unbound_resolution",
             "context_binding_hash": "sha256:" + "5" * 64,
-            "world_model_record_content_hash": trace[
-                "world_model_record_content_hash"
-            ],
+            "world_model_record_content_hash": trace["world_model_record_content_hash"],
             "selected_registry_entry_hashes": ["sha256:" + "4" * 64],
             "simulation_status": "simulation_blocked",
         },
@@ -264,10 +248,13 @@ def test_candidate_unbound_resolution_proves_exact_stage_world_identity() -> Non
 
     trace, stages = _candidate_unbound_world_identity_witness()
 
-    assert second_domain_pack._recompute_stage_world_identity_evidence(
-        stages,
-        cycle_trace=trace,
-    ) == "grounding_candidate_unbound_resolution"
+    assert (
+        second_domain_pack._recompute_stage_world_identity_evidence(
+            stages,
+            cycle_trace=trace,
+        )
+        == "grounding_candidate_unbound_resolution"
+    )
 
 
 def test_candidate_unbound_world_identity_rejects_cross_world_resolution() -> None:
@@ -276,10 +263,13 @@ def test_candidate_unbound_world_identity_rejects_cross_world_resolution() -> No
     trace, stages = _candidate_unbound_world_identity_witness()
     stages["grounding"]["world_model_record_content_hash"] = "sha256:" + "9" * 64
 
-    assert second_domain_pack._recompute_stage_world_identity_evidence(
-        stages,
-        cycle_trace=trace,
-    ) == "unresolved"
+    assert (
+        second_domain_pack._recompute_stage_world_identity_evidence(
+            stages,
+            cycle_trace=trace,
+        )
+        == "unresolved"
+    )
 
 
 def test_stage_world_identity_recomputes_instead_of_trusting_evidence_label() -> None:
@@ -291,10 +281,13 @@ def test_stage_world_identity_recomputes_instead_of_trusting_evidence_label() ->
         "grounding_candidate_unbound_resolution"
     )
 
-    assert second_domain_pack._recompute_stage_world_identity_evidence(
-        stages,
-        cycle_trace=trace,
-    ) == "unresolved"
+    assert (
+        second_domain_pack._recompute_stage_world_identity_evidence(
+            stages,
+            cycle_trace=trace,
+        )
+        == "unresolved"
+    )
 
 
 def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> None:
@@ -302,8 +295,7 @@ def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> Non
 
     payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -326,8 +318,7 @@ def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:
 
     payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -349,9 +340,7 @@ def test_n6_single_terminal_gap_closes_only_from_live_coherent_run() -> None:
             / "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
         ).read_text(encoding="utf-8")
     )
-    run = second_domain_pack.GenerationCycleRun.model_validate(
-        trace["generation_cycle_run"]
-    )
+    run = second_domain_pack.GenerationCycleRun.model_validate(trace["generation_cycle_run"])
 
     positive = second_domain_pack._n6_single_terminal_gap_closure(run)
     empty = second_domain_pack._n6_single_terminal_gap_closure(
@@ -362,9 +351,7 @@ def test_n6_single_terminal_gap_closes_only_from_live_coherent_run() -> None:
     assert positive["validation_issues"] == []
     assert positive["receipt_ref"].startswith("sha256:")
     assert empty["closed"] is False
-    assert {issue["code"] for issue in empty["validation_issues"]} == {
-        "cycle_denominator_empty"
-    }
+    assert {issue["code"] for issue in empty["validation_issues"]} == {"cycle_denominator_empty"}
 
 
 def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> None:
@@ -377,8 +364,7 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
     )
     stage = trace["stage_attempts"]
     expected_levers = {
-        str(row["lever_id"])
-        for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
+        str(row["lever_id"]) for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
     }
     proposed = set(stage["generation"]["proposed_operator_kinds"])
 
@@ -386,9 +372,7 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
     assert proposed
     assert proposed.issubset(expected_levers)
     assert stage["generation"]["generation_channel"] == "n4_owner"
-    assert stage["generation"]["lever_source_hash"] == trace[
-        "substrate_input_content_hash"
-    ]
+    assert stage["generation"]["lever_source_hash"] == trace["substrate_input_content_hash"]
     assert stage["generation"]["exact_formalizer_input_hashes"]
     assert stage["grounding"]["attempted"] is True
     assert stage["grounding"]["disposition"] in {
@@ -402,14 +386,13 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
         for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
     }
     assert stage["grounding"]["lever_resolution_content_hash"].startswith("sha256:")
-    assert stage["world_model"]["world_model_record_content_hash"] == trace[
-        "world_model_record_content_hash"
-    ]
-    world_identity_evidence = (
-        second_domain_pack._recompute_stage_world_identity_evidence(
-            stage,
-            cycle_trace=trace,
-        )
+    assert (
+        stage["world_model"]["world_model_record_content_hash"]
+        == trace["world_model_record_content_hash"]
+    )
+    world_identity_evidence = second_domain_pack._recompute_stage_world_identity_evidence(
+        stage,
+        cycle_trace=trace,
     )
     assert world_identity_evidence != "unresolved"
     assert stage["world_model"]["identity_evidence_kind"] == world_identity_evidence
@@ -419,14 +402,14 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
         )
     )
     assert stage["cycle_terminal"]["terminal_kind"] != "a_spec_gap"
-    assert second_domain_pack.recompute_baseline_diff(
-        trace,
-        second_domain_pack.load_committed_baseline(REPO_ROOT),
-    )["materially_deeper"] is True
-    gap_status = {
-        str(gap["gap_id"]): str(gap["status"])
-        for gap in trace["gap_triage"]
-    }
+    assert (
+        second_domain_pack.recompute_baseline_diff(
+            trace,
+            second_domain_pack.load_committed_baseline(REPO_ROOT),
+        )["materially_deeper"]
+        is True
+    )
+    gap_status = {str(gap["gap_id"]): str(gap["status"]) for gap in trace["gap_triage"]}
     assert {
         gap_id: gap_status[gap_id]
         for gap_id in {
@@ -485,17 +468,20 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     path.write_text(json.dumps(frozen), encoding="utf-8")
     live_trace = copy.deepcopy(frozen)
     live_trace["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live_trace["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    live_trace["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ] = "2026-07-15T00:00:00Z"
     bundle = {"cycle_trace": live_trace}
 
     second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
 
     assert bundle["cycle_trace"]["runtime_metrics"] == frozen["runtime_metrics"]
-    assert bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] == "2026-07-14T00:00:00Z"
+    assert (
+        bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+            "generated_at"
+        ]
+        == "2026-07-14T00:00:00Z"
+    )
 
     shifted = copy.deepcopy(live_trace)
     shifted["trace_content_hash"] = "sha256:" + "b" * 64
@@ -504,9 +490,12 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
         shifted_bundle,
         tmp_path,
     )
-    assert shifted_bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] == "2026-07-15T00:00:00Z"
+    assert (
+        shifted_bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
+            "acquisition_routing_report"
+        ]["generated_at"]
+        == "2026-07-15T00:00:00Z"
+    )
 
 
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
@@ -526,9 +515,10 @@ def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
     assert owner_registry["content_hash"] == registry.content_hash
     assert component["substrate_version_id"] == registry.substrate_version_id
     assert "registry_payload" not in component
-    assert component["content_hash"] == pack["components"]["owner_writability"][
-        "s0_registry_content_hash"
-    ]
+    assert (
+        component["content_hash"]
+        == pack["components"]["owner_writability"]["s0_registry_content_hash"]
+    )
     assert len(selected_entries) == len(selected_hashes) == 1
     assert selected_entries[0].layer.value == "L2"
     assert {
@@ -560,18 +550,18 @@ def test_cycle_registry_intake_rejects_shaped_or_repointed_evidence(
     corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
     component = corrupted["pack"]["components"]["substrate_registry"]
     if mutation == "registry_payload":
-        corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
-            "entries"
-        ][0]["family_id"] = "shaped_family"
+        corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"]["entries"][0][
+            "family_id"
+        ] = "shaped_family"
     elif mutation == "registry_producer":
         corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
             "producer_ref"
         ] = "shaped.parallel_registry_producer"
     elif mutation == "registry_version":
         shaped_version = "substrate_version_ffffffffffffffff"
-        corrupted["pack"]["owner_query_results"]["s0_registry"][
-            "substrate_version_id"
-        ] = shaped_version
+        corrupted["pack"]["owner_query_results"]["s0_registry"]["substrate_version_id"] = (
+            shaped_version
+        )
         corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
             "substrate_version_id"
         ] = shaped_version
@@ -661,9 +651,7 @@ def test_current_census_owner_query_is_recomputed_not_self_attested() -> None:
     """Reject changed current SQL even when every recorded receipt hash is retained."""
 
     corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
-    query_id = corrupted["pack"]["owner_query_results"]["l2_selected_levers"][
-        "query_id"
-    ]
+    query_id = corrupted["pack"]["owner_query_results"]["l2_selected_levers"]["query_id"]
     corrupted["census"]["owner_queries"][query_id]["sql"] += (
         "\n-- shaped current query with stale self-attested hash"
     )
@@ -672,9 +660,7 @@ def test_current_census_owner_query_is_recomputed_not_self_attested() -> None:
         "census_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    corrupted["pack"]["census_content_hash"] = corrupted["census"][
-        "census_content_hash"
-    ]
+    corrupted["pack"]["census_content_hash"] = corrupted["census"]["census_content_hash"]
     _rehash_pack_manifest(corrupted)
 
     codes = {
@@ -689,9 +675,7 @@ def test_historical_l2_query_evidence_binds_immutable_owner_source() -> None:
     """Carry the proof-head owner path into the historical query receipt."""
 
     second_domain_pack._historical_n10a_l2_query_evidence.cache_clear()
-    evidence = second_domain_pack._historical_n10a_l2_query_evidence(
-        REPO_ROOT.resolve().as_posix()
-    )
+    evidence = second_domain_pack._historical_n10a_l2_query_evidence(REPO_ROOT.resolve().as_posix())
 
     assert evidence.owner_query_source_ref == (
         "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/"
@@ -724,9 +708,7 @@ def test_historical_l2_query_rejects_self_attested_owner_receipt(
     monkeypatch.setattr(second_domain_pack, "_git", _tampered_git)
     try:
         with pytest.raises(RuntimeError, match="owner query receipt"):
-            second_domain_pack._historical_n10a_l2_query_evidence(
-                REPO_ROOT.resolve().as_posix()
-            )
+            second_domain_pack._historical_n10a_l2_query_evidence(REPO_ROOT.resolve().as_posix())
     finally:
         second_domain_pack._historical_n10a_l2_query_evidence.cache_clear()
 
@@ -739,9 +721,7 @@ def test_cycle_registry_intake_rederives_the_live_s0_owner() -> None:
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected = set(
-        pack["components"]["substrate_registry"]["selected_entry_hashes"]
-    )
+    selected = set(pack["components"]["substrate_registry"]["selected_entry_hashes"])
     removable = next(
         entry for entry in registry.entries if entry.entry_content_hash not in selected
     )
@@ -757,9 +737,7 @@ def test_cycle_registry_intake_rederives_the_live_s0_owner() -> None:
     component = pack["components"]["substrate_registry"]
     component["content_hash"] = forged.content_hash
     component["substrate_version_id"] = forged.substrate_version_id
-    pack["components"]["owner_writability"]["s0_registry_content_hash"] = (
-        forged.content_hash
-    )
+    pack["components"]["owner_writability"]["s0_registry_content_hash"] = forged.content_hash
     pack["content_addressing"]["substrate_input_content_hash"] = (
         second_domain_pack.second_domain_substrate_input_content_hash(pack)
     )
@@ -781,9 +759,7 @@ def test_cycle_registry_intake_rejects_another_valid_l2_entry() -> None:
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected_hash = pack["components"]["substrate_registry"][
-        "selected_entry_hashes"
-    ][0]
+    selected_hash = pack["components"]["substrate_registry"]["selected_entry_hashes"][0]
     other_l2 = next(
         entry
         for entry in registry.entries
@@ -793,13 +769,11 @@ def test_cycle_registry_intake_rejects_another_valid_l2_entry() -> None:
     component["selected_entry_hashes"] = [other_l2.entry_content_hash]
     other_source_ref = other_l2.provenance_refs[0].split("#", 1)[0]
     component["selection_evidence"]["owner_query_source_ref"] = other_source_ref
-    pack["owner_query_results"]["l2_selected_levers"][
-        "owner_query_source_ref"
-    ] = other_source_ref
+    pack["owner_query_results"]["l2_selected_levers"]["owner_query_source_ref"] = other_source_ref
     chosen = pack["selected_domain"]
-    corrupted["census"]["candidates"][chosen]["l2_scholar_kg"][
-        "owner_query_source_ref"
-    ] = other_source_ref
+    corrupted["census"]["candidates"][chosen]["l2_scholar_kg"]["owner_query_source_ref"] = (
+        other_source_ref
+    )
     corrupted["census"] = second_domain_pack._with_content_hash(
         corrupted["census"],
         "census_content_hash",
@@ -888,14 +862,12 @@ def test_pack_binds_historical_source_and_pretrace_substrate_input() -> None:
 
     pack = second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"]
     addressing = pack["content_addressing"]
-    historical_hash = second_domain_pack._historical_n10a_pack_content_hash(
-        REPO_ROOT
-    )
-    substrate_hash = second_domain_pack.second_domain_substrate_input_content_hash(
-        pack
-    )
+    historical_hash = second_domain_pack._historical_n10a_pack_content_hash(REPO_ROOT)
+    substrate_hash = second_domain_pack.second_domain_substrate_input_content_hash(pack)
 
-    assert historical_hash == "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664"
+    assert (
+        historical_hash == "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664"
+    )
     assert addressing["historical_source_pack_content_hash"] == historical_hash
     assert addressing["substrate_input_content_hash"] == substrate_hash
 
@@ -905,9 +877,7 @@ def test_pack_binds_historical_source_and_pretrace_substrate_input() -> None:
     downstream_shift["n7_acquisition"] = {"runtime_probe": True}
     downstream_shift["runtime_metrics"] = {"wall_time_seconds": 999.0}
     assert (
-        second_domain_pack.second_domain_substrate_input_content_hash(
-            downstream_shift
-        )
+        second_domain_pack.second_domain_substrate_input_content_hash(downstream_shift)
         == substrate_hash
     )
 
@@ -916,8 +886,7 @@ def test_pack_binds_historical_source_and_pretrace_substrate_input() -> None:
         "third_shape.changed_lever"
     )
     assert (
-        second_domain_pack.second_domain_substrate_input_content_hash(owner_shift)
-        != substrate_hash
+        second_domain_pack.second_domain_substrate_input_content_hash(owner_shift) != substrate_hash
     )
 
 
@@ -930,9 +899,7 @@ def test_committed_pack_projects_into_real_cycle_substrate_context() -> None:
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected_hashes = tuple(
-        pack["components"]["substrate_registry"]["selected_entry_hashes"]
-    )
+    selected_hashes = tuple(pack["components"]["substrate_registry"]["selected_entry_hashes"])
     record = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
@@ -949,16 +916,16 @@ def test_committed_pack_projects_into_real_cycle_substrate_context() -> None:
         world_model_record=record,
     )
 
-    assert context.design_problem_ref == gy_content_hash(
-        problem.model_dump(mode="json")
-    )
+    assert context.design_problem_ref == gy_content_hash(problem.model_dump(mode="json"))
     assert context.domain == "education"
-    assert context.source_pack_content_hash == pack["content_addressing"][
-        "historical_source_pack_content_hash"
-    ]
-    assert context.substrate_input_content_hash == pack["content_addressing"][
-        "substrate_input_content_hash"
-    ]
+    assert (
+        context.source_pack_content_hash
+        == pack["content_addressing"]["historical_source_pack_content_hash"]
+    )
+    assert (
+        context.substrate_input_content_hash
+        == pack["content_addressing"]["substrate_input_content_hash"]
+    )
     assert context.world_model_record is record
     assert {item.instrument for item in context.candidate_levers} == {
         "education.blended_learning",
@@ -966,12 +933,11 @@ def test_committed_pack_projects_into_real_cycle_substrate_context() -> None:
         "education.teaching_method",
         "education.dialogic_reading_modality",
     }
-    assert {item.status for item in context.candidate_levers} == {
-        "candidate_unbound"
+    assert {item.status for item in context.candidate_levers} == {"candidate_unbound"}
+    assert {item.canonical_var for item in context.transport_context.covariates} == {
+        "education_spending",
+        "school_quality",
     }
-    assert {
-        item.canonical_var for item in context.transport_context.covariates
-    } == {"education_spending", "school_quality"}
 
 
 def test_pack_projector_records_wmr_domain_label_drift_as_provenance() -> None:
@@ -983,9 +949,7 @@ def test_pack_projector_records_wmr_domain_label_drift_as_provenance() -> None:
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
-    selected_hashes = tuple(
-        pack["components"]["substrate_registry"]["selected_entry_hashes"]
-    )
+    selected_hashes = tuple(pack["components"]["substrate_registry"]["selected_entry_hashes"])
     mismatched_problem = problem.model_copy(update={"domain": "water_quality"})
     record = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
@@ -1016,9 +980,7 @@ def test_cached_n7_receipt_rejects_an_invalid_input_key(mutation: str) -> None:
     if mutation == "missing":
         corrupted["pack"]["n7_acquisition"].pop("attempt_input_content_hash")
     else:
-        corrupted["pack"]["n7_acquisition"]["attempt_input_content_hash"] = (
-            "sha256:" + "0" * 64
-        )
+        corrupted["pack"]["n7_acquisition"]["attempt_input_content_hash"] = "sha256:" + "0" * 64
     _rehash_pack_manifest(corrupted)
 
     codes = {
@@ -1055,9 +1017,9 @@ def test_cached_n7_receipt_rejects_effective_owner_config_drift() -> None:
     corrupted["pack"]["n7_acquisition"]["attempt_effective_owner_config"] = (
         second_domain_pack._n7_effective_owner_config()
     )
-    corrupted["pack"]["n7_acquisition"]["attempt_effective_owner_config"][
-        "explore_limits"
-    ]["time_budget_ms"] = 1
+    corrupted["pack"]["n7_acquisition"]["attempt_effective_owner_config"]["explore_limits"][
+        "time_budget_ms"
+    ] = 1
     _rehash_pack_manifest(corrupted)
 
     codes = {
@@ -1160,7 +1122,10 @@ def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
     ) -> list[tuple[str, dict[str, object]]]:
         mutations = real_mutations(bundle)
         return [
-            (mutation_id, copy.deepcopy(bundle) if mutation_id == "coordinated_query_rewrite" else payload)
+            (
+                mutation_id,
+                copy.deepcopy(bundle) if mutation_id == "coordinated_query_rewrite" else payload,
+            )
             for mutation_id, payload in mutations
         ]
 
@@ -1179,10 +1144,7 @@ def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
     }
 
     assert report["status"] == "pass"
-    assert (
-        "coordinated_query_rewrite:cycle_substrate_registry_query_census_mismatch"
-        in missing
-    )
+    assert "coordinated_query_rewrite:cycle_substrate_registry_query_census_mismatch" in missing
 
 
 def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head(
@@ -1212,9 +1174,7 @@ def test_n10a_receipt_rebased_to_moving_head_is_rejected(moving_head: str) -> No
 
     issues = second_domain_pack.validate_bundle_payloads(payloads, REPO_ROOT)
 
-    assert "historical_receipt_rebased_to_moving_head" in {
-        issue["code"] for issue in issues
-    }
+    assert "historical_receipt_rebased_to_moving_head" in {issue["code"] for issue in issues}
 
 
 def test_census_records_operational_query_timings(live_bundle: dict[str, object]) -> None:
@@ -1288,9 +1248,7 @@ def test_n7_attempt_is_journal_first_but_not_pack_authority(
     assert attempt["owner_rederive_status"] == "pass"
     assert len(receipt["journal_entries"]) == 1
     assert receipt["journal_entries"][0]["status"] == "journaled"
-    assert receipt["owner_artifacts"][0]["payload"]["raw_owner_response_hash"].startswith(
-        "sha256:"
-    )
+    assert receipt["owner_artifacts"][0]["payload"]["raw_owner_response_hash"].startswith("sha256:")
 
 
 def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
@@ -1319,9 +1277,9 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
     second_projection = second_domain_pack._n7_owner_evidence_projection(second_receipt)
 
     assert first_projection == second_projection == attempt["receipt_content"]
-    assert second_domain_pack._n7_owner_evidence_hash(first_receipt) == attempt[
-        "receipt_content_hash"
-    ]
+    assert (
+        second_domain_pack._n7_owner_evidence_hash(first_receipt) == attempt["receipt_content_hash"]
+    )
     assert second_domain_pack._n7_owner_evidence_hash(first_receipt) == (
         second_domain_pack._n7_owner_evidence_hash(second_receipt)
     )
@@ -1400,10 +1358,13 @@ def test_owner_query_source_ref_preserves_repo_relative_mount_identity(
     (root / "production_data").symlink_to(target, target_is_directory=True)
     mounted = root / "production_data/academic/graph/scholar_knowledge.duckdb"
 
-    assert second_domain_pack._repo_relative_mounted_evidence_path(
-        mounted,
-        root,
-    ) == "production_data/academic/graph/scholar_knowledge.duckdb"
+    assert (
+        second_domain_pack._repo_relative_mounted_evidence_path(
+            mounted,
+            root,
+        )
+        == "production_data/academic/graph/scholar_knowledge.duckdb"
+    )
     with pytest.raises(second_domain_pack.SourceHashCheckoutPathError):
         second_domain_pack._repo_relative_mounted_evidence_path(owner_file, root)
 
@@ -1418,10 +1379,13 @@ def test_all_gaps_have_resolvable_seam_witnesses(live_bundle: dict[str, object])
         witness = second_domain_pack._resolve_gap_witness(REPO_ROOT, spec)
         assert witness["symbol"] == spec.symbol
         assert witness["segment_content_hash"].startswith("sha256:")
-    n5 = next(gap for gap in live_bundle["gaps"]["gaps"] if gap["gap_id"] == "s0_to_n5_wmr_bridge_missing")
-    assert "build_substrate_registry_from_existing_catalogs" in n5["owner_evidence"][
-        "seam_witness"
-    ]["observed_call_names"]
+    n5 = next(
+        gap for gap in live_bundle["gaps"]["gaps"] if gap["gap_id"] == "s0_to_n5_wmr_bridge_missing"
+    )
+    assert (
+        "build_substrate_registry_from_existing_catalogs"
+        in n5["owner_evidence"]["seam_witness"]["observed_call_names"]
+    )
 
 
 def test_missing_gap_witness_target_fails_closed_for_every_gap(
@@ -1476,8 +1440,7 @@ def test_gap_segment_hash_ignores_unrelated_edits_and_detects_seam_edits(tmp_pat
     target = next(
         node
         for node in ast.walk(tree)
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name == spec.symbol
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == spec.symbol
     )
     segment = ast.get_source_segment(source_text, target)
     assert segment is not None
@@ -1497,12 +1460,12 @@ def test_first_vertical_contamination_is_rejected(live_bundle: dict[str, object]
     bundle = live_bundle
     corrupted = copy.deepcopy(bundle)
     corrupted["pack"]["components"]["outcomes"]["entries"][0]["canonical_var"] = "avg_income"
-    corrupted["pack"]["components"]["transport_context"]["covariates"][0][
-        "canonical_var"
-    ] = "state_capacity"
-    corrupted["pack"]["components"]["lever_vocabulary"]["entries"][0][
-        "instrument"
-    ] = "policy.credit_access"
+    corrupted["pack"]["components"]["transport_context"]["covariates"][0]["canonical_var"] = (
+        "state_capacity"
+    )
+    corrupted["pack"]["components"]["lever_vocabulary"]["entries"][0]["instrument"] = (
+        "policy.credit_access"
+    )
 
     codes = {
         str(issue["code"])
@@ -1554,9 +1517,7 @@ def _n8_transport_projection_payload() -> dict[str, object]:
         "education_refusal": {"content_hash": "sha256:" + "4" * 64},
         "transport_component_proofs": {
             "first_vertical": first_vertical,
-            "education": {
-                "required_target_data": ["education_spending", "school_quality"]
-            },
+            "education": {"required_target_data": ["education_spending", "school_quality"]},
         },
     }
 
@@ -1574,9 +1535,7 @@ def test_n8_first_vertical_projection_is_acyclic_and_domain_isolated() -> None:
     assert second_domain_pack._n8_first_vertical_transport_projection(payload) == baseline
     assert baseline["required_target_data"] == []
     assert baseline["outcome_kind"] == "typed_refusal"
-    assert baseline["typed_refusal_code"] == (
-        "acquire_data:transport_context_unresolved"
-    )
+    assert baseline["typed_refusal_code"] == ("acquire_data:transport_context_unresolved")
     assert baseline["transport_comparison_status"] == (
         "not_evaluated_first_vertical_context_unresolved"
     )
@@ -1605,9 +1564,7 @@ def test_unresolved_first_vertical_transport_does_not_award_distinctness() -> No
             "lever_overlap": [],
             "not_ua_single_unit": True,
             "transport_covariate_check": {
-                "comparison_status": (
-                    "not_evaluated_first_vertical_context_unresolved"
-                ),
+                "comparison_status": ("not_evaluated_first_vertical_context_unresolved"),
                 "first_vertical_overlap": [],
             },
         },
@@ -1628,9 +1585,9 @@ def test_n8_first_vertical_projection_rejects_missing_or_forged_row() -> None:
         second_domain_pack._n8_first_vertical_transport_projection(missing)
 
     forged = _n8_transport_projection_payload()
-    forged["transport_component_proofs"]["first_vertical"][
-        "context_binding_hash"
-    ] = "sha256:" + "f" * 64
+    forged["transport_component_proofs"]["first_vertical"]["context_binding_hash"] = (
+        "sha256:" + "f" * 64
+    )
     with pytest.raises(ValueError, match="n8_first_vertical_transport_proof_hash_mismatch"):
         second_domain_pack._n8_first_vertical_transport_projection(forged)
 

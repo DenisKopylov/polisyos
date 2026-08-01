@@ -460,6 +460,24 @@ artifact back into itself.
   HTTP/dashboard projection, and public export are `surface_out_of_scope`: N11 is an internal
   authority-sensitive gate consumed through narrow verified projections, and any future external
   surface must be a read-only projection rather than a second intake or authority path.
+- Closeout P01-P34 audit:
+  - P01/P02/P03 are closed by the real producer -> frozen artifact -> N9 bridge -> typed
+    generation-cycle consumer -> lifecycle-visible audit projection chain; only the explicitly
+    named external surfaces remain `surface_out_of_scope`.
+  - P05/P10/P14/P15/P29/P31/P32/P33 are closed by one ledger draw chokepoint, exact
+    resolve -> content-bind -> owner-reverify intake, structural polarity/coverage checks,
+    recomputing writers/checkers, 49 nested corruptions, and 17 behavioral source flips.
+  - P07 is closed for the inherited WMR drift by the canonical owner-order replay; N11 records
+    registry, rule, deployment, filtration, and future epoch-reference identities. P08 adds no
+    conflated runtime time role, and P09/P11/P12 add no warning, memory, or producer-handshake
+    semantics.
+  - P04 adds no status enum; P06 adds no shim; P13 is bounded to one accounting owner and one
+    config registry; P16-P26 add no universal-axis authority. P27/P30 extend domain owners rather
+    than create a slice statistics stack. P28 deletes caller-authored spend authority and closes
+    the raw-boolean sibling consumer.
+  - P34 exclusions are evidenced rather than relabeled: N11 has zero lifecycle phantoms; the
+    repo-wide lifecycle debt is the disclosed base debt; and the five remaining architecture
+    deltas are in untouched `runtime/http/**`/Lex Atlas files, with zero N11 deep-import delta.
 
 ## Red-first test denominator
 
@@ -588,8 +606,9 @@ projection hash, conditionality clause, promotion projection hash, and future ep
   because the runtime owner and registry do not exist.
 - [x] Add N9/consumer REDs showing caller spend, ledger bypass, raw-dict promotion, and fixed-time
   calibration can currently pass too far.
-- [ ] Record the RED commands/results in the execution journal; do not commit an intentionally red
-  tree.
+- [ ] Historical RED command/result output was not retained in the execution journal. The exact
+  red-first test denominator and the final 17/17 behavioral source-flip evidence are committed, but
+  closeout must not retroactively invent missing command output.
 
 ## Workstream 2 — Implement the generic ledger baseline
 
@@ -612,7 +631,8 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 - [x] Turn the core tests GREEN. Add unseen/malformed registry probes and remove-the-owner-validation
   P29 behavior.
 - [x] Run focused tests and Ruff; commit generic baseline `5a5d422a8`.
-- [ ] Run final architecture guardrails after all source/artifact reissues.
+- [x] Run final architecture guardrails after all source/artifact reissues. N11 contributes zero
+  deep-import delta; the full command remains RED only on five untouched Atlas HTTP/Lex imports.
 
 ## Workstream 3 — Make N9 draw from the ledger and close the sibling consumer
 
@@ -629,9 +649,11 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 - [x] Replace the generation-cycle raw-dict predicate with typed receipt parsing and revalidation.
 - [x] Turn all N9/consumer REDs GREEN; preserve the total 15-class obligation semantics and unseen
   non-panel probe.
-- [ ] Perform the final N9 frozen reissue after the last deployment-closure source edit.
+- [x] Perform the final N9 frozen reissue after the last deployment-closure source edit; writer x2
+  and the independent recomputing check are byte-stable.
 - [x] Run focused tests and Ruff; commit the N9/consumer implementation.
-- [ ] Run final architecture guardrails.
+- [x] Run final architecture guardrails; N11 scoped delta is clean and the five remaining findings
+  are in the excluded Atlas HTTP/Lex lane.
 
 ## Workstream 4 — Account the real N10/N13b evidence and freeze N11
 
@@ -655,7 +677,8 @@ projection hash, conditionality clause, promotion projection hash, and future ep
   producer/one declared output with zero N11 phantoms. The disclosed 466-violation Task-0 global
   census remains inherited debt and is not recast as N11 debt.
 - [x] Run focused tests and Ruff; commit the generic frozen baseline.
-- [ ] Run final architecture guardrails.
+- [x] Run final architecture guardrails; N11 scoped delta is clean and the five remaining findings
+  are in the excluded Atlas HTTP/Lex lane.
 
 ## Workstream 5 — U3 data-only novel-instrument proof
 
@@ -681,29 +704,45 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 - The required source-flip lane is 17/17 RED with byte restoration (`f489ba0ee`).
 - Cold-closeout progress handling is corrected by `b5ca9af0a` and witnessed by
   `test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination`.
-- Before the final deployment-closure replay, the frozen N11 artifact has file SHA-256
-  `6bb54df2a422078503980bb77465654c3733027cc7dfbb149d7df98e4d139ccf` and semantic hash
-  `sha256:79faf418c01ff7351b9a2f0fb2c00673b08e046268c2bebb5aebdcaad909a4de`.
+- The final deployment-closure artifacts are byte-stable with file SHA-256 values N9
+  `2f63cfd41fefb5fb5ea050bcbdf5c89ec2615859c9a1ca7239f827d644cb6e5b`, generation-cycle
+  `fb619e2025fce6784f94d043c2b98a9c92364789a24e602e69c08d12a7e7c6b1`, and N11
+  `a98b10ab41687b741ce455517f19ef0d2b27deaeb22bbeafc0fda2758c70a409`.
+- N11's semantic artifact hash is
+  `sha256:6b54204e1ae60411b3fda2fb07cfe0907e1338d7beed3c383ac2d1b429e9b187`; its real-ledger,
+  N9-promotion, future-N12 epoch-reference, and accounted-run projection hashes are respectively
+  `sha256:b8e76a2aed6d770d42cbb0116b1e38c6032722d5f33e4a088f40cd6fe230b0d1`,
+  `sha256:4562d9512002170b74a89b84f085c1ee60a695dd4ae78b8d745da0fb58d98c7d`,
+  `sha256:f897856967a7e96cfc1a09cef60f9add84ffc8122e5fb5281112c218a3625baa`, and
+  `sha256:ef13df69527165a542d6245dbfe9b3d3d3bae96513c689fdfe55e2f1dfb683a4`.
+- Final cold derivation completed in `944.423788s` with a `2.298801s` cache hit and
+  `954.199091s` writer wall time. The independent check completed in `1966.222886s`; it remained
+  objectively CPU-advancing and reported `profiling_stop_required=false`, so the declared
+  advancing-overrun policy applied.
 
 ## Workstream 6 — Targeted serial closeout and architect handoff
 
 - [x] Lane 0: focused PDC/ledger/N9/generation-cycle logic suites.
 - [x] Run the warm cached-owner real accounted run and focused N11 lifecycle-owner test.
-- [ ] Re-run final N11/N9/generation checkers after the deployment-closure artifact replay.
+- [x] Re-run final N11/N9/generation checkers after the deployment-closure artifact replay; all
+  independent checks pass and the writers are byte-stable x2.
 - [x] Run the E2 one-process warm sweep and inspect its E5/E8/E9 run record; a warm wall time above
   about five minutes is a finding requiring cache/profile diagnosis.
 - [x] Run Ruff on every changed Python path.
-- [ ] Run architecture guardrails after the final artifact replay.
+- [x] Run architecture guardrails after the final artifact replay; N11 scoped delta is clean, while
+  the full gate reports five untouched Atlas HTTP/Lex imports.
 - [x] Run N11 writer/checker x2, corrupt lane, and required source flips.
-- [ ] Perform the final deployment-identity replay and validate the canonical
-  receipt chain serially: census -> N4 -> N8 -> composition -> capstone -> N13a -> N13b -> disposition.
-- [ ] Run the Layer-3 GY validator census: expected raw 41, accepted 40 after excluding the
+- [x] Perform the final deployment-identity affected-slice replay serially: final N9 ->
+  generation-cycle -> N11 -> disposition. The upstream census/N4/N8/composition/capstone/N13a/N13b
+  owner chain was already reissued and validated in owner order and was not changed by the final
+  deployment-closure source edit.
+- [x] Run the Layer-3 GY validator census: raw 41, accepted 40 after excluding the
   operational acquisition executor (accepted 39 -> 40).
 - [x] Run one Lane-2 cold N11 closeout with analytics + solvers and JAX CPU. Do not repeat it per
   mutation.
 - [x] Inspect the cold stage record; a cold wall time above about 25 minutes or 2x the recorded
   historical stage time stops closure for profiling unless the stage is demonstrably advancing.
-- [ ] Reopen the failure/repair register and audit P01-P34 closure, especially P05, P07, P14, P15,
+- [x] Reopen the failure/repair register and audit P01-P34 closure, especially P05, P07, P14, P15,
   P29, P31-P34.
 - [ ] Record frozen file/content/projection hashes, real spend rows, data-only commit and empty-Python
   proof, merge-tree against current main, and clean worktree.

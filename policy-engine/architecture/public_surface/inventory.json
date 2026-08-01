@@ -660,7 +660,7 @@
         "polisyos.fabric.api"
       ],
       "major_subsystem": true,
-      "export_count": 38,
+      "export_count": 39,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -685,6 +685,7 @@
         "UnitRef",
         "WorldQueryError",
         "WorldQueryRequest",
+        "atomic_write_json",
         "batch_processing_contract",
         "build_source_contract_requirement_bindings",
         "execute_world_query",

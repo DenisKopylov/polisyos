@@ -92,7 +92,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 38 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 18 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
@@ -622,7 +622,7 @@ write_participation_requirement_bundle
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (38)</summary>
+<details><summary>Supported exports (39)</summary>
 
 ```text
 AccessRef
@@ -648,6 +648,7 @@ TypedGap
 UnitRef
 WorldQueryError
 WorldQueryRequest
+atomic_write_json
 batch_processing_contract
 build_source_contract_requirement_bindings
 execute_world_query

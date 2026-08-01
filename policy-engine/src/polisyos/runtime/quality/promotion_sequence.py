@@ -19,7 +19,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.contracts.value_outer_set import ValueOuterSet
+from polisyos.core import contracts as core_contracts
 from polisyos.pdc import (
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
@@ -226,7 +226,9 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
         payload = dict(value)
         value_outer_set = payload.get("value_outer_set")
         if isinstance(value_outer_set, Mapping):
-            payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(value_outer_set)
+            payload["value_outer_set"] = core_contracts.ValueOuterSet.from_persisted_payload(
+                value_outer_set
+            )
         return ValueGateReceipt.model_validate(payload)
 
     @model_validator(mode="after")

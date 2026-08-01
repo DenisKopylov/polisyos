@@ -366,9 +366,13 @@ artifact back into itself.
 
 ### Existing contracts and chokepoints to extend
 
-- `src/polisyos/pdc/_impl/gy_waist.py`: replace pre-N11 declared-spend shapes with strict ledger
-  check/receipt/projection contracts; retain `PromotionObligationClass` as the sole obligation enum.
-- `src/polisyos/pdc/__init__.py`: export the public N11 DTOs.
+- `src/polisyos/runtime/quality/confidence_ledger.py`: single-own the strict ledger
+  check/receipt/projection contracts. `src/polisyos/pdc/_impl/gy_waist.py` extends only the existing
+  public N9 display bridge (`PromotionRiskSpendRecord`, `PromotionRiskSpendSummary`, authority-trace
+  bindings, and the exact conditionality constant); retain `PromotionObligationClass` as the sole
+  obligation enum.
+- `src/polisyos/pdc/__init__.py`: export the display/N9 compatibility types and caveat, not the
+  canonical ledger DTO surface.
 - `src/polisyos/runtime/quality/promotion_sequence.py`: remove caller-authoritative `risk_spends`,
   draw executed probabilistic certificates through the ledger, bind the promotion projection, and
   recompute it during receipt validation.
@@ -418,9 +422,12 @@ artifact back into itself.
   owner order: credal reference, relation, bind, admission, phrasing defense, active controller,
   benchmark scoreboard. CG0-CG5 require writer x2 byte identity; CG6 deliberately excludes latency
   from semantic drift, so use write -> check -> write -> check rather than raw-byte equality.
-  N13a/N13b are validate-only and must remain byte-stable if their declared
-  projections correctly exclude WMR identity. The source-committed disposition ledger is
-  validate-only after N8.
+  During this W0 WMR-only repair, N13a/N13b are validate-only and remain byte-stable because their
+  declared projections exclude WMR identity. The later U3 refusal-route addition changes the
+  structurally owned capstone route projection and therefore requires the separate canonical ripple
+  N8 (`1ff19637e`) -> N10a (`479533278`) -> capstone/N13a (`8c506eb93`) -> N13b
+  (`f3c8e1780`) -> N11 (`fcd110334`). Those writes are narrow projection rebindings, not
+  whole-contract pinning. The source-committed disposition ledger is validate-only after N8.
 
 ## Pattern pass
 
@@ -447,6 +454,12 @@ artifact back into itself.
   valid completed ledger projection; restart/fork/refund/rebind bypasses turn RED; real N10/N13b
   evidence produces owner-recomputed polarity-correct rows; the frozen artifact is byte-stable and
   lifecycle-visible.
+- Post-implementation capability reality: producer, persisted artifact, N9 bridge, generation-cycle
+  consumer, recomputing verification, audit surface, and semantic tests are implemented. The
+  lifecycle-visible frozen JSON is the MACHINE/EXPERT audit surface. A stable Python ledger API,
+  HTTP/dashboard projection, and public export are `surface_out_of_scope`: N11 is an internal
+  authority-sensitive gate consumed through narrow verified projections, and any future external
+  surface must be a read-only projection rather than a second intake or authority path.
 
 ## Red-first test denominator
 
@@ -459,22 +472,22 @@ artifact back into itself.
 
 ### Ledger core
 
-- `test_executed_anytime_valid_check_spends_recomputed_schedule_slot`
-- `test_unexecuted_schedule_slot_spends_nothing`
+- `test_started_probabilistic_check_burns_before_outcome_and_survives_restart`
+- `test_cancelled_prepared_attempt_has_no_ordinal_and_spends_zero`
 - `test_executed_check_without_schedule_slot_fails_closed`
-- `test_over_spend_is_rejected`
+- `test_over_spend_is_rejected_even_when_receipt_is_rehashed`
 - `test_bayesian_credible_interval_without_coverage_argument_is_typed_refusal`
-- `test_unknown_instrument_preflight_fails_closed_without_execution_or_spend`
+- `test_unknown_instrument_preflight_fails_closed_without_start_or_spend`
 - `test_non_anytime_valid_instrument_cannot_support_promotion`
-- `test_deterministic_proof_requires_zero_spend`
+- `test_deterministic_proof_executes_at_unique_ordinal_with_zero_spend_and_reverification`
 - `test_forged_spend_row_is_recomputed_from_schedule`
-- `test_rehashed_forged_instrument_definition_fails_owner_verification`
-- `test_good_event_conditionality_clause_is_mandatory`
+- `test_rehashed_forged_instrument_registry_fails_content_binding`
+- `test_conditionality_clause_is_required_in_receipt_and_both_projections`
 - `test_obligation_budget_split_is_total_over_n9_taxonomy`
 - `test_duplicate_schedule_slot_is_rejected`
 - `test_custom_predictable_schedule_profile_accounts_end_to_end`
-- `test_custom_schedule_total_mass_above_one_is_rejected`
-- `test_constant_unit_e_process_burns_preoutcome_slot_but_cannot_promote`
+- `test_schedule_mass_above_one_is_rejected`
+- `test_nonrejecting_constant_unit_e_process_burns_but_cannot_promote`
 - `test_caller_supplied_all_one_trace_is_not_a_coverage_argument`
 - `test_adaptive_claim_selection_requires_conditional_validity_given_prior_filtration`
 - `test_every_valid_history_prefix_preserves_the_delta_bound_at_user_stop`
@@ -484,39 +497,42 @@ artifact back into itself.
 - `test_foundry_anytime_valid_label_without_owner_theorem_is_refused`
 - `test_ir_sensitivity_e_value_is_not_resolved_as_betting_e_value`
 - `test_ddm_online_fdr_decision_is_not_a_promotion_ledger_receipt`
-- `test_nonrejecting_executed_check_irrevocably_burns_full_slot`
-- `test_executed_owner_refusal_or_error_does_not_refund_slot`
-- `test_crash_after_started_event_burns_slot_on_recovery`
-- `test_same_budget_scope_cannot_mint_a_fresh_ledger_root`
-- `test_restart_continues_unique_monotone_executed_check_ordinal`
-- `test_stale_fork_cannot_reuse_ancestor_budget_or_ordinal`
-- `test_duplicate_execution_id_is_idempotent_only_without_reexecution`
+- `test_started_owner_refusal_or_error_does_not_refund_slot`
+- `test_orphan_started_event_fast_forwards_head_and_preserves_burn`
+- `test_same_scope_cannot_mint_fresh_root_with_changed_owner_projection`
+- `test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal`
+- `test_stale_history_token_cannot_fork_canonical_head`
+- `test_completed_idempotent_request_is_returned_without_new_execution`
+- `test_reused_request_key_with_different_binding_is_corruption`
 - `test_retry_after_observed_output_gets_fresh_ordinal_and_burn`
 - `test_exact_rational_basel_slot_is_below_declared_ideal_weight`
 - `test_upward_rounded_schedule_rendering_is_rejected`
-- `test_registry_cannot_self_declare_a_new_proof_theorem`
-- `test_data_only_instrument_reuses_existing_proof_kernel_theorem`
+- `test_registry_cannot_self_declare_new_proof_theorem`
 - `test_probabilistic_refusal_burns_against_confident_wrong_refusal_event`
-- `test_deterministic_refusal_is_zero_spend_by_proof_not_negative_polarity`
+- `test_deterministic_proof_executes_at_unique_ordinal_with_zero_spend_and_reverification`
+
+U3 is an operational binary proof rather than a second test alias: baseline `5a5d422a8`,
+data-only commit `cb83a4c13`, an empty
+`git diff 5a5d422a8..cb83a4c13 -- '*.py'`, and recomputed artifact universality evidence.
 
 ### N9 and the decision-front consumer
 
-- `test_probabilistic_promotion_certificate_is_drawn_from_confidence_ledger`
-- `test_probabilistic_certificate_bypassing_ledger_cannot_promote`
-- `test_calibration_pass_without_certificate_handshake_stays_shadow`
-- `test_generation_cycle_rejects_forged_promoted_receipt_without_valid_ledger_projection`
-- `test_authority_trace_binds_n11_promotion_projection`
-- `test_unseen_registry_instrument_fails_closed_as_unknown_instrument`
+- `test_schedule_slot_is_reserved_before_obligation_outcomes`
+- `test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head`
+- `test_probabilistic_certificate_bypassing_ledger_is_rejected`
+- `test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow`
+- `test_generation_cycle_check_revalidates_forged_embedded_receipt`
+- `test_promotion_trace_requires_current_ledger_binding`
+- `test_unknown_instrument_preflight_fails_closed_without_start_or_spend`
 
 ### Real/frozen proof
 
-- `test_real_capstone_refusal_projection_is_accounted`
-- `test_real_n13b_admission_denominator_is_accounted_without_phantom_passports`
-- `test_frozen_ledger_preserves_conditionality_in_every_projection`
-- `test_confidence_ledger_writer_is_byte_stable`
-- `test_confidence_ledger_nested_corrupt_fields_turn_red`
-- `test_confidence_ledger_source_flip_denominator_is_complete`
-- `test_new_data_only_instrument_is_accounted_end_to_end`
+- `test_real_capstone_and_admission_denominator_are_accounted`
+- `test_conditionality_clause_is_required_in_receipt_and_both_projections`
+- `test_confidence_ledger_writer_is_byte_stable_and_corruptions_turn_red`
+
+The source-flip denominator is an operational 17/17 report from commit `f489ba0ee`; the U3
+data-only end-to-end witness is the binary commit/diff/recomputed-artifact proof above.
 
 ## Required 17 source flips
 
@@ -564,104 +580,128 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 
 ## Workstream 1 — Land strict contracts and observe the ledger REDs
 
-- [ ] Extend `gy_waist.py` with strict receipt/check/refusal/projection DTOs and the exact
-  conditionality constant. Include exact rational spend, claim/polarity/filtration binding,
-  append-event/head, and unique executed-check ordinal fields. Keep the existing obligation
-  taxonomy; do not add a second enum.
-- [ ] Add the complete ledger-core denominator above and PDC strictness tests. Observe failures
+- [x] Add the strict receipt/check/refusal/projection DTOs to the single runtime ledger owner; extend
+  `gy_waist.py` only with the N9 display bridge and exact conditionality constant. Include exact
+  rational spend, claim/polarity/filtration binding, append-event/head, and unique executed-check
+  ordinal fields. Keep the existing obligation taxonomy; do not add a second enum.
+- [x] Add the complete ledger-core denominator above and PDC strictness tests. Observe failures
   because the runtime owner and registry do not exist.
-- [ ] Add N9/consumer REDs showing caller spend, ledger bypass, raw-dict promotion, and fixed-time
+- [x] Add N9/consumer REDs showing caller spend, ledger bypass, raw-dict promotion, and fixed-time
   calibration can currently pass too far.
 - [ ] Record the RED commands/results in the execution journal; do not commit an intentionally red
   tree.
 
 ## Workstream 2 — Implement the generic ledger baseline
 
-- [ ] Add the TOML schema with content-addressed schedule, full typed obligation partition,
+- [x] Add the TOML schema with content-addressed schedule, full typed obligation partition,
   proof-kernel theorem selections/parameters, owner verifiers, and initial instrument definitions;
   reject registry-authored theorem semantics.
-- [ ] Implement `confidence_ledger.py`: strict loader, unique resolution, typed proof kernel,
+- [x] Implement `confidence_ledger.py`: strict loader, unique resolution, typed proof kernel,
   adaptive claim/filtration/polarity binding, exact rational/downward Basel slots, durable
   compare-and-swap prepared -> started -> completed append protocol, unique global ordinals,
   pre-outcome burn, deterministic-zero law, restart/fork/duplicate defenses, typed refusals, owner
   recomputation, conditional good-event receipt, and two narrow projections.
-- [ ] Validate the config-declared predictable schedule profile through the trusted kernel: prove
+- [x] Validate the config-declared predictable schedule profile through the trusted kernel: prove
   the symbolic ideal and exact rational downward total mass, reject upward display rounding,
   exercise a half-mass Basel profile end-to-end, and reject a recomputed mass above one.
-- [ ] Ensure a present/rehashed registry row cannot attest its own validity. Coverage/proof evidence
+- [x] Ensure a present/rehashed registry row cannot attest its own validity. Coverage/proof evidence
   must resolve to the certificate owner and verifier provenance.
-- [ ] Add only the construction-verified constant-unit e-process as the no-power probabilistic
+- [x] Add only the construction-verified constant-unit e-process as the no-power probabilistic
   conformance witness. It burns its pre-outcome slot, always recomputes `crossed=false`, and cannot
   make any obligation pass; caller-supplied all-one traces fail closed.
-- [ ] Turn the core tests GREEN. Add unseen/malformed registry probes and remove-the-owner-validation
+- [x] Turn the core tests GREEN. Add unseen/malformed registry probes and remove-the-owner-validation
   P29 behavior.
-- [ ] Focused tests + Ruff + architecture guardrails. Commit the generic baseline.
+- [x] Run focused tests and Ruff; commit generic baseline `5a5d422a8`.
+- [ ] Run final architecture guardrails after all source/artifact reissues.
 
 ## Workstream 3 — Make N9 draw from the ledger and close the sibling consumer
 
-- [ ] Delete `CanonicalPromotionInput.risk_spends` and the context-provider forwarding path.
-- [ ] Compile obligations, resolve the canonical ledger head, and route each probabilistic owner
+- [x] Delete `CanonicalPromotionInput.risk_spends` and the context-provider forwarding path.
+- [x] Compile obligations, resolve the canonical ledger head, and route each probabilistic owner
   execution through durable prepare -> pre-outcome start/burn -> complete. Bind the adaptively
   selected claim and prior-history filtration before invoking the owner; N9 may decide promotion
   only after the completed lineage validates. A missing handshake for a probabilistic pass is typed
   refusal, not zero-spend success.
-- [ ] Bind the exact N11 promotion projection into the N9 receipt and authority trace.
-- [ ] Recompute registry/theorem binding, claim/polarity/filtration evidence, canonical
+- [x] Bind the exact N11 promotion projection into the N9 receipt and authority trace.
+- [x] Recompute registry/theorem binding, claim/polarity/filtration evidence, canonical
   head/ordinal chain, exact schedule slot and burn, cumulative total, certificate evidence, and
   projection in `validate_canonical_promotion_receipt`.
-- [ ] Replace the generation-cycle raw-dict predicate with typed receipt parsing and revalidation.
-- [ ] Turn all N9/consumer REDs GREEN; preserve the total 15-class obligation semantics and unseen
+- [x] Replace the generation-cycle raw-dict predicate with typed receipt parsing and revalidation.
+- [x] Turn all N9/consumer REDs GREEN; preserve the total 15-class obligation semantics and unseen
   non-panel probe.
-- [ ] Reissue the N9 frozen artifact only after N11's promotion projection exists.
-- [ ] Focused tests + Ruff + architecture guardrails. Commit.
+- [ ] Perform the final N9 frozen reissue after the last deployment-closure source edit.
+- [x] Run focused tests and Ruff; commit the N9/consumer implementation.
+- [ ] Run final architecture guardrails.
 
 ## Workstream 4 — Account the real N10/N13b evidence and freeze N11
 
-- [ ] Build N10 projections by structurally recomputing evidence kinds from owners. Current measured
+- [x] Build N10 projections by structurally recomputing evidence kinds from owners. Current measured
   rows are education `estimand_binding_refusal`, first-vertical `owner_acquisition_route`, and unseen
   `owner_acquisition_route`; record `owner_data_gap` denominator zero. Bind refusal polarity and
   false-refusal scope explicitly; spend zero only after deterministic owner-proof verification.
-- [ ] Build N13b projections from its typed owner models. Record 5 live attempts, 2 raw responses,
+- [x] Build N13b projections from its typed owner models. Record 5 live attempts, 2 raw responses,
   zero admitted responses/overlay rows/world growth, and zero persisted passports. Exercise the real
   passport verifier in a warm owner test, but do not represent it as a real frozen passport row.
-- [ ] Use the E1 content-keyed cached owner state for all warm accounted-run tests. No test rebuilds
+- [x] Use the E1 content-keyed cached owner state for all warm accounted-run tests. No test rebuilds
   the composed world independently.
-- [ ] Expose an E2 one-process closeout sweep with E5 per-stage/overall timings, E8 effective-config
+- [x] Expose an E2 one-process closeout sweep with E5 per-stage/overall timings, E8 effective-config
   journaling, and E9 heartbeats/objective stop diagnostics.
-- [ ] Add the canonical writer/checker and the frozen artifact. Declare projection scopes/edges and
+- [x] Add the canonical writer/checker and the frozen artifact. Declare projection scopes/edges and
   exclude invocation-local lock/CAS identities through one typed producer semantic projection
   after full live-receipt validation. Do not broaden the shared GY volatile-field policy or weaken
   the runtime durability receipt.
-- [ ] Run writer x2, compare file hashes, run nested corrupt lane, and run the required source flips.
-- [ ] Register the artifact lifecycle and regenerate reference docs. Prove zero phantoms.
-- [ ] Focused tests + Ruff + architecture guardrails. Commit the generic frozen baseline.
+- [x] Run writer x2, compare file hashes, run nested corrupt lane, and run the required source flips.
+- [x] Register the artifact lifecycle, regenerate reference docs, and prove the N11 family has one
+  producer/one declared output with zero N11 phantoms. The disclosed 466-violation Task-0 global
+  census remains inherited debt and is not recast as N11 debt.
+- [x] Run focused tests and Ruff; commit the generic frozen baseline.
+- [ ] Run final architecture guardrails.
 
 ## Workstream 5 — U3 data-only novel-instrument proof
 
-- [ ] Record the generic-baseline commit hash.
-- [ ] Add a genuinely new instrument type and certificate-class route in TOML only. Route a real
+- [x] Record generic-baseline commit `5a5d422a8`.
+- [x] Add a genuinely new instrument type and certificate-class route in TOML only. Route a real
   owner-recomputed refusal through an already implemented proof-kernel theorem and owner verifier;
   do not add a Python branch or declare new theorem semantics in TOML.
-- [ ] Re-run the canonical writer so the new type is accounted end-to-end in the universality proof.
-- [ ] Commit only data/config and writer-generated artifact/reference changes.
-- [ ] Prove `git diff <generic-baseline>..<data-only-commit> -- '*.py'` is empty.
-- [ ] Run the U2 unregistered-instrument probe after the new type lands; it must still return typed
+- [x] Re-run the canonical writer so the new type is accounted end-to-end in the universality proof.
+- [x] Commit only data/config and writer-generated artifact/reference changes as `cb83a4c13`.
+- [x] Prove `git diff 5a5d422a8..cb83a4c13 -- '*.py'` is empty.
+- [x] Run the U2 unregistered-instrument probe after the new type lands; it must still return typed
   `unknown_instrument` with accounting intact.
+
+## Measured execution evidence
+
+- Real N10 accounting has three deterministic rows: one `estimand_binding_refusal` and two
+  `owner_acquisition_route` rows; `owner_data_gap` has measured denominator zero. All spend exactly
+  zero by independently reverified owner proof, not by polarity or nonexecution.
+- The real N13b denominator is 5 attempts / 2 raw responses / 0 admissions / 0 passports. No
+  positive passport or world-growth row is fabricated.
+- The construction-verified constant-unit e-process conformance draw spends exactly
+  `0.000303963499305693314818488395159690537591747669`; it is never promotion-eligible.
+- The required source-flip lane is 17/17 RED with byte restoration (`f489ba0ee`).
+- Cold-closeout progress handling is corrected by `b5ca9af0a` and witnessed by
+  `test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination`.
+- Before the final deployment-closure replay, the frozen N11 artifact has file SHA-256
+  `6bb54df2a422078503980bb77465654c3733027cc7dfbb149d7df98e4d139ccf` and semantic hash
+  `sha256:79faf418c01ff7351b9a2f0fb2c00673b08e046268c2bebb5aebdcaad909a4de`.
 
 ## Workstream 6 — Targeted serial closeout and architect handoff
 
-- [ ] Lane 0: focused PDC/ledger/N9/generation-cycle logic suites.
-- [ ] Lane 1: warm cached-owner real accounted run, N11 checker, N9 checker, lifecycle tests.
-- [ ] Run the E2 one-process warm sweep and inspect its E5/E8/E9 run record; a warm wall time above
+- [x] Lane 0: focused PDC/ledger/N9/generation-cycle logic suites.
+- [x] Run the warm cached-owner real accounted run and focused N11 lifecycle-owner test.
+- [ ] Re-run final N11/N9/generation checkers after the deployment-closure artifact replay.
+- [x] Run the E2 one-process warm sweep and inspect its E5/E8/E9 run record; a warm wall time above
   about five minutes is a finding requiring cache/profile diagnosis.
-- [ ] Run Ruff on every changed Python path and architecture guardrails.
-- [ ] Run N11 writer/checker x2, corrupt lane, required source flips, and validate the canonical
+- [x] Run Ruff on every changed Python path.
+- [ ] Run architecture guardrails after the final artifact replay.
+- [x] Run N11 writer/checker x2, corrupt lane, and required source flips.
+- [ ] Perform the final deployment-identity replay and validate the canonical
   receipt chain serially: census -> N4 -> N8 -> composition -> capstone -> N13a -> N13b -> disposition.
 - [ ] Run the Layer-3 GY validator census: expected raw 41, accepted 40 after excluding the
   operational acquisition executor (accepted 39 -> 40).
-- [ ] Run one Lane-2 cold N11 closeout with analytics + solvers and JAX CPU. Do not repeat it per
+- [x] Run one Lane-2 cold N11 closeout with analytics + solvers and JAX CPU. Do not repeat it per
   mutation.
-- [ ] Inspect the cold stage record; a cold wall time above about 25 minutes or 2x the recorded
+- [x] Inspect the cold stage record; a cold wall time above about 25 minutes or 2x the recorded
   historical stage time stops closure for profiling unless the stage is demonstrably advancing.
 - [ ] Reopen the failure/repair register and audit P01-P34 closure, especially P05, P07, P14, P15,
   P29, P31-P34.

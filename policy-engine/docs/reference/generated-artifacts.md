@@ -1646,12 +1646,12 @@ uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_
 
 - Family id: `policy-design-case-layer3-gy-n9-promotion-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py
-- Generator: Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence
-- Verifier: Layer 3 GY-N9 promotion contract validator, frozen-receipt check, rederive audit, corrupt-field drift, and source-flip mutations
-- Promotion target: registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, and G4 owners
+- Source of truth: src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py
+- Generator: Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence and isolated deterministic N11 confidence-ledger replay scopes
+- Verifier: Layer 3 GY-N9 recomputing promotion contract validator, exact canonical-byte check, nested N11 projection/conditionality drift, rederive audit, and source-flip mutations
+- Promotion target: registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, G4, and the current-head N11 promotion-certificate projection; fixed-time confidence remains a typed zero-spend refusal
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes.
+- Freshness rule: Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-runtime-quality`
@@ -1663,7 +1663,7 @@ uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_
 Canonical regeneration commands:
 
 ```bash
-python3 tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json
+JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack`
@@ -1839,8 +1839,8 @@ uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisi
 
 - Family id: `policy-design-case-layer3-gy-n11-confidence-ledger`
 - Lifecycle: `generated_committed`
-- Source of truth: architecture/production_quality/confidence_ledger.toml, the typed confidence-ledger owner, the N9 obligations compiler and promotion gate, narrow N10 capstone/N13b owner projections, and tools/quality/validation/check_layer3_gy_confidence_ledger.py
-- Generator: GY-N11 canonical writer over data-registered instrument families, the predictable obligation-class risk schedule, durable execution/spend lineage, and narrow owner-recomputed N10/N13b evidence projections
+- Source of truth: architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/confidence_ledger.py, tools/quality/validation/layer3_gy_confidence_ledger_contract.py, tools/quality/validation/check_layer3_gy_confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py as the N9 projection consumer, and narrow structurally recomputed N10/N13b owner projections
+- Generator: GY-N11 canonical writer over the typed confidence-ledger core, data-registered instrument families, the predictable obligation-class risk schedule, durable execution/spend lineage, narrow owner-recomputed N10/N13b evidence projections, and the N9 promotion-certificate projection consumer
 - Verifier: GY-N11 recomputing checker, byte-stable canonical writer, nested corrupt-field lane, and restoring behavioral source-flip suite
 - Promotion target: N9 anytime-valid probabilistic promotion accounting and N12 epoch-reference projection only; never unconditional confidence, certificate authority, or policy authority
 - Commit policy: `committed`
@@ -1856,7 +1856,7 @@ uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisi
 Canonical regeneration commands:
 
 ```bash
-python3 tools/quality/validation/check_layer3_gy_confidence_ledger.py --write
+JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

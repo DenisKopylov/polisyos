@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **15454**
-- Application lines deleted: **13384**
-- Net application LOC reduction: **-2070**
-- Application files deleted: **78**
+- Application lines added: **17425**
+- Application lines deleted: **17974**
+- Net application LOC reduction: **549**
+- Application files deleted: **85**
 
 ## Wave-end full verification
 
@@ -459,7 +459,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-governance-comparison-right` | `status-inline-governance-comparison-right` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-small-multiples` |
 | `status-inline-route-loader` | `status-inline-route-loader` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-depth-n-cycle-board-governed-projection` |
 | `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
 | `flag-enable-atlas-v2` | `flag-enable-atlas-v2` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `flag-enable-clerk-mode` | `flag-enable-clerk-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -516,6 +516,15 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `2d83e3264 fix(dashboard): name provenance popover dialog`
+- `bfb30c82b fix(dashboard): restore counterfactual text contrast`
+- `31aae0c45 test(dashboard): budget the C14 decision-grade census`
+- `810ef6b77 test(dashboard): stabilize C22 semantic scanners`
+- `bc1d01001 fix(dashboard): contain readiness and scientific synthesis`
+- `2a9da098e refactor(dashboard): retire local return vocabularies`
+- `31134a9fa refactor(dashboard): bind provenance posture to generated metadata`
+- `d2dceae95 refactor(dashboard): remove run lifecycle guessing`
+- `0e9aa6eef test(atlas): harden C22 semantic debt governance`
 - `299fe06e8 refactor(dashboard): retire bounded status taxonomies`
 - `5f63537c2 refactor(dashboard): close architecture severing remainder`
 - `4bf425bfa refactor(dashboard): bind generated responsive breakpoints`

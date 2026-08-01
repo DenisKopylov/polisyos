@@ -24,10 +24,10 @@
         "canonical_line": 516,
         "types_path": "packages/runtime-api-client/types.ts",
         "types_start_line": 5850,
-        "types_end_line": 5890,
+        "types_end_line": 5879,
         "symbol": "GenerationCycleDispositionPayload"
       },
-      "swap_module": "apps/runtime-dashboard/src/features/runs/components/cgfDispositionPresentation.ts",
+      "swap_module": "apps/runtime-dashboard/src/shared/ui/compounds/cgfDispositionPresentation.ts",
       "target_cluster": "C19",
       "closure_truth": "The current projection carries owner JSON opaquely; C19 adds one presentation-only unrecognized swap point without a closed local union.",
       "master_inherited_debt_action": "flag_for_architect_insertion_at_c20",
@@ -65,7 +65,7 @@
         "canonical_line": 737,
         "types_path": "packages/runtime-api-client/types.ts",
         "types_start_line": 8164,
-        "types_end_line": 8180,
+        "types_end_line": 8182,
         "symbol": "ProjectionFreshness"
       },
       "swap_module": "apps/runtime-dashboard/src/shared/ui/temporal/cacheAgePresentation.ts",

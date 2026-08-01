@@ -33,6 +33,7 @@ import { AuthoredText } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
+import { useDepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const { t, label } = useI18n();
@@ -327,6 +328,7 @@ export default function OverviewTab() {
   const { t } = useI18n();
   const { runId } = useParams();
   const summary = useRunInspector();
+  const governedProjectionQuery = useDepthNCycleBoardProjection();
 
   if (!summary.run || !runId) {
     return null;
@@ -461,7 +463,13 @@ export default function OverviewTab() {
             <h4>{t("pages.runs.explainabilitySubtitle")}</h4>
           </div>
         </div>
-        <RunExplainabilityPanel summary={summary} level="summary" />
+        <RunExplainabilityPanel
+          governedProjection={governedProjectionQuery.data}
+          level="summary"
+          projectionError={governedProjectionQuery.isError}
+          projectionLoading={governedProjectionQuery.isLoading}
+          summary={summary}
+        />
       </Card>
     </div>
   );

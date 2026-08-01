@@ -16,6 +16,7 @@ const {
   useCompareCandidatesMock,
   useCompareRunsMock,
   useCounterfactualMetricsMock,
+  useDepthNCycleBoardProjectionMock,
   useGovernanceDebugMock,
   useNodeDebugMock,
   usePermissionMock,
@@ -41,6 +42,7 @@ const {
   useCompareCandidatesMock: vi.fn(),
   useCompareRunsMock: vi.fn(),
   useCounterfactualMetricsMock: vi.fn(),
+  useDepthNCycleBoardProjectionMock: vi.fn(),
   useGovernanceDebugMock: vi.fn(),
   useNodeDebugMock: vi.fn(),
   usePermissionMock: vi.fn(),
@@ -113,6 +115,11 @@ vi.mock("@/api/hooks/useCompareRuns", () => ({
 vi.mock("@/api/hooks/useCounterfactualMetrics", () => ({
   useCounterfactualMetrics: (...args: unknown[]) =>
     useCounterfactualMetricsMock(...args),
+}));
+
+vi.mock("@/features/runs/api/useDepthNCycleBoardProjection", () => ({
+  useDepthNCycleBoardProjection: (...args: unknown[]) =>
+    useDepthNCycleBoardProjectionMock(...args),
 }));
 
 vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
@@ -571,6 +578,12 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
+    useDepthNCycleBoardProjectionMock.mockReturnValue({
+      data: undefined,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
     useRunInspectorMock.mockReturnValue(summary);
     useGovernanceDebugMock.mockReturnValue({
       data: {
@@ -857,9 +870,9 @@ describe("run detail surfaces", () => {
     expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
       "common.unavailable",
     );
-    expect(screen.getByTestId("public-sector-readiness-panel")).toHaveTextContent(
-      "common.unavailable",
-    );
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("common.unavailable");
     expect(screen.getByTestId("publication-packet-panel")).toBeInTheDocument();
     expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
     expect(
@@ -1098,6 +1111,7 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("overview-scenario-workbench"),
     ).toBeInTheDocument();
+    expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
   });
 
   it("keeps novel and missing governance severity labels opaque and neutral", () => {
@@ -1263,9 +1277,9 @@ describe("run detail surfaces", () => {
   it("renders both contained panels unavailable without producer inputs", () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
-    expect(screen.getByTestId("public-sector-readiness-panel")).toHaveTextContent(
-      "common.unavailable",
-    );
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("common.unavailable");
     expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
       "common.unavailable",
     );
@@ -1278,9 +1292,9 @@ describe("run detail surfaces", () => {
       <GovernanceTab />,
     );
 
-    expect(await screen.findByTestId("public-sector-readiness-panel")).toHaveTextContent(
-      "unavailable",
-    );
+    expect(
+      await screen.findByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("unavailable");
   });
 
   it("persists locally added dispute objections across governance remounts", async () => {

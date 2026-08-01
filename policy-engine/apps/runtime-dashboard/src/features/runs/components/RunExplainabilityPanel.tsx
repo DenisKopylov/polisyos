@@ -1,11 +1,14 @@
 import { useMemo } from "react";
+import type {
+  LegacyProvingGroundPayload,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
 
 import {
   ExplainabilityCard,
   type ExplainabilityFactor,
   type ExplainabilityGovernance,
   type ExplainabilityLevel,
-  type ExplainabilityVerdict,
 } from "@/shared/ui/compounds/ExplainabilityCard";
 import {
   GovernancePassGrid,
@@ -28,14 +31,30 @@ import {
   type ReasoningStep,
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
+import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { LocalizedJsonPreview } from "@/shared/ui/LocalizedJsonPreview";
+import { BlockerCard } from "@/shared/ui/compounds/BlockerCard";
+import { DataFreshnessBadge } from "@/shared/ui/compounds/DataFreshnessBadge";
+import { WeakestLinkExplainer } from "@/shared/ui/compounds/WeakestLinkExplainer";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
-import { Card } from "@polisyos/atlas-ui";
-import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import {
+  AuthorityBadge,
+  Badge,
+  Card,
+  EnvelopeChip,
+  EvidenceLink,
+  createGovernedAuthorityPurpose,
+  createOpaqueAuthorityPresentation,
+} from "@polisyos/atlas-ui";
 
 type RunExplainabilityPanelProps = {
+  governedProjection?: DepthNCycleBoardProjection | null;
   summary: RunInspectorSummary;
   level?: ExplainabilityLevel;
+  projectionError?: boolean;
+  projectionLoading?: boolean;
 };
 
 type AttributionAdapter = {
@@ -71,9 +90,7 @@ function factorDirection(value: number): ImportanceFactor["direction"] {
   return "neutral";
 }
 
-function buildExplainabilityVerdict(
-  summary: RunInspectorSummary,
-): ExplainabilityVerdict | null {
+function buildRecordedExplainabilityCard(summary: RunInspectorSummary) {
   if (summary.decisionScore.lineage.status !== "verified") {
     return null;
   }
@@ -310,13 +327,204 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
   return steps;
 }
 
+function GovernedDepthProjection({
+  projection,
+  projectionError = false,
+  projectionLoading = false,
+}: {
+  projection?: DepthNCycleBoardProjection | null;
+  projectionError?: boolean;
+  projectionLoading?: boolean;
+}) {
+  const { t } = useI18n();
+  if (projectionError) {
+    return (
+      <Card
+        className="p-4"
+        data-interaction-state="error"
+        data-testid="governed-depth-projection-interaction"
+      >
+        <p className="text-muted-foreground text-sm">
+          {t("common.unavailable")}
+        </p>
+      </Card>
+    );
+  }
+  if (projectionLoading) {
+    return (
+      <Card
+        className="p-4"
+        data-interaction-state="loading"
+        data-testid="governed-depth-projection-interaction"
+      >
+        <p className="text-muted-foreground text-sm">
+          {t("common.loading")}
+        </p>
+      </Card>
+    );
+  }
+  if (!projection) {
+    return null;
+  }
+
+  const { packet, payload } = projection;
+  if (packet.availability !== "available" || !payload) {
+    const fixtureAuthority =
+      "fixture_only" satisfies LegacyProvingGroundPayload["fixture_authority"];
+    const artifactMissing = packet.availability === "artifact_missing";
+    return (
+      <Card
+        className="space-y-3 p-4"
+        data-authority-posture="unavailable"
+        data-projection-availability={packet.availability}
+        data-testid="governed-depth-projection"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge kind="outline">{packet.availability}</Badge>
+          {artifactMissing ? (
+            <span
+              className="text-muted-foreground text-xs font-semibold"
+              data-fixture-authority={fixtureAuthority}
+            >
+              {fixtureAuthority} · {t("common.unavailable")}
+            </span>
+          ) : null}
+        </div>
+        <p className="text-muted-foreground text-sm">
+          {packet.absence_reason}
+        </p>
+        <DataFreshnessBadge freshness={packet.freshness} />
+        <TimeSemanticsLabel
+          freshness={packet.freshness}
+          payloadAsOf={packet.as_of}
+        />
+      </Card>
+    );
+  }
+
+  const domainRuns = Object.entries(payload.domain_runs);
+  return (
+    <Card
+      className="space-y-5 p-4"
+      data-authority-posture="producer-projection"
+      data-projection-availability={packet.availability}
+      data-testid="governed-depth-projection"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h3 className="font-semibold">{packet.projection_id}</h3>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge kind="outline">{packet.availability}</Badge>
+          <DataFreshnessBadge freshness={packet.freshness} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {packet.authoritative_for.map((purpose) => (
+          <EnvelopeChip
+            authorityPurpose={createGovernedAuthorityPurpose(packet, purpose)}
+            key={purpose}
+          />
+        ))}
+      </div>
+
+      {packet.may_not_use_for.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-muted-foreground text-xs font-semibold">
+            {t("pages.runs.sections.governance")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {packet.may_not_use_for.map((purpose) => (
+              <Badge
+                data-may-not-use-for={purpose}
+                kind="outline"
+                key={purpose}
+              >
+                {purpose}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <TimeSemanticsLabel
+        freshness={packet.freshness}
+        payloadAsOf={packet.as_of}
+      />
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold">{t("common.sourceText")}</p>
+        <EvidenceLink
+          evidenceRef={packet.source.artifact_content_hash}
+          label={packet.source.relative_path}
+        />
+        <Badge
+          data-source-validation={packet.source.validation.status}
+          kind="outline"
+        >
+          {packet.source.validation.status}
+        </Badge>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        {domainRuns.map(([domainId, domainProjection]) => (
+          <section
+            aria-label={domainId}
+            className="border-line space-y-4 rounded-2xl border p-4"
+            data-domain-run={domainId}
+            key={domainId}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h4 className="font-semibold">{domainId}</h4>
+              <Badge kind="neutral">{domainProjection.domain_role}</Badge>
+            </div>
+            <AuthorityBadge
+              presentation={createOpaqueAuthorityPresentation(
+                domainProjection.evidence_class,
+              )}
+            />
+            <EvidenceLink
+              evidenceRef={domainProjection.design_problem_ref}
+              label="Design problem"
+            />
+            <div className="space-y-2" data-terminal-distribution="opaque">
+              <p className="text-xs font-semibold">
+                {domainProjection.generation_cycle_run_id}
+              </p>
+              <LocalizedJsonPreview
+                data={domainProjection.terminal_distribution}
+              />
+            </div>
+            <WeakestLinkExplainer projection={domainProjection} />
+          </section>
+        ))}
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="space-y-2">
+          <h4 className="text-xs font-semibold">{t("pages.runs.evidence")}</h4>
+          <LocalizedJsonPreview data={payload.depth_evidence} />
+        </section>
+        <section className="space-y-2" data-terminal-distribution="opaque">
+          <h4 className="text-xs font-semibold">{packet.projection_id}</h4>
+          <LocalizedJsonPreview data={payload.terminal_distributions} />
+        </section>
+      </div>
+    </Card>
+  );
+}
+
 export function RunExplainabilityPanel({
+  governedProjection,
   summary,
   level = "summary",
+  projectionError = false,
+  projectionLoading = false,
 }: RunExplainabilityPanelProps) {
   const { t } = useI18n();
-  const explainabilityVerdict = useMemo(
-    () => buildExplainabilityVerdict(summary),
+  const explainabilityCard = useMemo(
+    () => buildRecordedExplainabilityCard(summary),
     [summary],
   );
   const explainabilityFactors = useMemo(
@@ -341,21 +549,42 @@ export function RunExplainabilityPanel({
     [summary],
   );
   const reasoningSteps = useMemo(() => buildReasoningSteps(summary), [summary]);
+  const producerBlockers =
+    summary.run?.policy_design_case_projection?.closeout_truth.blockers ?? [];
 
   return (
     <div className="space-y-4">
-      {explainabilityVerdict ? (
+      {explainabilityCard ? (
         <ExplainabilityCard
           governance={governance}
           keyFactors={explainabilityFactors}
           level={level}
           methodology={summary.pipeline?.source ?? undefined}
-          verdict={explainabilityVerdict}
+          verdict={explainabilityCard}
         />
       ) : null}
+      <GovernedDepthProjection
+        projection={governedProjection}
+        projectionError={projectionError}
+        projectionLoading={projectionLoading}
+      />
       <div data-quantity-metric-id={summary.decisionScore.metric_id}>
         <Quantity value={summary.decisionScore} variant="dense" />
       </div>
+
+      {!explainabilityCard && producerBlockers.length > 0 ? (
+        <Card className="space-y-3 p-4">
+          <p className="text-sm font-semibold">
+            {t("pages.runs.report.blockers")}
+          </p>
+          {producerBlockers.map((blocker) => (
+            <BlockerCard
+              blocker={blocker}
+              key={`${blocker.code}:${blocker.message}`}
+            />
+          ))}
+        </Card>
+      ) : null}
 
       {level !== "glance" && (
         <div className="grid gap-4 lg:grid-cols-2">

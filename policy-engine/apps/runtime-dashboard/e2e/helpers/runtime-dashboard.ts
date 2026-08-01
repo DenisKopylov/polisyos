@@ -84,7 +84,7 @@ const SURFACE_TEST_IDS: Record<SurfaceReadyKey, string[]> = {
   dashboard: ["dashboard-page"],
   composer: ["composer-page"],
   "runs-list": ["runs-list-page"],
-  "run-compare": ["run-compare-page"],
+  "run-compare": ["policy-diff-view"],
   "run-report": ["run-report-page"],
   "run-overview": ["run-detail-page", "run-tab-overview"],
   "run-governance": ["run-detail-page", "run-tab-governance"],

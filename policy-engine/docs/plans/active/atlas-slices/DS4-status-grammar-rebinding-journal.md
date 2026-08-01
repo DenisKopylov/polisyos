@@ -2461,3 +2461,283 @@ findings **ADDRESSED**, no new Critical/Important breakage, Task quality
   P31 by deleting the local model rather than overriding individual values;
   P32 by requiring future producer evidence or a typed refusal. The fresh
   independent review approved this exact scope before the scoped C23 commit.
+
+## 2026-07-31 — DS4-C19a real-panel and bounded harness proof
+
+### Measured scope and continuous split
+
+- Stable clean base is `bc1d01001c25041a790b5c849ed4f4846a44be34` in the
+  isolated `codex/atlas-ds4-status-grammar` worktree. The initial C19 forecast
+  stayed below the 48-path hard cap, but the full visual RED boundary measured
+  exactly **3 / 18 passing and 15 inherited failures**, exceeding the known
+  14-identity inheritance by one. The newly exposed fifteenth identity is
+  `decision packet reading view A4 print`.
+- The sizing law therefore pre-splits the work continuously: **C19a** owns the
+  semantic real-panel/neutral modules, Storybook/a11y hardened harness, and
+  three newly reviewed baselines; **C19b** owns individual inspection and
+  reconciliation of all 15 inherited baselines plus the final W5 visual
+  target of 18 / 18. The two clusters are not renumbered and C19a does not
+  absorb the inherited visual tail.
+- C19a currently measures 29 tracked physical paths including this journal,
+  below the 48-path cap. The package manifest adds the dashboard's canonical
+  runtime-client workspace dependency and the lockfile changes by exactly the
+  matching three importer lines; no version moves are admitted.
+
+### Pattern pass and RED-first semantic receipt
+
+- P04/P05/P15 require the dashboard to project producer-signed authority and
+  never synthesize a decision grade, terminal class, evidence class, weakest
+  link, or route-local meaning. P06/P27/P28 require the canonical generated
+  client and existing primitives rather than a parallel DTO or shim. P29/P31/
+  P32/P33 require behavioral available/missing/invalid, unknown-label,
+  sibling-payload, and fixture-to-authority rejection proofs.
+- Before product files existed, the three intended suites failed on their
+  missing hook and neutral-module imports. Their exact contracts now cover
+  preservation of generated availability states, projection-id and sibling
+  payload rejection, absence of route correlation, explicit unrecognized CGF
+  presentation, and the absence of exported value-level vocabulary constants.
+  This is the accepted semantic RED; no production path preceded it.
+
+### Real-panel binding and authority boundary
+
+- `useDepthNCycleBoardProjection` derives its packet from
+  `RuntimeApiClient["getGovernedProjection"]`, validates the exact global
+  `depth-n-cycle-board` payload boundary once, and retains owner packets and
+  domain rows without route-run correlation or relabeling invalid input as an
+  owner state. `OverviewTab` consumes that global query with no run argument.
+- `RunExplainabilityPanel` renders generated availability, freshness, source
+  validation, as-of, terminal distributions, evidence labels, design refs,
+  and producer weakest-link arrays through the rebound primitives. Open
+  terminal/evidence labels remain verbatim and neutral. `artifact_missing`
+  renders generated-indexed `fixture_only` plus unavailable posture and emits
+  no authority, evidence, or weakest-link slots.
+- The existing decision-grade bridge remains the sole neutral swap point. A
+  behavioral test proves an unseen producer decision grade reaches its
+  explicit unrecognized presentation while an evaluator verdict cannot
+  backfill it. The CGF module is the one future swap point, preserves novel
+  owner values as unrecognized, and exports no vocabulary constants. The three
+  DS5 waist debts remain open; C19a creates no local closed union.
+
+### C19a semantic and governance receipts
+
+| Gate | Result |
+| --- | --- |
+| focused semantic/routes | PASS; five files / 35 tests |
+| scoped semantic lint | PASS; ten production/test paths, zero diagnostics |
+| DS19/front-end governance | PASS; source-byte verification and corruption probes, 261 roots / 13 supplemental / 23 seeded negatives / 8 censuses |
+| status governance | PASS; corruption probes, 36 / 36 tests, `47/15/55/0/3`, classifications `15/24/8` |
+
+- `status-inline-explainability` is now strangled to the governed panel
+  successor with the hook, panel, Overview consumer, and behavior tests as
+  evidence. The DS4 waist register remains exactly three DS5-owned rows and
+  points CGF disposition at its actual shared neutral module. Only the two
+  current C06/C07 `RunExplainabilityPanel` resolution-content hashes changed;
+  immutable lint origins and classifications are untouched.
+- C19b remains the recorded owner of the 15 inherited visual identities and
+  the final 18 / 18 W5 receipt. C19a claims only the bounded harness and three
+  new reviewed baselines at this boundary.
+- Final semantic-half receipts also pass dashboard typecheck and architecture
+  with zero violations over 1,019 modules / 4,150 dependencies. `git diff
+  --check` is clean; the live fence contains exactly 29 tracked physical paths,
+  all under the dashboard, Atlas-owned register/reference artifacts, the DS4
+  journal, or the bounded lockfile exception. The lock diff is exactly the
+  three runtime-client importer lines and moves no version.
+
+### C19a independent-review repair
+
+- Independent review added the adversarial contract `preserves a novel domain
+  key as the section accessible name`. RED proved the owner-supplied key was
+  visible but did not name a semantic region. The bounded repair adds only
+  `aria-label={domainId}` to that existing domain section, preserving the
+  opaque owner key without normalization or authority inference; focused GREEN
+  is one file / five tests.
+- The panel's new live digest is
+  `251fcf3572ae422068f3a30bb8214303f0766bd44dc2fe938597652bbda8e4bd`.
+  Only its two C06/C07 resolution-content bindings were refreshed; immutable
+  origins and classifications remain unchanged. Fresh DS19 source-byte and
+  corruption verification passes at 261 roots / 13 supplemental / 23 seeded
+  negatives / 8 censuses with 30 / 30 unittests. Status corruption verification
+  and 36 / 36 unittests pass at `47/15/55/0/3`, classifications `15/24/8`.
+
+## 2026-08-01 — DS4-C22e full-denominator scanner repair
+
+- The C19a full Vitest boundary exposed two C22d-owned identities outside the
+  current cluster: `workflow domain > source flips reject every C22d return
+  vocabulary revival` and `LaunchRunPage > uses the single owner-bound launch
+  presentation adapter`. The exact run was 312 files / 893 tests with five
+  failures: the three inherited i18n parity identities plus these two
+  subprocesses returning `status=null` at their 60-second scanner deadline.
+- C22e is a bounded four-path harness repair: this journal,
+  `src/shared/lib/domain/workflow.test.ts`,
+  `features/composer/routes/LaunchRunPage.test.tsx`, and
+  `features/composer/domain/launchPresentation.test.ts`. The workflow witness
+  performed one live scan, four independent source-flip scans, and a
+  generated-lookalike scan in one subprocess while the Launch page repeated a
+  repository-wide live scan. Full-suite concurrency starved both; focused C22d
+  receipts had passed.
+- The accepted RED is the full 5-failure denominator above. The repair combines
+  all four lifecycle flips into one checker invocation and requires every
+  exact `retired_semantic_definition_survives:<candidate>` identity. The
+  generated-lookalike scan stays independent and remains the one provenance
+  proof for both launch consumers. The exact owner-bound adapter test moves to
+  the existing runtime/type suite that imports the generated status and executes
+  both outcomes; the redundant page-level repository scan is deleted. No
+  timeout, source rule, production file, manifest, or suppression changes.
+
+### C22e review and denominator receipt
+
+- Independent review found and closed one Important P29 defect: the lookalike
+  assertion had accepted any retired semantic identity. The exact two-consumer
+  assertion failed RED with the ComposerModeSections identity missing; adding
+  that sibling override passed GREEN in 4.94 seconds and the fix-only rereview
+  returned GO with no findings.
+- Focused final scope passes three files / 12 tests in 10.75 seconds. Dashboard
+  typecheck, scoped lint, and architecture pass; architecture is zero over
+  1,019 modules / 4,148 dependencies. The complete denominator then measured
+  312 files / 892 tests and moved from five failures to four: both C22d timeout
+  identities are closed, the three inherited i18n identities remain, and one
+  separately owned C14 census exceeded the global test timeout. C22e changed
+  exactly three test paths; this journal is its fourth recorded path.
+
+## 2026-08-01 — DS4-C14e decision-grade census runtime budget
+
+- The generic `decision-grade presentation > forbids sibling decision-grade
+  classifiers and localization maps` census timed out at 15 seconds in two
+  full-suite runs after C22e, while the exact test passed alone in 3.52 seconds.
+  This is C14-owned harness load, not a C19a semantic finding; the C22e tests
+  were already green in the same complete run.
+- C14e is bounded to this journal and
+  `src/shared/ui/compounds/decisionGradePresentation.test.ts`. Its accepted RED
+  is the repeated full-suite timeout. The repair gives this one graph/AST census
+  a 30-second test budget. It does not change the production-source census,
+  generic bypass analysis, adversarial tests, assertion, manifest, denominator,
+  or any product file.
+- Exact GREEN is one file / six tests; independent review returned GO with no
+  findings and confirmed the diff is only the per-test budget plus formatter
+  indentation. The complete denominator passes 311 / 312 files and 889 / 892
+  tests; its only failures are the three inherited
+  `panels.agentPipeline.overBudget` i18n identities in one file. C22e committed
+  as `810ef6b77`; C14e committed as `31aae0c45`.
+
+## 2026-08-01 — DS4-C13e counterfactual text-contrast repair
+
+- The C19a full a11y boundary exposed nine C13-owned browser identities outside
+  the current cluster: the color-blind simulation plus the eight run-detail axe
+  routes all reported the same inactive `CounterfactualModeSwitch` contrast
+  violation. Computed colors were `#f4efe6` on `#fbf8f2`, ratio 1.08. The
+  source used `text-muted`, whose Atlas token is a background surface alias,
+  as foreground text. This is one bounded C13 semantic-token defect, not nine
+  route defects and not authority/status scope to absorb into C19a.
+- C13e measures this journal plus one production path. Its accepted behavioral
+  RED is the full browser result of 11 / 21 passing with those nine exact
+  contrast identities and the separately C19-owned keyboard identity. The
+  repair changes only the inactive label from `text-muted` to
+  `text-muted-foreground`; hover background, selected authority-neutral
+  interaction posture, modes, behavior, and every axe rule remain unchanged.
+- GREEN proves the class through the real compiled stylesheet and browser: the
+  color-blind simulation and every affected route pass. The existing component
+  accessibility test also passes one file / one test, scoped ESLint and diff
+  checks are green, and the complete a11y boundary below is green. Independent
+  review returned GO with no findings before scoped commit `bfb30c82b`.
+
+## 2026-08-01 — DS4-C19a complete a11y boundary
+
+- The tenth initial browser failure was C19 harness-owned. The keyboard journey
+  assumed the first roving-tabindex row had the fixture's primary run ID. RED
+  showed the focused row was the secondary run. The test now reads the focused
+  row's own `data-run-row-id`, rejects a missing navigation target, and proves
+  the URL derived from that actual keyboard target.
+- The first repair exposed a second precise RED: 20 / 21 pages passed, while
+  the same journey could not reach the secondary run's reading-view link inside
+  a hard-coded seven-tab sub-budget. The property stated by the test is the
+  whole journey in at most 20 tab stops. The helper now receives exactly the
+  remaining global budget, while the initial skip-to-explorer leg retains its
+  independent two-tab cap and the final assertion retains the exact 20-tab
+  ceiling. No mouse or programmatic-focus fallback was added. Focused GREEN is
+  one browser test in 4.7 seconds; independent review returned GO.
+- Final `test:a11y` is absolute-green: static contrast, reduced motion, and
+  color-blind checks pass; component axe passes 84 / 84 files and 85 / 85
+  tests; browser accessibility passes 21 / 21 tests. No rule, denominator,
+  threshold, route, or suppression changed.
+
+### C19a final wave-boundary receipts
+
+| Gate | Final result |
+| --- | --- |
+| dashboard typecheck / production build | PASS; 3,885 modules, PWA 108 entries; inherited Vite chunk advisory only |
+| full dashboard lint | PASS; absolute-green, zero diagnostics |
+| full dashboard Vitest | BASELINE-GREEN; 311 / 312 files and 889 / 892 tests pass; exactly the three inherited `panels.agentPipeline.overBudget` en/uk/ru identities in one DS6-owned file remain |
+| complete accessibility | PASS; three static gates, 84 / 84 component files and 85 / 85 tests, 21 / 21 browser tests |
+| dashboard architecture | PASS; zero violations over 1,019 modules / 4,149 dependencies |
+| DS19 governance | PASS; 261 roots, 13 supplemental, 23 seeded negatives, 8 censuses; source-byte verification and corruption probes green |
+| status governance | PASS; `47/15/55/0/3`, classifications `15/24/8`; corruption probes green |
+| atlas-ui package | PASS; typecheck, lint, architecture over 36 sources, 18 / 18 files and 86 / 86 tests |
+
+- The final live C19a scope is exactly 32 physical paths: 20 tracked changes and
+  12 new paths, still below the 48-path cap. All are confined to the dashboard,
+  Atlas-owned registers/reference, this journal, and the bounded lockfile
+  exception. The lockfile diff is exactly three importer lines for the already
+  declared canonical runtime-client workspace dependency and moves no version.
+- C13e is a separate scoped production commit. C19a records but does not absorb
+  that repair. The remaining C19a commit owns the real-panel/harness work, its
+  keyboard behavioral repair, three new reviewed baselines, and the accumulated
+  journal receipts for C22e, C14e, and C13e.
+
+### C19a review repairs: contrast, story gate, and C06e
+
+- Direct real-browser axe over the three new stories produced no violations but
+  could not adjudicate translucent/gradient contrast: CandidateClothing had 2
+  incomplete results / 12 nodes, FixtureOnly 1 / 9, and AllPrimitives 2 / 67.
+  Visual review confirmed the new story's `text-muted` foreground resolved to
+  the background `--sand` token and was nearly invisible. Four source uses,
+  rendered as ten repeated story nodes, now use `text-muted-foreground`; the
+  five C19a-owned loading/unavailable/governance labels in
+  `RunExplainabilityPanel` received the same correction.
+- These three stories now set `a11y.test = "error"`. Its first focused run was
+  substantively RED: AllPrimitives exposed an unnamed open ProvenancePopover
+  dialog. C06e recorded and repaired that owner-specific defect separately with
+  a red role/name assertion and `aria-label` from the already visible localized
+  Provenance title. Focused C06e a11y is 1 / 1, behavior is 2 / 2, Storybook is
+  3 / 3, typecheck/build are green, status governance is 37 / 37, and
+  independent review returned GO. C06e commit is `2d83e3264`.
+- The three C19a baselines were then regenerated by three separate named test
+  invocations and inspected individually. The story-owned labels are readable,
+  candidate clothing remains dashed and distinct from owner posture, and the
+  fixture-only story still emits no authority slot. Exact no-update GREEN is
+  3 / 3. Reviewed SHA-256 values are `9d36ad9bb93cfc68f0d328cdd26f99ddca63c2c10129512dface712a414ce7d5`,
+  `918963521817a701b477e77f2ac5a60acdaff538061dd4428917ef7677137723`,
+  and `f183689522190f0f83d85e3ea999a404713d64bd1d0b2425e4bc2033a603b125`
+  for candidate, fixture-only, and all-primitives respectively. The initial
+  first-story cold-load timeout also hardens the real
+  Storybook-ready wait to 15 seconds; screenshot comparison tolerances remain
+  unchanged.
+
+### Recorded owner-cluster contrast incompletes (not absorbed by C19a)
+
+These existing source identities remain visible in the reviewed baselines and
+are not suppressed or claimed green. Axe reports them as `incomplete`, not as
+passing contrast, because it cannot flatten the translucent/gradient ancestor
+stack. Each owner closes its row only when a real-browser opaque-background
+probe computes WCAG-AA contrast and no longer attributes an incomplete node to
+the source identity.
+
+| Owner | Exact source identity |
+| --- | --- |
+| C01 | `packages/atlas-ui/src/primitives/Badge.tsx` neutral `bg-white/65 text-muted` variant |
+| C06 | `ProvenancePopover.tsx` title/definition/untraced/shortcut foregrounds and `ProvenanceMiniGraph.tsx` empty/label foregrounds |
+| C09 | `TimeSemanticsLabel.tsx` root `dl.text-muted` inheritance |
+| C14 | `CandidateFrame.tsx` absent-purpose/exclusion foregrounds; `NegativeCertificateCard.tsx` summary/definition foregrounds; `WeakestLinkExplainer.tsx` unavailable foreground |
+
+### Exact waist-anchor and report repair
+
+- Independent review found the CGF generated schema span overreached into
+  GovernanceDebug documentation and the freshness span omitted the actual
+  `state` union. The stored anchors are now exact at 5850–5879 and 8164–8182.
+  A generic generated-object span resolver derives the declaration boundaries;
+  corruption of either start or end fails with the exact waist debt identity.
+  Accepted RED was two end-boundary escapes; GREEN is the exact test plus all
+  37 status-governance tests and corruption probes at `47/15/55/0/3`.
+- The DS19 report projection was regenerated after the scoped repair commits.
+  It now measures 17,425 application lines added, 17,974 deleted, net reduction
+  549, 85 files deleted, and includes `810ef6b77`, `31aae0c45`, `bfb30c82b`,
+  and `2d83e3264` in its derived commit list.

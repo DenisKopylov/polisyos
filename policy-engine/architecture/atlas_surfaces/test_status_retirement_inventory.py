@@ -1173,6 +1173,36 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         errors = checker.validate_inventory(inventory, wrong_owner, live_probes=False)
         self.assertIn("waist_debt_owner:ds4-waist-cgf-disposition", errors)
 
+    def test_rejects_non_exact_generated_schema_spans_for_present_waist_anchors(
+        self,
+    ) -> None:
+        inventory, debt = _artifacts()
+        present_ids = {
+            entry["debt_id"]
+            for entry in debt["entries"]
+            if entry["generated_client_anchor"]["anchor_kind"]
+            == "present_projection"
+        }
+
+        for debt_id in present_ids:
+            for field in ("types_start_line", "types_end_line"):
+                with self.subTest(debt_id=debt_id, field=field):
+                    mutation = copy.deepcopy(debt)
+                    row = next(
+                        entry
+                        for entry in mutation["entries"]
+                        if entry["debt_id"] == debt_id
+                    )
+                    row["generated_client_anchor"][field] += 1
+
+                    errors = checker.validate_inventory(
+                        inventory,
+                        mutation,
+                        live_probes=False,
+                    )
+
+                    self.assertIn(f"waist_debt_anchor_drift:{debt_id}", errors)
+
     def test_rejects_an_unregistered_semantic_union_outside_the_status_denominator(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)

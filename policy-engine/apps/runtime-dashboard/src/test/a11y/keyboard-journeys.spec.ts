@@ -2,7 +2,6 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   installDashboardTestState,
-  readFixtureMetadata,
   waitForDashboardSurface,
 } from "../../../e2e/helpers/runtime-dashboard";
 
@@ -52,7 +51,7 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
   test("opens a run and downloads the decision packet with keyboard only in at most 20 tab stops", async ({
     page,
   }) => {
-    const metadata = readFixtureMetadata();
+    const maxTabStops = 20;
     const tabCounter = { count: 0 };
 
     await page.goto("/runs");
@@ -67,16 +66,23 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
 
     const activeRow = page.locator("[data-run-row-id]").first();
     await expect(activeRow).toBeFocused();
+    const activeRunId = await activeRow.getAttribute("data-run-row-id");
+    if (!activeRunId) {
+      throw new Error("The focused run row must expose its navigation target.");
+    }
     await page.keyboard.press("Enter");
 
-    await expect(page).toHaveURL(
-      new RegExp(`/runs/${metadata.core_run_id}/overview`),
-    );
+    await expect(page).toHaveURL(new RegExp(`/runs/${activeRunId}/overview`));
     await waitForDashboardSurface(page, "run-overview");
     await expectMainFocused(page);
 
     const readingViewLink = page.getByTestId("run-reading-view-link");
-    await tabUntilFocused(page, readingViewLink, tabCounter, 7);
+    await tabUntilFocused(
+      page,
+      readingViewLink,
+      tabCounter,
+      maxTabStops - tabCounter.count,
+    );
     await page.keyboard.press("Enter");
 
     await expect(page).toHaveURL(/\/artifacts\/[^?]+\?[^#]*view=reading/);
@@ -92,6 +98,6 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
       .poll(() => page.evaluate(() => window.__A11Y_PRINTS__ ?? 0))
       .toBeGreaterThanOrEqual(1);
 
-    expect(tabCounter.count).toBeLessThanOrEqual(20);
+    expect(tabCounter.count).toBeLessThanOrEqual(maxTabStops);
   });
 });

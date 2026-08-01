@@ -718,6 +718,29 @@ def _validate_source_overrides(
     return errors
 
 
+def _generated_object_schema_span(
+    types_text: str,
+    symbol: str,
+) -> tuple[int, int] | None:
+    lines = types_text.splitlines()
+    declaration = re.compile(
+        rf"^(?P<indent>\s*){re.escape(symbol)}:\s*\{{\s*$",
+    )
+    matches = [
+        (index, match.group("indent"))
+        for index, line in enumerate(lines)
+        if (match := declaration.match(line)) is not None
+    ]
+    if len(matches) != 1:
+        return None
+    start_index, indent = matches[0]
+    closing_line = f"{indent}}};"
+    for end_index in range(start_index + 1, len(lines)):
+        if lines[end_index].rstrip() == closing_line:
+            return start_index + 1, end_index + 1
+    return None
+
+
 def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
     errors: list[str] = []
     entries = debt.get("entries", [])
@@ -756,6 +779,8 @@ def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
                 not (1 <= line <= len(canonical_lines))
                 or f"export type {symbol}" not in canonical_lines[line - 1]
                 or symbol not in type_block
+                or _generated_object_schema_span(types_text, symbol)
+                != (start, end)
             ):
                 errors.append(f"waist_debt_anchor_drift:{debt_id}")
     return errors

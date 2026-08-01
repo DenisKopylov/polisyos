@@ -4192,12 +4192,23 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-depth-n-cycle-board-governed-projection",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-31",
+      "seed_rule": "ds4_c19a_governed_projection_rebind_complete",
+      "rationale": "C19a rebinds the living RunExplainabilityPanel to the generated global depth-N governed-projection packet: the feature adapter preserves owner availability, freshness, source validation, terminal distributions, evidence labels, and weakest-link arrays without route correlation or local authority inference; typed artifact absence renders fixture_only and unavailable; the existing decision-grade bridge remains the single neutral swap point; the new CGF module preserves unknown owner values as explicitly unrecognized without closing the DS5-owned vocabulary gap."
     },
     {
       "unit_id": "status-inline-counterfactual-badge",

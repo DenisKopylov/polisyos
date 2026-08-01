@@ -1,29 +1,37 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { readFixtureMetadata } from "./helpers/runtime-dashboard";
 
-const FIXTURE_RUN_ID = "R_core_api_001";
-const FIXTURE_PROMOTION_ID = "promotion_fixture_001";
-const FIXTURE_METADATA = readFixtureMetadata();
 const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
 const THEME_STORAGE_KEY = "polisyos.runtime.theme";
 const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
-const FIXTURE_DECISION_PACKET_ID = FIXTURE_METADATA.decision_packet_artifact_id;
+const STORYBOOK_BASE_URL = "http://127.0.0.1:6006";
+let fixtureMetadata: ReturnType<typeof readFixtureMetadata>;
 
-async function expectPrintSnapshot(
+async function openEvidencePrimitiveStory(page: Page, storyId: string) {
+  await page.goto(
+    `${STORYBOOK_BASE_URL}/iframe.html?id=${encodeURIComponent(storyId)}&viewMode=story`,
+  );
+  const story = page.locator("#storybook-root");
+  await expect(story).toBeVisible({ timeout: 15_000 });
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+  return story;
+}
+
+async function openPrintSurface(
   page: Page,
   {
     path,
     readyTestId,
     selector,
-    snapshot,
   }: {
     path: string;
     readyTestId: string;
     selector: string;
-    snapshot: string;
   },
-) {
+): Promise<Locator> {
   await page.setViewportSize({ width: 794, height: 1123 });
   await page.emulateMedia({ media: "print" });
   await page.goto(path);
@@ -32,17 +40,16 @@ async function expectPrintSnapshot(
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
-  await expect(page.locator(selector)).toHaveScreenshot(snapshot, {
-    animations: "disabled",
-    caret: "hide",
-    maxDiffPixels: 100,
-  });
-  await page.emulateMedia({ media: "screen" });
+  return page.locator(selector);
 }
 
 test.describe("runtime-dashboard visual baselines", () => {
   test.use({
     viewport: { width: 1440, height: 1200 },
+  });
+
+  test.beforeAll(() => {
+    fixtureMetadata = readFixtureMetadata();
   });
 
   test.beforeEach(async ({ page }) => {
@@ -83,7 +90,7 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("run detail overview", async ({ page }) => {
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/overview`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/overview`);
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(page.getByTestId("run-detail-summary")).toHaveScreenshot(
       "run-detail-summary.png",
@@ -96,10 +103,12 @@ test.describe("runtime-dashboard visual baselines", () => {
 
   test("evidence promotion focus", async ({ page }) => {
     await page.goto(
-      `/evidence?runId=${FIXTURE_RUN_ID}&focus=promotion&promotionId=${FIXTURE_PROMOTION_ID}`,
+      `/evidence?runId=${fixtureMetadata.core_run_id}&focus=promotion&promotionId=${fixtureMetadata.promotion_candidate_id}`,
     );
     await expect(
-      page.getByTestId(`promotion-approve-${FIXTURE_PROMOTION_ID}`),
+      page.getByTestId(
+        `promotion-approve-${fixtureMetadata.promotion_candidate_id}`,
+      ),
     ).toBeVisible();
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "evidence-promotion-focus.png",
@@ -160,7 +169,7 @@ test.describe("runtime-dashboard visual baselines", () => {
 
   test("mobile run detail overview", async ({ page }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/overview`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/overview`);
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(page.getByTestId("run-detail-summary")).toHaveScreenshot(
       "mobile-run-detail-overview.png",
@@ -192,7 +201,7 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("run deck content slide", async ({ page }) => {
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/deck`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/deck`);
     await expect(page.getByTestId("run-deck-page")).toBeVisible();
     await expect(page.getByTestId("run-deck-slide-evidence")).toHaveScreenshot(
       "run-deck-content-slide.png",
@@ -203,48 +212,183 @@ test.describe("runtime-dashboard visual baselines", () => {
     );
   });
 
-  test("decision packet reading view A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=content&view=reading`,
-      readyTestId: "artifact-page",
-      selector: ".monograph-layout",
-      snapshot: "decision-reading-view-a4-print.png",
+  test("renders candidate output in candidate clothing", async ({ page }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--candidate-clothing",
+    );
+    const candidate = story.getByTestId("candidate-frame");
+    const ownerProjection = story.getByTestId("owner-projection-unavailable");
+    await expect(candidate).toHaveAttribute(
+      "data-authority-posture",
+      "candidate",
+    );
+    await expect(ownerProjection).toHaveAttribute(
+      "data-interaction-state",
+      "unavailable",
+    );
+    await expect(
+      story.locator('[data-authority-posture="owner-projection"]'),
+    ).toHaveCount(0);
+    const [candidateBorder, ownerBorder] = await Promise.all([
+      candidate.evaluate((element) => getComputedStyle(element).borderStyle),
+      ownerProjection.evaluate(
+        (element) => getComputedStyle(element).borderStyle,
+      ),
+    ]);
+    expect(candidateBorder).toBe("dashed");
+    expect(ownerBorder).not.toBe(candidateBorder);
+    await expect(story).toHaveScreenshot("ds4-candidate-clothing.png", {
+      animations: "disabled",
+      caret: "hide",
     });
   });
 
+  test("marks fixture-only content and bars it from authority slots", async ({
+    page,
+  }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--fixture-only",
+    );
+    await expect(story.locator("#story-fixture-envelope")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(story.locator("#story-fixture-evidence")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(
+      story.getByTestId("authority-badge-fixture-rejection"),
+    ).toHaveAttribute("data-fixture-rejection", /fixture provenance/i);
+    await expect(story.locator("[data-authority-recognition]")).toHaveCount(0);
+    await expect(story).toHaveScreenshot("ds4-fixture-only-boundary.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
+  });
+
+  test("renders every DS4 evidence primitive", async ({ page }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--all-primitives",
+    );
+    for (const locator of [
+      story.getByTestId("authority-badge-fixture-rejection"),
+      story.getByTestId("candidate-frame"),
+      story.getByTestId("blocker-card"),
+      story.locator("#story-envelope-chip"),
+      story.locator("#story-evidence-link"),
+      story.getByTestId("provenance-popover-content"),
+      story.getByTestId("time-semantics-source-state"),
+      story.getByTestId("weakest-link-explainer"),
+    ]) {
+      await expect(locator).toBeVisible();
+    }
+    await expect(
+      story.getByTestId("authority-badge-fixture-rejection"),
+    ).toHaveAttribute("data-fixture-rejection", /fixture provenance/i);
+    await expect(story.locator("[data-authority-recognition]")).toHaveCount(0);
+    await expect(story.getByTestId("candidate-frame")).toHaveAttribute(
+      "data-authority-posture",
+      "candidate",
+    );
+    await expect(story.getByTestId("blocker-card")).toHaveAttribute(
+      "data-producer-blocker-code",
+      "fixture_missing_grounded_effect",
+    );
+    await expect(story.locator("#story-envelope-chip")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(story.locator("#story-evidence-link")).toHaveAttribute(
+      "data-evidence-claim",
+      "reference-only",
+    );
+    await expect(story).toHaveScreenshot("ds4-evidence-primitives.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
+    await page.setViewportSize({ width: 393, height: 852 });
+    await expect(story.getByTestId("weakest-link-explainer")).toBeVisible();
+    await page.emulateMedia({
+      forcedColors: "active",
+      reducedMotion: "reduce",
+    });
+    await expect(story.locator("#story-evidence-link")).toBeVisible();
+    await page.emulateMedia({ media: "print" });
+    await expect(story.getByTestId("candidate-frame")).toBeVisible();
+  });
+
+  test("decision packet reading view A4 print", async ({ page }) => {
+    const surface = await openPrintSurface(page, {
+      path: `/artifacts/${fixtureMetadata.decision_packet_artifact_id}?tab=content&view=reading`,
+      readyTestId: "artifact-page",
+      selector: ".monograph-layout",
+    });
+    await expect(surface).toHaveScreenshot(
+      "decision-reading-view-a4-print.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+        maxDiffPixels: 100,
+      },
+    );
+  });
+
   test("run detail A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/runs/${FIXTURE_RUN_ID}/overview?trust=expanded`,
+    const surface = await openPrintSurface(page, {
+      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
       readyTestId: "run-detail-page",
       selector: '[data-testid="run-detail-page"]',
-      snapshot: "run-detail-a4-print.png",
+    });
+    await expect(surface).toHaveScreenshot("run-detail-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 
   test("bureaucratic document A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
+    const surface = await openPrintSurface(page, {
+      path: `/artifacts/${fixtureMetadata.decision_packet_artifact_id}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
       readyTestId: "artifact-page",
       selector: '[data-testid="artifact-page"]',
-      snapshot: "bureaucratic-document-a4-print.png",
     });
+    await expect(surface).toHaveScreenshot(
+      "bureaucratic-document-a4-print.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+        maxDiffPixels: 100,
+      },
+    );
   });
 
   test("policy compare A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/runs/compare?base=${FIXTURE_METADATA.core_run_id}&target=${FIXTURE_METADATA.core_run_id_secondary}&trust=compact`,
-      readyTestId: "run-compare-page",
-      selector: '[data-testid="run-compare-page"]',
-      snapshot: "policy-compare-a4-print.png",
+    const surface = await openPrintSurface(page, {
+      path: `/runs/compare?base=${fixtureMetadata.core_run_id}&target=${fixtureMetadata.core_run_id_secondary}&trust=compact`,
+      readyTestId: "policy-diff-view",
+      selector: '[data-testid="policy-diff-view"]',
+    });
+    await expect(surface).toHaveScreenshot("policy-compare-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 
   test("counterfactual scenario A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
+    const surface = await openPrintSurface(page, {
       path: `/compose?scenario_id=scn_rate_cut_25bps&cf_mode=actual_vs_scenario`,
       readyTestId: "composer-page",
       selector: '[data-testid="composer-page"]',
-      snapshot: "scenario-a4-print.png",
+    });
+    await expect(surface).toHaveScreenshot("scenario-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 });

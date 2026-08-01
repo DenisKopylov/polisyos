@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
+import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import { renderWithProviders } from "@/test/render";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import type { GeneratedProjectionAuthority } from "@/shared/lib/domain/projectionFailClosed";
@@ -115,11 +116,36 @@ describe("RunExplainabilityPanel authority bindings", () => {
   it("does not pass an evaluator verdict through the decision-grade bridge", () => {
     const summary = summaryFixture();
     summary.decisionScore.lineage.status = "verified";
+    summary.decisionView = {
+      confidence: null,
+      diagnosticsBadges: [],
+      distributional: null,
+      generatedAt: null,
+      interventionCount: 0,
+      issues: {
+        blockedPasses: [],
+        blockerCount: null,
+        infoCount: null,
+        warningCount: null,
+      },
+      keyMetrics: [],
+      metricComparisons: [],
+      metricValidationFamilyAdjustment: null,
+      policySummary: "Owner policy summary",
+      runId: "owner-run",
+      sourceKind: "decision_card",
+      totalDurationMs: 0,
+      verdict: "future_owner_decision_grade",
+    } satisfies DecisionCardViewModel;
 
     renderWithProviders(
       <RunExplainabilityPanel level="glance" summary={summary} />,
     );
 
+    expect(screen.getByText("future_owner_decision_grade")).toHaveAttribute(
+      "data-decision-grade-presentation",
+      "unrecognized",
+    );
     expect(
       screen.queryByText("future_evaluator_verdict"),
     ).not.toBeInTheDocument();

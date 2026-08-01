@@ -2728,12 +2728,10 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
             ),
             probe_nodeid=(
-                promotion_test
-                + "test_failed_obligation_cannot_be_relabelled_into_decision_front"
+                promotion_test + "test_failed_obligation_cannot_be_relabelled_into_decision_front"
             ),
             expected_red_signal=(
-                promotion_test
-                + "test_failed_obligation_cannot_be_relabelled_into_decision_front"
+                promotion_test + "test_failed_obligation_cannot_be_relabelled_into_decision_front"
             ),
         ),
         _SourceFlipCase(
@@ -3865,6 +3863,11 @@ def _run_closeout_worker(
         finally:
             process_group_clean = _stop_worker(process, verified_pgid=verified_pgid)
             parent_connection.close()
+        if current_stage == "worker_startup" and "worker_startup" not in stage_wall_times:
+            stage_wall_times["worker_startup"] = max(
+                0.0,
+                time.monotonic() - closeout_started,
+            )
         if not process_group_clean:
             worker_error = worker_error or {"code": "closeout_worker_process_group_leak"}
             stop_stage = stop_stage or current_stage

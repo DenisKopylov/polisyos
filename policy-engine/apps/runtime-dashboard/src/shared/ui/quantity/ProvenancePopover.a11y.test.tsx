@@ -1,3 +1,5 @@
+import { screen } from "@testing-library/react";
+
 import { expectNoA11yViolations } from "@/test/a11y";
 
 import { ProvenancePopover } from "./ProvenancePopover";
@@ -32,5 +34,9 @@ describe("ProvenancePopover accessibility", () => {
       </main>,
       { includeDocumentBody: true },
     );
+
+    expect(
+      screen.getByRole("dialog", { name: "Provenance" }),
+    ).toBeVisible();
   });
 });

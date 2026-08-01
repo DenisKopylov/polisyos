@@ -116,6 +116,7 @@ function ProvenancePopoverShell({
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent
           align="start"
+          aria-label={t("shared.ui.quantity.popover.title")}
           className={cn("w-[min(92vw,360px)] p-0", className)}
           onMouseEnter={onContentMouseEnter}
           onMouseLeave={onContentMouseLeave}

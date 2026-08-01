@@ -130,6 +130,12 @@ proof_profile_id = "deterministic_owner"
 certificate_roles = ["promotion", "refusal", "acquisition", "admission"]
 
 [[instruments]]
+instrument_id = "deterministic_refusal_certificate"
+instrument_family = "proof_carrying_refusal_certificate"
+proof_profile_id = "deterministic_owner"
+certificate_roles = ["refusal"]
+
+[[instruments]]
 instrument_id = "bayesian_credible_interval"
 instrument_family = "bayesian_credible_interval"
 proof_profile_id = "bayesian_credible_interval_ineligible"
@@ -177,7 +183,7 @@ verifier_ref = "tools.quality.validation.check_layer3_gy_depth_n_universality_co
 
 [[certificate_class_routes]]
 certificate_class = "estimand_binding_refusal"
-instrument_id = "deterministic_owner_proof"
+instrument_id = "deterministic_refusal_certificate"
 obligation_class = "identification"
 certificate_role = "refusal"
 claim_polarity = "confident_wrong_refusal"

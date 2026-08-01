@@ -552,6 +552,29 @@ Three architect-level facts govern how later slices read this closure:
    contrast evidence — all now rows in the table above, each with an owner and
    an executable closure signal.
 
+**Merge-time finding — content-bound receipts collide across parallel slices
+(architect, 2026-08-01).** DS4 and DS20 ran in parallel and both bound governed
+receipts to the *same* generated client. DS20 regenerated it (`+3` lines in
+`canonicalRuntimeApiClient.ts`, `+6` before the affected anchors in `types.ts`,
+purely additive for the permission vocabulary); DS4 branched earlier and pinned
+the pre-DS20 hashes and line anchors. The merge was code-clean, but the status
+inventory went **red on main** with 2 `inventory_source_hash_drift` + 7
+`generated_anchor_drift`. Resolution: the architect re-anchored the seven units
+after proving the shift is mechanical — every `export_symbol` still exists
+exactly once, every `field` is unchanged, and the offset is uniform (+3 / +6) —
+and refreshed the two client hashes. No semantic claim, ownership, denominator,
+or classification moved; the corruption probes still pass, so the receipts kept
+their protective power. **Two standing rules follow.** (1) A slice that
+regenerates the client — **DS5 does** — must re-anchor every governed receipt
+that points into it, in the same commit; anchor drift is expected mechanical
+bookkeeping, hash drift with a *changed symbol or field* is a real finding and
+must stop the slice. (2) The same merge exposed that a fresh `main` checkout had
+never installed the workspace, so `@polisyos/*` did not resolve and the TypeScript
+scanner reported two **false** `retired_semantic_definition_survives` findings
+against live replacement adapters. Generated-owner proofs are only meaningful
+under an installed workspace: **run `corepack pnpm install --frozen-lockfile`
+before believing any red from the status scanner.**
+
 Independently recomputed at architect review: status governance
 `47 / 15 / 55 / 0 / 3` (classifications 15 lattice-derived / 24 interaction-state
 / 8 removed); disposition register 261 roots (denominator unmoved: 15 deleted /

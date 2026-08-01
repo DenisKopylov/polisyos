@@ -14,6 +14,8 @@ const quantity: QuantityValue = {
   },
   uncertainty: {
     ci_95: [0.15, 0.31],
+    disputed: false,
+    identifiability: "estimated",
   },
   quantity_class: "decision",
   label: "Effect size",

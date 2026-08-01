@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Slider } from "./Slider";
+import { Slider } from "@polisyos/atlas-ui";
 
 describe("Slider accessibility", () => {
   it("has no detectable accessibility violations", async () => {

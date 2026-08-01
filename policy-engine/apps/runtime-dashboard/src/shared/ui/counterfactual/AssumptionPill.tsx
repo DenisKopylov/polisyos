@@ -5,16 +5,13 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
-import type { ScenarioListPayload } from "@/api/validators";
+import type { ScenarioAssumptionOutput } from "@polisyos/runtime-api-client";
+
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
-type ScenarioAssumption = NonNullable<
-  ScenarioListPayload["scenarios"]
->[number]["assumptions"][number];
-
 type AssumptionPillProps = {
-  assumption: ScenarioAssumption;
+  assumption: ScenarioAssumptionOutput;
   className?: string;
 };
 

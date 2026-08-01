@@ -1,6 +1,7 @@
 export * from "./AssumptionPill";
 export * from "./CounterfactualBadge";
 export * from "./CounterfactualDelta";
+export * from "./CounterfactualInteractionBridge";
 export * from "./CounterfactualMetricChart";
 export * from "./CounterfactualModeSwitch";
 export * from "./DualInput";

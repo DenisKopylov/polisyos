@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 const {
   renderArtifactViewerMock,
@@ -15,6 +16,7 @@ const {
   useCompareCandidatesMock,
   useCompareRunsMock,
   useCounterfactualMetricsMock,
+  useDepthNCycleBoardProjectionMock,
   useGovernanceDebugMock,
   useNodeDebugMock,
   usePermissionMock,
@@ -40,6 +42,7 @@ const {
   useCompareCandidatesMock: vi.fn(),
   useCompareRunsMock: vi.fn(),
   useCounterfactualMetricsMock: vi.fn(),
+  useDepthNCycleBoardProjectionMock: vi.fn(),
   useGovernanceDebugMock: vi.fn(),
   useNodeDebugMock: vi.fn(),
   usePermissionMock: vi.fn(),
@@ -112,6 +115,11 @@ vi.mock("@/api/hooks/useCompareRuns", () => ({
 vi.mock("@/api/hooks/useCounterfactualMetrics", () => ({
   useCounterfactualMetrics: (...args: unknown[]) =>
     useCounterfactualMetricsMock(...args),
+}));
+
+vi.mock("@/features/runs/api/useDepthNCycleBoardProjection", () => ({
+  useDepthNCycleBoardProjection: (...args: unknown[]) =>
+    useDepthNCycleBoardProjectionMock(...args),
 }));
 
 vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
@@ -231,29 +239,36 @@ vi.mock("@/features/runs/components/WorkflowDagPanel", () => ({
   ),
 }));
 
-vi.mock("@/features/causal", () => ({
-  AdjustmentSetHighlight: () => <div data-testid="adjustment-set-highlight" />,
-  CausalGraphCanvas: ({
-    edges,
-    highlightedPath,
-    nodes,
-  }: {
-    edges: unknown[];
-    highlightedPath?: string[];
-    nodes: unknown[];
-  }) => (
-    <div data-testid="causal-graph-canvas">
-      {nodes.length}:{edges.length}:{highlightedPath?.length ?? 0}
-    </div>
-  ),
-  EdgeDetailPanel: () => <div data-testid="edge-detail-panel" />,
-  IdentificationOverlay: () => <div data-testid="identification-overlay" />,
-  NodeDetailPanel: () => <div data-testid="node-detail-panel" />,
-  PathAnalysisPanel: ({ paths }: { paths: unknown[] }) => (
-    <div data-testid="path-analysis-panel">{paths.length}</div>
-  ),
-  TransportOverlay: () => <div data-testid="transport-overlay" />,
-}));
+vi.mock("@/features/causal", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/causal")>();
+
+  return {
+    ...actual,
+    AdjustmentSetHighlight: () => (
+      <div data-testid="adjustment-set-highlight" />
+    ),
+    CausalGraphCanvas: ({
+      edges,
+      highlightedPath,
+      nodes,
+    }: {
+      edges: unknown[];
+      highlightedPath?: string[];
+      nodes: unknown[];
+    }) => (
+      <div data-testid="causal-graph-canvas">
+        {nodes.length}:{edges.length}:{highlightedPath?.length ?? 0}
+      </div>
+    ),
+    EdgeDetailPanel: () => <div data-testid="edge-detail-panel" />,
+    IdentificationOverlay: () => <div data-testid="identification-overlay" />,
+    NodeDetailPanel: () => <div data-testid="node-detail-panel" />,
+    PathAnalysisPanel: ({ paths }: { paths: unknown[] }) => (
+      <div data-testid="path-analysis-panel">{paths.length}</div>
+    ),
+    TransportOverlay: () => <div data-testid="transport-overlay" />,
+  };
+});
 
 vi.mock("@/shared/ui/LineageGraph", () => ({
   default: ({ nodes }: { nodes: unknown[] }) => (
@@ -324,7 +339,10 @@ function createSummary(overrides: Record<string, unknown> = {}) {
     decisionArtifact: { kind: "decision_card", mode: "preview" },
     decisionArtifactQuery: { error: null, isError: false, isLoading: false },
     decisionHeadline: "Decision headline",
-    decisionScore: 0.82,
+    decisionScore: untracedDecisionQuantity({
+      metricId: "test.decision_score",
+      point: 0.82,
+    }),
     decisionScoreStyle: { "--score-angle": "278deg" },
     decisionView: {
       confidence: "HIGH",
@@ -560,6 +578,12 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
+    useDepthNCycleBoardProjectionMock.mockReturnValue({
+      data: undefined,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
     useRunInspectorMock.mockReturnValue(summary);
     useGovernanceDebugMock.mockReturnValue({
       data: {
@@ -697,7 +721,10 @@ describe("run detail surfaces", () => {
             ? [{ artifact_id: "artifact-3", kind: "decision_card" }]
             : [{ artifact_id: "artifact-1", kind: "decision_card" }],
         blockerCount: runId === "run-2" ? 1 : 2,
-        decisionScore: runId === "run-2" ? 0.63 : 0.82,
+        decisionScore: untracedDecisionQuantity({
+          metricId: "test.decision_score",
+          point: runId === "run-2" ? 0.63 : 0.82,
+        }),
         evidenceContext: {
           dataNeeds: [{ metric: runId === "run-2" ? "GDP" : "Inflation" }],
           fetchPlans: runId === "run-2" ? [] : [{ planId: "plan-1" }],
@@ -763,6 +790,62 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("run-replan-link")).toBeInTheDocument();
   });
 
+  it("keeps novel owner grades neutral and does not infer replanning from their labels", async () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        decisionView: {
+          ...summary.decisionView,
+          verdict: "future-packet-grade",
+        },
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: {
+            ...summary.pipeline.evaluator,
+            verdict: "REPLAN_FUTURE_OWNER_GRADE",
+          },
+          preflight: { diagnostics: [], ready_to_run: true },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(await screen.findByTestId("run-evaluator-grade")).toHaveTextContent(
+      "REPLAN_FUTURE_OWNER_GRADE",
+    );
+    expect(screen.getByTestId("run-evaluator-grade")).toHaveAttribute(
+      "data-decision-grade-presentation",
+      "unrecognized",
+    );
+    expect(screen.getByTestId("run-packet-grade")).toHaveTextContent(
+      "future-packet-grade",
+    );
+    expect(screen.queryByTestId("run-replan-link")).not.toBeInTheDocument();
+  });
+
+  it("keeps the open run status label opaque and neutral", async () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: {
+          duration_ms: 1_200,
+          root_artifacts: [],
+          run_id: "run-1",
+          source_kind: "core_run",
+          started_at: "2026-03-09T10:00:00Z",
+          status: "completed_future",
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(await screen.findByText("completed_future")).toHaveClass(
+      "bg-white/65",
+      "text-muted",
+    );
+  });
+
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
@@ -784,27 +867,12 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("run-detail-uncertainty-visual"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("scientific-depth-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("identifiability-surface-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("identifiability-summary")).toBeInTheDocument();
-    expect(screen.getByTestId("sensitivity-rotor-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("sensitivity-decision-bearing-share"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("cohort-time-traveler-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("stress-test-theatre-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
     expect(
       screen.getByTestId("public-sector-readiness-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("fairness-audit-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("harm-assessment-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("embargo-overlay-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("slow-review-mode-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("revocation-ledger-panel")).toBeInTheDocument();
+    ).toHaveTextContent("common.unavailable");
     expect(screen.getByTestId("publication-packet-panel")).toBeInTheDocument();
     expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
     expect(
@@ -835,6 +903,59 @@ describe("run detail surfaces", () => {
       "href",
       "/artifacts/artifact-1?tab=content&view=reading",
     );
+  });
+
+  it("label text shape blocker count timestamp and truthiness do not change posture", async () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        blockerCount: 9,
+        governancePass: true,
+        transportStatus: "verified",
+        verifiedAt: "2026-07-31T10:00:00Z",
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const strip = await screen.findByTestId("provenance-strip");
+    expect(strip).toHaveTextContent("Governance blocked");
+    expect(within(strip).queryByLabelText("verified")).not.toBeInTheDocument();
+    for (const item of within(strip).getAllByRole("listitem")) {
+      expect(item).not.toHaveAttribute("data-intent");
+    }
+    for (const glyph of within(strip).getAllByRole("img")) {
+      expect(glyph).not.toHaveAttribute("data-glyph-intent");
+    }
+  });
+
+  it("blocker counts cannot select provenance clothing", async () => {
+    useRunInspectorMock.mockReturnValue(createSummary({ blockerCount: 7 }));
+    const blockedView = renderNestedRunDetail("/runs/run-1/overview");
+    const blockedStrip = await screen.findByTestId("provenance-strip");
+    const blockedClothing = within(blockedStrip)
+      .getAllByRole("img")
+      .map((glyph) => ({
+        color: glyph.style.color,
+        intent: glyph.getAttribute("data-glyph-intent"),
+      }));
+    blockedView.unmount();
+
+    useRunInspectorMock.mockReturnValue(createSummary({ blockerCount: 0 }));
+    renderNestedRunDetail("/runs/run-1/overview");
+    const passingStrip = await screen.findByTestId("provenance-strip");
+    const passingClothing = within(passingStrip)
+      .getAllByRole("img")
+      .map((glyph) => ({
+        color: glyph.style.color,
+        intent: glyph.getAttribute("data-glyph-intent"),
+      }));
+
+    expect(blockedClothing).toEqual(passingClothing);
+    expect(
+      passingClothing.every(
+        ({ color, intent }) => color === "" && intent === null,
+      ),
+    ).toBe(true);
   });
 
   it("renders honest-diagnostics operator root cause fields from run projection", async () => {
@@ -935,9 +1056,40 @@ describe("run detail surfaces", () => {
       screen.getByRole("button", { name: "pages.runs.deck.printPdf" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-deck-slide-evidence")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("run-deck-page")).queryByText(
+        /\b(?:ratify|hold|recommendation)\b/iu,
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders reading onboarding as a neutral checklist, never an approval gate", async () => {
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const panel = await screen.findByTestId("reading-onboarding-panel");
+    expect(within(panel).queryByText(/approval/iu)).not.toBeInTheDocument();
+    expect(
+      within(panel).getByTestId("reading-onboarding-progress"),
+    ).toHaveAttribute("data-presentation", "interaction-neutral");
+    expect(
+      within(panel).getByTestId("reading-onboarding-completion-step"),
+    ).toHaveAttribute("data-presentation", "interaction-neutral");
   });
 
   it("renders OverviewTab with decision, governance, evidence, and timeline sections", () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: {
+            ...summary.pipeline.evaluator,
+            verdict: "future-overview-grade",
+          },
+        },
+      }),
+    );
+
     renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
     expect(screen.getByTestId("run-tab-overview")).toBeInTheDocument();
@@ -949,9 +1101,57 @@ describe("run detail surfaces", () => {
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getAllByText("Inflation").length).toBeGreaterThan(0);
     expect(screen.getByText("start")).toBeInTheDocument();
+    expect(screen.getByTestId("overview-evaluator-grade")).toHaveTextContent(
+      "future-overview-grade",
+    );
+    expect(screen.getByTestId("overview-evaluator-grade")).toHaveAttribute(
+      "data-decision-grade-presentation",
+      "unrecognized",
+    );
     expect(
       screen.getByTestId("overview-scenario-workbench"),
     ).toBeInTheDocument();
+    expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
+  });
+
+  it("keeps novel and missing governance severity labels opaque and neutral", () => {
+    const summary = createSummary();
+    useGovernanceDebugMock.mockReturnValue({
+      data: {
+        debug: {
+          ...summary.governance,
+          issues: [
+            {
+              code: "future-severity",
+              message: "Future owner label",
+              severity: "future_owner_severity",
+            },
+            {
+              code: "missing-severity",
+              message: "Missing owner label",
+            },
+          ],
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-governance-severity-future-severity"),
+    ).toHaveTextContent("future_owner_severity");
+    expect(
+      screen.getByTestId("overview-governance-severity-future-severity"),
+    ).toHaveAttribute("data-presentation", "owner-label-neutral");
+    expect(
+      screen.getByTestId("overview-governance-severity-missing-severity"),
+    ).toHaveTextContent("common.unknown");
+    expect(
+      screen.getByTestId("overview-governance-severity-missing-severity"),
+    ).toHaveAttribute("data-presentation", "owner-label-neutral");
   });
 
   it("renders EvidenceTab with deep links and warnings", () => {
@@ -1072,6 +1272,29 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("public-sector-readiness-panel"),
     ).toBeInTheDocument();
+  });
+
+  it("renders both contained panels unavailable without producer inputs", () => {
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("common.unavailable");
+    expect(screen.getByTestId("scientific-depth-panel")).toHaveTextContent(
+      "common.unavailable",
+    );
+  });
+
+  it("renders public-sector containment in Governance", async () => {
+    renderRoute(
+      "/runs/run-1/governance",
+      "/runs/:runId/:tab",
+      <GovernanceTab />,
+    );
+
+    expect(
+      await screen.findByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("unavailable");
   });
 
   it("persists locally added dispute objections across governance remounts", async () => {

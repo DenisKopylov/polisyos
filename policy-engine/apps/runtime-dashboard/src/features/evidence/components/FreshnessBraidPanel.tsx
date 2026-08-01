@@ -1,23 +1,26 @@
-import type {
-  FreshnessBraidView,
-  FreshnessState,
-} from "../domain/productionSlice";
+import type { FreshnessBraidView } from "../domain/productionSlice";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
-import { Badge, Card, EmptyState } from "@/shared/ui";
+import type { InteractionState } from "@/shared/lib/domain/statusOwnership";
+import {
+  cn,
+  formatDate,
+  formatDuration,
+  formatNumber,
+} from "@/shared/lib/utils";
+import { Badge, Card, EmptyState } from "@polisyos/atlas-ui";
 
-function stateKind(state: FreshnessState) {
-  if (state === "ok") return "ok";
-  if (state === "warn") return "warn";
-  if (state === "fail") return "fail";
+function stateKind(state: InteractionState) {
+  if (state.label === "ok") return "ok";
+  if (state.label === "warn") return "warn";
+  if (state.label === "fail") return "fail";
   return "neutral";
 }
 
-function threadColor(state: FreshnessState) {
-  if (state === "ok") return "bg-[var(--color-status-approved)]";
-  if (state === "warn") return "bg-[var(--color-status-pending)]";
-  if (state === "fail") return "bg-[var(--color-status-rejected)]";
+function threadColor(state: InteractionState) {
+  if (state.label === "ok") return "bg-[var(--color-status-approved)]";
+  if (state.label === "warn") return "bg-[var(--color-status-pending)]";
+  if (state.label === "fail") return "bg-[var(--color-status-rejected)]";
   return "bg-muted";
 }
 
@@ -63,7 +66,9 @@ export function FreshnessBraidPanel({ view }: { view: FreshnessBraidView }) {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <strong>{thread.label}</strong>
-                <Badge kind={stateKind(thread.state)}>{thread.state}</Badge>
+                <Badge kind={stateKind(thread.state)}>
+                  {thread.state.label}
+                </Badge>
                 {thread.governing ? (
                   <Badge kind="warn">{t("phase32.freshness.governing")}</Badge>
                 ) : null}

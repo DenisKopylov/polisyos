@@ -204,8 +204,16 @@ describe("layout surfaces", () => {
     useRunsSampleMock.mockReturnValue({
       data: {
         runs: [
-          { run_id: "run-1", status: "blocked_preflight" },
-          { run_id: "run-2", status: "completed" },
+          {
+            decision_review_required: true,
+            run_id: "run-1",
+            status: "blocked_preflight",
+          },
+          {
+            decision_review_required: false,
+            run_id: "run-2",
+            status: "completed",
+          },
         ],
       },
     });
@@ -327,7 +335,7 @@ describe("layout surfaces", () => {
 
     renderWithRouter(<Header />);
 
-    expect(screen.getByText("shell.header.apiOk")).toBeInTheDocument();
+    expect(screen.getByText("ok")).toHaveClass("bg-white/65", "text-muted");
     expect(screen.getByText("shell.header.live")).toBeInTheDocument();
     expect(
       screen.getByText('shell.header.runsInReview:{"count":1}'),
@@ -344,6 +352,50 @@ describe("layout surfaces", () => {
 
     expect(toggleThemeMock).toHaveBeenCalledTimes(1);
     expect(setLocaleMock).toHaveBeenCalledWith("uk");
+  });
+
+  it("renders an open health label verbatim with neutral clothing", () => {
+    useHealthMock.mockReturnValueOnce({
+      data: { status: "awaiting_external_attestation" },
+      isError: false,
+      isLoading: false,
+    });
+
+    renderWithRouter(<Header />);
+
+    const ownerLabel = screen.getByText("awaiting_external_attestation");
+    expect(ownerLabel).toHaveClass("bg-white/65", "text-muted");
+    expect(screen.queryByText("shell.header.apiOk")).not.toBeInTheDocument();
+  });
+
+  it("uses decision_review_required and never status text for the review count", () => {
+    useRunsSampleMock.mockReturnValueOnce({
+      data: {
+        runs: [
+          {
+            decision_review_required: true,
+            run_id: "run-review",
+            status: "awaiting_external_attestation",
+          },
+          {
+            decision_review_required: false,
+            run_id: "run-blocked-1",
+            status: "blocked_by_external_owner",
+          },
+          {
+            decision_review_required: false,
+            run_id: "run-blocked-2",
+            status: "failed",
+          },
+        ],
+      },
+    });
+
+    renderWithRouter(<Header />);
+
+    expect(
+      screen.getByText('shell.header.runsInReview:{"count":1}'),
+    ).toBeInTheDocument();
   });
 
   it("renders loading and unavailable header states", () => {
@@ -366,21 +418,28 @@ describe("layout surfaces", () => {
     expect(screen.getByText("shell.header.unavailable")).toBeInTheDocument();
   });
 
-  it("renders sidebar workspace navigation and watch status branches", () => {
+  it("renders sidebar workspace navigation and unavailable watch posture", () => {
     renderWithRouter(<Sidebar />, "/");
 
     expect(screen.getByTestId("shell-nav-commandCenter")).toBeInTheDocument();
-    expect(screen.getByText("shell.watchStatusBlocked")).toBeInTheDocument();
+    expect(screen.getByText("common.unavailable")).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "mode.analyst" })).toBeChecked();
+  });
 
+  it("renders unavailable watch posture instead of guessing blocked runs", () => {
     useRunsSampleMock.mockReturnValueOnce({
       data: {
-        runs: [{ run_id: "run-3", status: "completed" }],
+        runs: [
+          { run_id: "run-opaque", status: "blocked_by_external_owner" },
+        ],
       },
     });
 
     renderWithRouter(<Sidebar />, "/");
-    expect(screen.getByText("shell.watchStatusStable")).toBeInTheDocument();
+
+    expect(screen.getByText("common.unavailable")).toBeInTheDocument();
+    expect(screen.queryByText("shell.watchStatusBlocked")).not.toBeInTheDocument();
+    expect(screen.queryByText("shell.watchStatusStable")).not.toBeInTheDocument();
   });
 
   it("uses native radio inputs for the mode toggle with tab and arrow keyboard support", async () => {

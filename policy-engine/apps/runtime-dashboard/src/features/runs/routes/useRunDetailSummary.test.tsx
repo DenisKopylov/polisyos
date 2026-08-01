@@ -163,24 +163,13 @@ describe("useRunDetailSummary", () => {
         promotionId: "promotion-1",
       }),
     ).toBe("/evidence?runId=run-1&focus=promotion&promotionId=promotion-1");
-    expect(getDecisionHeadline("APPROVE", 0, t)).toBe(
-      "pages.runs.verdict.approve",
+    expect(getDecisionHeadline("APPROVE", 0, t)).toBe("APPROVE");
+    expect(getDecisionHeadline("APPROVE", 2, t)).toBe("APPROVE");
+    expect(getDecisionHeadline("future-owner-grade", 0, t)).toBe(
+      "future-owner-grade",
     );
-    expect(getDecisionHeadline("APPROVE", 2, t)).toBe(
-      "pages.runs.verdict.approveWithConditions",
-    );
-    expect(getDecisionHeadline("REJECT", 0, t)).toBe(
-      "pages.runs.verdict.reject",
-    );
-    expect(getDecisionHeadline("REPLAN", 0, t)).toBe(
-      "pages.runs.verdict.replan",
-    );
-    expect(getDecisionHeadline(undefined, 1, t)).toBe(
-      "pages.runs.verdict.escalate",
-    );
-    expect(getDecisionHeadline(undefined, 0, t)).toBe(
-      "pages.runs.verdict.inReview",
-    );
+    expect(getDecisionHeadline(undefined, 1, t)).toBe("common.unknown");
+    expect(getDecisionHeadline(undefined, 0, t)).toBe("common.unknown");
   });
 
   it("keeps the summary in bootstrap mode while run details are still unavailable", () => {
@@ -210,7 +199,8 @@ describe("useRunDetailSummary", () => {
     expect(result.current.runReady).toBe(false);
     expect(result.current.artifactRefs).toEqual([]);
     expect(result.current.blockerCount).toBe(0);
-    expect(result.current.decisionScore).toBe(0.52);
+    expect(result.current.decisionScore.point).toBeNull();
+    expect(result.current.decisionScoreStyle).toEqual({});
     expect(result.current.transportStatus).toBe("not_available");
     expect(result.current.primaryDecisionArtifactId).toBeNull();
   });
@@ -349,14 +339,10 @@ describe("useRunDetailSummary", () => {
       "artifact-root",
     ]);
     expect(result.current.primaryDecisionArtifactId).toBe("artifact-3");
-    expect(result.current.blockerCount).toBe(2);
-    expect(result.current.decisionHeadline).toBe(
-      "pages.runs.verdict.approveWithConditions",
-    );
-    expect(result.current.decisionScore).toBe(0.84);
-    expect(result.current.decisionScoreStyle).toMatchObject({
-      "--score-angle": "284deg",
-    });
+    expect(result.current.blockerCount).toBe(1);
+    expect(result.current.decisionHeadline).toBe("APPROVE");
+    expect(result.current.decisionScore.point).toBeNull();
+    expect(result.current.decisionScoreStyle).toEqual({});
     expect(result.current.impactRows).toEqual([
       {
         display: "+1.5",
@@ -422,8 +408,8 @@ describe("useRunDetailSummary", () => {
 
     const { result } = renderHook(() => useRunDetailSummary("run-2", t));
 
-    expect(result.current.decisionHeadline).toBe("pages.runs.verdict.reject");
-    expect(result.current.decisionScore).toBe(1);
+    expect(result.current.decisionHeadline).toBe("REJECT");
+    expect(result.current.decisionScore.point).toBe(1);
     expect(result.current.impactRows).toEqual([
       {
         display: "99ms",

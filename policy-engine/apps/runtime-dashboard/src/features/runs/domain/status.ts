@@ -4,75 +4,6 @@ export type AnyRun = {
   root_artifact_count?: number | null;
   root_artifacts?: Array<unknown> | null;
 };
-export type RunBadgeKind = "ok" | "fail" | "warn" | "unknown";
-
-function normalizeStatus(status: string | null | undefined) {
-  return (status ?? "").trim().toLowerCase();
-}
-
-export function isRunSuccess(status: string | null | undefined): boolean {
-  const normalized = normalizeStatus(status);
-  return (
-    normalized === "completed" ||
-    normalized === "ok" ||
-    normalized === "success"
-  );
-}
-
-export function isRunFailed(status: string | null | undefined): boolean {
-  const normalized = normalizeStatus(status);
-  return (
-    normalized === "fail" ||
-    normalized === "failed" ||
-    normalized === "error" ||
-    normalized === "rejected" ||
-    normalized.includes("blocked") ||
-    normalized.includes("preflight")
-  );
-}
-
-export function isRunRunning(status: string | null | undefined): boolean {
-  const normalized = normalizeStatus(status);
-  return (
-    normalized.includes("running") ||
-    normalized.includes("execut") ||
-    normalized.includes("evaluat") ||
-    normalized.includes("plan") ||
-    normalized.includes("pending")
-  );
-}
-
-export function isRunTerminal(status: string | null | undefined): boolean {
-  const normalized = normalizeStatus(status);
-  return Boolean(normalized) && !isRunRunning(normalized);
-}
-
-export function isRunInReview(status: string | null | undefined): boolean {
-  const normalized = normalizeStatus(status);
-  return normalized.includes("review") || isRunFailed(normalized);
-}
-
-export function getRunBadgeKind(
-  status: string | null | undefined,
-): RunBadgeKind {
-  if (isRunSuccess(status)) {
-    return "ok";
-  }
-  if (isRunFailed(status)) {
-    return "fail";
-  }
-  if (isRunRunning(status)) {
-    return "warn";
-  }
-  if (normalizeStatus(status).length > 0) {
-    return "warn";
-  }
-  return "unknown";
-}
-
-export function getBlockedRunCount(runs: AnyRun[]): number {
-  return runs.filter((run) => isRunFailed(run.status)).length;
-}
 
 export function getDecisionQueue<T extends AnyRun>(runs: T[], limit = 6): T[] {
   return runs
@@ -98,15 +29,14 @@ export function getAverageRunDuration(runs: AnyRun[]): number | null {
 export function groupRunsByStatus(runs: AnyRun[]) {
   const counts = new Map<string, number>();
   for (const run of runs) {
-    const status = normalizeStatus(run.status) || "unknown";
+    if (typeof run.status !== "string") {
+      continue;
+    }
+    const status = run.status;
     counts.set(status, (counts.get(status) ?? 0) + 1);
   }
   return Array.from(counts.entries())
-    .map(([status, count]) => ({
-      status,
-      count,
-      badgeKind: getRunBadgeKind(status),
-    }))
+    .map(([status, count]) => ({ status, count }))
     .sort(
       (left, right) =>
         right.count - left.count || left.status.localeCompare(right.status),

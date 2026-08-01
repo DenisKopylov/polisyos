@@ -5,7 +5,6 @@ import {
   BookOpenCheck,
   CheckCircle2,
   MessageSquarePlus,
-  ShieldCheck,
   SlidersHorizontal,
   WalletCards,
 } from "lucide-react";
@@ -30,15 +29,21 @@ import {
   type ReadingOnboardingStepId,
 } from "@/features/runs/domain/operatorCraft";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { Quantity } from "@/shared/ui/quantity";
 import {
   cn,
   formatDate,
   formatNumber,
   formatPercent,
 } from "@/shared/lib/utils";
-import { Badge, Button, Slider, Textarea } from "@/shared/ui";
+import { Badge, Button, Slider, Textarea } from "@polisyos/atlas-ui";
 
 const MAX_VISIBLE_HIDDEN_CLAIMS = 3;
+const CHECKLIST_COMPLETION_LABEL = "Checklist completion";
+
+function formatDurationSeconds(seconds: number) {
+  return `${formatNumber(seconds)}s`;
+}
 
 function useOperatorCraftVersion() {
   const [version, refresh] = useReducer((value: number) => value + 1, 0);
@@ -57,7 +62,7 @@ function useOperatorCraftVersion() {
 function StepBadge({ completed }: { completed: boolean }) {
   const { t } = useI18n();
   return (
-    <Badge kind={completed ? "ok" : "neutral"}>
+    <Badge data-presentation="interaction-neutral" kind="neutral">
       {completed ? t("phase36.onboarding.done") : t("common.pending")}
     </Badge>
   );
@@ -189,8 +194,8 @@ export function OperatorCraftPanel({
   }
 
   function handleOnboardingStep(stepId: ReadingOnboardingStepId) {
-    if (stepId === "safe_approval") {
-      if (!snapshot.onboarding.canApprove) {
+    if (stepId === "checklist_complete") {
+      if (!snapshot.onboarding.canComplete) {
         return;
       }
       completeReadingOnboardingRun({
@@ -222,7 +227,7 @@ export function OperatorCraftPanel({
             {t("phase36.body")}
           </p>
         </div>
-        <Badge kind={snapshot.onboarding.canApprove ? "ok" : "warn"}>
+        <Badge data-presentation="interaction-neutral" kind="neutral">
           {t("phase36.onboarding.progress", {
             completed: formatNumber(snapshot.onboarding.completedCount),
             total: formatNumber(snapshot.onboarding.totalCount),
@@ -300,8 +305,15 @@ export function OperatorCraftPanel({
                       className="border-line bg-background/55 flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm"
                     >
                       <span className="min-w-0 truncate">{claim.label}</span>
-                      <span className="text-muted font-mono">
-                        {formatPercent(claim.score)}
+                      <span
+                        className="text-muted font-mono"
+                        data-quantity-metric-id={claim.score.metric_id}
+                      >
+                        <Quantity
+                          format="percent"
+                          value={claim.score}
+                          variant="dense"
+                        />
                       </span>
                     </div>
                   ))
@@ -492,7 +504,11 @@ export function OperatorCraftPanel({
               />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-muted text-sm">
+              <span
+                className="text-muted text-sm"
+                data-presentation="interaction-neutral"
+                data-testid="reading-onboarding-progress"
+              >
                 {t("phase36.onboarding.progress", {
                   completed: formatNumber(snapshot.onboarding.completedCount),
                   total: formatNumber(snapshot.onboarding.totalCount),
@@ -500,7 +516,7 @@ export function OperatorCraftPanel({
               </span>
               <Button
                 type="button"
-                leading={<ShieldCheck className="size-4" />}
+                leading={<BookOpenCheck className="size-4" />}
                 size="sm"
                 variant="ghost"
                 onClick={() => {
@@ -515,6 +531,16 @@ export function OperatorCraftPanel({
               {snapshot.onboarding.steps.map((step) => (
                 <div
                   key={step.id}
+                  data-testid={
+                    step.id === "checklist_complete"
+                      ? "reading-onboarding-completion-step"
+                      : undefined
+                  }
+                  data-presentation={
+                    step.id === "checklist_complete"
+                      ? "interaction-neutral"
+                      : undefined
+                  }
                   className={cn(
                     "border-line bg-background/55 flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm",
                     step.completed && "border-accent/20 bg-accent/5",
@@ -522,7 +548,9 @@ export function OperatorCraftPanel({
                 >
                   <div className="min-w-0">
                     <strong className="block truncate">
-                      {t(`phase36.onboarding.step.${step.id}`)}
+                      {step.id === "checklist_complete"
+                        ? t("phase36.onboarding.complete")
+                        : t(`phase36.onboarding.step.${step.id}`)}
                     </strong>
                     <span className="text-muted block truncate font-mono text-xs">
                       {step.evidenceRef}
@@ -536,8 +564,8 @@ export function OperatorCraftPanel({
                         size="sm"
                         variant="ghost"
                         disabled={
-                          step.id === "safe_approval" &&
-                          !snapshot.onboarding.canApprove
+                          step.id === "checklist_complete" &&
+                          !snapshot.onboarding.canComplete
                         }
                         onClick={() => handleOnboardingStep(step.id)}
                       >
@@ -548,13 +576,12 @@ export function OperatorCraftPanel({
                 </div>
               ))}
             </div>
-            {snapshot.onboarding.timeToFirstSafeApprovalSeconds !== null ? (
+            {snapshot.onboarding.timeToCompletionSeconds !== null ? (
               <p className="text-muted text-sm">
-                {t("phase36.onboarding.ttv", {
-                  seconds: formatNumber(
-                    snapshot.onboarding.timeToFirstSafeApprovalSeconds,
-                  ),
-                })}
+                {CHECKLIST_COMPLETION_LABEL}:{" "}
+                {formatDurationSeconds(
+                  snapshot.onboarding.timeToCompletionSeconds,
+                )}
               </p>
             ) : null}
           </div>

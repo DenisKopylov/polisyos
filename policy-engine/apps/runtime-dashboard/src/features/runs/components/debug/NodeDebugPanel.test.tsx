@@ -120,4 +120,57 @@ describe("NodeDebugPanel", () => {
     expect(screen.getByText(/"cacheHit": 3/)).toBeInTheDocument();
     expect(screen.getByText(/"reason": "timeout"/)).toBeInTheDocument();
   });
+
+  it("maps generated node status but never infers authority from open timeline event labels", () => {
+    render(
+      <MemoryRouter>
+        <NodeDebugPanel
+          debugData={{
+            alias: "planner",
+            cache_bypasses: 0,
+            cache_hits: 0,
+            cache_stores: 0,
+            record: {
+              alias: "planner",
+              duration_ms: 12,
+              input_artifact_ids: [],
+              node_id: "node-owner-bound",
+              output_artifact_ids: [],
+              status: "ok",
+            },
+            run_id: "run-opaque",
+            source_kind: "core_run",
+            timeline_events: [
+              {
+                event: "failed",
+                index: 1,
+                metrics: {},
+                phase: "producer-extension",
+                timestamp: "2026-03-10T10:00:00Z",
+              },
+              {
+                event: "completed_future",
+                index: 2,
+                metrics: {},
+                phase: "producer-extension",
+                timestamp: "2026-03-10T10:00:01Z",
+              },
+            ],
+          }}
+          nodes={[{ alias: "planner", duration_ms: 12, status: "ok" }]}
+          onSelectAlias={vi.fn()}
+          selectedAlias="planner"
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("ok")).toHaveClass(
+      "text-[var(--color-status-approved)]",
+    );
+    expect(screen.getByText("failed")).toHaveClass("bg-white/65", "text-muted");
+    expect(screen.getByText("completed_future")).toHaveClass(
+      "bg-white/65",
+      "text-muted",
+    );
+  });
 });

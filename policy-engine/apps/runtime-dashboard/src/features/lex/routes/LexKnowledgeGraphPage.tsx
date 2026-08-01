@@ -19,14 +19,12 @@ import {
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
 import { cn, formatNumber } from "@/shared/lib/utils";
+import { Button, Card, ToggleButton } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Button,
-  Card,
   copyShareLink,
   exportCsv,
   exportJson,
-  ToggleButton,
 } from "@/shared/ui";
 
 const DEFAULT_CARDS = "data/data_lex/edrnpa_cards_2026-04-05.xml";

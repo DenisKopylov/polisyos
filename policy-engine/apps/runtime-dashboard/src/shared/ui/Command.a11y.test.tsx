@@ -8,12 +8,12 @@ import {
   CommandItem,
   CommandList,
   CommandShortcut,
-} from "./Command";
+} from "@polisyos/atlas-ui";
 
 describe("Command accessibility", () => {
   it("has no detectable accessibility violations when open", async () => {
     await expectNoA11yViolations(
-      <CommandDialog open>
+      <CommandDialog open title="Command palette">
         <CommandInput placeholder="Search runs" />
         <CommandList>
           <CommandEmpty>No results</CommandEmpty>

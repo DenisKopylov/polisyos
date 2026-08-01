@@ -255,6 +255,7 @@ describe("run query hooks", () => {
         state: {
           data: {
             run: {
+              finished_at: "2026-03-09T10:05:00Z",
               status: "completed",
             },
           },
@@ -287,6 +288,7 @@ describe("run query hooks", () => {
         state: {
           data: {
             run: {
+              finished_at: "2026-03-09T10:05:00Z",
               status: "completed",
             },
           },
@@ -304,6 +306,36 @@ describe("run query hooks", () => {
         },
       }),
     ).toBe(false);
+  });
+
+  it("polls until producer finished_at instead of guessing terminality from status text", () => {
+    const options = runDetailsQueryOptions(runId);
+    const opaqueStatusOnly = {
+      state: {
+        data: {
+          run: {
+            status: "completed_future",
+          },
+        },
+      },
+    };
+    const producerFinished = {
+      state: {
+        data: {
+          run: {
+            finished_at: "2026-03-09T10:05:00Z",
+            status: "awaiting_external_attestation",
+          },
+        },
+      },
+    };
+
+    expect(options.staleTime(opaqueStatusOnly)).toBe(RUN_ACTIVE_STALE_MS);
+    expect(options.refetchInterval(opaqueStatusOnly)).toBe(
+      RUN_ACTIVE_REFETCH_MS,
+    );
+    expect(options.staleTime(producerFinished)).toBe(RUN_TERMINAL_STALE_MS);
+    expect(options.refetchInterval(producerFinished)).toBe(false);
   });
 
   it("normalizes secondary run detail tabs into stable arrays", async () => {

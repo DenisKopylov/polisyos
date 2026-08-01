@@ -20,7 +20,7 @@ import {
 
 type TimelineRegistration = {
   id: string;
-  author: AuthoredTextAuthor;
+  author: AuthoredTextAuthor | null;
   authorAgentVersion?: string;
   confidence?: number;
   reviewedByHuman?: boolean;
@@ -39,6 +39,7 @@ type AuthorshipContextValue = {
   registerBlock: (entry: TimelineRegistration) => void;
   setHighlightMode: (mode: AuthorshipHighlightMode) => void;
   timelineEntries: TimelineRegistration[];
+  trustDisplayMode: "compact" | "expanded" | "off";
   unregisterBlock: (id: string) => void;
 };
 
@@ -49,6 +50,7 @@ const DEFAULT_CONTEXT: AuthorshipContextValue = {
   registerBlock: noop,
   setHighlightMode: noop,
   timelineEntries: [],
+  trustDisplayMode: "off",
   unregisterBlock: noop,
 };
 
@@ -59,6 +61,7 @@ type AuthorshipProviderProps = PropsWithChildren<{
   defaultHighlightMode?: AuthorshipHighlightMode;
   highlightMode?: AuthorshipHighlightMode;
   onHighlightModeChange?: (mode: AuthorshipHighlightMode) => void;
+  trustDisplayMode?: AuthorshipContextValue["trustDisplayMode"];
 }>;
 
 export function AuthorshipProvider({
@@ -66,13 +69,16 @@ export function AuthorshipProvider({
   defaultHighlightMode = "subtle",
   highlightMode,
   onHighlightModeChange,
+  trustDisplayMode,
 }: AuthorshipProviderProps) {
+  const parent = useContext(AuthorshipContext);
   const [internalMode, setInternalMode] =
     useState<AuthorshipHighlightMode>(defaultHighlightMode);
   const [entries, setEntries] = useState<Record<string, TimelineEntry>>({});
   const orderRef = useRef(0);
 
   const resolvedHighlightMode = highlightMode ?? internalMode;
+  const resolvedTrustDisplayMode = trustDisplayMode ?? parent.trustDisplayMode;
 
   const registerBlock = useCallback((entry: TimelineRegistration) => {
     setEntries((current) => {
@@ -139,11 +145,13 @@ export function AuthorshipProvider({
       registerBlock,
       setHighlightMode,
       timelineEntries,
+      trustDisplayMode: resolvedTrustDisplayMode,
       unregisterBlock,
     }),
     [
       registerBlock,
       resolvedHighlightMode,
+      resolvedTrustDisplayMode,
       setHighlightMode,
       timelineEntries,
       unregisterBlock,

@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { Copy, ExternalLink } from "lucide-react";
 
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
 import { truncateHash, type VerificationMetadata } from "./trust-glyphs";
+import {
+  useMaybeTrustView,
+  type TrustInspectorSubjectKind,
+} from "./TrustViewBridge";
 
 type HashChipProps = {
   hash?: string | null;
   label?: string | null;
   subjectId: string;
-  subjectKind?: "quantity" | "authored_text" | "artifact" | "lineage" | "chart";
+  subjectKind?: TrustInspectorSubjectKind;
   trustMetadata?: VerificationMetadata | null;
   interactive?: boolean;
   className?: string;

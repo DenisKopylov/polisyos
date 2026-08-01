@@ -119,6 +119,7 @@ describe("runsLiveMachine", () => {
         event: "status.updated",
         id: "run-9",
         status: "waiting_for_human_decision",
+        terminal: false,
       }),
       lastEventId: "cursor-8",
     });
@@ -132,6 +133,32 @@ describe("runsLiveMachine", () => {
       status: "waiting_for_human_decision",
       terminal: false,
     });
+  });
+
+  it("does not infer terminal from a novel status when the producer terminal field is absent", () => {
+    const event = parseRunsLiveEvent({
+      data: JSON.stringify({
+        cursor: "cursor-novel",
+        event: "status.updated",
+        run_id: "run-novel",
+        status: "completed_future",
+      }),
+    });
+
+    expect(event.status).toBe("completed_future");
+    expect(event.terminal).toBeUndefined();
+  });
+
+  it("preserves an absent producer terminal fact instead of authoring false", () => {
+    const event = parseRunsLiveEvent({
+      data: JSON.stringify({
+        event: "node.updated",
+        run_id: "run-no-terminal",
+        status: "blocked_by_external_owner",
+      }),
+    });
+
+    expect(event).not.toHaveProperty("terminal");
   });
 
   it("treats malformed payloads as unknown events", () => {

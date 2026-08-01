@@ -1,13 +1,15 @@
 /* eslint-disable testing-library/prefer-screen-queries */
 import { render } from "@testing-library/react";
 
-import { AsyncSection } from "./AsyncSection";
+import { AsyncSection } from "@polisyos/atlas-ui";
+import { renderApiErrorAlert } from "./ApiErrorAlert";
 
 describe("AsyncSection", () => {
   it("renders loading state first", () => {
     const view = render(
       <AsyncSection
         query={{ isLoading: true, isError: false }}
+        renderError={renderApiErrorAlert}
         loading={<div>Loading section</div>}
       >
         <div>Loaded content</div>
@@ -22,6 +24,7 @@ describe("AsyncSection", () => {
     const view = render(
       <AsyncSection
         query={{ isLoading: false, isError: false }}
+        renderError={renderApiErrorAlert}
         empty
         emptyState={<div>Nothing to show</div>}
       >

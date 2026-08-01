@@ -22,6 +22,11 @@ describe("visual fixture harness", () => {
     expect(first.graph.nodes).toHaveLength(10);
     expect(first.graph.edges).toHaveLength(16);
     expect(first.timeline.events).toHaveLength(12);
+    expect(first.fixture_authority).toBe("fixture_only");
+    expect(first.timeline.events[0]?.status).toMatchObject({
+      authorityPurpose: "playback",
+      purpose: "interaction_only",
+    });
   });
 
   it("keeps graph coordinates inside the normalized viewport", () => {

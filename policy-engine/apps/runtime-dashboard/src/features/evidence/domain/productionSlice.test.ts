@@ -136,18 +136,26 @@ describe("Phase 3.2 production slice adapters", () => {
       derivedFactCount: 2,
       governing: false,
       profileIds: ["macro-profile"],
-      state: "ok",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "ok",
+        purpose: "interaction_only",
+      }),
     });
     expect(
       view.threads.find((thread) => thread.connectorId === "tax-ledger"),
     ).toMatchObject({
       derivedFactCount: 1,
       governing: true,
-      state: "fail",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "fail",
+        purpose: "interaction_only",
+      }),
     });
   });
 
-  it("builds connector character cards with latency, cost, retry and lineage counts", () => {
+  it("builds connector character cards with measured latency, cost, and lineage counts", () => {
     const cards = buildConnectorCharacterCards({
       connectors,
       profiles,
@@ -162,13 +170,13 @@ describe("Phase 3.2 production slice adapters", () => {
       lastGreenPull: "2026-03-10T06:00:00Z",
       loaded: true,
       profileCount: 1,
-      retryProfile: "steady",
     });
+    expect(cards[0]).not.toHaveProperty("retryProfile");
     expect(cards[0].latencyP50Ms).toBeGreaterThan(0);
     expect(cards[0].latencyP95Ms).toBeGreaterThan(cards[0].latencyP50Ms ?? 0);
   });
 
-  it("marks unavailable connectors as exhausted and fully burned", () => {
+  it("keeps unavailable connector facts without synthesizing retry posture", () => {
     const cards = buildConnectorCharacterCards({
       connectors: [
         {
@@ -185,12 +193,16 @@ describe("Phase 3.2 production slice adapters", () => {
     });
 
     expect(cards[0]).toMatchObject({
-      errorBudgetBurn: 1,
+      errorBudgetBurn: expect.objectContaining({
+        metric_id: "connector.offline.error_budget_burn",
+        point: 1,
+        quantity_class: "decision",
+      }),
       lastGreenPull: null,
       latencyP50Ms: null,
       latencyP95Ms: null,
-      retryProfile: "exhausted",
     });
+    expect(cards[0]).not.toHaveProperty("retryProfile");
   });
 
   it("falls back to source-profile threads and cards when connector inventory is empty", () => {
@@ -211,7 +223,11 @@ describe("Phase 3.2 production slice adapters", () => {
     ]);
     expect(braid.threads[0]).toMatchObject({
       profileIds: ["macro-profile"],
-      state: "ok",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "ok",
+        purpose: "interaction_only",
+      }),
       volume: 4,
     });
     expect(cards[0]).toMatchObject({

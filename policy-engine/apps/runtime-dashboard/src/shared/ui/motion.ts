@@ -1,20 +1,52 @@
 import type { Transition, Variants } from "motion/react";
+import { motionDurations } from "@polisyos/atlas-ui";
+
+import {
+  motionGeometry,
+  type MotionGeometry,
+} from "@/shared/lib/domain/nonAuthorityNumeric";
+
+type MotionCurve = readonly [
+  MotionGeometry,
+  MotionGeometry,
+  MotionGeometry,
+  MotionGeometry,
+];
+
+const standardEasing: MotionCurve = [
+  motionGeometry(0.2),
+  motionGeometry(0),
+  motionGeometry(0),
+  motionGeometry(1),
+];
+const decelerateEasing: MotionCurve = [
+  motionGeometry(0),
+  motionGeometry(0),
+  motionGeometry(0),
+  motionGeometry(1),
+];
+const accelerateEasing: MotionCurve = [
+  motionGeometry(0.3),
+  motionGeometry(0),
+  motionGeometry(1),
+  motionGeometry(1),
+];
 
 /* ── Duration presets (align with CSS tokens) ── */
 
 export const duration = {
-  fast: 0.16,
-  moderate: 0.18,
-  slow: 0.24,
-  emphasis: 0.4,
+  fast: motionDurations.helper.fastMs / 1000,
+  moderate: motionDurations.helper.moderateMs / 1000,
+  slow: motionDurations.helper.slowMs / 1000,
+  emphasis: motionDurations.helper.emphasisMs / 1000,
 } as const;
 
 /* ── Easing presets ── */
 
 export const easing = {
-  standard: [0.2, 0, 0, 1] as const,
-  decelerate: [0, 0, 0, 1] as const,
-  accelerate: [0.3, 0, 1, 1] as const,
+  standard: standardEasing,
+  decelerate: decelerateEasing,
+  accelerate: accelerateEasing,
   spring: { type: "spring", stiffness: 500, damping: 30 } as const,
   springGentle: { type: "spring", stiffness: 300, damping: 25 } as const,
   springBouncy: { type: "spring", stiffness: 600, damping: 20 } as const,

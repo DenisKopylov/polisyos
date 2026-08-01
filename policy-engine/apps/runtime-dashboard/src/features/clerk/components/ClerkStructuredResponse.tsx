@@ -1,6 +1,6 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge, Card } from "@/shared/ui/primitives";
+import { Badge, Card } from "@polisyos/atlas-ui";
 import { ConfidenceGauge } from "@/shared/charts/ConfidenceGauge";
 import { AuthoredText } from "@/shared/ui/authored-text";
 

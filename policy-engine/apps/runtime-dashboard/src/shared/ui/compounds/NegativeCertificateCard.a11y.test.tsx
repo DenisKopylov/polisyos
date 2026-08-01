@@ -6,8 +6,12 @@ describe("NegativeCertificateCard accessibility", () => {
   it("has no WCAG AA violations", async () => {
     await expectNoA11yViolations(
       <NegativeCertificateCard
-        blockingType="identification_failure"
-        reason="The policy effect is not identifiable with the attached evidence."
+        blocker={{
+          code: "identification_failure",
+          message:
+            "The policy effect is not identifiable with the attached evidence.",
+          severity: "blocking",
+        }}
         assumptions={["Parallel trends violated"]}
         suggestedExperiments={[
           {

@@ -1,6 +1,25 @@
 import { normalizeAgentPipeline } from "@/shared/lib/domain/agents";
 
 describe("agents domain", () => {
+  it("classifies performance budget labels as diagnostic interaction state", () => {
+    const model = normalizeAgentPipeline({
+      performance_summary: {
+        phase_budgets: [
+          {
+            phase: "retrieval",
+            status: "over_budget",
+          },
+        ],
+      },
+    });
+
+    expect(model.performanceSummary?.phaseBudgets[0]?.status).toMatchObject({
+      authorityPurpose: "diagnostic_display",
+      label: "over_budget",
+      purpose: "interaction_only",
+    });
+  });
+
   it("normalizes agent pipeline payloads into sorted attempts and steps", () => {
     const model = normalizeAgentPipeline({
       attempts: [
@@ -265,14 +284,22 @@ describe("agents domain", () => {
             category: "retrieval",
             durationMs: 15000,
             phase: "retrieval.materialize",
-            status: "over_budget",
+            status: expect.objectContaining({
+              authorityPurpose: "diagnostic_display",
+              label: "over_budget",
+              purpose: "interaction_only",
+            }),
           },
           {
             budgetMs: 20000,
             category: "llm",
             durationMs: 12000,
             phase: "llm.total",
-            status: "within_budget",
+            status: expect.objectContaining({
+              authorityPurpose: "diagnostic_display",
+              label: "within_budget",
+              purpose: "interaction_only",
+            }),
           },
         ],
         totalTokens: 3400,

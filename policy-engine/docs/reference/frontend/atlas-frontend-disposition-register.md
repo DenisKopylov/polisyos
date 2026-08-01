@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **14**
-- Application lines deleted: **4019**
-- Net application LOC reduction: **4005**
-- Application files deleted: **33**
+- Application lines added: **18944**
+- Application lines deleted: **18015**
+- Net application LOC reduction: **-929**
+- Application files deleted: **85**
 
 ## Wave-end full verification
 
@@ -119,6 +119,28 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | clerk-index | `route-home-clerk-duplicate` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification` |
 | whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification` |
 
+### DS4 primitive aggregate disposition
+
+| Outcome | Count |
+| --- | ---: |
+| Package migrated | 22 |
+| Dashboard rebound | 2 |
+| Retired | 3 |
+| Use as-is | 2 |
+| **Total** | **29** |
+
+| Dormant primitive | Disposition | DS2 adoption row | Governing condition |
+| --- | --- | --- | --- |
+| `DropdownMenu` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `ScrollArea` | `use_as_is` | `component-scroll-area` | Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after generated/source ownership, consumer migration, drift checks, and the owning slice's DS6 evidence are complete. |
+| `Separator` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `Sheet` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `Tabs` | `use_as_is` | `component-tabs` | Keep the mapped live v4 family as the transitional winner until DS4 routes a real consumer through one governed replacement, DS6 passes its negative/browser/accessibility evidence, and the old import path is removed. |
+
+Pre-deletion resurrection commit: `caa1ee6e3ab49d559b19dbeeda6308c3598e7183`.
+
+Resurrection rule: `recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree`.
+
 ### Wire dispositions — 13 OpenAPI operations
 
 | Unit | Consumer slice | Rationale |
@@ -179,21 +201,23 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ### Subunits and structural findings
 
-| ID | Kind | Disposition | Owner slice | State/reason |
-| --- | --- | --- | --- | --- |
-| `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
-| `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
-| `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | `open_debt` — The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic. |
-| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding. |
-| `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair. |
-| `baseline-test-temporal-cursor-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification. |
-| `dependency-axe-core` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `dependency-intl-messageformat` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `dependency-workbox-core` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `dependency-workbox-precaching` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `dependency-workbox-routing` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `dependency-workbox-window` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
-| `fixture-policy-design-case-audience` | `fixture_contract_drift` | `use_as_is` | `DS19` | `repaired` — The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed. |
+| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |
+| --- | --- | --- | --- | --- | --- | --- |
+| `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | — | — | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
+| `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | — | — | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
+| `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions. |
+| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `open_debt` — The active manifest retains exactly three count-sensitive locale parity identities owned by DS6. |
+| `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression. |
+| `baseline-test-temporal-cursor-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock. |
+| `dependency-axe-core` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `dependency-intl-messageformat` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `dependency-workbox-core` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `dependency-workbox-precaching` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `dependency-workbox-routing` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `dependency-workbox-window` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
+| `fixture-policy-design-case-audience` | `fixture_contract_drift` | `use_as_is` | `DS19` | — | — | `repaired` — The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed. |
+| `producer-binding-readiness-scientific-depth` | `producer_binding_debt` | `rebind_pending` | `DS16` | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green | `open_debt` — dashboard-local synthesis removed because no typed producer field/refusal exists |
+| `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS3` | `producer_missing`, `surface_missing` | DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green. | `open_debt` — RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority. |
 
 ### Seeded-negative lifecycle
 
@@ -280,17 +304,17 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `feature-platform` | `feature-platform` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `feature-runs` | `feature-runs` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `feature-whatif` | `feature-whatif` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
-| `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `strangled` | `DS4` | `census-ds4-c03b-dormant-primitives` |
+| `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `strangled` | `DS4` | `atlas-ui-root-compounds-and-dashboard-transitional-winners` |
+| `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-operator-diagnostic-generated-evidence-rebind` |
+| `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
+| `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `strangled` | `DS4` | `dashboard-compound-evidence-generated-waist-rebind` |
+| `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `strangled` | `DS4` | `dashboard-counterfactual-generated-scenario-rebind` |
+| `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `strangled` | `DS4` | `atlas-ui-shared-patterns-and-dashboard-searchable-list` |
+| `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
+| `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `strangled` | `DS4` | `dashboard-responsive-generated-breakpoint-adapter` |
+| `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `strangled` | `DS4` | `dashboard-temporal-generated-waist-rebind` |
+| `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `strangled` | `DS4` | `dashboard-trust-view-generated-verification-rebind` |
 | `ui-tokens` | `ui-tokens` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `api-op-analyze-attractors` | `api-op-analyze-attractors` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-persist-basin-map` | `api-op-persist-basin-map` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
@@ -394,49 +418,49 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-offline-queue-item` | `status-offline-queue-item` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-feature-flag` | `status-feature-flag` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-runs-live` | `status-runs-live` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-draft-identification-display` |
+| `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-pipeline-progress-state` |
 | `status-collaboration-session` | `status-collaboration-session` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
-| `status-health-check` | `status-health-check` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-health-check` | `status-health-check` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-system-health-interaction-state` |
 | `status-share-trust-fixture` | `status-share-trust-fixture` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-comparability-api-alias` | `status-comparability-api-alias` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-narrative-chapter` | `status-narrative-chapter` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-dispute-run` | `status-dispute-run` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-publication-argument-node` | `status-publication-argument-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-stress-scene` | `status-stress-scene` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-agent-step` | `status-agent-step` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-stress-scene` | `status-stress-scene` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
+| `status-agent-step` | `status-agent-step` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-agent-pipeline-step-status` |
+| `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-performance-budget-interaction-state` |
+| `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-run-workflow-node-status` |
 | `status-governance-pass` | `status-governance-pass` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-quantity-provenance` | `status-quantity-provenance` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-scenario` | `status-scenario` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-verification` | `status-verification` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-dispute-quantity` | `status-dispute-quantity` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-quantity-provenance` | `status-quantity-provenance` | 0 | `rebind_pending` | `strangled` | `DS4` | `quantity-independent-owner-metadata` |
+| `status-scenario` | `status-scenario` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
+| `status-verification` | `status-verification` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-lineage-verification-status` |
+| `status-dispute-quantity` | `status-dispute-quantity` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-dispute-status` |
 | `status-dispute-trust-view` | `status-dispute-trust-view` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-promotion-decision` | `status-inline-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-queued-promotion` | `status-inline-queued-promotion` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-authz-provider` | `status-inline-authz-provider` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-visual-fixture` | `status-inline-visual-fixture` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-visual-fixture` | `status-inline-visual-fixture` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-fixture-timeline-playback-state` |
 | `status-inline-review-indicators` | `status-inline-review-indicators` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-review-surface` | `status-inline-review-surface` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-bureaucratic-block` | `status-inline-bureaucratic-block` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-bureaucratic-section` | `status-inline-bureaucratic-section` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-data-freshness` | `status-inline-data-freshness` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-data-freshness` | `status-inline-data-freshness` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-data-freshness-interaction-state` |
 | `status-inline-compliance-badge` | `status-inline-compliance-badge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-choreography-stage` | `status-inline-choreography-stage` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-choreography-transition` | `status-inline-choreography-transition` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-publication-claim` | `status-inline-publication-claim` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-publication-ground` | `status-inline-publication-ground` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-evidence` | `status-inline-readiness-evidence` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-gate` | `status-inline-readiness-gate` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-readiness-review` | `status-inline-readiness-review` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-readiness-evidence` | `status-inline-readiness-evidence` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
+| `status-inline-readiness-gate` | `status-inline-readiness-gate` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
+| `status-inline-readiness-review` | `status-inline-readiness-review` | 0 | `rebind_pending` | `strangled` | `DS4` | `c23-readiness-scientific-containment` |
 | `status-inline-run-narrative` | `status-inline-run-narrative` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-left` | `status-inline-governance-comparison-left` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-right` | `status-inline-governance-comparison-right` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-small-multiples` |
 | `status-inline-route-loader` | `status-inline-route-loader` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-depth-n-cycle-board-governed-projection` |
+| `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
 | `flag-enable-atlas-v2` | `flag-enable-atlas-v2` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `flag-enable-clerk-mode` | `flag-enable-clerk-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `flag-enable-dark-mode` | `flag-enable-dark-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -473,7 +497,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `cache-operator-craft` | `cache-operator-craft` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `transport-telemetry-beacon` | `transport-telemetry-beacon` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `transport-sentry` | `transport-sentry` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
-| `derivation-projection-fail-closed` | `derivation-projection-fail-closed` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `derivation-projection-fail-closed` | `derivation-projection-fail-closed` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-policy-design-case-projection-pass-through` |
 | `derivation-browser-signature` | `derivation-browser-signature` | 0 | `rebind_pending` | `pending` | `DS12` | `census-browser-signing-protected-live` |
 | `derivation-causal-effects` | `derivation-causal-effects` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `derivation-composer-readiness` | `derivation-composer-readiness` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
@@ -492,15 +516,75 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `470a802d4 test(dashboard): reconcile governed visual baselines`
+- `0faf33e7b test(dashboard): prove authority posture on a real panel`
+- `2d83e3264 fix(dashboard): name provenance popover dialog`
+- `bfb30c82b fix(dashboard): restore counterfactual text contrast`
+- `31aae0c45 test(dashboard): budget the C14 decision-grade census`
+- `810ef6b77 test(dashboard): stabilize C22 semantic scanners`
+- `bc1d01001 fix(dashboard): contain readiness and scientific synthesis`
+- `2a9da098e refactor(dashboard): retire local return vocabularies`
+- `31134a9fa refactor(dashboard): bind provenance posture to generated metadata`
+- `d2dceae95 refactor(dashboard): remove run lifecycle guessing`
+- `0e9aa6eef test(atlas): harden C22 semantic debt governance`
+- `299fe06e8 refactor(dashboard): retire bounded status taxonomies`
+- `5f63537c2 refactor(dashboard): close architecture severing remainder`
+- `4bf425bfa refactor(dashboard): bind generated responsive breakpoints`
+- `66dcdc0b6 refactor(atlas-ui): migrate shared patterns`
+- `b171c4708 refactor(atlas-ui): migrate root compounds`
+- `e5730cf6a refactor(dashboard): rebind compound evidence families`
+- `7486eaa08 docs(atlas): authorize DS4 re-cut — clusters C21-C23`
+- `f444ba719 refactor(dashboard): fail closed on counterfactual projections`
+- `a59efb3dc refactor(dashboard): rebind operator evidence primitives`
+- `8a8c8169e refactor(dashboard): rebind trust view authority`
+- `c4e1b97e3 refactor(dashboard): rebind authored candidate posture`
+- `9c45a240e fix(dashboard): rebind temporal semantics and cursor`
+- `0ef16da1b fix(dashboard): classify nondecision numeric layout values`
+- `07ed51c81 refactor(dashboard): preserve chart quantity semantics`
+- `290bb5e61 refactor(dashboard): wrap decision producers as quantities`
+- `e57b241a0 test(dashboard): govern the status retirement inventory`
+- `5127af28d feat(atlas-ui): project ratified DTCG token parity`
+- `a2c9ae8b0 chore(dashboard): retire dormant overlay primitives`
+- `caa1ee6e3 feat(atlas-ui): migrate living overlay primitives`
+- `2dbf604e0 feat(atlas-ui): migrate form primitives`
+- `018328d68 feat(atlas-ui): migrate foundation primitives`
+- `61d354f62 docs: plan Atlas DS4 status grammar rebinding`
+- `71f438ad5 docs: Atlas plan — DS3 closed & merged; debt table extended`
+- `e451cec56 merge: land Atlas DS3 — runtime producers & export infrastructure`
+- `028ddde5d docs(atlas): close DS3 exact-head review`
+- `7050786f2 fix(runtime): close DS3 exact-head review`
+- `a906ed7c1 chore(pdc): rebind N13a census route identities`
+- `687545824 fix(pdc): rebind N10 capstone context provenance`
+- `c9a477a9f docs(atlas): close DS3 second review`
+- `202c1e48f test(runtime): consume merged DS19 strangle`
+- `18a7e62ba docs: Atlas plan Rev 3.1 — DS19 closed; inherited baseline debt of record`
+- `f9f69e807 merge: land Atlas DS19 — false-substrate strangle wave + frontend disposition register`
+- `952a52a44 fix(runtime): bind projections to owner validation`
+- `ee793cfa9 chore(frontend): close DS19 for architect review`
 - `3d245d4fd test(frontend): verify DS19 deletion wave`
+- `8a4db34e2 docs(atlas): record DS3 review repairs`
 - `4a4f2a56b refactor(frontend): delete dead WhatIf parameter subgraph`
 - `42fcabe17 refactor(frontend): delete duplicate Clerk index route`
+- `99090d923 fix(runtime): close DS3 producer review findings`
 - `b66e77314 refactor(frontend): delete zero-consumer workers`
 - `9b25c0ca0 refactor(frontend): delete empty layout placeholder`
 - `2bbdfac4e refactor(frontend): delete orphan onboarding`
 - `df87559b3 refactor(frontend): delete phantom collaboration substrate`
+- `7c648b045 chore(pdc): rebind composition to canonical L6 context`
 - `702256135 feat(frontend): establish DS19 disposition authority`
+- `46447ae67 chore(pdc): converge second-domain N8 provenance`
+- `9a0e2b743 docs(atlas): close DS3 producer evidence`
+- `f167adb04 chore(pdc): rebind N8 to canonical L6 context`
+- `48118be16 feat(runtime): bind existing exports to replay contract`
+- `8eed73d7d chore(pdc): rebind second-domain pack to canonical L6`
+- `6e71f9fc3 fix(quality): unblock canonical L6 provenance replay`
+- `3b2c2cd91 build(runtime): regenerate shared API client contract`
+- `a92fcce6e feat(runtime): preserve Lex truth through HTTP projection`
+- `34545cdde feat(runtime): expose governed artifact projections`
+- `986a54daa chore(pdc): canonicalize L6 receipt provenance`
 - `d01eaa572 chore(frontend): repair dashboard typecheck baseline`
+- `e979a5cf4 test(atlas): seed DS3 producer contract negatives`
+- `9516d35cb docs(atlas): bind DS3 runtime producer plan`
 
 The final documentation/report commit cannot self-record its own hash. The
 architect review handoff includes that hash separately. No merge is performed.

@@ -31,29 +31,6 @@ export function comparabilityLabel(value: ComparabilityStatus) {
   return "Blocked";
 }
 
-export function comparabilityTone(value: ComparabilityStatus) {
-  if (value === "compatible") {
-    return "ok" as const;
-  }
-  if (value === "warning") {
-    return "warn" as const;
-  }
-  return "fail" as const;
-}
-
-export function significanceTone(value: DeltaSignificance) {
-  if (value === "improved") {
-    return "ok" as const;
-  }
-  if (value === "worsened") {
-    return "fail" as const;
-  }
-  if (value === "uncertain" || value === "mixed") {
-    return "warn" as const;
-  }
-  return "neutral" as const;
-}
-
 export function topDeltas(deltas: readonly DeltaQuantity[], limit = 6) {
   return [...deltas]
     .sort((left, right) => right.decision_salience - left.decision_salience)

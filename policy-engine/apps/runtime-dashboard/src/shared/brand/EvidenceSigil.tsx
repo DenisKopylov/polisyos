@@ -5,26 +5,6 @@ import { cn } from "@/shared/lib/utils";
 
 export type EvidenceSigilSize = 48 | 64 | 96;
 
-/**
- * FRESC profile — five evidence tiers introduced in Phase 1.0. The component
- * maps them onto inner glyph density so a reader can read tier at a glance
- * without color.
- */
-export type FrescProfile =
-  | "unclassified"
-  | "reconnaissance"
-  | "corroborated"
-  | "replicated"
-  | "canonical";
-
-const FRESC_DENSITY: Record<FrescProfile, number> = {
-  unclassified: 1,
-  reconnaissance: 2,
-  corroborated: 3,
-  replicated: 4,
-  canonical: 5,
-};
-
 export type EvidenceSigilGeometry = {
   /** number of vertices on the outer polygon, 6..12 */
   vertices: number;
@@ -101,28 +81,8 @@ function polygonPath(
   return `M${points[0]} L${points.slice(1).join(" L")} Z`;
 }
 
-function clamp01(value: number): number {
-  if (Number.isNaN(value)) {
-    return 0;
-  }
-  return Math.max(0, Math.min(1, value));
-}
-
-function identifiabilityColor(value: number): string {
-  const clamped = clamp01(value);
-  if (clamped < 0.33) {
-    return "var(--color-status-rejected, var(--ember, #B7412A))";
-  }
-  if (clamped < 0.66) {
-    return "var(--color-status-pending, var(--gold, #B58B2B))";
-  }
-  return "var(--color-status-approved, var(--teal, #1C8B82))";
-}
-
 type EvidenceSigilProps = {
   bundleHash: string;
-  frescProfile?: FrescProfile;
-  identifiability?: number;
   size?: EvidenceSigilSize;
   className?: string;
   title?: string;
@@ -131,8 +91,6 @@ type EvidenceSigilProps = {
 
 export function EvidenceSigil({
   bundleHash,
-  frescProfile = "unclassified",
-  identifiability = 0,
   size = 64,
   className,
   title,
@@ -141,14 +99,13 @@ export function EvidenceSigil({
 }: EvidenceSigilProps) {
   const geometry = sigilGeometryFromHash(bundleHash);
   const patternId = useId();
-  const accent = identifiabilityColor(identifiability);
   const outer = polygonPath(32, 32, 18, 28, geometry);
   const inner = polygonPath(32, 32, 8, 14, {
     ...geometry,
     jitters: geometry.jitters.slice().reverse(),
     rotation: geometry.rotation + Math.PI / geometry.vertices,
   });
-  const density = FRESC_DENSITY[frescProfile];
+  const density = geometry.innerIndex + 1;
 
   const style: CSSProperties = {
     width: size,
@@ -170,8 +127,6 @@ export function EvidenceSigil({
       {...ariaProps}
       className={cn("evidence-sigil", `evidence-sigil--${size}`, className)}
       data-bundle-hash={bundleHash}
-      data-fresc-profile={frescProfile}
-      data-identifiability={clamp01(identifiability).toFixed(2)}
       data-vertices={geometry.vertices}
       viewBox="0 0 64 64"
       style={style}
@@ -196,7 +151,7 @@ export function EvidenceSigil({
           />
         </pattern>
       </defs>
-      <g stroke={accent} fill="none" strokeLinejoin="round">
+      <g stroke="currentColor" fill="none" strokeLinejoin="round">
         <path d={outer} strokeWidth={2} />
         <path
           d={inner}
@@ -214,7 +169,7 @@ export function EvidenceSigil({
             cx={x.toFixed(2)}
             cy={y.toFixed(2)}
             r={1.1}
-            fill={accent}
+            fill="currentColor"
           />
         );
       })}

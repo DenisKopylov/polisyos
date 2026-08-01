@@ -1,6 +1,47 @@
 import type { RunDeckSnapshot } from "@/features/runs/domain/compare";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
+
+function templateQuantity(input: {
+  label: string;
+  metricId: string;
+  point: number;
+  unit?: QuantityValueOutput["unit"];
+}): QuantityValueOutput {
+  return untracedDecisionQuantity({
+    ...input,
+    reasonCode: "fixture_only_atlas_deck_template",
+    trackingIssue: "ATLAS-DS4-C06",
+  });
+}
+
+const templateDecisionScore = templateQuantity({
+  label: "Decision score",
+  metricId: "template.decision_score",
+  point: 0.78,
+  unit: { code: "1", display: "ratio", system: "ucum" },
+});
+const templateHouseholdStability = templateQuantity({
+  label: "Household stability",
+  metricId: "template.household_stability_delta",
+  point: 1.8,
+  unit: { code: "%", display: "%", system: "ucum" },
+});
+const templateAdministrativeLoad = templateQuantity({
+  label: "Administrative load",
+  metricId: "template.administrative_load_delta",
+  point: -0.6,
+  unit: { code: "%", display: "%", system: "ucum" },
+});
+const templateCoverageConfidence = templateQuantity({
+  label: "Coverage confidence",
+  metricId: "template.coverage_confidence_delta",
+  point: 2.1,
+  unit: { code: "1", display: "pts", system: "ucum" },
+});
 
 export const ATLAS_STANDALONE_DECK_TEMPLATE: RunDeckSnapshot = {
+  fixture_authority: "fixture_only",
   close: {
     commentWindow:
       "Keep a 72-hour stakeholder comment window open before ratification.",
@@ -26,23 +67,23 @@ export const ATLAS_STANDALONE_DECK_TEMPLATE: RunDeckSnapshot = {
   metrics: {
     cards: [
       {
+        kind: "quantity",
         label: "Decision score",
-        tone: "ok",
-        value: "0.78",
+        quantity: templateDecisionScore,
       },
       {
+        kind: "text",
         label: "Blocker state",
-        tone: "warn",
         value: "1",
       },
       {
+        kind: "quantity",
         label: "Impact delta",
-        tone: "neutral",
-        value: "+1.8%",
+        quantity: templateHouseholdStability,
       },
       {
+        kind: "text",
         label: "Artifact continuity",
-        tone: "neutral",
         value: "4 refs",
       },
     ],
@@ -57,23 +98,20 @@ export const ATLAS_STANDALONE_DECK_TEMPLATE: RunDeckSnapshot = {
     blockerCount: 1,
     decisionConfidence: "High",
     decisionHeadline: "Policy packet is ready for executive review.",
-    decisionScore: 0.78,
+    decisionScore: templateDecisionScore,
     governanceIssues: [],
     impactRows: [
       {
-        display: "+1.8%",
         label: "Household stability",
-        value: 1.8,
+        quantity: templateHouseholdStability,
       },
       {
-        display: "-0.6%",
         label: "Administrative load",
-        value: -0.6,
+        quantity: templateAdministrativeLoad,
       },
       {
-        display: "+2.1 pts",
         label: "Coverage confidence",
-        value: 2.1,
+        quantity: templateCoverageConfidence,
       },
     ],
     mainUncertainty:

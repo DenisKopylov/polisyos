@@ -56,9 +56,9 @@ vi.mock("@/features/composer/state/composerDraftRepository", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -163,18 +163,13 @@ describe("LaunchRunPage", () => {
     });
   });
 
-  it("renders the atlas briefing chrome with readiness and capability tiles", async () => {
+  it("renders the atlas briefing chrome with runtime capability tiles", () => {
     renderLaunchRunPage();
 
     expect(screen.getByTestId("composer-page")).toBeInTheDocument();
     expect(
-      screen.getByText("pages.composer.readinessTitle"),
-    ).toBeInTheDocument();
-
-    const readinessScore = await screen.findByTestId(
-      "composer-readiness-score",
-    );
-    expect(readinessScore).toHaveTextContent(/\d+/);
+      screen.getAllByText("pages.composer.runtimeSignalsTitle").length,
+    ).toBeGreaterThan(0);
 
     const capabilityTiles = screen.getByTestId("composer-capability-tiles");
     expect(capabilityTiles).toBeInTheDocument();
@@ -182,6 +177,111 @@ describe("LaunchRunPage", () => {
       within(capabilityTiles).getByText("Multi-model"),
     ).toBeInTheDocument();
     expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
+  });
+
+  it("feature enabled state cannot select Glyph authority clothing", () => {
+    loadComposerDraftMock.mockReturnValue(new Promise(() => undefined));
+    const features = [
+      {
+        category: "governance",
+        description: "Multi-model natural language runs",
+        key: "multimodel_nl",
+        label: "Multi-model",
+      },
+      {
+        category: "governance",
+        description: "Required preflight checks",
+        key: "required_preflight",
+        label: "Preflight",
+      },
+      {
+        category: "governance",
+        description: "Automatic materialization",
+        key: "auto_materialization",
+        label: "Auto materialization",
+      },
+      {
+        category: "governance",
+        description: "Promotion lane",
+        key: "promotion_lane",
+        label: "Promotion lane",
+      },
+    ];
+    const capabilities = (enabled: boolean) => ({
+      data: {
+        constraints: {
+          max_nl_iterations: 4,
+          max_parallel_models: 3,
+        },
+        features: features.map((feature) => ({ ...feature, enabled })),
+      },
+    });
+    const clothing = (tiles: HTMLElement) => ({
+      badges: within(tiles)
+        .getAllByText("governance")
+        .map((badge) => badge.className),
+      glyphs: within(tiles)
+        .getAllByRole("presentation", { hidden: true })
+        .map((glyph) => ({
+          color: glyph.style.color,
+          intent: glyph.getAttribute("data-glyph-intent"),
+        })),
+    });
+
+    useCapabilitiesMock.mockReturnValue(capabilities(true));
+    const enabledView = renderLaunchRunPage();
+    const enabledClothing = clothing(
+      screen.getByTestId("composer-capability-tiles"),
+    );
+    enabledView.unmount();
+
+    useCapabilitiesMock.mockReturnValue(capabilities(false));
+    renderLaunchRunPage();
+    const disabledClothing = clothing(
+      screen.getByTestId("composer-capability-tiles"),
+    );
+
+    expect(enabledClothing).toEqual(disabledClothing);
+    expect(
+      enabledClothing.glyphs.every(
+        ({ color, intent }) => color === "" && intent === null,
+      ),
+    ).toBe(true);
+    expect(
+      enabledClothing.badges.every(
+        (className) =>
+          className.includes("bg-white/65") &&
+          className.includes("text-muted"),
+      ),
+    ).toBe(true);
+  });
+
+  it("does not raise readiness from local model-count scoring", () => {
+    useLlmProfilesMock.mockReturnValue({
+      data: {
+        profiles: Array.from({ length: 12 }, (_, index) => ({
+          description: `Model ${index}`,
+          display_name: `Model ${index}`,
+          input_cost_per_mtoken_usd: 0.4,
+          model_id: `provider/model-${index}`,
+          output_cost_per_mtoken_usd: 1.2,
+          profile_id: `profile-${index}`,
+          provider: "Provider",
+        })),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderLaunchRunPage();
+
+    expect(
+      screen.queryByTestId("composer-readiness-score"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("pages.composer.readinessTitle"),
+    ).not.toBeInTheDocument();
   });
 
   it("hydrates and discards a saved workflow draft for replans", async () => {

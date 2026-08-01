@@ -1,7 +1,7 @@
 import type { FocusEvent, MouseEvent, TouchEvent } from "react";
 
 import { type PrefetchMode, useRoutePrefetch } from "@/app/routes/PrefetchLink";
-import { type ButtonProps, Button } from "@/shared/ui";
+import { type ButtonProps, Button } from "@polisyos/atlas-ui";
 
 type RouterButtonProps = Extract<ButtonProps, { to: unknown }>;
 

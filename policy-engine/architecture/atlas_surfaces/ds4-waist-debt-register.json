@@ -1,0 +1,78 @@
+{
+  "$schema": "./ds4-waist-debt-register.schema.json",
+  "schema_version": "1.0",
+  "register_id": "atlas-ds4-waist-debt",
+  "as_of": "2026-07-19T19:30:00+03:00",
+  "authority": {
+    "authoritative_for": [
+      "The three canonical-waist vocabularies absent from the generated client consumed by DS4."
+    ],
+    "may_not_use_for": [
+      "Inventing frontend authority vocabularies or claiming the DS5 waist is implemented."
+    ]
+  },
+  "entries": [
+    {
+      "debt_id": "ds4-waist-cgf-disposition",
+      "vocabulary": "CGF disposition",
+      "owner": "DS5 waist",
+      "owner_slice": "DS5",
+      "capability_states": ["bridge_missing", "surface_missing"],
+      "generated_client_anchor": {
+        "anchor_kind": "present_projection",
+        "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "canonical_line": 516,
+        "types_path": "packages/runtime-api-client/types.ts",
+        "types_start_line": 5850,
+        "types_end_line": 5879,
+        "symbol": "GenerationCycleDispositionPayload"
+      },
+      "swap_module": "apps/runtime-dashboard/src/shared/ui/compounds/cgfDispositionPresentation.ts",
+      "target_cluster": "C19",
+      "closure_truth": "The current projection carries owner JSON opaquely; C19 adds one presentation-only unrecognized swap point without a closed local union.",
+      "master_inherited_debt_action": "flag_for_architect_insertion_at_c20",
+      "estate_denominator_effect": "none"
+    },
+    {
+      "debt_id": "ds4-waist-decision-grade",
+      "vocabulary": "decision grade",
+      "owner": "DS5 waist",
+      "owner_slice": "DS5",
+      "capability_states": ["bridge_missing", "surface_missing"],
+      "generated_client_anchor": {
+        "anchor_kind": "missing_export",
+        "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "export_block_start_line": 333,
+        "export_block_end_line": 394,
+        "types_path": "packages/runtime-api-client/types.ts",
+        "symbol": "DecisionGrade"
+      },
+      "swap_module": "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.ts",
+      "target_cluster": "C14",
+      "closure_truth": "Every owner label is opaque and presents as unrecognized until a future generated DecisionGrade union replaces the single C14 swap point.",
+      "master_inherited_debt_action": "flag_for_architect_insertion_at_c20",
+      "estate_denominator_effect": "none"
+    },
+    {
+      "debt_id": "ds4-waist-cache-age",
+      "vocabulary": "cache-age lattice",
+      "owner": "DS5 waist",
+      "owner_slice": "DS5",
+      "capability_states": ["bridge_missing", "surface_missing"],
+      "generated_client_anchor": {
+        "anchor_kind": "present_projection",
+        "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "canonical_line": 737,
+        "types_path": "packages/runtime-api-client/types.ts",
+        "types_start_line": 8164,
+        "types_end_line": 8182,
+        "symbol": "ProjectionFreshness"
+      },
+      "swap_module": "apps/runtime-dashboard/src/shared/ui/temporal/cacheAgePresentation.ts",
+      "target_cluster": "C09",
+      "closure_truth": "ProjectionFreshness remains source-observation truth; C09 must not infer live, cached, stale, or offline-queued cache age from its timestamps.",
+      "master_inherited_debt_action": "flag_for_architect_insertion_at_c20",
+      "estate_denominator_effect": "none"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import { buildRunChoreographyView } from "@/features/runs/domain/runChoreography
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatBytes, formatNumber } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
-import { Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 const LineageGraph = lazy(() => import("@/shared/ui/LineageGraph"));
 const WorkflowDagPanel = lazy(

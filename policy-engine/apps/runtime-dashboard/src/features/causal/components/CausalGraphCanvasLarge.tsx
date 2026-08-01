@@ -98,10 +98,10 @@ export function CausalGraphCanvasLarge({
       const mx = (sx + tx) / 2;
       ctx.bezierCurveTo(mx, sy, mx, ty, tx, ty);
 
-      if (edge.status === "identified") {
+      if (edge.status.label === "identified") {
         ctx.strokeStyle = resolveColor("var(--chart-primary)");
         ctx.setLineDash([]);
-      } else if (edge.status === "unidentified") {
+      } else if (edge.status.label === "unidentified") {
         ctx.strokeStyle = resolveColor("var(--chart-alert)");
         ctx.setLineDash([6, 4]);
       } else {

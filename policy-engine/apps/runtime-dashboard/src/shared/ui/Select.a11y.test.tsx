@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Select } from "./Select";
+import { Select } from "@polisyos/atlas-ui";
 
 describe("Select accessibility", () => {
   it("has no detectable accessibility violations", async () => {

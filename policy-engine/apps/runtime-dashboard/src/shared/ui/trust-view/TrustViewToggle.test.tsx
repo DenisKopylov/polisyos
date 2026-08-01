@@ -1,11 +1,41 @@
+import { useState, type PropsWithChildren } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { TrustViewToggle } from "./TrustViewToggle";
+import {
+  TrustViewBridgeProvider,
+  type TrustViewMode,
+} from "./TrustViewBridge";
+
+function TestTrustViewProvider({ children }: PropsWithChildren) {
+  const [mode, setMode] = useState<TrustViewMode>("off");
+  return (
+    <TrustViewBridgeProvider
+      value={{
+        closeInspector: () => undefined,
+        cycleMode: () =>
+          setMode((current) =>
+            current === "off"
+              ? "compact"
+              : current === "compact"
+                ? "expanded"
+                : "off",
+          ),
+        density: "comfortable",
+        inspectorSubject: null,
+        mode,
+        openInspector: () => undefined,
+        setMode,
+      }}
+    >
+      {children}
+    </TrustViewBridgeProvider>
+  );
+}
 
 describe("TrustViewToggle", () => {
   it("cycles off, compact and expanded modes", async () => {
@@ -14,9 +44,9 @@ describe("TrustViewToggle", () => {
 
     render(
       <LocaleProvider>
-        <TrustViewProvider>
+        <TestTrustViewProvider>
           <TrustViewToggle />
-        </TrustViewProvider>
+        </TestTrustViewProvider>
       </LocaleProvider>,
     );
 

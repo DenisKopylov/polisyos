@@ -1,8 +1,9 @@
 import { ShieldCheck } from "lucide-react";
 
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
+
+import { useMaybeTrustView } from "./TrustViewBridge";
 
 type TrustViewToggleProps = {
   className?: string;

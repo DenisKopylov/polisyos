@@ -13,25 +13,19 @@ import {
   WORKSPACES,
 } from "@/app/workspaces";
 import { useRunsLiveStatus } from "@/app/providers/RunsLiveProvider";
-import { isRunInReview, useRunsSample } from "@/features/runs";
+import { useRunsSample } from "@/features/runs";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { SUPPORTED_LOCALES } from "@/shared/i18n/locale";
 import { formatTime } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 import { TrustViewToggle } from "@/shared/ui/trust-view";
 
-function resolveHealthBadge(
-  status: string | undefined,
-  t: ReturnType<typeof useI18n>["t"],
-) {
-  if (status === "ok") {
-    return <Badge kind="ok">{t("shell.header.apiOk")}</Badge>;
-  }
+function resolveHealthBadge(status: string | undefined, unavailable: string) {
   if (status) {
-    return <Badge kind="warn">{status}</Badge>;
+    return <Badge kind="neutral">{status}</Badge>;
   }
-  return <Badge kind="neutral">{t("common.unknown")}</Badge>;
+  return <Badge kind="neutral">{unavailable}</Badge>;
 }
 
 export default function Header() {
@@ -51,8 +45,8 @@ export default function Header() {
   const activeFeatures = (capabilitiesQuery.data?.features ?? []).filter(
     (feature) => feature.enabled,
   ).length;
-  const reviewRuns = (runsQuery.data?.runs ?? []).filter((run) =>
-    isRunInReview(run.status),
+  const reviewRuns = (runsQuery.data?.runs ?? []).filter(
+    (run) => run.decision_review_required === true,
   ).length;
   const navigation = getWorkspaceNavigationWithOptions(flags, {
     isAllowed: (ws) => (authz ? authz.isWorkspaceAllowed(ws.key) : true),
@@ -100,7 +94,10 @@ export default function Header() {
               <Badge kind="fail">{t("shell.header.unavailable")}</Badge>
             ) : null}
             {!healthQuery.isLoading && !healthQuery.isError
-              ? resolveHealthBadge(healthQuery.data?.status, t)
+              ? resolveHealthBadge(
+                  healthQuery.data?.status,
+                  t("shell.header.unavailable"),
+                )
               : null}
             <Badge kind={runsLive.status === "live" ? "info" : "neutral"}>
               {runsLive.status === "live"

@@ -1,5 +1,6 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import { buildSignedPublicDecisionPacket } from "./publicationPacket";
 import {
@@ -120,7 +121,10 @@ const evidenceContext: RunEvidenceContext = {
 
 function packet() {
   return buildSignedPublicDecisionPacket({
-    decisionScore: 0.72,
+    decisionScore: untracedDecisionQuantity({
+      metricId: "test.decision_score",
+      point: 0.72,
+    }),
     decisionView,
     evidenceContext,
     governanceIssues: [
@@ -143,7 +147,7 @@ describe("operator craft domain", () => {
     window.localStorage.clear();
   });
 
-  it("persists a global trust threshold and hides low-confidence claims", () => {
+  it("persists a global trust threshold without inventing numeric confidence", () => {
     const signedPacket = packet();
     const profile = setReviewerThreshold({
       next: 0.8,
@@ -160,8 +164,8 @@ describe("operator craft domain", () => {
 
     expect(readReviewerThresholdProfile().threshold).toBe(0.8);
     expect(snapshot.thresholdImpact.threshold).toBe(0.8);
-    expect(snapshot.thresholdImpact.hiddenCount).toBeGreaterThan(0);
-    expect(snapshot.thresholdImpact.remainingShare).toBeLessThan(1);
+    expect(snapshot.thresholdImpact.hiddenCount).toBe(0);
+    expect(snapshot.thresholdImpact.remainingShare).toBe(1);
     expect(profile.auditEvent?.kind).toBe("threshold.changed");
   });
 
@@ -209,7 +213,7 @@ describe("operator craft domain", () => {
     });
   });
 
-  it("measures reading-grade onboarding time to first safe approval", () => {
+  it("records checklist completion without creating an approval gate", () => {
     const signedPacket = packet();
     startReadingOnboarding({
       now: "2026-04-29T10:00:00.000Z",
@@ -247,16 +251,31 @@ describe("operator craft domain", () => {
       runId: "run-36",
     });
 
-    expect(state.completedStepIds).toContain("safe_approval");
+    expect(state.completedStepIds).toContain("checklist_complete");
+    expect(state.completedStepIds).not.toContain("safe_approval");
     expect(state.auditEvents.map((event) => event.kind)).toContain(
       "onboarding.step.completed",
     );
     expect(
       state.auditEvents[state.auditEvents.length - 1]?.route.fullPath,
     ).toBe("/runs/run-36/overview?surface=reading-onboarding");
-    expect(state.timeToFirstSafeApprovalSeconds).toBe(240);
+    expect(state).toMatchObject({
+      firstCompletionAt: "2026-04-29T10:04:00.000Z",
+      timeToCompletionSeconds: 240,
+    });
     expect(readReadingOnboardingState("run-36").completedAt).toBe(
       "2026-04-29T10:04:00.000Z",
     );
+  });
+
+  it("exposes checklist readiness only as interaction completion state", () => {
+    const snapshot = buildOperatorCraftSnapshot({
+      packet: packet(),
+      runId: "run-36",
+    });
+
+    expect(snapshot.onboarding).toMatchObject({ canComplete: false });
+    expect(snapshot.onboarding).not.toHaveProperty("canApprove");
+    expect(JSON.stringify(snapshot.onboarding)).not.toMatch(/approval/iu);
   });
 });

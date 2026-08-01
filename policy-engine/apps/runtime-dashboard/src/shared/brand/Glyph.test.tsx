@@ -3,7 +3,19 @@ import { render, screen } from "@testing-library/react";
 import { Glyph } from "./Glyph";
 import { GLYPH_NAMES } from "./glyph-vocabulary";
 
+// @ts-expect-error C22 retires the local Glyph intent authority vocabulary.
+const forbiddenIntent = <Glyph name="evidence" intent="verified" />;
+void forbiddenIntent;
+
 describe("Glyph", () => {
+  it("rejects the retired intent prop and emits no data-glyph-intent", () => {
+    render(<Glyph name="evidence" />);
+
+    const glyph = screen.getByRole("img");
+    expect(glyph).not.toHaveAttribute("data-glyph-intent");
+    expect(glyph.style.color).toBe("");
+  });
+
   it("renders every radical with accessible name", () => {
     for (const name of GLYPH_NAMES) {
       const { unmount } = render(<Glyph name={name} />);

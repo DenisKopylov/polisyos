@@ -12,6 +12,10 @@ import type {
   ReviewLockSnapshot,
   ReviewPresenceSnapshot,
 } from "@/app/realtime/types";
+import {
+  interactionControl,
+  type InteractionControl,
+} from "@/shared/lib/domain/nonAuthorityNumeric";
 
 type ReviewCollaborationSurfaceOptions = {
   enabled: boolean;
@@ -43,7 +47,7 @@ type SurfaceRect = {
   width: number;
 };
 
-const CURSOR_DELTA_EPSILON = 0.0025;
+const CURSOR_DELTA_EPSILON: InteractionControl = interactionControl(0.0025);
 
 function parseSnapshot(rawValue: string): unknown {
   try {

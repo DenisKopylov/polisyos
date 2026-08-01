@@ -1,5 +1,5 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { ToggleButton } from "@/shared/ui";
+import { ToggleButton } from "@polisyos/atlas-ui";
 
 type ReadingViewToggleProps = {
   pressed: boolean;

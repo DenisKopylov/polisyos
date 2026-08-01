@@ -1,6 +1,6 @@
-import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import type { RunLaunchResponse } from "@polisyos/runtime-api-client";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useLlmProfiles } from "@/api/hooks/useLlmProfiles";
@@ -14,15 +14,17 @@ import { cn, formatNumber } from "@/shared/lib/utils";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-import { Badge, Button, ProvenanceStrip } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
+import { ProvenanceStrip } from "@/shared/ui";
 import { parseComposerSearchParams } from "../domain/searchParams";
+import { launchStatusTone } from "../domain/launchPresentation";
 import {
   NaturalLanguageComposerSection,
   WorkflowComposerSection,
 } from "./ComposerModeSections";
 
 type Mode = "workflow" | "nl";
-type RecentLaunch = { runId: string; status: string };
+type RecentLaunch = { runId: string; status: RunLaunchResponse["status"] };
 type CapabilityHighlight = NonNullable<ReturnType<typeof getCapability>>;
 
 const composerHeroProvenance: ProvenanceItem[] = [
@@ -30,22 +32,22 @@ const composerHeroProvenance: ProvenanceItem[] = [
     id: "intervention",
     glyph: "intervention",
     label: "Interventions",
-    intent: "default",
   },
   {
     id: "evidence",
     glyph: "evidence",
     label: "Evidence",
-    intent: "default",
   },
   {
     id: "governance",
     glyph: "governance-pass",
     label: "Guardrails",
-    intent: "verified",
   },
 ];
 
+// Glyphs carry owner facts without deriving authority posture.
+// Generated VerificationMetadata is the only trust-clothing input.
+// Capability flags therefore cannot recolor these glyphs.
 const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
   auto_materialization: "evidence",
   multimodel_nl: "counterfactual",
@@ -53,98 +55,8 @@ const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
   required_preflight: "governance-pass",
 };
 
-function clampReadiness(score: number): number {
-  return Math.max(18, Math.min(96, Math.round(score)));
-}
-
-function buildReadinessScore({
-  autoMaterializationEnabled,
-  capabilityCount,
-  fromRunId,
-  llmProfileCount,
-  maxParallelConstraint,
-  mode,
-  multimodelEnabled,
-  preflightEnabled,
-}: {
-  autoMaterializationEnabled: boolean;
-  capabilityCount: number;
-  fromRunId: string | null;
-  llmProfileCount: number;
-  maxParallelConstraint: number;
-  mode: Mode;
-  multimodelEnabled: boolean;
-  preflightEnabled: boolean;
-}): number {
-  const base = mode === "workflow" ? 58 : 52;
-  const capabilityBonus = Math.min(capabilityCount * 6, 24);
-  const preflightBonus = preflightEnabled ? 8 : 0;
-  const materializationBonus = autoMaterializationEnabled ? 6 : 0;
-  const modelRosterBonus = Math.min(llmProfileCount * 5, 15);
-  const multimodelBonus = mode === "nl" && multimodelEnabled ? 7 : 0;
-  const orchestrationBonus =
-    mode === "nl" ? Math.min(maxParallelConstraint * 2, 8) : 4;
-  const replanBonus = fromRunId ? 6 : 0;
-
-  return clampReadiness(
-    base +
-      capabilityBonus +
-      preflightBonus +
-      materializationBonus +
-      modelRosterBonus +
-      multimodelBonus +
-      orchestrationBonus +
-      replanBonus,
-  );
-}
-
 function resolveCapabilityGlyph(key: string): GlyphName {
   return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
-
-function resolveReadinessKind(score: number): "ok" | "warn" | "neutral" {
-  if (score >= 74) {
-    return "ok";
-  }
-  if (score >= 58) {
-    return "warn";
-  }
-  return "neutral";
-}
-
-function resolveReadinessStatusKey(
-  score: number,
-): "common.ready" | "common.pending" | "common.blocked" {
-  if (score >= 74) {
-    return "common.ready";
-  }
-  if (score >= 58) {
-    return "common.pending";
-  }
-  return "common.blocked";
-}
-
-function buildReadinessRingStyle(score: number): CSSProperties {
-  const degrees = Math.round(score * 3.6);
-  return {
-    background: `radial-gradient(circle, rgba(20,22,26,1) 52%, transparent 53%), conic-gradient(from 238deg, #1d8d84 0deg, #1d8d84 ${degrees}deg, rgba(255,255,255,0.12) ${degrees}deg)`,
-  };
-}
-
-function resolveLaunchStatusKind(
-  status: string,
-): "ok" | "warn" | "fail" | "neutral" {
-  const normalized = status.trim().toLowerCase();
-  if (["accepted", "completed", "succeeded", "success"].includes(normalized)) {
-    return "ok";
-  }
-  if (["blocked", "failed", "error", "rejected"].includes(normalized)) {
-    return "fail";
-  }
-  if (["pending", "queued", "review"].includes(normalized)) {
-    return "warn";
-  }
-  return "neutral";
 }
 
 function ComposerSummaryMetric({
@@ -223,15 +135,11 @@ function ComposerCapabilityTile({ feature }: { feature: CapabilityHighlight }) {
         <span className="grid size-9 place-items-center rounded-full bg-[rgba(23,25,29,0.06)]">
           <Glyph
             decorative
-            intent={feature.enabled ? "verified" : "default"}
             name={resolveCapabilityGlyph(feature.key)}
             size={16}
           />
         </span>
-        <Badge
-          kind={feature.enabled ? "ok" : "neutral"}
-          className="px-2 py-1 text-[10px]"
-        >
+        <Badge kind="neutral" className="px-2 py-1 text-[10px]">
           {feature.category}
         </Badge>
       </div>
@@ -314,7 +222,7 @@ function ComposerRecentLaunchRail({
                 {launch.runId}
               </span>
               <Badge
-                kind={resolveLaunchStatusKind(launch.status)}
+                kind={launchStatusTone(launch.status)}
                 className="px-2 py-1 text-[10px]"
               >
                 {launch.status}
@@ -412,34 +320,6 @@ export default function LaunchRunPage() {
     ],
     [t],
   );
-  const readinessScore = useMemo(
-    () =>
-      buildReadinessScore({
-        autoMaterializationEnabled,
-        capabilityCount: capabilityHighlights.length,
-        fromRunId,
-        llmProfileCount: llmProfiles.length,
-        maxParallelConstraint,
-        mode,
-        multimodelEnabled,
-        preflightEnabled,
-      }),
-    [
-      autoMaterializationEnabled,
-      capabilityHighlights.length,
-      fromRunId,
-      llmProfiles.length,
-      maxParallelConstraint,
-      mode,
-      multimodelEnabled,
-      preflightEnabled,
-    ],
-  );
-  const readinessKind = resolveReadinessKind(readinessScore);
-  const readinessRingStyle = useMemo(
-    () => buildReadinessRingStyle(readinessScore),
-    [readinessScore],
-  );
   const guardrailRows = useMemo<
     Array<{ kind: "ok" | "warn" | "neutral"; label: string; value: string }>
   >(
@@ -490,7 +370,7 @@ export default function LaunchRunPage() {
     ? fromRunId
     : t("pages.composer.newScenario");
 
-  function addRecentLaunch(runId: string, status: string) {
+  function addRecentLaunch(runId: string, status: RunLaunchResponse["status"]) {
     setRecentLaunches((previous) =>
       [{ runId, status }, ...previous].slice(0, 5),
     );
@@ -625,9 +505,6 @@ export default function LaunchRunPage() {
                         : t("pages.composer.modeNlTitle")}
                     </h3>
                   </div>
-                  <Badge kind={readinessKind} className="px-2 py-1 text-[10px]">
-                    {t(resolveReadinessStatusKey(readinessScore))}
-                  </Badge>
                 </div>
                 <div className="mt-4 space-y-2">
                   {guardrailRows.map((row) => (
@@ -661,28 +538,6 @@ export default function LaunchRunPage() {
           </div>
 
           <aside className="flex h-full flex-col gap-5 rounded-[28px] bg-[linear-gradient(180deg,rgba(38,49,58,0.98),rgba(20,22,26,0.96))] p-6 text-[#f5f0e6] shadow-[0_26px_40px_rgba(23,25,29,0.18)]">
-            <div>
-              <p className="font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
-                {t("pages.composer.readinessTitle")}
-              </p>
-              <div
-                className="mt-3 grid size-32 place-items-center rounded-full text-4xl font-extrabold tracking-[-0.05em] text-[#fff8ef]"
-                data-testid="composer-readiness-score"
-                style={readinessRingStyle}
-              >
-                {readinessScore}
-              </div>
-              <Badge
-                kind={readinessKind}
-                className="mt-4 bg-white/10 text-white/78"
-              >
-                {t(resolveReadinessStatusKey(readinessScore))}
-              </Badge>
-              <p className="mt-4 max-w-xs text-sm leading-6 text-white/72">
-                {t("pages.composer.readinessNote")}
-              </p>
-            </div>
-
             <div className="space-y-4">
               <ComposerRailStat
                 label={t("pages.composer.journeyMetrics.mode")}

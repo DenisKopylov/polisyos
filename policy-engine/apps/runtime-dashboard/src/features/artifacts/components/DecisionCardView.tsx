@@ -19,16 +19,9 @@ import {
 import { ReadingViewToggle } from "@/features/artifacts/reading-view/ReadingViewToggle";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import type { BadgeKind } from "@/shared/ui";
-import {
-  Button,
-  DecisionCard,
-  ProvenanceStrip,
-  Select,
-  chartTheme,
-} from "@/shared/ui";
+import { Button, Select } from "@polisyos/atlas-ui";
+import { DecisionCard, ProvenanceStrip, chartTheme } from "@/shared/ui";
 import { UncertaintyBand } from "@/shared/charts";
-import { EvidenceSigil } from "@/shared/brand/EvidenceSigil";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
@@ -45,35 +38,6 @@ type DecisionCardViewProps = {
 
 type Translate = ReturnType<typeof useI18n>["t"];
 
-function verdictKind(verdict: DecisionCardViewModel["verdict"]) {
-  if (verdict === "APPROVE") {
-    return "ok" as const;
-  }
-  if (verdict === "REJECT") {
-    return "fail" as const;
-  }
-  return "warn" as const;
-}
-
-function confidenceKind(confidence: DecisionCardViewModel["confidence"]) {
-  if (confidence === "HIGH") {
-    return "ok" as const;
-  }
-  if (confidence === "LOW") {
-    return "fail" as const;
-  }
-  return "warn" as const;
-}
-
-function diagnosticBadgeKind(
-  kind: DecisionCardViewModel["diagnosticsBadges"][number]["kind"],
-): BadgeKind {
-  if (kind === "ok" || kind === "warn" || kind === "fail") {
-    return kind;
-  }
-  return "neutral";
-}
-
 function decisionEyebrowItems(
   card: DecisionCardViewModel,
   t: Translate,
@@ -87,49 +51,27 @@ function decisionEyebrowItems(
       }),
     },
   ];
-  if (card.issues.blockerCount > 0) {
+  if (card.issues.blockerCount !== null) {
     items.push({
       id: "governance",
-      glyph: "blocker",
-      label: t("pages.artifacts.decisionCard.eyebrowBlocked"),
-      intent: "blocked",
+      glyph: "provenance",
+      label: `${card.issues.blockerCount} owner-recorded blocker(s)`,
     });
   } else {
     items.push({
       id: "governance",
-      glyph: "governance-pass",
-      label: t("pages.artifacts.decisionCard.eyebrowGovernancePass"),
-      intent: "verified",
+      glyph: "provenance",
+      label: "Owner blocker count unavailable",
     });
   }
   items.push({
     id: "evidence",
     glyph: "evidence",
-    label:
-      card.confidence === "HIGH"
-        ? t("pages.artifacts.decisionCard.eyebrowStrongEvidence")
-        : t("pages.artifacts.decisionCard.eyebrowWeakEvidence"),
-    intent: card.confidence === "HIGH" ? "verified" : "pending",
-    strokeStyle: card.confidence === "HIGH" ? "solid" : "dashed",
+    label: card.confidence
+      ? `Owner confidence: ${card.confidence}`
+      : "Owner confidence unavailable",
   });
   return items;
-}
-
-function identifiabilityFromConfidence(
-  confidence: DecisionCardViewModel["confidence"],
-): number {
-  if (confidence === "HIGH") return 0.85;
-  if (confidence === "LOW") return 0.25;
-  return 0.55;
-}
-
-function bundleHashFromCard(card: DecisionCardViewModel): string {
-  const seed = `${card.runId}:${card.sourceKind}:${card.generatedAt ?? ""}`;
-  let hash = 0n;
-  for (const ch of seed) {
-    hash = (hash * 131n + BigInt(ch.codePointAt(0) ?? 0)) & 0xffffffffffffffffn;
-  }
-  return hash.toString(16).padStart(16, "0");
 }
 
 function uncertaintyBands(metric: DecisionCardViewModel["keyMetrics"][number]) {
@@ -305,27 +247,11 @@ export default function DecisionCardView({
             density="compact"
           />
         }
-        sigil={
-          <EvidenceSigil
-            bundleHash={bundleHashFromCard(card)}
-            frescProfile={
-              card.confidence === "HIGH"
-                ? "replicated"
-                : card.confidence === "LOW"
-                  ? "reconnaissance"
-                  : "corroborated"
-            }
-            identifiability={identifiabilityFromConfidence(card.confidence)}
-            size={48}
-          />
-        }
         verdict={card.verdict}
-        verdictKind={verdictKind(card.verdict)}
-        confidence={`confidence:${card.confidence}`}
-        confidenceKind={confidenceKind(card.confidence)}
+        confidence={`confidence:${card.confidence ?? "unknown"}`}
         summary={card.policySummary}
         diagnostics={card.diagnosticsBadges.map((badge) => ({
-          kind: diagnosticBadgeKind(badge.kind),
+          kind: "neutral",
           label: badge.label,
         }))}
         meta={[

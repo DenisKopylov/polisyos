@@ -1,14 +1,20 @@
-import type { ScenarioListPayload } from "@/api/validators";
-import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
+import { useId } from "react";
+
+import type { ScenarioManifest } from "@polisyos/runtime-api-client";
+
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
 import { CounterfactualBadge } from "./CounterfactualBadge";
+import { useMaybeCounterfactualInteraction } from "./CounterfactualInteractionBridge";
 
-type Scenario = NonNullable<ScenarioListPayload["scenarios"]>[number];
+type ScenarioPickerItem = Pick<
+  ScenarioManifest,
+  "id" | "policy_question" | "status"
+>;
 
 type ScenarioPickerProps = {
-  scenarios?: Scenario[];
+  scenarios?: ScenarioPickerItem[];
   value?: string | null;
   onChange?: (scenarioId: string | null) => void;
   disabledReason?: string | null;
@@ -23,7 +29,8 @@ export function ScenarioPicker({
   className,
 }: ScenarioPickerProps) {
   const { t } = useI18n();
-  const counterfactual = useMaybeCounterfactual();
+  const pickerId = useId();
+  const counterfactual = useMaybeCounterfactualInteraction();
   const selectedId = value ?? counterfactual?.scenarioId ?? "";
   const disabled = Boolean(disabledReason) || scenarios.length === 0;
   const handleChange =
@@ -39,7 +46,7 @@ export function ScenarioPicker({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between gap-2">
-        <label className="text-xs font-semibold" htmlFor="scenario-picker">
+        <label className="text-xs font-semibold" htmlFor={pickerId}>
           {t("shared.ui.counterfactual.scenario")}
         </label>
         {selected ? (
@@ -50,7 +57,7 @@ export function ScenarioPicker({
         ) : null}
       </div>
       <select
-        id="scenario-picker"
+        id={pickerId}
         className="border-border bg-background focus-visible:ring-ring min-h-9 w-full rounded-md border px-2 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
         disabled={disabled}
         value={selectedId}

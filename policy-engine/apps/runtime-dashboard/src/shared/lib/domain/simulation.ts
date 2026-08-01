@@ -18,7 +18,6 @@ export type SimulationMetric = {
   value: number;
   formatted: string;
   unit: string;
-  severity: "low" | "medium" | "high";
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
@@ -178,20 +177,6 @@ function toNumberArray(value: unknown): number[] {
     .filter((item): item is number => item !== null);
 }
 
-function toSeverity(value: number, maxAbs: number): "low" | "medium" | "high" {
-  if (maxAbs <= 0) {
-    return "low";
-  }
-  const ratio = Math.abs(value) / maxAbs;
-  if (ratio >= 0.66) {
-    return "high";
-  }
-  if (ratio >= 0.33) {
-    return "medium";
-  }
-  return "low";
-}
-
 function formatMetric(
   key: string,
   value: number,
@@ -224,7 +209,6 @@ function formatMetric(
     value: scaled,
     formatted: `${scaled >= 0 ? "+" : ""}${scaled.toFixed(maxFraction)}`,
     unit: spec.unit,
-    severity: "low",
     ciLower: bounds?.lower ?? null,
     ciUpper: bounds?.upper ?? null,
     ciLevel: bounds?.ciLevel ?? null,
@@ -247,13 +231,17 @@ function parseBounds(
       continue;
     }
 
-    const match = key.match(/^(.*)_(lower|upper|point|ci_level)$/);
-    if (!match) {
+    const match = key.match(
+      /^(?<metricId>.*)_(?<suffix>lower|upper|point|ci_level)$/,
+    );
+    if (!match?.groups) {
       continue;
     }
 
-    const metricId = match[1];
-    const suffix = match[2];
+    const { metricId, suffix } = match.groups;
+    if (!metricId || !suffix) {
+      continue;
+    }
     const current = out[metricId] ?? {
       lower: null,
       upper: null,
@@ -377,16 +365,9 @@ function parseMetrics(
     ),
   );
 
-  const maxAbs = Math.max(
-    ...metrics.map((metric) => Math.abs(metric.value)),
-    0,
+  return metrics.sort(
+    (left, right) => Math.abs(right.value) - Math.abs(left.value),
   );
-  return metrics
-    .map((metric) => ({
-      ...metric,
-      severity: toSeverity(metric.value, maxAbs),
-    }))
-    .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
 }
 
 function seriesFromSingleArray(

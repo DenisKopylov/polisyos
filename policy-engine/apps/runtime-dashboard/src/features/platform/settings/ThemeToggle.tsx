@@ -2,7 +2,7 @@ import { LaptopMinimal, MoonStar, SunMedium } from "lucide-react";
 
 import { useTheme, type ThemePreference } from "@/app/providers/ThemeProvider";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { SegmentedControl } from "@/shared/ui";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 const THEME_ICONS = {
   dark: MoonStar,

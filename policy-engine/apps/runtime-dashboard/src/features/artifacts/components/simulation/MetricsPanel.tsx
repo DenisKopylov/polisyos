@@ -14,8 +14,12 @@ import {
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { UncertaintyBand } from "@/shared/charts";
-import { Select, chartTheme } from "@/shared/ui";
-import type { SimulationMetric, TimeSeries } from "@/shared/lib/domain/simulation";
+import { Select } from "@polisyos/atlas-ui";
+import { chartTheme } from "@/shared/ui";
+import type {
+  SimulationMetric,
+  TimeSeries,
+} from "@/shared/lib/domain/simulation";
 import type {
   MetricValidationComparisonRow,
   MetricValidationFamilyAdjustment,
@@ -29,16 +33,6 @@ type MetricsPanelProps = {
   timeSeries: TimeSeries[];
   showUncertainty: boolean;
 };
-
-function barClass(severity: SimulationMetric["severity"]): string {
-  if (severity === "high") {
-    return "bg-danger";
-  }
-  if (severity === "medium") {
-    return "bg-warning";
-  }
-  return "bg-success";
-}
 
 function normalizeMagnitude(value: number, max: number): number {
   if (max <= 0) {
@@ -165,7 +159,7 @@ export default function MetricsPanel({
                   ) : null}
                   <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
-                      className={`h-1.5 rounded-full ${barClass(metric.severity)}`}
+                      className="bg-accent h-1.5 rounded-full"
                       style={{ width }}
                     />
                   </div>

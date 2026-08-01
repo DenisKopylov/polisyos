@@ -63,8 +63,7 @@ describe("mutation hooks", () => {
     vi.restoreAllMocks();
   });
 
-  it("optimistically inserts and replaces workflow launches in the runs cache", async () => {
-    vi.spyOn(Date, "now").mockReturnValue(111);
+  it("invalidates workflow launches without inserting synthetic run records", async () => {
     const postSpy = mockRuntimePostSuccess({
       message: "accepted",
       meta: {
@@ -93,29 +92,65 @@ describe("mutation hooks", () => {
         execution_intent: "Inspect policy drift",
       },
     });
-    expect(
-      (queryClient.getQueryData<{
-        runs: Array<{ run_id: string; status: string }>;
-      }>(runListKey)?.runs ?? [])[0],
-    ).toMatchObject({
-      run_id: "run-launched",
-      status: "running",
-    });
-    expect(
-      queryClient.getQueryData(queryKeys.run("launch-pending-111")),
-    ).toBeUndefined();
-    expect(
-      queryClient.getQueryData(queryKeys.run("run-launched")),
-    ).toMatchObject({
-      run: { run_id: "run-launched", status: "running" },
-    });
+    expect(queryClient.getQueryData(runListKey)).toEqual(createRunsCache());
+    expect(queryClient.getQueryData(queryKeys.run("run-launched"))).toBeUndefined();
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: queryKeys.runsRoot(),
     });
   });
 
+  it("launch hooks never insert accepted or rejected interaction state into run caches", async () => {
+    const scenarios = [
+      {
+        hook: useLaunchRun,
+        input: { execution_intent: "Inspect policy drift" },
+        response: {
+          effective_execution_profile: "dev",
+          job_id: "job-accepted",
+          message: "accepted",
+          meta: createMeta(),
+          run_id: "run-accepted",
+          status: "accepted",
+        },
+      },
+      {
+        hook: useLaunchNlRun,
+        input: { nl_request: "Run a sensitivity analysis" },
+        response: {
+          effective_execution_profile: "dev",
+          job_id: "job-rejected",
+          message: "rejected",
+          meta: createMeta(),
+          run_id: "run-rejected",
+          status: "rejected",
+        },
+      },
+    ] as const;
+
+    for (const scenario of scenarios) {
+      const postSpy = mockRuntimePostSuccess(scenario.response);
+      const { queryClient, wrapper } = createQueryHookHarness();
+      const initialRuns = createRunsCache();
+      queryClient.setQueryData(runListKey, initialRuns);
+      const view = renderHook(() => scenario.hook(), { wrapper });
+
+      await act(async () => {
+        await expect(
+          view.result.current.mutateAsync(scenario.input as never),
+        ).resolves.toEqual(scenario.response);
+      });
+
+      expect(queryClient.getQueryData(runListKey)).toEqual(initialRuns);
+      expect(
+        queryClient.getQueryData(queryKeys.run(scenario.response.run_id)),
+      ).toBeUndefined();
+
+      view.unmount();
+      postSpy.mockRestore();
+    }
+  });
+
   it("restores the runs cache when natural-language launch fails", async () => {
-    vi.spyOn(Date, "now").mockReturnValue(222);
     mockRuntimePostFailure(500, {
       code: "launch_failed",
       detail: "Launch failed",
@@ -139,9 +174,6 @@ describe("mutation hooks", () => {
     });
 
     expect(queryClient.getQueryData(runListKey)).toEqual(initialRuns);
-    expect(
-      queryClient.getQueryData(queryKeys.run("launch-nl-pending-222")),
-    ).toBeUndefined();
   });
 
   it("invalidates control-plane caches for data mutations", async () => {

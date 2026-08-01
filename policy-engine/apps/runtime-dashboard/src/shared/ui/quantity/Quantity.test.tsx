@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 import { renderWithProviders } from "@/test/render";
-import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
 import { TrustInspector } from "@/shared/ui/trust-view";
 
 import { Quantity } from "./Quantity";
@@ -78,6 +77,44 @@ afterEach(() => {
 });
 
 describe("Quantity", () => {
+  it("preserves unknown and incomparable outer-set values without scalar collapse", () => {
+    renderWithProviders(
+      <div>
+        <Quantity
+          value={{ ...verifiedQuantity, point: null }}
+          provenanceMode="off"
+        />
+        <Quantity
+          value={{ ...verifiedQuantity, point: null }}
+          absentValue={
+            <span data-testid="incomparable-outer-set">
+              Incomparable: lower-support or upper-support
+            </span>
+          }
+          absentValueLabel="Incomparable outer set: lower-support or upper-support"
+          provenanceMode="off"
+        />
+      </div>,
+    );
+
+    const quantities = screen.getAllByTestId("quantity");
+    expect(quantities[0]).toHaveAttribute(
+      "data-quantity-presentation",
+      "unknown",
+    );
+    expect(quantities[0]).toHaveTextContent("Unknown");
+    expect(quantities[1]).toHaveAttribute(
+      "data-quantity-presentation",
+      "non-scalar",
+    );
+    expect(screen.getByTestId("incomparable-outer-set")).toBeInTheDocument();
+    expect(quantities[1]).toHaveAccessibleName(
+      /Incomparable outer set: lower-support or upper-support/u,
+    );
+    expect(quantities[0]).not.toHaveTextContent("0");
+    expect(quantities[1]).not.toHaveTextContent("0");
+  });
+
   it("renders the formatted value and unit from the envelope", () => {
     renderWithProviders(
       <Quantity value={verifiedQuantity} precision={2} provenanceMode="off" />,
@@ -101,22 +138,45 @@ describe("Quantity", () => {
     );
   });
 
-  it("marks disputed uncertainty as the visible status", () => {
+  it("keeps disputed uncertainty separate from lineage verification", () => {
     renderWithProviders(
       <Quantity
         provenanceMode="off"
         value={{
           ...verifiedQuantity,
-          lineage: { ...verifiedQuantity.lineage, status: "verified" },
-          uncertainty: { disputed: true },
+          lineage: {
+            ...verifiedQuantity.lineage,
+            freshness: "stale",
+            status: "verified",
+          },
+          uncertainty: { disputed: true, identifiability: "unknown" },
         }}
       />,
     );
 
     expect(screen.getByTestId("quantity")).toHaveAttribute(
-      "data-provenance-status",
-      "disputed",
+      "data-lineage-status",
+      "verified",
     );
+    expect(
+      screen.getByTestId("quantity-uncertainty-disputed"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("quantity")).toHaveAccessibleName(/stale/u);
+    expect(screen.getByTestId("quantity")).toHaveAccessibleName(/disputed/u);
+  });
+
+  it("does not append a ratio unit to percent-formatted values", () => {
+    renderWithProviders(
+      <Quantity
+        format="percent"
+        precision={0}
+        provenanceMode="off"
+        value={verifiedQuantity}
+      />,
+    );
+
+    expect(screen.getByTestId("quantity")).toHaveTextContent("23%");
+    expect(screen.getByTestId("quantity")).not.toHaveTextContent("ratio");
   });
 
   it("formats unitless values without trailing unit text", () => {
@@ -157,31 +217,29 @@ describe("Quantity", () => {
     const user = userEvent.setup();
     window.history.replaceState(null, "", "/runs/run-1?trust=expanded");
     renderWithProviders(
-      <TrustViewProvider>
-        <>
-          <Quantity
-            value={{
-              ...verifiedQuantity,
-              lineage: {
-                ...verifiedQuantity.lineage,
+      <>
+        <Quantity
+          value={{
+            ...verifiedQuantity,
+            lineage: {
+              ...verifiedQuantity.lineage,
+              hash: "sha256:abcdef0123456789",
+              trust_metadata: {
+                dispute_status: "none",
+                freshness: "current",
                 hash: "sha256:abcdef0123456789",
-                trust_metadata: {
-                  dispute_status: "none",
-                  freshness: "current",
-                  hash: "sha256:abcdef0123456789",
-                  temporal_scope: verifiedQuantity.time,
-                  verification_method: "lineage_hash_match",
-                  verification_status: "verified",
-                  verified_at: "2026-04-16T09:20:00Z",
-                  verified_by: "RiskReviewBot@2.0",
-                },
+                temporal_scope: verifiedQuantity.time,
+                verification_method: "lineage_hash_match",
+                verification_status: "verified",
+                verified_at: "2026-04-16T09:20:00Z",
+                verified_by: "RiskReviewBot@2.0",
               },
-            }}
-            precision={2}
-          />
-          <TrustInspector />
-        </>
-      </TrustViewProvider>,
+            },
+          }}
+          precision={2}
+        />
+        <TrustInspector />
+      </>,
     );
 
     expect(screen.getByText(/sha256:abcdef01/)).toBeInTheDocument();

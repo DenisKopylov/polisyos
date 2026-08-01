@@ -65,7 +65,7 @@ export default {
         path: "^src/app/",
       },
       to: {
-        path: "^src/features/.+/(?!index\\.ts$|index\\.tsx$|routes\\.public\\.ts$|routes\\.public\\.tsx$).*",
+        path: "^src/features/(?!runs/workspaces\\.public\\.ts$).+/(?!index\\.ts$|index\\.tsx$|routes\\.public\\.ts$|routes\\.public\\.tsx$).*",
       },
     },
   ],

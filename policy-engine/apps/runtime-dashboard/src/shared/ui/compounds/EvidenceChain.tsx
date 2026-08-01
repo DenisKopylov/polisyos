@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button, Card, EmptyState } from "@/shared/ui/primitives";
+import { Card, EmptyState, EvidenceLink } from "@polisyos/atlas-ui";
 
 export type EvidenceChainItem = {
   artifactId: string;
+  evidenceRef?: string;
   label: string;
   meta?: ReactNode;
   href?: string;
@@ -24,7 +24,6 @@ export function EvidenceChain({
   items,
   title,
 }: EvidenceChainProps) {
-  const { t } = useI18n();
   return (
     <Card className="space-y-3">
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -50,10 +49,16 @@ export function EvidenceChain({
                 <div className="flex flex-wrap items-center gap-2">
                   {item.badge}
                   {item.href ? (
-                    <Button href={item.href} size="sm" variant="ghost">
-                      {t("common.open")}
-                    </Button>
-                  ) : null}
+                    <EvidenceLink
+                      evidenceRef={item.evidenceRef ?? item.artifactId}
+                      href={item.href}
+                      label="Open evidence"
+                    />
+                  ) : (
+                    <EvidenceLink
+                      evidenceRef={item.evidenceRef ?? item.artifactId}
+                    />
+                  )}
                 </div>
               </div>
             </article>

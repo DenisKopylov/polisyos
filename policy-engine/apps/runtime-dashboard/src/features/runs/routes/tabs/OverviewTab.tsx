@@ -16,10 +16,7 @@ import {
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
 } from "@/shared/lib/domain/evidence";
-import {
-  normalizeGovernanceIssues,
-  summarizeGovernanceIssues,
-} from "@/shared/lib/domain/governance";
+import { normalizeGovernanceIssues } from "@/shared/lib/domain/governance";
 import {
   formatDate,
   formatDuration,
@@ -31,14 +28,19 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
-import { Badge, Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { Badge, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
+import { useDepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const { t, label } = useI18n();
   const summary = useRunInspector();
+  const evaluatorGrade = presentDecisionGradeLabel(
+    summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
+  );
   const decisionArtifactQuery = useSuspenseArtifactContent(artifactId, {
     maxBytes: 256 * 1024,
   });
@@ -49,17 +51,6 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const readingViewHref = isDecisionPacket
     ? buildArtifactHref(artifactId, { tab: "content", view: "reading" })
     : null;
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: summary.decisionScore,
-    metricId: "overview_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: {
-      valid_at:
-        summary.decisionView?.generatedAt ??
-        summary.run?.finished_at ??
-        summary.run?.started_at,
-    },
-  });
 
   useEffect(() => {
     markUiMilestone("runs.overview.decision.ready", {
@@ -104,21 +95,27 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
         <div className="grid gap-3 md:grid-cols-2">
           <MetricCard
             label={t("pages.runs.evaluator")}
-            value={label(
-              "evaluatorVerdicts",
-              summary.pipeline?.evaluator?.verdict,
-              summary.pipeline?.evaluator?.verdict ?? t("common.unknown"),
-            )}
+            value={
+              <span
+                data-testid="overview-evaluator-grade"
+                data-decision-grade-presentation={evaluatorGrade.classification}
+                data-owner-decision-grade={
+                  evaluatorGrade.ownerLabel ?? undefined
+                }
+              >
+                {evaluatorGrade.ownerLabel ?? t("common.unknown")}
+              </span>
+            }
           />
           <MetricCard
             label={t("pages.runs.score", {
-              score: formatNumber(summary.decisionScore, {
+              score: formatNumber(summary.decisionScore.point, {
                 maximumFractionDigits: 2,
               }),
             })}
             value={
               <Quantity
-                value={decisionScoreQuantity}
+                value={summary.decisionScore}
                 format="percent"
                 precision={0}
               />
@@ -157,9 +154,7 @@ function GovernancePanelContent({ runId }: { runId: string }) {
   const governanceQuery = useSuspenseGovernanceDebug(runId);
   const governance = governanceQuery.data.debug;
   const governanceIssues = normalizeGovernanceIssues(governance.issues);
-  const governanceSummary = summarizeGovernanceIssues(governanceIssues);
-  const blockerCount =
-    governanceSummary?.blocker ?? governance.issue_summary?.blocker_count ?? 0;
+  const blockerCount = governance.issue_summary?.blocker_count ?? 0;
   const transportStatus = String(
     governance.transport_summary?.status ?? "not_available",
   );
@@ -188,15 +183,12 @@ function GovernancePanelContent({ runId }: { runId: string }) {
             <div className="flex items-center justify-between gap-3">
               <strong>{issue.message}</strong>
               <Badge
-                kind={
-                  issue.severity === "blocker"
-                    ? "fail"
-                    : issue.severity === "warning"
-                      ? "warn"
-                      : "ok"
-                }
+                data-owner-severity={issue.severity ?? undefined}
+                data-presentation="owner-label-neutral"
+                data-testid={`overview-governance-severity-${issue.code}`}
+                kind="neutral"
               >
-                {issue.severity}
+                {issue.severity ?? t("common.unknown")}
               </Badge>
             </div>
             <p className="text-muted mt-2 text-xs">
@@ -336,6 +328,7 @@ export default function OverviewTab() {
   const { t } = useI18n();
   const { runId } = useParams();
   const summary = useRunInspector();
+  const governedProjectionQuery = useDepthNCycleBoardProjection();
 
   if (!summary.run || !runId) {
     return null;
@@ -470,7 +463,13 @@ export default function OverviewTab() {
             <h4>{t("pages.runs.explainabilitySubtitle")}</h4>
           </div>
         </div>
-        <RunExplainabilityPanel summary={summary} level="summary" />
+        <RunExplainabilityPanel
+          governedProjection={governedProjectionQuery.data}
+          level="summary"
+          projectionError={governedProjectionQuery.isError}
+          projectionLoading={governedProjectionQuery.isLoading}
+          summary={summary}
+        />
       </Card>
     </div>
   );

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Switch } from "./Switch";
+import { Switch } from "@polisyos/atlas-ui";
 
 describe("Switch accessibility", () => {
   it("has no detectable accessibility violations", async () => {

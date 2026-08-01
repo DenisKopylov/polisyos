@@ -20,56 +20,21 @@ import {
   Badge,
   Button,
   Card,
-  copyRow,
-  copyShareLink,
   EmptyState,
-  exportCsv,
-  exportJson,
   FilterPanel,
   Input,
   PanelSkeleton,
   Select,
   VirtualTable,
   VIRTUALIZATION_THRESHOLD,
+} from "@polisyos/atlas-ui";
+import {
+  copyRow,
+  copyShareLink,
+  exportCsv,
+  exportJson,
 } from "@/shared/ui";
-
-function statusKind(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized === "completed" || normalized === "done") {
-    return "ok" as const;
-  }
-  if (
-    normalized === "failed" ||
-    normalized === "fail" ||
-    normalized === "rejected"
-  ) {
-    return "fail" as const;
-  }
-  if (normalized === "running" || normalized === "pending") {
-    return "warn" as const;
-  }
-  return "unknown" as const;
-}
-
-function statusBadgeKind(status: string) {
-  const kind = statusKind(status);
-  return kind === "unknown" ? "neutral" : kind;
-}
-
-function isBlockedStatus(status: string) {
-  const normalized = status.toLowerCase();
-  return (
-    normalized.includes("blocked") ||
-    normalized === "failed" ||
-    normalized === "fail" ||
-    normalized === "rejected"
-  );
-}
-
-function isRunningStatus(status: string) {
-  const normalized = status.toLowerCase();
-  return normalized === "running" || normalized === "pending";
-}
+import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
 
 function localDateTimeToIso(value: string | null): string | undefined {
   if (!value) {
@@ -96,7 +61,7 @@ export default function RunsList() {
   const { label, locale, t } = useI18n();
   const navigate = useNavigate();
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const pendingFocusRunIdRef = useRef<string | null>(null);
+  const pendingFocusRowIndexRef = useRef<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const parsedSearch = parseRunsListSearchParams(searchParams);
   const status = parsedSearch.status ?? "";
@@ -181,18 +146,12 @@ export default function RunsList() {
       ? (displayedRuns.find((run) => run.run_id === activeRunId) ?? null)
       : null;
   const visibleRuns = displayedRuns.length;
-  const runningRuns = displayedRuns.filter((run) =>
-    isRunningStatus(run.status),
-  );
-  const blockedRuns = displayedRuns.filter((run) =>
-    isBlockedStatus(run.status),
-  );
   const activeRunAnnouncement = activeRun
     ? t("pages.runs.activeRunAnnouncement", {
         count: displayedRuns.length,
         position: activeRunIndex + 1,
         runId: activeRun.run_id,
-        status: label("runStatuses", activeRun.status, activeRun.status),
+        status: activeRun.status,
       })
     : "";
 
@@ -217,9 +176,7 @@ export default function RunsList() {
         header: t("pages.runs.columns.status"),
         exportValue: (run: (typeof displayedRuns)[number]) => run.status,
         render: (run: (typeof displayedRuns)[number]) => (
-          <Badge kind={statusBadgeKind(run.status)}>
-            {label("runStatuses", run.status, run.status)}
-          </Badge>
+          <Badge kind="neutral">{run.status}</Badge>
         ),
       },
       {
@@ -296,36 +253,23 @@ export default function RunsList() {
   }
 
   useEffect(() => {
-    if (!pendingFocusRunIdRef.current || !activeRunId) {
-      return;
-    }
-    if (pendingFocusRunIdRef.current !== activeRunId) {
+    const pendingRowIndex = pendingFocusRowIndexRef.current;
+    if (pendingRowIndex === null) {
       return;
     }
 
-    const focusActiveRow = () => {
+    const focusPendingRow = () => {
       const rows =
         explorerRef.current?.querySelectorAll<HTMLElement>("[data-run-row-id]");
-      if (!rows) {
-        return false;
+      const row = rows?.item(pendingRowIndex);
+      if (row) {
+        row.focus();
+        pendingFocusRowIndexRef.current = null;
       }
-      for (const row of rows) {
-        if (row.dataset.runRowId === activeRunId) {
-          row.focus();
-          pendingFocusRunIdRef.current = null;
-          return true;
-        }
-      }
-      return false;
     };
 
-    if (focusActiveRow()) {
-      return;
-    }
-
-    const frameId = window.requestAnimationFrame(() => {
-      focusActiveRow();
-    });
+    focusPendingRow();
+    const frameId = window.requestAnimationFrame(focusPendingRow);
     return () => window.cancelAnimationFrame(frameId);
   }, [activeRunId]);
 
@@ -342,7 +286,7 @@ export default function RunsList() {
       Math.min(displayedRuns.length - 1, baseIndex + delta),
     );
     const nextRunId = displayedRuns[nextIndex]?.run_id ?? null;
-    pendingFocusRunIdRef.current = nextRunId;
+    pendingFocusRowIndexRef.current = nextRunId ? nextIndex : null;
     setActiveRunId(nextRunId);
   }
 
@@ -512,7 +456,7 @@ export default function RunsList() {
                   {t("pages.runs.runningNow")}
                 </span>
                 <strong className="mt-2 block text-2xl font-semibold">
-                  {runningRuns.length}
+                  {t("common.unavailable")}
                 </strong>
               </div>
               <div className="bg-surface/75 border-line rounded-2xl border p-4">
@@ -520,7 +464,7 @@ export default function RunsList() {
                   {t("pages.runs.blockedNow")}
                 </span>
                 <strong className="mt-2 block text-2xl font-semibold">
-                  {blockedRuns.length}
+                  {t("common.unavailable")}
                 </strong>
               </div>
             </div>
@@ -539,9 +483,7 @@ export default function RunsList() {
                       {t("pages.runs.selectedRunBody")}
                     </p>
                   </div>
-                  <Badge kind={statusBadgeKind(activeRun.status)}>
-                    {label("runStatuses", activeRun.status, activeRun.status)}
-                  </Badge>
+                  <Badge kind="neutral">{activeRun.status}</Badge>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -680,6 +622,7 @@ export default function RunsList() {
 
       <AsyncSection
         query={runsQuery}
+        renderError={renderApiErrorAlert}
         loading={<PanelSkeleton rows={6} />}
         errorTitle={t("pages.runs.loadError")}
         empty={displayedRuns.length === 0}

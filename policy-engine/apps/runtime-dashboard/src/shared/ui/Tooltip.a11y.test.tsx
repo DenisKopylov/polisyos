@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./Tooltip";
+} from "@polisyos/atlas-ui";
 
 describe("Tooltip accessibility", () => {
   it("has no detectable accessibility violations when open", async () => {

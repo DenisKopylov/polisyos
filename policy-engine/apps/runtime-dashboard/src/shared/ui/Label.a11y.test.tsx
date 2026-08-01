@@ -1,7 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Input } from "./Input";
-import { Label } from "./Label";
+import { Input, Label } from "@polisyos/atlas-ui";
 
 describe("Label accessibility", () => {
   it("has no detectable accessibility violations", async () => {

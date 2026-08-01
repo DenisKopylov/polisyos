@@ -4,7 +4,7 @@ import {
   MetricsSkeleton,
   PageSkeleton,
   PanelSkeleton,
-} from "@/shared/ui/Skeleton";
+} from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Skeleton",

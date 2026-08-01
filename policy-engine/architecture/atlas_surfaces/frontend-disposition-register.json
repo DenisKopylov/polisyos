@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T12:16:00+03:00",
+  "as_of": "2026-07-22T19:05:33+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -114,12 +114,8 @@
     {
       "census_id": "census-browser-signing-protected-live",
       "captured_at": "2026-07-17T10:30:00+03:00",
-      "covers_unit_ids": [
-        "derivation-browser-signature"
-      ],
-      "ds1_evidence_ids": [
-        "derivation-browser-signature"
-      ],
+      "covers_unit_ids": ["derivation-browser-signature"],
+      "ds1_evidence_ids": ["derivation-browser-signature"],
       "result": "protected_live_chain",
       "probes": [
         {
@@ -133,32 +129,36 @@
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e"
           ],
-          "expected_count": 24,
+          "expected_count": 28,
           "observed_refs": [
             "apps/runtime-dashboard/e2e/journeys/trust-framing-negative-traces.spec.ts:182",
             "apps/runtime-dashboard/src/app/routes/routes.test.tsx:167",
             "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:42",
-            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:80",
-            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:171",
+            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:85",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:122",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:141",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:157",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:197",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:240",
             "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:17",
-            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:122",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:212",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:224",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:229",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:239",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:278",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:330",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1395",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1456",
+            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:123",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:445",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:459",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:477",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:506",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:535",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1137",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1199",
             "apps/runtime-dashboard/src/features/runs/route.tsx:151",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:120",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:142",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:27",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:36",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:55",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:78",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:97",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12"
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:109",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:128",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:138",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:160",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:71",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:80",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:99",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
+            "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:139"
           ]
         }
       ]
@@ -190,9 +190,7 @@
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/collaboration"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/collaboration"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -228,19 +226,13 @@
     {
       "census_id": "census-onboarding-delete",
       "captured_at": "2026-07-17T11:38:00+03:00",
-      "covers_unit_ids": [
-        "feature-onboarding-orphan"
-      ],
-      "ds1_evidence_ids": [
-        "feature-onboarding-orphan"
-      ],
+      "covers_unit_ids": ["feature-onboarding-orphan"],
+      "ds1_evidence_ids": ["feature-onboarding-orphan"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/onboarding"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/onboarding"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -273,28 +265,20 @@
     {
       "census_id": "census-layout-placeholder-delete",
       "captured_at": "2026-07-17T11:40:00+03:00",
-      "covers_unit_ids": [
-        "feature-layout-empty"
-      ],
-      "ds1_evidence_ids": [
-        "feature-layout-empty"
-      ],
+      "covers_unit_ids": ["feature-layout-empty"],
+      "ds1_evidence_ids": ["feature-layout-empty"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/layout"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/layout"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": [
-            "features/layout"
-          ],
+          "targets": ["features/layout"],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -363,29 +347,20 @@
     {
       "census_id": "census-duplicate-clerk-index-delete",
       "captured_at": "2026-07-17T11:47:00+03:00",
-      "covers_unit_ids": [
-        "route-home-clerk-duplicate"
-      ],
-      "ds1_evidence_ids": [
-        "route-home-clerk-duplicate"
-      ],
+      "covers_unit_ids": ["route-home-clerk-duplicate"],
+      "ds1_evidence_ids": ["route-home-clerk-duplicate"],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": [
-            "apps/runtime-dashboard/src/features/clerk/route.tsx"
-          ],
+          "targets": ["apps/runtime-dashboard/src/features/clerk/route.tsx"],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": [
-            "clerkChatRoute",
-            "routeId: \"clerk.chat\""
-          ],
+          "targets": ["clerkChatRoute", "routeId: \"clerk.chat\""],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -409,10 +384,7 @@
         "cache-whatif-scenarios",
         "feature-whatif::legacy-local-whatif-subgraph"
       ],
-      "ds1_evidence_ids": [
-        "cache-whatif-scenarios",
-        "feature-whatif"
-      ],
+      "ds1_evidence_ids": ["cache-whatif-scenarios", "feature-whatif"],
       "result": "zero_consumers",
       "probes": [
         {
@@ -454,6 +426,75 @@
       ],
       "verification_refs": [
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification"
+      ]
+    },
+    {
+      "census_id": "census-ds4-c03b-dormant-primitives",
+      "captured_at": "2026-07-18T16:20:00+03:00",
+      "covers_unit_ids": ["ui-primitives-root"],
+      "ds1_evidence_ids": ["ui-primitives-root"],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "typescript_symbol_consumer_census",
+          "targets": [
+            "DropdownMenu",
+            "ScrollArea",
+            "Separator",
+            "Sheet",
+            "Tabs"
+          ],
+          "scan_roots": ["apps/runtime-dashboard/src", "packages"],
+          "expected_count": 0,
+          "observed_refs": [],
+          "checked_import_forms": [
+            "barrel",
+            "composition",
+            "direct",
+            "dynamic",
+            "namespace",
+            "relative"
+          ]
+        },
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx",
+            "packages/atlas-ui/src/primitives/DropdownMenu.tsx",
+            "packages/atlas-ui/src/primitives/ScrollArea.tsx",
+            "packages/atlas-ui/src/primitives/Separator.tsx",
+            "packages/atlas-ui/src/primitives/Sheet.tsx",
+            "packages/atlas-ui/src/primitives/Tabs.tsx"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "protected_live_consumers",
+          "targets": [
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx"
+          ],
+          "scan_roots": [],
+          "expected_count": 4,
+          "observed_refs": [
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.tsx"
+          ]
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md#2026-07-18---c03b-dormant-primitive-retirement"
       ]
     }
   ],
@@ -1233,12 +1274,103 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-ds4-c03b-dormant-primitives",
+      "successor": {
+        "unit_id": "atlas-ui-primitives",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+          "apps/runtime-dashboard/src/shared/ui/primitives/primitiveMigration.test.tsx"
+        ]
+      },
+      "aggregate_disposition_receipt": {
+        "receipt_id": "ds4-c03b-ui-primitives-mixed-disposition",
+        "kind": "aggregate_mixed_disposition",
+        "reason": "no_production_consumer",
+        "counts": {
+          "total": 29,
+          "package_migrated": 22,
+          "dashboard_rebound": 2,
+          "retired": 3,
+          "use_as_is": 2,
+          "c03b_candidates": 5,
+          "production_consumers": 0
+        },
+        "c03b_members": [
+          {
+            "primitive": "DropdownMenu",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "ScrollArea",
+            "disposition": "use_as_is",
+            "ds2_adoption_id": "component-scroll-area",
+            "governing_condition": "Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after generated/source ownership, consumer migration, drift checks, and the owning slice's DS6 evidence are complete.",
+            "ledger_absence_reason": null
+          },
+          {
+            "primitive": "Separator",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "Sheet",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "Tabs",
+            "disposition": "use_as_is",
+            "ds2_adoption_id": "component-tabs",
+            "governing_condition": "Keep the mapped live v4 family as the transitional winner until DS4 routes a real consumer through one governed replacement, DS6 passes its negative/browser/accessibility evidence, and the old import path is removed.",
+            "ledger_absence_reason": null
+          }
+        ],
+        "reference_census_id": "census-ds4-c03b-dormant-primitives",
+        "pre_deletion_resurrection_anchor": {
+          "git_commit": "caa1ee6e3ab49d559b19dbeeda6308c3598e7183",
+          "files": [
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
+              "git_blob": "7bf4bfc423f17393ac1f8646e94d0da8b8d0c8a6"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx",
+              "git_blob": "67e09a12bef1f1fe0b996dcdbc151bc9f8ee8a33"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Separator.tsx",
+              "git_blob": "de156b91bb009e287df0e3fda6f70ae21364bd13"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx",
+              "git_blob": "1da3670349e6b31b832c1fa5ee236d58ff57eab6"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Sheet.tsx",
+              "git_blob": "c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx",
+              "git_blob": "5b4f8d67e39bd31869ebe9d753015fcac9fc58f1"
+            }
+          ]
+        },
+        "resurrection_rule": "recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree"
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-18",
+      "seed_rule": "ds4_c03b_mixed_rebind_complete",
+      "rationale": "C03b reconciles all 29 primitive candidates through one aggregate receipt: 22 package migrations and 2 dashboard rebindings remain rooted in the Atlas package chain, 3 dormant app primitives are retired, and 2 mapped live v4 primitives remain use-as-is until their DS2 sunset conditions are satisfied."
     },
     {
       "unit_id": "ui-compounds-root",
@@ -1251,12 +1383,39 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "atlas-ui-root-compounds-and-dashboard-transitional-winners",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "packages/atlas-ui/src/compounds/JsonPreview.tsx",
+          "packages/atlas-ui/src/compounds/VirtualList.tsx",
+          "packages/atlas-ui/src/compounds/VirtualTable.tsx",
+          "packages/atlas-ui/tests/compoundComponents.test.tsx",
+          "packages/atlas-ui/tests/compoundComponents.a11y.test.tsx",
+          "packages/atlas-ui/tests/oneOwner.test.ts",
+          "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+          "apps/runtime-dashboard/src/shared/ui/DataTable.tsx",
+          "apps/runtime-dashboard/src/shared/ui/MetricCard.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LineageGraph.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx",
+          "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
+          "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c15_mixed_rebind_complete",
+      "rationale": "C15 records an explicit mixed six-component receipt: JsonPreview, VirtualList, and VirtualTable are package-migrated with symbol-derived live dashboard consumers, JsonPreview translation remains app-owned through a typed labels adapter, and their dashboard owners are strangled; DataTable and MetricCard remain dashboard-owned use_as_is transitional winners until their exact DS2 sunset condition is met by DS4 consumer routing, DS6 negative/browser/accessibility evidence, and old-import removal; LineageGraph remains dashboard-owned use_as_is until a DS16 typed adapter and DS6 degraded/keyboard/table/export evidence exist, while C15 only removes its local status-to-authority color guessing. This receipt claims no DS2, DS6, or DS16 completion."
     },
     {
       "unit_id": "ui-operator-diagnostics",
@@ -1265,12 +1424,22 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-operator-diagnostic-generated-evidence-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.a11y.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 rebinds the living operator diagnostic to generated OperatorDiagnostic and RunOperatorDiagnostic contracts, preserves projection labels opaquely in neutral posture, and renders producer evidence as accessible references through define-once package primitives."
     },
     {
       "unit_id": "ui-authored-text",
@@ -1291,12 +1460,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-authored-candidate-posture",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/authored-text/author-registry.ts",
+          "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.test.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C10 rebinds the living authored-text family to generated DecisionPacketAuthoredBlock attribution, preserves v15 trust-copy as projection material only, keeps every model author in candidate clothing, and renders verification only when producer metadata is explicitly supplied."
     },
     {
       "unit_id": "ui-compounds",
@@ -1330,12 +1507,21 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-compound-evidence-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/compounds/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/compounds/compoundAuthorityBindings.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-22",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C14 rebinds the 11 living compound evidence components to generated projection, freshness, blocker, lineage, quantity, and verification types or to the single neutral decision-grade presentation swap point. CandidateFrame, BlockerCard, and WeakestLinkExplainer extend the same dashboard owner; four deferred visualization compounds remain use-as-is pending DS16. The mechanically derived DS2 form-family evidence edges remain unchanged and do not transfer runtime ownership."
     },
     {
       "unit_id": "ui-counterfactual",
@@ -1349,12 +1535,22 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-counterfactual-generated-scenario-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ]
+      },
+      "rationale": "C13 rebinds AssumptionPill, CounterfactualBadge, CounterfactualMetricChart, CounterfactualModeSwitch, ScenarioManifestPanel, and ScenarioPicker to generated scenario contracts or the interaction-only bridge. CounterfactualDelta, DualInput, DualSelector, and DualSlider remain use_as_is; the null-delta repair prevents the rejected point-collapse behavior without changing their owner. component-uncertainty-band remains wrap_then_strangle without a DS2 sunset claim, and rejected viz-chart-uncertainty-band remains rejected and unused."
     },
     {
       "unit_id": "ui-patterns",
@@ -1371,12 +1567,30 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "atlas-ui-shared-patterns-and-dashboard-searchable-list",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+          "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+          "packages/atlas-ui/tests/patternComponents.test.tsx",
+          "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+          "packages/atlas-ui/tests/oneOwner.test.ts",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+          "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c16_mixed_rebind_complete",
+      "rationale": "C16 records an exact mixed three-component receipt: DetailLayout and FilterPanel are package-migrated with direct symbol-derived production consumers and their dashboard owners are strangled; SearchableList remains the dashboard-owned use_as_is winner in consumer_missing state because it has no production consumer, and its closure signal is a real production consumer followed by a separately adjudicated owner migration. The responsive-layout DS2 rows remain unresolved until DS4 binds one breakpoint owner and DS6 supplies browser, print, touch, zoom, and data-state evidence; component-search-field and form-search-source-selection remain unclaimed until their live-consumer and DS6 conditions are met. The seven attached flow IDs remain contract_only debt owned by DS5/DS7/DS8/DS9/DS12/DS14/DS15/DS17 because producer, artifact, bridge, consumer, verification, and semantic-negative evidence are missing; closure requires each named owner to bind runtime artifacts, lifecycle effects, a live consumer, and DS6 negative/e2e evidence. This receipt claims no DS2, DS6, or product-flow completion."
     },
     {
       "unit_id": "ui-quantity",
@@ -1420,12 +1634,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-quantity-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 rebinds the living quantity family to generated QuantityValue and lineage types, preserves non-scalar absence, and proves real decision producers render through the single dashboard owner."
     },
     {
       "unit_id": "ui-responsive",
@@ -1461,28 +1683,56 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-responsive-generated-breakpoint-adapter",
+        "consumer_refs": [
+          "packages/atlas-ui/src/generated/tokens.ts",
+          "packages/atlas-ui/tests/tokenProjectionParity.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/useBreakpoint.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/responsiveTokenParity.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.a11y.test.tsx",
+          "apps/runtime-dashboard/src/app/layout/AppMobileNav.tsx",
+          "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+          "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c17_generated_breakpoint_use_as_is",
+      "rationale": "C17 records an exact four-component use_as_is receipt: BottomSheet, MobileNav, PullToRefresh, and SwipeableDrawer remain dashboard-owned through the unchanged responsive barrel; the existing useBreakpoint/useIsMobile seam now consumes the generated atlas-ui breakpointProjection.runtime, with three live hook consumers and behavioral parity covering all five edges, media-query updates, useIsMobile, injected projection drift, and retained gestures. Only token-root-responsive material and responsive-shell-navigation behavior inform this bounded receipt. ui-tokens remains rebind_pending because designTokens.ts is not proven mechanically generated; responsive-breakpoint-taxonomy remains rejected; every other responsive DS2 row remains at its DS2 verdict and DS6 gate. This receipt claims no browser, print, touch-device, manual-AT, DS2, DS6, taxonomy, or component-sunset completion."
     },
     {
       "unit_id": "ui-temporal",
       "evidence_link": {
         "ds1_entry_id": "ui-temporal",
-        "ds2_adoption_ids": [
-          "component-decision-timeline"
-        ]
+        "ds2_adoption_ids": ["component-decision-timeline"]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-temporal-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C09 rebinds the living temporal family to generated temporal DTO fields through an app-owned runtime bridge, separates valid_at, tx_at, payload as_of, source_as_of, and observed_at, and preserves the DS2-rejected component-decision-timeline as rejected material rather than inventing an authority timeline."
     },
     {
       "unit_id": "ui-trust-view",
@@ -1508,12 +1758,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-trust-view-generated-verification-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewAuthority.test.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C11 rebinds the living trust-view family to generated VerificationMetadata, presents missing or incomplete owner metadata as explicit unknown, keeps open producer labels opaque, and inverts the former shared-to-app provider dependency through a shared bridge. DS2 material remains projection guidance only."
     },
     {
       "unit_id": "ui-tokens",
@@ -3228,12 +3486,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-causal-draft-identification-display",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/types.ts",
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.test.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts"
+        ]
+      },
+      "rationale": "C13 retires the local edge-identification union and wraps candidate causal-edge labels in interaction-only candidate_display state. Untyped local and projected graphs are stripped of identified and effect claims before rendering."
     },
     {
       "unit_id": "status-causal-pipeline-stage",
@@ -3242,12 +3509,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-causal-pipeline-progress-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/types.ts",
+          "apps/runtime-dashboard/src/features/causal/components/PipelineProgressViz.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts"
+        ]
+      },
+      "rationale": "C13 retires the local causal-pipeline union and wraps dormant progress labels in interaction-only progress state, structurally separate from workflow authority."
     },
     {
       "unit_id": "status-collaboration-session",
@@ -3271,12 +3546,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-system-health-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the local HealthCheckStatus union and wraps health telemetry in InteractionState with the telemetry purpose, structurally barred from authority slots."
     },
     {
       "unit_id": "status-share-trust-fixture",
@@ -3355,12 +3637,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-agent-step",
@@ -3369,12 +3659,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "generated-agent-pipeline-step-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 replaces the local AgentStepStatus vocabulary with the generated AgentPipelineStep status field while preserving the living pipeline consumer."
     },
     {
       "unit_id": "status-agent-performance-budget",
@@ -3383,12 +3681,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-performance-budget-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the local performance-budget union and preserves its labels in diagnostic_display InteractionState values that cannot enter authority slots."
     },
     {
       "unit_id": "status-workflow-node",
@@ -3397,12 +3704,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "generated-run-workflow-node-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/workflow.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 replaces the local WorkflowNodeStatus vocabulary with the generated RunWorkflowNodeView status field while preserving the living DAG consumer."
     },
     {
       "unit_id": "status-governance-pass",
@@ -3425,12 +3740,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "quantity-independent-owner-metadata",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 deletes the composite quantity provenance status and renders generated lineage, freshness, verification, and dispute fields independently."
     },
     {
       "unit_id": "status-scenario",
@@ -3439,12 +3761,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-scenario-ref-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 removes the local scenario-status union; CounterfactualMetric now carries the generated ScenarioRef status directly."
     },
     {
       "unit_id": "status-verification",
@@ -3453,12 +3782,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-lineage-verification-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 replaces the closed verification clone with a type derived from the generated lineage owner and proves its independent presentation."
     },
     {
       "unit_id": "status-dispute-quantity",
@@ -3467,12 +3803,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-verification-metadata-dispute-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 removes the quantity-local dispute union and renders the generated VerificationMetadata dispute field without composite status minting."
     },
     {
       "unit_id": "status-dispute-trust-view",
@@ -3537,12 +3880,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-fixture-timeline-playback-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts",
+          "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/evidence/fixtureOnlyAuthority.compile.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the inline fixture timeline union, wraps playback labels in InteractionState, and carries the generated LegacyProvingGroundPayload fixture_authority discriminant."
     },
     {
       "unit_id": "status-inline-review-indicators",
@@ -3607,12 +3958,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-data-freshness-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C09 retires the inline fresh, stale, and unknown union in favor of the branded InteractionState telemetry wrapper; novel labels remain neutral presentation and cannot enter authority slots."
     },
     {
       "unit_id": "status-inline-compliance-badge",
@@ -3691,12 +4049,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-readiness-gate",
@@ -3705,12 +4071,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-readiness-review",
@@ -3719,12 +4093,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
+      "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds4_c23_containment",
+      "rationale": "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal.",
+      "successor": {
+        "unit_id": "c23-readiness-scientific-containment",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts"
+        ]
+      }
     },
     {
       "unit_id": "status-inline-run-narrative",
@@ -3775,12 +4157,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-verification-metadata-small-multiples",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/charts/SmallMultiples.tsx",
+          "apps/runtime-dashboard/src/shared/charts/SmallMultiples.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C07 deletes the composite SmallMultiples status union and consumes generated verification_status and freshness independently without forging either field when producer metadata is absent."
     },
     {
       "unit_id": "status-inline-route-loader",
@@ -3803,12 +4192,23 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-depth-n-cycle-board-governed-projection",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-31",
+      "seed_rule": "ds4_c19a_governed_projection_rebind_complete",
+      "rationale": "C19a rebinds the living RunExplainabilityPanel to the generated global depth-N governed-projection packet: the feature adapter preserves owner availability, freshness, source validation, terminal distributions, evidence labels, and weakest-link arrays without route correlation or local authority inference; typed artifact absence renders fixture_only and unavailable; the existing decision-grade bridge remains the single neutral swap point; the new CGF module preserves unknown owner values as explicitly unrecognized without closing the DS5-owned vocabulary gap."
     },
     {
       "unit_id": "status-inline-counterfactual-badge",
@@ -3817,12 +4217,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "runtime-scenario-ref-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx"
+        ]
+      },
+      "rationale": "C13 replaces the inline counterfactual badge status union with ScenarioRef status from the generated runtime client and preserves scenario status independently from interaction mode and lifecycle status."
     },
     {
       "unit_id": "flag-enable-atlas-v2",
@@ -4363,12 +4771,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "generated-policy-design-case-projection-pass-through",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.test.ts",
+          "apps/runtime-dashboard/src/api/validators.ts",
+          "apps/runtime-dashboard/src/api/validators.test.ts"
+        ]
+      },
+      "rationale": "C13 replaces label-driven closeout synthesis with an identity adapter derived from generated PolicyDesignCaseProjection authority fields. Missing producer closeout truth is rejected; explicit producer true or false state passes through unchanged."
     },
     {
       "unit_id": "derivation-browser-signature",
@@ -4453,7 +4870,7 @@
       "owner_slice": "DS8",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "Reason: C19b real-browser verification exposes run-detail-a4-print as an open product regression: the global a[href]::after print rules emit the full long public-decision URL into the report, overlap content, and prevent a stable A4 capture. DS8 owns the product repair; DS6 owns independent visual and semantic verification. Closure signal: no generated link URL overlaps the report and two consecutive no-update real-browser A4 captures are stable; until then the run-detail expectation remains unmodified and may not count green."
     },
     {
       "unit_id": "adjacent-email-og",
@@ -4594,9 +5011,7 @@
       "unit_id": "route-app-layout::ru-ui-catalog",
       "parent_ds1_entry_id": "route-app-layout",
       "scope_kind": "legacy_continuity",
-      "scope_refs": [
-        "apps/runtime-dashboard/src/shared/i18n/locales/ru.json"
-      ],
+      "scope_refs": ["apps/runtime-dashboard/src/shared/i18n/locales/ru.json"],
       "disposition": "frozen_legacy_continuity",
       "strangle_status": "not_applicable",
       "continuity_guard": {
@@ -4618,13 +5033,13 @@
       "finding_id": "baseline-lint-quantity-debt",
       "finding_kind": "baseline_lint_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#lint"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic."
+      "rationale": "The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions."
     },
     {
       "finding_id": "baseline-test-i18n-count-debt",
@@ -4634,33 +5049,33 @@
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/i18n-count"
       ],
-      "owner_slice": "DS4",
+      "owner_slice": "DS6",
       "decision_date": "2026-07-17",
-      "rationale": "Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding."
+      "rationale": "The active manifest retains exactly three count-sensitive locale parity identities owned by DS6."
     },
     {
       "finding_id": "baseline-test-a11y-coverage-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/a11y-coverage"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair."
+      "rationale": "The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression."
     },
     {
       "finding_id": "baseline-test-temporal-cursor-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/temporal-cursor"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification."
+      "rationale": "The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock."
     },
     {
       "finding_id": "dependency-axe-core",
@@ -4765,6 +5180,50 @@
       "decision_date": "2026-07-17",
       "repair_commit": "d01eaa572",
       "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed."
+    },
+    {
+      "finding_id": "producer-binding-readiness-scientific-depth",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS16",
+      "capability_states": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:956",
+        "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx"
+      ],
+      "rationale": "dashboard-local synthesis removed because no typed producer field/refusal exists",
+      "closure_signal": "each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green",
+      "decision_date": "2026-07-17"
+    },
+    {
+      "finding_id": "run-lifecycle-terminal-fact",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS3",
+      "capability_states": [
+        "producer_missing",
+        "surface_missing"
+      ],
+      "evidence_refs": [
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+        "packages/runtime-api-client/types.ts:9240",
+        "packages/runtime-api-client/types.ts:9258",
+        "packages/runtime-api-client/types.ts:9284",
+        "src/polisyos/runtime/http/routes/runs.py:179",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602"
+      ],
+      "rationale": "RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority.",
+      "closure_signal": "DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green.",
+      "decision_date": "2026-07-17"
     }
   ],
   "seeded_negative_lifecycle": [
@@ -4772,9 +5231,7 @@
       "negative_id": "DS1-N001",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:813",
       "lifecycle": "still_required",
-      "affected_unit_ids": [
-        "derivation-browser-signature"
-      ],
+      "affected_unit_ids": ["derivation-browser-signature"],
       "may_count_as_passing_test": false,
       "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
     },
@@ -4886,12 +5343,8 @@
       "negative_id": "DS1-N015",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:827",
       "lifecycle": "partially_reduced",
-      "affected_unit_ids": [
-        "feature-whatif::legacy-local-whatif-subgraph"
-      ],
-      "deletion_census_ids": [
-        "census-whatif-local-subgraph-delete"
-      ],
+      "affected_unit_ids": ["feature-whatif::legacy-local-whatif-subgraph"],
+      "deletion_census_ids": ["census-whatif-local-subgraph-delete"],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the unpartitioned local WhatIf store removes one named cache case, but Clerk, causal, dispute, review-attention, operator-craft, and composer local-state cases still require their owning slices."
     },
@@ -4913,9 +5366,7 @@
         "flag-enable-command-palette",
         "flag-enable-what-if-analysis"
       ],
-      "deletion_census_ids": [
-        "census-collaboration-delete"
-      ],
+      "deletion_census_ids": ["census-collaboration-delete"],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the orphan collaboration surface removes one formerly reachable feature case, but the other three consumer-missing flags still require DS5 wiring and the collaboration key still requires DS5 retirement."
     },
@@ -4936,9 +5387,7 @@
         "worker-dag-layout",
         "worker-json-parse"
       ],
-      "deletion_census_ids": [
-        "census-zero-consumer-workers-delete"
-      ],
+      "deletion_census_ids": ["census-zero-consumer-workers-delete"],
       "may_count_as_passing_test": false,
       "rationale": "All three zero-consumer worker substrates named by this negative were deleted under a fresh census; the negative is obsolete by scope reduction and is not counted as a passing test."
     },
@@ -4964,9 +5413,7 @@
         "transport-rest-collaboration",
         "transport-ws-collaboration"
       ],
-      "deletion_census_ids": [
-        "census-collaboration-delete"
-      ],
+      "deletion_census_ids": ["census-collaboration-delete"],
       "may_count_as_passing_test": false,
       "rationale": "The five phantom collaboration HTTP/WS paths are deleted, while the real review WebSocket and SSE channels still require DS3 governed contract coverage."
     },

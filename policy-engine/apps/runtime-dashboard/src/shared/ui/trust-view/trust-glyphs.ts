@@ -1,60 +1,45 @@
-import type {
-  LineageFreshness,
-  TemporalRef,
-  VerificationStatus,
-} from "@/shared/ui/quantity";
+import type { VerificationMetadata as RuntimeVerificationMetadata } from "@polisyos/runtime-api-client";
 
-export type DisputeStatus = "none" | "disputed" | "under_review" | "resolved";
+export type VerificationMetadata = RuntimeVerificationMetadata;
 
-export type VerificationMetadata = {
-  hash?: string | null;
-  verification_status: VerificationStatus;
-  verified_by?: string | null;
-  verified_at?: string | null;
-  verification_method?: string | null;
-  freshness: LineageFreshness;
-  dispute_status: DisputeStatus;
-  temporal_scope?: TemporalRef | null;
-};
+type TrustPresentation = Readonly<{
+  ownerContractPresent: boolean;
+  tone: string;
+}>;
 
-export type TrustGlyphTone =
-  | "verified"
-  | "pending"
-  | "disputed"
-  | "stale"
-  | "untraced";
-
-export function trustToneFromMetadata(
+export function hasVerificationOwnerContract(
   metadata: VerificationMetadata | null | undefined,
-): TrustGlyphTone {
-  if (!metadata) {
-    return "untraced";
+): metadata is VerificationMetadata {
+  if (typeof metadata !== "object" || metadata === null) {
+    return false;
   }
-  if (
-    metadata.dispute_status === "disputed" ||
-    metadata.verification_status === "disputed"
-  ) {
-    return "disputed";
-  }
-  if (metadata.freshness === "stale") {
-    return "stale";
-  }
-  return metadata.verification_status;
+  return (
+    typeof metadata.dispute_status === "string" &&
+    typeof metadata.freshness === "string" &&
+    typeof metadata.verification_status === "string"
+  );
 }
 
-export function trustGlyph(tone: TrustGlyphTone): string {
-  switch (tone) {
-    case "verified":
-      return "✓";
-    case "pending":
-      return "◌";
-    case "disputed":
-      return "!";
-    case "stale":
-      return "~";
-    case "untraced":
-      return "?";
+export function trustPresentationFromMetadata(
+  metadata: VerificationMetadata | null | undefined,
+): TrustPresentation {
+  if (!hasVerificationOwnerContract(metadata)) {
+    return { ownerContractPresent: false, tone: "unknown" };
   }
+  if (
+    (metadata.dispute_status !== "none" &&
+      metadata.dispute_status !== "resolved") ||
+    metadata.verification_status === "disputed"
+  ) {
+    return { ownerContractPresent: true, tone: "disputed" };
+  }
+  if (metadata.freshness === "stale") {
+    return { ownerContractPresent: true, tone: "stale" };
+  }
+  return {
+    ownerContractPresent: true,
+    tone: metadata.verification_status,
+  };
 }
 
 export function truncateHash(hash: string | null | undefined, size = 8) {
@@ -66,32 +51,4 @@ export function truncateHash(hash: string | null | undefined, size = 8) {
     return hash;
   }
   return `sha256:${normalized.slice(0, size)}…${normalized.slice(-size)}`;
-}
-
-export function trustMetadataFromLineage({
-  fallbackTemporalScope,
-  freshness,
-  hash,
-  status,
-  trustMetadata,
-}: {
-  fallbackTemporalScope?: TemporalRef | null;
-  freshness: LineageFreshness;
-  hash?: string | null;
-  status: VerificationStatus;
-  trustMetadata?: VerificationMetadata | null;
-}): VerificationMetadata {
-  return {
-    dispute_status: status === "disputed" ? "disputed" : "none",
-    freshness,
-    hash: trustMetadata?.hash ?? hash ?? null,
-    temporal_scope:
-      trustMetadata?.temporal_scope ?? fallbackTemporalScope ?? null,
-    verification_method:
-      trustMetadata?.verification_method ??
-      (status === "untraced" ? "lineage_id_resolution" : "lineage_hash_match"),
-    verification_status: trustMetadata?.verification_status ?? status,
-    verified_at: trustMetadata?.verified_at ?? null,
-    verified_by: trustMetadata?.verified_by ?? null,
-  };
 }

@@ -13,7 +13,7 @@ import {
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { PageErrorBoundary } from "@/shared/components/ErrorBoundary";
-import { Card, EmptyState, PageSkeleton } from "@/shared/ui";
+import { Card, EmptyState, PageSkeleton } from "@polisyos/atlas-ui";
 
 type WorkspaceBoundaryProps = {
   workspaceKey: WorkspaceKey;

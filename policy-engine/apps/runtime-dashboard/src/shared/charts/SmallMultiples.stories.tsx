@@ -31,7 +31,10 @@ const demoData: SmallMultipleDatum[] = regions.flatMap((region, rowIndex) =>
   sectors.map((sector, columnIndex) => ({
     region,
     sector,
-    status: columnIndex % 5 === 0 ? "pending" : "verified",
+    verification: {
+      freshness: columnIndex % 5 === 0 ? "stale" : "current",
+      verification_status: columnIndex % 5 === 0 ? "pending" : "verified",
+    } as const,
     value: Math.round((rowIndex + 1) * (columnIndex + 2) * 1.7),
   })),
 );

@@ -1,5 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
 
@@ -13,7 +14,54 @@ import {
 const CITATION_SOURCE = "Evidence bundle EB-17";
 const CITATION_HREF = "/evidence?focus=artifact&artifactId=eb_17&runId=run-42";
 
+afterEach(() => {
+  window.history.replaceState(null, "", "/");
+});
+
 describe("AuthoredText", () => {
+  it("renders unverified model prose as candidate and never as human reviewed", () => {
+    window.history.replaceState(null, "", "/?trust=expanded");
+
+    renderWithProviders(
+      <AuthorshipProvider highlightMode="prominent">
+        <AuthoredText
+          author="drafter"
+          data-testid="unverified-model-prose"
+          reviewedByHuman
+        >
+          A model-authored recommendation awaiting governed verification.
+        </AuthoredText>
+      </AuthorshipProvider>,
+    );
+
+    expect(screen.getByTestId("unverified-model-prose")).toHaveAttribute(
+      "data-authority-posture",
+      "candidate",
+    );
+    expect(screen.getByTestId("unverified-model-prose")).toHaveClass(
+      "border-dashed",
+    );
+    expect(screen.queryByText("Human reviewed")).not.toBeInTheDocument();
+    expect(screen.queryByText("Verified")).not.toBeInTheDocument();
+  });
+
+  it("keeps model candidate clothing when authorship highlighting is off", () => {
+    renderWithProviders(
+      <AuthorshipProvider highlightMode="off">
+        <AuthoredText author="critic" data-testid="quiet-model-prose">
+          A model critique remains a candidate in low-noise reading mode.
+        </AuthoredText>
+      </AuthorshipProvider>,
+    );
+
+    expect(screen.getByTestId("quiet-model-prose")).toHaveStyle({
+      borderLeftWidth: "1px",
+    });
+    expect(screen.getByTestId("quiet-model-prose")).toHaveClass(
+      "border-dashed",
+    );
+  });
+
   it.each([
     {
       author: "citation" as const,

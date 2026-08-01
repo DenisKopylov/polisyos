@@ -1,8 +1,8 @@
 import { useState, type ComponentProps } from "react";
 
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
+import { useMaybeTrustView } from "@/shared/ui/trust-view";
 
 import { ConfidenceGauge } from "./ConfidenceGauge";
 import { FanChart } from "./FanChart";

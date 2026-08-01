@@ -12,11 +12,13 @@ import argparse
 import copy
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -39,6 +41,46 @@ BASELINE_PATH = ATLAS_DIR / "frontend-baseline-debt-manifest.json"
 BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
+
+LINT_ORIGIN_COUNT = 75
+LINT_ORIGIN_FILE_COUNT = 22
+LINT_ORIGIN_DIAGNOSTIC_SHA256 = (
+    "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
+)
+LINT_ORIGIN_IDENTITY_SHA256 = (
+    "1b22f061e6b5cf61bc0f085c9927ccb5e9e899351d242503957e212f853e5830"
+)
+LINT_ORIGIN_RAW_RECEIPT_SHA256 = (
+    "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb"
+)
+LINT_ORIGIN_RULE_SHA256 = (
+    "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6"
+)
+LINT_ORIGIN_CONFIG_SHA256 = (
+    "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
+)
+ARCHITECTURE_ORIGIN_COUNT = 36
+ARCHITECTURE_ORIGIN_FILE_COUNT = 28
+ARCHITECTURE_ORIGIN_IDENTITY_SHA256 = (
+    "4c803817e489b2194e7967d2c24988b87bc56b9f4a7e09ac542a9582f25a5588"
+)
+ARCHITECTURE_ORIGIN_PRODUCER_SHA256 = (
+    "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98"
+)
+ARCHITECTURE_IDENTITY_FIELDS = (
+    "source_path",
+    "source_content_sha256",
+    "line",
+    "specifier",
+    "resolved_target_path",
+    "rule_id",
+    "message",
+)
+RESOLUTION_REFERENCE_ROLES = (
+    ("implementation_refs", "implementation"),
+    ("consumer_refs", "consumer"),
+    ("closure_test_ref", "closure_test"),
+)
 
 DECISION_DATE = "2026-07-17"
 REGISTER_AS_OF = "2026-07-17T10:30:00+03:00"
@@ -137,6 +179,1156 @@ SCAN_ROOTS = [
     "packages",
 ]
 
+UI_PRIMITIVES_ROOT_ID = "ui-primitives-root"
+UI_PRIMITIVES_CENSUS_ID = "census-ds4-c03b-dormant-primitives"
+UI_PRIMITIVES_PRE_DELETION_COMMIT = "caa1ee6e3ab49d559b19dbeeda6308c3598e7183"
+UI_PRIMITIVES_RESURRECTION_RULE = (
+    "recreate_in_atlas_ui_only_with_a_real_production_consumer_"
+    "never_restore_in_the_app_tree"
+)
+UI_PRIMITIVES_CHECKED_IMPORT_FORMS = {
+    "direct",
+    "barrel",
+    "namespace",
+    "relative",
+    "dynamic",
+    "composition",
+}
+UI_PRIMITIVES_PACKAGE_MIGRATED = {
+    "AsyncSection",
+    "Badge",
+    "Button",
+    "Card",
+    "Checkbox",
+    "Command",
+    "Dialog",
+    "EmptyState",
+    "Icon",
+    "Input",
+    "Label",
+    "Popover",
+    "Radio",
+    "SegmentedControl",
+    "Select",
+    "Skeleton",
+    "Slider",
+    "Switch",
+    "Text",
+    "Textarea",
+    "ToggleButton",
+    "Tooltip",
+}
+ATLAS_UI_DEFINE_ONCE_PRIMITIVES = {
+    "AuthorityBadge",
+    "EnvelopeChip",
+    "EvidenceLink",
+}
+ATLAS_UI_SUPPORT_MODULES = {"evidenceTypes"}
+ATLAS_UI_OTHER_EXPORTS = {"JsonPreview", "VirtualList", "VirtualTable"}
+UI_PRIMITIVES_DASHBOARD_REBOUND = {"ApiErrorAlert", "ProvenanceStrip"}
+UI_PRIMITIVES_MEMBER_RULES = {
+    "DropdownMenu": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "ScrollArea": {
+        "disposition": "use_as_is",
+        "ds2_adoption_id": "component-scroll-area",
+        "governing_condition": (
+            "Archive admission alone sunsets nothing. DS4 may remove a mapped loser "
+            "only after generated/source ownership, consumer migration, drift checks, "
+            "and the owning slice's DS6 evidence are complete."
+        ),
+        "ledger_absence_reason": None,
+    },
+    "Separator": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "Sheet": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "Tabs": {
+        "disposition": "use_as_is",
+        "ds2_adoption_id": "component-tabs",
+        "governing_condition": (
+            "Keep the mapped live v4 family as the transitional winner until DS4 "
+            "routes a real consumer through one governed replacement, DS6 passes its "
+            "negative/browser/accessibility evidence, and the old import path is removed."
+        ),
+        "ledger_absence_reason": None,
+    },
+}
+UI_PRIMITIVES_DELETED_BLOBS = {
+    "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx": (
+        "7bf4bfc423f17393ac1f8646e94d0da8b8d0c8a6"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx": (
+        "67e09a12bef1f1fe0b996dcdbc151bc9f8ee8a33"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Separator.tsx": (
+        "de156b91bb009e287df0e3fda6f70ae21364bd13"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx": (
+        "1da3670349e6b31b832c1fa5ee236d58ff57eab6"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Sheet.tsx": (
+        "c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx": (
+        "5b4f8d67e39bd31869ebe9d753015fcac9fc58f1"
+    ),
+}
+UI_PRIMITIVES_RETAINED_PATHS = {
+    "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+    "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/Tabs.tsx",
+    "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx",
+}
+UI_PRIMITIVES_BARREL = "apps/runtime-dashboard/src/shared/ui/primitives/index.ts"
+ATLAS_UI_INDEX = "packages/atlas-ui/src/index.ts"
+C15_ROOT_ID = "ui-compounds-root"
+C15_PACKAGE_MIGRATED = {"JsonPreview", "VirtualList", "VirtualTable"}
+C15_DASHBOARD_USE_AS_IS = {"DataTable", "MetricCard", "LineageGraph"}
+C15_JSON_PREVIEW_ADAPTER = (
+    "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx"
+)
+C15_SUCCESSOR_ID = "atlas-ui-root-compounds-and-dashboard-transitional-winners"
+C15_CONSUMER_REFS = [
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/compounds/JsonPreview.tsx",
+    "packages/atlas-ui/src/compounds/VirtualList.tsx",
+    "packages/atlas-ui/src/compounds/VirtualTable.tsx",
+    "packages/atlas-ui/tests/compoundComponents.test.tsx",
+    "packages/atlas-ui/tests/compoundComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+    "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+    "apps/runtime-dashboard/src/shared/ui/DataTable.tsx",
+    "apps/runtime-dashboard/src/shared/ui/MetricCard.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LineageGraph.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx",
+    "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+]
+C15_MIXED_RATIONALE = (
+    "C15 records an explicit mixed six-component receipt: JsonPreview, VirtualList, "
+    "and VirtualTable are package-migrated with symbol-derived live dashboard consumers, "
+    "JsonPreview translation remains app-owned through a typed labels adapter, and their "
+    "dashboard owners are strangled; DataTable and MetricCard remain dashboard-owned use_as_is "
+    "transitional "
+    "winners until their exact DS2 sunset condition is met by DS4 consumer routing, DS6 "
+    "negative/browser/accessibility evidence, and old-import removal; LineageGraph remains "
+    "dashboard-owned use_as_is until a DS16 typed adapter and DS6 degraded/keyboard/table/export "
+    "evidence exist, while C15 only removes its local status-to-authority color guessing. This "
+    "receipt claims no DS2, DS6, or DS16 completion."
+)
+C16_ROOT_ID = "ui-patterns"
+C16_PACKAGE_MIGRATED = {"DetailLayout", "FilterPanel"}
+C16_SEARCHABLE_LIST = "SearchableList"
+C16_SUCCESSOR_ID = "atlas-ui-shared-patterns-and-dashboard-searchable-list"
+C16_REQUIRED_PATHS = {
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+    "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/patternComponents.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+}
+C16_RETIRED_PATHS = {
+    "apps/runtime-dashboard/src/shared/ui/patterns/DetailLayout.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/DetailLayout.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/FilterPanel.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/FilterPanel.tsx",
+}
+C16_EXPECTED_PRODUCTION_CONSUMERS = {
+    "DetailLayout": {
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+    },
+    "FilterPanel": {
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx"
+    },
+}
+C16_CONSUMER_REFS = [
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+    "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+    "packages/atlas-ui/tests/patternComponents.test.tsx",
+    "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+]
+C16_FLOW_IDS = {
+    "flow-audit-export",
+    "flow-decision-packet-review",
+    "flow-dispute-appeal",
+    "flow-evidence-intake",
+    "flow-failure-triage",
+    "flow-long-running-jobs",
+    "flow-permission-request",
+}
+C16_FLOW_OWNER_SLICES = ["DS5", "DS7", "DS8", "DS9", "DS12", "DS14", "DS15", "DS17"]
+C16_FLOW_REASON = (
+    "The flow is useful material but remains contract-only until its producer, persisted "
+    "artifact, bridge, consumer, verification, and semantic negative are wired. "
+    "[v4_counterpart=ui-patterns; transitional_winner=living-v4-ui-patterns; "
+)
+C16_FLOW_CLOSURE_SIGNAL = (
+    "Revisit after the named owning slice binds the flow to runtime artifacts, lifecycle "
+    "effects, a live consumer, and DS6 negative/e2e evidence."
+)
+C16_MIXED_RATIONALE = (
+    "C16 records an exact mixed three-component receipt: DetailLayout and FilterPanel are "
+    "package-migrated with direct symbol-derived production consumers and their dashboard "
+    "owners are strangled; SearchableList remains the dashboard-owned use_as_is winner in "
+    "consumer_missing state because it has no production consumer, and its closure signal is "
+    "a real production consumer followed by a separately adjudicated owner migration. The "
+    "responsive-layout DS2 rows remain unresolved until DS4 binds one breakpoint owner and "
+    "DS6 supplies browser, print, touch, zoom, and data-state evidence; component-search-field "
+    "and form-search-source-selection remain unclaimed until their live-consumer and DS6 "
+    "conditions are met. The seven attached flow IDs remain contract_only debt owned by "
+    "DS5/DS7/DS8/DS9/DS12/DS14/DS15/DS17 because producer, artifact, bridge, consumer, "
+    "verification, and semantic-negative evidence are missing; closure requires each named "
+    "owner to bind runtime artifacts, lifecycle effects, a live consumer, and DS6 negative/e2e "
+    "evidence. This receipt claims no DS2, DS6, or product-flow completion."
+)
+C17_ROOT_ID = "ui-responsive"
+C17_TOKEN_ROOT_ID = "ui-tokens"
+C17_COMPONENTS = {"BottomSheet", "MobileNav", "PullToRefresh", "SwipeableDrawer"}
+C17_HOOK_EXPORTS = {"useBreakpoint"}
+C17_SUCCESSOR_ID = "dashboard-responsive-generated-breakpoint-adapter"
+C17_EVIDENCE_IDS = {"responsive-shell-navigation", "token-root-responsive"}
+C17_HOOK_CONSUMERS = {
+    "useBreakpoint": {
+        "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts"
+    },
+    "useIsMobile": {
+        "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+        "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+    },
+}
+C17_CONSUMER_REFS = [
+    "packages/atlas-ui/src/generated/tokens.ts",
+    "packages/atlas-ui/tests/tokenProjectionParity.test.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/index.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/useBreakpoint.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/responsiveTokenParity.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.a11y.test.tsx",
+    "apps/runtime-dashboard/src/app/layout/AppMobileNav.tsx",
+    "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+    "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts",
+]
+C17_RATIONALE = (
+    "C17 records an exact four-component use_as_is receipt: BottomSheet, MobileNav, "
+    "PullToRefresh, and SwipeableDrawer remain dashboard-owned through the unchanged responsive "
+    "barrel; the existing useBreakpoint/useIsMobile seam now consumes the generated atlas-ui "
+    "breakpointProjection.runtime, with three live hook consumers and behavioral parity covering "
+    "all five edges, media-query updates, useIsMobile, injected projection drift, and retained "
+    "gestures. Only token-root-responsive material and responsive-shell-navigation behavior "
+    "inform this bounded receipt. ui-tokens remains rebind_pending because designTokens.ts is not "
+    "proven mechanically generated; responsive-breakpoint-taxonomy remains rejected; every other "
+    "responsive DS2 row remains at its DS2 verdict and DS6 gate. This receipt claims no browser, "
+    "print, touch-device, manual-AT, DS2, DS6, taxonomy, or component-sunset completion."
+)
+
+_TS_MODULE_FACTS_SCRIPT = r"""
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const sources = JSON.parse(raw);
+const facts = [];
+const compilerOptions = {
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  noResolve: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(Object.entries(sources));
+const host = ts.createCompilerHost(compilerOptions, true);
+const defaultFileExists = host.fileExists.bind(host);
+const defaultReadFile = host.readFile.bind(host);
+const defaultGetSourceFile = host.getSourceFile.bind(host);
+host.fileExists = (fileName) => virtualSources.has(fileName) || defaultFileExists(fileName);
+host.readFile = (fileName) => virtualSources.get(fileName) ?? defaultReadFile(fileName);
+host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+  const source = virtualSources.get(fileName);
+  if (source !== undefined) {
+    const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+  }
+  return defaultGetSourceFile(
+    fileName,
+    languageVersion,
+    onError,
+    shouldCreateNewSourceFile,
+  );
+};
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+const checker = program.getTypeChecker();
+
+for (const [path] of Object.entries(sources)) {
+  const file = program.getSourceFile(path);
+  if (!file) throw new Error(`Missing virtual source: ${path}`);
+  const propertyUses = new Map();
+
+  function collect(node) {
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression)) {
+      const names = propertyUses.get(node.expression.text) ?? new Set();
+      names.add(node.name.text);
+      propertyUses.set(node.expression.text, names);
+    } else if (
+      ts.isElementAccessExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      ts.isStringLiteral(node.argumentExpression)
+    ) {
+      const names = propertyUses.get(node.expression.text) ?? new Set();
+      names.add(node.argumentExpression.text);
+      propertyUses.set(node.expression.text, names);
+    }
+    ts.forEachChild(node, collect);
+  }
+  collect(file);
+
+  function line(node) {
+    return file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1;
+  }
+  function isWithin(node, predicate) {
+    let current = node.parent;
+    while (current && current !== file) {
+      if (predicate(current)) return true;
+      current = current.parent;
+    }
+    return false;
+  }
+  function isValueIdentifierUse(node, binding, bindingSymbol) {
+    if (node === binding || checker.getSymbolAtLocation(node) !== bindingSymbol) {
+      return false;
+    }
+    if (
+      isWithin(
+        node,
+        (ancestor) =>
+          ts.isImportDeclaration(ancestor) ||
+          ts.isExportDeclaration(ancestor) ||
+          ts.isTypeNode(ancestor),
+      )
+    ) {
+      return false;
+    }
+    return true;
+  }
+  function bindingHasValueUse(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return false;
+    let used = false;
+    function scan(node) {
+      if (used) return;
+      if (
+        ts.isIdentifier(node) &&
+        isValueIdentifierUse(node, binding, bindingSymbol)
+      ) {
+        used = true;
+        return;
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return used;
+  }
+  function bindingHasJsxElementUse(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return false;
+    let used = false;
+    function scan(node) {
+      if (used) return;
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        ts.isIdentifier(node.tagName) &&
+        checker.getSymbolAtLocation(node.tagName) === bindingSymbol
+      ) {
+        used = true;
+        return;
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return used;
+  }
+  function namespaceJsxElementNames(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return [];
+    const names = new Set();
+    function scan(node) {
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        ts.isPropertyAccessExpression(node.tagName) &&
+        ts.isIdentifier(node.tagName.expression) &&
+        checker.getSymbolAtLocation(node.tagName.expression) === bindingSymbol
+      ) {
+        names.add(node.tagName.name.text);
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return [...names];
+  }
+  function bindingNames(name) {
+    if (ts.isIdentifier(name)) return [name.text];
+    if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+      return name.elements.flatMap((element) =>
+        ts.isBindingElement(element) ? bindingNames(element.name) : [],
+      );
+    }
+    return [];
+  }
+  function callbackModuleNames(callback) {
+    if (
+      !callback ||
+      (!ts.isArrowFunction(callback) && !ts.isFunctionExpression(callback)) ||
+      callback.parameters.length === 0
+    ) {
+      return [];
+    }
+    const parameter = callback.parameters[0].name;
+    if (ts.isObjectBindingPattern(parameter)) {
+      return parameter.elements
+        .filter((element) => !element.dotDotDotToken)
+        .map((element) => (element.propertyName ?? element.name).text);
+    }
+    if (ts.isIdentifier(parameter)) {
+      return [...(propertyUses.get(parameter.text) ?? [])];
+    }
+    return [];
+  }
+  function continuationNames(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return [];
+    const names = new Set();
+    function sameBinding(node) {
+      return ts.isIdentifier(node) && checker.getSymbolAtLocation(node) === bindingSymbol;
+    }
+    function scan(node) {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === "then" &&
+        sameBinding(node.expression.expression)
+      ) {
+        for (const name of callbackModuleNames(node.arguments[0])) names.add(name);
+      } else if (
+        ts.isVariableDeclaration(node) &&
+        node.initializer &&
+        ts.isAwaitExpression(node.initializer) &&
+        sameBinding(node.initializer.expression)
+      ) {
+        if (ts.isObjectBindingPattern(node.name)) {
+          for (const element of node.name.elements) {
+            if (!element.dotDotDotToken) {
+              names.add((element.propertyName ?? element.name).text);
+            }
+          }
+        } else if (ts.isIdentifier(node.name)) {
+          for (const name of propertyUses.get(node.name.text) ?? []) names.add(name);
+        }
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return [...names];
+  }
+  function dynamicNames(call) {
+    let expression = call;
+    while (
+      expression.parent &&
+      ((ts.isAwaitExpression(expression.parent) && expression.parent.expression === expression) ||
+        (ts.isParenthesizedExpression(expression.parent) &&
+          expression.parent.expression === expression) ||
+        (ts.isAsExpression(expression.parent) && expression.parent.expression === expression) ||
+        (ts.isNonNullExpression(expression.parent) &&
+          expression.parent.expression === expression))
+    ) {
+      expression = expression.parent;
+    }
+    const parent = expression.parent;
+    if (
+      parent &&
+      ts.isPropertyAccessExpression(parent) &&
+      parent.expression === expression &&
+      parent.name.text === "then" &&
+      ts.isCallExpression(parent.parent) &&
+      parent.parent.expression === parent
+    ) {
+      return callbackModuleNames(parent.parent.arguments[0]);
+    }
+    if (parent && ts.isPropertyAccessExpression(parent) && parent.expression === expression) {
+      return [parent.name.text];
+    }
+    if (
+      parent &&
+      ts.isElementAccessExpression(parent) &&
+      parent.expression === expression &&
+      ts.isStringLiteral(parent.argumentExpression)
+    ) {
+      return [parent.argumentExpression.text];
+    }
+    if (parent && ts.isVariableDeclaration(parent) && parent.initializer === expression) {
+      if (ts.isObjectBindingPattern(parent.name)) {
+        return parent.name.elements
+          .filter((element) => !element.dotDotDotToken)
+          .map((element) => (element.propertyName ?? element.name).text);
+      }
+      if (ts.isIdentifier(parent.name)) {
+        return [
+          ...new Set([
+            ...(propertyUses.get(parent.name.text) ?? []),
+            ...continuationNames(parent.name),
+          ]),
+        ];
+      }
+    }
+    if (
+      parent &&
+      ts.isBinaryExpression(parent) &&
+      parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      parent.right === expression &&
+      ts.isIdentifier(parent.left)
+    ) {
+      return [
+        ...new Set([
+          ...(propertyUses.get(parent.left.text) ?? []),
+          ...continuationNames(parent.left),
+        ]),
+      ];
+    }
+    return [];
+  }
+  function visit(node) {
+    if (node.parent === file) {
+      if (
+        (ts.isFunctionDeclaration(node) ||
+          ts.isClassDeclaration(node) ||
+          ts.isEnumDeclaration(node)) &&
+        node.name
+      ) {
+        facts.push({
+          path,
+          kind: "owner_symbol",
+          module: "",
+          names: [node.name.text],
+          exported_names: [node.name.text],
+          namespace_usages: [],
+          value_binding_used: false,
+          line: line(node),
+        });
+      } else if (ts.isVariableStatement(node)) {
+        const names = node.declarationList.declarations.flatMap((declaration) =>
+          bindingNames(declaration.name),
+        );
+        if (names.length > 0) {
+          facts.push({
+            path,
+            kind: "owner_symbol",
+            module: "",
+            names,
+            exported_names: names,
+            namespace_usages: [],
+            value_binding_used: false,
+            line: line(node),
+          });
+        }
+      }
+    }
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      const clause = node.importClause;
+      if (clause && !clause.isTypeOnly) {
+        const names = [];
+        const usedNames = [];
+        const jsxElementNames = [];
+        let namespace = null;
+        let namespaceUsed = false;
+        let defaultUsed = false;
+        if (clause.name) defaultUsed = bindingHasValueUse(clause.name);
+        const bindings = clause.namedBindings;
+        if (bindings && ts.isNamedImports(bindings)) {
+          for (const element of bindings.elements) {
+            if (!element.isTypeOnly) {
+              const importedName = (element.propertyName ?? element.name).text;
+              names.push(importedName);
+              if (bindingHasValueUse(element.name)) usedNames.push(importedName);
+              if (bindingHasJsxElementUse(element.name)) jsxElementNames.push(importedName);
+            }
+          }
+        } else if (bindings && ts.isNamespaceImport(bindings)) {
+          namespace = bindings.name.text;
+          namespaceUsed = bindingHasValueUse(bindings.name);
+          jsxElementNames.push(...namespaceJsxElementNames(bindings.name));
+        }
+        facts.push({
+          path,
+          kind: "static",
+          module: node.moduleSpecifier.text,
+          names,
+          exported_names: [],
+          used_names: usedNames,
+          jsx_element_names: jsxElementNames,
+          namespace_usages: namespace ? [...(propertyUses.get(namespace) ?? [])] : [],
+          value_binding_used: defaultUsed || namespaceUsed || usedNames.length > 0,
+          line: line(node),
+        });
+      }
+    } else if (
+      ts.isExportDeclaration(node) &&
+      !node.isTypeOnly
+    ) {
+      let names = ["*"];
+      let exportedNames = ["*"];
+      if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+        const elements = node.exportClause.elements.filter((element) => !element.isTypeOnly);
+        names = elements.map((element) => (element.propertyName ?? element.name).text);
+        exportedNames = elements.map((element) => element.name.text);
+      } else if (node.exportClause && ts.isNamespaceExport(node.exportClause)) {
+        names = ["*"];
+        exportedNames = [node.exportClause.name.text];
+      }
+      facts.push({
+        path,
+        kind: "export",
+        module:
+          node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)
+            ? node.moduleSpecifier.text
+            : "",
+        names,
+        exported_names: exportedNames,
+        namespace_usages: [],
+        value_binding_used: false,
+        line: line(node),
+      });
+    } else if (
+      ts.isCallExpression(node) &&
+      node.arguments.length === 1 &&
+      ts.isStringLiteral(node.arguments[0]) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === "require"))
+    ) {
+      facts.push({
+        path,
+        kind: "dynamic",
+        module: node.arguments[0].text,
+        names: dynamicNames(node),
+        exported_names: [],
+        namespace_usages: [],
+        value_binding_used: dynamicNames(node).length > 0,
+        line: line(node),
+      });
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(file);
+}
+
+process.stdout.write(JSON.stringify(facts));
+"""
+
+_TS_MODULE_FACTS_CACHE: dict[str, list[dict[str, Any]]] = {}
+
+
+def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
+    """Parse TypeScript modules with the installed compiler, never text markers."""
+    cache_key = hashlib.sha256(
+        json.dumps(
+            sources,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_MODULE_FACTS_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _TS_MODULE_FACTS_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(sources),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript consumer census failed: " + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    if not isinstance(parsed, list):
+        raise RuntimeError("TypeScript consumer census returned a non-list payload")
+    _TS_MODULE_FACTS_CACHE[cache_key] = parsed
+    return parsed
+
+
+def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
+    """Load TypeScript production modules while excluding tests, stories, and output."""
+    sources: dict[str, str] = {}
+    for path in _iter_scan_files(scan_roots):
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        if path.suffix not in {".ts", ".tsx", ".mts", ".cts"}:
+            continue
+        if any(part in {"dist", "coverage", "tests", "e2e", ".storybook"} for part in path.parts):
+            continue
+        if re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$", path.name):
+            continue
+        sources[relative] = path.read_text(encoding="utf-8")
+    return sources
+
+
+def _owner_exports(path: str, source: str, module_prefix: str) -> set[str]:
+    """Return owner module stems exported by a canonical TypeScript barrel."""
+    return {
+        posixpath.basename(fact["module"])
+        for fact in _typescript_module_facts({path: source})
+        if fact["kind"] == "export" and fact["module"].startswith(module_prefix)
+    }
+
+
+def _ui_primitive_owner_refs_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Find dormant primitive declarations or exported aliases in owner roots."""
+    primitives = set(UI_PRIMITIVES_MEMBER_RULES)
+    observed: dict[str, set[str]] = defaultdict(set)
+    owner_roots = (
+        "apps/runtime-dashboard/src/shared/ui/",
+        "packages/atlas-ui/src/primitives/",
+    )
+    for fact in _typescript_module_facts(sources):
+        if not fact["path"].startswith(owner_roots):
+            continue
+        if fact["kind"] == "owner_symbol":
+            names = set(fact["names"])
+        elif fact["kind"] == "export":
+            names = set(fact.get("exported_names", []))
+        else:
+            continue
+        reference = f"{fact['path']}:{fact['line']}"
+        for primitive in names & primitives:
+            observed[primitive].add(reference)
+    return {
+        primitive: sorted(references)
+        for primitive, references in sorted(observed.items())
+    }
+
+
+def _atlas_ui_value_consumer_refs_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Return package import sites whose local value binding is actually used."""
+    return sorted(
+        {
+            f"{fact['path']}:{fact['line']}"
+            for fact in _typescript_module_facts(sources)
+            if fact["module"] == "@polisyos/atlas-ui"
+            and fact["kind"] in {"static", "dynamic"}
+            and fact.get("value_binding_used") is True
+        }
+    )
+
+
+def _c15_migrated_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive used production dashboard imports for each C15 compound."""
+    observed: dict[str, set[str]] = {
+        component: set() for component in C15_PACKAGE_MIGRATED
+    }
+    for fact in _typescript_module_facts(sources):
+        source_path = fact["path"]
+        if not source_path.startswith("apps/runtime-dashboard/src/"):
+            continue
+        if re.search(
+            r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$",
+            source_path,
+        ):
+            continue
+        if fact["module"] != "@polisyos/atlas-ui":
+            continue
+        if fact["kind"] != "static":
+            continue
+        used_names = set(fact.get("jsx_element_names", []))
+        reference = f"{source_path}:{fact['line']}"
+        for component in used_names & C15_PACKAGE_MIGRATED:
+            observed[component].add(reference)
+    return {
+        component: sorted(references)
+        for component, references in sorted(observed.items())
+    }
+
+
+def _c15_migrated_consumer_errors(sources: Mapping[str, str]) -> list[str]:
+    """Require localized, used dashboard imports for every C15 compound."""
+    consumers = _c15_migrated_consumer_map_from_sources(sources)
+    errors = [
+        f"ui_compounds_root_production_consumer_missing:{component}"
+        for component in sorted(C15_PACKAGE_MIGRATED)
+        if not consumers[component]
+    ]
+    for reference in consumers["JsonPreview"]:
+        consumer_path = reference.split(":", 1)[0]
+        if consumer_path != C15_JSON_PREVIEW_ADAPTER:
+            errors.append(
+                "ui_compounds_root_unlocalized_json_preview_consumer:"
+                f"{consumer_path}"
+            )
+    return errors
+
+
+def _c16_pattern_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive direct JSX consumers for each package-migrated C16 pattern."""
+    observed: dict[str, set[str]] = {
+        component: set() for component in C16_PACKAGE_MIGRATED
+    }
+    for fact in _typescript_module_facts(sources):
+        source_path = fact["path"]
+        if not source_path.startswith("apps/runtime-dashboard/src/"):
+            continue
+        if fact["module"] != "@polisyos/atlas-ui" or fact["kind"] != "static":
+            continue
+        used_names = set(fact.get("jsx_element_names", []))
+        for component in used_names & C16_PACKAGE_MIGRATED:
+            observed[component].add(source_path)
+    return {
+        component: sorted(references)
+        for component, references in sorted(observed.items())
+    }
+
+
+def _c16_searchable_list_consumers_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Return production JSX consumers of the dashboard-owned SearchableList."""
+    allowed_modules = {
+        "@/shared/ui",
+        "@/shared/ui/patterns",
+        "@/shared/ui/patterns/SearchableList",
+        "@polisyos/atlas-ui",
+    }
+    return sorted(
+        {
+            fact["path"]
+            for fact in _typescript_module_facts(sources)
+            if fact["path"].startswith("apps/runtime-dashboard/src/")
+            and fact["module"] in allowed_modules
+            and fact["kind"] == "static"
+            and C16_SEARCHABLE_LIST in set(fact.get("jsx_element_names", []))
+        }
+    )
+
+
+def _c16_pattern_source_state_errors(
+    *,
+    sources: Mapping[str, str] | None = None,
+    existing_paths: set[str] | None = None,
+    atlas_exports: set[str] | None = None,
+) -> list[str]:
+    """Recompute the C16 mixed owner and production-consumer invariant."""
+    if sources is None:
+        sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
+    if existing_paths is None:
+        candidates = C16_REQUIRED_PATHS | C16_RETIRED_PATHS | {
+            "packages/atlas-ui/src/patterns/SearchableList.tsx"
+        }
+        existing_paths = {
+            path for path in candidates if (REPO_ROOT / path).exists()
+        }
+    if atlas_exports is None:
+        atlas_exports = _owner_exports(
+            ATLAS_UI_INDEX,
+            (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+            "./patterns/",
+        )
+
+    errors: list[str] = []
+    for path in sorted(C16_REQUIRED_PATHS - existing_paths):
+        errors.append(f"ui_patterns_required_path_missing:{path}")
+    for path in sorted(C16_RETIRED_PATHS & existing_paths):
+        errors.append(f"ui_patterns_retired_dashboard_path_survives:{path}")
+
+    missing_exports = C16_PACKAGE_MIGRATED - atlas_exports
+    if missing_exports:
+        errors.append(
+            "ui_patterns_package_exports_missing:"
+            + ",".join(sorted(missing_exports))
+        )
+
+    consumer_map = _c16_pattern_consumer_map_from_sources(sources)
+    for component, expected_paths in C16_EXPECTED_PRODUCTION_CONSUMERS.items():
+        observed_paths = set(consumer_map[component])
+        if not expected_paths <= observed_paths:
+            errors.append(f"ui_patterns_production_consumer_missing:{component}")
+        for path in sorted(observed_paths - expected_paths):
+            errors.append(f"ui_patterns_unexpected_production_consumer:{component}:{path}")
+
+    searchable_consumers = _c16_searchable_list_consumers_from_sources(sources)
+    if searchable_consumers:
+        errors.append("ui_patterns_searchable_list_consumer_missing_receipt_stale")
+    package_searchable = "packages/atlas-ui/src/patterns/SearchableList.tsx"
+    if package_searchable in existing_paths or C16_SEARCHABLE_LIST in atlas_exports:
+        if not searchable_consumers:
+            errors.append("ui_patterns_searchable_list_promoted_without_consumer")
+        else:
+            errors.append("ui_patterns_searchable_list_promotion_unadjudicated")
+    return errors
+
+
+def _c17_responsive_source_state_errors(
+    *,
+    sources: Mapping[str, str] | None = None,
+    existing_paths: set[str] | None = None,
+    dashboard_exports: set[str] | None = None,
+    atlas_exports: set[str] | None = None,
+) -> list[str]:
+    """Recompute the retained responsive owners and live hook consumers."""
+    if sources is None:
+        sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
+    if existing_paths is None:
+        existing_paths = {
+            path for path in C17_CONSUMER_REFS if (REPO_ROOT / path).is_file()
+        }
+    responsive_barrel = "apps/runtime-dashboard/src/shared/ui/responsive/index.ts"
+    if dashboard_exports is None:
+        dashboard_exports = _owner_exports(
+            responsive_barrel,
+            (REPO_ROOT / responsive_barrel).read_text(encoding="utf-8"),
+            "./",
+        )
+    if atlas_exports is None:
+        atlas_exports = _owner_exports(
+            ATLAS_UI_INDEX,
+            (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+            "./",
+        )
+
+    errors = [
+        f"ui_responsive_required_path_missing:{path}"
+        for path in sorted(set(C17_CONSUMER_REFS) - existing_paths)
+    ]
+    required_dashboard_exports = C17_COMPONENTS | C17_HOOK_EXPORTS
+    if dashboard_exports != required_dashboard_exports:
+        errors.append(
+            "ui_responsive_dashboard_exports_drift:"
+            + ",".join(sorted(dashboard_exports))
+        )
+    package_twins = C17_COMPONENTS & atlas_exports
+    if package_twins:
+        errors.append(
+            "ui_responsive_package_twin_created:" + ",".join(sorted(package_twins))
+        )
+
+    observed_consumers: dict[str, set[str]] = {
+        hook: set() for hook in C17_HOOK_CONSUMERS
+    }
+    for fact in _typescript_module_facts(sources):
+        if fact["kind"] != "static" or fact["module"] != "@/shared/ui/responsive":
+            continue
+        used_names = set(fact.get("used_names", []))
+        for hook in used_names & set(C17_HOOK_CONSUMERS):
+            observed_consumers[hook].add(fact["path"])
+    for hook, expected_paths in C17_HOOK_CONSUMERS.items():
+        if observed_consumers[hook] != expected_paths:
+            errors.append(f"ui_responsive_hook_consumers_drift:{hook}")
+    return errors
+
+
+def _ui_primitives_successor_evidence_errors(
+    successor_refs: Sequence[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Require listed live and test successors to consume an atlas-ui value."""
+    reference_paths = {ref.split(":", 1)[0] for ref in successor_refs}
+    if sources is None:
+        sources = {
+            path: (REPO_ROOT / path).read_text(encoding="utf-8")
+            for path in reference_paths
+            if (REPO_ROOT / path).is_file()
+        }
+    consumed_paths = {
+        ref.split(":", 1)[0]
+        for ref in _atlas_ui_value_consumer_refs_from_sources(sources)
+    }
+    listed_consumers = reference_paths & consumed_paths
+    errors: list[str] = []
+    if not any(
+        not re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
+        for path in listed_consumers
+    ):
+        errors.append("ui_primitives_successor_live_consumer_missing")
+    if not any(
+        re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
+        for path in listed_consumers
+    ):
+        errors.append("ui_primitives_successor_test_consumer_missing")
+    return errors
+
+
+def _ui_primitive_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive dormant-primitive consumers from TypeScript module syntax."""
+    primitives = set(UI_PRIMITIVES_MEMBER_RULES)
+    observed: dict[str, set[str]] = {primitive: set() for primitive in primitives}
+
+    def module_base(importer: str, module: str) -> str | None:
+        if module.startswith("@/shared/ui"):
+            suffix = module.removeprefix("@/")
+            return f"apps/runtime-dashboard/src/{suffix}"
+        if module == "@polisyos/atlas-ui":
+            return "packages/atlas-ui/src/index"
+        if module.startswith("@polisyos/atlas-ui/"):
+            return "packages/atlas-ui/src/" + module.removeprefix(
+                "@polisyos/atlas-ui/"
+            )
+        if module.startswith("."):
+            return posixpath.normpath(
+                posixpath.join(posixpath.dirname(importer), module)
+            )
+        return None
+
+    def primitive_for_direct_module(base: str | None) -> str | None:
+        if base is None:
+            return None
+        stem = re.sub(r"\.(?:[cm]?[jt]sx?)$", "", base)
+        for primitive in primitives:
+            if stem in {
+                f"apps/runtime-dashboard/src/shared/ui/{primitive}",
+                f"packages/atlas-ui/src/primitives/{primitive}",
+            }:
+                return primitive
+        return None
+
+    def is_barrel(base: str | None) -> bool:
+        if base is None:
+            return False
+        stem = re.sub(r"\.(?:[cm]?[jt]sx?)$", "", base)
+        return stem in {
+            "apps/runtime-dashboard/src/shared/ui",
+            "apps/runtime-dashboard/src/shared/ui/index",
+            "apps/runtime-dashboard/src/shared/ui/primitives",
+            "apps/runtime-dashboard/src/shared/ui/primitives/index",
+            "packages/atlas-ui/src/index",
+        }
+
+    owner_barrels = {
+        UI_PRIMITIVES_BARREL,
+        "apps/runtime-dashboard/src/shared/ui/index.ts",
+        ATLAS_UI_INDEX,
+    }
+    for fact in _typescript_module_facts(sources):
+        if fact["path"] in owner_barrels:
+            continue
+        base = module_base(fact["path"], fact["module"])
+        direct = primitive_for_direct_module(base)
+        used_primitives = {direct} if direct is not None else set()
+        if not used_primitives and is_barrel(base):
+            if "*" in fact["names"]:
+                used_primitives.update(primitives)
+            used_primitives.update(set(fact["names"]) & primitives)
+            used_primitives.update(set(fact["namespace_usages"]) & primitives)
+        reference = f"{fact['path']}:{fact['line']}"
+        for primitive in used_primitives:
+            observed[primitive].add(reference)
+    return {
+        primitive: sorted(references)
+        for primitive, references in sorted(observed.items())
+    }
+
+
+def _ui_primitive_consumers_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Flatten the per-member dormant-primitive consumer census."""
+    by_primitive = _ui_primitive_consumer_map_from_sources(sources)
+    return sorted({reference for references in by_primitive.values() for reference in references})
+
+
+def _live_ui_primitives_source_state_errors() -> list[str]:
+    """Recompute the C03b owner/export/consumer invariant from the live tree."""
+    relevant_paths = {
+        *UI_PRIMITIVES_DELETED_BLOBS,
+        *UI_PRIMITIVES_RETAINED_PATHS,
+        *(
+            f"packages/atlas-ui/src/primitives/{primitive}.tsx"
+            for primitive in UI_PRIMITIVES_MEMBER_RULES
+        ),
+        *(
+            f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+            for primitive in UI_PRIMITIVES_DASHBOARD_REBOUND
+        ),
+    }
+    existing_paths = {path for path in relevant_paths if (REPO_ROOT / path).exists()}
+    dashboard_exports = _owner_exports(
+        UI_PRIMITIVES_BARREL,
+        (REPO_ROOT / UI_PRIMITIVES_BARREL).read_text(encoding="utf-8"),
+        "../",
+    )
+    atlas_exports = _owner_exports(
+        ATLAS_UI_INDEX,
+        (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+        "./primitives/",
+    )
+    sources = _typescript_production_sources(
+        ["apps/runtime-dashboard/src", "packages"]
+    )
+    consumers = _ui_primitive_consumers_from_sources(sources)
+    owner_refs = _ui_primitive_owner_refs_from_sources(sources)
+    return _ui_primitives_source_state_errors(
+        existing_paths=existing_paths,
+        dashboard_exports=dashboard_exports,
+        atlas_exports=atlas_exports,
+        production_consumers=consumers,
+        owner_refs=owner_refs,
+    )
+
 CLUSTER_PROOFS = {
     "collaboration": {
         "unit_ids": COLLABORATION_IDS,
@@ -215,7 +1407,7 @@ CLUSTER_PROOFS = {
     },
 }
 
-EXPECTED_FINDING_IDS = {
+BASE_EXPECTED_FINDING_IDS = {
     "baseline-lint-quantity-debt",
     "baseline-test-i18n-count-debt",
     "baseline-test-a11y-coverage-debt",
@@ -228,6 +1420,80 @@ EXPECTED_FINDING_IDS = {
     "dependency-workbox-window",
     "fixture-policy-design-case-audience",
 }
+
+PRODUCER_BINDING_DEBT_DESCRIPTORS = {
+    "producer-binding-readiness-scientific-depth": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS16",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23",
+            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:956",
+            "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx",
+        ],
+        "rationale": "dashboard-local synthesis removed because no typed producer field/refusal exists",
+        "closure_signal": "each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green",
+    },
+    "run-lifecycle-terminal-fact": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS3",
+        "capability_states": ["producer_missing", "surface_missing"],
+        "evidence_refs": [
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+            "packages/runtime-api-client/types.ts:9240",
+            "packages/runtime-api-client/types.ts:9258",
+            "packages/runtime-api-client/types.ts:9284",
+            "src/polisyos/runtime/http/routes/runs.py:179",
+            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
+        ],
+        "rationale": (
+            "RunSummary exposes open status text and finished_at but no "
+            "producer-signed terminal fact; the runtime SSE sibling currently "
+            "derives terminality from status substrings, so DS4 must render "
+            "labels opaquely and may not mint lifecycle authority."
+        ),
+        "closure_signal": (
+            "DS3 projects a producer-signed terminal/completion fact through "
+            "the generated RunSummary and governed event contracts; dashboard "
+            "polling, optimistic, Clerk, and run surfaces consume that fact; "
+            "novel status labels remain opaque; the C22 semantic negatives and "
+            "DS5 ownership lint remain green."
+        ),
+    }
+}
+
+C23_ROOT_IDS = frozenset(
+    {
+        "status-stress-scene",
+        "status-inline-readiness-evidence",
+        "status-inline-readiness-gate",
+        "status-inline-readiness-review",
+    }
+)
+C23_SUCCESSOR_ID = "c23-readiness-scientific-containment"
+C23_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+]
+C23_RATIONALE = (
+    "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels "
+    "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
+)
+
+EXPECTED_FINDING_IDS = (
+    BASE_EXPECTED_FINDING_IDS | set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+)
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
@@ -339,6 +1605,9 @@ def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
     if probe["kind"] == "protected_live_consumers":
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
+    if probe["kind"] == "typescript_symbol_consumer_census":
+        sources = _typescript_production_sources(probe["scan_roots"])
+        return _ui_primitive_consumers_from_sources(sources)
     return _reference_matches(probe["targets"], probe["scan_roots"])
 
 
@@ -462,45 +1731,64 @@ def _seed_entry(
 
 def _supplemental_findings() -> list[dict[str, Any]]:
     baseline_ref = "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
-    open_findings = [
+    baseline = _load_json(BASELINE_PATH)
+    active_test_classes = {
+        row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
+    }
+    debt_findings = [
         (
             "baseline-lint-quantity-debt",
             "baseline_lint_debt",
             f"{baseline_ref}#lint",
-            "The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic.",
+            None,
+            "DS4",
+            "The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions.",
         ),
         (
             "baseline-test-i18n-count-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/i18n-count",
-            "Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding.",
+            "i18n-count-message-parity",
+            "DS6",
+            "The active manifest retains exactly three count-sensitive locale parity identities owned by DS6.",
         ),
         (
             "baseline-test-a11y-coverage-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/a11y-coverage",
-            "The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair.",
+            "shared-ui-a11y-coverage",
+            "DS4",
+            "The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression.",
         ),
         (
             "baseline-test-temporal-cursor-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/temporal-cursor",
-            "The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification.",
+            "temporal-cursor-canonical-url",
+            "DS4",
+            "The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock.",
         ),
     ]
-    findings: list[dict[str, Any]] = [
-        {
+    findings: list[dict[str, Any]] = []
+    for finding_id, kind, evidence_ref, class_id, default_owner, rationale in debt_findings:
+        active_class = active_test_classes.get(class_id) if class_id else None
+        is_open = (
+            baseline["lint"]["error_count"] > 0
+            if finding_id == "baseline-lint-quantity-debt"
+            else active_class is not None
+        )
+        findings.append({
             "finding_id": finding_id,
             "finding_kind": kind,
             "disposition": "rebind_pending",
-            "status": "open_debt",
+            "status": "open_debt" if is_open else "repaired",
             "evidence_refs": [evidence_ref],
-            "owner_slice": "DS4",
+            "owner_slice": (
+                active_class["owner_slice"] if active_class else default_owner
+            ),
             "decision_date": DECISION_DATE,
             "rationale": rationale,
-        }
-        for finding_id, kind, evidence_ref, rationale in open_findings
-    ]
+        })
     dependencies = {
         "dependency-axe-core": "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
         "dependency-intl-messageformat": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
@@ -543,7 +1831,140 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed.",
         }
     )
+    findings.extend(
+        {
+            "finding_id": finding_id,
+            **copy.deepcopy(descriptor),
+            "decision_date": DECISION_DATE,
+        }
+        for finding_id, descriptor in sorted(
+            PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
+        )
+    )
     return findings
+
+
+def _json_container_end(text: str, start: int) -> int:
+    """Return the inclusive end of one JSON array/object without reformatting."""
+    opener = text[start]
+    if opener not in "[{":
+        raise ValueError(f"JSON container expected at offset {start}")
+    closer = "]" if opener == "[" else "}"
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        character = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character == opener:
+            depth += 1
+        elif character == closer:
+            depth -= 1
+            if depth == 0:
+                return index
+    raise ValueError(f"unterminated JSON container at offset {start}")
+
+
+def _supplemental_section_spans(
+    text: str,
+) -> tuple[int, int, list[tuple[str, int, int]]]:
+    match = re.search(r'^  "supplemental_findings":\s*(\[)', text, re.MULTILINE)
+    if match is None:
+        raise ValueError("supplemental_findings array missing")
+    start = match.start(1)
+    end = _json_container_end(text, start)
+    objects: list[tuple[str, int, int]] = []
+    index = start + 1
+    while index < end:
+        while index < end and (text[index].isspace() or text[index] == ","):
+            index += 1
+        if index >= end:
+            break
+        if text[index] != "{":
+            raise ValueError(
+                f"supplemental finding object expected at offset {index}"
+            )
+        object_end = _json_container_end(text, index)
+        row = json.loads(text[index : object_end + 1])
+        finding_id = row.get("finding_id")
+        if not isinstance(finding_id, str):
+            raise ValueError("supplemental finding_id missing")
+        objects.append((finding_id, index, object_end))
+        index = object_end + 1
+    return start, end, objects
+
+
+def _supplemental_section(
+    text: str,
+) -> tuple[int, int, list[tuple[str, str]]]:
+    """Expose byte slices used by preservation and idempotence tests."""
+    start, end, spans = _supplemental_section_spans(text)
+    return (
+        start,
+        end,
+        [
+            (finding_id, text[object_start : object_end + 1])
+            for finding_id, object_start, object_end in spans
+        ],
+    )
+
+
+def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
+    rendered = json.dumps(row, indent=2, ensure_ascii=False)
+    lines = rendered.splitlines()
+    return lines[0] + "\n" + "\n".join("    " + line for line in lines[1:])
+
+
+def _refresh_supplemental_findings_text(text: str) -> str:
+    """Upsert descriptor rows while preserving every other register byte."""
+    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    generated = {
+        row["finding_id"]: row
+        for row in _supplemental_findings()
+        if row["finding_id"] in descriptor_ids
+    }
+    _start, _end, spans = _supplemental_section_spans(text)
+    seen: set[str] = set()
+    refreshed = text
+    for finding_id, object_start, object_end in reversed(spans):
+        if finding_id not in generated:
+            continue
+        replacement = _render_supplemental_finding(generated[finding_id])
+        refreshed = (
+            refreshed[:object_start]
+            + replacement
+            + refreshed[object_end + 1 :]
+        )
+        seen.add(finding_id)
+
+    missing = sorted(descriptor_ids - seen)
+    if not missing:
+        return refreshed
+    start, end, refreshed_spans = _supplemental_section_spans(refreshed)
+    if refreshed_spans:
+        insertion_at = refreshed_spans[-1][2] + 1
+        insertion = "".join(
+            ",\n    " + _render_supplemental_finding(generated[finding_id])
+            for finding_id in missing
+        )
+    else:
+        insertion_at = start + 1
+        insertion = "\n" + "\n".join(
+            "    " + _render_supplemental_finding(generated[finding_id])
+            for finding_id in missing
+        ) + "\n  "
+    if insertion_at > end:
+        raise ValueError("supplemental insertion escaped its array")
+    return refreshed[:insertion_at] + insertion + refreshed[insertion_at:]
 
 
 def _seeded_negatives() -> list[dict[str, Any]]:
@@ -719,6 +2140,236 @@ def _canonical_sha256(value: Any) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _expected_resolution_content_roles(
+    resolutions: Sequence[Mapping[str, Any]],
+) -> dict[tuple[str, str], frozenset[str]]:
+    """Derive every cluster/path role set from the resolution graph."""
+    roles_by_cluster_path: defaultdict[tuple[str, str], set[str]] = defaultdict(set)
+    for resolution in resolutions:
+        cluster_id = resolution["cluster_id"]
+        for field, role in RESOLUTION_REFERENCE_ROLES:
+            value = resolution[field]
+            references = value if isinstance(value, list) else [value]
+            for reference in references:
+                roles_by_cluster_path[(cluster_id, reference)].add(role)
+    return {
+        key: frozenset(roles)
+        for key, roles in roles_by_cluster_path.items()
+    }
+
+
+@lru_cache(maxsize=32)
+def _chart_quantity_scalar_semantics_hold(
+    chart_source: bytes,
+    quantity_format_source: bytes,
+) -> bool:
+    """Execute the authored scalar adapter with representative set-valued inputs."""
+    dashboard_root = REPO_ROOT / "apps/runtime-dashboard"
+    runner = r"""
+const fs = require("node:fs");
+const path = require("node:path");
+const { createRequire } = require("node:module");
+const dashboardRoot = process.argv[1];
+const requireFromDashboard = createRequire(path.join(dashboardRoot, "package.json"));
+const ts = requireFromDashboard("typescript");
+const input = JSON.parse(fs.readFileSync(0, "utf8"));
+
+function authoredFunction(source, name) {
+  const sourceFile = ts.createSourceFile(
+    `${name}.ts`,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  let found = null;
+  function visit(node) {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === name) {
+      found = node.getText(sourceFile).replace(/^export\s+/u, "");
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sourceFile);
+  if (found === null) throw new Error(`missing authored function: ${name}`);
+  return found;
+}
+
+const authored = [
+  authoredFunction(input.quantityFormatSource, "finitePoint"),
+  authoredFunction(input.chartSource, "chartQuantityMembers"),
+  authoredFunction(input.chartSource, "chartQuantityScalarPoint"),
+  "module.exports = { chartQuantityScalarPoint };",
+].join("\n");
+const javascript = ts.transpileModule(authored, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const evaluated = { exports: {} };
+new Function("module", "exports", javascript)(evaluated, evaluated.exports);
+const scalar = evaluated.exports.chartQuantityScalarPoint;
+const quantity = (point) => ({ point });
+const holds =
+  scalar(null) === null &&
+  scalar(quantity(0.5)) === 0.5 &&
+  scalar(quantity(Number.NaN)) === null &&
+  scalar([quantity(1), quantity(2)]) === null &&
+  scalar([quantity(-0.25)]) === -0.25;
+process.exit(holds ? 0 : 1);
+"""
+    completed = subprocess.run(
+        ["node", "-e", runner, str(dashboard_root)],
+        cwd=REPO_ROOT,
+        input=json.dumps(
+            {
+                "chartSource": chart_source.decode("utf-8"),
+                "quantityFormatSource": quantity_format_source.decode("utf-8"),
+            }
+        ),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    return completed.returncode == 0
+
+
+def _resolution_content_binding_errors(
+    lint: Mapping[str, Any],
+    *,
+    source_bytes_override: Mapping[str, bytes] | None = None,
+) -> list[str]:
+    """Require an exact role projection and bind every referenced file's bytes."""
+    errors: list[str] = []
+    expected = _expected_resolution_content_roles(lint["resolutions"])
+    bindings = lint["resolution_content_bindings"]
+    stored_by_key: defaultdict[tuple[str, str], list[Mapping[str, Any]]] = defaultdict(
+        list
+    )
+    for binding in bindings:
+        stored_by_key[(binding["cluster_id"], binding["path"])].append(binding)
+
+    expected_keys = set(expected)
+    stored_keys = set(stored_by_key)
+    for cluster_id, path in sorted(expected_keys - stored_keys):
+        errors.append(f"lint_resolution_content_binding_missing:{cluster_id}:{path}")
+    for cluster_id, path in sorted(stored_keys - expected_keys):
+        errors.append(f"lint_resolution_content_binding_extra:{cluster_id}:{path}")
+    for cluster_id, path in sorted(stored_keys):
+        rows = stored_by_key[(cluster_id, path)]
+        if len(rows) != 1:
+            errors.append(f"lint_resolution_content_binding_duplicate:{cluster_id}:{path}")
+        expected_roles = expected.get((cluster_id, path))
+        for binding in rows:
+            if expected_roles is not None and frozenset(binding["roles"]) != expected_roles:
+                errors.append(
+                    f"lint_resolution_content_binding_role_drift:{cluster_id}:{path}"
+                )
+            if source_bytes_override is not None and path in source_bytes_override:
+                source_bytes = source_bytes_override[path]
+            else:
+                source_path = REPO_ROOT / path
+                try:
+                    source_bytes = source_path.read_bytes()
+                except OSError:
+                    errors.append(
+                        f"lint_resolution_content_binding_path_missing:{cluster_id}:{path}"
+                    )
+                    continue
+            if hashlib.sha256(source_bytes).hexdigest() != binding["sha256"]:
+                errors.append(f"lint_resolution_content_hash_drift:{cluster_id}:{path}")
+            if (
+                cluster_id == "C07"
+                and path
+                == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+            ):
+                quantity_format_source = (
+                    REPO_ROOT
+                    / "apps/runtime-dashboard/src/shared/ui/quantity/quantity-format.ts"
+                ).read_bytes()
+                if not _chart_quantity_scalar_semantics_hold(
+                    source_bytes, quantity_format_source
+                ):
+                    errors.append(f"lint_c07_scalar_semantic_probe_failed:{path}")
+    return errors
+
+
+def _lint_identity_rows(
+    lint: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    """Return stable IDs and enriched identities for the active lint rows."""
+    rows: list[dict[str, Any]] = []
+    for file_entry in lint["files"]:
+        for diagnostic in file_entry["diagnostics"]:
+            identity = {
+                "path": file_entry["path"],
+                "source_content_sha256": file_entry["content_sha256"],
+                **diagnostic,
+            }
+            rows.append(identity)
+    rows.sort(key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")))
+    return [(_canonical_sha256(row), row) for row in rows]
+
+
+def _architecture_identity(row: Mapping[str, Any]) -> dict[str, Any]:
+    """Discard presentation text while retaining the exact architecture edge."""
+    return {field: row.get(field) for field in ARCHITECTURE_IDENTITY_FIELDS}
+
+
+def _architecture_identity_rows(
+    architecture: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    rows = [_architecture_identity(row) for row in architecture["violations"]]
+    rows.sort(key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")))
+    return [(_canonical_sha256(row), row) for row in rows]
+
+
+def _resolution_partition_errors(
+    *,
+    label: str,
+    active_rows: Sequence[tuple[str, Mapping[str, Any]]],
+    resolutions: Sequence[Mapping[str, Any]],
+    origin_count: int,
+    origin_identity_sha256: str,
+    identity_from_resolution: Any,
+) -> list[str]:
+    """Prove active and resolved rows are one disjoint immutable-origin partition."""
+    errors: list[str] = []
+    active_ids = [identity_id for identity_id, _row in active_rows]
+    stored_resolution_ids = [row["origin_identity_sha256"] for row in resolutions]
+    if len(set(active_ids)) != len(active_ids):
+        errors.append(f"{label}_active_identity_duplicate")
+    if len(set(stored_resolution_ids)) != len(stored_resolution_ids):
+        errors.append(f"{label}_resolution_identity_duplicate")
+    if set(active_ids) & set(stored_resolution_ids):
+        errors.append(f"{label}_partition_overlap")
+
+    resolved_rows: list[Mapping[str, Any]] = []
+    for resolution in resolutions:
+        identity = identity_from_resolution(resolution["origin_identity"])
+        identity_id = _canonical_sha256(identity)
+        if identity_id != resolution["origin_identity_sha256"]:
+            errors.append(
+                f"{label}_resolution_identity_hash_drift:"
+                f"{resolution['origin_identity_sha256']}"
+            )
+        resolved_rows.append(identity)
+
+    union_rows = [row for _identity_id, row in active_rows] + resolved_rows
+    if len(union_rows) < origin_count:
+        errors.append(f"{label}_partition_missing_identity")
+    elif len(union_rows) > origin_count:
+        errors.append(f"{label}_partition_extra_identity")
+    union_rows = sorted(
+        union_rows,
+        key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")),
+    )
+    if _canonical_sha256(union_rows) != origin_identity_sha256:
+        errors.append(f"{label}_origin_identity_set_hash_drift")
+    return errors
+
+
 def _flatten_lint_diagnostics(baseline: Mapping[str, Any]) -> list[dict[str, Any]]:
     sort_key = baseline["lint"]["diagnostic_set"]["sort_key"]
     return sorted(
@@ -744,22 +2395,31 @@ def _flatten_vitest_failures(baseline: Mapping[str, Any]) -> list[dict[str, Any]
 
 
 def validate_baseline_manifest(
-    baseline: Mapping[str, Any], *, verify_source_bytes: bool = False
+    baseline: Mapping[str, Any],
+    *,
+    verify_source_bytes: bool = False,
+    source_bytes_override: Mapping[str, bytes] | None = None,
 ) -> list[str]:
-    """Validate the baseline's typed counts, canonical hashes, and provenance."""
+    """Validate immutable origins, active debt, resolutions, and provenance."""
     errors = _schema_errors(baseline, BASELINE_SCHEMA_PATH)
     if errors:
         return errors
+
     lint = baseline["lint"]
     diagnostics = _flatten_lint_diagnostics(baseline)
-    if len(diagnostics) != lint["error_count"] or lint["error_count"] != 75:
-        errors.append("lint_baseline_error_count_drift")
+    if len(diagnostics) != lint["error_count"]:
+        errors.append("lint_active_error_count_drift")
     if lint["warning_count"] != 0:
-        errors.append("lint_baseline_warning_count_drift")
-    if len(lint["files"]) != lint["source_file_count"] or len(lint["files"]) != 22:
-        errors.append("lint_baseline_file_count_drift")
+        errors.append("lint_active_warning_count_drift")
+    if len(lint["files"]) != lint["source_file_count"]:
+        errors.append("lint_active_file_count_drift")
     if _canonical_sha256(diagnostics) != lint["diagnostic_set"]["sha256"]:
-        errors.append("lint_baseline_payload_hash_drift")
+        errors.append("lint_active_payload_hash_drift")
+    active_lint_rows = _lint_identity_rows(lint)
+    if _canonical_sha256([row for _identity_id, row in active_lint_rows]) != lint[
+        "identity_set_sha256"
+    ]:
+        errors.append("lint_active_identity_set_hash_drift")
     for file_entry in lint["files"]:
         if file_entry["diagnostic_count"] != len(file_entry["diagnostics"]):
             errors.append(f"lint_file_count_drift:{file_entry['path']}")
@@ -781,9 +2441,130 @@ def validate_baseline_manifest(
         if verify_source_bytes:
             path = REPO_ROOT / file_entry["path"]
             if not path.exists():
-                errors.append(f"lint_baseline_source_missing:{file_entry['path']}")
+                errors.append(f"lint_active_source_missing:{file_entry['path']}")
             elif hashlib.sha256(path.read_bytes()).hexdigest() != file_entry["content_sha256"]:
-                errors.append(f"lint_baseline_source_hash_drift:{file_entry['path']}")
+                errors.append(f"lint_active_source_hash_drift:{file_entry['path']}")
+
+    origin = lint["immutable_origin"]
+    if (
+        origin["error_count"] != LINT_ORIGIN_COUNT
+        or origin["source_file_count"] != LINT_ORIGIN_FILE_COUNT
+        or origin["diagnostic_set"]["sha256"] != LINT_ORIGIN_DIAGNOSTIC_SHA256
+        or origin["identity_set_sha256"] != LINT_ORIGIN_IDENTITY_SHA256
+        or origin["raw_receipt_sha256"] != LINT_ORIGIN_RAW_RECEIPT_SHA256
+        or origin["rule_identity"]["implementation_sha256"]
+        != LINT_ORIGIN_RULE_SHA256
+        or origin["rule_identity"]["configuration_sha256"]
+        != LINT_ORIGIN_CONFIG_SHA256
+    ):
+        errors.append("lint_immutable_origin_anchor_drift")
+    errors.extend(
+        _resolution_partition_errors(
+            label="lint",
+            active_rows=active_lint_rows,
+            resolutions=lint["resolutions"],
+            origin_count=LINT_ORIGIN_COUNT,
+            origin_identity_sha256=LINT_ORIGIN_IDENTITY_SHA256,
+            identity_from_resolution=lambda row: dict(row),
+        )
+    )
+    errors.extend(
+        _resolution_content_binding_errors(
+            lint,
+            source_bytes_override=source_bytes_override,
+        )
+    )
+    c06_classifications = Counter(
+        row["classification"]
+        for row in lint["resolutions"]
+        if row["cluster_id"] == "C06"
+    )
+    if c06_classifications != {
+        "quantity_enveloped": 8,
+        "authority_guess_removed": 9,
+        "collection_control": 2,
+        "parser_control": 1,
+    }:
+        errors.append("lint_c06_resolution_classification_drift")
+    c07_classifications = Counter(
+        row["classification"]
+        for row in lint["resolutions"]
+        if row["cluster_id"] == "C07"
+    )
+    if c07_classifications != {
+        "quantity_semantics": 4,
+        "layout_geometry": 33,
+    }:
+        errors.append("lint_c07_resolution_classification_drift")
+    c08_classifications = Counter(
+        row["classification"] for row in lint["resolutions"] if row["cluster_id"] == "C08"
+    )
+    if c08_classifications != {
+        "interaction_control": 3,
+        "layout_geometry": 5,
+        "motion_geometry": 9,
+        "operational_request_control": 1,
+    }:
+        errors.append("lint_c08_resolution_classification_drift")
+    for resolution in lint["resolutions"]:
+        identity_id = resolution["origin_identity_sha256"]
+        if resolution["cluster_id"] == "C06" and resolution["semantic_kind"] == "decision_bearing":
+            expected_closure = (
+                "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts"
+                if resolution["classification"] == "authority_guess_removed"
+                and resolution["origin_identity"]["path"]
+                == "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+                else "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+            )
+            if resolution["closure_test_ref"] != expected_closure:
+                errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
+        if resolution["cluster_id"] == "C07":
+            expected_semantic_kind = (
+                "decision_bearing"
+                if resolution["classification"] == "quantity_semantics"
+                else "non_authority_control"
+            )
+            if resolution["semantic_kind"] != expected_semantic_kind:
+                errors.append("lint_c07_semantic_kind_drift")
+            if (
+                resolution["closure_test_ref"]
+                != "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+            ):
+                errors.append(f"lint_c07_semantic_closure_drift:{identity_id}")
+            if (
+                resolution["classification"] == "quantity_semantics"
+                and "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c07_semantic_adapter_drift:{identity_id}")
+        if resolution["cluster_id"] == "C08":
+            if resolution["semantic_kind"] != "non_authority_control":
+                errors.append("lint_c08_semantic_kind_drift")
+            if (
+                resolution["closure_test_ref"]
+                != "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+            ):
+                errors.append(f"lint_c08_semantic_closure_drift:{identity_id}")
+            if (
+                "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c08_semantic_adapter_drift:{identity_id}")
+            if (
+                "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c08_rule_binding_drift:{identity_id}")
+        references = [
+            *resolution["implementation_refs"],
+            *resolution["consumer_refs"],
+            resolution["closure_test_ref"],
+        ]
+        for reference in references:
+            issue = _reference_resolution_error(reference)
+            if issue:
+                errors.append(f"lint_resolution_{issue}:{identity_id}")
+
     rule = lint["rule_identity"]
     for path_key, hash_key in (
         ("implementation_path", "implementation_sha256"),
@@ -793,9 +2574,99 @@ def validate_baseline_manifest(
         if not path.exists() or hashlib.sha256(path.read_bytes()).hexdigest() != rule[hash_key]:
             errors.append(f"lint_rule_input_hash_drift:{rule[path_key]}")
 
+    architecture = baseline["architecture"]
+    architecture_rows = _architecture_identity_rows(architecture)
+    if len(architecture_rows) != architecture["violation_count"]:
+        errors.append("architecture_active_violation_count_drift")
+    if len({row["source_path"] for row in architecture["violations"]}) != architecture[
+        "source_file_count"
+    ]:
+        errors.append("architecture_active_file_count_drift")
+    if _canonical_sha256([row for _identity_id, row in architecture_rows]) != architecture[
+        "identity_set_sha256"
+    ]:
+        errors.append("architecture_active_identity_set_hash_drift")
+    architecture_origin = architecture["immutable_origin"]
+    if (
+        architecture_origin["violation_count"] != ARCHITECTURE_ORIGIN_COUNT
+        or architecture_origin["source_file_count"] != ARCHITECTURE_ORIGIN_FILE_COUNT
+        or architecture_origin["identity_set_sha256"]
+        != ARCHITECTURE_ORIGIN_IDENTITY_SHA256
+        or architecture_origin["producer_sha256"]
+        != ARCHITECTURE_ORIGIN_PRODUCER_SHA256
+    ):
+        errors.append("architecture_immutable_origin_anchor_drift")
+    errors.extend(
+        _resolution_partition_errors(
+            label="architecture",
+            active_rows=architecture_rows,
+            resolutions=architecture["resolutions"],
+            origin_count=ARCHITECTURE_ORIGIN_COUNT,
+            origin_identity_sha256=ARCHITECTURE_ORIGIN_IDENTITY_SHA256,
+            identity_from_resolution=_architecture_identity,
+        )
+    )
+    producer_path = REPO_ROOT / architecture["producer_path"]
+    if (
+        not producer_path.exists()
+        or hashlib.sha256(producer_path.read_bytes()).hexdigest()
+        != architecture["producer_sha256"]
+    ):
+        errors.append("architecture_producer_hash_drift")
+    for resolution in architecture["resolutions"]:
+        identity_id = resolution["origin_identity_sha256"]
+        references = [
+            *resolution["implementation_refs"],
+            *resolution["consumer_refs"],
+            resolution["closure_test_ref"],
+        ]
+        for reference in references:
+            issue = _reference_resolution_error(reference)
+            if issue:
+                errors.append(f"architecture_resolution_{issue}:{identity_id}")
+    c18_resolutions = [
+        resolution
+        for resolution in architecture["resolutions"]
+        if resolution["cluster_id"] == "C18"
+    ]
+    if len(c18_resolutions) != 1:
+        errors.append("architecture_c18_resolution_count_drift")
+    elif c18_resolutions[0]["classification"] != "feature_public_barrel":
+        errors.append("architecture_c18_resolution_classification_drift")
+    for resolution in architecture["resolutions"]:
+        if (
+            resolution["cluster_id"] != "C18"
+            and resolution["classification"] != "shared_dependency_inverted"
+        ):
+            errors.append(
+                "architecture_non_c18_resolution_classification_drift:"
+                f"{resolution['origin_identity_sha256']}"
+            )
+    if verify_source_bytes:
+        for row in architecture["violations"]:
+            path = REPO_ROOT / row["source_path"]
+            if not path.exists():
+                errors.append(f"architecture_active_source_missing:{row['source_path']}")
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != row[
+                "source_content_sha256"
+            ]:
+                errors.append(f"architecture_active_source_hash_drift:{row['source_path']}")
+
     failures = _flatten_vitest_failures(baseline)
-    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 5:
+    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 3:
         errors.append("vitest_baseline_failure_count_drift")
+    surviving_vitest_classes = {
+        (
+            debt_class["class_id"],
+            debt_class["owner_slice"],
+            debt_class["failure_count"],
+        )
+        for debt_class in baseline["vitest"]["debt_classes"]
+    }
+    if surviving_vitest_classes != {
+        ("i18n-count-message-parity", "DS6", 3)
+    }:
+        errors.append("vitest_surviving_debt_owner_drift")
     if _canonical_sha256(failures) != baseline["vitest"]["failure_set"]["sha256"]:
         errors.append("vitest_baseline_payload_hash_drift")
     if baseline["vitest"]["parent_reproduction"]["matches_full_run_failure_set"] is not True:
@@ -875,6 +2746,40 @@ def compare_lint_results(
                 + ":"
                 + str(identity[4])
             )
+    for identity, count in baseline_counter.items():
+        if count > current_counter[identity]:
+            errors.append(
+                "lint_expected_diagnostic_missing:"
+                + str(identity[0])
+                + ":"
+                + str(identity[2])
+                + ":"
+                + str(identity[4])
+            )
+    return errors
+
+
+def compare_architecture_results(
+    baseline: Mapping[str, Any], raw_results_path: Path
+) -> list[str]:
+    """Require the live custom architecture stage to equal the active set."""
+    raw = json.loads(raw_results_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or not isinstance(raw.get("violations"), list):
+        return ["architecture_results_shape_invalid"]
+    expected = Counter(
+        identity_id
+        for identity_id, _row in _architecture_identity_rows(baseline["architecture"])
+    )
+    current = Counter(
+        _canonical_sha256(_architecture_identity(row)) for row in raw["violations"]
+    )
+    errors: list[str] = []
+    for identity_id, count in current.items():
+        if count > expected[identity_id]:
+            errors.append(f"architecture_new_violation:{identity_id}")
+    for identity_id, count in expected.items():
+        if count > current[identity_id]:
+            errors.append(f"architecture_expected_violation_missing:{identity_id}")
     return errors
 
 
@@ -922,10 +2827,7 @@ def compare_vitest_results(
                 continue
             class_id, anchor = baseline_rows[key]
             messages = "\n".join(assertion.get("failureMessages", []))
-            if class_id == "temporal-cursor-canonical-url":
-                if "valid_at=2026-04-15T12%3A00%3A00.000Z" not in messages:
-                    errors.append(f"vitest_failure_signature_drift:{file_path}:{full_name}")
-            elif anchor not in messages:
+            if anchor not in messages:
                 errors.append(f"vitest_failure_signature_drift:{file_path}:{full_name}")
     return errors
 
@@ -968,6 +2870,548 @@ def _validate_composition(
             errors.append(f"decision_detail_missing:{unit_id}")
 
 
+def _validate_ui_primitives_mixed_receipt(
+    entry: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Recompute mixed C03b counts, decisions, and Git resurrection anchors."""
+    receipt = entry.get("aggregate_disposition_receipt")
+    if receipt is None:
+        if entry.get("strangle_status") == "strangled":
+            errors.append("ui_primitives_aggregate_receipt_missing")
+        return
+
+    members = receipt["c03b_members"]
+    member_counts = Counter(member["disposition"] for member in members)
+    recomputed = {
+        "total": (
+            len(UI_PRIMITIVES_PACKAGE_MIGRATED)
+            + len(UI_PRIMITIVES_DASHBOARD_REBOUND)
+            + len(members)
+        ),
+        "package_migrated": len(UI_PRIMITIVES_PACKAGE_MIGRATED),
+        "dashboard_rebound": len(UI_PRIMITIVES_DASHBOARD_REBOUND),
+        "retired": member_counts["retire"],
+        "use_as_is": member_counts["use_as_is"],
+        "c03b_candidates": len(members),
+        "production_consumers": 0,
+    }
+    for key, value in recomputed.items():
+        if receipt["counts"][key] != value:
+            errors.append(f"ui_primitives_receipt_count_drift:{key}")
+
+    members_by_name = {member["primitive"]: member for member in members}
+    if set(members_by_name) != set(UI_PRIMITIVES_MEMBER_RULES):
+        errors.append("ui_primitives_receipt_member_set_drift")
+    else:
+        for primitive, expected in UI_PRIMITIVES_MEMBER_RULES.items():
+            if members_by_name[primitive] != {"primitive": primitive, **expected}:
+                errors.append(f"ui_primitives_receipt_member_drift:{primitive}")
+
+    anchor = receipt["pre_deletion_resurrection_anchor"]
+    commit = anchor["git_commit"]
+    if commit != UI_PRIMITIVES_PRE_DELETION_COMMIT:
+        errors.append("ui_primitives_anchor_commit_drift")
+    anchored_files = {item["path"]: item["git_blob"] for item in anchor["files"]}
+    if set(anchored_files) != set(UI_PRIMITIVES_DELETED_BLOBS):
+        errors.append("ui_primitives_anchor_file_set_drift")
+        return
+    for path, recorded_blob in anchored_files.items():
+        completed = subprocess.run(
+            ["git", "rev-parse", f"{commit}:policy-engine/{path}"],
+            cwd=REPO_ROOT.parent,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode != 0:
+            errors.append(f"ui_primitives_anchor_unresolved:{path}")
+        elif completed.stdout.strip() != recorded_blob:
+            errors.append(f"ui_primitives_anchor_blob_drift:{path}")
+
+
+def _ui_primitives_source_state_errors(
+    *,
+    existing_paths: set[str],
+    dashboard_exports: set[str],
+    atlas_exports: set[str],
+    production_consumers: Sequence[str],
+    owner_refs: Mapping[str, Sequence[str]] | None = None,
+) -> list[str]:
+    """Return structural C03b retirement and resurrection failures."""
+    errors: list[str] = []
+    retired = {
+        name
+        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
+        if rule["disposition"] == "retire"
+    }
+    retained = set(UI_PRIMITIVES_MEMBER_RULES) - retired
+
+    for primitive in sorted(retired):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        test = f"apps/runtime-dashboard/src/shared/ui/{primitive}.a11y.test.tsx"
+        if owner in existing_paths:
+            errors.append(f"ui_primitives_retired_owner_revived:{primitive}")
+        if test in existing_paths:
+            errors.append(f"ui_primitives_retired_test_revived:{primitive}")
+        if primitive in dashboard_exports:
+            errors.append(f"ui_primitives_retired_export_revived:{primitive}")
+        for reference in (owner_refs or {}).get(primitive, []):
+            errors.append(
+                f"ui_primitives_retired_symbol_revived:{primitive}:{reference}"
+            )
+
+    for primitive in sorted(retained):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        test = f"apps/runtime-dashboard/src/shared/ui/{primitive}.a11y.test.tsx"
+        if owner not in existing_paths:
+            errors.append(f"ui_primitives_retained_owner_missing:{primitive}")
+        if test not in existing_paths:
+            errors.append(f"ui_primitives_retained_test_missing:{primitive}")
+        if primitive not in dashboard_exports:
+            errors.append(f"ui_primitives_retained_export_missing:{primitive}")
+        if owner_refs is not None:
+            dashboard_owner_refs = [
+                ref
+                for ref in owner_refs.get(primitive, [])
+                if ref.startswith("apps/runtime-dashboard/src/shared/ui/")
+            ]
+            if not dashboard_owner_refs:
+                errors.append(f"ui_primitives_retained_symbol_missing:{primitive}")
+
+    for primitive in sorted(UI_PRIMITIVES_MEMBER_RULES):
+        counterpart = f"packages/atlas-ui/src/primitives/{primitive}.tsx"
+        if counterpart in existing_paths or primitive in atlas_exports:
+            errors.append(
+                f"ui_primitives_package_counterpart_without_consumer:{primitive}"
+            )
+        for reference in (owner_refs or {}).get(primitive, []):
+            if reference.startswith("packages/atlas-ui/src/primitives/"):
+                errors.append(
+                    "ui_primitives_package_counterpart_without_consumer:"
+                    f"{primitive}:{reference}"
+                )
+
+    for primitive in sorted(UI_PRIMITIVES_DASHBOARD_REBOUND):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        if owner not in existing_paths:
+            errors.append(f"ui_primitives_dashboard_rebound_missing:{primitive}")
+        if primitive not in dashboard_exports:
+            errors.append(f"ui_primitives_dashboard_rebound_export_missing:{primitive}")
+
+    missing_package = sorted(UI_PRIMITIVES_PACKAGE_MIGRATED - atlas_exports)
+    missing_define_once = sorted(ATLAS_UI_DEFINE_ONCE_PRIMITIVES - atlas_exports)
+    missing_support = sorted(ATLAS_UI_SUPPORT_MODULES - atlas_exports)
+    unexpected_package = sorted(
+        atlas_exports
+        - UI_PRIMITIVES_PACKAGE_MIGRATED
+        - ATLAS_UI_DEFINE_ONCE_PRIMITIVES
+        - ATLAS_UI_SUPPORT_MODULES
+        - ATLAS_UI_OTHER_EXPORTS
+    )
+    if missing_package:
+        errors.append(f"ui_primitives_package_exports_missing:{missing_package}")
+    if missing_define_once:
+        errors.append(
+            f"atlas_ui_define_once_exports_missing:{missing_define_once}"
+        )
+    if missing_support:
+        errors.append(f"atlas_ui_support_exports_missing:{missing_support}")
+    if unexpected_package:
+        errors.append(f"ui_primitives_package_exports_unexpected:{unexpected_package}")
+    if production_consumers:
+        errors.append(
+            "ui_primitives_dormant_production_consumers:"
+            + ",".join(production_consumers)
+        )
+    return errors
+
+
+def _validate_ui_primitives_receipt_semantics(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    censuses: Mapping[str, Mapping[str, Any]],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C03b receipt to DS2, its census, successor, and live source."""
+    receipt = entry.get("aggregate_disposition_receipt")
+    if receipt is None:
+        return
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_primitives_root_transition_invalid")
+    if entry.get("reference_census_id") != UI_PRIMITIVES_CENSUS_ID:
+        errors.append("ui_primitives_root_census_link_invalid")
+
+    successor = entry.get("successor") or {}
+    successor_refs = successor.get("consumer_refs", [])
+    if successor.get("unit_id") != "atlas-ui-primitives" or ATLAS_UI_INDEX not in successor_refs:
+        errors.append("ui_primitives_successor_root_invalid")
+    direct_refs = [
+        ref
+        for ref in successor_refs
+        if ref != ATLAS_UI_INDEX and (REPO_ROOT / ref.split(":", 1)[0]).is_file()
+    ]
+    errors.extend(_ui_primitives_successor_evidence_errors(direct_refs))
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    ds2_titles = {row["title"] for row in ds2["entries"]}
+    for primitive, expected in UI_PRIMITIVES_MEMBER_RULES.items():
+        adoption_id = expected["ds2_adoption_id"]
+        if adoption_id is None:
+            if primitive in ds2_titles:
+                errors.append(f"ui_primitives_ds2_absence_drift:{primitive}")
+            continue
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["title"] != primitive:
+            errors.append(f"ui_primitives_ds2_binding_drift:{primitive}")
+        elif row["sunset_condition"] != expected["governing_condition"]:
+            errors.append(f"ui_primitives_ds2_condition_drift:{primitive}")
+
+    census = censuses.get(UI_PRIMITIVES_CENSUS_ID)
+    if (
+        census is None
+        or census["covers_unit_ids"] != [UI_PRIMITIVES_ROOT_ID]
+        or census["ds1_evidence_ids"] != [UI_PRIMITIVES_ROOT_ID]
+        or census["result"] != "zero_consumers"
+        or not census.get("verification_refs")
+    ):
+        errors.append("ui_primitives_census_invalid")
+    else:
+        scanner_probes = [
+            probe
+            for probe in census["probes"]
+            if probe["kind"] == "typescript_symbol_consumer_census"
+        ]
+        if len(scanner_probes) != 1:
+            errors.append("ui_primitives_scanner_probe_missing")
+        else:
+            probe = scanner_probes[0]
+            if set(probe["targets"]) != set(UI_PRIMITIVES_MEMBER_RULES):
+                errors.append("ui_primitives_scanner_targets_drift")
+            if set(probe.get("checked_import_forms", [])) != UI_PRIMITIVES_CHECKED_IMPORT_FORMS:
+                errors.append("ui_primitives_scanner_forms_drift")
+            if probe["expected_count"] != 0 or probe["observed_refs"] != []:
+                errors.append("ui_primitives_scanner_receipt_not_zero")
+
+    if live_probes:
+        errors.extend(_live_ui_primitives_source_state_errors())
+
+
+def _validate_c15_mixed_receipt(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C15 mixed receipt to exact ownership and DS2 non-claims."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_compounds_root_mixed_transition_invalid")
+    if entry["seed_rule"] != "ds4_c15_mixed_rebind_complete":
+        errors.append("ui_compounds_root_mixed_seed_rule_invalid")
+    if entry["rationale"] != C15_MIXED_RATIONALE:
+        errors.append("ui_compounds_root_mixed_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C15_SUCCESSOR_ID:
+        errors.append("ui_compounds_root_successor_invalid")
+    if successor.get("consumer_refs") != C15_CONSUMER_REFS:
+        errors.append("ui_compounds_root_consumer_refs_drift")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    transitional_condition = (
+        "Keep the mapped live v4 family as the transitional winner until DS4 routes a real "
+        "consumer through one governed replacement, DS6 passes its negative/browser/accessibility "
+        "evidence, and the old import path is removed."
+    )
+    lineage_chart_condition = (
+        "Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after "
+        "generated/source ownership, consumer migration, drift checks, and the owning slice's "
+        "DS6 evidence are complete."
+    )
+    expected_ds2 = {
+        "component-data-table": ("DataTable", transitional_condition),
+        "component-metric-card": ("MetricCard", transitional_condition),
+        "component-provenance-graph": ("ProvenanceGraph", transitional_condition),
+        "viz-chart-provenance-lineage": (
+            "Provenance Lineage chart",
+            lineage_chart_condition,
+        ),
+    }
+    for adoption_id, (title, condition) in expected_ds2.items():
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["title"] != title:
+            errors.append(f"ui_compounds_root_ds2_binding_drift:{adoption_id}")
+        elif row["sunset_condition"] != condition:
+            errors.append(f"ui_compounds_root_ds2_condition_drift:{adoption_id}")
+
+    if not live_probes:
+        return
+
+    for component in C15_PACKAGE_MIGRATED:
+        package_owner = REPO_ROOT / f"packages/atlas-ui/src/compounds/{component}.tsx"
+        dashboard_owner = REPO_ROOT / f"apps/runtime-dashboard/src/shared/ui/{component}.tsx"
+        if not package_owner.is_file():
+            errors.append(f"ui_compounds_root_package_owner_missing:{component}")
+        if dashboard_owner.exists():
+            errors.append(f"ui_compounds_root_dashboard_owner_survives:{component}")
+
+    retired_dashboard_support = [
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.a11y.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/JsonPreview.stories.tsx",
+        "apps/runtime-dashboard/src/shared/ui/VirtualList.a11y.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/VirtualTable.a11y.test.tsx",
+    ]
+    for relative in retired_dashboard_support:
+        if (REPO_ROOT / relative).exists():
+            errors.append(f"ui_compounds_root_dashboard_support_survives:{relative}")
+
+    for component in C15_DASHBOARD_USE_AS_IS:
+        dashboard_owner = REPO_ROOT / f"apps/runtime-dashboard/src/shared/ui/{component}.tsx"
+        package_counterpart = REPO_ROOT / f"packages/atlas-ui/src/compounds/{component}.tsx"
+        if not dashboard_owner.is_file():
+            errors.append(f"ui_compounds_root_transitional_owner_missing:{component}")
+        if package_counterpart.exists():
+            errors.append(f"ui_compounds_root_package_twin_created:{component}")
+
+    package_exports = _owner_exports(
+        ATLAS_UI_INDEX,
+        (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+        "./compounds/",
+    )
+    if package_exports & C15_DASHBOARD_USE_AS_IS:
+        errors.append("ui_compounds_root_transitional_export_created")
+    if not C15_PACKAGE_MIGRATED <= package_exports:
+        errors.append("ui_compounds_root_package_exports_missing")
+
+    sources = _typescript_production_sources(
+        [
+            "apps/runtime-dashboard/src",
+            "packages/atlas-ui/src",
+            "packages/atlas-ui/tests",
+        ]
+    )
+    consumer_map = _c15_migrated_consumer_map_from_sources(sources)
+    errors.extend(_c15_migrated_consumer_errors(sources))
+    successor_paths = set(successor.get("consumer_refs", []))
+    for component, references in consumer_map.items():
+        for reference in references:
+            consumer_path = reference.split(":", 1)[0]
+            if consumer_path not in successor_paths:
+                errors.append(
+                    "ui_compounds_root_live_consumer_ref_missing:"
+                    f"{component}:{consumer_path}"
+                )
+
+
+def _validate_c16_mixed_receipt(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C16 mixed receipt to owners, consumers, and explicit non-claims."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_patterns_mixed_transition_invalid")
+    if entry["seed_rule"] != "ds4_c16_mixed_rebind_complete":
+        errors.append("ui_patterns_mixed_seed_rule_invalid")
+    if entry["rationale"] != C16_MIXED_RATIONALE:
+        errors.append("ui_patterns_mixed_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C16_SUCCESSOR_ID:
+        errors.append("ui_patterns_successor_invalid")
+    if successor.get("consumer_refs") != C16_CONSUMER_REFS:
+        errors.append("ui_patterns_consumer_refs_drift")
+
+    linked_ids = set(entry["evidence_link"]["ds2_adoption_ids"])
+    if linked_ids != C16_FLOW_IDS:
+        errors.append("ui_patterns_flow_id_set_drift")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    for flow_id in sorted(C16_FLOW_IDS):
+        row = ds2_by_id.get(flow_id)
+        if row is None:
+            errors.append(f"ui_patterns_flow_missing:{flow_id}")
+            continue
+        if not row["reason"].startswith(C16_FLOW_REASON):
+            errors.append(f"ui_patterns_flow_reason_drift:{flow_id}")
+        next_adjudication = row.get("next_adjudication") or {}
+        if next_adjudication.get("owner_slices") != C16_FLOW_OWNER_SLICES:
+            errors.append(f"ui_patterns_flow_owner_drift:{flow_id}")
+        if next_adjudication.get("completion_signal") != C16_FLOW_CLOSURE_SIGNAL:
+            errors.append(f"ui_patterns_flow_closure_signal_drift:{flow_id}")
+
+    responsive_condition = (
+        "Revisit after DS4 binds the pattern to one breakpoint source and DS6 supplies its "
+        "full browser/print/touch evidence cell."
+    )
+    search_field_condition = (
+        "Revisit after the DS4 package has the governed export, a migrated live consumer, "
+        "full state evidence, and a DS6 negative/e2e semantic test."
+    )
+    search_form_condition = (
+        "Revisit after the owning slice binds typed producer data, recovery states, a live "
+        "consumer, and DS6 keyboard/error-path evidence."
+    )
+    expected_nonclaims = {
+        "responsive-layout-two-pane": responsive_condition,
+        "responsive-layout-supporting-pane": responsive_condition,
+        "component-search-field": search_field_condition,
+        "form-search-source-selection": search_form_condition,
+    }
+    for adoption_id, condition in expected_nonclaims.items():
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["revisit_condition"] != condition:
+            errors.append(f"ui_patterns_nonclaim_condition_drift:{adoption_id}")
+        if adoption_id in linked_ids:
+            errors.append(f"ui_patterns_false_ds2_claim:{adoption_id}")
+
+    if not live_probes:
+        return
+
+    source_errors = _c16_pattern_source_state_errors()
+    errors.extend(source_errors)
+    consumer_map = _c16_pattern_consumer_map_from_sources(
+        _typescript_production_sources(["apps/runtime-dashboard/src"])
+    )
+    successor_paths = set(successor.get("consumer_refs", []))
+    for component, references in consumer_map.items():
+        for consumer_path in references:
+            if consumer_path not in successor_paths:
+                errors.append(
+                    f"ui_patterns_live_consumer_ref_missing:{component}:{consumer_path}"
+                )
+
+
+def _validate_c17_responsive_receipt(
+    entry: Mapping[str, Any],
+    token_entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind C17 to one generated projection without claiming DS6 evidence."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_responsive_use_as_is_transition_invalid")
+    if entry["seed_rule"] != "ds4_c17_generated_breakpoint_use_as_is":
+        errors.append("ui_responsive_use_as_is_seed_rule_invalid")
+    if entry["rationale"] != C17_RATIONALE:
+        errors.append("ui_responsive_use_as_is_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C17_SUCCESSOR_ID:
+        errors.append("ui_responsive_successor_invalid")
+    if successor.get("consumer_refs") != C17_CONSUMER_REFS:
+        errors.append("ui_responsive_consumer_refs_drift")
+
+    if (
+        token_entry["disposition"] != "rebind_pending"
+        or token_entry["strangle_status"] != "pending"
+        or token_entry.get("successor") is not None
+    ):
+        errors.append("ui_tokens_false_c17_transition")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    taxonomy = ds2_by_id.get("responsive-breakpoint-taxonomy") or {}
+    if taxonomy.get("adoption_verdict") != "reject":
+        errors.append("ui_responsive_rejected_taxonomy_drift")
+
+    responsive_ids = {
+        adoption_id
+        for adoption_id in entry["evidence_link"]["ds2_adoption_ids"]
+        if adoption_id.startswith("responsive-")
+    }
+    ds6_prohibition = "claiming browser or manual assistive-technology evidence"
+    for adoption_id in sorted(
+        responsive_ids - {"responsive-breakpoint-taxonomy", "responsive-shell-navigation"}
+    ):
+        row = ds2_by_id.get(adoption_id) or {}
+        if row.get("adoption_verdict") != "admit_after_refactor":
+            errors.append(f"ui_responsive_ds2_verdict_drift:{adoption_id}")
+        if "DS6" not in row.get("consuming_surfaces", []):
+            errors.append(f"ui_responsive_ds6_owner_drift:{adoption_id}")
+        if ds6_prohibition not in (row.get("authority") or {}).get("may_not_use_for", []):
+            errors.append(f"ui_responsive_ds6_evidence_boundary_drift:{adoption_id}")
+
+    for evidence_id in sorted(C17_EVIDENCE_IDS):
+        row = ds2_by_id.get(evidence_id) or {}
+        if row.get("adoption_verdict") != "admit_after_refactor":
+            errors.append(f"ui_responsive_bounded_evidence_drift:{evidence_id}")
+        if ds6_prohibition not in (row.get("authority") or {}).get("may_not_use_for", []):
+            errors.append(f"ui_responsive_bounded_evidence_overclaim:{evidence_id}")
+
+    if live_probes:
+        errors.extend(_c17_responsive_source_state_errors())
+
+
+def _validate_producer_binding_debt_findings(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind every producer-debt row byte-for-byte to its sole descriptor."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    by_id = {
+        str(row.get("finding_id")): row
+        for row in rows
+        if isinstance(row, Mapping)
+    }
+    producer_rows = [
+        row
+        for row in rows
+        if isinstance(row, Mapping)
+        and row.get("finding_kind") == "producer_binding_debt"
+    ]
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
+        row = by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"producer_binding_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        expected = {
+            "finding_id": finding_id,
+            **descriptor,
+            "decision_date": DECISION_DATE,
+        }
+        for field, expected_value in expected.items():
+            if row.get(field) != expected_value:
+                errors.append(
+                    f"producer_binding_debt_drift:{finding_id}:{field}"
+                )
+    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    for row in producer_rows:
+        finding_id = str(row.get("finding_id", "unknown"))
+        if finding_id not in descriptor_ids:
+            errors.append(
+                "producer_binding_debt_descriptor_missing:" + finding_id
+            )
+
+
+def _validate_c23_containment_roots(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind all deleted readiness/scientific roots to one containment receipt."""
+    for unit_id in C23_ROOT_IDS:
+        entry = entries.get(unit_id, {})
+        successor = entry.get("successor") or {}
+        if (
+            entry.get("disposition") != "rebind_pending"
+            or entry.get("strangle_status") != "strangled"
+            or entry.get("owner_slice") != "DS4"
+            or entry.get("seed_rule") != "ds4_c23_containment"
+            or entry.get("rationale") != C23_RATIONALE
+            or successor.get("unit_id") != C23_SUCCESSOR_ID
+            or successor.get("consumer_refs") != C23_SUCCESSOR_REFS
+        ):
+            errors.append(f"c23_containment_root_drift:{unit_id}")
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -977,9 +3421,10 @@ def validate_register(
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
+    _validate_producer_binding_debt_findings(data, errors)
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
-        if errors:
+        if any(error.startswith("schema:") for error in errors):
             return errors
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
@@ -1006,6 +3451,15 @@ def validate_register(
     if len(entry_ids) != len(set(entry_ids)):
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
+    for entry in entries:
+        if (
+            "aggregate_disposition_receipt" in entry
+            and entry["unit_id"] != UI_PRIMITIVES_ROOT_ID
+        ):
+            errors.append(f"ui_primitives_receipt_wrong_root:{entry['unit_id']}")
+    _validate_ui_primitives_mixed_receipt(
+        entry_by_id[UI_PRIMITIVES_ROOT_ID], errors
+    )
 
     linked_ds2: list[str] = []
     for unit_id, entry in entry_by_id.items():
@@ -1055,6 +3509,33 @@ def validate_register(
     censuses = {census["census_id"]: census for census in data["reference_censuses"]}
     if len(censuses) != len(data["reference_censuses"]):
         errors.append("duplicate_census_id")
+    _validate_ui_primitives_receipt_semantics(
+        entry_by_id[UI_PRIMITIVES_ROOT_ID],
+        ds2,
+        censuses,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c15_mixed_receipt(
+        entry_by_id[C15_ROOT_ID],
+        ds2,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c16_mixed_receipt(
+        entry_by_id[C16_ROOT_ID],
+        ds2,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c17_responsive_receipt(
+        entry_by_id[C17_ROOT_ID],
+        entry_by_id[C17_TOKEN_ROOT_ID],
+        ds2,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
 
@@ -1125,6 +3606,44 @@ def validate_register(
         errors.extend(
             "baseline_" + error for error in validate_baseline_manifest(baseline)
         )
+        findings_by_id = {
+            row["finding_id"]: row for row in data["supplemental_findings"]
+        }
+        active_test_classes = {
+            row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
+        }
+        expected_debt_lifecycle = {
+            "baseline-lint-quantity-debt": (
+                "open_debt" if baseline["lint"]["error_count"] > 0 else "repaired",
+                "DS4",
+            ),
+            "baseline-test-i18n-count-debt": (
+                "open_debt"
+                if "i18n-count-message-parity" in active_test_classes
+                else "repaired",
+                active_test_classes.get(
+                    "i18n-count-message-parity", {"owner_slice": "DS6"}
+                )["owner_slice"],
+            ),
+            "baseline-test-a11y-coverage-debt": (
+                "open_debt"
+                if "shared-ui-a11y-coverage" in active_test_classes
+                else "repaired",
+                "DS4",
+            ),
+            "baseline-test-temporal-cursor-debt": (
+                "open_debt"
+                if "temporal-cursor-canonical-url" in active_test_classes
+                else "repaired",
+                "DS4",
+            ),
+        }
+        for finding_id, (status, owner_slice) in expected_debt_lifecycle.items():
+            finding = findings_by_id.get(finding_id, {})
+            if finding.get("status") != status:
+                errors.append(f"supplemental_debt_status_drift:{finding_id}")
+            if finding.get("owner_slice") != owner_slice:
+                errors.append(f"supplemental_debt_owner_drift:{finding_id}")
 
     expected_negatives = {f"DS1-N{number:03d}" for number in range(1, 24)}
     negative_rows = {row["negative_id"]: row for row in data["seeded_negative_lifecycle"]}
@@ -1170,6 +3689,211 @@ def validate_register(
     return errors
 
 
+def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
+    """Prove the immutable-origin lifecycle rejects disappearance and laundering."""
+    probes: list[tuple[str, dict[str, Any]]] = []
+
+    missing_lint = copy.deepcopy(baseline)
+    missing_lint["lint"]["resolutions"].pop()
+    probes.append(("lint-missing-resolution", missing_lint))
+
+    overlapping_lint = copy.deepcopy(baseline)
+    overlap_resolution = overlapping_lint["lint"]["resolutions"][0]
+    active_row = overlap_resolution["origin_identity"]
+    active_diagnostic = {
+        key: value for key, value in active_row.items() if key != "source_content_sha256"
+    }
+    overlapping_lint["lint"].update(
+        {
+            "disposition": "rebind_pending",
+            "exit_code": 1,
+            "error_count": 1,
+            "source_file_count": 1,
+            "files": [
+                {
+                    "path": active_row["path"],
+                    "content_sha256": active_row["source_content_sha256"],
+                    "diagnostic_count": 1,
+                    "rule_counts": [
+                        {
+                            "rule_id": active_row["rule_id"],
+                            "count": 1,
+                        }
+                    ],
+                    "diagnostics": [active_diagnostic],
+                }
+            ],
+            "identity_set_sha256": _canonical_sha256([active_row]),
+        }
+    )
+    overlapping_lint["lint"]["diagnostic_set"]["sha256"] = _canonical_sha256([active_diagnostic])
+    probes.append(("lint-active-resolved-overlap", overlapping_lint))
+
+    moved_lint = copy.deepcopy(baseline)
+    moved_lint["lint"]["resolutions"][0]["origin_identity"]["line"] += 1
+    probes.append(("lint-moved-origin-identity", moved_lint))
+
+    fabricated_ref = copy.deepcopy(baseline)
+    fabricated_ref["lint"]["resolutions"][0]["implementation_refs"][0] = (
+        "apps/runtime-dashboard/src/fabricated-successor.ts"
+    )
+    probes.append(("lint-fabricated-successor", fabricated_ref))
+
+    missing_content_binding = copy.deepcopy(baseline)
+    missing_content_binding["lint"]["resolution_content_bindings"].pop()
+    probes.append(("lint-missing-resolution-content-binding", missing_content_binding))
+
+    laundered_content_role = copy.deepcopy(baseline)
+    c07_multi_role_binding = next(
+        row
+        for row in laundered_content_role["lint"]["resolution_content_bindings"]
+        if row["cluster_id"] == "C07" and len(row["roles"]) > 1
+    )
+    c07_multi_role_binding["roles"] = c07_multi_role_binding["roles"][:-1]
+    probes.append(("lint-resolution-content-role-laundering", laundered_content_role))
+
+    c07_semantic_laundering = copy.deepcopy(baseline)
+    c07_resolution = next(
+        row
+        for row in c07_semantic_laundering["lint"]["resolutions"]
+        if row["cluster_id"] == "C07"
+        and row["classification"] == "quantity_semantics"
+    )
+    c07_resolution["semantic_kind"] = "non_authority_control"
+    probes.append(("lint-c07-semantic-kind-laundering", c07_semantic_laundering))
+
+    c07_marker_only = copy.deepcopy(baseline)
+    c07_resolution = next(
+        row
+        for row in c07_marker_only["lint"]["resolutions"]
+        if row["cluster_id"] == "C07"
+        and row["classification"] == "quantity_semantics"
+    )
+    c07_resolution["closure_test_ref"] = (
+        "apps/runtime-dashboard/src/shared/charts/chartHardening.test.tsx"
+    )
+    probes.append(("lint-c07-marker-only-closure", c07_marker_only))
+
+    c08_class_laundering = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_class_laundering["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["classification"] = "motion_geometry"
+    probes.append(("lint-c08-classification-laundering", c08_class_laundering))
+
+    c08_semantic_laundering = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_semantic_laundering["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["semantic_kind"] = "decision_bearing"
+    probes.append(("lint-c08-semantic-kind-laundering", c08_semantic_laundering))
+
+    c08_marker_only = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_marker_only["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["closure_test_ref"] = (
+        "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+    )
+    probes.append(("lint-c08-marker-only-closure", c08_marker_only))
+
+    c08_missing_adapter = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_missing_adapter["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["implementation_refs"] = [
+        ref
+        for ref in c08_resolution["implementation_refs"]
+        if ref != "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts"
+    ]
+    probes.append(("lint-c08-canonical-adapter-removed", c08_missing_adapter))
+
+    empty_without_resolutions = copy.deepcopy(baseline)
+    empty_lint = empty_without_resolutions["lint"]
+    empty_lint.update(
+        {
+            "disposition": "resolved",
+            "exit_code": 0,
+            "error_count": 0,
+            "source_file_count": 0,
+            "files": [],
+            "identity_set_sha256": _canonical_sha256([]),
+        }
+    )
+    empty_lint["diagnostic_set"]["sha256"] = _canonical_sha256([])
+    empty_lint["resolutions"].pop()
+    probes.append(("lint-empty-active-incomplete-resolutions", empty_without_resolutions))
+
+    missing_architecture = copy.deepcopy(baseline)
+    missing_architecture["architecture"]["resolutions"].pop()
+    probes.append(("architecture-missing-resolution", missing_architecture))
+
+    c18_classification_laundering = copy.deepcopy(baseline)
+    c18_resolution = next(
+        row
+        for row in c18_classification_laundering["architecture"]["resolutions"]
+        if row["cluster_id"] == "C18"
+    )
+    c18_resolution["classification"] = "shared_dependency_inverted"
+    probes.append(
+        (
+            "architecture-c18-classification-laundering",
+            c18_classification_laundering,
+        )
+    )
+
+    sibling_classification_laundering = copy.deepcopy(baseline)
+    sibling_resolution = next(
+        row
+        for row in sibling_classification_laundering["architecture"]["resolutions"]
+        if row["cluster_id"] == "C09"
+    )
+    sibling_resolution["classification"] = "feature_public_barrel"
+    probes.append(
+        (
+            "architecture-non-c18-classification-laundering",
+            sibling_classification_laundering,
+        )
+    )
+
+    failures: list[str] = []
+    for name, mutation in probes:
+        if not validate_baseline_manifest(mutation):
+            failures.append(name)
+
+    c07_scalar_path = (
+        "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+    )
+    c07_source = (REPO_ROOT / c07_scalar_path).read_bytes()
+    try:
+        scalar_start = c07_source.index(b"export function chartQuantityScalarPoint")
+        scalar_end = c07_source.index(
+            b"\nexport function chartQuantityInterval",
+            scalar_start,
+        )
+    except ValueError:
+        corrupted_c07_source = c07_source
+    else:
+        corrupted_c07_source = (
+            c07_source[:scalar_start]
+            + b"""export function chartQuantityScalarPoint(
+  input: ChartQuantityInput | null | undefined,
+): number | null {
+  // Retained semantic marker strings: chartQuantityMembers, finitePoint,
+  // members.length, members[0]?.point, and input == null.
+  return null;
+}
+"""
+            + c07_source[scalar_end:]
+        )
+    if not validate_baseline_manifest(
+        baseline,
+        source_bytes_override={c07_scalar_path: corrupted_c07_source},
+    ):
+        failures.append("lint-c07-scalar-property-removed-markers-retained")
+    return failures
+
+
 def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes: list[tuple[str, dict[str, Any]]] = []
 
@@ -1213,10 +3937,206 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     op["decision_detail"]["consumer_slice"] = "DS8"
     probes.append(("wrong-consumer-slice", wrong_consumer))
 
+    mixed_count_drift = copy.deepcopy(data)
+    primitives = next(
+        entry
+        for entry in mixed_count_drift["entries"]
+        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+    )
+    primitives["aggregate_disposition_receipt"]["counts"]["retired"] = 2
+    probes.append(("ui-primitives-mixed-count-drift", mixed_count_drift))
+
+    mixed_blob_drift = copy.deepcopy(data)
+    primitives = next(
+        entry
+        for entry in mixed_blob_drift["entries"]
+        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+    )
+    primitives["aggregate_disposition_receipt"][
+        "pre_deletion_resurrection_anchor"
+    ]["files"][0]["git_blob"] = "0" * 40
+    probes.append(("ui-primitives-resurrection-blob-drift", mixed_blob_drift))
+
+    c15_rationale_drift = copy.deepcopy(data)
+    compounds = next(
+        entry
+        for entry in c15_rationale_drift["entries"]
+        if entry["unit_id"] == C15_ROOT_ID
+    )
+    compounds["rationale"] = "C15 complete."
+    probes.append(("ui-compounds-root-mixed-rationale-drift", c15_rationale_drift))
+
+    c16_rationale_drift = copy.deepcopy(data)
+    patterns = next(
+        entry
+        for entry in c16_rationale_drift["entries"]
+        if entry["unit_id"] == C16_ROOT_ID
+    )
+    patterns["rationale"] = "C16 complete."
+    probes.append(("ui-patterns-mixed-rationale-drift", c16_rationale_drift))
+
+    c17_rationale_drift = copy.deepcopy(data)
+    responsive = next(
+        entry
+        for entry in c17_rationale_drift["entries"]
+        if entry["unit_id"] == C17_ROOT_ID
+    )
+    responsive["rationale"] = "C17 proves responsive readiness."
+    probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
+
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
+        governed_fields = ("finding_id", *descriptor)
+        for field in governed_fields:
+            mutation = copy.deepcopy(data)
+            row = next(
+                item
+                for item in mutation["supplemental_findings"]
+                if item["finding_id"] == finding_id
+            )
+            value = row[field]
+            if isinstance(value, list):
+                row[field] = list(reversed(value))
+            else:
+                row[field] = str(value) + "-corrupt"
+            probes.append(
+                (f"producer-binding-debt-{finding_id}-{field}", mutation)
+            )
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)
+
+    retained = {
+        name
+        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
+        if rule["disposition"] != "retire"
+    }
+    expected_package_exports = (
+        UI_PRIMITIVES_PACKAGE_MIGRATED
+        | ATLAS_UI_DEFINE_ONCE_PRIMITIVES
+        | ATLAS_UI_SUPPORT_MODULES
+        | ATLAS_UI_OTHER_EXPORTS
+    )
+    unexpected_module_errors = _ui_primitives_source_state_errors(
+        existing_paths={
+            *(f"apps/runtime-dashboard/src/shared/ui/{name}.tsx" for name in retained),
+            *(f"apps/runtime-dashboard/src/shared/ui/{name}.a11y.test.tsx" for name in retained),
+            *(
+                f"apps/runtime-dashboard/src/shared/ui/{name}.tsx"
+                for name in UI_PRIMITIVES_DASHBOARD_REBOUND
+            ),
+        },
+        dashboard_exports=retained | UI_PRIMITIVES_DASHBOARD_REBOUND,
+        atlas_exports=expected_package_exports | {"UnexpectedAuthorityOwner"},
+        production_consumers=[],
+    )
+    if not any(
+        error.startswith("ui_primitives_package_exports_unexpected:")
+        for error in unexpected_module_errors
+    ):
+        failures.append("ui-primitives-unexpected-support-module")
+
+    c15_consumers = {
+        C15_JSON_PREVIEW_ADAPTER: (
+            'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+            "const localizedPreview = <JsonPreview data={{}} />;\n"
+        ),
+        "apps/runtime-dashboard/src/features/c15-valid.tsx": (
+            'import { VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const consumers = <><VirtualList /><VirtualTable /></>;\n"
+        ),
+        "packages/atlas-ui/src/compounds/owners.tsx": (
+            'import { JsonPreview, VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const owners = [JsonPreview, VirtualList, VirtualTable];\n"
+        ),
+        "packages/atlas-ui/tests/compoundComponents.test.tsx": (
+            'import { JsonPreview, VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+            "const tests = [JsonPreview, VirtualList, VirtualTable];\n"
+        ),
+    }
+    if _c15_migrated_consumer_errors(c15_consumers):
+        failures.append("ui-compounds-root-valid-production-consumers")
+    unlocalized_consumers = {
+        **c15_consumers,
+        "apps/runtime-dashboard/src/features/c15-unlocalized.tsx": (
+            'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+            "const preview = <JsonPreview data={{}} />;\n"
+        ),
+    }
+    if (
+        "ui_compounds_root_unlocalized_json_preview_consumer:"
+        "apps/runtime-dashboard/src/features/c15-unlocalized.tsx"
+        not in _c15_migrated_consumer_errors(unlocalized_consumers)
+    ):
+        failures.append("ui-compounds-root-unlocalized-json-preview")
+    c15_consumers[C15_JSON_PREVIEW_ADAPTER] = (
+        'import { JsonPreview } from "@polisyos/atlas-ui";\n'
+        "void JsonPreview;\n"
+    )
+    c15_consumers["apps/runtime-dashboard/src/features/c15-valid.tsx"] = (
+        'import { VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
+        "const markers = [VirtualList, VirtualTable];\n"
+    )
+    expected_missing_consumers = [
+        f"ui_compounds_root_production_consumer_missing:{component}"
+        for component in sorted(C15_PACKAGE_MIGRATED)
+    ]
+    if _c15_migrated_consumer_errors(c15_consumers) != expected_missing_consumers:
+        failures.append("ui-compounds-root-production-consumption-removed")
+
+    c16_consumers = {
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
+            'import { DetailLayout } from "@polisyos/atlas-ui";\n'
+            "const layout = <DetailLayout content={null} />;\n"
+        ),
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": (
+            'import { FilterPanel } from "@polisyos/atlas-ui";\n'
+            'const filters = <FilterPanel title="Filters" />;\n'
+        ),
+    }
+    valid_c16_errors = _c16_pattern_source_state_errors(
+        sources=c16_consumers,
+        existing_paths=set(C16_REQUIRED_PATHS),
+        atlas_exports=set(C16_PACKAGE_MIGRATED),
+    )
+    if valid_c16_errors:
+        failures.append("ui-patterns-valid-mixed-source-state")
+    for consumer_path, component in (
+        (
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+            "DetailLayout",
+        ),
+        (
+            "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+            "FilterPanel",
+        ),
+    ):
+        reduced_sources = {
+            path: source
+            for path, source in c16_consumers.items()
+            if path != consumer_path
+        }
+        expected_error = f"ui_patterns_production_consumer_missing:{component}"
+        if expected_error not in _c16_pattern_source_state_errors(
+            sources=reduced_sources,
+            existing_paths=set(C16_REQUIRED_PATHS),
+            atlas_exports=set(C16_PACKAGE_MIGRATED),
+        ):
+            failures.append(f"ui-patterns-direct-consumer-removal:{component}")
+    promoted_paths = {
+        *C16_REQUIRED_PATHS,
+        "packages/atlas-ui/src/patterns/SearchableList.tsx",
+    }
+    if (
+        "ui_patterns_searchable_list_promoted_without_consumer"
+        not in _c16_pattern_source_state_errors(
+            sources=c16_consumers,
+            existing_paths=promoted_paths,
+            atlas_exports={*C16_PACKAGE_MIGRATED, C16_SEARCHABLE_LIST},
+        )
+    ):
+        failures.append("ui-patterns-searchable-list-consumerless-promotion")
     return failures
 
 
@@ -1273,6 +4193,48 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             + " |"
         )
 
+    primitive_entry = entry_by_id[UI_PRIMITIVES_ROOT_ID]
+    primitive_receipt = primitive_entry.get("aggregate_disposition_receipt")
+    if primitive_receipt is not None:
+        counts = primitive_receipt["counts"]
+        lines.extend(
+            [
+                "",
+                "### DS4 primitive aggregate disposition",
+                "",
+                "| Outcome | Count |",
+                "| --- | ---: |",
+                f"| Package migrated | {counts['package_migrated']} |",
+                f"| Dashboard rebound | {counts['dashboard_rebound']} |",
+                f"| Retired | {counts['retired']} |",
+                f"| Use as-is | {counts['use_as_is']} |",
+                f"| **Total** | **{counts['total']}** |",
+                "",
+                "| Dormant primitive | Disposition | DS2 adoption row | Governing condition |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for member in primitive_receipt["c03b_members"]:
+            adoption_id = member["ds2_adoption_id"] or "none"
+            condition = (
+                member["governing_condition"]
+                or "No exact DS2 row; retirement is not prohibited."
+            )
+            lines.append(
+                f"| `{member['primitive']}` | `{member['disposition']}` | "
+                f"`{adoption_id}` | {condition} |"
+            )
+        anchor = primitive_receipt["pre_deletion_resurrection_anchor"]
+        lines.extend(
+            [
+                "",
+                f"Pre-deletion resurrection commit: `{anchor['git_commit']}`.",
+                "",
+                "Resurrection rule: "
+                f"`{primitive_receipt['resurrection_rule']}`.",
+            ]
+        )
+
     lines.extend(
         [
             "",
@@ -1323,17 +4285,24 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             "",
             "### Subunits and structural findings",
             "",
-            "| ID | Kind | Disposition | Owner slice | State/reason |",
-            "| --- | --- | --- | --- | --- |",
+            "| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
     for row in data["subunits"]:
         lines.append(
-            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {row['rationale']} |"
+            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | — | — | {row['rationale']} |"
         )
     for row in data["supplemental_findings"]:
+        capability_states = row.get("capability_states")
+        capability_projection = (
+            ", ".join(f"`{state}`" for state in capability_states)
+            if capability_states
+            else "—"
+        )
+        closure_projection = row.get("closure_signal", "—")
         lines.append(
-            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | `{row['status']}` — {row['rationale']} |"
+            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {capability_projection} | {closure_projection} | `{row['status']}` — {row['rationale']} |"
         )
 
     lines.extend(
@@ -1558,6 +4527,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate the committed register")
     parser.add_argument("--write-seed", action="store_true", help="write a fresh deterministic seed register")
+    parser.add_argument(
+        "--write-supplemental",
+        action="store_true",
+        help="refresh only descriptor-derived supplemental findings in the evolved register",
+    )
     parser.add_argument("--write-report", action="store_true", help="regenerate the report projection")
     parser.add_argument("--corruption-probes", action="store_true", help="prove decisive mutations are rejected")
     parser.add_argument(
@@ -1575,6 +4549,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=Path,
         help="compare a Vitest JSON result against the baseline failed-test set",
     )
+    parser.add_argument(
+        "--architecture-results",
+        type=Path,
+        help="compare custom architecture JSON against the active debt set",
+    )
     args = parser.parse_args(argv)
 
     if args.write_seed:
@@ -1585,7 +4564,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not REGISTER_PATH.exists():
         print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
         return 1
-    data = _load_json(REGISTER_PATH)
+    register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    if args.write_supplemental:
+        register_text = _refresh_supplemental_findings_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print(
+            "refreshed "
+            + str(REGISTER_PATH.relative_to(REPO_ROOT))
+            + " supplemental_findings"
+        )
+    data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")
         print(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}")
@@ -1602,12 +4590,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         errors.extend(compare_lint_results(baseline, args.lint_results))
     if args.vitest_results:
         errors.extend(compare_vitest_results(baseline, args.vitest_results))
+    if args.architecture_results:
+        errors.extend(compare_architecture_results(baseline, args.architecture_results))
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
     if args.corruption_probes:
-        failures = _corruption_probes(data)
+        failures = [
+            *_corruption_probes(data),
+            *_baseline_corruption_probes(baseline),
+        ]
         if failures:
             print("corruption probes escaped: " + ", ".join(failures), file=sys.stderr)
             return 1

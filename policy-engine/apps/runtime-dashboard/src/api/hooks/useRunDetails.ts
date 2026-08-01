@@ -7,11 +7,10 @@ import {
   RUN_TERMINAL_STALE_MS,
 } from "@/shared/lib/constants";
 import {
-  useMaybeTemporalCursor,
+  toApiTemporalParams,
   type TemporalScope,
-} from "@/app/providers/useTemporalCursor";
-import { toApiTemporalParams } from "@/app/providers/temporal-scope";
-import { isRunTerminal } from "../../features/runs/domain/status";
+} from "@/shared/lib/domain/temporal";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError, isRuntimeApiNotFound } from "../http";
 import { queryKeys } from "../queryKeys";
@@ -45,14 +44,20 @@ export function runDetailsQueryOptions(
   temporalScope?: TemporalScope | null,
 ) {
   const liveTransport = options?.liveTransport ?? false;
+  type QueryRun = {
+    finished_at?: string | null | undefined;
+    status?: string | null | undefined;
+  };
+  const hasProducerFinishedAt = (run: QueryRun | undefined) =>
+    typeof run?.finished_at === "string" && run.finished_at.trim().length > 0;
   return {
     queryKey: queryKeys.run(runId, temporalScope),
     queryFn: () => fetchRunDetails(runId, temporalScope),
     staleTime: (query: {
-      state: { data?: { run?: { status?: string | null | undefined } } };
+      state: { data?: { run?: QueryRun } };
     }) => {
       const run = query.state.data?.run;
-      return isRunTerminal(run?.status)
+      return hasProducerFinishedAt(run)
         ? RUN_TERMINAL_STALE_MS
         : RUN_ACTIVE_STALE_MS;
     },
@@ -61,7 +66,7 @@ export function runDetailsQueryOptions(
     retryDelay: (attempt: number) => Math.min(500 * 2 ** attempt, 2_500),
     refetchInterval: (query: {
       state: {
-        data?: { run?: { status?: string | null | undefined } };
+        data?: { run?: QueryRun };
         error?: unknown;
       };
     }) => {
@@ -73,7 +78,7 @@ export function runDetailsQueryOptions(
         return RUN_BOOTSTRAP_REFETCH_MS;
       }
       const run = query.state.data?.run;
-      return isRunTerminal(run?.status) ? false : RUN_ACTIVE_REFETCH_MS;
+      return hasProducerFinishedAt(run) ? false : RUN_ACTIVE_REFETCH_MS;
     },
   };
 }

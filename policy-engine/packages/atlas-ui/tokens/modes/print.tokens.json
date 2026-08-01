@@ -1,0 +1,333 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Complete living print token and export behavior projection.",
+  "printMode": {
+    "export": {
+      "tokens": {
+        "--print-ink": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.06666666666666667, 0.06666666666666667, 0.06666666666666667
+            ],
+            "hex": "#111111"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "#111111"
+            }
+          }
+        },
+        "--print-muted": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.26666666666666666, 0.26666666666666666, 0.26666666666666666
+            ],
+            "hex": "#444444"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "#444444"
+            }
+          }
+        },
+        "--print-line": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7215686274509804, 0.7215686274509804, 0.7215686274509804
+            ],
+            "hex": "#b8b8b8"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "#b8b8b8"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "printMode": {
+          "export": {
+            "mediaQuery": "print",
+            "page": {
+              "margin": "2.5cm 2cm",
+              "size": "A4"
+            },
+            "rules": {
+              "hide": {
+                "selectors": {
+                  "selector01": "nav",
+                  "selector02": "aside.dashboard-shell",
+                  "selector03": ".app-sidebar",
+                  "selector04": ".shell-sidebar",
+                  "selector05": ".dashboard-shell",
+                  "selector06": ".reading-view-toggle",
+                  "selector07": ".trust-inspector",
+                  "selector08": "[data-a11y-overlay=\"true\"]",
+                  "selector09": "[data-print-hidden=\"true\"]"
+                },
+                "declarations": {
+                  "display": "none !important"
+                }
+              },
+              "documentCanvas": {
+                "selectors": {
+                  "selector01": "html",
+                  "selector02": "body"
+                },
+                "declarations": {
+                  "background": "#ffffff !important",
+                  "color": "var(--print-ink) !important"
+                }
+              },
+              "bodyTypography": {
+                "selectors": {
+                  "selector01": "body"
+                },
+                "declarations": {
+                  "font-size": "11pt",
+                  "line-height": "1.45"
+                }
+              },
+              "prose": {
+                "selectors": {
+                  "selector01": ".prose"
+                },
+                "declarations": {
+                  "max-width": "none !important",
+                  "color": "var(--print-ink) !important"
+                }
+              },
+              "documentLayouts": {
+                "selectors": {
+                  "selector01": ".monograph-layout",
+                  "selector02": ".monograph-main",
+                  "selector03": ".monograph-page",
+                  "selector04": ".monograph-prose-frame",
+                  "selector05": ".bureaucratic-document",
+                  "selector06": "[data-print-document=\"true\"]"
+                },
+                "declarations": {
+                  "display": "block !important",
+                  "max-width": "none !important",
+                  "padding-right": "0 !important"
+                }
+              },
+              "marginNote": {
+                "selectors": {
+                  "selector01": ".margin-note"
+                },
+                "declarations": {
+                  "position": "static !important",
+                  "inline-size": "auto !important",
+                  "margin-top": "0.75rem !important"
+                }
+              },
+              "headings": {
+                "selectors": {
+                  "selector01": "h1",
+                  "selector02": "h2",
+                  "selector03": "h3",
+                  "selector04": "h4"
+                },
+                "declarations": {
+                  "break-after": "avoid",
+                  "color": "var(--print-ink) !important"
+                }
+              },
+              "keepTogether": {
+                "selectors": {
+                  "selector01": "table",
+                  "selector02": "figure",
+                  "selector03": "blockquote",
+                  "selector04": ".bureaucratic-block",
+                  "selector05": ".trust-metadata-expanded",
+                  "selector06": ".provenance-popover-summary",
+                  "selector07": "[data-print-keep-together=\"true\"]"
+                },
+                "declarations": {
+                  "break-inside": "avoid"
+                }
+              },
+              "charts": {
+                "selectors": {
+                  "selector01": ".fan-chart",
+                  "selector02": ".uncertainty-band",
+                  "selector03": ".small-multiples"
+                },
+                "declarations": {
+                  "break-inside": "avoid"
+                }
+              },
+              "linkHref": {
+                "selectors": {
+                  "selector01": "a[href]::after"
+                },
+                "declarations": {
+                  "color": "var(--print-muted)",
+                  "content": "\" <\" attr(href) \">\"",
+                  "font-size": "8pt",
+                  "word-break": "break-all"
+                }
+              },
+              "trustChips": {
+                "selectors": {
+                  "selector01": ".trust-hash-chip",
+                  "selector02": ".quantity",
+                  "selector03": "[data-testid=\"quantity\"]"
+                },
+                "declarations": {
+                  "border-color": "var(--print-line) !important",
+                  "color": "var(--print-ink) !important"
+                }
+              },
+              "trustMetadata": {
+                "selectors": {
+                  "selector01": ".trust-metadata",
+                  "selector02": ".trust-metadata-expanded"
+                },
+                "declarations": {
+                  "color": "var(--print-ink) !important"
+                }
+              },
+              "documentMetadata": {
+                "selectors": {
+                  "selector01": ".print-document-metadata",
+                  "selector02": ".print-provenance-summary",
+                  "selector03": ".print-source-appendix"
+                },
+                "declarations": {
+                  "border-top": "1px solid var(--print-line)",
+                  "color": "var(--print-muted)",
+                  "display": "block !important",
+                  "font-size": "8.5pt",
+                  "margin-top": "1rem",
+                  "padding-top": "0.5rem"
+                }
+              },
+              "provenanceSummary": {
+                "selectors": {
+                  "selector01": ".provenance-strip::after"
+                },
+                "declarations": {
+                  "content": "\" [\" attr(data-glyph-summary) \"]\""
+                }
+              }
+            },
+            "utilityBaseRules": {
+              "printOnly": {
+                "selectors": {
+                  "selector1": ".media-print-only"
+                },
+                "declarations": {
+                  "display": "none"
+                }
+              }
+            },
+            "utilityRules": {
+              "screenOnly": {
+                "selectors": {
+                  "selector1": ".media-screen-only"
+                },
+                "declarations": {
+                  "display": "none !important"
+                }
+              },
+              "printOnly": {
+                "selectors": {
+                  "selector1": ".media-print-only"
+                },
+                "declarations": {
+                  "display": "revert !important"
+                }
+              }
+            },
+            "applicationRules": {
+              "body": {
+                "selectors": {
+                  "selector1": "body"
+                },
+                "declarations": {
+                  "background": "white !important",
+                  "color": "black !important"
+                }
+              },
+              "shell": {
+                "selectors": {
+                  "selector1": ".atlas-shell"
+                },
+                "declarations": {
+                  "border": "none",
+                  "border-radius": "0",
+                  "background": "white",
+                  "backdrop-filter": "none",
+                  "box-shadow": "none"
+                }
+              },
+              "navigation": {
+                "selectors": {
+                  "selector1": ".side-rail",
+                  "selector2": ".topbar-actions",
+                  "selector3": ".mobile-nav",
+                  "selector4": ".skip-to-content"
+                },
+                "declarations": {
+                  "display": "none !important"
+                }
+              },
+              "deckSlide": {
+                "selectors": {
+                  "selector1": ".atlas-deck-slide"
+                },
+                "declarations": {
+                  "min-block-size": "auto",
+                  "break-after": "page",
+                  "border": "none",
+                  "border-radius": "0",
+                  "background": "white",
+                  "box-shadow": "none"
+                }
+              },
+              "surface": {
+                "selectors": {
+                  "selector1": ".surface"
+                },
+                "declarations": {
+                  "padding": "0"
+                }
+              },
+              "appShell": {
+                "selectors": {
+                  "selector1": ".app-shell"
+                },
+                "declarations": {
+                  "grid-template-columns": "1fr",
+                  "min-block-size": "auto"
+                }
+              },
+              "linkHref": {
+                "selectors": {
+                  "selector1": "a[href]::after"
+                },
+                "declarations": {
+                  "content": "\" (\" attr(href) \")\"",
+                  "font-size": "0.8em",
+                  "color": "#666"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

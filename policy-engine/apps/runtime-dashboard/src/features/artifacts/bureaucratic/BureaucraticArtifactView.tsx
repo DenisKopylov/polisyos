@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { Download, FileCheck2, Printer } from "lucide-react";
 
 import { useBureaucraticRender } from "@/api/hooks/useBureaucraticRender";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button, Checkbox } from "@polisyos/atlas-ui";
 
 import {
   type BureaucraticDocumentAST,
@@ -73,8 +73,7 @@ export function BureaucraticArtifactView({
           </h3>
         </div>
         <label className="flex items-center gap-2 text-sm font-semibold">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={trustView}
             onChange={(event) => setTrustView(event.target.checked)}
           />
@@ -138,11 +137,7 @@ export function BureaucraticArtifactView({
   );
 }
 
-function RendererForGenre({
-  document,
-}: {
-  document: BureaucraticDocumentAST;
-}) {
+function RendererForGenre({ document }: { document: BureaucraticDocumentAST }) {
   if (document.genre === "zakonoproekt") {
     return <ZakonoproektRenderer document={document} />;
   }

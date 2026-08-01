@@ -11,7 +11,10 @@ const data: SmallMultipleDatum[] = regions.flatMap((region, rowIndex) =>
   sectors.map((sector, columnIndex) => ({
     region,
     sector,
-    status: "verified",
+    verification: {
+      freshness: columnIndex === 0 ? "stale" : "current",
+      verification_status: "verified",
+    },
     value: rowIndex * 12 + columnIndex,
   })),
 );
@@ -31,6 +34,34 @@ describe("SmallMultiples", () => {
     expect(screen.getByRole("grid")).toHaveAttribute("aria-colcount", "12");
     expect(screen.getAllByRole("gridcell")).toHaveLength(96);
     expect(screen.getByText("120")).toBeInTheDocument();
+    expect(screen.getAllByRole("gridcell")[0]).toHaveAttribute(
+      "data-verification-status",
+      "verified",
+    );
+    expect(screen.getAllByRole("gridcell")[0]).toHaveAttribute(
+      "data-freshness",
+      "stale",
+    );
+    expect(screen.getAllByRole("gridcell")[0]).not.toHaveAttribute(
+      "data-status",
+    );
+  });
+
+  it("does not forge verification or freshness for a missing cell", () => {
+    render(
+      <SmallMultiples
+        data={[data[0]!, data[13]!]}
+        valueDomain={[0, 120]}
+        valueLabel="impact"
+      />,
+    );
+
+    const missingCell = screen.getByRole("gridcell", {
+      name: "Region 1, Sector 2, missing impact",
+    });
+    expect(missingCell).not.toHaveAttribute("data-verification-status");
+    expect(missingCell).not.toHaveAttribute("data-freshness");
+    expect(missingCell).not.toHaveAttribute("data-status");
   });
 
   it("supports keyboard traversal and selection through grid cells", async () => {

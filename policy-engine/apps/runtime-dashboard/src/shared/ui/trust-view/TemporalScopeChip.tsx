@@ -1,15 +1,15 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
-import type { TemporalRef } from "@/shared/ui/quantity";
+import type { VerificationMetadata } from "./trust-glyphs";
 
 type TemporalScopeChipProps = {
-  scope?: TemporalRef | null;
+  scope?: VerificationMetadata["temporal_scope"];
 };
 
 export function TemporalScopeChip({ scope }: TemporalScopeChipProps) {
   const { t } = useI18n();
-  const validAt = scope?.valid_at ?? t("shared.ui.trustView.latest");
-  const txAt = scope?.tx_at ?? t("shared.ui.trustView.latest");
+  const validAt = scope?.valid_at ?? t("common.unknown");
+  const txAt = scope?.tx_at ?? t("common.unknown");
   return (
     <span className="border-border bg-muted/30 inline-flex max-w-full items-center rounded-full border px-2 py-0.5 font-mono text-[11px]">
       {t("shared.ui.trustView.temporalScope", { txAt, validAt })}

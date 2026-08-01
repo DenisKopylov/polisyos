@@ -20,11 +20,10 @@ import {
   normalizeRunEvidenceContext,
 } from "@/shared/lib/domain/evidence";
 import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
-import {
-  normalizeGovernanceIssues,
-  summarizeGovernanceIssues,
-} from "@/shared/lib/domain/governance";
+import { normalizeGovernanceIssues } from "@/shared/lib/domain/governance";
 import { formatNumber } from "@/shared/lib/utils";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 
 function dedupeArtifactRefs(
   refs: Array<EvidenceArtifactRef | null | undefined>,
@@ -64,25 +63,33 @@ export function buildEvidenceHref(
 
 export function getDecisionHeadline(
   verdict: string | null | undefined,
-  blockerCount: number,
+  _blockerCount: number,
   t: (path: string) => string,
 ) {
-  const normalized = (verdict ?? "").toUpperCase();
-  if (normalized.includes("APPROVE")) {
-    return blockerCount > 0
-      ? t("pages.runs.verdict.approveWithConditions")
-      : t("pages.runs.verdict.approve");
-  }
-  if (normalized.includes("REJECT")) {
-    return t("pages.runs.verdict.reject");
-  }
-  if (normalized.includes("REPLAN")) {
-    return t("pages.runs.verdict.replan");
-  }
-  if (blockerCount > 0) {
-    return t("pages.runs.verdict.escalate");
-  }
-  return t("pages.runs.verdict.inReview");
+  return verdict?.trim() || t("common.unknown");
+}
+
+export function resolveRunDecisionScoreQuantity(input: {
+  confidence: string | null | undefined;
+  generatedAt?: string | null;
+  point?: number | null;
+  runId: string;
+}): QuantityValueOutput {
+  const candidatePoint =
+    typeof input.point === "number" && Number.isFinite(input.point)
+      ? input.point
+      : null;
+  const point =
+    candidatePoint === null ? null : Math.max(0, Math.min(1, candidatePoint));
+  return untracedDecisionQuantity({
+    label: "Run decision score",
+    metricId: "run.decision_score",
+    point,
+    reasonCode: "run_summary_without_runtime_quantity",
+    time: { valid_at: input.generatedAt ?? null },
+    trackingIssue: "ATLAS-DS4-C06",
+    unit: { code: "1", display: "ratio", system: "ucum" },
+  });
 }
 
 export function useRunDetailSummary(
@@ -116,8 +123,13 @@ export function useRunDetailSummary(
     if (!governance) {
       return null;
     }
-    return summarizeGovernanceIssues(governanceIssues);
-  }, [governance, governanceIssues]);
+    return {
+      blocker: governance.issue_summary?.blocker_count ?? 0,
+      info: governance.issue_summary?.info_count ?? 0,
+      unknown: governance.issue_summary?.unknown_count ?? 0,
+      warning: governance.issue_summary?.warning_count ?? 0,
+    };
+  }, [governance]);
 
   const artifactRefs = useMemo(
     () =>
@@ -163,8 +175,7 @@ export function useRunDetailSummary(
     resolveArtifactPreviewPayload(decisionArtifact),
   );
 
-  const blockerCount =
-    governanceSummary?.blocker ?? governance?.issue_summary?.blocker_count ?? 0;
+  const blockerCount = governanceSummary?.blocker ?? 0;
   const selectedNeed = findRunEvidenceNeed(
     evidenceContext,
     evidenceContext?.dataNeeds[0]?.needId ?? null,
@@ -178,24 +189,21 @@ export function useRunDetailSummary(
     evidenceContext?.promotionCandidates[0]?.promotionId ?? null,
   );
   const decisionScoreRaw = pipeline?.evaluator?.scores?.total_score ?? null;
-  const decisionScore = Math.max(
-    0,
-    Math.min(
-      1,
-      typeof decisionScoreRaw === "number"
-        ? decisionScoreRaw
-        : decisionView?.confidence === "HIGH"
-          ? 0.84
-          : decisionView?.confidence === "MEDIUM"
-            ? 0.67
-            : decisionView?.confidence === "LOW"
-              ? 0.41
-              : 0.52,
-    ),
-  );
-  const decisionScoreStyle = {
-    "--score-angle": `${Math.max(32, Math.round(32 + decisionScore * 300))}deg`,
-  } as CSSProperties;
+  const decisionScore = resolveRunDecisionScoreQuantity({
+    confidence: decisionView?.confidence,
+    generatedAt: decisionView?.generatedAt,
+    point: decisionScoreRaw,
+    runId: runId ?? decisionView?.runId ?? "unknown-run",
+  });
+  const decisionScoreStyle =
+    typeof decisionScore.point === "number"
+      ? ({
+          "--score-angle": `${Math.max(
+            32,
+            Math.round(32 + decisionScore.point * 300),
+          )}deg`,
+        } as CSSProperties)
+      : ({} as CSSProperties);
 
   const decisionHeadline = getDecisionHeadline(
     decisionView?.verdict ?? pipeline?.evaluator?.verdict ?? null,
@@ -205,9 +213,7 @@ export function useRunDetailSummary(
   const transportStatus = String(
     governance?.transport_summary?.status ?? "not_available",
   );
-  const primaryIssue = governanceIssues.find(
-    (issue) => issue.severity === "blocker" || issue.severity === "warning",
-  );
+  const primaryIssue = governanceIssues[0];
   const impactRows = decisionView?.distributional?.breakdowns?.[0]?.rows?.length
     ? decisionView.distributional.breakdowns[0].rows.slice(0, 5).map((row) => ({
         label: row.cohortLabel,

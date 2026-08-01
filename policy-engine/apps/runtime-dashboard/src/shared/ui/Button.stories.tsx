@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 
-import { Button } from "@/shared/ui/Button";
+import { Button } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Button",

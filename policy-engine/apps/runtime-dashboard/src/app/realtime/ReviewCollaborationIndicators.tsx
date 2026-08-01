@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatTime } from "@/shared/lib/utils";
-import { Badge } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
 
 export type ReviewCollaborator = {
   accentColor: string;

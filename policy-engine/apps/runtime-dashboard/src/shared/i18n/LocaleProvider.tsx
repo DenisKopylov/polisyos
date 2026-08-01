@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { TextPresentationProvider } from "@polisyos/atlas-ui";
 
 import {
   formatIcuMessage,
@@ -129,7 +130,22 @@ export function LocaleProvider({ children }: PropsWithChildren) {
     [locale],
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  return (
+    <I18nContext.Provider value={value}>
+      <TextPresentationProvider
+        locale={locale}
+        transform={(node, presentationLocale, options) =>
+          applyTypographyToReactNode(
+            node,
+            presentationLocale as Locale,
+            options,
+          )
+        }
+      >
+        {children}
+      </TextPresentationProvider>
+    </I18nContext.Provider>
+  );
 }
 
 export function useOptionalI18n(): I18nContextValue {

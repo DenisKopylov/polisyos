@@ -36,11 +36,9 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Badge,
-  Button,
-  Card,
   DataFreshnessBadge,
   EvidenceChain,
   ProvenanceStrip,
@@ -54,19 +52,16 @@ const evidenceHeroProvenance: ProvenanceItem[] = [
     id: "provenance",
     glyph: "provenance",
     label: "Source chain",
-    intent: "default",
   },
   {
     id: "evidence",
     glyph: "evidence",
     label: "Observations",
-    intent: "default",
   },
   {
     id: "freshness",
     glyph: "freshness",
     label: "Live",
-    intent: "verified",
   },
 ];
 
@@ -315,13 +310,7 @@ export default function EvidenceFabric() {
                 })}
               </Badge>
             ) : null}
-            <DataFreshnessBadge
-              generatedAt={
-                runId
-                  ? runContextQuery.data?.meta?.generated_at
-                  : promotionCandidatesQuery.data?.meta?.generated_at
-              }
-            />
+            <DataFreshnessBadge />
             {enabledFeatures.slice(0, 2).map((feature) => (
               <Badge key={feature.key} kind="neutral">
                 {feature.label}

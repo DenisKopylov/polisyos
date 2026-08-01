@@ -1,0 +1,52 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Theme-mode metadata and retained ADR-047 identity anchors.",
+  "theme": {
+    "metaThemeColor": {
+      "dark": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.07058823529411765, 0.058823529411764705, 0.054901960784313725
+          ],
+          "hex": "#120f0e"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#120f0e"
+          }
+        }
+      },
+      "light": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.984313725490196, 0.9725490196078431, 0.9490196078431372
+          ],
+          "hex": "#fbf8f2"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#fbf8f2"
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "theme": {
+          "preferences": {
+            "dark": "dark",
+            "light": "light",
+            "system": "system"
+          },
+          "systemMediaQuery": "(prefers-color-scheme: dark)"
+        }
+      }
+    }
+  }
+}

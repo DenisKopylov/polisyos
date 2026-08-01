@@ -99,8 +99,11 @@ describe("ControlFailurePanel", () => {
       within(diagnosticPanel).getAllByText(/sha256:abcdef/).length,
     ).toBeGreaterThan(0);
     expect(
+      within(diagnosticPanel).getByText("authority_boundary:"),
+    ).toBeInTheDocument();
+    expect(
       within(diagnosticPanel).getByText(
-        "authority_boundary: runtime.workflow_failed_non_authority.job-demo",
+        "runtime.workflow_failed_non_authority.job-demo",
       ),
     ).toBeInTheDocument();
     expect(
@@ -710,5 +713,63 @@ describe("ControlFailurePanel", () => {
       screen.getByText("scientist.node.formalize_problem"),
     ).toBeInTheDocument();
     expect(screen.getByText(/sha256:cccc/)).toBeInTheDocument();
+  });
+
+  it("open execution_status cannot override generated control job state", () => {
+    renderWithProviders(
+      <ControlFailurePanel
+        job={{
+          meta: { request_id: "req-open-execution-status" },
+          job_id: "job-open-execution-status",
+          kind: "natural_language_run",
+          state: "running",
+          effective_execution_profile: "production",
+          execution_status: "completed",
+          quality_status: "fail",
+          progress: {
+            scientist_workflow: {
+              current_event: "NODE_STARTED",
+              current_node_alias: "formalize_problem",
+              current_phase: "scientist.node.formalize_problem",
+              event_count: 1,
+              latest_artifact_refs: [],
+            },
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Scientist workflow")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "Control quality" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("quality fail")).not.toBeInTheDocument();
+  });
+
+  it("renders open calibration status neutrally without authority clothing", () => {
+    renderWithProviders(
+      <ControlFailurePanel
+        job={{
+          meta: { request_id: "req-open-calibration-status" },
+          job_id: "job-open-calibration-status",
+          kind: "natural_language_run",
+          state: "completed",
+          effective_execution_profile: "production",
+          progress: {
+            quality_scorecard: {
+              approval_state: "review_required",
+              human_review_calibration: {
+                status: "pass",
+              },
+            },
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("human review pass")).toHaveClass(
+      "bg-white/65",
+      "text-muted",
+    );
   });
 });

@@ -2,7 +2,7 @@ import { axe } from "vitest-axe";
 
 import { renderWithProviders } from "@/test/render";
 
-import { EmptyState } from "./EmptyState";
+import { EmptyState } from "@polisyos/atlas-ui";
 
 describe("EmptyState accessibility", () => {
   it("has no detectable accessibility violations", async () => {

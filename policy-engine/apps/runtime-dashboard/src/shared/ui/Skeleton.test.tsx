@@ -2,7 +2,11 @@ import { screen } from "@testing-library/react";
 
 import { renderWithProviders } from "@/test/render";
 
-import { MetricsSkeleton, PageSkeleton, PanelSkeleton } from "./Skeleton";
+import {
+  MetricsSkeleton,
+  PageSkeleton,
+  PanelSkeleton,
+} from "@polisyos/atlas-ui";
 
 describe("Skeleton surfaces", () => {
   it("renders page and panel loading placeholders", () => {

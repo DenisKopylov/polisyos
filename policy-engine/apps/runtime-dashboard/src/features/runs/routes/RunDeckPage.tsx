@@ -30,14 +30,8 @@ import {
   exportElementAsImage,
   triggerPrint,
 } from "@/shared/export/printExport";
-import {
-  ApiErrorAlert,
-  Button,
-  Card,
-  copyShareLink,
-  EmptyState,
-  exportJson,
-} from "@/shared/ui";
+import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
+import { ApiErrorAlert, copyShareLink, exportJson } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 function RunDeckContent({ runId }: { runId: string }) {
@@ -63,12 +57,6 @@ function RunDeckContent({ runId }: { runId: string }) {
     () => buildRunReportSnapshot(summary, auditTrail),
     [auditTrail, summary],
   );
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: report.decisionScore,
-    metricId: "deck_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: { valid_at: summary.decisionView?.generatedAt },
-  });
   const blockerCountQuantity = untracedDecisionQuantity({
     point: report.blockerCount,
     metricId: "deck_blocker_count",
@@ -223,7 +211,7 @@ function RunDeckContent({ runId }: { runId: string }) {
             </p>
             <p className="mt-2 text-2xl font-semibold">
               <Quantity
-                value={decisionScoreQuantity}
+                value={report.decisionScore}
                 precision={2}
                 variant="hero"
               />

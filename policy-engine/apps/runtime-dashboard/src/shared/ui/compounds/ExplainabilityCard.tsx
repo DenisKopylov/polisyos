@@ -1,10 +1,18 @@
 import { useState, type ReactNode } from "react";
+import type {
+  PolicyDesignCaseProjectionBlocker,
+  QuantityUncertainty,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge, Button, Card } from "@/shared/ui/primitives";
-import type { BadgeKind } from "@/shared/ui/Badge";
-import { ConfidenceGauge } from "@/shared/charts";
+import { Quantity } from "@/shared/ui/quantity";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
+
+import { MethodologyBadge } from "./MethodologyBadge";
+import { BlockerCard } from "./BlockerCard";
+import { presentDecisionGradeLabel } from "./decisionGradePresentation";
 
 export type ExplainabilityLevel = "glance" | "summary" | "deep";
 
@@ -15,8 +23,8 @@ export type ExplainabilityFactor = {
 };
 
 export type ExplainabilityVerdict = {
-  status: "approved" | "rejected" | "review";
-  confidence: number;
+  confidence: QuantityValueOutput;
+  decisionGrade?: string | null;
   summary?: string;
 };
 
@@ -24,13 +32,13 @@ export type ExplainabilityGovernance = {
   passed: number;
   failed: number;
   warnings: number;
-  blockers?: string[];
+  blockers?: PolicyDesignCaseProjectionBlocker[];
 };
 
 type ExplainabilityCardProps = {
   level?: ExplainabilityLevel;
   verdict: ExplainabilityVerdict;
-  methodology?: string;
+  methodology?: QuantityUncertainty["method"];
   keyFactors?: ExplainabilityFactor[];
   governance?: ExplainabilityGovernance;
   expandTo?: ExplainabilityLevel;
@@ -39,15 +47,9 @@ type ExplainabilityCardProps = {
   className?: string;
 };
 
-const VERDICT_KIND: Record<ExplainabilityVerdict["status"], BadgeKind> = {
-  approved: "ok",
-  rejected: "fail",
-  review: "warn",
-};
-
 const DIRECTION_CLASS: Record<ExplainabilityFactor["direction"], string> = {
-  positive: "text-[var(--color-status-approved)]",
-  negative: "text-[var(--color-status-rejected)]",
+  positive: "text-[var(--color-chart-primary)]",
+  negative: "text-[var(--color-chart-secondary)]",
   neutral: "text-muted",
 };
 
@@ -72,72 +74,77 @@ export function ExplainabilityCard({
   const [internalLevel, setInternalLevel] =
     useState<ExplainabilityLevel>("glance");
   const level = controlledLevel ?? internalLevel;
-  const verdictLabels: Record<ExplainabilityVerdict["status"], string> = {
-    approved: t("shared.ui.explainabilityCard.verdict.approved"),
-    rejected: t("shared.ui.explainabilityCard.verdict.rejected"),
-    review: t("shared.ui.explainabilityCard.verdict.review"),
-  };
+  const decisionGrade = presentDecisionGradeLabel(verdict.decisionGrade);
 
   function setLevel(next: ExplainabilityLevel) {
     setInternalLevel(next);
     onLevelChange?.(next);
   }
 
-  const total = governance
-    ? governance.passed + governance.failed + governance.warnings
-    : 0;
-
   return (
-    <Card className={cn("space-y-4", className)}>
-      {/* ── Glance: always visible ── */}
+    <Card
+      className={cn("space-y-4", className)}
+      data-decision-grade-presentation={decisionGrade.classification}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ConfidenceGauge value={verdict.confidence} size={72} />
+          <Quantity
+            format="percent"
+            provenanceMode="off"
+            value={verdict.confidence}
+            variant="hero"
+          />
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge kind={VERDICT_KIND[verdict.status]}>
-                {verdictLabels[verdict.status]}
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                data-decision-grade-presentation={decisionGrade.classification}
+                data-owner-decision-grade={
+                  decisionGrade.ownerLabel ?? undefined
+                }
+                kind="outline"
+              >
+                {decisionGrade.ownerLabel ?? t("common.unknown")}
               </Badge>
-              {methodology && (
-                <span className="text-muted font-mono text-xs">
-                  {methodology}
-                </span>
-              )}
+              <span className="text-muted text-xs">
+                {decisionGrade.classification}
+              </span>
+              {methodology ? (
+                <MethodologyBadge methodology={methodology} />
+              ) : null}
             </div>
-            {verdict.summary && (
+            {verdict.summary ? (
               <p className="text-muted max-w-lg text-sm leading-relaxed">
                 {verdict.summary}
               </p>
-            )}
+            ) : null}
           </div>
         </div>
-        {governance && (
+        {governance ? (
           <div className="flex items-center gap-2 text-xs font-semibold">
-            <Badge kind="ok">
+            <Badge kind="outline">
               {t("shared.ui.explainabilityCard.countPassed", {
                 count: governance.passed,
               })}
             </Badge>
-            {governance.failed > 0 && (
-              <Badge kind="fail">
+            {governance.failed > 0 ? (
+              <Badge kind="outline">
                 {t("shared.ui.explainabilityCard.countFailed", {
                   count: governance.failed,
                 })}
               </Badge>
-            )}
-            {governance.warnings > 0 && (
-              <Badge kind="warn">
+            ) : null}
+            {governance.warnings > 0 ? (
+              <Badge kind="outline">
                 {t("shared.ui.explainabilityCard.countWarnings", {
                   count: governance.warnings,
                 })}
               </Badge>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
       </div>
 
-      {/* ── Summary: key factors + governance ── */}
-      {(level === "summary" || level === "deep") && keyFactors.length > 0 && (
+      {(level === "summary" || level === "deep") && keyFactors.length > 0 ? (
         <div className="border-line rounded-2xl border">
           <table className="w-full text-sm">
             <thead>
@@ -173,40 +180,37 @@ export function ExplainabilityCard({
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
 
       {(level === "summary" || level === "deep") &&
-        governance &&
-        governance.blockers &&
-        governance.blockers.length > 0 && (
-          <div className="rounded-2xl bg-[color-mix(in_srgb,var(--color-status-rejected)_8%,transparent)] p-3">
-            <p className="text-sm font-semibold text-[var(--color-status-rejected)]">
-              {t("shared.ui.explainabilityCard.governanceBlockers")}
-            </p>
-            <ul className="text-muted mt-1 list-inside list-disc text-sm">
-              {governance.blockers.map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      governance?.blockers?.length ? (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold">
+            {t("shared.ui.explainabilityCard.governanceBlockers")}
+          </p>
+          {governance.blockers.map((blocker) => (
+            <BlockerCard
+              blocker={blocker}
+              key={`${blocker.code}:${blocker.message}`}
+            />
+          ))}
+        </div>
+      ) : null}
 
-      {/* ── Deep: extended content slot ── */}
-      {level === "deep" && deepContent}
+      {level === "deep" ? deepContent : null}
 
-      {/* ── Expand button ── */}
-      {expandTo && level !== expandTo && (
+      {expandTo && level !== expandTo ? (
         <Button size="sm" variant="outline" onClick={() => setLevel(expandTo)}>
           {expandTo === "summary"
             ? t("shared.ui.explainabilityCard.showDetails")
             : t("shared.ui.explainabilityCard.fullAnalysis")}
         </Button>
-      )}
-      {level !== "glance" && (
+      ) : null}
+      {level !== "glance" ? (
         <Button size="sm" variant="link" onClick={() => setLevel("glance")}>
           {t("shared.ui.explainabilityCard.collapse")}
         </Button>
-      )}
+      ) : null}
     </Card>
   );
 }

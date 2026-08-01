@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
+import { useMaybeCounterfactualInteraction } from "@/shared/ui/counterfactual/CounterfactualInteractionBridge";
+
 import {
   CounterfactualProvider,
   useCounterfactual,
@@ -31,6 +33,15 @@ function Probe() {
   );
 }
 
+function SharedInteractionProbe() {
+  const counterfactual = useMaybeCounterfactualInteraction();
+  return (
+    <output aria-label="shared interaction scope">
+      {counterfactual?.mode}:{counterfactual?.scenarioId ?? "none"}
+    </output>
+  );
+}
+
 describe("CounterfactualProvider", () => {
   it("reads and writes scenario scope through the URL", async () => {
     window.history.replaceState(
@@ -42,15 +53,22 @@ describe("CounterfactualProvider", () => {
     render(
       <CounterfactualProvider>
         <Probe />
+        <SharedInteractionProbe />
       </CounterfactualProvider>,
     );
 
     expect(screen.getByLabelText("scope")).toHaveTextContent(
       "scenario_only:scn_url",
     );
+    expect(screen.getByLabelText("shared interaction scope")).toHaveTextContent(
+      "scenario_only:scn_url",
+    );
 
     await userEvent.click(screen.getByRole("button", { name: "set" }));
     expect(screen.getByLabelText("scope")).toHaveTextContent(
+      "actual_vs_scenario:scn_fixture",
+    );
+    expect(screen.getByLabelText("shared interaction scope")).toHaveTextContent(
       "actual_vs_scenario:scn_fixture",
     );
     expect(window.location.search).toContain("scenario_id=scn_fixture");

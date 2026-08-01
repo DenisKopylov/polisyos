@@ -17,11 +17,11 @@ import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { FeatureErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
-  DataTable,
   PanelSkeleton,
   VirtualTable,
   VIRTUALIZATION_THRESHOLD,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { DataTable } from "@/shared/ui";
 
 const ErrorsPanel = lazy(
   () => import("@/features/runs/components/debug/ErrorsPanel"),

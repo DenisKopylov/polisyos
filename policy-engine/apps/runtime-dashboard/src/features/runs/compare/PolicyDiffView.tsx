@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { fromApiTemporalScope } from "@/app/providers/temporal-scope";
+import { fromApiTemporalScope } from "@/shared/lib/domain/temporal";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import {
-  AsyncSection,
-  Button,
-  EmptyState,
-  copyShareLink,
-  exportJson,
-} from "@/shared/ui";
+import { AsyncSection, Button, EmptyState } from "@polisyos/atlas-ui";
+import { copyShareLink, exportJson } from "@/shared/ui";
+import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
 import { Quantity } from "@/shared/ui/quantity";
 
 import { CausalDeltaStrip } from "./CausalDeltaStrip";
@@ -132,6 +128,7 @@ export function PolicyDiffView({ runAId, runBId }: PolicyDiffViewProps) {
 
       <AsyncSection
         query={compareQuery}
+        renderError={renderApiErrorAlert}
         loading={
           <section className="panel rounded-[var(--radius-panel)] p-4">
             <p className="text-muted text-sm">

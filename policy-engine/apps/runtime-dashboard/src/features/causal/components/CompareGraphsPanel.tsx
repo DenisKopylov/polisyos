@@ -57,12 +57,12 @@ function computeGraphDiff(a: GraphSnapshot, b: GraphSnapshot): DiffResult {
     if (bEdgeIds.has(id)) {
       const ea = aEdgeMap.get(id)!;
       const eb = bEdgeMap.get(id)!;
-      if (ea.status !== eb.status) {
+      if (ea.status.label !== eb.status.label) {
         changedEdges.push({
           id,
           field: "status",
-          from: ea.status,
-          to: eb.status,
+          from: ea.status.label,
+          to: eb.status.label,
         });
       }
       if (ea.estimate !== eb.estimate) {

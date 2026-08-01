@@ -1,14 +1,12 @@
 import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/shared/lib/utils";
-import { classifyConfidence, confidenceColor } from "./types";
 
 type AnimatedProgressProps = {
   value: number;
   max?: number;
   label?: string;
   showValue?: boolean;
-  colorByConfidence?: boolean;
   color?: string;
   height?: number;
   className?: string;
@@ -19,7 +17,6 @@ export function AnimatedProgress({
   max = 100,
   label,
   showValue = true,
-  colorByConfidence = false,
   color,
   height = 8,
   className,
@@ -29,11 +26,7 @@ export function AnimatedProgress({
   const roundedPct = Math.round(pct);
   const accessibleLabel = label ?? `${roundedPct}%`;
 
-  const resolvedColor =
-    color ??
-    (colorByConfidence
-      ? confidenceColor(classifyConfidence(value / max))
-      : "var(--teal)");
+  const resolvedColor = color ?? "var(--teal)";
 
   return (
     <div
@@ -65,6 +58,7 @@ export function AnimatedProgress({
       >
         <motion.div
           className="rounded-full"
+          data-testid="animated-progress-fill"
           style={{ height, backgroundColor: resolvedColor }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}

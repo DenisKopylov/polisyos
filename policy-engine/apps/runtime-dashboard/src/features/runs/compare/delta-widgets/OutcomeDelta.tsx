@@ -1,7 +1,7 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Quantity } from "@/shared/ui/quantity";
 
-import { formatSignedNumber, significanceTone } from "../compare-math";
+import { formatSignedNumber } from "../compare-math";
 import type { DeltaQuantity } from "../compare-types";
 
 type OutcomeDeltaProps = {
@@ -40,11 +40,7 @@ export function OutcomeDelta({ activeMetricId, deltas }: OutcomeDeltaProps) {
                   )}
                 </p>
               </div>
-              <span
-                className={`rounded-full px-2 py-1 text-xs font-semibold ${toneClass(
-                  significanceTone(delta.significance),
-                )}`}
-              >
+              <span className="text-muted bg-muted/30 rounded-full px-2 py-1 text-xs font-semibold">
                 {formatSignedNumber(delta.delta_absolute?.point)}
               </span>
             </div>
@@ -91,17 +87,4 @@ function MetricCell({
       </div>
     </div>
   );
-}
-
-function toneClass(tone: "ok" | "fail" | "warn" | "neutral") {
-  if (tone === "ok") {
-    return "bg-[color-mix(in_srgb,var(--color-status-approved)_14%,transparent)] text-[var(--color-status-approved)]";
-  }
-  if (tone === "fail") {
-    return "bg-[color-mix(in_srgb,var(--color-status-rejected)_14%,transparent)] text-[var(--color-status-rejected)]";
-  }
-  if (tone === "warn") {
-    return "bg-[color-mix(in_srgb,var(--color-status-pending)_16%,transparent)] text-[var(--color-status-pending)]";
-  }
-  return "bg-muted/30 text-muted";
 }

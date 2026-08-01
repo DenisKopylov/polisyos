@@ -13,12 +13,14 @@ describe("GovernancePassGrid accessibility", () => {
             id: "provenance",
             label: "Provenance law",
             status: "pass",
+            vocabulary: "owner_diagnostic",
           },
           {
             detail: "Operator review is still required.",
             id: "review",
             label: "Human review",
             status: "warning",
+            vocabulary: "owner_diagnostic",
           },
         ]}
       />,

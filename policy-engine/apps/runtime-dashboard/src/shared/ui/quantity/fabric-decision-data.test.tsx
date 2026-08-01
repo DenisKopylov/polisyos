@@ -2,16 +2,16 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
-import { runFabricDecisionDataSchema } from "@/api/validators";
 import { renderWithProviders } from "@/test/render";
-import { TrustInspector } from "@/shared/ui/trust-view";
-
 import {
   fabricDecisionDataPayloadToQuantities,
   fabricDecisionDataToQuantityValue,
 } from "./fabric-decision-data";
 import { Quantity } from "./Quantity";
+import type {
+  FabricDecisionData,
+  FabricDecisionDataResponse,
+} from "./quantity.types";
 
 const payload = {
   meta: {
@@ -87,12 +87,11 @@ const payload = {
       },
     },
   ],
-};
+} satisfies FabricDecisionDataResponse;
 
 describe("Fabric decision data quantity adapter", () => {
-  it("maps Fabric trust envelopes into renderable QuantityValue objects", () => {
-    const parsedPayload = runFabricDecisionDataSchema.parse(payload);
-    const [quantity] = fabricDecisionDataPayloadToQuantities(parsedPayload);
+  it("preserves Fabric lineage without fabricating absent trust metadata", () => {
+    const [quantity] = fabricDecisionDataPayloadToQuantities(payload);
 
     expect(quantity?.point).toBe(100);
     expect(quantity?.unit.display).toBe("USD");
@@ -100,49 +99,77 @@ describe("Fabric decision data quantity adapter", () => {
     expect(quantity?.lineage.summary?.source_contract).toBe(
       "worldbank.wdi.generic@1.1.0",
     );
-    expect(quantity?.lineage.trust_metadata?.verification_method).toBe(
-      "fabric_trust_envelope",
-    );
+    expect(quantity?.lineage.trust_metadata).toBeUndefined();
   });
 
-  it("renders provenance and Trust View from Fabric-backed payloads", async () => {
+  it("renders owner-provided provenance from Fabric-backed payloads", async () => {
     const user = userEvent.setup();
     window.history.replaceState(
       null,
       "",
       "/runs/R_core_api_001?trust=expanded",
     );
-    const parsedPayload = runFabricDecisionDataSchema.parse(payload);
     const quantity = fabricDecisionDataToQuantityValue(
-      parsedPayload.decision_data![0],
+      payload.decision_data![0],
     );
 
     renderWithProviders(
-      <TrustViewProvider>
-        <>
-          <Quantity value={quantity!} provenanceMode="always" />
-          <TrustInspector />
-        </>
-      </TrustViewProvider>,
+      <>
+        <Quantity value={quantity!} provenanceMode="always" />
+      </>,
     );
 
     expect(screen.getByText("100")).toBeInTheDocument();
     expect(screen.getByText("USD")).toBeInTheDocument();
+    await user.click(screen.getByTestId("quantity"));
     expect(screen.getByText(/sha256:abc/)).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "verified" }));
-    expect(
-      screen.getByRole("dialog", { name: "Trust inspector" }),
-    ).toHaveTextContent("fabric_trust_envelope");
+    expect(screen.queryByTestId("trust-verification-status")).toBeNull();
   });
 
   it("does not convert non-quantity Fabric rows into naked decision values", () => {
-    const parsedPayload = runFabricDecisionDataSchema.parse(payload);
     expect(
       fabricDecisionDataToQuantityValue({
-        ...parsedPayload.decision_data![0],
+        ...payload.decision_data![0],
         kind: "authored_text",
       }),
     ).toBeNull();
+  });
+
+  it("does not promote opaque metadata or gap labels into freshness authority", () => {
+    const quantity = fabricDecisionDataToQuantityValue({
+      ...payload.decision_data![0],
+      gaps: [{ reason_code: "stale_evidence", status: "unknown_quality" }],
+      metadata: { freshness: "current" },
+    });
+
+    expect(quantity?.lineage.freshness).toBe("unknown");
+  });
+
+  it("does not let opaque metadata hide a decision value as layout", () => {
+    const quantity = fabricDecisionDataToQuantityValue({
+      ...payload.decision_data![0],
+      metadata: { quantity_class: "layout" },
+    });
+
+    expect(quantity?.quantity_class).toBe("decision");
+  });
+
+  it("does not promote an opaque Fabric uncertainty extension into authority semantics", () => {
+    const row = {
+      ...payload.decision_data![0],
+      value: {
+        ...payload.decision_data![0].value,
+        uncertainty: {
+          ci_95: [0, 1],
+          disputed: true,
+          identifiability: "identified",
+          method: "opaque-extension",
+        },
+      },
+    } as unknown as FabricDecisionData;
+
+    const quantity = fabricDecisionDataToQuantityValue(row);
+
+    expect(quantity?.uncertainty).toBeNull();
   });
 });

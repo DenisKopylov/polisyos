@@ -5,8 +5,9 @@ import {
   asString,
   toDisplayLabel,
 } from "../parsing";
+import type { RunWorkflowNodeView } from "@polisyos/runtime-api-client";
 
-export type WorkflowNodeStatus = "ok" | "skip" | "fail" | "unknown";
+export type WorkflowNodeStatus = RunWorkflowNodeView["status"];
 
 export type WorkflowNodeView = {
   alias: string;

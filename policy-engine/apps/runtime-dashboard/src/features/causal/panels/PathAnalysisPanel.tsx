@@ -2,7 +2,7 @@ import { useMemo, type CSSProperties } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 
 import type { CausalNodeData, CausalEdgeData } from "../types";
 import { NODE_COLORS } from "../types";
@@ -34,6 +34,20 @@ const PATH_TYPE_CONFIG: Record<CausalPath["type"], { color: string }> = {
   frontdoor: { color: "var(--chart-success)" },
 };
 
+function sumPathEffects(
+  paths: CausalPath[],
+  type: CausalPath["type"],
+): number | undefined {
+  const matching = paths.filter((path) => path.type === type);
+  if (
+    matching.length === 0 ||
+    matching.some((path) => path.totalEffect == null)
+  ) {
+    return undefined;
+  }
+  return matching.reduce((sum, path) => sum + (path.totalEffect as number), 0);
+}
+
 export function PathAnalysisPanel({
   nodes,
   edges,
@@ -53,13 +67,14 @@ export function PathAnalysisPanel({
     frontdoor: t("causal.pathAnalysis.frontdoor"),
   };
 
-  const directTotal = paths
-    .filter((p) => p.type === "direct" && p.totalEffect != null)
-    .reduce((sum, p) => sum + (p.totalEffect ?? 0), 0);
-
-  const indirectTotal = paths
-    .filter((p) => p.type === "indirect" && p.totalEffect != null)
-    .reduce((sum, p) => sum + (p.totalEffect ?? 0), 0);
+  const directTotal = sumPathEffects(paths, "direct");
+  const indirectTotal = sumPathEffects(paths, "indirect");
+  const total =
+    directTotal != null && indirectTotal != null
+      ? directTotal + indirectTotal
+      : undefined;
+  const formatEffect = (value: number | undefined) =>
+    value == null ? t("common.unknown") : value.toFixed(4);
 
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>
@@ -88,7 +103,7 @@ export function PathAnalysisPanel({
               {t("causal.pathAnalysis.direct")}
             </p>
             <p className="font-mono text-lg font-bold text-[var(--chart-primary)]">
-              {directTotal.toFixed(4)}
+              {formatEffect(directTotal)}
             </p>
           </div>
           <div>
@@ -96,7 +111,7 @@ export function PathAnalysisPanel({
               {t("causal.pathAnalysis.indirect")}
             </p>
             <p className="font-mono text-lg font-bold text-[var(--chart-secondary)]">
-              {indirectTotal.toFixed(4)}
+              {formatEffect(indirectTotal)}
             </p>
           </div>
           <div className="col-span-2">
@@ -104,7 +119,7 @@ export function PathAnalysisPanel({
               {t("causal.pathAnalysis.total")}
             </p>
             <p className="font-mono text-lg font-bold">
-              {(directTotal + indirectTotal).toFixed(4)}
+              {formatEffect(total)}
             </p>
           </div>
         </div>

@@ -24,14 +24,14 @@ import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@/shared/ui/Command";
+} from "@polisyos/atlas-ui";
 import { useDensity } from "@/app/providers/DensityProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
@@ -177,7 +177,12 @@ export function CommandPalette() {
   );
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog
+      open={open}
+      onOpenChange={setOpen}
+      title={t("shared.ui.command.paletteTitle")}
+      closeLabel={t("common.close")}
+    >
       <CommandInput placeholder={t("commandPalette.placeholder")} />
       <CommandList>
         <CommandEmpty>{t("commandPalette.noResults")}</CommandEmpty>

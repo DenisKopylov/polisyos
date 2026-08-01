@@ -1,8 +1,6 @@
 import {
-  createContext,
   type PropsWithChildren,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -14,37 +12,17 @@ import {
   normalizeTemporalScope,
   stepTemporalInstant,
   type TemporalCapabilities,
-  type TemporalEventPoint,
   type TemporalRange,
   type TemporalScope,
-} from "./temporal-scope";
+} from "@/shared/lib/domain/temporal";
+import {
+  TemporalRuntimeBridgeProvider,
+  type TemporalRuntimeBridgeValue,
+} from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import {
   readTemporalScopeFromLocation,
   replaceTemporalScopeInCurrentUrl,
 } from "./temporal-url";
-
-type TemporalCursorContextValue = {
-  committedScope: TemporalScope | null;
-  previewScope: TemporalScope | null;
-  effectiveScope: TemporalScope | null;
-  range: TemporalRange;
-  txRange: TemporalRange;
-  eventPoints: TemporalEventPoint[];
-  capabilities: TemporalCapabilities | null;
-  setPreviewScope: (scope: TemporalScope | null) => void;
-  commitScope: (
-    scope: TemporalScope | null,
-    options?: { replaceUrl?: boolean },
-  ) => void;
-  commitPreview: (options?: { replaceUrl?: boolean }) => void;
-  resetScope: (options?: { replaceUrl?: boolean }) => void;
-  stepValidTime: (amountMs: number, options?: { commit?: boolean }) => void;
-  setTemporalCapabilities: (capabilities: TemporalCapabilities | null) => void;
-};
-
-const TemporalCursorContext = createContext<TemporalCursorContextValue | null>(
-  null,
-);
 
 export function TemporalCursorProvider({ children }: PropsWithChildren) {
   const [committedScope, setCommittedScope] = useState<TemporalScope | null>(
@@ -134,7 +112,7 @@ export function TemporalCursorProvider({ children }: PropsWithChildren) {
     [],
   );
 
-  const value = useMemo<TemporalCursorContextValue>(
+  const value = useMemo<TemporalRuntimeBridgeValue>(
     () => ({
       capabilities,
       committedScope,
@@ -167,24 +145,10 @@ export function TemporalCursorProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <TemporalCursorContext.Provider value={value}>
+    <TemporalRuntimeBridgeProvider value={value}>
       {children}
-    </TemporalCursorContext.Provider>
+    </TemporalRuntimeBridgeProvider>
   );
-}
-
-export function useTemporalCursor() {
-  const context = useContext(TemporalCursorContext);
-  if (!context) {
-    throw new Error(
-      "useTemporalCursor must be used within TemporalCursorProvider",
-    );
-  }
-  return context;
-}
-
-export function useMaybeTemporalCursor() {
-  return useContext(TemporalCursorContext);
 }
 
 function readInitialScope() {

@@ -8,7 +8,8 @@ import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { AppearanceSection } from "@/features/platform/settings/AppearanceSection";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber } from "@/shared/lib/utils";
-import { ApiErrorAlert, Badge, Card, DataFreshnessBadge } from "@/shared/ui";
+import { Badge, Card } from "@polisyos/atlas-ui";
+import { ApiErrorAlert, DataFreshnessBadge } from "@/shared/ui";
 
 export default function PlatformHealth() {
   const { t, label } = useI18n();
@@ -49,13 +50,7 @@ export default function PlatformHealth() {
                 {String(healthQuery.data.status ?? t("common.unknown"))}
               </Badge>
             ) : null}
-            <DataFreshnessBadge
-              generatedAt={
-                healthQuery.data?.meta?.generated_at ??
-                healthQuery.data?.ts ??
-                null
-              }
-            />
+            <DataFreshnessBadge />
             <Badge kind="ok">
               {t("pages.platform.activeFeatures", {
                 count: activeFeatures.length,

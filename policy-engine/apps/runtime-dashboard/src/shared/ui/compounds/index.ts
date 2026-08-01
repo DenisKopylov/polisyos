@@ -1,8 +1,5 @@
 export * from "../DataTable";
 export * from "../MetricCard";
-export * from "../VirtualList";
-export * from "../VirtualTable";
-export { default as JsonPreview } from "../JsonPreview";
 export { default as LineageGraph } from "../LineageGraph";
 export * from "./DataFreshnessBadge";
 export * from "./DecisionCard";
@@ -19,3 +16,6 @@ export * from "./EvidenceCoverageRadar";
 export * from "./SensitivityPlot";
 export * from "./FactorImportanceChart";
 export * from "./ReasoningChainDisplay";
+export * from "./CandidateFrame";
+export * from "./BlockerCard";
+export * from "./WeakestLinkExplainer";

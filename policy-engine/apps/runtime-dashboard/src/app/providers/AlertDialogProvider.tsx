@@ -11,7 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 
 export type ConfirmDialogOptions = {
   title: string;

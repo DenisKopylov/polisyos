@@ -3,7 +3,7 @@ import { AlignJustify, Minimize2, Rows3 } from "lucide-react";
 import { useDensity } from "@/app/providers/DensityProvider";
 import type { Density } from "@/app/state/usePreferencesStore";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { SegmentedControl } from "@/shared/ui";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 const DENSITY_OPTIONS = [
   "comfortable",

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui/primitives";
+import { Button } from "@polisyos/atlas-ui";
 
 type ReproduceRunButtonProps = {
   runId: string;

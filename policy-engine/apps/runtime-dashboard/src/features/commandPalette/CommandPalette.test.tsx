@@ -53,7 +53,7 @@ vi.mock("@/app/providers/FeatureFlagProvider", () => ({
   useFeatureFlags: () => useFeatureFlagsMock(),
 }));
 
-vi.mock("@/shared/ui/Command", () => ({
+vi.mock("@polisyos/atlas-ui", () => ({
   CommandDialog: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),

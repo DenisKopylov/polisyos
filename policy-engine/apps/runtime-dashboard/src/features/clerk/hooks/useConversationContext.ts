@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import {
+  hasProducerFinishedAt,
   useChatStore,
   type ChatMessage,
   type StructuredResponseData,
@@ -95,7 +96,7 @@ function generateContextualSuggestions(
   }
 
   // Generate based on conversation state
-  if (lastSystem?.runStatus === "completed") {
+  if (hasProducerFinishedAt(lastSystem?.runFinishedAt)) {
     suggestions.push("What are the key uncertainties in this analysis?");
     suggestions.push("How robust are these findings to different assumptions?");
     if (!concepts.includes("GovernancePass")) {

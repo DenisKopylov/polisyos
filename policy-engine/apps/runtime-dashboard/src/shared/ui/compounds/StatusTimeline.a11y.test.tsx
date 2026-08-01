@@ -14,7 +14,7 @@ describe("StatusTimeline accessibility", () => {
             id: "generated",
             timestamp: "2026-04-23 10:00",
             title: "Generated",
-            tone: "ok",
+            recordedState: "completed",
           },
         ]}
       />,

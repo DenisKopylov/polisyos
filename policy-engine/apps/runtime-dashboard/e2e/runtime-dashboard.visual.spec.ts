@@ -1,43 +1,282 @@
-import { expect, test, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 
-import { readFixtureMetadata } from "./helpers/runtime-dashboard";
+import {
+  installDashboardTestState,
+  readFixtureMetadata,
+  waitForDashboardSurface,
+} from "./helpers/runtime-dashboard";
 
-const FIXTURE_RUN_ID = "R_core_api_001";
-const FIXTURE_PROMOTION_ID = "promotion_fixture_001";
-const FIXTURE_METADATA = readFixtureMetadata();
-const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
-const THEME_STORAGE_KEY = "polisyos.runtime.theme";
-const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
-const FIXTURE_DECISION_PACKET_ID = FIXTURE_METADATA.decision_packet_artifact_id;
+const STORYBOOK_BASE_URL = "http://127.0.0.1:6006";
+const FIXTURE_API_BASE_URL = "http://127.0.0.1:8000";
+const VISUAL_CLOCK_TIME = "2026-01-01T00:00:00.000Z";
+const BUREAUCRATIC_GENERATED_LINE =
+  "Дата формування: 2026-01-01T00:00:00+00:00";
+const VISUAL_CONNECTOR_ID = "worldbank.wdi@1.0.0";
+let fixtureMetadata: ReturnType<typeof readFixtureMetadata>;
 
-async function expectPrintSnapshot(
+async function waitForVisualFonts(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+}
+
+async function waitForStableRender(locator: Locator, timeout = 15_000) {
+  let consecutiveEqualSignatures = 0;
+  let previousSignature: string | null = null;
+  await expect
+    .poll(
+      async () => {
+        const signature = await locator.evaluateAll((elements) =>
+          JSON.stringify(
+            elements.map((element) => {
+              const bounds = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return {
+                fontFamily: style.fontFamily,
+                fontSize: style.fontSize,
+                height: bounds.height,
+                markup: element.innerHTML,
+                width: bounds.width,
+              };
+            }),
+          ),
+        );
+        consecutiveEqualSignatures =
+          signature === previousSignature ? consecutiveEqualSignatures + 1 : 0;
+        previousSignature = signature;
+        return consecutiveEqualSignatures;
+      },
+      { timeout },
+    )
+    .toBeGreaterThanOrEqual(1);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function loadedConnectorIds(request: APIRequestContext) {
+  const response = await request.get(
+    `${FIXTURE_API_BASE_URL}/api/v1/control/data/connectors`,
+  );
+  expect(response.ok()).toBe(true);
+  const payload: unknown = await response.json();
+  if (!isRecord(payload) || !Array.isArray(payload.connectors)) {
+    throw new TypeError("visual fixture expected connectors array");
+  }
+  return payload.connectors
+    .filter(
+      (connector): connector is Record<string, unknown> =>
+        isRecord(connector) && connector.loaded === true,
+    )
+    .map((connector) => connector.connector_id)
+    .filter(
+      (connectorId): connectorId is string => typeof connectorId === "string",
+    )
+    .sort();
+}
+
+async function ensureDeterministicConnectorFixture(request: APIRequestContext) {
+  const initiallyLoaded = await loadedConnectorIds(request);
+  if (initiallyLoaded.length === 0) {
+    const previewResponse = await request.post(
+      `${FIXTURE_API_BASE_URL}/api/v1/control/data/preview`,
+      {
+        data: {
+          allow_fallback: false,
+          fetch_plan: {
+            connector_id: "worldbank.wdi",
+            dataset_id: "../unsafe",
+            filters: {},
+            max_preview_rows: 10,
+            metric_id: "probe.metric",
+            plan_id: "visual_fixture_worldbank_load",
+            profile_id: "worldbank_wdi",
+            quality_min: 0.6,
+            source_lane: "fastlane",
+          },
+        },
+      },
+    );
+    expect(previewResponse.ok()).toBe(true);
+    const previewPayload: unknown = await previewResponse.json();
+    if (!isRecord(previewPayload) || !isRecord(previewPayload.preview)) {
+      throw new TypeError("visual fixture expected preview result");
+    }
+    expect(previewPayload.preview.status).toBe("error");
+    expect(previewPayload.preview.message).toBe(
+      "Unsafe World Bank indicator id: slash characters are not allowed",
+    );
+  } else {
+    expect(initiallyLoaded).toEqual([VISUAL_CONNECTOR_ID]);
+  }
+
+  await expect
+    .poll(() => loadedConnectorIds(request), { timeout: 15_000 })
+    .toEqual([VISUAL_CONNECTOR_ID]);
+}
+
+async function installBureaucraticTimestampFixture(
+  page: Page,
+  artifactId: string,
+) {
+  const artifactPath = `/api/v1/artifacts/${artifactId}`;
+  const renderPath = `${artifactPath}/render`;
+
+  await page.route("**/api/v1/artifacts/**", async (route) => {
+    const pathname = decodeURIComponent(
+      new URL(route.request().url()).pathname,
+    );
+    if (pathname !== artifactPath && pathname !== renderPath) {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const payload: unknown = await response.json();
+    if (!isRecord(payload)) {
+      throw new TypeError(
+        `visual fixture expected object payload at ${pathname}`,
+      );
+    }
+
+    if (pathname === artifactPath) {
+      if (
+        !isRecord(payload.artifact) ||
+        typeof payload.artifact.created_at !== "string"
+      ) {
+        throw new TypeError("visual fixture expected artifact.created_at");
+      }
+      await route.fulfill({
+        response,
+        json: {
+          ...payload,
+          artifact: {
+            ...payload.artifact,
+            created_at: VISUAL_CLOCK_TIME,
+          },
+        },
+      });
+      return;
+    }
+
+    if (
+      !isRecord(payload.document) ||
+      typeof payload.document.render_timestamp !== "string"
+    ) {
+      throw new TypeError("visual fixture expected document.render_timestamp");
+    }
+    if (!Array.isArray(payload.document.blocks)) {
+      throw new TypeError("visual fixture expected document.blocks");
+    }
+    let generatedLineCount = 0;
+    const blocks = payload.document.blocks.map((block) => {
+      if (!isRecord(block) || !Array.isArray(block.items)) {
+        return block;
+      }
+      const items = block.items.map((item) => {
+        if (typeof item === "string" && item.startsWith("Дата формування: ")) {
+          generatedLineCount += 1;
+          return BUREAUCRATIC_GENERATED_LINE;
+        }
+        return item;
+      });
+      return { ...block, items };
+    });
+    if (generatedLineCount !== 1) {
+      throw new TypeError(
+        `visual fixture expected one bureaucratic generated-at line, received ${generatedLineCount}`,
+      );
+    }
+    await route.fulfill({
+      response,
+      json: {
+        ...payload,
+        document: {
+          ...payload.document,
+          blocks,
+          render_timestamp: VISUAL_CLOCK_TIME,
+        },
+      },
+    });
+  });
+}
+
+async function waitForDashboardCharts(page: Page) {
+  const charts = page.locator(
+    '[data-testid="dashboard-page"] .recharts-responsive-container',
+  );
+  await expect(charts).toHaveCount(2);
+  await expect(
+    page
+      .locator('[data-testid="dashboard-page"] .recharts-bar-rectangle')
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="dashboard-page"] .recharts-line-curve').first(),
+  ).toHaveAttribute("d", /^M.+L/);
+  await expect
+    .poll(() =>
+      charts.evaluateAll((elements) =>
+        elements.every((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height > 0;
+        }),
+      ),
+    )
+    .toBe(true);
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-reduced-motion",
+    "reduce",
+  );
+  await waitForVisualFonts(page);
+
+  await waitForStableRender(charts);
+}
+
+async function openEvidencePrimitiveStory(page: Page, storyId: string) {
+  await page.goto(
+    `${STORYBOOK_BASE_URL}/iframe.html?id=${encodeURIComponent(storyId)}&viewMode=story`,
+  );
+  const story = page.locator("#storybook-root");
+  await expect(story).toBeVisible({ timeout: 15_000 });
+  await waitForVisualFonts(page);
+  return story;
+}
+
+async function openPrintSurface(
   page: Page,
   {
     path,
+    readySelector,
     readyTestId,
     selector,
-    snapshot,
   }: {
     path: string;
+    readySelector?: string;
     readyTestId: string;
     selector: string;
-    snapshot: string;
   },
-) {
+): Promise<Locator> {
   await page.setViewportSize({ width: 794, height: 1123 });
   await page.emulateMedia({ media: "print" });
   await page.goto(path);
   await expect(page.getByTestId(readyTestId)).toBeVisible();
   await expect(page.locator(selector)).toBeVisible();
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-  });
-  await expect(page.locator(selector)).toHaveScreenshot(snapshot, {
-    animations: "disabled",
-    caret: "hide",
-    maxDiffPixels: 100,
-  });
-  await page.emulateMedia({ media: "screen" });
+  if (readySelector) {
+    await expect(page.locator(readySelector)).toBeVisible();
+    await waitForStableRender(page.locator(readySelector));
+  }
+  await waitForVisualFonts(page);
+  const surface = page.locator(selector);
+  await waitForStableRender(surface);
+  return surface;
 }
 
 test.describe("runtime-dashboard visual baselines", () => {
@@ -45,17 +284,21 @@ test.describe("runtime-dashboard visual baselines", () => {
     viewport: { width: 1440, height: 1200 },
   });
 
+  test.beforeAll(async ({ request }) => {
+    fixtureMetadata = readFixtureMetadata();
+    await ensureDeterministicConnectorFixture(request);
+  });
+
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "true");
-    }, LIVE_STORAGE_KEY);
+    await page.clock.install({ time: VISUAL_CLOCK_TIME });
+    await installDashboardTestState(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
   });
 
   test("command center shell", async ({ page }) => {
     await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: "Command Center" }),
-    ).toBeVisible();
+    await waitForDashboardSurface(page, "dashboard");
+    await waitForDashboardCharts(page);
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "command-center-shell.png",
       {
@@ -66,13 +309,12 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("scenario composer dark theme", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "dark");
-    }, THEME_STORAGE_KEY);
+    await installDashboardTestState(page, { theme: "dark" });
     await page.goto("/compose");
     await expect(
       page.getByRole("heading", { name: "Scenario Composer" }),
     ).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "scenario-composer-dark.png",
       {
@@ -83,7 +325,7 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("run detail overview", async ({ page }) => {
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/overview`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/overview`);
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(page.getByTestId("run-detail-summary")).toHaveScreenshot(
       "run-detail-summary.png",
@@ -96,24 +338,24 @@ test.describe("runtime-dashboard visual baselines", () => {
 
   test("evidence promotion focus", async ({ page }) => {
     await page.goto(
-      `/evidence?runId=${FIXTURE_RUN_ID}&focus=promotion&promotionId=${FIXTURE_PROMOTION_ID}`,
+      `/evidence?runId=${fixtureMetadata.core_run_id}&focus=promotion&promotionId=${fixtureMetadata.promotion_candidate_id}`,
     );
     await expect(
-      page.getByTestId(`promotion-approve-${FIXTURE_PROMOTION_ID}`),
+      page.getByTestId(
+        `promotion-approve-${fixtureMetadata.promotion_candidate_id}`,
+      ),
     ).toBeVisible();
-    await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
-      "evidence-promotion-focus.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
+    const surface = page.getByTestId("evidence-page");
+    await waitForVisualFonts(page);
+    await waitForStableRender(surface);
+    await expect(surface).toHaveScreenshot("evidence-promotion-focus.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
   });
 
   test("clerk chat shell-lite", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "clerk");
-    }, INTERFACE_MODE_STORAGE_KEY);
+    await installDashboardTestState(page, { interfaceMode: "clerk" });
     await page.goto("/");
     await expect(
       page.getByText("What policy would you like to analyze?"),
@@ -128,27 +370,25 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("dark evidence fabric", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "dark");
-    }, THEME_STORAGE_KEY);
+    await installDashboardTestState(page, { theme: "dark" });
     await page.goto("/evidence");
     await expect(page.getByTestId("evidence-page")).toBeVisible();
     await expect(page.getByTestId("evidence-source-atlas-panel")).toBeVisible();
-    await expect(page.getByTestId("evidence-page")).toHaveScreenshot(
-      "dark-evidence-fabric.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    const surface = page.getByTestId("evidence-page");
+    await waitForVisualFonts(page);
+    await waitForStableRender(surface);
+    await expect(surface).toHaveScreenshot("dark-evidence-fabric.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
   });
 
   test("mobile command center", async ({ page }) => {
     await page.setViewportSize({ width: 393, height: 852 });
     await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: "Command Center" }),
-    ).toBeVisible();
+    await waitForDashboardSurface(page, "dashboard");
+    await waitForDashboardCharts(page);
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "mobile-command-center.png",
       {
@@ -160,7 +400,7 @@ test.describe("runtime-dashboard visual baselines", () => {
 
   test("mobile run detail overview", async ({ page }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/overview`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/overview`);
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(page.getByTestId("run-detail-summary")).toHaveScreenshot(
       "mobile-run-detail-overview.png",
@@ -192,7 +432,7 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("run deck content slide", async ({ page }) => {
-    await page.goto(`/runs/${FIXTURE_RUN_ID}/deck`);
+    await page.goto(`/runs/${fixtureMetadata.core_run_id}/deck`);
     await expect(page.getByTestId("run-deck-page")).toBeVisible();
     await expect(page.getByTestId("run-deck-slide-evidence")).toHaveScreenshot(
       "run-deck-content-slide.png",
@@ -203,48 +443,188 @@ test.describe("runtime-dashboard visual baselines", () => {
     );
   });
 
-  test("decision packet reading view A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=content&view=reading`,
-      readyTestId: "artifact-page",
-      selector: ".monograph-layout",
-      snapshot: "decision-reading-view-a4-print.png",
+  test("renders candidate output in candidate clothing", async ({ page }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--candidate-clothing",
+    );
+    const candidate = story.getByTestId("candidate-frame");
+    const ownerProjection = story.getByTestId("owner-projection-unavailable");
+    await expect(candidate).toHaveAttribute(
+      "data-authority-posture",
+      "candidate",
+    );
+    await expect(ownerProjection).toHaveAttribute(
+      "data-interaction-state",
+      "unavailable",
+    );
+    await expect(
+      story.locator('[data-authority-posture="owner-projection"]'),
+    ).toHaveCount(0);
+    const [candidateBorder, ownerBorder] = await Promise.all([
+      candidate.evaluate((element) => getComputedStyle(element).borderStyle),
+      ownerProjection.evaluate(
+        (element) => getComputedStyle(element).borderStyle,
+      ),
+    ]);
+    expect(candidateBorder).toBe("dashed");
+    expect(ownerBorder).not.toBe(candidateBorder);
+    await expect(story).toHaveScreenshot("ds4-candidate-clothing.png", {
+      animations: "disabled",
+      caret: "hide",
     });
   });
 
+  test("marks fixture-only content and bars it from authority slots", async ({
+    page,
+  }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--fixture-only",
+    );
+    await expect(story.locator("#story-fixture-envelope")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(story.locator("#story-fixture-evidence")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(
+      story.getByTestId("authority-badge-fixture-rejection"),
+    ).toHaveAttribute("data-fixture-rejection", /fixture provenance/i);
+    await expect(story.locator("[data-authority-recognition]")).toHaveCount(0);
+    await expect(story).toHaveScreenshot("ds4-fixture-only-boundary.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
+  });
+
+  test("renders every DS4 evidence primitive", async ({ page }) => {
+    const story = await openEvidencePrimitiveStory(
+      page,
+      "ds4-evidence-primitives--all-primitives",
+    );
+    for (const locator of [
+      story.getByTestId("authority-badge-fixture-rejection"),
+      story.getByTestId("candidate-frame"),
+      story.getByTestId("blocker-card"),
+      story.locator("#story-envelope-chip"),
+      story.locator("#story-evidence-link"),
+      story.getByTestId("provenance-popover-content"),
+      story.getByTestId("time-semantics-source-state"),
+      story.getByTestId("weakest-link-explainer"),
+    ]) {
+      await expect(locator).toBeVisible();
+    }
+    await expect(
+      story.getByTestId("authority-badge-fixture-rejection"),
+    ).toHaveAttribute("data-fixture-rejection", /fixture provenance/i);
+    await expect(story.locator("[data-authority-recognition]")).toHaveCount(0);
+    await expect(story.getByTestId("candidate-frame")).toHaveAttribute(
+      "data-authority-posture",
+      "candidate",
+    );
+    await expect(story.getByTestId("blocker-card")).toHaveAttribute(
+      "data-producer-blocker-code",
+      "fixture_missing_grounded_effect",
+    );
+    await expect(story.locator("#story-envelope-chip")).toHaveAttribute(
+      "data-fixture-authority",
+      "fixture_only",
+    );
+    await expect(story.locator("#story-evidence-link")).toHaveAttribute(
+      "data-evidence-claim",
+      "reference-only",
+    );
+    await expect(story).toHaveScreenshot("ds4-evidence-primitives.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
+    await page.setViewportSize({ width: 393, height: 852 });
+    await expect(story.getByTestId("weakest-link-explainer")).toBeVisible();
+    await page.emulateMedia({
+      forcedColors: "active",
+      reducedMotion: "reduce",
+    });
+    await expect(story.locator("#story-evidence-link")).toBeVisible();
+    await page.emulateMedia({ media: "print" });
+    await expect(story.getByTestId("candidate-frame")).toBeVisible();
+  });
+
+  test("decision packet reading view A4 print", async ({ page }) => {
+    const surface = await openPrintSurface(page, {
+      path: `/artifacts/${fixtureMetadata.decision_packet_artifact_id}?tab=content&view=reading`,
+      readyTestId: "artifact-page",
+      selector: ".monograph-layout",
+    });
+    await expect(surface).toHaveScreenshot(
+      "decision-reading-view-a4-print.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+        maxDiffPixels: 100,
+      },
+    );
+  });
+
   test("run detail A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/runs/${FIXTURE_RUN_ID}/overview?trust=expanded`,
+    const surface = await openPrintSurface(page, {
+      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
       readyTestId: "run-detail-page",
       selector: '[data-testid="run-detail-page"]',
-      snapshot: "run-detail-a4-print.png",
+    });
+    await expect(surface).toHaveScreenshot("run-detail-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 
   test("bureaucratic document A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
+    await installBureaucraticTimestampFixture(
+      page,
+      fixtureMetadata.decision_packet_artifact_id,
+    );
+    const surface = await openPrintSurface(page, {
+      path: `/artifacts/${fixtureMetadata.decision_packet_artifact_id}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
+      readySelector: ".bureaucratic-document",
       readyTestId: "artifact-page",
       selector: '[data-testid="artifact-page"]',
-      snapshot: "bureaucratic-document-a4-print.png",
     });
+    await expect(surface).toHaveScreenshot(
+      "bureaucratic-document-a4-print.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+        maxDiffPixels: 100,
+      },
+    );
   });
 
   test("policy compare A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
-      path: `/runs/compare?base=${FIXTURE_METADATA.core_run_id}&target=${FIXTURE_METADATA.core_run_id_secondary}&trust=compact`,
-      readyTestId: "run-compare-page",
-      selector: '[data-testid="run-compare-page"]',
-      snapshot: "policy-compare-a4-print.png",
+    const surface = await openPrintSurface(page, {
+      path: `/runs/compare?base=${fixtureMetadata.core_run_id}&target=${fixtureMetadata.core_run_id_secondary}&trust=compact`,
+      readyTestId: "policy-diff-view",
+      selector: '[data-testid="policy-diff-view"]',
+    });
+    await expect(surface).toHaveScreenshot("policy-compare-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 
   test("counterfactual scenario A4 print", async ({ page }) => {
-    await expectPrintSnapshot(page, {
+    const surface = await openPrintSurface(page, {
       path: `/compose?scenario_id=scn_rate_cut_25bps&cf_mode=actual_vs_scenario`,
       readyTestId: "composer-page",
       selector: '[data-testid="composer-page"]',
-      snapshot: "scenario-a4-print.png",
+    });
+    await expect(surface).toHaveScreenshot("scenario-a4-print.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
     });
   });
 });

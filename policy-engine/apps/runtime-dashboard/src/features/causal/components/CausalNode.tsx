@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { layoutGeometry } from "@/shared/lib/domain/nonAuthorityNumeric";
+
 import type { CausalNodeData, CausalNodeKind } from "../types";
 import { NODE_WIDTH, NODE_HEIGHT, NODE_COLORS } from "../types";
 
@@ -133,7 +135,7 @@ export const CausalNode = memo(function CausalNode({
         fill={dimmed ? "var(--chart-neutral)" : "var(--text)"}
         opacity={dimmed ? 0.5 : 1}
         className="pointer-events-none select-none"
-        y={-4}
+        y={layoutGeometry(-4)}
       >
         {node.label.length > 18
           ? `${node.label.slice(0, 17)}\u2026`
@@ -148,7 +150,7 @@ export const CausalNode = memo(function CausalNode({
           fontSize={10}
           fill="var(--chart-neutral)"
           className="pointer-events-none select-none"
-          y={12}
+          y={layoutGeometry(12)}
         >
           {node.estimate >= 0 ? "+" : ""}
           {node.estimate.toFixed(3)}

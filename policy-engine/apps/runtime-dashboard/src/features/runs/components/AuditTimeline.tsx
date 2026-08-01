@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 
 import type {
   AuditTrailEntry,
-  AuditTrailSeverity,
+  AuditTrailSource,
 } from "@/features/runs/domain/compare";
-import { Button, StatusTimeline } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
+import { StatusTimeline } from "@/shared/ui";
 
 type AuditTimelineProps = {
   entries: AuditTrailEntry[];
@@ -12,35 +13,25 @@ type AuditTimelineProps = {
   emptyBody: string;
 };
 
-const FILTERS: Array<{ key: "all" | AuditTrailSeverity; label: string }> = [
+const FILTERS: Array<{ key: "all" | AuditTrailSource; label: string }> = [
   { key: "all", label: "All" },
-  { key: "fail", label: "Fail" },
-  { key: "warn", label: "Warn" },
-  { key: "info", label: "Info" },
+  { key: "governance", label: "Governance" },
+  { key: "runtime", label: "Runtime" },
+  { key: "timeline", label: "Timeline" },
 ];
-
-function severityKind(severity: AuditTrailSeverity) {
-  if (severity === "fail") {
-    return "fail" as const;
-  }
-  if (severity === "warn") {
-    return "warn" as const;
-  }
-  return "info" as const;
-}
 
 export function AuditTimeline({
   emptyBody,
   emptyTitle,
   entries,
 }: AuditTimelineProps) {
-  const [activeFilter, setActiveFilter] = useState<"all" | AuditTrailSeverity>(
+  const [activeFilter, setActiveFilter] = useState<"all" | AuditTrailSource>(
     "all",
   );
   const visibleEntries = useMemo(
     () =>
       entries.filter(
-        (entry) => activeFilter === "all" || entry.severity === activeFilter,
+        (entry) => activeFilter === "all" || entry.source === activeFilter,
       ),
     [activeFilter, entries],
   );
@@ -67,9 +58,14 @@ export function AuditTimeline({
           id: entry.id,
           title: entry.title,
           body: entry.body,
-          meta: <span className="text-muted text-xs">{entry.source}</span>,
+          meta: (
+            <span className="text-muted text-xs">
+              {entry.source}
+              {entry.ownerLabel ? ` · ${entry.ownerLabel}` : ""}
+            </span>
+          ),
           timestamp: entry.timestamp,
-          tone: severityKind(entry.severity),
+          recordedState: entry.recordedState,
         }))}
       />
     </div>

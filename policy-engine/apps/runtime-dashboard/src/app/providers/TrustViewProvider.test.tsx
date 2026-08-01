@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
+import { useTrustView } from "@/shared/ui/trust-view";
+
 import { TrustViewProvider } from "./TrustViewProvider";
-import { useTrustView } from "./useTrustView";
 
 function Probe() {
   const { mode, setMode } = useTrustView();

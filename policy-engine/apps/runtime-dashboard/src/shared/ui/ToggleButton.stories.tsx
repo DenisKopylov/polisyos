@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BookOpenText, ScanSearch } from "lucide-react";
 import { expect, userEvent, within } from "storybook/test";
 
-import { ToggleButton } from "@/shared/ui/ToggleButton";
+import { ToggleButton } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/ToggleButton",

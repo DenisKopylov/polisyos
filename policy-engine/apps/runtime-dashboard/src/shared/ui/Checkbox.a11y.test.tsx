@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Checkbox } from "./Checkbox";
+import { Checkbox } from "@polisyos/atlas-ui";
 
 describe("Checkbox accessibility", () => {
   it("has no detectable accessibility violations", async () => {

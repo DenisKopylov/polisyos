@@ -202,6 +202,43 @@ describe("DashboardPage", () => {
     );
   });
 
+  it("preserves an unseen run label byte-for-byte with neutral clothing and unavailable derived counts", () => {
+    useSuspenseRunsSampleMock.mockReturnValue({
+      data: {
+        runs: [
+          {
+            duration_ms: 1_000,
+            root_artifact_count: 2,
+            run_id: "run-opaque",
+            status: "awaiting_external_attestation",
+          },
+        ],
+      },
+    });
+
+    renderDashboard();
+
+    const ownerLabel = screen.getByText("awaiting_external_attestation");
+    expect(ownerLabel).toHaveClass("bg-white/65", "text-muted");
+    expect(screen.getAllByText("common.unavailable").length).toBeGreaterThanOrEqual(
+      3,
+    );
+  });
+
+  it("renders an open health label neutrally without minting authority clothing", () => {
+    useSuspenseHealthMock.mockReturnValue({
+      data: { status: "degraded_future" },
+    });
+
+    renderDashboard();
+
+    expect(
+      screen.getByText(
+        'pages.dashboard.healthStatus:{"status":"degraded_future"}',
+      ),
+    ).toHaveClass("bg-white/65", "text-muted");
+  });
+
   it("renders empty states when queue, charts, coverage, and promotions are unavailable", () => {
     useSuspenseDataIndexStatsMock.mockReturnValue({
       data: {

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Card } from "./Card";
+import { Card } from "@polisyos/atlas-ui";
 
 describe("Card accessibility", () => {
   it("has no detectable accessibility violations", async () => {

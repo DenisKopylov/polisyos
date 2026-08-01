@@ -22,7 +22,7 @@ import {
   Label,
   PanelSkeleton,
   Select,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   CausalGraphCanvas,
@@ -38,6 +38,7 @@ import {
   type CausalPath,
   type LayoutAlgorithm,
   type OverlayMode,
+  createCausalDraftIdentificationDisplay,
 } from "@/features/causal";
 import {
   ForestPlot,
@@ -142,6 +143,31 @@ function deriveCausalPaths(
   return paths;
 }
 
+function asCandidateCausalGraph(
+  graph: CausalArtifactPayload,
+): CausalArtifactPayload {
+  const nodes = graph.nodes.map(({ description, id, kind, label }) => ({
+    description,
+    id,
+    kind,
+    label,
+  }));
+  const edges = graph.edges.map(
+    ({ id, source, target }): CausalEdgeData => ({
+      id,
+      source,
+      status: createCausalDraftIdentificationDisplay("unidentified"),
+      target,
+    }),
+  );
+  return {
+    adjustmentSet: [],
+    edges,
+    nodes,
+    paths: deriveCausalPaths(nodes, edges),
+  };
+}
+
 function extractCausalGraph(
   run:
     | {
@@ -176,28 +202,24 @@ function extractCausalGraph(
       )
     : nodes.filter((node) => node.inAdjustmentSet).map((node) => node.id);
 
-  return {
+  return asCandidateCausalGraph({
     adjustmentSet,
     edges,
     methodology: (p.methodology as string) ?? undefined,
     methodData: (p.method_data as Record<string, unknown>) ?? undefined,
     nodes,
-    paths: deriveCausalPaths(nodes, edges),
-  };
+    paths: [],
+  });
 }
 
-function buildFallbackCausalGraph(runId: string): CausalArtifactPayload {
+function buildFallbackCausalGraph(): CausalArtifactPayload {
   const nodes: CausalNodeData[] = [
     {
-      dataAvailable: true,
-      evidenceCount: 1,
       id: "policy",
       kind: "treatment",
       label: "Policy",
     },
     {
-      dataAvailable: false,
-      evidenceCount: 0,
       id: "outcome",
       kind: "outcome",
       label: "Outcome",
@@ -206,13 +228,8 @@ function buildFallbackCausalGraph(runId: string): CausalArtifactPayload {
   const edges: CausalEdgeData[] = [
     {
       id: "policy-outcome",
-      methodology: "draft",
-      meta: {
-        runId,
-        source: "atlas-draft-scaffold",
-      },
       source: "policy",
-      status: "unidentified",
+      status: createCausalDraftIdentificationDisplay("unidentified"),
       target: "outcome",
     },
   ];
@@ -220,7 +237,6 @@ function buildFallbackCausalGraph(runId: string): CausalArtifactPayload {
   return {
     adjustmentSet: [],
     edges,
-    methodology: "draft",
     nodes,
     paths: deriveCausalPaths(nodes, edges),
   };
@@ -270,13 +286,13 @@ function readStoredCausalDraft(runId: string): CausalArtifactPayload | null {
     if (!isCausalArtifactPayload(parsed.graph)) {
       return null;
     }
-    return {
+    return asCandidateCausalGraph({
       ...parsed.graph,
       adjustmentSet: Array.isArray(parsed.graph.adjustmentSet)
         ? parsed.graph.adjustmentSet
         : [],
-      paths: deriveCausalPaths(parsed.graph.nodes, parsed.graph.edges),
-    };
+      paths: [],
+    });
   } catch {
     return null;
   }
@@ -391,8 +407,8 @@ function CausalTabContent({ runId }: { runId: string }) {
     [graph, runId],
   );
   const sourceGraph = useMemo(
-    () => graph ?? storedDraft ?? buildFallbackCausalGraph(runId),
-    [graph, runId, storedDraft],
+    () => graph ?? storedDraft ?? buildFallbackCausalGraph(),
+    [graph, storedDraft],
   );
 
   const [layout, setLayout] = useState<LayoutAlgorithm>("hierarchical");
@@ -465,7 +481,7 @@ function CausalTabContent({ runId }: { runId: string }) {
     : null;
   const highlightedEdges = adversarialMode
     ? draftGraph.edges
-        .filter((edge) => edge.status !== "identified")
+        .filter((edge) => edge.status.label !== "identified")
         .map((edge) => edge.id)
     : (selectedPath?.edgeIds ?? []);
 
@@ -478,11 +494,7 @@ function CausalTabContent({ runId }: { runId: string }) {
             <h3>{t("phase32.causal.title")}</h3>
             <p className="topbar-subtitle mt-2">{t("phase32.causal.body")}</p>
           </div>
-          <Badge kind={graph ? "ok" : "warn"}>
-            {graph
-              ? t("phase32.causal.artifactBacked")
-              : t("phase32.causal.draft")}
-          </Badge>
+          <Badge kind="warn">{t("phase32.causal.draft")}</Badge>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
@@ -594,7 +606,8 @@ function CausalTabContent({ runId }: { runId: string }) {
                 {
                   id: edgeId,
                   source: draftEdgeSource,
-                  status: "unidentified",
+                  status:
+                    createCausalDraftIdentificationDisplay("unidentified"),
                   target: draftEdgeTarget,
                 },
               ];

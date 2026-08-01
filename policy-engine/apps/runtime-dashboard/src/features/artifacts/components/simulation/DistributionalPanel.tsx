@@ -13,7 +13,8 @@ import {
 
 import type { DistributionalModel } from "@/shared/lib/domain/simulation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Select, chartTheme } from "@/shared/ui";
+import { Select } from "@polisyos/atlas-ui";
+import { chartTheme } from "@/shared/ui";
 
 type DistributionalPanelProps = {
   distributional: DistributionalModel | null;

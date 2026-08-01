@@ -16,17 +16,22 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import type { RunLaunchResponse } from "@polisyos/runtime-api-client";
 
 import { useLaunchNlRun } from "@/api/hooks/useLaunchNlRun";
 import { useLaunchRun } from "@/api/hooks/useLaunchRun";
 import type { ModelProfileInfo } from "@/api/hooks/useLlmProfiles";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatCurrency, formatDate, formatNumber } from "@/shared/lib/utils";
+import {
+  cn,
+  formatCurrency,
+  formatDate,
+  formatNumber,
+} from "@/shared/lib/utils";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import {
-  ApiErrorAlert,
   Badge,
   Button,
   Input,
@@ -35,7 +40,8 @@ import {
   Radio,
   Select,
   Textarea,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { ApiErrorAlert } from "@/shared/ui";
 import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,
@@ -45,6 +51,7 @@ import {
   type WorkflowLaunchFormValues,
   workflowLaunchSchema,
 } from "../domain/forms";
+import { launchStatusTone } from "../domain/launchPresentation";
 import {
   buildComposerDraftKey,
   deleteComposerDraft,
@@ -64,14 +71,14 @@ type CapabilityHighlight = {
 
 type RecentLaunch = {
   runId: string;
-  status: string;
+  status: RunLaunchResponse["status"];
 };
 
 type SectionSharedProps = {
   autoMaterializationEnabled: boolean;
   capabilityHighlights: CapabilityHighlight[];
   fromRunId: string | null;
-  onLaunchCreated: (runId: string, status: string) => void;
+  onLaunchCreated: (runId: string, status: RunLaunchResponse["status"]) => void;
   preflightEnabled: boolean;
   recentLaunches: RecentLaunch[];
 };
@@ -114,22 +121,6 @@ function providerBadge(provider: string) {
 
 function resolveCapabilityGlyph(key: string): GlyphName {
   return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
-
-function resolveLaunchBadgeKind(
-  status: string,
-): "ok" | "warn" | "fail" | "neutral" {
-  const normalized = status.trim().toLowerCase();
-  if (["accepted", "completed", "success", "succeeded"].includes(normalized)) {
-    return "ok";
-  }
-  if (["blocked", "error", "failed", "rejected"].includes(normalized)) {
-    return "fail";
-  }
-  if (["pending", "queued", "review"].includes(normalized)) {
-    return "warn";
-  }
-  return "neutral";
 }
 
 function AtlasFormSection({
@@ -331,7 +322,7 @@ function LaunchReceipt({ runId, status }: RecentLaunch) {
           {runId}
         </PrefetchLink>
         <Badge
-          kind={resolveLaunchBadgeKind(status)}
+          kind={launchStatusTone(status)}
           className="px-2 py-1 text-[10px]"
         >
           {status}
@@ -775,7 +766,6 @@ function CapabilityHighlightsSection({
                 <span className="grid size-8 place-items-center rounded-full bg-white/8">
                   <Glyph
                     decorative
-                    intent="verified"
                     name={resolveCapabilityGlyph(feature.key)}
                     size={14}
                   />

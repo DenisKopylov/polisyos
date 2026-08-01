@@ -13,9 +13,9 @@ const { labelMock, tMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -25,14 +25,21 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
   };
 });
 
-vi.mock("@/shared/ui", () => ({
-  Badge: ({ children, kind }: { children: ReactNode; kind: string }) => (
-    <span data-kind={kind}>{children}</span>
-  ),
-  JsonPreview: ({ data }: { data: unknown }) => (
-    <pre data-testid="json-preview">{JSON.stringify(data)}</pre>
-  ),
-}));
+vi.mock("@polisyos/atlas-ui", async () => {
+  const actual =
+    await vi.importActual<typeof import("@polisyos/atlas-ui")>(
+      "@polisyos/atlas-ui",
+    );
+  return {
+    ...actual,
+    Badge: ({ children, kind }: { children: ReactNode; kind: string }) => (
+      <span data-kind={kind}>{children}</span>
+    ),
+    JsonPreview: ({ data }: { data: unknown }) => (
+      <pre data-testid="json-preview">{JSON.stringify(data)}</pre>
+    ),
+  };
+});
 
 vi.mock("@/features/artifacts/components/DecisionCardView", () => ({
   default: ({ artifactKind }: { artifactKind: string }) => (

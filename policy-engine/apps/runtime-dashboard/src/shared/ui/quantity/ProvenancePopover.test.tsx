@@ -27,7 +27,11 @@ const quantity: QuantityValue = {
       { kind: "result", label: "effect_size" },
     ],
   },
-  uncertainty: { ci_95: [0.15, 0.31] },
+  uncertainty: {
+    ci_95: [0.15, 0.31],
+    disputed: false,
+    identifiability: "estimated",
+  },
   time: {
     valid_at: "2026-04-15T12:00:00Z",
     tx_at: "2026-04-16T09:20:00Z",
@@ -66,6 +70,49 @@ afterEach(() => {
 });
 
 describe("ProvenancePopover", () => {
+  it("renders generated lineage and verification metadata without a local trust status", async () => {
+    renderWithProviders(
+      <ProvenancePopover
+        quantity={{
+          ...quantity,
+          lineage: {
+            ...quantity.lineage,
+            id: "untraced",
+            status: "verified",
+            freshness: "stale",
+            trust_metadata: {
+              verification_status: "pending",
+              freshness: "current",
+              dispute_status: "under_review",
+            },
+          },
+        }}
+        open
+        onOpenChange={() => undefined}
+      >
+        <button type="button">Open generated metadata</button>
+      </ProvenancePopover>,
+    );
+
+    expect(
+      await screen.findByTestId("lineage-verification-status"),
+    ).toHaveTextContent("verified");
+    expect(screen.getByTestId("lineage-freshness")).toHaveTextContent("stale");
+    expect(screen.getByTestId("trust-verification-status")).toHaveTextContent(
+      "pending",
+    );
+    expect(screen.getByTestId("trust-freshness")).toHaveTextContent("current");
+    expect(screen.getByTestId("trust-dispute-status")).toHaveTextContent(
+      "under review",
+    );
+    expect(screen.getByTestId("trust-dispute-label")).toHaveTextContent(
+      "disputed",
+    );
+    expect(
+      screen.queryByTestId("local-provenance-status"),
+    ).not.toBeInTheDocument();
+  });
+
   it("shows compact provenance and opens deep dive", async () => {
     const user = userEvent.setup();
     mockRuntimeGetSuccess({ meta, temporal_scope: null, lineage });

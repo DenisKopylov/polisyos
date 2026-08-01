@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 import { chartTheme, chartDefaults } from "@/shared/charts/theme";
 import { ChartDataTable } from "@/shared/charts/accessibility";
 
@@ -11,6 +11,14 @@ export type ImportanceFactor = {
   direction: "positive" | "negative" | "neutral";
   detail?: string;
 };
+
+type FactorChartGeometry = {
+  numericColumnWidth: number;
+};
+
+const FACTOR_CHART_GEOMETRY = {
+  numericColumnWidth: 60,
+} as const satisfies FactorChartGeometry;
 
 type FactorImportanceChartProps = {
   factors: ImportanceFactor[];
@@ -40,11 +48,14 @@ export function FactorImportanceChart({
   const barHeight = 28;
   const gap = 6;
   const labelWidth = 120;
-  const valueWidth = 60;
   const padding = { top: 8, right: 16, bottom: 8, left: 8 };
   const svgWidth = 480;
   const barAreaWidth =
-    svgWidth - padding.left - padding.right - labelWidth - valueWidth;
+    svgWidth -
+    padding.left -
+    padding.right -
+    labelWidth -
+    FACTOR_CHART_GEOMETRY.numericColumnWidth;
 
   const computedHeight =
     heightOverride ??

@@ -1,11 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import { animate, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
-import { cn, formatNumber } from "@/shared/lib/utils";
+import { cn } from "@/shared/lib/utils";
+
+import {
+  ChartQuantityEvidence,
+  chartQuantityMembers,
+  chartQuantityScalarPoint,
+  type ChartQuantityInput,
+} from "./quantityChartSemantics";
+import type { QuantityFormatOptions } from "@/shared/ui/quantity/quantity-format";
 
 type AnimatedNumberProps = {
-  value: number;
-  formatOptions?: Intl.NumberFormatOptions;
+  value: ChartQuantityInput;
+  formatOptions?: Pick<QuantityFormatOptions, "maximumFractionDigits">;
   duration?: number;
   prefix?: string;
   suffix?: string;
@@ -21,43 +28,31 @@ export function AnimatedNumber({
   className,
 }: AnimatedNumberProps) {
   const prefersReduced = useReducedMotion();
-  const nodeRef = useRef<HTMLSpanElement>(null);
-  const prevValue = useRef(0);
-  const [display, setDisplay] = useState(() =>
-    formatNumber(value, formatOptions),
-  );
-
-  useEffect(() => {
-    if (prefersReduced || !nodeRef.current) {
-      setDisplay(formatNumber(value, formatOptions));
-      prevValue.current = value;
-      return;
-    }
-
-    const from = prevValue.current;
-    prevValue.current = value;
-
-    const controls = animate(from, value, {
-      duration,
-      ease: [0.2, 0, 0, 1],
-      onUpdate(v) {
-        setDisplay(formatNumber(v, formatOptions));
-      },
-    });
-
-    return () => controls.stop();
-  }, [value, duration, formatOptions, prefersReduced]);
+  const members = chartQuantityMembers(value);
+  const scalarPoint = chartQuantityScalarPoint(value);
+  const animationKey = members
+    .map((member) => `${member.metric_id ?? member.lineage.id}:${member.point}`)
+    .join("|");
 
   return (
-    <span
-      ref={nodeRef}
+    <motion.span
+      key={animationKey}
       className={cn("tabular-nums", className)}
+      data-testid="animated-number"
       aria-live="polite"
       aria-atomic="true"
+      initial={
+        prefersReduced || scalarPoint === null ? false : { opacity: 0, y: 4 }
+      }
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration }}
     >
       {prefix}
-      {display}
+      <ChartQuantityEvidence
+        value={value}
+        precision={formatOptions?.maximumFractionDigits}
+      />
       {suffix}
-    </span>
+    </motion.span>
   );
 }

@@ -1,6 +1,5 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { classifyConfidence, confidenceColor } from "./types";
 
 type FrequencyDotsProps = {
   total?: number;
@@ -28,9 +27,6 @@ export function FrequencyDots({
   const dims = SIZE_MAP[size];
   const rows = Math.ceil(total / dims.cols);
 
-  const level = classifyConfidence(clamped / total);
-  const fillColor = confidenceColor(level);
-
   const pct = Math.round((clamped / total) * 100);
   const ariaLabel = `${clamped} out of ${total} (${pct}%)${label ? `. ${label}` : ""}`;
 
@@ -51,10 +47,12 @@ export function FrequencyDots({
           <div
             key={i}
             className="rounded-full"
+            data-testid="frequency-dot"
             style={{
               width: dims.dot,
               height: dims.dot,
-              backgroundColor: i < clamped ? fillColor : "var(--line)",
+              backgroundColor:
+                i < clamped ? "var(--chart-primary)" : "var(--line)",
               opacity: i < clamped ? 1 : 0.4,
             }}
           />

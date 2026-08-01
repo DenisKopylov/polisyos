@@ -1,16 +1,19 @@
 import {
   temporalScopeKey,
   type TemporalScope,
-} from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
 import {
   scenarioScopeKey,
   type ScenarioScope,
 } from "@/app/providers/scenario-scope";
+import type { ProjectionId } from "@polisyos/runtime-api-client";
 
 export const queryKeys = {
   authMe: () => ["auth", "me"] as const,
   health: () => ["runtime", "health"] as const,
   capabilities: () => ["control", "capabilities"] as const,
+  governedProjection: (projectionId: ProjectionId) =>
+    ["runtime", "governed-projection", projectionId] as const,
   temporalCapabilities: (runId: string | null | undefined) =>
     ["runtime", "temporal", "capabilities", { runId: runId ?? null }] as const,
   runsRoot: () => ["runtime", "runs"] as const,

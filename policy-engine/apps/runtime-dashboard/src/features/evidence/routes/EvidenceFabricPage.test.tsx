@@ -253,6 +253,22 @@ describe("EvidenceFabricPage", () => {
     );
   });
 
+  it("hard-coded copy cannot mint verified provenance", () => {
+    renderEvidencePage();
+
+    const strip = screen.getByTestId("provenance-strip");
+    expect(
+      within(strip).getByText("Live", { selector: "span" }),
+    ).toBeInTheDocument();
+    expect(within(strip).queryByLabelText("verified")).not.toBeInTheDocument();
+    for (const item of within(strip).getAllByRole("listitem")) {
+      expect(item).not.toHaveAttribute("data-intent");
+    }
+    for (const glyph of within(strip).getAllByRole("img")) {
+      expect(glyph).not.toHaveAttribute("data-glyph-intent");
+    }
+  });
+
   it("switches the production slice between freshness braid and connector cards", async () => {
     const user = userEvent.setup();
 

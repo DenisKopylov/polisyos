@@ -4,15 +4,16 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AtlasBrand } from "@/shared/brand/AtlasBrand";
 import { Glyph } from "@/shared/brand/Glyph";
 import { GLYPH_NAMES } from "@/shared/brand/glyph-vocabulary";
-import { Badge } from "@/shared/ui/Badge";
-import { Button } from "@/shared/ui/Button";
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/shared/ui/Card";
+} from "@polisyos/atlas-ui";
+
 import { MetricCard } from "@/shared/ui/MetricCard";
 
 const colorTokens = [

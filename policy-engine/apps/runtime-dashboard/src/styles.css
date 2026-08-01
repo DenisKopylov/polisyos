@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../packages/atlas-ui/src";
 @import "./styles/theme-light.css";
 @import "./styles/theme-dark.css";
 @import "./styles/theme-high-contrast.css";

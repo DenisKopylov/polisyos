@@ -1,6 +1,11 @@
 import { memo } from "react";
 
-import type { CausalEdgeData, EdgeIdentificationStatus } from "../types";
+import { layoutGeometry } from "@/shared/lib/domain/nonAuthorityNumeric";
+
+import type {
+  CausalDraftIdentificationDisplay,
+  CausalEdgeData,
+} from "../types";
 import { NODE_WIDTH, NODE_HEIGHT } from "../types";
 
 type CausalEdgeProps = {
@@ -20,17 +25,19 @@ const HW = NODE_WIDTH / 2;
 const HH = NODE_HEIGHT / 2;
 const ARROW_SIZE = 6;
 
-function edgeStyle(status: EdgeIdentificationStatus): {
+function edgeStyle(status: CausalDraftIdentificationDisplay): {
   color: string;
   dash: string;
 } {
-  switch (status) {
+  switch (status.label) {
     case "identified":
       return { color: "var(--chart-primary)", dash: "none" };
     case "unidentified":
       return { color: "var(--chart-alert)", dash: "6 4" };
     case "bounds_only":
       return { color: "var(--color-confidence-medium)", dash: "3 3" };
+    default:
+      return { color: "var(--chart-neutral)", dash: "3 3" };
   }
 }
 
@@ -104,7 +111,7 @@ export const CausalEdge = memo(function CausalEdge({
   return (
     <g
       role="treeitem"
-      aria-label={`Edge from ${edge.source} to ${edge.target}, ${edge.status}${edge.estimate != null ? `, effect ${edge.estimate.toFixed(3)}` : ""}`}
+      aria-label={`Edge from ${edge.source} to ${edge.target}, ${edge.status.label}${edge.estimate != null ? `, effect ${edge.estimate.toFixed(3)}` : ""}`}
       style={{ cursor: "pointer" }}
       onClick={() => onClick?.(edge.id)}
       onMouseEnter={() => onMouseEnter?.(edge.id)}
@@ -158,8 +165,8 @@ export const CausalEdge = memo(function CausalEdge({
       {edge.estimate != null && !dimmed && (
         <g transform={`translate(${midX}, ${midY})`}>
           <rect
-            x={-24}
-            y={-9}
+            x={layoutGeometry(-24)}
+            y={layoutGeometry(-9)}
             width={48}
             height={18}
             rx={4}

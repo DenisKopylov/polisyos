@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Text } from "./Text";
+import { Text } from "@polisyos/atlas-ui";
 
 describe("Text accessibility", () => {
   it("has no detectable accessibility violations", async () => {

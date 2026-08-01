@@ -20,7 +20,7 @@ import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
 import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
-import { getRunBadgeKind } from "@/features/runs/domain/status";
+import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
 import {
@@ -42,12 +42,9 @@ import {
   PageErrorBoundary,
   PanelErrorBoundary,
 } from "@/shared/components/ErrorBoundary";
+import { Badge, Button, Card, DetailLayout } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Badge,
-  Button,
-  Card,
-  DetailLayout,
   OperatorDiagnosticPanel,
   ProvenanceStrip,
 } from "@/shared/ui";
@@ -57,12 +54,9 @@ import {
   useAuthorship,
 } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
-import { UncertaintyBand, type IdentifiabilityState } from "@/shared/charts";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
+import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-
-function badgeKind(kind: ReturnType<typeof getRunBadgeKind>) {
-  return kind === "unknown" ? "neutral" : kind;
-}
 
 function runDetailProvenance(
   summary: ReturnType<typeof useRunInspector>,
@@ -72,7 +66,6 @@ function runDetailProvenance(
       id: "intervention",
       glyph: "intervention",
       label: "Policy run",
-      intent: "default",
     },
   ];
   if (summary.blockerCount > 0) {
@@ -80,21 +73,18 @@ function runDetailProvenance(
       id: "governance",
       glyph: "blocker",
       label: "Governance blocked",
-      intent: "blocked",
     });
   } else {
     items.push({
       id: "governance",
       glyph: "governance-pass",
       label: "Governance pass",
-      intent: "verified",
     });
   }
   items.push({
     id: "reproducibility",
     glyph: "reproducibility",
     label: "Replayable",
-    intent: "default",
   });
   return items;
 }
@@ -167,6 +157,10 @@ function RunInspectorContent() {
     () => buildRunReportSnapshot(summary, []),
     [summary],
   );
+  const evaluatorGrade = presentDecisionGradeLabel(
+    summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
+  );
+  const packetGrade = presentDecisionGradeLabel(decisionPacket.primaryVerdict);
   const primaryUncertaintyMetric = useMemo(() => {
     const metric = summary.decisionView?.keyMetrics.find(
       (candidate) =>
@@ -190,9 +184,7 @@ function RunInspectorContent() {
       ],
       disputed: Boolean(metric.assumptionWarnings?.length),
       estimate: metric.value,
-      identifiability: metric.assumptionWarnings?.length
-        ? ("estimated" as IdentifiabilityState)
-        : ("identified" as IdentifiabilityState),
+      identifiability: metricIdentifiability(metric),
       label: metric.name,
       level: metric.ciLevel ?? 0.95,
       unit: metric.unit,
@@ -298,12 +290,6 @@ function RunInspectorContent() {
     focus: summary.primaryDecisionArtifactId ? "artifact" : "overview",
     runId,
   });
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: summary.decisionScore,
-    metricId: "run_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: { valid_at: decisionPacketTimestamp },
-  });
   const evaluatorScoreQuantity = untracedDecisionQuantity({
     point: summary.pipeline?.evaluator?.scores?.total_score,
     metricId: "evaluator_total_score",
@@ -352,7 +338,7 @@ function RunInspectorContent() {
             <h2>{summary.decisionHeadline}</h2>
             <div className="score-ring" style={summary.decisionScoreStyle}>
               <Quantity
-                value={decisionScoreQuantity}
+                value={summary.decisionScore}
                 precision={2}
                 variant="hero"
               />
@@ -363,13 +349,17 @@ function RunInspectorContent() {
                   {t("pages.runs.evaluator")}
                 </span>
                 <strong className="mt-2 block">
-                  {label(
-                    "evaluatorVerdicts",
-                    summary.pipeline?.evaluator?.verdict,
-                    summary.decisionView?.verdict ??
-                      summary.pipeline?.evaluator?.verdict ??
-                      t("common.unknown"),
-                  )}
+                  <span
+                    data-testid="run-evaluator-grade"
+                    data-decision-grade-presentation={
+                      evaluatorGrade.classification
+                    }
+                    data-owner-decision-grade={
+                      evaluatorGrade.ownerLabel ?? undefined
+                    }
+                  >
+                    {evaluatorGrade.ownerLabel ?? t("common.unknown")}
+                  </span>
                 </strong>
               </div>
               <div className="bg-surface/80 border-line rounded-2xl border p-3">
@@ -432,9 +422,7 @@ function RunInspectorContent() {
                   <p className="topbar-subtitle">{t("pages.runs.subtitle")}</p>
                 </div>
                 <div className="topbar-actions">
-                  <Badge kind={badgeKind(getRunBadgeKind(run.status))}>
-                    {label("runStatuses", run.status, run.status)}
-                  </Badge>
+                  <Badge kind="neutral">{run.status}</Badge>
                   <Badge kind="neutral">
                     {label("runSourceKinds", run.source_kind, run.source_kind)}
                   </Badge>
@@ -485,8 +473,7 @@ function RunInspectorContent() {
                       {t("common.readingView")}
                     </PrefetchButton>
                   ) : null}
-                  {summary.pipeline?.preflight?.ready_to_run === false ||
-                  summary.pipeline?.evaluator?.verdict?.startsWith("REPLAN") ? (
+                  {summary.pipeline?.preflight?.ready_to_run === false ? (
                     canLaunchRuns ? (
                       <PrefetchButton
                         to={`/compose?fromRun=${runId}`}
@@ -540,11 +527,18 @@ function RunInspectorContent() {
                 />
                 <MetricCard
                   label={t("pages.runs.evaluator")}
-                  value={label(
-                    "evaluatorVerdicts",
-                    summary.pipeline?.evaluator?.verdict,
-                    summary.pipeline?.evaluator?.verdict ?? t("common.unknown"),
-                  )}
+                  value={
+                    <span
+                      data-decision-grade-presentation={
+                        evaluatorGrade.classification
+                      }
+                      data-owner-decision-grade={
+                        evaluatorGrade.ownerLabel ?? undefined
+                      }
+                    >
+                      {evaluatorGrade.ownerLabel ?? t("common.unknown")}
+                    </span>
+                  }
                   meta={
                     <Quantity
                       value={evaluatorScoreQuantity}
@@ -595,11 +589,17 @@ function RunInspectorContent() {
                   <MetricCard
                     label={t("pages.runs.verdictLabel")}
                     value={
-                      label(
-                        "evaluatorVerdicts",
-                        decisionPacket.primaryVerdict,
-                        decisionPacket.primaryVerdict ?? t("common.unknown"),
-                      ) ?? t("common.unknown")
+                      <span
+                        data-testid="run-packet-grade"
+                        data-decision-grade-presentation={
+                          packetGrade.classification
+                        }
+                        data-owner-decision-grade={
+                          packetGrade.ownerLabel ?? undefined
+                        }
+                      >
+                        {packetGrade.ownerLabel ?? t("common.unknown")}
+                      </span>
                     }
                     meta={decisionPacket.decisionHeadline}
                   />
@@ -636,8 +636,11 @@ function RunInspectorContent() {
                             <span className="text-sm font-semibold">
                               {row.label}
                             </span>
-                            <span className="text-muted font-mono text-sm">
-                              {row.display}
+                            <span
+                              className="text-muted font-mono text-sm"
+                              data-quantity-metric-id={row.quantity.metric_id}
+                            >
+                              <Quantity value={row.quantity} variant="dense" />
                             </span>
                           </div>
                         ))
@@ -735,9 +738,7 @@ function RunInspectorContent() {
                           unit={primaryUncertaintyMetric.unit}
                           disputed={primaryUncertaintyMetric.disputed}
                           identifiability={
-                            primaryUncertaintyMetric.identifiability as
-                              | IdentifiabilityState
-                              | undefined
+                            primaryUncertaintyMetric.identifiability
                           }
                           className="w-full"
                         />
@@ -770,13 +771,13 @@ function RunInspectorContent() {
                   </div>
                 </section>
 
-                <ScientificDepthPanel runId={runId} summary={summary} />
+                <ScientificDepthPanel />
                 {run.operator_diagnostic ? (
                   <OperatorDiagnosticPanel
                     diagnostic={run.operator_diagnostic}
                   />
                 ) : null}
-                <PublicSectorReadinessPanel runId={runId} summary={summary} />
+                <PublicSectorReadinessPanel />
                 <PublicationReadinessPanel runId={runId} summary={summary} />
                 <OperatorCraftPanel runId={runId} summary={summary} />
               </Card>

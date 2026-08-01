@@ -1,6 +1,6 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 import { ConfidenceGauge, GradedErrorBar } from "@/shared/charts";
 
 import type { CausalNodeData, CausalEdgeData } from "../types";
@@ -22,6 +22,12 @@ export function NodeDetailPanel({
   const { t } = useI18n();
   const incoming = edges.filter((e) => e.target === node.id);
   const outgoing = edges.filter((e) => e.source === node.id);
+  const availabilityLabel =
+    node.dataAvailable === true
+      ? t("causal.nodeDetail.dataAvailable")
+      : node.dataAvailable === false
+        ? t("causal.nodeDetail.dataUnavailable")
+        : t("common.unknown");
 
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>
@@ -108,16 +114,14 @@ export function NodeDetailPanel({
         <span
           className={cn(
             "size-2 rounded-full",
-            node.dataAvailable !== false
+            node.dataAvailable === true
               ? "bg-[var(--chart-success)]"
-              : "bg-[var(--chart-warning)]",
+              : node.dataAvailable === false
+                ? "bg-[var(--chart-warning)]"
+                : "bg-[var(--color-text-muted)]",
           )}
         />
-        <span>
-          {node.dataAvailable !== false
-            ? t("causal.nodeDetail.dataAvailable")
-            : t("causal.nodeDetail.dataUnavailable")}
-        </span>
+        <span>{availabilityLabel}</span>
       </div>
 
       {/* Evidence count */}
@@ -145,7 +149,7 @@ export function NodeDetailPanel({
                   <span className="text-muted">{"\u2190"}</span>
                   <span className="font-medium">{e.source}</span>
                   <span className="text-muted text-xs capitalize">
-                    ({e.status})
+                    ({e.status.label})
                   </span>
                 </li>
               ))}
@@ -163,7 +167,7 @@ export function NodeDetailPanel({
                   <span className="text-muted">{"\u2192"}</span>
                   <span className="font-medium">{e.target}</span>
                   <span className="text-muted text-xs capitalize">
-                    ({e.status})
+                    ({e.status.label})
                   </span>
                 </li>
               ))}

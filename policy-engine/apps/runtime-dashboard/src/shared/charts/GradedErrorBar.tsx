@@ -42,7 +42,7 @@ export function GradedErrorBar({
   unit = "",
   height = 80,
   disputed = false,
-  identifiability = "estimated",
+  identifiability = "unknown",
   className,
 }: GradedErrorBarProps) {
   const { t } = useI18n();

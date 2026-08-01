@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Card } from "@/shared/ui";
+import { Card } from "@polisyos/atlas-ui";
 import { FanChart } from "./FanChart";
 import { QuantileDotplot } from "./QuantileDotplot";
 import { UncertaintyBand } from "./UncertaintyBand";

@@ -10,19 +10,21 @@ describe("ProvenanceChain accessibility", () => {
           {
             detail: "Registry snapshot was loaded.",
             href: "/evidence",
-            id: "data",
-            label: "Evidence registry",
-            status: "ok",
-            statusLabel: "Verified",
+            lineage: {
+              id: "data",
+              kind: "dataset",
+              label: "Evidence registry",
+            },
+            source: "recorded-lineage",
             timestamp: "2026-04-23 10:00",
-            type: "data",
           },
           {
-            id: "result",
-            label: "Decision packet",
-            status: "neutral",
-            statusLabel: "Generated",
-            type: "result",
+            lineage: {
+              id: "result",
+              kind: "result",
+              label: "Decision packet",
+            },
+            source: "recorded-lineage",
           },
         ]}
       />,

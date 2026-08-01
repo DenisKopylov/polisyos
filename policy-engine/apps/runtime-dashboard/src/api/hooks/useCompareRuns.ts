@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   toApiTemporalParams,
   type TemporalScope,
-} from "@/app/providers/temporal-scope";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+} from "@/shared/lib/domain/temporal";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";

@@ -1,8 +1,12 @@
 import type { ConnectorsListResponse } from "@/api/hooks/useConnectors";
 import type { SourceProfilesListResponse } from "@/api/hooks/useSourceProfiles";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
-
-export type FreshnessState = "ok" | "warn" | "fail" | "unknown";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 
 export type FreshnessBraidThread = {
   connectorId: string;
@@ -13,7 +17,7 @@ export type FreshnessBraidThread = {
   lastObservedAt: string | null;
   profileIds: string[];
   slaMs: number;
-  state: FreshnessState;
+  state: InteractionState;
   volume: number;
 };
 
@@ -33,7 +37,7 @@ export type ConnectorCharacterCard = {
   connectorId: string;
   costTier: "low" | "medium" | "high";
   datasetCount: number;
-  errorBudgetBurn: number;
+  errorBudgetBurn: QuantityValueOutput;
   factsThroughConnector: number;
   lastGreenPull: string | null;
   latencyP50Ms: number | null;
@@ -42,7 +46,6 @@ export type ConnectorCharacterCard = {
   namespace: string;
   profileCount: number;
   profileIds: string[];
-  retryProfile: "steady" | "watch" | "exhausted";
   version: string;
 };
 
@@ -73,17 +76,17 @@ function timestampLagMs(
   return Math.max(0, now.getTime() - parsed);
 }
 
-function freshnessState(lagMs: number | null, slaMs: number): FreshnessState {
+function freshnessState(lagMs: number | null, slaMs: number): InteractionState {
   if (lagMs === null) {
-    return "unknown";
+    return createInteractionState("unknown", "diagnostic_display");
   }
   if (lagMs <= slaMs) {
-    return "ok";
+    return createInteractionState("ok", "diagnostic_display");
   }
   if (lagMs <= slaMs * 2) {
-    return "warn";
+    return createInteractionState("warn", "diagnostic_display");
   }
-  return "fail";
+  return createInteractionState("fail", "diagnostic_display");
 }
 
 function connectorProfiles(
@@ -214,7 +217,9 @@ export function buildFreshnessBraidView(input: {
       lastObservedAt,
       profileIds: connector.profileIds,
       slaMs,
-      state: connector.loaded ? freshnessState(lagMs, slaMs) : "fail",
+      state: connector.loaded
+        ? freshnessState(lagMs, slaMs)
+        : createInteractionState("fail", "diagnostic_display"),
       volume: Math.max(1, connector.datasetCount + derivedFactCount),
     };
   });
@@ -259,9 +264,18 @@ export function buildConnectorCharacterCards(input: {
       planCountForConnector(connector.connectorId, input.runContext);
     const profilePressure = Math.min(1, connector.profileIds.length / 8);
     const datasetPressure = Math.min(1, datasetCount / 20);
-    const errorBudgetBurn = connector.loaded
+    const errorBudgetBurnPoint = connector.loaded
       ? Math.min(0.92, 0.08 + profilePressure * 0.24 + datasetPressure * 0.18)
-      : 1;
+      : Number(!connector.loaded);
+    const errorBudgetBurn: QuantityValueOutput = untracedDecisionQuantity({
+      label: "Error budget burn",
+      metricId: `connector.${connector.connectorId}.error_budget_burn`,
+      point: errorBudgetBurnPoint,
+      reasonCode: "connector_projection_without_runtime_quantity",
+      time: { valid_at: connector.lastHealthCheck },
+      trackingIssue: "ATLAS-DS4-C06",
+      unit: { code: "1", display: "ratio", system: "ucum" },
+    });
     const latencyP50Ms = connector.loaded
       ? Math.round(90 + profilePressure * 140 + datasetPressure * 80)
       : null;
@@ -286,11 +300,6 @@ export function buildConnectorCharacterCards(input: {
       namespace: connector.namespace,
       profileCount: connector.profileIds.length,
       profileIds: connector.profileIds,
-      retryProfile: connector.loaded
-        ? errorBudgetBurn > 0.7
-          ? "watch"
-          : "steady"
-        : "exhausted",
       version: connector.version,
     };
   });

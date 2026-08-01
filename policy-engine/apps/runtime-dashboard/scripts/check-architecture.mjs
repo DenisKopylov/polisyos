@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import ts from "typescript";
 
 const projectRoot = process.cwd();
@@ -7,7 +8,9 @@ const srcRoot = path.join(projectRoot, "src");
 const supportedExtensions = [".ts", ".tsx", ".js", ".jsx", ".mjs"];
 
 async function listFiles(directory) {
-  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const entries = (await fs.readdir(directory, { withFileTypes: true })).sort(
+    (left, right) => left.name.localeCompare(right.name),
+  );
   const files = await Promise.all(
     entries.map(async (entry) => {
       const resolved = path.join(directory, entry.name);
@@ -58,6 +61,10 @@ function resolveImport(fromFile, specifier) {
 
 function relativePath(filePath) {
   return path.relative(projectRoot, filePath).replaceAll(path.sep, "/");
+}
+
+function repositoryPath(filePath) {
+  return `apps/runtime-dashboard/${relativePath(filePath)}`;
 }
 
 function classifyModule(filePath) {
@@ -112,6 +119,7 @@ function classifyModule(filePath) {
 function isFeaturePublicEntry(filePath) {
   const relative = relativePath(filePath);
   return (
+    relative === "src/features/runs/workspaces.public.ts" ||
     /^src\/features\/[^/]+\/index\.ts$/.test(relative) ||
     /^src\/features\/[^/]+\/index\.tsx$/.test(relative) ||
     /^src\/features\/[^/]+\/routes\.public\.ts$/.test(relative) ||
@@ -173,16 +181,22 @@ function validateImport(fromFile, toFile) {
     from.kind === "app-provider" ||
     from.kind === "app-state";
   const toAppLayer =
-    to.kind === "app" ||
-    to.kind === "app-provider" ||
-    to.kind === "app-state";
+    to.kind === "app" || to.kind === "app-provider" || to.kind === "app-state";
 
   if (to.kind === "legacy-pages" || to.kind === "legacy-components") {
-    return "Legacy src/pages and src/components modules cannot be imported.";
+    return {
+      ruleId: "no-legacy-page-or-component-imports",
+      message:
+        "Legacy src/pages and src/components modules cannot be imported.",
+    };
   }
 
   if (from.kind === "app-state" && to.kind === "app-provider") {
-    return "app/state stores cannot depend on app/providers; providers may read stores.";
+    return {
+      ruleId: "app-state-no-app-providers",
+      message:
+        "app/state stores cannot depend on app/providers; providers may read stores.",
+    };
   }
 
   if (
@@ -191,14 +205,20 @@ function validateImport(fromFile, toFile) {
       from.kind === "shared-i18n") &&
     (toAppLayer || to.kind === "feature")
   ) {
-    return "shared layer cannot depend on app or features.";
+    return {
+      ruleId: "shared-no-app-or-features",
+      message: "shared layer cannot depend on app or features.",
+    };
   }
 
   if (
     from.kind === "shared-lib" &&
     (toAppLayer || to.kind === "feature" || to.kind === "shared")
   ) {
-    return "shared/lib layer cannot depend on app, features, or shared UI.";
+    return {
+      ruleId: "shared-lib-boundary",
+      message: "shared/lib layer cannot depend on app, features, or shared UI.",
+    };
   }
 
   if (
@@ -207,15 +227,18 @@ function validateImport(fromFile, toFile) {
     from.featureName !== to.featureName &&
     !isFeaturePublicEntry(toFile)
   ) {
-    return `feature "${from.featureName}" can import feature "${to.featureName}" only via its public index.ts barrel.`;
+    return {
+      ruleId: "feature-no-cross-feature-internals",
+      message: `feature "${from.featureName}" can import feature "${to.featureName}" only via its public index.ts barrel.`,
+    };
   }
 
-  if (
-    fromAppLayer &&
-    to.kind === "feature" &&
-    !isFeaturePublicEntry(toFile)
-  ) {
-    return "app layer can import features only through their public index.ts barrel.";
+  if (fromAppLayer && to.kind === "feature" && !isFeaturePublicEntry(toFile)) {
+    return {
+      ruleId: "app-no-feature-internals",
+      message:
+        "app layer can import features only through their public index.ts barrel.",
+    };
   }
 
   return null;
@@ -225,27 +248,51 @@ function validateFileLocation(filePath) {
   const module = classifyModule(filePath);
 
   if (module.kind === "legacy-pages" || module.kind === "legacy-components") {
-    return "Legacy src/pages and src/components modules must not exist on disk.";
+    return {
+      ruleId: "no-legacy-page-or-component-files",
+      message:
+        "Legacy src/pages and src/components modules must not exist on disk.",
+    };
   }
 
   if (module.kind === "legacy-lib" || module.kind === "legacy-i18n") {
-    return "Legacy src/lib and src/i18n modules must live under src/shared.";
+    return {
+      ruleId: "no-legacy-lib-or-i18n-files",
+      message:
+        "Legacy src/lib and src/i18n modules must live under src/shared.",
+    };
   }
 
   return null;
 }
 
-async function main() {
+function sourceSha256(sourceText) {
+  return createHash("sha256").update(sourceText).digest("hex");
+}
+
+async function collectViolations() {
   const files = await listFiles(srcRoot);
   const violations = [];
 
   for (const filePath of files) {
+    const sourceText = await fs.readFile(filePath, "utf8");
+    const sourcePath = relativePath(filePath);
+    const contentSha256 = sourceSha256(sourceText);
     const locationError = validateFileLocation(filePath);
     if (locationError) {
-      violations.push(`${relativePath(filePath)} :: ${locationError}`);
+      const display = `${sourcePath} :: ${locationError.message}`;
+      violations.push({
+        source_path: repositoryPath(filePath),
+        source_content_sha256: contentSha256,
+        line: null,
+        specifier: null,
+        resolved_target_path: null,
+        rule_id: locationError.ruleId,
+        message: locationError.message,
+        display,
+      });
     }
 
-    const sourceText = await fs.readFile(filePath, "utf8");
     const imports = collectImportRecords(filePath, sourceText);
 
     for (const record of imports) {
@@ -253,20 +300,46 @@ async function main() {
       if (!resolved) {
         continue;
       }
-      const error = validateImport(filePath, resolved);
-      if (!error) {
+      const violation = validateImport(filePath, resolved);
+      if (!violation) {
         continue;
       }
-      violations.push(
-        `${relativePath(filePath)}:${record.line} -> ${record.specifier} :: ${error}`,
-      );
+      const display = `${sourcePath}:${record.line} -> ${record.specifier} :: ${violation.message}`;
+      violations.push({
+        source_path: repositoryPath(filePath),
+        source_content_sha256: contentSha256,
+        line: record.line,
+        specifier: record.specifier,
+        resolved_target_path: repositoryPath(resolved),
+        rule_id: violation.ruleId,
+        message: violation.message,
+        display,
+      });
     }
+  }
+
+  return violations;
+}
+
+async function main() {
+  const violations = await collectViolations();
+  const jsonOutput = process.argv.includes("--format=json");
+
+  if (jsonOutput) {
+    console.log(
+      JSON.stringify({
+        producer: "runtime-dashboard-custom-import-boundary",
+        violations,
+      }),
+    );
+    process.exitCode = violations.length > 0 ? 1 : 0;
+    return;
   }
 
   if (violations.length > 0) {
     console.error("Architecture violations detected:");
     for (const violation of violations) {
-      console.error(`- ${violation}`);
+      console.error(`- ${violation.display}`);
     }
     process.exitCode = 1;
     return;

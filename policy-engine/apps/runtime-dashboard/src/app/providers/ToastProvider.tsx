@@ -10,7 +10,7 @@ import {
 
 import { useLiveAnnouncer } from "@/app/providers/LiveAnnouncerProvider";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 
 export type ToastTone = "error" | "info" | "success" | "warning";
 

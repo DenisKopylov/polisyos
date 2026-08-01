@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { buildLoginNavigationTarget } from "@/features/auth/domain/loginRedirect";
 import { parseLoginSearchParams } from "@/features/auth/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button, Card } from "@/shared/ui";
+import { Button, Card } from "@polisyos/atlas-ui";
 
 export default function LoginPage() {
   const { t } = useI18n();

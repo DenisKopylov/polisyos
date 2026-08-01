@@ -1,25 +1,24 @@
-import type { ScenarioListPayload } from "@/api/validators";
+import type {
+  CounterfactualMetric,
+  QuantityValueOutput,
+  ScenarioAssumptionOutput,
+} from "@polisyos/runtime-api-client";
+
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import {
-  formatQuantityValue,
+  finiteInterval,
+  finitePoint,
   type QuantityFormatOptions,
 } from "@/shared/ui/quantity/quantity-format";
-import type {
-  CounterfactualMetric,
-  QuantityValue,
-} from "@/shared/ui/quantity/quantity.types";
+import { Quantity } from "@/shared/ui/quantity/Quantity";
 
 import { AssumptionPill } from "./AssumptionPill";
 import { counterfactualTokens } from "./counterfactual-colors";
 
-type ScenarioAssumption = NonNullable<
-  ScenarioListPayload["scenarios"]
->[number]["assumptions"][number];
-
 type CounterfactualMetricChartProps = {
   metric: CounterfactualMetric;
-  assumptions?: ScenarioAssumption[];
+  assumptions?: ScenarioAssumptionOutput[];
   format?: QuantityFormatOptions["format"];
   className?: string;
 };
@@ -27,7 +26,7 @@ type CounterfactualMetricChartProps = {
 type ChartRow = {
   key: "actual" | "scenario" | "delta";
   labelKey: string;
-  quantity: QuantityValue;
+  quantity: QuantityValueOutput;
   className: string;
 };
 
@@ -59,6 +58,10 @@ export function CounterfactualMetricChart({
     },
   ];
   const domain = resolveDomain(rows.map((row) => row.quantity));
+  const boundAssumptionIds = new Set(metric.assumption_ids);
+  const boundAssumptions = assumptions.filter((assumption) =>
+    boundAssumptionIds.has(assumption.id),
+  );
 
   return (
     <figure
@@ -84,9 +87,9 @@ export function CounterfactualMetricChart({
           />
         ))}
       </div>
-      {assumptions.length ? (
+      {boundAssumptions.length ? (
         <figcaption className="flex flex-wrap gap-1.5">
-          {assumptions.map((assumption) => (
+          {boundAssumptions.map((assumption) => (
             <AssumptionPill key={assumption.id} assumption={assumption} />
           ))}
         </figcaption>
@@ -110,12 +113,12 @@ function MetricChartRow({
   label: string;
   renderInterval: (interval: string) => string;
 }) {
-  const formatted = formatQuantityValue(row.quantity, { format, locale });
-  const width = Math.max(
-    2,
-    Math.min(100, (Math.abs(row.quantity.point ?? 0) / domain) * 100),
-  );
-  const interval = row.quantity.uncertainty?.ci_95;
+  const point = finitePoint(row.quantity.point) ? row.quantity.point : null;
+  const width =
+    point === null
+      ? null
+      : Math.max(2, Math.min(100, (Math.abs(point) / domain) * 100));
+  const interval = finiteInterval(row.quantity.uncertainty?.ci_95);
   const intervalLabel = interval
     ? `${interval[0].toLocaleString(locale)}-${interval[1].toLocaleString(locale)}`
     : null;
@@ -132,10 +135,22 @@ function MetricChartRow({
             "absolute inset-y-0 left-0 rounded-full",
             row.className,
           )}
-          style={{ width: `${width}%` }}
+          data-counterfactual-value-state={
+            width === null ? "unknown" : "scalar"
+          }
+          data-testid={`counterfactual-bar-${row.key}`}
+          style={width === null ? undefined : { width: `${width}%` }}
         />
       </div>
-      <span className="tabular-nums">{formatted.text}</span>
+      <span data-testid={`counterfactual-value-${row.key}`}>
+        <Quantity
+          format={format}
+          locale={locale}
+          provenanceMode="off"
+          value={row.quantity}
+          variant="dense"
+        />
+      </span>
       {intervalLabel ? (
         <span className="text-muted col-start-2 text-[11px]">
           {renderInterval(intervalLabel)}
@@ -145,10 +160,12 @@ function MetricChartRow({
   );
 }
 
-function resolveDomain(quantities: QuantityValue[]) {
+function resolveDomain(quantities: QuantityValueOutput[]) {
   const candidates = quantities.flatMap((quantity) => {
-    const values = [Math.abs(quantity.point ?? 0)];
-    const ci = quantity.uncertainty?.ci_95;
+    const values = finitePoint(quantity.point)
+      ? [Math.abs(quantity.point)]
+      : [];
+    const ci = finiteInterval(quantity.uncertainty?.ci_95);
     if (ci) {
       values.push(Math.abs(ci[0]), Math.abs(ci[1]));
     }

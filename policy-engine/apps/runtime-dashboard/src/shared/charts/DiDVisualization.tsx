@@ -36,6 +36,16 @@ const SVG_HEIGHT = 320;
 const PADDING = { top: 36, right: 24, bottom: 48, left: 64 };
 const PLOT_W = SVG_WIDTH - PADDING.left - PADDING.right;
 const PLOT_H = SVG_HEIGHT - PADDING.top - PADDING.bottom;
+type LegendGeometry = {
+  control: { labelX: number; swatchX: number; swatchY: number };
+  counterfactual: { labelX: number; swatchX: number; swatchY: number };
+  primaryLabelX: number;
+};
+const LEGEND_GEOMETRY = {
+  control: { labelX: 134, swatchX: 120, swatchY: -2 },
+  counterfactual: { labelX: 254, swatchX: 240, swatchY: -2 },
+  primaryLabelX: 14,
+} as const satisfies LegendGeometry;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -300,37 +310,37 @@ export function DiDVisualization({
           <g transform={`translate(${PADDING.left}, ${SVG_HEIGHT - 8})`}>
             <rect width={10} height={3} fill={chartTheme.primary} y={-2} />
             <text
-              x={14}
+              x={LEGEND_GEOMETRY.primaryLabelX}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >
               {treated.label}
             </text>
             <rect
-              x={120}
+              x={LEGEND_GEOMETRY.control.swatchX}
               width={10}
               height={3}
               fill={chartTheme.neutral}
-              y={-2}
+              y={LEGEND_GEOMETRY.control.swatchY}
             />
             <text
-              x={134}
+              x={LEGEND_GEOMETRY.control.labelX}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >
               {control.label}
             </text>
             <rect
-              x={240}
+              x={LEGEND_GEOMETRY.counterfactual.swatchX}
               width={10}
               height={3}
               fill={chartTheme.primary}
               opacity={0.4}
-              y={-2}
+              y={LEGEND_GEOMETRY.counterfactual.swatchY}
               strokeDasharray="3 2"
             />
             <text
-              x={254}
+              x={LEGEND_GEOMETRY.counterfactual.labelX}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >

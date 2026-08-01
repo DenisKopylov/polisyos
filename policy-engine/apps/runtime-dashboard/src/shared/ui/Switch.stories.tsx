@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Switch } from "@/shared/ui/Switch";
+import { Switch } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Switch",

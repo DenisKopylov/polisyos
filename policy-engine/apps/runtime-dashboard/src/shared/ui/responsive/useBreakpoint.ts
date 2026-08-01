@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { breakpointProjection } from "@polisyos/atlas-ui";
 
 /**
  * 5-tier breakpoint system aligned with USWDS mobile-first strategy.
@@ -18,40 +19,38 @@ export type Breakpoint =
   | "standard"
   | "expanded";
 
-const BREAKPOINTS: [Breakpoint, number][] = [
-  ["expanded", 1281],
-  ["standard", 1024],
-  ["compact", 768],
-  ["tablet", 640],
-  ["mobile", 0],
-];
-
 function getBreakpoint(): Breakpoint {
   if (typeof window === "undefined") return "standard";
   const width = window.innerWidth;
-  for (const [name, min] of BREAKPOINTS) {
-    if (width >= min) return name;
-  }
+  const { compactMin, expandedMin, mobileMax, standardMin, tabletMin } =
+    breakpointProjection.runtime;
+  if (width >= expandedMin) return "expanded";
+  if (width >= standardMin) return "standard";
+  if (width >= compactMin) return "compact";
+  if (width >= tabletMin) return "tablet";
+  if (width <= mobileMax) return "mobile";
   return "mobile";
 }
 
 function subscribe(callback: () => void) {
-  const mql = window.matchMedia("(max-width: 639px)");
-  const mql2 = window.matchMedia("(max-width: 767px)");
-  const mql3 = window.matchMedia("(max-width: 1023px)");
-  const mql4 = window.matchMedia("(max-width: 1280px)");
+  const { compactMin, expandedMin, mobileMax, standardMin } =
+    breakpointProjection.runtime;
+  const mediaQueries = [
+    window.matchMedia(`(max-width: ${mobileMax}px)`),
+    window.matchMedia(`(max-width: ${compactMin - 1}px)`),
+    window.matchMedia(`(max-width: ${standardMin - 1}px)`),
+    window.matchMedia(`(max-width: ${expandedMin - 1}px)`),
+  ];
 
   const handler = () => callback();
-  mql.addEventListener("change", handler);
-  mql2.addEventListener("change", handler);
-  mql3.addEventListener("change", handler);
-  mql4.addEventListener("change", handler);
+  for (const mediaQuery of mediaQueries) {
+    mediaQuery.addEventListener("change", handler);
+  }
 
   return () => {
-    mql.removeEventListener("change", handler);
-    mql2.removeEventListener("change", handler);
-    mql3.removeEventListener("change", handler);
-    mql4.removeEventListener("change", handler);
+    for (const mediaQuery of mediaQueries) {
+      mediaQuery.removeEventListener("change", handler);
+    }
   };
 }
 

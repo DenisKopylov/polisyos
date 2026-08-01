@@ -1,20 +1,19 @@
 import { useMemo } from "react";
+import type {
+  LegacyProvingGroundPayload,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
 
 import {
   ExplainabilityCard,
   type ExplainabilityFactor,
   type ExplainabilityGovernance,
   type ExplainabilityLevel,
-  type ExplainabilityVerdict,
 } from "@/shared/ui/compounds/ExplainabilityCard";
 import {
   GovernancePassGrid,
   type GovernancePass,
 } from "@/shared/ui/compounds/GovernancePassGrid";
-import {
-  NegativeCertificateCard,
-  type SuggestedExperiment,
-} from "@/shared/ui/compounds/NegativeCertificateCard";
 import {
   ProvenanceChain,
   type ProvenanceStep,
@@ -24,18 +23,6 @@ import {
   type AttributionStep,
 } from "@/shared/ui/compounds/AttributionWaterfall";
 import {
-  TrustCalibrationDisplay,
-  type CalibrationRecord,
-} from "@/shared/ui/compounds/TrustCalibrationDisplay";
-import {
-  EvidenceCoverageRadar,
-  type EvidenceCoverage,
-} from "@/shared/ui/compounds/EvidenceCoverageRadar";
-import {
-  SensitivityPlot,
-  type SensitivityPoint,
-} from "@/shared/ui/compounds/SensitivityPlot";
-import {
   FactorImportanceChart,
   type ImportanceFactor,
 } from "@/shared/ui/compounds/FactorImportanceChart";
@@ -44,52 +31,53 @@ import {
   type ReasoningStep,
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
+import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Card } from "@/shared/ui/primitives";
+import { LocalizedJsonPreview } from "@/shared/ui/LocalizedJsonPreview";
+import { BlockerCard } from "@/shared/ui/compounds/BlockerCard";
+import { DataFreshnessBadge } from "@/shared/ui/compounds/DataFreshnessBadge";
+import { WeakestLinkExplainer } from "@/shared/ui/compounds/WeakestLinkExplainer";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import {
+  AuthorityBadge,
+  Badge,
+  Card,
+  EnvelopeChip,
+  EvidenceLink,
+  createGovernedAuthorityPurpose,
+  createOpaqueAuthorityPresentation,
+} from "@polisyos/atlas-ui";
 
 type RunExplainabilityPanelProps = {
+  governedProjection?: DepthNCycleBoardProjection | null;
   summary: RunInspectorSummary;
   level?: ExplainabilityLevel;
-};
-
-type TrustCalibrationAdapter = {
-  calibrationRecords: CalibrationRecord[];
-  counterArguments: string[];
-  historicalAccuracy: number;
-  limitations: string[];
-  methodology: string;
-  totalPastAnalyses: number;
+  projectionError?: boolean;
+  projectionLoading?: boolean;
 };
 
 type AttributionAdapter = {
-  baseValue: number;
+  baseValue: QuantityValueOutput;
   contributions: AttributionStep[];
 };
 
-type SensitivityAdapter = {
-  breakdownGamma?: number;
-  points: SensitivityPoint[];
-  referenceValue: number;
-};
-
-function clamp01(value: number | null | undefined) {
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    return 0;
-  }
-  return Math.max(0, Math.min(1, value));
-}
-
-function normalizeVerdictStatus(
-  verdict: string | null | undefined,
-): ExplainabilityVerdict["status"] {
-  const normalized = (verdict ?? "").trim().toUpperCase();
-  if (normalized.includes("APPROVE")) {
-    return "approved";
-  }
-  if (normalized.includes("REJECT")) {
-    return "rejected";
-  }
-  return "review";
+export function buildRunExplainabilityDecisionQuantities(
+  summary: Pick<RunInspectorSummary, "decisionView">,
+): {
+  attributionBaseline: QuantityValueOutput;
+} {
+  const time = { valid_at: summary.decisionView?.generatedAt ?? null };
+  return {
+    attributionBaseline: untracedDecisionQuantity({
+      label: "Attribution baseline",
+      metricId: "run.attribution.baseline",
+      point: 0,
+      reasonCode: "explainability_baseline_without_runtime_quantity",
+      time,
+      trackingIssue: "ATLAS-DS4-C06",
+    }),
+  };
 }
 
 function factorDirection(value: number): ImportanceFactor["direction"] {
@@ -102,14 +90,13 @@ function factorDirection(value: number): ImportanceFactor["direction"] {
   return "neutral";
 }
 
-function buildExplainabilityVerdict(
-  summary: RunInspectorSummary,
-): ExplainabilityVerdict {
+function buildRecordedExplainabilityCard(summary: RunInspectorSummary) {
+  if (summary.decisionScore.lineage.status !== "verified") {
+    return null;
+  }
   return {
-    confidence: clamp01(summary.decisionScore),
-    status: normalizeVerdictStatus(
-      summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
-    ),
+    confidence: summary.decisionScore,
+    decisionGrade: summary.decisionView?.verdict ?? null,
     summary:
       summary.decisionView?.policySummary ??
       summary.primaryIssue?.message ??
@@ -144,9 +131,8 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
       detail: `${summary.evidenceContext.dataNeeds.length} evidence needs mapped to the run.`,
       id: "evidence-needs",
       label: "Evidence needs identified",
-      status: "ok",
-      statusLabel: `${summary.evidenceContext.dataNeeds.length} needs`,
-      type: "data",
+      source: "diagnostic-summary",
+      type: "dataset",
     });
   }
 
@@ -155,8 +141,7 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
       detail: `${summary.evidenceContext.fetchPlans.length} fetch plans prepared for supporting evidence.`,
       id: "fetch-plans",
       label: "Evidence collection planned",
-      status: "ok",
-      statusLabel: `${summary.evidenceContext.fetchPlans.length} plans`,
+      source: "diagnostic-summary",
       type: "method",
     });
   }
@@ -165,9 +150,8 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
     detail: summary.run?.status ?? "unknown",
     id: "analysis-executed",
     label: "Analysis executed",
-    status: summary.run?.status === "completed" ? "ok" : "warn",
-    statusLabel:
-      summary.run?.status === "completed" ? "Completed" : "In review",
+    diagnosticLabel: summary.run?.status ?? null,
+    source: "diagnostic-summary",
     timestamp: summary.run?.finished_at ?? summary.run?.started_at ?? undefined,
     type: "result",
   });
@@ -177,9 +161,8 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
       detail: `${summary.governanceSummary.blocker} blockers, ${summary.governanceSummary.warning} warnings.`,
       id: "governance-review",
       label: "Governance review",
-      status: summary.governanceSummary.blocker > 0 ? "fail" : "ok",
-      statusLabel: summary.governanceSummary.blocker > 0 ? "Blocked" : "Passed",
-      type: "governance",
+      source: "diagnostic-summary",
+      type: "artifact",
     });
   }
 
@@ -191,7 +174,6 @@ function buildGovernancePasses(summary: RunInspectorSummary): GovernancePass[] {
 
   if (summary.pipeline?.preflight) {
     const firstDiagnostic = summary.pipeline.preflight.diagnostics?.[0];
-    const readyToRun = summary.pipeline.preflight.ready_to_run === true;
     passes.push({
       detail:
         firstDiagnostic?.message ??
@@ -199,11 +181,8 @@ function buildGovernancePasses(summary: RunInspectorSummary): GovernancePass[] {
         undefined,
       id: "preflight",
       label: "Preflight",
-      status: readyToRun
-        ? "pass"
-        : firstDiagnostic?.severity?.toLowerCase() === "blocker"
-          ? "fail"
-          : "warning",
+      status: firstDiagnostic?.severity ?? null,
+      vocabulary: "preflight_diagnostic",
     });
   }
 
@@ -215,21 +194,12 @@ function buildGovernancePasses(summary: RunInspectorSummary): GovernancePass[] {
         undefined,
       id: "evaluator",
       label: "Evaluator",
-      status:
-        normalizeVerdictStatus(summary.pipeline.evaluator.verdict) ===
-        "approved"
-          ? "pass"
-          : normalizeVerdictStatus(summary.pipeline.evaluator.verdict) ===
-              "rejected"
-            ? "fail"
-            : "warning",
+      status: summary.pipeline.evaluator.verdict ?? null,
+      vocabulary: "evaluator_verdict",
     });
   }
 
   if (summary.pipeline?.reproducibility) {
-    const readiness = (summary.pipeline.reproducibility.readiness ?? "")
-      .trim()
-      .toLowerCase();
     passes.push({
       detail:
         summary.pipeline.reproducibility.why_partial?.[0] ??
@@ -238,8 +208,8 @@ function buildGovernancePasses(summary: RunInspectorSummary): GovernancePass[] {
         undefined,
       id: "reproducibility",
       label: "Reproducibility",
-      status:
-        readiness === "ready" || readiness === "complete" ? "pass" : "warning",
+      status: summary.pipeline.reproducibility.readiness ?? null,
+      vocabulary: "reproducibility_readiness",
     });
   }
 
@@ -250,66 +220,27 @@ function buildExplainabilityGovernance(
   passes: GovernancePass[],
   summary: RunInspectorSummary,
 ): ExplainabilityGovernance | undefined {
-  if (passes.length === 0 && summary.governanceIssues.length === 0) {
+  const projection = summary.run?.policy_design_case_projection;
+  const blockers = projection ? projection.closeout_truth.blockers : [];
+  if (
+    passes.length === 0 &&
+    summary.governanceIssues.length === 0 &&
+    blockers.length === 0
+  ) {
     return undefined;
   }
 
   return {
-    blockers: summary.governanceIssues
-      .filter((issue) => issue.severity === "blocker")
-      .map((issue) => issue.message)
-      .slice(0, 4),
-    failed: passes.filter((pass) => pass.status === "fail").length,
-    passed: passes.filter((pass) => pass.status === "pass").length,
-    warnings: passes.filter((pass) => pass.status === "warning").length,
-  };
-}
-
-function buildTrustCalibrationData(
-  summary: RunInspectorSummary,
-): TrustCalibrationAdapter {
-  const accuracy = clamp01(summary.decisionScore);
-  const calibrationRecords: CalibrationRecord[] = [
-    {
-      actualCoverage: clamp01(accuracy * 0.82 + 0.08),
-      expectedCoverage: 0.5,
-      level: 0.5,
-    },
-    {
-      actualCoverage: clamp01(accuracy * 0.9 + 0.04),
-      expectedCoverage: 0.8,
-      level: 0.8,
-    },
-    {
-      actualCoverage: clamp01(accuracy),
-      expectedCoverage: 0.95,
-      level: 0.95,
-    },
-  ];
-
-  return {
-    calibrationRecords,
-    counterArguments: summary.governanceIssues
-      .filter((issue) => issue.severity === "blocker")
-      .map((issue) => issue.message)
-      .slice(0, 3),
-    historicalAccuracy: accuracy,
-    limitations: [
-      ...(summary.pipeline?.preflight?.diagnostics ?? []).map(
-        (diagnostic) => diagnostic.message,
-      ),
-      ...(summary.pipeline?.reproducibility?.why_partial ?? []),
-      ...(summary.evidenceContext?.warnings ?? []),
-    ].slice(0, 4),
-    methodology:
-      summary.pipeline?.source ??
-      summary.pipeline?.evaluator?.verdict ??
-      "PolicyOS",
-    totalPastAnalyses: Math.max(summary.pipeline?.total_attempts ?? 1, 1),
+    blockers,
+    failed: summary.governanceSummary?.blocker ?? 0,
+    passed: 0,
+    warnings: summary.governanceSummary?.warning ?? 0,
   };
 }
 
 function buildAttribution(summary: RunInspectorSummary): AttributionAdapter {
+  const { attributionBaseline } =
+    buildRunExplainabilityDecisionQuantities(summary);
   const metricContributions = (summary.decisionView?.keyMetrics ?? [])
     .slice(0, 5)
     .map<AttributionStep>((metric) => ({
@@ -320,68 +251,18 @@ function buildAttribution(summary: RunInspectorSummary): AttributionAdapter {
 
   if (metricContributions.length > 0) {
     return {
-      baseValue: 0,
+      baseValue: attributionBaseline,
       contributions: metricContributions,
     };
   }
 
   return {
-    baseValue: 0,
+    baseValue: attributionBaseline,
     contributions: (summary.impactRows ?? []).map((row) => ({
       detail: row.display,
       label: row.label,
       value: row.value,
     })),
-  };
-}
-
-function buildEvidenceCoverage(summary: RunInspectorSummary): {
-  benchmark: EvidenceCoverage;
-  coverage: EvidenceCoverage;
-} {
-  const transportStatus = summary.transportStatus.toLowerCase();
-  return {
-    benchmark: {
-      academic: 0.75,
-      dataset: 0.75,
-      legal: 0.75,
-      transport: 0.75,
-    },
-    coverage: {
-      academic: clamp01(
-        (summary.decisionView?.diagnosticsBadges?.length ?? 0) / 4,
-      ),
-      dataset: clamp01((summary.evidenceContext?.fetchPlans?.length ?? 0) / 4),
-      legal: clamp01(
-        summary.governanceSummary
-          ? 1 - summary.governanceSummary.blocker * 0.2
-          : 0.6,
-      ),
-      transport:
-        transportStatus === "passed" || transportStatus === "ready"
-          ? 0.9
-          : transportStatus === "not_available"
-            ? 0.25
-            : 0.55,
-    },
-  };
-}
-
-function buildSensitivity(summary: RunInspectorSummary): SensitivityAdapter {
-  const score = clamp01(summary.decisionScore);
-  const points: SensitivityPoint[] = [1, 1.5, 2, 2.5].map((gamma, index) => {
-    const spread = 0.05 + index * 0.03;
-    return {
-      gamma,
-      lowerBound: score - spread,
-      upperBound: score + spread,
-    };
-  });
-
-  return {
-    breakdownGamma: summary.blockerCount > 0 ? 1.5 : 2.5,
-    points,
-    referenceValue: 0,
   };
 }
 
@@ -443,73 +324,207 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
     });
   }
 
-  steps.push({
-    id: "conclusion",
-    metadata:
-      summary.primaryIssue?.code != null
-        ? { primaryIssue: summary.primaryIssue.code }
-        : undefined,
-    summary:
-      summary.primaryIssue?.message ??
-      summary.decisionView?.policySummary ??
-      "Decision ready for review.",
-    title: "Decision concluded",
-    type: "conclusion",
-  });
-
   return steps;
 }
 
-function buildNegativeCertificate(summary: RunInspectorSummary): {
-  assumptions: string[];
-  blockingType: string;
-  reason: string;
-  suggestedExperiments: SuggestedExperiment[];
-} | null {
-  if (summary.blockerCount <= 0 && summary.transportStatus === "ready") {
+function GovernedDepthProjection({
+  projection,
+  projectionError = false,
+  projectionLoading = false,
+}: {
+  projection?: DepthNCycleBoardProjection | null;
+  projectionError?: boolean;
+  projectionLoading?: boolean;
+}) {
+  const { t } = useI18n();
+  if (projectionError) {
+    return (
+      <Card
+        className="p-4"
+        data-interaction-state="error"
+        data-testid="governed-depth-projection-interaction"
+      >
+        <p className="text-muted-foreground text-sm">
+          {t("common.unavailable")}
+        </p>
+      </Card>
+    );
+  }
+  if (projectionLoading) {
+    return (
+      <Card
+        className="p-4"
+        data-interaction-state="loading"
+        data-testid="governed-depth-projection-interaction"
+      >
+        <p className="text-muted-foreground text-sm">
+          {t("common.loading")}
+        </p>
+      </Card>
+    );
+  }
+  if (!projection) {
     return null;
   }
 
-  const suggestedExperiments = (summary.evidenceContext?.dataNeeds ?? [])
-    .slice(0, 3)
-    .map<SuggestedExperiment>((need) => ({
-      description: `Collect ${need.metric} data at ${need.granularity} resolution.`,
-      feasibility:
-        need.qualityMin >= 0.85
-          ? "low"
-          : need.qualityMin >= 0.65
-            ? "medium"
-            : "high",
-      id: need.needId,
-      rationale: need.purpose,
-    }));
+  const { packet, payload } = projection;
+  if (packet.availability !== "available" || !payload) {
+    const fixtureAuthority =
+      "fixture_only" satisfies LegacyProvingGroundPayload["fixture_authority"];
+    const artifactMissing = packet.availability === "artifact_missing";
+    return (
+      <Card
+        className="space-y-3 p-4"
+        data-authority-posture="unavailable"
+        data-projection-availability={packet.availability}
+        data-testid="governed-depth-projection"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge kind="outline">{packet.availability}</Badge>
+          {artifactMissing ? (
+            <span
+              className="text-muted-foreground text-xs font-semibold"
+              data-fixture-authority={fixtureAuthority}
+            >
+              {fixtureAuthority} · {t("common.unavailable")}
+            </span>
+          ) : null}
+        </div>
+        <p className="text-muted-foreground text-sm">
+          {packet.absence_reason}
+        </p>
+        <DataFreshnessBadge freshness={packet.freshness} />
+        <TimeSemanticsLabel
+          freshness={packet.freshness}
+          payloadAsOf={packet.as_of}
+        />
+      </Card>
+    );
+  }
 
-  return {
-    assumptions: summary.governanceIssues
-      .filter((issue) => issue.severity === "blocker")
-      .map((issue) => issue.message)
-      .slice(0, 4),
-    blockingType:
-      summary.transportStatus !== "ready" &&
-      summary.transportStatus !== "passed"
-        ? "transport_failure"
-        : summary.evidenceContext?.fetchPlans?.length
-          ? "assumption_violation"
-          : "data_insufficient",
-    reason:
-      summary.primaryIssue?.message ??
-      "This run still has unresolved blockers that limit how precise the explanation can be.",
-    suggestedExperiments,
-  };
+  const domainRuns = Object.entries(payload.domain_runs);
+  return (
+    <Card
+      className="space-y-5 p-4"
+      data-authority-posture="producer-projection"
+      data-projection-availability={packet.availability}
+      data-testid="governed-depth-projection"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h3 className="font-semibold">{packet.projection_id}</h3>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge kind="outline">{packet.availability}</Badge>
+          <DataFreshnessBadge freshness={packet.freshness} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {packet.authoritative_for.map((purpose) => (
+          <EnvelopeChip
+            authorityPurpose={createGovernedAuthorityPurpose(packet, purpose)}
+            key={purpose}
+          />
+        ))}
+      </div>
+
+      {packet.may_not_use_for.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-muted-foreground text-xs font-semibold">
+            {t("pages.runs.sections.governance")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {packet.may_not_use_for.map((purpose) => (
+              <Badge
+                data-may-not-use-for={purpose}
+                kind="outline"
+                key={purpose}
+              >
+                {purpose}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <TimeSemanticsLabel
+        freshness={packet.freshness}
+        payloadAsOf={packet.as_of}
+      />
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold">{t("common.sourceText")}</p>
+        <EvidenceLink
+          evidenceRef={packet.source.artifact_content_hash}
+          label={packet.source.relative_path}
+        />
+        <Badge
+          data-source-validation={packet.source.validation.status}
+          kind="outline"
+        >
+          {packet.source.validation.status}
+        </Badge>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        {domainRuns.map(([domainId, domainProjection]) => (
+          <section
+            aria-label={domainId}
+            className="border-line space-y-4 rounded-2xl border p-4"
+            data-domain-run={domainId}
+            key={domainId}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h4 className="font-semibold">{domainId}</h4>
+              <Badge kind="neutral">{domainProjection.domain_role}</Badge>
+            </div>
+            <AuthorityBadge
+              presentation={createOpaqueAuthorityPresentation(
+                domainProjection.evidence_class,
+              )}
+            />
+            <EvidenceLink
+              evidenceRef={domainProjection.design_problem_ref}
+              label="Design problem"
+            />
+            <div className="space-y-2" data-terminal-distribution="opaque">
+              <p className="text-xs font-semibold">
+                {domainProjection.generation_cycle_run_id}
+              </p>
+              <LocalizedJsonPreview
+                data={domainProjection.terminal_distribution}
+              />
+            </div>
+            <WeakestLinkExplainer projection={domainProjection} />
+          </section>
+        ))}
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="space-y-2">
+          <h4 className="text-xs font-semibold">{t("pages.runs.evidence")}</h4>
+          <LocalizedJsonPreview data={payload.depth_evidence} />
+        </section>
+        <section className="space-y-2" data-terminal-distribution="opaque">
+          <h4 className="text-xs font-semibold">{packet.projection_id}</h4>
+          <LocalizedJsonPreview data={payload.terminal_distributions} />
+        </section>
+      </div>
+    </Card>
+  );
 }
 
 export function RunExplainabilityPanel({
+  governedProjection,
   summary,
   level = "summary",
+  projectionError = false,
+  projectionLoading = false,
 }: RunExplainabilityPanelProps) {
   const { t } = useI18n();
-  const explainabilityVerdict = useMemo(
-    () => buildExplainabilityVerdict(summary),
+  const explainabilityCard = useMemo(
+    () => buildRecordedExplainabilityCard(summary),
     [summary],
   );
   const explainabilityFactors = useMemo(
@@ -528,35 +543,48 @@ export function RunExplainabilityPanel({
     () => buildExplainabilityGovernance(governancePasses, summary),
     [governancePasses, summary],
   );
-  const trustCalibration = useMemo(
-    () => buildTrustCalibrationData(summary),
-    [summary],
-  );
   const attribution = useMemo(() => buildAttribution(summary), [summary]);
-  const evidenceCoverage = useMemo(
-    () => buildEvidenceCoverage(summary),
-    [summary],
-  );
-  const sensitivity = useMemo(() => buildSensitivity(summary), [summary]);
   const importanceFactors = useMemo(
     () => buildImportanceFactors(summary),
     [summary],
   );
   const reasoningSteps = useMemo(() => buildReasoningSteps(summary), [summary]);
-  const negativeCertificate = useMemo(
-    () => buildNegativeCertificate(summary),
-    [summary],
-  );
+  const producerBlockers =
+    summary.run?.policy_design_case_projection?.closeout_truth.blockers ?? [];
 
   return (
     <div className="space-y-4">
-      <ExplainabilityCard
-        governance={governance}
-        keyFactors={explainabilityFactors}
-        level={level}
-        methodology={trustCalibration.methodology}
-        verdict={explainabilityVerdict}
+      {explainabilityCard ? (
+        <ExplainabilityCard
+          governance={governance}
+          keyFactors={explainabilityFactors}
+          level={level}
+          methodology={summary.pipeline?.source ?? undefined}
+          verdict={explainabilityCard}
+        />
+      ) : null}
+      <GovernedDepthProjection
+        projection={governedProjection}
+        projectionError={projectionError}
+        projectionLoading={projectionLoading}
       />
+      <div data-quantity-metric-id={summary.decisionScore.metric_id}>
+        <Quantity value={summary.decisionScore} variant="dense" />
+      </div>
+
+      {!explainabilityCard && producerBlockers.length > 0 ? (
+        <Card className="space-y-3 p-4">
+          <p className="text-sm font-semibold">
+            {t("pages.runs.report.blockers")}
+          </p>
+          {producerBlockers.map((blocker) => (
+            <BlockerCard
+              blocker={blocker}
+              key={`${blocker.code}:${blocker.message}`}
+            />
+          ))}
+        </Card>
+      ) : null}
 
       {level !== "glance" && (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -578,20 +606,6 @@ export function RunExplainabilityPanel({
             </Card>
           )}
 
-          <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">
-              {t("shared.ui.trustCalibrationDisplay.title")}
-            </p>
-            <TrustCalibrationDisplay
-              calibrationRecords={trustCalibration.calibrationRecords}
-              counterArguments={trustCalibration.counterArguments}
-              historicalAccuracy={trustCalibration.historicalAccuracy}
-              limitations={trustCalibration.limitations}
-              methodology={trustCalibration.methodology}
-              totalPastAnalyses={trustCalibration.totalPastAnalyses}
-            />
-          </Card>
-
           {attribution.contributions.length > 0 && (
             <Card className="p-4">
               <p className="mb-3 text-xs font-semibold">
@@ -608,27 +622,6 @@ export function RunExplainabilityPanel({
 
       {level === "deep" && (
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">
-              {t("pages.runs.explainability.evidenceCoverage")}
-            </p>
-            <EvidenceCoverageRadar
-              benchmark={evidenceCoverage.benchmark}
-              coverage={evidenceCoverage.coverage}
-            />
-          </Card>
-
-          <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">
-              {t("pages.runs.explainability.sensitivityAnalysis")}
-            </p>
-            <SensitivityPlot
-              breakdownGamma={sensitivity.breakdownGamma}
-              points={sensitivity.points}
-              referenceValue={sensitivity.referenceValue}
-            />
-          </Card>
-
           {importanceFactors.length > 0 && (
             <Card className="p-4">
               <p className="mb-3 text-xs font-semibold">
@@ -644,17 +637,6 @@ export function RunExplainabilityPanel({
                 {t("pages.runs.explainability.reasoningChain")}
               </p>
               <ReasoningChainDisplay steps={reasoningSteps} />
-            </Card>
-          )}
-
-          {negativeCertificate && (
-            <Card className="p-4">
-              <NegativeCertificateCard
-                assumptions={negativeCertificate.assumptions}
-                blockingType={negativeCertificate.blockingType}
-                reason={negativeCertificate.reason}
-                suggestedExperiments={negativeCertificate.suggestedExperiments}
-              />
             </Card>
           )}
         </div>

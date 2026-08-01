@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer } from "react";
 import { Activity, Radio, SlidersHorizontal, TimerReset } from "lucide-react";
 
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import {
   completeReadingOnboardingStep,
@@ -13,7 +13,7 @@ import {
 import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
-import { Badge, Slider } from "@/shared/ui";
+import { Badge, Slider } from "@polisyos/atlas-ui";
 
 export function AmbientTelemetryHud({
   activeTab,

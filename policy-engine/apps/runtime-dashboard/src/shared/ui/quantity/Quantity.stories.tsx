@@ -56,7 +56,10 @@ const meta = {
     value: baseQuantity,
     precision: 3,
   },
-} satisfies Meta<typeof Quantity>;
+} satisfies Meta<{
+  precision?: number;
+  value: QuantityValue;
+}>;
 
 export default meta;
 
@@ -77,7 +80,12 @@ export const States: Story = {
       <Quantity
         value={{
           ...baseQuantity,
-          uncertainty: { ...baseQuantity.uncertainty, disputed: true },
+          uncertainty: {
+            ...baseQuantity.uncertainty,
+            disputed: true,
+            identifiability:
+              baseQuantity.uncertainty?.identifiability ?? "unknown",
+          },
         }}
       />
       <Quantity

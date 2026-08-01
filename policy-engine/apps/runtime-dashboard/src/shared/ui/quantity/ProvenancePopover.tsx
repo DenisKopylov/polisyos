@@ -1,17 +1,22 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AlertTriangle, ExternalLink, GitBranch } from "lucide-react";
 
-import type { TemporalScope } from "@/app/providers/temporal-scope";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import type { MessageValues } from "@/shared/i18n/messages/icu-messages";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/Popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@polisyos/atlas-ui";
 
-import { formatQuantityValue } from "./quantity-format";
+import { finiteInterval, formatQuantityValue } from "./quantity-format";
 import { ProvenanceDeepDiveDialog } from "./ProvenanceDeepDiveDialog";
 import { ProvenanceMiniGraph } from "./ProvenanceMiniGraph";
-import type { LineageGraphView, QuantityValue } from "./quantity.types";
+import { useQuantityRuntimeBridge } from "./QuantityRuntimeBridge";
+import type {
+  LineageFreshness,
+  LineageResponsePayload,
+  QuantityValue,
+  TemporalRef,
+  VerificationStatus,
+} from "./quantity.types";
 import { useLineage } from "./useLineage";
 
 type ProvenancePopoverProps = {
@@ -19,14 +24,14 @@ type ProvenancePopoverProps = {
   children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  temporalScope?: TemporalScope | null;
+  temporalScope?: TemporalRef | null;
   className?: string;
   onContentMouseEnter?: () => void;
   onContentMouseLeave?: () => void;
 };
 
 type LineageQueryState = {
-  data?: { lineage?: unknown };
+  data?: LineageResponsePayload;
   isLoading: boolean;
   isError: boolean;
 };
@@ -39,8 +44,8 @@ export function ProvenancePopover(props: ProvenancePopoverProps) {
 }
 
 function TraceableProvenancePopover(props: ProvenancePopoverProps) {
-  const cursor = useMaybeTemporalCursor();
-  const scope = props.temporalScope ?? cursor?.committedScope ?? null;
+  const runtime = useQuantityRuntimeBridge();
+  const scope = props.temporalScope ?? runtime.temporalScope;
   const lineageQuery = useLineage(props.quantity.lineage.id, {
     enabled: props.open,
     temporalScope: scope,
@@ -56,8 +61,8 @@ function TraceableProvenancePopover(props: ProvenancePopoverProps) {
 }
 
 function UntracedProvenancePopover(props: ProvenancePopoverProps) {
-  const cursor = useMaybeTemporalCursor();
-  const scope = props.temporalScope ?? cursor?.committedScope ?? null;
+  const runtime = useQuantityRuntimeBridge();
+  const scope = props.temporalScope ?? runtime.temporalScope;
   return (
     <ProvenancePopoverShell {...props} lineageQuery={null} scope={scope} />
   );
@@ -75,13 +80,16 @@ function ProvenancePopoverShell({
   scope,
 }: ProvenancePopoverProps & {
   lineageQuery: LineageQueryState | null;
-  scope: TemporalScope | null;
+  scope: TemporalRef | null;
 }) {
   const { t, locale } = useI18n();
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
-  const lineage = lineageQuery?.data?.lineage as LineageGraphView | undefined;
+  const lineage = lineageQuery?.data?.lineage;
   const formatted = formatQuantityValue(quantity, { locale });
-  const status = provenanceStatus(quantity, lineage);
+  const verificationStatus = lineage?.status ?? quantity.lineage.status;
+  const freshness = lineage?.freshness ?? quantity.lineage.freshness;
+  const trustMetadata =
+    lineage?.trust_metadata ?? quantity.lineage.trust_metadata;
   const temporalLabel = useMemo(
     () => formatTemporalScope(quantity, scope, t),
     [quantity, scope, t],
@@ -108,6 +116,7 @@ function ProvenancePopoverShell({
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent
           align="start"
+          aria-label={t("shared.ui.quantity.popover.title")}
           className={cn("w-[min(92vw,360px)] p-0", className)}
           onMouseEnter={onContentMouseEnter}
           onMouseLeave={onContentMouseLeave}
@@ -132,14 +141,26 @@ function ProvenancePopoverShell({
                   {quantity.label ?? quantity.metric_id ?? formatted.text}
                 </p>
               </div>
-              <span
-                className={cn(
-                  "rounded-full px-2 py-1 text-[11px] font-semibold",
-                  statusClass(status),
-                )}
-              >
-                {t(`shared.ui.quantity.status.${status}`)}
-              </span>
+              <div className="flex flex-wrap justify-end gap-1">
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-1 text-[11px] font-semibold",
+                    verificationStatusClass(verificationStatus),
+                  )}
+                  data-testid="lineage-verification-status"
+                >
+                  {t(`shared.ui.quantity.status.${verificationStatus}`)}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-1 text-[11px] font-semibold",
+                    freshnessClass(freshness),
+                  )}
+                  data-testid="lineage-freshness"
+                >
+                  {freshness}
+                </span>
+              </div>
             </div>
 
             <ProvenanceMiniGraph
@@ -165,7 +186,40 @@ function ProvenancePopoverShell({
                 {t("shared.ui.quantity.popover.lineage")}
               </dt>
               <dd className="min-w-0 truncate">{quantity.lineage.id}</dd>
+              {quantity.lineage.hash ? (
+                <>
+                  <dt className="text-muted">
+                    {t("shared.ui.quantity.deepDive.hash")}
+                  </dt>
+                  <dd className="min-w-0 truncate">{quantity.lineage.hash}</dd>
+                </>
+              ) : null}
             </dl>
+
+            {trustMetadata ? (
+              <dl className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-2 gap-y-1 text-[11px]">
+                <dt className="text-muted">
+                  {t("shared.ui.quantity.deepDive.verification")}
+                </dt>
+                <dd data-testid="trust-verification-status">
+                  {trustMetadata.verification_status}
+                </dd>
+                <dt className="text-muted">
+                  {t("shared.ui.quantity.deepDive.freshness")}
+                </dt>
+                <dd data-testid="trust-freshness">{trustMetadata.freshness}</dd>
+                <dt className="text-muted" data-testid="trust-dispute-label">
+                  {t("shared.ui.trustView.dispute.disputed")}
+                </dt>
+                <dd data-testid="trust-dispute-status">
+                  {trustMetadata.dispute_status
+                    ? t(
+                        `shared.ui.trustView.dispute.${trustMetadata.dispute_status}`,
+                      )
+                    : t("common.unknown")}
+                </dd>
+              </dl>
+            ) : null}
 
             {quantity.lineage.status === "untraced" ? (
               <div className="border-border bg-muted/30 flex gap-2 rounded-md border p-2 text-xs">
@@ -223,23 +277,7 @@ function ProvenancePopoverShell({
   );
 }
 
-function provenanceStatus(
-  quantity: QuantityValue,
-  lineage: LineageGraphView | undefined,
-) {
-  if (
-    quantity.uncertainty?.disputed ||
-    quantity.lineage.status === "disputed"
-  ) {
-    return "disputed";
-  }
-  if ((lineage?.freshness ?? quantity.lineage.freshness) === "stale") {
-    return "stale";
-  }
-  return quantity.lineage.status;
-}
-
-function statusClass(status: ReturnType<typeof provenanceStatus>) {
+function verificationStatusClass(status: VerificationStatus) {
   if (status === "verified") {
     return "bg-[color-mix(in_srgb,var(--color-status-approved)_14%,transparent)] text-[var(--color-status-approved)]";
   }
@@ -249,17 +287,22 @@ function statusClass(status: ReturnType<typeof provenanceStatus>) {
   if (status === "disputed") {
     return "bg-[color-mix(in_srgb,var(--color-status-rejected)_12%,transparent)] text-[var(--color-status-rejected)]";
   }
-  if (status === "stale") {
-    return "bg-muted text-muted-foreground";
-  }
   return "bg-muted text-muted-foreground";
+}
+
+function freshnessClass(freshness: LineageFreshness) {
+  return freshness === "current"
+    ? "bg-[color-mix(in_srgb,var(--color-status-approved)_10%,transparent)] text-[var(--color-status-approved)]"
+    : "bg-muted text-muted-foreground";
 }
 
 function formatUncertainty(
   quantity: QuantityValue,
   t: (path: string, vars?: MessageValues) => string,
 ) {
-  const interval = quantity.uncertainty?.ci_95 ?? quantity.uncertainty?.ci_80;
+  const interval = finiteInterval(
+    quantity.uncertainty?.ci_95 ?? quantity.uncertainty?.ci_80,
+  );
   if (!interval) {
     return t("shared.ui.quantity.popover.noUncertainty");
   }
@@ -271,11 +314,11 @@ function formatUncertainty(
 
 function formatTemporalScope(
   quantity: QuantityValue,
-  scope: TemporalScope | null,
+  scope: TemporalRef | null,
   t: (path: string, vars?: MessageValues) => string,
 ) {
-  const validAt = scope?.validAt ?? quantity.time?.valid_at;
-  const txAt = scope?.txAt ?? quantity.time?.tx_at;
+  const validAt = scope?.valid_at ?? quantity.time?.valid_at;
+  const txAt = scope?.tx_at ?? quantity.time?.tx_at;
   if (!validAt && !txAt) {
     return t("common.unknown");
   }

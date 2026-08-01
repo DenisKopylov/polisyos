@@ -1,14 +1,16 @@
 import { AlertTriangle, FlaskConical, GitCompareArrows } from "lucide-react";
 
-import type { CounterfactualMode } from "@/app/providers/scenario-scope";
+import type { ScenarioRef } from "@polisyos/runtime-api-client";
+
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
 import { counterfactualTokens } from "./counterfactual-colors";
+import type { CounterfactualMode } from "./CounterfactualInteractionBridge";
 
 type CounterfactualBadgeProps = {
   mode?: CounterfactualMode;
-  status?: "draft" | "computed" | "stale" | "failed";
+  status?: ScenarioRef["status"];
   className?: string;
 };
 

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@polisyos/atlas-ui";
 
 describe("Popover accessibility", () => {
   it("has no detectable accessibility violations when open", async () => {

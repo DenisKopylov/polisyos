@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
+import { createPerformanceBudgetDisplayState } from "@/shared/lib/domain/agents";
 
 const { normalizeAgentPipelineMock, normalizeWorkflowMock } = vi.hoisted(
   () => ({
@@ -57,6 +58,36 @@ describe("pipeline surfaces", () => {
   beforeEach(() => {
     normalizeAgentPipelineMock.mockReset();
     normalizeWorkflowMock.mockReset();
+  });
+
+  it("workflow DAG uses generated node status and neutral unknown", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/workflow")
+    >("@/shared/lib/domain/workflow");
+    normalizeWorkflowMock.mockImplementation(actual.normalizeWorkflow);
+
+    renderWithProviders(
+      <WorkflowDagPanel
+        payload={{
+          nodes: [
+            {
+              alias: "mystery_node",
+              depth: 0,
+              duration_ms: 10,
+              heat: 0,
+              status: "running",
+            },
+          ],
+        }}
+        runId="run-unknown"
+      />,
+    );
+
+    const unknownBadges = screen.getAllByText("unknown");
+    expect(unknownBadges).toHaveLength(2);
+    for (const badge of unknownBadges) {
+      expect(badge).toHaveClass("bg-white/65", "text-muted");
+    }
   });
 
   it("renders workflow DAG summaries, notes, edges, and debug links", () => {
@@ -159,7 +190,7 @@ describe("pipeline surfaces", () => {
               totalTokens: 174,
             },
           ],
-          verdict: "APPROVE",
+          verdict: "future-owner-grade",
         },
       ],
       evaluator: {
@@ -171,7 +202,7 @@ describe("pipeline surfaces", () => {
           kpiScore: 0.88,
           totalScore: 0.9,
         },
-        verdict: "APPROVE",
+        verdict: "future-owner-grade",
       },
       hasPromptData: true,
       iterationLifecycle: {
@@ -179,7 +210,7 @@ describe("pipeline surfaces", () => {
         state: "running",
         stopReason: "budget_cap",
       },
-      latestVerdict: "APPROVE",
+      latestVerdict: "future-owner-grade",
       notes: ["Fallback lane engaged"],
       performanceSummary: {
         llmLatencyMs: 125_000,
@@ -190,14 +221,14 @@ describe("pipeline surfaces", () => {
             category: "retrieval",
             durationMs: 15_000,
             phase: "retrieval.materialize",
-            status: "over_budget",
+            status: createPerformanceBudgetDisplayState("over_budget"),
           },
           {
             budgetMs: 30_000,
             category: "llm",
             durationMs: 12_000,
             phase: "llm.total",
-            status: "within_budget",
+            status: createPerformanceBudgetDisplayState("within_budget"),
           },
         ],
         totalTokens: 3400,
@@ -258,6 +289,20 @@ describe("pipeline surfaces", () => {
     expect(screen.getByText("Promotion lane fallback")).toBeInTheDocument();
     expect(screen.getByText("Draft plan")).toBeInTheDocument();
     expect(screen.getByText(/Grounded in evidence/)).toBeInTheDocument();
+    const ownerStatuses = screen.getAllByText("ok");
+    expect(ownerStatuses).toHaveLength(2);
+    for (const ownerStatus of ownerStatuses) {
+      expect(ownerStatus).toHaveAttribute("data-kind", "neutral");
+      expect(ownerStatus).toHaveAttribute("data-owner-status", "ok");
+    }
+    const ownerGrades = screen.getAllByText("future-owner-grade");
+    expect(ownerGrades).toHaveLength(3);
+    for (const ownerGrade of ownerGrades) {
+      expect(ownerGrade).toHaveAttribute(
+        "data-decision-grade-presentation",
+        "unrecognized",
+      );
+    }
 
     await user.click(screen.getByRole("button", { name: /Draft plan/ }));
 

@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useCompareCandidates } from "@/api/hooks/useCompareRuns";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 
 import { buildPolicyDiffHref } from "../domain/searchParams";
 

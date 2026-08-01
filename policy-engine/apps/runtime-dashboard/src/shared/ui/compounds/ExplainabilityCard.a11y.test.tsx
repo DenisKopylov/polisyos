@@ -1,6 +1,7 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
 import { ExplainabilityCard } from "./ExplainabilityCard";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 describe("ExplainabilityCard accessibility", () => {
   it("has no WCAG AA violations", async () => {
@@ -8,8 +9,11 @@ describe("ExplainabilityCard accessibility", () => {
       <ExplainabilityCard
         level="summary"
         verdict={{
-          confidence: 0.84,
-          status: "approved",
+          confidence: untracedDecisionQuantity({
+            metricId: "test.explainability.confidence",
+            point: 0.84,
+          }),
+          decisionGrade: "approved",
           summary: "The model explains the recommendation with stable factors.",
         }}
         methodology="DiD"
@@ -18,7 +22,13 @@ describe("ExplainabilityCard accessibility", () => {
           { direction: "negative", label: "Cost", value: "-0.04" },
         ]}
         governance={{
-          blockers: ["Requires human review"],
+          blockers: [
+            {
+              code: "human_review_required",
+              message: "Requires human review",
+              severity: "blocking",
+            },
+          ],
           failed: 1,
           passed: 5,
           warnings: 1,

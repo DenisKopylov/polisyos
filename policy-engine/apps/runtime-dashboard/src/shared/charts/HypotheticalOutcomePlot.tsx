@@ -119,7 +119,7 @@ export function HypotheticalOutcomePlot({
   height = 140,
   disputed = false,
   disputes = [],
-  identifiability = "estimated",
+  identifiability = "unknown",
   className,
 }: HypotheticalOutcomePlotProps) {
   const { t } = useI18n();

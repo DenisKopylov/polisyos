@@ -1,10 +1,10 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 
 import {
-  useMaybeTemporalCursor,
+  temporalScopeKey,
   type TemporalScope,
-} from "@/app/providers/useTemporalCursor";
-import { temporalScopeKey } from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 
 type TemporalQueryOptions<TData, TError> = Omit<
   UseQueryOptions<TData, TError>,

@@ -48,19 +48,23 @@ vi.mock("@/shared/components/ErrorBoundary", () => ({
   PageErrorBoundary: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/shared/ui", () => ({
-  Card: ({ children }: { children: ReactNode }) => (
-    <div data-testid="card">{children}</div>
-  ),
-  EmptyState: ({ body, title }: { body: string; title: string }) => (
-    <div data-testid="empty-state">
-      <span>{title}</span>
-      <span>{body}</span>
-    </div>
-  ),
-  PageSkeleton: () => <div data-testid="page-skeleton" />,
-  PanelSkeleton: () => <div data-testid="panel-skeleton" />,
-}));
+vi.mock("@polisyos/atlas-ui", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@polisyos/atlas-ui")>();
+  return {
+    ...actual,
+    Card: ({ children }: { children: ReactNode }) => (
+      <div data-testid="card">{children}</div>
+    ),
+    EmptyState: ({ body, title }: { body: string; title: string }) => (
+      <div data-testid="empty-state">
+        <span>{title}</span>
+        <span>{body}</span>
+      </div>
+    ),
+    PageSkeleton: () => <div data-testid="page-skeleton" />,
+    PanelSkeleton: () => <div data-testid="panel-skeleton" />,
+  };
+});
 
 import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
 import { TabBoundary } from "@/app/routes/TabBoundary";

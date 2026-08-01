@@ -3,10 +3,14 @@ export { DashboardToolbar } from "./DashboardToolbar";
 export { WidgetContainer } from "./WidgetContainer";
 export { QuickInsightsPanel } from "./QuickInsightsPanel";
 export type { QuickInsight } from "./QuickInsightsPanel";
-export { RecentRunsTimeline } from "./RecentRunsTimeline";
-export { ActiveAlertsStrip } from "./ActiveAlertsStrip";
-export type { ActiveAlert, AlertSeverity } from "./ActiveAlertsStrip";
 export { DataFreshnessMatrix } from "./DataFreshnessMatrix";
-export type { DataSourceFreshness } from "./DataFreshnessMatrix";
+export type {
+  DataFreshnessDisplayState,
+  DataSourceFreshness,
+} from "./DataFreshnessMatrix";
 export { SystemHealthPulse } from "./SystemHealthPulse";
-export type { HealthCheck, HealthCheckStatus } from "./SystemHealthPulse";
+export { createSystemHealthDisplayState } from "./SystemHealthPulse";
+export type {
+  HealthCheck,
+  SystemHealthDisplayState,
+} from "./SystemHealthPulse";

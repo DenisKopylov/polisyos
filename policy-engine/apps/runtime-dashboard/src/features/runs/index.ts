@@ -5,14 +5,8 @@ export {
 } from "@/features/runs/api/useRunsSample";
 export {
   getAverageRunDuration,
-  getBlockedRunCount,
   getDecisionQueue,
-  getRunBadgeKind,
   groupRunsByStatus,
-  isRunInReview,
-  isRunRunning,
-  isRunSuccess,
-  isRunTerminal,
 } from "@/features/runs/domain/status";
 export {
   buildEvidenceHref,

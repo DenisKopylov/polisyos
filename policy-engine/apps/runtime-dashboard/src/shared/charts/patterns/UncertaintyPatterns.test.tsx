@@ -13,6 +13,7 @@ describe("UncertaintyPatterns", () => {
       assumed: "atlas-assumed",
       disputed: "atlas-disputed",
       estimated: "atlas-estimated",
+      unknown: "atlas-unknown",
     });
     expect(resolveUncertaintyPatternFill("diagonal-lines", ids)).toBe(
       "url(#atlas-estimated)",
@@ -20,10 +21,13 @@ describe("UncertaintyPatterns", () => {
     expect(resolveUncertaintyPatternFill("dots", ids)).toBe(
       "url(#atlas-assumed)",
     );
+    expect(resolveUncertaintyPatternFill("crosshatch", ids)).toBe(
+      "url(#atlas-unknown)",
+    );
     expect(resolveUncertaintyPatternFill("none", ids)).toBe("none");
   });
 
-  it("renders estimated, assumed, and disputed defs", () => {
+  it("renders estimated, assumed, unknown, and disputed defs", () => {
     const ids = buildUncertaintyPatternIds("atlas");
     render(
       <svg>
@@ -33,6 +37,7 @@ describe("UncertaintyPatterns", () => {
 
     expect(screen.getByTestId("atlas-estimated")).toBeInTheDocument();
     expect(screen.getByTestId("atlas-assumed")).toBeInTheDocument();
+    expect(screen.getByTestId("atlas-unknown")).toBeInTheDocument();
     expect(screen.getByTestId("atlas-disputed")).toBeInTheDocument();
   });
 });

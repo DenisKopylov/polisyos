@@ -1,6 +1,10 @@
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 import { cn } from "@/shared/lib/utils";
 
-export type InsightLevel = "info" | "insight" | "warning" | "critical";
+export type InsightLevel = InteractionState;
 
 type InsightCalloutProps = {
   level?: InsightLevel;
@@ -9,62 +13,27 @@ type InsightCalloutProps = {
   className?: string;
 };
 
-const LEVEL_CONFIG: Record<
-  InsightLevel,
-  { icon: string; border: string; bg: string; text: string }
-> = {
-  info: {
-    icon: "\u2139",
-    border: "border-[var(--chart-secondary)]",
-    bg: "bg-[var(--chart-secondary)]/5",
-    text: "text-[var(--chart-secondary)]",
-  },
-  insight: {
-    icon: "\u2605",
-    border: "border-[var(--chart-success)]",
-    bg: "bg-[var(--chart-success)]/5",
-    text: "text-[var(--chart-success)]",
-  },
-  warning: {
-    icon: "\u26A0",
-    border: "border-[var(--chart-warning)]",
-    bg: "bg-[var(--chart-warning)]/5",
-    text: "text-[var(--chart-warning)]",
-  },
-  critical: {
-    icon: "\u2717",
-    border: "border-[var(--chart-alert)]",
-    bg: "bg-[var(--chart-alert)]/5",
-    text: "text-[var(--chart-alert)]",
-  },
-};
-
 export function InsightCallout({
-  level = "insight",
+  level = createInteractionState("insight", "candidate_display"),
   title,
   children,
   className,
 }: InsightCalloutProps) {
-  const config = LEVEL_CONFIG[level];
-
   return (
     <div
-      className={cn(
-        "rounded-2xl border-s-4 p-4",
-        config.border,
-        config.bg,
-        className,
-      )}
+      className={cn("border-line bg-panel rounded-2xl border p-4", className)}
+      data-interaction-purpose={level.authorityPurpose}
       role="note"
     >
       <div className="flex items-start gap-3">
-        <span className={cn("mt-0.5 text-lg", config.text)} aria-hidden>
-          {config.icon}
+        <span className="text-muted mt-0.5 text-lg" aria-hidden>
+          {"\u2022"}
         </span>
         <div className="min-w-0 flex-1">
+          <span className="text-muted text-xs">{level.label}</span>
           {title && (
             <p
-              className={cn("text-sm font-semibold", config.text)}
+              className="text-sm font-semibold"
               data-authored-exempt="true"
               data-authored-exempt-reason="Insight callout title is structural callout chrome; callout children carry authored prose where needed."
             >

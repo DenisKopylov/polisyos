@@ -8,7 +8,6 @@ import {
 } from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import {
   TrustMetadata,
   type VerificationMetadata,
@@ -17,14 +16,14 @@ import {
 import { AuthorBadge } from "./AuthorBadge";
 import { useAuthorship } from "./AuthorshipProvider";
 import {
-  AUTHOR_REGISTRY,
   extractTextFromNode,
+  getAuthorPresentation,
   type AuthoredTextAuthor,
 } from "./author-registry";
 
 type AuthoredTextProps<T extends ElementType = "p"> = {
   as?: T;
-  author: AuthoredTextAuthor;
+  author: AuthoredTextAuthor | null;
   authorAgentVersion?: string;
   children: ReactNode;
   className?: string;
@@ -52,31 +51,17 @@ export function AuthoredText<T extends ElementType = "p">({
 }: AuthoredTextProps<T>) {
   const Component = (as ?? "p") as ElementType;
   const authoredTextId = useId();
-  const { highlightMode, registerBlock, unregisterBlock } = useAuthorship();
-  const trustView = useMaybeTrustView();
-  const entry = AUTHOR_REGISTRY[author];
+  const { highlightMode, registerBlock, trustDisplayMode, unregisterBlock } =
+    useAuthorship();
+  const entry = getAuthorPresentation(author);
   const announcedText = entry.announcement(sourceRef);
   const extractedText = extractTextFromNode(children);
   const showBorder =
-    highlightMode !== "off" && (author === "citation" || author !== "human");
+    entry.isModelCandidate ||
+    (highlightMode !== "off" && author === "citation");
   const showGlyph =
     highlightMode !== "off" && author !== "citation" && author !== "human";
   const showBadge = highlightMode === "prominent" || author === "citation";
-  const trustMode =
-    trustView?.mode === "expanded"
-      ? "expanded"
-      : trustView?.mode === "compact"
-        ? "compact"
-        : "off";
-  const resolvedTrustMetadata =
-    trustMetadata ??
-    buildAuthoredTrustMetadata({
-      author,
-      authorAgentVersion,
-      reviewedByHuman,
-      sourceRef,
-      timestamp,
-    });
   const style = {
     ...(props.style as CSSProperties | undefined),
     ...(showBorder
@@ -124,85 +109,61 @@ export function AuthoredText<T extends ElementType = "p">({
   ]);
 
   return (
-    <Component
-      {...props}
-      data-author={author}
-      data-highlight-mode={highlightMode}
-      className={cn(
-        "block text-[var(--ink)]",
-        author === "citation"
-          ? "text-[1.02rem] leading-relaxed"
-          : "leading-relaxed font-normal",
-        className,
-      )}
-      style={style}
-    >
-      <span className="sr-only">{`${announcedText}. `}</span>
-      {showGlyph && entry.glyph ? (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "mr-2 inline-flex align-baseline font-mono text-sm",
-            entry.toneClassName,
-          )}
-        >
-          {entry.glyph}
-        </span>
+    <>
+      <Component
+        {...props}
+        data-author={author ?? "unrecognized"}
+        data-authority-posture={
+          entry.isModelCandidate ? "candidate" : "attributed"
+        }
+        data-highlight-mode={highlightMode}
+        data-review-attribution={reviewedByHuman ? "recorded" : "absent"}
+        className={cn(
+          "block text-[var(--ink)]",
+          author === "citation"
+            ? "text-[1.02rem] leading-relaxed"
+            : "leading-relaxed font-normal",
+          entry.isModelCandidate && "border-dashed",
+          className,
+        )}
+        style={style}
+      >
+        <span className="sr-only">{`${announcedText}. `}</span>
+        {showGlyph && entry.glyph ? (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "mr-2 inline-flex align-baseline font-mono text-sm",
+              entry.toneClassName,
+            )}
+          >
+            {entry.glyph}
+          </span>
+        ) : null}
+        <span>{children}</span>
+        {showBadge ? (
+          <span className="mt-2 block">
+            <AuthorBadge
+              author={author}
+              authorAgentVersion={authorAgentVersion}
+              reviewedByHuman={reviewedByHuman}
+              sourceHref={sourceHref}
+              sourceRef={sourceRef}
+            />
+          </span>
+        ) : null}
+      </Component>
+      {trustDisplayMode !== "off" && trustMetadata ? (
+        <TrustMetadata
+          className="mt-2"
+          hash={trustMetadata.hash}
+          label={entry.badgeLabel}
+          metadata={trustMetadata}
+          mode={trustDisplayMode}
+          subjectId={authoredTextId}
+          subjectKind="authored_text"
+        />
       ) : null}
-      <span>{children}</span>
-      {showBadge ? (
-        <span className="mt-2 block">
-          <AuthorBadge
-            author={author}
-            authorAgentVersion={authorAgentVersion}
-            reviewedByHuman={reviewedByHuman}
-            sourceHref={sourceHref}
-            sourceRef={sourceRef}
-          />
-        </span>
-      ) : null}
-      {trustMode !== "off" ? (
-        <span className="mt-2 block">
-          <TrustMetadata
-            hash={resolvedTrustMetadata.hash}
-            label={entry.badgeLabel}
-            metadata={resolvedTrustMetadata}
-            mode={trustMode}
-            subjectId={authoredTextId}
-            subjectKind="authored_text"
-          />
-        </span>
-      ) : null}
-    </Component>
+    </>
   );
-}
-
-function buildAuthoredTrustMetadata({
-  author,
-  authorAgentVersion,
-  reviewedByHuman,
-  sourceRef,
-  timestamp,
-}: {
-  author: AuthoredTextAuthor;
-  authorAgentVersion?: string;
-  reviewedByHuman: boolean;
-  sourceRef?: string;
-  timestamp?: string;
-}): VerificationMetadata {
-  const hash = sourceRef?.startsWith("sha256:") ? sourceRef : null;
-  return {
-    dispute_status: "none",
-    freshness: "current",
-    hash,
-    temporal_scope: timestamp ? { valid_at: timestamp } : null,
-    verification_method: sourceRef
-      ? "authorship_source_ref"
-      : "authorship_registry",
-    verification_status: reviewedByHuman ? "verified" : "pending",
-    verified_at: timestamp ?? null,
-    verified_by: reviewedByHuman
-      ? author
-      : (authorAgentVersion ?? "PolicyOSAuthorshipRegistry"),
-  };
 }

@@ -9,11 +9,11 @@ import {
   DetailLayout,
   FilterPanel,
   Radio,
-  SearchableList,
   SegmentedControl,
   Switch,
   ToggleButton,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { SearchableList } from "@/shared/ui";
 
 const meta = {
   title: "Design System/Patterns",

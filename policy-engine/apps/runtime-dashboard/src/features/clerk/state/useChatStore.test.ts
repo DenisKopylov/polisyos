@@ -38,6 +38,27 @@ describe("useChatStore", () => {
     });
   });
 
+  it("persists producer finished_at independently from opaque runStatus", () => {
+    const producerMessage = {
+      content: "Producer facts",
+      id: "message-producer-facts",
+      role: "system",
+      runFinishedAt: "2026-03-10T10:05:00Z",
+      runStatus: "awaiting_external_attestation",
+      timestamp: Date.now(),
+    } satisfies ChatMessage;
+
+    useChatStore.getState().addSystemMessage(producerMessage);
+    const sessionId = useChatStore.getState().saveSession("Producer facts");
+    useChatStore.getState().clearHistory();
+    useChatStore.getState().loadSession(sessionId);
+
+    expect(useChatStore.getState().messages[0]).toMatchObject({
+      runFinishedAt: "2026-03-10T10:05:00Z",
+      runStatus: "awaiting_external_attestation",
+    });
+  });
+
   it("clears current conversation state when deleting the active session", () => {
     useChatStore.setState({
       activeSessionId: "session-active",

@@ -1,0 +1,62 @@
+{
+  "name": "@polisyos/atlas-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check:architecture": "node ./scripts/check-architecture.mjs",
+    "lint": "eslint src tests vitest.config.ts --max-warnings=0",
+    "test": "vitest run",
+    "tokens:check": "pnpm run tokens:schema && node --experimental-strip-types ./src/tokens/project.ts",
+    "tokens:generate": "pnpm run tokens:schema && node --experimental-strip-types ./src/tokens/project.ts --write",
+    "tokens:schema": "uv run --with check-jsonschema==0.37.4 check-jsonschema --schemafile https://www.designtokens.org/schemas/2025.10/format.json tokens/source/*.tokens.json tokens/modes/*.tokens.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@polisyos/runtime-api-client": "workspace:*",
+    "@tanstack/react-virtual": "^3.13.21",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "lucide-react": "^1.7.0",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "jsdom": "^27.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18",
+    "vitest-axe": "^0.1.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1"
+  }
+}

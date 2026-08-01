@@ -1,0 +1,318 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Complete living high-contrast and forced-color static projections.",
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "contrast": {
+          "forcedColors": {
+            "backdropFilter": "none",
+            "mediaQuery": "(forced-colors: active)",
+            "semanticColorIndependent": true,
+            "unlayered": {
+              "tokens": {
+                "--focus-ring": "Highlight",
+                "--line": "ButtonBorder",
+                "--ink": "CanvasText",
+                "--paper": "Canvas",
+                "--sand": "Canvas",
+                "--canvas": "Canvas",
+                "--teal": "Highlight",
+                "--ember": "LinkText",
+                "--gold": "Highlight",
+                "--panel": "Canvas",
+                "--panel-strong": "Canvas",
+                "--surface": "Canvas",
+                "--text": "CanvasText",
+                "--muted": "CanvasText",
+                "--accent": "Highlight",
+                "--success": "Highlight",
+                "--warning": "Highlight",
+                "--danger": "LinkText",
+                "--panel-border-color": "ButtonBorder",
+                "--chip-border-color": "ButtonBorder",
+                "--ghost-bg": "Canvas",
+                "--ghost-bg-hover": "Canvas",
+                "--ghost-border-color": "ButtonBorder",
+                "--metric-bg": "Canvas",
+                "--metric-border-color": "ButtonBorder",
+                "--input-bg": "Canvas",
+                "--input-border-color": "ButtonBorder",
+                "--deck-card-bg": "Canvas",
+                "--deck-card-border-color": "ButtonBorder",
+                "--shell-border": "ButtonBorder",
+                "--shell-glass-base": "Canvas",
+                "--shell-glass-end": "Canvas",
+                "--shell-glass-start": "Canvas",
+                "--rim-light": "none",
+                "--rail-surface": "Canvas",
+                "--rail-surface-start": "Canvas",
+                "--rail-surface-end": "Canvas",
+                "--rail-ink": "CanvasText",
+                "--rail-muted-ink": "CanvasText",
+                "--rail-link": "CanvasText",
+                "--rail-active-bg": "Canvas",
+                "--rail-hover-bg": "Canvas",
+                "--rail-active-ink": "CanvasText",
+                "--rail-border": "ButtonBorder",
+                "--rail-card-bg": "Canvas",
+                "--rail-card-border": "ButtonBorder"
+              },
+              "rules": {
+                "atlasShell": {
+                  "selector": ".atlas-shell",
+                  "declarations": {
+                    "border": "2px solid ButtonBorder",
+                    "background": "Canvas",
+                    "backdrop-filter": "none"
+                  }
+                },
+                "sideRail": {
+                  "selector": ".side-rail",
+                  "declarations": {
+                    "background": "Canvas",
+                    "color": "CanvasText",
+                    "border-inline-end": "1px solid ButtonBorder"
+                  }
+                }
+              }
+            },
+            "layers": {
+              "base": {
+                "tokens": {
+                  "--chart-primary": "LinkText",
+                  "--chart-secondary": "CanvasText",
+                  "--chart-tertiary": "GrayText",
+                  "--chart-alert": "Mark",
+                  "--chart-warning": "CanvasText"
+                },
+                "rules": {
+                  "chartSeries": {
+                    "selector": "svg [data-chart-series]",
+                    "declarations": {
+                      "forced-color-adjust": "auto"
+                    }
+                  },
+                  "colorScheme": {
+                    "selectors": {
+                      "selector1": "html"
+                    },
+                    "declarations": {
+                      "color-scheme": "light"
+                    }
+                  }
+                }
+              },
+              "components": {
+                "rules": {
+                  "nativeChoice": {
+                    "selectors": {
+                      "selector1": ".atlas-checkbox",
+                      "selector2": ".atlas-radio"
+                    },
+                    "declarations": {
+                      "appearance": "auto",
+                      "background-image": "none"
+                    }
+                  },
+                  "nativeSelect": {
+                    "selectors": {
+                      "selector1": ".atlas-select"
+                    },
+                    "declarations": {
+                      "appearance": "auto",
+                      "padding-inline-end": "var(--input-padding-inline)",
+                      "background-image": "none"
+                    }
+                  },
+                  "switch": {
+                    "selectors": {
+                      "selector1": ".atlas-switch"
+                    },
+                    "declarations": {
+                      "background": "ButtonFace"
+                    }
+                  },
+                  "choiceSurfaces": {
+                    "selectors": {
+                      "selector1": ".atlas-choice-card",
+                      "selector2": ".atlas-segmented__option",
+                      "selector3": ".atlas-toggle-button",
+                      "selector4": ".atlas-toggle-row"
+                    },
+                    "declarations": {
+                      "background": "Canvas",
+                      "box-shadow": "none"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "high": {
+            "attribute": "high",
+            "backdropFilter": "none",
+            "semanticColorIndependent": true,
+            "rootSelectors": {
+              "high": ":root[data-contrast=\"high\"]",
+              "more": ":root[data-contrast=\"more\"]",
+              "theme": ":root[data-theme=\"high-contrast\"]"
+            },
+            "tokens": {
+              "--focus-ring": "Highlight",
+              "--line": "CanvasText",
+              "--ink": "CanvasText",
+              "--paper": "Canvas",
+              "--sand": "Canvas",
+              "--canvas": "Canvas",
+              "--panel": "Canvas",
+              "--panel-strong": "Canvas",
+              "--surface": "Canvas",
+              "--text": "CanvasText",
+              "--muted": "CanvasText",
+              "--accent": "Highlight",
+              "--success": "Highlight",
+              "--warning": "Highlight",
+              "--danger": "LinkText",
+              "--chart-grid": "GrayText",
+              "--chart-axis": "CanvasText",
+              "--chart-primary": "Highlight",
+              "--chart-secondary": "Highlight",
+              "--chart-tertiary": "CanvasText",
+              "--chart-success": "Highlight",
+              "--chart-alert": "LinkText",
+              "--chart-warning": "Highlight",
+              "--panel-border-color": "ButtonBorder",
+              "--chip-border-color": "ButtonBorder",
+              "--chip-bg": "Canvas",
+              "--chip-ink": "CanvasText",
+              "--ghost-bg": "Canvas",
+              "--ghost-bg-hover": "Canvas",
+              "--ghost-border-color": "ButtonBorder",
+              "--status-ok-bg": "Canvas",
+              "--status-warn-bg": "Canvas",
+              "--status-warn-fg": "CanvasText",
+              "--status-fail-bg": "Canvas",
+              "--status-neutral-bg": "Canvas",
+              "--status-neutral-fg": "CanvasText",
+              "--metric-bg": "Canvas",
+              "--metric-border-color": "ButtonBorder",
+              "--metric-label-color": "CanvasText",
+              "--input-bg": "Canvas",
+              "--input-border-color": "ButtonBorder",
+              "--input-rim-light": "none",
+              "--deck-card-bg": "Canvas",
+              "--deck-card-border-color": "ButtonBorder",
+              "--deck-card-label-color": "CanvasText",
+              "--shell-border": "ButtonBorder",
+              "--shell-glass-base": "Canvas",
+              "--shell-glass-end": "Canvas",
+              "--shell-glass-start": "Canvas",
+              "--page-gradient-start": "Canvas",
+              "--page-gradient-mid": "Canvas",
+              "--page-gradient-end": "Canvas",
+              "--page-glow-teal": "transparent",
+              "--page-glow-ember": "transparent",
+              "--rim-light-color": "CanvasText",
+              "--rim-light": "none",
+              "--rail-surface": "Canvas",
+              "--rail-surface-start": "Canvas",
+              "--rail-surface-end": "Canvas",
+              "--rail-ink": "CanvasText",
+              "--rail-muted-ink": "CanvasText",
+              "--rail-link": "CanvasText",
+              "--rail-active-bg": "Canvas",
+              "--rail-hover-bg": "Canvas",
+              "--rail-active-ink": "CanvasText",
+              "--rail-border": "ButtonBorder",
+              "--rail-card-bg": "Canvas",
+              "--rail-card-border": "ButtonBorder"
+            },
+            "rules": {
+              "backdrop": {
+                "selector": ":root[data-contrast=\"high\"] .atlas-shell,\n  :root[data-contrast=\"more\"] .atlas-shell,\n  :root[data-theme=\"high-contrast\"] .atlas-shell,\n  :root[data-contrast=\"high\"] .side-rail,\n  :root[data-contrast=\"more\"] .side-rail,\n  :root[data-theme=\"high-contrast\"] .side-rail",
+                "declarations": {
+                  "backdrop-filter": "none"
+                }
+              }
+            }
+          },
+          "more": {
+            "attribute": "more",
+            "backdropFilter": "none",
+            "mediaQuery": "(prefers-contrast: more)",
+            "semanticColorIndependent": true,
+            "tokens": {
+              "--ink": "#000000",
+              "--paper": "#ffffff",
+              "--canvas": "#ffffff",
+              "--surface": "#ffffff",
+              "--panel": "#ffffff",
+              "--panel-strong": "#ffffff",
+              "--line": "rgba(0, 0, 0, 0.36)",
+              "--shell-border": "rgba(0, 0, 0, 0.42)",
+              "--chart-grid": "rgba(0, 0, 0, 0.28)",
+              "--chart-axis": "rgba(0, 0, 0, 0.92)"
+            },
+            "mediaRules": {
+              "colorScheme": {
+                "selectors": {
+                  "selector1": ":root"
+                },
+                "declarations": {
+                  "color-scheme": "light"
+                }
+              },
+              "glyph": {
+                "selectors": {
+                  "selector1": ".brand-glyph",
+                  "selector2": ".glyph",
+                  "selector3": "[data-glyph-name]"
+                },
+                "declarations": {
+                  "stroke-width": "2px"
+                }
+              },
+              "provenance": {
+                "selectors": {
+                  "selector1": ".provenance-strip li + li"
+                },
+                "declarations": {
+                  "margin-inline-start": "0.75ch"
+                }
+              }
+            },
+            "manualRules": {
+              "colorScheme": {
+                "selectors": {
+                  "selector1": ":root[data-contrast=\"more\"]"
+                },
+                "declarations": {
+                  "color-scheme": "light"
+                }
+              },
+              "glyph": {
+                "selectors": {
+                  "selector1": ":root[data-contrast=\"more\"] .brand-glyph",
+                  "selector2": ":root[data-contrast=\"more\"] .glyph",
+                  "selector3": ":root[data-contrast=\"more\"] [data-glyph-name]"
+                },
+                "declarations": {
+                  "stroke-width": "2px"
+                }
+              },
+              "provenance": {
+                "selectors": {
+                  "selector1": ":root[data-contrast=\"more\"] .provenance-strip li + li"
+                },
+                "declarations": {
+                  "margin-inline-start": "0.75ch"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

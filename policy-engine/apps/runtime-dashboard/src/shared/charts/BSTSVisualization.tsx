@@ -39,6 +39,29 @@ const PLOT_W = SVG_WIDTH - PADDING.left - PADDING.right;
 const MAIN_H = 200;
 const GAP_H = 24;
 const DIFF_H = 80;
+type LegendGeometry = {
+  primary: {
+    labelX: number;
+    labelY: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+  };
+  secondary: {
+    labelX: number;
+    labelY: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+  };
+};
+const LEGEND_GEOMETRY = {
+  primary: { labelX: 20, labelY: 4, x1: 0, x2: 16, y1: 0, y2: 0 },
+  secondary: { labelX: 100, labelY: 4, x1: 80, x2: 96, y1: 0, y2: 0 },
+} as const satisfies LegendGeometry;
+const SUMMARY_ROW_GEOMETRY = { offsetY: 16 } as const;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -344,7 +367,7 @@ export function BSTSVisualization({
             )}
             {pValue != null && (
               <text
-                y={16}
+                y={SUMMARY_ROW_GEOMETRY.offsetY}
                 fontSize={chartDefaults.tickFontSize}
                 fill={pValue < 0.05 ? chartTheme.success : chartTheme.neutral}
               >
@@ -356,33 +379,33 @@ export function BSTSVisualization({
           {/* Legend */}
           <g transform={`translate(${PADDING.left + 8}, ${PADDING.top + 8})`}>
             <line
-              x1={0}
-              y1={0}
-              x2={16}
-              y2={0}
+              x1={LEGEND_GEOMETRY.primary.x1}
+              y1={LEGEND_GEOMETRY.primary.y1}
+              x2={LEGEND_GEOMETRY.primary.x2}
+              y2={LEGEND_GEOMETRY.primary.y2}
               stroke={chartTheme.primary}
               strokeWidth={2}
             />
             <text
-              x={20}
-              y={4}
+              x={LEGEND_GEOMETRY.primary.labelX}
+              y={LEGEND_GEOMETRY.primary.labelY}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >
               {t("shared.charts.bsts.actual")}
             </text>
             <line
-              x1={80}
-              y1={0}
-              x2={96}
-              y2={0}
+              x1={LEGEND_GEOMETRY.secondary.x1}
+              y1={LEGEND_GEOMETRY.secondary.y1}
+              x2={LEGEND_GEOMETRY.secondary.x2}
+              y2={LEGEND_GEOMETRY.secondary.y2}
               stroke={chartTheme.neutral}
               strokeWidth={2}
               strokeDasharray="5 3"
             />
             <text
-              x={100}
-              y={4}
+              x={LEGEND_GEOMETRY.secondary.labelX}
+              y={LEGEND_GEOMETRY.secondary.labelY}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >

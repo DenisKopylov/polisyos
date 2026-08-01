@@ -1,6 +1,11 @@
 import type { RunTimelinePayload, RunErrorsPayload } from "@/api/validators";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import type { RunDetailSummary } from "@/features/runs/routes/useRunDetailSummary";
+import type {
+  LegacyProvingGroundPayload,
+  QuantityValueOutput,
+  RunTimelineEvent,
+} from "@polisyos/runtime-api-client";
 
 type ComparisonRow = {
   label: string;
@@ -9,12 +14,13 @@ type ComparisonRow = {
   delta: string;
 };
 
-export type AuditTrailSeverity = "fail" | "warn" | "info";
+export type AuditTrailSource = "governance" | "runtime" | "timeline";
 
 export type AuditTrailEntry = {
   id: string;
-  severity: AuditTrailSeverity;
-  source: "governance" | "runtime" | "timeline";
+  ownerLabel: string | null;
+  recordedState: RunTimelineEvent["event"] | null;
+  source: AuditTrailSource;
   title: string;
   body: string;
   timestamp: string | null;
@@ -26,9 +32,16 @@ export type RunReportSnapshot = {
   blockerCount: number;
   decisionConfidence: string | null;
   decisionHeadline: string;
-  decisionScore: number;
+  decisionScore: QuantityValueOutput;
   governanceIssues: GovernanceIssueView[];
-  impactRows: RunDetailSummary["impactRows"];
+  impactOwnerLabels?: Array<{
+    label: string;
+    ownerLabel: string;
+  }>;
+  impactRows: Array<{
+    label: string;
+    quantity: QuantityValueOutput;
+  }>;
   mainUncertainty: string;
   primaryVerdict: string | null;
   runId: string | null;
@@ -42,6 +55,7 @@ export type RunReportSnapshot = {
 };
 
 export type RunDeckSnapshot = {
+  fixture_authority?: LegacyProvingGroundPayload["fixture_authority"];
   close: {
     commentWindow: string;
     downstreamDependencies: string[];
@@ -59,18 +73,26 @@ export type RunDeckSnapshot = {
     title: string;
   };
   metrics: {
-    cards: Array<{
-      label: string;
-      tone: "neutral" | "ok" | "warn";
-      value: string;
-    }>;
+    cards: Array<
+      | {
+          kind: "quantity";
+          label: string;
+          quantity: QuantityValueOutput;
+        }
+      | {
+          kind: "text";
+          label: string;
+          value: string;
+        }
+    >;
     title: string;
   };
   report: RunReportSnapshot;
   tradeoff: {
-    hold: string[];
-    ratify: string[];
+    reviewContext?: string[];
+    supportingContext?: string[];
     title: string;
+    [presentationKey: string]: string | string[] | undefined;
   };
   verdict: {
     blockers: string;
@@ -98,8 +120,10 @@ function formatPercent(value: number | null | undefined) {
   return `${Math.round(value * 100)}%`;
 }
 
-function formatScore(value: number) {
-  return value.toFixed(2);
+function quantityPoint(value: QuantityValueOutput): number | null {
+  return typeof value.point === "number" && Number.isFinite(value.point)
+    ? value.point
+    : null;
 }
 
 function pickStrongestEvidence(summary: RunDetailSummary) {
@@ -138,7 +162,6 @@ function resolvePrimaryVerdict(summary: RunDetailSummary) {
   return (
     summary.decisionView?.verdict ??
     summary.pipeline?.evaluator?.verdict ??
-    summary.run?.status ??
     null
   );
 }
@@ -156,40 +179,46 @@ function resolveMainUncertainty(
     return primaryIssue;
   }
 
-  const flaggedEntry = auditTrail.find(
-    (entry) => entry.severity === "fail" || entry.severity === "warn",
-  );
+  const flaggedEntry = auditTrail.find((entry) => entry.source !== "timeline");
   if (flaggedEntry) {
     return `${flaggedEntry.title}: ${flaggedEntry.body}`;
   }
 
-  return "No blocking uncertainty was returned by runtime diagnostics.";
+  return "No runtime or governance diagnostic was returned.";
 }
 
-function buildDeckMetrics(report: RunReportSnapshot) {
-  const impactCard =
-    report.impactRows?.[0]?.display ??
-    `${report.blockerCount > 0 ? "-" : "+"}${Math.round(report.decisionScore * 100)} bps`;
+function buildDeckMetrics(
+  report: RunReportSnapshot,
+): RunDeckSnapshot["metrics"]["cards"] {
+  const [primaryImpact] = report.impactRows;
+  const [primaryImpactLabel] = report.impactOwnerLabels ?? [];
+  const impactCard = primaryImpact
+    ? ({
+        kind: "quantity" as const,
+        label: "Impact delta",
+        quantity: primaryImpact.quantity,
+      } satisfies RunDeckSnapshot["metrics"]["cards"][number])
+    : ({
+        kind: "text" as const,
+        label: "Impact delta",
+        value: primaryImpactLabel?.ownerLabel || "Unknown",
+      } satisfies RunDeckSnapshot["metrics"]["cards"][number]);
 
   return [
     {
+      kind: "quantity" as const,
       label: "Decision score",
-      tone: report.decisionScore >= 0.7 ? ("ok" as const) : ("warn" as const),
-      value: formatScore(report.decisionScore),
+      quantity: report.decisionScore,
     },
     {
+      kind: "text" as const,
       label: "Blocker state",
-      tone: report.blockerCount === 0 ? ("ok" as const) : ("warn" as const),
       value: String(report.blockerCount),
     },
+    impactCard,
     {
-      label: "Impact delta",
-      tone: "neutral" as const,
-      value: impactCard,
-    },
-    {
+      kind: "text" as const,
       label: "Artifact continuity",
-      tone: "neutral" as const,
       value: String(report.artifactRefs.length),
     },
   ];
@@ -199,26 +228,14 @@ function buildDownstreamDependencies(summary: RunDetailSummary) {
   const dependencies = [
     ...summary.artifactRefs.slice(0, 2).map((ref) => humanizeToken(ref.kind)),
     summary.selectedPromotion
-      ? `${humanizeToken(summary.selectedPromotion.status)} promotion review`
+      ? `${summary.selectedPromotion.status} promotion review`
       : null,
-    summary.transportStatus ? humanizeToken(summary.transportStatus) : null,
+    summary.transportStatus || null,
   ].filter((value): value is string => Boolean(value));
 
   return dependencies.length > 0
     ? dependencies
     : ["No downstream dependency string was returned for this run."];
-}
-
-function severityRank(
-  severity: GovernanceIssueView["severity"],
-): AuditTrailSeverity {
-  if (severity === "blocker") {
-    return "fail";
-  }
-  if (severity === "warning") {
-    return "warn";
-  }
-  return "info";
 }
 
 function stringifyDelta(baseValue: number, targetValue: number) {
@@ -230,12 +247,19 @@ export function buildRunComparison(
   baseSummary: RunDetailSummary,
   targetSummary: RunDetailSummary,
 ): ComparisonRow[] {
+  const baseDecisionScore = quantityPoint(baseSummary.decisionScore);
+  const targetDecisionScore = quantityPoint(targetSummary.decisionScore);
   return [
     {
       label: "Decision score",
-      base: baseSummary.decisionScore.toFixed(2),
-      target: targetSummary.decisionScore.toFixed(2),
-      delta: `${targetSummary.decisionScore >= baseSummary.decisionScore ? "+" : ""}${(targetSummary.decisionScore - baseSummary.decisionScore).toFixed(2)}`,
+      base: baseDecisionScore?.toFixed(2) ?? "unavailable",
+      target: targetDecisionScore?.toFixed(2) ?? "unavailable",
+      delta:
+        baseDecisionScore === null || targetDecisionScore === null
+          ? "unavailable"
+          : `${targetDecisionScore >= baseDecisionScore ? "+" : ""}${(
+              targetDecisionScore - baseDecisionScore
+            ).toFixed(2)}`,
     },
     {
       label: "Governance blockers",
@@ -291,7 +315,8 @@ export function buildAuditTrail({
 }): AuditTrailEntry[] {
   const governanceEntries = governanceIssues.map((issue, index) => ({
     id: `issue-${issue.code}-${index}`,
-    severity: severityRank(issue.severity),
+    ownerLabel: issue.severity,
+    recordedState: null,
     source: "governance" as const,
     title: issue.message,
     body: issue.passId ?? issue.code,
@@ -300,7 +325,8 @@ export function buildAuditTrail({
 
   const errorEntries = (errors ?? []).map((error, index) => ({
     id: `error-${error.code}-${index}`,
-    severity: "fail" as const,
+    ownerLabel: error.code,
+    recordedState: null,
     source: "runtime" as const,
     title: error.message,
     body: error.node_alias
@@ -311,7 +337,8 @@ export function buildAuditTrail({
 
   const timelineEntries = (timelineEvents ?? []).map((event) => ({
     id: `timeline-${event.index}-${event.event}`,
-    severity: "info" as const,
+    ownerLabel: null,
+    recordedState: event.event,
     source: "timeline" as const,
     title: event.event,
     body: event.phase,
@@ -348,7 +375,13 @@ export function buildRunReportSnapshot(
     decisionHeadline: summary.decisionHeadline,
     decisionScore: summary.decisionScore,
     governanceIssues: summary.governanceIssues,
-    impactRows: summary.impactRows ?? [],
+    impactOwnerLabels: (summary.impactRows ?? [])
+      .map((row) => ({
+        label: row.label,
+        ownerLabel: row.display?.trim() || "",
+      }))
+      .filter((row) => row.ownerLabel.length > 0),
+    impactRows: [],
     mainUncertainty: resolveMainUncertainty(summary, auditTrail),
     primaryVerdict: resolvePrimaryVerdict(summary),
     runId: summary.run?.run_id ?? null,
@@ -365,28 +398,21 @@ export function buildRunDeckSnapshot(
   const evidencePlanCount = summary.evidenceContext?.fetchPlans.length ?? 0;
   const promotionCount =
     summary.evidenceContext?.promotionCandidates.length ?? 0;
-  const verdictLabel = humanizeToken(report.primaryVerdict);
-  const confidenceLabel = humanizeToken(report.decisionConfidence);
-  const blockersLabel =
-    report.blockerCount === 0
-      ? "No active blockers in governance review."
-      : `${report.blockerCount} blockers still need operator attention.`;
+  const verdictLabel = report.primaryVerdict?.trim() || "Unknown";
+  const confidenceLabel = report.decisionConfidence?.trim() || "Unknown";
+  const blockersLabel = `Owner governance summary reports ${report.blockerCount} blocker labels.`;
 
   return {
     close: {
       commentWindow:
-        report.blockerCount === 0
-          ? "Open a stakeholder comment window before ratification closes."
-          : "Keep the comment window open until blockers are resolved or ratified with conditions.",
+        "Stakeholder comment timing is an operator workflow choice; the dashboard does not determine closure.",
       downstreamDependencies: buildDownstreamDependencies(summary),
       nextAction:
-        report.blockerCount === 0
-          ? "Ratify the run packet and circulate the deck."
-          : "Hold the run packet and route blockers to review owners.",
+        "Review the owner decision and attached evidence; the dashboard does not issue a publication action.",
     },
     cover: {
       eyebrow: "Runtime-integrated deck",
-      subtitle: `${humanizeToken(summary.run?.source_kind)} run packet · ${humanizeToken(report.status)}`,
+      subtitle: `${humanizeToken(summary.run?.source_kind)} run packet · ${report.status?.trim() || "Unknown"}`,
       title: report.runId
         ? `Atlas decision deck for ${report.runId}`
         : "Atlas decision deck",
@@ -403,23 +429,23 @@ export function buildRunDeckSnapshot(
     },
     report,
     tradeoff: {
-      hold: [
-        blockersLabel,
+      reviewContext: [
+        `Governance diagnostics: ${blockersLabel}`,
         `Main uncertainty: ${report.mainUncertainty}`,
-        `Transport posture remains ${humanizeToken(report.transportStatus)}.`,
+        `Owner transport label: ${report.transportStatus || "Unknown"}.`,
       ],
-      ratify: [
-        `Decision score is ${formatScore(report.decisionScore)} with ${confidenceLabel} confidence.`,
+      supportingContext: [
+        `Owner decision grade: ${verdictLabel}. Owner confidence label: ${confidenceLabel}.`,
         `${evidencePlanCount} evidence plans and ${promotionCount} promotion candidates are already in context.`,
         `Artifact continuity is preserved across ${report.artifactRefs.length} refs.`,
       ],
-      title: "Ratify now versus hold for review",
+      title: "Owner decision evidence and review context",
     },
     verdict: {
       blockers: blockersLabel,
       confidence: confidenceLabel,
       headline: report.decisionHeadline,
-      status: humanizeToken(report.status),
+      status: report.status?.trim() || "Unknown",
       verdict: verdictLabel,
     },
   };

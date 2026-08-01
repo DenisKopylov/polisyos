@@ -361,6 +361,9 @@
         "decision_detail": {
           "$ref": "#/$defs/decisionDetail"
         },
+        "aggregate_disposition_receipt": {
+          "$ref": "#/$defs/aggregateMixedDispositionReceipt"
+        },
         "owner": {
           "$ref": "#/$defs/nonEmptyString"
         },
@@ -375,6 +378,201 @@
         },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "aggregateMixedDispositionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "kind",
+        "reason",
+        "counts",
+        "c03b_members",
+        "reference_census_id",
+        "pre_deletion_resurrection_anchor",
+        "resurrection_rule"
+      ],
+      "properties": {
+        "receipt_id": {
+          "const": "ds4-c03b-ui-primitives-mixed-disposition"
+        },
+        "kind": {
+          "const": "aggregate_mixed_disposition"
+        },
+        "reason": {
+          "const": "no_production_consumer"
+        },
+        "counts": {
+          "$ref": "#/$defs/aggregateDispositionCounts"
+        },
+        "c03b_members": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/c03bPrimitiveDisposition"
+          }
+        },
+        "reference_census_id": {
+          "const": "census-ds4-c03b-dormant-primitives"
+        },
+        "pre_deletion_resurrection_anchor": {
+          "$ref": "#/$defs/gitResurrectionAnchor"
+        },
+        "resurrection_rule": {
+          "const": "recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree"
+        }
+      }
+    },
+    "aggregateDispositionCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "package_migrated",
+        "dashboard_rebound",
+        "retired",
+        "use_as_is",
+        "c03b_candidates",
+        "production_consumers"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "package_migrated": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dashboard_rebound": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retired": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "use_as_is": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "c03b_candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "production_consumers": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "c03bPrimitiveDisposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primitive",
+        "disposition",
+        "ds2_adoption_id",
+        "governing_condition",
+        "ledger_absence_reason"
+      ],
+      "properties": {
+        "primitive": {
+          "type": "string",
+          "enum": [
+            "DropdownMenu",
+            "ScrollArea",
+            "Separator",
+            "Sheet",
+            "Tabs"
+          ]
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "retire",
+            "use_as_is"
+          ]
+        },
+        "ds2_adoption_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "governing_condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ledger_absence_reason": {
+          "anyOf": [
+            {
+              "const": "no_exact_ds2_row"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "gitResurrectionAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "git_commit",
+        "files"
+      ],
+      "properties": {
+        "git_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/gitBlobRef"
+          }
+        }
+      }
+    },
+    "gitBlobRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "git_blob"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "enum": [
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx"
+          ]
+        },
+        "git_blob": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
         }
       }
     },
@@ -394,7 +592,8 @@
           "enum": [
             "path_absent",
             "reference_count",
-            "protected_live_consumers"
+            "protected_live_consumers",
+            "typescript_symbol_consumer_census"
           ]
         },
         "targets": {
@@ -419,6 +618,23 @@
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/pathRef"
+          }
+        },
+        "checked_import_forms": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "barrel",
+              "namespace",
+              "relative",
+              "dynamic",
+              "composition"
+            ]
           }
         }
       }
@@ -571,6 +787,7 @@
     },
     "supplementalFinding": {
       "type": "object",
+      "description": "Supplemental debt is descriptor-derived; producer-binding debt remains open until a typed producer, artifact, bridge, and semantic closure exist.",
       "additionalProperties": false,
       "required": [
         "finding_id",
@@ -592,7 +809,8 @@
             "baseline_lint_debt",
             "baseline_test_debt",
             "dependency_declaration",
-            "fixture_contract_drift"
+            "fixture_contract_drift",
+            "producer_binding_debt"
           ]
         },
         "disposition": {
@@ -622,10 +840,59 @@
           "type": "string",
           "pattern": "^[a-f0-9]{9,40}$"
         },
+        "capability_states": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "contract_only",
+              "producer_missing",
+              "artifact_missing",
+              "bridge_missing",
+              "consumer_missing",
+              "verification_missing",
+              "implemented_but_not_orchestrated",
+              "surface_missing",
+              "surface_out_of_scope",
+              "semantic_test_missing"
+            ]
+          }
+        },
+        "closure_signal": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "finding_kind": { "const": "producer_binding_debt" }
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["capability_states", "closure_signal"],
+            "properties": {
+              "disposition": { "const": "rebind_pending" },
+              "status": { "const": "open_debt" }
+            },
+            "not": { "required": ["repair_commit"] }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] }
+              ]
+            }
+          }
+        }
+      ]
     },
     "seededNegative": {
       "type": "object",

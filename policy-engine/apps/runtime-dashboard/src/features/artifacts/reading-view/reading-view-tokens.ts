@@ -1,4 +1,4 @@
-import type { GlyphIntent, GlyphStrokeStyle } from "@/shared/brand/Glyph";
+import type { GlyphStrokeStyle } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { AuthoredTextAuthor } from "@/shared/ui/authored-text";
 
@@ -31,7 +31,7 @@ export type ReadingViewDefinition = {
 export type ReadingViewParagraph = {
   id: string;
   content: string;
-  author: AuthoredTextAuthor;
+  author: AuthoredTextAuthor | null;
   authorAgentVersion?: string;
   sourceRef?: string;
   timestamp?: string;
@@ -43,7 +43,6 @@ export type ReadingViewProvenanceItem = {
   id: string;
   glyph: GlyphName;
   label: string;
-  intent?: GlyphIntent;
   strokeStyle?: GlyphStrokeStyle;
   detail?: string;
 };

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { ToggleButton } from "./ToggleButton";
+import { ToggleButton } from "@polisyos/atlas-ui";
 
 describe("ToggleButton accessibility", () => {
   it("has no detectable accessibility violations", async () => {

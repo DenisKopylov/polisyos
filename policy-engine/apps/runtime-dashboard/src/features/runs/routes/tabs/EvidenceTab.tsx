@@ -18,7 +18,7 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
-import { Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 function EvidenceTabContent({ runId }: { runId: string }) {
   const { t, label } = useI18n();

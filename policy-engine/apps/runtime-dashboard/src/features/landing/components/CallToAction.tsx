@@ -1,4 +1,4 @@
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 export function CallToAction() {

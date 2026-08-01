@@ -12,6 +12,7 @@ import { TelemetryProvider } from "../../app/providers/TelemetryProvider";
 import { CounterfactualProvider } from "../../app/providers/CounterfactualProvider";
 import { TemporalCursorProvider } from "../../app/providers/TemporalCursorProvider";
 import { TrustViewProvider } from "../../app/providers/TrustViewProvider";
+import { QuantityRuntimeProvider } from "../../app/providers/QuantityRuntimeProvider";
 import { DensityProvider } from "../../app/providers/DensityProvider";
 import { ThemeProvider } from "../../app/providers/ThemeProvider";
 import { usePreferencesStore } from "../../app/state/usePreferencesStore";
@@ -28,8 +29,10 @@ import {
   AuthorshipProvider,
   type AuthorshipHighlightMode,
 } from "@/shared/ui/authored-text";
+import { useMaybeTrustView } from "@/shared/ui/trust-view";
 
 function PersistentAuthorshipProvider({ children }: PropsWithChildren) {
+  const trustView = useMaybeTrustView();
   const highlightMode = usePreferencesStore(
     (state) => state.authorshipHighlightMode,
   );
@@ -45,6 +48,7 @@ function PersistentAuthorshipProvider({ children }: PropsWithChildren) {
           setHighlightMode(nextMode);
         });
       }}
+      trustDisplayMode={trustView?.mode}
     >
       {children}
     </AuthorshipProvider>
@@ -62,30 +66,32 @@ export function AppProviders({ children }: PropsWithChildren) {
                 <TemporalCursorProvider>
                   <CounterfactualProvider>
                     <TrustViewProvider>
-                      <ToastProvider>
-                        <AlertDialogProvider>
-                          <AuthSessionProvider>
-                            <AuthzProvider>
-                              <NetworkStatusProvider>
-                                <OfflineQueueProvider>
-                                  <FeatureFlagProvider>
-                                    <InterfaceModeProvider>
-                                      <DensityProvider>
-                                        <ThemeProvider>
-                                          <PersistentAuthorshipProvider>
-                                            {children}
-                                            <ContrastEnforcer />
-                                          </PersistentAuthorshipProvider>
-                                        </ThemeProvider>
-                                      </DensityProvider>
-                                    </InterfaceModeProvider>
-                                  </FeatureFlagProvider>
-                                </OfflineQueueProvider>
-                              </NetworkStatusProvider>
-                            </AuthzProvider>
-                          </AuthSessionProvider>
-                        </AlertDialogProvider>
-                      </ToastProvider>
+                      <QuantityRuntimeProvider>
+                        <ToastProvider>
+                          <AlertDialogProvider>
+                            <AuthSessionProvider>
+                              <AuthzProvider>
+                                <NetworkStatusProvider>
+                                  <OfflineQueueProvider>
+                                    <FeatureFlagProvider>
+                                      <InterfaceModeProvider>
+                                        <DensityProvider>
+                                          <ThemeProvider>
+                                            <PersistentAuthorshipProvider>
+                                              {children}
+                                              <ContrastEnforcer />
+                                            </PersistentAuthorshipProvider>
+                                          </ThemeProvider>
+                                        </DensityProvider>
+                                      </InterfaceModeProvider>
+                                    </FeatureFlagProvider>
+                                  </OfflineQueueProvider>
+                                </NetworkStatusProvider>
+                              </AuthzProvider>
+                            </AuthSessionProvider>
+                          </AlertDialogProvider>
+                        </ToastProvider>
+                      </QuantityRuntimeProvider>
                     </TrustViewProvider>
                   </CounterfactualProvider>
                 </TemporalCursorProvider>

@@ -120,7 +120,6 @@ describe("simulation domain", () => {
         label: "GDP Change",
         pAdj: 0.01,
         pValue: 0.01,
-        severity: "high",
         significant: true,
         testLabel: "Paired t-test",
         unit: "%",
@@ -133,7 +132,6 @@ describe("simulation domain", () => {
         formatted: "-3.00",
         key: "inflation_change",
         label: "Inflation Change",
-        severity: "low",
         unit: "%",
         value: -3,
       },
@@ -308,13 +306,28 @@ describe("simulation domain", () => {
           formatted: "+2.50",
           key: "custom_delta",
           label: "Custom Delta",
-          severity: "high",
           value: 2.5,
         }),
       ],
       notes: ["No time series arrays were detected."],
       sourceKind: "scientist.simulation_results",
     });
+  });
+
+  it("threshold perturbations cannot add authority clothing", () => {
+    const belowThreshold = normalizeSimulationPayload("foundry.metrics", {
+      values: { anchor: 100, observed: 32 },
+    });
+    const aboveThreshold = normalizeSimulationPayload("foundry.metrics", {
+      values: { anchor: 100, observed: 67 },
+    });
+
+    for (const model of [belowThreshold, aboveThreshold]) {
+      expect(model?.metrics).toHaveLength(2);
+      expect(
+        model?.metrics.every((metric) => !("severity" in metric)),
+      ).toBe(true);
+    }
   });
 
   it("adds empty-state notes for ref-only simulation artifacts", () => {

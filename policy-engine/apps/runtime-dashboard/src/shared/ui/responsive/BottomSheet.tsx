@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  interactionControl,
+  type InteractionControl,
+} from "@/shared/lib/domain/nonAuthorityNumeric";
 import { cn } from "@/shared/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -15,6 +19,8 @@ type BottomSheetProps = {
   snapPoints?: number[];
   className?: string;
 };
+
+const PRIMARY_TOUCH_INDEX: InteractionControl = interactionControl(0);
 
 // ---------------------------------------------------------------------------
 // Component
@@ -35,13 +41,14 @@ export function BottomSheet({
   const currentSnapHeight = snapPoints[snapIndex] ?? 0.4;
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    dragStartY.current = e.touches[0].clientY;
+    dragStartY.current = e.touches[PRIMARY_TOUCH_INDEX].clientY;
   }, []);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       if (dragStartY.current == null) return;
-      const deltaY = e.changedTouches[0].clientY - dragStartY.current;
+      const deltaY =
+        e.changedTouches[PRIMARY_TOUCH_INDEX].clientY - dragStartY.current;
       dragStartY.current = null;
 
       if (deltaY > 80) {

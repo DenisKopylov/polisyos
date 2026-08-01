@@ -5,8 +5,7 @@ import {
   type OperatorDiagnosticView,
 } from "@/shared/ui/OperatorDiagnosticPanel";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge } from "@/shared/ui";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, type BadgeTone } from "@polisyos/atlas-ui";
 
 type ControlFailureEnvelope = components["schemas"]["ControlFailureEnvelope"];
 type ControlJobResponse = components["schemas"]["ControlJobResponse"];
@@ -227,7 +226,7 @@ function evidencePathFromJob(
   );
 }
 
-function qualityBadgeKind(status: string | null | undefined): BadgeKind {
+function qualityBadgeKind(status: string | null | undefined): BadgeTone {
   if (status === "fail") {
     return "fail";
   }
@@ -240,7 +239,7 @@ function qualityBadgeKind(status: string | null | undefined): BadgeKind {
   return "neutral";
 }
 
-function approvalBadgeKind(readiness: ApprovalReadiness): BadgeKind {
+function approvalBadgeKind(readiness: ApprovalReadiness): BadgeTone {
   if (readiness.eligible === true || readiness.state === "approval_ready") {
     return "ok";
   }
@@ -253,7 +252,7 @@ function approvalBadgeKind(readiness: ApprovalReadiness): BadgeKind {
   return "neutral";
 }
 
-function gateBadgeKind(status: string | null | undefined): BadgeKind {
+function gateBadgeKind(status: string | null | undefined): BadgeTone {
   if (status === "fail") {
     return "fail";
   }
@@ -265,31 +264,12 @@ function gateBadgeKind(status: string | null | undefined): BadgeKind {
 
 function performanceIssueBadgeKind(
   status: string | null | undefined,
-): BadgeKind {
+): BadgeTone {
   if (status === "fail" || status === "failed") {
     return "fail";
   }
   if (status === "over_budget" || status === "warn" || status === "warning") {
     return "warn";
-  }
-  return "neutral";
-}
-
-function calibrationBadgeKind(
-  status: string | null | undefined,
-  signalCodes: string[],
-): BadgeKind {
-  if (
-    status === "fail" ||
-    signalCodes.some((code) => code.includes("_fail_"))
-  ) {
-    return "fail";
-  }
-  if (status === "warn" || signalCodes.length > 0) {
-    return "warn";
-  }
-  if (status === "pass") {
-    return "ok";
   }
   return "neutral";
 }
@@ -319,7 +299,7 @@ function shouldRenderQuality(job: ControlJobResponse | null | undefined) {
   return Boolean(
     job?.quality_status &&
     job.quality_status !== "pass" &&
-    (job.state === "completed" || job.execution_status === "completed"),
+    job.state === "completed",
   );
 }
 
@@ -584,12 +564,7 @@ function approvalReadinessFromJob(
       evidenceRefs?.evidence_bundle,
       evidenceRefs?.quality_evidence_bundle,
     ),
-    executionStatus:
-      stringFromUnknown(eligibility?.execution_status) ??
-      stringFromUnknown(scorecardRecord.execution_status) ??
-      job?.execution_status ??
-      job?.state ??
-      null,
+    executionStatus: job?.state ?? null,
     humanReviewCalibration: humanReviewCalibrationFromScorecard(
       scorecardRecord,
       evidenceRefs,
@@ -624,11 +599,7 @@ function approvalReadinessFromJob(
       null,
     reasons: [...new Set(reasons)],
     requiresOverride: booleanFromUnknown(eligibility?.requires_override),
-    runtimeState:
-      stringFromUnknown(jobRecord?.runtime_state) ??
-      job?.execution_status ??
-      job?.state ??
-      null,
+    runtimeState: job?.state ?? null,
     scorecardRef: firstSanitizedRef(
       jobRecord?.authoritative_scorecard_ref,
       job?.quality_scorecard_ref,
@@ -657,8 +628,7 @@ function shouldRenderApproval(
   readiness: ApprovalReadiness | null,
 ) {
   return Boolean(
-    readiness &&
-    (job?.state === "completed" || job?.execution_status === "completed"),
+    readiness && job?.state === "completed",
   );
 }
 
@@ -760,9 +730,7 @@ function shouldRenderScientistProgress(
 ) {
   return Boolean(
     progress &&
-    (job?.state === "pending" ||
-      job?.state === "running" ||
-      job?.execution_status === "running"),
+    (job?.state === "pending" || job?.state === "running"),
   );
 }
 
@@ -803,12 +771,7 @@ function ControlApprovalPanel({
           <Badge kind="warn">{t("controlJob.overrideRequired")}</Badge>
         ) : null}
         {calibration ? (
-          <Badge
-            kind={calibrationBadgeKind(
-              calibration.status,
-              calibration.signalCodes,
-            )}
-          >
+          <Badge kind="neutral">
             {t("controlJob.humanReviewBadge", {
               status: calibration.status ?? "unknown",
             })}
@@ -1133,7 +1096,7 @@ function ControlQualityPanel({ job }: { job: ControlJobResponse }) {
         </Badge>
         <Badge kind="neutral">
           {t("controlJob.executionBadge", {
-            status: job.execution_status ?? job.state,
+            status: job.state,
           })}
         </Badge>
       </div>

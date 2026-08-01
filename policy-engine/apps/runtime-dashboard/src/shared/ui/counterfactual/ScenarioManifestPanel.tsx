@@ -1,17 +1,29 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, Clock3, GitBranch, UserRound } from "lucide-react";
 
-import type { ScenarioListPayload } from "@/api/validators";
+import type { ScenarioManifest } from "@polisyos/runtime-api-client";
+
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
 import { AssumptionPill } from "./AssumptionPill";
 import { CounterfactualBadge } from "./CounterfactualBadge";
 
-type ScenarioManifest = NonNullable<ScenarioListPayload["scenarios"]>[number];
+type ScenarioManifestPresentation = Pick<
+  ScenarioManifest,
+  | "assumptions"
+  | "author"
+  | "baseline_run_id"
+  | "computed_at"
+  | "known_limitations"
+  | "model_family"
+  | "policy_question"
+  | "stale_reasons"
+  | "status"
+>;
 
 type ScenarioManifestPanelProps = {
-  scenario: ScenarioManifest;
+  scenario: ScenarioManifestPresentation;
   className?: string;
 };
 
@@ -54,10 +66,7 @@ export function ScenarioManifestPanel({
         <InfoItem
           icon={<Clock3 className="size-3.5" aria-hidden="true" />}
           label={t("shared.ui.counterfactual.computedAt")}
-          value={formatInstant(
-            scenario.computed_at,
-            t("shared.ui.counterfactual.latest"),
-          )}
+          value={formatInstant(scenario.computed_at, t("common.unknown"))}
         />
       </dl>
 
@@ -110,12 +119,12 @@ function InfoItem({
   value: string;
 }) {
   return (
-    <div className="bg-muted/20 flex items-center gap-2 rounded-md p-2">
-      {icon}
-      <div>
-        <dt className="text-muted">{label}</dt>
-        <dd className="font-medium">{value}</dd>
-      </div>
+    <div className="bg-muted/20 rounded-md p-2">
+      <dt className="text-muted flex items-center gap-2">
+        {icon}
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-medium">{value}</dd>
     </div>
   );
 }
@@ -124,8 +133,12 @@ function formatInstant(value: string | null | undefined, fallback: string) {
   if (!value) {
     return fallback;
   }
+  const instant = new Date(value);
+  if (Number.isNaN(instant.getTime())) {
+    return fallback;
+  }
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(value));
+  }).format(instant);
 }

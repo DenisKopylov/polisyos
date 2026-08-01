@@ -1,8 +1,11 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
-import type { ChatMessage as ChatMessageType } from "../state/useChatStore";
+import {
+  hasProducerFinishedAt,
+  type ChatMessage as ChatMessageType,
+} from "../state/useChatStore";
 import { ChatStreamIndicator } from "./ChatStreamIndicator";
 import { ClerkStructuredResponse } from "./ClerkStructuredResponse";
 import { ClerkProgressiveStream } from "./ClerkProgressiveStream";
@@ -15,26 +18,6 @@ type ChatMessageProps = {
   isStreaming: boolean;
   onSuggestionSelect?: (question: string) => void;
 };
-
-const STATUS_LABEL_MAP: Record<string, string> = {
-  running: "clerk.statusPlanning",
-  planning: "clerk.statusPlanning",
-  collecting: "clerk.statusCollecting",
-  simulating: "clerk.statusSimulating",
-  governance: "clerk.statusGovernance",
-  completed: "clerk.statusComplete",
-  failed: "clerk.statusFailed",
-};
-
-function RunStatusBadge({ status }: { status: string }) {
-  const kind =
-    status === "completed"
-      ? "ok"
-      : status === "failed" || status === "rejected"
-        ? "fail"
-        : "info";
-  return <Badge kind={kind}>{status}</Badge>;
-}
 
 export function ChatMessage({
   message,
@@ -68,15 +51,7 @@ export function ChatMessage({
         ) : (
           <div className="flex flex-col gap-3">
             {message.runStatus && (
-              <div className="flex items-center gap-3">
-                <RunStatusBadge status={message.runStatus} />
-                <span className="text-sm text-[var(--slate)]">
-                  {t(
-                    STATUS_LABEL_MAP[message.runStatus] ??
-                      "clerk.statusPlanning",
-                  )}
-                </span>
-              </div>
+              <Badge kind="neutral">{message.runStatus}</Badge>
             )}
 
             {/* Progressive streaming with typewriter effect */}
@@ -142,9 +117,7 @@ export function ChatMessage({
               )}
 
             {/* View full analysis link */}
-            {message.runId &&
-              (message.runStatus === "completed" ||
-                message.runStatus === "failed") && (
+            {message.runId && hasProducerFinishedAt(message.runFinishedAt) && (
                 <div className="pt-1">
                   <Button
                     size="sm"

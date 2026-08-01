@@ -6,18 +6,23 @@ import {
   useMemo,
   useState,
 } from "react";
+import { themeModeDescriptors } from "@polisyos/atlas-ui";
 
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 
-export const SUPPORTED_THEMES = ["light", "dark", "system"] as const;
+export const SUPPORTED_THEMES = [
+  themeModeDescriptors.light.attribute,
+  themeModeDescriptors.dark.attribute,
+  themeModeDescriptors.system.attribute,
+] as const;
 
 export type ThemePreference = (typeof SUPPORTED_THEMES)[number];
 export type ResolvedTheme = Exclude<ThemePreference, "system">;
 
 export const THEME_STORAGE_KEY = "polisyos.runtime.theme";
 const THEME_COLOR_BY_RESOLVED_THEME: Record<ResolvedTheme, string> = {
-  dark: "#120f0e",
-  light: "#fbf8f2",
+  dark: themeModeDescriptors.dark.metaThemeColor,
+  light: themeModeDescriptors.light.metaThemeColor,
 };
 
 type ThemeContextValue = {
@@ -33,7 +38,11 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 function isThemePreference(
   value: string | null | undefined,
 ): value is ThemePreference {
-  return value === "light" || value === "dark" || value === "system";
+  return (
+    value !== null &&
+    value !== undefined &&
+    (SUPPORTED_THEMES as readonly string[]).includes(value)
+  );
 }
 
 export function readStoredThemePreference(): ThemePreference | null {
@@ -56,7 +65,7 @@ function resolveSystemTheme(): ResolvedTheme {
   if (typeof window === "undefined") {
     return "light";
   }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
+  return window.matchMedia(themeModeDescriptors.system.mediaQuery).matches
     ? "dark"
     : "light";
 }
@@ -69,12 +78,15 @@ function updateDocumentTheme(
   preference: ThemePreference,
   resolved: ResolvedTheme,
 ) {
-  document.documentElement.dataset.theme = resolved;
-  document.documentElement.dataset.themePreference = preference;
+  document.documentElement.dataset.theme =
+    themeModeDescriptors[resolved].attribute;
+  document.documentElement.dataset.themePreference =
+    themeModeDescriptors[preference].attribute;
   if (preference === "system") {
     document.documentElement.style.removeProperty("color-scheme");
   } else {
-    document.documentElement.style.colorScheme = resolved;
+    document.documentElement.style.colorScheme =
+      themeModeDescriptors[resolved].colorScheme;
   }
   let themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (!themeColorMeta) {
@@ -104,7 +116,9 @@ export function ThemeProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia(
+      themeModeDescriptors.system.mediaQuery,
+    );
     const applyTheme = (preference: ThemePreference) => {
       const nextResolved = resolveTheme(preference);
       setResolvedTheme(nextResolved);

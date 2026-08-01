@@ -26,7 +26,6 @@ export type {
   StructuredResponseData,
   KeyFactor,
   SourceCitation,
-  ConfidenceLevel,
   ConversationSession,
 } from "./state/useChatStore";
 

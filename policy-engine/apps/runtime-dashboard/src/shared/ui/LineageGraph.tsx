@@ -33,24 +33,6 @@ const CARD_HEIGHT = 66;
 const PADDING_X = 32;
 const PADDING_Y = 24;
 
-function statusColor(status: string): string {
-  const normalized = status.toLowerCase();
-  if (normalized === "ok") {
-    return chartTheme.success;
-  }
-  if (
-    normalized === "missing" ||
-    normalized === "error" ||
-    normalized === "fail"
-  ) {
-    return chartTheme.alert;
-  }
-  if (normalized === "partial") {
-    return chartTheme.warning;
-  }
-  return chartTheme.neutral;
-}
-
 export default function LineageGraph({
   nodes,
   edges,
@@ -169,7 +151,7 @@ export default function LineageGraph({
                 <span
                   className="rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase"
                   style={{
-                    color: statusColor(node.status),
+                    color: chartTheme.neutral,
                     backgroundColor: "rgba(255,255,255,0.78)",
                   }}
                 >

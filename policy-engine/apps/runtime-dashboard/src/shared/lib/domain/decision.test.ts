@@ -1,6 +1,104 @@
-import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
+import {
+  metricIdentifiability,
+  parseDecisionCardPayload,
+} from "@/shared/lib/domain/decision";
 
 describe("decision domain", () => {
+  it("preserves opaque owner verdict labels without guessing a decision grade", () => {
+    const novel = parseDecisionCardPayload({
+      confidence: "medium",
+      issues: {},
+      key_metrics: [],
+      policy_summary: "Opaque owner verdict",
+      verdict: "future-owner-grade",
+    });
+    const familiarSpelling = parseDecisionCardPayload({
+      confidence: "medium",
+      issues: {},
+      key_metrics: [],
+      policy_summary: "Familiar spelling is still owner data",
+      verdict: "approved",
+    });
+
+    expect(novel?.verdict).toBe("future-owner-grade");
+    expect(familiarSpelling?.verdict).toBe("approved");
+  });
+
+  it("preserves owner issue labels opaquely without inferring severity authority", () => {
+    const parsed = parseDecisionCardPayload({
+      feedback: {
+        issues: [
+          {
+            message: "Owner-authored issue detail",
+            pass_id: "future-owner-pass",
+            severity: "novel-owner-severity",
+          },
+          {
+            pass_id: "familiar-spelling",
+            severity: "blocker",
+          },
+        ],
+        verdict: "review",
+      },
+      simulation_results: {},
+    });
+
+    expect(parsed?.diagnosticsBadges).toEqual([
+      {
+        label: "future-owner-pass: Owner-authored issue detail",
+        ownerKind: "novel-owner-severity",
+      },
+      { label: "familiar-spelling", ownerKind: "blocker" },
+    ]);
+    expect(parsed?.issues).toEqual({
+      blockedPasses: [],
+      blockerCount: null,
+      infoCount: null,
+      warningCount: null,
+    });
+    expect(parsed?.confidence).toBeNull();
+    expect(parsed?.verdict).toBe("review");
+  });
+
+  it("preserves every generated identifiability member and rejects extensions as unknown", () => {
+    const generatedMembers = [
+      "assumed",
+      "estimated",
+      "identified",
+      "unknown",
+    ] as const;
+
+    for (const identifiability of generatedMembers) {
+      const parsed = parseDecisionCardPayload({
+        feedback: { issues: [], verdict: "review" },
+        metric_significance: {
+          score: { effect_size: { identifiability, point: 0.5 } },
+        },
+        simulation_results: { score: 0.5 },
+      });
+
+      expect(parsed?.keyMetrics[0]?.identifiability).toBe(identifiability);
+    }
+
+    const extension = parseDecisionCardPayload({
+      feedback: { issues: [], verdict: "review" },
+      metric_significance: {
+        score: {
+          effect_size: {
+            identifiability: "novel_owner_extension",
+            point: 0.5,
+          },
+        },
+      },
+      simulation_results: { score: 0.5 },
+    });
+
+    expect(extension?.keyMetrics[0]).not.toHaveProperty("identifiability");
+    expect(metricIdentifiability(extension?.keyMetrics[0] ?? {})).toBe(
+      "unknown",
+    );
+  });
+
   it("parses decision-card payloads with explicit badges and distributional tuples", () => {
     const parsed = parseDecisionCardPayload({
       confidence: "medium",
@@ -69,13 +167,13 @@ describe("decision domain", () => {
     });
 
     expect(parsed).toEqual({
-      confidence: "MEDIUM",
+      confidence: "medium",
       diagnosticsBadges: [
-        { kind: "ok", label: "transport:direct" },
-        { kind: "unknown", label: "custom:unknown" },
-        { kind: "warn", label: "warn" },
-        { kind: "fail", label: "fail" },
-        { kind: "unknown", label: "unknown" },
+        { label: "transport:direct", ownerKind: "ok" },
+        { label: "custom:unknown", ownerKind: "??" },
+        { label: "warn", ownerKind: "warn" },
+        { label: "fail", ownerKind: "fail" },
+        { label: "unknown", ownerKind: "unknown" },
       ],
       distributional: {
         breakdowns: [
@@ -133,11 +231,11 @@ describe("decision domain", () => {
       runId: "run-card",
       sourceKind: "decision_card",
       totalDurationMs: 1200,
-      verdict: "APPROVE",
+      verdict: "approved",
     });
   });
 
-  it("parses decision-packet payloads with governance-derived summaries", () => {
+  it("preserves opaque packet diagnostics without deriving confidence or severity", () => {
     const parsed = parseDecisionCardPayload({
       diagnostics_summary: {
         human_review_needed: true,
@@ -203,6 +301,11 @@ describe("decision domain", () => {
       metric_significance: {
         gdp_change: {
           alpha: 0.05,
+          effect_size: {
+            identifiability: "assumed",
+            method: "bayesian",
+            point: 0.12,
+          },
           p_adj: 0.01,
           p_value: 0.01,
           significant: true,
@@ -249,13 +352,16 @@ describe("decision domain", () => {
     });
 
     expect(parsed).toEqual({
-      confidence: "LOW",
+      confidence: null,
       diagnosticsBadges: [
-        { kind: "fail", label: "transport:non_transportable" },
-        { kind: "warn", label: "legal:not_run" },
-        { kind: "fail", label: "replay:incomplete" },
-        { kind: "warn", label: "human-review:required" },
-        { kind: "warn", label: "uncertainty:not_available" },
+        { label: "transport:non_transportable", ownerKind: null },
+        { label: "legal:not_run", ownerKind: null },
+        { label: "replay:incomplete", ownerKind: null },
+        { label: "human-review:required", ownerKind: null },
+        { label: "uncertainty:not_available", ownerKind: null },
+        { label: "transport", ownerKind: "blocker" },
+        { label: "Owner issue 2", ownerKind: "warning" },
+        { label: "Owner issue 3", ownerKind: "info" },
       ],
       distributional: {
         breakdowns: [
@@ -291,10 +397,10 @@ describe("decision domain", () => {
       generatedAt: "2026-03-09T11:00:00Z",
       interventionCount: 2,
       issues: {
-        blockedPasses: ["transport"],
-        blockerCount: 1,
-        infoCount: 1,
-        warningCount: 1,
+        blockedPasses: [],
+        blockerCount: null,
+        infoCount: null,
+        warningCount: null,
       },
       keyMetrics: [
         {
@@ -302,12 +408,15 @@ describe("decision domain", () => {
           ciLower: 0.1,
           ciUpper: 0.14,
           alpha: 0.05,
+          effectSize: 0.12,
           formatted: "+12.00",
+          identifiability: "assumed",
           name: "GDP Change",
           pAdj: 0.01,
           pValue: 0.01,
           significant: true,
           testLabel: "DeLong AUC",
+          uncertaintyMethod: "bayesian",
           unit: "%",
           value: 12,
         },
@@ -362,11 +471,11 @@ describe("decision domain", () => {
       runId: "run-packet",
       sourceKind: "decision_packet",
       totalDurationMs: 4567,
-      verdict: "REJECT",
+      verdict: "fail",
     });
   });
 
-  it("falls back to inferred confidence, metrics, and policy summaries", () => {
+  it("keeps absent confidence unknown while deriving non-authority display fields", () => {
     const parsed = parseDecisionCardPayload({
       feedback: {
         issues: [{ severity: "warning" }],
@@ -381,7 +490,7 @@ describe("decision domain", () => {
     });
 
     expect(parsed).toMatchObject({
-      confidence: "MEDIUM",
+      confidence: null,
       keyMetrics: [
         {
           formatted: "+1.25",
@@ -390,7 +499,7 @@ describe("decision domain", () => {
         },
       ],
       policySummary: "Policy data attached",
-      verdict: "APPROVE",
+      verdict: "pass",
     });
     expect(parseDecisionCardPayload({ run_id: "no-shape" })).toBeNull();
     expect(parseDecisionCardPayload(null)).toBeNull();

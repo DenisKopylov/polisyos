@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { MotionConfig } from "motion/react";
+import { motionModeDescriptors } from "@polisyos/atlas-ui";
 
 import { trackReducedMotionActive } from "@/shared/telemetry/extendedEvents";
 
@@ -41,7 +42,7 @@ function readReducedMotionState() {
   }
 
   const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
+    motionModeDescriptors.reduced.mediaQuery,
   ).matches;
 
   return {
@@ -62,7 +63,9 @@ export function ReducedMotionProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mediaQuery = window.matchMedia(
+      motionModeDescriptors.reduced.mediaQuery,
+    );
     const sync = () => setState(readReducedMotionState());
 
     sync();

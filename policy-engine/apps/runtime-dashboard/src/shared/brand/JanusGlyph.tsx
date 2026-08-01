@@ -4,24 +4,15 @@ import { cn } from "@/shared/lib/utils";
 
 export type JanusGlyphSize = 16 | 24 | 32;
 export type JanusGlyphVariant = "mark" | "line" | "serif-punctuation";
-export type JanusGlyphIntent = "default" | "verified" | "blocked" | "pending";
 
 type JanusGlyphProps = {
   size?: JanusGlyphSize;
   variant?: JanusGlyphVariant;
-  intent?: JanusGlyphIntent;
   inverted?: boolean;
   title?: string;
   decorative?: boolean;
   className?: string;
 } & Omit<HTMLAttributes<SVGSVGElement>, "children">;
-
-const INTENT_COLOR: Record<JanusGlyphIntent, string> = {
-  default: "currentColor",
-  verified: "var(--color-status-approved, var(--teal, #1C8B82))",
-  blocked: "var(--color-status-rejected, var(--ember, #B7412A))",
-  pending: "var(--color-status-pending, var(--gold, #B58B2B))",
-};
 
 function Mark({ inverted }: { inverted: boolean }) {
   const frame = inverted ? "#FBF8F2" : "#17191D";
@@ -91,7 +82,6 @@ function SerifPunctuation() {
 export function JanusGlyph({
   size = 24,
   variant = "mark",
-  intent = "default",
   inverted = false,
   title,
   decorative = false,
@@ -103,7 +93,7 @@ export function JanusGlyph({
     : { role: "img" as const, "aria-label": title ?? "PolicyOS Janus mark" };
 
   const style: CSSProperties = {
-    color: INTENT_COLOR[intent],
+    color: "currentColor",
     width: size,
     height: size,
   };
@@ -122,7 +112,6 @@ export function JanusGlyph({
       )}
       data-variant={variant}
       data-size={size}
-      data-intent={intent}
       data-inverted={inverted ? "true" : undefined}
       viewBox="0 0 32 32"
       fill="none"

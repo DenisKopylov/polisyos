@@ -56,7 +56,7 @@ export function ConfidenceGauge({
   label,
   size = 120,
   disputed = false,
-  identifiability = "identified",
+  identifiability = "unknown",
   className,
 }: ConfidenceGaugeProps) {
   const clamped = Math.max(0, Math.min(1, value));

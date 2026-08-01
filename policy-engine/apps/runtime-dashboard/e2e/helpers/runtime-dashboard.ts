@@ -18,6 +18,7 @@ const fixtureMetadataPath = path.resolve(
 
 const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
 const THEME_STORAGE_KEY = "polisyos.runtime.theme";
+const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
 const ROUTE_PATTERN = "**/api/v1/**";
 const DEFAULT_TIMEOUT = 30_000;
 
@@ -84,7 +85,7 @@ const SURFACE_TEST_IDS: Record<SurfaceReadyKey, string[]> = {
   dashboard: ["dashboard-page"],
   composer: ["composer-page"],
   "runs-list": ["runs-list-page"],
-  "run-compare": ["run-compare-page"],
+  "run-compare": ["policy-diff-view"],
   "run-report": ["run-report-page"],
   "run-overview": ["run-detail-page", "run-tab-overview"],
   "run-governance": ["run-detail-page", "run-tab-governance"],
@@ -200,13 +201,25 @@ export function readFixtureMetadata() {
 
 export async function installDashboardTestState(
   page: Page,
-  options?: { theme?: "dark" | "light" },
+  options?: {
+    interfaceMode?: "analyst" | "clerk";
+    theme?: "dark" | "light";
+  },
 ) {
   await page.addInitScript(
-    ({ liveStorageKey, testTheme, themeStorageKey }) => {
+    ({
+      interfaceModeStorageKey,
+      liveStorageKey,
+      testInterfaceMode,
+      testTheme,
+      themeStorageKey,
+    }) => {
       window.localStorage.setItem(liveStorageKey, "true");
       if (testTheme) {
         window.localStorage.setItem(themeStorageKey, testTheme);
+      }
+      if (testInterfaceMode) {
+        window.localStorage.setItem(interfaceModeStorageKey, testInterfaceMode);
       }
       (
         window as Window & {
@@ -215,7 +228,9 @@ export async function installDashboardTestState(
       ).__RUNTIME_DASHBOARD_TEST__ = true;
     },
     {
+      interfaceModeStorageKey: INTERFACE_MODE_STORAGE_KEY,
       liveStorageKey: LIVE_STORAGE_KEY,
+      testInterfaceMode: options?.interfaceMode ?? null,
       testTheme: options?.theme ?? null,
       themeStorageKey: THEME_STORAGE_KEY,
     },

@@ -3,11 +3,10 @@ import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
 import { getWorkspaceNavigationWithOptions } from "@/app/workspaces";
-import { getBlockedRunCount, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
-import { SegmentedControl } from "@/shared/ui";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 function ModeToggle() {
   const { t } = useI18n();
@@ -43,8 +42,6 @@ export default function Sidebar() {
   const { mode, isClerk } = useInterfaceMode();
   const atlasEnabled = flags.enableAtlasV2;
   const authz = useMaybeAuthz();
-  const runsQuery = useRunsSample();
-  const blockedCount = getBlockedRunCount(runsQuery.data?.runs ?? []);
   const navigation = getWorkspaceNavigationWithOptions(flags, {
     isAllowed: (workspace) =>
       authz ? authz.isWorkspaceAllowed(workspace.key) : true,
@@ -131,18 +128,7 @@ export default function Sidebar() {
       {!isClerk && (
         <div className="rail-card">
           <p className="eyebrow">{t("shell.watchStatusTitle")}</p>
-          <strong>
-            {blockedCount > 0
-              ? t("shell.watchStatusBlocked")
-              : t("shell.watchStatusStable")}
-          </strong>
-          <span>
-            {blockedCount > 0
-              ? t("shell.watchStatusBlockedDetail", {
-                  count: String(blockedCount),
-                })
-              : t("shell.watchStatusStableDetail")}
-          </span>
+          <strong>{t("common.unavailable")}</strong>
         </div>
       )}
     </aside>

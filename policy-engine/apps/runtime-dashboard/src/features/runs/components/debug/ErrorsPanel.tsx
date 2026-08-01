@@ -1,7 +1,8 @@
 import type { RunErrorsPayload } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate } from "@/shared/lib/utils";
-import { Badge, JsonPreview } from "@/shared/ui";
+import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
+import { Badge } from "@polisyos/atlas-ui";
 
 function sourceKind(source: string) {
   if (source === "workflow_report") {

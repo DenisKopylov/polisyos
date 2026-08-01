@@ -1,6 +1,6 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 import { GradedErrorBar } from "@/shared/charts";
 import { MethodologyBadge } from "@/shared/ui/compounds";
 
@@ -32,7 +32,10 @@ export function EdgeDetailPanel({
       label: t("causal.edgeStatus.boundsOnly"),
     },
   };
-  const status = statusConfig[edge.status] ?? statusConfig.identified;
+  const status = statusConfig[edge.status.label] ?? {
+    color: "var(--chart-neutral)",
+    label: edge.status.label,
+  };
 
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>

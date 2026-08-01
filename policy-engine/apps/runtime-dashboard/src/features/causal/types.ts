@@ -1,3 +1,8 @@
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
+
 // ---------------------------------------------------------------------------
 // Causal Graph domain types
 // ---------------------------------------------------------------------------
@@ -12,19 +17,23 @@ export type CausalNodeKind =
   | "instrument"
   | "selection"; // S-node for transportability
 
-/** Edge identification status. */
-export type EdgeIdentificationStatus =
-  | "identified"
-  | "unidentified"
-  | "bounds_only";
+/** Interaction-only rendering state for a candidate causal edge. */
+export type CausalDraftIdentificationDisplay = InteractionState;
 
-/** Pipeline stage status (for progress viz). */
-export type PipelineStageStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "skipped";
+export function createCausalDraftIdentificationDisplay(
+  label: string,
+): CausalDraftIdentificationDisplay {
+  return createInteractionState(label, "candidate_display");
+}
+
+/** Interaction-only progress state; it is never workflow authority. */
+export type CausalPipelineProgressState = InteractionState;
+
+export function createCausalPipelineProgressState(
+  label: string,
+): CausalPipelineProgressState {
+  return createInteractionState(label, "progress");
+}
 
 // ---------------------------------------------------------------------------
 // Graph elements
@@ -55,7 +64,7 @@ export type CausalEdgeData = {
   source: string;
   target: string;
   /** Identification status. */
-  status: EdgeIdentificationStatus;
+  status: CausalDraftIdentificationDisplay;
   /** Point estimate of causal effect. */
   estimate?: number;
   /** Confidence interval for the effect. */
@@ -139,7 +148,7 @@ export type CausalGraphState = {
 export type PipelineStage = {
   id: string;
   label: string;
-  status: PipelineStageStatus;
+  status: CausalPipelineProgressState;
   durationMs?: number;
   detail?: string;
   /** Dependent stage IDs. */

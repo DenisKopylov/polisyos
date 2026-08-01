@@ -1,0 +1,263 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Living light theme projection.",
+  "modeLight": {
+    "tokens": {
+      "--button-primary-end": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.10196078431372549, 0.4235294117647059, 0.4],
+          "hex": "#1a6c66"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#1a6c66"
+          }
+        }
+      },
+      "--button-primary-start": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.11372549019607843, 0.5529411764705883, 0.5176470588235295
+          ],
+          "hex": "#1d8d84"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#1d8d84"
+          }
+        }
+      },
+      "--button-primary-text": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1, 0.9764705882352941, 0.9450980392156862],
+          "hex": "#fff9f1"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#fff9f1"
+          }
+        }
+      },
+      "--canvas": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9372549019607843, 0.9137254901960784, 0.8627450980392157
+          ],
+          "hex": "#efe9dc"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#efe9dc"
+          }
+        }
+      },
+      "--ember": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5725490196078431, 0.2235294117647059, 0.11372549019607843
+          ],
+          "hex": "#92391d"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#92391d"
+          }
+        }
+      },
+      "--ember-vibrant": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.796078431372549, 0.35294117647058826, 0.1803921568627451
+          ],
+          "hex": "#cb5a2e"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#cb5a2e"
+          }
+        }
+      },
+      "--gold": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4235294117647059, 0.3176470588235294, 0.06666666666666667
+          ],
+          "hex": "#6c5111"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#6c5111"
+          }
+        }
+      },
+      "--gold-vibrant": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7098039215686275, 0.5450980392156862, 0.16862745098039217
+          ],
+          "hex": "#b58b2b"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#b58b2b"
+          }
+        }
+      },
+      "--graphite": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1568627450980392, 0.2, 0.23529411764705882],
+          "hex": "#28333c"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#28333c"
+          }
+        }
+      },
+      "--ink": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.09019607843137255, 0.09803921568627451, 0.11372549019607843
+          ],
+          "hex": "#17191d"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#17191d"
+          }
+        }
+      },
+      "--paper": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.984313725490196, 0.9725490196078431, 0.9490196078431372
+          ],
+          "hex": "#fbf8f2"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#fbf8f2"
+          }
+        }
+      },
+      "--sand": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9568627450980393, 0.9372549019607843, 0.9019607843137255
+          ],
+          "hex": "#f4efe6"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#f4efe6"
+          }
+        }
+      },
+      "--slate": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.25098039215686274, 0.3176470588235294, 0.37254901960784315
+          ],
+          "hex": "#40515f"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#40515f"
+          }
+        }
+      },
+      "--teal": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.06666666666666667, 0.3686274509803922, 0.3411764705882353
+          ],
+          "hex": "#115e57"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#115e57"
+          }
+        }
+      },
+      "--teal-vibrant": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.10980392156862745, 0.5450980392156862, 0.5098039215686274
+          ],
+          "hex": "#1c8b82"
+        },
+        "$extensions": {
+          "org.polisyos.atlas": {
+            "cssValue": "#1c8b82"
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "modeLight": {
+          "attribute": "light",
+          "colorScheme": "light",
+          "tokens": {
+            "--accent": "var(--teal)",
+            "--chart-alert": "var(--ember-vibrant)",
+            "--chart-axis": "rgba(64, 81, 95, 0.9)",
+            "--chart-grid": "rgba(23, 25, 29, 0.12)",
+            "--chart-neutral": "var(--slate)",
+            "--chart-primary": "var(--teal-vibrant)",
+            "--chart-secondary": "color-mix(in srgb, var(--teal) 58%, var(--graphite))",
+            "--chart-success": "color-mix(in srgb, var(--teal) 78%, white 22%)",
+            "--chart-tertiary": "color-mix(in srgb, var(--ink) 82%, var(--gold) 18%)",
+            "--chart-warning": "color-mix(in srgb, var(--gold) 80%, white 20%)",
+            "--danger": "var(--ember)",
+            "--ember-soft": "rgba(146, 57, 29, 0.12)",
+            "--focus-ring": "rgba(28, 139, 130, 0.9)",
+            "--gold-soft": "rgba(108, 81, 17, 0.16)",
+            "--line": "rgba(23, 25, 29, 0.12)",
+            "--muted": "var(--slate)",
+            "--panel": "rgba(255, 255, 255, 0.85)",
+            "--panel-strong": "rgba(255, 255, 255, 0.9)",
+            "--shadow-panel": "0 24px 70px rgba(24, 28, 31, 0.16)",
+            "--success": "var(--teal)",
+            "--surface": "rgba(255, 255, 255, 0.58)",
+            "--teal-soft": "rgba(17, 94, 87, 0.14)",
+            "--text": "var(--ink)",
+            "--warning": "var(--gold)"
+          }
+        }
+      }
+    }
+  }
+}

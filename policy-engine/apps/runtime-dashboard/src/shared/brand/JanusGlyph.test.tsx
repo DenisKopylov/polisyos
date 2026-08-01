@@ -30,4 +30,13 @@ describe("JanusGlyph", () => {
     render(<JanusGlyph inverted />);
     expect(screen.getByRole("img").getAttribute("data-inverted")).toBe("true");
   });
+
+  it("has no status intent or authority-colored palette", () => {
+    render(<JanusGlyph />);
+    const svg = screen.getByRole("img");
+    expect(svg).not.toHaveAttribute("data-intent");
+    expect(svg.getAttribute("style")).not.toMatch(
+      /status-(?:approved|rejected|pending)/u,
+    );
+  });
 });

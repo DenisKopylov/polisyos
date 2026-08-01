@@ -476,7 +476,7 @@ bounded agent.
 
 | Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (Phase A + DS19 + DS3 + DS20 + **DS4 all closed & merged**; the typed HTTP waist, the server authorization floor, and the rebound status grammar are live) | **DS5** (enforcement waist) is the sole unblocked Phase-B lane and starts with three ready inputs: DS20's 33-value server-projected permission vocabulary (audience mapping), DS4's **three typed waist debts with exact generated-client anchors and single swap modules** (see the debt table), and the Rev-3.4 §6.5 lint row (M31·M6·M29) + INT-R6 semantic-ID rule. **DS6** (evidence workflow) is also unblocked by DS4 and owns the two remaining DS4-handed evidence debts (i18n parity ×3, axe-`incomplete` contrast ×4). |
+| **Now** (Phase A + DS19 + DS3 + DS20 + **DS4 all closed & merged**; the typed HTTP waist, the server authorization floor, and the rebound status grammar are live) | **DS5** (enforcement waist) is the critical-path Phase-B lane and starts with three ready inputs: DS20's 33-value server-projected permission vocabulary (audience mapping), DS4's **three typed waist debts with exact generated-client anchors and single swap modules** (see the debt table), and the Rev-3.4 §6.5 lint row (M31·M6·M29) + INT-R6 semantic-ID rule. **DS6** (evidence workflow) is also unblocked by DS4 and owns the two remaining DS4-handed evidence debts (i18n parity ×3, axe-`incomplete` contrast ×4). |
 | **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
 | **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
 | **GY-N13b closed** | DS15 live loop (approve-acquisition → world-growth → re-entry), passports/quarantine; DS16 derived-data provenance (derivation certificates, basis chips). |
@@ -756,8 +756,9 @@ Loosening the ratified posture is out of scope for every slice.
   mutating operations) and it must not wait behind the status grammar. DS5
   consumes DS20's single permission vocabulary.)**
 - **Gate:** DS4 (**closed & merged 7f450eb7b**); DS20 vocabulary; DS1 reports
-  (cache policy). **All gates are now satisfied — DS5 is the sole unblocked
-  Phase-B lane.**
+  (cache policy). **All gates are satisfied — DS5 is the critical-path Phase-B
+  lane. DS6 is independently unblocked by DS4 and may run in parallel** (its
+  paths are the evidence harness and i18n; DS5 must not take DS6's work).
 - **Inherited entry contract from DS4 (registered 2026-08-01 — read this before
   scoping):** DS4 hands DS5 **three canonical-waist vocabularies the generated
   client does not project**, each already narrowed to exactly **one**
@@ -780,10 +781,35 @@ Loosening the ratified posture is out of scope for every slice.
   DS5 does not close or order them. DS5 also inherits the **architecture
   recurrence lints**: DS4 severed 36→0 in both engines, and the DS5 battery is
   what makes the class unrepeatable.
+- **Fence authorization (architect, 2026-08-01 — granted at the DS5-C00 stop
+  gate).** DS5's C00 correctly refused to widen its own fence and stopped: the
+  slice must regenerate the typed client, but the original writable list named
+  only `src/polisyos/runtime/http/**` and omitted both the generated snapshot in
+  between and the mirrored contract tests. That omission made a *governed
+  obligation* a fence violation —
+  `architecture/generated_artifacts.toml` declares
+  `schemas/runtime_api_v1.openapi.json` with
+  `source_of_truth = "src/polisyos/runtime/http/**"`, `commit_policy =
+  "committed"`, `stale_output_behavior = "fail"`, and a freshness rule requiring
+  regeneration whenever runtime routes or DTOs change; the client
+  (`packages/runtime-api-client/**`) in turn declares the snapshot as *its*
+  source of truth. Both ends of that chain were writable and the middle was not.
+  **Now admitted, narrowly:** (a) `policy-engine/schemas/runtime_api_v1.openapi.json`
+  **exclusively through the registered exporter** (`regenerate_commands` in
+  `generated_artifacts.toml`) — any hand-authored diff to any `schemas/**` path
+  is a STOP; (b) exactly five existing mirrored tests under
+  `policy-engine/tests/unit/runtime/http/` —
+  `test_authorization_audience_denials.py`,
+  `test_runtime_permission_vocabulary.py`, `test_governed_projection_api.py`,
+  `test_governed_projection_service.py`,
+  `test_runtime_api_contract_hardening.py` — edited only for the DS5 HTTP/schema
+  contract, in the same commits as their HTTP models and generated output. Any
+  sixth backend test path is a STOP. Verified disjoint from the concurrent GY
+  `runtime/quality` lane.
 - **Producer & bridge work (in-slice):** the **audience↔permission mapping**
   over DS20's server-projected vocabulary; the three waist unions above;
   weakest-boundary/status composition exposed in the schema where not yet
-  projected; client regeneration.
+  projected; client regeneration through the registered exporter.
 - **Deliverables:** the `[to build]` lints from laws 8/9/10/12 —
   unauthorized-status-enum lint, no-hand-written-authority-fetch lint (the 9
   known production calls in 5 files are its first targets, with typed exemptions

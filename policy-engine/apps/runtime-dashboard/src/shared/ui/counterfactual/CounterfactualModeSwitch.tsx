@@ -49,7 +49,7 @@ export function CounterfactualModeSwitch({
             "focus-visible:ring-ring min-h-7 rounded px-2.5 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
             activeMode === mode
               ? "bg-primary text-primary-foreground"
-              : "text-muted hover:bg-muted/30",
+              : "text-muted-foreground hover:bg-muted/30",
           )}
           onClick={() => handleChange(mode)}
         >

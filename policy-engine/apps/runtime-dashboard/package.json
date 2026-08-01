@@ -60,6 +60,7 @@
     "test:visual:quarantine": "PLAYWRIGHT_INCLUDE_QUARANTINE=1 playwright test --config=playwright.visual.config.ts --project=chromium --grep @quarantine",
     "playwright:install": "playwright install chromium",
     "lint": "mkdir -p ../../_cache/apps/runtime-dashboard/eslint && eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts playwright.visual.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --max-warnings=0",
+    "lint:enforcement": "cd ../.. && python3 architecture/atlas_surfaces/check_atlas_enforcement.py --check",
     "lint:fix": "mkdir -p ../../_cache/apps/runtime-dashboard/eslint && eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts playwright.visual.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

@@ -5,6 +5,7 @@ import path from "node:path";
 import process from "node:process";
 
 const dashboardRoot = path.resolve(process.cwd(), "apps/runtime-dashboard");
+const atlasUiRoot = path.resolve(process.cwd(), "packages/atlas-ui");
 const repoRoot = process.cwd();
 const require = createRequire(path.join(dashboardRoot, "package.json"));
 const ts = require("typescript");
@@ -20,7 +21,8 @@ function isGeneratedDefinitionSource(fileName) {
 function isDefinitionSource(fileName) {
   const relative = relativePath(fileName);
   return (
-    relative.startsWith("apps/runtime-dashboard/src/") &&
+    (relative.startsWith("apps/runtime-dashboard/src/") ||
+      relative.startsWith("packages/atlas-ui/src/")) &&
     !isGeneratedDefinitionSource(fileName) &&
     !/\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$/.test(
       relative,
@@ -775,14 +777,99 @@ function isClosedStringLiteralType(type) {
   );
 }
 
-function isGeneratedClosedInputType(checker, typeNode) {
-  const root = typeRootSymbol(checker, typeNode);
-  if (
-    !symbolDeclarationsResolveUnder(root, "packages/runtime-api-client/")
-  ) {
+function terminalTypeDeclarationPaths(checker, typeNode, seen = new Set()) {
+  const incomplete = () => ({ paths: new Set(), complete: false });
+  if (!typeNode) return incomplete();
+  if (ts.isParenthesizedTypeNode(typeNode)) {
+    return terminalTypeDeclarationPaths(checker, typeNode.type, seen);
+  }
+  if (ts.isIndexedAccessTypeNode(typeNode)) {
+    return terminalTypeDeclarationPaths(checker, typeNode.objectType, seen);
+  }
+  if (ts.isUnionTypeNode(typeNode) || ts.isIntersectionTypeNode(typeNode)) {
+    const paths = new Set();
+    let complete = typeNode.types.length > 0;
+    for (const member of typeNode.types) {
+      const branch = terminalTypeDeclarationPaths(
+        checker,
+        member,
+        new Set(seen),
+      );
+      complete = complete && branch.complete;
+      for (const memberPath of branch.paths) {
+        paths.add(memberPath);
+      }
+    }
+    return { paths, complete };
+  }
+  if (ts.isTypeReferenceNode(typeNode)) {
+    const symbol = symbolIdentity(checker, typeNode.typeName);
+    if (!symbol || seen.has(symbol)) return incomplete();
+    seen.add(symbol);
+    const aliasDeclarations = (symbol.declarations ?? []).filter(
+      (declaration) => ts.isTypeAliasDeclaration(declaration),
+    );
+    if (aliasDeclarations.length > 0) {
+      const paths = new Set();
+      let complete = true;
+      for (const declaration of aliasDeclarations) {
+        const branch = terminalTypeDeclarationPaths(
+          checker,
+          declaration.type,
+          new Set(seen),
+        );
+        complete = complete && branch.complete;
+        for (const nestedPath of branch.paths) {
+          paths.add(nestedPath);
+        }
+      }
+      return { paths, complete };
+    }
+    const declarations = symbol.declarations ?? [];
+    const paths = new Set(
+      declarations.map((declaration) => declarationPath(declaration)),
+    );
+    return {
+      paths: new Set([...paths].filter(Boolean)),
+      complete:
+        declarations.length > 0 &&
+        [...paths].every((declaration) => Boolean(declaration)),
+    };
+  }
+  if (ts.isTypeQueryNode(typeNode)) {
+    const symbol = symbolIdentity(checker, typeNode.exprName);
+    const declarations = symbol?.declarations ?? [];
+    const paths = new Set(
+      declarations.map((declaration) => declarationPath(declaration)),
+    );
+    return {
+      paths: new Set([...paths].filter(Boolean)),
+      complete:
+        declarations.length > 0 &&
+        [...paths].every((declaration) => Boolean(declaration)),
+    };
+  }
+  return incomplete();
+}
+
+function isGeneratedClosedInputType(checker, typeNode, governedPaths) {
+  if (!isClosedStringLiteralType(checker.getTypeFromTypeNode(typeNode))) {
     return false;
   }
-  return isClosedStringLiteralType(checker.getTypeFromTypeNode(typeNode));
+  if (governedPaths === undefined) {
+    return symbolDeclarationsResolveUnder(
+      typeRootSymbol(checker, typeNode),
+      "packages/runtime-api-client/",
+    );
+  }
+  const terminalProof = terminalTypeDeclarationPaths(checker, typeNode);
+  return (
+    terminalProof.complete &&
+    terminalProof.paths.size > 0 &&
+    [...terminalProof.paths].every((terminalPath) =>
+      governedPaths.has(terminalPath),
+    )
+  );
 }
 
 function isAtlasBadgeToneType(checker, typeNode) {
@@ -925,10 +1012,7 @@ function projectionControlsInExpression(node, dependenciesOf) {
     if (ts.isConditionalExpression(current)) {
       addDependencies(current.condition);
     }
-    if (
-      ts.isElementAccessExpression(current) &&
-      current.argumentExpression
-    ) {
+    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
       addDependencies(current.argumentExpression);
     }
     if (
@@ -1023,8 +1107,7 @@ function isAuthorizedBadgeToneProjection(checker, node, parameters) {
     isAtlasBadgeToneType(checker, node.type) &&
     parameters.every(
       (parameter) =>
-        parameter.type &&
-        isGeneratedClosedInputType(checker, parameter.type),
+        parameter.type && isGeneratedClosedInputType(checker, parameter.type),
     )
   );
 }
@@ -1089,7 +1172,8 @@ function typeCanCarryOpenLabel(type) {
     return true;
   }
   return Boolean(
-    type.isUnion?.() && type.types.some((member) => typeCanCarryOpenLabel(member)),
+    type.isUnion?.() &&
+    type.types.some((member) => typeCanCarryOpenLabel(member)),
   );
 }
 
@@ -1198,7 +1282,8 @@ function collectAuthoredProjectionRevivals(
         symbolDeclarationsResolveUnder(
           symbolIdentity(checker, current.name),
           "packages/runtime-api-client/",
-        ) && typeCanCarryOpenLabel(checker.getTypeAtLocation(current))
+        ) &&
+        typeCanCarryOpenLabel(checker.getTypeAtLocation(current))
       ) {
         return true;
       }
@@ -1209,7 +1294,7 @@ function collectAuthoredProjectionRevivals(
         expressionIsOwnerDerived(current.expression, seen) ||
         Boolean(
           current.argumentExpression &&
-            expressionIsOwnerDerived(current.argumentExpression, seen),
+          expressionIsOwnerDerived(current.argumentExpression, seen),
         )
       );
     }
@@ -1238,7 +1323,8 @@ function collectAuthoredProjectionRevivals(
       ts.isSpreadElement(current)
     ) {
       return Boolean(
-        current.expression && expressionIsOwnerDerived(current.expression, seen),
+        current.expression &&
+        expressionIsOwnerDerived(current.expression, seen),
       );
     }
     if (ts.isArrayLiteralExpression(current)) {
@@ -1295,9 +1381,7 @@ function collectAuthoredProjectionRevivals(
     if (!symbol) continue;
     const parameterSymbols = node.parameters.map((parameter) => {
       const names = bindingNames(parameter.name);
-      return names.length === 1
-        ? symbolIdentity(checker, names[0])
-        : undefined;
+      return names.length === 1 ? symbolIdentity(checker, names[0]) : undefined;
     });
     const returned = functionReturnExpressions(node).map((expression) =>
       unwrapExpression(expression),
@@ -1476,9 +1560,12 @@ function collectAuthoredProjectionRevivals(
             sourceFunctionSymbol(relation.sourceExpression),
         ) || objectSourceChanged;
     }
-    for (const relation of [...spreadSourceRelations, ...objectAliasRelations]) {
-      for (const [name, source] of
-        objectFunctionSources.get(relation.source) ?? []) {
+    for (const relation of [
+      ...spreadSourceRelations,
+      ...objectAliasRelations,
+    ]) {
+      for (const [name, source] of objectFunctionSources.get(relation.source) ??
+        []) {
         objectSourceChanged =
           setObjectFunctionSource(relation.target, name, source) ||
           objectSourceChanged;
@@ -1592,7 +1679,8 @@ function collectAuthoredProjectionRevivals(
     if (hasOwnerControlledProjection(current)) return true;
     if (ts.isCallExpression(current)) {
       const callee = sourceFunctionSymbol(current.expression);
-      let controls = projectedFunctions.get(callee) ?? transparentFunctions.get(callee);
+      let controls =
+        projectedFunctions.get(callee) ?? transparentFunctions.get(callee);
       if (
         !controls &&
         callee &&
@@ -1612,8 +1700,8 @@ function collectAuthoredProjectionRevivals(
         const argument = current.arguments[index];
         return Boolean(
           argument &&
-            (expressionIsOwnerDerived(argument) ||
-              expressionIsProjected(argument, seen)),
+          (expressionIsOwnerDerived(argument) ||
+            expressionIsProjected(argument, seen)),
         );
       });
     }
@@ -1633,7 +1721,7 @@ function collectAuthoredProjectionRevivals(
         (ts.isElementAccessExpression(current) &&
           Boolean(
             current.argumentExpression &&
-              expressionIsProjected(current.argumentExpression, seen),
+            expressionIsProjected(current.argumentExpression, seen),
           ))
       );
     }
@@ -1731,7 +1819,8 @@ function collectAuthoredProjectionRevivals(
     for (const node of variableNodes) {
       if (!node.initializer) continue;
       if (expressionIsProjected(node.initializer)) {
-        changed = addBindingSymbols(checker, node.name, projectedValues) || changed;
+        changed =
+          addBindingSymbols(checker, node.name, projectedValues) || changed;
       }
       const entries = projectedObjectEntries(node.initializer);
       for (const identifier of bindingNames(node.name)) {
@@ -1877,10 +1966,9 @@ function collectAuthoredProjectionRevivals(
         ts.isContinueStatement(current) ||
         ((ts.isPrefixUnaryExpression(current) ||
           ts.isPostfixUnaryExpression(current)) &&
-          [
-            ts.SyntaxKind.PlusPlusToken,
-            ts.SyntaxKind.MinusMinusToken,
-          ].includes(current.operator)) ||
+          [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(
+            current.operator,
+          )) ||
         (ts.isReturnStatement(current) &&
           current.expression &&
           (containsJsx(current.expression) ||
@@ -1911,7 +1999,7 @@ function collectAuthoredProjectionRevivals(
         controlledSubtreeHasLifecycleEffect(node.thenStatement) ||
         Boolean(
           node.elseStatement &&
-            controlledSubtreeHasLifecycleEffect(node.elseStatement),
+          controlledSubtreeHasLifecycleEffect(node.elseStatement),
         )
       );
     }
@@ -2217,6 +2305,1336 @@ function collectInteractionLeaks(sourceFiles, identities) {
   return leaks;
 }
 
+function collectUnauthorizedStatusOwnership(
+  sourceFiles,
+  checker,
+  pathOf,
+  generatedDefinitionPaths = [],
+) {
+  const governedPaths = new Set(generatedDefinitionPaths);
+  const candidateBySymbol = new Map();
+  const candidateById = new Map();
+  let nextOwnerId = 0;
+
+  const addCandidate = (
+    sourceFile,
+    node,
+    nameNode,
+    typeNode,
+    declarationName,
+    fieldName,
+  ) => {
+    const relative = pathOf(sourceFile);
+    if (!relative.startsWith("packages/atlas-ui/src/")) return;
+    if (
+      typeNode &&
+      isGeneratedClosedInputType(checker, typeNode, governedPaths)
+    ) {
+      return;
+    }
+    const type = checker.getTypeAtLocation(nameNode);
+    const enumClosed =
+      ts.isEnumDeclaration(node) && enumMembers(node).length > 0;
+    if (!enumClosed && !isClosedStringLiteralType(type)) return;
+    const symbol = symbolIdentity(checker, nameNode);
+    if (!symbol || candidateBySymbol.has(symbol)) return;
+    const ownerId = `owner:${nextOwnerId++}`;
+    const candidate = {
+      ownerId,
+      path: relative,
+      line: lineOf(sourceFile, node),
+      declarationName,
+      fieldName,
+    };
+    candidateBySymbol.set(symbol, candidate);
+    candidateById.set(ownerId, candidate);
+  };
+
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)) {
+        addCandidate(
+          sourceFile,
+          node,
+          node.name,
+          ts.isTypeAliasDeclaration(node) ? node.type : undefined,
+          node.name.text,
+          null,
+        );
+      }
+      if (
+        (ts.isPropertySignature(node) ||
+          ts.isPropertyDeclaration(node) ||
+          ts.isParameter(node)) &&
+        node.type &&
+        stringUnionMembers(node.type)
+      ) {
+        const fieldName = propertyNameText(node.name);
+        if (fieldName) {
+          addCandidate(sourceFile, node, node.name, node.type, null, fieldName);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  const emptyValue = () => ({
+    owners: new Set(),
+    objects: new Set(),
+    callables: new Set(),
+  });
+  const cloneValue = (value) => ({
+    owners: new Set(value.owners),
+    objects: new Set(value.objects),
+    callables: new Set(value.callables),
+  });
+  const mergeValueInto = (target, source) => {
+    let changed = false;
+    for (const field of ["owners", "objects", "callables"]) {
+      for (const atom of source[field]) {
+        if (!target[field].has(atom)) {
+          target[field].add(atom);
+          changed = true;
+        }
+      }
+    }
+    return changed;
+  };
+  const mergedValue = (...values) => {
+    const result = emptyValue();
+    for (const value of values) mergeValueInto(result, value);
+    return result;
+  };
+  const valueSignature = (value) =>
+    JSON.stringify({
+      owners: [...value.owners].sort(),
+      objects: [...value.objects].sort(),
+      callables: [...value.callables].sort(),
+    });
+
+  const symbolIds = new Map();
+  const symbolId = (symbol) => {
+    if (!symbolIds.has(symbol)) symbolIds.set(symbol, symbolIds.size);
+    return symbolIds.get(symbol);
+  };
+  const emptyState = () => ({ cells: new Map(), heap: new Map() });
+  const cloneState = (state) => ({
+    cells: new Map(
+      [...state.cells].map(([symbol, value]) => [symbol, cloneValue(value)]),
+    ),
+    heap: new Map(
+      [...state.heap].map(([objectId, properties]) => [
+        objectId,
+        new Map(
+          [...properties].map(([key, value]) => [key, cloneValue(value)]),
+        ),
+      ]),
+    ),
+  });
+  const mergeStateInto = (target, source) => {
+    let changed = false;
+    for (const [symbol, value] of source.cells) {
+      if (!target.cells.has(symbol)) target.cells.set(symbol, emptyValue());
+      changed = mergeValueInto(target.cells.get(symbol), value) || changed;
+    }
+    for (const [objectId, properties] of source.heap) {
+      if (!target.heap.has(objectId)) target.heap.set(objectId, new Map());
+      const targetProperties = target.heap.get(objectId);
+      for (const [key, value] of properties) {
+        if (!targetProperties.has(key)) targetProperties.set(key, emptyValue());
+        changed = mergeValueInto(targetProperties.get(key), value) || changed;
+      }
+    }
+    return changed;
+  };
+  const mergedState = (...states) => {
+    const result = emptyState();
+    for (const state of states) mergeStateInto(result, state);
+    return result;
+  };
+  const stateSignature = (state) =>
+    JSON.stringify({
+      cells: [...state.cells]
+        .map(([symbol, value]) => [symbolId(symbol), valueSignature(value)])
+        .sort(([left], [right]) => left - right),
+      heap: [...state.heap]
+        .map(([objectId, properties]) => [
+          objectId,
+          [...properties]
+            .map(([key, value]) => [key, valueSignature(value)])
+            .sort(([left], [right]) => left.localeCompare(right)),
+        ])
+        .sort(([left], [right]) => left.localeCompare(right)),
+    });
+
+  const ownersForType = (type, seen = new Set()) => {
+    const owners = new Set();
+    if (!type || seen.has(type)) return owners;
+    seen.add(type);
+    for (const symbol of [type.aliasSymbol, type.symbol]) {
+      const candidate = candidateBySymbol.get(symbol);
+      if (candidate) owners.add(candidate.ownerId);
+    }
+    if (owners.size > 0) return owners;
+    for (const member of type.types ?? []) {
+      for (const ownerId of ownersForType(member, seen)) owners.add(ownerId);
+    }
+    return owners;
+  };
+  const ownersForTypeNode = (typeNode, seen = new Set()) => {
+    const owners = new Set();
+    if (!typeNode || seen.has(typeNode)) return owners;
+    seen.add(typeNode);
+    if (ts.isParenthesizedTypeNode(typeNode)) {
+      return ownersForTypeNode(typeNode.type, seen);
+    }
+    if (ts.isTypeReferenceNode(typeNode)) {
+      const candidate = candidateBySymbol.get(
+        symbolIdentity(checker, typeNode.typeName),
+      );
+      if (candidate) owners.add(candidate.ownerId);
+    }
+    if (ts.isUnionTypeNode(typeNode) || ts.isIntersectionTypeNode(typeNode)) {
+      for (const member of typeNode.types) {
+        for (const ownerId of ownersForTypeNode(member, seen)) {
+          owners.add(ownerId);
+        }
+      }
+    }
+    return owners;
+  };
+  const declaredOwnerValue = (typeNode) => {
+    const value = emptyValue();
+    if (!typeNode) return value;
+    const syntacticOwners = ownersForTypeNode(typeNode);
+    if (syntacticOwners.size > 0) {
+      for (const ownerId of syntacticOwners) value.owners.add(ownerId);
+      return value;
+    }
+    for (const ownerId of ownersForType(
+      checker.getTypeFromTypeNode(typeNode),
+    )) {
+      value.owners.add(ownerId);
+    }
+    return value;
+  };
+  const ownerAt = (node) => {
+    const value = emptyValue();
+    const candidate = candidateBySymbol.get(symbolIdentity(checker, node));
+    if (candidate) value.owners.add(candidate.ownerId);
+    return value;
+  };
+
+  const functionBySymbol = new Map();
+  const functionById = new Map();
+  const functionIdByNode = new Map();
+  const globalInitializerBySymbol = new Map();
+  const globalInitializersInProgress = new Set();
+  const nodeId = (node) =>
+    `${pathOf(node.getSourceFile())}:${node.pos}:${node.end}`;
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isFunctionLike(node) && node.body) {
+        const id = `function:${nodeId(node)}`;
+        functionIdByNode.set(node, id);
+        functionById.set(id, node);
+        const symbol = functionSymbol(checker, node);
+        if (symbol) functionBySymbol.set(symbol, id);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  for (const sourceFile of sourceFiles) {
+    for (const statement of sourceFile.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name)) continue;
+        const symbol = symbolIdentity(checker, declaration.name);
+        if (
+          symbol &&
+          (!declaration.initializer ||
+            !ts.isFunctionLike(declaration.initializer))
+        ) {
+          globalInitializerBySymbol.set(symbol, declaration);
+        }
+      }
+    }
+  }
+
+  const localSymbolsByFunction = new Map();
+  const capturesByFunction = new Map();
+  const capturedWritesByFunction = new Map();
+  const calleesByFunction = new Map();
+  const assignmentOperators = new Set([
+    ts.SyntaxKind.EqualsToken,
+    ts.SyntaxKind.PlusEqualsToken,
+    ts.SyntaxKind.MinusEqualsToken,
+    ts.SyntaxKind.AsteriskEqualsToken,
+    ts.SyntaxKind.AsteriskAsteriskEqualsToken,
+    ts.SyntaxKind.SlashEqualsToken,
+    ts.SyntaxKind.PercentEqualsToken,
+    ts.SyntaxKind.AmpersandEqualsToken,
+    ts.SyntaxKind.BarEqualsToken,
+    ts.SyntaxKind.CaretEqualsToken,
+    ts.SyntaxKind.LessThanLessThanEqualsToken,
+    ts.SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
+    ts.SyntaxKind.BarBarEqualsToken,
+    ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+    ts.SyntaxKind.QuestionQuestionEqualsToken,
+  ]);
+  const addNameSymbols = (name, target) => {
+    for (const identifier of bindingNames(name)) {
+      const symbol = symbolIdentity(checker, identifier);
+      if (symbol) target.add(symbol);
+    }
+  };
+  for (const [functionId, node] of functionById) {
+    const locals = new Set();
+    const references = new Set();
+    const writes = new Set();
+    const callees = new Set();
+    for (const parameter of node.parameters) {
+      addNameSymbols(parameter.name, locals);
+    }
+    if (node.name) addNameSymbols(node.name, locals);
+    const collect = (current) => {
+      if (current !== node && ts.isFunctionLike(current)) {
+        if (current.name) addNameSymbols(current.name, locals);
+        if (
+          ts.isVariableDeclaration(current.parent) ||
+          ts.isPropertyDeclaration(current.parent) ||
+          ts.isPropertyAssignment(current.parent)
+        ) {
+          addNameSymbols(current.parent.name, locals);
+        }
+        return;
+      }
+      if (ts.isVariableDeclaration(current)) {
+        addNameSymbols(current.name, locals);
+      } else if (ts.isCatchClause(current) && current.variableDeclaration) {
+        addNameSymbols(current.variableDeclaration.name, locals);
+      } else if (ts.isFunctionDeclaration(current) && current.name) {
+        addNameSymbols(current.name, locals);
+      }
+      if (ts.isIdentifier(current)) {
+        const symbol = symbolIdentity(checker, current);
+        if (symbol) references.add(symbol);
+      }
+      if (
+        ts.isBinaryExpression(current) &&
+        assignmentOperators.has(current.operatorToken.kind)
+      ) {
+        const left = unwrapExpression(current.left);
+        if (ts.isIdentifier(left)) {
+          const symbol = symbolIdentity(checker, left);
+          if (symbol) writes.add(symbol);
+        }
+      }
+      if (
+        (ts.isPrefixUnaryExpression(current) ||
+          ts.isPostfixUnaryExpression(current)) &&
+        (current.operator === ts.SyntaxKind.PlusPlusToken ||
+          current.operator === ts.SyntaxKind.MinusMinusToken)
+      ) {
+        const operand = unwrapExpression(current.operand);
+        if (ts.isIdentifier(operand)) {
+          const symbol = symbolIdentity(checker, operand);
+          if (symbol) writes.add(symbol);
+        }
+      }
+      if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
+        const symbol = symbolIdentity(checker, current.expression);
+        const callee = symbol ? functionBySymbol.get(symbol) : undefined;
+        if (callee) callees.add(callee);
+      }
+      ts.forEachChild(current, collect);
+    };
+    collect(node.body);
+    localSymbolsByFunction.set(functionId, locals);
+    capturesByFunction.set(
+      functionId,
+      new Set([...references].filter((symbol) => !locals.has(symbol))),
+    );
+    capturedWritesByFunction.set(
+      functionId,
+      new Set([...writes].filter((symbol) => !locals.has(symbol))),
+    );
+    calleesByFunction.set(functionId, callees);
+  }
+  let capturesChanged = true;
+  while (capturesChanged) {
+    capturesChanged = false;
+    for (const [functionId, callees] of calleesByFunction) {
+      const locals = localSymbolsByFunction.get(functionId) ?? new Set();
+      const captures = capturesByFunction.get(functionId);
+      const writes = capturedWritesByFunction.get(functionId);
+      for (const callee of callees) {
+        for (const symbol of capturesByFunction.get(callee) ?? []) {
+          if (!locals.has(symbol) && !captures.has(symbol)) {
+            captures.add(symbol);
+            capturesChanged = true;
+          }
+        }
+        for (const symbol of capturedWritesByFunction.get(callee) ?? []) {
+          if (!locals.has(symbol) && !writes.has(symbol)) {
+            writes.add(symbol);
+            capturesChanged = true;
+          }
+        }
+      }
+    }
+  }
+
+  const callableValue = (functionId) => {
+    const value = emptyValue();
+    if (functionId) value.callables.add(functionId);
+    return value;
+  };
+  const allocationId = (node, contextKey) =>
+    `object:${nodeId(node)}:${contextKey}`;
+  const UNKNOWN_PROPERTY = "*";
+  const ensureObject = (state, objectId) => {
+    if (!state.heap.has(objectId)) state.heap.set(objectId, new Map());
+    return state.heap.get(objectId);
+  };
+  const readProperty = (state, objectValue, key) => {
+    const result = emptyValue();
+    for (const objectId of objectValue.objects) {
+      const properties = state.heap.get(objectId) ?? new Map();
+      if (key === null) {
+        for (const value of properties.values()) mergeValueInto(result, value);
+      } else {
+        mergeValueInto(result, properties.get(key) ?? emptyValue());
+        mergeValueInto(
+          result,
+          properties.get(UNKNOWN_PROPERTY) ?? emptyValue(),
+        );
+      }
+    }
+    return result;
+  };
+  const writeProperty = (state, objectValue, key, value) => {
+    const strong = objectValue.objects.size === 1 && key !== null;
+    for (const objectId of objectValue.objects) {
+      const properties = ensureObject(state, objectId);
+      if (strong) {
+        properties.set(key, cloneValue(value));
+      } else if (key === null) {
+        if (properties.size === 0) {
+          properties.set(UNKNOWN_PROPERTY, cloneValue(value));
+        } else {
+          for (const property of properties.values()) {
+            mergeValueInto(property, value);
+          }
+          if (!properties.has(UNKNOWN_PROPERTY)) {
+            properties.set(UNKNOWN_PROPERTY, cloneValue(value));
+          }
+        }
+      } else {
+        if (!properties.has(key)) properties.set(key, emptyValue());
+        mergeValueInto(properties.get(key), value);
+      }
+    }
+  };
+  const reachableObjects = (state, rootValues) => {
+    const reachable = new Set();
+    const pending = rootValues.flatMap((value) => [...value.objects]);
+    while (pending.length > 0) {
+      const objectId = pending.pop();
+      if (reachable.has(objectId)) continue;
+      reachable.add(objectId);
+      for (const value of (state.heap.get(objectId) ?? new Map()).values()) {
+        for (const nestedId of value.objects) {
+          if (!reachable.has(nestedId)) pending.push(nestedId);
+        }
+      }
+    }
+    return reachable;
+  };
+  const copyHeapClosure = (source, target, rootValues) => {
+    for (const objectId of reachableObjects(source, rootValues)) {
+      const properties = source.heap.get(objectId);
+      if (!properties) continue;
+      target.heap.set(
+        objectId,
+        new Map(
+          [...properties].map(([key, value]) => [key, cloneValue(value)]),
+        ),
+      );
+    }
+  };
+  const callableCaptureSymbols = (state, rootValues) => {
+    const symbols = new Set();
+    const values = [...rootValues];
+    for (const objectId of reachableObjects(state, rootValues)) {
+      values.push(...(state.heap.get(objectId) ?? new Map()).values());
+    }
+    for (const value of values) {
+      for (const functionId of value.callables) {
+        for (const symbol of capturesByFunction.get(functionId) ?? []) {
+          symbols.add(symbol);
+        }
+      }
+    }
+    return symbols;
+  };
+
+  const constantKey = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (
+      ts.isStringLiteral(current) ||
+      ts.isNoSubstitutionTemplateLiteral(current) ||
+      ts.isNumericLiteral(current)
+    ) {
+      return current.text;
+    }
+    if (ts.isIdentifier(current)) {
+      const symbol = symbolIdentity(checker, current);
+      if (!symbol || seen.has(symbol)) return null;
+      seen.add(symbol);
+      const declarations = symbol.declarations ?? [];
+      if (declarations.length !== 1) return null;
+      const declaration = declarations[0];
+      if (
+        ts.isVariableDeclaration(declaration) &&
+        declaration.initializer &&
+        (declaration.parent.flags & ts.NodeFlags.Const) !== 0
+      ) {
+        return constantKey(declaration.initializer, seen);
+      }
+    }
+    const constant = checker.getConstantValue(current);
+    if (typeof constant === "string" || typeof constant === "number") {
+      return String(constant);
+    }
+    const type = checker.getTypeAtLocation(current);
+    if ((type.flags & ts.TypeFlags.StringLiteral) !== 0) return type.value;
+    if ((type.flags & ts.TypeFlags.NumberLiteral) !== 0) {
+      return String(type.value);
+    }
+    return null;
+  };
+
+  const sinkFacts = [];
+  const sinkKeys = new Set();
+  const atlasDeclarationForTag = (tagName) => {
+    const symbol = symbolIdentity(checker, tagName);
+    return (symbol?.declarations ?? []).find((declaration) =>
+      declarationPath(declaration)?.startsWith("packages/atlas-ui/src/"),
+    );
+  };
+  const componentPropsType = (tagName) => {
+    const tagType = checker.getTypeAtLocation(tagName);
+    for (const signature of checker.getSignaturesOfType(
+      tagType,
+      ts.SignatureKind.Call,
+    )) {
+      const parameter = signature.getParameters()[0];
+      if (parameter)
+        return checker.getTypeOfSymbolAtLocation(parameter, tagName);
+    }
+    return null;
+  };
+  const typeHasProperty = (type, field, seen = new Set()) => {
+    if (!type || seen.has(type)) return false;
+    seen.add(type);
+    if (checker.getPropertyOfType(type, field)) return true;
+    return (type.types ?? []).some((member) =>
+      typeHasProperty(member, field, seen),
+    );
+  };
+  const sinkDescriptor = (tagName, field) => {
+    const declaration = atlasDeclarationForTag(tagName);
+    if (!declaration) return null;
+    const declarationFile = declarationPath(declaration);
+    if (
+      field === "presentation" &&
+      declarationFile === "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
+    ) {
+      return declarationFile;
+    }
+    if (!LIFECYCLE_SINK_ATTRIBUTES.has(field)) return null;
+    const propsType = componentPropsType(tagName);
+    return typeHasProperty(propsType, field) ? declarationFile : null;
+  };
+  const recordSink = (sourceFile, node, field, declarationFile, value) => {
+    for (const ownerId of value.owners) {
+      const owner = candidateById.get(ownerId);
+      if (!owner) continue;
+      const key = `${ownerId}:${pathOf(sourceFile)}:${lineOf(sourceFile, node)}:${field}`;
+      if (sinkKeys.has(key)) continue;
+      sinkKeys.add(key);
+      sinkFacts.push({
+        path: pathOf(sourceFile),
+        line: lineOf(sourceFile, node),
+        sinkField: field,
+        sinkDeclarationPath: declarationFile,
+        ownerId,
+        ownerDeclarationName: owner.declarationName,
+        ownerFieldName: owner.fieldName,
+        ownerPath: owner.path,
+      });
+    }
+  };
+
+  const contexts = new Map();
+  let contextVersion = 0;
+  let currentAnalysisEpoch = 0;
+  let evaluateExpression;
+  let executeStatement;
+  let initializeGlobalSymbol;
+
+  const bindValue = (state, name, value) => {
+    if (ts.isIdentifier(name)) {
+      const symbol = symbolIdentity(checker, name);
+      if (symbol) state.cells.set(symbol, cloneValue(value));
+      return;
+    }
+    if (ts.isObjectBindingPattern(name)) {
+      for (const element of name.elements) {
+        const key = propertyNameText(element.propertyName ?? element.name);
+        bindValue(
+          state,
+          element.name,
+          key === null ? emptyValue() : readProperty(state, value, key),
+        );
+      }
+      return;
+    }
+    if (ts.isArrayBindingPattern(name)) {
+      name.elements.forEach((element, index) => {
+        if (!ts.isOmittedExpression(element)) {
+          bindValue(
+            state,
+            element.name,
+            readProperty(state, value, String(index)),
+          );
+        }
+      });
+    }
+  };
+
+  const assignLeft = (state, left, value, contextKey) => {
+    const current = unwrapExpression(left);
+    if (
+      ts.isArrayLiteralExpression(current) ||
+      ts.isObjectLiteralExpression(current)
+    ) {
+      return;
+    }
+    if (ts.isIdentifier(current)) {
+      const symbol = symbolIdentity(checker, current);
+      if (symbol) state.cells.set(symbol, cloneValue(value));
+      return;
+    }
+    if (ts.isPropertyAccessExpression(current)) {
+      writeProperty(
+        state,
+        evaluateExpression(current.expression, state, contextKey),
+        current.name.text,
+        value,
+      );
+      return;
+    }
+    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
+      writeProperty(
+        state,
+        evaluateExpression(current.expression, state, contextKey),
+        constantKey(current.argumentExpression),
+        value,
+      );
+    }
+  };
+
+  const assignObjectLiteral = (node, state, contextKey) => {
+    const objectId = allocationId(node, contextKey);
+    state.heap.set(objectId, new Map());
+    const objectValue = emptyValue();
+    objectValue.objects.add(objectId);
+    for (const property of node.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        const spread = evaluateExpression(
+          property.expression,
+          state,
+          contextKey,
+        );
+        const properties = ensureObject(state, objectId);
+        for (const spreadId of spread.objects) {
+          for (const [key, value] of state.heap.get(spreadId) ?? []) {
+            if (key === UNKNOWN_PROPERTY) {
+              if (!properties.has(key)) properties.set(key, emptyValue());
+              mergeValueInto(properties.get(key), value);
+            } else {
+              properties.set(key, cloneValue(value));
+            }
+          }
+        }
+      } else if (ts.isPropertyAssignment(property)) {
+        const key = propertyNameText(property.name);
+        if (key !== null) {
+          const value = evaluateExpression(
+            property.initializer,
+            state,
+            contextKey,
+          );
+          ensureObject(state, objectId).set(key, value);
+        }
+      } else if (ts.isShorthandPropertyAssignment(property)) {
+        ensureObject(state, objectId).set(
+          property.name.text,
+          evaluateExpression(property.name, state, contextKey),
+        );
+      } else if (ts.isMethodDeclaration(property)) {
+        ensureObject(state, objectId).set(
+          propertyNameText(property.name) ?? UNKNOWN_PROPERTY,
+          callableValue(functionIdByNode.get(property)),
+        );
+      }
+    }
+    return objectValue;
+  };
+
+  initializeGlobalSymbol = (symbol, state) => {
+    if (state.cells.has(symbol)) return;
+    const declaration = globalInitializerBySymbol.get(symbol);
+    if (!declaration || globalInitializersInProgress.has(symbol)) return;
+    globalInitializersInProgress.add(symbol);
+    try {
+      const value = declaration.initializer
+        ? evaluateExpression(
+            declaration.initializer,
+            state,
+            `global:${pathOf(declaration.getSourceFile())}`,
+          )
+        : emptyValue();
+      mergeValueInto(value, declaredOwnerValue(declaration.type));
+      bindValue(state, declaration.name, value);
+    } finally {
+      globalInitializersInProgress.delete(symbol);
+    }
+  };
+
+  const callFunction = (
+    functionId,
+    arguments_,
+    callerState,
+    callNode,
+    callerContextKey,
+  ) => {
+    const node = functionById.get(functionId);
+    if (!node) return emptyValue();
+    const callerAnchor = String(callerContextKey).split("|caller:")[0];
+    const contextKey = `${functionId}@${nodeId(callNode)}|caller:${callerAnchor}`;
+    const captureSymbols = new Set(capturesByFunction.get(functionId) ?? []);
+    for (const symbol of callableCaptureSymbols(callerState, arguments_)) {
+      captureSymbols.add(symbol);
+    }
+    for (const symbol of captureSymbols) {
+      initializeGlobalSymbol(symbol, callerState);
+    }
+    const projectedInput = emptyState();
+    const inputRoots = [...arguments_];
+    for (const symbol of captureSymbols) {
+      const value = callerState.cells.get(symbol);
+      if (!value) continue;
+      projectedInput.cells.set(symbol, cloneValue(value));
+      inputRoots.push(value);
+    }
+    copyHeapClosure(callerState, projectedInput, inputRoots);
+    let context = contexts.get(contextKey);
+    if (!context) {
+      context = {
+        entryState: emptyState(),
+        arguments: node.parameters.map(() => emptyValue()),
+        returnValue: emptyValue(),
+        exitState: emptyState(),
+        active: false,
+        analyzed: false,
+        analysisEpoch: -1,
+      };
+      contexts.set(contextKey, context);
+      contextVersion += 1;
+    }
+    let inputChanged = mergeStateInto(context.entryState, projectedInput);
+    node.parameters.forEach((parameter, index) => {
+      if (!context.arguments[index]) context.arguments[index] = emptyValue();
+      inputChanged =
+        mergeValueInto(
+          context.arguments[index],
+          arguments_[index] ?? emptyValue(),
+        ) || inputChanged;
+    });
+    if (inputChanged) contextVersion += 1;
+    if (
+      !context.active &&
+      (inputChanged ||
+        !context.analyzed ||
+        context.analysisEpoch !== currentAnalysisEpoch)
+    ) {
+      context.analysisEpoch = currentAnalysisEpoch;
+      let changed = true;
+      while (changed) {
+        const state = cloneState(context.entryState);
+        node.parameters.forEach((parameter, index) => {
+          const parameterValue = cloneValue(
+            context.arguments[index] ?? emptyValue(),
+          );
+          mergeValueInto(parameterValue, declaredOwnerValue(parameter.type));
+          bindValue(state, parameter.name, parameterValue);
+        });
+        context.active = true;
+        const flow = ts.isBlock(node.body)
+          ? executeStatement(state, node.body, contextKey)
+          : {
+              state,
+              returns: evaluateExpression(node.body, state, contextKey),
+              signal: "return",
+            };
+        context.active = false;
+        context.analyzed = true;
+        changed = mergeValueInto(context.returnValue, flow.returns);
+        const effectState = emptyState();
+        const effectSymbols = new Set(
+          capturedWritesByFunction.get(functionId) ?? [],
+        );
+        for (const symbol of callableCaptureSymbols(flow.state, [
+          flow.returns,
+        ])) {
+          effectSymbols.add(symbol);
+        }
+        const effectRoots = [flow.returns];
+        for (const symbol of effectSymbols) {
+          const value = flow.state.cells.get(symbol);
+          if (!value) continue;
+          effectState.cells.set(symbol, cloneValue(value));
+          effectRoots.push(value);
+        }
+        const inputObjects = emptyValue();
+        for (const objectId of context.entryState.heap.keys()) {
+          inputObjects.objects.add(objectId);
+        }
+        effectRoots.push(inputObjects);
+        copyHeapClosure(flow.state, effectState, effectRoots);
+        changed = mergeStateInto(context.exitState, effectState) || changed;
+        if (changed) contextVersion += 1;
+      }
+    }
+    for (const [symbol, value] of context.exitState.cells) {
+      callerState.cells.set(symbol, cloneValue(value));
+    }
+    for (const [objectId, properties] of context.exitState.heap) {
+      callerState.heap.set(
+        objectId,
+        new Map(
+          [...properties].map(([key, value]) => [key, cloneValue(value)]),
+        ),
+      );
+    }
+    return cloneValue(context.returnValue);
+  };
+
+  const evaluateJsx = (node, state, contextKey) => {
+    const opening = ts.isJsxElement(node) ? node.openingElement : node;
+    if (ts.isJsxFragment(node)) {
+      for (const child of node.children) {
+        if (ts.isJsxExpression(child) && child.expression) {
+          evaluateExpression(child.expression, state, contextKey);
+        } else if (
+          ts.isJsxElement(child) ||
+          ts.isJsxSelfClosingElement(child)
+        ) {
+          evaluateJsx(child, state, contextKey);
+        }
+      }
+      return emptyValue();
+    }
+    const effective = new Map();
+    for (const attribute of opening.attributes.properties) {
+      if (ts.isJsxAttribute(attribute)) {
+        const field = propertyNameText(attribute.name);
+        if (field === null) continue;
+        const value =
+          attribute.initializer &&
+          ts.isJsxExpression(attribute.initializer) &&
+          attribute.initializer.expression
+            ? evaluateExpression(
+                attribute.initializer.expression,
+                state,
+                contextKey,
+              )
+            : emptyValue();
+        effective.set(field, value);
+      } else {
+        const spread = evaluateExpression(
+          attribute.expression,
+          state,
+          contextKey,
+        );
+        const spreadProperties = new Map();
+        let hasUnknown = false;
+        for (const objectId of spread.objects) {
+          for (const [field, value] of state.heap.get(objectId) ?? []) {
+            if (field === UNKNOWN_PROPERTY) {
+              hasUnknown = true;
+              for (const existing of effective.values()) {
+                mergeValueInto(existing, value);
+              }
+            } else if (spreadProperties.has(field)) {
+              mergeValueInto(spreadProperties.get(field), value);
+            } else {
+              spreadProperties.set(field, cloneValue(value));
+            }
+          }
+        }
+        for (const [field, value] of spreadProperties) {
+          if (hasUnknown && effective.has(field)) {
+            mergeValueInto(effective.get(field), value);
+          } else {
+            effective.set(field, value);
+          }
+        }
+      }
+    }
+    for (const [field, value] of effective) {
+      const declarationFile = sinkDescriptor(opening.tagName, field);
+      if (declarationFile) {
+        recordSink(
+          node.getSourceFile(),
+          opening,
+          field,
+          declarationFile,
+          value,
+        );
+      }
+    }
+    if (ts.isJsxElement(node)) {
+      for (const child of node.children) {
+        if (ts.isJsxExpression(child) && child.expression) {
+          evaluateExpression(child.expression, state, contextKey);
+        } else if (
+          ts.isJsxElement(child) ||
+          ts.isJsxSelfClosingElement(child)
+        ) {
+          evaluateJsx(child, state, contextKey);
+        }
+      }
+    }
+    return emptyValue();
+  };
+
+  evaluateExpression = (node, state, contextKey) => {
+    const current = unwrapExpression(node);
+    if (ts.isIdentifier(current)) {
+      const shorthand =
+        ts.isShorthandPropertyAssignment(current.parent) &&
+        current.parent.name === current
+          ? checker.getShorthandAssignmentValueSymbol(current.parent)
+          : null;
+      const symbol = shorthand ?? symbolIdentity(checker, current);
+      if (symbol && state.cells.has(symbol)) {
+        return cloneValue(state.cells.get(symbol));
+      }
+      if (symbol && globalInitializerBySymbol.has(symbol)) {
+        initializeGlobalSymbol(symbol, state);
+        return cloneValue(state.cells.get(symbol) ?? emptyValue());
+      }
+      return mergedValue(
+        callableValue(symbol ? functionBySymbol.get(symbol) : undefined),
+        ownerAt(current),
+      );
+    }
+    if (
+      ts.isArrowFunction(current) ||
+      ts.isFunctionExpression(current) ||
+      ts.isFunctionDeclaration(current)
+    ) {
+      return callableValue(functionIdByNode.get(current));
+    }
+    if (ts.isPropertyAccessExpression(current)) {
+      const propertySymbol = symbolIdentity(checker, current);
+      return mergedValue(
+        readProperty(
+          state,
+          evaluateExpression(current.expression, state, contextKey),
+          current.name.text,
+        ),
+        callableValue(
+          propertySymbol ? functionBySymbol.get(propertySymbol) : undefined,
+        ),
+        ownerAt(current.name),
+      );
+    }
+    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
+      return mergedValue(
+        readProperty(
+          state,
+          evaluateExpression(current.expression, state, contextKey),
+          constantKey(current.argumentExpression),
+        ),
+        ownerAt(current),
+      );
+    }
+    if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
+      const callee = evaluateExpression(current.expression, state, contextKey);
+      const arguments_ = (current.arguments ?? []).map((argument) =>
+        evaluateExpression(argument, state, contextKey),
+      );
+      const result = emptyValue();
+      for (const functionId of callee.callables) {
+        mergeValueInto(
+          result,
+          callFunction(functionId, arguments_, state, current, contextKey),
+        );
+      }
+      return result;
+    }
+    if (ts.isObjectLiteralExpression(current)) {
+      return assignObjectLiteral(current, state, contextKey);
+    }
+    if (ts.isArrayLiteralExpression(current)) {
+      const objectId = allocationId(current, contextKey);
+      state.heap.set(objectId, new Map());
+      current.elements.forEach((element, index) => {
+        if (!ts.isOmittedExpression(element)) {
+          const value = evaluateExpression(element, state, contextKey);
+          ensureObject(state, objectId).set(String(index), value);
+        }
+      });
+      const value = emptyValue();
+      value.objects.add(objectId);
+      return value;
+    }
+    if (ts.isConditionalExpression(current)) {
+      evaluateExpression(current.condition, state, contextKey);
+      const thenState = cloneState(state);
+      const elseState = cloneState(state);
+      const thenValue = evaluateExpression(
+        current.whenTrue,
+        thenState,
+        contextKey,
+      );
+      const elseValue = evaluateExpression(
+        current.whenFalse,
+        elseState,
+        contextKey,
+      );
+      const joined = mergedState(thenState, elseState);
+      state.cells = joined.cells;
+      state.heap = joined.heap;
+      return mergedValue(thenValue, elseValue);
+    }
+    if (ts.isBinaryExpression(current)) {
+      const operator = current.operatorToken.kind;
+      if (
+        operator === ts.SyntaxKind.EqualsToken ||
+        operator === ts.SyntaxKind.BarBarEqualsToken ||
+        operator === ts.SyntaxKind.AmpersandAmpersandEqualsToken ||
+        operator === ts.SyntaxKind.QuestionQuestionEqualsToken
+      ) {
+        const value = evaluateExpression(current.right, state, contextKey);
+        assignLeft(state, current.left, value, contextKey);
+        return value;
+      }
+      return mergedValue(
+        evaluateExpression(current.left, state, contextKey),
+        evaluateExpression(current.right, state, contextKey),
+      );
+    }
+    if (
+      ts.isJsxElement(current) ||
+      ts.isJsxSelfClosingElement(current) ||
+      ts.isJsxFragment(current)
+    ) {
+      return evaluateJsx(current, state, contextKey);
+    }
+    if (ts.isTemplateExpression(current)) {
+      return mergedValue(
+        ...current.templateSpans.map((span) =>
+          evaluateExpression(span.expression, state, contextKey),
+        ),
+      );
+    }
+    if (
+      ts.isAwaitExpression(current) ||
+      ts.isYieldExpression(current) ||
+      ts.isSpreadElement(current) ||
+      ts.isPrefixUnaryExpression(current) ||
+      ts.isPostfixUnaryExpression(current) ||
+      ts.isVoidExpression(current) ||
+      ts.isDeleteExpression(current)
+    ) {
+      const operand = current.operand ?? current.expression;
+      return operand
+        ? evaluateExpression(operand, state, contextKey)
+        : emptyValue();
+    }
+    return ownerAt(current);
+  };
+
+  const emptyFlow = (state, signal = "normal") => ({
+    state,
+    returns: emptyValue(),
+    signal,
+  });
+  const mergeFlows = (flows) => {
+    const result = emptyFlow(mergedState(...flows.map((flow) => flow.state)));
+    for (const flow of flows) mergeValueInto(result.returns, flow.returns);
+    result.signal = flows.every((flow) => flow.signal === flows[0].signal)
+      ? flows[0].signal
+      : "normal";
+    return result;
+  };
+
+  executeStatement = (inputState, statement, contextKey) => {
+    const state = inputState;
+    if (ts.isBlock(statement)) {
+      let flow = emptyFlow(state);
+      for (const nested of statement.statements) {
+        if (flow.signal !== "normal") break;
+        const next = executeStatement(flow.state, nested, contextKey);
+        mergeValueInto(next.returns, flow.returns);
+        flow = next;
+      }
+      return flow;
+    }
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        const value = declaration.initializer
+          ? evaluateExpression(declaration.initializer, state, contextKey)
+          : emptyValue();
+        mergeValueInto(value, declaredOwnerValue(declaration.type));
+        bindValue(state, declaration.name, value);
+      }
+      return emptyFlow(state);
+    }
+    if (ts.isExpressionStatement(statement)) {
+      evaluateExpression(statement.expression, state, contextKey);
+      return emptyFlow(state);
+    }
+    if (ts.isReturnStatement(statement)) {
+      const flow = emptyFlow(state, "return");
+      if (statement.expression) {
+        mergeValueInto(
+          flow.returns,
+          evaluateExpression(statement.expression, state, contextKey),
+        );
+      }
+      return flow;
+    }
+    if (ts.isThrowStatement(statement)) {
+      if (statement.expression) {
+        evaluateExpression(statement.expression, state, contextKey);
+      }
+      return emptyFlow(state, "throw");
+    }
+    if (ts.isBreakStatement(statement)) return emptyFlow(state, "break");
+    if (ts.isContinueStatement(statement)) return emptyFlow(state, "continue");
+    if (ts.isIfStatement(statement)) {
+      evaluateExpression(statement.expression, state, contextKey);
+      const thenFlow = executeStatement(
+        cloneState(state),
+        statement.thenStatement,
+        contextKey,
+      );
+      const elseFlow = statement.elseStatement
+        ? executeStatement(
+            cloneState(state),
+            statement.elseStatement,
+            contextKey,
+          )
+        : emptyFlow(cloneState(state));
+      return mergeFlows([thenFlow, elseFlow]);
+    }
+    if (
+      ts.isWhileStatement(statement) ||
+      ts.isDoStatement(statement) ||
+      ts.isForStatement(statement) ||
+      ts.isForInStatement(statement) ||
+      ts.isForOfStatement(statement)
+    ) {
+      let header = cloneState(state);
+      if (ts.isForStatement(statement) && statement.initializer) {
+        if (ts.isVariableDeclarationList(statement.initializer)) {
+          for (const declaration of statement.initializer.declarations) {
+            const value = declaration.initializer
+              ? evaluateExpression(declaration.initializer, header, contextKey)
+              : emptyValue();
+            bindValue(header, declaration.name, value);
+          }
+        } else {
+          evaluateExpression(statement.initializer, header, contextKey);
+        }
+      }
+      if ("expression" in statement && statement.expression) {
+        evaluateExpression(statement.expression, header, contextKey);
+      }
+      let iterationSource = emptyValue();
+      if (ts.isForInStatement(statement) || ts.isForOfStatement(statement)) {
+        iterationSource = evaluateExpression(
+          statement.expression,
+          header,
+          contextKey,
+        );
+        if (ts.isForOfStatement(statement)) {
+          iterationSource = readProperty(header, iterationSource, null);
+        }
+      }
+      let returns = emptyValue();
+      let changed = true;
+      while (changed) {
+        const bodyState = cloneState(header);
+        if (ts.isForInStatement(statement) || ts.isForOfStatement(statement)) {
+          if (ts.isVariableDeclarationList(statement.initializer)) {
+            for (const declaration of statement.initializer.declarations) {
+              bindValue(bodyState, declaration.name, iterationSource);
+            }
+          } else {
+            assignLeft(
+              bodyState,
+              statement.initializer,
+              iterationSource,
+              contextKey,
+            );
+          }
+        }
+        const bodyFlow = executeStatement(
+          bodyState,
+          statement.statement,
+          contextKey,
+        );
+        mergeValueInto(returns, bodyFlow.returns);
+        if (ts.isForStatement(statement) && statement.incrementor) {
+          evaluateExpression(statement.incrementor, bodyFlow.state, contextKey);
+        }
+        changed = mergeStateInto(header, bodyFlow.state);
+      }
+      const flow = emptyFlow(header);
+      flow.returns = returns;
+      return flow;
+    }
+    if (ts.isSwitchStatement(statement)) {
+      evaluateExpression(statement.expression, state, contextKey);
+      const branches = [];
+      for (
+        let start = 0;
+        start < statement.caseBlock.clauses.length;
+        start += 1
+      ) {
+        let flow = emptyFlow(cloneState(state));
+        for (
+          let index = start;
+          index < statement.caseBlock.clauses.length &&
+          flow.signal === "normal";
+          index += 1
+        ) {
+          const clause = statement.caseBlock.clauses[index];
+          if (ts.isCaseClause(clause)) {
+            evaluateExpression(clause.expression, flow.state, contextKey);
+          }
+          flow = executeStatement(
+            flow.state,
+            ts.factory.createBlock([...clause.statements], true),
+            contextKey,
+          );
+        }
+        if (flow.signal === "break") flow.signal = "normal";
+        branches.push(flow);
+      }
+      branches.push(emptyFlow(cloneState(state)));
+      return mergeFlows(branches);
+    }
+    if (ts.isTryStatement(statement)) {
+      const tryFlow = executeStatement(
+        cloneState(state),
+        statement.tryBlock,
+        contextKey,
+      );
+      const alternatives = [tryFlow];
+      if (statement.catchClause) {
+        alternatives.push(
+          executeStatement(
+            cloneState(state),
+            statement.catchClause.block,
+            contextKey,
+          ),
+        );
+      }
+      let flow = mergeFlows(alternatives);
+      if (statement.finallyBlock) {
+        const finalFlow = executeStatement(
+          flow.state,
+          statement.finallyBlock,
+          contextKey,
+        );
+        mergeValueInto(finalFlow.returns, flow.returns);
+        flow = finalFlow;
+      }
+      return flow;
+    }
+    if (ts.isLabeledStatement(statement)) {
+      return executeStatement(state, statement.statement, contextKey);
+    }
+    return emptyFlow(state);
+  };
+
+  const globalState = emptyState();
+
+  const containsJsx = (node) => {
+    let found = false;
+    const visit = (current) => {
+      if (
+        ts.isJsxElement(current) ||
+        ts.isJsxSelfClosingElement(current) ||
+        ts.isJsxFragment(current)
+      ) {
+        found = true;
+        return;
+      }
+      if (current !== node && ts.isFunctionLike(current)) return;
+      ts.forEachChild(current, visit);
+    };
+    visit(node.body);
+    return found;
+  };
+  for (const [functionId, node] of functionById) {
+    if (!containsJsx(node)) continue;
+    let previousContextVersion;
+    do {
+      previousContextVersion = contextVersion;
+      currentAnalysisEpoch += 1;
+      const state = cloneState(globalState);
+      node.parameters.forEach((parameter) => {
+        bindValue(state, parameter.name, declaredOwnerValue(parameter.type));
+      });
+      if (ts.isBlock(node.body)) {
+        executeStatement(state, node.body, `${functionId}@root`);
+      } else {
+        evaluateExpression(node.body, state, `${functionId}@root`);
+      }
+    } while (contextVersion !== previousContextVersion);
+  }
+
+  const reachedOwnerIds = new Set(sinkFacts.map((sink) => sink.ownerId));
+  return {
+    owners: [...candidateById.values()]
+      .filter((owner) => reachedOwnerIds.has(owner.ownerId))
+      .map(({ ownerId: _ownerId, ...owner }) => owner)
+      .sort((left, right) =>
+        `${left.path}:${left.line}`.localeCompare(
+          `${right.path}:${right.line}`,
+        ),
+      ),
+    sinks: sinkFacts.sort((left, right) =>
+      `${left.path}:${left.line}:${left.ownerId}`.localeCompare(
+        `${right.path}:${right.line}:${right.ownerId}`,
+      ),
+    ),
+  };
+}
+
 function consumerKind(sourceFile, node) {
   const relative = relativePath(sourceFile.fileName);
   if (/\.stories\.[cm]?tsx?$/.test(relative)) return "story";
@@ -2262,7 +3680,11 @@ function symbolIdentity(checker, node) {
   return symbol;
 }
 
-function collectProgramFacts(program, protectedDefinitions = []) {
+function collectProgramFacts(
+  program,
+  protectedDefinitions = [],
+  generatedDefinitionPaths = [],
+) {
   const checker = program.getTypeChecker();
   const definitions = [];
   const authorityCandidates = [];
@@ -2271,8 +3693,11 @@ function collectProgramFacts(program, protectedDefinitions = []) {
   const definitionSources = program
     .getSourceFiles()
     .filter((sourceFile) => isDefinitionSource(sourceFile.fileName));
+  const statusInventorySources = definitionSources.filter((sourceFile) =>
+    relativePath(sourceFile.fileName).startsWith("apps/runtime-dashboard/src/"),
+  );
 
-  for (const sourceFile of definitionSources) {
+  for (const sourceFile of statusInventorySources) {
     const visit = (node) => {
       const constFact = constVocabularyFact(
         node,
@@ -2427,7 +3852,7 @@ function collectProgramFacts(program, protectedDefinitions = []) {
     delete definition.symbol;
     delete definition.symbolNode;
   }
-  const statusOwnership = definitionSources.find(
+  const statusOwnership = statusInventorySources.find(
     (sourceFile) =>
       relativePath(sourceFile.fileName) ===
       "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.ts",
@@ -2445,7 +3870,7 @@ function collectProgramFacts(program, protectedDefinitions = []) {
       }
     }
   }
-  const interactionLeaks = collectInteractionLeaks(definitionSources, {
+  const interactionLeaks = collectInteractionLeaks(statusInventorySources, {
     binding(node) {
       if (!ts.isIdentifier(node) && !ts.isPropertyAccessExpression(node)) {
         return undefined;
@@ -2468,16 +3893,34 @@ function collectProgramFacts(program, protectedDefinitions = []) {
     },
   });
   const protectedRevivals = collectProtectedRevivals(
-    definitionSources,
+    statusInventorySources,
     protectedDefinitions,
     (sourceFile) => relativePath(sourceFile.fileName),
     checker,
+  );
+  const unauthorizedStatusOwnership = collectUnauthorizedStatusOwnership(
+    definitionSources,
+    checker,
+    (sourceFile) => relativePath(sourceFile.fileName),
+    generatedDefinitionPaths,
   );
   return {
     authorityCandidates,
     definitions,
     interactionLeaks,
     protectedRevivals,
+    sourceDenominators: {
+      atlasUiProduction: definitionSources.filter((sourceFile) =>
+        relativePath(sourceFile.fileName).startsWith("packages/atlas-ui/src/"),
+      ).length,
+      dashboardProduction: definitionSources.filter((sourceFile) =>
+        relativePath(sourceFile.fileName).startsWith(
+          "apps/runtime-dashboard/src/",
+        ),
+      ).length,
+    },
+    unauthorizedStatusOwners: unauthorizedStatusOwnership.owners,
+    unauthorizedStatusSinks: unauthorizedStatusOwnership.sinks,
   };
 }
 
@@ -2606,14 +4049,57 @@ function createOverrideProgram(overrides) {
   });
 }
 
-function collectOverrideFacts(overrides, protectedDefinitions = []) {
+function collectOverrideFacts(
+  overrides,
+  protectedDefinitions = [],
+  generatedDefinitionPaths = [],
+  validateOverrideDiagnostics = false,
+) {
   const facts = {
     authorityCandidates: [],
     definitions: [],
     interactionLeaks: [],
     protectedRevivals: [],
+    unauthorizedStatusOwners: [],
+    unauthorizedStatusSinks: [],
   };
   const program = createOverrideProgram(overrides);
+  if (validateOverrideDiagnostics) {
+    const overridePaths = new Set(
+      Object.keys(overrides).map((relative) =>
+        path.resolve(repoRoot, relative),
+      ),
+    );
+    facts.overrideDiagnostics = [
+      ...program.getSyntacticDiagnostics(),
+      ...program.getSemanticDiagnostics(),
+    ]
+      .filter(
+        (diagnostic) =>
+          diagnostic.file &&
+          overridePaths.has(path.resolve(diagnostic.file.fileName)),
+      )
+      .map((diagnostic) => {
+        const location = diagnostic.file.getLineAndCharacterOfPosition(
+          diagnostic.start ?? 0,
+        );
+        return {
+          path: relativePath(diagnostic.file.fileName),
+          line: location.line + 1,
+          column: location.character + 1,
+          code: diagnostic.code,
+          message: ts
+            .flattenDiagnosticMessageText(diagnostic.messageText, " ")
+            .split(`${repoRoot}${path.sep}`)
+            .join(""),
+        };
+      })
+      .sort((left, right) =>
+        `${left.path}:${String(left.line).padStart(8, "0")}:${String(left.column).padStart(8, "0")}:${left.code}:${left.message}`.localeCompare(
+          `${right.path}:${String(right.line).padStart(8, "0")}:${String(right.column).padStart(8, "0")}:${right.code}:${right.message}`,
+        ),
+      );
+  }
   const checker = program.getTypeChecker();
   const sourceFiles = [];
   for (const relative of Object.keys(overrides)) {
@@ -2701,7 +4187,25 @@ function collectOverrideFacts(overrides, protectedDefinitions = []) {
       checker,
     ),
   );
+  const unauthorizedStatusOwnership = collectUnauthorizedStatusOwnership(
+    sourceFiles,
+    checker,
+    (sourceFile) => relativePath(sourceFile.fileName),
+    generatedDefinitionPaths,
+  );
+  facts.unauthorizedStatusOwners.push(...unauthorizedStatusOwnership.owners);
+  facts.unauthorizedStatusSinks.push(...unauthorizedStatusOwnership.sinks);
   return facts;
+}
+
+function parseConfig(configPath, root) {
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (config.error) {
+    throw new Error(
+      ts.flattenDiagnosticMessageText(config.error.messageText, "\n"),
+    );
+  }
+  return ts.parseJsonConfigFileContent(config.config, ts.sys, root);
 }
 
 let input = "";
@@ -2714,26 +4218,31 @@ if (request.sourceOverrides) {
       collectOverrideFacts(
         request.sourceOverrides,
         request.protectedDefinitions,
+        request.generatedDefinitionPaths,
+        request.validateOverrideDiagnostics === true,
       ),
     ),
   );
 } else {
-  const configPath = path.join(dashboardRoot, "tsconfig.app.json");
-  const config = ts.readConfigFile(configPath, ts.sys.readFile);
-  if (config.error)
-    throw new Error(
-      ts.flattenDiagnosticMessageText(config.error.messageText, "\n"),
-    );
-  const parsed = ts.parseJsonConfigFileContent(
-    config.config,
-    ts.sys,
+  const parsed = parseConfig(
+    path.join(dashboardRoot, "tsconfig.app.json"),
     dashboardRoot,
   );
+  const atlasUiParsed = parseConfig(
+    path.join(atlasUiRoot, "tsconfig.json"),
+    atlasUiRoot,
+  );
   const program = ts.createProgram({
-    rootNames: parsed.fileNames,
+    rootNames: [...new Set([...parsed.fileNames, ...atlasUiParsed.fileNames])],
     options: parsed.options,
   });
   process.stdout.write(
-    JSON.stringify(collectProgramFacts(program, request.protectedDefinitions)),
+    JSON.stringify(
+      collectProgramFacts(
+        program,
+        request.protectedDefinitions,
+        request.generatedDefinitionPaths,
+      ),
+    ),
   );
 }

@@ -2538,10 +2538,17 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 _SourceFlipReplacement(
                     source_path=PROMOTION_SOURCE_PATH,
                     old=(
-                        "        if obligation.status == PromotionObligationStatus.SATISFIED and class_rows and not any(\n"
+                        "        if (\n"
+                        "            obligation.status == PromotionObligationStatus.SATISFIED\n"
+                        "            and ledger_required\n"
+                        "            and not any(\n"
                     ),
                     new=(
-                        "        if False and obligation.status == PromotionObligationStatus.SATISFIED and class_rows and not any(\n"
+                        "        if (\n"
+                        "            False\n"
+                        "            and obligation.status == PromotionObligationStatus.SATISFIED\n"
+                        "            and ledger_required\n"
+                        "            and not any(\n"
                     ),
                 ),
             ),
@@ -2576,20 +2583,18 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 _SourceFlipReplacement(
                     source_path=CONFIDENCE_LEDGER_SOURCE_PATH,
                     old=(
-                        "            root != expected\n"
-                        "            or head.scope_id != root.scope_id\n"
-                    ),
-                    new=("            False\n            or head.scope_id != root.scope_id\n"),
-                ),
-                _SourceFlipReplacement(
-                    source_path=CONFIDENCE_LEDGER_SOURCE_PATH,
-                    old=(
-                        "        if registry_payload != self._registry.source_payload():\n"
-                        '            raise ConfidenceLedgerError("registry_binding_invalid")\n'
+                        "                if (\n"
+                        "                    not self._artifact_store.has(expected_root_ref)\n"
+                        "                    and self._scope_root_artifact_exists()\n"
+                        "                ):\n"
+                        '                    raise ConfidenceLedgerError("ledger_scope_binding_mismatch")\n'
                     ),
                     new=(
-                        "        if False and registry_payload != self._registry.source_payload():\n"
-                        '            raise ConfidenceLedgerError("registry_binding_invalid")\n'
+                        "                if (\n"
+                        "                    not self._artifact_store.has(expected_root_ref)\n"
+                        "                    and self._scope_root_artifact_exists()\n"
+                        "                ):\n"
+                        "                    return\n"
                     ),
                 ),
             ),
@@ -2691,11 +2696,11 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     source_path=CONFIDENCE_LEDGER_SOURCE_PATH,
                     old=(
                         '            "registry_content_hash": self._registry.content_hash,\n'
-                        '            "instrument_definition_hash": (\n'
+                        "            \"instrument_definition_hash\": (_content_hash(instrument) if instrument else None),\n"
                     ),
                     new=(
                         '            "registry_content_hash": history_token.precheck_history_hash,\n'
-                        '            "instrument_definition_hash": (\n'
+                        "            \"instrument_definition_hash\": (_content_hash(instrument) if instrument else None),\n"
                     ),
                 ),
             ),
@@ -2795,7 +2800,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     source_path=CONFIDENCE_LEDGER_SOURCE_PATH,
                     old=(
                         "        return self._complete(\n"
-                        "            started,\n"
+                        "            claimed,\n"
                         '            outcome="refused",\n'
                         "            supports_obligation=False,\n"
                         "            eligible_for_promotion=False,\n"
@@ -2803,7 +2808,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     ),
                     new=(
                         "        return self._complete(\n"
-                        "            started,\n"
+                        "            claimed,\n"
                         '            outcome="supported",\n'
                         "            supports_obligation=True,\n"
                         "            eligible_for_promotion=True,\n"

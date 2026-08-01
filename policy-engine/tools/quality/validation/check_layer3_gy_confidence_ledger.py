@@ -67,6 +67,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     project_confidence_ledger_semantic_receipt,
     project_n9_promotion_certificate,
     project_n12_epoch_reference,
+    recompute_confidence_owner_evidence_hash,
     recompute_confidence_schedule_projection_hash,
     recompute_confidence_scope_anchor_ref,
     validate_confidence_ledger_receipt,
@@ -126,6 +127,7 @@ CORRUPT_FIELD_MUTATION_IDS: tuple[str, ...] = (
     "conditionality_clause",
     "registry_hash",
     "registry_conditionality_clause",
+    "unseen_instrument_probe_projection_hash",
     "maintained_assumptions",
     "schedule_coefficient_numerator",
     "schedule_coefficient_denominator",
@@ -238,6 +240,132 @@ class _SourceFlipCase:
     replacements: tuple[_SourceFlipReplacement, ...]
     probe_nodeid: str
     expected_red_signal: str
+
+
+@dataclass(frozen=True)
+class _CodeOwnedOwnerCertificateContract:
+    """Independent provenance and obligation contract for one real owner class."""
+
+    certificate_class: str
+    verifier_kernel_id: str
+    obligation_class: PromotionObligationClass
+    certificate_role: str
+    claim_polarity: str
+    owner_ref: str
+    verifier_ref: str
+
+    def route_matches(self, route: CertificateClassRoute) -> bool:
+        """Return whether registry data preserves every code-owned semantic field."""
+
+        return bool(
+            route.verifier_kernel_id == self.verifier_kernel_id
+            and route.obligation_class == self.obligation_class
+            and route.certificate_role == self.certificate_role
+            and route.claim_polarity == self.claim_polarity
+            and route.owner_ref == self.owner_ref
+            and route.verifier_ref == self.verifier_ref
+        )
+
+
+def _code_owned_owner_certificate_contracts() -> tuple[
+    _CodeOwnedOwnerCertificateContract,
+    ...,
+]:
+    """Return N10/N13b owner contracts; instrument choice stays registry-owned."""
+
+    n10_owner = (
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census."
+        "extract_route_projection"
+    )
+    n10_verifier = (
+        "tools.quality.validation."
+        "check_layer3_gy_depth_n_universality_contract.validate_payload"
+    )
+    return (
+        _CodeOwnedOwnerCertificateContract(
+            certificate_class="owner_acquisition_route",
+            verifier_kernel_id="n10_route_projection_recompute_v1",
+            obligation_class=PromotionObligationClass.DATA,
+            certificate_role="acquisition",
+            claim_polarity="confident_wrong_refusal",
+            owner_ref=n10_owner,
+            verifier_ref=n10_verifier,
+        ),
+        _CodeOwnedOwnerCertificateContract(
+            certificate_class="estimand_binding_refusal",
+            verifier_kernel_id="n10_route_projection_recompute_v1",
+            obligation_class=PromotionObligationClass.IDENTIFICATION,
+            certificate_role="refusal",
+            claim_polarity="confident_wrong_refusal",
+            owner_ref=n10_owner,
+            verifier_ref=n10_verifier,
+        ),
+        _CodeOwnedOwnerCertificateContract(
+            certificate_class="owner_data_gap",
+            verifier_kernel_id="n10_route_projection_recompute_v1",
+            obligation_class=PromotionObligationClass.DATA,
+            certificate_role="refusal",
+            claim_polarity="confident_wrong_refusal",
+            owner_ref=n10_owner,
+            verifier_ref=n10_verifier,
+        ),
+        _CodeOwnedOwnerCertificateContract(
+            certificate_class="admission_passport",
+            verifier_kernel_id="n13b_passport_revalidate_v1",
+            obligation_class=PromotionObligationClass.DATA,
+            certificate_role="admission",
+            claim_polarity="confident_wrong_admission",
+            owner_ref=(
+                "polisyos.runtime.quality.acquisition_executor."
+                "build_admission_passport"
+            ),
+            verifier_ref=(
+                "polisyos.runtime.quality.acquisition_executor."
+                "revalidate_admission_passport"
+            ),
+        ),
+    )
+
+
+def _bind_code_owned_owner_certificate_routes(
+    registry: ConfidenceLedgerRegistry,
+) -> dict[
+    str,
+    tuple[_CodeOwnedOwnerCertificateContract, CertificateClassRoute],
+]:
+    """Resolve every real owner route before any ledger event or risk spend."""
+
+    contracts = _code_owned_owner_certificate_contracts()
+    contract_classes = {item.certificate_class for item in contracts}
+    contract_kernels = {item.verifier_kernel_id for item in contracts}
+    for route in registry.certificate_class_routes:
+        if (
+            route.verifier_kernel_id in contract_kernels
+            and route.certificate_class not in contract_classes
+        ):
+            raise ValueError(
+                "owner_certificate_route_contract_unowned:"
+                f"{route.certificate_class}"
+            )
+    bound: dict[
+        str,
+        tuple[_CodeOwnedOwnerCertificateContract, CertificateClassRoute],
+    ] = {}
+    for contract in contracts:
+        try:
+            route = registry.resolve_certificate_route(contract.certificate_class)
+        except ConfidenceLedgerError as exc:
+            raise ValueError(
+                "owner_certificate_route_contract_missing:"
+                f"{contract.certificate_class}"
+            ) from exc
+        if not contract.route_matches(route):
+            raise ValueError(
+                "owner_certificate_route_contract_mismatch:"
+                f"{contract.certificate_class}"
+            )
+        bound[contract.certificate_class] = (contract, route)
+    return bound
 
 
 def declared_outputs() -> list[str]:
@@ -355,7 +483,7 @@ class ScheduleProofProjection(_StrictModel):
     certified_rational_coefficient: RationalSpec
     certified_rational_coefficient_decimal: str
     declared_mass: RationalSpec
-    total_mass_relation: Literal["sum_t executable_weight_t < declared_mass <= 1"]
+    total_mass_relation: Literal["sum_t executable_weight_t <= declared_mass <= 1"]
     obligation_weights: tuple[ObligationClassWeight, ...]
     schedule_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
@@ -401,6 +529,40 @@ class ProjectionEdge(_StrictModel):
     consumer_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class UnseenInstrumentProbeEvidence(_StrictModel):
+    """Content-bound runtime witness that U2 refuses before execution or spend."""
+
+    request_key: Literal["universality://unseen-instrument/frozen"]
+    instrument_id: Literal["__n11_unregistered_instrument_probe__"]
+    instrument_family: Literal["unknown_instrument"]
+    proof_profile_id: Literal["unknown_profile"]
+    registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    scope_anchor_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request_fingerprint: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    refusal_code: Literal["unknown_instrument"]
+    execution_status: Literal["refused"]
+    outcome: Literal["preflight_refusal"]
+    event_count: Literal[1]
+    check_count: Literal[1]
+    execution_ordinal: None
+    schedule_query_index: None
+    execution_id: None
+    deterministic_proof: Literal[False]
+    anytime_valid: Literal[False]
+    instrument_definition_hash: None
+    proof_profile_hash: None
+    spend_numerator: Literal[0]
+    spend_denominator: Literal[1]
+    total_spend_numerator: Literal[0]
+    total_spend_denominator: Literal[1]
+    total_spend_decimal: Literal["0"]
+    supports_obligation: Literal[False]
+    eligible_for_promotion: Literal[False]
+    within_budget: Literal[True]
+    projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 class UniversalityEvidence(_StrictModel):
     """Runtime-derived U2/U3 facts without authorial pass booleans."""
 
@@ -409,7 +571,7 @@ class UniversalityEvidence(_StrictModel):
     registered_proof_kernel_ids: tuple[str, ...]
     registered_certificate_route_count: int = Field(ge=0)
     real_accounted_instrument_ids: tuple[str, ...]
-    unseen_instrument_probe_code: Literal["unknown_instrument"]
+    unseen_instrument_probe: UnseenInstrumentProbeEvidence
 
 
 class FrozenN9PromotionLedgerRow(_StrictModel):
@@ -618,7 +780,7 @@ def _build_registry_projection(registry: ConfidenceLedgerRegistry) -> RegistryPr
         certified_rational_coefficient=_rational(_BASEL_COEFFICIENT_LOWER),
         certified_rational_coefficient_decimal=_display_down(_BASEL_COEFFICIENT_LOWER),
         declared_mass=schedule.mass,
-        total_mass_relation="sum_t executable_weight_t < declared_mass <= 1",
+        total_mass_relation="sum_t executable_weight_t <= declared_mass <= 1",
         obligation_weights=obligation_weights,
         schedule_projection_hash=recompute_confidence_schedule_projection_hash(
             registry,
@@ -673,6 +835,26 @@ def _conformance_risk_scope(registry: ConfidenceLedgerRegistry) -> ConfidenceRis
         ),
         authority_purpose="n11_probabilistic_conformance",
         owner_scope_key="constant-unit-e-process:frozen-conformance",
+        owner_projection_hash=registry.content_hash,
+        epoch_ref=None,
+        model_ref=None,
+        rule_ref=SCHEMA_VERSION,
+        schema_ref=SCHEMA_VERSION,
+    )
+
+
+def _unseen_instrument_probe_risk_scope(
+    registry: ConfidenceLedgerRegistry,
+) -> ConfidenceRiskBudgetScope:
+    """Derive the isolated U2 fail-closed conformance scope."""
+
+    return ConfidenceRiskBudgetScope(
+        scope_owner_ref=(
+            "tools.quality.validation.check_layer3_gy_confidence_ledger."
+            "_build_unseen_instrument_probe"
+        ),
+        authority_purpose="n11_unseen_instrument_conformance",
+        owner_scope_key="unseen-instrument:frozen-conformance",
         owner_projection_hash=registry.content_hash,
         epoch_ref=None,
         model_ref=None,
@@ -832,14 +1014,22 @@ def _projection_edges(
             producer_scope=owner_bundle.n10.source_projection_scope,
             producer_projection_ref=owner_bundle.n10.source_ref,
             producer_projection_hash=owner_bundle.n10.source_projection_sha256,
-            consumer_scope="n11_accounted_run",
-            consumer_projection_ref="n11://accounted-run",
-            consumer_projection_hash=accounted_run.projection_hash,
+            consumer_scope=real_ledger.projection_scope,
+            consumer_projection_ref="n11://append-lineage/real-accounting",
+            consumer_projection_hash=real_ledger.projection_hash,
         ),
         ProjectionEdge(
             producer_scope=owner_bundle.n13b.source_accounting_projection_scope,
             producer_projection_ref=owner_bundle.n13b.source_ref,
             producer_projection_hash=(owner_bundle.n13b.source_accounting_projection_sha256),
+            consumer_scope=real_ledger.projection_scope,
+            consumer_projection_ref="n11://append-lineage/real-accounting",
+            consumer_projection_hash=real_ledger.projection_hash,
+        ),
+        ProjectionEdge(
+            producer_scope=real_ledger.projection_scope,
+            producer_projection_ref="n11://append-lineage/real-accounting",
+            producer_projection_hash=real_ledger.projection_hash,
             consumer_scope="n11_accounted_run",
             consumer_projection_ref="n11://accounted-run",
             consumer_projection_hash=accounted_run.projection_hash,
@@ -863,16 +1053,76 @@ def _projection_edges(
     )
 
 
+def _build_unseen_instrument_probe(
+    session: ConfidenceLedgerSession,
+) -> UnseenInstrumentProbeEvidence:
+    """Execute U2 through the ledger and freeze its validated refusal receipt."""
+
+    try:
+        session.prepare_check(
+            history_token=session.observe_history(),
+            request_key="universality://unseen-instrument/frozen",
+            obligation_class=PromotionObligationClass.EVAL_SAFETY,
+            instrument_id="__n11_unregistered_instrument_probe__",
+            certificate_ref="universality://unseen-instrument/certificate",
+            claim=PredictableClaimSpec(
+                claim_ref="universality://claim/unseen-instrument-is-valid",
+                null_ref="universality://null/unseen-instrument-is-invalid",
+                claim_scope_ref="universality://scope/unseen-instrument",
+                data_window_ref="universality://data-window/no-observations",
+                certificate_role="promotion",
+                claim_polarity="false_accept",
+            ),
+        )
+    except ConfidenceLedgerError as exc:
+        if exc.code != "unknown_instrument":
+            raise
+    else:  # pragma: no cover - the reserved probe ID must never resolve.
+        raise ValueError("unseen_instrument_probe_unexpectedly_prepared")
+    receipt = validate_confidence_ledger_receipt(session.receipt(), session=session)
+    if len(receipt.events) != 1 or len(receipt.checks) != 1:
+        raise ValueError("unseen_instrument_probe_denominator_drift")
+    check = receipt.checks[0]
+    values: dict[str, Any] = {
+        "request_key": check.request_key,
+        "instrument_id": check.instrument_id,
+        "instrument_family": check.instrument_family,
+        "proof_profile_id": check.proof_profile_id,
+        "registry_content_hash": check.registry_content_hash,
+        "scope_id": receipt.scope_id,
+        "scope_anchor_ref": receipt.scope_anchor_ref,
+        "request_fingerprint": check.request_fingerprint,
+        "refusal_code": check.refusal_code,
+        "execution_status": check.execution_status,
+        "outcome": check.outcome,
+        "event_count": len(receipt.events),
+        "check_count": len(receipt.checks),
+        "execution_ordinal": check.execution_ordinal,
+        "schedule_query_index": check.schedule_query_index,
+        "execution_id": check.execution_id,
+        "deterministic_proof": check.deterministic_proof,
+        "anytime_valid": check.anytime_valid,
+        "instrument_definition_hash": check.instrument_definition_hash,
+        "proof_profile_hash": check.proof_profile_hash,
+        "spend_numerator": check.spend.numerator,
+        "spend_denominator": check.spend.denominator,
+        "total_spend_numerator": receipt.total_spend.numerator,
+        "total_spend_denominator": receipt.total_spend.denominator,
+        "total_spend_decimal": receipt.total_spend_decimal,
+        "supports_obligation": check.supports_obligation,
+        "eligible_for_promotion": check.eligible_for_promotion,
+        "within_budget": receipt.within_budget,
+    }
+    values["projection_hash"] = _ledger_content_hash(values)
+    return UnseenInstrumentProbeEvidence.model_validate(values)
+
+
 def _universality_evidence(
     registry: ConfidenceLedgerRegistry,
     evidence_rows: tuple[AccountedEvidenceRow, ...],
+    *,
+    unseen_instrument_probe: UnseenInstrumentProbeEvidence,
 ) -> UniversalityEvidence:
-    try:
-        registry.resolve_instrument("__n11_unregistered_instrument_probe__")
-    except ConfidenceLedgerError as exc:
-        probe_code = exc.code
-    else:  # pragma: no cover - the reserved probe ID is never registry data.
-        probe_code = "instrument_probe_unexpectedly_resolved"
     return UniversalityEvidence(
         registered_instrument_count=len(registry.instruments),
         structurally_distinct_instrument_family_count=len(
@@ -883,7 +1133,7 @@ def _universality_evidence(
         ),
         registered_certificate_route_count=len(registry.certificate_class_routes),
         real_accounted_instrument_ids=tuple(sorted({row.instrument_id for row in evidence_rows})),
-        unseen_instrument_probe_code=probe_code,
+        unseen_instrument_probe=unseen_instrument_probe,
     )
 
 
@@ -910,6 +1160,12 @@ def build_live_contract(
         objective_progress=report,
     )
     report("owner_bundle_loaded")
+    owner_routes = _bind_code_owned_owner_certificate_routes(registry)
+    for route in owner_bundle.n10.routes:
+        if route.witness_kind not in owner_routes:
+            raise ValueError(
+                f"owner_certificate_contract_missing:{route.witness_kind}"
+            )
     evidence_by_ref: dict[str, dict[str, Any]] = {}
 
     def resolve(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
@@ -937,20 +1193,20 @@ def build_live_contract(
             raise ValueError(f"owner_certificate_drift:{evidence.certificate_ref}")
         if evidence.certificate_class is None:
             raise ValueError("certificate_class_route_missing")
-        certificate_route = registry.resolve_certificate_route(evidence.certificate_class)
-        if certificate_route.verifier_kernel_id == "n13b_passport_revalidate_v1":
+        owner_contract, _certificate_route = owner_routes[evidence.certificate_class]
+        if owner_contract.verifier_kernel_id == "n13b_passport_revalidate_v1":
             rows = {
                 f"n13b-passport://{row.passport_id}": asdict(row)
                 for row in owner_bundle.n13b.passports
             }
-        elif certificate_route.verifier_kernel_id == "n10_route_projection_recompute_v1":
+        elif owner_contract.verifier_kernel_id == "n10_route_projection_recompute_v1":
             rows = {f"n10-route://{row.route_id}": asdict(row) for row in owner_bundle.n10.routes}
         else:  # pragma: no cover - registry validation owns the finite kernel set.
             raise ValueError("unknown_owner_verifier_kernel")
         if rows.get(evidence.certificate_ref) != evidence.owner_projection:
             raise ValueError(f"owner_projection_recompute_failed:{evidence.certificate_ref}")
         return OwnerCertificateVerification(
-            verifier_ref=certificate_route.verifier_ref,
+            verifier_ref=owner_contract.verifier_ref,
             verifier_projection={
                 "owner_bundle_projection_sha256": owner_bundle.projection_sha256,
                 "certificate_ref": evidence.certificate_ref,
@@ -958,12 +1214,11 @@ def build_live_contract(
                 "owner_projection_hash": _ledger_content_hash(evidence.owner_projection),
                 "claim_execution_binding_hash": (evidence.claim_execution_binding_hash),
             },
-            certificate_evidence_hash=gy_content_hash(evidence.model_dump(mode="json")),
+            certificate_evidence_hash=recompute_confidence_owner_evidence_hash(evidence),
             claim_execution_binding_hash=evidence.claim_execution_binding_hash,
             supports_obligation=True,
         )
 
-    route_by_class = {item.certificate_class: item for item in registry.certificate_class_routes}
     evidence_records: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="gy-n11-accounted-") as temporary:
         scratch = Path(temporary)
@@ -980,11 +1235,11 @@ def build_live_contract(
         report("n10_evidence_accounting_started")
         for route in owner_bundle.n10.routes:
             certificate_class = route.witness_kind
-            certificate_route = route_by_class[certificate_class]
+            owner_contract, certificate_route = owner_routes[certificate_class]
             instrument_id = certificate_route.instrument_id
-            obligation_class = certificate_route.obligation_class
-            role = certificate_route.certificate_role
-            polarity = certificate_route.claim_polarity
+            obligation_class = owner_contract.obligation_class
+            role = owner_contract.certificate_role
+            polarity = owner_contract.claim_polarity
             certificate_ref = f"n10-route://{route.route_id}"
             evidence_by_ref[certificate_ref] = {
                 "certificate_ref": certificate_ref,
@@ -992,7 +1247,7 @@ def build_live_contract(
                 "obligation_class": obligation_class,
                 "certificate_role": role,
                 "claim_polarity": polarity,
-                "owner_ref": certificate_route.owner_ref,
+                "owner_ref": owner_contract.owner_ref,
                 "owner_projection": asdict(route),
                 "certificate_class": certificate_class,
             }
@@ -1037,22 +1292,22 @@ def build_live_contract(
         report("n13b_passport_accounting_started")
         for passport in owner_bundle.n13b.passports:
             certificate_ref = f"n13b-passport://{passport.passport_id}"
-            certificate_route = route_by_class["admission_passport"]
+            owner_contract, certificate_route = owner_routes["admission_passport"]
             instrument_id = certificate_route.instrument_id
             evidence_by_ref[certificate_ref] = {
                 "certificate_ref": certificate_ref,
                 "instrument_id": instrument_id,
-                "obligation_class": certificate_route.obligation_class,
-                "certificate_role": certificate_route.certificate_role,
-                "claim_polarity": certificate_route.claim_polarity,
-                "owner_ref": certificate_route.owner_ref,
+                "obligation_class": owner_contract.obligation_class,
+                "certificate_role": owner_contract.certificate_role,
+                "claim_polarity": owner_contract.claim_polarity,
+                "owner_ref": owner_contract.owner_ref,
                 "owner_projection": asdict(passport),
                 "certificate_class": "admission_passport",
             }
             prepared = real_session.prepare_check(
                 history_token=real_session.observe_history(),
                 request_key=f"account://{certificate_ref}",
-                obligation_class=certificate_route.obligation_class,
+                obligation_class=owner_contract.obligation_class,
                 instrument_id=instrument_id,
                 certificate_ref=certificate_ref,
                 certificate_class="admission_passport",
@@ -1061,8 +1316,8 @@ def build_live_contract(
                     null_ref=f"n13b://null/{passport.passport_id}/admission-is-wrong",
                     claim_scope_ref=f"n13b://passport/{passport.projection_sha256}",
                     data_window_ref=owner_bundle.n13b.journal_projection_sha256,
-                    certificate_role=certificate_route.certificate_role,
-                    claim_polarity=certificate_route.claim_polarity,
+                    certificate_role=owner_contract.certificate_role,
+                    claim_polarity=owner_contract.claim_polarity,
                 ),
             )
             check = real_session.execute_check(prepared)
@@ -1073,10 +1328,10 @@ def build_live_contract(
                     "request_key": check.request_key,
                     "certificate_class": "admission_passport",
                     "certificate_ref": certificate_ref,
-                    "obligation_class": certificate_route.obligation_class,
+                    "obligation_class": owner_contract.obligation_class,
                     "instrument_id": instrument_id,
-                    "certificate_role": certificate_route.certificate_role,
-                    "claim_polarity": certificate_route.claim_polarity,
+                    "certificate_role": owner_contract.certificate_role,
+                    "claim_polarity": owner_contract.claim_polarity,
                     "owner_projection_hash": check.owner_binding.owner_projection_hash,
                     "execution_status": "executed",
                     "deterministic_proof": True,
@@ -1124,6 +1379,14 @@ def build_live_contract(
             conformance_session.receipt(), session=conformance_session
         )
         report("conformance_ledger_receipt_validated")
+        unseen_instrument_session = ConfidenceLedgerSession._for_verification(
+            root,
+            risk_scope=_unseen_instrument_probe_risk_scope(registry),
+            artifact_store=store,
+            state_root=scratch / "unseen-instrument-state",
+            registry_source=registry.source_payload(),
+        )
+        unseen_instrument_probe = _build_unseen_instrument_probe(unseen_instrument_session)
         report("confidence_ledger_receipts_validated")
         real_ledger_projection = project_confidence_ledger_semantic_receipt(
             real_receipt,
@@ -1237,7 +1500,11 @@ def build_live_contract(
             "obligation_completeness",
             "validator_soundness",
         ),
-        "universality": _universality_evidence(registry, accounted_rows),
+        "universality": _universality_evidence(
+            registry,
+            accounted_rows,
+            unseen_instrument_probe=unseen_instrument_probe,
+        ),
     }
     contract = FrozenConfidenceLedgerContract(
         **payload,
@@ -1415,6 +1682,53 @@ def _validate_owner_bundle_projection(
     bundle_values = {"n10": asdict(n10), "n13b": asdict(n13b)}
     if projection.projection_sha256 != content_sha256(bundle_values):
         issues.append({"code": "owner_bundle_projection_hash_drift"})
+    return issues
+
+
+def _validate_unseen_instrument_probe(
+    probe: UnseenInstrumentProbeEvidence,
+    *,
+    registry: ConfidenceLedgerRegistry,
+) -> list[dict[str, Any]]:
+    """Recompute the U2 absence, predictable request, scope, and projection binding."""
+
+    issues: list[dict[str, Any]] = []
+    values = probe.model_dump(mode="json", exclude={"projection_hash"})
+    if probe.projection_hash != _ledger_content_hash(values):
+        issues.append({"code": "unseen_instrument_probe_projection_hash_drift"})
+    try:
+        registry.resolve_instrument(probe.instrument_id)
+    except ConfidenceLedgerError as exc:
+        if exc.code != "unknown_instrument":
+            issues.append({"code": "unseen_instrument_probe_resolution_drift"})
+    else:
+        issues.append({"code": "unseen_instrument_probe_unexpectedly_registered"})
+    risk_scope = _unseen_instrument_probe_risk_scope(registry)
+    if (
+        probe.registry_content_hash != registry.content_hash
+        or probe.scope_id != risk_scope.scope_id
+        or probe.scope_anchor_ref != recompute_confidence_scope_anchor_ref(risk_scope)
+    ):
+        issues.append({"code": "unseen_instrument_probe_scope_binding_drift"})
+    expected_fingerprint = _ledger_content_hash(
+        {
+            "request_key": "universality://unseen-instrument/frozen",
+            "obligation_class": PromotionObligationClass.EVAL_SAFETY,
+            "instrument_id": "__n11_unregistered_instrument_probe__",
+            "certificate_ref": "universality://unseen-instrument/certificate",
+            "certificate_class": None,
+            "claim": {
+                "claim_ref": "universality://claim/unseen-instrument-is-valid",
+                "null_ref": "universality://null/unseen-instrument-is-invalid",
+                "claim_scope_ref": "universality://scope/unseen-instrument",
+                "data_window_ref": "universality://data-window/no-observations",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+            },
+        }
+    )
+    if probe.request_fingerprint != expected_fingerprint:
+        issues.append({"code": "unseen_instrument_probe_request_binding_drift"})
     return issues
 
 
@@ -1919,6 +2233,12 @@ def validate_payload(
                 registry=projected_registry,
             )
         )
+        issues.extend(
+            _validate_unseen_instrument_probe(
+                parsed.universality.unseen_instrument_probe,
+                registry=projected_registry,
+            )
+        )
     accounted_values = parsed.accounted_run.model_dump(
         mode="json",
         exclude={"projection_hash"},
@@ -1991,6 +2311,7 @@ def validate_payload(
         parsed.real_ledger_projection.registry_content_hash,
         parsed.conformance_ledger_projection.registry_content_hash,
         parsed.n9_promotion_projection.registry_content_hash,
+        parsed.universality.unseen_instrument_probe.registry_content_hash,
     }
     if len(registry_hashes) != 1:
         issues.append({"code": "registry_projection_binding_drift"})
@@ -2082,6 +2403,7 @@ def validate_payload(
         expected_universality = _universality_evidence(
             projected_registry,
             parsed.accounted_run.evidence_rows,
+            unseen_instrument_probe=parsed.universality.unseen_instrument_probe,
         )
         if parsed.universality != expected_universality:
             issues.append({"code": "universality_evidence_drift"})
@@ -2100,6 +2422,11 @@ def corrupt_field_drift_check(contract: FrozenConfidenceLedgerContract) -> dict[
             "registry_conditionality_clause",
             ("registry_projection", "conditionality_clause"),
             "conditionality removed",
+        ),
+        (
+            "unseen_instrument_probe_projection_hash",
+            ("universality", "unseen_instrument_probe", "projection_hash"),
+            "sha256:" + "0" * 64,
         ),
         (
             "maintained_assumptions",
@@ -2553,10 +2880,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
             ),
             probe_nodeid=(
-                promotion_test + "test_probabilistic_certificate_bypassing_ledger_is_rejected"
+                promotion_test
+                + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
             ),
             expected_red_signal=(
-                promotion_test + "test_probabilistic_certificate_bypassing_ledger_is_rejected"
+                promotion_test
+                + "test_non_calibration_probabilistic_certificate_bypass_is_rejected"
             ),
         ),
         _SourceFlipCase(

@@ -7,6 +7,7 @@ import signal
 import time
 from collections.abc import Callable, Iterator
 from contextlib import suppress
+from dataclasses import asdict, replace
 from multiprocessing.connection import Connection
 from pathlib import Path
 from types import SimpleNamespace
@@ -531,6 +532,227 @@ def test_real_capstone_and_admission_denominator_are_accounted(
     assert checker.validate_payload(contract, expected=contract)["status"] == "pass"
 
 
+def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.data_plane import content_sha256
+
+    bundle = _warm_bundle(monkeypatch)
+    unicode_route = replace(
+        bundle.n10.routes[0],
+        candidate_ref="n10-candidate://дані",
+    )
+    route_values = asdict(unicode_route)
+    route_values.pop("projection_sha256")
+    unicode_route = replace(
+        unicode_route,
+        projection_sha256=content_sha256(route_values),
+    )
+    unicode_n10 = replace(
+        bundle.n10,
+        routes=(unicode_route, *bundle.n10.routes[1:]),
+    )
+    n10_values = asdict(unicode_n10)
+    n10_values.pop("projection_sha256")
+    unicode_n10 = replace(
+        unicode_n10,
+        projection_sha256=content_sha256(n10_values),
+    )
+    unicode_bundle = replace(
+        bundle,
+        n10=unicode_n10,
+        projection_sha256=content_sha256(
+            {
+                "n10": asdict(unicode_n10),
+                "n13b": asdict(bundle.n13b),
+            }
+        ),
+    )
+    monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: unicode_bundle)
+
+    contract = checker.build_live_contract(
+        POLICY_ENGINE_ROOT,
+        catalog_path=CATALOG_PATH,
+        l5_path=L5_PATH,
+    )
+
+    row = next(
+        item
+        for item in contract.accounted_run.evidence_rows
+        if item.certificate_ref == f"n10-route://{unicode_route.route_id}"
+    )
+    assert row.execution_status == "executed"
+    assert row.supports_obligation is True
+    assert row.owner_projection_hash is not None
+    report = checker.validate_payload(contract, expected=contract)
+    assert report["status"] == "pass", report["issues"]
+
+
+@pytest.mark.parametrize(
+    ("field", "forged_value"),
+    [
+        ("owner_ref", "attacker.FakeOwner"),
+        ("verifier_ref", "attacker.FakeVerifier"),
+        ("obligation_class", "value"),
+    ],
+)
+def test_real_owner_route_relabel_fails_before_accounting(
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    forged_value: str,
+) -> None:
+    bundle = _warm_bundle(monkeypatch)
+    registry = checker.load_confidence_ledger_registry(
+        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
+    )
+    payload = registry.source_payload()
+    route = next(
+        item
+        for item in payload["certificate_class_routes"]
+        if item["certificate_class"] == "owner_acquisition_route"
+    )
+    route[field] = forged_value
+    forged_registry = checker.load_confidence_ledger_registry(payload)
+    monkeypatch.setattr(
+        checker,
+        "load_confidence_ledger_registry",
+        lambda *_args, **_kwargs: forged_registry,
+    )
+    monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: bundle)
+    session_calls = 0
+
+    def forbid_session(*_args: object, **_kwargs: object) -> None:
+        nonlocal session_calls
+        session_calls += 1
+        raise AssertionError("ledger_session_opened_before_owner_contract_validation")
+
+    monkeypatch.setattr(
+        checker.ConfidenceLedgerSession,
+        "_for_verification",
+        classmethod(forbid_session),
+    )
+
+    with pytest.raises(ValueError, match="owner_certificate_route_contract_mismatch"):
+        checker.build_live_contract(
+            POLICY_ENGINE_ROOT,
+            catalog_path=CATALOG_PATH,
+            l5_path=L5_PATH,
+        )
+
+    assert session_calls == 0
+
+
+def test_required_real_owner_route_cannot_be_deleted() -> None:
+    registry = checker.load_confidence_ledger_registry(
+        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
+    )
+    payload = registry.source_payload()
+    payload["certificate_class_routes"] = [
+        item
+        for item in payload["certificate_class_routes"]
+        if item["certificate_class"] != "admission_passport"
+    ]
+    missing = checker.load_confidence_ledger_registry(payload)
+
+    with pytest.raises(ValueError, match="owner_certificate_route_contract_missing"):
+        checker._bind_code_owned_owner_certificate_routes(missing)
+
+
+def test_unowned_real_owner_kernel_route_cannot_extend_denominator() -> None:
+    registry = checker.load_confidence_ledger_registry(
+        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
+    )
+    payload = registry.source_payload()
+    payload["certificate_class_routes"].append(
+        {
+            "certificate_class": "unowned_n10_refusal_class",
+            "instrument_id": "deterministic_owner_proof",
+            "obligation_class": "data",
+            "certificate_role": "refusal",
+            "claim_polarity": "confident_wrong_refusal",
+            "owner_ref": (
+                "tools.quality.validation.layer3_gy_n13a_acquisition_census."
+                "extract_route_projection"
+            ),
+            "verifier_kernel_id": "n10_route_projection_recompute_v1",
+            "verifier_ref": (
+                "tools.quality.validation."
+                "check_layer3_gy_depth_n_universality_contract.validate_payload"
+            ),
+        }
+    )
+    unowned = checker.load_confidence_ledger_registry(payload)
+
+    with pytest.raises(ValueError, match="owner_certificate_route_contract_unowned"):
+        checker._bind_code_owned_owner_certificate_routes(unowned)
+
+
+def test_new_data_only_instrument_is_accounted_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _warm_bundle(monkeypatch)
+    monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: bundle)
+
+    contract = checker.build_live_contract(
+        POLICY_ENGINE_ROOT,
+        catalog_path=CATALOG_PATH,
+        l5_path=L5_PATH,
+    )
+
+    definition = next(
+        item
+        for item in contract.registry_projection.instruments
+        if item.instrument_id == "deterministic_refusal_certificate"
+    )
+    row = next(
+        item
+        for item in contract.accounted_run.evidence_rows
+        if item.certificate_class == "estimand_binding_refusal"
+    )
+    check = next(
+        item
+        for item in contract.real_ledger_projection.checks
+        if item.check_projection_hash == row.check_projection_hash
+    )
+
+    assert definition.instrument_family == "proof_carrying_refusal_certificate"
+    assert row.instrument_id == definition.instrument_id
+    assert check.instrument_id == definition.instrument_id
+    assert check.owner_binding is not None
+    assert check.owner_binding.owner_projection_hash == row.owner_projection_hash
+    assert definition.instrument_id in contract.universality.real_accounted_instrument_ids
+    assert checker.validate_payload(contract, expected=contract)["status"] == "pass"
+
+
+def test_unseen_instrument_probe_is_a_recorded_zero_spend_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _warm_bundle(monkeypatch)
+    monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: bundle)
+
+    contract = checker.build_live_contract(
+        POLICY_ENGINE_ROOT,
+        catalog_path=CATALOG_PATH,
+        l5_path=L5_PATH,
+    )
+
+    probe = contract.universality.unseen_instrument_probe
+    assert probe.instrument_id == "__n11_unregistered_instrument_probe__"
+    assert probe.refusal_code == "unknown_instrument"
+    assert probe.execution_status == "refused"
+    assert probe.outcome == "preflight_refusal"
+    assert probe.event_count == 1
+    assert probe.check_count == 1
+    assert probe.execution_ordinal is None
+    assert probe.schedule_query_index is None
+    assert probe.execution_id is None
+    assert probe.spend_numerator == 0
+    assert probe.total_spend_numerator == 0
+    assert probe.supports_obligation is False
+    assert probe.eligible_for_promotion is False
+    assert checker.validate_payload(contract, expected=contract)["status"] == "pass"
+
+
 def test_projection_edges_bind_owner_declared_scopes_and_hashes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -542,17 +764,45 @@ def test_projection_edges_bind_owner_declared_scopes_and_hashes(
         l5_path=L5_PATH,
     )
 
-    n10_edge, n13b_edge, n9_edge, n12_edge = contract.projection_edges
+    n10_edge, n13b_edge, accounted_edge, n9_edge, n12_edge = contract.projection_edges
     assert n10_edge.producer_scope == bundle.n10.source_projection_scope
     assert n10_edge.producer_scope == "capstone_acquisition_routes"
     assert n10_edge.producer_projection_hash == bundle.n10.source_projection_sha256
+    assert n10_edge.consumer_projection_hash == contract.real_ledger_projection.projection_hash
     assert n13b_edge.producer_scope == bundle.n13b.source_accounting_projection_scope
     assert n13b_edge.producer_projection_hash == (bundle.n13b.source_accounting_projection_sha256)
+    assert n13b_edge.consumer_projection_hash == contract.real_ledger_projection.projection_hash
+    assert accounted_edge.producer_scope == contract.real_ledger_projection.projection_scope
+    assert accounted_edge.producer_projection_hash == contract.real_ledger_projection.projection_hash
+    assert accounted_edge.consumer_projection_hash == contract.accounted_run.projection_hash
     assert n9_edge.producer_scope == contract.real_ledger_projection.projection_scope
     assert n9_edge.producer_projection_hash == contract.real_ledger_projection.projection_hash
     assert n9_edge.consumer_projection_hash == contract.n9_promotion_projection.projection_hash
     assert (
         n12_edge.consumer_projection_hash == contract.n12_epoch_reference_projection.projection_hash
+    )
+
+
+def test_zero_mass_schedule_projection_uses_non_strict_total_bound() -> None:
+    registry = checker.load_confidence_ledger_registry(POLICY_ENGINE_ROOT / checker.REGISTRY_PATH)
+    payload = registry.source_payload()
+    payload["schedule_profiles"].append(
+        {
+            "profile_id": "zero_mass_basel_square",
+            "proof_kernel_id": "basel_square_v1",
+            "mass": {"numerator": 0, "denominator": 1},
+        }
+    )
+    payload["policy"]["default_schedule_profile_id"] = "zero_mass_basel_square"
+
+    projection = checker._build_registry_projection(
+        checker.load_confidence_ledger_registry(payload)
+    )
+
+    assert projection.selected_schedule_proof.declared_mass.numerator == 0
+    assert (
+        projection.selected_schedule_proof.total_mass_relation
+        == "sum_t executable_weight_t <= declared_mass <= 1"
     )
 
 

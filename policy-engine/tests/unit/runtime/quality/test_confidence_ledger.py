@@ -17,7 +17,7 @@ import pytest
 
 from polisyos.core.artifacts import ArtifactID, FileSystemCAS
 from polisyos.fabric.io.atomic import atomic_write_json
-from polisyos.pdc import PromotionObligationClass, gy_content_hash
+from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality import confidence_ledger as ledger_module
 from polisyos.runtime.quality.confidence_ledger import (
     CONDITIONAL_VALIDITY_CLAUSE,
@@ -33,6 +33,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     project_confidence_ledger_semantic_receipt,
     project_n9_promotion_certificate,
     project_n12_epoch_reference,
+    recompute_confidence_owner_evidence_hash,
     validate_confidence_ledger_receipt,
 )
 
@@ -2368,7 +2369,7 @@ def _deterministic_verification(
             "check_layer3_gy_depth_n_universality_contract.validate_payload"
         ),
         verifier_projection={"owner_projection_recomputed": True},
-        certificate_evidence_hash=gy_content_hash(evidence.model_dump(mode="json")),
+        certificate_evidence_hash=recompute_confidence_owner_evidence_hash(evidence),
         claim_execution_binding_hash=evidence.claim_execution_binding_hash,
         supports_obligation=True,
     )
@@ -2513,7 +2514,7 @@ def test_registered_owner_and_verifier_provenance_cannot_be_self_attested(
         return OwnerCertificateVerification(
             verifier_ref="forged://verifier/distinct-string",
             verifier_projection={"forged_support": True},
-            certificate_evidence_hash=gy_content_hash(evidence.model_dump(mode="json")),
+            certificate_evidence_hash=recompute_confidence_owner_evidence_hash(evidence),
             claim_execution_binding_hash=evidence.claim_execution_binding_hash,
             supports_obligation=True,
         )
@@ -2548,7 +2549,7 @@ def test_deterministic_owner_and_verifier_must_be_distinct(
         return OwnerCertificateVerification(
             verifier_ref=value.owner_ref,
             verifier_projection={"owner_projection_recomputed": True},
-            certificate_evidence_hash=gy_content_hash(value.model_dump(mode="json")),
+            certificate_evidence_hash=recompute_confidence_owner_evidence_hash(value),
             claim_execution_binding_hash=value.claim_execution_binding_hash,
             supports_obligation=True,
         )
@@ -2976,6 +2977,35 @@ def test_custom_predictable_schedule_profile_accounts_end_to_end(tmp_path: Path)
     half_started = half.start_check(_prepare(half))
 
     assert half_started.spend.fraction * 2 == default_started.spend.fraction
+
+
+def test_zero_mass_schedule_is_valid_and_cannot_support_promotion(
+    sessions: _SessionFactory,
+) -> None:
+    registry = load_confidence_ledger_registry(
+        REPO_ROOT / "architecture/production_quality/confidence_ledger.toml"
+    )
+    payload = registry.source_payload()
+    payload["schedule_profiles"].append(
+        {
+            "profile_id": "zero_mass_basel_square",
+            "proof_kernel_id": "basel_square_v1",
+            "mass": {"numerator": 0, "denominator": 1},
+        }
+    )
+    session = sessions(
+        registry_source=payload,
+        schedule_profile_id="zero_mass_basel_square",
+    )
+
+    completed = session.execute_check(_prepare(session))
+    receipt = session.receipt()
+
+    assert completed.spend.fraction == 0
+    assert completed.supports_obligation is False
+    assert completed.eligible_for_promotion is False
+    assert receipt.total_spend.fraction == 0
+    assert receipt.within_budget is True
 
 
 def test_schedule_mass_above_one_is_rejected() -> None:

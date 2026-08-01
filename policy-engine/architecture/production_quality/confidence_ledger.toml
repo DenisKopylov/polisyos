@@ -172,6 +172,26 @@ proof_profile_id = "fixed_time_ineligible"
 certificate_roles = ["promotion"]
 
 [[certificate_class_routes]]
+certificate_class = "n8_fixed_time_calibration_candidate"
+instrument_id = "fixed_time_confidence_interval"
+obligation_class = "calibration"
+certificate_role = "promotion"
+claim_polarity = "false_accept"
+owner_ref = "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt"
+verifier_kernel_id = "n8_calibration_receipt_recompute_v1"
+verifier_ref = "polisyos.runtime.quality.promotion_sequence._calibration_obligation"
+
+[[certificate_class_routes]]
+certificate_class = "n8_data_trust_promotion_candidate"
+instrument_id = "owner_verified_e_process"
+obligation_class = "data"
+certificate_role = "promotion"
+claim_polarity = "false_accept"
+owner_ref = "polisyos.core.contracts.value_outer_set.DataTrust"
+verifier_kernel_id = "n8_data_trust_recompute_v1"
+verifier_ref = "polisyos.runtime.quality.promotion_sequence._data_obligation"
+
+[[certificate_class_routes]]
 certificate_class = "owner_acquisition_route"
 instrument_id = "deterministic_owner_proof"
 obligation_class = "data"

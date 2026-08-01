@@ -62,6 +62,8 @@ _SUPPORTED_PROOF_KERNELS = frozenset(
 )
 _SUPPORTED_OWNER_VERIFIER_KERNELS = frozenset(
     {
+        "n8_calibration_receipt_recompute_v1",
+        "n8_data_trust_recompute_v1",
         "n10_route_projection_recompute_v1",
         "n13b_passport_revalidate_v1",
     }
@@ -207,6 +209,25 @@ class PredictableClaimSpec(_StrictModel):
     def _role_matches_protected_error(self) -> Self:
         if _ROLE_POLARITY[self.certificate_role] != self.claim_polarity:
             raise ValueError("certificate_role_polarity_mismatch")
+        return self
+
+
+class PromotionCertificateOffer(_StrictModel):
+    """Owner candidate resolved through registry data before N9 can use it."""
+
+    request_key: str = Field(min_length=1)
+    certificate_class: str = Field(min_length=1)
+    certificate_ref: str = Field(min_length=1)
+    owner_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    claim: PredictableClaimSpec
+
+    @model_validator(mode="after")
+    def _is_a_promotion_candidate_only(self) -> Self:
+        if (
+            self.claim.certificate_role != "promotion"
+            or self.claim.claim_polarity != "false_accept"
+        ):
+            raise ValueError("n9_certificate_offer_role_invalid")
         return self
 
 
@@ -1252,6 +1273,30 @@ class ConfidenceLedgerSession:
             if refusal is not None:
                 raise ConfidenceLedgerError(refusal, instrument_id)
             return appended.check
+
+    def prepare_offer(
+        self,
+        *,
+        history_token: ConfidenceLedgerHistoryToken,
+        offer: PromotionCertificateOffer,
+    ) -> ConfidenceLedgerCheck:
+        """Resolve a typed owner offer through registry data, then bind its check."""
+
+        route = self._registry.resolve_certificate_route(offer.certificate_class)
+        if (
+            route.certificate_role != offer.claim.certificate_role
+            or route.claim_polarity != offer.claim.claim_polarity
+        ):
+            raise ConfidenceLedgerError("certificate_class_route_mismatch")
+        return self.prepare_check(
+            history_token=history_token,
+            request_key=offer.request_key,
+            obligation_class=route.obligation_class,
+            instrument_id=route.instrument_id,
+            certificate_ref=offer.certificate_ref,
+            certificate_class=offer.certificate_class,
+            claim=offer.claim,
+        )
 
     def start_check(self, prepared: ConfidenceLedgerCheck) -> ConfidenceLedgerCheck:
         """Atomically assign an ordinal and burn risk before calling an owner."""
@@ -2758,7 +2803,7 @@ class ConfidenceLedgerSession:
             raise ConfidenceLedgerError("owner_and_verifier_must_be_distinct")
         if verification.verifier_ref != route.verifier_ref:
             raise ConfidenceLedgerError("owner_verifier_provenance_mismatch")
-        evidence_hash = _content_hash(evidence)
+        evidence_hash = recompute_confidence_owner_evidence_hash(evidence)
         if (
             verification.certificate_evidence_hash != evidence_hash
             or verification.claim_execution_binding_hash != check.claim_execution_binding_hash
@@ -2769,7 +2814,9 @@ class ConfidenceLedgerSession:
             certificate_class=check.certificate_class,
             certificate_route_hash=check.certificate_route_hash,
             owner_ref=evidence.owner_ref,
-            owner_projection_hash=_content_hash(evidence.owner_projection),
+            owner_projection_hash=recompute_confidence_owner_projection_hash(
+                evidence.owner_projection
+            ),
             verifier_ref=verification.verifier_ref,
             verifier_kernel_id=route.verifier_kernel_id,
             verifier_projection_hash=_content_hash(verification.verifier_projection),
@@ -2965,6 +3012,20 @@ def load_confidence_ledger_registry(
         with Path(source).open("rb") as handle:
             payload = tomllib.load(handle)
     return ConfidenceLedgerRegistry.model_validate(payload)
+
+
+def recompute_confidence_owner_projection_hash(owner_projection: object) -> str:
+    """Hash an owner projection with the ledger's sole canonical serializer."""
+
+    return _content_hash(owner_projection)
+
+
+def recompute_confidence_owner_evidence_hash(
+    evidence: OwnerCertificateEvidence,
+) -> str:
+    """Hash resolved owner evidence exactly as the ledger verifier intake does."""
+
+    return _content_hash(evidence)
 
 
 def recompute_confidence_schedule_projection_hash(
@@ -4688,11 +4749,14 @@ __all__ = [
     "OwnerCertificateEvidence",
     "OwnerCertificateVerification",
     "PredictableClaimSpec",
+    "PromotionCertificateOffer",
     "RationalSpec",
     "load_confidence_ledger_registry",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
     "project_n12_epoch_reference",
+    "recompute_confidence_owner_evidence_hash",
+    "recompute_confidence_owner_projection_hash",
     "recompute_confidence_schedule_projection_hash",
     "recompute_confidence_scope_anchor_ref",
     "validate_confidence_ledger_receipt",

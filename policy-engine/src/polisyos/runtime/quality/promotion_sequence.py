@@ -47,15 +47,19 @@ from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
 )
 from polisyos.runtime.quality.confidence_ledger import (
     DEFAULT_REGISTRY_RELATIVE_PATH,
+    CertificateClassRoute,
     ConfidenceLedgerCheck,
     ConfidenceLedgerError,
     ConfidenceLedgerReceipt,
+    ConfidenceLedgerRegistry,
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
     N9PromotionCertificateProjection,
     PredictableClaimSpec,
+    PromotionCertificateOffer,
     load_confidence_ledger_registry,
     project_n9_promotion_certificate,
+    recompute_confidence_owner_projection_hash,
     validate_confidence_ledger_receipt,
 )
 from polisyos.runtime.quality.credal_reference import CredalReference
@@ -105,15 +109,6 @@ class _CG2OwnerPromotabilityAttempt:
     resolution: GroundingPromotabilityResolution | None
     owner_ref: str
     error: str | None = None
-
-
-@dataclass(frozen=True)
-class _ExpectedPromotionCheck:
-    request_key: str
-    obligation_class: PromotionObligationClass
-    instrument_id: str
-    certificate_ref: str
-    claim: PredictableClaimSpec
 
 
 class _StrictModel(BaseModel):
@@ -175,6 +170,7 @@ class CanonicalPromotionInput(_StrictModel):
     producer_root_classes: tuple[str, ...] = ("deterministic_producer",)
     producer_root_refs: tuple[ArtifactRef, ...] = ()
     verifier_refs: tuple[str, ...] = ("verifier://n9/canonical-sequence",)
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
     g4_governed_promotion_ref: str | None = (
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
     )
@@ -189,6 +185,9 @@ class CanonicalPromotionInput(_StrictModel):
             and self.value_receipt.candidate_id != self.candidate_summary.candidate_id
         ):
             raise ValueError("promotion_value_candidate_binding_mismatch")
+        request_keys = [item.request_key for item in self.certificate_offers]
+        if len(request_keys) != len(set(request_keys)):
+            raise ValueError("duplicate_promotion_certificate_offer")
         return self
 
 
@@ -212,6 +211,7 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
     producer_root_classes: tuple[str, ...]
     producer_root_refs: tuple[ArtifactRef, ...]
     verifier_refs: tuple[str, ...]
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
     g4_governed_promotion_ref: str | None
     effective_independence: bool
     admissibility: bool
@@ -399,6 +399,7 @@ def _owner_projection_from_input(
         "producer_root_classes": promotion_input.producer_root_classes,
         "producer_root_refs": promotion_input.producer_root_refs,
         "verifier_refs": promotion_input.verifier_refs,
+        "certificate_offers": promotion_input.certificate_offers,
         "g4_governed_promotion_ref": promotion_input.g4_governed_promotion_ref,
         "effective_independence": promotion_input.effective_independence,
         "admissibility": promotion_input.admissibility,
@@ -446,6 +447,7 @@ def _input_from_owner_projection(
         producer_root_classes=projection.producer_root_classes,
         producer_root_refs=projection.producer_root_refs,
         verifier_refs=projection.verifier_refs,
+        certificate_offers=projection.certificate_offers,
         g4_governed_promotion_ref=projection.g4_governed_promotion_ref,
         effective_independence=projection.effective_independence,
         admissibility=projection.admissibility,
@@ -609,6 +611,7 @@ def _run_n9_promotion_port_batch(
             ),
             producer_root_refs=tuple(context.get("producer_root_refs") or ()),
             verifier_refs=tuple(context.get("verifier_refs") or ()),
+            certificate_offers=tuple(context.get("certificate_offers") or ()),
             g4_governed_promotion_ref=context.get(
                 "g4_governed_promotion_ref",
                 "g4-promotion-record:g4-request:ua-msme-source-only-valid",
@@ -640,6 +643,7 @@ def _run_n9_promotion_port_batch(
         _rebind_promotion_receipt_to_ledger_head(
             receipt,
             promotion_input=promotion_input,
+            registry=confidence_ledger_session.registry,
             ledger_receipt=final_ledger_receipt,
             ledger_projection=final_ledger_projection,
         )
@@ -669,32 +673,111 @@ def _run_n9_promotion_port_batch(
     )
 
 
+def _n11_owner_projection(value: object) -> object:
+    """Project owner content onto ledger-canonical scalars without float ambiguity."""
+
+    if isinstance(value, BaseModel):
+        return _n11_owner_projection(value.model_dump(mode="json"))
+    if isinstance(value, Mapping):
+        return {str(key): _n11_owner_projection(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_n11_owner_projection(item) for item in value]
+    if isinstance(value, float):
+        return repr(value)
+    if isinstance(value, (str, int, bool)) or value is None:
+        return value
+    raise TypeError(f"n11_owner_projection_value_invalid:{type(value).__name__}")
+
+
+def _calibration_owner_projection(
+    promotion_input: CanonicalPromotionInput,
+) -> object:
+    receipt = promotion_input.value_receipt
+    if receipt is None:
+        return {
+            "owner_status": "missing",
+            "candidate_id": promotion_input.candidate_summary.candidate_id,
+        }
+    return _n11_owner_projection(receipt.calibration_receipt)
+
+
+def _data_trust_owner_projection(
+    promotion_input: CanonicalPromotionInput,
+) -> object:
+    receipt = promotion_input.value_receipt
+    if receipt is None:
+        return {
+            "owner_status": "missing",
+            "candidate_id": promotion_input.candidate_summary.candidate_id,
+        }
+    return _n11_owner_projection(receipt.value_outer_set.data_trust)
+
+
+def _promotion_offer_claim_scope_ref(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    route: CertificateClassRoute,
+    certificate_ref: str,
+    data_window_ref: str,
+    owner_projection_hash: str,
+) -> str:
+    """Bind a predictable claim to its candidate, route, owner evidence, and window."""
+
+    binding_hash = gy_content_hash(
+        {
+            "candidate_id": promotion_input.candidate_summary.candidate_id,
+            "candidate_content_hash": promotion_input.candidate_summary.content_hash,
+            "certificate_class": route.certificate_class,
+            "obligation_class": route.obligation_class,
+            "owner_ref": route.owner_ref,
+            "verifier_kernel_id": route.verifier_kernel_id,
+            "verifier_ref": route.verifier_ref,
+            "certificate_ref": certificate_ref,
+            "data_window_ref": data_window_ref,
+            "owner_projection_hash": owner_projection_hash,
+        }
+    )
+    return f"n9://obligation-binding/{binding_hash}"
+
+
 def _expected_calibration_check(
     promotion_input: CanonicalPromotionInput,
-) -> _ExpectedPromotionCheck:
+    *,
+    route: CertificateClassRoute,
+) -> PromotionCertificateOffer:
     value_receipt = promotion_input.value_receipt
     calibration_ref = (
         value_receipt.calibration_receipt.calibration_record_ref
         if value_receipt is not None
         else None
     ) or f"n8://calibration/{promotion_input.candidate_summary.candidate_id}"
-    return _ExpectedPromotionCheck(
+    owner_projection_hash = recompute_confidence_owner_projection_hash(
+        _calibration_owner_projection(promotion_input)
+    )
+    claim_scope_ref = _promotion_offer_claim_scope_ref(
+        promotion_input,
+        route=route,
+        certificate_ref=calibration_ref,
+        data_window_ref=calibration_ref,
+        owner_projection_hash=owner_projection_hash,
+    )
+    return PromotionCertificateOffer(
         request_key=(
             f"n9://{promotion_input.candidate_summary.candidate_id}/"
-            f"{PromotionObligationClass.CALIBRATION.value}/{calibration_ref}"
+            f"{PromotionObligationClass.CALIBRATION.value}/"
+            f"{route.certificate_class}/{calibration_ref}/"
+            f"binding/{claim_scope_ref.rsplit('/', maxsplit=1)[-1]}"
         ),
-        obligation_class=PromotionObligationClass.CALIBRATION,
-        instrument_id="fixed_time_confidence_interval",
+        certificate_class=route.certificate_class,
         certificate_ref=calibration_ref,
+        owner_projection_hash=owner_projection_hash,
         claim=PredictableClaimSpec(
             claim_ref=(
                 f"n9://candidate/{promotion_input.candidate_summary.candidate_id}/"
                 "calibration-promotion"
             ),
             null_ref="n9://null/calibration-claim-not-promotion-valid",
-            claim_scope_ref=(
-                f"n9://candidate-summary/{promotion_input.candidate_summary.content_hash}"
-            ),
+            claim_scope_ref=claim_scope_ref,
             data_window_ref=calibration_ref,
             certificate_role="promotion",
             claim_polarity="false_accept",
@@ -702,9 +785,201 @@ def _expected_calibration_check(
     )
 
 
+def _expected_data_trust_check(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    route: CertificateClassRoute,
+) -> PromotionCertificateOffer:
+    value_receipt = promotion_input.value_receipt
+    data_ref = (
+        value_receipt.value_outer_set.data_trust.authority_ref
+        if value_receipt is not None
+        else f"n8://data-trust/{promotion_input.candidate_summary.candidate_id}"
+    )
+    owner_projection_hash = recompute_confidence_owner_projection_hash(
+        _data_trust_owner_projection(promotion_input)
+    )
+    claim_scope_ref = _promotion_offer_claim_scope_ref(
+        promotion_input,
+        route=route,
+        certificate_ref=data_ref,
+        data_window_ref=data_ref,
+        owner_projection_hash=owner_projection_hash,
+    )
+    return PromotionCertificateOffer(
+        request_key=(
+            f"n9://{promotion_input.candidate_summary.candidate_id}/"
+            f"{route.obligation_class.value}/{route.certificate_class}/"
+            f"{data_ref}/binding/{claim_scope_ref.rsplit('/', maxsplit=1)[-1]}"
+        ),
+        certificate_class=route.certificate_class,
+        certificate_ref=data_ref,
+        owner_projection_hash=owner_projection_hash,
+        claim=PredictableClaimSpec(
+            claim_ref=(
+                f"n9://candidate/{promotion_input.candidate_summary.candidate_id}/"
+                "data-trust-promotion"
+            ),
+            null_ref="n9://null/data-trust-claim-not-promotion-valid",
+            claim_scope_ref=claim_scope_ref,
+            data_window_ref=data_ref,
+            certificate_role="promotion",
+            claim_polarity="false_accept",
+        ),
+    )
+
+
+@dataclass(frozen=True)
+class _CodeOwnedPromotionOfferProducer:
+    """One N9 owner contract independent of registry-selected instruments."""
+
+    verifier_kernel_id: str
+    obligation_class: PromotionObligationClass
+    owner_ref: str
+    verifier_ref: str
+    build_offer: Callable[..., PromotionCertificateOffer]
+
+    def route_matches(self, route: CertificateClassRoute) -> bool:
+        """Return whether registry data preserves the code-owned provenance contract."""
+
+        return bool(
+            route.obligation_class == self.obligation_class
+            and route.owner_ref == self.owner_ref
+            and route.verifier_ref == self.verifier_ref
+        )
+
+
+def _code_owned_promotion_offer_producers() -> tuple[
+    _CodeOwnedPromotionOfferProducer,
+    ...,
+]:
+    """Return the independent N8 owner census; instruments remain registry data."""
+
+    return (
+        _CodeOwnedPromotionOfferProducer(
+            verifier_kernel_id="n8_calibration_receipt_recompute_v1",
+            obligation_class=PromotionObligationClass.CALIBRATION,
+            owner_ref=(
+                "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt"
+            ),
+            verifier_ref=(
+                "polisyos.runtime.quality.promotion_sequence._calibration_obligation"
+            ),
+            build_offer=_expected_calibration_check,
+        ),
+        _CodeOwnedPromotionOfferProducer(
+            verifier_kernel_id="n8_data_trust_recompute_v1",
+            obligation_class=PromotionObligationClass.DATA,
+            owner_ref="polisyos.core.contracts.value_outer_set.DataTrust",
+            verifier_ref="polisyos.runtime.quality.promotion_sequence._data_obligation",
+            build_offer=_expected_data_trust_check,
+        ),
+    )
+
+
+def _owner_offer_for_route(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    route: CertificateClassRoute,
+) -> PromotionCertificateOffer | None:
+    """Derive current N8 promotion offers from their code-owned owner projections."""
+
+    producer = next(
+        (
+            item
+            for item in _code_owned_promotion_offer_producers()
+            if item.verifier_kernel_id == route.verifier_kernel_id
+        ),
+        None,
+    )
+    return (
+        producer.build_offer(promotion_input, route=route)
+        if producer is not None
+        else None
+    )
+
+
+def _promotion_certificate_offers(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    registry: ConfidenceLedgerRegistry,
+) -> tuple[PromotionCertificateOffer, ...]:
+    """Recompute the registry routes against an independent code-owned owner census."""
+
+    promotion_routes = tuple(
+        route
+        for route in registry.certificate_class_routes
+        if route.certificate_role == "promotion" and route.claim_polarity == "false_accept"
+    )
+    for producer in _code_owned_promotion_offer_producers():
+        owner_routes = tuple(
+            route
+            for route in promotion_routes
+            if route.verifier_kernel_id == producer.verifier_kernel_id
+        )
+        if not owner_routes:
+            raise ConfidenceLedgerError(
+                "promotion_certificate_route_missing_for_owner_producer",
+                producer.verifier_kernel_id,
+            )
+        if any(not producer.route_matches(route) for route in owner_routes):
+            raise ConfidenceLedgerError(
+                "promotion_certificate_route_owner_contract_mismatch",
+                producer.verifier_kernel_id,
+            )
+    supplied_by_class: dict[str, list[PromotionCertificateOffer]] = {}
+    for offer in promotion_input.certificate_offers:
+        route = registry.resolve_certificate_route(offer.certificate_class)
+        if route not in promotion_routes:
+            raise ConfidenceLedgerError(
+                "promotion_certificate_offer_route_invalid",
+                offer.certificate_class,
+            )
+        supplied_by_class.setdefault(offer.certificate_class, []).append(offer)
+    offers: list[PromotionCertificateOffer] = []
+    for route in promotion_routes:
+        assertions = list(supplied_by_class.get(route.certificate_class, ()))
+        if len(assertions) > 1:
+            raise ConfidenceLedgerError(
+                "duplicate_promotion_certificate_offer",
+                route.certificate_class,
+            )
+        owner_offer = _owner_offer_for_route(
+            promotion_input,
+            route=route,
+        )
+        if owner_offer is None:
+            raise ConfidenceLedgerError(
+                "promotion_certificate_offer_owner_recomputation_unavailable",
+                route.certificate_class,
+            )
+        if assertions and assertions[0] != owner_offer:
+            raise ConfidenceLedgerError(
+                "promotion_certificate_offer_assertion_mismatch",
+                route.certificate_class,
+            )
+        offer = owner_offer
+        if offer.claim.claim_scope_ref != _promotion_offer_claim_scope_ref(
+            promotion_input,
+            route=route,
+            certificate_ref=offer.certificate_ref,
+            data_window_ref=offer.claim.data_window_ref,
+            owner_projection_hash=offer.owner_projection_hash,
+        ):
+            raise ConfidenceLedgerError(
+                "promotion_certificate_offer_owner_binding_mismatch",
+                route.certificate_class,
+            )
+        offers.append(offer)
+    request_keys = [item.request_key for item in offers]
+    if len(request_keys) != len(set(request_keys)):
+        raise ConfidenceLedgerError("duplicate_promotion_certificate_offer")
+    return tuple(offers)
+
+
 def _resolve_expected_ledger_check(
     ledger_receipt: ConfidenceLedgerReceipt,
-    expected: _ExpectedPromotionCheck,
+    expected: PromotionCertificateOffer,
 ) -> ConfidenceLedgerCheck:
     matches = [
         check for check in ledger_receipt.checks if check.request_key == expected.request_key
@@ -717,9 +992,8 @@ def _resolve_expected_ledger_check(
     check = matches[0]
     claim = expected.claim
     if (
-        check.obligation_class != expected.obligation_class
-        or check.instrument_id != expected.instrument_id
-        or check.certificate_ref != expected.certificate_ref
+        check.certificate_ref != expected.certificate_ref
+        or check.certificate_class != expected.certificate_class
         or check.claim_ref != claim.claim_ref
         or check.null_ref != claim.null_ref
         or check.claim_scope_ref != claim.claim_scope_ref
@@ -731,54 +1005,170 @@ def _resolve_expected_ledger_check(
     return check
 
 
-def _calibration_refusal_from_ledger(
+def _resolve_expected_ledger_checks(
+    ledger_receipt: ConfidenceLedgerReceipt,
+    offers: Sequence[PromotionCertificateOffer],
+) -> tuple[ConfidenceLedgerCheck, ...]:
+    """Resolve all current-candidate rows from the complete ledger receipt."""
+
+    return tuple(_resolve_expected_ledger_check(ledger_receipt, offer) for offer in offers)
+
+
+def _risk_record_for_check(
+    risk_spend: PromotionRiskSpendSummary,
     check: ConfidenceLedgerCheck,
+) -> PromotionRiskSpendRecord:
+    matches = [
+        item
+        for item in risk_spend.spend_records
+        if item.n11_confidence_ledger_ref == check.check_id
+    ]
+    if len(matches) != 1:
+        raise ConfidenceLedgerError("promotion_risk_record_missing", check.check_id)
+    return matches[0]
+
+
+def _check_binds_compiled_obligation(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    registry: ConfidenceLedgerRegistry,
+    obligation: PromotionObligationRecord,
+    check: ConfidenceLedgerCheck,
+    offers_by_class: Mapping[str, PromotionCertificateOffer],
+) -> bool:
+    """Recompute the exact owner projection and claim binding for one positive row."""
+
+    certificate_class = check.certificate_class
+    if certificate_class is None or check.owner_binding is None:
+        return False
+    offer = offers_by_class.get(certificate_class)
+    if offer is None:
+        return False
+    route = registry.resolve_certificate_route(certificate_class)
+    return bool(
+        check.certificate_ref == offer.certificate_ref
+        and check.data_window_ref == offer.claim.data_window_ref
+        and check.certificate_ref in obligation.evidence_refs
+        and check.data_window_ref in obligation.evidence_refs
+        and check.owner_binding.owner_projection_hash == offer.owner_projection_hash
+        and check.claim_scope_ref
+        == _promotion_offer_claim_scope_ref(
+            promotion_input,
+            route=route,
+            certificate_ref=check.certificate_ref,
+            data_window_ref=check.data_window_ref,
+            owner_projection_hash=offer.owner_projection_hash,
+        )
+    )
+
+
+def _bind_certificate_checks_to_obligations(
+    promotion_input: CanonicalPromotionInput,
+    registry: ConfidenceLedgerRegistry,
+    obligations: Sequence[PromotionObligationRecord],
+    checks: Sequence[ConfidenceLedgerCheck],
     *,
     risk_spend: PromotionRiskSpendSummary,
-) -> PromotionObligationRecord:
-    return _failed_obligation(
-        obligation_class=PromotionObligationClass.CALIBRATION,
-        gate_id=PromotionGateId.N8_CALIBRATION,
-        owner_ref=("polisyos.runtime.quality.confidence_ledger.validate_confidence_ledger_receipt"),
-        detail=(
-            "N8 calibration cannot support promotion: confidence ledger refusal "
-            f"{check.refusal_code or 'owner_reverification_failed'}."
-        ),
-        reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
-    ).model_copy(
-        update={
-            "evidence_refs": [check.check_id],
-            "risk_spend": risk_spend.spend_records[-1],
-        }
-    )
+) -> tuple[PromotionObligationRecord, ...]:
+    """Apply every typed certificate offer through one obligation-class chokepoint."""
+
+    checks_by_class: dict[PromotionObligationClass, list[ConfidenceLedgerCheck]] = {}
+    for check in checks:
+        checks_by_class.setdefault(check.obligation_class, []).append(check)
+    offers_by_class = {
+        offer.certificate_class: offer
+        for offer in _promotion_certificate_offers(
+            promotion_input,
+            registry=registry,
+        )
+    }
+    bound: list[PromotionObligationRecord] = []
+    for obligation in obligations:
+        class_checks = checks_by_class.get(obligation.obligation_class, [])
+        if not class_checks or obligation.status != PromotionObligationStatus.SATISFIED:
+            bound.append(obligation)
+            continue
+        supporting = next(
+            (
+                check
+                for check in class_checks
+                if check.execution_status == "executed"
+                and check.supports_obligation
+                and check.eligible_for_promotion
+                and _check_binds_compiled_obligation(
+                    promotion_input,
+                    registry=registry,
+                    obligation=obligation,
+                    check=check,
+                    offers_by_class=offers_by_class,
+                )
+            ),
+            None,
+        )
+        if supporting is not None:
+            bound.append(
+                obligation.model_copy(
+                    update={
+                        "evidence_refs": [*obligation.evidence_refs, supporting.check_id],
+                        "risk_spend": _risk_record_for_check(risk_spend, supporting),
+                    }
+                )
+            )
+            continue
+        refusal = class_checks[-1]
+        bound.append(
+            _failed_obligation(
+                obligation_class=obligation.obligation_class,
+                gate_id=obligation.gate_id,
+                owner_ref=(
+                    "polisyos.runtime.quality.confidence_ledger."
+                    "validate_confidence_ledger_receipt"
+                ),
+                detail=(
+                    f"{obligation.obligation_class.value} cannot support promotion: "
+                    "confidence ledger refusal or owner-claim binding failure "
+                    f"{refusal.refusal_code or refusal.outcome}; check does not bind "
+                    "the compiled obligation evidence."
+                ),
+                reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+            ).model_copy(
+                update={
+                    "evidence_refs": [check.check_id for check in class_checks],
+                    "risk_spend": _risk_record_for_check(risk_spend, refusal),
+                }
+            )
+        )
+    return tuple(bound)
 
 
 def _build_promotion_receipt_from_owners(
     promotion_input: CanonicalPromotionInput,
     *,
+    registry: ConfidenceLedgerRegistry,
     ledger_receipt: ConfidenceLedgerReceipt,
     ledger_projection: N9PromotionCertificateProjection,
     cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
     base_obligations: tuple[PromotionObligationRecord, ...] | None = None,
 ) -> CanonicalPromotionReceipt:
-    expected_check = _expected_calibration_check(promotion_input)
-    calibration_check = _resolve_expected_ledger_check(
-        ledger_receipt,
-        expected_check,
-    )
     attempt = cg2_attempt or _resolve_cg2_owner_promotability(promotion_input)
     obligations = base_obligations or _compile_obligations(
         promotion_input,
         cg2_attempt=attempt,
     )
-    risk_spend = _risk_spend_summary((calibration_check,), ledger_projection)
-    obligations = _replace_obligation(
-        obligations,
-        PromotionObligationClass.CALIBRATION,
-        _calibration_refusal_from_ledger(
-            calibration_check,
-            risk_spend=risk_spend,
+    expected_checks = _resolve_expected_ledger_checks(
+        ledger_receipt,
+        _promotion_certificate_offers(
+            promotion_input,
+            registry=registry,
         ),
+    )
+    risk_spend = _risk_spend_summary(expected_checks, ledger_projection)
+    obligations = _bind_certificate_checks_to_obligations(
+        promotion_input,
+        registry,
+        obligations,
+        expected_checks,
+        risk_spend=risk_spend,
     )
     promotion_lane = _promotion_lane(attempt)
     gate_hash = _gate_outcome_hash(obligations)
@@ -890,6 +1280,35 @@ def _run_canonical_promotion_sequence_for_verification(
     )
 
 
+def _execute_promotion_certificate_offers(
+    session: ConfidenceLedgerSession,
+    offers: Sequence[PromotionCertificateOffer],
+) -> tuple[ConfidenceLedgerCheck, ...]:
+    """Prepare then close each predictable offer before advancing the ledger head."""
+
+    checks: list[ConfidenceLedgerCheck] = []
+    for offer in offers:
+        try:
+            check = session.prepare_offer(
+                history_token=session.observe_history(),
+                offer=offer,
+            )
+        except ConfidenceLedgerError as exc:
+            try:
+                check = _ledger_check_for_request(
+                    session,
+                    request_key=offer.request_key,
+                )
+            except ConfidenceLedgerError:
+                raise exc from None
+            if check.outcome != "preflight_refusal":
+                raise
+        if check.outcome == "prepared":
+            check = session.execute_check(check)
+        checks.append(check)
+    return tuple(checks)
+
+
 def _run_promotion_sequence_with_bound_session(
     promotion_input: CanonicalPromotionInput,
     *,
@@ -900,27 +1319,15 @@ def _run_promotion_sequence_with_bound_session(
     expected_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
     if confidence_ledger_session.risk_scope != expected_scope:
         raise ValueError("confidence_ledger_scope_binding_mismatch")
-    expected_check = _expected_calibration_check(promotion_input)
-    try:
-        calibration_check = confidence_ledger_session.prepare_check(
-            history_token=confidence_ledger_session.observe_history(),
-            request_key=expected_check.request_key,
-            obligation_class=expected_check.obligation_class,
-            instrument_id=expected_check.instrument_id,
-            certificate_ref=expected_check.certificate_ref,
-            claim=expected_check.claim,
-        )
-    except ConfidenceLedgerError as exc:
-        if exc.code not in {"non_anytime_valid", "coverage_argument_missing"}:
-            raise
-        calibration_check = _ledger_check_for_request(
-            confidence_ledger_session,
-            request_key=expected_check.request_key,
-        )
+    _execute_promotion_certificate_offers(
+        confidence_ledger_session,
+        _promotion_certificate_offers(
+            promotion_input,
+            registry=confidence_ledger_session.registry,
+        ),
+    )
     cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
     obligations = _compile_obligations(promotion_input, cg2_attempt=cg2_attempt)
-    if calibration_check.outcome == "prepared":
-        calibration_check = confidence_ledger_session.execute_check(calibration_check)
     ledger_receipt = confidence_ledger_session.receipt()
     ledger_projection = project_n9_promotion_certificate(
         ledger_receipt,
@@ -928,6 +1335,7 @@ def _run_promotion_sequence_with_bound_session(
     )
     return _build_promotion_receipt_from_owners(
         promotion_input,
+        registry=confidence_ledger_session.registry,
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
         cg2_attempt=cg2_attempt,
@@ -939,6 +1347,7 @@ def _rebind_promotion_receipt_to_ledger_head(
     receipt: CanonicalPromotionReceipt,
     *,
     promotion_input: CanonicalPromotionInput,
+    registry: ConfidenceLedgerRegistry,
     ledger_receipt: ConfidenceLedgerReceipt,
     ledger_projection: N9PromotionCertificateProjection,
 ) -> CanonicalPromotionReceipt:
@@ -947,6 +1356,7 @@ def _rebind_promotion_receipt_to_ledger_head(
     del receipt
     return _build_promotion_receipt_from_owners(
         promotion_input,
+        registry=registry,
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
     )
@@ -1086,6 +1496,11 @@ def _validate_promotion_receipt_with_bound_session(
             }
         )
         return tuple(issues)
+    replay_cg2_attempt = _resolve_cg2_owner_promotability(replay_input)
+    replay_base_obligations = _compile_obligations(
+        replay_input,
+        cg2_attempt=replay_cg2_attempt,
+    )
     expected_scope = confidence_risk_scope_for_problem(replay_input.design_problem_binding)
     if receipt.confidence_ledger_projection.risk_scope != expected_scope:
         issues.append({"code": "confidence_ledger_scope_binding_mismatch"})
@@ -1144,10 +1559,32 @@ def _validate_promotion_receipt_with_bound_session(
         if expected_projection is not None
         else {}
     )
-    promotion_rows_by_class: dict[PromotionObligationClass, list[object]] = {}
-    if expected_projection is not None:
-        for row in expected_projection.promotion_rows:
-            promotion_rows_by_class.setdefault(row.obligation_class, []).append(row)
+    expected_checks_by_class: dict[PromotionObligationClass, list[ConfidenceLedgerCheck]] = {}
+    expected_offers_by_class: dict[str, PromotionCertificateOffer] = {}
+    if validated_ledger is not None and session is not None:
+        try:
+            expected_offers = _promotion_certificate_offers(
+                replay_input,
+                registry=session.registry,
+            )
+            expected_checks = _resolve_expected_ledger_checks(
+                validated_ledger,
+                expected_offers,
+            )
+        except ConfidenceLedgerError as exc:
+            issues.append(
+                {
+                    "code": "promotion_expected_ledger_check_invalid",
+                    "reason": exc.code,
+                    "detail": exc.detail,
+                }
+            )
+        else:
+            expected_offers_by_class = {
+                offer.certificate_class: offer for offer in expected_offers
+            }
+            for check in expected_checks:
+                expected_checks_by_class.setdefault(check.obligation_class, []).append(check)
     classes = tuple(item.obligation_class for item in receipt.obligations)
     expected = tuple(PromotionObligationClass)
     denominator_complete = classes == expected
@@ -1159,7 +1596,6 @@ def _validate_promotion_receipt_with_bound_session(
                 "actual": [item.value for item in classes],
             }
         )
-    expected_probabilistic_check = _expected_calibration_check(replay_input)
     for obligation in receipt.obligations:
         spend = obligation.risk_spend
         if spend is not None:
@@ -1178,18 +1614,26 @@ def _validate_promotion_receipt_with_bound_session(
                         "obligation_class": obligation.obligation_class.value,
                     }
                 )
-        class_rows = promotion_rows_by_class.get(obligation.obligation_class, [])
-        ledger_required = (
-            obligation.obligation_class == expected_probabilistic_check.obligation_class
-        )
+        class_checks = expected_checks_by_class.get(obligation.obligation_class, [])
+        ledger_required = bool(class_checks)
         if (
             obligation.status == PromotionObligationStatus.SATISFIED
             and ledger_required
             and not any(
-                getattr(row, "eligible_for_promotion", False)
+                check.execution_status == "executed"
+                and check.supports_obligation
+                and check.eligible_for_promotion
+                and session is not None
+                and _check_binds_compiled_obligation(
+                    replay_input,
+                    registry=session.registry,
+                    obligation=obligation,
+                    check=check,
+                    offers_by_class=expected_offers_by_class,
+                )
                 and spend is not None
-                and spend.n11_confidence_ledger_ref == getattr(row, "check_id", None)
-                for row in class_rows
+                and spend.n11_confidence_ledger_ref == check.check_id
+                for check in class_checks
             )
         ):
             issues.append(
@@ -1355,12 +1799,15 @@ def _validate_promotion_receipt_with_bound_session(
         ):
             issues.append({"code": "authority_trace_confidence_ledger_mismatch"})
     expected_receipt: CanonicalPromotionReceipt | None = None
-    if validated_ledger is not None and expected_projection is not None:
+    if validated_ledger is not None and expected_projection is not None and session is not None:
         try:
             expected_receipt = _build_promotion_receipt_from_owners(
                 replay_input,
+                registry=session.registry,
                 ledger_receipt=validated_ledger,
                 ledger_projection=expected_projection,
+                cg2_attempt=replay_cg2_attempt,
+                base_obligations=replay_base_obligations,
             )
         except ConfidenceLedgerError as exc:
             if exc.code in {
@@ -1962,16 +2409,6 @@ def _scope_insufficient_obligation(
     )
 
 
-def _replace_obligation(
-    obligations: Sequence[PromotionObligationRecord],
-    obligation_class: PromotionObligationClass,
-    replacement: PromotionObligationRecord,
-) -> tuple[PromotionObligationRecord, ...]:
-    return tuple(
-        replacement if item.obligation_class == obligation_class else item for item in obligations
-    )
-
-
 def _risk_spend_summary(
     checks: Sequence[ConfidenceLedgerCheck],
     projection: N9PromotionCertificateProjection,
@@ -2203,6 +2640,7 @@ __all__ = [
     "CredalReferencePromotabilityProjection",
     "LegacyPromotionStrangleReceipt",
     "N9DesignProblemBinding",
+    "PromotionCertificateOffer",
     "confidence_risk_scope_for_problem",
     "recompute_authority_trace_hash",
     "run_canonical_promotion_sequence",

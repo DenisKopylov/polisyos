@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -103,6 +104,29 @@ function committedSnapshotRefs(files: readonly string[]) {
     .sort();
 }
 
+type SnapshotContent = {
+  bytes: Uint8Array;
+  name: string;
+};
+
+function duplicateSnapshotContentGroups(snapshots: readonly SnapshotContent[]) {
+  const filesByDigest = new Map<string, string[]>();
+  for (const snapshot of snapshots) {
+    const digest = crypto
+      .createHash("sha256")
+      .update(snapshot.bytes)
+      .digest("hex");
+    filesByDigest.set(digest, [
+      ...(filesByDigest.get(digest) ?? []),
+      snapshot.name,
+    ]);
+  }
+  return [...filesByDigest.values()]
+    .filter((group) => group.length > 1)
+    .map((group) => group.sort())
+    .sort((left, right) => left[0].localeCompare(right[0]));
+}
+
 function fixtureServerCommand() {
   const servers = Array.isArray(playwrightConfig.webServer)
     ? playwrightConfig.webServer
@@ -168,6 +192,34 @@ describe("visual regression harness", () => {
         `${spec}\nvoid expect(null).toHaveScreenshot("dead.png");`,
       ).violations,
     ).toContain("screenshot call must be a direct visual-test statement");
+  });
+
+  it("keeps committed visual identities content-distinct", () => {
+    const committedSnapshots = fs
+      .readdirSync(snapshotRoot)
+      .filter((file) => file.endsWith(".png"))
+      .map((name) => ({
+        bytes: fs.readFileSync(path.join(snapshotRoot, name)),
+        name,
+      }));
+    const firstSnapshot = committedSnapshots[0];
+
+    expect(firstSnapshot).toBeDefined();
+    if (!firstSnapshot) {
+      throw new TypeError("visual snapshot census must not be empty");
+    }
+    expect(
+      duplicateSnapshotContentGroups([
+        firstSnapshot,
+        {
+          bytes: firstSnapshot.bytes,
+          name: "synthetic-clone-chromium-darwin.png",
+        },
+      ]),
+    ).toEqual([
+      [firstSnapshot.name, "synthetic-clone-chromium-darwin.png"].sort(),
+    ]);
+    expect(duplicateSnapshotContentGroups(committedSnapshots)).toEqual([]);
   });
 
   it("declares the fixture server test dependency", () => {

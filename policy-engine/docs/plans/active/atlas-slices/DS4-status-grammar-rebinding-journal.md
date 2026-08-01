@@ -2741,3 +2741,95 @@ the source identity.
   It now measures 17,425 application lines added, 17,974 deleted, net reduction
   549, 85 files deleted, and includes `810ef6b77`, `31aae0c45`, `bfb30c82b`,
   and `2d83e3264` in its derived commit list.
+
+## 2026-08-01 — DS4-C19b governed visual-baseline reconciliation
+
+- Preflight measured 18 executable screenshot identities and 18 committed PNGs.
+  The first no-update run passed 3 / 18 and failed 15 / 18. Five inherited A4
+  files were byte-identical (`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`),
+  proving that four names were clone-corrupted rather than surface baselines.
+  The bounded implementation scope measured 19 physical paths before the
+  generated-register projection and 21 at the final boundary after its exact
+  protected source-hash refresh, below the
+  48-path pre-split cap and far below C14's 86 paths.
+- Red-first harness work added a generic all-PNG content-distinct invariant.
+  Its accepted RED named the exact five-file collision. The corruption witness
+  reuses one real baseline's bytes under a synthetic second identity and proves
+  the same digest grouping path rejects it. The final check derives all PNGs
+  from the committed snapshot directory: it contains no A4 regex, fixed count,
+  hash allowlist, filename allowlist, skip, quarantine, or changed pixel
+  tolerance. GREEN is 3 / 3 contract tests and 18 / 18 unique SHA-256 digests.
+- The real-browser harness now uses the canonical dashboard test-state intake,
+  a fixed browser clock, reduced-motion owner state, applied-theme assertions,
+  loaded fonts, non-zero rendered chart marks, and two consecutive equal
+  render signatures. It no longer duplicates storage-key writes or captures a
+  JavaScript-animated chart before the rendered owner state settles.
+- A clean fixture runtime begins with 20 connector rows and zero loaded
+  connectors. C19b loads only `worldbank.wdi@1.0.0` through a bounded local
+  validation request (`dataset_id = ../unsafe`, `allow_fallback = false`),
+  requires the exact no-network unsafe-path rejection, and polls the exact
+  loaded set. Read-only profile/index/promotion/evidence-context requests do not
+  load the connector. Bureaucratic capture rewrites only the fixture artifact's
+  `created_at`, document `render_timestamp`, and exactly one generated-at block
+  to the fixed visual clock; production payloads and product code are untouched.
+
+### C19b baseline and repeatability receipts
+
+- Fourteen inherited identities were regenerated one at a time, visually
+  inspected, and rerun without update: command center, scenario composer dark,
+  run detail summary, evidence promotion, clerk shell-lite, dark evidence,
+  mobile command center, mobile run detail, logo sizes, run-deck slide, decision
+  reading A4, bureaucratic A4, policy compare A4, and scenario A4. The three
+  C19a authority-negative baselines were not regenerated. One over-broad grep
+  briefly regenerated desktop and mobile run-detail together; the unintended
+  mobile write was immediately restored before its exact named regeneration.
+  That corrected attempt is a non-receipt and is not counted as evidence.
+- Exact no-update repeatability is 6 / 6 for desktop/mobile command center over
+  three repetitions, 4 / 4 for the two dark surfaces over two repetitions, and
+  8 / 8 for evidence promotion plus the three healthy print surfaces over two
+  repetitions. The complete no-update suite is honestly 17 / 18.
+- The sole red identity is `run detail A4 print`: expected 724 x 2113, received
+  770 x 13229, with 691,701 differing pixels. The product's global
+  `a[href]::after` print rule emits the full signed public-decision URL, overlaps
+  the report, and expands the capture. C19b does not fix this out-of-focus DS8
+  product defect and does not bless it as a baseline. The existing
+  `adjacent-print-export` DS19 row remains non-suppressed `rebind_pending`, names
+  DS8 as repair owner and DS6 as independent verification owner, and now records
+  the exact closure signal. The old run-detail PNG is unmodified.
+
+### C19b boundary interpretation
+
+- The plan's anticipated 18 / 18 visual receipt is superseded by the standing
+  record-not-fix law for an out-of-focus finding with an existing owner. C19b
+  closes its harness corruption and deterministic-capture scope at 17 / 18;
+  it makes no green claim for the DS8-owned identity. Candidate clothing,
+  fixture-only exclusion, and all-primitives visual negatives remain green.
+- No product component, backend, schema, generated client, v15 archive, frozen
+  locale, tolerance, denominator, or dependency version changed in C19b.
+
+### C19b final wave-boundary receipts
+
+| Gate | Result |
+| --- | --- |
+| dashboard typecheck / production build | PASS; 3,885 modules, PWA 108 entries; inherited Vite chunk advisory only |
+| dashboard lint | PASS; full configured scope, zero diagnostics |
+| dashboard Vitest | BASELINE-GREEN; 311 / 312 files and 890 / 893 tests pass; exactly the three untouched DS6 `panels.agentPipeline.overBudget` en/uk/ru identities remain |
+| accessibility | PASS; three static gates, 84 / 84 component files and 85 / 85 tests, 21 / 21 browser tests |
+| Storybook | PASS; 44 / 44 files and 97 / 97 tests; inherited CSS import-order advisories only |
+| Playwright visual | HONEST-RED; 17 / 18 pass, only DS8-owned `run detail A4 print` remains red and unmodified |
+| dashboard architecture | PASS; zero violations over 1,019 modules / 4,150 dependencies |
+| DS19 governance | PASS; 30 / 30 unit tests plus source-byte and corruption probes, 261 roots / 13 supplemental / 23 seeded negatives / 8 censuses |
+| status governance | PASS; 37 / 37 unit tests plus corruption probes, `47/15/55/0/3`, classifications `15/24/8` |
+| atlas-ui package | PASS; typecheck, lint, architecture over 36 sources, 18 / 18 files and 86 / 86 tests |
+
+- Independent review first found the C19b rationale misbound to
+  `route-runs-compare`. Before staging, that row was restored byte-for-byte and
+  the rationale was attached to the exact `adjacent-print-export` identity.
+  The corrected rereview is GO and independently reproduces 17 / 18 with the
+  same sole run-detail A4 failure. The register's protected source hash was
+  refreshed only after its checker rejected the intentional rationale edit;
+  both governance corruption suites then passed.
+- Final C19b scope is 21 physical paths: 17 dashboard paths, two Atlas register
+  artifacts, the generated register projection, and this journal. It is inside
+  the writable fence. The C19b diff does not touch the lockfile; the cumulative
+  branch lock delta remains the authorized three-line workspace importer only.

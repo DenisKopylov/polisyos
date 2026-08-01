@@ -4870,7 +4870,7 @@
       "owner_slice": "DS8",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "Reason: C19b real-browser verification exposes run-detail-a4-print as an open product regression: the global a[href]::after print rules emit the full long public-decision URL into the report, overlap content, and prevent a stable A4 capture. DS8 owns the product repair; DS6 owns independent visual and semantic verification. Closure signal: no generated link URL overlaps the report and two consecutive no-update real-browser A4 captures are stable; until then the run-detail expectation remains unmodified and may not count green."
     },
     {
       "unit_id": "adjacent-email-og",

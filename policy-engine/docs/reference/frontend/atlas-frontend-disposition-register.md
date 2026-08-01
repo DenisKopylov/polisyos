@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **17425**
-- Application lines deleted: **17974**
-- Net application LOC reduction: **549**
+- Application lines added: **18944**
+- Application lines deleted: **18015**
+- Net application LOC reduction: **-929**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -516,6 +516,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `0faf33e7b test(dashboard): prove authority posture on a real panel`
 - `2d83e3264 fix(dashboard): name provenance popover dialog`
 - `bfb30c82b fix(dashboard): restore counterfactual text contrast`
 - `31aae0c45 test(dashboard): budget the C14 decision-grade census`

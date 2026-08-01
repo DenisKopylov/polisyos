@@ -1,12 +1,244 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 
-import { readFixtureMetadata } from "./helpers/runtime-dashboard";
+import {
+  installDashboardTestState,
+  readFixtureMetadata,
+  waitForDashboardSurface,
+} from "./helpers/runtime-dashboard";
 
-const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
-const THEME_STORAGE_KEY = "polisyos.runtime.theme";
-const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
 const STORYBOOK_BASE_URL = "http://127.0.0.1:6006";
+const FIXTURE_API_BASE_URL = "http://127.0.0.1:8000";
+const VISUAL_CLOCK_TIME = "2026-01-01T00:00:00.000Z";
+const BUREAUCRATIC_GENERATED_LINE =
+  "Дата формування: 2026-01-01T00:00:00+00:00";
+const VISUAL_CONNECTOR_ID = "worldbank.wdi@1.0.0";
 let fixtureMetadata: ReturnType<typeof readFixtureMetadata>;
+
+async function waitForVisualFonts(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+}
+
+async function waitForStableRender(locator: Locator, timeout = 15_000) {
+  let consecutiveEqualSignatures = 0;
+  let previousSignature: string | null = null;
+  await expect
+    .poll(
+      async () => {
+        const signature = await locator.evaluateAll((elements) =>
+          JSON.stringify(
+            elements.map((element) => {
+              const bounds = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return {
+                fontFamily: style.fontFamily,
+                fontSize: style.fontSize,
+                height: bounds.height,
+                markup: element.innerHTML,
+                width: bounds.width,
+              };
+            }),
+          ),
+        );
+        consecutiveEqualSignatures =
+          signature === previousSignature ? consecutiveEqualSignatures + 1 : 0;
+        previousSignature = signature;
+        return consecutiveEqualSignatures;
+      },
+      { timeout },
+    )
+    .toBeGreaterThanOrEqual(1);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function loadedConnectorIds(request: APIRequestContext) {
+  const response = await request.get(
+    `${FIXTURE_API_BASE_URL}/api/v1/control/data/connectors`,
+  );
+  expect(response.ok()).toBe(true);
+  const payload: unknown = await response.json();
+  if (!isRecord(payload) || !Array.isArray(payload.connectors)) {
+    throw new TypeError("visual fixture expected connectors array");
+  }
+  return payload.connectors
+    .filter(
+      (connector): connector is Record<string, unknown> =>
+        isRecord(connector) && connector.loaded === true,
+    )
+    .map((connector) => connector.connector_id)
+    .filter(
+      (connectorId): connectorId is string => typeof connectorId === "string",
+    )
+    .sort();
+}
+
+async function ensureDeterministicConnectorFixture(request: APIRequestContext) {
+  const initiallyLoaded = await loadedConnectorIds(request);
+  if (initiallyLoaded.length === 0) {
+    const previewResponse = await request.post(
+      `${FIXTURE_API_BASE_URL}/api/v1/control/data/preview`,
+      {
+        data: {
+          allow_fallback: false,
+          fetch_plan: {
+            connector_id: "worldbank.wdi",
+            dataset_id: "../unsafe",
+            filters: {},
+            max_preview_rows: 10,
+            metric_id: "probe.metric",
+            plan_id: "visual_fixture_worldbank_load",
+            profile_id: "worldbank_wdi",
+            quality_min: 0.6,
+            source_lane: "fastlane",
+          },
+        },
+      },
+    );
+    expect(previewResponse.ok()).toBe(true);
+    const previewPayload: unknown = await previewResponse.json();
+    if (!isRecord(previewPayload) || !isRecord(previewPayload.preview)) {
+      throw new TypeError("visual fixture expected preview result");
+    }
+    expect(previewPayload.preview.status).toBe("error");
+    expect(previewPayload.preview.message).toBe(
+      "Unsafe World Bank indicator id: slash characters are not allowed",
+    );
+  } else {
+    expect(initiallyLoaded).toEqual([VISUAL_CONNECTOR_ID]);
+  }
+
+  await expect
+    .poll(() => loadedConnectorIds(request), { timeout: 15_000 })
+    .toEqual([VISUAL_CONNECTOR_ID]);
+}
+
+async function installBureaucraticTimestampFixture(
+  page: Page,
+  artifactId: string,
+) {
+  const artifactPath = `/api/v1/artifacts/${artifactId}`;
+  const renderPath = `${artifactPath}/render`;
+
+  await page.route("**/api/v1/artifacts/**", async (route) => {
+    const pathname = decodeURIComponent(
+      new URL(route.request().url()).pathname,
+    );
+    if (pathname !== artifactPath && pathname !== renderPath) {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const payload: unknown = await response.json();
+    if (!isRecord(payload)) {
+      throw new TypeError(
+        `visual fixture expected object payload at ${pathname}`,
+      );
+    }
+
+    if (pathname === artifactPath) {
+      if (
+        !isRecord(payload.artifact) ||
+        typeof payload.artifact.created_at !== "string"
+      ) {
+        throw new TypeError("visual fixture expected artifact.created_at");
+      }
+      await route.fulfill({
+        response,
+        json: {
+          ...payload,
+          artifact: {
+            ...payload.artifact,
+            created_at: VISUAL_CLOCK_TIME,
+          },
+        },
+      });
+      return;
+    }
+
+    if (
+      !isRecord(payload.document) ||
+      typeof payload.document.render_timestamp !== "string"
+    ) {
+      throw new TypeError("visual fixture expected document.render_timestamp");
+    }
+    if (!Array.isArray(payload.document.blocks)) {
+      throw new TypeError("visual fixture expected document.blocks");
+    }
+    let generatedLineCount = 0;
+    const blocks = payload.document.blocks.map((block) => {
+      if (!isRecord(block) || !Array.isArray(block.items)) {
+        return block;
+      }
+      const items = block.items.map((item) => {
+        if (typeof item === "string" && item.startsWith("Дата формування: ")) {
+          generatedLineCount += 1;
+          return BUREAUCRATIC_GENERATED_LINE;
+        }
+        return item;
+      });
+      return { ...block, items };
+    });
+    if (generatedLineCount !== 1) {
+      throw new TypeError(
+        `visual fixture expected one bureaucratic generated-at line, received ${generatedLineCount}`,
+      );
+    }
+    await route.fulfill({
+      response,
+      json: {
+        ...payload,
+        document: {
+          ...payload.document,
+          blocks,
+          render_timestamp: VISUAL_CLOCK_TIME,
+        },
+      },
+    });
+  });
+}
+
+async function waitForDashboardCharts(page: Page) {
+  const charts = page.locator(
+    '[data-testid="dashboard-page"] .recharts-responsive-container',
+  );
+  await expect(charts).toHaveCount(2);
+  await expect(
+    page
+      .locator('[data-testid="dashboard-page"] .recharts-bar-rectangle')
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="dashboard-page"] .recharts-line-curve').first(),
+  ).toHaveAttribute("d", /^M.+L/);
+  await expect
+    .poll(() =>
+      charts.evaluateAll((elements) =>
+        elements.every((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height > 0;
+        }),
+      ),
+    )
+    .toBe(true);
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-reduced-motion",
+    "reduce",
+  );
+  await waitForVisualFonts(page);
+
+  await waitForStableRender(charts);
+}
 
 async function openEvidencePrimitiveStory(page: Page, storyId: string) {
   await page.goto(
@@ -14,9 +246,7 @@ async function openEvidencePrimitiveStory(page: Page, storyId: string) {
   );
   const story = page.locator("#storybook-root");
   await expect(story).toBeVisible({ timeout: 15_000 });
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-  });
+  await waitForVisualFonts(page);
   return story;
 }
 
@@ -24,10 +254,12 @@ async function openPrintSurface(
   page: Page,
   {
     path,
+    readySelector,
     readyTestId,
     selector,
   }: {
     path: string;
+    readySelector?: string;
     readyTestId: string;
     selector: string;
   },
@@ -37,10 +269,14 @@ async function openPrintSurface(
   await page.goto(path);
   await expect(page.getByTestId(readyTestId)).toBeVisible();
   await expect(page.locator(selector)).toBeVisible();
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-  });
-  return page.locator(selector);
+  if (readySelector) {
+    await expect(page.locator(readySelector)).toBeVisible();
+    await waitForStableRender(page.locator(readySelector));
+  }
+  await waitForVisualFonts(page);
+  const surface = page.locator(selector);
+  await waitForStableRender(surface);
+  return surface;
 }
 
 test.describe("runtime-dashboard visual baselines", () => {
@@ -48,21 +284,21 @@ test.describe("runtime-dashboard visual baselines", () => {
     viewport: { width: 1440, height: 1200 },
   });
 
-  test.beforeAll(() => {
+  test.beforeAll(async ({ request }) => {
     fixtureMetadata = readFixtureMetadata();
+    await ensureDeterministicConnectorFixture(request);
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "true");
-    }, LIVE_STORAGE_KEY);
+    await page.clock.install({ time: VISUAL_CLOCK_TIME });
+    await installDashboardTestState(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
   });
 
   test("command center shell", async ({ page }) => {
     await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: "Command Center" }),
-    ).toBeVisible();
+    await waitForDashboardSurface(page, "dashboard");
+    await waitForDashboardCharts(page);
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "command-center-shell.png",
       {
@@ -73,13 +309,12 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("scenario composer dark theme", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "dark");
-    }, THEME_STORAGE_KEY);
+    await installDashboardTestState(page, { theme: "dark" });
     await page.goto("/compose");
     await expect(
       page.getByRole("heading", { name: "Scenario Composer" }),
     ).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "scenario-composer-dark.png",
       {
@@ -110,19 +345,17 @@ test.describe("runtime-dashboard visual baselines", () => {
         `promotion-approve-${fixtureMetadata.promotion_candidate_id}`,
       ),
     ).toBeVisible();
-    await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
-      "evidence-promotion-focus.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
+    const surface = page.getByTestId("evidence-page");
+    await waitForVisualFonts(page);
+    await waitForStableRender(surface);
+    await expect(surface).toHaveScreenshot("evidence-promotion-focus.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
   });
 
   test("clerk chat shell-lite", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "clerk");
-    }, INTERFACE_MODE_STORAGE_KEY);
+    await installDashboardTestState(page, { interfaceMode: "clerk" });
     await page.goto("/");
     await expect(
       page.getByText("What policy would you like to analyze?"),
@@ -137,27 +370,25 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("dark evidence fabric", async ({ page }) => {
-    await page.addInitScript((storageKey) => {
-      window.localStorage.setItem(storageKey, "dark");
-    }, THEME_STORAGE_KEY);
+    await installDashboardTestState(page, { theme: "dark" });
     await page.goto("/evidence");
     await expect(page.getByTestId("evidence-page")).toBeVisible();
     await expect(page.getByTestId("evidence-source-atlas-panel")).toBeVisible();
-    await expect(page.getByTestId("evidence-page")).toHaveScreenshot(
-      "dark-evidence-fabric.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    const surface = page.getByTestId("evidence-page");
+    await waitForVisualFonts(page);
+    await waitForStableRender(surface);
+    await expect(surface).toHaveScreenshot("dark-evidence-fabric.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
   });
 
   test("mobile command center", async ({ page }) => {
     await page.setViewportSize({ width: 393, height: 852 });
     await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: "Command Center" }),
-    ).toBeVisible();
+    await waitForDashboardSurface(page, "dashboard");
+    await waitForDashboardCharts(page);
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "mobile-command-center.png",
       {
@@ -351,8 +582,13 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("bureaucratic document A4 print", async ({ page }) => {
+    await installBureaucraticTimestampFixture(
+      page,
+      fixtureMetadata.decision_packet_artifact_id,
+    );
     const surface = await openPrintSurface(page, {
       path: `/artifacts/${fixtureMetadata.decision_packet_artifact_id}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
+      readySelector: ".bureaucratic-document",
       readyTestId: "artifact-page",
       selector: '[data-testid="artifact-page"]',
     });

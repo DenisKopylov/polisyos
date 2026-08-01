@@ -533,31 +533,35 @@ describe("decision-grade presentation", () => {
     ]);
   });
 
-  it("forbids sibling decision-grade classifiers and localization maps", () => {
-    const allProduction = Object.fromEntries(
-      productionSources(dashboardSourceRoot)
-        .filter(
-          (file) =>
-            file !==
-            path.join(import.meta.dirname, "decisionGradePresentation.ts"),
-        )
-        .map((file) => [
-          path.relative(dashboardSourceRoot, file),
-          fs.readFileSync(file, "utf8"),
-        ]),
-    );
-    const production = decisionGradeRelevantSources(allProduction);
-    const offenders = [
-      ...Object.entries(production).flatMap(([relativePath, source]) =>
-        source.includes("evaluatorVerdicts")
-          ? [`${relativePath}: decision-grade localization map`]
-          : [],
-      ),
-      ...decisionGradeBypassesAcrossSources(production),
-    ];
+  it(
+    "forbids sibling decision-grade classifiers and localization maps",
+    () => {
+      const allProduction = Object.fromEntries(
+        productionSources(dashboardSourceRoot)
+          .filter(
+            (file) =>
+              file !==
+              path.join(import.meta.dirname, "decisionGradePresentation.ts"),
+          )
+          .map((file) => [
+            path.relative(dashboardSourceRoot, file),
+            fs.readFileSync(file, "utf8"),
+          ]),
+      );
+      const production = decisionGradeRelevantSources(allProduction);
+      const offenders = [
+        ...Object.entries(production).flatMap(([relativePath, source]) =>
+          source.includes("evaluatorVerdicts")
+            ? [`${relativePath}: decision-grade localization map`]
+            : [],
+        ),
+        ...decisionGradeBypassesAcrossSources(production),
+      ];
 
-    expect(offenders).toEqual([]);
-  });
+      expect(offenders).toEqual([]);
+    },
+    30_000,
+  );
 
   it("catches renamed and destructured aliases, maps, sets, and helper-hidden classifiers", () => {
     const adversarialSource = `

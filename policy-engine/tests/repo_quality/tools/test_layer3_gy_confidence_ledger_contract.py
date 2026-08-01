@@ -1518,6 +1518,11 @@ def test_objectively_progressing_cold_worker_may_exceed_two_x_without_terminatio
     assert report["second_pass_started"] is True
     assert report["byte_stable_passes"] == 2
     assert report["first_derivation_wall_time_seconds"] > 0.4
+    assert report["cold_closeout_budget_exceeded"] is True
+    assert (
+        report["cold_closeout_budget_disposition"]
+        == "completed_with_objective_progress"
+    )
     cold_comparison = next(
         row
         for row in report["historical_stage_comparison"]

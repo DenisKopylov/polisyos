@@ -4027,6 +4027,13 @@ def _run_one_process_closeout(
             "worker_terminated": worker["worker_terminated"],
             "worker_profile": worker["worker_profile"],
             "second_pass_started": worker["second_pass_started"],
+            "cold_closeout_budget_seconds": (
+                _HISTORICAL_STAGE_SECONDS["cold_owner_derivation"] if cold else None
+            ),
+            "cold_closeout_budget_exceeded": False,
+            "cold_closeout_budget_disposition": (
+                "incomplete" if cold else "not_applicable"
+            ),
         }
     first = FrozenConfidenceLedgerContract.model_validate_json(first_bytes)
     second = (
@@ -4065,6 +4072,28 @@ def _run_one_process_closeout(
                 stage="cache_hit_derivation", wall_time_seconds=second_wall
             )
         )
+    cold_budget_seconds = _HISTORICAL_STAGE_SECONDS["cold_owner_derivation"]
+    cold_budget_exceeded = cold and first_wall > cold_budget_seconds
+    cold_budget_disposition = "not_applicable"
+    if cold:
+        cold_budget_disposition = "within_budget"
+        if cold_budget_exceeded:
+            completed_with_objective_progress = any(
+                row["stage"] == "cold_owner_derivation"
+                and row["event"] == "objective_progress"
+                and row["progress"] == "stage_complete"
+                for row in worker["stage_heartbeats"]
+            )
+            if completed_with_objective_progress and not worker["profiling_stop"]:
+                cold_budget_disposition = "completed_with_objective_progress"
+            else:
+                cold_budget_disposition = "profiling_required"
+                issues.append(
+                    {
+                        "code": "cold_closeout_wall_time_overrun",
+                        "wall_time_seconds": round(first_wall, 6),
+                    }
+                )
     if effective_config["jax_platforms"] != "cpu":
         issues.append({"code": "jax_platform_not_cpu"})
     if second is None or first_bytes != second_bytes:
@@ -4083,13 +4112,6 @@ def _run_one_process_closeout(
         issues.append({"code": "warm_owner_bundle_cache_hit_missing"})
     if second_ran and cache_after_second["hits"] <= cache_after_first["hits"]:
         issues.append({"code": "owner_bundle_cache_hit_missing"})
-    if cold and first_wall > 25 * 60:
-        issues.append(
-            {
-                "code": "cold_closeout_wall_time_overrun",
-                "wall_time_seconds": round(first_wall, 6),
-            }
-        )
     if second_wall > 5 * 60:
         issues.append(
             {
@@ -4113,6 +4135,9 @@ def _run_one_process_closeout(
         "historical_stage_comparison": tuple(comparisons),
         "first_derivation_wall_time_seconds": round(first_wall, 6),
         "cache_hit_derivation_wall_time_seconds": round(second_wall, 6),
+        "cold_closeout_budget_seconds": cold_budget_seconds if cold else None,
+        "cold_closeout_budget_exceeded": cold_budget_exceeded,
+        "cold_closeout_budget_disposition": cold_budget_disposition,
         "warmup_derivation_wall_time_seconds": round(warmup_wall or 0.0, 6),
         "worker_startup_wall_time_seconds": round(startup_wall or 0.0, 6),
         "worker_pid": worker["worker_pid"],

@@ -66,8 +66,10 @@ Before N11 implementation, repair the class with an offline, content-bound curre
 one canonical writer ripple. Never edit the seven disposition rows, relabel the old WMR, or touch
 recorded provider bytes.
 
-Known unrelated inherited debt remains out of scope: the repo-wide Task-0 lifecycle census has 466
-global violations, and the HTTP-redaction flake remains in the Atlas/HTTP lane.
+Known unrelated inherited debt remains out of scope: the Step-0 repo-wide Task-0 lifecycle census
+had 466 global violations, and the HTTP-redaction flake remains in the Atlas/HTTP lane. The final
+exact-tree rescan reports 444 global issues and zero N11 issues; this measured reduction does not
+reclassify the remaining global debt as N11 debt.
 
 ## Reuse census and build-new boundary
 
@@ -423,8 +425,8 @@ artifact back into itself.
   benchmark scoreboard. CG0-CG5 require writer x2 byte identity; CG6 deliberately excludes latency
   from semantic drift, so use write -> check -> write -> check rather than raw-byte equality.
   During this W0 WMR-only repair, N13a/N13b are validate-only and remain byte-stable because their
-  declared projections exclude WMR identity. The later U3 refusal-route addition changes the
-  structurally owned capstone route projection and therefore requires the separate canonical ripple
+  declared projections exclude WMR identity. The historical U3 refusal-route addition changed the
+  structurally owned capstone route projection and therefore required the separate canonical ripple
   N8 (`1ff19637e`) -> N10a (`479533278`) -> capstone/N13a (`8c506eb93`) -> N13b
   (`f3c8e1780`) -> N11 (`fcd110334`). Those writes are narrow projection rebindings, not
   whole-contract pinning. The source-committed disposition ledger is validate-only after N8.
@@ -488,13 +490,34 @@ artifact back into itself.
   HTTP/dashboard projection, and public export are `surface_out_of_scope`: N11 is an internal
   authority-sensitive gate consumed through narrow verified projections, and any future external
   surface must be a read-only projection rather than a second intake or authority path.
+- **Typed capability debt: `semantic_test_missing` — authority-scoped deployment identity.**
+  - **Owner:** `team-runtime-quality`; canonical owner:
+    `polisyos.runtime.quality.confidence_ledger._deployment_relative_paths`.
+  - **Problem:** deployment identity binds `pyproject.toml`, `uv.lock`, and all 2,551
+    `src/polisyos/**/*.py` files (2,553 files total), while
+    `_resolve_authority_import_closure` already computes the real 120-module authority closure.
+    This is a measured 21x over-binding, and current tests provide no unrelated-drift negative
+    control.
+  - **Authority consequence:** unrelated source drift can conservatively withdraw authority,
+    irreversibly poison an active ledger scope, and force N9 -> generation-cycle -> N11 replay even
+    when the changed bytes cannot affect the signed decision path. This is false withdrawal and
+    replay/governance cost, not an unsafe authority grant.
+  - **Bounded closure move:** in the next slice, extend the existing repository-local import-closure
+    and loaded-code provenance mechanisms into a deterministic authority-bearing file closure.
+    Retain explicit project, lock, runtime-ABI, and transitive authority-dependency bindings; fail
+    closed when an authority callable or dynamic import cannot be resolved into that closure.
+  - **Behavioral closure signal:** editing a module outside the authority closure leaves deployment
+    identity unchanged and an active canonical session usable without poison. Editing
+    `confidence_ledger.py`, a transitive authority dependency, `uv.lock`, or the runtime ABI changes
+    identity, rejects authority, and preserves irreversible-poison behavior. Reissue the affected
+    frozen chain twice with byte equality and independent checks, then record replacement hashes.
 - Closeout P01-P34 audit:
   - P01/P02/P03 are closed by the real producer -> frozen artifact -> N9 bridge -> typed
     generation-cycle consumer -> lifecycle-visible audit projection chain; only the explicitly
     named external surfaces remain `surface_out_of_scope`.
   - P05/P10/P14/P15/P29/P31/P32/P33 are closed by one ledger draw chokepoint, exact
     resolve -> content-bind -> owner-reverify intake, structural polarity/coverage checks,
-    recomputing writers/checkers, 49 nested corruptions, and 17 behavioral source flips.
+    recomputing writers/checkers, 50 nested corruptions, and 17 behavioral source flips.
   - P07 is closed for the inherited WMR drift by the canonical owner-order replay; N11 records
     registry, rule, deployment, filtration, and future epoch-reference identities. P08 adds no
     conflated runtime time role, and P09/P11/P12 add no warning, memory, or producer-handshake
@@ -577,8 +600,9 @@ data-only commit `cb83a4c13`, an empty
 - `test_conditionality_clause_is_required_in_receipt_and_both_projections`
 - `test_confidence_ledger_writer_is_byte_stable_and_corruptions_turn_red`
 
-The source-flip denominator is an operational 17/17 report from commit `f489ba0ee`; the U3
-data-only end-to-end witness is the binary commit/diff/recomputed-artifact proof above.
+The `f489ba0ee` source-flip report is historical pre-`86a79fe96` evidence. The current frozen source
+at `86a79fe96` has a separate operational 17/17 RED report with byte restoration (`844.533s`); the
+U3 data-only end-to-end witness is the binary commit/diff/recomputed-artifact proof above.
 
 ## Required 17 source flips
 
@@ -729,24 +753,62 @@ projection hash, conditionality clause, promotion projection hash, and future ep
   positive passport or world-growth row is fabricated.
 - The construction-verified constant-unit e-process conformance draw spends exactly
   `0.000303963499305693314818488395159690537591747669`; it is never promotion-eligible.
-- The required source-flip lane is 17/17 RED with byte restoration (`f489ba0ee`).
+- The required post-`86a79fe96` source-flip lane is 17/17 RED with byte restoration
+  (`844.533s`); `f489ba0ee` is retained only as the historical pre-fix run.
 - Cold-closeout progress handling is corrected by `b5ca9af0a` and witnessed by
   `test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination`.
 - The final deployment-closure artifacts are byte-stable with file SHA-256 values N9
-  `2f63cfd41fefb5fb5ea050bcbdf5c89ec2615859c9a1ca7239f827d644cb6e5b`, generation-cycle
-  `fb619e2025fce6784f94d043c2b98a9c92364789a24e602e69c08d12a7e7c6b1`, and N11
-  `a98b10ab41687b741ce455517f19ef0d2b27deaeb22bbeafc0fda2758c70a409`.
+  `03479f68e1babc404f2ae8081ab780f1ca2c6c118dd9b11f61ee4be9310f51fe`, generation-cycle
+  `37abd82bb64926ca392734baf8bacec1a3c3fe559ff26bfd88f230148d4e8675`, and N11
+  `a844a0c318a95e6f653dda34c3a7f6db6592070b8abe25b0b9e9b1bdc2824781`.
 - N11's semantic artifact hash is
-  `sha256:6b54204e1ae60411b3fda2fb07cfe0907e1338d7beed3c383ac2d1b429e9b187`; its real-ledger,
+  `sha256:62df18eb9d78368cacc607790541d2237f66f9a7ab381ef83bf6116fdea4f225`; its real-ledger,
   N9-promotion, future-N12 epoch-reference, and accounted-run projection hashes are respectively
-  `sha256:b8e76a2aed6d770d42cbb0116b1e38c6032722d5f33e4a088f40cd6fe230b0d1`,
-  `sha256:4562d9512002170b74a89b84f085c1ee60a695dd4ae78b8d745da0fb58d98c7d`,
-  `sha256:f897856967a7e96cfc1a09cef60f9add84ffc8122e5fb5281112c218a3625baa`, and
-  `sha256:ef13df69527165a542d6245dbfe9b3d3d3bae96513c689fdfe55e2f1dfb683a4`.
-- Final cold derivation completed in `944.423788s` with a `2.298801s` cache hit and
-  `954.199091s` writer wall time. The independent check completed in `1966.222886s`; it remained
-  objectively CPU-advancing and reported `profiling_stop_required=false`, so the declared
-  advancing-overrun policy applied.
+  `sha256:28b5fce156439549b05fd4912f6ef783f10bcdb1d1bd24aba11db78704f0d46d`,
+  `sha256:a74034343d8fd80301d57b67815c88789ef88ee7cf5bebba17f81d3708a0fec1`,
+  `sha256:f294e772c46fed7870cc0768f8380e3d935967ebe14a17cb590f9d9430d7ed9b`, and
+  `sha256:bf8028d248b61c37efe57b3b49c645acd77890be6c405590aab99c9b1ec9b962`.
+- The dependency-ordered final N11 writes completed in `1173.279650s` and `1111.911306s` with
+  identical bytes. The independent recomputing check completed in `898.666254s`; every run stayed
+  within the measured 1500s cold budget and reported `profiling_stop_required=false`.
+
+### 2026-08-02 dependency-ordered closeout receipt
+
+- Source is byte-frozen from `86a79fe96`: both the committed range and working-tree comparisons
+  under `src/polisyos/**` are empty. The final pass changed no implementation byte.
+- Registry topology source is the 59-family
+  `architecture/generated_artifacts.toml` snapshot
+  `sha256:261d569a6b8758da826f3de4bc4549de0c409683e4df71d61634dd85520d6aaa`.
+  The single pass followed second-domain -> depth-N -> projection-gated N13a -> projection-gated
+  N13b -> N11 -> disposition -> downstream checkers; no completed upstream node was revisited.
+- The second-domain family is committed at `c732eaa58`: pack
+  `b976c2b4fe0b0da8438b062da777bc78b6b6a459f603e0e1d246b94cf66426e5`, cycle-entry trace
+  `973a4cb903958c18281737da404e86e13d03032a84d6c03265b66bca5258b363`, and free-grow gaps
+  `b95973d7cbda8c03869530f91b8c3a4f25072219b6804376e1bc1a0f8a56048b`; writer x2 and its
+  recomputing check are GREEN.
+- Depth-N writer x2 is byte-identical at
+  `a0c2840bc5337abda2e41d7e747567899ac6d764f556038e5bfb96f58da36196`, with semantic content
+  `sha256:d940c4571e746bcdaecdc56b1a11a5e7fc034acd10a727143a3169c3bf7ad3fe`; its independent
+  checker is GREEN. N13a's capstone demand/route and value projections remained respectively
+  `sha256:55f44ad9dc9fe12f829b086bab64723f7b25ca25487388111bd4a9e8eb68305e`,
+  `sha256:9c433f8759c80c194a25b8a3746f4a832973e694de589be830d04ff28c8c913c`, and
+  `sha256:84486eb5ef6f79b025338f79920e093afe2012fbb1b64a70018118a525ff1617`, so N13a was
+  validate-only. N13b was likewise validate-only and recomputed GREEN at contract
+  `sha256:9ff916db4c044c028bd58c815d3a0cb6e2a9c4486741b5cd4185f123ffaebb20`.
+- The real promotion projections contain four executed deterministic rows, total spend `0`, and
+  `within_budget=true` against `delta=1/100`. The frozen accounted run contains three N10 rows
+  (one identification refusal, two data acquisition routes), total spend `0/1`, and the measured
+  N13b denominator 5/2/0/0 (attempts/raw/admissions/passports). The conditionality clause remains
+  byte-present in the full receipt and both consumer projections.
+- U3 remains the binary data-only proof: generic baseline `5a5d422a8`, novel-instrument commit
+  `cb83a4c13`, and an empty `git diff 5a5d422a8..cb83a4c13 -- '*.py'`. U2 still returns typed
+  `unknown_instrument` without bypassing accounting.
+- Disposition recomputed GREEN with 34 strangled obligations checked, 26 landed, 7 pending, and
+  zero issues. The final generation-cycle, composition, and CG0 -> CG6 checker walk is GREEN; CG6
+  scoreboard hash is `sha256:f224c6a5d8b77ac84a1e0240cacac1eeb1fd0fcd5063fde9dea0767f27eddb58`.
+- Final architecture guardrails retain exactly the five disclosed untouched Atlas HTTP/Lex
+  deep-import findings. The lifecycle audit retains 444 inherited global issues but zero N11
+  phantoms. Both are typed inherited RED receipts, not exclusions relabeled GREEN.
 
 ## Workstream 6 — Targeted serial closeout and architect handoff
 

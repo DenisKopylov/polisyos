@@ -34,7 +34,7 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 
 - Task 1: complete (`f4fc44d73`).
 - Part A: complete and independently approved through `923f5ca33`.
-- Part B: round-1 Important fixes complete; fix-only independent re-review pending.
+- Part B: round-2 diff-configuration fix complete; delta-only independent re-review pending.
 - Part C Gate 0: pending.
 - Part C implementation: not authorized before Gate 0.
 - Final replay: not priced before source freeze and reviews.
@@ -134,3 +134,35 @@ These are input samples, not yet the catalog. Exact source anchors will be store
   `d3823f059dda1891bd3ae80d8d6ef2d926df90fdd544bd5cb52f06cd6a98e119`; embedded checklist
   length `2312`, SHA-256
   `679b7659f5a14cba3814ab07bf09bcdf2983b3f4a2768abaa9d5099200fe1264`.
+
+### Part B independent review — round 2 diff-configuration closure
+
+- Round 2 was not approved: `0` Critical, `1` Important, `0` Minor. Round 1's submodule,
+  filesystem-alias, and stat-purity repairs were accepted; the remaining class was arbitrary
+  repository-local or worktree-local `diff.*` configuration that the fixed Git argv did not
+  override. The exact checklist is retained at
+  `.superpowers/sdd/2026-08-02-gy-infra-2-verification-economics/part-b-review-findings-round2.md`.
+- TDD RED was observed with the requested local `diff.suppressBlankEmpty=true` probe, a committed
+  `*.py diff=hostile` attribute plus local `diff.hostile.binary=true`, and the independent
+  worktree-scope driver variant `diff.hostile.xfuncname`. All three same-range rebuilds returned
+  success and replaced the existing package before the repair (`3` failed witnesses).
+- The repair is a generic fail-closed scope census, not pins for those examples. Before rendering
+  and again before the atomic swap, the tool enumerates included/effective `diff.*` keys in both
+  `--local` and `--worktree` scope. It permits only exact settings already overridden by the fixed
+  argv plus arbitrary driver `.textconv` settings disabled by `--no-textconv`; every other key is
+  reported with its scope and refused. This preserves the accepted hostile-config and submodule
+  behavior while preventing an unknown driver/output key from silently varying reviewed bytes.
+- Focused GREEN after the repair:
+  `.venv/bin/python -m pytest -q tests/repo_quality/tools/test_review_package.py` (`15` passed).
+  The three adversarial witnesses passed separately; focused Ruff, Ruff format check, and
+  `git diff --check` passed. The renderer, package schema, review denominator, and source tree were
+  unchanged.
+- Fix commit: `6113c5ee856b598e029bcb330851731032171a03` (`fix(tools): refuse unbound
+  diff configuration`). The committed tool produced the required delta for
+  `078c5257f1d94989bb32e9d02a70d38c600a9305..6113c5ee856b598e029bcb330851731032171a03`
+  with the exact round-2 findings as its checklist. Package:
+  `.superpowers/sdd/2026-08-02-gy-infra-2-verification-economics/part-b-delta-078c525..6113c5e.review`,
+  `10300` bytes, SHA-256
+  `ad0fc323d891037817ad65b76ebf7948ab1856fce474c505f480b5e4baf79bc3`; embedded checklist
+  length `1448`, SHA-256
+  `26f8ed446a8852ce18f773f341e4df1682a09f7acf386de559ec6aaab6bec601`.

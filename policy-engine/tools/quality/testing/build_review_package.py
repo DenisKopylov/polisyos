@@ -21,10 +21,12 @@ PACKAGE_MAGIC: Final = b"POLISYOS_REVIEW_PACKAGE\n"
 SCHEMA_VERSION: Final = 1
 _GIT_CONTEXT_ENVIRONMENT_KEYS: Final = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_ATTR_SOURCE",
     "GIT_CEILING_DIRECTORIES",
     "GIT_COMMON_DIR",
     "GIT_CONFIG_PARAMETERS",
     "GIT_DIR",
+    "GIT_DIFF_OPTS",
     "GIT_DISCOVERY_ACROSS_FILESYSTEM",
     "GIT_EXEC_PATH",
     "GIT_INDEX_FILE",
@@ -34,18 +36,25 @@ _GIT_CONTEXT_ENVIRONMENT_KEYS: Final = (
     "GIT_SHALLOW_FILE",
     "GIT_WORK_TREE",
 )
-_STABLE_DIFF_ARGUMENTS: Final = (
+_COMMON_DIFF_ARGUMENTS: Final = (
+    "--ignore-submodules=none",
+    "--submodule=short",
     "--find-renames=50%",
     "--diff-algorithm=histogram",
     "--no-indent-heuristic",
-    "--unified=3",
-    "--inter-hunk-context=0",
     "--no-ext-diff",
     "--no-textconv",
     "--no-color",
+    "--no-relative",
+)
+_PATCH_DIFF_ARGUMENTS: Final = (
+    "--patch",
+    "--binary",
+    "--full-index",
+    "--unified=3",
+    "--inter-hunk-context=0",
     "--src-prefix=a/",
     "--dst-prefix=b/",
-    "--no-relative",
 )
 
 
@@ -53,7 +62,7 @@ class ReviewPackageError(RuntimeError):
     """Raised when a review package cannot be proven safe to build."""
 
 
-def _git_environment() -> dict[str, str]:
+def _git_environment(*, attribute_source: str | None = None) -> dict[str, str]:
     """Return a noninteractive Git environment with external execution disabled."""
 
     environment = os.environ.copy()
@@ -78,6 +87,8 @@ def _git_environment() -> dict[str, str]:
             "PAGER": "cat",
         }
     )
+    if attribute_source is not None:
+        environment["GIT_ATTR_SOURCE"] = attribute_source
     return environment
 
 
@@ -95,6 +106,8 @@ def _git_argv(*arguments: str) -> list[str]:
         "core.pager=cat",
         "-c",
         "core.quotePath=true",
+        "-c",
+        f"core.attributesFile={os.devnull}",
         "-c",
         "diff.algorithm=histogram",
         "-c",
@@ -115,13 +128,18 @@ def _git_argv(*arguments: str) -> list[str]:
     ]
 
 
-def _run_git(worktree: Path, *arguments: str, accepted_codes: tuple[int, ...] = (0,)) -> bytes:
+def _run_git(
+    worktree: Path,
+    *arguments: str,
+    accepted_codes: tuple[int, ...] = (0,),
+    attribute_source: str | None = None,
+) -> bytes:
     """Run one read-only Git command without a shell and return stdout bytes."""
 
     result = subprocess.run(  # noqa: S603 - Git argv is explicit and never shell-expanded.
         _git_argv(*arguments),
         cwd=worktree,
-        env=_git_environment(),
+        env=_git_environment(attribute_source=attribute_source),
         check=False,
         capture_output=True,
         shell=False,
@@ -201,6 +219,35 @@ def _resolve_git_path(worktree: Path, *arguments: str) -> Path:
     return path.resolve(strict=True)
 
 
+def _require_neutral_info_attributes(worktree: Path) -> None:
+    """Fail closed when unversioned repository-local attributes could affect a diff."""
+
+    raw_path = _run_git(
+        worktree,
+        "rev-parse",
+        "--git-path",
+        "info/attributes",
+    ).rstrip(b"\r\n")
+    if not raw_path:
+        raise ReviewPackageError("git returned an empty info/attributes path")
+    attributes_path = Path(os.fsdecode(raw_path))
+    if not attributes_path.is_absolute():
+        attributes_path = worktree / attributes_path
+    attributes_path = Path(os.path.abspath(attributes_path))
+    if attributes_path.is_symlink():
+        raise ReviewPackageError("unversioned info/attributes must not be a symlink")
+    if not attributes_path.exists():
+        return
+    if not attributes_path.is_file():
+        raise ReviewPackageError("unversioned info/attributes must be a regular file")
+    try:
+        payload = attributes_path.read_bytes()
+    except OSError as exc:
+        raise ReviewPackageError("unversioned info/attributes could not be verified") from exc
+    if payload:
+        raise ReviewPackageError("unversioned info/attributes must be absent or empty")
+
+
 def _is_at_or_below(path: Path, root: Path) -> bool:
     """Return whether ``path`` is ``root`` or one of its descendants."""
 
@@ -240,6 +287,21 @@ def _touches_admin_state(path: Path, *, admin_roots: tuple[Path, ...]) -> bool:
         if current == current.parent:
             return False
         current = current.parent
+
+
+def _paths_alias(left: Path, right: Path) -> bool:
+    """Compare path identity lexically and by filesystem inode when both exist."""
+
+    if left == right:
+        return True
+    if not left.exists() or not right.exists():
+        return False
+    try:
+        return left.samefile(right)
+    except OSError as exc:
+        raise ReviewPackageError(
+            "output/checklist filesystem identity could not be verified"
+        ) from exc
 
 
 def _resolve_inside_worktree(
@@ -326,10 +388,11 @@ def _render_package(
             "diff",
             "--stat=120,100,9999",
             "--stat-graph-width=20",
-            *_STABLE_DIFF_ARGUMENTS,
+            *_COMMON_DIFF_ARGUMENTS,
             base_commit,
             head_commit,
             "--",
+            attribute_source=head_commit,
         )
     )
     name_status = _normalize_git_text(
@@ -337,22 +400,23 @@ def _render_package(
             worktree,
             "diff",
             "--name-status",
-            *_STABLE_DIFF_ARGUMENTS,
+            *_COMMON_DIFF_ARGUMENTS,
             base_commit,
             head_commit,
             "--",
+            attribute_source=head_commit,
         )
     )
     patch = _normalize_git_text(
         _run_git(
             worktree,
             "diff",
-            "--binary",
-            "--full-index",
-            *_STABLE_DIFF_ARGUMENTS,
+            *_COMMON_DIFF_ARGUMENTS,
+            *_PATCH_DIFF_ARGUMENTS,
             base_commit,
             head_commit,
             "--",
+            attribute_source=head_commit,
         )
     )
     package_kind = "delta" if prior_findings is not None else "full"
@@ -423,7 +487,7 @@ def build_review_package(
             label="prior findings",
             must_exist=True,
         )
-        if checklist == destination:
+        if _paths_alias(checklist, destination):
             raise ReviewPackageError("output path must differ from prior findings path")
         prior_findings = checklist.read_bytes()
         if not prior_findings or not prior_findings.strip():
@@ -431,12 +495,14 @@ def build_review_package(
     base_commit = _resolve_commit(worktree, base_revision, label="base")
     head_commit = _resolve_commit(worktree, head_revision, label="head")
     _require_ancestor(worktree, base_commit, head_commit)
+    _require_neutral_info_attributes(worktree)
     package = _render_package(
         worktree,
         base_commit=base_commit,
         head_commit=head_commit,
         prior_findings=prior_findings,
     )
+    _require_neutral_info_attributes(worktree)
     atomic_write_bytes(destination, package)
     return package
 

@@ -34,7 +34,7 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 
 - Task 1: complete (`f4fc44d73`).
 - Part A: complete and independently approved through `923f5ca33`.
-- Part B: implementation complete; independent review pending.
+- Part B: round-1 Important fixes complete; fix-only independent re-review pending.
 - Part C Gate 0: pending.
 - Part C implementation: not authorized before Gate 0.
 - Final replay: not priced before source freeze and reviews.
@@ -92,3 +92,36 @@ These are input samples, not yet the catalog. Exact source anchors will be store
   and the broader `git diff --exit-code 923f5ca33 -- src architecture/baselines/imports/deep_import.json`
   returned `0`: neither Part A nor Part B changed the source/baseline inputs to this gate. No
   governed baseline sync was performed outside this task's fence.
+
+### Part B independent review — round 1 fixes
+
+- Round 1 was not approved: `0` Critical, `4` Important, `0` Minor. The exact checklist is retained
+  at `.superpowers/sdd/2026-08-02-gy-infra-2-verification-economics/part-b-review-findings-round1.md`.
+  The expanded focused suite first returned five RED witnesses: ignored gitlinks, uncommitted
+  attribute influence, filesystem-alias acceptance, and patch bytes duplicated into both the stat
+  and patch sections (the purity break was visible in two tests).
+- Gitlink completeness now forces `--ignore-submodules=none` and `--submodule=short`. A real local
+  submodule advances between the reviewed commits while hostile local config requests
+  `diff.ignoreSubmodules=all` and `diff.submodule=log`; name-status still contains
+  `M\tvendor/sub`, and the patch contains the stable short gitlink representation.
+- Git `2.49.0` supports resolved-tree attributes through `GIT_ATTR_SOURCE`/`--attr-source`.
+  Inherited `GIT_ATTR_SOURCE` and `GIT_DIFF_OPTS` are scrubbed, each diff subprocess receives the
+  resolved head commit as its attribute source, and global/system attributes are neutralized.
+  Because `$GIT_DIR/info/attributes` has higher precedence and Git exposes no ignore switch, any
+  nonempty, symlinked, or non-regular info-attributes source fails closed before diffing; the check
+  is repeated before the atomic write. This avoids mutating Git admin state while preventing
+  unversioned rules from being believed. Same-range hostile-env and uncommitted-`.gitattributes`
+  witnesses now produce identical bytes; a nonempty info file preserves the prior output and
+  returns a refusal.
+- Checklist/output aliasing now uses filesystem identity after lexical comparison. macOS
+  case-folded names and cross-platform hardlinks are refused before the checklist is read or the
+  destination is replaced.
+- Stat, name-status, and patch options are separated. Only the patch lane receives `--patch`,
+  `--binary`, `--full-index`, context, and prefix options. For the exact reviewed range
+  `923f5ca33..c8c02072a`, the old package was `86787` bytes with a `43186`-byte patch-bearing stat;
+  the rebuilt package is `43979` bytes with a pure `380`-byte stat and unchanged `42991`-byte
+  patch: a `49.325%` package reduction. Rebuilt SHA-256:
+  `ea122fcc8dc155746d7b7536c85d7d0a443ce73ea1d9c17611f3bb2c5987442b`.
+- Focused GREEN after all fixes:
+  `.venv/bin/python -m pytest tests/repo_quality/tools/test_review_package.py -q` (`12` passed).
+  Focused Ruff, Ruff format check, and `git diff --check` also passed.

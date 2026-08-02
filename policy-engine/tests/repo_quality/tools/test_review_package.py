@@ -41,10 +41,10 @@ def _commit(repo: Path, message: str) -> str:
     return _git(repo, "rev-parse", "HEAD").stdout.strip()
 
 
-def _init_repo(tmp_path: Path) -> tuple[Path, str]:
+def _init_repo(tmp_path: Path, *, name: str = "fixture-repo") -> tuple[Path, str]:
     """Create a temporary repository with one committed baseline file."""
 
-    repo = tmp_path / "fixture-repo"
+    repo = tmp_path / name
     repo.mkdir()
     _git(repo, "init", "-b", "main")
     (repo / ".gitignore").write_text("*.review\n", encoding="utf-8")
@@ -149,7 +149,9 @@ def test_full_package_is_deterministic_and_contains_every_changed_path(tmp_path:
         **os.environ,
         "GIT_COMMON_DIR": str(repo / "foreign-common-dir"),
         "GIT_DIR": str(repo / "foreign-git-dir"),
+        "GIT_DIFF_OPTS": "--unified=12",
         "GIT_EXTERNAL_DIFF": str(hostile_driver),
+        "GIT_ATTR_SOURCE": base,
         "GIT_OBJECT_DIRECTORY": str(repo / "foreign-objects"),
         "GIT_PAGER": str(hostile_driver),
         "GIT_WORK_TREE": str(repo / "foreign-worktree"),
@@ -198,6 +200,51 @@ def test_full_package_is_deterministic_and_contains_every_changed_path(tmp_path:
     assert str(second).encode() not in first_bytes
     assert b"created_at" not in first_bytes
     assert not external_diff_sentinel.exists()
+    assert b"diff --git" not in _section_payload(first_bytes, "diff_stat")
+    assert b"diff --git" not in _section_payload(first_bytes, "name_status")
+    assert b"diff --git" in _section_payload(first_bytes, "patch")
+
+
+def test_submodule_gitlink_change_survives_hostile_ignore_configuration(tmp_path: Path) -> None:
+    """Catch a configured submodule ignore that silently removes a changed gitlink."""
+
+    child, _ = _init_repo(tmp_path, name="submodule-source")
+    parent, _ = _init_repo(tmp_path, name="parent-repo")
+    _git(
+        parent,
+        "-c",
+        "protocol.file.allow=always",
+        "submodule",
+        "add",
+        str(child),
+        "vendor/sub",
+    )
+    prior_review_point = _commit(parent, "add reviewed submodule")
+
+    (child / "module.py").write_text("VERSION = 2\n", encoding="utf-8")
+    child_head = _commit(child, "advance submodule")
+    checkout = parent / "vendor" / "sub"
+    _git(checkout, "-c", "protocol.file.allow=always", "fetch", "origin")
+    _git(checkout, "checkout", child_head)
+    head = _commit(parent, "advance submodule gitlink")
+    _git(parent, "config", "diff.ignoreSubmodules", "all")
+    _git(parent, "config", "diff.submodule", "log")
+    output = parent / "submodule.review"
+
+    result = _run_builder(
+        parent,
+        base=prior_review_point,
+        head=head,
+        output=output,
+    )
+
+    assert result.returncode == 0, result.stderr
+    package = output.read_bytes()
+    assert _section_payload(package, "name_status") == b"M\tvendor/sub\n"
+    patch = _section_payload(package, "patch")
+    assert b"Subproject commit " in patch
+    assert child_head.encode() in patch
+    assert b"Submodule vendor/sub " not in patch
 
 
 def test_invalid_revisions_and_non_ancestor_ranges_fail_without_replacing_output(
@@ -279,6 +326,43 @@ def test_delta_contains_only_fix_and_preserves_binary_findings_exactly(tmp_path:
     lf_digest = hashlib.sha256(lf_findings_bytes).hexdigest()
     assert lf_digest != crlf_digest
     assert f"sha256={lf_digest}\n".encode() in lf_output.read_bytes()
+
+
+def test_same_range_ignores_worktree_attributes_and_refuses_info_attributes(
+    tmp_path: Path,
+) -> None:
+    """Catch unversioned attributes changing the bytes for two resolved commits."""
+
+    repo, _ = _init_repo(tmp_path)
+    policy = repo / "policy.txt"
+    policy.write_text("line one\nold decision\nline three\n", encoding="utf-8")
+    base = _commit(repo, "add policy")
+    policy.write_text("line one\nnew decision\nline three\n", encoding="utf-8")
+    head = _commit(repo, "change policy")
+    clean_output = repo / "clean.review"
+    clean = _run_builder(repo, base=base, head=head, output=clean_output)
+    assert clean.returncode == 0, clean.stderr
+
+    (repo / ".gitattributes").write_text("policy.txt -diff\n", encoding="utf-8")
+    dirty_output = repo / "dirty.review"
+    dirty = _run_builder(repo, base=base, head=head, output=dirty_output)
+
+    assert dirty.returncode == 0, dirty.stderr
+    assert dirty_output.read_bytes() == clean_output.read_bytes()
+
+    info_attributes_raw = _git(repo, "rev-parse", "--git-path", "info/attributes").stdout.strip()
+    info_attributes = Path(info_attributes_raw)
+    if not info_attributes.is_absolute():
+        info_attributes = repo / info_attributes
+    info_attributes.parent.mkdir(parents=True, exist_ok=True)
+    info_attributes.write_text("policy.txt -diff\n", encoding="utf-8")
+    existing_output = repo / "existing.review"
+    existing_output.write_bytes(b"previous-valid-package\n")
+    refused = _run_builder(repo, base=base, head=head, output=existing_output)
+
+    assert refused.returncode != 0
+    assert "info/attributes" in refused.stderr
+    assert existing_output.read_bytes() == b"previous-valid-package\n"
 
 
 def test_delta_rejects_invalid_checklists_and_worktree_path_escapes(tmp_path: Path) -> None:
@@ -409,6 +493,44 @@ def test_review_paths_reject_git_admin_targets_symlinks_and_input_output_aliases
     assert findings.read_bytes() == b"Important finding\n"
 
 
+def test_delta_rejects_casefolded_and_hardlinked_checklist_output_aliases(
+    tmp_path: Path,
+) -> None:
+    """Catch filesystem aliases that bypass a lexical output/checklist comparison."""
+
+    repo, base = _init_repo(tmp_path)
+    (repo / "fix.py").write_text("FIXED = True\n", encoding="utf-8")
+    head = _commit(repo, "fix")
+    findings = repo / "Findings.md"
+    findings_bytes = b"Important finding\n"
+    findings.write_bytes(findings_bytes)
+
+    casefolded_output = repo / "findings.md"
+    if casefolded_output.exists() and casefolded_output.samefile(findings):
+        casefolded = _run_builder(
+            repo,
+            base=base,
+            head=head,
+            output=casefolded_output,
+            prior_findings=findings,
+        )
+        assert casefolded.returncode != 0
+        assert findings.read_bytes() == findings_bytes
+
+    hardlinked_output = repo / "hardlinked-output.review"
+    os.link(findings, hardlinked_output)
+    hardlinked = _run_builder(
+        repo,
+        base=base,
+        head=head,
+        output=hardlinked_output,
+        prior_findings=findings,
+    )
+    assert hardlinked.returncode != 0
+    assert findings.read_bytes() == findings_bytes
+    assert hardlinked_output.read_bytes() == findings_bytes
+
+
 def test_late_git_failure_preserves_prior_valid_output(tmp_path: Path) -> None:
     """Catch partial output replacement after validation but before diff collection completes."""
 
@@ -532,3 +654,9 @@ def test_typical_fix_delta_is_at_most_one_tenth_of_its_full_package(tmp_path: Pa
 
     assert delta.returncode == 0, delta.stderr
     assert delta_output.stat().st_size <= full_output.stat().st_size / 10
+    full_package = full_output.read_bytes()
+    diff_stat = _section_payload(full_package, "diff_stat")
+    patch = _section_payload(full_package, "patch")
+    assert b"diff --git" not in diff_stat
+    assert len(diff_stat) * 10 < len(patch)
+    assert len(full_package) < len(patch) * 1.25

@@ -156,7 +156,6 @@ def _render_timing_text(payload: dict[str, object]) -> str:
     assert isinstance(summaries, list)
     if not summaries:
         lines.append("- none")
-        return "\n".join(lines) + "\n"
 
     for item in summaries:
         assert isinstance(item, dict)

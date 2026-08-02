@@ -219,6 +219,26 @@ def test_report_timing_lists_measured_catalog_lanes_without_a_timing_log(
     assert frontend_lint["local_runs"] == 0
 
 
+def test_report_timing_text_lists_catalog_lanes_without_a_timing_log(
+    tmp_path: Path, capsys
+) -> None:
+    """Catch text rendering that returns before printing its before-run catalog projection."""
+
+    exit_code = main(
+        [
+            "report-timing",
+            "--timing-log",
+            str(tmp_path / "missing.jsonl"),
+            "--include-unmeasured",
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+    assert "Measured budget lanes:" in output
+    assert "frontend.eslint:default: state=measured" in output
+
+
 def test_quarantined_preflight_records_skipped_run(tmp_path: Path, capsys) -> None:
     timing_log = tmp_path / "timing.jsonl"
 

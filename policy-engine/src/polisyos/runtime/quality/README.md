@@ -76,3 +76,10 @@ Workspace ownership:
   by one generation-cycle run. It binds canonical substrate-registry, world,
   intervention, lever, and transport evidence without loading packs by filename
   or granting grounding, transport, or promotion authority.
+- `confidence_ledger.py` owns durable anytime-valid promotion-risk accounting.
+  It resolves data-registered instruments through code-owned proof kernels,
+  binds predictable claims to the prior ledger head, burns exact schedule risk
+  before execution, and exposes only the narrow N9 promotion and future N12
+  epoch-reference projections. Its bound is always conditional on obligation
+  completeness and validator soundness; fixed-time labels and caller-authored
+  spend never confer promotion authority.

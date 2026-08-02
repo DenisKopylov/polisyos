@@ -177,9 +177,7 @@ class CandidateGroundingObservation(_StrictModel):
     evidence_refs: tuple[str, ...] = ()
     current_valid: bool = False
     report_ref: str | None = None
-    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
-        "grounding_unavailable"
-    )
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
     cgf_certificate_refs: tuple[str, ...] = ()
     quarantine_action: QuarantineAction = "none"
@@ -197,9 +195,7 @@ class CandidateGroundingObservation(_StrictModel):
         if self.acquisition_requirement is not None:
             if self.status in {"current_valid", "grounded_shadow"}:
                 raise ValueError("grounded_status_cannot_require_acquisition")
-            if self.acquisition_requirement.metadata.get("source") != (
-                "cgf_grounding_coverage"
-            ):
+            if self.acquisition_requirement.metadata.get("source") != ("cgf_grounding_coverage"):
                 raise ValueError("grounding_acquisition_requirement_not_canonical")
         return self
 
@@ -241,9 +237,7 @@ def _joint_simulation_port_outcome(
         or not result.trajectories
         or any(decision.decision != "selected" for decision in result.engine_decisions)
     )
-    blockers = list(
-        result.promotion_ready_value_packet.get("authority_blockers", ())
-    )
+    blockers = list(result.promotion_ready_value_packet.get("authority_blockers", ()))
     if unsupported:
         blockers.extend(result.feedback_classification.support_blockers)
         for decision in result.engine_decisions:
@@ -324,9 +318,7 @@ def _derived_value_data_modalities(
     periods_by_unit: dict[str, set[int]] = {}
     for row in rows:
         periods_by_unit.setdefault(row.unit_id, set()).add(row.period_id)
-    longitudinal_units = sum(
-        1 for periods in periods_by_unit.values() if len(periods) >= 4
-    )
+    longitudinal_units = sum(1 for periods in periods_by_unit.values() if len(periods) >= 4)
     modalities = {"tabular"}
     if is_value_panel_shape(
         longitudinal_unit_count=longitudinal_units,
@@ -447,15 +439,11 @@ class ValuePortObservation(_StrictModel):
         if self.acquisition_requirement is not None:
             if self.candidate_id is None:
                 raise ValueError("value_acquisition_requirement_not_canonical")
-            if self.authority_blockers == (
-                "treatment_assignment_not_owner_derived",
-            ):
+            if self.authority_blockers == ("treatment_assignment_not_owner_derived",):
                 expected = value_input_world_knowledge_requirement_gap(
                     claim_ref=f"value-claim:{self.candidate_id}"
                 )
-            elif self.authority_blockers == (
-                "acquire_data:value_panel_data_missing",
-            ):
+            elif self.authority_blockers == ("acquire_data:value_panel_data_missing",):
                 from polisyos.runtime.quality.data_state_substrate import (
                     L1VariableAvailability,
                 )
@@ -463,21 +451,15 @@ class ValuePortObservation(_StrictModel):
                 metadata = self.acquisition_requirement.metadata
                 binding = metadata.get("candidate_binding")
                 availability = metadata.get("availability")
-                if not isinstance(binding, Mapping) or not isinstance(
-                    availability, Mapping
-                ):
+                if not isinstance(binding, Mapping) or not isinstance(availability, Mapping):
                     raise ValueError("value_acquisition_requirement_not_canonical")
                 availability_payload = dict(availability)
                 availability_payload.pop("availability_content_hash", None)
                 expected = l1_variable_availability_requirement_gap(
                     candidate_id=str(binding.get("candidate_id") or ""),
-                    candidate_content_hash=str(
-                        binding.get("candidate_content_hash") or ""
-                    ),
+                    candidate_content_hash=str(binding.get("candidate_content_hash") or ""),
                     design_problem_ref=str(binding.get("design_problem_ref") or ""),
-                    availability=L1VariableAvailability.model_validate(
-                        availability_payload
-                    ),
+                    availability=L1VariableAvailability.model_validate(availability_payload),
                     authority_level=str(metadata.get("authority_level") or ""),
                 )
                 if binding.get("candidate_id") != self.candidate_id:
@@ -490,8 +472,7 @@ class ValuePortObservation(_StrictModel):
                 raise ValueError("value_acquisition_requirement_not_canonical")
         if (
             self.method_selection_receipt is not None
-            and self.selected_method_fqn
-            != self.method_selection_receipt.selected_method_fqn
+            and self.selected_method_fqn != self.method_selection_receipt.selected_method_fqn
         ):
             raise ValueError("value_observation_selection_receipt_method_mismatch")
         return self
@@ -544,9 +525,7 @@ class CandidateSummary(_StrictModel):
     proxy_score: float = Field(ge=0.0, le=1.0)
     voi_estimate: float = Field(ge=0.0)
     grounding_status: GroundingStatus
-    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
-        "grounding_unavailable"
-    )
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
     grounding_score: float = Field(ge=0.0, le=1.0)
     current_valid: bool
@@ -663,8 +642,7 @@ class GenerationCycleRecord(_StrictModel):
             return self
         if (
             binding.get("candidate_id") != selected
-            or binding.get("candidate_content_hash")
-            != self.selected_candidate_content_hash
+            or binding.get("candidate_content_hash") != self.selected_candidate_content_hash
             or binding.get("design_problem_ref") != self.design_problem_ref
         ):
             raise ValueError("cycle_acquisition_candidate_binding_mismatch")
@@ -1069,9 +1047,7 @@ class JointSimulationPort:
             return SimulationPortObservation(
                 candidate_id=candidate_id,
                 status=(
-                    "simulation_pending_n5"
-                    if world_record is not None
-                    else "simulation_blocked"
+                    "simulation_pending_n5" if world_record is not None else "simulation_blocked"
                 ),
                 authority_blockers=tuple(
                     item
@@ -1085,9 +1061,7 @@ class JointSimulationPort:
                 k_world_ref_before=(
                     world_record.content_hash if world_record is not None else None
                 ),
-                k_world_ref_after=(
-                    world_record.content_hash if world_record is not None else None
-                ),
+                k_world_ref_after=(world_record.content_hash if world_record is not None else None),
                 world_model_record=world_record,
             )
         request = (
@@ -1157,9 +1131,7 @@ class JointSimulationPort:
                     f"joint_simulation_request.intervention_atoms[{index}]",
                     _object_get(atom, "world_model_record_ref"),
                 )
-                for index, atom in enumerate(
-                    getattr(request, "intervention_atoms", ()) or ()
-                )
+                for index, atom in enumerate(getattr(request, "intervention_atoms", ()) or ())
             ),
         )
         if self._cycle_substrate_context is not None:
@@ -1184,22 +1156,17 @@ class JointSimulationPort:
             if (
                 request.world_model_record.world_model_record_id
                 != context_record.world_model_record_id
-                or request.world_model_record.content_hash
-                != context_record.content_hash
+                or request.world_model_record.content_hash != context_record.content_hash
                 or request.world_model_record_ref not in accepted
             ):
-                raise WorldModelRecordError(
-                    "cycle_substrate_request_wmr_mismatch"
-                )
+                raise WorldModelRecordError("cycle_substrate_request_wmr_mismatch")
             self._assert_world_model_reference_bindings(
                 candidate=candidate,
                 problem=problem,
                 world_model_record=context_record,
                 additional_refs=request_refs,
             )
-            return request.model_copy(
-                update={"world_model_record": context_record}
-            )
+            return request.model_copy(update={"world_model_record": context_record})
         from polisyos.runtime.quality.cycle_substrate import (
             resolve_world_model_atom_identity,
         )
@@ -1234,17 +1201,11 @@ class JointSimulationPort:
             revalidate_cycle_substrate_context,
         )
 
-        context = revalidate_cycle_substrate_context(
-            self._cycle_substrate_context
-        )
+        context = revalidate_cycle_substrate_context(self._cycle_substrate_context)
         if context.design_problem_ref != _problem_ref(problem):
-            raise WorldModelRecordError(
-                "cycle_substrate_design_problem_mismatch"
-            )
+            raise WorldModelRecordError("cycle_substrate_design_problem_mismatch")
         if context.domain != problem.domain:
-            raise WorldModelRecordError(
-                "cycle_substrate_problem_domain_mismatch"
-            )
+            raise WorldModelRecordError("cycle_substrate_problem_domain_mismatch")
         record = self._cycle_substrate_context.world_model_record
         atom = _object_get(candidate, "atom")
         if atom is None:
@@ -1649,9 +1610,7 @@ class FoundryValuePort:
                     mode=mode,
                     started=started,
                     candidate_id=candidate_id,
-                    world_model_record_content_hash=str(
-                        _object_get(world_record, "content_hash")
-                    ),
+                    world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
                 )
         try:
             method_state = self._owner_gateway.load_value_data_profile(
@@ -1739,9 +1698,7 @@ class FoundryValuePort:
                     candidate=candidate,
                     problem=selector_problem,
                     requested_method_fqn=_optional_text(inputs.get("method_fqn")),
-                    observation_to_contract_manifest=inputs.get(
-                        "observation_to_contract_manifest"
-                    ),
+                    observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
                     runtime_budget_ms=(
                         float(inputs["runtime_budget_ms"])
                         if inputs.get("runtime_budget_ms") is not None
@@ -1811,9 +1768,7 @@ class FoundryValuePort:
             return None, "built", "value_world_model_record_unwired"
         try:
             record = (
-                raw
-                if isinstance(raw, WorldModelRecord)
-                else WorldModelRecord.model_validate(raw)
+                raw if isinstance(raw, WorldModelRecord) else WorldModelRecord.model_validate(raw)
             )
         except Exception as exc:
             return None, "built", f"world_model_record_invalid:{exc}"
@@ -2071,9 +2026,7 @@ class GenerationCycleController:
                     next_candidate_ref=cycle.revision_request.next_candidate_ref,
                     previous_grammar_elements=cycle.revision_request.previous_grammar_elements,
                     next_grammar_elements=cycle.revision_request.next_grammar_elements,
-                    introduced_grammar_elements=(
-                        cycle.revision_request.new_grammar_elements
-                    ),
+                    introduced_grammar_elements=(cycle.revision_request.new_grammar_elements),
                     design_problem=current_problem,
                 )
             except GenerationCycleError as exc:
@@ -2085,7 +2038,11 @@ class GenerationCycleController:
             cycle_index += 1
 
         promotion = self._promotion_port(summaries=tuple(summaries), problem=problem)
-        summaries = _apply_promotion_to_summaries(tuple(summaries), promotion)
+        summaries = _apply_promotion_to_summaries(
+            tuple(summaries),
+            promotion,
+            problem=problem,
+        )
         fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
             run_id=f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}",
@@ -2244,9 +2201,7 @@ class GenerationCycleController:
 
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             return None
-        acquisition_request = cycle.revision_request.strategy_payload.get(
-            "acquisition_request"
-        )
+        acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
         if not isinstance(acquisition_request, Mapping):
             return None
         raw_gap = acquisition_request.get("requirement_gap")
@@ -2260,10 +2215,7 @@ class GenerationCycleController:
                 str(exc),
             ) from exc
         return plan_requirement_gap_acquisition(
-            run_id=(
-                f"n7-routing:{problem.design_problem_id}:"
-                f"{cycle.cycle_index}"
-            ),
+            run_id=(f"n7-routing:{problem.design_problem_id}:{cycle.cycle_index}"),
             requirement_gaps=(gap,),
             generated_at=self._generated_at,
         )
@@ -2328,7 +2280,9 @@ class GenerationCycleController:
             else None
         )
         world_ref_hint = _runtime_hint_optional(problem, "world_model_record_ref")
-        world_ref = str(world_ref_hint or f"s0://substrate-registry/{registry.substrate_version_id}")
+        world_ref = str(
+            world_ref_hint or f"s0://substrate-registry/{registry.substrate_version_id}"
+        )
         if context_world_ref is not None:
             world_ref = context_world_ref
         return AcquisitionWorldSnapshot(
@@ -2468,8 +2422,7 @@ class GenerationCycleController:
         candidates = (*owner_candidates, *disposition_candidates)
         generation_channel: GenerationChannel = "n4_owner"
         if not candidates or (
-            getattr(result, "status", None) != "generated"
-            and not disposition_candidates
+            getattr(result, "status", None) != "generated" and not disposition_candidates
         ):
             result = _grammar_fallback_result(
                 state["problem"],
@@ -2872,12 +2825,8 @@ def validate_generation_cycle_run(
                 }
             )
     for summary in run.candidate_summaries:
-        if (
-            summary.grounding_status in {"current_valid", "grounded_shadow"}
-            and (
-                summary.grounding_source != "cgf_firewall"
-                or not summary.grounding_disposition
-            )
+        if summary.grounding_status in {"current_valid", "grounded_shadow"} and (
+            summary.grounding_source != "cgf_firewall" or not summary.grounding_disposition
         ):
             issues.append(
                 {
@@ -3071,9 +3020,7 @@ def _revision_strategy_payload(
             "network_policy": "record_replay_required_for_routine_check",
         }
         if acquisition_requirement is not None:
-            acquisition_request["requirement_gap"] = acquisition_requirement.model_dump(
-                mode="json"
-            )
+            acquisition_request["requirement_gap"] = acquisition_requirement.model_dump(mode="json")
         payload["acquisition_request"] = acquisition_request
     elif strategy == "adversarial_validate":
         payload["adversarial_validation"] = {
@@ -3177,22 +3124,15 @@ def _n7_substrate_registry(
                 "n7_cycle_substrate_context_invalid",
                 str(exc),
             ) from exc
-        if (
-            context.design_problem_ref != _problem_ref(problem)
-            or context.domain != problem.domain
-        ):
-            raise GenerationCycleError(
-                "n7_cycle_substrate_context_mismatch"
-            )
+        if context.design_problem_ref != _problem_ref(problem) or context.domain != problem.domain:
+            raise GenerationCycleError("n7_cycle_substrate_context_mismatch")
         return cycle_substrate_context.substrate_registry
     for key in ("substrate_registry", "s0_substrate_registry"):
         raw = problem.runtime_hints.get(key)
         if raw is not None:
             try:
                 return SubstrateRegistry.model_validate(
-                    raw.model_dump(mode="python")
-                    if isinstance(raw, SubstrateRegistry)
-                    else raw
+                    raw.model_dump(mode="python") if isinstance(raw, SubstrateRegistry) else raw
                 )
             except ValueError as exc:
                 raise GenerationCycleError(
@@ -3367,9 +3307,7 @@ def _load_value_data_profile_from_l1_dcat(
         "owner_access_ref": owner_access_ref,
         "owner_rows_content_hash": gy_content_hash(rows_payload),
     }
-    return ValueDataProfile.model_validate(
-        {**payload, "content_hash": gy_content_hash(payload)}
-    )
+    return ValueDataProfile.model_validate({**payload, "content_hash": gy_content_hash(payload)})
 
 
 def _value_owner_row(
@@ -3411,9 +3349,7 @@ def _candidate_estimand_binding_is_unresolved(candidate: object) -> bool:
 
     disposition = str(_object_get(candidate, "grounding_disposition") or "")
     status = str(_object_get(candidate, "status") or "")
-    return status == "candidate_unbound" or (
-        bool(disposition) and disposition != "shadow_bound"
-    )
+    return status == "candidate_unbound" or (bool(disposition) and disposition != "shadow_bound")
 
 
 def _value_candidate_world_identity_error(
@@ -3496,18 +3432,14 @@ def _build_boundary_world_model_record(
     )
     if len(raw_selected) != len(set(raw_selected)):
         raise WorldModelRecordError("boundary_registry_entry_duplicate")
-    entries_by_hash = {
-        entry.entry_content_hash: entry for entry in registry.entries
-    }
+    entries_by_hash = {entry.entry_content_hash: entry for entry in registry.entries}
     missing_hashes = sorted(set(selected_hashes).difference(entries_by_hash))
     if missing_hashes:
         raise WorldModelRecordError(
             "boundary_registry_entry_unresolved",
             ",".join(missing_hashes),
         )
-    selected_entries = tuple(
-        entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes)
-    )
+    selected_entries = tuple(entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes))
     resolved_entries = tuple(
         ResolvedSubstrateEntryRef(
             source_id=entry.source_id,
@@ -3539,9 +3471,7 @@ def _build_boundary_world_model_record(
     population_scope = "stakeholders:" + ",".join(
         sorted(stakeholder.stakeholder_id for stakeholder in problem.stakeholders)
     )
-    resolution = str(
-        problem.runtime_hints.get("world_resolution") or "entity_observation_period"
-    )
+    resolution = str(problem.runtime_hints.get("world_resolution") or "entity_observation_period")
     slot_map = tuple(
         PolicySlotBinding(
             slot_id=slot,
@@ -3583,8 +3513,7 @@ def _build_boundary_world_model_record(
         "schema_version": "policyos.runtime.world_model_record.v1",
         "authority_status": "limited",
         "producer_ref": (
-            "polisyos.runtime.quality.generation_cycle."
-            "_build_boundary_world_model_record"
+            "polisyos.runtime.quality.generation_cycle._build_boundary_world_model_record"
         ),
         "region_or_jurisdiction": problem.jurisdiction_time.region,
         "population_scope": population_scope,
@@ -3725,8 +3654,7 @@ def _build_candidate_selection_diagram(
         )
     if (
         context.world_model_record_content_hash != world_record.content_hash
-        or context.world_model_record.world_model_record_id
-        != world_record.world_model_record_id
+        or context.world_model_record.world_model_record_id != world_record.world_model_record_id
     ):
         raise ValueOwnerAccessError(
             "transport_context_world_mismatch",
@@ -3740,35 +3668,24 @@ def _build_candidate_selection_diagram(
             "content-bound source/target transport measurements are absent",
             owner_access_ref=context.content_hash,
         )
-    transport_covariates = tuple(
-        observation.canonical_var for observation in transport.covariates
-    )
+    transport_covariates = tuple(observation.canonical_var for observation in transport.covariates)
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=list(dict.fromkeys((query_treatment, query_outcome, *transport_covariates))),
         edges=[
             CausalEdge(src=query_treatment, dst=query_outcome),
-            *[
-                CausalEdge(src=covariate, dst=query_outcome)
-                for covariate in transport_covariates
-            ],
+            *[CausalEdge(src=covariate, dst=query_outcome) for covariate in transport_covariates],
         ],
     )
     source_context = ContextProfile(
         context_id=transport.source_context_id,
         context_label=f"measured-source:{transport.source_context_id}",
-        data_sources=[
-            observation.source_row_content_hash
-            for observation in transport.covariates
-        ],
+        data_sources=[observation.source_row_content_hash for observation in transport.covariates],
     )
     target_context = ContextProfile(
         context_id=transport.target_context_id,
         context_label=f"measured-target:{transport.target_context_id}",
-        data_sources=[
-            observation.target_row_content_hash
-            for observation in transport.covariates
-        ],
+        data_sources=[observation.target_row_content_hash for observation in transport.covariates],
     )
     builder = SelectionDiagramBuilder(graph)
     for observation in transport.covariates:
@@ -4324,6 +4241,7 @@ def _selector_problem_with_owner_context(
 
     return problem.model_copy(update={"runtime_hints": dict(context)})
 
+
 def _run_value_transport(
     *,
     inputs: Mapping[str, Any],
@@ -4490,9 +4408,7 @@ def _runtime_hint_optional(problem: DesignProblem, key: str) -> object | None:
 
 def _candidate_id(candidate: object) -> str:
     return str(
-        _object_get(candidate, "candidate_id")
-        or _object_get(candidate, "id")
-        or "candidate"
+        _object_get(candidate, "candidate_id") or _object_get(candidate, "id") or "candidate"
     )
 
 
@@ -4547,9 +4463,7 @@ def _candidate_owner_validation_issues(
     raw_disposition = str(_object_get(disposition, "disposition") or "")
     if raw_disposition != "shadow_bound":
         proposal_id = str(_object_get(disposition, "proposal_id") or "")
-        raw_candidate_hash = str(
-            _object_get(disposition, "raw_candidate_hash") or ""
-        )
+        raw_candidate_hash = str(_object_get(disposition, "raw_candidate_hash") or "")
         if proposal_id != candidate_id:
             issues.append("candidate_cgf_proposal_id_mismatch")
         if raw_candidate_hash != _candidate_content_hash(candidate):
@@ -4584,13 +4498,9 @@ def _disposition_candidates(
     """Project every usable non-binding N4 disposition into the N6 denominator."""
 
     existing_ids = {_candidate_id(candidate) for candidate in existing_candidates}
-    existing_hashes = {
-        _candidate_content_hash(candidate) for candidate in existing_candidates
-    }
+    existing_hashes = {_candidate_content_hash(candidate) for candidate in existing_candidates}
     projected: list[_DispositionCandidate] = []
-    for disposition in _sequence(
-        _object_get(result, "grounding_dispositions")
-    ):
+    for disposition in _sequence(_object_get(result, "grounding_dispositions")):
         disposition_kind = str(_object_get(disposition, "disposition") or "")
         if (
             disposition_kind not in _grounding_disposition_denominator()
@@ -4598,14 +4508,10 @@ def _disposition_candidates(
         ):
             continue
         proposal_id = str(_object_get(disposition, "proposal_id") or "")
-        raw_candidate_hash = str(
-            _object_get(disposition, "raw_candidate_hash") or ""
-        )
+        raw_candidate_hash = str(_object_get(disposition, "raw_candidate_hash") or "")
         if not proposal_id or not re.fullmatch(r"sha256:[0-9a-f]{64}", raw_candidate_hash):
             continue
-        candidate_id = str(
-            _object_get(disposition, "candidate_id") or proposal_id
-        )
+        candidate_id = str(_object_get(disposition, "candidate_id") or proposal_id)
         if candidate_id in existing_ids or raw_candidate_hash in existing_hashes:
             continue
         projected.append(
@@ -4614,9 +4520,7 @@ def _disposition_candidates(
                 content_hash=raw_candidate_hash,
                 proposal_id=proposal_id,
                 grounding_disposition=disposition_kind,
-                lever_resolution=_verified_candidate_lever_refusal(
-                    disposition
-                ),
+                lever_resolution=_verified_candidate_lever_refusal(disposition),
             )
         )
         existing_ids.add(candidate_id)
@@ -4634,9 +4538,7 @@ def _verified_candidate_lever_refusal(
         return None
     try:
         return InterventionLeverRefusal.model_validate(
-            raw.model_dump(mode="python")
-            if hasattr(raw, "model_dump")
-            else raw
+            raw.model_dump(mode="python") if hasattr(raw, "model_dump") else raw
         )
     except (AttributeError, TypeError, ValueError):
         return None
@@ -4708,9 +4610,7 @@ def _cg4_quarantine_refs(chain: object) -> tuple[object | None, object | None]:
     handoff = _object_get(chain, "quarantine_handoff") or _object_get(
         chain, "cg4_quarantine_handoff"
     )
-    proxy_gap = _object_get(chain, "proxy_gap_risk") or _object_get(
-        chain, "cg4_proxy_gap_risk"
-    )
+    proxy_gap = _object_get(chain, "proxy_gap_risk") or _object_get(chain, "cg4_proxy_gap_risk")
     proxy_gap_ref = (
         _object_get(chain, "cg4_proxy_gap_risk_id")
         or _object_get(proxy_gap, "risk_id")
@@ -4772,8 +4672,7 @@ def _grammar_fallback_result(
     candidates: list[_GrammarFallbackCandidate] = []
     rankings: list[_GrammarFallbackRanking] = []
     grammar = tuple(
-        str(item)
-        for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
+        str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
     )
     levers = tuple(problem.candidate_lever_space.candidate_levers)
     for index, lever in enumerate(levers):
@@ -4878,9 +4777,7 @@ def _counterexample_record(
     value_port: ValuePortObservation | None = None,
 ) -> CounterexampleRecord:
     value_issue = _value_revision_issue(value_port)
-    issue = value_issue or (
-        grounding.issue_codes[0] if grounding.issue_codes else grounding.status
-    )
+    issue = value_issue or (grounding.issue_codes[0] if grounding.issue_codes else grounding.status)
     counterexample_class = "value_gap" if value_issue else "real_design_blocker"
     slug = _slug(problem.design_problem_id)
     return CounterexampleRecord(
@@ -4891,11 +4788,7 @@ def _counterexample_record(
         counterexample_class=counterexample_class,
         diagnostic=TypedDiagnosticRecord(
             diagnostic_id=f"gy.n6.diagnostic.{slug}.{cycle_index + 1:03d}",
-            code=(
-                f"n6.value.{issue}"
-                if value_issue
-                else f"n6.{grounding.status}.{issue}"
-            ),
+            code=(f"n6.value.{issue}" if value_issue else f"n6.{grounding.status}.{issue}"),
             severity="block",
             message=f"Candidate {candidate_id} requires revision for {issue}.",
             authority_purpose="shadow_search_refinement_only",
@@ -4915,9 +4808,7 @@ def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None
         return None
     if value_port.status == "value_blocked":
         return (
-            value_port.authority_blockers[0]
-            if value_port.authority_blockers
-            else "value_blocked"
+            value_port.authority_blockers[0] if value_port.authority_blockers else "value_blocked"
         )
     if value_port.status == "value_ready" and value_port.decision_grade in {"blocked", "low"}:
         return f"value_{value_port.decision_grade}"
@@ -4963,8 +4854,7 @@ def _default_revision_request(
     value_port: ValuePortObservation | None = None,
 ) -> DesignRevisionRequest:
     previous_grammar = tuple(
-        str(item)
-        for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
+        str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
     )
     diagnostic_code = str(counterexample.diagnostic.code).split(".")
     issue = diagnostic_code[-1] if diagnostic_code else counterexample.counterexample_class
@@ -5005,14 +4895,17 @@ def _default_revision_request(
             }
         }
     )
-    next_ref = "candidate://pending/" + gy_content_hash(
-        {
-            "previous_candidate_ref": candidate_id,
-            "counterexample_ref": counterexample.counterexample_ref,
-            "revision_strategy": strategy,
-            "new_grammar": new_grammar_elements,
-        }
-    ).removeprefix("sha256:")[:16]
+    next_ref = (
+        "candidate://pending/"
+        + gy_content_hash(
+            {
+                "previous_candidate_ref": candidate_id,
+                "counterexample_ref": counterexample.counterexample_ref,
+                "revision_strategy": strategy,
+                "new_grammar": new_grammar_elements,
+            }
+        ).removeprefix("sha256:")[:16]
+    )
     return DesignRevisionRequest(
         revision_id=f"gy.n6.revision.{_slug(problem.design_problem_id)}.{cycle_index + 1:03d}",
         source_counterexample_ref=counterexample.counterexample_ref,
@@ -5151,8 +5044,7 @@ def _cycle_record(
         cycle_index=cycle_index,
         design_problem_ref=_problem_ref(problem),
         grammar_elements=tuple(
-            str(item)
-            for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
+            str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
         ),
         candidate_ids=candidate_ids,
         selected_candidate_ref=_candidate_id(selected_candidate),
@@ -5205,10 +5097,7 @@ def _cycle_with_acquisition_routing_report(
 ) -> GenerationCycleRecord:
     """Attach typed N7 routing evidence through full record validation."""
 
-    values = {
-        name: getattr(cycle, name)
-        for name in GenerationCycleRecord.model_fields
-    }
+    values = {name: getattr(cycle, name) for name in GenerationCycleRecord.model_fields}
     values["acquisition_routing_report"] = report
     return GenerationCycleRecord.model_validate(values)
 
@@ -5293,6 +5182,8 @@ def _derive_fronts(summaries: tuple[CandidateSummary, ...]) -> GenerationCycleFr
 def _apply_promotion_to_summaries(
     summaries: tuple[CandidateSummary, ...],
     promotion: PromotionPortObservation,
+    *,
+    problem: DesignProblem | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
     result: list[CandidateSummary] = []
@@ -5300,7 +5191,11 @@ def _apply_promotion_to_summaries(
         can_promote = (
             summary.candidate_id in certified
             and promotion.status == "certified_current_valid"
-            and _promotion_receipt_allows_decision_front(promotion, summary.candidate_id)
+            and _promotion_receipt_allows_decision_front(
+                promotion,
+                summary,
+                problem=problem,
+            )
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
             and (
@@ -5324,16 +5219,34 @@ def _apply_promotion_to_summaries(
 
 def _promotion_receipt_allows_decision_front(
     promotion: PromotionPortObservation,
-    candidate_id: str,
+    summary: CandidateSummary,
+    *,
+    problem: DesignProblem | None,
 ) -> bool:
+    from polisyos.runtime.quality.promotion_sequence import (
+        CanonicalPromotionReceipt,
+        validate_canonical_promotion_receipt,
+    )
+
     for receipt in promotion.receipts:
-        if str(receipt.get("candidate_id") or "") != candidate_id:
+        if str(receipt.get("candidate_id") or "") != summary.candidate_id:
             continue
-        return (
-            receipt.get("promoted") is True
-            and receipt.get("consumer_promotable") is True
-            and receipt.get("promotion_lane") == "production"
-            and not receipt.get("non_promotable_reason")
+        try:
+            parsed = CanonicalPromotionReceipt.model_validate(receipt)
+        except ValueError:
+            return False
+        if validate_canonical_promotion_receipt(
+            parsed,
+            candidate_summary=summary,
+            design_problem=problem,
+            value_receipt=summary.value_receipt,
+        ):
+            return False
+        return bool(
+            parsed.promoted
+            and parsed.consumer_promotable
+            and parsed.promotion_lane == "production"
+            and not parsed.non_promotable_reason
         )
     return False
 

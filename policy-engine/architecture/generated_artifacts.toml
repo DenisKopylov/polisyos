@@ -1755,24 +1755,34 @@ owner = "team-runtime-quality"
 approval_owner = "team-runtime-quality"
 lifecycle = "generated_committed"
 gy_lifecycle_family = true
-generator = "Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence"
-verifier = "Layer 3 GY-N9 promotion contract validator, frozen-receipt check, rederive audit, corrupt-field drift, and source-flip mutations"
-promotion_target = "registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, and G4 owners"
+generator = "Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence and isolated deterministic N11 confidence-ledger replay scopes"
+verifier = "Layer 3 GY-N9 recomputing promotion contract validator, exact canonical-byte check, nested N11 projection/conditionality drift, rederive audit, and source-flip mutations"
+promotion_target = "registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, G4, and the current-head N11 promotion-certificate projection; fixed-time confidence remains a typed zero-spend refusal"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py"
+source_of_truth = "src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_promotion_contract.json",
 ]
 regenerate_commands = [
-  "python3 tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json",
+  "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes."
+freshness_rule = "Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_promotion_contract.py"
 check_cwd = "."
 check_command = [
-  "python3",
+  "env",
+  "JAX_PLATFORMS=cpu",
+  "uv",
+  "run",
+  "--extra",
+  "analytics",
+  "--extra",
+  "solvers",
+  "--extra",
+  "test",
+  "python",
   "tools/quality/validation/check_layer3_gy_promotion_contract.py",
   "--check",
   "--output-format",
@@ -1984,6 +1994,49 @@ check_command = [
   "test",
   "python",
   "tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+  "--check",
+  "--catalog-path",
+  "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+  "--l5-path",
+  "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-n11-confidence-ledger"
+label = "Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "GY-N11 canonical writer over the typed confidence-ledger core, data-registered instrument families, the predictable obligation-class risk schedule, durable execution/spend lineage, narrow owner-recomputed N10/N13b evidence projections, and the N9 promotion-certificate projection consumer"
+verifier = "GY-N11 recomputing checker, byte-stable canonical writer, nested corrupt-field lane, and restoring behavioral source-flip suite"
+promotion_target = "N9 anytime-valid probabilistic promotion accounting and N12 epoch-reference projection only; never unconditional confidence, certificate authority, or policy authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/confidence_ledger.py, tools/quality/validation/layer3_gy_confidence_ledger_contract.py, tools/quality/validation/check_layer3_gy_confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py as the N9 projection consumer, and narrow structurally recomputed N10/N13b owner projections"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+]
+regenerate_commands = [
+  "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate whenever the instrument registry, obligation-class delta split, predictable schedule, durable execution/spend lineage, N9 promotion intake, conditionality assumptions, projection graph, or bound N10/N13b owner projections change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_confidence_ledger.py"
+check_cwd = "."
+check_command = [
+  "env",
+  "JAX_PLATFORMS=cpu",
+  "uv",
+  "run",
+  "--extra",
+  "analytics",
+  "--extra",
+  "solvers",
+  "--extra",
+  "test",
+  "python",
+  "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
   "--check",
   "--catalog-path",
   "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",

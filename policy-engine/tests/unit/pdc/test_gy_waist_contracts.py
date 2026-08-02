@@ -18,6 +18,9 @@ from polisyos.pdc import (
     OperationContract,
     OperationInvocationRecord,
     PortSpec,
+    PromotionObligationClass,
+    PromotionRiskSpendRecord,
+    PromotionRiskSpendSummary,
     SearchLedgerEvent,
     SearchTerminalKind,
     SearchTerminalState,
@@ -26,7 +29,10 @@ from polisyos.pdc import (
     assert_ring2_verifier_provenance,
     gy_content_hash,
 )
-from polisyos.pdc._impl.gy_waist import ArtifactEnvelopeVerification
+from polisyos.pdc._impl.gy_waist import (
+    PROMOTION_RISK_CONDITIONALITY_CAVEAT,
+    ArtifactEnvelopeVerification,
+)
 
 
 def _artifact_ref(artifact_id: str = "artifact-base") -> ArtifactRef:
@@ -454,3 +460,146 @@ def test_authority_derivation_trace_rejects_matched_self_promotion() -> None:
             resulting_authority_boundary_ref="boundary-test",
             transform_mismatch_disposition="matched",
         )
+
+
+@pytest.mark.parametrize(
+    ("certificate_role", "claim_polarity"),
+    [
+        ("promotion", "false_accept"),
+        ("refusal", "confident_wrong_refusal"),
+        ("acquisition", "confident_wrong_refusal"),
+        ("admission", "confident_wrong_admission"),
+        ("promotion_conformance", "conformance_only"),
+    ],
+)
+def test_promotion_risk_spend_record_binds_role_polarity_and_ledger_check(
+    certificate_role: str,
+    claim_polarity: str,
+) -> None:
+    payload = {
+        "obligation_class": PromotionObligationClass.CALIBRATION,
+        "certificate_ref": "certificate://n9/calibration",
+        "instrument": "owner_verified_confidence_sequence",
+        "certificate_role": certificate_role,
+        "claim_polarity": claim_polarity,
+        "declared_delta_spend": 0.001,
+        "deterministic_proof": False,
+        "n11_confidence_ledger_ref": "confidence-check:sha256:" + "1" * 64,
+    }
+
+    record = PromotionRiskSpendRecord.model_validate(payload)
+
+    assert record.certificate_role == certificate_role
+    assert record.claim_polarity == claim_polarity
+
+    missing_ref = dict(payload)
+    missing_ref.pop("n11_confidence_ledger_ref")
+    with pytest.raises(ValidationError, match="n11_confidence_ledger_ref"):
+        PromotionRiskSpendRecord.model_validate(missing_ref)
+
+    with pytest.raises(ValidationError, match="n11_confidence_ledger_ref"):
+        PromotionRiskSpendRecord.model_validate(
+            {**payload, "n11_confidence_ledger_ref": "caller://unbound"}
+        )
+
+
+def test_promotion_risk_spend_record_rejects_role_polarity_mismatch() -> None:
+    with pytest.raises(ValidationError, match="certificate_role_claim_polarity_mismatch"):
+        PromotionRiskSpendRecord(
+            obligation_class=PromotionObligationClass.CALIBRATION,
+            certificate_ref="certificate://n9/calibration",
+            instrument="owner_verified_confidence_sequence",
+            certificate_role="promotion",
+            claim_polarity="confident_wrong_admission",
+            declared_delta_spend=0.001,
+            deterministic_proof=False,
+            n11_confidence_ledger_ref="confidence-check:sha256:" + "2" * 64,
+        )
+
+
+def test_promotion_risk_summary_requires_exact_conditionality_caveat() -> None:
+    payload = {
+        "total_declared_delta": 0.0,
+        "budget_delta": 0.01,
+        "within_budget": True,
+        "spend_records": [],
+        "caveat": PROMOTION_RISK_CONDITIONALITY_CAVEAT,
+    }
+
+    summary = PromotionRiskSpendSummary.model_validate(payload)
+
+    assert summary.caveat == PROMOTION_RISK_CONDITIONALITY_CAVEAT
+    missing = dict(payload)
+    missing.pop("caveat")
+    with pytest.raises(ValidationError, match="caveat"):
+        PromotionRiskSpendSummary.model_validate(missing)
+    with pytest.raises(ValidationError, match="promotion_risk_conditionality_caveat_mismatch"):
+        PromotionRiskSpendSummary.model_validate({**payload, "caveat": "unconditional"})
+
+
+def _promotion_trace_payload() -> dict[str, object]:
+    return {
+        "operation_invocation_id": "n9-promotion-trace",
+        "output_artifact_ref": _artifact_ref("n9-promotion-output"),
+        "declared_authority_transform": {
+            "requested_evidence_kind": "transport",
+            "requested_decision_grade": "advisory_admissible",
+        },
+        "computed_evidence_kind": "transport",
+        "computed_decision_grade": "advisory_admissible",
+        "producer_root_classes": ["deterministic_producer"],
+        "method_classification": "canonical_n9_promotion_sequence",
+        "applicability_result_ref": "n9://applicability/current",
+        "resulting_authority_boundary_ref": "n9://boundary/current",
+        "transform_mismatch_disposition": "matched",
+        "promotion_sequence_ref": (
+            "polisyos.runtime.quality.promotion_sequence."
+            "run_canonical_promotion_sequence"
+        ),
+        "gate_outcome_hash": "sha256:" + "3" * 64,
+        "confidence_ledger_scope_ref": "confidence-scope://n9/design-problem",
+        "confidence_ledger_head_id": "confidence-event:sha256:" + "4" * 64,
+        "confidence_ledger_receipt_id": "confidence-ledger:sha256:" + "5" * 64,
+        "confidence_ledger_projection_hash": "sha256:" + "6" * 64,
+        "risk_spend_total": 0.001,
+        "risk_budget_delta": 0.01,
+    }
+
+
+def test_promotion_trace_requires_current_ledger_binding() -> None:
+    trace = AuthorityDerivationTrace.model_validate(_promotion_trace_payload())
+
+    assert trace.confidence_ledger_scope_ref == "confidence-scope://n9/design-problem"
+    assert trace.confidence_ledger_head_id == "confidence-event:sha256:" + "4" * 64
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    [
+        "confidence_ledger_scope_ref",
+        "confidence_ledger_head_id",
+        "confidence_ledger_receipt_id",
+        "confidence_ledger_projection_hash",
+        "risk_spend_total",
+        "risk_budget_delta",
+    ],
+)
+def test_promotion_trace_rejects_deleted_ledger_binding_field(
+    missing_field: str,
+) -> None:
+    payload = _promotion_trace_payload()
+    payload.pop(missing_field)
+
+    with pytest.raises(
+        ValidationError,
+        match="promotion_trace_confidence_ledger_binding_missing",
+    ):
+        AuthorityDerivationTrace.model_validate(payload)
+
+
+def test_promotion_trace_rejects_spend_above_bound_budget() -> None:
+    payload = _promotion_trace_payload()
+    payload["risk_spend_total"] = 0.02
+
+    with pytest.raises(ValidationError, match="promotion_trace_risk_spend_exceeds_budget"):
+        AuthorityDerivationTrace.model_validate(payload)

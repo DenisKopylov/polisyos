@@ -1,12 +1,12 @@
 {
   "acquisition_routing": {
     "acquisition_receipt": null,
-    "content_hash": "sha256:b16a2184ad487e6cf2fdc5d71961b96d4b1eea25f523849c780158942d9efc02",
+    "content_hash": "sha256:daaf0355c3c18a399982a6becf4ea49270d39b9f04e7791ab92a7f25fad372c3",
     "planner_report": {
       "acquisition_records": [
         {
           "accepted_deficit_ref": null,
-          "acquisition_id": "acquisition:n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0:requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "acquisition_id": "acquisition:n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0:requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "authority_boundary": {
             "authoritative_for": [
               "gap_detected",
@@ -30,10 +30,10 @@
           },
           "authority_level": "research",
           "blocker_ref": null,
-          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
-          "claim_ref": "value-claim:candidate_ea26e1ad2b9926a5",
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
+          "claim_ref": "value-claim:candidate_1780e03c9a5c8cb8",
           "commit_authority": "advisory_recommendation_only",
-          "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1",
+          "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1",
           "decision_owner": "runtime_planner",
           "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
           "eligible_strategies": [
@@ -41,8 +41,8 @@
             "rerun",
             "accepted_deficit"
           ],
-          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af.json",
-          "gap_id": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4.json",
+          "gap_id": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "gap_type": "data_snapshot_release",
           "ineligible_strategies": [
             "academic_retrieval",
@@ -182,7 +182,7 @@
           ],
           "limitation_ref": null,
           "mandatory_gate_refs": [
-            "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1"
+            "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1"
           ],
           "mandatory_gate_state": "none",
           "missing_requirement_fields": [
@@ -193,8 +193,8 @@
               "action": "build_production_snapshot",
               "blocks_closeout": false,
               "commit_required": false,
-              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af.json",
-              "message": "Acquire or remediate evidence via production_snapshot_build for value-claim:candidate_ea26e1ad2b9926a5.",
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4.json",
+              "message": "Acquire or remediate evidence via production_snapshot_build for value-claim:candidate_1780e03c9a5c8cb8.",
               "owner": "polisyos.runtime.quality.acquisition_planner",
               "producer_expected": "data_forge.snapshot",
               "strategy": "production_snapshot_build"
@@ -206,9 +206,9 @@
           "public_projection_effect": "no_public_effect_until_producer_output",
           "recommended_strategy": "production_snapshot_build",
           "requirement_family": "data_requirement",
-          "requirement_gap_ref": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "requirement_gap_ref": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
-          "runtime_event_ref": "event://runtime/acquisition/n7-routing-gy-n4-cgf-decisive-capture-1-20260704-092222-049411-0/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af",
+          "runtime_event_ref": "event://runtime/acquisition/n7-routing-gy-n4-cgf-decisive-capture-1-20260704-092222-049411-0/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4",
           "scenario_requirement_refs": [
             "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
             "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention"
@@ -301,13 +301,13 @@
     "requirement_gap": {
       "authority_level": "research",
       "calibration_feedback_ref": null,
-      "claim_ref": "value-claim:candidate_ea26e1ad2b9926a5",
-      "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1",
+      "claim_ref": "value-claim:candidate_1780e03c9a5c8cb8",
+      "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1",
       "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
       "gap_type": "data_snapshot_release",
       "limitation_permitted": false,
       "mandatory_gate_refs": [
-        "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1"
+        "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1"
       ],
       "mandatory_gate_state": "none",
       "metadata": {
@@ -323,8 +323,8 @@
           "variable_id": "employment_retention"
         },
         "candidate_binding": {
-          "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
-          "candidate_id": "candidate_ea26e1ad2b9926a5",
+          "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+          "candidate_id": "candidate_1780e03c9a5c8cb8",
           "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac"
         },
         "satisfaction_status": "unsatisfied",
@@ -336,7 +336,7 @@
       ],
       "producer_output_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
       "requirement_family": "data_requirement",
-      "requirement_gap_id": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+      "requirement_gap_id": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
       "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
       "scenario_requirement_refs": [
         "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
@@ -345,8 +345,8 @@
       "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
     },
     "schema_version": "policyos.layer3.gy.n8.acquisition_routing_receipt.v2",
-    "selected_candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
-    "selected_candidate_ref": "candidate_ea26e1ad2b9926a5",
+    "selected_candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "selected_candidate_ref": "candidate_1780e03c9a5c8cb8",
     "simulated_reentry": false,
     "terminal_kind": "acquisition_required"
   },
@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:50bf4086c5eb83654da8499476e3454754e81501303830eeb7521530c098b5e3",
+  "contract_content_hash": "sha256:71e763bba4f9d30239d19bafc19fb6148839f0e67d58172915a8d8f3d01132a0",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -487,9 +487,9 @@
     }
   ],
   "denominators": {
-    "catalog_entry_count": 390,
+    "catalog_entry_count": 389,
     "catalog_matches_registry": true,
-    "catalog_snapshot_id": "method_catalog_3240b5a4637e46b8",
+    "catalog_snapshot_id": "method_catalog_9483326427331f16",
     "catalog_snapshot_stable": true,
     "evaluation_modes": [
       "simulate_only",
@@ -512,7 +512,7 @@
       "partial_identification",
       "transport"
     ],
-    "registered_method_count": 390,
+    "registered_method_count": 389,
     "value_capable_fqn_set_hash": "sha256:269896d1f8e1c3153e16d92d9dd97f98d1d0ffe84eaded88ee7495f098514f2d",
     "value_capable_method_count": 55,
     "value_capable_methods": [
@@ -977,11 +977,11 @@
     "acquisition_disposition": "any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
     "artifact_ref": "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
     "authority": "shadow_read_only_no_bind",
-    "content_hash": "sha256:f511626547c17ff010b1ee26d9157c753a6f13fe8be18f96c17ee9f1ca31e605",
+    "content_hash": "sha256:2727227cc62c1e68fe5fbdaef486b0ebf96e9ee52c02dd5e735430ca500c0994",
     "fork": "B",
     "numeric_edge_bindings": 3579,
     "numeric_identities": 5124,
-    "raw_full_table_content_hash": "sha256:415e73219df496e86f9b199885a7458bf9ea9818ab2d989e82f9c6c992e16247",
+    "raw_full_table_content_hash": "sha256:4b97e247d2e6e122a4f80287e39f230cf1f4e50990f8bec7ee9d4bf55c4d9740",
     "relation_counts": {
       "SAT:false-analog": 1076,
       "UNKNOWN:unknown": 12016
@@ -1664,22 +1664,22 @@
   },
   "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
   "production_refusal": {
-    "acquisition_requirement": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+    "acquisition_requirement": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
     "authority_blockers": [
       "acquire_data:value_panel_data_missing"
     ],
-    "candidate_atom_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
-    "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
-    "candidate_id": "candidate_ea26e1ad2b9926a5",
-    "content_hash": "sha256:f1053b09e526180857cf0cc6487b6bae89360afdda53a9d69dc2f6c20ce3bda8",
+    "candidate_atom_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "candidate_id": "candidate_1780e03c9a5c8cb8",
+    "content_hash": "sha256:497d82de1afbfcea7578e14caf1f91d65c56696b2f91ba719c4c37f0836068a2",
     "decision_grade": "blocked",
     "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
     "evaluation_mode": "simulate_only",
-    "k_world_ref_after": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-    "k_world_ref_before": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+    "k_world_ref_after": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+    "k_world_ref_before": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
     "method_selection_receipt": null,
     "n4_artifact_ref": "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
-    "n4_artifact_sha256": "sha256:665cdea7b0f83c1b6c0630e1e9ce94f38a9709b04482960017bd01d8d557a2fe",
+    "n4_artifact_sha256": "sha256:5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af",
     "n4_recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
     "owner_availability": {
       "availability_content_hash": "sha256:50673f0ea18e81c67a6ecf06cde994405c5ab2c00429980d8da54541acca4f25",
@@ -1702,7 +1702,7 @@
     "world_binding": {
       "bound_state_snapshot_ref": "sha256:341c2e3c353c4aeb8912e73c75038aa948d01a2ba55dbda3c22a6be6b5d78560",
       "branch_mode": "observed",
-      "input_bindings_ref": "sha256:e0f1ba95d752a009d44e4ee259a66aca4ba6aecef7136b2e872b5f21405b2814",
+      "input_bindings_ref": "sha256:ccc5e2849ed66ba192c7b8bfc1719c93dec28c74e7b11b0010f00cdb99f40a1a",
       "schema_version": "policyos.runtime.world_model_record.v1",
       "target_slot_bindings": [
         {
@@ -1713,11 +1713,11 @@
           "unit": "ratio"
         }
       ],
-      "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-      "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+      "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+      "world_model_record_id": "world_model_record_11c3b1cb30a20018"
     },
-    "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-    "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+    "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+    "world_model_record_id": "world_model_record_11c3b1cb30a20018"
   },
   "projector_refusal_proofs": [
     {
@@ -1802,16 +1802,16 @@
       "candidate_envelope_content_hash": "sha256:f166f87ec043fac7a927d729880e7478b2714a540e17741c330c2deff11a04a8",
       "candidate_id": "gy_n4.blended_learning_expansion",
       "component_scope_only": true,
-      "context_binding_hash": "sha256:c5251cfc6140784f32253bae2cd78ca0218923b4a36f4cb76d7f2f6b9bd78248",
+      "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
       "context_source": "content_bound_pack_cycle_substrate_context",
-      "cycle_substrate_context_content_hash": "sha256:9f0baf8ce2060104d9774a23433a65d7d8109e26e9dd56f2c4ea8a2501a1f094",
+      "cycle_substrate_context_content_hash": "sha256:8d1f20e87b2074211cb9ce22e4fde375a7e763a4f7fa1cd96f507e0fa9580297",
       "data_owner": "N10a_pack_transport_context",
-      "design_problem_ref": "sha256:d53c063711e526f594b0edad9b5b3dd73f151109932ae710526e4c36ac6e0cdd",
+      "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
       "domain": "education",
       "domain_role": "education",
       "outcome_kind": "transport_receipt",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:ef08747d86f4ebbedb559d7d1b9f05d19f84ae88f1617147a215e611e9b5d92c",
+      "proof_content_hash": "sha256:8cff944146a5063b68bfead5f44ca96b068750eeecf6f9e6ef58555a376ae159",
       "query_outcome": "years_of_schooling",
       "query_treatment": "gy_n4_blended_learning_expansion",
       "required_target_data": [
@@ -1876,20 +1876,20 @@
       "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
     },
     "first_vertical": {
-      "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
-      "candidate_envelope_content_hash": "sha256:fe0a73084e14c971df726bb85f57187ee00033e8924c004bb897efe4dd843809",
-      "candidate_id": "candidate_ea26e1ad2b9926a5",
+      "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+      "candidate_envelope_content_hash": "sha256:47216d1193337dfe4da8aed8321764a9d0cd4af808dbbf9fd54c6d8dcc1ff415",
+      "candidate_id": "candidate_1780e03c9a5c8cb8",
       "component_scope_only": true,
-      "context_binding_hash": "sha256:8b954a5527e92a01c66b0c9e01b8bbef325a7745520d627cb00bcb15b55f4bb9",
+      "context_binding_hash": "sha256:31d9e7760529688f8c0c549c493d388a388abf35b93c9f4c8d5f277f244da9fb",
       "context_source": "canonical_first_vertical_cycle_substrate_context",
-      "cycle_substrate_context_content_hash": "sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a",
+      "cycle_substrate_context_content_hash": "sha256:5a32fbe809944a2798f781578a826305a7b4217c402b57300516513c55fe4c53",
       "data_owner": "L1_DCAT_ds_observations",
       "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
       "domain": "ua_msme_cgf_decisive_capture",
       "domain_role": "first_vertical",
       "outcome_kind": "typed_refusal",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:b6d30ba05b5a1cbb89d2f01a3b3197c707bf50a1c3740724e008c1f79a4216ef",
+      "proof_content_hash": "sha256:740089c7c7c4c41cec1909d432a9d39d2ddb7732c57c991cd7cf8852cf17acf0",
       "query_outcome": "employment_retention",
       "query_treatment": "industrial_retention_tax_credit",
       "required_target_data": [],
@@ -1902,12 +1902,12 @@
       "transport_result_content_hash": null,
       "typed_refusal": {
         "code": "acquire_data:transport_context_unresolved",
-        "owner_access_ref": "sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a",
-        "reason": "content-bound source/target transport measurements are absent owner_access_ref=sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a"
+        "owner_access_ref": "sha256:5a32fbe809944a2798f781578a826305a7b4217c402b57300516513c55fe4c53",
+        "reason": "content-bound source/target transport measurements are absent owner_access_ref=sha256:5a32fbe809944a2798f781578a826305a7b4217c402b57300516513c55fe4c53"
       },
       "value_gate_receipt": null,
-      "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-      "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+      "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+      "world_model_record_id": "world_model_record_11c3b1cb30a20018"
     },
     "unseen_pack_shape": {
       "candidate_content_hash": "sha256:3422c2bfb02b30df4475347dc6ef71a100b7920958ea5abebad687408b9aefe6",

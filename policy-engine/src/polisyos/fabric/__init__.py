@@ -39,6 +39,7 @@ __all__ = [
     "UnitRef",
     "WorldQueryError",
     "WorldQueryRequest",
+    "atomic_write_json",
     "batch_processing_contract",
     "build_source_contract_requirement_bindings",
     "execute_world_query",
@@ -111,6 +112,7 @@ class _LazyReexportModule(ModuleType):
 
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "atomic_write_json": ("polisyos.fabric.io.atomic", "atomic_write_json"),
     "AccessRef": ("polisyos.fabric.evidence.decision_data", "AccessRef"),
     "AuthoredText": ("polisyos.fabric.evidence.decision_data", "AuthoredText"),
     "FabricDecisionData": ("polisyos.fabric.evidence.decision_data", "FabricDecisionData"),

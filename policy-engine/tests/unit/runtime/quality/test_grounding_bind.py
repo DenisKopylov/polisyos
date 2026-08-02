@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
@@ -268,6 +269,42 @@ def test_false_analog_hard_abstains_even_when_cg1_hands_off_novel() -> None:
     assert cg1.critical_contradictions
     assert decision.decision == "abstain"
     assert decision.decisive_reason == "false_analog_hard_abstain"
+
+
+def test_false_analog_hard_abstain_mutation_is_causal_when_other_obligations_close() -> None:
+    """Removing only the veto reaches the independent DTO safety invariant."""
+
+    reference = _reference()
+    engine = GroundingRelationEngine(reference)
+    probe = _pure_synonym_probe(engine)
+    signature = probe["signature"]
+    assert isinstance(signature, dict)
+    signature["sign"] = "increase" if signature.get("sign") != "increase" else "decrease"
+    signature["admissibility"] = "passed"
+    cg1 = engine.certificate_for(probe, proposal_id="cg2-false-causal")
+
+    baseline = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(cg1)
+    mutated_gate = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+        disable_false_analog_hard_abstain=True,
+    )
+
+    assert cg1.critical_contradictions
+    assert baseline.decisive_reason == "false_analog_hard_abstain"
+    with pytest.raises(
+        ValidationError,
+        match="bind_certificate_requires_robust_singleton",
+    ) as exc_info:
+        mutated_gate.certificate_for(cg1)
+    unsafe = exc_info.value.errors(include_url=False)[0]["input"]
+    assert unsafe["decision"] == "bind"
+    assert unsafe["decisive_reason"] == "bind_eligible"
+    assert unsafe["open_obligations"] == []
+    assert all(item["status"] == "closed" for item in unsafe["obligations"])
 
 
 def test_candidate_unverified_obligation_abstains() -> None:

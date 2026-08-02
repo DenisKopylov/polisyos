@@ -13,14 +13,14 @@ import contextlib
 import copy
 import functools
 import hashlib
-import io
 import json
 import os
 import re
 import subprocess
 import sys
 import time
-from collections.abc import Mapping, Sequence
+import tomllib
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -84,6 +84,9 @@ N10A_GAPS_PATH = (
 )
 COMPOSITION_PATH = (
     "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+)
+WMR_REISSUE_REGISTRY_PATH = (
+    "architecture/production_quality/gy_n10_wmr_reissue_registry.toml"
 )
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
@@ -1821,6 +1824,9 @@ _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION = (
 _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.n4_context_rebind_receipt.v1"
 )
+_HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.n4_owner_supersession_receipt.v1"
+)
 _HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN = re.compile(
     r"^grounding_dispositions\[\d+\]\."
     r"(?:bridge_missing_records\[\d+\]\.(?:content_hash|record_id)|"
@@ -1837,12 +1843,375 @@ _HISTORICAL_N4_CONTEXT_REBIND_FIELD_PATTERN = re.compile(
     r"grounding_dispositions\[\d+\]\.lever_resolution\."
     r"(?:content_hash|context_binding_hash|substrate_input_content_hash))$"
 )
+_HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN = re.compile(
+    r"^grounding_dispositions\[\d+\]\.(?:identified_atom_id|"
+    r"rejected_cause\.(?:cg1_critical_contradictions|cg2_open_obligations)"
+    r"(?:\.length|\[\d+\]))$"
+)
+
+
+def _wmr_id(content_hash: str) -> str:
+    """Return the content-addressed WMR identifier for one full hash."""
+
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", content_hash):
+        raise UniversalityContractError("proof_n4_wmr_reissue_hash_invalid")
+    return "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+
+
+def _atom_binding_payload(atom: object) -> dict[str, Any]:
+    """Project and recompute the CG0 preimage used by one selected atom."""
+
+    from polisyos.runtime.quality.grounding_relation import (
+        GroundingCandidateAtom,
+        grounding_candidate_semantic_sort_key,
+    )
+
+    candidate = GroundingCandidateAtom.model_validate(atom)
+    signature = candidate.signature.model_dump(mode="json")
+    edge_scope = sorted(candidate.edge_scope)
+    atom_content_hash = gy_content_hash(
+        {"edge_scope": edge_scope, "signature": signature}
+    )
+    expected_id = "cg0_atom_" + atom_content_hash.removeprefix("sha256:")[:16]
+    if candidate.atom_id != expected_id:
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_current_preimage_mismatch"
+        )
+    return {
+        "atom_id": candidate.atom_id,
+        "atom_content_hash": atom_content_hash,
+        "edge_scope": edge_scope,
+        "semantic_sort_key": grounding_candidate_semantic_sort_key(candidate),
+        "signature": signature,
+    }
+
+
+def _historical_atom_binding(
+    current_binding: Mapping[str, Any],
+    *,
+    historical_wmr_content_hash: str,
+    reissued_wmr_content_hash: str,
+) -> dict[str, Any]:
+    """Recompute one historical CG0 preimage by replacing only WMR identity."""
+
+    from polisyos.runtime.quality.grounding_relation import (
+        GroundingCandidateAtom,
+        grounding_candidate_semantic_sort_key,
+    )
+
+    signature = copy.deepcopy(_mapping(current_binding.get("signature")))
+    if signature.get("wm_version") != reissued_wmr_content_hash:
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_current_wmr_mismatch"
+        )
+    historical_wmr_id = _wmr_id(historical_wmr_content_hash)
+    reissued_wmr_id = _wmr_id(reissued_wmr_content_hash)
+    signature["wm_version"] = historical_wmr_content_hash
+    signature["evidence"] = [
+        str(item).replace(reissued_wmr_id, historical_wmr_id)
+        for item in _strings(signature.get("evidence"))
+    ]
+    edge_scope = [
+        str(item).replace(reissued_wmr_id, historical_wmr_id)
+        for item in _strings(current_binding.get("edge_scope"))
+    ]
+    if (
+        reissued_wmr_id
+        not in "\n".join(
+            [
+                *[str(item) for item in _strings(current_binding.get("edge_scope"))],
+                *[
+                    str(item)
+                    for item in _strings(
+                        _mapping(current_binding.get("signature")).get("evidence")
+                    )
+                ],
+            ]
+        )
+    ):
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_wmr_edge_binding_missing"
+        )
+    atom_content_hash = gy_content_hash(
+        {"edge_scope": sorted(edge_scope), "signature": signature}
+    )
+    atom_id = "cg0_atom_" + atom_content_hash.removeprefix("sha256:")[:16]
+    candidate = GroundingCandidateAtom(
+        atom_id=atom_id,
+        signature=signature,
+        edge_scope=tuple(edge_scope),
+    )
+    return {
+        "atom_id": atom_id,
+        "atom_content_hash": atom_content_hash,
+        "edge_scope": sorted(edge_scope),
+        "semantic_sort_key": grounding_candidate_semantic_sort_key(candidate),
+        "signature": signature,
+    }
+
+
+def _build_n4_atom_readdress_witnesses(
+    historical_projection: Mapping[str, Any],
+    replayed_projection: Mapping[str, Any],
+    *,
+    current_atoms: Mapping[str, object],
+    reissue_registry: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Build owner-derived old/new CG0 preimage witnesses for changed ids."""
+
+    historical_rows = _mappings(
+        historical_projection.get("grounding_dispositions")
+    )
+    replayed_rows = _mappings(replayed_projection.get("grounding_dispositions"))
+    if len(historical_rows) != len(replayed_rows):
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_denominator_mismatch"
+        )
+    registry_rows = _mappings(reissue_registry.get("reissues"))
+    if (
+        reissue_registry.get("schema_version")
+        != "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
+        or not registry_rows
+    ):
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_registry_invalid"
+        )
+    registry_hash = _semantic_hash(reissue_registry)
+    witnesses: list[dict[str, Any]] = []
+    for index, (historical, replayed) in enumerate(
+        zip(historical_rows, replayed_rows, strict=True)
+    ):
+        historical_id = str(historical.get("identified_atom_id") or "")
+        reissued_id = str(replayed.get("identified_atom_id") or "")
+        if historical_id == reissued_id:
+            continue
+        if historical.get("proposal_id") != replayed.get("proposal_id"):
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_proposal_mismatch"
+            )
+        current_atom = current_atoms.get(reissued_id)
+        if current_atom is None:
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_current_owner_missing"
+            )
+        current_binding = _atom_binding_payload(current_atom)
+        current_wmr = str(
+            _mapping(current_binding.get("signature")).get("wm_version") or ""
+        )
+        matching_registry_rows = [
+            row
+            for row in registry_rows
+            if row.get("reissued_wmr_content_hash") == current_wmr
+        ]
+        if len(matching_registry_rows) != 1:
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_registry_resolution_mismatch"
+            )
+        registry_row = matching_registry_rows[0]
+        historical_matches: list[dict[str, Any]] = []
+        for candidate in current_atoms.values():
+            candidate_binding = _atom_binding_payload(candidate)
+            candidate_wmr = str(
+                _mapping(candidate_binding.get("signature")).get("wm_version")
+                or ""
+            )
+            if candidate_wmr != current_wmr:
+                continue
+            historical_candidate = _historical_atom_binding(
+                candidate_binding,
+                historical_wmr_content_hash=str(
+                    registry_row.get("historical_wmr_content_hash") or ""
+                ),
+                reissued_wmr_content_hash=current_wmr,
+            )
+            if historical_candidate["atom_id"] == historical_id:
+                historical_matches.append(historical_candidate)
+        if len(historical_matches) != 1:
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_historical_preimage_mismatch"
+            )
+        historical_binding = historical_matches[0]
+        semantic_equivalence = (
+            historical_binding["semantic_sort_key"]
+            == current_binding["semantic_sort_key"]
+        )
+        for disposition in (historical, replayed):
+            cause = _mapping(disposition.get("rejected_cause"))
+            critical = _strings(cause.get("cg1_critical_contradictions"))
+            open_obligations = _strings(cause.get("cg2_open_obligations"))
+            if (
+                disposition.get("disposition") == "shadow_bound"
+                or disposition.get("candidate_id")
+                or disposition.get("shadow_atom_content_hash")
+                or disposition.get("status") not in {None, "candidate_unverified"}
+                or cause.get("cg2_decision") not in {None, "abstain"}
+                or not critical
+                or not open_obligations
+            ):
+                raise UniversalityContractError(
+                    "proof_n4_atom_readdress_authority_growth"
+                )
+        if not _mapping(historical.get("rejected_cause")) or not _mapping(
+            replayed.get("rejected_cause")
+        ):
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_refusal_evidence_missing"
+            )
+        witness: dict[str, Any] = {
+            "disposition_index": index,
+            "proposal_id": historical.get("proposal_id"),
+            "historical_atom_binding": historical_binding,
+            "reissued_atom_binding": current_binding,
+            "semantic_equivalence": semantic_equivalence,
+            "historical_critical_contradictions": _strings(
+                _mapping(historical.get("rejected_cause")).get(
+                    "cg1_critical_contradictions"
+                )
+            ),
+            "reissued_critical_contradictions": _strings(
+                _mapping(replayed.get("rejected_cause")).get(
+                    "cg1_critical_contradictions"
+                )
+            ),
+            "historical_cg2_open_obligations": _strings(
+                _mapping(historical.get("rejected_cause")).get(
+                    "cg2_open_obligations"
+                )
+            ),
+            "reissued_cg2_open_obligations": _strings(
+                _mapping(replayed.get("rejected_cause")).get(
+                    "cg2_open_obligations"
+                )
+            ),
+        }
+        projection_semantic_equivalence = (
+            semantic_equivalence
+            and witness["historical_critical_contradictions"]
+            == witness["reissued_critical_contradictions"]
+            and witness["historical_cg2_open_obligations"]
+            == witness["reissued_cg2_open_obligations"]
+        )
+        witness.update(
+            {
+                "projection_semantic_equivalence": (
+                    projection_semantic_equivalence
+                ),
+                "authority_transition": (
+                    "identity_only_readdress"
+                    if projection_semantic_equivalence
+                    else "refusal_preserved_owner_supersession"
+                ),
+                "reissue_registry_content_hash": registry_hash,
+                "reissue_registry_row": copy.deepcopy(registry_row),
+            }
+        )
+        witness["witness_content_hash"] = _semantic_hash(witness)
+        witnesses.append(witness)
+    if not witnesses:
+        raise UniversalityContractError("proof_n4_atom_readdress_witness_missing")
+    return witnesses
+
+
+def _n4_atom_readdress_witness_issues(
+    historical_projection: Mapping[str, Any],
+    replayed_projection: Mapping[str, Any],
+    *,
+    witnesses: Sequence[Mapping[str, Any]],
+    current_atoms: Mapping[str, object],
+    reissue_registry: Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Recompute every historical/current preimage and causal semantic key."""
+
+    issues: list[str] = []
+    try:
+        expected = _build_n4_atom_readdress_witnesses(
+            historical_projection,
+            replayed_projection,
+            current_atoms=current_atoms,
+            reissue_registry=reissue_registry,
+        )
+    except UniversalityContractError as exc:
+        issues.append(str(exc).partition(":")[0])
+        expected = []
+    supplied = [copy.deepcopy(dict(item)) for item in witnesses]
+    for witness in supplied:
+        stable = {
+            key: value
+            for key, value in witness.items()
+            if key != "witness_content_hash"
+        }
+        if witness.get("witness_content_hash") != _semantic_hash(stable):
+            issues.append("proof_n4_atom_readdress_witness_hash_mismatch")
+        historical_binding = _mapping(
+            witness.get("historical_atom_binding")
+        )
+        atom_hash = gy_content_hash(
+            {
+                "edge_scope": sorted(
+                    _strings(historical_binding.get("edge_scope"))
+                ),
+                "signature": _mapping(historical_binding.get("signature")),
+            }
+        )
+        atom_id = "cg0_atom_" + atom_hash.removeprefix("sha256:")[:16]
+        if (
+            historical_binding.get("atom_content_hash") != atom_hash
+            or historical_binding.get("atom_id") != atom_id
+        ):
+            issues.append(
+                "proof_n4_atom_readdress_historical_preimage_mismatch"
+            )
+    if supplied != expected:
+        issues.append("proof_n4_atom_readdress_owner_recomputation_mismatch")
+    return tuple(sorted(set(issues)))
+
+
+def _load_wmr_reissue_registry(repo_root: Path) -> dict[str, Any]:
+    """Load the data-declared historical/current WMR owner mapping."""
+
+    path = repo_root / WMR_REISSUE_REGISTRY_PATH
+    if not path.is_file():
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_registry_missing"
+        )
+    with path.open("rb") as handle:
+        payload = tomllib.load(handle)
+    if (
+        payload.get("schema_version")
+        != "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
+        or not _mappings(payload.get("reissues"))
+    ):
+        raise UniversalityContractError(
+            "proof_n4_atom_readdress_registry_invalid"
+        )
+    return copy.deepcopy(payload)
+
+
+@functools.lru_cache(maxsize=2)
+def _current_cg0_atoms_for_readdress(
+    repo_root_text: str,
+) -> tuple[object, ...]:
+    """Resolve current CG0 atoms once for all cached capstone replays."""
+
+    from polisyos.runtime.quality.credal_reference import build_credal_reference
+    from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+
+    reference = build_credal_reference(Path(repo_root_text))
+    return tuple(GroundingRelationEngine(reference).reference_atoms)
+
+
+def _current_cg0_atom_map(repo_root: Path) -> dict[str, object]:
+    """Return current owner atoms keyed by their recomputed content ids."""
+
+    atoms = _current_cg0_atoms_for_readdress(repo_root.resolve().as_posix())
+    return {str(getattr(atom, "atom_id", "")): atom for atom in atoms}
 
 
 def _n4_projection_rebind_path_allowed(
     path: str,
     *,
     context_rebind: bool,
+    semantic_readdress: bool = False,
 ) -> bool:
     """Return whether one projection leaf is a declared content identity."""
 
@@ -1852,6 +2221,11 @@ def _n4_projection_rebind_path_allowed(
         or (
             context_rebind
             and _HISTORICAL_N4_CONTEXT_REBIND_FIELD_PATTERN.fullmatch(path)
+            is not None
+        )
+        or (
+            semantic_readdress
+            and _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path)
             is not None
         )
     )
@@ -1965,7 +2339,7 @@ def _build_historical_context_rebind_receipt(
     replayed_compiled_run_content_hash: str,
     replayed_n4_recording_content_hash: str,
 ) -> dict[str, Any]:
-    """Bind an exact identity-only route replay across one context rebase."""
+    """Bind one append-only identity-rebase link to the prior proof chain."""
 
     changed_paths = _projection_diff_paths(
         historical_domain_run,
@@ -1993,6 +2367,17 @@ def _build_historical_context_rebind_receipt(
         )
     compiler_recording = _mapping(recording.get("compiler_recording"))
     n4_recording = _mapping(recording.get("n4_recording"))
+    prior_receipt = _mapping(recording.get("historical_context_rebind_receipt"))
+    if prior_receipt:
+        prior_issues = _historical_context_rebind_receipt_issues(
+            recording,
+            replayed_domain_run=historical_domain_run,
+        )
+        if prior_issues:
+            raise UniversalityContractError(
+                "domain_run_context_rebind_receipt_invalid:"
+                + ",".join(prior_issues)
+            )
     payload: dict[str, Any] = {
         "schema_version": _HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION,
         "eligible_issue_set": ["domain_run_context_binding_drift"],
@@ -2024,6 +2409,8 @@ def _build_historical_context_rebind_receipt(
             _context_rebind_stable_projection(replayed_domain_run)
         ),
     }
+    if prior_receipt:
+        payload["prior_receipt"] = copy.deepcopy(prior_receipt)
     payload["receipt_content_hash"] = _semantic_hash(payload)
     return payload
 
@@ -2033,11 +2420,54 @@ def _historical_context_rebind_receipt_issues(
     *,
     replayed_domain_run: Mapping[str, Any],
 ) -> tuple[str, ...]:
-    """Recompute one historical context-rebind receipt from current evidence."""
+    """Recompute the append-only context-rebind chain from current evidence."""
 
     receipt = _mapping(recording.get("historical_context_rebind_receipt"))
     if not receipt:
         return ("domain_run_context_rebind_receipt_missing",)
+    compiler_recording = _mapping(recording.get("compiler_recording"))
+    n4_recording = _mapping(recording.get("n4_recording"))
+    issues = list(
+        _historical_context_rebind_chain_issues(
+            receipt,
+            replayed_domain_run=replayed_domain_run,
+            compiler_recording_content_hash=compiler_recording.get(
+                "recording_content_hash"
+            ),
+            replayed_n4_recording_content_hash=n4_recording.get(
+                "recording_content_hash"
+            ),
+            replayed_context_content_hash=recording.get(
+                "cycle_substrate_context_content_hash"
+            ),
+            replayed_compiled_run_content_hash=recording.get(
+                "compiled_run_content_hash"
+            ),
+        )
+    )
+    historical_n4_hash = _recompute_historical_n4_recording_content_hash(
+        n4_recording
+    )
+    if (
+        historical_n4_hash is not None
+        and receipt.get("historical_n4_recording_content_hash")
+        != historical_n4_hash
+    ):
+        issues.append("domain_run_context_rebind_historical_n4_drift")
+    return tuple(sorted(set(issues)))
+
+
+def _historical_context_rebind_chain_issues(
+    receipt: Mapping[str, Any],
+    *,
+    replayed_domain_run: Mapping[str, Any],
+    compiler_recording_content_hash: object,
+    replayed_n4_recording_content_hash: object,
+    replayed_context_content_hash: object,
+    replayed_compiled_run_content_hash: object,
+) -> tuple[str, ...]:
+    """Verify one receipt link and every recursively bound predecessor."""
+
     issues: list[str] = []
     stable_receipt = {
         key: value
@@ -2077,38 +2507,52 @@ def _historical_context_rebind_receipt_issues(
         replayed_domain_run,
     ):
         issues.append("domain_run_context_rebind_semantic_drift")
-
-    compiler_recording = _mapping(recording.get("compiler_recording"))
-    n4_recording = _mapping(recording.get("n4_recording"))
-    if receipt.get("compiler_recording_content_hash") != compiler_recording.get(
-        "recording_content_hash"
+    if (
+        receipt.get("compiler_recording_content_hash")
+        != compiler_recording_content_hash
     ):
         issues.append("domain_run_context_rebind_compiler_binding_drift")
-    if receipt.get("replayed_n4_recording_content_hash") != n4_recording.get(
-        "recording_content_hash"
+    if (
+        receipt.get("replayed_n4_recording_content_hash")
+        != replayed_n4_recording_content_hash
     ):
         issues.append("domain_run_context_rebind_n4_binding_drift")
-    historical_n4_hash = _recompute_historical_n4_recording_content_hash(
-        n4_recording
-    )
     if (
-        historical_n4_hash is not None
-        and receipt.get("historical_n4_recording_content_hash")
-        != historical_n4_hash
-    ):
-        issues.append("domain_run_context_rebind_historical_n4_drift")
-    if receipt.get("replayed_context_content_hash") != recording.get(
-        "cycle_substrate_context_content_hash"
+        receipt.get("replayed_context_content_hash")
+        != replayed_context_content_hash
     ):
         issues.append("domain_run_context_rebind_current_context_drift")
-    if receipt.get("replayed_compiled_run_content_hash") != recording.get(
-        "compiled_run_content_hash"
+    if (
+        receipt.get("replayed_compiled_run_content_hash")
+        != replayed_compiled_run_content_hash
     ):
         issues.append("domain_run_context_rebind_compiled_binding_drift")
-    if receipt.get("historical_context_content_hash") == recording.get(
-        "cycle_substrate_context_content_hash"
+    if (
+        not receipt.get("historical_context_content_hash")
+        or receipt.get("historical_context_content_hash")
+        == replayed_context_content_hash
     ):
         issues.append("domain_run_context_rebind_not_historical")
+    prior_receipt = _mapping(receipt.get("prior_receipt"))
+    if prior_receipt:
+        issues.extend(
+            _historical_context_rebind_chain_issues(
+                prior_receipt,
+                replayed_domain_run=historical_projection,
+                compiler_recording_content_hash=(
+                    compiler_recording_content_hash
+                ),
+                replayed_n4_recording_content_hash=receipt.get(
+                    "historical_n4_recording_content_hash"
+                ),
+                replayed_context_content_hash=receipt.get(
+                    "historical_context_content_hash"
+                ),
+                replayed_compiled_run_content_hash=receipt.get(
+                    "historical_compiled_run_content_hash"
+                ),
+            )
+        )
     return tuple(sorted(set(issues)))
 
 
@@ -2143,6 +2587,7 @@ def _build_historical_n4_projection_rebind_receipt(
     *,
     replayed_projection: Mapping[str, Any],
     context_rebind: tuple[str, str] | None = None,
+    repo_root: Path | None = None,
 ) -> dict[str, Any]:
     """Bind one exact provenance-only N4 projection rebase."""
 
@@ -2151,12 +2596,34 @@ def _build_historical_n4_projection_rebind_receipt(
         historical_projection,
         replayed_projection,
     )
+    atom_readdress_paths = tuple(
+        path
+        for path in changed_paths
+        if _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path)
+        is not None
+    )
+    semantic_readdress = bool(atom_readdress_paths)
+    atom_readdress_witnesses: list[dict[str, Any]] = []
+    reissue_registry: dict[str, Any] = {}
+    if semantic_readdress:
+        if context_rebind is None or repo_root is None:
+            raise UniversalityContractError(
+                "proof_n4_atom_readdress_owner_context_missing"
+            )
+        reissue_registry = _load_wmr_reissue_registry(repo_root)
+        atom_readdress_witnesses = _build_n4_atom_readdress_witnesses(
+            historical_projection,
+            replayed_projection,
+            current_atoms=_current_cg0_atom_map(repo_root),
+            reissue_registry=reissue_registry,
+        )
     disallowed_paths = tuple(
         path
         for path in changed_paths
         if not _n4_projection_rebind_path_allowed(
             path,
             context_rebind=context_rebind is not None,
+            semantic_readdress=semantic_readdress,
         )
     )
     if not changed_paths or disallowed_paths:
@@ -2171,7 +2638,22 @@ def _build_historical_n4_projection_rebind_receipt(
     replayed_prompts = _strings(
         replayed_projection.get("exact_call_prompt_hashes")
     )
-    if historical_prompts != prompts:
+    prior_receipt = _mapping(
+        recording.get("historical_projection_rebind_receipt")
+    )
+    prior_is_context_rebind = (
+        prior_receipt.get("schema_version")
+        in {
+            _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+            _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+        }
+    )
+    expected_historical_prompts = (
+        _strings(prior_receipt.get("replayed_prompt_hashes"))
+        if context_rebind is not None and prior_is_context_rebind
+        else prompts
+    )
+    if historical_prompts != expected_historical_prompts:
         raise UniversalityContractError(
             "proof_n4_projection_prompt_binding_drift"
         )
@@ -2209,11 +2691,9 @@ def _build_historical_n4_projection_rebind_receipt(
             "raw_response_hashes": raw_hashes,
         }
     else:
-        prior_receipt = _mapping(
-            recording.get("historical_projection_rebind_receipt")
-        )
         if not prior_receipt or _historical_n4_projection_rebind_receipt_issues(
-            recording
+            recording,
+            repo_root=repo_root,
         ):
             raise UniversalityContractError(
                 "proof_n4_projection_rebind_receipt_invalid"
@@ -2228,7 +2708,11 @@ def _build_historical_n4_projection_rebind_receipt(
                 "proof_n4_projection_context_binding_drift"
             )
         payload = {
-            "schema_version": _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+            "schema_version": (
+                _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION
+                if semantic_readdress
+                else _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION
+            ),
             "eligible_issue_set": [
                 "domain_run_context_binding_drift",
                 "proof_n4_owner_projection_replay_drift",
@@ -2250,12 +2734,20 @@ def _build_historical_n4_projection_rebind_receipt(
             "replayed_context_content_hash": replayed_context_hash,
             "prior_receipt": copy.deepcopy(prior_receipt),
         }
+        if semantic_readdress:
+            payload["atom_readdress_witnesses"] = atom_readdress_witnesses
+            payload["wmr_reissue_registry"] = copy.deepcopy(reissue_registry)
+            payload["wmr_reissue_registry_content_hash"] = _semantic_hash(
+                reissue_registry
+            )
     payload["receipt_content_hash"] = _semantic_hash(payload)
     return payload
 
 
 def _historical_n4_projection_rebind_receipt_issues(
     recording: Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
 ) -> tuple[str, ...]:
     """Recompute the narrow historical projection-rebind receipt."""
 
@@ -2271,10 +2763,17 @@ def _historical_n4_projection_rebind_receipt_issues(
     if receipt.get("receipt_content_hash") != _semantic_hash(stable_receipt):
         issues.append("proof_n4_projection_rebind_receipt_hash_mismatch")
     schema_version = receipt.get("schema_version")
-    context_rebind = schema_version == _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION
+    semantic_readdress = (
+        schema_version == _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION
+    )
+    context_rebind = schema_version in {
+        _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+        _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+    }
     if schema_version not in {
         _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION,
         _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+        _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
     }:
         issues.append("proof_n4_projection_rebind_receipt_schema_mismatch")
     expected_issue_set = (
@@ -2302,6 +2801,7 @@ def _historical_n4_projection_rebind_receipt_issues(
         not _n4_projection_rebind_path_allowed(
             path,
             context_rebind=context_rebind,
+            semantic_readdress=semantic_readdress,
         )
         for path in changed_paths
     ):
@@ -2314,6 +2814,34 @@ def _historical_n4_projection_rebind_receipt_issues(
         replayed_projection
     ):
         issues.append("proof_n4_replayed_projection_hash_mismatch")
+    if semantic_readdress:
+        recorded_registry = _mapping(receipt.get("wmr_reissue_registry"))
+        if receipt.get("wmr_reissue_registry_content_hash") != _semantic_hash(
+            recorded_registry
+        ):
+            issues.append("proof_n4_atom_readdress_registry_hash_mismatch")
+        if repo_root is None:
+            issues.append("proof_n4_atom_readdress_owner_context_missing")
+        else:
+            try:
+                current_registry = _load_wmr_reissue_registry(repo_root)
+                current_atoms = _current_cg0_atom_map(repo_root)
+            except UniversalityContractError as exc:
+                issues.append(str(exc).partition(":")[0])
+            else:
+                if recorded_registry != current_registry:
+                    issues.append("proof_n4_atom_readdress_registry_drift")
+                issues.extend(
+                    _n4_atom_readdress_witness_issues(
+                        historical_projection,
+                        replayed_projection,
+                        witnesses=_mappings(
+                            receipt.get("atom_readdress_witnesses")
+                        ),
+                        current_atoms=current_atoms,
+                        reissue_registry=current_registry,
+                    )
+                )
     try:
         prompts, raw_hashes = _n4_response_bindings(recording)
     except UniversalityContractError as exc:
@@ -2330,9 +2858,23 @@ def _historical_n4_projection_rebind_receipt_issues(
             replayed_prompts = _strings(
                 replayed_projection.get("exact_call_prompt_hashes")
             )
+            prior_receipt = _mapping(receipt.get("prior_receipt"))
+            prior_is_context_rebind = (
+                prior_receipt.get("schema_version")
+                in {
+                    _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+                    _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+                }
+            )
+            expected_historical_prompts = (
+                _strings(prior_receipt.get("replayed_prompt_hashes"))
+                if prior_is_context_rebind
+                else prompts
+            )
             if (
-                receipt.get("historical_prompt_hashes") != prompts
-                or historical_prompts != prompts
+                receipt.get("historical_prompt_hashes")
+                != expected_historical_prompts
+                or historical_prompts != expected_historical_prompts
             ):
                 issues.append("proof_n4_historical_projection_prompt_drift")
             if (
@@ -2355,7 +2897,6 @@ def _historical_n4_projection_rebind_receipt_issues(
                 "cycle_substrate_context_content_hash"
             ):
                 issues.append("proof_n4_projection_current_context_drift")
-            prior_receipt = _mapping(receipt.get("prior_receipt"))
             if not prior_receipt:
                 issues.append("proof_n4_projection_prior_receipt_missing")
             else:
@@ -2366,8 +2907,12 @@ def _historical_n4_projection_rebind_receipt_issues(
                 prior_recording["historical_projection_rebind_receipt"] = (
                     prior_receipt
                 )
+                prior_recording["cycle_substrate_context_content_hash"] = (
+                    receipt.get("historical_context_content_hash")
+                )
                 prior_issues = _historical_n4_projection_rebind_receipt_issues(
-                    prior_recording
+                    prior_recording,
+                    repo_root=repo_root,
                 )
                 if prior_issues:
                     issues.append("proof_n4_projection_prior_receipt_invalid")
@@ -2388,7 +2933,10 @@ def _recompute_historical_n4_recording_content_hash(
     """Reconstruct the N4 recording immediately before a context rebind."""
 
     receipt = _mapping(recording.get("historical_projection_rebind_receipt"))
-    if receipt.get("schema_version") != _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION:
+    if receipt.get("schema_version") not in {
+        _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+        _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+    }:
         return None
     prior_receipt = _mapping(receipt.get("prior_receipt"))
     historical_projection = _mapping(
@@ -2421,6 +2969,7 @@ def _normalize_replayed_n4_recording(
     *,
     replayed_projection: Mapping[str, Any],
     context_rebind: tuple[str, str] | None = None,
+    repo_root: Path | None = None,
 ) -> dict[str, Any]:
     """Rebase one eligible historical projection through a verified receipt."""
 
@@ -2437,6 +2986,7 @@ def _normalize_replayed_n4_recording(
         recording,
         replayed_projection=replayed_projection,
         context_rebind=context_rebind,
+        repo_root=repo_root,
     )
     normalized["owner_result_projection"] = copy.deepcopy(
         dict(replayed_projection)
@@ -2483,7 +3033,8 @@ async def _replay_n4_recording(
     )
     if historical_receipt:
         receipt_issues = _historical_n4_projection_rebind_receipt_issues(
-            recording
+            recording,
+            repo_root=repo_root,
         )
         if receipt_issues:
             raise UniversalityContractError(
@@ -2507,6 +3058,7 @@ async def _replay_n4_recording(
                     recording,
                     replayed_projection=projection,
                     context_rebind=context_rebind,
+                    repo_root=repo_root,
                 )
                 return organ_run
             changed_paths = _projection_diff_paths(
@@ -3263,12 +3815,7 @@ async def _domain_run_and_normalized_recording(
         if context_rebind_required
         else None
     )
-    historical_context_receipt = _mapping(
-        recording.get("historical_context_rebind_receipt")
-    )
-    if context_rebind_required and (
-        historical_domain_run is None or historical_context_receipt
-    ):
+    if context_rebind_required and historical_domain_run is None:
         raise UniversalityContractError("domain_run_context_binding_drift")
     try:
         captured_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
@@ -3388,6 +3935,7 @@ async def _domain_run_and_normalized_recording(
             n4_recording,
             replayed_projection=replayed_n4_projection,
             context_rebind=context_rebind,
+            repo_root=repo_root,
         )
         if context_rebind_required:
             normalized_recording = _domain_run_recording(
@@ -4045,15 +4593,30 @@ def check_provenance_stability(repo_root: Path) -> dict[str, Any]:
 
 @functools.lru_cache(maxsize=2)
 def _cached_provenance_stability(repo_root: str) -> dict[str, Any]:
-    # Imported owners may emit informational registration diagnostics. The capstone
-    # validator owns one machine-readable output document, so those non-contract
-    # side effects are contained at the single owner-intake boundary.
-    owner_stdout = io.StringIO()
-    owner_stderr = io.StringIO()
-    with contextlib.redirect_stdout(owner_stdout), contextlib.redirect_stderr(
-        owner_stderr
-    ):
-        return _derive_provenance_stability(repo_root)
+    return _derive_provenance_stability(repo_root)
+
+
+@contextlib.contextmanager
+def _suppress_non_contract_process_output() -> Iterator[None]:
+    """Contain diagnostics, including sinks bound to process file descriptors."""
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+    stdout_fd = os.dup(1)
+    stderr_fd = os.dup(2)
+    try:
+        with open(os.devnull, "w", encoding="utf-8") as sink:  # noqa: PTH123
+            os.dup2(sink.fileno(), 1)
+            os.dup2(sink.fileno(), 2)
+            with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+                yield
+    finally:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os.dup2(stdout_fd, 1)
+        os.dup2(stderr_fd, 2)
+        os.close(stdout_fd)
+        os.close(stderr_fd)
 
 
 def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
@@ -6070,7 +6633,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
-    report, exit_code = _main_report(args)
+    # Recomputing owners may emit diagnostics through sinks bound before Python-level
+    # redirection, or through descendants. Keep one structural emission boundary so
+    # the validator always owns exactly one machine-readable output document.
+    with _suppress_non_contract_process_output():
+        report, exit_code = _main_report(args)
     report["wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
     if args.output_format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))

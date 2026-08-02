@@ -9,7 +9,7 @@ import importlib
 import json
 import os
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -23,7 +23,6 @@ DEFAULT_MODELS = (
     "MiniMaxAI/MiniMax-M2.7",
 )
 DEFAULT_DOMAIN = "ua_msme_cgf_decisive_capture"
-DEFAULT_WORLD_MODEL_RECORD_REF = "world_model_record_a258fda4b7ceffd0"
 DEFAULT_ENV = {
     "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300",
     "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
@@ -39,9 +38,6 @@ DEFAULT_ENV = {
     "POLISYOS_LLM_CACHE_TTL_S": "300",
     "POLISYOS_LLM_CACHE_MAXSIZE": "128",
 }
-
-for key, value in DEFAULT_ENV.items():
-    os.environ.setdefault(key, value)
 
 gy_content_hash: Any
 generate_design_candidate_bundle_under_a: Any
@@ -77,17 +73,30 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--pace-s", type=float, default=120.0)
     parser.add_argument("--domain", default=DEFAULT_DOMAIN)
     parser.add_argument("--problem-id-prefix", default="gy_n4_cgf_decisive_capture")
-    parser.add_argument("--world-model-record-ref", default=DEFAULT_WORLD_MODEL_RECORD_REF)
+    parser.add_argument(
+        "--world-model-record-ref",
+        default=None,
+        help="Optional assertion of the current owner-resolved WMR ref.",
+    )
     parser.add_argument("--models", nargs="*", default=list(DEFAULT_MODELS))
     return parser.parse_args(argv)
 
 
 async def _run(args: argparse.Namespace) -> int:
     repo_root = args.repo_root.resolve()
+    owner_projection = contract._resolve_current_wmr_owner_projection(repo_root)
+    world_model_record_ref = _resolve_capture_world_model_record_ref(
+        owner_projection,
+        requested=args.world_model_record_ref,
+    )
     fixture_path = repo_root / contract.RECORDING_FIXTURE_PATH
     fixture = _load_fixture(fixture_path)
     recordings = _recordings(fixture)
-    results = await _replay_existing(repo_root, recordings)
+    results = await _replay_existing(
+        repo_root,
+        recordings,
+        owner_projection=owner_projection,
+    )
     _print_coverage("INITIAL_COVERAGE", results)
 
     attempts = max(0, int(args.attempts))
@@ -111,7 +120,7 @@ async def _run(args: argparse.Namespace) -> int:
                 model_id=str(model_id),
                 repo_root=repo_root,
                 min_diverse_candidates=3,
-                world_model_record_ref=str(args.world_model_record_ref),
+                world_model_record_ref=world_model_record_ref,
             )
         except Exception as exc:
             fixture = _load_fixture(fixture_path)
@@ -120,7 +129,7 @@ async def _run(args: argparse.Namespace) -> int:
                 design_problem_id=problem_id,
                 domain=str(args.domain),
                 model_id=str(model_id),
-                world_model_record_ref=str(args.world_model_record_ref),
+                world_model_record_ref=world_model_record_ref,
                 journal_path=journal_path,
             )
             fixture.setdefault("diagnostic_archive", []).insert(0, diagnostic)
@@ -152,7 +161,7 @@ async def _run(args: argparse.Namespace) -> int:
                 design_problem_id=problem_id,
                 domain=str(args.domain),
                 model_id=str(model_id),
-                world_model_record_ref=str(args.world_model_record_ref),
+                world_model_record_ref=world_model_record_ref,
             )
             _recordings(fixture).append(recording)
             results.append(result)
@@ -168,7 +177,7 @@ async def _run(args: argparse.Namespace) -> int:
                 design_problem_id=problem_id,
                 domain=str(args.domain),
                 model_id=str(model_id),
-                world_model_record_ref=str(args.world_model_record_ref),
+                world_model_record_ref=world_model_record_ref,
             )
             fixture.setdefault("diagnostic_archive", []).insert(0, diagnostic)
             _write_fixture(fixture_path, fixture)
@@ -188,12 +197,36 @@ async def _run(args: argparse.Namespace) -> int:
     return 1
 
 
+def _resolve_capture_world_model_record_ref(
+    owner_projection: Mapping[str, Any],
+    *,
+    requested: object,
+) -> str:
+    """Resolve the current owner WMR and refuse stale capture assertions."""
+
+    _load_runtime_symbols()
+    contract._validate_current_wmr_owner_projection(owner_projection)
+    resolved = str(owner_projection["world_model_record_id"])
+    if requested is not None and str(requested) != resolved:
+        raise RuntimeError(
+            "gy_n4_capture_world_model_record_ref_not_current:"
+            f"{requested}!={resolved}"
+        )
+    return resolved
+
+
 async def _replay_existing(
     repo_root: Path,
     recordings: list[dict[str, Any]],
+    *,
+    owner_projection: Mapping[str, Any],
 ) -> list[GenerationUnderAResult]:
+    reissued, _receipt = contract._reissue_recordings_to_current_wmr(
+        recordings,
+        owner_projection=owner_projection,
+    )
     results: list[GenerationUnderAResult] = []
-    for recording in recordings:
+    for recording in reissued:
         results.append(await contract._run_live_generation(repo_root, recording=recording))
     return results
 

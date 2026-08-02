@@ -13,11 +13,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, get_args
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.pdc import SearchTerminalKind, gy_content_hash
+from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -43,6 +46,13 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.promotion_sequence import (
+    CanonicalN9PromotionPort,
+    CanonicalPromotionReceipt,
+    N9DesignProblemBinding,
+    _validate_canonical_promotion_receipt_for_verification,
+    confidence_risk_scope_for_problem,
+)
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
@@ -141,14 +151,22 @@ class _GenerationResult:
     grounding_dispositions: tuple[_GroundingDisposition, ...]
 
 
+@dataclass(frozen=True)
+class _VerificationReplayContext:
+    """Live owners and isolated ledger retained for deep committed validation."""
+
+    session: ConfidenceLedgerSession
+    problem: DesignProblem
+    run: GenerationCycleRun
+
+
 class _Lane0GenerationPort:
     """Scripted proposer over real N6 controller semantics, with CGF-shaped records."""
 
     async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> _GenerationResult:
         grammar = tuple(problem.runtime_hints.get("generation_cycle_grammar", ()))
         if cycle_index > 0 and any(
-            "repair:search_ceiling_repair_required" in item
-            or "adversarial_validate" in item
+            "repair:search_ceiling_repair_required" in item or "adversarial_validate" in item
             for item in grammar
         ):
             candidate = _Candidate(
@@ -219,19 +237,44 @@ def load_contract_payload(repo_root: Path) -> dict[str, Any]:
 async def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Build the frozen Lane-0 payload by exercising the real N6 controller."""
 
+    with TemporaryDirectory(prefix="gy-n6-verification-") as temp_dir:
+        payload, _ = await _build_live_payload_in_verification_namespace(
+            repo_root,
+            state_root=Path(temp_dir),
+        )
+        return payload
+
+
+async def _build_live_payload_in_verification_namespace(
+    repo_root: Path,
+    *,
+    state_root: Path,
+) -> tuple[dict[str, Any], _VerificationReplayContext]:
+    """Run real N6 owners with only N11 CAS/state redirected to temporary storage."""
+
     started = time.monotonic()
+    problem = _design_problem()
+    binding = N9DesignProblemBinding.from_problem(problem)
+    session = ConfidenceLedgerSession._for_verification(
+        repo_root,
+        risk_scope=confidence_risk_scope_for_problem(binding),
+        artifact_store=FileSystemCAS(state_root / "cas"),
+        state_root=state_root / "state",
+    )
     controller = GenerationCycleController(
         generation_port=_Lane0GenerationPort(),
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
+        promotion_port=CanonicalN9PromotionPort._for_verification(
+            repo_root=repo_root,
+            confidence_ledger_session=session,
+        ),
         repo_root=repo_root,
         generated_at=_FIXED_GENERATED_AT,
     )
     run = await controller.run(
-        _design_problem(),
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
+        problem,
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
         min_cycles=2,
         max_cycles=3,
     )
@@ -291,7 +334,91 @@ async def build_live_payload(repo_root: Path) -> dict[str, Any]:
     payload["behavioral_mutations"] = _mutation_reports(payload)
     payload["capture_wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
     payload["contract_content_hash"] = _contract_content_hash(payload)
-    return payload
+    context = _VerificationReplayContext(
+        session=session,
+        problem=problem,
+        run=run,
+    )
+    revalidation_issues = _embedded_promotion_revalidation_issues(
+        run,
+        context=context,
+        repo_root=repo_root,
+    )
+    if revalidation_issues:
+        raise RuntimeError(
+            "n6_verification_replay_invalid: " + json.dumps(revalidation_issues, sort_keys=True)
+        )
+    return payload, context
+
+
+def _promotion_receipt_denominator_issue(
+    run: GenerationCycleRun,
+) -> dict[str, Any] | None:
+    expected = tuple(summary.candidate_id for summary in run.candidate_summaries)
+    actual = tuple(
+        str(receipt.get("candidate_id") or "") for receipt in run.promotion_port.receipts
+    )
+    if actual == expected and actual:
+        return None
+    return {
+        "code": "embedded_promotion_receipt_denominator_mismatch",
+        "expected": list(expected),
+        "actual": list(actual),
+    }
+
+
+def _embedded_promotion_revalidation_issues(
+    run: GenerationCycleRun,
+    *,
+    context: _VerificationReplayContext,
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Deeply revalidate embedded N9 receipts against fresh owner outputs."""
+
+    issues: list[dict[str, Any]] = []
+    expected_summaries = {
+        summary.candidate_id: summary for summary in context.run.candidate_summaries
+    }
+    for index, receipt_payload in enumerate(run.promotion_port.receipts):
+        try:
+            receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+        except (ValidationError, ValueError) as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_receipt_invalid"],
+                    "error": str(exc),
+                }
+            )
+            continue
+        summary = expected_summaries.get(receipt.candidate_id)
+        if summary is None:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_candidate_owner_binding_invalid"],
+                }
+            )
+            continue
+        receipt_issues = _validate_canonical_promotion_receipt_for_verification(
+            receipt,
+            repo_root=repo_root,
+            confidence_ledger_session=context.session,
+            candidate_summary=summary,
+            design_problem=context.problem,
+            value_receipt=summary.value_receipt,
+        )
+        if receipt_issues:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": [str(issue.get("code")) for issue in receipt_issues],
+                }
+            )
+    return issues
 
 
 def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -366,6 +493,20 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
     except (ValidationError, ValueError) as exc:
         issues.append({"code": "generation_cycle_run_invalid", "error": str(exc)})
         return issues
+    denominator_issue = _promotion_receipt_denominator_issue(run)
+    if denominator_issue is not None:
+        issues.append(denominator_issue)
+    for index, receipt_payload in enumerate(run.promotion_port.receipts):
+        try:
+            CanonicalPromotionReceipt.model_validate(receipt_payload)
+        except (ValidationError, ValueError) as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_invalid",
+                    "receipt_index": index,
+                    "error": str(exc),
+                }
+            )
     issues.extend(validate_generation_cycle_run(run))
     positive = payload.get("positive_gate")
     if not isinstance(positive, dict):
@@ -399,8 +540,11 @@ def validate(repo_root: Path) -> dict[str, Any]:
     if not path.is_file():
         issues.append({"code": "generation_cycle_contract_missing", "path": OUTPUT_PATH})
     else:
-        committed = json.loads(path.read_text(encoding="utf-8"))
-        issues.extend(validate_payload(committed)["issues"])
+        committed_report = _validate_committed_contract_text(
+            repo_root,
+            path.read_text(encoding="utf-8"),
+        )
+        issues.extend(committed_report["issues"])
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -420,9 +564,64 @@ def build_contract_json_for_write(repo_root: Path) -> str:
     """Return byte-stable JSON for the frozen N6 contract artifact."""
 
     payload = asyncio.run(build_live_payload(repo_root))
-    payload.pop("capture_wall_time_seconds", None)
-    payload["contract_content_hash"] = _contract_content_hash(payload)
-    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    return _canonical_contract_json(payload)
+
+
+def _canonical_contract_json(payload: dict[str, Any]) -> str:
+    """Render the one canonical UTF-8 JSON representation used for byte checks."""
+
+    normalized = copy.deepcopy(payload)
+    normalized.pop("capture_wall_time_seconds", None)
+    normalized["contract_content_hash"] = _contract_content_hash(normalized)
+    return json.dumps(normalized, indent=2, sort_keys=True) + "\n"
+
+
+def _validate_committed_contract_text(
+    repo_root: Path,
+    committed_text: str,
+) -> dict[str, Any]:
+    """Deeply rederive owners and compare exact canonical UTF-8 bytes."""
+
+    try:
+        committed_payload = json.loads(committed_text)
+    except json.JSONDecodeError as exc:
+        return {
+            "status": "fail",
+            "issues": [{"code": "generation_cycle_contract_invalid_json", "error": str(exc)}],
+        }
+    report = validate_payload(committed_payload)
+    issues = list(report["issues"])
+    with TemporaryDirectory(prefix="gy-n6-committed-check-") as temp_dir:
+        expected_payload, context = asyncio.run(
+            _build_live_payload_in_verification_namespace(
+                repo_root,
+                state_root=Path(temp_dir),
+            )
+        )
+        run_payload = committed_payload.get("generation_cycle_run")
+        if isinstance(run_payload, dict):
+            try:
+                committed_run = GenerationCycleRun.model_validate(run_payload)
+            except (ValidationError, ValueError):
+                committed_run = None
+            if committed_run is not None:
+                issues.extend(
+                    _embedded_promotion_revalidation_issues(
+                        committed_run,
+                        context=context,
+                        repo_root=repo_root,
+                    )
+                )
+        expected_text = _canonical_contract_json(expected_payload)
+    if committed_text.encode("utf-8") != expected_text.encode("utf-8"):
+        issues.append(
+            {
+                "code": "generation_cycle_contract_canonical_bytes_drift",
+                "expected_hash": gy_content_hash(json.loads(expected_text)),
+                "actual_hash": gy_content_hash(committed_payload),
+            }
+        )
+    return {"status": "pass" if not issues else "fail", "issues": issues}
 
 
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
@@ -430,9 +629,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     corrupted = copy.deepcopy(load_contract_payload(repo_root))
-    corrupted["generation_cycle_run"]["cycles"][1]["selected_candidate_content_hash"] = (
-        corrupted["generation_cycle_run"]["cycles"][0]["selected_candidate_content_hash"]
-    )
+    corrupted["generation_cycle_run"]["cycles"][1]["selected_candidate_content_hash"] = corrupted[
+        "generation_cycle_run"
+    ]["cycles"][0]["selected_candidate_content_hash"]
     report = validate_payload(corrupted)
     if report["status"] == "fail":
         return {
@@ -504,9 +703,7 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
         "retry_without_new_grammar_admitted": _mutate_no_new_grammar,
         "voi_scheduler_ignored_fixed_cycle_count": _mutate_ignored_voi,
         "single_pass_fixture_survives_as_production_cycle": _mutate_strangle_drift,
-        "proxy_gap_candidate_promoted_without_adversarial_validate": (
-            _mutate_proxy_gap_decision
-        ),
+        "proxy_gap_candidate_promoted_without_adversarial_validate": (_mutate_proxy_gap_decision),
         "decision_front_admitted_non_current_valid": _mutate_non_current_decision,
         "grounding_bypassed_cgf_firewall": _mutate_grounding_bypass,
         "coverage_depends_on_llm": _mutate_fallback_promoted,
@@ -621,9 +818,9 @@ def _mutate_k_sim_shrank_world(payload: dict[str, Any]) -> None:
 
 
 def _mutate_full_denominator_subset(payload: dict[str, Any]) -> None:
-    payload["denominators"]["scheduling_actions"] = payload["denominators"][
-        "scheduling_actions"
-    ][:-1]
+    payload["denominators"]["scheduling_actions"] = payload["denominators"]["scheduling_actions"][
+        :-1
+    ]
 
 
 def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -663,9 +860,9 @@ def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     )
     reports.append({"probe_id": "candidate_owner_target_missing", "status": "fail_closed"})
     unknown_voi = copy.deepcopy(payload)
-    unknown_voi["generation_cycle_run"]["cycles"][0]["voi_decision"][
-        "scheduler_action"
-    ] = "unknown_owner_action"
+    unknown_voi["generation_cycle_run"]["cycles"][0]["voi_decision"]["scheduler_action"] = (
+        "unknown_owner_action"
+    )
     if any(
         issue.get("code") == "unknown_voi_action_not_fail_closed"
         for issue in _validate_payload_core(unknown_voi)
@@ -782,9 +979,7 @@ def _design_problem() -> DesignProblem:
 
 def _contract_content_hash(payload: dict[str, Any]) -> str:
     stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
+        key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     return gy_content_hash(stable)
 

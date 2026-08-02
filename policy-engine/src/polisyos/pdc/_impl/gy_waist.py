@@ -20,7 +20,7 @@ from .layer2_readiness import (
 )
 
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
-GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
 GY_CONTENT_HASH_EXCLUDED_FIELDS = (
@@ -274,29 +274,69 @@ class PromotionGateId(StrEnum):
     GY_O0_EVAL_SAFETY = "gy_o0_eval_safety"
 
 
+PROMOTION_RISK_CONDITIONALITY_CAVEAT = (
+    "P(false promotion | maintained assumptions) <= delta is conditional on obligation "
+    "completeness + validator soundness (the spec's A4 = our open P29). Exact rational "
+    "spend in the bound N11 confidence-ledger projection is authoritative; these floats "
+    "are display-only."
+)
+_PROMOTION_ROLE_POLARITY = {
+    "promotion": "false_accept",
+    "refusal": "confident_wrong_refusal",
+    "acquisition": "confident_wrong_refusal",
+    "admission": "confident_wrong_admission",
+    "promotion_conformance": "conformance_only",
+}
+
+
 class PromotionRiskSpendRecord(GyWaistModel):
-    """Declared pre-N11 risk spend consumed by one N9 obligation."""
+    """Display projection of an owner-recomputed N11 ledger check."""
 
     obligation_class: PromotionObligationClass
     certificate_ref: str = Field(..., min_length=1, max_length=300)
     instrument: str = Field(..., min_length=1, max_length=120)
+    certificate_role: Literal[
+        "promotion",
+        "refusal",
+        "acquisition",
+        "admission",
+        "promotion_conformance",
+    ]
+    claim_polarity: Literal[
+        "false_accept",
+        "confident_wrong_refusal",
+        "confident_wrong_admission",
+        "conformance_only",
+    ]
     declared_delta_spend: float = Field(ge=0.0)
     deterministic_proof: bool = False
-    n11_confidence_ledger_ref: str | None = Field(default=None, max_length=300)
+    n11_confidence_ledger_ref: str = Field(
+        ...,
+        max_length=300,
+        pattern=r"^confidence-check:sha256:[0-9a-f]{64}$",
+    )
+
+    @model_validator(mode="after")
+    def _role_matches_error_polarity(self) -> PromotionRiskSpendRecord:
+        if self.claim_polarity != _PROMOTION_ROLE_POLARITY[self.certificate_role]:
+            raise ValueError("certificate_role_claim_polarity_mismatch")
+        return self
 
 
 class PromotionRiskSpendSummary(GyWaistModel):
-    """Total declared N9 risk spend with the honest pre-N11 caveat."""
+    """Display-only decimal projection of exact N11 rational accounting."""
 
     total_declared_delta: float = Field(ge=0.0)
     budget_delta: float = Field(ge=0.0)
     within_budget: bool
     spend_records: list[PromotionRiskSpendRecord] = Field(default_factory=list, max_length=80)
-    caveat: str = (
-        "The delta claim is conditional on obligation completeness and validator soundness; "
-        "pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. "
-        "Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs."
-    )
+    caveat: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _require_exact_conditionality_caveat(self) -> PromotionRiskSpendSummary:
+        if self.caveat != PROMOTION_RISK_CONDITIONALITY_CAVEAT:
+            raise ValueError("promotion_risk_conditionality_caveat_mismatch")
+        return self
 
 
 class PromotionObligationRecord(GyWaistModel):
@@ -595,12 +635,53 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
     transform_mismatch_disposition: Literal["matched", "downgraded", "rejected", "upgraded"]
     promotion_sequence_ref: str | None = Field(default=None, max_length=300)
     gate_outcome_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    confidence_ledger_scope_ref: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=300,
+    )
+    confidence_ledger_head_id: str | None = Field(
+        default=None,
+        pattern=(
+            r"^(?:confidence-event|confidence-ledger-root|confidence-run-root|confidence-slot):"
+            r"sha256:[0-9a-f]{64}$"
+        ),
+    )
+    confidence_ledger_receipt_id: str | None = Field(
+        default=None,
+        pattern=r"^confidence-ledger:sha256:[0-9a-f]{64}$",
+    )
+    confidence_ledger_projection_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     risk_spend_total: float = Field(default=0.0, ge=0.0)
     risk_budget_delta: float | None = Field(default=None, ge=0.0)
     trace_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _reject_self_promotion(self) -> AuthorityDerivationTrace:
+        if self.promotion_sequence_ref is not None:
+            required_values = {
+                "confidence_ledger_scope_ref": self.confidence_ledger_scope_ref,
+                "confidence_ledger_head_id": self.confidence_ledger_head_id,
+                "confidence_ledger_receipt_id": self.confidence_ledger_receipt_id,
+                "confidence_ledger_projection_hash": self.confidence_ledger_projection_hash,
+                "risk_budget_delta": self.risk_budget_delta,
+            }
+            missing = [name for name, value in required_values.items() if value is None]
+            if "risk_spend_total" not in self.model_fields_set:
+                missing.append("risk_spend_total")
+            if missing:
+                raise ValueError(
+                    "promotion_trace_confidence_ledger_binding_missing:"
+                    + ",".join(sorted(missing))
+                )
+            if (
+                self.risk_budget_delta is not None
+                and self.risk_spend_total > self.risk_budget_delta
+            ):
+                raise ValueError("promotion_trace_risk_spend_exceeds_budget")
         requested_kind = self.declared_authority_transform.get("requested_evidence_kind")
         requested_grade = self.declared_authority_transform.get("requested_decision_grade")
         if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:
@@ -1020,6 +1101,7 @@ __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
     "GY_CONTENT_HASH_EXCLUDED_FIELDS",
     "GY_WAIST_SCHEMA_VERSION",
+    "PROMOTION_RISK_CONDITIONALITY_CAVEAT",
     "AgentDecisionRecord",
     "ApplicabilityResult",
     "ArtifactEnvelope",

@@ -53,6 +53,10 @@ from polisyos.runtime.quality.generation_cycle import (
     PromotionPortObservation,
     SimulationPortObservation,
 )  # noqa: E402
+from polisyos.runtime.quality.grounding_relation import (  # noqa: E402
+    GroundingCandidateAtom,
+    MechanisticSignature,
+)
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
     intervention_atom_content_hash,
@@ -2523,6 +2527,169 @@ def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> Non
     )
 
 
+def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> None:
+    """A WMR reissue proves both CG0 preimages and one stable causal key."""
+
+    validator = _universality_contract_validator()
+    old_wmr = "sha256:" + "1" * 64
+    new_wmr = "sha256:" + "2" * 64
+    old_wmr_id = "world_model_record_" + old_wmr.removeprefix("sha256:")[:16]
+    new_wmr_id = "world_model_record_" + new_wmr.removeprefix("sha256:")[:16]
+    edge_prefix = "WMR_POLICY_SLOT_MAP::"
+    current_signature = MechanisticSignature(
+        op="budget_allocation_multiplier",
+        X_do=("government.balance",),
+        x_do={"domain": {"kind": "range", "unit": None}},
+        sign="increase",
+        params={"domain": {"kind": "range", "unit": None}},
+        scope="global",
+        unit="usd",
+        population="all",
+        time="current_reference_epoch",
+        outcome=("government.balance",),
+        effect_path=(
+            "budget_allocation_multiplier",
+            "government.balance",
+            "government.balance",
+        ),
+        estimand="average_treatment_effect",
+        admissibility="passed",
+        wm_version=new_wmr,
+        evidence=(
+            "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+            edge_prefix + new_wmr_id + ":government.balance",
+        ),
+    )
+    current_scope = tuple(current_signature.evidence)
+    current_hash = gy_content_hash(
+        {
+            "edge_scope": sorted(current_scope),
+            "signature": current_signature.model_dump(mode="json"),
+        }
+    )
+    current_atom = GroundingCandidateAtom(
+        atom_id="cg0_atom_" + current_hash.removeprefix("sha256:")[:16],
+        signature=current_signature,
+        edge_scope=current_scope,
+    )
+    historical_signature = current_signature.model_copy(
+        update={
+            "wm_version": old_wmr,
+            "evidence": tuple(
+                item.replace(new_wmr_id, old_wmr_id)
+                for item in current_signature.evidence
+            ),
+        }
+    )
+    historical_scope = tuple(
+        item.replace(new_wmr_id, old_wmr_id) for item in current_scope
+    )
+    historical_hash = gy_content_hash(
+        {
+            "edge_scope": sorted(historical_scope),
+            "signature": historical_signature.model_dump(mode="json"),
+        }
+    )
+    historical_id = "cg0_atom_" + historical_hash.removeprefix("sha256:")[:16]
+    historical_projection = {
+        "grounding_dispositions": [
+            {
+                "proposal_id": "gy_n4.owner_recorded",
+                "identified_atom_id": historical_id,
+                "disposition": "novel_cg3",
+                "status": "candidate_unverified",
+                "selected_relation": "novel-candidate",
+                "rejected_cause": {
+                    "cg1_critical_contradictions": ["op", "sign"],
+                    "cg2_decision": "abstain",
+                    "cg2_open_obligations": ["no_unresolved_critical_axis"],
+                },
+            }
+        ]
+    }
+    replayed_projection = copy.deepcopy(historical_projection)
+    replayed_projection["grounding_dispositions"][0]["identified_atom_id"] = (
+        current_atom.atom_id
+    )
+    registry = {
+        "schema_version": "policyos.layer3.gy.n10.wmr_reissue_registry.v1",
+        "reissues": [
+            {
+                "historical_wmr_content_hash": old_wmr,
+                "reissued_wmr_content_hash": new_wmr,
+                "owner": "production_composed_world_model_record",
+                "reason": "unit_owner_reissue",
+            }
+        ],
+    }
+
+    witnesses = validator._build_n4_atom_readdress_witnesses(
+        historical_projection,
+        replayed_projection,
+        current_atoms={current_atom.atom_id: current_atom},
+        reissue_registry=registry,
+    )
+
+    assert witnesses[0]["historical_atom_binding"]["atom_id"] == historical_id
+    assert witnesses[0]["reissued_atom_binding"]["atom_id"] == current_atom.atom_id
+    assert validator._n4_atom_readdress_witness_issues(
+        historical_projection,
+        replayed_projection,
+        witnesses=witnesses,
+        current_atoms={current_atom.atom_id: current_atom},
+        reissue_registry=registry,
+    ) == ()
+
+    forged = copy.deepcopy(witnesses)
+    forged[0]["historical_atom_binding"]["signature"]["unit"] = "index"
+    forged[0]["witness_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged[0].items()
+            if key != "witness_content_hash"
+        }
+    )
+    assert "proof_n4_atom_readdress_historical_preimage_mismatch" in (
+        validator._n4_atom_readdress_witness_issues(
+            historical_projection,
+            replayed_projection,
+            witnesses=forged,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+    )
+
+    no_veto = copy.deepcopy(replayed_projection)
+    no_veto["grounding_dispositions"][0]["rejected_cause"][
+        "cg1_critical_contradictions"
+    ] = []
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_atom_readdress_authority_growth",
+    ):
+        validator._build_n4_atom_readdress_witnesses(
+            historical_projection,
+            no_veto,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+
+    no_open_obligations = copy.deepcopy(replayed_projection)
+    no_open_obligations["grounding_dispositions"][0]["rejected_cause"][
+        "cg2_open_obligations"
+    ] = []
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_atom_readdress_authority_growth",
+    ):
+        validator._build_n4_atom_readdress_witnesses(
+            historical_projection,
+            no_open_obligations,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+
+
 def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> None:
     """A later path-only context rebase preserves the prior N4 proof chain."""
 
@@ -2569,6 +2736,40 @@ def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> N
     assert validator._historical_n4_projection_rebind_receipt_issues(chained) == ()
     assert validator._recompute_historical_n4_recording_content_hash(chained) == (
         first["recording_content_hash"]
+    )
+
+    second_context_projection = copy.deepcopy(context_projection)
+    second_context_projection["exact_call_prompt_hashes"][0] = (
+        "sha256:" + "b" * 64
+    )
+    second_context_projection["lever_space_prompt_slice_content_hash"] = (
+        "sha256:" + "c" * 64
+    )
+    second_bridge = second_context_projection["grounding_dispositions"][0][
+        "bridge_missing_records"
+    ][0]
+    second_bridge["record_id"] = "cg5_ticket_" + "d" * 16
+    second_bridge["content_hash"] = "sha256:" + "d" * 64
+    second_lever = second_context_projection["grounding_dispositions"][0][
+        "lever_resolution"
+    ]
+    second_lever["content_hash"] = "sha256:" + "d" * 64
+    second_lever["context_binding_hash"] = "sha256:" + "d" * 64
+    second_lever["substrate_input_content_hash"] = "sha256:" + "d" * 64
+    twice_chained = validator._normalize_replayed_n4_recording(
+        chained,
+        replayed_projection=second_context_projection,
+        context_rebind=("sha256:" + "a" * 64, "sha256:" + "e" * 64),
+    )
+    assert (
+        twice_chained["historical_projection_rebind_receipt"]["prior_receipt"]
+        ["receipt_content_hash"]
+        == chained["historical_projection_rebind_receipt"]
+        ["receipt_content_hash"]
+    )
+    assert (
+        validator._historical_n4_projection_rebind_receipt_issues(twice_chained)
+        == ()
     )
 
     semantic_drift = copy.deepcopy(context_projection)
@@ -2734,6 +2935,60 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
         normalized_recording,
         replayed_domain_run=replayed,
     ) == ()
+
+    next_context = "sha256:" + "a" * 64
+    next_replayed = copy.deepcopy(replayed)
+    next_replayed["cycle_substrate_context_ref"] = next_context
+    next_replayed["content_hash"] = "sha256:" + "b" * 64
+    chained_receipt = validator._build_historical_context_rebind_receipt(
+        normalized_recording,
+        historical_domain_run=replayed,
+        replayed_domain_run=next_replayed,
+        replayed_context_content_hash=next_context,
+        replayed_compiled_run_content_hash="sha256:" + "c" * 64,
+        replayed_n4_recording_content_hash="sha256:" + "d" * 64,
+    )
+    assert chained_receipt["prior_receipt"]["receipt_content_hash"] == receipt[
+        "receipt_content_hash"
+    ]
+    chained_recording = copy.deepcopy(normalized_recording)
+    chained_recording["cycle_substrate_context_content_hash"] = next_context
+    chained_recording["compiled_run_content_hash"] = "sha256:" + "c" * 64
+    chained_recording["n4_recording"]["recording_content_hash"] = (
+        "sha256:" + "d" * 64
+    )
+    chained_recording["historical_context_rebind_receipt"] = chained_receipt
+    assert validator._historical_context_rebind_receipt_issues(
+        chained_recording,
+        replayed_domain_run=next_replayed,
+    ) == ()
+
+    forged_chain = copy.deepcopy(chained_recording)
+    forged_prior = forged_chain["historical_context_rebind_receipt"][
+        "prior_receipt"
+    ]
+    forged_prior["eligible_issue_set"] = []
+    forged_prior["receipt_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged_prior.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    forged_top = forged_chain["historical_context_rebind_receipt"]
+    forged_top["receipt_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged_top.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    assert "domain_run_context_rebind_issue_set_mismatch" in (
+        validator._historical_context_rebind_receipt_issues(
+            forged_chain,
+            replayed_domain_run=next_replayed,
+        )
+    )
 
     semantic_drift = copy.deepcopy(replayed)
     semantic_drift["terminal_distribution"]["decision_grade"] = "admissible"

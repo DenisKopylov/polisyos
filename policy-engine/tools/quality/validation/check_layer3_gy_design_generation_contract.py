@@ -85,6 +85,9 @@ PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID = "source_flip_prompt_size_estimate_fixed_de
 CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID = (
     "source_flip_candidate_lever_provenance_removed"
 )
+CURRENT_WMR_REISSUE_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.current_wmr_reissue_receipt.v1"
+)
 _PROMPT_SLICE_LIMIT_CHARS = 5000
 _FROZEN_DIAGNOSTIC_PROJECTION = {
     "schema_version": "policyos.gy.n4.diagnostic_projection.v1",
@@ -249,6 +252,200 @@ def _verify_recording_content_hash(recording: Mapping[str, Any]) -> None:
         )
 
 
+def _resolve_current_wmr_owner_projection(repo_root: Path) -> dict[str, str]:
+    """Resolve and structurally verify the current composed-WMR owner."""
+
+    from polisyos.runtime.quality.intervention_substrate import (
+        production_composed_world_model_record,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        WorldModelRecord,
+        world_model_record_content_hash,
+    )
+
+    owner = production_composed_world_model_record(repo_root.resolve())
+    validated = WorldModelRecord.model_validate(owner.model_dump(mode="json"))
+    recomputed_hash = world_model_record_content_hash(validated)
+    if validated.content_hash != recomputed_hash:
+        raise RuntimeError("gy_n4_current_wmr_owner_content_hash_mismatch")
+    projection = {
+        "schema_version": validated.schema_version,
+        "world_model_record_id": validated.world_model_record_id,
+        "world_model_record_content_hash": recomputed_hash,
+        "producer_ref": validated.producer_ref,
+    }
+    _validate_current_wmr_owner_projection(projection)
+    return projection
+
+
+def _validate_current_wmr_owner_projection(projection: Mapping[str, Any]) -> None:
+    content_hash = projection.get("world_model_record_content_hash")
+    record_id = projection.get("world_model_record_id")
+    schema_version = projection.get("schema_version")
+    producer_ref = projection.get("producer_ref")
+    if (
+        not isinstance(content_hash, str)
+        or not content_hash.startswith("sha256:")
+        or len(content_hash) != 71
+        or any(character not in "0123456789abcdef" for character in content_hash[7:])
+    ):
+        raise RuntimeError("gy_n4_current_wmr_owner_content_hash_invalid")
+    expected_record_id = f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+    if record_id != expected_record_id:
+        raise RuntimeError("gy_n4_current_wmr_owner_id_content_mismatch")
+    if not isinstance(schema_version, str) or not schema_version:
+        raise RuntimeError("gy_n4_current_wmr_owner_schema_missing")
+    if not isinstance(producer_ref, str) or not producer_ref:
+        raise RuntimeError("gy_n4_current_wmr_owner_producer_missing")
+
+
+def _recording_non_wmr_projection(recording: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        key: copy.deepcopy(value)
+        for key, value in recording.items()
+        if key not in {"recording_content_hash", "world_model_record_ref"}
+    }
+
+
+def _assert_wmr_only_recording_reissue(
+    historical: Mapping[str, Any],
+    reissued: Mapping[str, Any],
+) -> None:
+    """Refuse a replay overlay that changes any historical non-WMR byte."""
+
+    historical_projection = _recording_non_wmr_projection(historical)
+    reissued_projection = _recording_non_wmr_projection(reissued)
+    if historical_projection != reissued_projection:
+        raise RuntimeError("gy_n4_current_wmr_reissue_non_wmr_drift")
+
+
+def _reissue_recordings_to_current_wmr(
+    historical_recordings: list[dict[str, Any]],
+    *,
+    owner_projection: Mapping[str, Any],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Overlay verified historical responses onto the current composed WMR."""
+
+    _validate_current_wmr_owner_projection(owner_projection)
+    owner = dict(owner_projection)
+    current_ref = str(owner["world_model_record_id"])
+    reissued_recordings: list[dict[str, Any]] = []
+    receipt_rows: list[dict[str, Any]] = []
+    for historical in historical_recordings:
+        _validate_recording_fixture(historical)
+        reissued = copy.deepcopy(historical)
+        reissued["world_model_record_ref"] = current_ref
+        reissued["recording_content_hash"] = gy_content_hash(
+            {
+                key: value
+                for key, value in reissued.items()
+                if key != "recording_content_hash"
+            }
+        )
+        _assert_wmr_only_recording_reissue(historical, reissued)
+        _validate_recording_fixture(reissued)
+        reissued_recordings.append(reissued)
+        receipt_rows.append(
+            {
+                "historical_recording_content_hash": historical[
+                    "recording_content_hash"
+                ],
+                "historical_world_model_record_ref": historical.get(
+                    "world_model_record_ref"
+                ),
+                "preserved_non_wmr_projection_hash": gy_content_hash(
+                    _recording_non_wmr_projection(historical)
+                ),
+                "recording_id": historical.get("recording_id"),
+                "reissued_recording_content_hash": reissued[
+                    "recording_content_hash"
+                ],
+                "reissued_world_model_record_ref": current_ref,
+            }
+        )
+    receipt: dict[str, Any] = {
+        "schema_version": CURRENT_WMR_REISSUE_SCHEMA_VERSION,
+        "mode": "offline_verified_historical_response_current_wmr_overlay",
+        "owner_projection": owner,
+        "owner_projection_content_hash": gy_content_hash(owner),
+        "recordings": receipt_rows,
+    }
+    receipt["content_hash"] = gy_content_hash(receipt)
+    return reissued_recordings, receipt
+
+
+def _current_wmr_reissue_receipt_issues(
+    payload: Mapping[str, Any],
+    historical_recordings: list[dict[str, Any]],
+    *,
+    owner_projection: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Recompute the reissue receipt from the current owner and historical rows."""
+
+    issues: list[dict[str, Any]] = []
+    recorded = payload.get("current_wmr_reissue_receipt")
+    if not isinstance(recorded, Mapping):
+        return [{"code": "current_wmr_reissue_receipt_missing"}]
+    try:
+        _validate_current_wmr_owner_projection(owner_projection)
+    except RuntimeError as exc:
+        return [
+            {
+                "code": "current_wmr_reissue_owner_projection_invalid",
+                "error": str(exc),
+            }
+        ]
+    if recorded.get("owner_projection") != dict(owner_projection):
+        return [{"code": "current_wmr_reissue_receipt_owner_projection_drift"}]
+    _reissued, expected = _reissue_recordings_to_current_wmr(
+        historical_recordings,
+        owner_projection=owner_projection,
+    )
+    if recorded.get("owner_projection_content_hash") != expected.get(
+        "owner_projection_content_hash"
+    ):
+        issues.append(
+            {"code": "current_wmr_reissue_receipt_owner_projection_hash_drift"}
+        )
+    if recorded.get("recordings") != expected.get("recordings"):
+        issues.append({"code": "current_wmr_reissue_receipt_recording_binding_drift"})
+    if recorded.get("content_hash") != gy_content_hash(
+        {key: value for key, value in recorded.items() if key != "content_hash"}
+    ):
+        issues.append({"code": "current_wmr_reissue_receipt_content_hash_drift"})
+    if dict(recorded) != expected and not issues:
+        issues.append({"code": "current_wmr_reissue_receipt_contract_drift"})
+    generation_results = payload.get("generation_results")
+    if isinstance(generation_results, list) and generation_results:
+        observed_refs = set(_nested_values_for_key(generation_results, "world_model_record_ref"))
+        expected_ref = str(owner_projection["world_model_record_id"])
+        if not observed_refs:
+            issues.append({"code": "current_wmr_reissue_generation_binding_missing"})
+        elif observed_refs != {expected_ref}:
+            issues.append(
+                {
+                    "code": "current_wmr_reissue_generation_binding_drift",
+                    "expected": expected_ref,
+                    "observed": sorted(observed_refs),
+                }
+            )
+    return issues
+
+
+def _nested_values_for_key(value: Any, key: str) -> list[str]:
+    values: list[str] = []
+    if isinstance(value, Mapping):
+        for nested_key, nested_value in value.items():
+            if nested_key == key and isinstance(nested_value, str) and nested_value:
+                values.append(nested_value)
+            else:
+                values.extend(_nested_values_for_key(nested_value, key))
+    elif isinstance(value, list | tuple):
+        for item in value:
+            values.extend(_nested_values_for_key(item, key))
+    return values
+
+
 def _recorded_effective_runtime_config(
     recording: Mapping[str, Any],
 ) -> EffectiveGenerationRuntimeConfig:
@@ -398,9 +595,14 @@ async def _run_live_generation(
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Recompute the GY-N4 contract from live code and deterministic replay provenance."""
 
-    recordings = _load_recordings(repo_root)
-    if not recordings:
+    historical_recordings = _load_recordings(repo_root)
+    if not historical_recordings:
         raise RuntimeError("gy_n4_replay_recording_denominator_missing")
+    owner_projection = _resolve_current_wmr_owner_projection(repo_root)
+    recordings, current_wmr_reissue_receipt = _reissue_recordings_to_current_wmr(
+        historical_recordings,
+        owner_projection=owner_projection,
+    )
     results = [
         asyncio.run(_run_live_generation(repo_root.resolve(), recording=recording))
         for recording in recordings
@@ -452,7 +654,9 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "producer": "tools.quality.validation.check_layer3_gy_design_generation_contract",
         "source_modules": [
             "src/polisyos/runtime/quality/design_generation.py",
+            "src/polisyos/runtime/quality/intervention_substrate.py",
             "src/polisyos/runtime/quality/intervention_atom_binding.py",
+            "src/polisyos/runtime/quality/world_model_record.py",
             "src/polisyos/runtime/quality/grounding_relation.py",
             "src/polisyos/runtime/quality/grounding_bind.py",
             "src/polisyos/runtime/quality/grounding_admission.py",
@@ -478,7 +682,10 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "supported_model_ids": list(SUPPORTED_GENERATION_MODEL_IDS),
         "recording_fixture_ref": RECORDING_FIXTURE_PATH,
         "recording_fixture_hash": _fixture_hash(repo_root),
-        "recording_fixture_integrity": _recording_fixture_integrity_report(recordings),
+        "recording_fixture_integrity": _recording_fixture_integrity_report(
+            historical_recordings
+        ),
+        "current_wmr_reissue_receipt": current_wmr_reissue_receipt,
         "diagnostic_projection": dict(_FROZEN_DIAGNOSTIC_PROJECTION),
         "prompt_size_gate": _prompt_size_gate(result_payloads),
         "replay_fixture_versioning": {
@@ -1396,6 +1603,12 @@ def validate(repo_root: Path) -> dict[str, Any]:
         recordings = _load_recordings(repo_root)
     except RuntimeError as exc:
         issues.append({"code": "recording_fixture_integrity_failed", "error": str(exc)})
+        issues.append(
+            {
+                "code": "current_wmr_reissue_receipt_verification_blocked",
+                "reason": "recording_fixture_denominator_invalid",
+            }
+        )
     if not path.is_file():
         issues.append({"code": "design_generation_contract_missing", "path": OUTPUT_PATH})
         committed: dict[str, Any] | None = None
@@ -1556,6 +1769,23 @@ def _recording_fixture_artifact_issues(
                 "recorded": recorded_integrity,
                 "computed": expected_integrity,
             }
+        )
+    try:
+        owner_projection = _resolve_current_wmr_owner_projection(repo_root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        issues.append(
+            {
+                "code": "current_wmr_reissue_owner_resolution_failed",
+                "error": str(exc),
+            }
+        )
+    else:
+        issues.extend(
+            _current_wmr_reissue_receipt_issues(
+                payload,
+                recordings,
+                owner_projection=owner_projection,
+            )
         )
     return issues
 
@@ -1776,6 +2006,7 @@ def _frozen_receipt_projection(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": payload.get("schema_version"),
         "recording_fixture_hash": payload.get("recording_fixture_hash"),
+        "current_wmr_reissue_receipt": payload.get("current_wmr_reissue_receipt"),
         "generation_results": payload.get("generation_results"),
         "diagnostic_projection": payload.get("diagnostic_projection"),
         "prompt_size_gate": payload.get("prompt_size_gate"),
@@ -2451,7 +2682,13 @@ def _load_recordings(repo_root: Path) -> list[dict[str, Any]]:
     recordings = payload.get("recordings")
     if not isinstance(recordings, list):
         raise RuntimeError("gy_n4_recordings_missing")
-    loaded = [dict(item) for item in recordings if isinstance(item, dict)]
+    if not recordings:
+        raise RuntimeError("gy_n4_replay_recording_denominator_missing")
+    loaded: list[dict[str, Any]] = []
+    for index, item in enumerate(recordings):
+        if not isinstance(item, Mapping):
+            raise RuntimeError(f"gy_n4_recording_member_invalid:{index}")
+        loaded.append(dict(item))
     for recording in loaded:
         _validate_recording_fixture(recording)
     return loaded

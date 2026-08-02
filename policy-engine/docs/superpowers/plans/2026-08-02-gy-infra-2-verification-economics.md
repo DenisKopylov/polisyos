@@ -292,11 +292,11 @@ Run Lane 2 once uncached, then cached redundant lanes, N9 -> generation-cycle ->
 **Files:**
 - Modify: task journal only for final receipts and pattern closeout.
 
-- [ ] **Step 1: Re-open the failure/repair register**
+- [x] **Step 1: Re-open the failure/repair register**
 
 Record final P29/P31/P32/P33/P34 assessment and exact capability labels. Do not call a negative Part C implementation complete.
 
-- [ ] **Step 2: Run fresh completion verification**
+- [x] **Step 2: Run fresh completion verification**
 
 Run every command named by the journal on the exact final commit. Read full output and record exit codes; distinguish baseline failures and non-receipts.
 

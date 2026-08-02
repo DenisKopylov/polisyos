@@ -335,3 +335,43 @@ semantic denominators, gates, and artifact hashes are unchanged.
 - Delta-only re-review closed all three findings and returned approved with no new Critical or
   Important findings. Part C closes negative without runtime/test edits, implementation
   witnesses, gate changes, or replay.
+
+## Final closeout verification before whole-branch review
+
+- The failure/repair register was reopened at the final boundary. Part A closes the single timing
+  intake/reporting class; Part B closes the single deterministic package renderer and hostile-Git
+  input class. Part C remains precisely `verification_missing` + `bridge_missing`, not an
+  implemented capability. P05/P07/P29/P31/P32/P33/P34 therefore support the negative ruling rather
+  than licensing a trusted partial cache or excluding the live provenance refusal.
+- At clean attached commit `2583dd2ab3003d075ee06ad8f5cd94540274d2aa`, the combined focused
+  suite passed: `.venv/bin/python -m pytest -q tests/repo_quality/tools/test_timing.py
+  tests/repo_quality/tools/test_unified_cli.py tests/repo_quality/tools/test_review_package.py`
+  returned `39 passed` in `11.48s`. The behavioral suite includes real direct subprocess timing,
+  the AST-derived all-validator boundary census, missing/over-budget reporting, and hostile real
+  Git repositories for full/delta package determinism and fail-closed inputs.
+- The source census found `41` `check_layer3_gy_*.py` scripts and `41` files routed through
+  `run_timed_entrypoint`. A missing timing-log invocation of
+  `python -m tools.cli report-timing --output-format json --include-unmeasured` returned `0` and
+  published all `20` requested catalog lanes as measured, with p95 and recommended timeout,
+  before any local execution record existed.
+- Ruff over all changed Python files returned two diagnostics, both at unchanged baseline lines:
+  C401 in `check_layer3_gy_p1_substrate_authority_audit.py` and S110 in
+  `check_layer3_gy_workflow_mode_truth_audit.py`. Feeding the exact base-commit versions to Ruff
+  reproduced each diagnostic; checking the remaining changed files, plus each affected file with
+  only its reproduced baseline rule ignored, returned `All checks passed`. This is a completed
+  P34 isolation, not a task-green relabeling.
+- A supplemental Ruff-format audit found `37` changed files that the current formatter would
+  rewrite; `34` of those exact files were already format-red at the base. Three task-authored
+  cosmetic diffs remain: line wrapping in `tools/lib/timing.py`,
+  `tests/repo_quality/tools/test_timing.py`, and
+  `tests/repo_quality/tools/test_unified_cli.py`. They were discovered after the reviewed source
+  freeze and are recorded as cosmetic debt under E11 rather than repricing all reviews. They do
+  not change behavior, typing, denominators, or artifacts.
+- `uv run polisyos-tools architecture guardrails check` returned `1` on the same runtime-HTTP
+  deep-import baseline drift recorded during Parts A/B. The exact isolation command
+  `git diff --exit-code 4b9e76f20..HEAD -- src/polisyos/runtime/http
+  architecture/baselines/imports/deep_import.json` returned `0`; no baseline sync was performed.
+- `git diff --exit-code 4b9e76f20..HEAD -- src` and whole-range `git diff --check` both returned
+  `0`. No byte under `src/polisyos/**` changed, so no deployment identity, semantic denominator,
+  or governed artifact replay moved. Full backend/CI parity and the expensive GY replay were not
+  run: the verified blast radius is tools/docs only, while Part C explicitly closed negative.

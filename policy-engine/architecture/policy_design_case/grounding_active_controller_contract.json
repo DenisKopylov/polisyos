@@ -650,8 +650,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_288feb2c6e890f7c",
-        "final_content_hash": "sha256:288feb2c6e890f7c929399f2113f73ac39aba344ad3061ba130da59db43e1f18",
+        "final_certificate_id": "cg3_cert_b6d5bf815fe228ff",
+        "final_content_hash": "sha256:b6d5bf815fe228ffe5762725e1f0850f513a0bf6e739429dfa03545a1ee7de6d",
         "reentered_gate": "CG3",
         "result_id": "cg5.attack.self_supplied_high_trust_edge",
         "trusted_claimed_resolution": false
@@ -763,8 +763,8 @@
     "acquire_loop": {
       "before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_76acda12676f0bce",
-        "content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+        "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+        "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -870,20 +870,20 @@
         "blockers": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_4d5a53be96a2e4a2",
+            "blocker_id": "cg5_blocker_449b9d7d137bc78d",
             "blocker_type": "mechanism_witness_missing",
             "evidence": {
               "decision": "acquire_then_decide"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_76acda12676f0bce",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "mechanism_witness_required",
             "source_field": "decisive_reason"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_9436aff3d08f4b73",
+            "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
             "blocker_type": "mechanism_witness",
             "evidence": {
               "evidence": {
@@ -897,14 +897,14 @@
               "status": "open"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_76acda12676f0bce",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "mechanism_witness",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_e007e822a05f0f32",
+            "blocker_id": "cg5_blocker_017c5248ef4b54ee",
             "blocker_type": "data_trust",
             "evidence": {
               "evidence_ref": null,
@@ -915,93 +915,90 @@
               "trust_floor": 0.5
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_76acda12676f0bce",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "data_trust",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_44210dd95e10f758",
+            "blocker_id": "cg5_blocker_0ffea261396eaaf6",
             "blocker_type": "novel_candidate_handoff",
             "evidence": {
               "decision": "novel_candidate"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "decisive_reason"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_1f5881cb62cc4458",
+            "blocker_id": "cg5_blocker_dc636b39310d04ca",
             "blocker_type": "operator_registered_lever",
             "evidence": {
               "operator": "regional_resilience_credit"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": "operator_registered_lever",
             "source_field": "open_obligations"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_d9896cac66b07cf8",
+            "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
             "blocker_type": "no_unresolved_critical_axis",
             "evidence": {
               "critical_contradictions": [
                 "op",
-                "target",
-                "scope",
-                "population",
-                "outcome",
+                "sign",
                 "effect_path"
               ],
               "unresolved_critical_axes": []
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": "no_unresolved_critical_axis",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_1c6142449af22545",
+            "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
             "blocker_type": "novel-candidate",
             "evidence": {
               "recommended_transition": "handoff_RT3"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_d3c3c62c56171d42",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_c54019cdabad596e",
+            "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_d3c3c62c56171d42",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6522350becbd9c96",
+            "blocker_id": "cg5_blocker_4708304c99d9d67d",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_d3c3c62c56171d42",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
@@ -1010,18 +1007,18 @@
         "candidates": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_4d5a53be96a2e4a2",
+            "blocker_id": "cg5_blocker_449b9d7d137bc78d",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_a326f64983e17655",
-              "after_content_hash": "sha256:a326f64983e17655269340030211345a3ac69aaa5c25e6f8da35b9670f0d2f91",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_76acda12676f0bce",
-              "before_content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_4d5a53be96a2e4a2",
+              "blocker_id": "cg5_blocker_449b9d7d137bc78d",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1046,18 +1043,18 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_9436aff3d08f4b73",
+            "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_a326f64983e17655",
-              "after_content_hash": "sha256:a326f64983e17655269340030211345a3ac69aaa5c25e6f8da35b9670f0d2f91",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_76acda12676f0bce",
-              "before_content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_9436aff3d08f4b73",
+              "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1082,18 +1079,18 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_e007e822a05f0f32",
+            "blocker_id": "cg5_blocker_017c5248ef4b54ee",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_a326f64983e17655",
-              "after_content_hash": "sha256:a326f64983e17655269340030211345a3ac69aaa5c25e6f8da35b9670f0d2f91",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_76acda12676f0bce",
-              "before_content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_e007e822a05f0f32",
+              "blocker_id": "cg5_blocker_017c5248ef4b54ee",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1118,7 +1115,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_44210dd95e10f758",
+            "blocker_id": "cg5_blocker_0ffea261396eaaf6",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1126,10 +1123,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_44210dd95e10f758",
+              "blocker_id": "cg5_blocker_0ffea261396eaaf6",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1150,7 +1147,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_1f5881cb62cc4458",
+            "blocker_id": "cg5_blocker_dc636b39310d04ca",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1158,10 +1155,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_1f5881cb62cc4458",
+              "blocker_id": "cg5_blocker_dc636b39310d04ca",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1182,7 +1179,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_d9896cac66b07cf8",
+            "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1190,10 +1187,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_08e7a712bf0e7ea6",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_d9896cac66b07cf8",
+              "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1214,7 +1211,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_1c6142449af22545",
+            "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1222,10 +1219,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_d3c3c62c56171d42",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_1c6142449af22545",
+              "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1246,7 +1243,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_c54019cdabad596e",
+            "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1254,10 +1251,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_d3c3c62c56171d42",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_c54019cdabad596e",
+              "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1278,7 +1275,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6522350becbd9c96",
+            "blocker_id": "cg5_blocker_4708304c99d9d67d",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1286,10 +1283,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_d3c3c62c56171d42",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_6522350becbd9c96",
+              "blocker_id": "cg5_blocker_4708304c99d9d67d",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1310,7 +1307,7 @@
           }
         ],
         "case_id": "cg5.acquire.mechanism_missing",
-        "certificate_id": "cg5_cert_6ea9ed36cde66a1e",
+        "certificate_id": "cg5_cert_91c097fc5299ec56",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -1330,7 +1327,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:6ea9ed36cde66a1e55209bd5a4d540f87070ecc3c5050e9bf940dd431250e518",
+        "content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -1358,8 +1355,8 @@
         "selected_action": "acquire_data",
         "selected_ticket": {
           "action_family": "acquire_data",
-          "blocker_id": "cg5_blocker_4d5a53be96a2e4a2",
-          "content_hash": "sha256:e7e799a2e902a14fdd7b903a4551c149c90e379b8d3ffbf598129da5b1e4fc78",
+          "blocker_id": "cg5_blocker_449b9d7d137bc78d",
+          "content_hash": "sha256:6ce1229e1b73dfd5b38439d543d86127b0e5da7d65d660125be8a9b93d31068f",
           "integration_status": "handoff_artifact_gy_n7_direct_intake_not_wired",
           "needed_result": [
             "mechanism_witness_required"
@@ -1370,41 +1367,41 @@
             "integration_gap": "GY-N7 direct intake is not wired in CG5; owner-shaped data must return and re-enter gates.",
             "target_blocker": {
               "action_family": "acquire_data",
-              "blocker_id": "cg5_blocker_4d5a53be96a2e4a2",
+              "blocker_id": "cg5_blocker_449b9d7d137bc78d",
               "blocker_type": "mechanism_witness_missing",
               "evidence": {
                 "decision": "acquire_then_decide"
               },
               "gate": "CG3",
-              "gate_certificate_id": "cg3_cert_76acda12676f0bce",
+              "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
               "mapping_status": "mapped",
               "obligation_or_axis": "mechanism_witness_required",
               "source_field": "decisive_reason"
             }
           },
           "target_surface": "GY-N7.grounding_acquisition",
-          "ticket_id": "cg5_ticket_e7e799a2e902a14f",
+          "ticket_id": "cg5_ticket_6ce1229e1b73dfd5",
           "ticket_kind": "acquisition_ticket"
         },
         "selection_reason": "minimal_cost_decisive_dominates_abstain",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_d3c3c62c56171d42",
-            "content_hash": "sha256:d3c3c62c56171d42eec8fb5c2ded83251b333fd77c6ff9b3e5dc6b197bcd6afb",
+            "certificate_id": "cg1_cert_29d9f28597e7bb67",
+            "content_hash": "sha256:29d9f28597e7bb670146040e2fb6b676df58aa66f1d8ae9552261f3185f3bb15",
             "disposition": "novel-candidate",
             "gate": "CG1",
             "reason": "handoff_RT3"
           },
           {
-            "certificate_id": "cg2_cert_08e7a712bf0e7ea6",
-            "content_hash": "sha256:08e7a712bf0e7ea69b4bcb59942b190d564ccbd346dd78c71b6900de5fc31379",
+            "certificate_id": "cg2_cert_aa5355ae33352fe6",
+            "content_hash": "sha256:aa5355ae33352fe6c9430ec3c42ff15b20ce4ca3bbfca4a8e2b71eeb69495bf2",
             "disposition": "novel_candidate",
             "gate": "CG2",
             "reason": "novel_candidate_handoff"
           },
           {
-            "certificate_id": "cg3_cert_76acda12676f0bce",
-            "content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+            "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+            "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
             "disposition": "acquire_then_decide",
             "gate": "CG3",
             "reason": "mechanism_witness_missing"
@@ -1419,8 +1416,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_7ce1d5a73d05eb94",
-        "final_content_hash": "sha256:7ce1d5a73d05eb94ab7394fe9aecd95a1215d4d886b345870686f977ddbedd44",
+        "final_certificate_id": "cg3_cert_3d58e966bbd753fe",
+        "final_content_hash": "sha256:3d58e966bbd753fea077dd42b3a649d40858940c1fc37353b387b6b2b68b63f8",
         "reentered_gate": "CG3",
         "result_id": "cg5.acquire.result.reference_only",
         "trusted_claimed_resolution": false
@@ -1832,169 +1829,169 @@
         "blockers": [
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_3576aee9a19361f8",
+            "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
             "blocker_type": "unknown",
             "evidence": {
               "recommended_transition": "shadow"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_ed17faffb2a49d1e",
+            "blocker_id": "cg5_blocker_142c36f8cb908a60",
             "blocker_type": "op",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "op",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6636bbddb2eb3adb",
+            "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
             "blocker_type": "target",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "target",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6eebbeeca5347a3d",
+            "blocker_id": "cg5_blocker_c1f2db22d406cb40",
             "blocker_type": "do_value",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "do_value",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_80bc63983621aade",
+            "blocker_id": "cg5_blocker_5e7c3b3940394c15",
             "blocker_type": "sign",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "sign",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_84bcf3989fd0f6c6",
+            "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
             "blocker_type": "params",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "params",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_3eb7c4195d0f1562",
+            "blocker_id": "cg5_blocker_7919730420eac73d",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_3e39a5878e4385e8",
+            "blocker_id": "cg5_blocker_08f5e3911803aafe",
             "blocker_type": "scope",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "scope",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_efbc0a0d19aba30e",
+            "blocker_id": "cg5_blocker_54e96ef09ea54f04",
             "blocker_type": "population",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "population",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_89005c7fb075b413",
+            "blocker_id": "cg5_blocker_05c82090ce4f4499",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_cc4758d92ad5c023",
+            "blocker_id": "cg5_blocker_c7457affcfbb635c",
             "blocker_type": "outcome",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "outcome",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_8726bd6728f3d831",
+            "blocker_id": "cg5_blocker_be99c5def063295e",
             "blocker_type": "effect_path",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "effect_path",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_b228781560a81dbd",
+            "blocker_id": "cg5_blocker_8664b4bc091256ba",
             "blocker_type": "estimand",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_26fdee454e8090f1",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "estimand",
             "source_field": "unresolved_axes"
@@ -2003,7 +2000,7 @@
         "candidates": [
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_3576aee9a19361f8",
+            "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2011,10 +2008,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_3576aee9a19361f8",
+              "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2035,7 +2032,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_ed17faffb2a49d1e",
+            "blocker_id": "cg5_blocker_142c36f8cb908a60",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2043,10 +2040,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_ed17faffb2a49d1e",
+              "blocker_id": "cg5_blocker_142c36f8cb908a60",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2067,7 +2064,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6636bbddb2eb3adb",
+            "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2075,10 +2072,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_6636bbddb2eb3adb",
+              "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2099,7 +2096,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_6eebbeeca5347a3d",
+            "blocker_id": "cg5_blocker_c1f2db22d406cb40",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2107,10 +2104,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_6eebbeeca5347a3d",
+              "blocker_id": "cg5_blocker_c1f2db22d406cb40",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2131,7 +2128,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_80bc63983621aade",
+            "blocker_id": "cg5_blocker_5e7c3b3940394c15",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2139,10 +2136,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_80bc63983621aade",
+              "blocker_id": "cg5_blocker_5e7c3b3940394c15",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2163,7 +2160,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_84bcf3989fd0f6c6",
+            "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2171,10 +2168,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_84bcf3989fd0f6c6",
+              "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2195,7 +2192,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_3eb7c4195d0f1562",
+            "blocker_id": "cg5_blocker_7919730420eac73d",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2203,10 +2200,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_3eb7c4195d0f1562",
+              "blocker_id": "cg5_blocker_7919730420eac73d",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2227,7 +2224,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_3e39a5878e4385e8",
+            "blocker_id": "cg5_blocker_08f5e3911803aafe",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2235,10 +2232,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_3e39a5878e4385e8",
+              "blocker_id": "cg5_blocker_08f5e3911803aafe",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2259,7 +2256,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_efbc0a0d19aba30e",
+            "blocker_id": "cg5_blocker_54e96ef09ea54f04",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2267,10 +2264,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_efbc0a0d19aba30e",
+              "blocker_id": "cg5_blocker_54e96ef09ea54f04",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2291,7 +2288,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_89005c7fb075b413",
+            "blocker_id": "cg5_blocker_05c82090ce4f4499",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2299,10 +2296,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_89005c7fb075b413",
+              "blocker_id": "cg5_blocker_05c82090ce4f4499",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2323,7 +2320,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_cc4758d92ad5c023",
+            "blocker_id": "cg5_blocker_c7457affcfbb635c",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2331,10 +2328,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_cc4758d92ad5c023",
+              "blocker_id": "cg5_blocker_c7457affcfbb635c",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2355,7 +2352,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_8726bd6728f3d831",
+            "blocker_id": "cg5_blocker_be99c5def063295e",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2363,10 +2360,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_8726bd6728f3d831",
+              "blocker_id": "cg5_blocker_be99c5def063295e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2387,7 +2384,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_b228781560a81dbd",
+            "blocker_id": "cg5_blocker_8664b4bc091256ba",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2395,10 +2392,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_26fdee454e8090f1",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_b228781560a81dbd",
+              "blocker_id": "cg5_blocker_8664b4bc091256ba",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2419,7 +2416,7 @@
           }
         ],
         "case_id": "cg5.cheap_verify.structural_only",
-        "certificate_id": "cg5_cert_8ead0ac50040c11e",
+        "certificate_id": "cg5_cert_dbaf95c7c49bb428",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -2439,7 +2436,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:8ead0ac50040c11e70f5f1213b5d6f4b354e95e9b0c2f55ebffe4211bf9f3d8c",
+        "content_hash": "sha256:dbaf95c7c49bb4284be100d609716d1f5b3ed2d2975d9e9fc2658bb1e15cbc9a",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -2467,8 +2464,8 @@
         "selected_action": "abstain",
         "selected_ticket": {
           "action_family": "abstain",
-          "blocker_id": "cg5_blocker_3576aee9a19361f8",
-          "content_hash": "sha256:21aa6c11db32d43efb85e463b93ae2ba0138aadf64fa480417a5c6ce749b9354",
+          "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
+          "content_hash": "sha256:01724390bab5cfe06b24a5041f55e608a065cfdd6e7171ab40a03dba2d374ee8",
           "integration_status": "terminal_for_this_round",
           "needed_result": [],
           "no_resolution_claim": true,
@@ -2477,14 +2474,14 @@
             "remaining_candidate_action": "elicit_human"
           },
           "target_surface": "CG5.round_closeout",
-          "ticket_id": "cg5_ticket_21aa6c11db32d43e",
+          "ticket_id": "cg5_ticket_01724390bab5cfe0",
           "ticket_kind": "abstain_record"
         },
         "selection_reason": "abstain_no_decisive_action",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_26fdee454e8090f1",
-            "content_hash": "sha256:26fdee454e8090f14886c664c39d9821a5799d88199204f543994750cc1f51db",
+            "certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
+            "content_hash": "sha256:c38fb5d4a5ee3cc7b0b348311073bb65bb5f1f9d055d0f2668c983c40a67fe20",
             "disposition": "unknown",
             "gate": "CG1",
             "reason": "shadow"
@@ -2511,8 +2508,8 @@
     "low_voi_high_cost_abstain": {
       "before": {
         "acquisition_blocker": "admissibility_required",
-        "certificate_id": "cg3_cert_69a1ae4329eb892f",
-        "content_hash": "sha256:69a1ae4329eb892f922925b7c59e37a4f524f5a988c7ac7727e35752a845c039",
+        "certificate_id": "cg3_cert_d01e5ec415358951",
+        "content_hash": "sha256:d01e5ec415358951f385ebdd9eca50f973ac9a0c36387a87be6d6daae8623d6d",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "acquire_then_decide",
@@ -2617,125 +2614,122 @@
         "blockers": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_89e6ac11b04df69d",
+            "blocker_id": "cg5_blocker_505227a5dfc4ae31",
             "blocker_type": "open_obligation",
             "evidence": {
               "decision": "acquire_then_decide"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_69a1ae4329eb892f",
+            "gate_certificate_id": "cg3_cert_d01e5ec415358951",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility_required",
             "source_field": "decisive_reason"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_8ebe11f3ba665b9f",
+            "blocker_id": "cg5_blocker_0bab15ce63e6306e",
             "blocker_type": "admissibility",
             "evidence": {
               "admissibility": "candidate_unverified"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_69a1ae4329eb892f",
+            "gate_certificate_id": "cg3_cert_d01e5ec415358951",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_388c5a7611e6e838",
+            "blocker_id": "cg5_blocker_af21ad09c3578d68",
             "blocker_type": "novel_candidate_handoff",
             "evidence": {
               "decision": "novel_candidate"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_4dd1adc0f900263a",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "decisive_reason"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_69c645975dc3b7d2",
+            "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
             "blocker_type": "admissibility_closed",
             "evidence": {
               "admissibility": "candidate_unverified"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_4dd1adc0f900263a",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility_closed",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_a577d83d8eb8a58d",
+            "blocker_id": "cg5_blocker_d885f9f26f07b34b",
             "blocker_type": "operator_registered_lever",
             "evidence": {
               "operator": "regional_resilience_credit"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_4dd1adc0f900263a",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "operator_registered_lever",
             "source_field": "open_obligations"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4f913956db99aebe",
+            "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
             "blocker_type": "no_unresolved_critical_axis",
             "evidence": {
               "critical_contradictions": [
                 "op",
-                "target",
-                "scope",
-                "population",
-                "outcome",
+                "sign",
                 "effect_path"
               ],
               "unresolved_critical_axes": []
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_4dd1adc0f900263a",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "no_unresolved_critical_axis",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_96a339bf9a06d94a",
+            "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
             "blocker_type": "novel-candidate",
             "evidence": {
               "recommended_transition": "handoff_RT3"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a602d070274beb45",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4647d5578910f943",
+            "blocker_id": "cg5_blocker_c95b006c1c517bcc",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a602d070274beb45",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_1cde0b589bec721a",
+            "blocker_id": "cg5_blocker_43840542ad731e2c",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a602d070274beb45",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
@@ -2744,7 +2738,7 @@
         "candidates": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_89e6ac11b04df69d",
+            "blocker_id": "cg5_blocker_505227a5dfc4ae31",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2752,10 +2746,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_69a1ae4329eb892f",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_89e6ac11b04df69d",
+              "blocker_id": "cg5_blocker_505227a5dfc4ae31",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2776,7 +2770,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_8ebe11f3ba665b9f",
+            "blocker_id": "cg5_blocker_0bab15ce63e6306e",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2784,10 +2778,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_69a1ae4329eb892f",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_8ebe11f3ba665b9f",
+              "blocker_id": "cg5_blocker_0bab15ce63e6306e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2808,7 +2802,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_388c5a7611e6e838",
+            "blocker_id": "cg5_blocker_af21ad09c3578d68",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2816,10 +2810,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_4dd1adc0f900263a",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_388c5a7611e6e838",
+              "blocker_id": "cg5_blocker_af21ad09c3578d68",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2840,7 +2834,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_69c645975dc3b7d2",
+            "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2848,10 +2842,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_69a1ae4329eb892f",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_69c645975dc3b7d2",
+              "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2872,7 +2866,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_a577d83d8eb8a58d",
+            "blocker_id": "cg5_blocker_d885f9f26f07b34b",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2880,10 +2874,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_4dd1adc0f900263a",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_a577d83d8eb8a58d",
+              "blocker_id": "cg5_blocker_d885f9f26f07b34b",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2904,7 +2898,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4f913956db99aebe",
+            "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2912,10 +2906,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_4dd1adc0f900263a",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_4f913956db99aebe",
+              "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2936,7 +2930,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_96a339bf9a06d94a",
+            "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2944,10 +2938,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a602d070274beb45",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_96a339bf9a06d94a",
+              "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2968,7 +2962,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4647d5578910f943",
+            "blocker_id": "cg5_blocker_c95b006c1c517bcc",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2976,10 +2970,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a602d070274beb45",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_4647d5578910f943",
+              "blocker_id": "cg5_blocker_c95b006c1c517bcc",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -3000,7 +2994,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_1cde0b589bec721a",
+            "blocker_id": "cg5_blocker_43840542ad731e2c",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -3008,10 +3002,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a602d070274beb45",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_1cde0b589bec721a",
+              "blocker_id": "cg5_blocker_43840542ad731e2c",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -3032,7 +3026,7 @@
           }
         ],
         "case_id": "cg5.low_voi.high_cost",
-        "certificate_id": "cg5_cert_d815b8c5088f281b",
+        "certificate_id": "cg5_cert_ad850898969fe347",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -3052,7 +3046,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:d815b8c5088f281bdb9af851fd3d5340517573b86c135759e4b54220ef028bfc",
+        "content_hash": "sha256:ad850898969fe3474fc68a08d5ee071e56b928d1eec9f1a33efaf99c0b131958",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -3080,8 +3074,8 @@
         "selected_action": "abstain",
         "selected_ticket": {
           "action_family": "abstain",
-          "blocker_id": "cg5_blocker_89e6ac11b04df69d",
-          "content_hash": "sha256:4da9442543dfa9b9f5ea65458806fa011690bae7536f2c30cc8fe00d1778e926",
+          "blocker_id": "cg5_blocker_505227a5dfc4ae31",
+          "content_hash": "sha256:c827771f9c0f8557ccf33f3ad5788e735f654933bd8a4e8332d269ec498857fd",
           "integration_status": "terminal_for_this_round",
           "needed_result": [],
           "no_resolution_claim": true,
@@ -3090,28 +3084,28 @@
             "remaining_candidate_action": "elicit_human"
           },
           "target_surface": "CG5.round_closeout",
-          "ticket_id": "cg5_ticket_4da9442543dfa9b9",
+          "ticket_id": "cg5_ticket_c827771f9c0f8557",
           "ticket_kind": "abstain_record"
         },
         "selection_reason": "abstain_no_decisive_action",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_a602d070274beb45",
-            "content_hash": "sha256:a602d070274beb45ce24ab092823ba8d205b82746c71970e29d19adb9795d182",
+            "certificate_id": "cg1_cert_c01bf1af238a6b0d",
+            "content_hash": "sha256:c01bf1af238a6b0d3fe0adf01b3645f931b83fd19372a537f277037d0da645c4",
             "disposition": "novel-candidate",
             "gate": "CG1",
             "reason": "handoff_RT3"
           },
           {
-            "certificate_id": "cg2_cert_4dd1adc0f900263a",
-            "content_hash": "sha256:4dd1adc0f900263a22ba20c47f3ac3a997620cc6a34c8f328404026368d6f7ca",
+            "certificate_id": "cg2_cert_d1c7c6ca00e82654",
+            "content_hash": "sha256:d1c7c6ca00e82654745f585db3b2769cd0bd9156891190eebf937a8984cd8d03",
             "disposition": "novel_candidate",
             "gate": "CG2",
             "reason": "novel_candidate_handoff"
           },
           {
-            "certificate_id": "cg3_cert_69a1ae4329eb892f",
-            "content_hash": "sha256:69a1ae4329eb892f922925b7c59e37a4f524f5a988c7ac7727e35752a845c039",
+            "certificate_id": "cg3_cert_d01e5ec415358951",
+            "content_hash": "sha256:d01e5ec415358951f385ebdd9eca50f973ac9a0c36387a87be6d6daae8623d6d",
             "disposition": "acquire_then_decide",
             "gate": "CG3",
             "reason": "open_obligation"
@@ -3122,8 +3116,8 @@
     },
     "no_positive_writability_proof": {
       "acquisition_blocker": "mechanism_witness_required",
-      "certificate_id": "cg3_cert_704d0dd1d4879d4d",
-      "content_hash": "sha256:704d0dd1d4879d4d484366d5b0daa476422a7b42b06bc7e63f694150ac880261",
+      "certificate_id": "cg3_cert_0d13e500836912d3",
+      "content_hash": "sha256:0d13e500836912d342a59b0348fd8474dde025f534606c7037346aaea2bda41a",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -3139,7 +3133,7 @@
   },
   "contract_id": "policyos.runtime.grounding_active_controller_rt7",
   "counterfactual_containment": {
-    "captured_counterfactual_admit_certificate_id": "cg3_cert_a326f64983e17655",
+    "captured_counterfactual_admit_certificate_id": "cg3_cert_8f824867be3fa996",
     "counterfactual_edge_ids": [
       "cg5_counterfactual_cells_distress_score_cells_output",
       "cg5_counterfactual_cells_distress_score_cells_output",
@@ -3157,7 +3151,7 @@
       "certificate_patch_id": "cg3_patch_71affa05b93849e0",
       "patch": null,
       "reason": "admission_re_resolution_mismatch",
-      "recomputed_certificate_id": "cg3_cert_704009cc2fba3334",
+      "recomputed_certificate_id": "cg3_cert_30e99c97a54902ef",
       "recomputed_patch_id": null
     }
   },
@@ -3168,9 +3162,9 @@
     "status": "deferred_not_fabricated"
   },
   "determinism": {
-    "first_content_hash": "sha256:6ea9ed36cde66a1e55209bd5a4d540f87070ecc3c5050e9bf940dd431250e518",
+    "first_content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32",
     "same_content_hash": true,
-    "second_content_hash": "sha256:6ea9ed36cde66a1e55209bd5a4d540f87070ecc3c5050e9bf940dd431250e518"
+    "second_content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32"
   },
   "forged_inputs_fail_closed": {
     "claimed_resolution_reentry": {
@@ -3180,8 +3174,8 @@
       "after_reason": "mechanism_witness_missing",
       "before_disposition": "acquire_then_decide",
       "false_bind_or_admit": false,
-      "final_certificate_id": "cg3_cert_b3faa0fa6c894647",
-      "final_content_hash": "sha256:b3faa0fa6c894647dc909dbb5ace61e238aabb23b51bbfdb01ff0f5b868c8eb7",
+      "final_certificate_id": "cg3_cert_0209b364eada29c9",
+      "final_content_hash": "sha256:0209b364eada29c9a5a833c6801210469c189df9a29d73c0c8733f7a7132d42f",
       "reentered_gate": "CG3",
       "result_id": "cg5.forged.claim_only",
       "trusted_claimed_resolution": false
@@ -3221,8 +3215,8 @@
     "acquire_loop": {
       "bounded_before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_76acda12676f0bce",
-        "content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+        "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+        "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -3241,8 +3235,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_7ce1d5a73d05eb94",
-        "final_content_hash": "sha256:7ce1d5a73d05eb94ab7394fe9aecd95a1215d4d886b345870686f977ddbedd44",
+        "final_certificate_id": "cg3_cert_3d58e966bbd753fe",
+        "final_content_hash": "sha256:3d58e966bbd753fea077dd42b3a649d40858940c1fc37353b387b6b2b68b63f8",
         "reentered_gate": "CG3",
         "result_id": "cg5.acquire.result.reference_only",
         "trusted_claimed_resolution": false
@@ -3251,8 +3245,8 @@
       "false_bind_rederived_by_full_gate": true,
       "full_before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_c81867b12df5f694",
-        "content_hash": "sha256:c81867b12df5f694a849af8e630376b7fe0052a55c6086a3445b263c75a7e78c",
+        "certificate_id": "cg3_cert_5c710c296c0cd93b",
+        "content_hash": "sha256:5c710c296c0cd93b79940b0c12c0b35e82f7aa274ffba901cfcabb114560cf4e",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -3266,8 +3260,8 @@
       },
       "full_gate_rederivation": {
         "acquisition_blocker": null,
-        "certificate_id": "cg3_cert_780547f631547b82",
-        "content_hash": "sha256:780547f631547b823d7887660563e901e2f485211da0ebaefb42e77df8fe65fa",
+        "certificate_id": "cg3_cert_a75c6279db38d5a6",
+        "content_hash": "sha256:a75c6279db38d5a6aa824cd148bd99764ca951acb77d5347b5e2b561ed37efde",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -3283,8 +3277,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_5402b4adc73b9deb",
-        "final_content_hash": "sha256:5402b4adc73b9deba5df086a65abf90e3be293aae18a39d11aa0364d612dd963",
+        "final_certificate_id": "cg3_cert_e49cf4120efb8474",
+        "final_content_hash": "sha256:e49cf4120efb84743cd525c068e4f7f68086ec5f61c703bc374073e467b89018",
         "reentered_gate": "CG3",
         "result_id": "cg5.full.acquire.result.reference_only",
         "trusted_claimed_resolution": false

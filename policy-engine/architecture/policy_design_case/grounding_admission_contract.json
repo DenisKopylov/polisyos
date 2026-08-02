@@ -6,7 +6,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_ad8be17c5facb00c",
+        "certificate_id": "cg3_cert_4a602d7b5c3cccf1",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -21,7 +21,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:ad8be17c5facb00cf172ca2b322ea133a0f1d5b2a48241fc5931f07622ee7977",
+        "content_hash": "sha256:4a602d7b5c3cccf1097f8fcf52a0a7b7814d9906fa46aad45a2dd1499c86db8e",
         "data_trust_cap": 0.85,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -56,7 +56,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_45deb6f40ed967dc",
+        "certificate_id": "cg3_cert_0ddc79d48d8b7fca",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -71,7 +71,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:45deb6f40ed967dcb5b1a80b1c4b8200d9fa9a83e41a54a58f9ac3239070f3ac",
+        "content_hash": "sha256:0ddc79d48d8b7fca4d6e692afe200cafb1c6d400b6cf3714662639dc8eb82860",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -114,7 +114,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_24ccd5d7e1400f04",
+        "certificate_id": "cg3_cert_b30820ef66ba9333",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -129,7 +129,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:24ccd5d7e1400f0482d0ef18caab05fe88badb7c3006c6334f3c40d0748903ca",
+        "content_hash": "sha256:b30820ef66ba9333228228ae0676822e4c55a86c985b0424c471d67e7ef8a3e1",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -176,7 +176,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_88bae1dc33e810e2",
+        "certificate_id": "cg3_cert_566e4374049081b4",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -191,7 +191,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:88bae1dc33e810e2d4195a83d4c199ffb9a31881ad157ad47c3dc5f4e6f92213",
+        "content_hash": "sha256:566e4374049081b407ee18a357eb6aab2da97e85a86eed42197ebc9322e5c358",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -227,7 +227,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_17b2c103c55a1fee",
+        "certificate_id": "cg3_cert_76d4826d0c093e76",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -242,7 +242,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:17b2c103c55a1fee0c320ec587fccdfa0bf6eb26f85092bedee796fe6ac70eeb",
+        "content_hash": "sha256:76d4826d0c093e76ed4d788e7f5a8d0fd56026d41a1d5d00f8455a45884b007f",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -289,7 +289,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_b45f7bc2025e4d75",
+        "certificate_id": "cg3_cert_39ee45ea3ca9c426",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -302,7 +302,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:b45f7bc2025e4d75b63a06312eeede9ab3f87a02b11289b41420cbc12e1ed31a",
+        "content_hash": "sha256:39ee45ea3ca9c426ff75efbed04e168dc1ee7f3ddff02fa9f07f1a104b4e450a",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -351,7 +351,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_768a156d7672f4dd",
+        "certificate_id": "cg3_cert_5e3a932d381d8217",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -366,7 +366,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:768a156d7672f4dd959b16f604c0bae549bcc747b6519f79d6ee2e8cff837ac1",
+        "content_hash": "sha256:5e3a932d381d8217b872f50fb7a217df7e86e022033d13356830ce2766673f8e",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -402,7 +402,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_14047e95efbbbe84",
+        "certificate_id": "cg3_cert_9d0e2c4509688a86",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -417,7 +417,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:14047e95efbbbe843c9152c34050ae624b7ddda4d2af665a5f35d747e65ea896",
+        "content_hash": "sha256:9d0e2c4509688a860cb98ee8b36246d0aff0afec351ee2433bc90715de209717",
         "data_trust_cap": 0.99,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -453,7 +453,7 @@
         "best_edge_low_trust_hop": {
           "acquisition_blocker": null,
           "authority_scope": "contract_testing",
-          "certificate_id": "cg3_cert_24e765b638755178",
+          "certificate_id": "cg3_cert_fddbbd5145f5aa11",
           "closed_obligations": [
             "parse",
             "novel_irreducible",
@@ -468,7 +468,7 @@
             "cg2_novel_handoff",
             "cg1_content_bound"
           ],
-          "content_hash": "sha256:24e765b638755178331852487ec32d0f0a7f3b89fb78c017cfcbe78b8c183c35",
+          "content_hash": "sha256:fddbbd5145f5aa11f08ac25ae80ee0953e3e1c406c771c2e1ea0ea853eba8443",
           "data_trust_cap": 0.95,
           "data_trust_status": "closed",
           "decision": "admit_new_lever",
@@ -516,7 +516,7 @@
         "composed_two_hop": {
           "acquisition_blocker": null,
           "authority_scope": "contract_testing",
-          "certificate_id": "cg3_cert_6ea50d6a4c7e8fea",
+          "certificate_id": "cg3_cert_1e97862a93e604c6",
           "closed_obligations": [
             "parse",
             "novel_irreducible",
@@ -531,7 +531,7 @@
             "cg2_novel_handoff",
             "cg1_content_bound"
           ],
-          "content_hash": "sha256:6ea50d6a4c7e8feac956d81a68d059a25b6c8d10e0fcb77a00e4ce3d8c2997cb",
+          "content_hash": "sha256:1e97862a93e604c672c51771f35fc84db4fb82536660595a94b4d60926e04fe2",
           "data_trust_cap": 0.93,
           "data_trust_status": "closed",
           "decision": "admit_new_lever",
@@ -584,7 +584,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_62bbb71379567cc8",
+        "certificate_id": "cg3_cert_b931e3a6ee5dd3d8",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -599,7 +599,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:62bbb71379567cc833e00e902b91192bc6f528bda0c8daf381791a67fb9952f2",
+        "content_hash": "sha256:b931e3a6ee5dd3d84a5d5a97a31040835266b053e3d1e836e2d1e0b926bc4a08",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -646,7 +646,7 @@
       "probe": {
         "acquisition_blocker": null,
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_3723bf554310fb89",
+        "certificate_id": "cg3_cert_21a36e6b556ee42f",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -658,7 +658,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:3723bf554310fb89a9202f2fb57d4289d622fde1943930a4c81c88f875518e24",
+        "content_hash": "sha256:21a36e6b556ee42f4f2aa110d639c6a6221ab40e6829e6c515ac4aac0437579c",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -738,7 +738,7 @@
     "acquire_missing_mechanism_unknown_never_reject": {
       "acquisition_blocker": "mechanism_witness_required",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_76acda12676f0bce",
+      "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -751,7 +751,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:76acda12676f0bce750a16e3c64283604941b373fe28d33ac9201472e7e556ea",
+      "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -788,7 +788,7 @@
     "admit_real_novel_data_only_free_grow": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_a2b2160ba1eaa677",
+      "certificate_id": "cg3_cert_06312f14cf2e6aec",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -803,7 +803,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:a2b2160ba1eaa677e7e01c89ef174e91c84097d41a93f929ac0e5ddfdc25e4b0",
+      "content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -846,7 +846,7 @@
     "admit_second_generic_data_only_free_grow": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_5efbabeedffc534f",
+      "certificate_id": "cg3_cert_1bcce046bde1cfe4",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -861,7 +861,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:5efbabeedffc534f2024ec67bb1ce442b46dc1370bc9cbf4dc1c232a33cd0b41",
+      "content_hash": "sha256:1bcce046bde1cfe4135f975fcc00b2cb7cb4d5f8059b1d4228a587b008505ad8",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -904,7 +904,7 @@
     "compatibility_derived_alias_no_patch": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_a16bb077c2197ed6",
+      "certificate_id": "cg3_cert_f4421dbbd3f5673d",
       "closed_obligations": [
         "parse",
         "type",
@@ -915,7 +915,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:a16bb077c2197ed6b56ff014a4102a0b02c721a229f24add6f80c5550195fbbf",
+      "content_hash": "sha256:f4421dbbd3f5673d4a861d1fd52dee2f353e00673c50e9fcb9a97517f83d709b",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "non_new",
@@ -959,7 +959,7 @@
     "contract_testing_scope": {
       "acquisition_blocker": null,
       "authority_scope": "contract_testing",
-      "certificate_id": "cg3_cert_8fbff3f3aaece14d",
+      "certificate_id": "cg3_cert_e1f79fdc5e65bc77",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -974,7 +974,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:8fbff3f3aaece14daae60767357eeeed948f09bc2914fb7a4f86c05258ca0b11",
+      "content_hash": "sha256:e1f79fdc5e65bc7707aa0d1a67ca995c3d769f74afeebbe03eb061a4c31c1006",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -1015,14 +1015,14 @@
       "stable_unique_reason": "single_existing_world_slot_completion"
     },
     "deterministic_admission": {
-      "first_content_hash": "sha256:a2b2160ba1eaa677e7e01c89ef174e91c84097d41a93f929ac0e5ddfdc25e4b0",
+      "first_content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750",
       "same_content_hash": true,
-      "second_content_hash": "sha256:a2b2160ba1eaa677e7e01c89ef174e91c84097d41a93f929ac0e5ddfdc25e4b0"
+      "second_content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750"
     },
     "fabricated_mechanism_proof_fail_closed": {
       "acquisition_blocker": "mechanism_witness_required",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_d3a5f8b18c90b818",
+      "certificate_id": "cg3_cert_553994fbaad9635b",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1035,7 +1035,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:d3a5f8b18c90b81809b2f1d823dd9894412a63b6ed0a98c6a29f17fbad5a0364",
+      "content_hash": "sha256:553994fbaad9635bb9c9169e5438005c7ac80e779456a202d8cf533c7cfb3780",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1197,7 +1197,7 @@
     "low_trust_hop_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_3d7a9a0b238ffbf3",
+      "certificate_id": "cg3_cert_86137a0324e8759a",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1210,7 +1210,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:3d7a9a0b238ffbf3a8fc89a8e45d773e8b72dac040ea29e5eb9168af8a7b236c",
+      "content_hash": "sha256:86137a0324e8759aec4891c205f1e1391cdb9645a5d34b94d500efac8f61b536",
       "data_trust_cap": 0.2,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1263,7 +1263,7 @@
     "non_new_paraphrase_no_registry_patch": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_5a5c42461804d0ff",
+      "certificate_id": "cg3_cert_9b7a9c3ec69097c9",
       "closed_obligations": [
         "parse",
         "type",
@@ -1277,7 +1277,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:5a5c42461804d0ff3ec46aa49d8b972f382338432967ec54a1a969fe118b22b0",
+      "content_hash": "sha256:9b7a9c3ec69097c9ce690f7ac9a4de60c6b5c56e31ad9ad9e7faadb43d621f22",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "non_new",
@@ -1322,7 +1322,7 @@
     "outcome_like_map_mentioned_slot": {
       "acquisition_blocker": "mechanism_witness_required",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_d9a974993bb6c95a",
+      "certificate_id": "cg3_cert_8865da79c1428be0",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1334,7 +1334,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:d9a974993bb6c95aed8dba0561ac096dcac5c4601fcad4db9d9ba2356517e208",
+      "content_hash": "sha256:8865da79c1428be0052dc99af671d43cacfd9b11cab12654da812b0aebe8d4bf",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1377,7 +1377,7 @@
     "outcome_wish_with_crafted_self_loop_edge": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_7bfa3cdbf36b9d32",
+      "certificate_id": "cg3_cert_a4f3be8c33d60797",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1389,7 +1389,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:7bfa3cdbf36b9d32def8c36e94184df6c0db2b09538bb7e22e5d8e2af8f1d72c",
+      "content_hash": "sha256:a4f3be8c33d60797ce8c9ee7fd70fb21a4f25077c836ea062f324b049a1153ce",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "reject_hallucination",
@@ -1432,7 +1432,7 @@
     "proxy_named_real_unproven_boundary": {
       "acquisition_blocker": "mechanism_witness_required",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_9326a24b2299f5aa",
+      "certificate_id": "cg3_cert_7186a18c7e7bd0c8",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1444,7 +1444,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:9326a24b2299f5aa3ab701fe8d2129aaef6b84aad462c9c8d77702f49b16857d",
+      "content_hash": "sha256:7186a18c7e7bd0c8d5e78c45fd6b947b8882850f39d2f4cacf0f9456ab5a4f70",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1487,7 +1487,7 @@
     "proxy_slot_with_crafted_edge": {
       "acquisition_blocker": null,
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_1360b3d3280d9501",
+      "certificate_id": "cg3_cert_2623017efb8fd062",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1499,7 +1499,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:1360b3d3280d9501c484c33bfd71408f2647797ddd9dc84864c63ac48de0ee08",
+      "content_hash": "sha256:2623017efb8fd062d539113ccb4614220ee452b5200e19697478eb678d060558",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "reject_hallucination",
@@ -1542,14 +1542,14 @@
     "real_n4_recorded_handoff": {
       "acquisition_blocker": "mechanism_witness_missing",
       "authority_scope": "shadow_only",
-      "certificate_id": "cg3_cert_f858d20c4c83d0be",
-      "cg1_certificate_id": "cg1_cert_a0e7fa2cab3c6484",
+      "certificate_id": "cg3_cert_7a2fcacaf786de1b",
+      "cg1_certificate_id": "cg1_cert_1fc6e4402b894bbf",
       "cg1_selected_relation": "novel-candidate",
-      "cg2_certificate_id": "cg2_cert_3172b1dff6a0a215",
+      "cg2_certificate_id": "cg2_cert_fa127b6acf501572",
       "cg2_decision": "novel_candidate",
       "cg2_reason": "novel_candidate_handoff",
       "closed_obligations": [],
-      "content_hash": "sha256:f858d20c4c83d0be2633b0767c90edf53fb0dd2d0549ef2e0d53d4feec965fbe",
+      "content_hash": "sha256:7a2fcacaf786de1b8d4c6686172880ee316d33510c5957893ac2d29ee5b6f8f9",
       "data_trust_cap": null,
       "data_trust_status": "frozen_receipt",
       "decision": "acquire_then_decide",
@@ -1580,7 +1580,7 @@
       "impossible_type": {
         "acquisition_blocker": null,
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_95be9ab045851f95",
+        "certificate_id": "cg3_cert_97b0c336cf9d590c",
         "cg2_decision": "abstain",
         "cg2_reason": "relation_not_bind_eligible",
         "closed_obligations": [
@@ -1590,7 +1590,7 @@
           "admissibility",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:95be9ab045851f95b544a3125ca8ebbb094eeb369f2297656b9c2fb5123bc408",
+        "content_hash": "sha256:97b0c336cf9d590cbce41ee33921dd9de99451d5e11a1459310ef20fd55e4fa7",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1636,7 +1636,7 @@
       "outcome_wish": {
         "acquisition_blocker": null,
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_fcdf905528590d54",
+        "certificate_id": "cg3_cert_8a12be4f95d227a4",
         "cg2_decision": "abstain",
         "cg2_reason": "false_analog_hard_abstain",
         "closed_obligations": [
@@ -1645,7 +1645,7 @@
           "admissibility",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:fcdf905528590d542a8d9a3a081123e64397464745adc826210d7f29bc2c4f31",
+        "content_hash": "sha256:8a12be4f95d227a47a75cb835e18a0bbcd6cdbb5870877d609291d6f3e129032",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1692,7 +1692,7 @@
       "proxy_manipulation": {
         "acquisition_blocker": null,
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_05d6f6c23e6b0a75",
+        "certificate_id": "cg3_cert_14bbf6a5bbdb7939",
         "cg2_decision": "novel_candidate",
         "cg2_reason": "novel_candidate_handoff",
         "closed_obligations": [
@@ -1706,7 +1706,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:05d6f6c23e6b0a75ce797c2a25a76f9d4f188dba011e5b13a4d086595c323059",
+        "content_hash": "sha256:14bbf6a5bbdb7939d4c0f4e44c22eb619b339a6d44cfe3f8e28e51d8414acc1c",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1750,7 +1750,7 @@
     "spoofed_substrate_registry_production_boundary": {
       "acquisition_blocker": "l5_data_trust_floor_required",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_bb3ebb54d7f170ba",
+      "certificate_id": "cg3_cert_142e1d86ae1c71d6",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1763,7 +1763,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:bb3ebb54d7f170ba86b610517abffe2bc57e9c84b602704ae6aa72c09c757a2c",
+      "content_hash": "sha256:142e1d86ae1c71d6d5164d269dbbd0909ab6a26264c749edeefa51ed92eb35c6",
       "data_trust_cap": 0.2,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1815,7 +1815,7 @@
     "three_hop_unrelated_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_32c6d405392f19ee",
+      "certificate_id": "cg3_cert_cb16d835848c7241",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1829,7 +1829,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:32c6d405392f19ee92bf4a5c03d842b9604d3775e90d7f70a9402534eb719268",
+      "content_hash": "sha256:cb16d835848c72411c4cf39ccc330b0ea3e7ec6d0ad7310bda149b40b32fedd1",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "acquire_then_decide",
@@ -1886,7 +1886,7 @@
     "two_hop_unrelated_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_fb79fdccb8bd5aa3",
+      "certificate_id": "cg3_cert_c36fbce0b072ba47",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1900,7 +1900,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:fb79fdccb8bd5aa3410e18352336d9a9ed19c38d2c2aee8ce83fd60a227d991e",
+      "content_hash": "sha256:c36fbce0b072ba479584d6e50fa0ef743a6adce7406cf914607d0d44a9e4814b",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "acquire_then_decide",

@@ -6,16 +6,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import secrets
 import subprocess
 import sys
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
-
-SOURCE_REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(SOURCE_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(SOURCE_REPO_ROOT))
-
-from tools.lib.fs import atomic_write_bytes  # noqa: E402
 
 PACKAGE_MAGIC: Final = b"POLISYOS_REVIEW_PACKAGE\n"
 SCHEMA_VERSION: Final = 1
@@ -34,6 +33,7 @@ _GIT_CONTEXT_ENVIRONMENT_KEYS: Final = (
     "GIT_OBJECT_DIRECTORY",
     "GIT_REPLACE_REF_BASE",
     "GIT_SHALLOW_FILE",
+    "GIT_TEMPLATE_DIR",
     "GIT_WORK_TREE",
 )
 _COMMON_DIFF_ARGUMENTS: Final = (
@@ -56,8 +56,12 @@ _PATCH_DIFF_ARGUMENTS: Final = (
     "--src-prefix=a/",
     "--dst-prefix=b/",
 )
-_NEUTRALIZED_REPOSITORY_DIFF_KEYS: Final = frozenset(
+_NEUTRALIZED_REPOSITORY_CONFIG_KEYS: Final = frozenset(
     {
+        "color.ui",
+        "core.attributesfile",
+        "core.pager",
+        "core.quotepath",
         "diff.algorithm",
         "diff.context",
         "diff.external",
@@ -71,10 +75,54 @@ _NEUTRALIZED_REPOSITORY_DIFF_KEYS: Final = frozenset(
         "diff.submodule",
     }
 )
+_IRRELEVANT_REPOSITORY_CONFIG_KEYS: Final = frozenset(
+    {
+        # Repository layout and filesystem facts are consumed during discovery but
+        # cannot alter a diff between the two already-resolved commit objects.
+        "core.bare",
+        "core.filemode",
+        "core.hookspath",
+        "core.ignorecase",
+        "core.logallrefupdates",
+        "core.precomposeunicode",
+        "core.repositoryformatversion",
+        "core.sharedrepository",
+        "core.sparsecheckout",
+        "core.sparsecheckoutcone",
+        "core.symlinks",
+        "core.worktree",
+        "extensions.compatobjectformat",
+        "extensions.objectformat",
+        "extensions.partialclone",
+        "extensions.preciousobjects",
+        "extensions.refstorage",
+        "extensions.worktreeconfig",
+    }
+)
 
 
 class ReviewPackageError(RuntimeError):
     """Raised when a review package cannot be proven safe to build."""
+
+
+@dataclass(frozen=True)
+class _Repository:
+    """Filesystem-anchored identity for the invoking Git worktree."""
+
+    worktree: Path
+    git_dir: Path
+    common_dir: Path
+    object_dir: Path
+    object_format: str
+
+
+@dataclass(frozen=True)
+class _BoundOutput:
+    """Verified output parent held open across package rendering."""
+
+    parent_fd: int
+    parent_path: Path
+    filename: str
 
 
 def _git_environment(*, attribute_source: str | None = None) -> dict[str, str]:
@@ -107,14 +155,24 @@ def _git_environment(*, attribute_source: str | None = None) -> dict[str, str]:
     return environment
 
 
-def _git_argv(*arguments: str) -> list[str]:
+def _git_argv(
+    *arguments: str,
+    git_dir: Path | None = None,
+    work_tree: Path | None = None,
+) -> list[str]:
     """Build a pinned Git argument vector for deterministic read-only commands."""
 
+    repository_arguments: list[str] = []
+    if git_dir is not None:
+        repository_arguments.append(f"--git-dir={git_dir}")
+    if work_tree is not None:
+        repository_arguments.append(f"--work-tree={work_tree}")
     return [
         "git",
         "--no-pager",
         "--no-replace-objects",
         "--literal-pathspecs",
+        *repository_arguments,
         "-c",
         "color.ui=false",
         "-c",
@@ -144,16 +202,18 @@ def _git_argv(*arguments: str) -> list[str]:
 
 
 def _run_git(
-    worktree: Path,
+    cwd: Path,
     *arguments: str,
     accepted_codes: tuple[int, ...] = (0,),
     attribute_source: str | None = None,
+    git_dir: Path | None = None,
+    work_tree: Path | None = None,
 ) -> bytes:
     """Run one read-only Git command without a shell and return stdout bytes."""
 
     result = subprocess.run(  # noqa: S603 - Git argv is explicit and never shell-expanded.
-        _git_argv(*arguments),
-        cwd=worktree,
+        _git_argv(*arguments, git_dir=git_dir, work_tree=work_tree),
+        cwd=cwd,
         env=_git_environment(attribute_source=attribute_source),
         check=False,
         capture_output=True,
@@ -168,29 +228,141 @@ def _run_git(
     return result.stdout
 
 
-def _discover_worktree(invocation_cwd: Path) -> Path:
-    """Resolve the current Git worktree even when invoked from a subdirectory."""
+def _find_git_marker(invocation_cwd: Path) -> tuple[Path, Path]:
+    """Find the physical worktree marker without consulting repository config."""
 
-    raw_root = _run_git(invocation_cwd, "rev-parse", "--show-toplevel").rstrip(b"\r\n")
-    if not raw_root:
-        raise ReviewPackageError("git rev-parse returned an empty worktree root")
-    worktree = Path(os.fsdecode(raw_root)).resolve(strict=True)
-    if not worktree.is_dir():
-        raise ReviewPackageError("resolved Git worktree root is not a directory")
-    return worktree
+    current = invocation_cwd
+    while True:
+        marker = current / ".git"
+        if marker.is_symlink():
+            raise ReviewPackageError("Git worktree marker must not be a symlink")
+        if marker.exists():
+            return current, marker
+        if current == current.parent:
+            raise ReviewPackageError("invocation directory is not inside a Git worktree")
+        current = current.parent
 
 
-def _resolve_commit(worktree: Path, revision: str, *, label: str) -> str:
+def _git_dir_from_marker(marker: Path) -> Path:
+    """Resolve a directory or linked-worktree ``.git`` marker."""
+
+    if marker.is_dir():
+        return marker.resolve(strict=True)
+    if not marker.is_file():
+        raise ReviewPackageError("Git worktree marker must be a file or directory")
+    try:
+        payload = marker.read_bytes().removesuffix(b"\n").removesuffix(b"\r")
+    except OSError as exc:
+        raise ReviewPackageError("Git worktree marker could not be read") from exc
+    prefix = b"gitdir: "
+    if not payload.startswith(prefix) or b"\n" in payload or b"\r" in payload:
+        raise ReviewPackageError("Git worktree marker is malformed")
+    raw_path = payload.removeprefix(prefix)
+    if not raw_path or b"\x00" in raw_path:
+        raise ReviewPackageError("Git worktree marker has an invalid git-dir path")
+    path = Path(os.fsdecode(raw_path))
+    if not path.is_absolute():
+        path = marker.parent / path
+    try:
+        git_dir = path.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise ReviewPackageError("Git worktree administrative directory does not exist") from exc
+    if not git_dir.is_dir():
+        raise ReviewPackageError("Git worktree administrative path must be a directory")
+    return git_dir
+
+
+def _decode_absolute_git_path(payload: bytes, *, label: str) -> Path:
+    """Decode and validate one absolute path emitted by anchored Git."""
+
+    raw_path = payload.rstrip(b"\r\n")
+    if not raw_path:
+        raise ReviewPackageError(f"git returned an empty {label} path")
+    path = Path(os.fsdecode(raw_path))
+    if not path.is_absolute():
+        raise ReviewPackageError(f"git returned a non-absolute {label} path")
+    try:
+        resolved = path.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise ReviewPackageError(f"git returned a missing {label} path") from exc
+    if not resolved.is_dir():
+        raise ReviewPackageError(f"git returned a non-directory {label} path")
+    return resolved
+
+
+def _discover_repository(invocation_cwd: Path) -> _Repository:
+    """Anchor the invoking worktree and its Git administration by filesystem identity."""
+
+    worktree, marker = _find_git_marker(invocation_cwd)
+    git_dir = _git_dir_from_marker(marker)
+    anchored_arguments = {"git_dir": git_dir, "work_tree": worktree}
+    reported_git_dir = _decode_absolute_git_path(
+        _run_git(
+            worktree,
+            "rev-parse",
+            "--path-format=absolute",
+            "--absolute-git-dir",
+            **anchored_arguments,
+        ),
+        label="Git directory",
+    )
+    if reported_git_dir != git_dir:
+        raise ReviewPackageError("Git directory identity changed during discovery")
+    common_dir = _decode_absolute_git_path(
+        _run_git(
+            worktree,
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-common-dir",
+            **anchored_arguments,
+        ),
+        label="common Git directory",
+    )
+    object_dir = _decode_absolute_git_path(
+        _run_git(
+            worktree,
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-path",
+            "objects",
+            **anchored_arguments,
+        ),
+        label="object directory",
+    )
+    raw_format = _run_git(
+        worktree,
+        "rev-parse",
+        "--show-object-format=storage",
+        **anchored_arguments,
+    ).strip()
+    try:
+        object_format = raw_format.decode("ascii")
+    except UnicodeDecodeError as exc:
+        raise ReviewPackageError("Git returned a non-ASCII object format") from exc
+    if object_format not in {"sha1", "sha256"}:
+        raise ReviewPackageError("Git returned an unsupported object format")
+    return _Repository(
+        worktree=worktree,
+        git_dir=git_dir,
+        common_dir=common_dir,
+        object_dir=object_dir,
+        object_format=object_format,
+    )
+
+
+def _resolve_commit(repository: _Repository, revision: str, *, label: str) -> str:
     """Resolve and peel one revision to a real commit object."""
 
     if not revision or "\x00" in revision:
         raise ReviewPackageError(f"{label} revision must not be empty or contain NUL")
     raw_commit = _run_git(
-        worktree,
+        repository.worktree,
         "rev-parse",
         "--verify",
         "--end-of-options",
         f"{revision}^{{commit}}",
+        git_dir=repository.git_dir,
+        work_tree=repository.worktree,
     ).strip()
     try:
         commit = raw_commit.decode("ascii")
@@ -201,12 +373,12 @@ def _resolve_commit(worktree: Path, revision: str, *, label: str) -> str:
     return commit
 
 
-def _require_ancestor(worktree: Path, base_commit: str, head_commit: str) -> None:
+def _require_ancestor(git_context: Path, base_commit: str, head_commit: str) -> None:
     """Fail unless ``base_commit`` is an ancestor of ``head_commit``."""
 
     result = subprocess.run(  # noqa: S603 - Git argv is explicit and never shell-expanded.
         _git_argv("merge-base", "--is-ancestor", base_commit, head_commit),
-        cwd=worktree,
+        cwd=git_context,
         env=_git_environment(),
         check=False,
         capture_output=True,
@@ -222,32 +394,22 @@ def _require_ancestor(worktree: Path, base_commit: str, head_commit: str) -> Non
         )
 
 
-def _resolve_git_path(worktree: Path, *arguments: str) -> Path:
-    """Resolve a Git-reported administrative path to an absolute real path."""
-
-    raw_path = _run_git(worktree, "rev-parse", *arguments).rstrip(b"\r\n")
-    if not raw_path:
-        raise ReviewPackageError("git rev-parse returned an empty administrative path")
-    path = Path(os.fsdecode(raw_path))
-    if not path.is_absolute():
-        path = worktree / path
-    return path.resolve(strict=True)
-
-
-def _require_neutral_info_attributes(worktree: Path) -> None:
+def _require_neutral_info_attributes(repository: _Repository) -> None:
     """Fail closed when unversioned repository-local attributes could affect a diff."""
 
     raw_path = _run_git(
-        worktree,
+        repository.worktree,
         "rev-parse",
         "--git-path",
         "info/attributes",
+        git_dir=repository.git_dir,
+        work_tree=repository.worktree,
     ).rstrip(b"\r\n")
     if not raw_path:
         raise ReviewPackageError("git returned an empty info/attributes path")
     attributes_path = Path(os.fsdecode(raw_path))
     if not attributes_path.is_absolute():
-        attributes_path = worktree / attributes_path
+        attributes_path = repository.worktree / attributes_path
     attributes_path = Path(os.path.abspath(attributes_path))
     if attributes_path.is_symlink():
         raise ReviewPackageError("unversioned info/attributes must not be a symlink")
@@ -263,18 +425,20 @@ def _require_neutral_info_attributes(worktree: Path) -> None:
         raise ReviewPackageError("unversioned info/attributes must be absent or empty")
 
 
-def _configured_diff_keys(worktree: Path, *, scope: str) -> tuple[str, ...]:
-    """Return effective ``diff.*`` keys from one repository-owned config scope."""
+def _configured_repository_keys(repository: _Repository, *, scope: str) -> tuple[str, ...]:
+    """Return every effective key from one repository-owned config scope."""
 
     raw_config = _run_git(
-        worktree,
+        repository.worktree,
         "config",
         f"--{scope}",
         "--includes",
         "--null",
         "--get-regexp",
-        r"^diff\.",
+        r".",
         accepted_codes=(0, 1),
+        git_dir=repository.git_dir,
+        work_tree=repository.worktree,
     )
     if not raw_config:
         return ()
@@ -284,38 +448,69 @@ def _configured_diff_keys(worktree: Path, *, scope: str) -> tuple[str, ...]:
     for record in raw_config.removesuffix(b"\x00").split(b"\x00"):
         raw_key, separator, _value = record.partition(b"\n")
         if not separator or not raw_key:
-            raise ReviewPackageError(f"{scope} Git config returned a malformed diff record")
+            raise ReviewPackageError(f"{scope} Git config returned a malformed record")
         try:
-            key = raw_key.decode("ascii").casefold()
+            key = raw_key.decode("utf-8").casefold()
         except UnicodeDecodeError as exc:
-            raise ReviewPackageError(f"{scope} Git config returned a non-ASCII diff key") from exc
-        if not key.startswith("diff."):
-            raise ReviewPackageError(f"{scope} Git config returned an unexpected key")
+            raise ReviewPackageError(f"{scope} Git config returned a non-UTF-8 key") from exc
         keys.add(key)
     return tuple(sorted(keys))
 
 
-def _diff_key_is_neutralized(key: str) -> bool:
-    """Return whether the fixed diff argv provably disables or overrides ``key``."""
+def _has_named_suffix(key: str, *, prefix: str, suffixes: frozenset[str]) -> bool:
+    """Return whether a namespaced config key has one allowed terminal field."""
 
-    if key in _NEUTRALIZED_REPOSITORY_DIFF_KEYS:
+    if not key.startswith(prefix):
+        return False
+    name, separator, suffix = key.removeprefix(prefix).rpartition(".")
+    return bool(name and separator and suffix in suffixes)
+
+
+def _repository_config_key_is_bound(key: str) -> bool:
+    """Return whether a repository key is irrelevant or explicitly neutralized."""
+
+    if key in _NEUTRALIZED_REPOSITORY_CONFIG_KEYS:
         return True
-    return key.startswith("diff.") and key.endswith(".textconv")
+    if key in _IRRELEVANT_REPOSITORY_CONFIG_KEYS:
+        return True
+    if key.startswith("color.diff."):
+        return True
+    if key.startswith("pager."):
+        return True
+    if key.startswith("diff.") and key.endswith(".textconv"):
+        return True
+    if _has_named_suffix(
+        key,
+        prefix="branch.",
+        suffixes=frozenset({"merge", "remote", "vscode-merge-base"}),
+    ):
+        return True
+    if _has_named_suffix(
+        key,
+        prefix="remote.",
+        suffixes=frozenset({"fetch", "partialclonefilter", "promisor", "url"}),
+    ):
+        return True
+    return _has_named_suffix(
+        key,
+        prefix="submodule.",
+        suffixes=frozenset({"active", "ignore", "url"}),
+    )
 
 
-def _require_neutral_diff_configuration(worktree: Path) -> None:
-    """Fail closed on repository-owned diff settings not bound by the fixed argv."""
+def _require_bound_repository_configuration(repository: _Repository) -> None:
+    """Fail closed on repository-owned settings outside the deterministic boundary."""
 
     unsupported = [
         f"{scope}:{key}"
         for scope in ("local", "worktree")
-        for key in _configured_diff_keys(worktree, scope=scope)
-        if not _diff_key_is_neutralized(key)
+        for key in _configured_repository_keys(repository, scope=scope)
+        if not _repository_config_key_is_bound(key)
     ]
     if unsupported:
         rendered = ", ".join(unsupported)
         raise ReviewPackageError(
-            "repository-owned diff configuration is not neutralized: " + rendered
+            "repository-owned Git configuration is not bound or allowlisted: " + rendered
         )
 
 
@@ -379,12 +574,13 @@ def _resolve_inside_worktree(
     raw_path: str | Path,
     *,
     invocation_cwd: Path,
-    worktree: Path,
+    repository: _Repository,
     label: str,
     must_exist: bool = False,
 ) -> Path:
     """Resolve a file path and reject symlinks, admin paths, or worktree escapes."""
 
+    worktree = repository.worktree
     rendered = str(raw_path)
     if not rendered or "\x00" in rendered:
         raise ReviewPackageError(f"{label} path must not be empty or contain NUL")
@@ -408,9 +604,10 @@ def _resolve_inside_worktree(
         resolved.relative_to(worktree)
     except ValueError as exc:
         raise ReviewPackageError(f"{label} real path must stay inside the Git worktree") from exc
-    git_dir = _resolve_git_path(worktree, "--git-dir")
-    common_dir = _resolve_git_path(worktree, "--git-common-dir")
-    if _touches_admin_state(resolved, admin_roots=(git_marker, git_dir, common_dir)):
+    if _touches_admin_state(
+        resolved,
+        admin_roots=(git_marker, repository.git_dir, repository.common_dir),
+    ):
         raise ReviewPackageError(f"{label} path must not target Git administrative state")
     if must_exist and not resolved.exists():
         raise ReviewPackageError(f"{label} path does not exist")
@@ -419,10 +616,128 @@ def _resolve_inside_worktree(
     return resolved
 
 
+def _directory_open_flags() -> int:
+    """Return flags that open a directory without following its final component."""
+
+    try:
+        return os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    except AttributeError as exc:
+        raise ReviewPackageError("secure directory-descriptor writes are unsupported") from exc
+
+
+@contextmanager
+def _bind_output_parent(destination: Path, *, worktree: Path) -> Iterator[_BoundOutput]:
+    """Hold the verified output parent open without following path components."""
+
+    try:
+        relative_parent = destination.parent.relative_to(worktree)
+    except ValueError as exc:
+        raise ReviewPackageError("output parent must stay inside the Git worktree") from exc
+    flags = _directory_open_flags()
+    parent_fd: int | None = None
+    try:
+        parent_fd = os.open(worktree, flags)
+        for component in relative_parent.parts:
+            try:
+                child_fd = os.open(component, flags, dir_fd=parent_fd)
+            except FileNotFoundError:
+                with suppress(FileExistsError):
+                    os.mkdir(component, mode=0o755, dir_fd=parent_fd)
+                child_fd = os.open(component, flags, dir_fd=parent_fd)
+            os.close(parent_fd)
+            parent_fd = child_fd
+    except OSError as exc:
+        if parent_fd is not None:
+            os.close(parent_fd)
+        raise ReviewPackageError("output parent could not be bound without symlinks") from exc
+    try:
+        yield _BoundOutput(
+            parent_fd=parent_fd,
+            parent_path=destination.parent,
+            filename=destination.name,
+        )
+    finally:
+        os.close(parent_fd)
+
+
+def _bound_parent_matches_path(bound_output: _BoundOutput) -> bool:
+    """Return whether the output pathname still names the held directory."""
+
+    try:
+        path_stat = os.stat(bound_output.parent_path, follow_symlinks=False)
+        descriptor_stat = os.fstat(bound_output.parent_fd)
+    except OSError:
+        return False
+    return os.path.samestat(path_stat, descriptor_stat)
+
+
+def _atomic_write_bound_output(bound_output: _BoundOutput, payload: bytes) -> None:
+    """Atomically replace an output relative to its verified parent descriptor."""
+
+    if not _bound_parent_matches_path(bound_output):
+        raise ReviewPackageError("output parent changed after validation")
+    temporary_name = f".polisyos-review-{secrets.token_hex(16)}.tmp"
+    temporary_fd: int | None = None
+    try:
+        temporary_fd = os.open(
+            temporary_name,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=bound_output.parent_fd,
+        )
+        remaining = memoryview(payload)
+        while remaining:
+            written = os.write(temporary_fd, remaining)
+            if written <= 0:
+                raise OSError("atomic package write made no progress")
+            remaining = remaining[written:]
+        os.fsync(temporary_fd)
+        os.close(temporary_fd)
+        temporary_fd = None
+        if not _bound_parent_matches_path(bound_output):
+            raise ReviewPackageError("output parent changed during package write")
+        os.replace(
+            temporary_name,
+            bound_output.filename,
+            src_dir_fd=bound_output.parent_fd,
+            dst_dir_fd=bound_output.parent_fd,
+        )
+        if not _bound_parent_matches_path(bound_output):
+            raise ReviewPackageError("output parent changed during atomic replace")
+    finally:
+        if temporary_fd is not None:
+            os.close(temporary_fd)
+        with suppress(FileNotFoundError):
+            os.unlink(temporary_name, dir_fd=bound_output.parent_fd)
+
+
 def _normalize_git_text(payload: bytes) -> bytes:
     """Normalize generated Git text to LF without decoding repository paths."""
 
     return payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
+@contextmanager
+def _hermetic_git_context(repository: _Repository) -> Iterator[Path]:
+    """Yield a config- and graph-overlay-free bare view of source objects."""
+
+    encoded_object_dir = os.fsencode(repository.object_dir)
+    if b"\x00" in encoded_object_dir or b"\n" in encoded_object_dir or b"\r" in encoded_object_dir:
+        raise ReviewPackageError("Git object directory cannot be represented hermetically")
+    with tempfile.TemporaryDirectory(prefix="polisyos-review-package-") as raw_directory:
+        scratch = Path(raw_directory)
+        git_context = scratch / "review.git"
+        _run_git(
+            scratch,
+            "init",
+            "--bare",
+            "--template=",
+            f"--object-format={repository.object_format}",
+            str(git_context),
+        )
+        alternates = git_context / "objects" / "info" / "alternates"
+        alternates.write_bytes(encoded_object_dir + b"\n")
+        yield git_context
 
 
 def _render_section(name: str, payload: bytes, *, digest: str | None = None) -> bytes:
@@ -542,11 +857,11 @@ def build_review_package(
     """
 
     origin = (invocation_cwd or Path.cwd()).resolve(strict=True)
-    worktree = _discover_worktree(origin)
+    repository = _discover_repository(origin)
     destination = _resolve_inside_worktree(
         output_path,
         invocation_cwd=origin,
-        worktree=worktree,
+        repository=repository,
         label="output",
     )
     prior_findings: bytes | None = None
@@ -554,7 +869,7 @@ def build_review_package(
         checklist = _resolve_inside_worktree(
             prior_findings_path,
             invocation_cwd=origin,
-            worktree=worktree,
+            repository=repository,
             label="prior findings",
             must_exist=True,
         )
@@ -563,20 +878,22 @@ def build_review_package(
         prior_findings = checklist.read_bytes()
         if not prior_findings or not prior_findings.strip():
             raise ReviewPackageError("prior findings file must not be empty")
-    base_commit = _resolve_commit(worktree, base_revision, label="base")
-    head_commit = _resolve_commit(worktree, head_revision, label="head")
-    _require_ancestor(worktree, base_commit, head_commit)
-    _require_neutral_info_attributes(worktree)
-    _require_neutral_diff_configuration(worktree)
-    package = _render_package(
-        worktree,
-        base_commit=base_commit,
-        head_commit=head_commit,
-        prior_findings=prior_findings,
-    )
-    _require_neutral_info_attributes(worktree)
-    _require_neutral_diff_configuration(worktree)
-    atomic_write_bytes(destination, package)
+    _require_neutral_info_attributes(repository)
+    _require_bound_repository_configuration(repository)
+    base_commit = _resolve_commit(repository, base_revision, label="base")
+    head_commit = _resolve_commit(repository, head_revision, label="head")
+    with _hermetic_git_context(repository) as git_context:
+        _require_ancestor(git_context, base_commit, head_commit)
+        with _bind_output_parent(destination, worktree=repository.worktree) as bound_output:
+            package = _render_package(
+                git_context,
+                base_commit=base_commit,
+                head_commit=head_commit,
+                prior_findings=prior_findings,
+            )
+            _require_neutral_info_attributes(repository)
+            _require_bound_repository_configuration(repository)
+            _atomic_write_bound_output(bound_output, package)
     return package
 
 

@@ -134,6 +134,7 @@ def test_full_package_is_deterministic_and_contains_every_changed_path(tmp_path:
         encoding="utf-8",
     )
     _git(repo, "config", "color.ui", "always")
+    _git(repo, "config", "color.diff.meta", "red bold")
     _git(repo, "config", "core.quotePath", "false")
     _git(repo, "config", "diff.algorithm", "minimal")
     _git(repo, "config", "diff.context", "9")
@@ -167,6 +168,7 @@ def test_full_package_is_deterministic_and_contains_every_changed_path(tmp_path:
     )
     for key in (
         "color.ui",
+        "color.diff.meta",
         "core.quotePath",
         "diff.algorithm",
         "diff.context",
@@ -447,6 +449,300 @@ def test_unbound_worktree_diff_driver_variant_fails_closed(
     assert output.read_bytes() == clean_bytes
 
 
+@pytest.mark.parametrize(
+    ("scope", "key", "value"),
+    [
+        ("local", "core.bigFileThreshold", "1"),
+        ("worktree", "core.abbrev", "4"),
+    ],
+)
+def test_unbound_non_diff_repository_configuration_fails_closed(
+    tmp_path: Path,
+    scope: str,
+    key: str,
+    value: str,
+) -> None:
+    """Catch non-diff configuration escaping the repository config boundary."""
+
+    repo, _ = _init_repo(tmp_path)
+    policy = repo / "policy.txt"
+    policy.write_text("line one\nold decision\nline three\n", encoding="utf-8")
+    base = _commit(repo, "add policy")
+    policy.write_text("line one\nnew decision\nline three\n", encoding="utf-8")
+    head = _commit(repo, "change policy")
+    output = repo / "existing.review"
+    clean = _run_builder(repo, base=base, head=head, output=output)
+    assert clean.returncode == 0, clean.stderr
+    clean_bytes = output.read_bytes()
+
+    config_scope: tuple[str, ...] = ()
+    if scope == "worktree":
+        _git(repo, "config", "extensions.worktreeConfig", "true")
+        config_scope = ("--worktree",)
+    _git(repo, "config", *config_scope, key, value)
+    configured = _run_builder(repo, base=base, head=head, output=output)
+
+    assert configured.returncode != 0
+    assert f"{scope}:{key}".lower() in configured.stderr.lower()
+    assert output.read_bytes() == clean_bytes
+
+
+def test_non_diff_configuration_added_during_render_prevents_atomic_replace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch repository configuration changing after the initial boundary check."""
+
+    repo, base = _init_repo(tmp_path)
+    (repo / "policy.txt").write_text("changed policy\n", encoding="utf-8")
+    head = _commit(repo, "change policy")
+    output = repo / "existing.review"
+    output.write_bytes(b"previous-valid-package\n")
+    render_package = review_package._render_package
+
+    def _render_then_configure(
+        worktree: Path,
+        *,
+        base_commit: str,
+        head_commit: str,
+        prior_findings: bytes | None,
+    ) -> bytes:
+        package = render_package(
+            worktree,
+            base_commit=base_commit,
+            head_commit=head_commit,
+            prior_findings=prior_findings,
+        )
+        _git(repo, "config", "core.bigFileThreshold", "1")
+        return package
+
+    monkeypatch.setattr(review_package, "_render_package", _render_then_configure)
+
+    with pytest.raises(review_package.ReviewPackageError, match=r"core\.bigfilethreshold"):
+        review_package.build_review_package(
+            base_revision=base,
+            head_revision=head,
+            output_path=output,
+            invocation_cwd=repo,
+        )
+
+    assert output.read_bytes() == b"previous-valid-package\n"
+
+
+def test_core_worktree_cannot_pivot_the_invoking_repository(tmp_path: Path) -> None:
+    """Catch repository config redirecting all post-discovery Git commands."""
+
+    source, _ = _init_repo(tmp_path, name="source-repo")
+    source_policy = source / "policy.txt"
+    source_policy.write_text("source old\n", encoding="utf-8")
+    source_base = _commit(source, "source base")
+    source_policy.write_text("source new\n", encoding="utf-8")
+    source_head = _commit(source, "source head")
+
+    foreign, _ = _init_repo(tmp_path, name="foreign-repo")
+    foreign_policy = foreign / "policy.txt"
+    foreign_policy.write_text("foreign old\n", encoding="utf-8")
+    foreign_base = _commit(foreign, "foreign base")
+    foreign_policy.write_text("foreign new\n", encoding="utf-8")
+    foreign_head = _commit(foreign, "foreign head")
+
+    _git(source, "config", "core.worktree", str(foreign))
+    output = source / "source.review"
+    result = _run_builder(
+        source,
+        base="HEAD^",
+        head="HEAD",
+        output=output,
+    )
+
+    assert result.returncode == 0, result.stderr
+    package = output.read_bytes()
+    assert f"base_commit={source_base}\n".encode() in package
+    assert f"head_commit={source_head}\n".encode() in package
+    assert b"source new" in package
+    assert foreign_base.encode() not in package
+    assert foreign_head.encode() not in package
+    assert b"foreign new" not in package
+
+
+def test_info_grafts_cannot_forge_the_ancestry_gate(tmp_path: Path) -> None:
+    """Catch an unversioned graft making unrelated histories reviewable."""
+
+    repo, base = _init_repo(tmp_path)
+    _git(repo, "switch", "--orphan", "foreign")
+    _git(
+        repo,
+        "rm",
+        "-rf",
+        "--ignore-unmatch",
+        "--",
+        ".gitignore",
+        "README.md",
+        "config.ini",
+        "obsolete.txt",
+    )
+    (repo / "foreign.txt").write_text("foreign history\n", encoding="utf-8")
+    head = _commit(repo, "foreign root")
+    grafts = repo / ".git" / "info" / "grafts"
+    grafts.write_text(f"{head} {base}\n", encoding="ascii")
+    output = repo / "existing.review"
+    output.write_bytes(b"previous-valid-package\n")
+
+    result = _run_builder(repo, base=base, head=head, output=output)
+
+    assert result.returncode != 0
+    assert "not an ancestor" in result.stderr
+    assert output.read_bytes() == b"previous-valid-package\n"
+
+
+def test_shallow_metadata_cannot_change_commit_list_bytes(tmp_path: Path) -> None:
+    """Catch a repository shallow boundary hiding a side-parent commit."""
+
+    repo, base = _init_repo(tmp_path)
+    _git(repo, "switch", "-c", "side")
+    (repo / "side-one.txt").write_text("side one\n", encoding="utf-8")
+    side_one = _commit(repo, "side one")
+    (repo / "side-two.txt").write_text("side two\n", encoding="utf-8")
+    side_two = _commit(repo, "side two")
+    _git(repo, "switch", "main")
+    (repo / "main.txt").write_text("main\n", encoding="utf-8")
+    _commit(repo, "main change")
+    _git(repo, "merge", "--no-gpg-sign", "--no-ff", "side", "-m", "merge side")
+    head = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    clean_output = repo / "clean.review"
+    clean = _run_builder(repo, base=base, head=head, output=clean_output)
+    assert clean.returncode == 0, clean.stderr
+    clean_bytes = clean_output.read_bytes()
+    assert side_one.encode() in clean_bytes
+    assert side_two.encode() in clean_bytes
+
+    (repo / ".git" / "shallow").write_text(f"{side_two}\n", encoding="ascii")
+    shallow_output = repo / "shallow.review"
+    shallow = _run_builder(repo, base=base, head=head, output=shallow_output)
+
+    assert shallow.returncode == 0, shallow.stderr
+    assert shallow_output.read_bytes() == clean_bytes
+
+
+def test_transient_configuration_cannot_change_rendered_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch a byte-affecting setting installed only during Git rendering."""
+
+    repo, _ = _init_repo(tmp_path)
+    policy = repo / "policy.txt"
+    policy.write_text("old decision\n", encoding="utf-8")
+    base = _commit(repo, "policy base")
+    policy.write_text("new decision\n", encoding="utf-8")
+    head = _commit(repo, "policy head")
+    clean_output = repo / "clean.review"
+    clean_package = review_package.build_review_package(
+        base_revision=base,
+        head_revision=head,
+        output_path=clean_output,
+        invocation_cwd=repo,
+    )
+    render_package = review_package._render_package
+    injected = False
+
+    def _render_with_transient_configuration(*args: object, **kwargs: object) -> bytes:
+        nonlocal injected
+        injected = True
+        _git(repo, "config", "core.bigFileThreshold", "1")
+        try:
+            return render_package(*args, **kwargs)
+        finally:
+            _git(repo, "config", "--unset-all", "core.bigFileThreshold")
+
+    monkeypatch.setattr(review_package, "_render_package", _render_with_transient_configuration)
+    raced_output = repo / "raced.review"
+    raced_package = review_package.build_review_package(
+        base_revision=base,
+        head_revision=head,
+        output_path=raced_output,
+        invocation_cwd=repo,
+    )
+
+    assert injected is True
+    assert raced_package == clean_package
+    assert raced_output.read_bytes() == clean_output.read_bytes()
+
+
+def test_inherited_git_template_cannot_change_rendered_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch a caller template seeding byte-affecting bare-repository attributes."""
+
+    repo, _ = _init_repo(tmp_path)
+    policy = repo / "policy.txt"
+    policy.write_text("old decision\n", encoding="utf-8")
+    base = _commit(repo, "policy base")
+    policy.write_text("new decision\n", encoding="utf-8")
+    head = _commit(repo, "policy head")
+    clean_output = repo / "clean.review"
+    clean_package = review_package.build_review_package(
+        base_revision=base,
+        head_revision=head,
+        output_path=clean_output,
+        invocation_cwd=repo,
+    )
+
+    template = tmp_path / "git-template"
+    (template / "info").mkdir(parents=True)
+    (template / "info" / "attributes").write_text("*.txt -diff\n", encoding="utf-8")
+    monkeypatch.setenv("GIT_TEMPLATE_DIR", str(template))
+    templated_output = repo / "templated.review"
+    templated_package = review_package.build_review_package(
+        base_revision=base,
+        head_revision=head,
+        output_path=templated_output,
+        invocation_cwd=repo,
+    )
+
+    assert templated_package == clean_package
+    assert templated_output.read_bytes() == clean_output.read_bytes()
+
+
+def test_output_parent_swap_cannot_escape_the_worktree(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch an output parent replaced by a symlink after path validation."""
+
+    repo, base = _init_repo(tmp_path)
+    (repo / "fix.py").write_text("FIXED = True\n", encoding="utf-8")
+    head = _commit(repo, "fix")
+    output_parent = repo / "review"
+    output_parent.mkdir()
+    output = output_parent / "existing.review"
+    output.write_bytes(b"previous-valid-package\n")
+    displaced_parent = repo / "review-before-swap"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    render_package = review_package._render_package
+
+    def _render_then_swap_parent(*args: object, **kwargs: object) -> bytes:
+        package = render_package(*args, **kwargs)
+        output_parent.rename(displaced_parent)
+        output_parent.symlink_to(outside, target_is_directory=True)
+        return package
+
+    monkeypatch.setattr(review_package, "_render_package", _render_then_swap_parent)
+
+    with pytest.raises(review_package.ReviewPackageError):
+        review_package.build_review_package(
+            base_revision=base,
+            head_revision=head,
+            output_path=output,
+            invocation_cwd=repo,
+        )
+
+    assert not (outside / output.name).exists()
+    assert (displaced_parent / output.name).read_bytes() == b"previous-valid-package\n"
+
+
 def test_delta_rejects_invalid_checklists_and_worktree_path_escapes(tmp_path: Path) -> None:
     """Catch a missing checklist or escaped path being accepted as review evidence."""
 
@@ -647,10 +943,14 @@ def test_interrupted_atomic_swap_preserves_prior_valid_output(
     output.parent.mkdir()
     output.write_bytes(b"previous-valid-package\n")
 
-    def _interrupt_replace(_source: str | bytes, _destination: str | bytes) -> None:
+    def _interrupt_replace(
+        _source: str | bytes,
+        _destination: str | bytes,
+        **_kwargs: object,
+    ) -> None:
         raise OSError("simulated interruption before atomic replace")
 
-    monkeypatch.setattr("tools.lib.fs.os.replace", _interrupt_replace)
+    monkeypatch.setattr(review_package.os, "replace", _interrupt_replace)
 
     with pytest.raises(OSError, match="simulated interruption"):
         review_package.build_review_package(

@@ -749,32 +749,47 @@ legitimate only because it is content-identical to the cold rebuild, and the col
 runs. **E11–E14 are sequencing, scoping, and harness rules — they never reduce what is verified**,
 only when the verification is paid for, what legitimately triggers it, and how it is observed.
 
-**GY-INFRA-2 — persist the E1 owner cache across processes (NEW, Rev 20; measurement-gated).**
+**GY-INFRA-2 — three pure-economics improvements (NEW, Rev 20; C is measurement-gated).**
 Owner: **runtime/quality lane**. Sequence **after GY-N11 merges** — never under a running agent.
-**The measured defect:** E1's cache is `self._world_cache: dict[str, object]`
-(`src/polisyos/runtime/quality/generation_cycle.py:1579`) — an in-memory instance dict with no disk
-backing. Every closeout lane is a separate CLI process, so each re-pays the full cold owner build.
-**GY-N11 numbers for one closeout cycle:** writer-1 1,086 s + writer-2 951 s + `--check` 951 s +
-49-case corruption 937 s + warm closeout 975 s + cold closeout 952 s ≈ **1 h 52 m** — while the
-*in-process* second derivation costs **2.3–4.0 s**. That is a **~240×** hit/miss ratio paid six times
-per cycle, and N11 ran several cycles (initial, U3, post-review, final). With a cross-process cache
-the same protocol is one cold build + five hits ≈ **17 min**.
-**Gate 0 (mandatory, before any implementation): a measurement spike.** Profile which components
-actually dominate the cold build (CredalReference, the 792k-edge DuckDB FTS index, composed WMR) and
-which are serializable. The FTS index is certainly persistable; the rest must be **measured, not
-assumed**. If the spike shows the dominant cost is not persistable, GY-INFRA-2 closes as a recorded
-negative finding — that is a legitimate outcome, not a failure.
-**Why this does not weaken anything:** E1's contract is already "a cache hit is identical to a
-rebuild **by construction**", and GY-INFRA-1 closed with `cold ≡ warm` proven byte-identical. The
-independence of `--check` is about refusing to trust the **artifact's recorded values**; it still
-re-derives every projection from owner state, and the provenance of that state is irrelevant *iff*
-the key is sound. **Binding conditions:** key on the **authority import closure** (§3.5.7 E12, not a
-whole tree); **fail closed** on any key or content mismatch — a persisted cache is exactly the
-§3.5.6-gate-2 "trusted JSON" hole if it can be believed without recomputation; the **Lane-2 cold
-closeout still runs uncached, once** (E3). **Done when:** a cold build and a cross-process cache hit
-produce byte-identical artifacts; a mutated owner byte misses; a forged or truncated cache entry
-fails closed rather than serving; and the closeout cycle's measured wall time drops with **no change
-to any semantic denominator**.
+None of the three changes what any validator verifies. **Execute A → B → C:** A and B touch
+`tools/` only and trigger **no artifact replay**; C changes `src/polisyos/**`, so under E12 it moves
+the deployment identity and re-prices N9 → generation-cycle → N11 (≈1.5–2 h). C last means the
+replay is paid once (E11), and A/B survive a negative Gate 0.
+
+- **A — persist and publish validator timings.** The validators already measure themselves (E5; the
+  N11 checker alone carries ~40 duration records) but the numbers are printed and lost, so every
+  slice rediscovers them by hitting a default timeout → non-receipt → rerun. Reuse
+  `tools/lib/timing.py` (`ToolRunRecord`, JSONL + retention, percentiles, `DEFAULT_TIMING_BUDGETS_MS`).
+  **Caveat:** GY validators are standalone scripts, essentially unregistered in the CLI registry —
+  this is extend-existing, and whichever integration is chosen **must not change how plans and
+  prompts invoke them**. Publish measured p95 budgets for the expensive lanes. Closes E14(a).
+- **B — delta-review packager.** E14(b) is a rule with no tool; 182 KB / 220 KB packages exhausted
+  reviewer quota mid-review in both the DS4 and N11 lanes, and DS4's correct 28 KB delta was built by
+  hand with a session plugin that then vanished. Deliver a repo-owned tool producing a full package
+  for a range and a **delta** package carrying the prior findings as its checklist
+  (`tools/ops_runners/data/build_expert_review_bundle.py` is a pattern to read).
+- **C — persist the E1 owner cache across processes.** E1's cache is
+  `self._world_cache: dict[str, object]` (`.../quality/generation_cycle.py:1540`) — in-memory only,
+  so each separate closeout process re-pays the cold build. **N11, one cycle:** 1,086 + 951 + 951 +
+  937 + 975 + 952 s ≈ **1 h 52 m**, while the *in-process* second derivation costs **2.3–4.0 s** — a
+  **~240×** ratio paid six times per cycle, over several cycles; with a cross-process cache ≈ **17
+  min**. **Gate 0, mandatory before implementation:** profile which components dominate
+  (CredalReference / 792k-edge DuckDB FTS index / composed WMR) and which are serializable —
+  measured, not assumed. **A negative spike closes C honestly**; do not ship a partial cache that
+  persists the cheap parts and still pays for the expensive one. **Binding conditions:** key on the
+  **authority import closure** (E12, never a file tree); **fail closed** on any key/content
+  mismatch — a cache believed without recomputation is the §3.5.6-gate-2 "trusted JSON" hole;
+  atomic writes; the **Lane-2 cold closeout still runs uncached, once** (E3). Nothing is weakened:
+  E1 already contracts a hit as identical to a rebuild by construction, and `--check` independence
+  is about refusing the *artifact's recorded values*, not the provenance of owner state.
+  **Witnesses:** cross-process hit ≡ cold build byte-identically; a byte inside the closure misses;
+  a byte **outside** it hits (the negative control **GY-DI1** records as missing — closing it here
+  updates that row); forged/truncated/foreign-identity entries fail closed; racing writers leave no
+  torn entry.
+
+**Done when:** A and B committed green; C either committed with all witnesses green and `cold ≡ warm`
+proven, or closed with a written negative Gate-0 finding and its numbers; closeout wall time reported
+before and after; and **no semantic denominator anywhere changes**.
 
 ### 3.5.8 Domain/method-family genericity gates (the GY-N8 lesson — binding for every task downstream of the first vertical; NEW, Rev 15)
 

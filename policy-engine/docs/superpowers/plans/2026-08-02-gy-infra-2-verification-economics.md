@@ -221,27 +221,36 @@ Run focused tests, Ruff, `git diff --check`, and architecture guardrails. Check 
 - Consumes: the real cold owner derivation and existing `_resolve_authority_import_closure`.
 - Produces: component wall times for CredalReference, DuckDB FTS/index, composed WMR, and solver/remaining stages; peak/persisted sizes; serializer round-trip result; byte-identity verdict; dominant-share calculation; GO or NEGATIVE.
 
-- [ ] **Step 1: Freeze A/B and verify clean branch attachment**
+- [x] **Step 1: Freeze A/B and verify clean branch attachment**
 
 Run `git status -sb`, `git symbolic-ref -q HEAD`, and record the exact Gate-0 source commit.
 
-- [ ] **Step 2: Design non-semantic profiling probes**
+- [x] **Step 2: Design non-semantic profiling probes**
 
 Use `time.perf_counter()` around existing stage boundaries and write measurements only to the task journal or ignored harness scratch. Do not write timing into canonical artifacts or change a validator decision.
 
-- [ ] **Step 3: Run one cold profiled build**
+- [x] **Step 3: Run one cold profiled build**
 
 Serialize the `.tmp/gy-s-composed-wmr-world`/DuckDB/owner resource. Record stage seconds, total seconds, percentages, input hashes, process exit, and objective progress evidence.
 
-- [ ] **Step 4: Test serializability of every dominant component**
+- [x] **Step 4: Test serializability of every dominant component**
 
 For each component, record whether it has a stable content-addressed representation; write and restore it in ignored scratch; compare the downstream artifact bytes and relevant owner-state digest. “Pickle succeeded” alone is not byte-identity evidence.
 
-- [ ] **Step 5: Adjudicate Gate 0 and commit the clean boundary**
+- [x] **Step 5: Adjudicate Gate 0 and commit the clean boundary**
 
 If the dominant cost cannot be persisted and restored byte-identically, remove any temporary instrumentation, record `NEGATIVE` with numbers and why a cheap partial cache is rejected, commit the journal, and skip Task 6. If it can, append a concrete measured cache-format/key/integrity design amendment to this plan, self-review it, commit the Gate-0 journal/design boundary, and proceed.
 
+**Gate-0 resolution:** `NEGATIVE`. The sole cold attempt failed closed after `147.703s` of owner
+load in N10 provenance drift; provenance consumed `129.939s` (`88.0%`) and the only
+byte-identically restored component was the `9.309s` WMR. Independently, the mandated 120-module
+closure omits the dynamic producer path and the real owner-cache boundary is under `tools/**`,
+outside the Part C fence. No cache implementation or replay is authorized.
+
 ### Task 6: Part C Conditional Implementation — Cross-Process Owner Cache
+
+**Status:** skipped by the negative Gate-0 ruling. The unchecked steps below are intentionally not
+claimed; none of the six positive-implementation witnesses was run.
 
 **Files:**
 - Modify: `src/polisyos/runtime/quality/**` as named by the positive Gate-0 amendment

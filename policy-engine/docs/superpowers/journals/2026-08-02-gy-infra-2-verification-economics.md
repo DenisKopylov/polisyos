@@ -34,10 +34,11 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 
 - Task 1: complete (`f4fc44d73`).
 - Part A: complete and independently approved through `923f5ca33`.
-- Part B: round-2 diff-configuration fix complete; delta-only independent re-review pending.
-- Part C Gate 0: pending.
-- Part C implementation: not authorized before Gate 0.
-- Final replay: not priced before source freeze and reviews.
+- Part B: complete and independently approved through `1d24793a1`.
+- Part C Gate 0: **NEGATIVE** at the clean `1d24793a1` boundary; the one cold attempt
+  failed closed in N10 provenance validation and the structural cache preconditions are absent.
+- Part C implementation: not authorized; the conditional implementation task is skipped.
+- Final replay: not triggered because Part C changed no byte under `src/polisyos/**`.
 
 ## Part A — measured budget catalog and reporting surface
 
@@ -173,3 +174,133 @@ These are input samples, not yet the catalog. Exact source anchors will be store
   for every unsupported key, fixed-argv neutralization for the allowlisted keys, both pre-render
   and pre-replace checks, the two original hostile probes, and the separate worktree
   `xfuncname` variant. Part B is complete; no source or semantic denominator changed.
+
+## Part C Gate 0 — measured NEGATIVE
+
+### Measurement boundary and receipts
+
+- Part C began on attached branch `codex/gy-infra-2` at clean source commit
+  `1d24793a193121e1acf8abb794f25a93392c18dc`. The profiler was an ignored scratch harness;
+  tracked status was clean before and after the attempt. It did not edit runtime source, tests, or
+  governed artifacts.
+- `production_data` was exposed to the isolated worktree through a read-only ignored symlink to
+  the main checkout. The isolation-local `.venv` initially lacked OR-Tools. The command
+  `uv sync --offline --extra solvers` returned an honest non-receipt because the locked
+  `ortools==9.15.6755` arm64 wheel was absent from the local uv cache. Existing `ortools` and
+  `immutabledict` packages were then linked read-only from the main checkout's venv; the exact
+  link targets are captured in the raw receipt.
+- Exactly one fresh-process owner derivation was attempted. It exited `1` after
+  `160.194786417s`, with peak RSS `3,926,081,536` bytes. The authority path failed closed after
+  `147.702943792s` of owner load with `OwnerProjectionError`:
+
+  ```text
+  n10_capstone_provenance_unstable:
+    n8_owner_validation_failed: catalog_method_denominator_drift
+    n10a_owner_validation_failed: stage_gap_triage_drift
+      gap_id=n8_transport_tuple_hardcode
+  ```
+
+  This is a semantic non-receipt, not a timeout or profiler failure. No second cold attempt was
+  made, and the existing validation outcome was not weakened or bypassed.
+- Ignored raw receipt: `.superpowers/sdd/2026-08-02-gy-infra-2-verification-economics/gate0-raw.json`,
+  `52,494` bytes, SHA-256
+  `6042b800f2c001ab5fb3ada76c2c423b91178455581236c780901c1c558866b6`. Profiler source SHA-256:
+  `b21aa0560a6e9019a2aa19da367138dae25c600dd8d939bd4249de2ff409d48f`; stdout/stderr SHA-256:
+  `270c941ae1b99618a1494533259ca9b325b8d47d01b033dd45db9972ce787e06` /
+  `680c2a920e1884662f5eff6ecd298a160eb72153769cb248c426b50622119bbf`.
+
+### Question 1 — what dominates?
+
+The table reports the path actually reached. Nested stages are identified and are not added
+together.
+
+| Component | Calls | Measured wall time | Owner-load share | Result |
+| --- | ---: | ---: | ---: | --- |
+| Owner bundle load | 1 | `147.702943792s` | `100%` | refused |
+| N10 capstone envelope | 1 | `146.367557334s` | `99.096%` | refused |
+| N10 provenance stability, nested | 1 | `129.938766583s` | `87.973%` | returned `drifted` |
+| N10 pre-live validation remainder | 1 | `16.428594s` | `11.123%` | completed before refusal |
+| L4 data-state materialization, nested | 1 | `7.434296375s` | `5.033%` | complete |
+| Real L4 projection, nested | 1 | `7.189458375s` | `4.868%` | complete |
+| `WorldModelRecord` construction, nested | 1 | `1.559069583s` | `1.056%` | complete |
+| Production composed WMR | 1 cold + 2 hits | `9.309064459s` cold; `0.000005583s` / `0.000004083s` hits | `6.303%` cold | complete |
+| N13b recomputation | 0 | not reached | unavailable | unavailable |
+| CredalReference / edge construction | 0 | not reached | unavailable | unavailable |
+| Actual DuckDB FTS / CG0 atoms | 0 | not reached | unavailable | unavailable |
+| Solver stages | 0 | not reached | unavailable | unavailable |
+| Final N11 canonical bytes | 0 | not reached | unavailable | unavailable |
+
+For this real attempt, N10 provenance replay dominates: `129.939s`, or `88.0%` of owner time.
+The gate refused before the CredalReference, approximately 792k-edge FTS, CG0, solver, N13b, and
+final N11 observers were reached. Therefore this spike cannot honestly claim a new complete-cold
+breakdown or confirm the prior single-lane `~2,258s / ~2,265s` attribution; that historical number
+remains prior evidence only. The refusal itself is load-bearing: persisting a prior N10 result to
+skip it would conceal exactly the current catalog/triage drift that the recomputation detected.
+
+### Question 2 — what is serializable?
+
+| Component | Content-addressed / byte-identical restoration | Gate-0 ruling |
+| --- | --- | --- |
+| N10 provenance/capstone result | Frozen JSON exists, but accepting it cannot establish that the current owners pass without replaying the dominant check. This attempt proves why: live recomputation found drift. | **Not safely reusable authority.** A cached result would weaken the gate. |
+| `OwnerEvidenceBundle` | Its frozen dataclasses can be rendered as deterministic JSON, but `projection_sha256` proves only self-consistency. No loader independently proves the N10/N13b derivation or its real inputs. | `verification_missing`; its only high-value intake is also outside the Part C fence. |
+| Composed `WorldModelRecord` | Existing typed CAS support validates bytes and the semantic content hash. The spike wrote `13,218` canonical bytes, SHA-256 `951161fa2dbc47404f45865e378e5e546bc49167d01e843bdf3eac845696b14e`, content hash `sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf`, and restored byte-identically. | **Safely persistable**, but only `9.309s`; persisting it would leave the measured dominant validation untouched. |
+| `CredalReference` | The frozen edge map and per-edge/reference hashes make a canonical format possible. There is no persisted aggregate artifact, fail-closed loader, producer binding, or verifier cheaper than rebuilding all edges. | Persistable only after a new independently verified artifact contract; not reached in this attempt. |
+| DuckDB FTS | The runtime explicitly opens `duckdb.connect(":memory:")`; it is not currently a DuckDB file. A mechanism-only two-row probe copied an in-memory FTS schema to a `1,847,296`-byte file and restored its functions, but did not exercise the real corpus or bind it to a CredalReference. | Technically file-persistable after redesign, but `artifact_missing` and `verification_missing`; the probe is not authority evidence. |
+| CG0 atoms | Individual Pydantic objects can be canonicalized, but there is no complete-universe identity or loader proving every atom is bound to the current reference. | Persistable only with a new verifier; not reached. |
+| Solver results | Private in-memory results carry no persisted input identity or independently checkable proof, especially for UNSAT/UNKNOWN. | Not safely reusable without replay today; not reached. |
+
+Only the cheap WMR substage passed the byte-identity test. Persisting it would save at most about
+`9.309s` per cold process while retaining the measured `129.939s` validation and all unreached
+healthy-path work. That is the prohibited partial cache, so it is not built.
+
+### Structural preconditions that independently fail
+
+- The cache named in the task is not the cache responsible for N11's warm hit.
+  `FoundryValuePort._world_cache` in `generation_cycle.py` only validates and deduplicates an
+  already-supplied `WorldModelRecord` inside one value-port instance. The actual hit/miss boundary
+  is the process-local `@lru_cache(maxsize=4)` on `_load_owner_bundle_cached` in
+  `tools/quality/validation/layer3_gy_confidence_ledger_contract.py`; it wraps N10 plus N13b and is
+  outside Part C's writable source fence. State: `bridge_missing`.
+- `_resolve_authority_import_closure(repo_root,
+  "polisyos.runtime.quality.confidence_ledger")` resolved exactly `120` modules with closure hash
+  `sha256:9def58cbbeb8f55b06b1fc2a88dd016fa401f76ca4cf74affdf6e4da81b2e74a`.
+  It omitted every checked dynamic producer: `generation_cycle`, `credal_reference`,
+  `grounding_relation`, `intervention_substrate`, and `data_state_substrate`; it cannot represent
+  the `tools/**` owner adapter. A key using only that mandated closure could hit after the actual
+  producer semantics changed. State: `verification_missing` / P07.
+- Trying to resolve closures for the actual runtime producers also fails closed today: several
+  encounter the ambiguous `polisyos.foundry.methods.catalog.causal.causal_engine` module/package,
+  while `intervention_substrate` reaches the unresolved `polisyos.ir.artifacts.refs` import.
+- The existing deployment baseline separately hashes all `src/polisyos/**/*.py`. Consequently,
+  an outside-authority-closure mutation under `src/polisyos` changes deployment identity and must
+  be refused by witness 5; it cannot also be the hit required by witness 3. A future design must
+  define the negative control outside both identities or explicitly separate their semantics.
+- Existing CAS atomicity can protect bytes only when the expected artifact ID comes from an
+  independently trusted key-to-artifact binding. A self-hashed JSON manifest or DuckDB file can be
+  forged with internally consistent hashes and recreates the §3.5.6 trusted-JSON hole (P05/P32).
+
+### Gate-0 decision and economics
+
+Gate 0 is **NEGATIVE** on multiple conjunctive conditions:
+
+1. the observed dominant stage is a mandatory validation that currently detects real drift and
+   cannot be safely replaced by stored output;
+2. the only byte-identical persisted component measured is cheap and insufficient;
+3. the required 120-module key omits the actual producer and data path;
+4. the high-value owner-bundle cache boundary is outside the authorized Part C fence; and
+5. no valid owner bundle or final N11 bytes exist from this attempt against which a restored result
+   could be accepted.
+
+Capability labels are `verification_missing` for reusable dominant state and `bridge_missing` for
+the correct cross-process owner intake. The pattern pass closes this iteration against P05/P07
+(authority and replay), P29 (live property rather than markers), P31 (correct chokepoint rather
+than the cited cheap instance cache), P32 (no trusted self-hashed blob), and P33 (no implementation
+taught to the 240x witness). P34 requires retaining the pre-existing provenance failure as a
+non-receipt, not excluding or repairing it outside scope.
+
+Part C therefore changes no runtime source or test, does not close the GY-DI1 debt row, runs none
+of the six implementation witnesses, and triggers no deployment-identity replay. Before remains
+the user's measured closeout cycle of approximately `1h52m` (`6,720s`). After is unchanged at
+approximately `1h52m`: no safe cache was delivered. The one `160.195s` failed process is a Gate-0
+measurement receipt, not a comparable full closeout cycle. Corruption counts, flip counts,
+governance numbers, semantic denominators, gates, and artifact hashes are unchanged.

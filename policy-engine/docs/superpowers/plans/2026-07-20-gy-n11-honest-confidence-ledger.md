@@ -795,11 +795,14 @@ projection hash, conditionality clause, promotion projection hash, and future ep
   `sha256:84486eb5ef6f79b025338f79920e093afe2012fbb1b64a70018118a525ff1617`, so N13a was
   validate-only. N13b was likewise validate-only and recomputed GREEN at contract
   `sha256:9ff916db4c044c028bd58c815d3a0cb6e2a9c4486741b5cd4185f123ffaebb20`.
-- The real promotion projections contain four executed deterministic rows, total spend `0`, and
-  `within_budget=true` against `delta=1/100`. The frozen accounted run contains three N10 rows
-  (one identification refusal, two data acquisition routes), total spend `0/1`, and the measured
-  N13b denominator 5/2/0/0 (attempts/raw/admissions/passports). The conditionality clause remains
-  byte-present in the full receipt and both consumer projections.
+- The generation-cycle promotion projection contains four refused rows: every row has
+  `execution_status=refused`, `eligible_for_promotion=false`, `supports_obligation=false`, and zero
+  spend. Its total spend is `0` and `within_budget=true` against `delta=1/100`; the frozen N11
+  promotion projection itself has zero promotion rows. Separately, the frozen accounted run has
+  three executed deterministic, non-promotable N10 rows (one identification refusal and two data
+  acquisition routes), total spend `0/1`, and the measured N13b denominator 5/2/0/0
+  (attempts/raw/admissions/passports). The conditionality clause remains byte-present in the full
+  receipt and both consumer projections.
 - U3 remains the binary data-only proof: generic baseline `5a5d422a8`, novel-instrument commit
   `cb83a4c13`, and an empty `git diff 5a5d422a8..cb83a4c13 -- '*.py'`. U2 still returns typed
   `unknown_instrument` without bypassing accounting.
@@ -834,8 +837,10 @@ projection hash, conditionality clause, promotion projection hash, and future ep
   historical stage time stops closure for profiling unless the stage is demonstrably advancing.
 - [x] Reopen the failure/repair register and audit P01-P34 closure, especially P05, P07, P14, P15,
   P29, P31-P34.
-- [ ] Record frozen file/content/projection hashes, real spend rows, data-only commit and empty-Python
-  proof, merge-tree against current main, and clean worktree.
+- [x] Record frozen file/content/projection hashes, real spend rows, data-only commit, and
+  empty-Python proof.
+- [x] Prove the source-frozen dependency-order journal is committed at a clean boundary.
+- [ ] Run the merge-tree against current main from the final receipt commit and record its tree hash.
 - [ ] Request exact-head code review. Do not merge or push; preserve the branch for architect review.
 
 ## Verification command families

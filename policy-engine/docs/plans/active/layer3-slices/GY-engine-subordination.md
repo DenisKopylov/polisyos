@@ -981,9 +981,15 @@ caused by how the instruction was written. Five rules:
    `reset` onto an ancestor, `push --force`, `filter-branch`, `stash drop`/`clear`, and any
    `checkout` that moves HEAD off current work. **The single exception:** `git commit --amend` on
    the **immediately preceding commit**, authored in this session, not yet handed to a reviewer.
-   **Measured:** a `rebase` silently dropped two committed DS5 deliverables — the plan re-cut
-   (`2d6a532ed`) and a typed debt row with its checker and test (`24e66b44c`) — and the agent
-   continued working on the reduced base without noticing.
+   **Measured (corrected 2026-08-02 after reading the *branch* reflog):** a `rebase` left the DS5
+   **worktree in detached HEAD** at `b67084dd6` while its branch ref stood two commits ahead at
+   `24e66b44c`. The branch never lost anything — its reflog shows forward-only motion — but the
+   agent worked for a session against a stale HEAD, missing its own plan re-cut and a typed debt
+   row. **The sharp lesson is detectability:** a detached worktree is invisible in ordinary output —
+   `git log --oneline -1` and `git status --short` both look normal. Only `git status -sb` or
+   `git symbolic-ref -q HEAD` reveal it, and a commit made there is orphaned from the branch.
+   **Every task therefore verifies branch attachment, not just cleanliness, at session start and
+   before every commit.**
 3. **W3 A validator demanding a clean tree is satisfied by committing, never by stashing.** Several
    canonical writers (capstone, depth-N) refuse a dirty tree. That is a legitimate fence and the
    correct response is a commit at the clean boundary. Stashing to satisfy it is how reviewed work

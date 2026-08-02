@@ -317,9 +317,13 @@ A deliverable that traces to none of the three generators is out of scope
   - **Branch history is append-only.** No `rebase`, `reset --hard`, `reset` onto an
     ancestor, `push --force`, `stash drop`/`clear`, or any `checkout` that moves HEAD off
     current work. **One exception:** `--amend` on the immediately preceding commit you
-    authored this session and have not handed to review. A `rebase` silently dropped two
-    committed DS5 deliverables — the plan re-cut and a typed debt row with its checker and
-    test — and work continued on the reduced base unnoticed.
+    authored this session and have not handed to review. A `rebase` left the DS5 **worktree
+    in detached HEAD** two commits behind its own branch; the branch ref never lost anything
+    (its reflog is forward-only), but a full session ran against the stale HEAD. **A detached
+    worktree is invisible in ordinary output** — `git log -1` and `git status --short` look
+    normal; only `git status -sb` or `git symbolic-ref -q HEAD` show it, and a commit made
+    there is orphaned. Verify branch attachment, not just cleanliness, at session start and
+    before every commit.
   - **A validator demanding a clean tree is satisfied by committing, not stashing.** That
     fence is legitimate; stashing to clear it is how reviewed work ends up unprotected.
   - **Unexpected history is an architect stop, not a self-repair.** The reflog makes these

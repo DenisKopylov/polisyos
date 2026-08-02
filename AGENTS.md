@@ -95,6 +95,9 @@ Full statements: GY plan §3.5.7 (E11–E14) and §3.5.13; Atlas plan Execution 
   `filter-branch`, `stash drop`/`clear`, or `checkout` that moves HEAD off current work. **One
   exception:** `--amend` on the immediately preceding commit you authored this session and have not
   handed to review. **Unexpected HEAD/branch/tree state → stop and report, never self-repair.**
+- **Verify branch attachment, not just cleanliness** — at session start and before every commit:
+  `git status -sb` (or `git symbolic-ref -q HEAD`). A detached worktree looks completely normal to
+  `git log -1` and `git status --short`, and a commit made there is orphaned from the branch.
 - **Freeze source → all reviews → run the expensive wave once.** A review landing after the wave
   re-prices it. Post-freeze: cosmetic finding → recorded debt; blocking finding → batched.
 - **Serialize only the contended resource** (shared owner scratch/DuckDB, Playwright/Storybook,

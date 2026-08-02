@@ -4,7 +4,7 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-08-02 (Rev 21 — four live repository defects registered OUTSIDE the main sequence as GY-DEF1/2/3, surfaced by the Stage-0 research cross-audit [research branches on origin, unmerged] and each independently re-verified on current main before recording: GY-DEF1 unknown/absent jurisdiction silently resolves to UkrainianJurisdiction via three fallbacks, in the L3 legal-corpus production lane, latent until a config omits or mistypes the code; GY-DEF2 a tenant-private CAS ref in the caller payload reaches the public export bundle - the only one crossing the public boundary and NOT latent, its test fails on main today, and that test is neither skipped nor recorded in any baseline manifest, so the full-suite lane is not being triaged; GY-DEF3 CheckpointMetadata carries no tenant/cell binding, latent enabler blocking the S0-K06/K11 closure H2 needs; GY-DEF4 a temporal HTTP diagnostic mints the literal "admitted" that runtime/quality/authority.py gates on as the implicit pass - direction is safe by default since unknown values fall into the obligation branch, but the collector accepts that key from any nested Mapping and the two modules are coupled only by a duplicated string literal. The block records and schedules nothing; fixing is a separate decision. | Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
+revised: 2026-08-02 (Rev 22 — the Stage-0 custody kernel S0-K01–S0-K16 is RATIFIED [docs/system-design-decisions/stage0-custody-kernel-ratification.md] and OPS-R4 is adopted as the Custody Time Model [docs/system-design-decisions/policy-design-custody-time-model.md], the fourth layer of the causal OS beside data/GY-S, grounding/CGF and search/RACE-HOG-PODS. Thirteen statements ratified as written; three amended: K01 takes S0-GAP-01's "PolicyOS custody subject" naming, K14's oracle-independence is scoped to VERIFICATION claims [a same-code rebuild stays legal and proves consistency], and K06 gains the band split — fail-closed binds protected actions/published claims/custody facts while the candidate band may work under a DECLARED unknown, so silent substitution is the violation and a declared assumption is not. Consequences INSIDE this plan, no task scope change: the registered defects are re-typed from "found" to violations of a ratified rule — GY-DEF1 violates K06 [with the silent-vs-declared distinction now sharpening its closure signal], GY-DEF3 violates K06/K11, GY-DEF4 violates K05/K07 and its fix is now fully specified by CTM §7 [remove the literal "admitted" from mismatch_disposition; use consistent/inconsistent/insufficient_evidence/blocked_for_owner_review], so closure needs no design. Also accepted: OPS-R15 SCORING is blocked until S0-GAP-02 delivers an independent oracle [designing it under K13/K15 is not blocked], and content-hash-keyed caches survive K12 because E1 reproduces COMPUTATION, not ADMISSIBILITY. The constitution is not amended — nothing in the kernel conflicts with the twelve Organizing Rules. | Rev 21 — four live repository defects registered OUTSIDE the main sequence as GY-DEF1/2/3, surfaced by the Stage-0 research cross-audit [research branches on origin, unmerged] and each independently re-verified on current main before recording: GY-DEF1 unknown/absent jurisdiction silently resolves to UkrainianJurisdiction via three fallbacks, in the L3 legal-corpus production lane, latent until a config omits or mistypes the code; GY-DEF2 a tenant-private CAS ref in the caller payload reaches the public export bundle - the only one crossing the public boundary and NOT latent, its test fails on main today, and that test is neither skipped nor recorded in any baseline manifest, so the full-suite lane is not being triaged; GY-DEF3 CheckpointMetadata carries no tenant/cell binding, latent enabler blocking the S0-K06/K11 closure H2 needs; GY-DEF4 a temporal HTTP diagnostic mints the literal "admitted" that runtime/quality/authority.py gates on as the implicit pass - direction is safe by default since unknown values fall into the obligation branch, but the collector accepts that key from any nested Mapping and the two modules are coupled only by a duplicated string literal. The block records and schedules nothing; fixing is a separate decision. | Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
 revision: 15
 slice: GY
 scope: cross-slice
@@ -14,6 +14,8 @@ depends_on:
   - docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
   - docs/system-design-decisions/policy-design-best-in-class-operating-model.md
   - docs/system-design-decisions/policy-design-search-target-spec.md
+  - docs/system-design-decisions/stage0-custody-kernel-ratification.md
+  - docs/system-design-decisions/policy-design-custody-time-model.md
   - docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md
   - docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md
   - docs/reference/policy-design-case-failure-patterns.md
@@ -2344,8 +2346,11 @@ being written here. Fixing them is a separate decision.
   the L3 corpus production lane. A request for German law is served by the Ukrainian plugin.
   **Direction:** wrong-law application, i.e. output labelled for a jurisdiction it was not
   computed under. **Currently latent** — it fires only when a config omits or mistypes the code;
-  scoping that is part of the fix. Contradicts S0-K06 (unknown jurisdiction fails closed).
-  **Closure signal:** an unregistered/absent code raises rather than resolving, and a red-first
+  scoping that is part of the fix. **Violates ratified S0-K06** (`stage0-custody-kernel-ratification.md`
+  §4.3): the violation is the *silent substitution* of a concrete jurisdiction for an unknown
+  one — a **declared** assumption (`assumed: UA, declared default`) carried forward as a typed
+  limitation would not be. **Closure signal:** an unregistered/absent code raises or resolves to
+  a declared-unknown carrier rather than silently to `UkrainianJurisdiction`, and a red-first
   test proves it for `None`, `""`, and an unknown code.
 - **GY-DEF2 — a tenant-private CAS reference reaches the public export bundle.** Owner:
   **publication / runtime-quality**. `runtime/quality/public_export.py`
@@ -2366,8 +2371,10 @@ being written here. Fixing them is a separate decision.
   carries `run_id`, `workflow_id`, `workflow_fingerprint`, `fsm_phase`, `cache_entry_refs`,
   `changed_paths` — and **no tenant or cell**. **Latent and conditional:** it is an enabler, not
   a live leak — it means a future resume path cannot verify tenant scope from the checkpoint
-  itself. Blocks the S0-K06/S0-K11 closure that H2 will need. **Closure signal:** a checkpoint
-  restored under a mismatched tenant fails closed before any protected action.
+  itself. **Violates ratified S0-K06 and S0-K11** — scope closure before authority use, and
+  action-specific reproof before a protected action; it blocks the closure H2 will need.
+  **Closure signal:** a checkpoint restored under a mismatched tenant fails closed before any
+  protected action.
 
 - **GY-DEF4 — a temporal diagnostic mints the authority pass token (found by OPS-R4, verified
   2026-08-02).** Owner: **runtime/quality + runtime/http** (consumer and producer).
@@ -2382,9 +2389,13 @@ being written here. Fixing them is a separate decision.
   `_collect_time_source_dispositions` recursively walks **any** `Mapping` for the key
   `mismatch_disposition`, so any nested payload carrying that key with value `"admitted"`
   contributes a pass token, and producer and consumer are coupled only by a duplicated string
-  literal across a module boundary. Violates S0-K05/S0-K07 (no authority by projection).
-  OPS-R4 additionally recommends narrowing and renaming `TimeSourceEnvelopeAudit`, treating it
-  as projection-only and removing admission semantics from its authority surface.
+  literal across a module boundary. **Violates ratified S0-K05/S0-K07** (no authority by
+  observation, transport, or projection). **The fix is already specified** — the adopted Custody
+  Time Model (`docs/system-design-decisions/policy-design-custody-time-model.md` §7) prescribes
+  treating `TimeSourceEnvelopeAudit` as projection-only, narrowing and renaming it
+  (`TimeSourceConsistencyAuditProjection`), and **removing `admitted` from
+  `mismatch_disposition`** in favour of `consistent` / `inconsistent` / `insufficient_evidence` /
+  `blocked_for_owner_review`. Closure needs no design work, only the edit and its negatives.
   **Closure signal:** the pass token is one shared typed constant rather than a literal repeated
   in two modules; the collector accepts a disposition only from a declared producer and scope
   rather than any nested key match; and a foreign payload carrying

@@ -806,6 +806,43 @@ Loosening the ratified posture is out of scope for every slice.
   contract, in the same commits as their HTTP models and generated output. Any
   sixth backend test path is a STOP. Verified disjoint from the concurrent GY
   `runtime/quality` lane.
+- **Enforcement-mechanism ruling (architect, 2026-08-02 — binding on every DS5
+  lint).** DS5-C01 was stopped after three independent NO-GO reviews, each
+  finding a *new* bypass class in a whole-program TypeScript dataflow analyzer
+  (points-to, heap identity, CFG, abrupt completion, closures, HOFs — 1,609
+  scanner lines). Three reviews finding three new classes is not an
+  implementation-quality signal; it is proof the **mechanism** is wrong. Deciding
+  "no unauthorized value reaches this sink by any path" is undecidable over real
+  TypeScript, so a scanner that claims that invariant is P31/P33 — an optimistic
+  completeness envelope that licenses false confidence.
+  **The sound mechanism already exists and DS4 built it.**
+  `packages/atlas-ui/src/primitives/AuthorityBadge.tsx` defines
+  `AuthorityPresentation` as a branded type keyed by a **module-private, never
+  exported** `unique symbol`; `createPresentation` is module-private; only three
+  exported factories issue it, each deriving clothing from a *generated owner DTO
+  field* rather than a caller-selected tone; runtime guards reject
+  `fixture_only`, reject labels absent from the owner list, `Object.freeze` the
+  result, and record issuance in a `WeakSet`; exhaustiveness is already compiled
+  in via `satisfies Record<OperatorProjectionLabel["state"], BadgeTone>`. A raw
+  unauthorized string therefore **cannot** be assigned to
+  `AuthorityBadge.presentation` — TypeScript's assignability check, which *is*
+  sound, rejects it regardless of how the value flowed. The decisive evidence is
+  the third reviewer's own refutation witness: all six carriers (dynamic-key
+  spread, computed key, assignment destructuring, component alias, `Array.map`,
+  module-level JSX) require an explicit `cast(...)` assertion to reach the sink.
+  That is the brand working, defeated only by an enumerable escape hatch.
+  **Therefore every DS5 lint is re-cut onto this shape:** put the obligation in
+  the **type system** (branded authority values, module-private issuers,
+  compile-time exhaustiveness against generated unions) and let `tsc` be the
+  enforcement engine; reduce the bespoke checker to **decidable, local, syntactic
+  invariants** — the brand is constructed only inside authorized modules; no
+  `as` / `as unknown as` / `any` / `@ts-ignore` / `@ts-expect-error` / unsafe
+  `satisfies` on authority paths except through *typed, enumerated* exemptions;
+  adapters bind exhaustively and return explicit `unrecognized` for runtime-novel
+  values. **State the residual honestly:** the brand is compile-time, the
+  escape-hatch lint is syntactic, runtime novelty is the adapters' job — DS5
+  claims those three, and does not claim a complete flow invariant. No DS5 lint
+  may reassert one.
 - **Producer & bridge work (in-slice):** the **audience↔permission mapping**
   over DS20's server-projected vocabulary; the three waist unions above;
   weakest-boundary/status composition exposed in the schema where not yet

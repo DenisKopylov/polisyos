@@ -4,7 +4,7 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-07-20 (Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
+revised: 2026-08-02 (Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
 revision: 15
 slice: GY
 scope: cross-slice
@@ -226,7 +226,7 @@ N2/N4/N6/N7/N8/N9/N11/N12. Decision doc:
 `docs/reference/`. **Status: the entire CG block executed and closed honest (2026-07-03).**
 
 **Revision 14 (2026-07-04; restored 2026-07-08 — same loss).** Codified the **compute-economics
-gates** (new §3.5.7, E1–E10) distilled from the GY-N4 saga (a correct closure cost ~4h because the
+gates** (new §3.5.7, E1–E12 — E11/E12 added Rev 20 from GY-N11) distilled from the GY-N4 saga (a correct closure cost ~4h because the
 full world was rebuilt in every validator/probe/unit run), plus the **GY-INFRA-1** build task
 (content-hash world cache proven byte-identical cold≡warm + one-process sweep-runner + heartbeats)
 and compute-economics riders on N5–N10. **Status: GY-INFRA-1 executed and closed (warm closeout
@@ -664,7 +664,7 @@ four — so the implementer builds to them on the first pass instead of rediscov
 rounds. Verification stays **targeted** (§Commands; blast-radius + recomputing validators + ruff +
 guardrails), never full pytest.
 
-### 3.5.7 Compute-economics gates (the GY-N4 lesson — binding for every task with expensive shared state or a live provider; restored Rev 15)
+### 3.5.7 Compute-economics gates (the GY-N4 lesson, extended by GY-N11 — binding for every task with expensive shared state or a live provider; restored Rev 15, E11–E12 added Rev 20)
 
 Distilled from the GY-N4 saga: a **correct** closure cost ~4 hours because the full world
 (CredalReference + 792k-edge FTS index + composed WMR) was rebuilt in every validator/probe/unit
@@ -691,10 +691,38 @@ O0–O3, and every closeout sweep:
    recorded historical → stop + profile. Never kill a progressing cold build.
 10. **E10 Diagnose from already-paid evidence first** — build the failure table from data on disk
     before any fresh run.
+11. **E11 Freeze the source, then review, then replay — once (the GY-N11 lesson; NEW, Rev 20).**
+    Where artifacts are content-bound to source, the replay is the expensive act and **every source
+    edit re-prices it**. Order is therefore binding: complete implementation → run **all**
+    independent reviews against the **exact source** → apply every accepted repair → *then* replay
+    the receipt chain a single time. Never freeze artifacts before the reviews that could invalidate
+    them. **Measured cost of getting this backwards in GY-N11:** reviews ran after
+    `450bc31f3` "finalize deployment-bound receipts", returned three NO-GO findings, forced one
+    source repair (`86a79fe96`), and that repair alone produced **seven** consecutive full-chain
+    reissue commits. Across the slice, **17 of 36 commits (47%) were pure receipt churn**, and the
+    frozen-artifact diff (16,002 insertions / 12,685 deletions across 23 JSONs) rivalled the source
+    diff. The reviews were right and worth running — they were run at the wrong point. Corollary:
+    once source is frozen, a *cosmetic* finding (import ordering, docstring, naming) is **recorded
+    as debt, never fixed**; a blocking finding is **batched** with any others so the replay is paid
+    once.
+12. **E12 Bind artifact identity to the authority closure, not the source tree (NEW, Rev 20).**
+    A deployment/source identity that hashes a whole tree makes every unrelated edit invalidate
+    every bound receipt. Bind to the **transitive static import closure of the authority entry
+    module** — the set that can actually change the computation — and prove the closure is derived,
+    not enumerated. **Measured in GY-N11:** `_deployment_relative_paths` binds **2,553** files
+    (`src/polisyos/**/*.py`), while `_resolve_authority_import_closure`, *in the same module*,
+    already computes the real **120**-module closure — a **21×** over-binding. Only three artifacts
+    are deployment-bound (N9, generation-cycle, N11), but each costs ≈1.5–2 h of cold recomputation,
+    so any source byte anywhere in the tree bought that bill. Fairness note for future reviewers:
+    over-binding is not the same as a wrong replay — GY-N11's `polisyos/fabric/__init__.py` edit
+    *was* inside the 120-module closure and its replay was legitimate. Narrowing the identity
+    changes authority semantics, so it is a **planned slice with review + one replay**, never an
+    in-flight optimization.
 
 **Never loosen a §3.5.6 correctness gate to satisfy an economics one** — a warm/cached run is
 legitimate only because it is content-identical to the cold rebuild, and the cold closeout still
-runs.
+runs. **E11/E12 are sequencing and scoping rules — they never reduce what is verified**, only when
+the verification is paid for and what legitimately triggers it.
 
 ### 3.5.8 Domain/method-family genericity gates (the GY-N8 lesson — binding for every task downstream of the first vertical; NEW, Rev 15)
 
@@ -2156,6 +2184,27 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   goes red; a low-`k_eff` selected set presented as broad consensus goes red; a framing-narrowing
   that changes governance burden without a recorded delta goes red. Feeds Atlas DS14 + INT-R8.
   `P05`/`P10`/`P14`.
+
+#### Registered debt — artifact identity over-binding (NEW, Rev 20; measured during GY-N11)
+
+- **GY-DI1 — narrow deployment identity to the authority import closure.** Owner: **runtime/quality
+  lane**. States: `producer_present`, `scope_too_broad`, `semantic_test_missing`.
+  **Measured:** `_deployment_relative_paths` (`src/polisyos/runtime/quality/confidence_ledger.py`)
+  binds **2,553** files — every `.py` under `src/polisyos` plus `pyproject.toml`/`uv.lock` — while
+  `_resolve_authority_import_closure`, **in the same module**, already derives the true **120**-module
+  static import closure of the ledger entry point. That is a **21×** over-binding. Three artifacts
+  are deployment-bound (N9, generation-cycle, N11) at ≈1.5–2 h of cold recomputation each, so an
+  edit to any of the other ~2,400 files re-prices the full replay for no semantic reason.
+  **Why it is debt and not an in-flight fix:** narrowing the identity *changes what the authority
+  binding means*, so it needs its own red-first slice, independent review, and exactly one replay —
+  doing it opportunistically inside another task would be the very P32 shortcut the ledger exists to
+  prevent. **Done when:** deployment identity is the derived transitive closure (never an enumerated
+  file list); a file inside the closure changing turns the receipt red; a file outside it changing
+  does **not**; a forged/rehashed closure manifest fails closed; and the closure is proven to include
+  every module the authority path actually imports (the GY-N11 review found an earlier three-file
+  hand-picked identity that missed the CAS/atomic modules — the fix is derivation, not a longer list).
+  **Do not read this row as "GY-N11 replayed unnecessarily":** its `polisyos/fabric/__init__.py` edit
+  *was* inside the 120-module closure, and that replay was legitimate. `P29`/`P32`; §3.5.7 E12.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

@@ -56,6 +56,21 @@ _PATCH_DIFF_ARGUMENTS: Final = (
     "--src-prefix=a/",
     "--dst-prefix=b/",
 )
+_NEUTRALIZED_REPOSITORY_DIFF_KEYS: Final = frozenset(
+    {
+        "diff.algorithm",
+        "diff.context",
+        "diff.external",
+        "diff.ignoresubmodules",
+        "diff.indentheuristic",
+        "diff.interhunkcontext",
+        "diff.mnemonicprefix",
+        "diff.noprefix",
+        "diff.orderfile",
+        "diff.renamelimit",
+        "diff.submodule",
+    }
+)
 
 
 class ReviewPackageError(RuntimeError):
@@ -246,6 +261,62 @@ def _require_neutral_info_attributes(worktree: Path) -> None:
         raise ReviewPackageError("unversioned info/attributes could not be verified") from exc
     if payload:
         raise ReviewPackageError("unversioned info/attributes must be absent or empty")
+
+
+def _configured_diff_keys(worktree: Path, *, scope: str) -> tuple[str, ...]:
+    """Return effective ``diff.*`` keys from one repository-owned config scope."""
+
+    raw_config = _run_git(
+        worktree,
+        "config",
+        f"--{scope}",
+        "--includes",
+        "--null",
+        "--get-regexp",
+        r"^diff\.",
+        accepted_codes=(0, 1),
+    )
+    if not raw_config:
+        return ()
+    if not raw_config.endswith(b"\x00"):
+        raise ReviewPackageError(f"{scope} Git config returned an unterminated record")
+    keys: set[str] = set()
+    for record in raw_config.removesuffix(b"\x00").split(b"\x00"):
+        raw_key, separator, _value = record.partition(b"\n")
+        if not separator or not raw_key:
+            raise ReviewPackageError(f"{scope} Git config returned a malformed diff record")
+        try:
+            key = raw_key.decode("ascii").casefold()
+        except UnicodeDecodeError as exc:
+            raise ReviewPackageError(f"{scope} Git config returned a non-ASCII diff key") from exc
+        if not key.startswith("diff."):
+            raise ReviewPackageError(f"{scope} Git config returned an unexpected key")
+        keys.add(key)
+    return tuple(sorted(keys))
+
+
+def _diff_key_is_neutralized(key: str) -> bool:
+    """Return whether the fixed diff argv provably disables or overrides ``key``."""
+
+    if key in _NEUTRALIZED_REPOSITORY_DIFF_KEYS:
+        return True
+    return key.startswith("diff.") and key.endswith(".textconv")
+
+
+def _require_neutral_diff_configuration(worktree: Path) -> None:
+    """Fail closed on repository-owned diff settings not bound by the fixed argv."""
+
+    unsupported = [
+        f"{scope}:{key}"
+        for scope in ("local", "worktree")
+        for key in _configured_diff_keys(worktree, scope=scope)
+        if not _diff_key_is_neutralized(key)
+    ]
+    if unsupported:
+        rendered = ", ".join(unsupported)
+        raise ReviewPackageError(
+            "repository-owned diff configuration is not neutralized: " + rendered
+        )
 
 
 def _is_at_or_below(path: Path, root: Path) -> bool:
@@ -496,6 +567,7 @@ def build_review_package(
     head_commit = _resolve_commit(worktree, head_revision, label="head")
     _require_ancestor(worktree, base_commit, head_commit)
     _require_neutral_info_attributes(worktree)
+    _require_neutral_diff_configuration(worktree)
     package = _render_package(
         worktree,
         base_commit=base_commit,
@@ -503,6 +575,7 @@ def build_review_package(
         prior_findings=prior_findings,
     )
     _require_neutral_info_attributes(worktree)
+    _require_neutral_diff_configuration(worktree)
     atomic_write_bytes(destination, package)
     return package
 

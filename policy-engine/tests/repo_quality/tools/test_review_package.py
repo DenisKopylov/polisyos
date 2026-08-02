@@ -365,6 +365,88 @@ def test_same_range_ignores_worktree_attributes_and_refuses_info_attributes(
     assert existing_output.read_bytes() == b"previous-valid-package\n"
 
 
+def test_unbound_local_diff_setting_fails_closed_without_replacing_output(
+    tmp_path: Path,
+) -> None:
+    """Catch an arbitrary repository-local diff setting changing reviewed bytes."""
+
+    repo, _ = _init_repo(tmp_path)
+    policy = repo / "policy.py"
+    policy.write_text("first = 1\n\nlast = 3\n", encoding="utf-8")
+    base = _commit(repo, "add policy")
+    policy.write_text("first = 2\n\nlast = 3\n", encoding="utf-8")
+    head = _commit(repo, "change policy")
+    output = repo / "review" / "existing.review"
+    output.parent.mkdir()
+    clean = _run_builder(repo, base=base, head=head, output=output)
+    assert clean.returncode == 0, clean.stderr
+    clean_bytes = output.read_bytes()
+
+    _git(repo, "config", "diff.suppressBlankEmpty", "true")
+    configured = _run_builder(repo, base=base, head=head, output=output)
+
+    assert configured.returncode != 0
+    assert "local:diff.suppressblankempty" in configured.stderr.lower()
+    assert output.read_bytes() == clean_bytes
+
+
+def test_unbound_local_diff_driver_setting_fails_closed_for_committed_attributes(
+    tmp_path: Path,
+) -> None:
+    """Catch a local driver setting changing a diff selected by committed attributes."""
+
+    repo, _ = _init_repo(tmp_path)
+    (repo / ".gitattributes").write_text("*.py diff=hostile\n", encoding="utf-8")
+    policy = repo / "policy.py"
+    policy.write_text("DECISION = 'limited'\n", encoding="utf-8")
+    base = _commit(repo, "add attributed policy")
+    policy.write_text("DECISION = 'admissible'\n", encoding="utf-8")
+    head = _commit(repo, "change attributed policy")
+    output = repo / "existing.review"
+    clean = _run_builder(repo, base=base, head=head, output=output)
+    assert clean.returncode == 0, clean.stderr
+    clean_bytes = output.read_bytes()
+
+    _git(repo, "config", "diff.hostile.binary", "true")
+    configured = _run_builder(repo, base=base, head=head, output=output)
+
+    assert configured.returncode != 0
+    assert "local:diff.hostile.binary" in configured.stderr.lower()
+    assert output.read_bytes() == clean_bytes
+
+
+def test_unbound_worktree_diff_driver_variant_fails_closed(
+    tmp_path: Path,
+) -> None:
+    """Catch an arbitrary output-affecting driver key in worktree config scope."""
+
+    repo, _ = _init_repo(tmp_path)
+    (repo / ".gitattributes").write_text("*.py diff=hostile\n", encoding="utf-8")
+    policy = repo / "policy.py"
+    policy.write_text(
+        "def decide() -> str:\n    return 'limited'\n",
+        encoding="utf-8",
+    )
+    base = _commit(repo, "add attributed policy")
+    policy.write_text(
+        "def decide() -> str:\n    return 'admissible'\n",
+        encoding="utf-8",
+    )
+    head = _commit(repo, "change attributed policy")
+    output = repo / "existing.review"
+    clean = _run_builder(repo, base=base, head=head, output=output)
+    assert clean.returncode == 0, clean.stderr
+    clean_bytes = output.read_bytes()
+
+    _git(repo, "config", "extensions.worktreeConfig", "true")
+    _git(repo, "config", "--worktree", "diff.hostile.xfuncname", "^def ")
+    configured = _run_builder(repo, base=base, head=head, output=output)
+
+    assert configured.returncode != 0
+    assert "worktree:diff.hostile.xfuncname" in configured.stderr.lower()
+    assert output.read_bytes() == clean_bytes
+
+
 def test_delta_rejects_invalid_checklists_and_worktree_path_escapes(tmp_path: Path) -> None:
     """Catch a missing checklist or escaped path being accepted as review evidence."""
 

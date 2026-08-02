@@ -4,7 +4,7 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-08-02 (Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
+revised: 2026-08-02 (Rev 21 — three live repository defects registered OUTSIDE the main sequence as GY-DEF1/2/3, surfaced by the Stage-0 research cross-audit [research branches on origin, unmerged] and each independently re-verified on current main before recording: GY-DEF1 unknown/absent jurisdiction silently resolves to UkrainianJurisdiction via three fallbacks, in the L3 legal-corpus production lane, latent until a config omits or mistypes the code; GY-DEF2 a tenant-private CAS ref in the caller payload reaches the public export bundle - the only one crossing the public boundary and NOT latent, its test fails on main today, and that test is neither skipped nor recorded in any baseline manifest, so the full-suite lane is not being triaged; GY-DEF3 CheckpointMetadata carries no tenant/cell binding, latent enabler blocking the S0-K06/K11 closure H2 needs. The block records and schedules nothing; fixing is a separate decision. | Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
 revision: 15
 slice: GY
 scope: cross-slice
@@ -2328,6 +2328,49 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   hand-picked identity that missed the CAS/atomic modules — the fix is derivation, not a longer list).
   **Do not read this row as "GY-N11 replayed unnecessarily":** its `polisyos/fabric/__init__.py` edit
   *was* inside the 120-module closure, and that replay was legitimate. `P29`/`P32`; §3.5.7 E12.
+
+#### Registered defects — surfaced by the Stage-0 research audits (NEW, Rev 21; verified 2026-08-02)
+
+**Outside the main sequence. This block records; it schedules nothing.** These are live
+repository defects, not research conclusions — the Stage-0 cross-audit matrix classified them
+`repository_fix_separate`, and each was **independently re-verified on current `main`** before
+being written here. Fixing them is a separate decision.
+
+- **GY-DEF1 — unknown jurisdiction silently becomes Ukrainian.** Owner: **Data Forge legal /
+  security**. `data_forge/domains/legal/batch/jurisdictions/__init__.py:15-17` has **three**
+  fallbacks in five lines: `code=None → "UA"`, empty/whitespace `→ "UA"`, and
+  `_REGISTRY.get(normalized, UkrainianJurisdiction)` for any unregistered code. There is no
+  fail-closed path. Callers: `legal/batch/pipeline.py:119`, `legal/batch/structurer.py:1342` —
+  the L3 corpus production lane. A request for German law is served by the Ukrainian plugin.
+  **Direction:** wrong-law application, i.e. output labelled for a jurisdiction it was not
+  computed under. **Currently latent** — it fires only when a config omits or mistypes the code;
+  scoping that is part of the fix. Contradicts S0-K06 (unknown jurisdiction fails closed).
+  **Closure signal:** an unregistered/absent code raises rather than resolving, and a red-first
+  test proves it for `None`, `""`, and an unknown code.
+- **GY-DEF2 — a tenant-private CAS reference reaches the public export bundle.** Owner:
+  **publication / runtime-quality**. `runtime/quality/public_export.py`
+  sanitises what it *builds* (authority envelopes via `_fingerprint()`, `tenant_redacted: True`,
+  welfare scalars) but passes the caller's payload through verbatim: a private ref placed in
+  `runtime_quality_refs.policy_grounding_matrix_ref` lands in the bundle. **This is the only one
+  of the three that crosses the public boundary, and it is not latent** —
+  `tests/unit/runtime/quality/test_multi_tenant_shared_cas.py::test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_projection`
+  **fails on current main**. Failure class: optimistic envelope completeness — the redactor
+  assumes it knows every ref-bearing field. **Closure signal:** the payload is scanned for
+  private-ref shapes rather than allow-listed, that test passes, and a new nested ref location
+  added to the fixture still fails closed.
+  **Governance finding carried with it:** that test is **not** skipped, xfailed, or recorded in
+  any baseline debt manifest or `ci_tiers` — it is silently red, which means the full-suite lane
+  is not being triaged. That gap is worth its own look independent of the defect.
+- **GY-DEF3 — checkpoints carry no tenant/cell binding.** Owner: **control plane / security**,
+  informs OPS-R1/OPS-R3. `scientist/orchestration/engine/checkpoint.py` `CheckpointMetadata`
+  carries `run_id`, `workflow_id`, `workflow_fingerprint`, `fsm_phase`, `cache_entry_refs`,
+  `changed_paths` — and **no tenant or cell**. **Latent and conditional:** it is an enabler, not
+  a live leak — it means a future resume path cannot verify tenant scope from the checkpoint
+  itself. Blocks the S0-K06/S0-K11 closure that H2 will need. **Closure signal:** a checkpoint
+  restored under a mismatched tenant fails closed before any protected action.
+
+A fourth matrix row (Atlas readiness panels minting `approvalReady` locally) is **already
+tracked** as the DS16 producer-binding debt after DS4-C23 contained it; it is not repeated here.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

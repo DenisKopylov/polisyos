@@ -1431,6 +1431,65 @@ BASE_EXPECTED_FINDING_IDS = {
 }
 
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
+    "authority-issuer-generated-semantic-id-coverage": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/atlas_surfaces/status_retirement_scan.mjs",
+            "architecture/atlas_surfaces/check_atlas_enforcement.py",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2",
+            "packages/runtime-api-client/types.ts",
+        ],
+        "rationale": (
+            "C01c review proved the scanner protects projection-state IDs but "
+            "does not yet derive runtime-authority and fixture IDs from every "
+            "closed generated union consumed by the issuer family."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_authority_issuer_exported_vocabulary_covers_all_consumed_owner_unions "
+            "exits 0 after runtime_authority and fixture_only export corruptions "
+            "fail while the unrelated-constant witness remains green"
+        ),
+        "decision_date": "2026-08-02",
+    },
+    "authority-issuer-parity-operand-binding": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+            "architecture/atlas_surfaces/status_retirement_scan.mjs",
+            "architecture/atlas_surfaces/check_atlas_enforcement.py",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2",
+        ],
+        "rationale": (
+            "C01c review proved the equality predicate and never branches are "
+            "bound, but a generated Operator/Run operand can still be replaced "
+            "by a self-comparison without invalidating the fact packet."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_authority_issuer_parity_operands_are_exact_generated_pairs "
+            "exits 0 after state and authority self-comparison corruptions fail"
+        ),
+        "decision_date": "2026-08-02",
+    },
     "producer-binding-readiness-scientific-depth": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
@@ -1835,7 +1894,7 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "branded:authority_presentation",
         "component": "AuthorityBadge",
         "component_declaration_path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-        "component_declaration_line": 214,
+        "component_declaration_line": 215,
         "prop": "presentation",
         "prop_declaration_line": 64,
         "uses": [
@@ -2132,7 +2191,7 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
 }
 
 BRANDED_BADGE_LOCATIONS = {
-    ("packages/atlas-ui/src/primitives/AuthorityBadge.tsx", 222): (
+    ("packages/atlas-ui/src/primitives/AuthorityBadge.tsx", 223): (
         "branded:authority_presentation"
     ),
     ("packages/atlas-ui/src/primitives/EnvelopeChip.tsx", 23): (
@@ -2389,10 +2448,10 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:28e6c934ceb073b29a122f891424f75ae3f320353fc0ad65f59a046dffca79a2"
+    "sha256:51c286af92a82979391f4d79dd9e922a8d2219340b37f5f944d25b39c5925fed"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:0b012a06e76027af5dd0d592c195d2ab7d55e1704da75a346bbfb69f82123410"
+    "sha256:4688e64f684deec21b55bad09484ab4a3218e5309740cdb6db9dfea861bfc86a"
 )
 
 
@@ -2894,7 +2953,7 @@ GOVERNED_DEBT_DESCRIPTORS = {
     finding_id: {
         "finding_id": finding_id,
         **copy.deepcopy(descriptor),
-        "decision_date": DECISION_DATE,
+        "decision_date": descriptor.get("decision_date", DECISION_DATE),
     }
     for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
 }
@@ -4805,7 +4864,7 @@ def _validate_producer_binding_debt_findings(
         expected = {
             "finding_id": finding_id,
             **descriptor,
-            "decision_date": DECISION_DATE,
+            "decision_date": descriptor.get("decision_date", DECISION_DATE),
         }
         for field, expected_value in expected.items():
             if row.get(field) != expected_value:

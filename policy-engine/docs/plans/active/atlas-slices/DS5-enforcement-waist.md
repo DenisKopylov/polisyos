@@ -846,13 +846,21 @@ The lint reports only this bounded syntactic guarantee.
 
 ### DS5-C01c — issuer exhaustiveness and runtime novelty
 
-**Measured set:** exactly 13 paths; cap 13: `AuthorityBadge.tsx`,
-`evidenceTypes.ts`, `AuthorityBadge.test.tsx`, `oneOwner.test.ts`, the
-scanner/DS5 checker/test,
-disposition register/schema/checker/test plus its generated reference report,
-and journal. Entry has 2 issuer
-modules, 3 private brands, 5 exported owner-specific factories, and private
-WeakSet/WeakMap issuance identity.
+**Entry re-derivation:** this is a construction-site/type property plus existing
+runtime behavior, not value-flow analysis. The scanner derives issuer facts from
+private unique-symbol declarations, branded factory return types and generated
+parameter declaration locations; `tsc` remains the exhaustiveness engine and
+the existing Vitest negatives execute the real issuers.
+
+**Measured set:** exactly 12 paths; cap 13: `AuthorityBadge.tsx`,
+`evidenceTypes.ts`, `AuthorityBadge.test.tsx`, scanner/DS5 checker/test,
+disposition checker/test/register/reference, status inventory, this section, and journal. Entry has 2 issuer modules, 3 private brands, 5 exported branded
+factories, 3 issuance stores, 4 freezes and 10 throw sites. Exact generated
+bindings are 2 projection parity parameters, a 12-state exhaustive tone map, a
+2-value owner-authority union, one fixture literal, one available-packet
+literal, and open owner-list membership. The 39 C01a debt rows do not transition;
+editing the disposition register would create no truthful state change and
+would force an unrelated DS19 receipt refresh.
 
 **Red first:** `test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty`.
 Corrupt a generated union literal or exhaustive map; export a brand/constructor;
@@ -860,14 +868,16 @@ clone a branded object; pass `fixture_only`, a label absent from its owner list,
 or a runtime-novel generated value. A genuinely open owner extension remains
 visible and neutral.
 
-**Acceptance:** every closed-input issuer uses compile-time exhaustiveness
-against the exact generated declaration; brands and constructors remain module
-private; issued values are frozen and identity-checked; fixture/unlisted values
-throw; runtime novelty returns explicit `unrecognized`; no issuer exports a
-value-level vocabulary constant. DS5 claims compile-time nominal protection,
-bounded escape syntax and runtime issuer behavior—nothing broader.
+**Acceptance:** the construction-site fact packet requires every closed-input
+issuer to use compile-time exhaustiveness against the exact generated
+declaration; brands and constructors remain module private; issued values are
+frozen and identity-checked; fixture/unlisted values throw; runtime novelty
+returns explicit `unrecognized`; no issuer exports a value-level vocabulary
+constant. DS5 claims compile-time nominal protection, bounded escape syntax and
+runtime issuer behavior—nothing broader.
 
-**Expected commit:** `DS5-C01c bind authority issuers to owner unions`.
+**Frozen outcome:** round-2 NO-GO is recorded by the two
+`authority-issuer-*` producer-binding debt rows; C01c does not claim closure.
 
 ### DS5-C02 — architecture recurrence in both engines
 

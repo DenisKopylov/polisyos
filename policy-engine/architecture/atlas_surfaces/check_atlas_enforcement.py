@@ -99,18 +99,18 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "issuer-authority-badge-owner-label-array",
         "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-        136,
-        23,
+        137,
+        7,
         "as_assertion",
-        "| readonly unknown[]\n    | undefined",
-        "sha256:387dff7b2a5c7f06bd1586ef65cb7cd975118d8a021a48273b0677e322c69068",
+        "readonly unknown[] | undefined",
+        "sha256:8cb81971c08e14f4faa1bf68d31d3353f7892f41d5f8a1611c0fee5de0a5cd71",
         "DS5",
         _ISSUER_ERASURE_REASON,
     ),
     _escape(
         "issuer-authority-badge-runtime-label",
         "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-        144,
+        145,
         23,
         "as_assertion",
         "{\n    authority?: unknown;\n    label?: unknown;\n    state?: unknown;\n  }",
@@ -121,7 +121,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "issuer-authority-badge-exhaustive-index",
         "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-        174,
+        175,
         26,
         "as_assertion",
         "keyof typeof projectionStateTones",
@@ -133,7 +133,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "issuer-governed-purpose-payload-shape",
         "packages/atlas-ui/src/primitives/evidenceTypes.ts",
-        69,
+        90,
         10,
         "as_assertion",
         "{ fixture_authority?: unknown }",
@@ -144,7 +144,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "issuer-governed-purpose-fixture-payload",
         "packages/atlas-ui/src/primitives/evidenceTypes.ts",
-        83,
+        104,
         35,
         "as_assertion",
         "LegacyProvingGroundPayload",
@@ -156,7 +156,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-forged-presentation",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        77,
+        78,
         21,
         "as_assertion",
         "const",
@@ -165,9 +165,33 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
         _RUNTIME_NEGATIVE_REASON,
     ),
     _escape(
+        "evidence-link-owned-data-attributes",
+        "packages/atlas-ui/src/primitives/EvidenceLink.tsx",
+        51,
+        18,
+        "as_assertion",
+        "const",
+        "sha256:911d06047264c166eb73a1ae6080b97cd94221abfa62517b76df4b68b775fb7b",
+        "team-design",
+        "Literal preservation is confined to owned DOM data attributes; it neither "
+        "targets an authority brand nor issues authority presentation.",
+    ),
+    _escape(
+        "test-evidence-link-owned-anchor-props",
+        "packages/atlas-ui/tests/EvidenceLink.test.tsx",
+        61,
+        11,
+        "ts_expect_error",
+        "@ts-expect-error",
+        "sha256:571f28ec0ed9f481943dc9e7ac0fbb2a8106e73c7eafc84ae8048e994b42829a",
+        "team-design",
+        "Compile-only negative proves the evidence primitive rejects an unowned DOM "
+        "escape hatch; the directive does not forge a branded authority value.",
+    ),
+    _escape(
         "test-authority-badge-forged-tone",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        78,
+        79,
         13,
         "as_assertion",
         "const",
@@ -178,7 +202,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-malformed-label-outer",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        80,
+        81,
         23,
         "as_assertion",
         "RunOperatorProjectionStateLabel",
@@ -189,7 +213,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-malformed-label-inner",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        80,
+        81,
         23,
         "as_assertion",
         "unknown",
@@ -200,7 +224,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-malformed-owner",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        85,
+        86,
         28,
         "as_assertion",
         "RunOperatorDiagnostic",
@@ -211,7 +235,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-novel-label-outer",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        107,
+        108,
         23,
         "as_assertion",
         "RunOperatorProjectionStateLabel",
@@ -222,7 +246,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-novel-label-inner",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        107,
+        108,
         23,
         "as_assertion",
         "unknown",
@@ -233,7 +257,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     _escape(
         "test-authority-badge-novel-owner",
         "packages/atlas-ui/tests/AuthorityBadge.test.tsx",
-        112,
+        113,
         19,
         "as_assertion",
         "RunOperatorDiagnostic",
@@ -386,11 +410,455 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
         "resolves to no private brand; framework types expose intentional unknown slots.",
     ),
 )
-AUTHORITY_PATH_EXPECTED_COUNT = 15
+AUTHORITY_PATH_EXPECTED_COUNT = 17
 AUTHORITY_GOVERNANCE_OBJECTS = (
     "EVIDENCE_FAMILIES",
     "EXPECTED_RUNTIME_EXPORTS",
 )
+AUTHORITY_ISSUER_MODULES = {
+    "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+    "packages/atlas-ui/src/primitives/evidenceTypes.ts",
+}
+AUTHORITY_ISSUER_BRANDS = {
+    "authorityPresentationBrand": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+    "fixtureProvenanceBrand": "packages/atlas-ui/src/primitives/evidenceTypes.ts",
+    "governedAuthorityPurposeBrand": "packages/atlas-ui/src/primitives/evidenceTypes.ts",
+}
+AUTHORITY_GENERATED_TYPES_PATH = "packages/runtime-api-client/types.ts"
+AUTHORITY_ISSUER_FACTORIES: dict[str, dict[str, Any]] = {
+    "createOpaqueAuthorityPresentation": {
+        "path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "brand": "authorityPresentationBrand",
+        "parameters": [
+            {
+                "name": "authority",
+                "type": "string",
+                "generated": False,
+                "generatedPaths": [],
+                "broadString": True,
+                "optional": False,
+                "rest": False,
+            }
+        ],
+        "returns": [
+            {
+                "presentation": "unrecognized",
+                "source": "opaque_extension",
+                "tone": "neutral",
+            }
+        ],
+        "placements": ["top_level"],
+    },
+    "createOperatorBlockingCausePresentation": {
+        "path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "brand": "authorityPresentationBrand",
+        "parameters": [
+            {
+                "name": "diagnostic",
+                "type": "OperatorDiagnosticOwner",
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": False,
+                "optional": False,
+                "rest": False,
+            }
+        ],
+        "returns": [
+            {
+                "presentation": "recognized",
+                "source": "operator_blocking_cause",
+                "tone": "fail",
+            }
+        ],
+        "placements": ["top_level"],
+    },
+    "createOperatorProjectionPresentation": {
+        "path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "brand": "authorityPresentationBrand",
+        "parameters": [
+            {
+                "name": "diagnostic",
+                "type": "OperatorDiagnosticOwner",
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": False,
+                "optional": False,
+                "rest": False,
+            },
+            {
+                "name": "item",
+                "type": "OperatorProjectionLabel",
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": False,
+                "optional": False,
+                "rest": False,
+            },
+        ],
+        "returns": [
+            {
+                "presentation": "unrecognized",
+                "source": "operator_projection_label",
+                "tone": "neutral",
+            },
+            {
+                "presentation": "recognized",
+                "source": "operator_projection_label",
+                "tone": None,
+            },
+        ],
+        "placements": ["top_level_if", "top_level"],
+    },
+    "createFixtureProvenance": {
+        "path": "packages/atlas-ui/src/primitives/evidenceTypes.ts",
+        "brand": "fixtureProvenanceBrand",
+        "parameters": [
+            {
+                "name": "payload",
+                "type": "LegacyProvingGroundPayload",
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": False,
+                "optional": False,
+                "rest": False,
+            }
+        ],
+        "returns": [{"presentation": None, "source": None, "tone": None}],
+        "placements": ["top_level"],
+    },
+    "createGovernedAuthorityPurpose": {
+        "path": "packages/atlas-ui/src/primitives/evidenceTypes.ts",
+        "brand": "governedAuthorityPurposeBrand",
+        "parameters": [
+            {
+                "name": "packet",
+                "type": "AvailableGovernedProjectionPacket",
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": False,
+                "optional": False,
+                "rest": False,
+            },
+            {
+                "name": "authorityPurpose",
+                "type": 'AvailableGovernedProjectionPacket["authoritative_for"][number]',
+                "generated": True,
+                "generatedPaths": [AUTHORITY_GENERATED_TYPES_PATH],
+                "broadString": True,
+                "optional": False,
+                "rest": False,
+            },
+        ],
+        "returns": [{"presentation": None, "source": None, "tone": None}],
+        "placements": ["top_level"],
+    },
+}
+AUTHORITY_PRIVATE_CONSTRUCTORS = {
+    "createPresentation": {
+        "brand": "authorityPresentationBrand",
+        "freeze_calls": 1,
+        "write": {"store": "authorityPresentationIssuances", "method": "add"},
+    },
+    "issueFixtureProvenance": {
+        "brand": "fixtureProvenanceBrand",
+        "freeze_calls": 1,
+        "write": {"store": "fixtureProvenanceIssuances", "method": "add"},
+    },
+    "issueGovernedAuthorityPurpose": {
+        "brand": "governedAuthorityPurposeBrand",
+        "freeze_calls": 2,
+        "write": {
+            "store": "governedAuthorityPurposeIssuances",
+            "method": "set",
+        },
+    },
+}
+AUTHORITY_ISSUANCE_STORES = {
+    "authorityPresentationIssuances": {
+        "kind": "WeakSet",
+        "write": {"function": "createPresentation", "method": "add"},
+        "read": {
+            "function": "assertAuthorityPresentation",
+            "method": "has",
+            "argumentParameter": "presentation",
+        },
+    },
+    "fixtureProvenanceIssuances": {
+        "kind": "WeakSet",
+        "write": {"function": "issueFixtureProvenance", "method": "add"},
+        "read": {
+            "function": "fixtureAuthorityValue",
+            "method": "has",
+            "argumentParameter": "provenance",
+        },
+    },
+    "governedAuthorityPurposeIssuances": {
+        "kind": "WeakMap",
+        "write": {
+            "function": "issueGovernedAuthorityPurpose",
+            "method": "set",
+        },
+        "read": {
+            "function": "governedAuthorityPurposePresentation",
+            "method": "get",
+            "argumentParameter": "purpose",
+        },
+    },
+}
+AUTHORITY_OWNER_MEMBERSHIPS = {
+    (
+        "createGovernedAuthorityPurpose",
+        "packet",
+        "authoritative_for",
+        "authorityPurpose",
+        True,
+        True,
+    ),
+    (
+        "createOperatorProjectionPresentation",
+        "diagnostic",
+        "projection_labels",
+        "item",
+        True,
+        True,
+    ),
+}
+
+
+def _issuer_rows(
+    facts: Mapping[str, Any],
+    key: str,
+    identity: str,
+    errors: list[str],
+) -> dict[str, Mapping[str, Any]]:
+    value = facts.get(key)
+    if not isinstance(value, list):
+        errors.append(f"authority_issuer_fact_invalid:{key}")
+        return {}
+    rows: dict[str, Mapping[str, Any]] = {}
+    for row in value:
+        if not isinstance(row, Mapping) or not isinstance(row.get(identity), str):
+            errors.append(f"authority_issuer_fact_invalid:{key}:row")
+            continue
+        row_id = str(row[identity])
+        if row_id in rows:
+            errors.append(f"authority_issuer_fact_duplicate:{key}:{row_id}")
+        rows[row_id] = row
+    return rows
+
+
+def _issuer_set_drift(
+    label: str,
+    actual: set[str],
+    expected: set[str],
+    errors: list[str],
+) -> None:
+    if actual != expected:
+        errors.append(
+            f"authority_issuer_{label}_drift:"
+            f"expected={','.join(sorted(expected))}:actual={','.join(sorted(actual))}"
+        )
+
+
+def _valid_sha256(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"sha256:[a-f0-9]{64}", value) is not None
+
+
+def _authority_issuer_errors(scan: Mapping[str, Any]) -> list[str]:
+    """Validate branded issuer construction sites without modeling value flow."""
+    errors: list[str] = []
+    facts = scan.get("authorityIssuerFacts")
+    if not isinstance(facts, Mapping):
+        return ["authority_issuer_facts_missing"]
+
+    modules = _issuer_rows(facts, "modules", "path", errors)
+    _issuer_set_drift("modules", set(modules), AUTHORITY_ISSUER_MODULES, errors)
+    for path, row in modules.items():
+        if not _valid_sha256(row.get("sourceSha256")):
+            errors.append(f"authority_issuer_module_receipt_invalid:{path}")
+
+    brands = _issuer_rows(facts, "brands", "name", errors)
+    _issuer_set_drift("brands", set(brands), set(AUTHORITY_ISSUER_BRANDS), errors)
+    for name, expected_path in AUTHORITY_ISSUER_BRANDS.items():
+        row = brands.get(name)
+        if row is None:
+            continue
+        if row.get("path") != expected_path:
+            errors.append(f"authority_issuer_brand_path_drift:{name}")
+        if row.get("exported") is not False:
+            errors.append(f"authority_issuer_brand_exported:{name}")
+        if not _valid_sha256(row.get("declarationSha256")):
+            errors.append(f"authority_issuer_brand_receipt_invalid:{name}")
+
+    factories = _issuer_rows(facts, "factories", "name", errors)
+    _issuer_set_drift("factories", set(factories), set(AUTHORITY_ISSUER_FACTORIES), errors)
+    receipt = scan.get("generatedOwnerReceipt", {})
+    governed_paths = {
+        str(receipt[key])
+        for key in ("canonical_path", "types_path")
+        if isinstance(receipt, Mapping) and isinstance(receipt.get(key), str)
+    }
+    for name, expected in AUTHORITY_ISSUER_FACTORIES.items():
+        row = factories.get(name)
+        if row is None:
+            continue
+        if row.get("path") != expected["path"]:
+            errors.append(f"authority_issuer_factory_path_drift:{name}")
+        if row.get("returnBrands") != [expected["brand"]]:
+            errors.append(f"authority_issuer_factory_brand_drift:{name}")
+        if row.get("overloadCount") != 1:
+            errors.append(f"authority_issuer_factory_overload_drift:{name}")
+        if not _valid_sha256(row.get("declarationSha256")):
+            errors.append(f"authority_issuer_factory_receipt_invalid:{name}")
+        parameters = row.get("parameters")
+        if not isinstance(parameters, list) or any(
+            not isinstance(parameter, Mapping) for parameter in parameters
+        ):
+            errors.append(f"authority_issuer_factory_parameters_invalid:{name}")
+            continue
+        if parameters != expected["parameters"]:
+            errors.append(f"authority_issuer_factory_parameters_drift:{name}")
+        generated = [parameter for parameter in parameters if parameter.get("generated") is True]
+        for parameter in generated:
+            paths = parameter.get("generatedPaths")
+            if (
+                not isinstance(paths, list)
+                or not paths
+                or not governed_paths
+                or any(path not in governed_paths for path in paths)
+            ):
+                errors.append(
+                    f"authority_issuer_factory_generated_path_invalid:"
+                    f"{name}:{parameter.get('name')}"
+                )
+        if row.get("issuedReturns") != expected["returns"]:
+            errors.append(f"authority_issuer_factory_return_drift:{name}")
+        expected_calls = [
+            {
+                **return_fact,
+                "directReturn": True,
+                "placement": placement,
+            }
+            for return_fact, placement in zip(
+                expected["returns"], expected["placements"], strict=True
+            )
+        ]
+        if row.get("issuanceCalls") != expected_calls or row.get("returnStatements") != len(
+            expected_calls
+        ):
+            errors.append(f"authority_issuer_factory_call_shape_drift:{name}")
+
+    constructors = _issuer_rows(facts, "privateConstructors", "name", errors)
+    _issuer_set_drift(
+        "constructors", set(constructors), set(AUTHORITY_PRIVATE_CONSTRUCTORS), errors
+    )
+    for name, expected in AUTHORITY_PRIVATE_CONSTRUCTORS.items():
+        row = constructors.get(name)
+        if row is None:
+            continue
+        brand = str(expected["brand"])
+        if row.get("path") != AUTHORITY_ISSUER_BRANDS[brand]:
+            errors.append(f"authority_issuer_constructor_path_drift:{name}")
+        if row.get("returnBrands") != [brand]:
+            errors.append(f"authority_issuer_constructor_brand_drift:{name}")
+        if row.get("freezeCalls") != expected["freeze_calls"]:
+            errors.append(f"authority_issuer_constructor_freeze_drift:{name}")
+        if row.get("returnedValueFrozen") is not True:
+            errors.append(f"authority_issuer_constructor_return_not_frozen:{name}")
+        if row.get("brandInitializedOnReturnedValue") is not True:
+            errors.append(f"authority_issuer_constructor_brand_binding_drift:{name}")
+        writes = row.get("issuanceWrites")
+        expected_write = expected["write"]
+        if not isinstance(writes, list) or writes != [{**expected_write, "issuedValue": True}]:
+            errors.append(f"authority_issuer_constructor_issuance_drift:{name}")
+
+    stores = _issuer_rows(facts, "stores", "name", errors)
+    _issuer_set_drift("stores", set(stores), set(AUTHORITY_ISSUANCE_STORES), errors)
+    for name, expected in AUTHORITY_ISSUANCE_STORES.items():
+        row = stores.get(name)
+        if row is None:
+            continue
+        if row.get("kind") != expected["kind"] or row.get("exported") is not False:
+            errors.append(f"authority_issuer_store_declaration_drift:{name}")
+        for operation_key in ("read", "write"):
+            actual = row.get(operation_key + "s")
+            if not isinstance(actual, list) or actual != [expected[operation_key]]:
+                errors.append(f"authority_issuer_store_{operation_key}_drift:{name}")
+
+    tone_maps = facts.get("exhaustiveToneMaps")
+    expected_tone_map = {
+        "path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "target": 'Record<OperatorProjectionLabel["state"], BadgeTone>',
+        "consumers": ["createOperatorProjectionPresentation"],
+    }
+    if (
+        not isinstance(tone_maps, list)
+        or len(tone_maps) != 1
+        or not isinstance(tone_maps[0], Mapping)
+        or any(tone_maps[0].get(key) != value for key, value in expected_tone_map.items())
+    ):
+        errors.append("authority_issuer_exhaustive_tone_map_drift")
+
+    scalars = _issuer_rows(facts, "exactGeneratedScalars", "name", errors)
+    if set(scalars) != {"exactFixtureAuthority"}:
+        errors.append("authority_issuer_exact_generated_scalar_drift")
+    else:
+        scalar = scalars["exactFixtureAuthority"]
+        if (
+            scalar.get("input") != "FixtureAuthority"
+            or scalar.get("output") != '"fixture_only"'
+            or scalar.get("callers") != ["createFixtureProvenance"]
+        ):
+            errors.append("authority_issuer_exact_generated_scalar_drift")
+
+    parity = _issuer_rows(facts, "parityBindings", "name", errors)
+    parity_row = parity.get("assertProjectionVocabularyParity", {})
+    predicate = parity_row.get("predicate")
+    if (
+        set(parity) != {"assertProjectionVocabularyParity"}
+        or parity_row.get("parameters") != 2
+        or parity_row.get("totalInvocations") != 1
+        or parity_row.get("literalTrueInvocations") != 1
+        or parity_row.get("neverFailureParameters") != 2
+        or not isinstance(predicate, Mapping)
+        or predicate.get("name") != "IsExact"
+        or predicate.get("path") != "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
+        or predicate.get("exactTwoWay") is not True
+    ):
+        errors.append("authority_issuer_projection_parity_drift")
+
+    unrecognized = facts.get("unrecognizedNeutralFactories")
+    expected_unrecognized = {
+        "createOpaqueAuthorityPresentation",
+        "createOperatorProjectionPresentation",
+    }
+    if (
+        not isinstance(unrecognized, list)
+        or any(not isinstance(value, str) for value in unrecognized)
+        or set(unrecognized) != expected_unrecognized
+    ):
+        errors.append("authority_issuer_runtime_novelty_drift")
+
+    membership = facts.get("ownerMembershipFactories")
+    actual_membership = {
+        (
+            row.get("factory"),
+            row.get("receiverParameter"),
+            row.get("receiverProperty"),
+            row.get("argumentParameter"),
+            row.get("negatedThrow"),
+            row.get("precedesIssuance"),
+        )
+        for row in membership or []
+        if isinstance(row, Mapping)
+    }
+    if not isinstance(membership, list) or actual_membership != AUTHORITY_OWNER_MEMBERSHIPS:
+        errors.append("authority_issuer_owner_membership_drift")
+
+    exported_constants = facts.get("exportedValueConstants")
+    if not isinstance(exported_constants, list) or exported_constants:
+        errors.append("authority_issuer_exported_vocabulary")
+    return sorted(set(errors))
 
 
 def _override_diagnostic_errors(scan: Mapping[str, Any]) -> list[str]:
@@ -465,6 +933,8 @@ def _enforcement_scan(
     for key in ("authorityPathFiles", "authorityEscapeSites"):
         if not isinstance(scan.get(key), list):
             raise RuntimeError(f"status TypeScript scan returned invalid {key}")
+    if not isinstance(scan.get("authorityIssuerFacts"), Mapping):
+        raise RuntimeError("status TypeScript scan returned invalid authorityIssuerFacts")
     return scan
 
 
@@ -597,6 +1067,7 @@ def validate_enforcement(
             )
         )
     if source_overrides is None:
+        errors.extend(_authority_issuer_errors(scan))
         errors.extend(status_checker.validate_inventory(inventory, debt, live_probes=True))
         disposition = disposition_checker._load_json(disposition_checker.REGISTER_PATH)
         errors.extend(
@@ -889,6 +1360,30 @@ def _corruption_probes() -> list[str]:
         for error in moved_errors
     ):
         escaped.append("authority-escape-exemption-binding")
+
+    issuer_path = "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
+    issuer_source = (status_checker.REPO_ROOT / issuer_path).read_text(encoding="utf-8")
+    corrupted_issuer = issuer_source.replace(
+        'satisfies Record<OperatorProjectionLabel["state"], BadgeTone>;',
+        'satisfies Partial<Record<OperatorProjectionLabel["state"], BadgeTone>>;',
+        1,
+    ).replace("return Object.freeze(issued);", "return issued;", 1)
+    issuer_override_errors, issuer_scan = validate_enforcement(
+        source_overrides={
+            package_path: (status_checker.REPO_ROOT / package_path).read_text(encoding="utf-8"),
+            issuer_path: corrupted_issuer,
+        },
+        enforce_authority_escapes=False,
+    )
+    issuer_fact_errors = set(_authority_issuer_errors(issuer_scan))
+    if issuer_override_errors:
+        escaped.append("authority-issuer-witness-diagnostics")
+    if (
+        "authority_issuer_exhaustive_tone_map_drift" not in issuer_fact_errors
+        or "authority_issuer_constructor_return_not_frozen:createPresentation"
+        not in issuer_fact_errors
+    ):
+        escaped.append("authority-issuer-construction-sites")
     return escaped
 
 
@@ -897,6 +1392,7 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
     debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
     status_summary = status_checker._summary(inventory, debt)
     denominators = scan.get("sourceDenominators", {})
+    issuer_facts = scan.get("authorityIssuerFacts", {})
     return {
         "atlas_ui_production_sources": denominators.get("atlasUiProduction"),
         "authority_sink_declarations": len(scan.get("authoritySinkDeclarations", [])),
@@ -904,6 +1400,10 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
         "authority_prop_groups": len(scan.get("authorityPropCensus", [])),
         "authority_path_files": len(scan.get("authorityPathFiles", [])),
         "authority_escape_sites": len(scan.get("authorityEscapeSites", [])),
+        "authority_issuer_brands": len(issuer_facts.get("brands", [])),
+        "authority_issuer_factories": len(issuer_facts.get("factories", [])),
+        "authority_issuer_modules": len(issuer_facts.get("modules", [])),
+        "authority_issuer_stores": len(issuer_facts.get("stores", [])),
         "current_authored_statuses": status_summary["current_authored"],
         "ds1_status_rows": status_summary["ds1_rows"],
         "semantic_retirement_debt": status_summary["semantic_retirement_debt"],

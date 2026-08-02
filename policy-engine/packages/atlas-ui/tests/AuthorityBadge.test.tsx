@@ -8,6 +8,7 @@ import type {
 import {
   AuthorityBadge,
   createOpaqueAuthorityPresentation,
+  createOperatorBlockingCausePresentation,
   createOperatorProjectionPresentation,
 } from "../src/index";
 
@@ -125,5 +126,24 @@ describe("AuthorityBadge", () => {
     expect(badge).toHaveAttribute("data-presentation-tone", "neutral");
     expect(badge).toHaveAttribute("data-owner-authority", "owner_extension");
     expect(badge).toHaveAttribute("data-authority-state", "novel_state");
+  });
+
+  it("freezes every issued presentation and derives blocker clothing", () => {
+    const opaque = createOpaqueAuthorityPresentation("owner_extension");
+    const blocker = createOperatorBlockingCausePresentation(DIAGNOSTIC);
+    const projection = createOperatorProjectionPresentation(
+      DIAGNOSTIC,
+      REJECTED_LABEL,
+    );
+
+    expect(Object.isFrozen(opaque)).toBe(true);
+    expect(Object.isFrozen(blocker)).toBe(true);
+    expect(Object.isFrozen(projection)).toBe(true);
+
+    render(<AuthorityBadge presentation={blocker} />);
+    expect(screen.getByText("grounding_missing")).toHaveAttribute(
+      "data-presentation-tone",
+      "fail",
+    );
   });
 });

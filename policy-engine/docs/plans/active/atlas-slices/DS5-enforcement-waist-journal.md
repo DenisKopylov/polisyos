@@ -251,3 +251,194 @@
   executable and one could not resolve the dashboard Tailwind plugin. The clean
   dashboard-toolchain rerun formatted four touched files. Scoped Ruff
   `E,F,I,B,N` and exact `E,F` checks pass.
+
+## DS5-C01c — issuer exhaustiveness and runtime novelty
+
+### Entry and red-first receipts
+
+- Entry was clean and attached at `c447d5744`. The measured construction-site
+  estate is 2 issuer modules, 3 module-private unique-symbol brands, 5 exported
+  branded factories, 3 private issuance stores, 4 `Object.freeze` calls, and 10
+  runtime throw sites. The cluster touches 7 paths under cap 13 and makes no
+  disposition-register transition because none of C01a's 39 debt rows changes
+  state.
+- Red first:
+  `test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty`
+  failed in 43.590 seconds because `authorityIssuerFacts` was absent
+  (`None is not an instance of dict`). The first positive rerun passed 1/1 in
+  146.824 seconds; its unmeasured default yields were non-receipts until the
+  same process returned a parseable result.
+
+### Construction-site mechanism and receipt refreshes
+
+- The scanner inspects declarations and direct construction syntax only. It
+  derives private brands, branded factory signatures, exact generated parameter
+  declaration paths, the standard-library `Record` exhaustiveness target,
+  private WeakSet/WeakMap reads and writes, and direct returned-object identity
+  across brand initialization, issuance registration, and `Object.freeze`. It
+  does not follow values through wrappers, assignments, spreads, aliases, or
+  calls.
+- `evidenceTypes.ts` now funnels its two public factories through private
+  issuers, matching `AuthorityBadge`'s existing shape. The exact C01b receipts
+  for its two runtime-erasure assertions moved mechanically from lines 69/83 to
+  90/104 with unchanged AST hashes. Adding the two sibling private brands to
+  the derived issuer family expanded the finite authority-path denominator from
+  15 to 17; `EvidenceLink.tsx`'s owned DOM-literal assertion and its compile-only
+  anchor-prop negative are now exact, owned exemptions. No production escape
+  was introduced or widened.
+- Runtime coverage now executes all three `AuthorityBadge` issuers and proves
+  their returned values are frozen. Existing negatives continue to reject
+  `fixture_only`, labels absent from an owner list, and cloned tokens; a novel
+  owner label remains visible as explicit neutral `unrecognized`.
+- Source corruptions prove that a partial generated map, exported brand,
+  exported constructor, unfrozen issued value, runtime-novelty upgrade, and
+  exported owner vocabulary each turn the checker red. An unrelated exported
+  constant is the benign counterexample. The source-corruption test passed 1/1
+  in 30.492 seconds; the focused AuthorityBadge runtime suite passed 7/7 in
+  7.12 seconds.
+
+### Final gates and review handoff
+
+- The complete enforcement suite passed 18/18 in 353.186 seconds. The packaged
+  checker and its source corruption probes pass with 36 Atlas production files,
+  163 direct Badge sites, 19 authority prop groups, 17 authority-path files, 45
+  local syntax sites, 2 issuer modules, 3 brands, 5 factories, and 3 stores.
+- The shared status suite passed 38/38 in 155.829 seconds; its corruption battery
+  remains green at 47 DS1 rows, 15 current authored statuses, 55 semantic
+  exemptions, 0 retirement debt, and 3 waist rows. The disposition checker and
+  corruption battery remain green at 261 roots, 53 supplemental findings, 23
+  seeded negatives, and 8 censuses.
+- Atlas UI is green for typecheck, ESLint, architecture across 36 sources, and
+  18 test files / 85 tests. Dashboard typecheck, ESLint, both architecture
+  engines across 1,019 modules / 4,150 dependencies, and production build are
+  green; the build transformed 3,885 modules and emitted 108 PWA precache
+  entries. The package-wired enforcement command and dashboard-toolchain
+  Prettier check over every touched JavaScript/TypeScript/journal path pass.
+- Node syntax, Python compilation, scoped Ruff `E,F,I,ANN`, and the whitespace
+  diff check pass. A root-level Prettier invocation was a non-receipt because the
+  root has no executable; its first package-toolchain rerun also reformatted
+  unrelated plan tables, which was reversed byte-for-byte before the bounded
+  C01c plan edit was reapplied. A broad Ruff run exposed one new `ANN401` plus
+  inherited CLI/test-style diagnostics; the annotation was corrected and the
+  scoped rerun is green. The checker's first combined corruption was
+  contradictory—it exported the constructor before asking for its private
+  frozen-return fact—and correctly went red; independent source witnesses now
+  cover export and frozen-return failures, and the final corruption battery is
+  green.
+- Pre-review scope was exactly 9 paths under cap 13. There was no register mutation,
+  generated-client regeneration, backend write, flow-analysis claim, C02 work,
+  or C10 build.
+
+### Review fix round 1
+
+- Independent review returned NO-GO with 0 Critical / 6 Important / 0 Minor:
+  caller-selected optional parameters were not in the exact issuer API receipt;
+  indirect brand exports were invisible; local WeakSet/WeakMap/Object shadows
+  passed name-shaped built-in checks; novelty and membership facts accepted dead
+  markers; projection parity did not require its live invocation; and an
+  untyped complete owner-state literal could be exported.
+- The seven diagnostic-clean review witnesses were added before the repair. All
+  seven failed with empty issuer errors in 46.661 seconds: caller tone, indirect
+  brand export, shadowed issuance built-ins, dead novelty, unused membership,
+  missing parity invocation, and untyped vocabulary reconstruction.
+- The fix remains declaration-local and syntactic. Factory receipts now bind
+  exact ordered parameters, types, generated declaration paths, optional/rest
+  posture, overload count, and direct branded return postures. Brand export
+  identity is resolved through the module symbol table. WeakSet, WeakMap,
+  Object, and `freeze` resolve to TypeScript default-library declarations.
+  Membership must be a direct top-level negated guard that throws before the
+  first issuance; parity must be one top-level call with literal `true`
+  arguments. Exported literal values and inferred object keys are compared with
+  semantic IDs derived from the generated union, while the unrelated exported
+  constant remains benign.
+- The expanded witness battery also covers a dead membership guard, dead parity
+  call, aliased complete vocabulary, the governed-purpose membership guard, and
+  evidenceTypes-local WeakMap/Object shadows. It passed 1/1 in 64.814 seconds.
+  The post-fix full enforcement suite passed 18/18 in 307.104 seconds, the shared
+  status suite passed 38/38 in 195.558 seconds, and both the checker corruption
+  battery and package-wired enforcement gate passed at the unchanged 17-path /
+  45-site denominator.
+
+### Review fix round 2
+
+- Delta-only re-review returned NO-GO with 0 Critical / 4 Important / 0 Minor:
+  a dead approved return could mask a live indirect issuance call; projection
+  membership was not bound to the generated owner's projection_labels;
+  IsExact could be replaced by true; and exported owner-vocabulary subsets
+  were not rejected.
+- The four exact witnesses were red first: one focused test failed all four
+  subtests in 97.118 seconds with empty issuer errors. Plain uv run and its
+  runtime/ML variant were harness non-receipts because that environment omitted
+  jsonschema; an --all-extras attempt was also a non-receipt because the
+  unrelated R extra could not build. The repository's installed python3
+  environment produced the recorded red and all subsequent Python receipts.
+- Factory facts now enumerate every call returning the factory's private brand,
+  require each call to be a direct return in its exact top-level posture, and
+  bind the complete return-statement count. The projection membership guard now
+  reads diagnostic.projection_labels directly. Parity resolves the predicate
+  symbol actually used by both parameters and validates the two opposite
+  assignability probes plus both never failure branches. Exported literal
+  collections or maps containing any generated semantic ID are rejected; the
+  unrelated exported-constant witness remains green. These are bounded
+  construction-site checks and do not model flow.
+- The final expanded corruption test passed 1/1 in 105.607 seconds; the focused
+  runtime suite passed 7/7 in 2.71 seconds. The production/package checker and
+  its corruption probes are green at 36 production files, 163 Badge sites, 19
+  prop groups, 17 authority paths, 45 escape sites, 2 issuer modules, 3 brands,
+  5 factories, and 3 stores. The complete enforcement suite passed 18/18 in
+  280.922 seconds and the status suite passed 38/38 in 194.367 seconds.
+- Moving the direct membership assertion changed only local line/fingerprint
+  receipts. The disposition checker was surgically refreshed for the
+  AuthorityBadge declaration/site and both partition hashes; its check and
+  corruption battery pass at 261 roots, 53 supplemental findings, 23 seeded
+  negatives, and 8 censuses. No register JSON changed.
+- Atlas UI typecheck, ESLint, architecture (36 sources), and a serial unchanged
+  full test rerun (18 files / 85 tests in 10.10 seconds) are green. An earlier
+  parallel run was a red harness receipt at 81/85: two axe tests timed out and
+  the remaining two reported an already-running axe instance; no timeout or
+  source was changed before the clean serial rerun.
+- Dashboard typecheck (23.86 seconds), ESLint (7.74 seconds), both architecture
+  engines (1,019 modules / 4,150 dependencies), and production build are green;
+  the build transformed 3,885 modules and emitted 108 PWA entries. Node syntax,
+  Python compilation, owned Ruff E,F,I,ANN, package-toolchain Prettier, and
+  whitespace checks pass. The touched disposition checker has exactly its
+  inherited 166 Ruff diagnostics on HEAD and current, with zero additions or
+  removals. A mismatched global Ruff formatter's broad rewrite was restored
+  byte-for-byte before the four surgical receipt edits were reapplied.
+- Pre-freeze scope was 9 paths under cap 13. The plan delta was 22 additions /
+  13 deletions (35 changed lines, within the 40-line allowance). There was no
+  generated-client regeneration, backend write, flow-analysis claim, C02 work,
+  or C10 build.
+
+### Final review and freeze
+
+- The allowed round-2 delta review returned NO-GO with 0 Critical / 2 Important.
+  Issuance-call enumeration and direct generated-owner membership are closed.
+  The remaining gaps are exact: parity facts do not bind the intended
+  Operator/Run indexed operands, and exported-vocabulary protection does not
+  yet derive semantic IDs from the runtime-authority and fixture unions.
+- No third repair loop was entered. The findings are recorded as
+  `authority-issuer-parity-operand-binding` and
+  `authority-issuer-generated-semantic-id-coverage`, owned by DS5 with
+  `artifact_missing`, `verification_missing`, and
+  `semantic_test_missing` states plus executable owner-side closure commands.
+  C01c is frozen and explicitly does not claim issuer-enforcement closure; C02
+  is independent.
+- The byte-preserving supplemental writer added only those two rows: 53 to 55
+  findings, with all 53 existing findings and every other top-level register
+  field byte-semantically unchanged. The generated reference projection was
+  refreshed, and the status inventory's DS19 content hash moved mechanically
+  from `7b09165e…` to `3284fdde…`.
+- Frozen scope is exactly 13 paths at cap 13. The plan delta is 24 additions /
+  14 deletions (38 changed lines, within the 40-line allowance).
+- The supplemental writer is byte-idempotent: register hash
+  `3284fdde…` and reference hash `50c70077…` were unchanged by a second
+  write. Register corruption probes pass with 55 findings. The first exact
+  descriptor-set unit run was honestly red at 37/38 in 131.446 seconds because
+  it still named the prior two producer debts; adding the two frozen IDs made
+  the unchanged suite pass 38/38 in 44.830 seconds.
+- The refreshed status binding and corruption probes pass at 47 DS1 rows, 15
+  authored statuses, 55 semantic exemptions, zero retirement debt, and 3 waist
+  rows; the complete status suite passed 38/38 in 190.955 seconds. The Atlas
+  enforcement corruption battery also passes against the refreshed content
+  binding at the unchanged 17-path / 45-site denominator.

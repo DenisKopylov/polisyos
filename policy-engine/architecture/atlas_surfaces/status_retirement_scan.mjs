@@ -2750,6 +2750,1005 @@ function collectBrandsInType(
   }
 }
 
+function emptyAuthorityIssuerFacts() {
+  return {
+    modules: [],
+    brands: [],
+    factories: [],
+    stores: [],
+    privateConstructors: [],
+    exhaustiveToneMaps: [],
+    exactGeneratedScalars: [],
+    parityBindings: [],
+    unrecognizedNeutralFactories: [],
+    ownerMembershipFactories: [],
+    exportedValueConstants: [],
+  };
+}
+
+function enclosingFunctionName(checker, node) {
+  const enclosing = enclosingFunctionNode(node);
+  return enclosing ? (functionSymbol(checker, enclosing)?.name ?? null) : null;
+}
+
+function enclosingFunctionNode(node) {
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isFunctionLike(current)) return current;
+  }
+  return null;
+}
+
+function returnBrandNames(checker, signature, brands) {
+  const returnType = checker.getReturnTypeOfSignature(signature);
+  return brands
+    .filter(({ symbol }) =>
+      typeTouchesAuthorityBrand(checker, returnType, new Set([symbol])),
+    )
+    .map(({ name }) => name)
+    .sort();
+}
+
+function typeNodeReferencesGeneratedDefinition(
+  checker,
+  typeNode,
+  governedPaths,
+  seenSymbols = new Set(),
+) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    const symbol =
+      ts.isIdentifier(node) || ts.isQualifiedName(node)
+        ? symbolIdentity(checker, node)
+        : undefined;
+    if (symbol && !seenSymbols.has(symbol)) {
+      seenSymbols.add(symbol);
+      const declarations = symbol.declarations ?? [];
+      if (
+        declarations.some((declaration) =>
+          governedPaths.has(declarationPath(declaration)),
+        )
+      ) {
+        found = true;
+        return;
+      }
+      for (const declaration of declarations) {
+        if (ts.isTypeAliasDeclaration(declaration)) {
+          visit(declaration.type);
+        }
+      }
+    }
+    if (!found) ts.forEachChild(node, visit);
+  };
+  visit(typeNode);
+  return found;
+}
+
+function objectLiteralInitializesBrand(checker, objectLiteral, brandSymbol) {
+  return objectLiteral.properties.some(
+    (property) =>
+      ts.isPropertyAssignment(property) &&
+      ts.isComputedPropertyName(property.name) &&
+      symbolIdentity(checker, property.name.expression) === brandSymbol,
+  );
+}
+
+function callAuthorityBrandNames(checker, call, brands) {
+  const signature = checker.getResolvedSignature(call);
+  return signature ? returnBrandNames(checker, signature, brands) : [];
+}
+
+function directRootIdentifier(node) {
+  let current = unwrapExpression(node);
+  while (
+    ts.isPropertyAccessExpression(current) ||
+    ts.isElementAccessExpression(current)
+  ) {
+    current = unwrapExpression(current.expression);
+  }
+  return ts.isIdentifier(current) ? current : null;
+}
+
+function isCanonicalTypeScriptLibSymbol(checker, node, expectedName) {
+  const symbol = symbolIdentity(checker, node);
+  const declarations = symbol?.declarations ?? [];
+  return (
+    symbol?.name === expectedName &&
+    declarations.length > 0 &&
+    declarations.every((declaration) => {
+      const sourceFile = declaration.getSourceFile();
+      return (
+        sourceFile.hasNoDefaultLib &&
+        /\/typescript\/lib\/lib\.[^/]+\.d\.ts$/u.test(
+          sourceFile.fileName.split(path.sep).join("/"),
+        )
+      );
+    })
+  );
+}
+
+function isCanonicalObjectFreezeCall(checker, node) {
+  return (
+    ts.isCallExpression(node) &&
+    ts.isPropertyAccessExpression(node.expression) &&
+    isCanonicalTypeScriptLibSymbol(
+      checker,
+      node.expression.expression,
+      "Object",
+    ) &&
+    isCanonicalTypeScriptLibSymbol(checker, node.expression.name, "freeze")
+  );
+}
+
+function closedStringValues(type) {
+  const members = type?.isUnion?.() ? type.types : type ? [type] : [];
+  return members.length > 0 &&
+    members.every((member) => (member.flags & ts.TypeFlags.StringLiteral) !== 0)
+    ? members.map((member) => member.value).sort()
+    : [];
+}
+
+function literalExpressionStrings(node, values = new Set()) {
+  const current = unwrapExpression(node);
+  if (ts.isStringLiteralLike(current)) {
+    values.add(current.text);
+  } else if (ts.isArrayLiteralExpression(current)) {
+    for (const element of current.elements) {
+      literalExpressionStrings(element, values);
+    }
+  } else if (ts.isObjectLiteralExpression(current)) {
+    for (const property of current.properties) {
+      if (ts.isPropertyAssignment(property)) {
+        const name = propertyNameText(property.name);
+        if (name) values.add(name);
+        literalExpressionStrings(property.initializer, values);
+      }
+    }
+  } else {
+    ts.forEachChild(current, (child) =>
+      literalExpressionStrings(child, values),
+    );
+  }
+  return values;
+}
+
+function stringPropertyValue(node, name) {
+  const property = node.properties.find(
+    (candidate) =>
+      ts.isPropertyAssignment(candidate) &&
+      propertyNameText(candidate.name) === name,
+  );
+  if (!property || !ts.isPropertyAssignment(property)) return null;
+  const value = unwrapExpression(property.initializer);
+  return ts.isStringLiteralLike(value) ? value.text : null;
+}
+
+function directReturnStatementForCall(call) {
+  let expression = call;
+  while (
+    expression.parent &&
+    (ts.isParenthesizedExpression(expression.parent) ||
+      ts.isAsExpression(expression.parent) ||
+      ts.isTypeAssertionExpression(expression.parent) ||
+      ts.isNonNullExpression(expression.parent) ||
+      ts.isSatisfiesExpression(expression.parent) ||
+      ts.isPartiallyEmittedExpression(expression.parent)) &&
+    expression.parent.expression === expression
+  ) {
+    expression = expression.parent;
+  }
+  return ts.isReturnStatement(expression.parent) &&
+    expression.parent.expression === expression
+    ? expression.parent
+    : null;
+}
+
+function directReturnPlacement(returnStatement, functionBody) {
+  if (returnStatement.parent === functionBody) return "top_level";
+  const block = returnStatement.parent;
+  const conditional = block?.parent;
+  return ts.isBlock(block) &&
+    ts.isIfStatement(conditional) &&
+    conditional.parent === functionBody &&
+    conditional.thenStatement === block
+    ? "top_level_if"
+    : "other";
+}
+
+function brandedCallPosture(call) {
+  const objectArgument = call.arguments
+    .map((argument) => unwrapExpression(argument))
+    .find((argument) => ts.isObjectLiteralExpression(argument));
+  return {
+    presentation: objectArgument
+      ? stringPropertyValue(objectArgument, "presentation")
+      : null,
+    source: objectArgument
+      ? stringPropertyValue(objectArgument, "source")
+      : null,
+    tone: objectArgument ? stringPropertyValue(objectArgument, "tone") : null,
+  };
+}
+
+function negatedIncludesCall(node) {
+  const condition = unwrapExpression(node.expression);
+  if (
+    !ts.isPrefixUnaryExpression(condition) ||
+    condition.operator !== ts.SyntaxKind.ExclamationToken
+  ) {
+    return null;
+  }
+  const call = unwrapExpression(condition.operand);
+  return ts.isCallExpression(call) &&
+    ts.isPropertyAccessExpression(call.expression) &&
+    call.expression.name.text === "includes"
+    ? call
+    : null;
+}
+
+function statementThrows(statement) {
+  return (
+    ts.isThrowStatement(statement) ||
+    (ts.isBlock(statement) &&
+      statement.statements.some((child) => ts.isThrowStatement(child)))
+  );
+}
+
+function literalTypeHasKind(node, syntaxKind) {
+  return ts.isLiteralTypeNode(node) && node.literal.kind === syntaxKind;
+}
+
+function numericLiteralTypeIs(node, value) {
+  return (
+    ts.isLiteralTypeNode(node) &&
+    ts.isNumericLiteral(node.literal) &&
+    node.literal.text === String(value)
+  );
+}
+
+function typeReferenceSymbol(checker, node) {
+  return ts.isTypeReferenceNode(node)
+    ? symbolIdentity(checker, node.typeName)
+    : null;
+}
+
+function isAssignabilityProbe(checker, node, targetSymbol) {
+  let current = node;
+  while (ts.isParenthesizedTypeNode(current)) current = current.type;
+  if (
+    !ts.isFunctionTypeNode(current) ||
+    current.parameters.length !== 0 ||
+    current.typeParameters?.length !== 1 ||
+    !ts.isConditionalTypeNode(current.type)
+  ) {
+    return false;
+  }
+  const valueSymbol = symbolIdentity(checker, current.typeParameters[0].name);
+  return (
+    Boolean(valueSymbol) &&
+    typeReferenceSymbol(checker, current.type.checkType) === valueSymbol &&
+    typeReferenceSymbol(checker, current.type.extendsType) === targetSymbol &&
+    numericLiteralTypeIs(current.type.trueType, 1) &&
+    numericLiteralTypeIs(current.type.falseType, 2)
+  );
+}
+
+function isExactTwoWayPredicate(checker, declaration) {
+  if (
+    !ts.isTypeAliasDeclaration(declaration) ||
+    declaration.typeParameters?.length !== 2 ||
+    !ts.isConditionalTypeNode(declaration.type)
+  ) {
+    return false;
+  }
+  const left = symbolIdentity(checker, declaration.typeParameters[0].name);
+  const right = symbolIdentity(checker, declaration.typeParameters[1].name);
+  const outer = declaration.type;
+  const reverse = outer.trueType;
+  return (
+    Boolean(left && right) &&
+    isAssignabilityProbe(checker, outer.checkType, left) &&
+    isAssignabilityProbe(checker, outer.extendsType, right) &&
+    ts.isConditionalTypeNode(reverse) &&
+    isAssignabilityProbe(checker, reverse.checkType, right) &&
+    isAssignabilityProbe(checker, reverse.extendsType, left) &&
+    literalTypeHasKind(reverse.trueType, ts.SyntaxKind.TrueKeyword) &&
+    literalTypeHasKind(reverse.falseType, ts.SyntaxKind.FalseKeyword) &&
+    literalTypeHasKind(outer.falseType, ts.SyntaxKind.FalseKeyword)
+  );
+}
+
+function parityParameterPredicate(checker, typeNode) {
+  if (
+    !ts.isConditionalTypeNode(typeNode) ||
+    !ts.isTypeReferenceNode(typeNode.checkType) ||
+    typeNode.checkType.typeArguments?.length !== 2
+  ) {
+    return null;
+  }
+  return {
+    symbol: typeReferenceSymbol(checker, typeNode.checkType),
+    neverFailure:
+      literalTypeHasKind(typeNode.extendsType, ts.SyntaxKind.TrueKeyword) &&
+      literalTypeHasKind(typeNode.trueType, ts.SyntaxKind.TrueKeyword) &&
+      typeNode.falseType.kind === ts.SyntaxKind.NeverKeyword,
+  };
+}
+
+function collectAuthorityIssuerFacts(
+  checker,
+  sourceByPath,
+  brandSymbols,
+  generatedDefinitionPaths,
+) {
+  const facts = emptyAuthorityIssuerFacts();
+  const governedPaths = new Set(generatedDefinitionPaths ?? []);
+  const brands = [...brandSymbols]
+    .map((symbol) => {
+      const declaration =
+        symbol.valueDeclaration ?? symbol.declarations?.[0] ?? null;
+      const sourceFile = declaration?.getSourceFile();
+      const issuerPath = declaration ? declarationPath(declaration) : null;
+      return declaration && sourceFile && issuerPath
+        ? {
+            symbol,
+            name: symbol.name,
+            path: issuerPath,
+            line: lineOf(sourceFile, declaration),
+            declarationSha256: textSha256(declaration.getText(sourceFile)),
+          }
+        : null;
+    })
+    .filter(Boolean)
+    .sort((left, right) =>
+      `${left.path}:${left.name}`.localeCompare(`${right.path}:${right.name}`),
+    );
+  const modulePaths = [
+    ...new Set(brands.map(({ path: issuerPath }) => issuerPath)),
+  ].sort();
+  const moduleSources = modulePaths
+    .map((issuerPath) => sourceByPath.get(issuerPath))
+    .filter(Boolean);
+  facts.modules = moduleSources.map((sourceFile) => ({
+    path: relativePath(sourceFile.fileName),
+    sourceSha256: textSha256(sourceFile.text),
+  }));
+
+  const exportedSymbols = new Set(
+    moduleSources.flatMap((sourceFile) => moduleExports(checker, sourceFile)),
+  );
+  facts.brands = brands.map(({ symbol, ...fact }) => ({
+    ...fact,
+    exported: exportedSymbols.has(symbol),
+  }));
+  const generatedSemanticSets = [];
+  for (const sourceFile of moduleSources) {
+    const visitGeneratedVocabularies = (node) => {
+      if (
+        ts.isSatisfiesExpression(node) &&
+        isGeneratedToneMapTarget(checker, node.type, governedPaths)
+      ) {
+        const keyType = node.type.typeArguments[0];
+        const values = closedStringValues(checker.getTypeFromTypeNode(keyType));
+        if (values.length > 0) generatedSemanticSets.push(new Set(values));
+      }
+      ts.forEachChild(node, visitGeneratedVocabularies);
+    };
+    visitGeneratedVocabularies(sourceFile);
+  }
+  const storeSymbols = new Map();
+  for (const sourceFile of moduleSources) {
+    const visitStores = (node) => {
+      if (
+        ts.isVariableDeclaration(node) &&
+        ts.isIdentifier(node.name) &&
+        node.initializer &&
+        ts.isNewExpression(node.initializer) &&
+        ts.isIdentifier(node.initializer.expression) &&
+        ["WeakMap", "WeakSet"].includes(node.initializer.expression.text) &&
+        isCanonicalTypeScriptLibSymbol(
+          checker,
+          node.initializer.expression,
+          node.initializer.expression.text,
+        )
+      ) {
+        const symbol = symbolIdentity(checker, node.name);
+        if (symbol) {
+          const row = {
+            symbol,
+            name: node.name.text,
+            kind: node.initializer.expression.text,
+            path: relativePath(sourceFile.fileName),
+            line: lineOf(sourceFile, node),
+            exported: exportedSymbols.has(symbol),
+            reads: [],
+            writes: [],
+          };
+          storeSymbols.set(symbol, row);
+        }
+      }
+      ts.forEachChild(node, visitStores);
+    };
+    visitStores(sourceFile);
+  }
+
+  const factoryDeclarations = new Map();
+  for (const sourceFile of moduleSources) {
+    for (const symbol of moduleExports(checker, sourceFile)) {
+      const declaration = symbol.valueDeclaration ?? symbol.declarations?.[0];
+      if (!declaration) continue;
+      const valueType = checker.getTypeOfSymbolAtLocation(symbol, declaration);
+      const initializer = declaration.initializer ?? null;
+      const literalValues = initializer
+        ? literalExpressionStrings(initializer)
+        : new Set();
+      const valuePropertyNames = new Set(
+        checker.getPropertiesOfType(valueType).map((property) => property.name),
+      );
+      const reconstructsGeneratedVocabulary = generatedSemanticSets.some(
+        (semanticIds) =>
+          semanticIds.size > 0 &&
+          [...semanticIds].some(
+            (semanticId) =>
+              literalValues.has(semanticId) ||
+              valuePropertyNames.has(semanticId),
+          ),
+      );
+      const isGeneratedVocabulary = Boolean(
+        ts.isVariableDeclaration(declaration) &&
+        ((declaration.type &&
+          typeNodeReferencesGeneratedDefinition(
+            checker,
+            declaration.type,
+            governedPaths,
+          )) ||
+          (initializer &&
+            ts.isSatisfiesExpression(initializer) &&
+            isGeneratedToneMapTarget(
+              checker,
+              initializer.type,
+              governedPaths,
+            )) ||
+          reconstructsGeneratedVocabulary),
+      );
+      if (ts.isVariableDeclaration(declaration) && isGeneratedVocabulary) {
+        facts.exportedValueConstants.push({
+          name: symbol.name,
+          path: relativePath(sourceFile.fileName),
+          line: lineOf(sourceFile, declaration),
+        });
+      }
+      const signatures = checker.getSignaturesOfType(
+        valueType,
+        ts.SignatureKind.Call,
+      );
+      const signature = signatures.find(
+        (candidate) => returnBrandNames(checker, candidate, brands).length > 0,
+      );
+      if (!signature) continue;
+      const parameters = signature.getParameters().map((parameter) => {
+        const parameterDeclaration =
+          parameter.valueDeclaration ?? parameter.declarations?.[0];
+        const proof = parameterDeclaration?.type
+          ? terminalTypeDeclarationPaths(checker, parameterDeclaration.type)
+          : { paths: new Set(), complete: false };
+        const parameterType = parameterDeclaration
+          ? checker.getTypeOfSymbolAtLocation(parameter, parameterDeclaration)
+          : null;
+        return {
+          name: parameter.name,
+          type: parameterDeclaration?.type?.getText(sourceFile) ?? null,
+          generated:
+            proof.complete &&
+            proof.paths.size > 0 &&
+            [...proof.paths].every((candidatePath) =>
+              governedPaths.has(candidatePath),
+            ),
+          generatedPaths: [...proof.paths].sort(),
+          broadString: Boolean(
+            parameterType && (parameterType.flags & ts.TypeFlags.String) !== 0,
+          ),
+        };
+      });
+      const row = {
+        name: symbol.name,
+        path: relativePath(sourceFile.fileName),
+        line: lineOf(sourceFile, declaration),
+        declarationSha256: textSha256(declaration.getText(sourceFile)),
+        overloadCount: signatures.length,
+        returnBrands: returnBrandNames(checker, signature, brands),
+        parameters: parameters.map((parameter, index) => {
+          const parameterDeclaration =
+            signature.getParameters()[index]?.valueDeclaration;
+          return {
+            ...parameter,
+            optional: Boolean(
+              parameterDeclaration?.questionToken ||
+              parameterDeclaration?.initializer,
+            ),
+            rest: Boolean(parameterDeclaration?.dotDotDotToken),
+          };
+        }),
+      };
+      facts.factories.push(row);
+      factoryDeclarations.set(symbol.name, { declaration, row });
+    }
+  }
+
+  for (const sourceFile of moduleSources) {
+    const visit = (node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression)
+      ) {
+        const store = storeSymbols.get(
+          symbolIdentity(checker, unwrapExpression(node.expression.expression)),
+        );
+        if (store) {
+          const method = node.expression.name.text;
+          const enclosing = enclosingFunctionNode(node);
+          const argumentSymbol = node.arguments[0]
+            ? symbolIdentity(checker, unwrapExpression(node.arguments[0]))
+            : null;
+          const argumentParameter = enclosing?.parameters
+            .filter((parameter) => ts.isIdentifier(parameter.name))
+            .find(
+              (parameter) =>
+                symbolIdentity(checker, parameter.name) === argumentSymbol,
+            )?.name.text;
+          const operation = {
+            function: enclosingFunctionName(checker, node),
+            method,
+          };
+          if (["add", "set"].includes(method)) store.writes.push(operation);
+          if (["get", "has"].includes(method)) {
+            store.reads.push({
+              ...operation,
+              argumentParameter: argumentParameter ?? null,
+            });
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  facts.stores = [...storeSymbols.values()]
+    .map(({ symbol: _symbol, ...row }) => ({
+      ...row,
+      reads: row.reads.sort((left, right) =>
+        `${left.function}:${left.method}`.localeCompare(
+          `${right.function}:${right.method}`,
+        ),
+      ),
+      writes: row.writes.sort((left, right) =>
+        `${left.function}:${left.method}`.localeCompare(
+          `${right.function}:${right.method}`,
+        ),
+      ),
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+
+  for (const sourceFile of moduleSources) {
+    const visit = (node) => {
+      if (ts.isFunctionDeclaration(node) && node.name && node.body) {
+        const symbol = symbolIdentity(checker, node.name);
+        const signature = checker
+          .getSignaturesOfType(
+            checker.getTypeAtLocation(node.name),
+            ts.SignatureKind.Call,
+          )
+          .find(
+            (candidate) =>
+              returnBrandNames(checker, candidate, brands).length > 0,
+          );
+        if (signature && symbol && !exportedSymbols.has(symbol)) {
+          let freezeCalls = 0;
+          let returnedFrozenSymbol = null;
+          let brandedBindingSymbol = null;
+          const constructorWrites = [];
+          const inspectBody = (child) => {
+            if (child !== node && ts.isFunctionLike(child)) return;
+            if (
+              ts.isVariableDeclaration(child) &&
+              ts.isIdentifier(child.name) &&
+              child.initializer &&
+              ts.isObjectLiteralExpression(
+                unwrapExpression(child.initializer),
+              ) &&
+              returnBrandNames(checker, signature, brands).some((brandName) => {
+                const brand = brands.find(({ name }) => name === brandName);
+                return Boolean(
+                  brand &&
+                  objectLiteralInitializesBrand(
+                    checker,
+                    unwrapExpression(child.initializer),
+                    brand.symbol,
+                  ),
+                );
+              })
+            ) {
+              brandedBindingSymbol = symbolIdentity(checker, child.name);
+            }
+            if (isCanonicalObjectFreezeCall(checker, child)) {
+              freezeCalls += 1;
+            }
+            if (
+              ts.isReturnStatement(child) &&
+              child.expression &&
+              ts.isCallExpression(unwrapExpression(child.expression))
+            ) {
+              const call = unwrapExpression(child.expression);
+              if (
+                isCanonicalObjectFreezeCall(checker, call) &&
+                call.arguments.length === 1
+              ) {
+                returnedFrozenSymbol = symbolIdentity(
+                  checker,
+                  unwrapExpression(call.arguments[0]),
+                );
+              }
+            }
+            if (
+              ts.isCallExpression(child) &&
+              ts.isPropertyAccessExpression(child.expression)
+            ) {
+              const store = storeSymbols.get(
+                symbolIdentity(
+                  checker,
+                  unwrapExpression(child.expression.expression),
+                ),
+              );
+              if (
+                store &&
+                ["add", "set"].includes(child.expression.name.text)
+              ) {
+                constructorWrites.push({
+                  store: store.name,
+                  method: child.expression.name.text,
+                  argumentSymbol: child.arguments[0]
+                    ? symbolIdentity(
+                        checker,
+                        unwrapExpression(child.arguments[0]),
+                      )
+                    : null,
+                });
+              }
+            }
+            ts.forEachChild(child, inspectBody);
+          };
+          inspectBody(node.body);
+          facts.privateConstructors.push({
+            name: node.name.text,
+            path: relativePath(sourceFile.fileName),
+            line: lineOf(sourceFile, node),
+            returnBrands: returnBrandNames(checker, signature, brands),
+            freezeCalls,
+            returnedValueFrozen: Boolean(returnedFrozenSymbol),
+            brandInitializedOnReturnedValue:
+              Boolean(returnedFrozenSymbol) &&
+              returnedFrozenSymbol === brandedBindingSymbol,
+            issuanceWrites: constructorWrites
+              .map(({ store, method, argumentSymbol }) => ({
+                store,
+                method,
+                issuedValue:
+                  Boolean(returnedFrozenSymbol) &&
+                  argumentSymbol === returnedFrozenSymbol,
+              }))
+              .sort((left, right) =>
+                `${left.store}:${left.method}`.localeCompare(
+                  `${right.store}:${right.method}`,
+                ),
+              ),
+          });
+        }
+
+        if (
+          node.parameters.length === 1 &&
+          node.parameters[0].type &&
+          node.type &&
+          ts.isIdentifier(node.parameters[0].name) &&
+          isGeneratedClosedInputType(
+            checker,
+            node.parameters[0].type,
+            governedPaths,
+          ) &&
+          isClosedStringLiteralType(checker.getTypeFromTypeNode(node.type)) &&
+          node.body.statements.length === 1 &&
+          ts.isReturnStatement(node.body.statements[0]) &&
+          ts.isIdentifier(node.body.statements[0].expression) &&
+          node.body.statements[0].expression.text ===
+            node.parameters[0].name.text
+        ) {
+          const scalarCallers = new Set();
+          const visitScalarCalls = (child) => {
+            if (
+              ts.isCallExpression(child) &&
+              symbolIdentity(checker, child.expression) === symbol
+            ) {
+              const caller = enclosingFunctionName(checker, child);
+              if (caller) scalarCallers.add(caller);
+            }
+            ts.forEachChild(child, visitScalarCalls);
+          };
+          visitScalarCalls(sourceFile);
+          facts.exactGeneratedScalars.push({
+            name: node.name.text,
+            path: relativePath(sourceFile.fileName),
+            line: lineOf(sourceFile, node),
+            input: node.parameters[0].type.getText(sourceFile),
+            output: node.type.getText(sourceFile),
+            callers: [...scalarCallers].sort(),
+          });
+        }
+
+        const resolvedParameters = node.parameters.map((parameter) =>
+          parameter.type ? checker.getTypeFromTypeNode(parameter.type) : null,
+        );
+        if (
+          resolvedParameters.length > 1 &&
+          node.parameters.every(
+            (parameter) =>
+              parameter.type &&
+              typeNodeReferencesGeneratedDefinition(
+                checker,
+                parameter.type,
+                governedPaths,
+              ),
+          ) &&
+          resolvedParameters.every(
+            (type) =>
+              type &&
+              (type.flags & ts.TypeFlags.BooleanLiteral) !== 0 &&
+              type.intrinsicName === "true",
+          )
+        ) {
+          const predicateParameters = node.parameters.map((parameter) =>
+            parameter.type
+              ? parityParameterPredicate(checker, parameter.type)
+              : null,
+          );
+          const predicateSymbol =
+            predicateParameters.length > 0 &&
+            predicateParameters[0]?.symbol &&
+            predicateParameters.every(
+              (parameter) =>
+                parameter?.symbol === predicateParameters[0].symbol,
+            )
+              ? predicateParameters[0].symbol
+              : null;
+          const predicateDeclaration = predicateSymbol?.declarations?.find(
+            (declaration) => ts.isTypeAliasDeclaration(declaration),
+          );
+          let totalInvocations = 0;
+          let literalTrueInvocations = 0;
+          const visitParityCalls = (child) => {
+            if (
+              ts.isCallExpression(child) &&
+              symbolIdentity(checker, child.expression) === symbol &&
+              ts.isExpressionStatement(child.parent) &&
+              child.parent.parent === sourceFile
+            ) {
+              totalInvocations += 1;
+              if (
+                child.arguments.length === resolvedParameters.length &&
+                child.arguments.every(
+                  (argument) =>
+                    unwrapExpression(argument).kind ===
+                    ts.SyntaxKind.TrueKeyword,
+                )
+              ) {
+                literalTrueInvocations += 1;
+              }
+            }
+            ts.forEachChild(child, visitParityCalls);
+          };
+          visitParityCalls(sourceFile);
+          facts.parityBindings.push({
+            name: node.name.text,
+            path: relativePath(sourceFile.fileName),
+            line: lineOf(sourceFile, node),
+            parameters: resolvedParameters.length,
+            totalInvocations,
+            literalTrueInvocations,
+            neverFailureParameters: predicateParameters.filter(
+              (parameter) => parameter?.neverFailure,
+            ).length,
+            predicate:
+              predicateDeclaration && predicateSymbol
+                ? {
+                    name: predicateSymbol.name,
+                    path: declarationPath(predicateDeclaration),
+                    exactTwoWay: isExactTwoWayPredicate(
+                      checker,
+                      predicateDeclaration,
+                    ),
+                  }
+                : null,
+          });
+        }
+      }
+
+      if (
+        ts.isSatisfiesExpression(node) &&
+        isExhaustiveGeneratedToneMap(checker, node.type, governedPaths)
+      ) {
+        const declaration = ts.isVariableDeclaration(node.parent)
+          ? node.parent
+          : null;
+        const mapSymbol =
+          declaration && ts.isIdentifier(declaration.name)
+            ? symbolIdentity(checker, declaration.name)
+            : null;
+        const consumers = new Set();
+        if (mapSymbol) {
+          const visitMapUses = (child) => {
+            if (
+              ts.isElementAccessExpression(child) &&
+              symbolIdentity(checker, unwrapExpression(child.expression)) ===
+                mapSymbol
+            ) {
+              const consumer = enclosingFunctionName(checker, child);
+              if (consumer) consumers.add(consumer);
+            }
+            ts.forEachChild(child, visitMapUses);
+          };
+          visitMapUses(sourceFile);
+        }
+        facts.exhaustiveToneMaps.push({
+          path: relativePath(sourceFile.fileName),
+          line: lineOf(sourceFile, node),
+          target: node.type.getText(sourceFile),
+          consumers: [...consumers].sort(),
+        });
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  for (const [factoryName, { declaration, row }] of factoryDeclarations) {
+    const issuedReturns = [];
+    const issuanceCalls = [];
+    const ownerMembership = [];
+    let returnStatements = 0;
+    const sourceFile = declaration.getSourceFile();
+    const parameterSymbols = new Map();
+    for (const parameter of declaration.parameters ?? []) {
+      if (!ts.isIdentifier(parameter.name) || !parameter.type) continue;
+      const proof = terminalTypeDeclarationPaths(checker, parameter.type);
+      if (
+        proof.complete &&
+        proof.paths.size > 0 &&
+        [...proof.paths].every((candidatePath) =>
+          governedPaths.has(candidatePath),
+        )
+      ) {
+        parameterSymbols.set(
+          symbolIdentity(checker, parameter.name),
+          parameter.name.text,
+        );
+      }
+    }
+    const visit = (node) => {
+      if (node !== declaration && ts.isFunctionLike(node)) return;
+      if (ts.isReturnStatement(node)) returnStatements += 1;
+      if (ts.isCallExpression(node)) {
+        const returnedBrands = callAuthorityBrandNames(checker, node, brands);
+        if (returnedBrands.some((brand) => row.returnBrands.includes(brand))) {
+          const returnStatement = directReturnStatementForCall(node);
+          const callFact = {
+            position: node.getStart(sourceFile),
+            ...brandedCallPosture(node),
+            directReturn: Boolean(returnStatement),
+            placement: returnStatement
+              ? directReturnPlacement(returnStatement, declaration.body)
+              : null,
+          };
+          issuanceCalls.push(callFact);
+          if (returnStatement) issuedReturns.push(callFact);
+        }
+      }
+
+      if (
+        ts.isIfStatement(node) &&
+        node.parent === declaration.body &&
+        statementThrows(node.thenStatement)
+      ) {
+        const membershipCall = negatedIncludesCall(node);
+        const receiver = membershipCall
+          ? directRootIdentifier(membershipCall.expression.expression)
+          : null;
+        const argument = membershipCall?.arguments[0]
+          ? unwrapExpression(membershipCall.arguments[0])
+          : null;
+        const receiverParameter = receiver
+          ? parameterSymbols.get(symbolIdentity(checker, receiver))
+          : undefined;
+        const argumentParameter =
+          argument && ts.isIdentifier(argument)
+            ? parameterSymbols.get(symbolIdentity(checker, argument))
+            : undefined;
+        if (membershipCall && argumentParameter) {
+          const receiverExpression = unwrapExpression(
+            membershipCall.expression.expression,
+          );
+          ownerMembership.push({
+            factory: factoryName,
+            position: node.getStart(sourceFile),
+            receiverParameter: receiverParameter ?? null,
+            receiverProperty:
+              receiverParameter &&
+              ts.isPropertyAccessExpression(receiverExpression)
+                ? receiverExpression.name.text
+                : null,
+            argumentParameter,
+          });
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(declaration);
+    issuedReturns.sort((left, right) => left.position - right.position);
+    issuanceCalls.sort((left, right) => left.position - right.position);
+    row.issuedReturns = issuedReturns.map(
+      ({
+        position: _position,
+        directReturn: _direct,
+        placement: _placement,
+        ...returnFact
+      }) => returnFact,
+    );
+    row.issuanceCalls = issuanceCalls.map(
+      ({ position: _position, ...callFact }) => callFact,
+    );
+    row.returnStatements = returnStatements;
+    if (
+      issuedReturns.some(
+        (returnFact) =>
+          returnFact.presentation === "unrecognized" &&
+          returnFact.tone === "neutral",
+      )
+    ) {
+      facts.unrecognizedNeutralFactories.push(factoryName);
+    }
+    const firstIssuance =
+      issuanceCalls[0]?.position ?? Number.POSITIVE_INFINITY;
+    facts.ownerMembershipFactories.push(
+      ...ownerMembership.map(({ position, ...membership }) => ({
+        ...membership,
+        negatedThrow: true,
+        precedesIssuance: position < firstIssuance,
+      })),
+    );
+  }
+
+  facts.factories.sort((left, right) => left.name.localeCompare(right.name));
+  facts.privateConstructors.sort((left, right) =>
+    left.name.localeCompare(right.name),
+  );
+  facts.exhaustiveToneMaps.sort((left, right) =>
+    `${left.path}:${left.line}`.localeCompare(`${right.path}:${right.line}`),
+  );
+  facts.exactGeneratedScalars.sort((left, right) =>
+    left.name.localeCompare(right.name),
+  );
+  facts.parityBindings.sort((left, right) =>
+    left.name.localeCompare(right.name),
+  );
+  facts.unrecognizedNeutralFactories.sort();
+  facts.ownerMembershipFactories.sort((left, right) =>
+    `${left.factory}:${left.receiverParameter}:${left.receiverProperty}:${left.argumentParameter}`.localeCompare(
+      `${right.factory}:${right.receiverParameter}:${right.receiverProperty}:${right.argumentParameter}`,
+    ),
+  );
+  facts.exportedValueConstants.sort((left, right) =>
+    `${left.path}:${left.name}`.localeCompare(`${right.path}:${right.name}`),
+  );
+  return facts;
+}
+
 function componentPropType(checker, sourceFile, descriptor) {
   const component = moduleExports(checker, sourceFile).find(
     (symbol) => symbol.name === descriptor.component,
@@ -3078,7 +4077,11 @@ function collectAuthorityEscapeFacts(
   governanceObjectNames,
 ) {
   if (!Array.isArray(descriptors) || descriptors.length === 0) {
-    return { authorityPathFiles: [], authorityEscapeSites: [] };
+    return {
+      authorityPathFiles: [],
+      authorityEscapeSites: [],
+      authorityIssuerFacts: emptyAuthorityIssuerFacts(),
+    };
   }
   const checker = program.getTypeChecker();
   const sourceByPath = new Map(
@@ -3101,6 +4104,31 @@ function collectAuthorityEscapeFacts(
       if (brandPath) issuerPaths.add(brandPath);
     }
   }
+  for (const issuerPath of [...issuerPaths]) {
+    const sourceFile = sourceByPath.get(issuerPath);
+    if (!sourceFile) continue;
+    const visitBrands = (node) => {
+      if (ts.isPropertySignature(node) || ts.isPropertyDeclaration(node)) {
+        const brand = privateUniqueBrandSymbol(checker, node);
+        if (brand) brandSymbols.add(brand);
+      }
+      ts.forEachChild(node, visitBrands);
+    };
+    visitBrands(sourceFile);
+  }
+  for (const brand of brandSymbols) {
+    for (const declaration of brand.declarations ?? []) {
+      const brandPath = declarationPath(declaration);
+      if (brandPath) issuerPaths.add(brandPath);
+    }
+  }
+  const governedPaths = new Set(generatedDefinitionPaths ?? []);
+  const authorityIssuerFacts = collectAuthorityIssuerFacts(
+    checker,
+    sourceByPath,
+    brandSymbols,
+    generatedDefinitionPaths,
+  );
 
   const familySymbols = new Set();
   for (const issuerPath of issuerPaths) {
@@ -3153,7 +4181,6 @@ function collectAuthorityEscapeFacts(
     });
   }
 
-  const governedPaths = new Set(generatedDefinitionPaths ?? []);
   const sites = [];
   for (const sourceFile of authoritySources) {
     sites.push(...directiveEscapeSites(sourceFile, pathOf));
@@ -3221,6 +4248,7 @@ function collectAuthorityEscapeFacts(
     authorityEscapeSites: sites.sort((left, right) =>
       sortKey(left).localeCompare(sortKey(right)),
     ),
+    authorityIssuerFacts,
   };
 }
 
@@ -3640,6 +4668,7 @@ function collectOverrideFacts(
     authorityPropCensus: [],
     authorityPathFiles: [],
     authorityEscapeSites: [],
+    authorityIssuerFacts: emptyAuthorityIssuerFacts(),
   };
   const program = createOverrideProgram(overrides);
   if (validateOverrideDiagnostics) {
@@ -3794,6 +4823,7 @@ function collectOverrideFacts(
   );
   facts.authorityPathFiles.push(...authorityEscapeFacts.authorityPathFiles);
   facts.authorityEscapeSites.push(...authorityEscapeFacts.authorityEscapeSites);
+  facts.authorityIssuerFacts = authorityEscapeFacts.authorityIssuerFacts;
   return facts;
 }
 

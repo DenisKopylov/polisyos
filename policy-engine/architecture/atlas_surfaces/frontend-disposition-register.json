@@ -7195,6 +7195,48 @@
           }
         ]
       }
+    },
+    {
+      "finding_id": "authority-issuer-generated-semantic-id-coverage",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "capability_states": [
+        "artifact_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "architecture/atlas_surfaces/status_retirement_scan.mjs",
+        "architecture/atlas_surfaces/check_atlas_enforcement.py",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2",
+        "packages/runtime-api-client/types.ts"
+      ],
+      "rationale": "C01c review proved the scanner protects projection-state IDs but does not yet derive runtime-authority and fixture IDs from every closed generated union consumed by the issuer family.",
+      "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_exported_vocabulary_covers_all_consumed_owner_unions exits 0 after runtime_authority and fixture_only export corruptions fail while the unrelated-constant witness remains green",
+      "decision_date": "2026-08-02"
+    },
+    {
+      "finding_id": "authority-issuer-parity-operand-binding",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "capability_states": [
+        "artifact_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "architecture/atlas_surfaces/status_retirement_scan.mjs",
+        "architecture/atlas_surfaces/check_atlas_enforcement.py",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2"
+      ],
+      "rationale": "C01c review proved the equality predicate and never branches are bound, but a generated Operator/Run operand can still be replaced by a self-comparison without invalidating the fact packet.",
+      "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_parity_operands_are_exact_generated_pairs exits 0 after state and authority self-comparison corruptions fail",
+      "decision_date": "2026-08-02"
     }
   ],
   "seeded_negative_lifecycle": [

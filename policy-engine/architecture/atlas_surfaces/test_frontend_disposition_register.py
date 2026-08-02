@@ -816,10 +816,15 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(expected, observed)
         self.assertEqual(expected, schema_states)
 
-    def test_run_lifecycle_terminal_debt_is_derived_from_one_descriptor(self) -> None:
+    def test_producer_binding_debts_are_derived_from_descriptors(self) -> None:
         descriptors = getattr(checker, "PRODUCER_BINDING_DEBT_DESCRIPTORS", {})
         self.assertEqual(
-            {self.finding_id, "producer-binding-readiness-scientific-depth"},
+            {
+                self.finding_id,
+                "authority-issuer-generated-semantic-id-coverage",
+                "authority-issuer-parity-operand-binding",
+                "producer-binding-readiness-scientific-depth",
+            },
             set(descriptors),
         )
         self.assertEqual(

@@ -23,6 +23,8 @@ PACKAGE_PATH = "packages/atlas-ui/src/index.ts"
 PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.tsx"
 TS_PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.ts"
 TYPE_SHAPES_PATH = "apps/runtime-dashboard/src/shared/lib/domain/authorityEscapeTypes.ts"
+AUTHORITY_BADGE_PATH = "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
+EVIDENCE_TYPES_PATH = "packages/atlas-ui/src/primitives/evidenceTypes.ts"
 ATLAS_EXPORTS = (
     'export { AuthorityBadge } from "./primitives/AuthorityBadge";\n'
     "export type { AuthorityPresentation } from "
@@ -202,6 +204,388 @@ class AtlasEnforcementTests(unittest.TestCase):
                 )
             },
         )
+
+    def test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty(
+        self,
+    ) -> None:
+        errors, scan = checker.validate_enforcement()
+        facts = scan.get("authorityIssuerFacts")
+
+        self.assertEqual([], errors)
+        self.assertIsInstance(facts, dict)
+        self.assertEqual([], checker._authority_issuer_errors(scan))
+        self.assertEqual(2, len(facts["modules"]))
+        self.assertEqual(3, len(facts["brands"]))
+        self.assertEqual(5, len(facts["factories"]))
+        self.assertEqual(3, len(facts["stores"]))
+        self.assertEqual(3, len(facts["privateConstructors"]))
+        self.assertEqual(
+            {
+                "createOpaqueAuthorityPresentation",
+                "createOperatorProjectionPresentation",
+            },
+            set(facts["unrecognizedNeutralFactories"]),
+        )
+
+    def test_authority_issuer_corruptions_fail_closed(self) -> None:
+        source = (checker.status_checker.REPO_ROOT / AUTHORITY_BADGE_PATH).read_text(
+            encoding="utf-8"
+        )
+        package_source = (checker.status_checker.REPO_ROOT / PACKAGE_PATH).read_text(
+            encoding="utf-8"
+        )
+        evidence_source = (checker.status_checker.REPO_ROOT / EVIDENCE_TYPES_PATH).read_text(
+            encoding="utf-8"
+        )
+        corruptions = {
+            "partial-generated-map": (
+                source.replace(
+                    'satisfies Record<OperatorProjectionLabel["state"], BadgeTone>;',
+                    'satisfies Partial<Record<OperatorProjectionLabel["state"], BadgeTone>>;',
+                    1,
+                ),
+                "authority_issuer_exhaustive_tone_map_drift",
+            ),
+            "exported-brand": (
+                source.replace(
+                    "const authorityPresentationBrand = Symbol(",
+                    "export const authorityPresentationBrand = Symbol(",
+                    1,
+                ),
+                "authority_issuer_brands_drift",
+            ),
+            "exported-constructor": (
+                source.replace(
+                    "function createPresentation(",
+                    "export function createPresentation(",
+                    1,
+                ),
+                "authority_issuer_factories_drift",
+            ),
+            "unfrozen-issued-value": (
+                source.replace("return Object.freeze(issued);", "return issued;", 1),
+                "authority_issuer_constructor_return_not_frozen:createPresentation",
+            ),
+            "runtime-novelty-upgrade": (
+                source.replace(
+                    'presentation: "unrecognized",',
+                    'presentation: "recognized",',
+                    1,
+                ),
+                "authority_issuer_runtime_novelty_drift",
+            ),
+            "exported-owner-vocabulary": (
+                source.replace(
+                    "const projectionStateTones = {",
+                    "export const projectionStateTones = {",
+                    1,
+                ),
+                "authority_issuer_exported_vocabulary",
+            ),
+            "caller-selected-tone": (
+                source.replace(
+                    "export function createOperatorBlockingCausePresentation(\n"
+                    "  diagnostic: OperatorDiagnosticOwner,\n"
+                    "): AuthorityPresentation {",
+                    "export function createOperatorBlockingCausePresentation(\n"
+                    "  diagnostic: OperatorDiagnosticOwner,\n"
+                    '  callerTone: BadgeTone = "fail",\n'
+                    "): AuthorityPresentation {",
+                    1,
+                ).replace('tone: "fail",', "tone: callerTone,", 1),
+                "authority_issuer_factory_parameters_drift:createOperatorBlockingCausePresentation",
+            ),
+            "indirect-brand-export": (
+                source.replace(
+                    'const authorityPresentationBrand = Symbol("polisyos.authority-presentation");',
+                    "const authorityPresentationBrand = "
+                    'Symbol("polisyos.authority-presentation");\n'
+                    "export { authorityPresentationBrand };",
+                    1,
+                ),
+                "authority_issuer_brand_exported:authorityPresentationBrand",
+            ),
+            "shadowed-issuance-builtins": (
+                source.replace(
+                    'import type { FixtureAuthority } from "./evidenceTypes";',
+                    'import type { FixtureAuthority } from "./evidenceTypes";\n\n'
+                    "class WeakSet<Value extends object> {\n"
+                    "  readonly #values = new globalThis.WeakSet<Value>();\n"
+                    "  add(value: Value): this { this.#values.add(value); return this; }\n"
+                    "  has(value: Value): boolean { return this.#values.has(value); }\n"
+                    "}\n"
+                    "class WeakMap<Key extends object, Value> {\n"
+                    "  readonly #values = new globalThis.WeakMap<Key, Value>();\n"
+                    "  set(key: Key, value: Value): this { "
+                    "this.#values.set(key, value); return this; }\n"
+                    "  get(key: Key): Value | undefined { return this.#values.get(key); }\n"
+                    "}\n"
+                    "const Object = {\n"
+                    "  freeze: globalThis.Object.freeze,\n"
+                    "  hasOwn: globalThis.Object.hasOwn,\n"
+                    "};",
+                    1,
+                ),
+                "authority_issuer_stores_drift",
+            ),
+            "dead-runtime-novelty-marker": (
+                source.replace(
+                    "  return createPresentation({\n"
+                    "    authority,\n"
+                    '    presentation: "unrecognized",\n'
+                    '    source: "opaque_extension",\n'
+                    '    tone: "neutral",\n'
+                    "  });",
+                    "  if (false) {\n"
+                    "    return createPresentation({\n"
+                    "      authority,\n"
+                    '      presentation: "unrecognized",\n'
+                    '      source: "opaque_extension",\n'
+                    '      tone: "neutral",\n'
+                    "    });\n"
+                    "  }\n"
+                    "  return createPresentation({\n"
+                    "    authority,\n"
+                    '    presentation: "recognized",\n'
+                    '    source: "opaque_extension",\n'
+                    '    tone: "ok",\n'
+                    "  });",
+                    1,
+                ),
+                "authority_issuer_factory_return_drift:createOpaqueAuthorityPresentation",
+            ),
+            "dead-return-with-live-indirect-issuance": (
+                source.replace(
+                    "  return createPresentation({\n"
+                    "    authority,\n"
+                    '    presentation: "unrecognized",\n'
+                    '    source: "opaque_extension",\n'
+                    '    tone: "neutral",\n'
+                    "  });",
+                    "  if (false) {\n"
+                    "    return createPresentation({\n"
+                    "      authority,\n"
+                    '      presentation: "unrecognized",\n'
+                    '      source: "opaque_extension",\n'
+                    '      tone: "neutral",\n'
+                    "    });\n"
+                    "  }\n"
+                    "  const upgraded = createPresentation({\n"
+                    "    authority,\n"
+                    '    presentation: "recognized",\n'
+                    '    source: "opaque_extension",\n'
+                    '    tone: "ok",\n'
+                    "  });\n"
+                    "  return upgraded;",
+                    1,
+                ),
+                "authority_issuer_factory_call_shape_drift:createOpaqueAuthorityPresentation",
+            ),
+            "unused-membership-marker": (
+                source.replace(
+                    "  if (\n"
+                    "    !(diagnostic.projection_labels as readonly unknown[] | "
+                    "undefined)?.includes(\n"
+                    "      item,\n"
+                    "    )\n"
+                    "  ) {\n"
+                    "    throw new TypeError(\n"
+                    '      "projection label must be a member of the generated owner diagnostic",\n'
+                    "    );\n"
+                    "  }",
+                    "  (diagnostic.projection_labels as readonly unknown[] | undefined)"
+                    "?.includes(item);",
+                    1,
+                ),
+                "authority_issuer_owner_membership_drift",
+            ),
+            "dead-membership-marker": (
+                source.replace(
+                    "  if (\n"
+                    "    !(diagnostic.projection_labels as readonly unknown[] | "
+                    "undefined)?.includes(\n"
+                    "      item,\n"
+                    "    )\n"
+                    "  ) {\n"
+                    "    throw new TypeError(\n"
+                    '      "projection label must be a member of the generated owner diagnostic",\n'
+                    "    );\n"
+                    "  }",
+                    "  if (false) {\n"
+                    "    if (\n"
+                    "      !(\n"
+                    "        diagnostic.projection_labels as readonly unknown[] | undefined\n"
+                    "      )?.includes(item)\n"
+                    "    ) {\n"
+                    "      throw new TypeError(\n"
+                    '        "projection label must be a member of the generated '
+                    'owner diagnostic",\n'
+                    "      );\n"
+                    "    }\n"
+                    "  }",
+                    1,
+                ),
+                "authority_issuer_owner_membership_drift",
+            ),
+            "rebound-owner-membership": (
+                source.replace(
+                    "diagnostic.projection_labels as readonly unknown[] | undefined",
+                    "[item] as readonly unknown[] | undefined",
+                    1,
+                ),
+                "authority_issuer_owner_membership_drift",
+            ),
+            "missing-parity-invocation": (
+                source.replace(
+                    "assertProjectionVocabularyParity(true, true);\n",
+                    "",
+                    1,
+                ),
+                "authority_issuer_projection_parity_drift",
+            ),
+            "dead-parity-invocation": (
+                source.replace(
+                    "assertProjectionVocabularyParity(true, true);",
+                    "if (false) {\n  assertProjectionVocabularyParity(true, true);\n}",
+                    1,
+                ),
+                "authority_issuer_projection_parity_drift",
+            ),
+            "hardcoded-parity-predicate": (
+                source.replace(
+                    "type IsExact<Left, Right> =\n"
+                    "  (<Value>() => Value extends Left ? 1 : 2) extends <\n"
+                    "    Value,\n"
+                    "  >() => Value extends Right ? 1 : 2\n"
+                    "    ? (<Value>() => Value extends Right ? 1 : 2) extends <\n"
+                    "        Value,\n"
+                    "      >() => Value extends Left ? 1 : 2\n"
+                    "      ? true\n"
+                    "      : false\n"
+                    "    : false;",
+                    "type IsExact<Left, Right> = true;",
+                    1,
+                ),
+                "authority_issuer_projection_parity_drift",
+            ),
+            "untyped-owner-vocabulary-reconstruction": (
+                source.replace(
+                    "type OperatorDiagnosticOwner =",
+                    "export const leakedOwnerStates = [\n"
+                    '  "approved", "blocked", "contested", "draft",\n'
+                    '  "projected", "projection_only", "publishable",\n'
+                    '  "published_blocked", "readiness_closed", "redacted",\n'
+                    '  "rejected", "stale",\n'
+                    "];\n\n"
+                    "type OperatorDiagnosticOwner =",
+                    1,
+                ),
+                "authority_issuer_exported_vocabulary",
+            ),
+            "untyped-owner-vocabulary-subset": (
+                source.replace(
+                    "type OperatorDiagnosticOwner =",
+                    'export const leakedOwnerSubset = ["approved", "blocked"];\n\n'
+                    "type OperatorDiagnosticOwner =",
+                    1,
+                ),
+                "authority_issuer_exported_vocabulary",
+            ),
+            "aliased-owner-vocabulary-reconstruction": (
+                source.replace(
+                    'satisfies Record<OperatorProjectionLabel["state"], BadgeTone>;',
+                    'satisfies Record<OperatorProjectionLabel["state"], BadgeTone>;\n'
+                    "export const leakedOwnerStates = projectionStateTones;",
+                    1,
+                ),
+                "authority_issuer_exported_vocabulary",
+            ),
+        }
+        for label, (corrupted_source, expected_error) in corruptions.items():
+            with self.subTest(label=label):
+                errors, scan = checker.validate_enforcement(
+                    source_overrides={
+                        PACKAGE_PATH: package_source,
+                        AUTHORITY_BADGE_PATH: corrupted_source,
+                    },
+                    enforce_authority_escapes=False,
+                )
+                self.assertEqual([], errors)
+                issuer_errors = checker._authority_issuer_errors(scan)
+                self.assertTrue(
+                    any(
+                        error == expected_error or error.startswith(expected_error + ":")
+                        for error in issuer_errors
+                    ),
+                    issuer_errors,
+                )
+
+        evidence_corruptions = {
+            "unused-governed-membership-marker": (
+                evidence_source.replace(
+                    "  if (!packet.authoritative_for.includes(authorityPurpose)) {\n"
+                    "    throw new TypeError(\n"
+                    '      "authority purpose is not declared by the owner packet",\n'
+                    "    );\n"
+                    "  }",
+                    "  packet.authoritative_for.includes(authorityPurpose);",
+                    1,
+                ),
+                "authority_issuer_owner_membership_drift",
+            ),
+            "shadowed-weakmap-and-freeze": (
+                evidence_source.replace(
+                    '} from "@polisyos/runtime-api-client";',
+                    '} from "@polisyos/runtime-api-client";\n\n'
+                    "class WeakMap<Key extends object, Value> {\n"
+                    "  readonly #values = new globalThis.WeakMap<Key, Value>();\n"
+                    "  set(key: Key, value: Value): this { "
+                    "this.#values.set(key, value); return this; }\n"
+                    "  get(key: Key): Value | undefined { return this.#values.get(key); }\n"
+                    "}\n"
+                    "const Object = {\n"
+                    "  freeze: globalThis.Object.freeze,\n"
+                    "  hasOwn: globalThis.Object.hasOwn,\n"
+                    "};",
+                    1,
+                ),
+                "authority_issuer_stores_drift",
+            ),
+        }
+        for label, (corrupted_source, expected_error) in evidence_corruptions.items():
+            with self.subTest(label=label):
+                errors, scan = checker.validate_enforcement(
+                    source_overrides={
+                        PACKAGE_PATH: package_source,
+                        EVIDENCE_TYPES_PATH: corrupted_source,
+                    },
+                    enforce_authority_escapes=False,
+                )
+                self.assertEqual([], errors)
+                issuer_errors = checker._authority_issuer_errors(scan)
+                self.assertTrue(
+                    any(
+                        error == expected_error or error.startswith(expected_error + ":")
+                        for error in issuer_errors
+                    ),
+                    issuer_errors,
+                )
+
+        benign_source = source.replace(
+            "type OperatorDiagnosticOwner =",
+            'export const AUTHORITY_BADGE_TEST_ID = "authority-badge";\n\n'
+            "type OperatorDiagnosticOwner =",
+            1,
+        )
+        errors, benign_scan = checker.validate_enforcement(
+            source_overrides={
+                PACKAGE_PATH: package_source,
+                AUTHORITY_BADGE_PATH: benign_source,
+            },
+            enforce_authority_escapes=False,
+        )
+        self.assertEqual([], errors)
+        self.assertEqual([], checker._authority_issuer_errors(benign_scan))
 
     def test_ds5_override_gate_rejects_invalid_witnesses(self) -> None:
         errors, scan = self._validate(

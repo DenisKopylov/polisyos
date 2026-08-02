@@ -133,10 +133,11 @@ export function createOperatorProjectionPresentation(
   diagnostic: OperatorDiagnosticOwner,
   item: OperatorProjectionLabel,
 ): AuthorityPresentation {
-  const ownerLabels = diagnostic.projection_labels as
-    | readonly unknown[]
-    | undefined;
-  if (!ownerLabels?.includes(item)) {
+  if (
+    !(diagnostic.projection_labels as readonly unknown[] | undefined)?.includes(
+      item,
+    )
+  ) {
     throw new TypeError(
       "projection label must be a member of the generated owner diagnostic",
     );

@@ -35,8 +35,9 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 - Task 1: complete (`f4fc44d73`).
 - Part A: complete and independently approved through `923f5ca33`.
 - Part B: complete and independently approved through `1d24793a1`.
-- Part C Gate 0: **NEGATIVE** at the clean `1d24793a1` boundary; the one cold attempt
-  failed closed in N10 provenance validation and the structural cache preconditions are absent.
+- Part C Gate 0: **NEGATIVE** at the clean `1d24793a1` boundary and independently approved through
+  `5391639c6`; the one cold attempt failed closed in N10 provenance validation and the structural
+  cache preconditions are absent.
 - Part C implementation: not authorized; the conditional implementation task is skipped.
 - Final replay: not triggered because Part C changed no byte under `src/polisyos/**`.
 
@@ -313,3 +314,24 @@ approximately `1h52m` user headline remain applicable, but that is an inference 
 execution change, not a new measurement. The one `160.195s` failed process is a Gate-0 measurement
 receipt, not a comparable full closeout cycle. Corruption counts, flip counts, governance numbers,
 semantic denominators, gates, and artifact hashes are unchanged.
+
+### Part C independent review
+
+- The first independent review read the full Part C package for
+  `1d24793a193121e1acf8abb794f25a93392c18dc..4c89993340b88bd836238edfe1bdc0f10591c4fd`:
+  `16,648` bytes, SHA-256
+  `ed0bf0a1cdfb7401161774a0365f876ce29e30eae5295863ba1f1f2ce953f55d`. The reviewer rebuilt an
+  exact byte match and authenticated the raw Gate-0 receipt, timing values, WMR identity, closure
+  census, and code paths.
+- The substantive NEGATIVE was accepted, but the report received `0` Critical, `2` Important,
+  and `1` Minor findings: enforced read-only permissions were overstated; the `5,852s` enumerated
+  lane sum was conflated with the `6,720s` headline; and the provenance failure was called
+  pre-existing without a pre-A/B cold measurement.
+- Fix commit `5391639c6` corrects only those reporting claims. The required delta package for
+  `4c89993340b88bd836238edfe1bdc0f10591c4fd..5391639c6` carries the exact prior checklist:
+  package `6,554` bytes, SHA-256
+  `2f48967e06c465b5026d7907ed28d7673b1e0229d95caefec7bdf258f73ce343`; checklist SHA-256
+  `45602b3d8c52535f0fda2afe527901931682b81404b08b315bc13135463a2b81`.
+- Delta-only re-review closed all three findings and returned approved with no new Critical or
+  Important findings. Part C closes negative without runtime/test edits, implementation
+  witnesses, gate changes, or replay.

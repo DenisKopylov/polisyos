@@ -146,6 +146,7 @@ def test_report_timing_summarizes_budgeted_runs(tmp_path: Path, capsys) -> None:
             started_at="2026-04-13T10:00:00+00:00",
             duration_ms=450000.0,
             exit_code=0,
+            mode="check",
         ),
     )
     append_timing_record(
@@ -182,6 +183,7 @@ def test_report_timing_summarizes_budgeted_runs(tmp_path: Path, capsys) -> None:
     assert exit_code == 0
     assert payload["record_count"] == 2
     assert payload["summaries"][0]["tool"] == "workspace.verify"
+    assert payload["summaries"][0]["latest_mode"] == "check"
     assert payload["summaries"][0]["over_budget_runs"] == 1
     assert summary_path.exists()
     assert "Tool Timing Summary" in summary_path.read_text(encoding="utf-8")

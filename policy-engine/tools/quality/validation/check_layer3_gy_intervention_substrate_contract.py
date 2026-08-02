@@ -278,4 +278,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    from tools.lib.timing import run_timed_entrypoint
+
+    raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

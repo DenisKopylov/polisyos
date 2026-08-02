@@ -98,6 +98,7 @@ def _summary_payload(limit: int, timing_log: Path) -> dict[str, object]:
             {
                 "tool": summary.tool,
                 "category": summary.category,
+                "latest_mode": summary.latest_mode,
                 "runs": summary.runs,
                 "failures": summary.failures,
                 "skipped": summary.skipped,
@@ -136,6 +137,7 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         lines.append(
             "- "
             f"{item['tool']}: avg={float(item['average_duration_ms']):.1f}ms, "
+            f"mode={item['latest_mode']}, "
             f"p95={float(item['p95_duration_ms']):.1f}ms, "
             f"latest={float(item['latest_duration_ms']):.1f}ms, "
             f"runs={int(item['runs'])}, failures={int(item['failures'])}, "
@@ -153,8 +155,8 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         f"- Recorded runs: {payload['record_count']}",
         f"- Distinct tools: {payload['tool_count']}",
         "",
-        "| Tool | Avg (ms) | P95 (ms) | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Tool | Mode | Avg (ms) | P95 (ms) | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     summaries = payload["summaries"]
     assert isinstance(summaries, list)
@@ -162,7 +164,7 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         assert isinstance(item, dict)
         budget = item.get("budget_ms")
         lines.append(
-            f"| `{item['tool']}` | {float(item['average_duration_ms']):.1f} | "
+            f"| `{item['tool']}` | {item['latest_mode']} | {float(item['average_duration_ms']):.1f} | "
             f"{float(item['p95_duration_ms']):.1f} | {float(item['latest_duration_ms']):.1f} | "
             f"{int(item['failures'])} | {int(item['skipped'])} | "
             f"{('-' if budget is None else f'{float(budget):.1f}')} | {int(item['over_budget_runs'])} |"

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from inspect import signature
 from pathlib import Path
 from statistics import fmean
 
@@ -39,12 +41,14 @@ class ToolRunRecord:
     started_at: str
     duration_ms: float
     exit_code: int
+    mode: str = "default"
 
 
 @dataclass(frozen=True)
 class ToolTimingSummary:
     tool: str
     category: str
+    latest_mode: str
     runs: int
     failures: int
     skipped: int
@@ -90,6 +94,7 @@ def make_timing_record(
         started_at=str(state.get("started_at")),
         duration_ms=float(state.get("duration_ms") or 0.0),
         exit_code=exit_code,
+        mode=str(state.get("mode") or "default"),
     )
 
 
@@ -117,6 +122,7 @@ def _coerce_record(payload: dict[str, object]) -> ToolRunRecord:
         started_at=str(payload.get("started_at") or ""),
         duration_ms=float(payload.get("duration_ms") or 0.0),
         exit_code=int(payload.get("exit_code") or 0),
+        mode=str(payload.get("mode") or "default"),
     )
 
 
@@ -168,13 +174,13 @@ def summarize_timing_records(
     budgets_ms: dict[str, float] | None = None,
 ) -> list[ToolTimingSummary]:
     budgets = budgets_ms or DEFAULT_TIMING_BUDGETS_MS
-    grouped: dict[str, list[ToolRunRecord]] = {}
+    grouped: dict[tuple[str, str], list[ToolRunRecord]] = {}
     for record in records:
-        grouped.setdefault(record.tool, []).append(record)
+        grouped.setdefault((record.tool, record.mode), []).append(record)
 
     summaries: list[ToolTimingSummary] = []
-    for tool in sorted(grouped):
-        tool_records = sorted(grouped[tool], key=lambda record: record.started_at)
+    for tool, mode in sorted(grouped):
+        tool_records = sorted(grouped[(tool, mode)], key=lambda record: record.started_at)
         durations = [record.duration_ms for record in tool_records]
         latest = tool_records[-1]
         budget_ms = budgets.get(tool)
@@ -187,6 +193,7 @@ def summarize_timing_records(
             ToolTimingSummary(
                 tool=tool,
                 category=latest.category,
+                latest_mode=mode,
                 runs=len(tool_records),
                 failures=sum(1 for record in tool_records if record.status == "failed"),
                 skipped=sum(1 for record in tool_records if record.status == "skipped"),
@@ -206,3 +213,112 @@ def timing_log_from_env() -> Path | None:
     if not raw:
         return default_timing_log_path()
     return Path(raw)
+
+
+def _exit_code_from_system_exit(exc: SystemExit) -> int:
+    """Return the process status implied by a ``SystemExit`` instance."""
+
+    if isinstance(exc.code, int):
+        return exc.code
+    return 0 if exc.code is None else 1
+
+
+def _append_timing_record_best_effort(record: ToolRunRecord) -> None:
+    """Persist telemetry without allowing telemetry storage to alter command semantics."""
+
+    timing_log = timing_log_from_env()
+    if timing_log is None:
+        return
+    try:
+        append_timing_record(timing_log, record)
+    except Exception as exc:  # pragma: no cover - defensive telemetry boundary.
+        print(f"warning: could not persist tool timing telemetry: {exc}", file=sys.stderr)
+
+
+def run_timed_operation(
+    operation: Callable[[], int],
+    *,
+    tool: str,
+    category: str,
+    mode: str = "default",
+    output_format: str = "text",
+) -> int:
+    """Run an operation and append one best-effort timing record without changing its outcome."""
+
+    started_at = datetime.now(UTC).isoformat()
+    started = time.perf_counter()
+    exit_code = 1
+    status = "failed"
+    try:
+        exit_code = operation()
+        status = "ok" if exit_code == 0 else "failed"
+        return exit_code
+    except SystemExit as exc:
+        exit_code = _exit_code_from_system_exit(exc)
+        status = "ok" if exit_code == 0 else "failed"
+        raise
+    except BaseException:
+        raise
+    finally:
+        record = ToolRunRecord(
+            tool=tool,
+            category=category,
+            output_format=output_format,
+            status=status,
+            preflight_status="ok",
+            started_at=started_at,
+            duration_ms=round((time.perf_counter() - started) * 1000.0, 3),
+            exit_code=exit_code,
+            mode=mode,
+        )
+        _append_timing_record_best_effort(record)
+
+
+def _entrypoint_accepts_argv(entrypoint: Callable[..., int]) -> bool:
+    """Return whether the existing direct entrypoint accepts one positional argument."""
+
+    return bool(signature(entrypoint).parameters)
+
+
+def _timing_key_for_script(script_path: str | Path) -> str:
+    """Derive a stable timing key from a repository tool script path."""
+
+    path = Path(script_path).with_suffix("")
+    parts = path.parts
+    try:
+        tools_index = parts.index("tools")
+    except ValueError:
+        return path.name
+    return ".".join(parts[tools_index + 1 :])
+
+
+def _mode_from_argv(argv: list[str]) -> str:
+    """Return the first long option as the direct command's operational mode."""
+
+    for argument in argv:
+        if argument.startswith("--") and len(argument) > 2:
+            return argument[2:].split("=", 1)[0]
+    return "default"
+
+
+def run_timed_entrypoint(
+    entrypoint: Callable[..., int],
+    *,
+    script_path: str | Path,
+    argv: list[str],
+) -> int:
+    """Run a legacy direct entrypoint through the shared timing emission path."""
+
+    arguments = list(argv)
+
+    def _operation() -> int:
+        if _entrypoint_accepts_argv(entrypoint):
+            return entrypoint(arguments)
+        return entrypoint()
+
+    return run_timed_operation(
+        _operation,
+        tool=_timing_key_for_script(script_path),
+        category="quality",
+        mode=_mode_from_argv(arguments),
+    )

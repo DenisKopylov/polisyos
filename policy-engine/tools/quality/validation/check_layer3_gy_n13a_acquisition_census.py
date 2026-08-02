@@ -777,4 +777,8 @@ def _bytes_sha256(payload: bytes) -> str:
 
 
 if __name__ == "__main__":  # pragma: no cover - exercised through the CLI
-    raise SystemExit(main())
+    import sys
+
+    from tools.lib.timing import run_timed_entrypoint
+
+    raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

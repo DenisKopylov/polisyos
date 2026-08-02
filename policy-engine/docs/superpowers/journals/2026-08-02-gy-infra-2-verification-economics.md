@@ -32,9 +32,9 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 
 ## Progress ledger
 
-- Task 1: complete pending this planning-boundary commit.
-- Part A: pending.
-- Part B: pending.
+- Task 1: complete (`f4fc44d73`).
+- Part A: complete and independently approved through `923f5ca33`.
+- Part B: implementation complete; independent review pending.
 - Part C Gate 0: pending.
 - Part C implementation: not authorized before Gate 0.
 - Final replay: not priced before source freeze and reviews.
@@ -51,3 +51,44 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 - Catalog identity ruling: the CG1 receipt ran the historical temporary `/tmp/gy_n10_cg1_l2_census.py`, not the current `check_layer3_gy_n10_cg1_l2_relation_census.py` guard. It is therefore published as `historical.gy-n10-cg1-l2-census:default`; no equivalence to the current guard is claimed. `report-timing` declares this catalog's scope as `requested_expensive_lanes_only`: non-catalogued `check_layer3_gy_*` lanes are explicitly outside this requested expensive-lane set, not silently omitted `unmeasured_budget` findings.
 - Fresh full ESLint receipt: `tools/quality/testing/run_timed_suite.py --lane frontend.eslint --cwd apps/runtime-dashboard -- corepack pnpm run lint`; exit `0`, duration `1656678.371ms`. This replaces the unmeasured lane; the historical approximate `~19 minutes` was not used as a sample.
 - Independent Part A review of `498351b..6bcc95b` found one Important text-surface gap: empty per-tool summaries returned before rendering the catalog lanes. Fix `dc5ff8505` removed that return and added a missing-log text regression; focused tests, Ruff, and `git diff --check` passed. The fix-only re-review returned approved with no Critical/Important findings.
+
+## Part B — deterministic full and delta review packages
+
+- Pattern closure: the new standalone producer and its binary, length-framed artifact close the
+  Part B `producer_missing` and `verification_missing` labels without generalizing the unrelated
+  academic expert-bundle builder. Full and delta packages share one renderer (P31); real Git
+  object resolution, ancestry checks, hostile configuration controls, and real temporary
+  repositories provide behavioral proof rather than marker proof (P29/P32/P33).
+- TDD RED was observed in five stages: the first full-package witness failed because the script did
+  not exist; delta witnesses then failed because `--prior-findings` did not exist; the Git-admin
+  target witness showed that an otherwise valid package could be written below `.git`; and the
+  hostile-environment/order-file witnesses showed that inherited Git context or `diff.orderFile`
+  could redirect or reorder a package. A final macOS case-fold witness proved that `.GIT` could
+  alias `.git` despite lexical containment, so admin ancestry is now also checked by inode. The
+  focused GREEN command is
+  `.venv/bin/python -m pytest tests/repo_quality/tools/test_review_package.py -q` (`9` passed).
+- Every revision is peeled with `git rev-parse --verify --end-of-options <rev>^{commit}` and only
+  resolved object IDs cross into the ancestry/diff commands. Git execution uses argument vectors,
+  disables external diff/textconv, prompts, pagers, replacement objects, and lazy fetch, and pins
+  diff ordering/format controls. Output and checklist paths are realpath-contained in the Git
+  worktree while `.superpowers/` remains allowed; `.git` markers, admin/common directories,
+  symlink traversal, path escapes, and output/checklist aliasing fail closed.
+- Delta checklists are raw length-framed bytes with SHA-256 over those exact bytes. The behavioral
+  witness covers CRLF, NUL, `0xff`, marker-like content, shell metacharacters, and no final newline;
+  generated Git text alone is normalized to LF. The complete package is gathered before one
+  `atomic_write_bytes` call, and both early validation failures and a late corrupt-object diff
+  failure preserve an existing valid output.
+- Actual branch package from `4b9e76f20..923f5ca33` (branch base through reviewed Part A):
+  `251678` bytes, SHA-256
+  `11e5850560e6ea110a3ace8386c559a3d2a9cd88ab3432888cad81e2117027ff`.
+- Natural Part A re-review comparison: the initial Task-3 package
+  `498351be8..6bcc95bff` is `75031` bytes; its fix-only delta
+  `6bcc95bff..dc5ff8505`, carrying the earlier Important finding, is `4374` bytes.
+  The delta is `5.830%` of the full package (`17.15x` smaller), so the real branch example also
+  clears the order-of-magnitude target rather than relying only on the representative fixture.
+- Architecture guardrails were run and returned an honest pre-existing deep-import-baseline
+  non-receipt (five runtime HTTP imports plus stale removals). Both
+  `git diff --exit-code 4b9e76f20 -- src/polisyos/runtime/http architecture/baselines/imports/deep_import.json`
+  and the broader `git diff --exit-code 923f5ca33 -- src architecture/baselines/imports/deep_import.json`
+  returned `0`: neither Part A nor Part B changed the source/baseline inputs to this gate. No
+  governed baseline sync was performed outside this task's fence.

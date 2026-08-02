@@ -226,7 +226,7 @@ N2/N4/N6/N7/N8/N9/N11/N12. Decision doc:
 `docs/reference/`. **Status: the entire CG block executed and closed honest (2026-07-03).**
 
 **Revision 14 (2026-07-04; restored 2026-07-08 — same loss).** Codified the **compute-economics
-gates** (new §3.5.7, E1–E12 — E11/E12 added Rev 20 from GY-N11) distilled from the GY-N4 saga (a correct closure cost ~4h because the
+gates** (new §3.5.7, E1–E14 — E11–E14 + GY-INFRA-2 added Rev 20 from GY-N11) distilled from the GY-N4 saga (a correct closure cost ~4h because the
 full world was rebuilt in every validator/probe/unit run), plus the **GY-INFRA-1** build task
 (content-hash world cache proven byte-identical cold≡warm + one-process sweep-runner + heartbeats)
 and compute-economics riders on N5–N10. **Status: GY-INFRA-1 executed and closed (warm closeout
@@ -664,7 +664,7 @@ four — so the implementer builds to them on the first pass instead of rediscov
 rounds. Verification stays **targeted** (§Commands; blast-radius + recomputing validators + ruff +
 guardrails), never full pytest.
 
-### 3.5.7 Compute-economics gates (the GY-N4 lesson, extended by GY-N11 — binding for every task with expensive shared state or a live provider; restored Rev 15, E11–E12 added Rev 20)
+### 3.5.7 Compute-economics gates (the GY-N4 lesson, extended by GY-N11 — binding for every task with expensive shared state, a live provider, or content-bound artifacts; restored Rev 15, E11–E14 + GY-INFRA-2 added Rev 20)
 
 Distilled from the GY-N4 saga: a **correct** closure cost ~4 hours because the full world
 (CredalReference + 792k-edge FTS index + composed WMR) was rebuilt in every validator/probe/unit
@@ -719,10 +719,62 @@ O0–O3, and every closeout sweep:
     changes authority semantics, so it is a **planned slice with review + one replay**, never an
     in-flight optimization.
 
+13. **E13 Serialize the contended resource, not the whole session (NEW, Rev 20).** "One validator at a
+    time" is binding **only for the lanes that actually share state**: the composed-WMR / DuckDB
+    scratch (`.tmp/gy-s-composed-wmr-world`, FTS index, owner caches), any writer touching the same
+    canonical artifact, and the source-flip harness (it mutates tracked bytes). Everything that
+    touches none of those — lint, typecheck, package/unit logic tests (Lane 0), production build,
+    architecture/dependency checks, read-only censuses — **may run in parallel with a long owner
+    replay**. **Measured in GY-N11:** the slice idled every other lane through an 80-minute Fork-B
+    census and repeatedly through ~950 s owner derivations, because the rule was written without a
+    resource list. A slice that serializes a non-contending lane is paying for nothing; a slice that
+    parallelizes a contending one corrupts shared scratch. Name the contended set in the task plan.
+14. **E14 The verification harness is itself measured and bounded (NEW, Rev 20).** Three sub-rules,
+    each from an observed loss:
+    (a) **Measured timeouts.** Each slice measures every suite's wall time **once** and sets explicit
+    per-suite timeouts from that baseline. An unmeasured default timeout that kills a healthy run is
+    a **harness finding**, not a product signal — the run→timeout→non-receipt→rerun loop cost DS4 and
+    N11 repeated full suites. E5 makes overrun a finding; E14(a) makes *unmeasured* budgets one too.
+    (b) **Delta-only re-review.** The first independent review reads the full package; **every
+    re-review after a fix reads the fix delta only**, with the original findings as its checklist.
+    N11 and DS4 both lost reviewer runs mid-flight to quota exhaustion on 182 KB / 220 KB packages;
+    DS4 did it right exactly once (a 28 KB delta package) — that is the rule, not the exception.
+    (c) **Silent polling.** Poll long runs without narration; report only a state change (stage
+    complete + receipt, RED, or stop condition), one line. **Measured in GY-N11:** per-minute
+    "still healthy / still CPU-active" messages drove ~15 context compactions in one session, each
+    risking state loss and re-derivation. E9 requires heartbeat *evidence*, never heartbeat *prose*.
+
 **Never loosen a §3.5.6 correctness gate to satisfy an economics one** — a warm/cached run is
 legitimate only because it is content-identical to the cold rebuild, and the cold closeout still
-runs. **E11/E12 are sequencing and scoping rules — they never reduce what is verified**, only when
-the verification is paid for and what legitimately triggers it.
+runs. **E11–E14 are sequencing, scoping, and harness rules — they never reduce what is verified**,
+only when the verification is paid for, what legitimately triggers it, and how it is observed.
+
+**GY-INFRA-2 — persist the E1 owner cache across processes (NEW, Rev 20; measurement-gated).**
+Owner: **runtime/quality lane**. Sequence **after GY-N11 merges** — never under a running agent.
+**The measured defect:** E1's cache is `self._world_cache: dict[str, object]`
+(`src/polisyos/runtime/quality/generation_cycle.py:1579`) — an in-memory instance dict with no disk
+backing. Every closeout lane is a separate CLI process, so each re-pays the full cold owner build.
+**GY-N11 numbers for one closeout cycle:** writer-1 1,086 s + writer-2 951 s + `--check` 951 s +
+49-case corruption 937 s + warm closeout 975 s + cold closeout 952 s ≈ **1 h 52 m** — while the
+*in-process* second derivation costs **2.3–4.0 s**. That is a **~240×** hit/miss ratio paid six times
+per cycle, and N11 ran several cycles (initial, U3, post-review, final). With a cross-process cache
+the same protocol is one cold build + five hits ≈ **17 min**.
+**Gate 0 (mandatory, before any implementation): a measurement spike.** Profile which components
+actually dominate the cold build (CredalReference, the 792k-edge DuckDB FTS index, composed WMR) and
+which are serializable. The FTS index is certainly persistable; the rest must be **measured, not
+assumed**. If the spike shows the dominant cost is not persistable, GY-INFRA-2 closes as a recorded
+negative finding — that is a legitimate outcome, not a failure.
+**Why this does not weaken anything:** E1's contract is already "a cache hit is identical to a
+rebuild **by construction**", and GY-INFRA-1 closed with `cold ≡ warm` proven byte-identical. The
+independence of `--check` is about refusing to trust the **artifact's recorded values**; it still
+re-derives every projection from owner state, and the provenance of that state is irrelevant *iff*
+the key is sound. **Binding conditions:** key on the **authority import closure** (§3.5.7 E12, not a
+whole tree); **fail closed** on any key or content mismatch — a persisted cache is exactly the
+§3.5.6-gate-2 "trusted JSON" hole if it can be believed without recomputation; the **Lane-2 cold
+closeout still runs uncached, once** (E3). **Done when:** a cold build and a cross-process cache hit
+produce byte-identical artifacts; a mutated owner byte misses; a forged or truncated cache entry
+fails closed rather than serving; and the closeout cycle's measured wall time drops with **no change
+to any semantic denominator**.
 
 ### 3.5.8 Domain/method-family genericity gates (the GY-N8 lesson — binding for every task downstream of the first vertical; NEW, Rev 15)
 

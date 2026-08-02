@@ -73,34 +73,44 @@ Use `rg`/`rg --files` for search, keep tests mirrored under `tests/`, public API
 
 ## Toolchain Facts (measured — do not re-derive per worktree)
 
-- `corepack pnpm`, never `pnpm`. Run `corepack pnpm install --frozen-lockfile` in a fresh checkout
-  **before trusting any TypeScript scanner**: without `node_modules/@polisyos/*` links,
-  generated-owner proofs emit false findings.
-- `ruff` is a module: `.venv/bin/python -m ruff`. macOS has no `timeout` — use the harness facility.
-  zsh needs glob flags quoted (`--include='*.py'`). Repo-root Prettier is absent (the dashboard pins
-  its own) — a missing formatter is a tooling non-receipt, never a product failure.
-- `rm -f` and writes outside the repo are policy-blocked; use the harness scratch directory.
-- Worktrees have no `production_data` and no venv: link data read-only, provision from local cache
-  (`--offline`). Some capstone validators require an isolation-local `.venv` and reject a reused one.
-- Governed JSON is edited **surgically** — a full `json.dumps` reformat is rejected even when the
+- **Silently wrong if skipped:** `corepack pnpm` (never bare `pnpm`) — run
+  `corepack pnpm install --frozen-lockfile` in a fresh checkout **before trusting any TypeScript
+  scanner**, since missing `node_modules/@polisyos/*` links make generated-owner proofs emit false
+  findings. Edit governed JSON **surgically**; a full `json.dumps` reformat is rejected even when the
   parsed content is identical.
+- **Fails loudly:** `ruff` is a module (`.venv/bin/python -m ruff`); macOS has no `timeout`; zsh needs
+  glob flags quoted (`--include='*.py'`); repo-root Prettier is absent (a missing formatter is a
+  tooling non-receipt, never a product failure); `rm -f` and writes outside the repo are blocked —
+  use the harness scratch; worktrees have no `production_data` and no venv (link data read-only,
+  provision `--offline`), and some capstone validators require an isolation-local `.venv`.
 
-## Verification Economics (change *when* verification is paid for, never *what* is verified)
+## Work Preservation, History, Verification Economics
 
+Full statements: GY plan §3.5.7 (E11–E14) and §3.5.13; Atlas plan Execution Doctrine.
+
+- **Uncommitted work is not storage.** Commit at every clean boundary; a stash is a transient for
+  minutes, never a place to leave work across a stop, handoff, or compaction. A validator demanding
+  a clean tree is satisfied by **committing**, not stashing.
+- **History is append-only.** No `rebase`, `reset --hard`, `reset` onto an ancestor, `push --force`,
+  `filter-branch`, `stash drop`/`clear`, or `checkout` that moves HEAD off current work. **One
+  exception:** `--amend` on the immediately preceding commit you authored this session and have not
+  handed to review. **Unexpected HEAD/branch/tree state → stop and report, never self-repair.**
 - **Freeze source → all reviews → run the expensive wave once.** A review landing after the wave
   re-prices it. Post-freeze: cosmetic finding → recorded debt; blocking finding → batched.
 - **Serialize only the contended resource** (shared owner scratch/DuckDB, Playwright/Storybook,
   fixed-port server, same governed artifact) — name it in the task plan. Lint, typecheck, logic
-  tests, builds, and read-only censuses run in parallel with a long replay.
-- **Measure each suite's wall time once, then set explicit timeouts.** An unmeasured default that
-  kills a healthy run is a harness finding, not a product signal.
-- **Delta-only re-review** after the first full package. **Poll silently** — report a state change
-  only (stage complete with receipt, RED, or stop). Heartbeat evidence, never heartbeat prose.
-
-Full statements: GY plan §3.5.7 (E11–E14) and the Atlas plan's Execution Doctrine.
+  tests, builds and read-only censuses run in parallel with a long replay.
+- **Measure each suite's wall time once, then set explicit timeouts** (an unmeasured default that
+  kills a healthy run is a harness finding). **Delta-only re-review** after the first full package.
+  **Poll silently** — state changes only; heartbeat evidence, never heartbeat prose.
 
 ## Instruction Hygiene
 
 - Keep `AGENTS.md` short enough to scan in one pass; target under roughly 100 lines.
+- **Rules with different motivations get separate lines and their own stated reason.** A bundled
+  clause is followed in the shape it was written: "no merge, no push, no rebase" mixed a
+  *publication* rule with a *history* rule, and the history half was dropped. Never name a specific
+  commit hash in an instruction — name the relationship ("the immediately preceding commit you
+  authored"); a hash is true when written and a trap after any legitimate recovery.
 - Add a rule here only when it is stable, repo-wide, and repeatedly useful. If it is long, conditional, or subsystem-specific, link to a doc or create a scoped instruction file.
 - When an agent or review finds a repeated failure mode, update the pattern register with the diagnostic question and closure move instead of adding narrative here.

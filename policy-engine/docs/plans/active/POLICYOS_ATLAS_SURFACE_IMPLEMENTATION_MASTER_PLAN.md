@@ -307,6 +307,30 @@ A deliverable that traces to none of the three generators is out of scope
   LIVE** (`architecture/atlas_surfaces/frontend-disposition-register.json` +
   standalone checker): 261 units — 15 deleted, 200 `rebind_pending`, 25
   `retire`, 16 `wire`, 5 `use_as_is`.
+- **Work preservation and history discipline (Revision 3.8; the DS5 lesson — full statement
+  in GY plan §3.5.13 and `AGENTS.md`).** Two incidents in one slice put **reviewed,
+  completed** work where git does not protect it. Neither was a reasoning failure.
+  - **Uncommitted work is not storage.** Commit at every clean boundary. A stash is a
+    transient for minutes, never a place to leave work across a stop, a handoff, or a
+    context compaction. DS5 left 1,236 insertions of independently reviewed plan work in
+    `stash@{0}` for a whole session while a rejected commit sat at HEAD.
+  - **Branch history is append-only.** No `rebase`, `reset --hard`, `reset` onto an
+    ancestor, `push --force`, `stash drop`/`clear`, or any `checkout` that moves HEAD off
+    current work. **One exception:** `--amend` on the immediately preceding commit you
+    authored this session and have not handed to review. A `rebase` silently dropped two
+    committed DS5 deliverables — the plan re-cut and a typed debt row with its checker and
+    test — and work continued on the reduced base unnoticed.
+  - **A validator demanding a clean tree is satisfied by committing, not stashing.** That
+    fence is legitimate; stashing to clear it is how reviewed work ends up unprotected.
+  - **Unexpected history is an architect stop, not a self-repair.** The reflog makes these
+    recoverable; improvised recovery is how a recoverable incident becomes permanent.
+  - **No plan instruction names a commit hash** — name the relationship ("the immediately
+    preceding commit you authored"). The DS5 plan said in four places that `b67084dd6` "is
+    amended down"; true when written, impossible after a legitimate recovery moved HEAD past
+    it, and literally following it would have required the very rewrite that caused the loss.
+    Architect instructions prefer **forward-only** framing ("land the reduction as a commit").
+    After any history-affecting recovery, re-read the task plan for instructions that
+    referenced the pre-recovery state and correct them in the next commit.
 - **Verification economics (Revision 3.7; measured across DS4/DS5 and the GY-N11 lane —
   the Atlas dual of GY §3.5.7 E11/E13/E14).** These rules change **when** verification is
   paid for and **how** it is observed. They reduce nothing that is verified; a slice that

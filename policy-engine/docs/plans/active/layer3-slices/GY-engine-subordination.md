@@ -966,6 +966,48 @@ A task that only stubs/mocks/summarizes a finding and leaves the row green witho
 complete chain (`producer -> persisted artifact/event -> bridge -> consumer -> surface
 -> semantic/negative test`) is a P01/P10 failure, even if its local tests pass.
 
+### 3.5.13 Work preservation and history discipline (the DS5 lesson — binding for every task in both programmes; NEW, Rev 20)
+
+Two incidents in a single Atlas slice put **reviewed, completed** work where git does not protect
+it. Neither was a reasoning failure; both were storage-and-history failures, and both were partly
+caused by how the instruction was written. Five rules:
+
+1. **W1 Uncommitted work is not storage.** Commit at every clean boundary. A `git stash` is a
+   transient for the next few minutes, never a place to leave work across a stop, a handoff, or a
+   context compaction. **Measured:** DS5 left 1,236 insertions of independently reviewed plan work
+   in `stash@{0}` across an entire session with a rejected commit still at HEAD — net output of that
+   session was zero.
+2. **W2 Branch history is append-only.** Forbidden outright: `rebase` in any form, `reset --hard`,
+   `reset` onto an ancestor, `push --force`, `filter-branch`, `stash drop`/`clear`, and any
+   `checkout` that moves HEAD off current work. **The single exception:** `git commit --amend` on
+   the **immediately preceding commit**, authored in this session, not yet handed to a reviewer.
+   **Measured:** a `rebase` silently dropped two committed DS5 deliverables — the plan re-cut
+   (`2d6a532ed`) and a typed debt row with its checker and test (`24e66b44c`) — and the agent
+   continued working on the reduced base without noticing.
+3. **W3 A validator demanding a clean tree is satisfied by committing, never by stashing.** Several
+   canonical writers (capstone, depth-N) refuse a dirty tree. That is a legitimate fence and the
+   correct response is a commit at the clean boundary. Stashing to satisfy it is how reviewed work
+   ends up unprotected — it happened in both the GY-N11 and DS5 lanes.
+4. **W4 Lost or unexpected history is an architect stop, not a self-repair.** An agent that finds
+   HEAD, the branch, or the working tree in an unexpected state **stops and reports**. The reflog is
+   what makes these incidents recoverable; it is not a guarantee, and improvised recovery is how a
+   recoverable incident becomes a permanent one.
+5. **W5 Never name a commit hash in a plan instruction.** Name the **relationship** ("the
+   immediately preceding commit you authored"), never a fixed SHA. **Measured:** the DS5 plan said
+   in four places that `b67084dd6` "is amended down". True when written; impossible after a
+   legitimate recovery moved HEAD past it — and following it literally would have required exactly
+   the history rewrite that caused the loss. Architect instructions therefore prefer **forward-only**
+   framing ("land the reduction as a commit") over commit-targeted framing ("amend commit X down"):
+   same outcome, no time-bomb. **Corollary:** after any history-affecting recovery, re-read the task
+   plan for instructions that referenced the pre-recovery state, and correct them in the next
+   commit.
+
+**Instruction-design lesson carried with these rules (applies to the architect, not the executor):**
+DS5 was given "no merge, no push, no rebase" as one clause. That bundles a **publication** rule with
+a **history** rule; a literal executor honored the salient half and dropped the other. **Rules with
+different motivations get separate lines and their own stated reason.** A rule an executor cannot
+infer the purpose of will be followed only in the shape it was written.
+
 ## 4. The two-ring waist — full type schemas (canonical-owner map in §3.5.2)
 
 The canonical contracts the loop speaks. Some are reused from existing owners, some are

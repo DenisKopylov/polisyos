@@ -59,10 +59,10 @@ NATIVE_CONTRACT_FAMILIES = (
     "transport",
 )
 FORK_B_CENSUS_CONTENT_HASH = (
-    "sha256:2f421734712fef4852bba58cfeeacdb440d2813463f8b56f31910fbfd62019ca"
+    "sha256:2727227cc62c1e68fe5fbdaef486b0ebf96e9ee52c02dd5e735430ca500c0994"
 )
 FORK_B_CENSUS_RAW_HASH = (
-    "sha256:f8dc6e8de15a4c9da33227f4144b7f56e3329ae7047000cd8c859764d62aead7"
+    "sha256:4b97e247d2e6e122a4f80287e39f230cf1f4e50990f8bec7ee9d4bf55c4d9740"
 )
 EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "value_input_read_from_runtime_hint",

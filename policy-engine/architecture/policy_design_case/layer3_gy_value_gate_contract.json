@@ -1,12 +1,12 @@
 {
   "acquisition_routing": {
     "acquisition_receipt": null,
-    "content_hash": "sha256:b645fe4cc6187a0a4d839bccab865048e159f32a7c107ac4d5c3a6453d9a016f",
+    "content_hash": "sha256:daaf0355c3c18a399982a6becf4ea49270d39b9f04e7791ab92a7f25fad372c3",
     "planner_report": {
       "acquisition_records": [
         {
           "accepted_deficit_ref": null,
-          "acquisition_id": "acquisition:n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0:requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
+          "acquisition_id": "acquisition:n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0:requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "authority_boundary": {
             "authoritative_for": [
               "gap_detected",
@@ -30,10 +30,10 @@
           },
           "authority_level": "research",
           "blocker_ref": null,
-          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
-          "claim_ref": "value-claim:candidate_b4cab114d90d6876",
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
+          "claim_ref": "value-claim:candidate_1780e03c9a5c8cb8",
           "commit_authority": "advisory_recommendation_only",
-          "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:40ce693de1faf7fb:v1",
+          "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1",
           "decision_owner": "runtime_planner",
           "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
           "eligible_strategies": [
@@ -41,8 +41,8 @@
             "rerun",
             "accepted_deficit"
           ],
-          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-40ce693de1faf7fb.json",
-          "gap_id": "requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4.json",
+          "gap_id": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "gap_type": "data_snapshot_release",
           "ineligible_strategies": [
             "academic_retrieval",
@@ -182,7 +182,7 @@
           ],
           "limitation_ref": null,
           "mandatory_gate_refs": [
-            "runtime-requirement:l1-variable-availability:40ce693de1faf7fb:v1"
+            "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1"
           ],
           "mandatory_gate_state": "none",
           "missing_requirement_fields": [
@@ -193,8 +193,8 @@
               "action": "build_production_snapshot",
               "blocks_closeout": false,
               "commit_required": false,
-              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-40ce693de1faf7fb.json",
-              "message": "Acquire or remediate evidence via production_snapshot_build for value-claim:candidate_b4cab114d90d6876.",
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4.json",
+              "message": "Acquire or remediate evidence via production_snapshot_build for value-claim:candidate_1780e03c9a5c8cb8.",
               "owner": "polisyos.runtime.quality.acquisition_planner",
               "producer_expected": "data_forge.snapshot",
               "strategy": "production_snapshot_build"
@@ -206,9 +206,9 @@
           "public_projection_effect": "no_public_effect_until_producer_output",
           "recommended_strategy": "production_snapshot_build",
           "requirement_family": "data_requirement",
-          "requirement_gap_ref": "requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
+          "requirement_gap_ref": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
           "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
-          "runtime_event_ref": "event://runtime/acquisition/n7-routing-gy-n4-cgf-decisive-capture-1-20260704-092222-049411-0/requirement-gap-data-requirement-l1-variable-availability-40ce693de1faf7fb",
+          "runtime_event_ref": "event://runtime/acquisition/n7-routing-gy-n4-cgf-decisive-capture-1-20260704-092222-049411-0/requirement-gap-data-requirement-l1-variable-availability-33be6fcd37594de4",
           "scenario_requirement_refs": [
             "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
             "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention"
@@ -301,13 +301,13 @@
     "requirement_gap": {
       "authority_level": "research",
       "calibration_feedback_ref": null,
-      "claim_ref": "value-claim:candidate_b4cab114d90d6876",
-      "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:40ce693de1faf7fb:v1",
+      "claim_ref": "value-claim:candidate_1780e03c9a5c8cb8",
+      "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1",
       "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
       "gap_type": "data_snapshot_release",
       "limitation_permitted": false,
       "mandatory_gate_refs": [
-        "runtime-requirement:l1-variable-availability:40ce693de1faf7fb:v1"
+        "runtime-requirement:l1-variable-availability:33be6fcd37594de4:v1"
       ],
       "mandatory_gate_state": "none",
       "metadata": {
@@ -323,8 +323,8 @@
           "variable_id": "employment_retention"
         },
         "candidate_binding": {
-          "candidate_content_hash": "sha256:0a25038d9abeb0fc850e8c57d3d1507dc498b80a23aae2a56c2cbb1b43772c48",
-          "candidate_id": "candidate_b4cab114d90d6876",
+          "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+          "candidate_id": "candidate_1780e03c9a5c8cb8",
           "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac"
         },
         "satisfaction_status": "unsatisfied",
@@ -336,7 +336,7 @@
       ],
       "producer_output_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
       "requirement_family": "data_requirement",
-      "requirement_gap_id": "requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
+      "requirement_gap_id": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
       "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
       "scenario_requirement_refs": [
         "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
@@ -345,8 +345,8 @@
       "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
     },
     "schema_version": "policyos.layer3.gy.n8.acquisition_routing_receipt.v2",
-    "selected_candidate_content_hash": "sha256:0a25038d9abeb0fc850e8c57d3d1507dc498b80a23aae2a56c2cbb1b43772c48",
-    "selected_candidate_ref": "candidate_b4cab114d90d6876",
+    "selected_candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "selected_candidate_ref": "candidate_1780e03c9a5c8cb8",
     "simulated_reentry": false,
     "terminal_kind": "acquisition_required"
   },
@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:3310a06ef08b61809343867988b0afe80a8890741042f541d5447dc94e29edc7",
+  "contract_content_hash": "sha256:986a905e782152488911352ab19f940f4ab8448ad5faf775540f64e510644af0",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -977,11 +977,11 @@
     "acquisition_disposition": "any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
     "artifact_ref": "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
     "authority": "shadow_read_only_no_bind",
-    "content_hash": "sha256:2f421734712fef4852bba58cfeeacdb440d2813463f8b56f31910fbfd62019ca",
+    "content_hash": "sha256:2727227cc62c1e68fe5fbdaef486b0ebf96e9ee52c02dd5e735430ca500c0994",
     "fork": "B",
     "numeric_edge_bindings": 3579,
     "numeric_identities": 5124,
-    "raw_full_table_content_hash": "sha256:f8dc6e8de15a4c9da33227f4144b7f56e3329ae7047000cd8c859764d62aead7",
+    "raw_full_table_content_hash": "sha256:4b97e247d2e6e122a4f80287e39f230cf1f4e50990f8bec7ee9d4bf55c4d9740",
     "relation_counts": {
       "SAT:false-analog": 1076,
       "UNKNOWN:unknown": 12016
@@ -1664,14 +1664,14 @@
   },
   "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
   "production_refusal": {
-    "acquisition_requirement": "requirement-gap:data_requirement:l1-variable-availability:40ce693de1faf7fb",
+    "acquisition_requirement": "requirement-gap:data_requirement:l1-variable-availability:33be6fcd37594de4",
     "authority_blockers": [
       "acquire_data:value_panel_data_missing"
     ],
-    "candidate_atom_content_hash": "sha256:0a25038d9abeb0fc850e8c57d3d1507dc498b80a23aae2a56c2cbb1b43772c48",
-    "candidate_content_hash": "sha256:0a25038d9abeb0fc850e8c57d3d1507dc498b80a23aae2a56c2cbb1b43772c48",
-    "candidate_id": "candidate_b4cab114d90d6876",
-    "content_hash": "sha256:e9767e81bcbf9a5667b32faeb8aa1b71b50e31cebfe6baf952d34c27c9dbaaef",
+    "candidate_atom_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+    "candidate_id": "candidate_1780e03c9a5c8cb8",
+    "content_hash": "sha256:497d82de1afbfcea7578e14caf1f91d65c56696b2f91ba719c4c37f0836068a2",
     "decision_grade": "blocked",
     "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
     "evaluation_mode": "simulate_only",
@@ -1679,7 +1679,7 @@
     "k_world_ref_before": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
     "method_selection_receipt": null,
     "n4_artifact_ref": "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
-    "n4_artifact_sha256": "sha256:5deb68fd1d4c07c8b852d89600600c77b8b54c15ff308b43acdc88bf2d325980",
+    "n4_artifact_sha256": "sha256:5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af",
     "n4_recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
     "owner_availability": {
       "availability_content_hash": "sha256:50673f0ea18e81c67a6ecf06cde994405c5ab2c00429980d8da54541acca4f25",
@@ -1876,9 +1876,9 @@
       "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
     },
     "first_vertical": {
-      "candidate_content_hash": "sha256:0a25038d9abeb0fc850e8c57d3d1507dc498b80a23aae2a56c2cbb1b43772c48",
-      "candidate_envelope_content_hash": "sha256:f25b5739e3cc597f87f485c948a0b6e4e86613581a6d5913ad37badc428e6045",
-      "candidate_id": "candidate_b4cab114d90d6876",
+      "candidate_content_hash": "sha256:3346564b4b6adb6a9381c7e8647965d27e3d9af8a1a86fe8e640fbc5b7139644",
+      "candidate_envelope_content_hash": "sha256:47216d1193337dfe4da8aed8321764a9d0cd4af808dbbf9fd54c6d8dcc1ff415",
+      "candidate_id": "candidate_1780e03c9a5c8cb8",
       "component_scope_only": true,
       "context_binding_hash": "sha256:31d9e7760529688f8c0c549c493d388a388abf35b93c9f4c8d5f277f244da9fb",
       "context_source": "canonical_first_vertical_cycle_substrate_context",
@@ -1889,7 +1889,7 @@
       "domain_role": "first_vertical",
       "outcome_kind": "typed_refusal",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:47d78988e42f325ffb1d01186634ca9430c7de23a40bae5d51ce2f12c3b53d57",
+      "proof_content_hash": "sha256:740089c7c7c4c41cec1909d432a9d39d2ddb7732c57c991cd7cf8852cf17acf0",
       "query_outcome": "employment_retention",
       "query_treatment": "industrial_retention_tax_credit",
       "required_target_data": [],

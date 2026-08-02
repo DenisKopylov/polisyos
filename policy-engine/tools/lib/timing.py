@@ -21,6 +21,9 @@ DEFAULT_TIMING_LOG_ENV = "POLISYOS_TOOLS_TIMING_LOG"
 DEFAULT_TIMING_RETENTION_ENV = "POLISYOS_TOOLS_TIMING_RETENTION"
 DEFAULT_TIMING_LOG_PATH = Path("/tmp/polisyos-tools/timing.jsonl")
 DEFAULT_TIMING_RETENTION = 200
+DEFAULT_TIMING_BUDGET_CATALOG_PATH = (
+    Path(__file__).resolve().parents[1] / "quality" / "timing_budgets.json"
+)
 DEFAULT_TIMING_BUDGETS_MS: dict[str, float] = {
     "workspace.bootstrap": 180_000.0,
     "workspace.doctor": 30_000.0,
@@ -57,6 +60,38 @@ class ToolTimingSummary:
     average_duration_ms: float
     p95_duration_ms: float
     budget_ms: float | None
+    over_budget_runs: int
+
+
+@dataclass(frozen=True)
+class TimingBudgetLane:
+    """A measured timeout recommendation for one exact tool and operational mode."""
+
+    timing_key: str
+    tool: str
+    mode: str
+    command: str
+    samples_ms: tuple[float, ...]
+    measured_p95_ms: float | None
+    recommended_timeout_ms: float | None
+    source_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TimingBudgetLaneSummary:
+    """Catalog lane projected with locally persisted timing observations."""
+
+    timing_key: str
+    tool: str
+    mode: str
+    command: str
+    measured_p95_ms: float | None
+    recommended_timeout_ms: float | None
+    source_refs: tuple[str, ...]
+    state: str
+    local_runs: int
+    local_failures: int
+    latest_duration_ms: float | None
     over_budget_runs: int
 
 
@@ -166,6 +201,142 @@ def percentile_ms(values: list[float], percentile: float) -> float:
     ordered = sorted(values)
     index = max(0, min(len(ordered) - 1, int(round((len(ordered) - 1) * percentile))))
     return ordered[index]
+
+
+def _required_string(payload: dict[str, object], field: str) -> str:
+    value = payload.get(field)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"timing budget lane requires a non-empty {field}")
+    return value
+
+
+def _optional_number(payload: dict[str, object], field: str) -> float | None:
+    value = payload.get(field)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"timing budget lane {field} must be a number or null")
+    return float(value)
+
+
+def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
+    if not isinstance(payload, dict):
+        raise ValueError("timing budget lane must be an object")
+    timing_key = _required_string(payload, "timing_key")
+    tool = _required_string(payload, "tool")
+    mode = _required_string(payload, "mode")
+    if timing_key != f"{tool}:{mode}":
+        raise ValueError("timing budget lane timing_key must equal tool:mode")
+    samples_data = payload.get("samples_ms")
+    if not isinstance(samples_data, list) or any(
+        isinstance(value, bool) or not isinstance(value, int | float) or value < 0
+        for value in samples_data
+    ):
+        raise ValueError("timing budget lane samples_ms must be non-negative numbers")
+    samples_ms = tuple(float(value) for value in samples_data)
+    measured_p95_ms = _optional_number(payload, "measured_p95_ms")
+    recommended_timeout_ms = _optional_number(payload, "recommended_timeout_ms")
+    expected_p95_ms = round(percentile_ms(list(samples_ms), 0.95), 3) if samples_ms else None
+    if measured_p95_ms != expected_p95_ms:
+        raise ValueError(
+            "timing budget lane measured_p95_ms must equal the p95 recomputed from samples_ms"
+        )
+    expected_timeout_ms = measured_p95_ms * 2 if measured_p95_ms is not None else None
+    if recommended_timeout_ms != expected_timeout_ms:
+        raise ValueError(
+            "timing budget lane recommended_timeout_ms must equal 2 * measured_p95_ms"
+        )
+    source_refs_data = payload.get("source_refs")
+    if not isinstance(source_refs_data, list) or not source_refs_data or any(
+        not isinstance(source_ref, str) or not source_ref.strip() for source_ref in source_refs_data
+    ):
+        raise ValueError("timing budget lane source_refs must be non-empty strings")
+    return TimingBudgetLane(
+        timing_key=timing_key,
+        tool=tool,
+        mode=mode,
+        command=_required_string(payload, "command"),
+        samples_ms=samples_ms,
+        measured_p95_ms=measured_p95_ms,
+        recommended_timeout_ms=recommended_timeout_ms,
+        source_refs=tuple(source_refs_data),
+    )
+
+
+def load_timing_budget_catalog_data(payload: object) -> list[TimingBudgetLane]:
+    """Validate a timing-budget catalog payload and return exact tool/mode lanes."""
+
+    if not isinstance(payload, dict):
+        raise ValueError("timing budget catalog must be an object")
+    lanes_data = payload.get("lanes")
+    if not isinstance(lanes_data, list):
+        raise ValueError("timing budget catalog requires a lanes list")
+    lanes = [_timing_budget_lane_from_data(lane) for lane in lanes_data]
+    timing_keys = [lane.timing_key for lane in lanes]
+    if len(timing_keys) != len(set(timing_keys)):
+        raise ValueError("timing budget catalog contains duplicate timing_key values")
+    return sorted(lanes, key=lambda lane: lane.timing_key)
+
+
+def load_timing_budget_catalog(
+    path: Path = DEFAULT_TIMING_BUDGET_CATALOG_PATH,
+) -> list[TimingBudgetLane]:
+    """Load and validate the repository's literal-sample timing budget catalog."""
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise ValueError(f"could not read timing budget catalog: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"could not parse timing budget catalog: {path}") from exc
+    return load_timing_budget_catalog_data(payload)
+
+
+def summarize_timing_budget_lanes(
+    records: list[ToolRunRecord],
+    catalog: list[TimingBudgetLane],
+) -> list[TimingBudgetLaneSummary]:
+    """Project local records onto the separately named catalog tool/mode lanes."""
+
+    records_by_lane: dict[tuple[str, str], list[ToolRunRecord]] = {}
+    for record in records:
+        records_by_lane.setdefault((record.tool, record.mode), []).append(record)
+    summaries: list[TimingBudgetLaneSummary] = []
+    for lane in catalog:
+        local_records = sorted(
+            records_by_lane.get((lane.tool, lane.mode), []), key=lambda record: record.started_at
+        )
+        completed_records = [
+            record for record in local_records if record.status in {"ok", "failed"}
+        ]
+        over_budget_runs = sum(
+            1
+            for record in completed_records
+            if lane.measured_p95_ms is not None and record.duration_ms > lane.measured_p95_ms
+        )
+        if not lane.samples_ms:
+            state = "unmeasured"
+        elif over_budget_runs:
+            state = "over_budget"
+        else:
+            state = "measured"
+        summaries.append(
+            TimingBudgetLaneSummary(
+                timing_key=lane.timing_key,
+                tool=lane.tool,
+                mode=lane.mode,
+                command=lane.command,
+                measured_p95_ms=lane.measured_p95_ms,
+                recommended_timeout_ms=lane.recommended_timeout_ms,
+                source_refs=lane.source_refs,
+                state=state,
+                local_runs=len(local_records),
+                local_failures=sum(record.status == "failed" for record in local_records),
+                latest_duration_ms=(local_records[-1].duration_ms if local_records else None),
+                over_budget_runs=over_budget_runs,
+            )
+        )
+    return summaries
 
 
 def summarize_timing_records(

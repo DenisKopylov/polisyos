@@ -189,6 +189,36 @@ def test_report_timing_summarizes_budgeted_runs(tmp_path: Path, capsys) -> None:
     assert "Tool Timing Summary" in summary_path.read_text(encoding="utf-8")
 
 
+def test_report_timing_lists_measured_catalog_lanes_without_a_timing_log(
+    tmp_path: Path, capsys
+) -> None:
+    """Catch a report surface that hides a measured lane before local execution."""
+
+    missing_log = tmp_path / "missing.jsonl"
+
+    exit_code = main(
+        [
+            "report-timing",
+            "--timing-log",
+            str(missing_log),
+            "--output-format",
+            "json",
+            "--include-unmeasured",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert payload["record_count"] == 0
+    assert payload["timing_budget_catalog_scope"] == "requested_expensive_lanes_only"
+    assert payload["uncatalogued_lanes"] == "outside_requested_expensive_lane_scope"
+    frontend_lint = next(
+        lane for lane in payload["lane_summaries"] if lane["timing_key"] == "frontend.eslint:default"
+    )
+    assert frontend_lint["state"] == "measured"
+    assert frontend_lint["local_runs"] == 0
+
+
 def test_quarantined_preflight_records_skipped_run(tmp_path: Path, capsys) -> None:
     timing_log = tmp_path / "timing.jsonl"
 

@@ -7,7 +7,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools.lib.timing import ToolRunRecord, summarize_timing_records
+import pytest
+
+from tools.lib.timing import (
+    ToolRunRecord,
+    load_timing_budget_catalog,
+    load_timing_budget_catalog_data,
+    summarize_timing_budget_lanes,
+    summarize_timing_records,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 VALIDATION_ROOT = REPO_ROOT / "tools" / "quality" / "validation"
@@ -172,6 +180,109 @@ def test_timing_summary_keeps_all_modes_in_one_tool_denominator() -> None:
     assert summary.p95_duration_ms == 300.0
     assert summary.over_budget_runs == 1
     assert summary.latest_mode == "write"
+
+
+def test_timing_budget_catalog_rejects_p95_drift_from_literal_samples(tmp_path: Path) -> None:
+    """Catch a catalog that asserts a p95 rather than deriving it from its samples."""
+
+    catalog_path = tmp_path / "timing_budgets.json"
+    catalog_path.write_text(
+        json.dumps(
+            {
+                "lanes": [
+                    {
+                        "timing_key": "tests.example:default",
+                        "tool": "tests.example",
+                        "mode": "default",
+                        "command": "pytest tests/example.py",
+                        "samples_ms": [100.0, 200.0],
+                        "measured_p95_ms": 100.0,
+                        "recommended_timeout_ms": 200.0,
+                        "source_refs": ["docs/receipt.md:1"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="measured_p95_ms"):
+        load_timing_budget_catalog(catalog_path)
+
+
+def test_timing_budget_lanes_keep_unmeasured_catalog_entries_before_local_runs(
+    tmp_path: Path,
+) -> None:
+    """Catch a requested no-sample lane disappearing before a timing log exists."""
+
+    catalog_path = tmp_path / "timing_budgets.json"
+    catalog_path.write_text(
+        json.dumps(
+            {
+                "lanes": [
+                    {
+                        "timing_key": "tests.requested:default",
+                        "tool": "tests.requested",
+                        "mode": "default",
+                        "command": "pytest tests/requested.py",
+                        "samples_ms": [],
+                        "measured_p95_ms": None,
+                        "recommended_timeout_ms": None,
+                        "source_refs": ["docs/receipt.md:2"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    lanes = summarize_timing_budget_lanes([], load_timing_budget_catalog(catalog_path))
+
+    assert len(lanes) == 1
+    assert lanes[0].timing_key == "tests.requested:default"
+    assert lanes[0].state == "unmeasured"
+    assert lanes[0].local_runs == 0
+
+
+def test_timing_budget_lane_reports_completed_duration_above_measured_p95() -> None:
+    """Catch a completed local lane exceeding its measured p95 without a finding."""
+
+    catalog = load_timing_budget_catalog_data(
+        {
+            "lanes": [
+                {
+                    "timing_key": "tests.example:check",
+                    "tool": "tests.example",
+                    "mode": "check",
+                    "command": "pytest tests/example.py --check",
+                    "samples_ms": [100.0, 200.0],
+                    "measured_p95_ms": 200.0,
+                    "recommended_timeout_ms": 400.0,
+                    "source_refs": ["docs/receipt.md:3"],
+                }
+            ]
+        }
+    )
+
+    lanes = summarize_timing_budget_lanes(
+        [
+            ToolRunRecord(
+                tool="tests.example",
+                category="tests",
+                output_format="text",
+                status="ok",
+                preflight_status="ok",
+                started_at="2026-08-02T10:00:00+00:00",
+                duration_ms=201.0,
+                exit_code=0,
+                mode="check",
+            )
+        ],
+        catalog,
+    )
+
+    assert lanes[0].state == "over_budget"
+    assert lanes[0].over_budget_runs == 1
 
 
 def test_external_suite_runner_preserves_child_streams_and_nonzero_exit(tmp_path: Path) -> None:

@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
+import math
 import os
 import sys
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from inspect import signature
 from pathlib import Path
 from statistics import fmean
@@ -23,6 +25,19 @@ DEFAULT_TIMING_LOG_PATH = Path("/tmp/polisyos-tools/timing.jsonl")
 DEFAULT_TIMING_RETENTION = 200
 DEFAULT_TIMING_BUDGET_CATALOG_PATH = (
     Path(__file__).resolve().parents[1] / "quality" / "timing_budgets.json"
+)
+_DIRECT_ACTION_OPTION_PREFIXES = (
+    "accept",
+    "capture",
+    "characterize",
+    "check",
+    "cold",
+    "corrupt",
+    "execute",
+    "rederive",
+    "source-flip",
+    "warm",
+    "write",
 )
 DEFAULT_TIMING_BUDGETS_MS: dict[str, float] = {
     "workspace.bootstrap": 180_000.0,
@@ -184,11 +199,20 @@ def read_timing_records(path: Path) -> list[ToolRunRecord]:
 
 def append_timing_record(path: Path, record: ToolRunRecord) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    records = read_timing_records(path)
-    limit = _retention_limit()
-    retained = [*records[-max(limit - 1, 0) :], record]
-    payload = "".join(json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained)
-    atomic_write_text(path, payload)
+    lock_path = path.with_name(f".{path.name}.lock")
+    with lock_path.open("a+b") as lock_handle:
+        fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+        try:
+            records = read_timing_records(path)
+            limit = _retention_limit()
+            prior_limit = limit - 1
+            retained = [*(records[-prior_limit:] if prior_limit else []), record]
+            payload = "".join(
+                json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained
+            )
+            atomic_write_text(path, payload)
+        finally:
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
 
 
 def default_timing_log_path() -> Path:
@@ -199,7 +223,7 @@ def percentile_ms(values: list[float], percentile: float) -> float:
     if not values:
         return 0.0
     ordered = sorted(values)
-    index = max(0, min(len(ordered) - 1, int(round((len(ordered) - 1) * percentile))))
+    index = max(0, min(len(ordered) - 1, math.ceil(percentile * len(ordered)) - 1))
     return ordered[index]
 
 
@@ -413,11 +437,17 @@ def run_timed_operation(
     category: str,
     mode: str = "default",
     output_format: str = "text",
+    started_perf_counter: float | None = None,
 ) -> int:
     """Run an operation and append one best-effort timing record without changing its outcome."""
 
-    started_at = datetime.now(UTC).isoformat()
-    started = time.perf_counter()
+    observed_start = time.perf_counter()
+    started = (
+        min(started_perf_counter, observed_start)
+        if started_perf_counter is not None
+        else observed_start
+    )
+    started_at = (datetime.now(UTC) - timedelta(seconds=observed_start - started)).isoformat()
     exit_code = 1
     status = "failed"
     try:
@@ -463,13 +493,55 @@ def _timing_key_for_script(script_path: str | Path) -> str:
     return ".".join(parts[tools_index + 1 :])
 
 
-def _mode_from_argv(argv: list[str]) -> str:
-    """Return the first long option as the direct command's operational mode."""
+def _long_options_from_argv(argv: list[str]) -> list[tuple[str, str | None]]:
+    """Return long options and their syntactically attached values before ``--``."""
 
-    for argument in argv:
-        if argument.startswith("--") and len(argument) > 2:
-            return argument[2:].split("=", 1)[0]
-    return "default"
+    options: list[tuple[str, str | None]] = []
+    index = 0
+    while index < len(argv):
+        argument = argv[index]
+        if argument == "--":
+            break
+        if not argument.startswith("--") or len(argument) <= 2:
+            index += 1
+            continue
+        rendered = argument[2:]
+        if "=" in rendered:
+            name, value = rendered.split("=", 1)
+            options.append((name, value))
+            index += 1
+            continue
+        value: str | None = None
+        if index + 1 < len(argv) and not argv[index + 1].startswith("--"):
+            value = argv[index + 1]
+            index += 1
+        options.append((rendered, value))
+        index += 1
+    return options
+
+
+def _mode_and_output_format_from_argv(argv: list[str]) -> tuple[str, str]:
+    """Classify action mode and presentation format without treating values as actions."""
+
+    options = _long_options_from_argv(argv)
+    output_format = "text"
+    for name, value in options:
+        if name == "output-format" and value:
+            output_format = value
+        elif name == "json" and value is None:
+            output_format = "json"
+
+    action_options = [
+        name
+        for name, _value in options
+        if any(
+            name == prefix or name.startswith(f"{prefix}-")
+            for prefix in _DIRECT_ACTION_OPTION_PREFIXES
+        )
+    ]
+    if action_options:
+        return action_options[0], output_format
+    return "default", output_format
 
 
 def run_timed_entrypoint(
@@ -477,6 +549,7 @@ def run_timed_entrypoint(
     *,
     script_path: str | Path,
     argv: list[str],
+    started_perf_counter: float | None = None,
 ) -> int:
     """Run a legacy direct entrypoint through the shared timing emission path."""
 
@@ -487,9 +560,12 @@ def run_timed_entrypoint(
             return entrypoint(arguments)
         return entrypoint()
 
+    mode, output_format = _mode_and_output_format_from_argv(arguments)
     return run_timed_operation(
         _operation,
         tool=_timing_key_for_script(script_path),
         category="quality",
-        mode=_mode_from_argv(arguments),
+        mode=mode,
+        output_format=output_format,
+        started_perf_counter=started_perf_counter,
     )

@@ -8,6 +8,10 @@ existing journal and never make network calls. Live calls require the explicit
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import copy
 import hashlib
@@ -780,4 +784,11 @@ def _bytes_sha256(payload: bytes) -> str:
 if __name__ == "__main__":  # pragma: no cover - exercised through the CLI
     import sys
 
-    raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

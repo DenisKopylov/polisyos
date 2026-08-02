@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import os
+import signal
 import subprocess
+from contextlib import suppress
 from pathlib import Path
 
 from tools.lib.timing import run_timed_operation
@@ -39,6 +42,17 @@ def _parse_args() -> argparse.Namespace:
     return args
 
 
+def _split_lane(lane: str) -> tuple[str, str]:
+    """Split an optional ``tool:mode`` lane while preserving bare-tool compatibility."""
+
+    if ":" not in lane:
+        return lane, "default"
+    tool, mode = lane.rsplit(":", 1)
+    if not tool or not mode:
+        raise ValueError("--lane must be a non-empty tool or tool:mode pair")
+    return tool, mode
+
+
 def main() -> int:
     """Run the requested command without a shell and preserve its exit code."""
 
@@ -48,11 +62,20 @@ def main() -> int:
         result = subprocess.run(args.argv, shell=False, cwd=args.cwd, check=False)
         return result.returncode
 
-    return run_timed_operation(
+    tool, mode = _split_lane(args.lane)
+    exit_code = run_timed_operation(
         _operation,
-        tool=args.lane,
+        tool=tool,
         category="external",
+        mode=mode,
     )
+    if exit_code < 0:
+        signal_number = -exit_code
+        with suppress(OSError):
+            signal.signal(signal_number, signal.SIG_DFL)
+        os.kill(os.getpid(), signal_number)
+        raise RuntimeError("process survived relayed child termination signal")
+    return exit_code
 
 
 if __name__ == "__main__":

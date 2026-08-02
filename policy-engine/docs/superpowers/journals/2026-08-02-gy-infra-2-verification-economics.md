@@ -45,7 +45,7 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 
 - TDD RED: `.venv/bin/python -m pytest tests/repo_quality/tools/test_timing.py tests/repo_quality/tools/test_unified_cli.py -q` failed during collection because the new catalog/report APIs were absent. The focused suite became green after the catalog parser, literal-p95 drift guard, separately named `(tool, mode)` lane projection, and `report-timing --include-unmeasured` surface were added.
 - The catalog stores only literal completed samples and recomputes `measured_p95_ms` with the shared percentile function. `recommended_timeout_ms` is exactly `2 * measured_p95_ms` (GY §3.5.7 E9's historical `>2x` stop rule), with no rounding/slack. Existing per-tool `summaries`, `tool_count`, and their denominators remain unchanged; `lane_summaries` is the separate catalog projection.
-- Fresh Atlas governance receipt: `tools/quality/testing/run_timed_suite.py --lane atlas.python-governance` ran `uv run --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q`; exit `0`, `30` tests passed, duration `160233.242ms`. The repository `.venv` lacks `jsonschema`, so the first direct `.venv` attempt was an honest collection non-receipt; the locked temporary `uv` environment supplied the declared checker dependency without editing project dependencies.
+- Fresh Atlas governance receipt: `tools/quality/testing/run_timed_suite.py --lane atlas.python-governance` ran `uv run --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q`; exit `0`, `67` tests passed, duration `160233.242ms`. The repository `.venv` lacks `jsonschema`, so the first direct `.venv` attempt was an honest collection non-receipt; the locked temporary `uv` environment supplied the declared checker dependency without editing project dependencies.
 - Fresh frontend and browser lanes are recorded only when their runner records exist. The full ESLint and Vitest lanes were started with distinct JSONL paths; no approximate historic ESLint duration or killed timeout is used as a sample. Playwright visual and browser a11y remain serialized after those browser-free lanes settle.
 - Fresh full Vitest receipt: `tools/quality/testing/run_timed_suite.py --lane frontend.vitest --cwd apps/runtime-dashboard -- corepack pnpm run test:components`; exit `1` (preserved semantic RED), duration `292223.026ms`. This is a completed measurement and is added to the literal sample set without converting the suite result to green.
 - Fresh Playwright visual receipt: `tools/quality/testing/run_timed_suite.py --lane frontend.playwright-visual --cwd apps/runtime-dashboard -- corepack pnpm run test:visual`; exit `1` (preserved semantic RED), duration `127124.782ms`. The browser-a11y lane started only after this process had exited, so the browser/fixed-port resource was serialized.
@@ -375,3 +375,33 @@ semantic denominators, gates, and artifact hashes are unchanged.
   `0`. No byte under `src/polisyos/**` changed, so no deployment identity, semantic denominator,
   or governed artifact replay moved. Full backend/CI parity and the expensive GY replay were not
   run: the verified blast radius is tools/docs only, while Part C explicitly closed negative.
+
+## Whole-review Part A evidence reconciliation
+
+- Atlas receipt line 48 is corrected from the single-file collection count to the exact two-file
+  command denominator: `30` frontend-disposition tests plus `37` status-retirement tests equals
+  `67`; no suite was rerun. The stale 29-test status placeholder lane is removed because its
+  historical duration does not identify today's 37-test workload; the exact combined 67-test lane
+  retains current Atlas Python-governance coverage.
+- The task-supplied completed N11 closeout process walls are bound to exact timing lanes below. They
+  are input receipts, not new local executions, and remain distinct from the later committed N11
+  measurements already present in the catalog.
+  - `quality.validation.check_layer3_gy_confidence_ledger:write`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write`; samples `1086000ms`, `951000ms`.
+  - `quality.validation.check_layer3_gy_confidence_ledger:check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --check`; sample `951000ms`.
+  - `quality.validation.check_layer3_gy_confidence_ledger:corrupt-field-drift-check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --corrupt-field-drift-check`; sample `937000ms` for the 49-case corruption wave.
+  - `quality.validation.check_layer3_gy_confidence_ledger:warm-closeout`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --warm-closeout`; sample `975000ms`.
+  - `quality.validation.check_layer3_gy_confidence_ledger:cold-rederive`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --cold-rederive`; sample `952000ms`.
+- Catalog evidence is now positional: each literal sample has one same-position source reference,
+  narrowed to the receipt line or range that names that workload and contains that duration.
+  Repeated references intentionally bind multiple samples recorded together on one receipt line.
+
+## Historical timing receipt workload normalization
+
+The following lines introduce no new measurements. They make each historical receipt's already-named workload explicit as the exact direct action flag so the catalog can bind one sample to one workload rather than to a pooled prose range.
+
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --check --output-format json`; sample `87343.036ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:787-788` (the independent depth-N check).
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:write`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --write --output-format json`; samples `3660436.012ms`, `1613412.167ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:787` (the two depth-N writer runs).
+- `quality.validation.check_layer3_gy_generation_cycle_disposition_ledger:check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check`; sample `101480ms`; origin `docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2547` (the canonical ledger check).
+- `quality.validation.check_layer3_gy_confidence_ledger:check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --check`; sample `898666.254ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-772` (the independent recomputing check).
+- `quality.validation.check_layer3_gy_confidence_ledger:source-flip-mutations`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --source-flip-mutations`; sample `844533ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:756-757` (the 17/17 source-flip lane).
+- `quality.validation.check_layer3_gy_confidence_ledger:write`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write`; samples `1173279.650ms`, `1111911.306ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-772` (the two dependency-ordered final N11 writes).

@@ -8,27 +8,17 @@
       "samples_ms": [11610.0],
       "measured_p95_ms": 11610.0,
       "recommended_timeout_ms": 23220.0,
-      "source_refs": ["docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:149-153"]
+      "source_refs": ["docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:151-152"]
     },
     {
       "timing_key": "atlas.python-governance:default",
       "tool": "atlas.python-governance",
       "mode": "default",
-      "command": ".venv/bin/python -m pytest <Atlas governance suite> -q",
-      "samples_ms": [138461.0, 160233.242],
+      "command": "uv run --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q",
+      "samples_ms": [160233.242],
       "measured_p95_ms": 160233.242,
       "recommended_timeout_ms": 320466.484,
-      "source_refs": ["docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md:2032-2038", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:46"]
-    },
-    {
-      "timing_key": "atlas.status-governance:default",
-      "tool": "atlas.status-governance",
-      "mode": "default",
-      "command": ".venv/bin/python -m pytest <Atlas status governance suite> -q",
-      "samples_ms": [43900.0],
-      "measured_p95_ms": 43900.0,
-      "recommended_timeout_ms": 87800.0,
-      "source_refs": ["docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md:1944-1949"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:48"]
     },
     {
       "timing_key": "frontend.browser-a11y:default",
@@ -38,7 +28,7 @@
       "samples_ms": [118287.438],
       "measured_p95_ms": 118287.438,
       "recommended_timeout_ms": 236574.876,
-      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:50"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:52"]
     },
     {
       "timing_key": "frontend.eslint:default",
@@ -48,7 +38,7 @@
       "samples_ms": [1656678.371],
       "measured_p95_ms": 1656678.371,
       "recommended_timeout_ms": 3313356.742,
-      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:52"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:54"]
     },
     {
       "timing_key": "frontend.playwright-visual:default",
@@ -58,7 +48,7 @@
       "samples_ms": [127124.782],
       "measured_p95_ms": 127124.782,
       "recommended_timeout_ms": 254249.564,
-      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:49"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:51"]
     },
     {
       "timing_key": "frontend.vitest:default",
@@ -68,7 +58,7 @@
       "samples_ms": [77730.0, 181120.0, 292223.026],
       "measured_p95_ms": 292223.026,
       "recommended_timeout_ms": 584446.052,
-      "source_refs": ["docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md:46-51", "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:68-71", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:48"]
+      "source_refs": ["docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md:49", "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:68-69", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:50"]
     },
     {
       "timing_key": "historical.gy-n10-cg1-l2-census:default",
@@ -78,7 +68,7 @@
       "samples_ms": [4695040.635],
       "measured_p95_ms": 4695040.635,
       "recommended_timeout_ms": 9390081.27,
-      "source_refs": ["docs/superpowers/journals/2026-07-13-gy-n10-stage-2.md:647-652"]
+      "source_refs": ["docs/superpowers/journals/2026-07-13-gy-n10-stage-2.md:648-649"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:check",
@@ -88,7 +78,7 @@
       "samples_ms": [104410.0, 87343.036],
       "measured_p95_ms": 104410.0,
       "recommended_timeout_ms": 208820.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2519-2524", "docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:787-788"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2520", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:402"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:corrupt-field-drift-check",
@@ -98,7 +88,7 @@
       "samples_ms": [9090.0],
       "measured_p95_ms": 9090.0,
       "recommended_timeout_ms": 18180.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2520-2524"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2521"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:rederive-audit",
@@ -108,7 +98,7 @@
       "samples_ms": [1493170.0],
       "measured_p95_ms": 1493170.0,
       "recommended_timeout_ms": 2986340.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2520-2524"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2522"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:source-flip-mutations",
@@ -118,7 +108,7 @@
       "samples_ms": [226770.0],
       "measured_p95_ms": 226770.0,
       "recommended_timeout_ms": 453540.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2520-2524"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2523"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:write",
@@ -128,7 +118,7 @@
       "samples_ms": [727520.0, 3660436.012, 1613412.167],
       "measured_p95_ms": 3660436.012,
       "recommended_timeout_ms": 7320872.024,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2520-2524", "docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:787-788"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2524", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_design_generation_contract:rederive-audit",
@@ -138,7 +128,7 @@
       "samples_ms": [1329570.0],
       "measured_p95_ms": 1329570.0,
       "recommended_timeout_ms": 2659140.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-16-gy-n10-final-closure-audit.md:520-526"]
+      "source_refs": ["docs/superpowers/journals/2026-07-16-gy-n10-final-closure-audit.md:522-523"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_generation_cycle_contract:rederive-audit",
@@ -148,7 +138,7 @@
       "samples_ms": [24916.839, 25360.573],
       "measured_p95_ms": 25360.573,
       "recommended_timeout_ms": 50721.146,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-3.md:222-228", "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:838-844"]
+      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-3.md:226-227", "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:842-843"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_generation_cycle_disposition_ledger:check",
@@ -158,17 +148,37 @@
       "samples_ms": [101480.0],
       "measured_p95_ms": 101480.0,
       "recommended_timeout_ms": 202960.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2543-2549"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:404"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:check",
       "tool": "quality.validation.check_layer3_gy_confidence_ledger",
       "mode": "check",
       "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --check",
-      "samples_ms": [898666.254],
-      "measured_p95_ms": 898666.254,
-      "recommended_timeout_ms": 1797332.508,
-      "source_refs": ["docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-773"]
+      "samples_ms": [898666.254, 951000.0],
+      "measured_p95_ms": 951000.0,
+      "recommended_timeout_ms": 1902000.0,
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:405", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:390"]
+    },
+    {
+      "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:cold-rederive",
+      "tool": "quality.validation.check_layer3_gy_confidence_ledger",
+      "mode": "cold-rederive",
+      "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --cold-rederive",
+      "samples_ms": [952000.0],
+      "measured_p95_ms": 952000.0,
+      "recommended_timeout_ms": 1904000.0,
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:393"]
+    },
+    {
+      "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:corrupt-field-drift-check",
+      "tool": "quality.validation.check_layer3_gy_confidence_ledger",
+      "mode": "corrupt-field-drift-check",
+      "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --corrupt-field-drift-check",
+      "samples_ms": [937000.0],
+      "measured_p95_ms": 937000.0,
+      "recommended_timeout_ms": 1874000.0,
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:391"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:source-flip-mutations",
@@ -178,17 +188,27 @@
       "samples_ms": [844533.0],
       "measured_p95_ms": 844533.0,
       "recommended_timeout_ms": 1689066.0,
-      "source_refs": ["docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:754-759"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:406"]
+    },
+    {
+      "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:warm-closeout",
+      "tool": "quality.validation.check_layer3_gy_confidence_ledger",
+      "mode": "warm-closeout",
+      "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --warm-closeout",
+      "samples_ms": [975000.0],
+      "measured_p95_ms": 975000.0,
+      "recommended_timeout_ms": 1950000.0,
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:392"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_confidence_ledger:write",
       "tool": "quality.validation.check_layer3_gy_confidence_ledger",
       "mode": "write",
       "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write",
-      "samples_ms": [1173279.65, 1111911.306],
+      "samples_ms": [1173279.65, 1111911.306, 1086000.0, 951000.0],
       "measured_p95_ms": 1173279.65,
       "recommended_timeout_ms": 2346559.3,
-      "source_refs": ["docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-773"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:407", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:407", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:389", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:389"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_second_domain_pack:rederive-audit",
@@ -198,7 +218,7 @@
       "samples_ms": [263195.95],
       "measured_p95_ms": 263195.95,
       "recommended_timeout_ms": 526391.9,
-      "source_refs": ["docs/superpowers/journals/2026-07-13-gy-n10-stage-2.md:1152-1161"]
+      "source_refs": ["docs/superpowers/journals/2026-07-13-gy-n10-stage-2.md:1156-1157"]
     }
   ]
 }

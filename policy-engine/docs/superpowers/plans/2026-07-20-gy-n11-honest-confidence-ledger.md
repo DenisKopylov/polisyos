@@ -779,8 +779,17 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 - Registry topology source is the 59-family
   `architecture/generated_artifacts.toml` snapshot
   `sha256:261d569a6b8758da826f3de4bc4549de0c409683e4df71d61634dd85520d6aaa`.
-  The single pass followed second-domain -> depth-N -> projection-gated N13a -> projection-gated
-  N13b -> N11 -> disposition -> downstream checkers; no completed upstream node was revisited.
+  After the final second-domain outputs were committed at `c732eaa58`, the executed pass followed
+  depth-N -> projection-gated N13a -> projection-gated N13b -> N11 -> disposition -> downstream
+  checkers; no completed upstream node was revisited. This is the measured execution order, not a
+  claim that every byte-no-op writer created an artifact commit: historical artifact commits
+  `3ffbc7bad` (depth-N) and `369065e8b` (N11/N6/N8) precede `c732eaa58`. Post-`c732eaa58`, the
+  depth-N writer ran twice (`3660.436012s`, `1613.412167s`) and its independent check ran in
+  `87.343036s`; all returned the already committed bytes. N13a/N13b declared projections were
+  unchanged and therefore validate-only. N11 then ran two writers and its checker at the timings
+  recorded above, again returning the already committed bytes. Consequently there was no honest
+  downstream artifact diff to commit; `a8be8be1b` and this correction commit are the committed
+  no-op execution journal receipts.
 - The second-domain family is committed at `c732eaa58`: pack
   `b976c2b4fe0b0da8438b062da777bc78b6b6a459f603e0e1d246b94cf66426e5`, cycle-entry trace
   `973a4cb903958c18281737da404e86e13d03032a84d6c03265b66bca5258b363`, and free-grow gaps

@@ -778,13 +778,14 @@ run is byte-identical; an unrelated restamp is red.
 
 ### DS5-C01b — bounded authority escape-hatch lint
 
-**Measured input:** exactly 15 branded-authority-path files derived from the
-current issuer modules and every current importer of the two branded sinks,
-including focused tests/stories. The 12 unbranded sink groups remain C01a debt
-and are not falsely covered by this assignability escape rule. The AST
-census finds 32 assertions, 0 `any`, 0
-`@ts-ignore`, 7 `@ts-expect-error`, and 15 `satisfies` sites. This is a local
-syntax property, not a data analysis.
+**Measured input:** exactly 15 branded-authority-path files: three issuer
+modules, one package re-export, nine symbol importers, and the two explicit
+governance collections (`EVIDENCE_FAMILIES`, `EXPECTED_RUNTIME_EXPORTS`). The
+12 unbranded sink groups remain C01a debt and are not falsely covered by this
+assignability escape rule. The post-C01a AST census finds 35 assertions, 0
+`any`, 0 `@ts-ignore`, 8 `@ts-expect-error`, and 15 `satisfies` sites. C01a's
+type witnesses account exactly for the prior receipt's +3 assertions and +1
+`@ts-expect-error`. This is a local syntax property, not a data analysis.
 
 The exact bounded input is: `AuthorityBadge.tsx`, `EnvelopeChip.tsx`,
 `evidenceTypes.ts`, Atlas UI `index.ts`, `AuthorityBadge.test.tsx`,
@@ -796,7 +797,7 @@ The exact bounded input is: `AuthorityBadge.tsx`, `EnvelopeChip.tsx`,
 `fixtureOnlyAuthority.compile.test.tsx`. The recorded AST command parses those
 15 files with the installed TypeScript compiler, counts `AsExpression` /
 `TypeAssertionExpression`, `AnyKeyword`, `SatisfiesExpression`, and the two
-directive comments, and returned `15 / 32 / 0 / 0 / 7 / 15`.
+directive comments, and returned `15 / 35 / 0 / 0 / 8 / 15`.
 
 ```bash
 node - <<'NODE'
@@ -822,12 +823,13 @@ console.log(JSON.stringify({files:files.length,...count}));
 NODE
 ```
 
-**Measured edit set:** exactly 13 paths; cap 13: the scanner/DS5 checker/test;
-disposition register/schema/checker/test; AuthorityBadge, EnvelopeChip and
-DecisionCard tests; the compile-negative fixture; and journal. Existing issuer
-assertions may survive only as exact typed exemptions with path, construct,
-owner and reason; inline expected-error tests move to the diagnostics harness.
-The generated disposition reference report is regenerated in the same commit.
+**Measured edit set:** 11 paths; cap 13: the scanner/DS5 checker/test;
+`AuthorityBadge.tsx`, `evidenceTypes.ts`; AuthorityBadge, EnvelopeChip and
+DecisionCard tests; the compile-negative fixture; this section; and journal.
+Typed exemptions live with the lint as exact path/line/column/construct/target/
+AST-hash records carrying owner and reason. This avoids an unpaired disposition
+register write and its mandatory DS19 receipt refresh. Inline expected-error
+tests move to the DS5 diagnostics harness.
 
 **Red first:** `test_authority_paths_reject_unregistered_type_escape_hatches`.
 Separate corruptions add `as`, double assertion, explicit `any`,

@@ -94,7 +94,7 @@ function createPresentation(
     assertNotFixtureAuthority(presentation.ownerAuthority);
   }
   const issued: AuthorityPresentation = {
-    [authorityPresentationBrand]: true as const,
+    [authorityPresentationBrand]: true,
     ...presentation,
   };
   authorityPresentationIssuances.add(issued);

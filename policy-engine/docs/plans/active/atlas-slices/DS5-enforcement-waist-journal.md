@@ -142,3 +142,112 @@
   enforcement, content-bound classification, and typed owner debt for every
   unbranded measured sink. It does not claim semantic discovery or complete
   value-flow detection for arbitrary future TypeScript.
+
+## DS5-C01b — bounded authority escape-hatch lint
+
+### Entry, cap, and red-first receipts
+
+- Entry was clean, attached branch `codex/atlas-ds5-enforcement-waist` at
+  `b19c33181`. The post-C01a AST baseline is exactly 15 authority-path files,
+  35 `as` assertions, 0 angle-bracket assertions, 0 explicit `any`, 0
+  `@ts-ignore`, 8 `@ts-expect-error`, and 15 `satisfies` expressions. The
+  previous 32/7 receipt drifted only by C01a's three structural-lookalike
+  `as const` fields and one compile-negative directive.
+- The planned disposition-register exemption artifact would have required both
+  its content-bound status-inventory receipt and this denominator correction:
+  15 paths exceeded cap 13. C01b instead keeps a typed checker-local exemption
+  registry, so there is no register mutation or DS19 hash drift. Final scope is
+  11 paths under cap 13.
+- Red first:
+  `test_authority_paths_reject_unregistered_type_escape_hatches` failed all
+  seven original subcases because no `authority_escape_*` error existed. The
+  corrected type-valid rerun failed with `errors=[]` for single assertion,
+  double assertion, explicit `any`, both directives, branded `satisfies`, and
+  `satisfies any` in 7.529 seconds.
+- A later self-corruption shadowed the built-in `Record` with an optional local
+  mapped type. The named test failed only that subcase with `errors=[]`; binding
+  the benign exhaustive-map rule to TypeScript's `lib.es5` declaration made the
+  rerun pass in 19.703 seconds.
+- Independent review returned NO-GO with 0 Critical / 5 Important / 0 Minor:
+  resolved `typeof unknown` widening, compiler-recognized `@ts-nocheck`, static
+  namespace element access, seven compile-barrier witnesses not yet migrated,
+  and the missing diagnostic-clean angle-assertion corruption. Fix round one
+  addresses exactly those five findings; no flow inference or exemption was
+  added.
+- Delta-only review closed four findings and retained one Important: invoking
+  type-node resolution on arbitrary AST children made safe `typeof` and
+  `import(...)` shapes look `unknown`. Fix round two replaced that traversal
+  with a cached walk over the finite resolved TypeScript type graph and added
+  paired safe/unsafe type-query and import-type witnesses. The final delta-only
+  review returned GO with 0 Critical / 0 Important; its fresh paired witness
+  was 2/2 green in 50.915 seconds.
+
+### Decidable mechanism and source migration
+
+- The scanner derives 15 paths from real TypeScript declarations and imports:
+  three issuer modules, one re-export, nine symbol importers, and two explicit
+  governance collections. Three unrelated namespace-import consumers are not
+  included. The checker inspects only local AST nodes; it follows no runtime
+  value through assignments, wrappers, spreads, aliases, or calls.
+- Every `as`, angle-bracket assertion, explicit `any`, `@ts-ignore`,
+  `@ts-expect-error`, and leading `@ts-nocheck` is forbidden unless its exact path, line, column,
+  construct, target and AST hash match an exemption carrying an owner and
+  reason. Unsafe `satisfies` resolves target aliases and rejects `any`,
+  `unknown`, unions/intersections/nesting containing either widening or a
+  module-private authority brand.
+- Generated DTO conformance and the exact exhaustive
+  `Record<generated-union, BadgeTone>` map are benign. The one Storybook `Meta`
+  target is an exact `team-design` exemption because framework metadata exposes
+  intentional `unknown` slots without containing an authority brand.
+- The final 42 syntax sites are 25 exact owned assertion exemptions plus 17
+  `satisfies` sites: 15 generated DTO conformances, one exhaustive generated
+  tone map, and the one typed Storybook exemption. All 8 inline directives,
+  four partial packet casts, three compile-negative `as const` assertions, and
+  three unnecessary issuer `as const` assertions were removed. The type-level
+  negatives now run through the DS5 compiler-diagnostics harness.
+
+### Verification receipts
+
+- The named negative plus benign generated-conformance test passed 2/2 in
+  7.477 seconds. The expanded battery passed 10/10 in 129.403 seconds under
+  parallel scanner load; the status-inventory battery passed 38/38 in 132.873
+  seconds in the same wave.
+- Focused Atlas UI tests passed 5 files / 23 tests in 8.13 seconds; focused
+  dashboard tests passed 2 files / 4 tests in 7.00 seconds. Atlas UI typecheck
+  passed in 3.199 seconds and dashboard typecheck passed in 17.294 seconds.
+  Both ESLint gates passed; architecture passed for Atlas UI's 36 sources and
+  dashboard's 1,019 modules / 4,150 dependencies.
+- The production build passed with 3,885 transformed modules, 108 PWA precache
+  entries, post-build security, and Atlas Tailwind source verification. The
+  enforcement checker and its corruption probes passed with 15 authority-path
+  files and 42 local syntax sites.
+- The review-fix witnesses are compiler-valid and green: resolved type-query
+  widening plus generated conformance passed 2/2 in 51.726 seconds; directive
+  recognition/prose passed 2/2 in 12.875 seconds; static string/template
+  namespace access, `.ts` angle assertion, and the unrelated namespace control
+  passed 3/3 in 22.769 seconds; all seven migrated branded-prop barriers passed
+  in 33.332 seconds. The first post-fix production run correctly went red when
+  resolved widening preceded content-bound generated provenance and
+  misclassified 15 generated DTO `satisfies` sites. Reordering those already
+  independent proofs restored the exact 15-path / 42-site production census;
+  the corruption battery then passed in 66.753 seconds.
+- After fix round two, the complete enforcement suite passed 16/16 in 212.926
+  seconds and status retirement passed 38/38 in 138.578 seconds under the same
+  read-only wave. The final corruption battery, including safe/unsafe resolved
+  types, compiler directives, static namespace access and the angle assertion,
+  passed with the unchanged 15-path / 42-site production census.
+- Final governed checks are green: status-retirement corruption at 47 DS1 rows,
+  15 current authored statuses, 55 semantic exemptions, 0 retirement debt and
+  3 waist rows; disposition corruption at 261 roots, 53 findings, 23 negatives
+  and 8 censuses. Scoped Ruff, Node syntax, Python compilation, `git diff
+--check`, and dashboard-toolchain Prettier over every changed code/test/journal
+  path pass. The plan itself remains the already-recorded inherited Prettier
+  identity and was not reformatted outside this cluster's bounded 30-line delta.
+- Package gates at the final source freeze are green: dashboard production build
+  (3,885 modules / 108 PWA entries), lint, both architecture engines (1,019
+  modules / 4,150 dependencies), and 2 files / 4 focused tests; Atlas UI
+  typecheck, lint, architecture (36 sources), and 18 files / 84 tests.
+- Two root-level Prettier invocations were non-receipts: one had no root
+  executable and one could not resolve the dashboard Tailwind plugin. The clean
+  dashboard-toolchain rerun formatted four touched files. Scoped Ruff
+  `E,F,I,B,N` and exact `E,F` checks pass.

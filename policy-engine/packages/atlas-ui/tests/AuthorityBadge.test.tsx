@@ -126,18 +126,4 @@ describe("AuthorityBadge", () => {
     expect(badge).toHaveAttribute("data-owner-authority", "owner_extension");
     expect(badge).toHaveAttribute("data-authority-state", "novel_state");
   });
-
-  it("does not expose caller-selected authority clothing", () => {
-    const presentation = createOpaqueAuthorityPresentation("owner_extension");
-    const compileOnly = () => (
-      <>
-        {/* @ts-expect-error Authority clothing cannot be supplied by class. */}
-        <AuthorityBadge className="text-red-500" presentation={presentation} />
-        {/* @ts-expect-error Authority clothing cannot be supplied by style. */}
-        <AuthorityBadge presentation={presentation} style={{ color: "red" }} />
-      </>
-    );
-
-    expect(compileOnly).toBeTypeOf("function");
-  });
 });

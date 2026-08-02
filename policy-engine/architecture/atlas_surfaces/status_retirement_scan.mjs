@@ -2600,11 +2600,637 @@ function collectAuthorityPropCensus(sourceFiles, checker, pathOf, descriptors) {
     .sort((left, right) => left.descriptorId.localeCompare(right.descriptorId));
 }
 
+function moduleExports(checker, sourceFile) {
+  const moduleSymbol =
+    checker.getSymbolAtLocation(sourceFile) ?? sourceFile.symbol;
+  if (!moduleSymbol) return [];
+  return checker.getExportsOfModule(moduleSymbol).map((symbol) => {
+    if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+      return checker.getAliasedSymbol(symbol);
+    }
+    return symbol;
+  });
+}
+
+function privateUniqueBrandSymbol(checker, declaration) {
+  if (!ts.isComputedPropertyName(declaration.name)) return undefined;
+  const symbol = symbolIdentity(checker, declaration.name.expression);
+  const brandDeclaration = symbol?.valueDeclaration;
+  if (!brandDeclaration || !ts.isVariableDeclaration(brandDeclaration)) {
+    return undefined;
+  }
+  const statement = brandDeclaration.parent?.parent;
+  if (
+    !ts.isVariableStatement(statement) ||
+    statement.modifiers?.some(
+      (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+    )
+  ) {
+    return undefined;
+  }
+  const brandType = checker.getTypeAtLocation(brandDeclaration.name);
+  return (brandType.flags & ts.TypeFlags.UniqueESSymbol) !== 0
+    ? symbol
+    : undefined;
+}
+
+function typeTouchesAuthorityBrand(
+  checker,
+  type,
+  brandSymbols,
+  seen = new Set(),
+  depth = 0,
+) {
+  if (!type || seen.has(type) || depth > 10) return false;
+  seen.add(type);
+  for (const property of checker.getPropertiesOfType(type)) {
+    for (const declaration of property.declarations ?? []) {
+      const brand = privateUniqueBrandSymbol(checker, declaration);
+      if (brand && brandSymbols.has(brand)) return true;
+    }
+    const declaration = property.valueDeclaration ?? property.declarations?.[0];
+    if (
+      declaration &&
+      typeTouchesAuthorityBrand(
+        checker,
+        checker.getTypeOfSymbolAtLocation(property, declaration),
+        brandSymbols,
+        seen,
+        depth + 1,
+      )
+    ) {
+      return true;
+    }
+  }
+  for (const member of type.types ?? []) {
+    if (
+      typeTouchesAuthorityBrand(checker, member, brandSymbols, seen, depth + 1)
+    ) {
+      return true;
+    }
+  }
+  for (const argument of type.aliasTypeArguments ?? type.typeArguments ?? []) {
+    if (
+      typeTouchesAuthorityBrand(
+        checker,
+        argument,
+        brandSymbols,
+        seen,
+        depth + 1,
+      )
+    ) {
+      return true;
+    }
+  }
+  for (const signature of [
+    ...checker.getSignaturesOfType(type, ts.SignatureKind.Call),
+    ...checker.getSignaturesOfType(type, ts.SignatureKind.Construct),
+  ]) {
+    if (
+      typeTouchesAuthorityBrand(
+        checker,
+        checker.getReturnTypeOfSignature(signature),
+        brandSymbols,
+        seen,
+        depth + 1,
+      )
+    ) {
+      return true;
+    }
+    for (const parameter of signature.getParameters()) {
+      const declaration =
+        parameter.valueDeclaration ?? parameter.declarations?.[0];
+      if (
+        declaration &&
+        typeTouchesAuthorityBrand(
+          checker,
+          checker.getTypeOfSymbolAtLocation(parameter, declaration),
+          brandSymbols,
+          seen,
+          depth + 1,
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function collectBrandsInType(
+  checker,
+  type,
+  brands,
+  seen = new Set(),
+  depth = 0,
+) {
+  if (!type || seen.has(type) || depth > 10) return;
+  seen.add(type);
+  for (const property of checker.getPropertiesOfType(type)) {
+    for (const declaration of property.declarations ?? []) {
+      const brand = privateUniqueBrandSymbol(checker, declaration);
+      if (brand) brands.add(brand);
+    }
+    const declaration = property.valueDeclaration ?? property.declarations?.[0];
+    if (declaration) {
+      collectBrandsInType(
+        checker,
+        checker.getTypeOfSymbolAtLocation(property, declaration),
+        brands,
+        seen,
+        depth + 1,
+      );
+    }
+  }
+  for (const member of type.types ?? []) {
+    collectBrandsInType(checker, member, brands, seen, depth + 1);
+  }
+  for (const argument of type.aliasTypeArguments ?? type.typeArguments ?? []) {
+    collectBrandsInType(checker, argument, brands, seen, depth + 1);
+  }
+}
+
+function componentPropType(checker, sourceFile, descriptor) {
+  const component = moduleExports(checker, sourceFile).find(
+    (symbol) => symbol.name === descriptor.component,
+  );
+  const declaration =
+    component?.valueDeclaration ?? component?.declarations?.[0];
+  if (!component || !declaration) return null;
+  const componentType = checker.getTypeOfSymbolAtLocation(
+    component,
+    declaration,
+  );
+  for (const signature of checker.getSignaturesOfType(
+    componentType,
+    ts.SignatureKind.Call,
+  )) {
+    const parameter = signature.getParameters()[0];
+    const parameterDeclaration =
+      parameter?.valueDeclaration ?? parameter?.declarations?.[0];
+    if (!parameter || !parameterDeclaration) continue;
+    const props = checker.getTypeOfSymbolAtLocation(
+      parameter,
+      parameterDeclaration,
+    );
+    const property = checker.getPropertyOfType(props, descriptor.prop);
+    const propertyDeclaration =
+      property?.valueDeclaration ?? property?.declarations?.[0];
+    if (property && propertyDeclaration) {
+      return checker.getTypeOfSymbolAtLocation(property, propertyDeclaration);
+    }
+  }
+  return null;
+}
+
+function sourceImportsAuthorityFamily(checker, sourceFile, familySymbols) {
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement) || !statement.importClause) continue;
+    const clause = statement.importClause;
+    if (
+      clause.name &&
+      familySymbols.has(symbolIdentity(checker, clause.name))
+    ) {
+      return true;
+    }
+    const bindings = clause.namedBindings;
+    if (bindings && ts.isNamedImports(bindings)) {
+      if (
+        bindings.elements.some((element) =>
+          familySymbols.has(symbolIdentity(checker, element.name)),
+        )
+      ) {
+        return true;
+      }
+    } else if (bindings && ts.isNamespaceImport(bindings)) {
+      const namespaceBinding = checker.getSymbolAtLocation(bindings.name);
+      const namespaceType = checker.getTypeAtLocation(bindings.name);
+      let used = false;
+      const visit = (node) => {
+        if (
+          ts.isPropertyAccessExpression(node) ||
+          ts.isElementAccessExpression(node)
+        ) {
+          const expression = unwrapExpression(node.expression);
+          if (checker.getSymbolAtLocation(expression) === namespaceBinding) {
+            const memberName = ts.isPropertyAccessExpression(node)
+              ? node.name.text
+              : ts.isStringLiteralLike(node.argumentExpression)
+                ? node.argumentExpression.text
+                : null;
+            let member = memberName
+              ? checker.getPropertyOfType(namespaceType, memberName)
+              : undefined;
+            if (member && (member.flags & ts.SymbolFlags.Alias) !== 0) {
+              member = checker.getAliasedSymbol(member);
+            }
+            if (member && familySymbols.has(member)) {
+              used = true;
+              return;
+            }
+          }
+        }
+        if (!used) ts.forEachChild(node, visit);
+      };
+      visit(sourceFile);
+      if (used) return true;
+    }
+  }
+  return false;
+}
+
+function hasAuthorityGovernanceEdge(sourceFile, componentNames, objectNames) {
+  let found = false;
+  const visit = (node) => {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      objectNames.has(node.name.text) &&
+      node.initializer
+    ) {
+      const collection = unwrapExpression(node.initializer);
+      if (ts.isObjectLiteralExpression(collection)) {
+        const names = new Set(
+          collection.properties
+            .map((property) => propertyNameText(property.name))
+            .filter(Boolean),
+        );
+        if ([...componentNames].every((name) => names.has(name))) found = true;
+      } else if (ts.isArrayLiteralExpression(collection)) {
+        const names = new Set(
+          collection.elements
+            .filter((element) => ts.isStringLiteralLike(element))
+            .map((element) => element.text),
+        );
+        if ([...componentNames].every((name) => names.has(name))) found = true;
+      }
+    }
+    if (!found) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+const anyUnknownTypeCache = new WeakMap();
+
+function typeContainsAnyOrUnknown(checker, type, seen = new Set()) {
+  if (!type) return false;
+  let cache = anyUnknownTypeCache.get(checker);
+  if (!cache) {
+    cache = new Map();
+    anyUnknownTypeCache.set(checker, cache);
+  }
+  if (cache.has(type)) return cache.get(type);
+  if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0) {
+    cache.set(type, true);
+    return true;
+  }
+  if (seen.has(type)) return false;
+  seen.add(type);
+
+  for (const member of type.types ?? []) {
+    if (typeContainsAnyOrUnknown(checker, member, seen)) {
+      cache.set(type, true);
+      return true;
+    }
+  }
+  const typeArguments = [
+    ...(type.aliasTypeArguments ?? []),
+    ...((type.flags & ts.TypeFlags.Object) !== 0 &&
+    (type.objectFlags & ts.ObjectFlags.Reference) !== 0
+      ? checker.getTypeArguments(type)
+      : []),
+  ];
+  for (const argument of typeArguments) {
+    if (typeContainsAnyOrUnknown(checker, argument, seen)) {
+      cache.set(type, true);
+      return true;
+    }
+  }
+  if ((type.flags & ts.TypeFlags.TypeParameter) !== 0) {
+    const constraint = checker.getBaseConstraintOfType(type);
+    if (
+      constraint &&
+      constraint !== type &&
+      typeContainsAnyOrUnknown(checker, constraint, seen)
+    ) {
+      cache.set(type, true);
+      return true;
+    }
+  }
+  if ((type.flags & ts.TypeFlags.Object) === 0) {
+    cache.set(type, false);
+    return false;
+  }
+
+  for (const indexType of [
+    type.getStringIndexType(),
+    type.getNumberIndexType(),
+  ]) {
+    if (typeContainsAnyOrUnknown(checker, indexType, seen)) {
+      cache.set(type, true);
+      return true;
+    }
+  }
+  for (const property of checker.getPropertiesOfType(type)) {
+    const declaration = property.valueDeclaration ?? property.declarations?.[0];
+    if (
+      declaration &&
+      typeContainsAnyOrUnknown(
+        checker,
+        checker.getTypeOfSymbolAtLocation(property, declaration),
+        seen,
+      )
+    ) {
+      cache.set(type, true);
+      return true;
+    }
+  }
+  for (const signature of [
+    ...checker.getSignaturesOfType(type, ts.SignatureKind.Call),
+    ...checker.getSignaturesOfType(type, ts.SignatureKind.Construct),
+  ]) {
+    if (
+      typeContainsAnyOrUnknown(
+        checker,
+        checker.getReturnTypeOfSignature(signature),
+        seen,
+      )
+    ) {
+      cache.set(type, true);
+      return true;
+    }
+    for (const parameter of signature.getParameters()) {
+      const declaration =
+        parameter.valueDeclaration ?? parameter.declarations?.[0];
+      if (
+        declaration &&
+        typeContainsAnyOrUnknown(
+          checker,
+          checker.getTypeOfSymbolAtLocation(parameter, declaration),
+          seen,
+        )
+      ) {
+        cache.set(type, true);
+        return true;
+      }
+    }
+  }
+  cache.set(type, false);
+  return false;
+}
+
+function typeNodeContainsAnyOrUnknown(checker, node) {
+  return typeContainsAnyOrUnknown(checker, checker.getTypeFromTypeNode(node));
+}
+
+function isGeneratedToneMapTarget(checker, typeNode, governedPaths) {
+  return (
+    ts.isTypeReferenceNode(typeNode) &&
+    typeNode.typeArguments?.length === 2 &&
+    ts.isIndexedAccessTypeNode(typeNode.typeArguments[0]) &&
+    isGeneratedClosedInputType(
+      checker,
+      typeNode.typeArguments[0],
+      governedPaths,
+    ) &&
+    isAtlasBadgeToneType(checker, typeNode.typeArguments[1])
+  );
+}
+
+function isExhaustiveGeneratedToneMap(checker, typeNode, governedPaths) {
+  const recordSymbol = ts.isTypeReferenceNode(typeNode)
+    ? symbolIdentity(checker, typeNode.typeName)
+    : undefined;
+  const recordDeclarations = recordSymbol?.declarations ?? [];
+  const isStandardRecord =
+    recordDeclarations.length === 1 &&
+    recordDeclarations.every(
+      (declaration) =>
+        ts.isTypeAliasDeclaration(declaration) &&
+        declaration.name.text === "Record" &&
+        declaration.getSourceFile().hasNoDefaultLib &&
+        /\/typescript\/lib\/lib\.es5\.d\.ts$/u.test(
+          declaration.getSourceFile().fileName.split(path.sep).join("/"),
+        ),
+    );
+  return (
+    isStandardRecord &&
+    isGeneratedToneMapTarget(checker, typeNode, governedPaths)
+  );
+}
+
+function authorityEscapeSite(sourceFile, node, pathOf, construct, target) {
+  const location = sourceFile.getLineAndCharacterOfPosition(
+    node.getStart(sourceFile),
+  );
+  return {
+    path: pathOf(sourceFile),
+    line: location.line + 1,
+    column: location.character + 1,
+    construct,
+    target,
+    siteSha256: textSha256(node.getText(sourceFile)),
+  };
+}
+
+function directiveEscapeSites(sourceFile, pathOf) {
+  const sites = [];
+  const addDirective = (range, construct, target) => {
+    const text = sourceFile.text.slice(range.pos, range.end);
+    const location = sourceFile.getLineAndCharacterOfPosition(range.pos);
+    sites.push({
+      path: pathOf(sourceFile),
+      line: location.line + 1,
+      column: location.character + 1,
+      construct,
+      target,
+      siteSha256: textSha256(text),
+    });
+  };
+  for (const directive of sourceFile.commentDirectives ?? []) {
+    if (directive.type === ts.CommentDirectiveType.Ignore) {
+      addDirective(directive.range, "ts_ignore", "@ts-ignore");
+    } else if (directive.type === ts.CommentDirectiveType.ExpectError) {
+      addDirective(directive.range, "ts_expect_error", "@ts-expect-error");
+    }
+  }
+  const noCheckPragma = sourceFile.pragmas?.get("ts-nocheck");
+  const noCheckPragmas = Array.isArray(noCheckPragma)
+    ? noCheckPragma
+    : noCheckPragma
+      ? [noCheckPragma]
+      : [];
+  for (const pragma of noCheckPragmas) {
+    if (pragma.range) {
+      addDirective(pragma.range, "ts_nocheck", "@ts-nocheck");
+    }
+  }
+  return sites;
+}
+
+function collectAuthorityEscapeFacts(
+  program,
+  candidates,
+  pathOf,
+  descriptors,
+  generatedDefinitionPaths,
+  governanceObjectNames,
+) {
+  if (!Array.isArray(descriptors) || descriptors.length === 0) {
+    return { authorityPathFiles: [], authorityEscapeSites: [] };
+  }
+  const checker = program.getTypeChecker();
+  const sourceByPath = new Map(
+    program
+      .getSourceFiles()
+      .map((sourceFile) => [relativePath(sourceFile.fileName), sourceFile]),
+  );
+  const brandSymbols = new Set();
+  const issuerPaths = new Set();
+  for (const descriptor of descriptors) {
+    const sourceFile = sourceByPath.get(descriptor.componentDeclarationPath);
+    if (!sourceFile) continue;
+    issuerPaths.add(descriptor.componentDeclarationPath);
+    const propType = componentPropType(checker, sourceFile, descriptor);
+    collectBrandsInType(checker, propType, brandSymbols);
+  }
+  for (const brand of brandSymbols) {
+    for (const declaration of brand.declarations ?? []) {
+      const brandPath = declarationPath(declaration);
+      if (brandPath) issuerPaths.add(brandPath);
+    }
+  }
+
+  const familySymbols = new Set();
+  for (const issuerPath of issuerPaths) {
+    const sourceFile = sourceByPath.get(issuerPath);
+    if (!sourceFile) continue;
+    for (const symbol of moduleExports(checker, sourceFile)) {
+      const declaration = symbol.valueDeclaration ?? symbol.declarations?.[0];
+      if (!declaration) continue;
+      const valueType = checker.getTypeOfSymbolAtLocation(symbol, declaration);
+      const declaredType =
+        (symbol.flags & ts.SymbolFlags.Type) !== 0
+          ? checker.getDeclaredTypeOfSymbol(symbol)
+          : null;
+      if (
+        typeTouchesAuthorityBrand(checker, valueType, brandSymbols) ||
+        typeTouchesAuthorityBrand(checker, declaredType, brandSymbols)
+      ) {
+        familySymbols.add(symbol);
+      }
+    }
+  }
+
+  const componentNames = new Set(descriptors.map((item) => item.component));
+  const objectNames = new Set(governanceObjectNames ?? []);
+  const pathRows = [];
+  const authoritySources = [];
+  for (const sourceFile of candidates) {
+    const relative = pathOf(sourceFile);
+    const edges = [];
+    if (issuerPaths.has(relative)) edges.push("issuer_declaration");
+    if (
+      moduleExports(checker, sourceFile).some((symbol) =>
+        familySymbols.has(symbol),
+      )
+    ) {
+      edges.push("authority_reexport");
+    }
+    if (sourceImportsAuthorityFamily(checker, sourceFile, familySymbols)) {
+      edges.push("authority_import");
+    }
+    if (hasAuthorityGovernanceEdge(sourceFile, componentNames, objectNames)) {
+      edges.push("governance_owner");
+    }
+    if (edges.length === 0) continue;
+    authoritySources.push(sourceFile);
+    pathRows.push({
+      path: relative,
+      edges: [...new Set(edges)].sort(),
+      sourceSha256: textSha256(sourceFile.text),
+    });
+  }
+
+  const governedPaths = new Set(generatedDefinitionPaths ?? []);
+  const sites = [];
+  for (const sourceFile of authoritySources) {
+    sites.push(...directiveEscapeSites(sourceFile, pathOf));
+    const visit = (node) => {
+      if (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node)) {
+        sites.push(
+          authorityEscapeSite(
+            sourceFile,
+            node,
+            pathOf,
+            ts.isAsExpression(node) ? "as_assertion" : "type_assertion",
+            node.type.getText(sourceFile),
+          ),
+        );
+      } else if (node.kind === ts.SyntaxKind.AnyKeyword) {
+        sites.push(
+          authorityEscapeSite(sourceFile, node, pathOf, "explicit_any", "any"),
+        );
+      } else if (ts.isSatisfiesExpression(node)) {
+        const targetType = checker.getTypeFromTypeNode(node.type);
+        const proof = terminalTypeDeclarationPaths(checker, node.type);
+        const isGeneratedConformance =
+          proof.complete &&
+          proof.paths.size > 0 &&
+          [...proof.paths].every((candidatePath) =>
+            governedPaths.has(candidatePath),
+          );
+        let safety = "unrelated_conformance";
+        if (isExhaustiveGeneratedToneMap(checker, node.type, governedPaths)) {
+          safety = "exhaustive_generated_record";
+        } else if (
+          isGeneratedToneMapTarget(checker, node.type, governedPaths)
+        ) {
+          safety = "unsafe_exhaustiveness_lookalike";
+        } else if (isGeneratedConformance) {
+          safety = "generated_conformance";
+        } else if (typeNodeContainsAnyOrUnknown(checker, node.type)) {
+          safety = "unsafe_widening";
+        } else if (
+          typeTouchesAuthorityBrand(checker, targetType, brandSymbols)
+        ) {
+          safety = "unsafe_brand";
+        }
+        sites.push({
+          ...authorityEscapeSite(
+            sourceFile,
+            node,
+            pathOf,
+            "satisfies",
+            node.type.getText(sourceFile),
+          ),
+          safety,
+        });
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  const sortKey = (item) =>
+    `${item.path}:${String(item.line ?? 0).padStart(8, "0")}:${String(item.column ?? 0).padStart(8, "0")}:${item.construct ?? ""}`;
+  return {
+    authorityPathFiles: pathRows.sort((left, right) =>
+      left.path.localeCompare(right.path),
+    ),
+    authorityEscapeSites: sites.sort((left, right) =>
+      sortKey(left).localeCompare(sortKey(right)),
+    ),
+  };
+}
+
 function collectProgramFacts(
   program,
   protectedDefinitions = [],
   generatedDefinitionPaths = [],
   authorityPropDescriptors = [],
+  authorityPathDescriptors = [],
+  authorityGovernanceObjects = [],
 ) {
   const checker = program.getTypeChecker();
   const definitions = [];
@@ -2820,6 +3446,21 @@ function collectProgramFacts(
     checker,
     new Set(generatedDefinitionPaths),
   );
+  const authorityEscapeFacts = collectAuthorityEscapeFacts(
+    program,
+    program.getSourceFiles().filter((sourceFile) => {
+      const relative = relativePath(sourceFile.fileName);
+      return (
+        relative.startsWith("apps/runtime-dashboard/src/") ||
+        relative.startsWith("packages/atlas-ui/src/") ||
+        relative.startsWith("packages/atlas-ui/tests/")
+      );
+    }),
+    (sourceFile) => relativePath(sourceFile.fileName),
+    authorityPathDescriptors,
+    generatedDefinitionPaths,
+    authorityGovernanceObjects,
+  );
   return {
     authorityCandidates,
     definitions,
@@ -2851,6 +3492,7 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
       authorityPropDescriptors,
     ),
+    ...authorityEscapeFacts,
   };
 }
 
@@ -2985,6 +3627,8 @@ function collectOverrideFacts(
   generatedDefinitionPaths = [],
   validateOverrideDiagnostics = false,
   authorityPropDescriptors = [],
+  authorityPathDescriptors = [],
+  authorityGovernanceObjects = [],
 ) {
   const facts = {
     authorityCandidates: [],
@@ -2994,6 +3638,8 @@ function collectOverrideFacts(
     authoritySinkDeclarations: [],
     badgeSites: [],
     authorityPropCensus: [],
+    authorityPathFiles: [],
+    authorityEscapeSites: [],
   };
   const program = createOverrideProgram(overrides);
   if (validateOverrideDiagnostics) {
@@ -3138,6 +3784,16 @@ function collectOverrideFacts(
       authorityPropDescriptors,
     ),
   );
+  const authorityEscapeFacts = collectAuthorityEscapeFacts(
+    program,
+    sourceFiles,
+    (sourceFile) => relativePath(sourceFile.fileName),
+    authorityPathDescriptors,
+    generatedDefinitionPaths,
+    authorityGovernanceObjects,
+  );
+  facts.authorityPathFiles.push(...authorityEscapeFacts.authorityPathFiles);
+  facts.authorityEscapeSites.push(...authorityEscapeFacts.authorityEscapeSites);
   return facts;
 }
 
@@ -3164,6 +3820,8 @@ if (request.sourceOverrides) {
         request.generatedDefinitionPaths,
         request.validateOverrideDiagnostics === true,
         request.authorityPropDescriptors,
+        request.authorityPathDescriptors,
+        request.authorityGovernanceObjects,
       ),
     ),
   );
@@ -3187,6 +3845,8 @@ if (request.sourceOverrides) {
         request.protectedDefinitions,
         request.generatedDefinitionPaths,
         request.authorityPropDescriptors,
+        request.authorityPathDescriptors,
+        request.authorityGovernanceObjects,
       ),
     ),
   );

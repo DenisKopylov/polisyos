@@ -44,7 +44,7 @@ export function createFixtureProvenance(
     throw new TypeError("generated fixture provenance is required");
   }
   const provenance: FixtureProvenance = {
-    [fixtureProvenanceBrand]: true as const,
+    [fixtureProvenanceBrand]: true,
     authority,
   };
   fixtureProvenanceIssuances.add(provenance);
@@ -84,7 +84,7 @@ export function createGovernedAuthorityPurpose(
         )
       : undefined;
   const purpose: GovernedAuthorityPurpose = {
-    [governedAuthorityPurposeBrand]: true as const,
+    [governedAuthorityPurposeBrand]: true,
     value: authorityPurpose,
   };
   governedAuthorityPurposeIssuances.set(

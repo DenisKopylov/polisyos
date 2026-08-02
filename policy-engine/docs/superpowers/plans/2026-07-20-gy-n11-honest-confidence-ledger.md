@@ -429,6 +429,34 @@ artifact back into itself.
   (`f3c8e1780`) -> N11 (`fcd110334`). Those writes are narrow projection rebindings, not
   whole-contract pinning. The source-committed disposition ledger is validate-only after N8.
 
+### 2026-08-02 convergence journal: registry-derived reissue topology
+
+- Registry snapshot: `architecture/generated_artifacts.toml`, 59 families,
+  `sha256:261d569a6b8758da826f3de4bc4549de0c409683e4df71d61634dd85520d6aaa`.
+- The registry's exact output-to-`source_of_truth` edges place
+  `policy-design-case-layer3-gy-second-domain-pack` before
+  `policy-design-case-layer3-gy-depth-n-universality-contract`; the latter explicitly consumes
+  `layer3_gy_second_domain_pack.json` and `layer3_gy_composition_certificates.json`. Its declared
+  narrow owner edges then continue N10 capstone -> N13a -> N13b -> N11. N11 also consumes N10
+  directly. The disposition family is validate-only and therefore closes after the final upstream
+  receipts.
+- Fixed upstream boundary at `369065e8b`: N6 generation-cycle and N8 value-gate receipts are
+  canonical and source has remained byte-frozen since `86a79fe96`.
+- One-pass topological order from the current dirty node:
+  1. second-domain pack (five-output family; only changed outputs are rewritten);
+  2. depth-N universality/capstone;
+  3. N13a only if its declared N10/value projection changes;
+  4. N13b only if its declared N13a projection changes;
+  5. N11 after N10/N13b closure;
+  6. disposition ledger validate-only;
+  7. downstream checker walk and lifecycle/guardrail closeout.
+- At every rewritten node: canonical writer twice with identical bytes, then the recomputing
+  checker. Composition and grounding are sibling inputs to depth-N, not descendants of the dirty
+  second-domain node; their previously validated unchanged receipts are not reissued in this pass.
+- Ordering stop rule: an upstream RED stops the walk at that node. No downstream checker is used to
+  discover upstream staleness, and no completed upstream node is revisited unless its declared input
+  changes.
+
 ## Pattern pass
 
 - Relevant patterns: P01/P02/P03, P04/P05/P07/P08/P09/P10/P12/P13/P14/P15, P27-P34.

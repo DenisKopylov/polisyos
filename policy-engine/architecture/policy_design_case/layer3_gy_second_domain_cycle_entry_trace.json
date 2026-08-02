@@ -51,7 +51,7 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n8_transport_tuple_hardcode",
-      "receipt_ref": "sha256:6cbfd4cff772670a888a0e8c2cd2c0f8cea16d97d4f77f4f2abb388e2bbff88f",
+      "receipt_ref": "sha256:833c44c8e6b0ef37562ef7b452a534e846b6e61a1b1a6346ad41f0ff34b5a571",
       "status": "closed"
     },
     {
@@ -455,7 +455,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-08-02T02:05:37Z",
+          "generated_at": "2026-08-02T11:16:54Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -3355,15 +3355,13 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 10509.59337502718,
+    "aggregate_value_port_wall_time_ms": 6244.1840000101365,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 10509.59337502718
+        "value_port_wall_time_ms": 6244.1840000101365
       }
-    ],
-    "n4_live_capture_journal_entry_count": 5,
-    "n4_source_capture_call_wall_seconds": 0.0
+    ]
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "smoke_problem_content_hash": "sha256:d40e3fe557d6d287e549e3a7f0373e2052fd137ae9ce56ba75e9c29c73f770e5",
@@ -3440,6 +3438,6 @@
     }
   },
   "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-  "trace_content_hash": "sha256:6c5367c1abee4f5fbe68f2d969b90fa7562a517e1436594ccc5d49177899160c",
+  "trace_content_hash": "sha256:cf81652391dd553b52f2d217dfa8bee8159c4cac71ec95c7612c4b2bb25db1e7",
   "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
 }

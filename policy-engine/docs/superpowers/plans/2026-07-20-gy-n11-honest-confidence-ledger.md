@@ -849,8 +849,12 @@ projection hash, conditionality clause, promotion projection hash, and future ep
 - [x] Record frozen file/content/projection hashes, real spend rows, data-only commit, and
   empty-Python proof.
 - [x] Prove the source-frozen dependency-order journal is committed at a clean boundary.
-- [ ] Run the merge-tree against current main from the final receipt commit and record its tree hash.
-- [ ] Request exact-head code review. Do not merge or push; preserve the branch for architect review.
+- [x] Run the merge-tree from receipt head `681d0de2f` against main `94d10ed414`: clean merged tree
+  `b9a907fe051b7b8eeb92fe2104049a6a1088dd3d`. Repeat after this handoff-only reconciliation commit
+  and record the final external receipt without another self-referential plan edit.
+- [x] Exact-head delta review is GO at `681d0de2f`; review the final handoff-only reconciliation
+  delta after commit and record that external receipt in the architect handoff. Do not merge or push;
+  preserve the branch for architect review.
 
 ## Verification command families
 

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.pdc import gy_content_hash
+from tools.lib.timing import run_timed_entrypoint
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = Path(tempfile.gettempdir()) / "gy_n10_cg1_l2_relation_census.json"
@@ -367,7 +368,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

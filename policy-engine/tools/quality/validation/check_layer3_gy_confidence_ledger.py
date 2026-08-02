@@ -78,6 +78,7 @@ from polisyos.runtime.quality.confidence_ledger import (
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSemanticReceiptProjection as FrozenLedgerReceiptProjection,
 )
+from tools.lib.timing import run_timed_entrypoint
 from tools.quality.validation.layer3_gy_confidence_ledger_contract import (
     N10OwnerProjection,
     N13bOwnerProjection,
@@ -4574,7 +4575,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

@@ -174,13 +174,13 @@ def summarize_timing_records(
     budgets_ms: dict[str, float] | None = None,
 ) -> list[ToolTimingSummary]:
     budgets = budgets_ms or DEFAULT_TIMING_BUDGETS_MS
-    grouped: dict[tuple[str, str], list[ToolRunRecord]] = {}
+    grouped: dict[str, list[ToolRunRecord]] = {}
     for record in records:
-        grouped.setdefault((record.tool, record.mode), []).append(record)
+        grouped.setdefault(record.tool, []).append(record)
 
     summaries: list[ToolTimingSummary] = []
-    for tool, mode in sorted(grouped):
-        tool_records = sorted(grouped[(tool, mode)], key=lambda record: record.started_at)
+    for tool in sorted(grouped):
+        tool_records = sorted(grouped[tool], key=lambda record: record.started_at)
         durations = [record.duration_ms for record in tool_records]
         latest = tool_records[-1]
         budget_ms = budgets.get(tool)
@@ -193,7 +193,7 @@ def summarize_timing_records(
             ToolTimingSummary(
                 tool=tool,
                 category=latest.category,
-                latest_mode=mode,
+                latest_mode=latest.mode,
                 runs=len(tool_records),
                 failures=sum(1 for record in tool_records if record.status == "failed"),
                 skipped=sum(1 for record in tool_records if record.status == "skipped"),

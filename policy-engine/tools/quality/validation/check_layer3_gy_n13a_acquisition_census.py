@@ -24,6 +24,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from tools.lib.timing import run_timed_entrypoint
 from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
     CatalogContractError,
     CensusManifest,
@@ -778,7 +779,5 @@ def _bytes_sha256(payload: bytes) -> str:
 
 if __name__ == "__main__":  # pragma: no cover - exercised through the CLI
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

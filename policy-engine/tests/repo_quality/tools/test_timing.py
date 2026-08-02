@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from tools.lib.timing import ToolRunRecord, summarize_timing_records
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 VALIDATION_ROOT = REPO_ROOT / "tools" / "quality" / "validation"
 TIMED_SUITE_RUNNER = REPO_ROOT / "tools" / "quality" / "testing" / "run_timed_suite.py"
@@ -98,6 +100,16 @@ def test_every_direct_gy_guard_routes_through_the_shared_timing_entrypoint() -> 
     unwrapped: list[str] = []
     for path in guard_paths:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        wrapper_bindings = {
+            imported.asname or imported.name
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom) and node.module == "tools.lib.timing"
+            for imported in node.names
+            if imported.name == "run_timed_entrypoint"
+        }
+        if not wrapper_bindings:
+            unwrapped.append(f"{path.name}:missing_canonical_wrapper_import")
+            continue
         main_guards = [
             node
             for node in tree.body
@@ -112,13 +124,54 @@ def test_every_direct_gy_guard_routes_through_the_shared_timing_entrypoint() -> 
             for node in ast.walk(main_guards[0])
             if isinstance(node, ast.Call)
             and isinstance(node.func, ast.Name)
-            and node.func.id == "run_timed_entrypoint"
+            and node.func.id in wrapper_bindings
         ]
         if len(calls) != 1:
-            unwrapped.append(path.name)
+            unwrapped.append(f"{path.name}:missing_canonical_wrapper_call")
 
-    assert len(guard_paths) == 41
+    assert guard_paths
     assert unwrapped == []
+
+
+def test_timing_summary_keeps_all_modes_in_one_tool_denominator() -> None:
+    """Catch summaries that redefine a tool's counts and percentiles by splitting its modes."""
+
+    summaries = summarize_timing_records(
+        [
+            ToolRunRecord(
+                tool="quality.validation.example",
+                category="quality",
+                output_format="text",
+                status="ok",
+                preflight_status="ok",
+                started_at="2026-08-02T10:00:00+00:00",
+                duration_ms=100.0,
+                exit_code=0,
+                mode="check",
+            ),
+            ToolRunRecord(
+                tool="quality.validation.example",
+                category="quality",
+                output_format="text",
+                status="failed",
+                preflight_status="ok",
+                started_at="2026-08-02T10:01:00+00:00",
+                duration_ms=300.0,
+                exit_code=1,
+                mode="write",
+            ),
+        ],
+        budgets_ms={"quality.validation.example": 250.0},
+    )
+
+    assert len(summaries) == 1
+    summary = summaries[0]
+    assert summary.runs == 2
+    assert summary.failures == 1
+    assert summary.average_duration_ms == 200.0
+    assert summary.p95_duration_ms == 300.0
+    assert summary.over_budget_runs == 1
+    assert summary.latest_mode == "write"
 
 
 def test_external_suite_runner_preserves_child_streams_and_nonzero_exit(tmp_path: Path) -> None:

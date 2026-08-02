@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.lib.timing import run_timed_entrypoint
+
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.knowledge_substrate_contract.v1"
 
@@ -630,6 +632,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    from tools.lib.timing import run_timed_entrypoint
-
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

@@ -20,6 +20,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.fabric.data_plane import canonical_json_bytes
+from tools.lib.timing import run_timed_entrypoint
 from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
     DEFAULT_GENERATED_ARTIFACTS,
     DEFAULT_N13B_CONTRACT,
@@ -931,7 +932,5 @@ def _file_sha256(path: Path) -> str:
 
 if __name__ == "__main__":  # pragma: no cover - exercised through the CLI
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

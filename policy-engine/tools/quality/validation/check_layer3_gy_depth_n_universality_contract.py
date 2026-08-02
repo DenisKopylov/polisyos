@@ -26,6 +26,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from tools.lib.timing import run_timed_entrypoint
 from tools.quality.validation.universality_preflight import assert_universality_preflight
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -6825,7 +6826,5 @@ def _strings(value: object) -> list[str]:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

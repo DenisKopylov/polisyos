@@ -60,6 +60,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     _validate_canonical_promotion_receipt_for_verification,
     confidence_risk_scope_for_problem,
 )
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
@@ -1581,7 +1582,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

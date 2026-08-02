@@ -17,6 +17,8 @@ from typing import Any
 
 import duckdb
 
+from tools.lib.timing import run_timed_entrypoint
+
 FAMILY_ID = "policy-design-case-layer3-gy-openalex-artifacts"
 SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-openalex-source-artifacts"
 CONFIG_PATH = "architecture/policy_design_case/layer3_gy_openalex_provider_config.json"
@@ -1124,7 +1126,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

@@ -20,6 +20,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+from tools.lib.timing import run_timed_entrypoint
+
 os.environ["JAX_PLATFORM_NAME"] = "cpu"
 os.environ["JAX_PLATFORMS"] = "cpu"
 
@@ -2466,7 +2468,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

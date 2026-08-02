@@ -28,6 +28,8 @@ import re
 import sys
 from pathlib import Path
 
+from tools.lib.timing import run_timed_entrypoint
+
 DEFAULT_CENSUS = (
     Path(__file__).resolve().parents[3]
     / "architecture"
@@ -266,7 +268,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

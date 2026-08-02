@@ -23,6 +23,8 @@ import json
 import sys
 from pathlib import Path
 
+from tools.lib.timing import run_timed_entrypoint
+
 ROOT = Path(__file__).resolve().parents[3]
 ART = ROOT / "architecture" / "policy_design_case" / "layer3_gy_task0_audit" / "layer3_gy_workflow_mode_truth_audit.json"
 
@@ -138,7 +140,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     import sys
-
-    from tools.lib.timing import run_timed_entrypoint
 
     raise SystemExit(run_timed_entrypoint(main, script_path=__file__, argv=sys.argv[1:]))

@@ -2,11 +2,11 @@
 plan_id: atlas-ds5-enforcement-waist
 title: "DS5 - Enforcement Waist: Lints, Audience Mapping, Cache Discipline, Flags"
 type: slice-plan
-status: blocked_before_implementation - generated schema and mirrored HTTP test fence authorization required
+status: execution_authorized - C01 architecture re-cut approved
 created: 2026-08-01
-revised: 2026-08-01
-last_verified: 2026-08-01
-stability: measured_plan_stop_gate
+revised: 2026-08-02
+last_verified: 2026-08-02
+stability: measured_execution_plan
 slice: DS5
 baseline_commit: 5e648230204d5972d7d159aaffd50cb427ba3e81
 execution_base_commit: 5e648230204d5972d7d159aaffd50cb427ba3e81
@@ -42,16 +42,16 @@ depends_on:
 mechanical, fail-closed enforcement. DS5 makes DS4's zero-violation state
 durable; it does not create a second authority source in the browser.
 
-**Architecture:** The enforcement flow is
-`canonical owner -> strict runtime HTTP DTO -> OpenAPI -> generated client ->`
-`one presentation adapter -> real consumer -> behavioral scanner/negative`.
-The authorization flow is `server-owned RuntimePermission -> one audience`
-`requirement mapping -> live route denial`; UI visibility is presentation only.
-The cache flow is `source as_of + fetch observation + tenant/user + producer-`
-`carried rule/epoch when present`
-`-> explicit live/cached/stale/offline posture -> visible TimeSemanticsLabel`.
-No timestamp heuristic, cached presence, client average, flag, or fixture identity
-can manufacture authority.
+**Architecture:** Illegal authority states are made unrepresentable at the
+waist. Generated owner DTOs enter module-private issuers; branded values occupy
+authority-bearing props; `tsc` enforces assignability; a bounded AST lint bans
+the enumerated escape hatches on authority paths; issuer tests prove runtime
+novelty becomes explicit `unrecognized`. Other checks enforce only decidable
+local properties: module-graph edges, direct transport calls/imports, governed
+construction sites, strict registries and runtime denial. The cache path is
+`owner as_of + query observation + tenant/user/expiry -> explicit posture`.
+No timestamp heuristic, cached presence, client aggregate, flag, fixture
+identity, or checker manufactures authority.
 
 **Tech stack:** Python 3.14, Pydantic 2, FastAPI/OpenAPI, generated TypeScript,
 React 19, TanStack Query, TypeScript 5 compiler API, pnpm 10.33.2, Vite,
@@ -71,24 +71,18 @@ architecture guardrails.
   `apps/runtime-dashboard/src/shared/i18n/locales/ru.json`, CI configuration,
   and every backend path outside `src/polisyos/runtime/http/**`. In particular,
   DS5 never edits `foundry`, `fabric`, `scientist`, or `data_forge`.
-- The checked-in `schemas/runtime_api_v1.openapi.json` is the deterministic
-  snapshot required by the explicit client-regeneration instruction, but the
-  writable list omits that path while admitting only the HTTP/schema owner code
-  under `src/polisyos/runtime/http/**`. The runtime contract cannot be green
-  without refreshing the snapshot. The same literal fence omits the mirrored
-  `tests/unit/runtime/http/**` files required by the mandated server-denial and
-  generated-contract negatives; placing tests under production source would
-  violate repository test layout. This plan therefore stops before C01 until
-  the architect explicitly admits the generated snapshot and exactly these
-  five mirrored test files:
+- Fence authorization `29ab2fc56` admits
+  `schemas/runtime_api_v1.openapi.json` exclusively through the registered
+  exporter in `architecture/generated_artifacts.toml`, and exactly these five
+  existing mirrored test files:
   `test_authorization_audience_denials.py`,
   `test_runtime_permission_vocabulary.py`,
   `test_governed_projection_api.py`,
   `test_governed_projection_service.py`, and
-  `test_runtime_api_contract_hardening.py`. If admitted, C06/C07 may change the
-  snapshot only through the canonical exporter and may edit those tests only
+  `test_runtime_api_contract_hardening.py`. C06/C07 may change the snapshot
+  only through that exporter and may edit those tests only
   for the DS5 HTTP/schema contract, in the same commits as HTTP models,
-  generated clients and governed re-anchors. Any hand-authored/other
+  generated clients and governed re-anchors. Any hand-authored or other
   `schemas/**` diff or any other backend-test path remains a STOP.
 - No merge, push, rebase onto `main`, CI edit, baseline suppression, skip,
   quarantine, timeout increase, or tolerance widening. Closure is an
@@ -99,21 +93,23 @@ architecture guardrails.
 
 ### Authority-order conflicts resolved openly
 
-1. The master Revision 3.6 row calls DS5 the sole unblocked Phase-B lane while
-   the same row also says DS6 is unblocked. This is editorial scheduling drift,
-   not a DS5 entry-gate failure; DS4 and DS20 inputs are present.
+1. The execution base predates the master correction. The authoritative master
+   at the ruling records DS5 as the critical-path Phase-B lane while DS6 is
+   independently unblocked. DS6 may run in parallel, but none of its parity,
+   frozen-set or contrast work is available to DS5.
 2. The historical DS4 plan still describes a partial re-cut, but the earlier
    governing master closure note and the DS4 closure report record DS4 closed
    and merged. DS5 consumes the realized 27 package / 41 rebind / 18 use-as-is /
    3 retire split, not the superseded pre-ruling split.
-3. The Phase-A synthesis says D4 was pending. Revision 3.6 and the ratification
-   at `7b6933770` are later and controlling: `uk` primary, `en` baseline and
-   fallback, `ru` `legacy_continuity_frozen`—not active, not deleted.
+3. The execution base also predates the synchronized D4 line in the master.
+   The authoritative ruling and ratification at `7b6933770` control: `uk`
+   primary, `en` baseline and fallback, `ru` `legacy_continuity_frozen`—not
+   active, not deleted.
 4. Six narrow cache rows in the older disposition seed name DS14, DS8, or DS9
    as owner, while the higher master and this mission assign tenant/user/expiry
    cache discipline to DS5. DS5 owns only that cross-cutting storage-discipline
    sublayer and its live migrations; the domain capabilities and their root
-   rows remain with the named slices. C14-C17 attach isolation evidence without
+   rows remain with the named slices. C14a-C17b attach isolation evidence without
    falsely claiming those domain features rebound. The stale review-attention
    row receives DS4 deletion evidence and a fresh census, not a resurrected
    implementation.
@@ -122,13 +118,19 @@ architecture guardrails.
    name and makes no numerical claim.
 6. Law 11 is the broader human-accountability law. DS5 mechanizes only its
    audience/permission enforcement half; it does not claim the whole law closed.
+7. C01's original open-estate TypeScript analysis was stopped after three
+   independent NO-GO reviews exposed three distinct bypass classes. Architect
+   ruling `636645bec` withdraws that mechanism as an optimistic completeness
+   envelope. C01 is continuously re-cut as C01a/C01b/C01c. The committed
+   `b67084dd6` is amended down to the sound retained core; it is not a base for
+   another analyzer and no follow-on commit is stacked on it first.
 
 ## DS5-C00: measured entry contract and stop gate
 
-The slice may implement only after this plan exists with measured cluster
-denominators and the generated-snapshot fence conflict above is adjudicated.
-C00 is documentation-only and lands as its own commit; the current authorized
-stopping point is that clean commit.
+The measured plan landed at clean C00 commit `d6b38294e`. The snapshot/test
+fence conflict was then resolved by `29ab2fc56`; implementation is authorized.
+The C01 mechanism stop is resolved by `636645bec` and the measured C01a/C01b/
+C01c re-cut below. The original base remains recorded; there is no rebase.
 
 The installed-workspace precondition is satisfied: `corepack pnpm install
 --frozen-lockfile` completed with pnpm 10.33.2 and the dashboard's
@@ -176,10 +178,14 @@ byte-unmodified. Any new identity is red.
 
 | Surface | Exact current denominator | Consequence |
 | --- | ---: | --- |
-| dashboard source | 942 TS/TSX/JS/JSX files | scanners derive the source set; no hand list |
+| dashboard source | 942 TS/TSX/JS/JSX files; 574 production files in the C01a TypeScript program | broad gates derive source; C01a's bounded census uses production declarations only |
 | Atlas UI source | 36 TS/TSX/JS/JSX files | status and architecture recurrence include the package sibling |
+| registered presentation-prop census | 610 production files = 36 Atlas + 574 dashboard; 19 source-reviewed prop groups / 35 uses; 2 branded props / 6 uses; 12 unbranded authority props / 21 uses / 10 declaration files; 5 benign props / 8 uses | C01a content-binds the explicit declaration registry as branded, typed debt or benign; the ten-name scan is its preflight seed, not a semantic-completeness algorithm |
+| direct `Badge` census | 163 real sites / 52 production files = 161/50 dashboard + 2/2 Atlas issuer internals; 2 branded Atlas sites, 58 authority-bearing debt sites / 27 source-bound groups, 103 benign dashboard sites; 0 unclassified | all 163 current sites are source-bound in the C01a governed census; the 107-site/43-file heuristic is retained only as a preflight receipt, never as the governed denominator |
+| branded authority paths | 15 issuer/current-branded-sink-import/test/story files; 32 assertions, 0 `any`, 0 `@ts-ignore`, 7 `@ts-expect-error`, 15 `satisfies` sites | C01b checks only this bounded set; safe generated conformance is distinct from an unsafe brand-targeting `satisfies`; unbranded sinks remain C01a debt |
+| branded issuers | 2 issuer modules, 3 private brands, 5 exported owner-specific factories | C01c binds closed generated inputs exhaustively and tests runtime novelty |
 | runtime HTTP | 87 Python files | only the named C06/C07 files are writable |
-| DS4 status estate | 47 rows; 15 current authored; 0 retirement debt | C01 extends the existing semantic scanner; no second grep lint |
+| DS4 status estate | 47 rows; 15 current authored; 0 retirement debt | C01a retains exact generated provenance and the status-inventory bridge; it does not claim whole-program value analysis |
 | architecture | 1,019 modules / 4,150 dependencies / 0 violations | C02 injects real violations into both engines |
 | DS4 waist debts | exactly 3 | one C06 regeneration and three singular swap modules |
 | generated governed receipts | 15 anchored rows / 10 distinct export symbols / 13 fields | C06 requires symbol count 1, unchanged fields, uniform offset, two refreshed hashes |
@@ -190,13 +196,15 @@ byte-unmodified. Any new identity is red.
 | all raw transport constructors | 7 calls / 5 production files | adds one `EventSource` and one `WebSocket` |
 | flags | 12 keys; 8 consumed; 4 `consumer_missing` | wire 3, retire collaboration; auth pseudo-flag is separate |
 | permissions | 33/33 unique server/OpenAPI values | dashboard local list has 15: 12 overlap, 3 unsupported collaboration strings, 21 omitted |
-| governed projection audiences | 13 definitions: 5 EXPERT, 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C07 enforces all four classes without relabeling producer data |
+| governed projection audiences | entry 13 definitions: 5 EXPERT, 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 adds one source-bound EXPERT G4 definition, producing the C07 entry denominator 14 = 6 EXPERT + 8 MACHINE; C07 enforces all four classes without relabeling the 13 existing definitions |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
-| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05 removes active `ru` exposure without touching catalogs/parity |
-| query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11 proves that consumer, C12 registers/enforces the remaining policy without inventing source time |
+| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a removes active `ru` exposure without touching catalogs/parity; C05b governs semantic-copy issuance without claiming human review complete |
+| query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b prove that consumer, C12a-C12b register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 2 stores; queue has exactly 2 kinds | promotion approve/reject barred; composer drafts enveloped |
-| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14-C17 migrate the live units plus composer |
+| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b migrate the live units plus composer |
+| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-C16b exclude causal `edges[].status` and keep dispute `status` explicitly interaction-only |
+| persistence API census | 41 symbol-resolved lifecycle/construction calls / 14 production files: 23 Web Storage, 5 Zustand, 13 IndexedDB | C17b content-binds every current site as registered authority-like or fingerprint-bound benign; earlier clusters migrate only their named families |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
 The historical 9/5 fetch and six-store denominators remain provenance facts,
@@ -206,12 +214,16 @@ not current implementation counts. DS5 does not relabel the 7/5 transport or
 ### Reproducible census command ledger
 
 The plan does not infer its denominators from prose. These are the exact
-commands used for the source and carrier counts; the behavioral checker
+commands used for source and construction-site counts; checker
 commands and their receipts are in the baseline table above.
 
 | Denominator | Reproducible command |
 | --- | --- |
 | 942 dashboard / 36 Atlas UI / 87 runtime HTTP source files | `rg --files apps/runtime-dashboard/src \| rg '\\.[jt]sx?$' \| wc -l`; repeat for `packages/atlas-ui/src`; `rg --files src/polisyos/runtime/http \| rg '\\.py$' \| wc -l` |
+| 610 production program files (574 dashboard + 36 Atlas) and 19/35/17/20 named-prop preflight | literal installed-TypeScript `authority_prop_census` command below; it loads dashboard + Atlas tsconfigs, excludes tests/stories, and resolves the explicit current JSX component/prop declarations; C01a governs the resulting reviewed descriptors, not the name regex |
+| 2 branded/6 uses; 12 unbranded/21 uses/10 declaration files; 5 benign/8 uses | declaration-level adjudication table and exact source locations recorded by the same C01a census command; entry register query reports 0 `authority_presentation_debt` rows |
+| 163 direct `Badge` sites / 52 files; 2 branded / 58 authority debt / 103 benign / 0 unclassified | literal installed-TypeScript `badge_candidate_census` command below supplies the complete Atlas+dashboard direct-site universe; its dashboard subset is 161/50, independently adjudicated as 92 = 28/64 and 69 = 30/39; the two Atlas issuer-internal sites are branded |
+| 15 branded paths; 32 assertions / 0 any / 0 ignore / 7 expect / 15 satisfies | TypeScript AST importer census over issuer modules and every current importer of a branded sink, including focused tests/stories; count `AsExpression`, `AnyKeyword`, `SatisfiesExpression` and directive comments per file |
 | 2,739-line existing semantic scanner | `wc -l architecture/atlas_surfaces/status_retirement_scan.mjs` |
 | 15 generated anchors / 10 symbols / 13 field-bearing anchors | `jq '[.. \| objects \| select(has("export_symbol"))] \| {rows:length, symbols:([.[].export_symbol]\|unique\|length), fields:([.[]\|select(has("field"))]\|length)}' architecture/atlas_surfaces/status-retirement-inventory.json` |
 | three waist debts and singular swap paths | `jq '.entries \| {count:length, swaps:[.[].swap_module], symbols:[.[].generated_client_anchor.symbol]}' architecture/atlas_surfaces/ds4-waist-debt-register.json` |
@@ -221,16 +233,167 @@ commands and their receipts are in the baseline table above.
 | 5 `fetch` / 3 files; 7 raw transports / 5 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' '\\bfetch\\s*\\(' apps/runtime-dashboard/src`; repeat with `\\b(fetch\\s*\\(\|new EventSource\\s*\\(\|new WebSocket\\s*\\()'` and use `rg -l` for file counts |
 | 12 flag keys / 8 referenced outside owner / four named missing consumers | literal `flag_consumer_census` command and per-key output below |
 | 33 server and generated permission values | literal `authority_and_store_census` command below; recorded `server=33`, `generated=33`, `equal=True` |
-| 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'` |
+| entry 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'`; C06 must re-run it and record 14/6/8 |
+| G4 owner shape: 8 fields; owner projection refs: PUBLIC/REVIEWER/EXPERT/MACHINE | `jq -c '{fields:(keys\|sort)}' architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json` returns `blocker_refs, issue_codes, limitation_refs, produced_by, promotion_scope, promotion_state, status, weakest_boundary_reason`; `jq -c '{audiences,EXPERT:(.EXPERT\|keys\|sort),MACHINE:(.MACHINE\|keys\|sort),PUBLIC:(.PUBLIC\|keys\|sort),REVIEWER:(.REVIEWER\|keys\|sort)}' architecture/policy_design_case/layer3_g4_public_export_projection_refs.json` records all four source-owned audience projections and their distinct field classes |
 | 11 N010 expressions / 6 production consumers | literal `authority_and_store_census` command below; its per-path output is 1/2/1/1/2/4 |
 | 14 fallback capability records | `sed -n '/features: \\[/,/^  \\],/p' apps/runtime-dashboard/src/shared/lib/capabilities.ts \| rg -c '^      key:'`; `rg -n 'FALLBACK_CAPABILITY_MANIFEST\|capabilitiesQuery.isLoading'` locates the two production bypass consumers |
 | 43 fixed surfaces / 19 nonempty capability requirements | literal TypeScript-AST `surface_census` command below; recorded components are workspace 6/4, run 8/4, panel 29/11 |
-| 2 ratified active of 3 currently exposed locales; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts` records the current `en/uk/ru` + `en` default drift C05 must close |
+| 2 ratified active of 3 currently exposed locales; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts` records the current `en/uk/ru` + `en` default drift C05a must close |
+| 18 explicit frozen-compatible locale functions / 9 modules | literal installed-TypeScript `frozen_locale_compatibility_census` command below; product persistence/resolution functions are excluded from this compatibility denominator |
+| 1 `may_not_use_for` production consumer / 0 semantic-review receipt owners | `rg -l 'packet\.may_not_use_for' apps/runtime-dashboard/src --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/test/**'` returns exactly `RunExplainabilityPanel.tsx`; a separate `rg -l 'AuthoritySemanticCopy\|authority-semantic-copy\|semantic_review_receipt\|competent_reviewer' apps/runtime-dashboard/src packages/atlas-ui/src architecture/atlas_surfaces` returns exit 1 with no output, recorded honestly as the zero entry census rather than piped through a success exit |
 | 66 query syntax / 40 files; 42 producers / 39 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\b(useQuery\|queryOptions)(<[^>]+>)?\\s*\\(' apps/runtime-dashboard/src`; repeat with `rg -l`; repeat both for `\\bqueryFn\\s*:` |
-| 43 query-key constructors | `rg -c '^  [A-Za-z][A-Za-z0-9_]*:' apps/runtime-dashboard/src/api/queryKeys.ts`; C12 re-derives it from the real exported owner rather than pinning this number |
+| 43 query-key constructors | `rg -c '^  [A-Za-z][A-Za-z0-9_]*:' apps/runtime-dashboard/src/api/queryKeys.ts`; C12a re-derives it from the real exported owner rather than pinning this number |
 | 1 IndexedDB / 2 stores / 2 queue kinds | `rg -n 'openDB\|createObjectStore\|OfflineQueueItemKind' apps/runtime-dashboard/src/app/offline/{db.ts,offlineQueueRepository.ts}` |
 | 6 historical / 4 live authority-store units / 8 living physical families | literal `authority_and_store_census` and `physical_store_census` commands below; both names and existence are recorded |
+| 5 persisted-status writes / 4 modules / 6 field paths | `rg -n 'database\.put\(OFFLINE_MUTATION_QUEUE_STORE|localStorage\.setItem|persist\s*\(' apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx apps/runtime-dashboard/src/features/runs/domain/disputes.ts apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts`; bounded source inspection records queue `status`, causal `graph.edges[].status`, dispute `disputes[].status`, and Clerk `sessions[].messages[].{runStatus,structured.verdict,structured.statusChips[]}` |
+| 41 persistence API calls / 14 files | literal installed-TypeScript `persistence_api_census` command below resolves `Storage`, Zustand middleware, `openDB`, `IDBPDatabase` and `IDBPObjectStore` declarations; recorded families are Web Storage 23, Zustand 5, IndexedDB 13 |
 | 261 roots / 17 current DS5 roots / 21 historical readiness rows | `jq '[.. \| objects \| select(.owner_slice? == "DS5")] \| length' architecture/atlas_surfaces/frontend-disposition-register.json`; `jq '[.entries[] \| select(.owning_slice == "DS5")] \| length' architecture/atlas_surfaces/live-application-readiness-ledger.json`; the disposition checker supplies the 261-root denominator |
+
+`frozen_locale_compatibility_census` was run literally from the dashboard
+workspace:
+
+```bash
+node - <<'NODE'
+const fs=require('node:fs'),ts=require('typescript');
+const files=[
+  'src/shared/i18n/locale.ts',
+  'src/shared/i18n/formatters/shared.ts',
+  'src/shared/i18n/formatters/number.ts',
+  'src/shared/i18n/formatters/currency.ts',
+  'src/shared/i18n/formatters/date.ts',
+  'src/shared/i18n/messages/icu-messages.ts',
+  'src/shared/i18n/typography/typography.ts',
+  'src/shared/i18n/typography/quoteMarks.ts',
+  'src/shared/i18n/typography/nonBreakingSpaces.ts',
+];
+const rows=[];
+for(const file of files){
+  const sf=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),ts.ScriptTarget.Latest,true);
+  for(const node of sf.statements){
+    if(!ts.isFunctionDeclaration(node)||!node.name||!node.modifiers?.some(m=>m.kind===ts.SyntaxKind.ExportKeyword))continue;
+    const compatibility=node.name.text==='toIntlLocale'||(file!=='src/shared/i18n/locale.ts'&&node.parameters.some(p=>p.type?.getText(sf).includes('Locale')));
+    if(compatibility)rows.push(`${file}#${node.name.text}`);
+  }
+}
+console.log(JSON.stringify({modules:new Set(rows.map(row=>row.split('#')[0])).size,functions:rows.length,rows},null,2));
+NODE
+```
+
+Recorded output: 18 functions / 9 modules, from `toIntlLocale` through the 17
+explicit formatter, ICU and typography entry points listed by the command.
+
+`authority_prop_census` was run literally from product root:
+
+```bash
+cd apps/runtime-dashboard && node - <<'NODE'
+const path=require('node:path'),ts=require('typescript');
+const root=path.resolve('../..'),rel=p=>path.relative(root,p).replaceAll('\\','/');
+function parse(c){const p=path.join(root,c),x=ts.readConfigFile(p,ts.sys.readFile);return ts.parseJsonConfigFileContent(x.config,ts.sys,path.dirname(p))}
+const a=parse('apps/runtime-dashboard/tsconfig.app.json'),b=parse('packages/atlas-ui/tsconfig.json');
+const program=ts.createProgram({rootNames:[...new Set([...a.fileNames,...b.fileNames])],options:a.options}),checker=program.getTypeChecker();
+const prod=p=>(p.startsWith('packages/atlas-ui/src/')||p.startsWith('apps/runtime-dashboard/src/'))&&!/[.](test|spec|stories)[.]/.test(p)&&!p.includes('/test/');
+function sym(n){let s=checker.getSymbolAtLocation(n);if(s&&(s.flags&ts.SymbolFlags.Alias))s=checker.getAliasedSymbol(s);return s}
+function line(n){const s=n.getSourceFile();return rel(s.fileName)+':'+(s.getLineAndCharacterOfPosition(n.getStart(s)).line+1)}
+function props(tag){const t=checker.getTypeAtLocation(tag);for(const sig of checker.getSignaturesOfType(t,ts.SignatureKind.Call)){const p=sig.getParameters()[0];if(p)return checker.getTypeOfSymbolAtLocation(p,tag)}return null}
+const names=/^(authorityPurpose|presentation|status|freshness|verdict|confidence|tone|readiness|verification|severity)$/;
+const rows=new Map();
+for(const sf of program.getSourceFiles()){if(!prod(rel(sf.fileName)))continue;const visit=n=>{if(ts.isJsxOpeningElement(n)||ts.isJsxSelfClosingElement(n)){const cs=sym(n.tagName),cd=(cs?.declarations||[]).find(d=>prod(rel(d.getSourceFile().fileName)));if(cd){const pt=props(n.tagName);for(const at of n.attributes.properties){if(!ts.isJsxAttribute(at)||!names.test(at.name.text))continue;const ps=checker.getPropertyOfType(pt,at.name.text),pd=ps?.declarations?.[0],key=[String(cs.name),line(cd),at.name.text,pd?line(pd):'?'].join('|');if(!rows.has(key))rows.set(key,{component:String(cs.name),componentDecl:line(cd),prop:at.name.text,propDecl:pd?line(pd):'?',propType:ps?checker.typeToString(checker.getTypeOfSymbolAtLocation(ps,n.tagName)):'?',uses:[]});rows.get(key).uses.push(line(at))}}}ts.forEachChild(n,visit)};visit(sf)}
+const data=[...rows.values()].sort((x,y)=>(x.propDecl+x.component).localeCompare(y.propDecl+y.component));
+console.log(JSON.stringify({productionFiles:program.getSourceFiles().map(x=>rel(x.fileName)).filter(prod).length,propGroups:data.length,useSites:data.reduce((n,x)=>n+x.uses.length,0),declarationFiles:new Set(data.map(x=>x.propDecl.split(':')[0])).size,consumerFiles:new Set(data.flatMap(x=>x.uses.map(y=>y.split(':')[0]))).size,data},null,2));
+NODE
+```
+
+Recorded output: 610 production files (574 dashboard + 36 Atlas) and 19 prop groups / 35 uses / 17
+declaration files / 20 consumer files. The 2 branded / 12 debt / 5 benign
+split is the recorded declaration-level adjudication of those 19 rows.
+The regex produced a reproducible preflight set; it is not the gate. The gate
+resolves the 19 exact registered component/prop declaration identities and
+their current uses, while the complete direct-`Badge` census below separately
+accounts `Badge.kind` and every terminal Badge site. DS5 therefore claims this
+finite reviewed current inventory, not automatic semantic discovery from prop
+names or a complete theorem over non-Badge styling expressions.
+
+`badge_candidate_census` was run literally with the same installed compiler:
+
+```bash
+cd apps/runtime-dashboard && node - <<'NODE'
+const path=require('node:path'),ts=require('typescript');
+const root=path.resolve('../..'),rel=p=>path.relative(root,p).replaceAll('\\','/');
+function parse(c){const p=path.join(root,c),x=ts.readConfigFile(p,ts.sys.readFile);return ts.parseJsonConfigFileContent(x.config,ts.sys,path.dirname(p))}
+const a=parse('apps/runtime-dashboard/tsconfig.app.json'),b=parse('packages/atlas-ui/tsconfig.json');
+const program=ts.createProgram({rootNames:[...new Set([...a.fileNames,...b.fileNames])],options:a.options}),checker=program.getTypeChecker();
+function sym(n){let s=checker.getSymbolAtLocation(n);if(s&&(s.flags&ts.SymbolFlags.Alias))s=checker.getAliasedSymbol(s);return s}
+const semantic=/(status|state|authority|readiness|decision|quality|severity|trust|freshness|verification|verdict|grade|dispute|approval|block|reject|fail|warn|stale|publish|admissib|evidence|confidence|available|eligible|loaded|ready|valid|overridable|provenance|lineage|risk)/i;
+let allSites=0;const allFiles=new Set(),candidates=new Map();
+for(const sf of program.getSourceFiles()){const rp=rel(sf.fileName);if(!(rp.startsWith('apps/runtime-dashboard/src/')||rp.startsWith('packages/atlas-ui/src/'))||/[.](test|spec|stories)[.]/.test(rp)||rp.includes('/test/'))continue;const visit=n=>{if(ts.isJsxElement(n)||ts.isJsxSelfClosingElement(n)){const op=ts.isJsxElement(n)?n.openingElement:n,s=sym(op.tagName);if((s?.declarations||[]).some(d=>rel(d.getSourceFile().fileName)==='packages/atlas-ui/src/primitives/Badge.tsx')){allSites++;allFiles.add(rp);const kind=op.attributes.properties.find(x=>ts.isJsxAttribute(x)&&x.name.text==='kind'),k=kind?.initializer?.getText(sf)||'<default>',attrs=op.attributes.getText(sf),kids=ts.isJsxElement(n)?n.children.map(c=>c.getText(sf).trim()).filter(Boolean).join(' '):'';if(k.startsWith('{')||semantic.test(kids)||(semantic.test(attrs)&&/^"(?:ok|warn|fail|info)"$/.test(k))){if(!candidates.has(rp))candidates.set(rp,[]);candidates.get(rp).push(sf.getLineAndCharacterOfPosition(op.getStart(sf)).line+1)}}}ts.forEachChild(n,visit)};visit(sf)}
+console.log(JSON.stringify({allSites,allFiles:allFiles.size,candidateSites:[...candidates.values()].flat().length,candidateFiles:candidates.size,locations:Object.fromEntries([...candidates].sort())},null,2));
+NODE
+```
+
+Recorded output: 163 real sites / 52 files and 107 heuristic candidates / 43
+files. The dashboard subreceipt remains 161/50 and 105/41.
+The candidate subset is only a preflight heuristic; it is never an authority
+or recurrence claim. Two source reviews then adjudicated the complete 161-site
+dashboard subset: first half 92 = 28 authority debt + 64 benign; second half 69 = 23
+clear authority debt + 39 benign + 7 conservative boundary calls. C01a records
+all seven boundary calls as debt. The two Atlas issuer-internal sites are
+already branded, so the governed result is 2 branded + 58 authority debt + 103
+benign + 0 unclassified.
+
+The 27 source-bound direct-`Badge` debt groups are the measured C01a receipt.
+Each group becomes an `authority_presentation_debt` descriptor with the exact
+consumer path/site fingerprints, owner slice, capability states and executable
+closure signal. The table is accounting, not value-flow inference:
+
+| Direct-`Badge` debt group | Sites | Owner | Capability states | Executable closure signal |
+| --- | ---: | --- | --- | --- |
+| review-required aggregate | 1 | DS9 | `consumer_missing`, `semantic_test_missing` | generated boolean -> private issuer; missing/deny cannot allow; aggregate veto test |
+| bureaucratic legal review | 1 | DS9 | `consumer_missing`, `verification_missing`, `semantic_test_missing` | exhaustive generated-union issuer; novel -> `unrecognized` |
+| preflight readiness | 3 | DS7 | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | typed preflight/diagnostic DTOs; mixed fail/warn veto; no raw preview clothing |
+| artifact/pipeline decision grade | 2 | DS5 | `producer_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | C06 generated `DecisionGrade`; private exhaustive issuer; runtime novelty |
+| control approval quality | 11 | DS9 | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | generated approval/calibration/gate DTOs; weakest-boundary mixed outcome test |
+| promotion candidate status | 1 | DS15 | `consumer_missing`, `verification_missing`, `semantic_test_missing` | generated promotion union; private issuer; novel -> `unrecognized` |
+| evidence source freshness | 3 | DS8 | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | owner `source_as_of`/freshness contract; oldest-input veto; no local SLA authority |
+| comparability | 1 | DS16 | `consumer_missing`, `semantic_test_missing` | generated comparability union; incomparable veto and novelty tests |
+| provenance drift | 1 | DS16 | `consumer_missing`, `verification_missing`, `semantic_test_missing` | private invalidation-posture issuer; any load-bearing change vetoes |
+| run-deck authority summary | 4 | DS7 | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | live typed run-deck contract; reject `fixture_only`; no local synthesis |
+| compound decision grade | 4 | DS5 | `bridge_missing`, `surface_missing` | C06 generated union + private exhaustive issuer + raw-slot typecheck negative |
+| governance issue severity | 2 | DS9 | `bridge_missing`, `semantic_test_missing` | generated owner severity field; branded issuer; runtime novelty |
+| public-packet authority framing | 3 | DS12 | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | generated packet authority/confidence/rights fields; rights-bar mixed-veto test |
+| governed projection availability | 2 | DS7 | `bridge_missing`, `semantic_test_missing` | exhaustive generated availability issuer; novel -> `unrecognized` |
+| governed projection rights bar | 1 | DS5 | `bridge_missing`, `semantic_test_missing` | generated `may_not_use_for` item; branded veto presentation |
+| governed source validation | 1 | DS7 | `bridge_missing`, `semantic_test_missing` | generated validation status; exhaustive issuer and novelty test |
+| uncertainty dispute | 1 | DS16 | `bridge_missing`, `semantic_test_missing` | owner uncertainty artifact; disputed remains a mixed-case veto/warn |
+| operator blocker overridability | 1 | DS14 | `bridge_missing`, `semantic_test_missing` | generated decision/bool issuer owns clothing; raw-slot typecheck negative |
+| candidate declared authority purpose | 1 | DS8 | `bridge_missing`, `semantic_test_missing` | candidate-purpose issuer cannot grant governed authority |
+| projection source freshness | 2 | DS18 | `bridge_missing`, `semantic_test_missing` | generated `ProjectionFreshness.state`; absence/novel explicit; no cache-age inference |
+| decision confidence | 1 | DS16 | `artifact_missing`, `bridge_missing`, `semantic_test_missing` | typed quantity/uncertainty artifact; arbitrary `ReactNode` rejected |
+| explainability governance counts | 3 | DS9 | `bridge_missing`, `semantic_test_missing` | typed governance summary; counts cannot synthesize composed authority |
+| negative-certificate blocker | 1 | DS8 | `bridge_missing`, `semantic_test_missing` | generated blocker issuer; non-blocker cannot occupy slot |
+| public integrity result | 3 | DS12 | `bridge_missing`, `semantic_test_missing` | verifier-private integrity presentation; explicitly not closeout authority |
+| public anti-authority role | 1 | DS12 | `bridge_missing`, `semantic_test_missing` | branded refusal from generated packet role; cannot upgrade to authority |
+| threshold unavailable | 1 | DS16 | `artifact_missing`, `bridge_missing`, `semantic_test_missing` | typed unavailable/refusal artifact; no static caller-owned authority token |
+| candidate/refusal markers | 2 | DS8 | `bridge_missing`, `semantic_test_missing` | typed candidate/refusal posture; cannot be presented as governed output |
+
+The 103 benign sites are also content-bound, not silently ignored: 64 in the
+first 25 files and 39 in the second 25 files. Their typed classes are
+interaction/editor state, transport or runtime health, workflow/lifecycle
+display without terminality inference, layout/counts, and opaque metadata or
+taxonomy. A source fingerprint moving between benign and authority debt is a
+register corruption, and a new direct `Badge` site is unclassified/red until
+adjudicated. This is a finite current-estate census; it does not discover
+semantic authority in arbitrary future expressions.
+
+The separate real-prop census contributes 12 unbranded declaration groups/21
+uses: `ControlApprovalPanel.readiness` (DS14),
+`DecisionGradeBadge.presentation` (DS5; closure signal C06),
+`DataFreshnessBadge.freshness` (DS18), `DecisionCard.verdict` (DS5; C06),
+`DecisionCard.confidence` (DS17), `ExplainabilityCard.verdict` (DS5; C06),
+`CounterfactualBadge.status` (DS8), `StatusCue.status` and
+`FreshnessCue.freshness` (DS16), `TimeSemanticsLabel.freshness` (DS18),
+`DisputeBadge.status` (DS11), and `VerificationStatus`/`StatusIcon.tone`
+(DS11). They receive typed debt descriptors independently of their inner Badge
+site so both the public prop boundary and the current render site are governed.
 
 `authority_and_store_census` was run literally from product root:
 
@@ -378,9 +541,46 @@ rg -n 'name: "polisyos-clerk-chat"|^export const COMPOSER_DRAFTS_STORE|^const (T
 Recorded output: `8` living authority-like physical families: Clerk, composer,
 causal, dispute, and four operator-craft keys.
 
+`persistence_api_census` was run literally from product root with the installed
+compiler. It resolves declarations/types, so aliased `Storage` receivers and
+IDB lifecycle methods are included rather than guessed from callee text:
+
+```bash
+node - <<'NODE'
+const path=require('node:path'),ts=require('./apps/runtime-dashboard/node_modules/typescript');
+const root=process.cwd(),cfg=path.join(root,'apps/runtime-dashboard/tsconfig.app.json');
+const read=ts.readConfigFile(cfg,ts.sys.readFile),parsed=ts.parseJsonConfigFileContent(read.config,ts.sys,path.dirname(cfg));
+const program=ts.createProgram({rootNames:parsed.fileNames,options:parsed.options}),checker=program.getTypeChecker();
+const rel=p=>path.relative(root,p).replaceAll('\\','/');
+const prod=p=>p.startsWith('apps/runtime-dashboard/src/')&&!/[.](test|spec|stories)[.]/.test(p)&&!p.includes('/test/');
+const rows=[];
+function sym(n){let s=checker.getSymbolAtLocation(n);if(s&&(s.flags&ts.SymbolFlags.Alias))s=checker.getAliasedSymbol(s);return s}
+for(const sf of program.getSourceFiles()){const rp=rel(sf.fileName);if(!prod(rp))continue;const visit=n=>{
+  if(ts.isCallExpression(n)){let family=null,op=null,decl='';
+    if(ts.isPropertyAccessExpression(n.expression)){op=n.expression.name.text;const recv=checker.getTypeAtLocation(n.expression.expression),rt=checker.typeToString(recv),s=sym(n.expression.name);decl=(s?.declarations||[]).map(d=>rel(d.getSourceFile().fileName)).join(',');
+      if(['getItem','setItem','removeItem'].includes(op)&&(rt==='Storage'||decl.includes('lib.dom.d.ts')))family='web-storage';
+      if(['get','put','delete','clear','createObjectStore'].includes(op)&&rt.includes('IDBPDatabase'))family='idb-database';
+      if(op==='createIndex'&&rt.includes('IDBPObjectStore'))family='idb-store';
+    }else if(ts.isIdentifier(n.expression)){op=n.expression.text;const s=sym(n.expression);decl=(s?.declarations||[]).map(d=>rel(d.getSourceFile().fileName)).join(',');
+      if(['persist','createJSONStorage'].includes(op)&&decl.includes('zustand'))family='zustand';
+      if(op==='openDB'&&decl.includes('idb'))family='idb-root';
+    }
+    if(family)rows.push({path:rp,line:sf.getLineAndCharacterOfPosition(n.getStart(sf)).line+1,family,op});
+  }ts.forEachChild(n,visit)};visit(sf)}
+const bucket=name=>rows.filter(r=>r.family.startsWith(name)).length;
+console.log(JSON.stringify({sites:rows.length,files:new Set(rows.map(r=>r.path)).size,families:{webStorage:bucket('web-storage'),zustand:bucket('zustand'),indexedDb:bucket('idb-')},rows:rows.sort((a,b)=>(a.path+a.line).localeCompare(b.path+b.line))},null,2));
+NODE
+```
+
+Recorded output: `41` sites / `14` files; Web Storage `23`, Zustand `5`,
+IndexedDB `13`. C17b governs this exact declaration-resolved API set and
+remeasures it at its clean entry after C13a-C16b; it does not infer payload
+semantics from method or field names.
+
 The surface and store commands are bounded structural censuses, not future lint
-implementations. C01/C12/C17 must replace those entry receipts with generic
-owner-derived checks before claiming recurrence protection.
+implementations. C01a records its measured declaration set; C12a and C17b replace
+their entry receipts with direct construction-site registries. None becomes a
+claim about arbitrary program behavior.
 
 ## Pattern pass and capability truth
 
@@ -396,8 +596,8 @@ The target correct pattern is:
 
 ```text
 owner contract + producer + persisted artifact/event + generated bridge
-  -> one consumer/presentation adapter
-  -> behavioral verifier + corruption witness + benign counterexample
+  -> private issuer + branded slot checked by tsc
+  -> bounded construction-site/escape check + runtime novelty witness
   -> API/dashboard/audit surface or explicit surface_out_of_scope
 ```
 
@@ -409,9 +609,14 @@ WebSocket authentication remainder stays `bridge_missing` and is not closed by
 a transport exemption. No cluster may upgrade a label unless producer, bridge,
 consumer, negative, and surface evidence actually exist.
 
-The enforcement battery is verification infrastructure, never authority. A
-scanner cannot make a status admissible, a flag cannot grant permission, and a
-presentation adapter cannot turn a TypeScript union into runtime owner proof.
+The enforcement battery is verification infrastructure, never authority. Its
+claim is deliberately three-part and no broader: compile-time assignability
+protects branded slots; a syntactic rule rejects the enumerated escape hatches
+on the measured authority paths outside typed exemptions; issuers reject
+fixture/unlisted input and render runtime-novel owner values as explicit
+`unrecognized`. Sinks not yet branded remain typed debt. A checker cannot make
+a status admissible, a flag cannot grant permission, and a presentation
+adapter cannot turn a TypeScript union into runtime owner proof.
 
 ## Universal cluster protocol
 
@@ -425,9 +630,15 @@ Every implementation cluster follows this order:
    output or copy a canonical vocabulary.
 4. Move every touched register row with successor and consumer evidence, or
    keep it pending with a typed capability label and executable closure signal.
+   Any edit to `frontend-disposition-register.json` regenerates
+   `docs/reference/frontend/atlas-frontend-disposition-register.md` in the same
+   commit; the checker treats report drift as red, so C20 never carries that
+   tail for an earlier cluster.
 5. Run affected tests, typecheck, production build, scoped lint, both
    architecture engines where relevant, governed checkers, and corruption
    probes. False positives are defects and each lint carries a benign control.
+   `tsc` is the authority-slot enforcement engine; AST rules remain bounded to
+   direct syntax or construction sites and state that residual in their output.
 6. At wave boundaries run full gates and compare inherited identities by hash;
    removals shrink debt, additions fail.
 7. Request independent review. Important/Critical findings are repaired
@@ -437,231 +648,496 @@ Every implementation cluster follows this order:
 A cluster measured above its cap stops at the preceding clean commit and is
 re-cut with the next continuous number. No cap is enlarged after entry.
 
+### Sizing-law re-cuts after the architecture ruling
+
+The C00 caps remain binding. Adding the mandatory disposition report, affected
+tests and the source-complete construction registries exceeded several original
+clusters; none is enlarged. At the still-clean C00/C01a-amend boundary they are
+continuously re-cut as follows. Each child cap is at or below its parent's C00
+cap; the listed count includes its journal and every generated-report path.
+
+| C00 cluster / cap | Measured reason | Continuously numbered re-cut |
+| --- | --- | --- |
+| C03 / 12 | typed DS1 drift row needs schema/checker/report in addition to 7 live transport owners | C03a 6; C03b 12 |
+| C04 / 12 | live fallback repair plus recurrence lint plus report is 13 | C04a 10; C04b 4 |
+| C05 / 13 | locale/typography and semantic-receipt families are 18 together | C05a 10; C05b 11 |
+| C08 / 10 | test-fixture consumers must stop importing production fallback before the 10-path identity repair | C08a 5; C08b 10 |
+| C09 / 12 | six consumers, recurrence checker and report total 13 | C09a 10; C09b 7 |
+| C11 / 10 | real `OverviewTab` wiring and report raise the cache cluster to 13 | C11a 5; C11b 9 |
+| C12 / 9 | 66-call/42-producer registry plus governed builder totals 13 | C12a 7; C12b 9 |
+| C13 / 18 | queue removal, three renames, SW proof, affected composer test and report total 23 paths | C13a 18; C13b 9 |
+| C14 / 7 | nominal adapter plus composer consumer/report total 9 | C14a 3; C14b 7 |
+| C15 / 5 | store codec plus live identity bridge/report total 6 | C15a 3; C15b 5 |
+| C16 / 7 | causal and dispute families plus report total 9 | C16a 5; C16b 7 |
+| C17 / 11 | operator migration plus 41-site registry/report total 15 | C17a 9; C17b 9 |
+| C18 / 6 | strict registry plus provider/report total 7 | C18a 3; C18b 5 |
+
+C01a/C01b/C01c are the separately authorized `636645bec` re-cut. C06 is
+shrunk to 24 by reusing the generic disposition checker and regenerating its
+report; C07 measures 25 under its unchanged cap 26; C10 is shrunk to its
+original cap 7 by keeping packet,
+issuer, request and sink in one module; C19 is shrunk to 13 by reusing the
+generic disposition checker. No other C00 cap changes.
+
 ### Register transition map
 
 | Authority row(s) | Boundary | Planned transition / proof |
 | --- | --- | --- |
-| 47 status rows + `status-retirement-inventory` | C01 | preserve 15/0 estate; add package-sibling unauthorized-definition semantic proof; no invented status |
+| 47 status rows + authority presentation census | C01a-C01c | preserve 15/0 estate and exact generated provenance; account 2 branded props/6 uses plus 2 branded direct sites, 39 typed debt descriptors (12 prop boundaries + 27 direct-`Badge` groups), 5 benign prop groups and all 103 benign direct sites; forbid enumerated escape syntax only on branded paths; prove issuer exhaustiveness/novelty |
 | architecture baseline/recurrence receipts | C02 | zero remains zero; real custom and dependency-cruiser violations fail even with marker bytes intact |
-| `raw-fetch-auth-refresh`, `raw-fetch-auth-initial`, `raw-fetch-auth-replay` | C03 | bounded `use_as_is` inside the typed auth transport owner plus symbol-bound exemption and corrupt sibling negative |
-| `raw-fetch-flag-manifest` | C03 | bounded `use_as_is` inside the strict registry adapter; C18 supplies the consumer semantics |
-| `transport-ws-review` | C03 | remains `bridge_missing`; typed constructor classification does not close N018 authentication/degradation |
-| hardcoded capability fallback / `cache-query-memory` | C04 then C11-C12 | fallback removed in C04; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
-| `route-app-layout::ru-ui-catalog` | C05 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
+| `raw-fetch-auth-refresh`, `raw-fetch-auth-initial`, `raw-fetch-auth-replay` | C03b | bounded `use_as_is` inside the typed auth transport owner plus symbol-bound exemption and corrupt sibling negative |
+| `raw-fetch-flag-manifest` | C03b | bounded `use_as_is` inside the strict registry adapter; C18a-C18b supply the consumer semantics |
+| `transport-ws-review` | C03b | remains `bridge_missing`; typed constructor classification does not close N018 authentication/degradation |
+| DS1 raw-transport historical receipt | C03a | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
+| hardcoded capability fallback / `cache-query-memory` | C04a-C04b then C11a-C12b | fallback removed in C04a and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
+| `route-app-layout::ru-ui-catalog` | C05a | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
+| `authority-presentation-governed-projection-rights-bar` | C05b then C10 | the C01a debt row drops `bridge_missing` and `semantic_test_missing` after the private semantic-ID issuer and strength-upgrade negatives land; it remains `rebind_pending/open_debt` with `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; C10 adds its second live consumer to the same issuer/brand evidence rather than reopening raw copy |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
-| audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values; no client substitute |
-| `route-login`, `feature-auth`, `api-op-get-auth-me` | C08-C09 | core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
-| composed/recomputed status verification | C10 | scanner proof only; no producer/status row is promoted by lint |
-| `cache-query-memory` | C12 | rebound only for the governed classifier/consumer; 41 missing-owner producers are never cached at authority sinks or remain typed debt, never timestamp-inferred |
-| `offline-queue-promotion-decision`, `cache-service-worker-static` | C13 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
-| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14-C17 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
-| four flag disposition rows | C18-C19 | strict registry first; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
+| audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
+| `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
+| composed/recomputed status verification | C06 then C10-C12b | C06 projects the existing G4 owner artifact as a complete generated packet; C10 nominalizes it inside a request-scoped non-query live boundary; C11a-C12b own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
+| `cache-query-memory` | C12a-C12b | rebound only for the governed builder, one C11a-C11b consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
+| `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
+| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
+| four flag disposition rows | C18a-C19 | strict registry then provider wiring; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
 | 21 historical DS5 readiness rows vs 17 live DS5 roots | C20 | update only supported chain fields; deleted/handoff rows stay honest; no denominator collapse |
 
 ### Wave boundaries
 
 - **W0 — C00:** plan, install/link proof, measured baseline, clean plan commit.
-- **W1 — C01-C05:** status, architecture, transport, capability, and semantic-ID
+- **W1 — C01a-C05b:** branded authority slots, escape syntax, issuer novelty,
+  status, architecture, transport, capability, and semantic-ID
   enforcement. Full dashboard/Atlas gates plus governed corruption probes.
 - **W2 — C06-C10:** generated waist, audience denial, N010, and composition.
   Full runtime contract, focused HTTP, generated-client, dashboard, and scanner
   gates.
-- **W3 — C11-C17:** query cache, offline action, and four bounded local-state
+- **W3 — C11a-C17b:** query cache, offline action, and four bounded local-state
   families.
   Full dashboard suite, browser cache/offline tests, architecture, and zero-new
   baseline comparison.
-- **W4 — C18-C20:** flags, ledgers, final receipts, closure and fence proof.
+- **W4 — C18a-C20:** flags, ledgers, final receipts, closure and fence proof.
   Full closeout battery including Storybook/a11y/visual, with only the exact
   inherited DS6/DS8 identities allowed.
 
 ## Pre-sized execution clusters
 
-### DS5-C01 — shared semantic engine and unauthorized-status-owner lint
+### DS5-C01a — authority-sink census and brand/debt boundary
 
-**Measured set:** 7 files; cap 9:
-`status_retirement_scan.mjs`, its status checker/test/inventory, one new shared
-DS5 enforcement checker/test, and dashboard `package.json`. The 2,739-line
-scanner already uses the TypeScript Program/TypeChecker and sink-flow analysis;
-C01 extends that one engine rather than creating transport/copy/composition
-siblings. The existing status checker keeps owning DS4 receipts; the DS5
-checker consumes additive typed findings.
+**Architecture re-cut:** architect ruling `636645bec` replaces C01. The current
+commit `b67084dd6` is amended down, not stacked. Delete the abandoned
+whole-program analysis machinery and tests written only for it. Retain only exact
+generated provenance driven by governed paths/hashes, the status-inventory
+bridge, declaration-derived Atlas prop census, and the DS5-only compiler-
+diagnostics gate.
 
-**Red first:** `test_package_namespace_alias_later_assignment_jsx_spread_revival_fails`.
-The corruption declares a UI-local authority union in `@polisyos/atlas-ui`,
-passes it through namespace import, wrapper, object property, array carrier,
-later assignment, coercion, and JSX spread into a real authority sink. Marker
-bytes stay present. A responsive interaction-state union is the benign control.
+**Measured set:** exactly 14 paths; cap 15: the current eight C01 paths
+(`status_retirement_scan.mjs`, status checker/test/inventory, DS5 checker/test,
+dashboard `package.json`, journal), this plan, and the disposition
+register/schema/checker/test plus its generated reference report. The production census is 610 files, 19 semantic
+prop groups/35 uses: 2 already branded/6 uses; 12 unbranded authority props/21
+uses/10 declaration files; 5 benign/8 uses. The complete direct-`Badge` census
+is 163 sites/52 files: 2 branded Atlas issuer-internal sites, 58 authority-
+bearing dashboard sites in 27 source-bound groups, 103 benign dashboard sites,
+and 0 unclassified. C01a adds 39 typed debt descriptors—27 direct-site groups
+plus 12 public prop boundaries. Entry authority-presentation debt is zero rows.
+No consumer migration occurs in this census cluster.
 
-**Acceptance:** `isDefinitionSource` explicitly derives both dashboard and
-`packages/atlas-ui/src/**` production sources and the resulting live package
-denominator is journaled before commit. Sources are narrowed by actual generated
-declaration provenance and load-bearing semantic fields—never wildcarded over
-all projection values (the wildcard preflight produced 52 false sinks in 30
-files). Every revival path fails at declaration owner and sink; generated
-indexed owners, open terminal/evidence values, BadgeTone, responsive layout and
-numeric width remain benign. The 47/15/0 estate is unchanged, corruption probes
-pass, and `lint:enforcement` executes the real checker.
+**Red first:** `test_every_authority_presentation_prop_is_branded_or_typed_debt`.
+Remove one declaration, one owner slice or one executable closure signal from
+the census receipt and require failure. A generated-looking structural object
+must not satisfy a nominal slot. `SegmentedControl.tone`, form accent tone,
+numeric confidence capture, responsive layout and interaction presence are
+benign declarations that must remain classified without becoming authority.
+Delete a direct-`Badge` site descriptor, move a recorded source fingerprint,
+or reclassify an authority site as benign while retaining its surrounding
+markers; each corruption must fail. Add one new direct `Badge` use and require
+an unclassified-site diagnostic until a typed adjudication is recorded.
+Restamp one pre-existing supplemental row to `2026-08-02`, or give one new
+authority descriptor the inherited `2026-07-17` date; both corruptions fail.
+`test_ui_local_closed_status_declaration_is_not_generated_owner` adds a local
+enum/union at a measured authority declaration and fails exact declaration-
+provenance validation without making a whole-program use claim.
 
-**Expected commit:** `DS5-C01 enforce canonical status ownership`.
+**Acceptance:** every measured declaration/use is either a private-issued
+brand, an `authority_presentation_debt` row with owner slice, capability state
+and executable closure signal, or an explicit benign class. C01a records the 12
+unbranded props and all 58 direct authority sites as typed debt; all 103 direct
+benign sites are explicit source-bound controls, and both Atlas direct sites are
+content-bound to the existing private brands. The 107-site heuristic has no
+enforcement role. The register adds a typed authority-sink descriptor plus
+owner states/closure command/test and content-bound consumer fingerprints; it
+does not claim semantic discovery for arbitrary future expressions. The status
+estate remains 47/15/0. The reduced commit is substantially smaller and the
+diagnostics gate rejects type-invalid fixtures. Every new authority descriptor
+owns exact `decision_date: 2026-08-02`; the existing global
+`DECISION_DATE = 2026-07-17` history and every pre-existing supplemental row's
+date bytes remain unchanged. The surgical writer is run twice and the second
+run is byte-identical; an unrelated restamp is red.
+
+**Expected amended commit:** `DS5-C01a census branded authority sinks`.
+
+### DS5-C01b — bounded authority escape-hatch lint
+
+**Measured input:** exactly 15 branded-authority-path files derived from the
+current issuer modules and every current importer of the two branded sinks,
+including focused tests/stories. The 12 unbranded sink groups remain C01a debt
+and are not falsely covered by this assignability escape rule. The AST
+census finds 32 assertions, 0 `any`, 0
+`@ts-ignore`, 7 `@ts-expect-error`, and 15 `satisfies` sites. This is a local
+syntax property, not a data analysis.
+
+The exact bounded input is: `AuthorityBadge.tsx`, `EnvelopeChip.tsx`,
+`evidenceTypes.ts`, Atlas UI `index.ts`, `AuthorityBadge.test.tsx`,
+`EnvelopeChip.test.tsx`, `evidencePrimitives.a11y.test.tsx`,
+`oneOwner.test.ts`, `publicSurface.test.ts`, dashboard
+`RunExplainabilityPanel.tsx`, `OperatorDiagnosticPanel.tsx`,
+`DecisionCard.tsx`, `DecisionCard.test.tsx`,
+`EvidencePrimitives.stories.tsx`, and
+`fixtureOnlyAuthority.compile.test.tsx`. The recorded AST command parses those
+15 files with the installed TypeScript compiler, counts `AsExpression` /
+`TypeAssertionExpression`, `AnyKeyword`, `SatisfiesExpression`, and the two
+directive comments, and returned `15 / 32 / 0 / 0 / 7 / 15`.
+
+```bash
+node - <<'NODE'
+const fs=require('node:fs'),ts=require('./apps/runtime-dashboard/node_modules/typescript');
+const files=`apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx
+apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx
+apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.test.tsx
+apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx
+apps/runtime-dashboard/src/shared/ui/evidence/EvidencePrimitives.stories.tsx
+apps/runtime-dashboard/src/shared/ui/evidence/fixtureOnlyAuthority.compile.test.tsx
+packages/atlas-ui/src/index.ts
+packages/atlas-ui/src/primitives/AuthorityBadge.tsx
+packages/atlas-ui/src/primitives/EnvelopeChip.tsx
+packages/atlas-ui/src/primitives/evidenceTypes.ts
+packages/atlas-ui/tests/AuthorityBadge.test.tsx
+packages/atlas-ui/tests/EnvelopeChip.test.tsx
+packages/atlas-ui/tests/evidencePrimitives.a11y.test.tsx
+packages/atlas-ui/tests/oneOwner.test.ts
+packages/atlas-ui/tests/publicSurface.test.ts`.split('\n');
+const count={assertions:0,any:0,ignore:0,expect:0,satisfies:0};
+for(const file of files){const text=fs.readFileSync(file,'utf8'),sf=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true,file.endsWith('x')?ts.ScriptKind.TSX:ts.ScriptKind.TS);count.ignore+=(text.match(/@ts-ignore/g)||[]).length;count.expect+=(text.match(/@ts-expect-error/g)||[]).length;const visit=node=>{if(ts.isAsExpression(node)||ts.isTypeAssertionExpression(node))count.assertions++;if(node.kind===ts.SyntaxKind.AnyKeyword)count.any++;if(ts.isSatisfiesExpression(node))count.satisfies++;ts.forEachChild(node,visit)};visit(sf)}
+console.log(JSON.stringify({files:files.length,...count}));
+NODE
+```
+
+**Measured edit set:** exactly 13 paths; cap 13: the scanner/DS5 checker/test;
+disposition register/schema/checker/test; AuthorityBadge, EnvelopeChip and
+DecisionCard tests; the compile-negative fixture; and journal. Existing issuer
+assertions may survive only as exact typed exemptions with path, construct,
+owner and reason; inline expected-error tests move to the diagnostics harness.
+The generated disposition reference report is regenerated in the same commit.
+
+**Red first:** `test_authority_paths_reject_unregistered_type_escape_hatches`.
+Separate corruptions add `as`, double assertion, explicit `any`,
+`@ts-ignore`, `@ts-expect-error`, and a `satisfies` target that contains the
+brand or widens to `any`/`unknown`. A generated DTO conformance check and the
+exhaustive `satisfies Record<generated-union, BadgeTone>` map are benign.
+
+**Acceptance:** all measured branded authority paths are derived from imports and
+issuer declarations; each forbidden construct fails unless its exact typed
+exemption remains current. Unknown, stale, moved or reasonless exemptions fail.
+The lint reports only this bounded syntactic guarantee.
+
+**Expected commit:** `DS5-C01b forbid authority escape hatches`.
+
+### DS5-C01c — issuer exhaustiveness and runtime novelty
+
+**Measured set:** exactly 13 paths; cap 13: `AuthorityBadge.tsx`,
+`evidenceTypes.ts`, `AuthorityBadge.test.tsx`, `oneOwner.test.ts`, the
+scanner/DS5 checker/test,
+disposition register/schema/checker/test plus its generated reference report,
+and journal. Entry has 2 issuer
+modules, 3 private brands, 5 exported owner-specific factories, and private
+WeakSet/WeakMap issuance identity.
+
+**Red first:** `test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty`.
+Corrupt a generated union literal or exhaustive map; export a brand/constructor;
+clone a branded object; pass `fixture_only`, a label absent from its owner list,
+or a runtime-novel generated value. A genuinely open owner extension remains
+visible and neutral.
+
+**Acceptance:** every closed-input issuer uses compile-time exhaustiveness
+against the exact generated declaration; brands and constructors remain module
+private; issued values are frozen and identity-checked; fixture/unlisted values
+throw; runtime novelty returns explicit `unrecognized`; no issuer exports a
+value-level vocabulary constant. DS5 claims compile-time nominal protection,
+bounded escape syntax and runtime issuer behavior—nothing broader.
+
+**Expected commit:** `DS5-C01c bind authority issuers to owner unions`.
 
 ### DS5-C02 — architecture recurrence in both engines
 
-**Measured set:** 5 files; cap 7: dashboard custom architecture script and
-dependency-cruiser config, Atlas UI architecture script, and the two existing
-Atlas governance checker/test surfaces needed to execute corruption probes.
+**Ruling re-derivation:** this property is the decidable module graph over real
+resolved imports. The custom checker and dependency-cruiser execute that graph;
+neither attempts to infer values or presentation semantics.
+
+**Measured set:** exactly 6 paths including journal; cap 7: dashboard custom
+architecture script and dependency-cruiser config, Atlas UI architecture
+script, the two existing Atlas governance checker/test surfaces, and journal.
 The inherited DS4 “both engines” claim means the dashboard custom checker plus
 dependency-cruiser; Atlas UI's checker is an additional package sibling, not a
 third origin of the 36->0 denominator.
 
 **Red first:** `test_real_illegal_edges_fail_custom_and_dependency_engines`.
-Inject `shared -> app/api` and `app-state -> provider` edges for the custom
-engine, and a forbidden edge plus a cycle for dependency-cruiser; execute both
-real commands. A package boundary injection exercises the sibling checker.
-Removing the property while retaining rule/marker strings must go green. A
+Inject resolvable `shared -> app/api` and `app-state -> provider` imports for the
+custom engine, and a forbidden import plus a real cycle for dependency-cruiser;
+execute both engines. A package boundary injection exercises the sibling
+checker. Removing the illegal imports while retaining rule text must go green. A
 public barrel, shared->shared import, numeric error-budget width and three-way
 responsive layout are benign controls.
 
 **Acceptance:** the DS4 36->0 class is executable in both engines, future source
-files are discovered, and `lint:enforcement` cannot remain green if either
-engine is bypassed.
+files are discovered from the module graph, and `lint:enforcement` cannot remain
+green if either engine is bypassed. C02 claims only the decidable import-graph
+property; it makes no status, presentation, numeric or control semantics claim.
 
 **Expected commit:** `DS5-C02 make architecture zero recurrent`.
 
-### DS5-C03 — symbol-bound authority-transport lint
+### DS5-C03a — record the raw-transport denominator drift
 
-**Measured set:** exactly 11 files; cap 12: the shared C01
-scanner/checker/test, one
-canonical TypeScript `defineRawTransportRegistry`/purpose factory, the five
-production owner files, dashboard package wiring, and the frontend disposition
-register. Current targets are 7 constructors / 5 production files: auth 3,
-flags 1, telemetry 1, SSE 1, WebSocket 1. The production owners are part of the
-migration denominator, not hidden behind the scanner count.
+**Measured set:** exactly 5 governed artifact paths plus journal = 6; cap 6:
+frontend disposition register/schema/checker/test, its generated reference
+report, and journal. The typed receipt preserves both measurements: DS1 9 raw
+fetches/5 files; current 5 fetches/3 files and 7 raw constructors/5 files.
 
-**Red first:** `test_alias_namespace_wrapper_property_later_assignment_transport_escape_fails`.
-The exemption must be an actual symbol reference owned by the real factory,
-resolve to a declaration location and closed purpose (`auth`, `flag_exposure`,
-`telemetry`, `governed_channel`), and match primitive to purpose. File/path/name
-JSON allowlists, fake same-name factories and synthetic generated lookalikes
-fail. Local injected functions named `fetch` and generated-client `fetchImpl`
-are benign controls.
+**Red first:** `test_raw_transport_drift_row_binds_historical_and_live_census`.
+Changing either denominator, dropping the DS19 collaboration-deletion evidence,
+or omitting owner/capability states/executable closure fails. The surgical
+writer must be byte-preserving and idempotent.
 
-**Acceptance:** novel handwritten authority transport fails at a real sink;
-all seven live calls resolve to typed owners; historical deleted collaboration
-calls are not grandfathered; telemetry remains DS12-limited; review WS remains
-N018 `bridge_missing`.
+**Acceptance:** the historical number can no longer circulate as a live lint
+denominator; the row stays open until the direct source census and typed owner
+classification agree. No transport implementation changes in C03a.
 
-**Expected commit:** `DS5-C03 type raw authority transports`.
+**Expected commit:** `DS5-C03a record raw transport drift`.
 
-### DS5-C04 — capability discovery, not fixed chrome
+### DS5-C03b — direct authority-transport construction lint
 
-**Measured set:** exactly 12 files; cap 12:
-`shared/lib/capabilities.ts` + test, `api/hooks/useCapabilities.ts`,
-`api/hooks/controlQueries.test.tsx`, `runDetailSurfaces.test.tsx`, the shared
-C01 scanner/checker test, dashboard `package.json`, and
-`CommandPalette.tsx` + test, plus the frontend disposition register. The
-violation is 14 fallback feature records in two production consumers;
-CommandPalette currently treats capability loading as allow. The 43 fixed
-surfaces and 19 capability gates are benign constitutionally allowed chrome.
+**Ruling re-derivation:** the guarantee is only the bounded syntactic census of
+direct imported/callee transport constructions. Typed purpose owners make the
+sanctioned paths explicit; C03b makes no claim about arbitrary indirect call
+flow.
 
-**Red first:** `test_hardcoded_open_ended_capability_carriers_reach_menu_sink`.
-Cover authored values assignable to the real generated
-`CapabilityFeatureInfo`/manifest owner through inline arrays, helper returns,
-alias/object carriers and mapped JSX into discovery sinks. A runtime-fetched
-`.features`, fixed workspace tab and typed `requiredCapabilities` gate must not
-fail. A local generated-lookalike must fail owner binding.
+**Measured set:** exactly 11 implementation/governed paths plus journal = 12;
+cap 12: the shared C01a scanner/checker/test, one canonical typed raw-transport
+purpose module, the five production owner files, frontend disposition register
+and generated report, and journal. C01a already wires `lint:enforcement`; C03b
+does not retouch `package.json`. Current targets are 7 constructors / 5
+production files: auth 3, flags 1, telemetry 1, SSE 1, WebSocket 1.
 
-**Acceptance:** discovery renders producer features or explicit unavailable;
-no fallback capability inventory survives; loading/offline/error does not
-invent features; checker follows values rather than keywords.
+**Red first:** `test_direct_authority_transport_requires_typed_purpose_factory`.
+Corruptions use each direct `fetch`, `new EventSource`, and `new WebSocket`
+construction with an authority endpoint outside the typed owner, or import a
+lookalike factory from the wrong declaration. The exemption is a real imported
+typed purpose (`auth`, `flag_exposure`, `telemetry`, `governed_channel`) and the
+primitive must match its purpose. File/path/name-only allowlists fail. A local
+injected function named `fetch` and generated-client `fetchImpl` are benign.
 
-**Expected commit:** `DS5-C04 strangle capability menu fallback`.
+**Acceptance:** the AST rule enumerates direct constructors and their direct
+callee/import declaration over the measured production set; all seven live
+constructors use typed owners and a new direct construction fails. It does not
+analyze indirect calls. Historical deleted collaboration calls are not
+grandfathered; telemetry remains DS12-limited; review WS remains N018
+`bridge_missing`. Register transitions and generated report land with the five
+owner migrations.
 
-### DS5-C05 — INT-R6 semantic IDs, static copy, and D4 locale posture
+**Expected commit:** `DS5-C03b type raw authority transports`.
 
-**Measured set:** exactly 12 files; cap 13: `locale.ts`, `LocaleProvider.tsx` +
-test; new semantic-copy registry/schema/checker/test; the shared C01
-scanner/checker test; dashboard `package.json`; and one surgical disposition
-supplemental finding. Each locale catalog has 2,449 leaves; none is edited.
+### DS5-C04a — strangle the live capability fallback
+
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `shared/lib/capabilities.ts` + test,
+`api/hooks/useCapabilities.ts`, `api/hooks/controlQueries.test.tsx`,
+`runDetailSurfaces.test.tsx`, `CommandPalette.tsx` + test, frontend disposition
+register + generated report, and journal. The violation is 14 fallback feature
+records in two production consumers; CommandPalette currently treats loading
+as allow. The 43 fixed surfaces and 19 capability gates are benign chrome.
+
+**Red first:** `test_capability_discovery_accepts_only_issued_owner_manifest`.
+Loading/offline/error and a locally authored fallback are unavailable; a fixed
+workspace tab and typed `requiredCapabilities` gate are positive controls.
+
+**Acceptance:** a module-private brand issues
+`available(ownerManifest) | unavailable(reason)`; both live consumers accept
+only that value; no fallback inventory survives; loading cannot invent a
+feature. Consumer and disposition/report evidence land together.
+
+**Expected commit:** `DS5-C04a strangle capability fallback`.
+
+### DS5-C04b — make capability discovery recurrent
+
+**Measured set:** exactly 3 implementation paths plus journal = 4; cap 4: the
+shared C01a scanner/checker/test and journal.
+
+**Red first:** `test_authored_capability_discovery_construction_fails`.
+An inline feature array, helper-authored `CapabilityFeatureInfo`, loading-as-
+enabled branch and local generated lookalike fail at the bounded issuer/direct-
+literal construction site. Runtime-fetched `.features`, fixed chrome and typed
+availability gates are benign.
+
+**Acceptance:** the AST rule guards only issuer construction and direct authored
+`CapabilityFeatureInfo` literals. It does not infer menu behavior or ban fixed
+chrome; C04a's behavioral tests own the live consumer claim.
+
+**Expected commit:** `DS5-C04b lint authored capability discovery`.
+
+### DS5-C05a — D4 active-locale and frozen-continuity boundary
+
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `locale.ts`, `LocaleProvider.tsx` + test; typography `typography.ts` +
+test, `quoteMarks.ts`, `nonBreakingSpaces.ts`; frontend disposition register +
+generated report; and journal. Each en/uk/ru catalog has 2,449 leaves; no
+catalog or parity file is edited. The unedited, source-measured compatibility
+surface is 18 explicit-locale functions across 9 modules: the locale owner;
+formatter `shared`, `number`, `currency`, and `date`; ICU messages; and the
+three typography modules. Seventeen are exported formatter/ICU/typography
+entry points and `toIntlLocale` is the locale-owner conversion.
+
+**Red first:** `test_ru_cannot_reenter_active_product_locale` and
+`test_uk_is_primary_and_en_is_fallback`. A corruption passes `ru` through
+provider, storage, default resolution or catalog selection; the existing
+explicit-input formatter/ICU/typography functions are the bounded frozen
+compatibility controls. A separate
+`test_frozen_ru_formatters_require_explicit_legacy_locale_and_never_become_product_state`
+proves their omitted locale defaults through product resolution and that an
+explicit `ru` argument cannot enter provider state.
+
+Locale types split product exposure from frozen continuity: `ProductLocale` is
+`uk | en`, default `uk`; `LegacyContinuityLocale` is `ru`; compatibility
+`Locale` is their union only for the 18 enumerated explicit-locale functions.
+Product resolution, storage, provider state, catalog selection and all omitted
+formatter defaults accept/return only `ProductLocale`. Explicit legacy input
+may format caller-supplied continuity text but cannot enter `LocaleProvider`,
+storage, active catalog selection or default resolution. This is a finite
+compatibility classification, not a claim that `ru` is an active locale.
+
+**Acceptance:** active locales are exactly `uk` and `en`; `uk` is primary and
+default, `en` explicit baseline/fallback; the `ru` catalog, parity test and
+formatting expectation remain byte-unmodified; all 18 compatibility entry
+points remain explicit-input-only and the disposition/report record
+`legacy_continuity_frozen`, never active support. The three DS6 parity failures
+remain exact.
+
+**Expected commit:** `DS5-C05a separate product and frozen locales`.
+
+### DS5-C05b — INT-R6 semantic IDs and static authority copy
+
+**Ruling re-derivation:** canonical ID plus content-bound review issuance is a
+private nominal construction boundary. The checker guards that registry/issuer
+site and same-ID uniqueness; it neither compares prose for semantic meaning nor
+traces arbitrary copy values through the program.
+
+**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
+cap 11: `RunExplainabilityPanel.tsx` + its governed-projection test; new
+`AuthoritySemanticCopy.ts` + test; new semantic-copy registry/schema; DS5
+checker/test; frontend disposition register + generated report; and journal.
+The one current real authority-copy consumer is `packet.may_not_use_for`;
+accepted human-review receipts are 0 at entry.
 
 **Red first:**
 
 - `test_limited_semantic_id_cannot_upgrade_strength` mutates the structured
   semantic class while keeping plausible copy;
 - `test_may_not_use_for_cannot_become_optional_recommendation`;
-- `test_ru_cannot_reenter_active_locale_by_alias_or_exemption`;
-- `test_uk_is_primary_and_en_is_fallback`;
-- `test_static_copy_alias_reaches_authority_label_sink`.
+- `test_authority_copy_requires_branded_semantic_receipt`;
+- `test_semantic_id_has_one_active_copy_per_locale_and_scope`.
 
-The verifier binds canonical generated semantic IDs and typed
-strength/obligation fields. It accepts localized authority copy only with a
-content-bound receipt naming a competent external policy-copy reviewer,
-reviewer authority/version and source-language scope. No such receipt exists at
-entry, and DS5 will not self-attest the current strings. Missing review fails
-closed to the canonical semantic ID/English owner token and is recorded
-`verification_missing` with DS6 evidence-workflow ownership and an executable
-receipt closure signal. A text edit—including plausible “confirmed with
-caveat”—without a reviewed receipt fails; changing the ID/strength to launder it
-also fails. The automated checker does not claim to understand Ukrainian.
+The private branded issuer binds a canonical ID, source token, reviewed output,
+reviewer identity/version/scope and content hash; it freezes issuance and keeps
+identity in a private `WeakSet`. Canonical IDs are the generated contract+field
+identity for open `may_not_use_for` values and the catalog key
+`phase34.harm.risk.limited` for the closed example—never a string-equivalence
+guess. Localized authority copy is issued only with a content-bound competent
+external-review receipt. With 0 accepted receipts, the honest presentation is
+the English baseline or owner token plus `verification_missing` DS6 debt. A
+plausible text edit without a matching receipt fails. The checker validates
+identity/hash/reviewer fields; it does not claim to understand Ukrainian.
+Two conflicting active copies for the same semantic ID/locale/scope fail even
+when both are fluent; identical visible words under two different canonical
+IDs are a benign control and are never treated as duplicates by string match.
 
-Locale types split product exposure from frozen continuity: the active product
-owner is `uk | en`, while `ru` may remain only in an explicitly named legacy
-continuity/formatting type and frozen-catalog parity. Product resolution,
-storage, provider state, navigation and landing selection accept only the
-active type; an alias from the legacy type into any of those sinks is the
-negative. This avoids deleting the continuity material without leaving a
-runtime path that can select it.
+**Acceptance:** authority copy is issued by canonical semantic identity and
+unreviewed localized copy falls back honestly;
+the `may_not_use_for` consumer accepts only the branded presentation; the two
+strength-upgrade corruptions and the same-ID copy collision fail while the
+same-word/different-ID control passes. C05b claims the mechanical
+receipt/issuer gate, not completed human semantic review.
 
-**Acceptance:** active locales are exactly `uk` and `en`; `uk` is the primary
-and default product locale and `en` remains the explicit baseline/fallback;
-`ru` catalog and parity test bytes are unchanged; authority labels resolve by
-semantic ID and unreviewed localized authority copy fails to the honest
-fallback; duplicate/static authority copy through wrappers and JSX fails; the
-three DS6 parity failures remain exact. C05 claims the mechanical review gate,
-not completed human semantic review.
-
-**Expected commit:** `DS5-C05 anchor copy and locale semantics`.
+**Expected commit:** `DS5-C05b anchor authority copy by semantic ID`.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
-**Measured set:** exactly 24 files; cap 26:
-`services/governed_projections.py`; the mirrored governed-projection service and
+**Measured set:** exactly 23 implementation/governed paths plus journal = 24;
+cap 26:
+`services/governed_projections.py` and
+`services/governed_projection_validation_worker.py`; the mirrored governed-projection service and
 runtime-contract-hardening tests; generated OpenAPI snapshot; package
 `types.ts`, `runtimeApiClient.{ts,js}` and
-`canonicalRuntimeApiClient.{ts,js}`; dashboard `src/api/types.ts`; package
-`runtimeApiClient.type-test.ts`; three swap modules + three tests; the waist
-register; and status inventory/checker/test plus disposition
-register/checker/test. No waist schema or decision-grade consumer file is
-edited.
+`canonicalRuntimeApiClient.{ts,js}`; dashboard `src/api/types.ts`; three swap
+modules + three tests; the waist
+register; and status inventory/checker/test plus disposition register and its
+generated report. The generic disposition checker/probes and the package's
+hand-authored type test are reused byte-unmodified. Alongside the three waist unions, this cluster projects
+the existing canonical
+`architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json`
+owner artifact as one typed governed-projection packet. No owner computation,
+waist schema copy or decision-grade consumer is edited.
+
+The new complete G4 packet is explicitly `EXPERT`. Its owner public-export
+reference admits rich internal references for EXPERT and MACHINE, while its
+PUBLIC/REVIEWER projections are reduced; the complete artifact carries
+`produced_by` input hashes/reducer provenance and `promotion_scope` that C06
+must not silently strip or expose as a reduced projection. The first consumer
+is the human expert run surface, so MACHINE is not selected by default. This
+source/use-bound choice changes the post-C06 definition census to
+14 = 6 EXPERT + 8 MACHINE, with 0 PUBLIC and 0 REVIEWER definitions.
 
 **Red first:**
 
 - `test_generated_cgf_disposition_union_rejects_renamed_or_reordered_owner_values`;
 - `test_generated_decision_grade_union_tracks_pdc_owner`;
 - `test_generated_cache_age_union_keeps_source_freshness_orthogonal`;
+- `test_generated_g4_packet_preserves_owner_weakest_boundary_and_veto`;
+- `test_g4_projection_audience_is_source_bound_and_census_exact`;
 - the existing novel-owner and no-value-export negatives for all three adapters;
 - `test_reanchor_stops_on_changed_symbol_or_field`.
 
 **Acceptance:** the owner contracts produce closed unions through OpenAPI and
 the generated client; adapters use exhaustive generated-type-bound switches
 and return explicit `unrecognized` for runtime novel labels without exporting
-constants. Type erasure is not presented as runtime validation. Terminal kinds
+constants. The G4 packet is validated by the existing isolated owner-validation
+worker, content-bound to the canonical artifact, and carries the complete
+owner-composed weakest-boundary/veto result; the browser receives no rank or
+meet function. Type erasure is not presented as runtime validation. Terminal kinds
 and evidence classes remain opaque. Every governed `export_symbol` still
 occurs once, all 13 fields are unchanged, one uniform offset explains anchor
 movement, two client hashes refresh, surgical JSON diffs preserve unrelated
 bytes, and both corruption batteries pass.
+The definition census is re-derived from `_DEFINITIONS` and must be exactly
+14/6/8 after the addition; a different audience or a second unmeasured
+definition is red.
+
+The snapshot is produced only by the registered `runtime-openapi-snapshot`
+`regenerate_commands` entry. Package output then comes only from
+`corepack pnpm --dir packages/runtime-api-client run generate`, and dashboard
+API types from their registered generator. No generated-client package file is
+hand-edited.
 
 **Expected commit:** `DS5-C06 bridge the three canonical waist unions`.
 
 ### DS5-C07 — one server audience-permission mapping
 
-**Measured set:** exactly 24 files; cap 26: four HTTP source files (new
+**Measured set:** exactly 24 implementation/governed paths plus journal = 25;
+cap 26: four HTTP source files (new
 `audience_permissions.py`, `authorization.py`, governed service and route);
 the five fence-listed HTTP/contract tests; generated OpenAPI snapshot; package
 `types.ts`, `runtimeApiClient.{ts,js}` and
-`canonicalRuntimeApiClient.{ts,js}` plus dashboard `src/api/types.ts`; package
-`runtimeApiClient.type-test.ts`; and seven governed receipt/re-anchor files
+`canonicalRuntimeApiClient.{ts,js}` plus dashboard `src/api/types.ts`; and eight
+governed receipt/re-anchor files
 (waist register; status inventory/checker/test; disposition
-register/checker/test). Audience schema, generated client, mapping, route
+register/checker/test plus its generated report). Audience schema, generated client, mapping, route
 enforcement, consumer contract and re-anchors land together; no contract-only
 cluster boundary is allowed. The single authored direction is
 `RuntimePermission -> frozenset[AudienceClass]`; the inverse is derived. Every
@@ -677,8 +1153,10 @@ REVIEWER 20, EXPERT 28, MACHINE 22.
 | EXPERT | `mode.analyst`, `scenarios.create` |
 | PUBLIC | no privileged permission; this does not create an anonymous route |
 
-Current EXPERT projections declare exact `mode.analyst`; current MACHINE
-projections declare exact `platform.view`. `AudienceClass` gains PUBLIC in this
+At C07 entry the audience census is 6 EXPERT projections, including G4, and 8
+MACHINE projections. C07 assigns exact `mode.analyst` to all 6 EXPERT
+definitions and exact `platform.view` to all 8 MACHINE definitions.
+`AudienceClass` gains PUBLIC in this
 cluster. PUBLIC and REVIEWER construction and deny behavior are exercised
 through the same real dependency, but no current producer projection is
 relabeled merely to populate those classes and PUBLIC does not enter the
@@ -694,7 +1172,9 @@ DS5 does not invent an anonymous positive route to make the matrix look full.
 A permissionless principal cannot fetch any current privileged projection.
 Direct URL, coarse role, client header and UI-hidden variants exercise the
 server path. A source-derived corruption witness rejects any DS20 high-stakes
-permission classified for MACHINE.
+permission classified for MACHINE. The G4 case explicitly denies
+`platform.view`, `runs.view`, `artifacts.render`, and every other grant without
+`mode.analyst`, and permits only the exact expert requirement.
 
 **Acceptance:** one immutable mapping is imported by one real route dependency;
 REVIEWER, EXPERT and MACHINE have exact-grant allow and wrong-grant deny
@@ -704,20 +1184,38 @@ eligible for an audience; mapping coverage is generic over all 33 enum members;
 projection producer audiences are not relabeled; all six source-derived
 high-stakes permissions exclude MACHINE; generated symbols/fields are
 re-anchored under the same unchanged-field/uniform-offset rule; the UI is not
-part of the allow decision.
+part of the allow decision. Regeneration repeats the same registered exporter
+and generated-output commands as C06; no generated-client package file is
+hand-edited.
 
 **Expected commit:** `DS5-C07 enforce audience permission boundaries`.
 
-### DS5-C08 — N010 fail-closed client identity
+### DS5-C08a — sever test support from production fallback identity
 
-**Measured set:** exactly 10 files; cap 10: `api/queryKeys.ts`,
-`useAuthMe.ts` + test, `AuthzProvider.tsx` + new test,
-`app/authz/permissions.ts` + new test, shared `src/test/render.tsx`, and the
-affected Platform Health story, plus the frontend disposition register. Six
-downstream production consumers currently contain 11 default-allow expressions
-and are a separately sized C09 boundary.
+**Measured set:** exactly 4 implementation/test paths plus journal = 5; cap 5:
+new `src/test/fixtures/authMe.ts`, `useAuthMe.test.tsx`, shared
+`src/test/render.tsx`, the Platform Health story, and journal.
 
-**Red first:** `AuthzProvider denies loading error malformed 401 prior-user and tenant-switch identity`.
+**Red first:** `test_support_never_imports_production_fallback_identity`.
+The test harness and story fail until they use an explicit test-only generated-
+shape fixture; a fixture can seed tests but is rejected as product identity.
+
+**Acceptance:** no test/story helper depends on `FALLBACK_AUTH_ME`; production
+still behaves byte-identically until C08b. This removes the compile-time tail
+that would otherwise force C08b over its cap.
+
+**Expected commit:** `DS5-C08a isolate auth test identity fixtures`.
+
+### DS5-C08b — N010 fail-closed client identity
+
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `api/queryKeys.ts`, `useAuthMe.ts` + test, `AuthzProvider.tsx` + new
+test, `app/authz/permissions.ts` + new test, frontend disposition register +
+generated report, and journal. Six downstream production consumers contain 11
+default-allow expressions and remain the separately sized C09a/C09b boundary.
+
+**Red first:**
+`test_authz_provider_denies_loading_error_malformed_401_prior_user_and_tenant_switch_identity`.
 It asserts no permission, MFA, collaboration pseudo-flag, or high-stakes CTA.
 
 **Acceptance:** no production `FALLBACK_AUTH_ME`, no infinite-stale identity,
@@ -726,68 +1224,128 @@ revision; unknown identity is explicit and empty; dashboard permissions import
 the generated 33-value type and the three collaboration literals disappear.
 DS20 server identity is consumed, not reimplemented.
 
-**Expected commit:** `DS5-C08 fail closed on unknown identity`.
+**Expected commit:** `DS5-C08b fail closed on unknown identity`.
 
-### DS5-C09 — N010 downstream default-deny surfaces
+### DS5-C09a — N010 default deny in application chrome
 
-**Measured set:** exactly 11 files; cap 12: six production consumers
-(`WorkspaceBoundary.tsx`, `Sidebar.tsx`, `Header.tsx`,
-`InterfaceModeProvider.tsx`, `CommandPalette.tsx`, `RunDetailLayout.tsx`), one
-new cross-surface behavioral test, the shared C01 scanner/checker/test, and the
-frontend disposition register.
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `WorkspaceBoundary.tsx`, `Sidebar.tsx`, `Header.tsx`, one new cross-
+surface behavioral test, shared C01a scanner/checker/test, frontend disposition
+register + generated report, and journal.
 
-**Red first:** `test_missing_authz_context_never_defaults_authority_surface_to_allow`.
+**Red first:** `test_unknown_authz_decision_never_defaults_authority_surface_to_allow`.
 Loading, absent provider, error, cached-prior-user and tenant-switch variants
-cover all 11 current allow expressions; a genuinely permission-free fixed
-PUBLIC chrome element is the benign control.
+cover every expression in these three consumers; a genuinely permission-free
+fixed PUBLIC chrome element is the benign control.
 
-**Acceptance:** absent context is unknown/deny, not allow; permission-free fixed
-chrome stays visible; all permission-bearing routes, tabs, commands and mode
-switches require current verified Authz state. The shared semantic gate derives
-permission sinks so a seventh consumer cannot reintroduce `?? true` or an
-equivalent conditional carrier.
+**Acceptance:** one explicit `unknown | verified` Authz state yields a branded
+decision only from current verified identity; unknown/deny is not allow.
+Permission-free fixed chrome stays visible; all permission-bearing chrome in
+this half requires the verified branch. A bounded AST
+rule rejects direct `?? true` and conditional-true defaults only in imports of
+the decision API; it does not infer equivalent arbitrary program behavior.
 
-**Expected commit:** `DS5-C09 migrate authority surfaces to default deny`.
+**Expected commit:** `DS5-C09a default deny application chrome`.
 
-### DS5-C10 — weakest-boundary and recompute-not-pin lint
+### DS5-C09b — N010 default deny in modes and run surfaces
 
-**Measured set:** 4 files; cap 7: the shared C01 semantic engine/checker/test
-and package wiring; no second composition scanner is created.
+**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
+cap 7: `InterfaceModeProvider.tsx`, `CommandPalette.tsx`,
+`RunDetailLayout.tsx`, the C09a-C09b cross-surface behavioral test, frontend
+disposition register + generated report, and journal.
 
-**Red first:** `test_compensation_veto_loss_and_pinned_status_reach_authority_sink`.
-Variants cover mean/sum/any/pass compensation, `blocked` and rights-bar loss,
-cached presence, copied status between stores, aliases, object/array carriers,
-and status without as-of revalidation. Duration averages, chart layout and
-non-authority numeric reductions are benign controls.
+**Red first:** extend
+`test_unknown_authz_decision_never_defaults_authority_surface_to_allow` over
+the remaining direct-mode, keyboard and run-route expressions. A fixed
+permission-free run chrome control remains visible.
 
-**Acceptance:** composed/weakest-boundary status at a client authority sink must
-be producer-carried. Even a mathematically correct client `min`/meet is a second
-authority implementation and fails. A veto cannot be averaged or projected
-away; manually persisted authority status, `placeholderData`/`initialData`, or
-`staleTime: Infinity` for authority queries fails. Single-owner generated label
-presentation, numeric/layout/interaction reductions and duration averages are
-benign.
+**Acceptance:** all 11 original default-allow expressions across C09a-C09b
+commits now require current verified identity; the existing bounded syntax gate
+automatically covers the latter importers. No permission-bearing mode, command
+or run surface treats unknown as allow; register/report evidence lands with the
+three consumers.
 
-**Expected commit:** `DS5-C10 enforce weakest boundary and recomputation`.
+**Expected commit:** `DS5-C09b default deny modes and run surfaces`.
 
-### DS5-C11 — generated cache posture and one real consumer
+### DS5-C10 — owner-composed weakest-boundary presentation
 
-**Measured set:** exactly 9 files; cap 10:
+**Ruling re-derivation:** the C06 generated DTO is structural and is not itself
+the nominal boundary. C10 extends the existing private-symbol/private-issuer
+pattern at the first live client boundary after
+`RuntimeApiClient.getGovernedProjection`; it does not export a constructor,
+packet type, packet value or selector and does not search source for arithmetic
+names. One `G4WeakestBoundaryPresentation.tsx` module owns the live request,
+module-private symbol, validator/issuer, WeakSet identity and specialized sink.
+Its public component accepts only the run/current-identity inputs—not a packet.
+The private adapter checks the exact G4 projection identity, availability
+discriminant, source validation, hashes/provenance and the actual complete G4
+owner fields (`blocker_refs`, `limitation_refs`, `issue_codes`,
+`promotion_scope`, `promotion_state`, `status`, `weakest_boundary_reason`,
+`produced_by`) before
+issuing a frozen nominal packet to its module-private sink. The generated
+projection envelope's separate `may_not_use_for` list remains an explicit
+rights-bar veto. It is rendered only by importing the C05b
+`AuthoritySemanticCopy` issuer/brand; C10 owns no copy table, fallback string or
+parallel semantic issuer and does not invent a `rights_bar` field in the G4 artifact. A
+runtime-novel owner status remains explicit
+`unrecognized` rather than being silently coerced.
+
+**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
+cap 7: new `G4WeakestBoundaryPresentation.tsx` + test; `OverviewTab.tsx` + the
+existing `runDetailSurfaces.test.tsx`; frontend disposition register + generated
+report; and journal. C06 supplies the generated G4 DTO. The C01b checker already
+derives branded issuer modules from the governed census; the new row brings this
+module under that gate without editing the checker. The module deliberately has no TanStack
+`useQuery`, `queryOptions`, `queryFn`, query key, local store or persistent
+cache, so it does not change the 42-producer C11a-C12b denominator.
+
+**Red first:** `test_weakest_boundary_presentation_requires_complete_generated_g4_packet`.
+The DS5 diagnostics harness proves a complete structural lookalike and one-lane
+object cannot occupy the module-private nominal sink without an escape hatch.
+Runtime corruptions omit each actual G4 field in turn, explicitly including
+`promotion_scope`, or corrupt its owner value; omitting envelope
+`may_not_use_for` or a provenance/hash field must also fail before issuance. A
+focused live-wiring test proves the
+component obtains data only through the canonical generated client call. Prior-
+identity, prior-run, superseded-attempt, offline and failed-refetch responses
+must withhold the packet immediately. Response `as_of` and
+`freshness.basis` are visible on success; `filesystem_mtime` is labeled as a
+snapshot observation and never upgraded to owner time. A
+runtime-novel status reaches the private sink as `unrecognized`. Duration
+averages, chart layout and non-authority numeric reductions remain benign
+because C10 does not lint arithmetic identifiers.
+
+**Acceptance:** only the module-private canonical live adapter can issue or
+consume the nominal owner-validated G4 packet; its type, symbol, constructor,
+value and mutable backing object never cross the module boundary. The public
+component derives availability from `{run, verified identity revision, online,
+current attempt}` and never renders a retained prior packet by presence.
+Complete structural DTOs remain non-assignable to the private sink, and C01b's
+bounded escape rule covers the issuer module. Novel owner status is explicit
+`unrecognized`; `blocker_refs` and envelope `may_not_use_for` remain visible,
+non-compensable vetoes. The wiring test asserts the rights-bar rendering accepts
+only C05b-issued `AuthoritySemanticCopy`, and the disposition/report append this
+second consumer without changing the residual DS6 `verification_missing` state.
+This establishes request-scoped nominal consumption of one
+owner-composed result; it makes no claim that client arithmetic was universally
+detected. C11a-C12b continue to govern the unchanged 42 actual TanStack query
+producers.
+
+**Expected commit:** `DS5-C10 present owner-composed weakest boundary`.
+
+### DS5-C11a — derive cache posture from one real query observation
+
+**Measured set:** exactly 4 implementation paths plus journal = 5; cap 5:
 `src/api/cacheDiscipline.ts` + test,
-`useDepthNCycleBoardProjection.ts` + test,
-`TimeSemanticsLabel.tsx` + test, and `RunExplainabilityPanel.tsx` + its
-governed-projection test, plus the frontend disposition register. The
-OpenAPI/generated union and cache-age adapter land in C06. This is the
-only current query producer whose payload carries owner `packet.as_of +
-freshness`; `TimeSemanticsLabel` currently renders twice and receives no
-`cacheAgeLabel`.
+`useDepthNCycleBoardProjection.ts` + test, and journal. The OpenAPI/generated
+union and cache-age adapter land in C06. This is the only current query producer
+whose payload carries owner `packet.as_of + freshness`.
 
 **Red first:**
 
 - `classifies_preexisting_query_data_as_cached_with_owner_as_of`;
 - `marks_retained_stale_data_without_consulting_source_timestamps`;
-- `refuses_cached_posture_without_owner_as_of`;
-- `authority_query_never_emits_offline_queued`.
+- `refuses_cached_posture_without_owner_as_of`.
 
 The observation uses QueryObserver lifecycle (`data present`,
 `isFetchedAfterMount`, explicit `isStale`, `fetchStatus`). It never compares
@@ -796,190 +1354,365 @@ payload/source timestamps (`as_of`, `observed_at`, `source_as_of`,
 carry TanStack's configured lifecycle result; the client does not reconstruct
 it from timestamps. Cache state and source freshness remain orthogonal.
 
+**Acceptance:** the live hook emits a typed
+`live | cached | stale | unrecognized` observation from the real query lifecycle
+plus owner `as_of`; missing owner time is unrecognized/blocked. C11a does not
+yet claim a visible presentation.
+
+**Expected commit:** `DS5-C11a derive governed cache posture`.
+
+### DS5-C11b — render cache posture in the live run surface
+
+**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
+cap 9: `TimeSemanticsLabel.tsx` + test, `RunExplainabilityPanel.tsx` + its
+governed-projection test, `OverviewTab.tsx` + `runDetailSurfaces.test.tsx`,
+frontend disposition register + generated report, and journal.
+`TimeSemanticsLabel` currently renders twice and receives no `cacheAgeLabel`.
+
+**Red first:** `test_migrated_governed_query_never_emits_offline_queued` plus live
+surface variants for preexisting cache, stale, missing-`as_of`, novel union and
+failed refetch.
+
 **Acceptance:** the real governed consumer visibly renders live/cached/stale
 with owner `as_of`; missing `as_of` is explicit unrecognized/blocked; novel
-union values stay unrecognized; no authority query can render
-`offline_queued`.
+union values stay unrecognized; the migrated governed consumer never renders
+`offline_queued`. Register/report transition only after `OverviewTab` passes the
+typed observation into the panel.
 
-**Expected commit:** `DS5-C11 render governed cache posture`.
+**Expected commit:** `DS5-C11b render governed cache posture`.
 
-### DS5-C12 — query-cache recurrence and typed debt
+### DS5-C12a — source-bind query constructions and producers
 
-**Measured set:** exactly 9 files; cap 9:
-`status_retirement_scan.mjs`, the C01 DS5 checker/test,
-`query-cache-policy-register.json` + schema, dashboard `queryClient.ts` + a new
-focused test, dashboard `package.json`, and the frontend disposition register.
-Current denominators are 43 canonical query-key constructors, 42 `queryFn`
-producers / 39 files, and the broad 66/40 syntax census.
-
-**Red first:** `test_new_query_without_policy_or_owner_as_of_fails_through_carriers`.
-Variants cover alias, wrapper, object/array carrier, later assignment, JSX
-spread, timestamp-derived cache age, status copied into cache, and sibling
-query creation. A non-authority operational counter and layout query are benign.
-
-Each producer is classified exactly once as
-`never_cache_authority | cacheable_with_owner_as_of |
-operational_non_authority | legacy_missing_owner`. The one C11 producer leaves
-debt. A missing owner field is a typed integrate-contract with owner slice and
-executable closure signal, never an exemption. In particular,
-`ApiMeta.generated_at` is request/payload generation time, not source truth.
-
-**Acceptance:** a new unclassified query turns the gate red; only owner-as-of
-payloads may render retained data at an authority sink. `never_cache_authority`
-queries prove `gcTime: 0`, no placeholder/initial data, and removal on offline
-or failed refetch through the real QueryClient path. Operational non-authority
-queries may retain data under their typed class. Legacy-missing-owner data
-cannot render cached authority and remains a typed integrate-contract rather
-than an exemption. The register derives its denominator from source and the
-checker rejects omissions or stale rows.
-
-**Expected commit:** `DS5-C12 enforce query cache ownership`.
-
-### DS5-C13 — bar promotion authority from offline replay
-
-**Measured set:** exactly 17 logical diffs; cap 18:
-`app/offline/db.ts`; `offlineQueueRepository.ts` renamed to the composer-only
-`composerDraftDb.ts`; deleted `OfflineQueueProvider.tsx`; `AppProviders.tsx`;
-`sw.ts`; `useQueuedPromotionDecision.ts` renamed to
-`useLivePromotionDecision.ts`; its test renamed likewise;
-`DataIntelligencePanel.tsx` + test; `composerDraftRepository.ts`; and
-`src/README.md`; plus a new focused SW test, the shared C01 semantic
-scanner/checker/test, the frontend disposition register, and the status
-inventory. This is 17 logical diffs and 20 old/new path names. The composer
-repository import follows the rename; no queue API remains in its storage
-module. The only current queue kinds are `promotion.approve` and
-`promotion.reject`.
+**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
+cap 7: `status_retirement_scan.mjs`, the C01a DS5 checker/test,
+`query-cache-policy-register.json` + schema, dashboard `package.json`, and
+journal. Current denominators are 43 canonical query-key constructors, 66
+direct `useQuery`/`queryOptions` construction calls / 40 files, and 42
+`queryFn` producers / 39 files.
 
 **Red first:**
-`test_offline_retryable_promotion_never_queues_terminalizes_or_replays`,
-`test_authority_mutation_alias_wrapper_cannot_reach_offline_or_sw_replay`, and
-`test_service_worker_has_no_authority_sync_or_authenticated_api_cache`.
-Offline, 408, 429 and 5xx variants cover both current decisions; a synthetic
-publication/reissue/approval sibling is carried through aliases, helpers and
-object storage into IndexedDB/SW sinks. A composer draft is the benign
-persistence counterexample. Service-worker and visibility/online events cannot
-resurrect authority mutation replay.
+`test_query_construction_and_producer_censuses_are_source_complete`.
+Independent corruptions add a 67th `useQuery(existingOptions)` call without a
+new `queryFn`, add a 43rd `queryFn`, move/mutate a legacy site, or omit the
+producer contract/owner field/owner slice/closure signal. A local function named
+`useQuery` and a registered operational counter are benign symbol-resolved
+controls.
 
-**Acceptance:** delete the authority queue end-to-end: the DB version removes
-the legacy store; no reader, replay provider or service-worker sync survives;
-no IndexedDB row and no optimistic approved/rejected state. The generic gate
-derives authority-bearing mutation sinks and rejects future sibling action
-types, not only the two deleted names. Retry is an explicit live user action
-through the current server identity, permission, step-up, tenant and
-producer-state enforcement, and renders any server denial. The focused SW
-behavioral test imports the real worker path and proves authenticated API
-requests are never cached and no authority background-sync registration or
-message bridge exists; versioned static-shell caching remains benign.
-Epoch/rule revalidation remains a DS18 integrate-contract unless the producer
-already carries it. Both deleted status definitions retire surgically in the
-status inventory; the offline/SW disposition rows transition in this commit;
-composer draft persistence remains.
+The register holds two independent source-bound tables—66 construction calls
+and 42 producer definitions—rather than pretending to infer which arbitrary
+options value reaches which call. Construction rows carry resolved callee,
+path/fingerprint and `governed_wrapper | legacy_direct_debt`; producer rows
+add query-key owner, exact DTO contract, required owner `as_of`, owner slice,
+capability states and executable closure. One C11a construction/producer is the
+migration target; 65 calls and 41 producers remain fingerprint-bound debt unless
+independent contract evidence proves an operational class.
 
-**Expected commit:** `DS5-C13 bar promotion authority from offline queue`.
+**Acceptance:** omissions, new/moved/changed calls or producers, stale
+fingerprints and unbuildable integrate-contracts fail. Existing legacy rows are
+a debt ratchet, not an untyped allowlist. C12a makes no cache-policy runtime
+claim and edits none of the 40 call-site files.
 
-### DS5-C14 — local-state contract and composer consumer
+**Expected commit:** `DS5-C12a register query construction debt`.
 
-**Measured set:** exactly 7 files; cap 7:
-`app/offline/authorityLocalState.ts` + test,
-`composerDraftRepository.ts` + test, `ComposerModeSections.tsx`, and
-`LaunchRunPage.test.tsx`, plus the frontend disposition register. C08 verified
-tenant/user identity is a dependency.
+### DS5-C12b — make the governed query path unrepresentable
+
+**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
+cap 9: new `governedQueryPolicy.ts` + test,
+`useDepthNCycleBoardProjection.ts` + test, the shared DS5 enforcement test
+established in C01a,
+query-cache policy register, frontend disposition register + generated report,
+and journal.
+
+**Red first:** `test_governed_query_wrapper_forbids_retained_authority_without_owner_as_of`.
+Builder corruptions derive posture from request time or pin authority data with
+`placeholderData`, `initialData` or infinite stale time; offline/failed refetch
+must remove a `never_cache_authority` payload through a real QueryClient. A
+typed operational query is the benign control.
+
+**Acceptance:** the wrapper owns the sole registered governed direct
+`useQuery` call; new/migrated consumers cannot call raw `useQuery` and must pass
+the discriminated policy. Only owner-`as_of` policy may retain authority data;
+`never_cache_authority` proves `gcTime: 0`, no placeholder/initial data and
+removal on offline/failed refetch. The source tables remain 66 calls/42
+producers with one governed wrapper/producer and 65/41 exact legacy debts.
+`ApiMeta.generated_at` is never owner time. No claim is made that legacy sites
+were migrated or semantically inferred.
+
+**Expected commit:** `DS5-C12b enforce governed query policy`.
+
+### DS5-C13a — delete authority mutation replay
+
+**Measured set:** exactly 17 implementation/governed path names plus journal =
+18; cap 18: `app/offline/db.ts`, `offlineQueueRepository.ts`, deleted
+`OfflineQueueProvider.tsx`, `AppProviders.tsx`;
+`useQueuedPromotionDecision.ts` renamed to `useLivePromotionDecision.ts` and
+its test renamed likewise; `DataIntelligencePanel.tsx` + test; shared DS5 AST
+scanner/checker/test; status inventory; dashboard `src/README.md`; frontend
+disposition register + generated report; and journal. C13a leaves the now composer-only repository at
+its old filename so its importer/test stay green inside the cap. The only entry
+queue kinds are `promotion.approve` and `promotion.reject`.
+
+**Red first:**
+`test_offline_retryable_promotion_never_queues_terminalizes_or_replays` and
+`test_offline_queue_type_rejects_authority_action_kind`. Offline, 408, 429 and
+5xx variants cover both current decisions; synthetic publication/reissue/
+approval kinds fail the composer-only queue type and direct queue-import rule.
+A composer draft is the benign persistence counterexample.
+
+**Acceptance:** the DB version removes the legacy queue store; no queue reader,
+writer or replay provider survives; no IndexedDB mutation row and no optimistic
+approved/rejected state remain. Retry is an explicit live action through current
+server identity, permission, step-up, tenant and producer-state enforcement and
+renders denial. Both deleted status definitions retire surgically; the queue
+disposition/report transitions; composer persistence remains. C13b owns SW
+proof and naming cleanup. The README removes the deleted provider/mount claim in
+this commit, so no stale reference crosses the boundary.
+
+**Expected commit:** `DS5-C13a delete authority mutation replay`.
+
+### DS5-C13b — prove service-worker and composer-only closure
+
+**Measured set:** exactly 8 implementation/governed path names plus journal =
+9; cap 9: rename `offlineQueueRepository.ts` to `composerDraftDb.ts` (two path
+names), `composerDraftRepository.ts` + its existing test, `sw.ts` + a new
+focused SW test, frontend disposition register + generated
+report, and journal.
+
+**Red first:**
+`test_service_worker_has_no_authority_sync_or_authenticated_api_cache` plus a
+direct import of the renamed composer DB from an authority-mutation module.
+
+**Acceptance:** no queue-named module/API remains; composer repository/test use
+the discriminated composer-only DB. The real worker path proves authenticated
+API requests are never cached and no authority background-sync registration or
+message bridge exists; versioned static-shell caching is benign. Visibility/
+online events cannot resurrect mutation replay. Epoch/rule revalidation remains
+a DS18 integrate-contract unless the producer carries it. SW/composer
+disposition and generated report land together.
+
+**Expected commit:** `DS5-C13b close service worker and composer DB`.
+
+### DS5-C14a — nominal local-state envelope owner
+
+**Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
+`app/offline/authorityLocalState.ts` + test and journal.
+
+**Red first:** `test_raw_local_state_envelope_cannot_be_issued_or_written`.
+Structural lookalikes, absent identity, malformed scope and expired envelopes
+fail; a same-scope interaction payload is the benign control.
+
+**Acceptance:** physical key and strict envelope both content-bind family,
+tenant and user; writer-owned TTL is checked against an injected clock; absent
+identity fails closed; no legacy byte is silently migrated into authority.
+`authorityLocalState.ts` owns a module-private symbol and issuer for frozen
+`PersistedEnvelope<StoreClass>` values; callers cannot write raw structural
+envelopes. Each registered family supplies a concrete typed encode/decode codec,
+not a generic `unknown`/`JsonValue` serializer. This makes the registered write
+boundary nominal while leaving semantic classification to source-bound rows.
+
+**Expected commit:** `DS5-C14a own nominal local state envelope`.
+
+### DS5-C14b — bind the composer consumer
+
+**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
+cap 7: `composerDraftRepository.ts` + test, `ComposerModeSections.tsx`,
+`LaunchRunPage.test.tsx`, frontend disposition register + generated report, and
+journal. C08b verified tenant/user identity is a dependency.
 
 **Red first:** `test_composer_draft_cannot_cross_tenant_user_or_expiry`.
 Legacy unwrapped, malformed, expired, prior-tenant and prior-user bytes never
 hydrate. A same-scope non-authority draft is the positive control.
 
-**Acceptance:** physical key and strict envelope both content-bind family,
-tenant and user; writer-owned TTL is checked against an injected clock; absent
-identity fails closed; no legacy byte is silently migrated into authority.
+**Acceptance:** composer uses the C14a envelope/codec owner; physical key and
+envelope bind family, tenant, user and expiry; no legacy byte silently migrates.
 `offline-draft-composer` gains a complete isolation consumer while
-`cache-local-storage-state` stays pending until C17.
+`cache-local-storage-state` stays pending until C17b.
 
-**Expected commit:** `DS5-C14 bind composer local state`.
+**Expected commit:** `DS5-C14b bind composer local state`.
 
-### DS5-C15 — Clerk local-state family
+### DS5-C15a — Clerk persisted codec and identity API
 
-**Measured set:** exactly 4 files; cap 5: `useChatStore.ts`, its test,
-`ClerkChatPage.tsx` as the single identity/scope hydration bridge, and the
-frontend disposition register.
+**Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
+`useChatStore.ts`, its test, and journal.
 
-**Red first:** `test_clerk_session_clears_before_cross_identity_rehydrate`.
+**Red first:** `test_clerk_session_clears_before_cross_identity_rehydrate` and
+`test_clerk_persisted_codec_excludes_authority_status_fields`.
 
 **Acceptance:** Zustand storage is identity-keyed, expiry-checked and
 `skipHydration`; identity change clears in-memory sessions before rehydrate;
-live streaming state is never persisted. The `cache-clerk-sessions` domain row
+live streaming state is never persisted. The concrete persisted-session codec
+excludes all three measured authority-like paths:
+`messages[].runStatus`, `messages[].structured.verdict`, and
+`messages[].structured.statusChips[]`; hydration must reacquire them from live
+state rather than trust stored presence. C15a exports only the typed current-
+identity hydration bridge consumed next.
+
+**Expected commit:** `DS5-C15a partition Clerk session codec`.
+
+### DS5-C15b — mount the Clerk identity bridge
+
+**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
+cap 5: `ClerkChatPage.tsx` + new focused test, frontend disposition register +
+generated report, and journal.
+
+**Red first:** `test_clerk_page_binds_current_identity_before_hydration` covers
+absent, changed tenant, changed user and expired bytes; no page render observes
+prior in-memory sessions.
+
+**Acceptance:** the page is the single identity/scope bridge and calls the
+C15a API before hydration. The `cache-clerk-sessions` domain row
 remains DS14 `rebind_pending`; DS5 attaches isolation evidence only.
 
-**Expected commit:** `DS5-C15 partition Clerk sessions`.
+**Expected commit:** `DS5-C15b mount Clerk identity hydration`.
 
-### DS5-C16 — causal and dispute local-state families
+### DS5-C16a — causal draft local state
 
-**Measured set:** exactly 7 files; cap 7: CausalTab/test, dispute domain/test,
-DisputeRegistryPanel, one new focused panel test, and the frontend disposition
-register.
+**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
+cap 5: `CausalTab.tsx` + test, frontend disposition register + generated
+report, and journal.
 
-**Red first:** `test_causal_and_dispute_state_reject_cross_scope_and_stale_bytes`.
+**Red first:** `test_causal_state_rejects_cross_scope_stale_and_stored_status`.
 
 **Acceptance:** explicit scope enters the shared adapter; causal storage stays
-candidate/unidentified and never trusts a stored authority status; dispute
-state stays interaction-only. DS8/DS9 domain rows remain `rebind_pending` with
+candidate/unidentified and its concrete codec excludes
+`graph.edges[].status`, recreating only the interaction-only `unidentified`
+display on hydration. The DS8 domain row remains `rebind_pending` with
 partition successor evidence.
 
-**Expected commit:** `DS5-C16 partition causal and dispute state`.
+**Expected commit:** `DS5-C16a partition causal draft state`.
 
-### DS5-C17 — operator-craft family and six-store reconciliation
+### DS5-C16b — dispute interaction local state
 
-**Measured set:** exactly 10 product/test/register files; cap 11:
-`operatorCraft.ts` + test, `OperatorCraftPanel.tsx`, `AmbientTelemetryHud.tsx`,
-the shared C01 TypeScript semantic scanner/checker/test, and the disposition
-register/checker/test. Operator craft is one DS1 unit with four physical
-families: threshold, annotations, evidence wallet, and onboarding. C17 also
-records the existing WhatIf deletion and a fresh zero-path/zero-import census
-for DS4-deleted review-attention.
+**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
+cap 7: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
+test, frontend disposition register + generated report, and journal.
 
-**Red first:** `test_all_operator_craft_families_bind_scope_and_expiry` plus a
-synthetic reintroduced unpartitioned review-attention store. A locale/theme/UI
-preference store is the benign non-authority persistence counterexample.
+**Red first:** `test_dispute_state_rejects_cross_scope_and_stale_bytes`.
 
-**Acceptance:** all four families bind tenant/user/expiry. Generic recurrence
-derives and classifies every persistent storage declaration/access from source,
-then requires envelopes only for values that reach authority-like/local-state
-sinks; unclassified access or an unenveloped authority-like family fails.
-Locale, theme, dashboard-layout and other interaction-only preferences remain
-typed benign classes rather than false positives. The current authority-like
-living denominator is 8 physical families: Clerk, causal, dispute, composer,
-and four operator keys. `cache-local-storage-state` reaches a bounded
-`use_as_is` state only for this classification/partition adapter, not for all
-browser persistence; feature semantic rows remain with DS8/DS9/DS14.
-Review-attention becomes `deleted/strangled` with DS4 commit `bc1d01001` plus
-fresh census; N015 is at most `partially_reduced` unless live server
-revalidation is proven.
+**Acceptance:** dispute persistence serializes its existing branded
+`InteractionState` label as interaction-only and cannot feed an authority
+presentation slot. The DS9 domain row remains `rebind_pending` with partition
+successor evidence.
 
-**Expected commit:** `DS5-C17 partition operator state and reconcile stores`.
+**Expected commit:** `DS5-C16b partition dispute interaction state`.
 
-### DS5-C18 — strict D5 exposure registry
+### DS5-C17a — operator-craft family partition
 
-**Measured set:** exactly 5 files; cap 6: feature-flag registry/test,
-provider/test, and the frontend disposition register. There are 12 current keys
-and four missing consumers.
+**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
+cap 9: `operatorCraft.ts` + test, `OperatorCraftPanel.tsx`,
+`AmbientTelemetryHud.tsx`, the C14a `authorityLocalState.ts` owner + test,
+frontend disposition register + generated report, and journal. Operator craft
+is one DS1 unit with four physical families: threshold, annotations, evidence
+wallet, and onboarding.
 
-**Red first:** `test_unknown_or_wrong_type_flag_fails_closed_at_every_source`.
-Remote, window, props, cache and environment variants include an old schema and
-the auth pseudo-flag.
+**Red first:** `test_all_operator_craft_families_bind_scope_and_expiry`.
+Legacy, malformed, expired, prior-user and prior-tenant bytes fail for every
+family; a locale/theme preference is outside this adapter.
 
-**Acceptance:** one strict schema rejects unknown keys and wrong types with an
-observable diagnostic; cache carries version/expiry/scope; no partial merge on
-invalid input; the registry API accepts only typed rollout state and cannot
-accept RuntimePermission.
+**Acceptance:** all four operator families use the nominal scoped envelope and
+concrete codecs, binding tenant/user/expiry. Panels consume only hydrated
+current-scope state. Domain ownership remains DS14; DS5 attaches isolation
+evidence/report without claiming operator semantics rebound.
 
-**Expected commit:** `DS5-C18 make flag exposure registry strict`.
+**Expected commit:** `DS5-C17a partition operator craft state`.
+
+### DS5-C17b — source-bind persistence construction and reconcile stores
+
+**Measured set:** exactly 8 governed/checker paths plus journal = 9; cap 9:
+shared DS5 TypeScript AST scanner/checker/test, disposition
+register/schema/checker/test + generated report, and journal. C17b records the
+existing WhatIf deletion and a fresh zero-path/zero-import census for the
+DS4-deleted review-attention unit. The measured C00 persistence API universe is
+41 declaration-resolved lifecycle/construction sites / 14 production files: 23
+Web Storage, 5 Zustand and 13 IndexedDB. C17b reruns the identical census at its
+clean post-C17a boundary and records the exact source-derived delta before a
+negative; a new authority family or edit need outside these governed paths
+triggers the sizing stop.
+
+**Red first:**
+`test_persistence_construction_census_is_source_complete_and_scoped` covers a
+synthetic reintroduced unpartitioned review-attention store; a
+direct persistence call absent from the census; a moved fingerprint; and a raw
+structural envelope. The wave gate reruns C13a/C15a/C16a corruption tests for
+all six measured status paths. A real `Set.add` lookalike and locale/theme/UI
+preference sites are benign symbol-resolved controls.
+
+**Acceptance:** the AST rule resolves real `Storage`, Zustand middleware and
+`idb` declarations and requires every current API site to have one content-
+bound `storage_construction_census` row. Authority-like rows must call the
+private scoped-envelope/registered-codec owner; exact interaction-preference
+rows may remain direct, fingerprint-bound benign controls. A new/moved/
+unclassified site or authority row outside the adapter fails. The checker does
+not infer semantic class; a governed row is explicit adjudication, and source
+change forces review. Each row carries stable site ID, path, resolved API
+declaration, operation, family/store owner, source fingerprint and
+`scoped_authority | interaction_benign | rollout_cache_pending` class. Debt
+classes require owner slice, capability states and executable closure signal;
+benign rows forbid debt fields.
+
+The current authority-like living denominator is 8 physical families: Clerk,
+causal, dispute, composer and four operator keys.
+`cache-local-storage-state` transitions only for this bounded adapter/census;
+feature rows remain DS8/DS9/DS14. Review-attention becomes
+`deleted/strangled` with DS4 commit `bc1d01001` plus fresh census; N015 is at
+most `partially_reduced` without live server revalidation. The six known status
+paths are closed by C13a/C15a/C16a; dispute status is nominal
+`InteractionState`. Nominal authority presentations cannot satisfy registered
+codec inputs. Unbranded semantic equivalents remain C01a owner debt, not a
+universal storage-flow claim.
+
+**Expected commit:** `DS5-C17b govern persistence construction`.
+
+### DS5-C18a — strict D5 exposure registry
+
+**Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
+feature-flag registry/test and journal. There are 12 current keys and four
+missing consumers. Provider wiring and governed row transitions are isolated in
+C18b so neither child exceeds the binding C00 cap.
+
+**Red first:** `test_strict_flag_registry_rejects_unknown_or_wrong_type_input`.
+Parser inputs model remote, window, props, cache and environment variants,
+including an old schema and the auth pseudo-flag; C18a does not yet claim those
+live sources are wired.
+
+**Acceptance:** one strict schema rejects unknown keys and wrong types with a
+typed diagnostic and refuses partial merge; the registry API accepts only typed
+rollout state and cannot accept RuntimePermission. This closes the pure
+registry/validator unit only. Live source binding, observable provider
+diagnostics and version/expiry/scope cache behavior remain explicitly
+`consumer_missing` until C18b.
+
+**Expected commit:** `DS5-C18a make flag exposure registry strict`.
+
+### DS5-C18b — bind every flag source to the strict registry
+
+**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
+cap 5: feature-flag provider + test, frontend disposition register + generated
+reference report, and journal.
+
+**Red first:** `test_every_flag_source_uses_strict_registry_and_scoped_cache`.
+Remote, window, props, cache and environment sources must all enter through the
+C18a parser; a direct partial merge, stale cache, cross-scope cache or unknown
+source key fails. A current-scope, unexpired, version-matched registry payload is
+the benign control.
+
+**Acceptance:** every live flag source feeds the strict C18a registry; the
+provider exposes only the parsed typed state and an observable invalid-source
+diagnostic; the cache is version/tenant/user/expiry bound. The four
+`consumer_missing` disposition rows remain open until C19, but their producer
+and strict-consumer evidence plus the generated report land here.
+
+**Expected commit:** `DS5-C18b bind flag sources to strict registry`.
 
 ### DS5-C19 — wire three flags and retire collaboration
 
-**Measured set:** exactly 13 files; cap 13: `AppShell.tsx` +
+**Measured set:** exactly 12 implementation/governed paths plus journal = 13;
+cap 13: `AppShell.tsx` +
 `layoutSurfaces.test.tsx`; `surfaceRegistry.ts`; `features/runs/route.tsx` +
 `runDetailSurfaces.test.tsx`; `OverviewTab.tsx`; command palette + test; flag
-registry + test; and disposition register/checker/test. The run-detail test is
+registry + test; and frontend disposition register + generated reference
+report. The generic disposition checker and corruption probes are reused
+byte-unmodified. The run-detail test is
 the registry and direct-route negative, so `surfaceRegistry.test.ts` is not a
 second edited proof. The surviving server-backed WhatIf workbench remains five
 files and has one Overview consumer; no local WhatIf store returns.
@@ -997,17 +1730,29 @@ four disposition decisions carry successor/consumer or deletion evidence.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
-**Measured set:** exactly 5 files; cap 6: this plan, DS5 journal, new closure,
-`live-application-readiness-ledger.json`, and the generated frontend disposition
-reference document. Disposition/status/waist rows and hashes transition in
+**Measured set:** exactly 6 files; cap 6: this plan, DS5 journal, new closure,
+`live-application-readiness-ledger.json`, the generated frontend disposition
+reference document, and
+`architecture/atlas_surfaces/test_atlas_enforcement.py`. Disposition/status/waist rows and hashes transition in
 their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
-**Red first:** closure corruption sweep: changed generated symbol/field,
-synthetic status revival, raw transport alias, capability fallback, semantic
-strength upgrade, active `ru`, audience bypass, pinned status, cached payload
-without posture, queued authority action, cross-tenant store, unknown flag and
-flag/permission substitution must each fail while benign siblings pass.
+**Red first:**
+`test_ds5_closure_corruption_sweep_covers_every_governed_property` executes the
+closure corruption sweep over the governed local properties:
+authority-sink census omission/fingerprint drift, type-invalid branded
+assignment, unregistered escape syntax, issuer fixture/unlisted/runtime novelty,
+illegal module edge, direct raw transport, authored capability discovery,
+semantic-ID/review-receipt mismatch, active `ru`, audience deny bypass,
+unknown/default-allow identity, changed generated symbol/field, an unissued or
+incomplete structural G4 packet assigned to the private nominal sink, cached
+payload without visible posture, query construction/producer census omission,
+governed query pin, authority queue kind, service-worker authority API cache or
+sync registration, raw/unscoped storage construction, cross-tenant/user/expiry
+codec hydration across C14b-C17a, persistence-construction census drift, unknown
+flag, unbound/unscoped flag source, and flag/permission substitution must each
+fail while benign siblings pass. The meta-test imports and executes the real
+registered corruption witnesses; it does not merely search for their names.
 
 **Acceptance:** final clean-tree receipt table is complete; every touched row
 has evidence and truthful capability state; baseline debt has zero new
@@ -1021,24 +1766,39 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | Cluster | Expected subject | Max files |
 | --- | --- | ---: |
 | C00 | `DS5-C00 plan measured enforcement waist` | 1 |
-| C01 | `DS5-C01 enforce canonical status ownership` | 9 |
+| C01a | `DS5-C01a census branded authority sinks` | 15 |
+| C01b | `DS5-C01b forbid authority escape hatches` | 13 |
+| C01c | `DS5-C01c bind authority issuers to owner unions` | 13 |
 | C02 | `DS5-C02 make architecture zero recurrent` | 7 |
-| C03 | `DS5-C03 type raw authority transports` | 12 |
-| C04 | `DS5-C04 strangle capability menu fallback` | 12 |
-| C05 | `DS5-C05 anchor copy and locale semantics` | 13 |
+| C03a | `DS5-C03a record raw transport drift` | 6 |
+| C03b | `DS5-C03b type raw authority transports` | 12 |
+| C04a | `DS5-C04a strangle capability fallback` | 10 |
+| C04b | `DS5-C04b lint authored capability discovery` | 4 |
+| C05a | `DS5-C05a separate product and frozen locales` | 10 |
+| C05b | `DS5-C05b anchor authority copy by semantic ID` | 11 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
 | C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
-| C08 | `DS5-C08 fail closed on unknown identity` | 10 |
-| C09 | `DS5-C09 migrate authority surfaces to default deny` | 12 |
-| C10 | `DS5-C10 enforce weakest boundary and recomputation` | 7 |
-| C11 | `DS5-C11 render governed cache posture` | 10 |
-| C12 | `DS5-C12 enforce query cache ownership` | 9 |
-| C13 | `DS5-C13 bar promotion authority from offline queue` | 18 |
-| C14 | `DS5-C14 bind composer local state` | 7 |
-| C15 | `DS5-C15 partition Clerk sessions` | 5 |
-| C16 | `DS5-C16 partition causal and dispute state` | 7 |
-| C17 | `DS5-C17 partition operator state and reconcile stores` | 11 |
-| C18 | `DS5-C18 make flag exposure registry strict` | 6 |
+| C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |
+| C08b | `DS5-C08b fail closed on unknown identity` | 10 |
+| C09a | `DS5-C09a default deny application chrome` | 10 |
+| C09b | `DS5-C09b default deny modes and run surfaces` | 7 |
+| C10 | `DS5-C10 present owner-composed weakest boundary` | 7 |
+| C11a | `DS5-C11a derive governed cache posture` | 5 |
+| C11b | `DS5-C11b render governed cache posture` | 9 |
+| C12a | `DS5-C12a register query construction debt` | 7 |
+| C12b | `DS5-C12b enforce governed query policy` | 9 |
+| C13a | `DS5-C13a delete authority mutation replay` | 18 |
+| C13b | `DS5-C13b close service worker and composer DB` | 9 |
+| C14a | `DS5-C14a own nominal local state envelope` | 3 |
+| C14b | `DS5-C14b bind composer local state` | 7 |
+| C15a | `DS5-C15a partition Clerk session codec` | 3 |
+| C15b | `DS5-C15b mount Clerk identity hydration` | 5 |
+| C16a | `DS5-C16a partition causal draft state` | 5 |
+| C16b | `DS5-C16b partition dispute interaction state` | 7 |
+| C17a | `DS5-C17a partition operator craft state` | 9 |
+| C17b | `DS5-C17b govern persistence construction` | 9 |
+| C18a | `DS5-C18a make flag exposure registry strict` | 3 |
+| C18b | `DS5-C18b bind flag sources to strict registry` | 5 |
 | C19 | `DS5-C19 wire and retire D5 flags` | 13 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 
@@ -1050,22 +1810,32 @@ At C20 run each command separately and retain parseable output:
 git status --short
 git diff --check
 python3 architecture/atlas_surfaces/check_status_retirement_inventory.py --check --corruption-probes
+python3 architecture/atlas_surfaces/check_atlas_enforcement.py --check --corruption-probes
 python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --verify-baseline-source-bytes --corruption-probes
-python3 -m unittest architecture.atlas_surfaces.test_frontend_baseline_debt_manifest architecture.atlas_surfaces.test_frontend_disposition_register architecture.atlas_surfaces.test_status_retirement_inventory
+python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement architecture.atlas_surfaces.test_frontend_baseline_debt_manifest architecture.atlas_surfaces.test_frontend_disposition_register architecture.atlas_surfaces.test_status_retirement_inventory
+uv run --extra runtime --extra ml pytest tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_auth_api.py -q
+uv run ruff check src/polisyos/runtime/http/audience_permissions.py src/polisyos/runtime/http/authorization.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py
 uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
 uv run polisyos-tools architecture guardrails check
+python3 -m tools.cli workspace verify --backend-only
+python3 -m tools.cli workspace ci-parity --skip-browser
 ```
 
 And from the relevant workspaces:
 
 ```bash
 corepack pnpm --dir packages/runtime-api-client run typecheck
+corepack pnpm --dir packages/runtime-api-client run lint
+corepack pnpm --dir packages/runtime-api-client run test
+corepack pnpm --dir packages/runtime-api-client run format:check
 corepack pnpm --dir packages/runtime-api-client run check:architecture
 corepack pnpm --dir apps/runtime-dashboard run lint
+corepack pnpm --dir apps/runtime-dashboard run lint:enforcement
 corepack pnpm --dir apps/runtime-dashboard run check:architecture
 corepack pnpm --dir apps/runtime-dashboard run typecheck
 corepack pnpm --dir apps/runtime-dashboard run build
-corepack pnpm --dir apps/runtime-dashboard run test:components
+corepack pnpm --dir apps/runtime-dashboard run test:components -- --reporter=json --outputFile=/tmp/atlas-ds5-components-vitest.json
+python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --vitest-results /tmp/atlas-ds5-components-vitest.json
 corepack pnpm --dir apps/runtime-dashboard run test:storybook
 corepack pnpm --dir apps/runtime-dashboard run test:a11y
 corepack pnpm --dir apps/runtime-dashboard run test:visual
@@ -1079,18 +1849,45 @@ The production build, typecheck, DS5-owned/touched tests, generated-client
 contract and architecture gates are absolute green. Full component/visual gates
 are honest baseline-red only for the exact three DS6 parity identities and the
 one DS8 A4 print identity; no new failure or re-baseline is accepted.
+The JSON component command is therefore an expected nonzero receipt only when
+its parseable output contains those exact three inherited DS6 identities; it is
+run separately, never chained past. The following governed comparator must be
+green. A missing/timed-out JSON command is a non-receipt. `test_auth_api.py` is
+run read-only as shared authorization coverage; it is not a sixth editable
+backend test path.
 
 ## Explicit Not yet
 
 - No merge, push, rebase, CI change, deployment claim, or backend-engine work.
+- No claim that arbitrary TypeScript behavior has been completely analyzed.
+  DS5 claims compile-time branded-slot assignability, the bounded syntactic
+  escape/construction rules named above, and issuer runtime novelty only.
+- No claim that the 12 registered unbranded authority props or 58 direct
+  authority-bearing `Badge` sites are migrated; their 39 source-bound debt
+  descriptors retain owner slices, capability states and executable closure
+  signals. All 103 current benign direct sites are explicit classifications,
+  not a claim of future semantic discovery.
 - No closure or ordering of terminal kinds or evidence classes; unseen values
   stay opaque and neutral.
 - No DS6 `overBudget` parity repair, frozen-set migration, `ru` catalog edit,
   or public locale-support claim.
+- No claim that automation understands Ukrainian or certifies translated legal
+  meaning. C05b validates canonical identity and content-bound external-review
+  receipts; absent review falls back honestly and remains DS6 debt.
 - No DS8 A4 print expectation change and no claim of 18/18 visual green.
 - No DS18 universal epoch/staleness chrome. DS5 supplies cache discipline and
   visible existing consumers; it does not invent producer epochs or infer
   cache age from timestamps.
+- No universal client recomputation theorem. C10 accepts only a nominal packet
+  issued after the canonical live client validates the complete owner-composed
+  G4 response; C11a-C12b govern one migrated builder and fingerprint-bind the
+  other 65 construction sites and 41 producer sites as typed debt with
+  producer-side integrate-contracts.
+- No theorem that a storage caller classified arbitrary unbranded payload
+  meaning correctly. C13a/C15a/C16a-C16b close the six measured status paths; C17b
+  enforces registered constructors, nominal envelopes and concrete codecs.
+  Semantic equivalents outside nominal authority types remain attached to the
+  C01a typed owner debt rather than being claimed as universally detected.
 - No DS9 mandate, approval, review-effectiveness, or promotion-CAS ownership;
   DS20's server halves are consumed, not re-closed.
 - No DS12 telemetry/public-record closure; telemetry remains a typed sanctioned
@@ -1102,3 +1899,4 @@ one DS8 A4 print identity; no new failure or re-baseline is accepted.
   forbids open-ended hardcoded capability discovery.
 - No claim that a lint, flag, cache hit, translation, or frontend union is an
   authority source.
+- No closure of law 11 beyond its audience/permission enforcement half.

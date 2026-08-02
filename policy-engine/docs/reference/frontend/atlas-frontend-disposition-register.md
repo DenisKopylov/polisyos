@@ -201,7 +201,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ### Subunits and structural findings
 
-| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |
+| ID | Kind | Disposition | Owner slice/team | Capability states | Closure signal | State/reason |
 | --- | --- | --- | --- | --- | --- | --- |
 | `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | — | — | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
 | `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | — | — | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
@@ -218,6 +218,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `fixture-policy-design-case-audience` | `fixture_contract_drift` | `use_as_is` | `DS19` | — | — | `repaired` — The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed. |
 | `producer-binding-readiness-scientific-depth` | `producer_binding_debt` | `rebind_pending` | `DS16` | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green | `open_debt` — dashboard-local synthesis removed because no typed producer field/refusal exists |
 | `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS3` | `producer_missing`, `surface_missing` | DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green. | `open_debt` — RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority. |
+| `g4-complete-audience-projection-contract` | `integrate_contract_debt` | `rebind_pending` | `team-runtime-quality` | `implemented_but_not_orchestrated`, `bridge_missing`, `consumer_missing`, `surface_missing`, `semantic_test_missing` | uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior | `open_debt` — The G4 owner publishes only reduced reference projections; DS5 may not invent or route the complete eight-field audience projection. |
 
 ### Seeded-negative lifecycle
 

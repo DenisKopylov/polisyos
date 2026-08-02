@@ -5224,6 +5224,72 @@
       "rationale": "RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority.",
       "closure_signal": "DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green.",
       "decision_date": "2026-07-17"
+    },
+    {
+      "finding_id": "g4-complete-audience-projection-contract",
+      "finding_kind": "integrate_contract_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "owner_team": "team-runtime-quality",
+      "capability_states": [
+        "implemented_but_not_orchestrated",
+        "bridge_missing",
+        "consumer_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+        "architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
+        "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+        "architecture/generated_artifacts.toml"
+      ],
+      "integrate_contract": {
+        "canonical_projection_id": "policy-design-case-layer3-g4-weakest-boundary",
+        "registered_route_posture": "registered_atomically_with_authorization",
+        "authorized_audiences": [
+          "EXPERT"
+        ],
+        "required_permissions": [
+          "mode.analyst"
+        ],
+        "exact_field_set": [
+          "blocker_refs",
+          "issue_codes",
+          "limitation_refs",
+          "produced_by",
+          "promotion_scope",
+          "promotion_state",
+          "status",
+          "weakest_boundary_reason"
+        ],
+        "authoritative_for": [
+          "presenting the owner-composed weakest-boundary result and veto reasons for the current run attempt"
+        ],
+        "may_not_use_for": [
+          "client-side recomposition, averaging, ranking, authorization, promotion execution, or publication"
+        ],
+        "provenance_fields": [
+          "produced_by.reducer_id",
+          "produced_by.reducer_version",
+          "produced_by.rule_version",
+          "produced_by.vocabulary_status_id"
+        ],
+        "validator_refs": [
+          "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
+        ],
+        "hash_fields": [
+          "produced_by.input_hashes",
+          "produced_by.output_hash"
+        ],
+        "time_semantics": "owner projection supplies an owner as_of or epoch bound to the current run attempt; filesystem mtime is observation time only",
+        "runtime_novelty_behavior": "novel owner status or projection values fail closed as explicit unrecognized",
+        "executable_owner_side_closure_signal": "uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior"
+      },
+      "rationale": "The G4 owner publishes only reduced reference projections; DS5 may not invent or route the complete eight-field audience projection.",
+      "closure_signal": "uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior",
+      "decision_date": "2026-08-02"
     }
   ],
   "seeded_negative_lifecycle": [

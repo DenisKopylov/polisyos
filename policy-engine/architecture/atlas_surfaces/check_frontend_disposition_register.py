@@ -1472,6 +1472,110 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
     }
 }
 
+INTEGRATE_DEBT_DESCRIPTORS = {
+    "g4-complete-audience-projection-contract": {
+        "finding_id": "g4-complete-audience-projection-contract",
+        "finding_kind": "integrate_contract_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "owner_team": "team-runtime-quality",
+        "capability_states": [
+            "implemented_but_not_orchestrated",
+            "bridge_missing",
+            "consumer_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/policy_design_case/"
+            "layer3_g4_weakest_boundary_composition.json",
+            "architecture/policy_design_case/"
+            "layer3_g4_public_export_projection_refs.json",
+            "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+            "architecture/generated_artifacts.toml",
+        ],
+        "integrate_contract": {
+            "canonical_projection_id": "policy-design-case-layer3-g4-weakest-boundary",
+            "registered_route_posture": "registered_atomically_with_authorization",
+            "authorized_audiences": ["EXPERT"],
+            "required_permissions": ["mode.analyst"],
+            "exact_field_set": [
+                "blocker_refs",
+                "issue_codes",
+                "limitation_refs",
+                "produced_by",
+                "promotion_scope",
+                "promotion_state",
+                "status",
+                "weakest_boundary_reason",
+            ],
+            "authoritative_for": [
+                "presenting the owner-composed weakest-boundary result and veto "
+                "reasons for the current run attempt"
+            ],
+            "may_not_use_for": [
+                "client-side recomposition, averaging, ranking, authorization, "
+                "promotion execution, or publication"
+            ],
+            "provenance_fields": [
+                "produced_by.reducer_id",
+                "produced_by.reducer_version",
+                "produced_by.rule_version",
+                "produced_by.vocabulary_status_id",
+            ],
+            "validator_refs": [
+                "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
+            ],
+            "hash_fields": [
+                "produced_by.input_hashes",
+                "produced_by.output_hash",
+            ],
+            "time_semantics": (
+                "owner projection supplies an owner as_of or epoch bound to the "
+                "current run attempt; filesystem mtime is observation time only"
+            ),
+            "runtime_novelty_behavior": (
+                "novel owner status or projection values fail closed as explicit "
+                "unrecognized"
+            ),
+            "executable_owner_side_closure_signal": (
+                "uv run python tools/quality/validation/"
+                "check_policy_design_case_layer3_g4_readiness.py --repo-root . "
+                "--output-format json exits 0 after owner corruptions prove the "
+                "canonical projection ID and exact fields, "
+                "public_export_bundle_route_registered=true, an implemented "
+                "non-reference-only hook, atomic EXPERT mode.analyst denial, "
+                "content hashes, owner time, and runtime novelty behavior"
+            ),
+        },
+        "rationale": (
+            "The G4 owner publishes only reduced reference projections; DS5 may "
+            "not invent or route the complete eight-field audience projection."
+        ),
+        "closure_signal": (
+            "uv run python tools/quality/validation/"
+            "check_policy_design_case_layer3_g4_readiness.py --repo-root . "
+            "--output-format json exits 0 after owner corruptions prove the "
+            "canonical projection ID and exact fields, "
+            "public_export_bundle_route_registered=true, an implemented "
+            "non-reference-only hook, atomic EXPERT mode.analyst denial, "
+            "content hashes, owner time, and runtime novelty behavior"
+        ),
+        "decision_date": "2026-08-02",
+    }
+}
+
+GOVERNED_DEBT_DESCRIPTORS = {
+    finding_id: {
+        "finding_id": finding_id,
+        **copy.deepcopy(descriptor),
+        "decision_date": DECISION_DATE,
+    }
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
+}
+GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
+
 C23_ROOT_IDS = frozenset(
     {
         "status-stress-scene",
@@ -1491,9 +1595,7 @@ C23_RATIONALE = (
     "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
 )
 
-EXPECTED_FINDING_IDS = (
-    BASE_EXPECTED_FINDING_IDS | set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
-)
+EXPECTED_FINDING_IDS = BASE_EXPECTED_FINDING_IDS | set(GOVERNED_DEBT_DESCRIPTORS)
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
@@ -1832,14 +1934,8 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         }
     )
     findings.extend(
-        {
-            "finding_id": finding_id,
-            **copy.deepcopy(descriptor),
-            "decision_date": DECISION_DATE,
-        }
-        for finding_id, descriptor in sorted(
-            PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
-        )
+        copy.deepcopy(descriptor)
+        for _finding_id, descriptor in sorted(GOVERNED_DEBT_DESCRIPTORS.items())
     )
     return findings
 
@@ -1926,7 +2022,7 @@ def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
 
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
-    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS)
     generated = {
         row["finding_id"]: row
         for row in _supplemental_findings()
@@ -3393,6 +3489,45 @@ def _validate_producer_binding_debt_findings(
             )
 
 
+def _validate_integrate_contract_debt_findings(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind external-owner integrate debt byte-for-byte to its typed contract."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    by_id = {
+        str(row.get("finding_id")): row
+        for row in rows
+        if isinstance(row, Mapping)
+    }
+    integrate_rows = [
+        row
+        for row in rows
+        if isinstance(row, Mapping)
+        and row.get("finding_kind") == "integrate_contract_debt"
+    ]
+    for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
+        row = by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"integrate_contract_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        for field, expected_value in descriptor.items():
+            if row.get(field) != expected_value:
+                errors.append(
+                    f"integrate_contract_debt_drift:{finding_id}:{field}"
+                )
+    descriptor_ids = set(INTEGRATE_DEBT_DESCRIPTORS)
+    for row in integrate_rows:
+        finding_id = str(row.get("finding_id", "unknown"))
+        if finding_id not in descriptor_ids:
+            errors.append(
+                "integrate_contract_debt_descriptor_missing:" + finding_id
+            )
+
+
 def _validate_c23_containment_roots(
     entries: Mapping[str, Mapping[str, Any]], errors: list[str]
 ) -> None:
@@ -3422,6 +3557,7 @@ def validate_register(
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
     _validate_producer_binding_debt_findings(data, errors)
+    _validate_integrate_contract_debt_findings(data, errors)
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
@@ -4002,6 +4138,25 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 (f"producer-binding-debt-{finding_id}-{field}", mutation)
             )
 
+    for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
+        for field in descriptor:
+            mutation = copy.deepcopy(data)
+            row = next(
+                item
+                for item in mutation["supplemental_findings"]
+                if item["finding_id"] == finding_id
+            )
+            value = row[field]
+            if isinstance(value, list):
+                row[field] = list(reversed(value))
+            elif isinstance(value, dict):
+                row[field] = {"corrupt": True}
+            else:
+                row[field] = str(value) + "-corrupt"
+            probes.append(
+                (f"integrate-contract-debt-{finding_id}-{field}", mutation)
+            )
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
@@ -4285,7 +4440,8 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             "",
             "### Subunits and structural findings",
             "",
-            "| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |",
+            "| ID | Kind | Disposition | Owner slice/team | Capability states | "
+            "Closure signal | State/reason |",
             "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
@@ -4301,8 +4457,12 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             else "—"
         )
         closure_projection = row.get("closure_signal", "—")
+        owner_projection = row.get("owner_team", row["owner_slice"])
         lines.append(
-            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {capability_projection} | {closure_projection} | `{row['status']}` — {row['rationale']} |"
+            f"| `{row['finding_id']}` | `{row['finding_kind']}` | "
+            f"`{row['disposition']}` | `{owner_projection}` | "
+            f"{capability_projection} | {closure_projection} | "
+            f"`{row['status']}` — {row['rationale']} |"
         )
 
     lines.extend(

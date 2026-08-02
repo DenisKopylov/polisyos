@@ -785,9 +785,107 @@
         }
       }
     },
+    "integrateContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_projection_id",
+        "registered_route_posture",
+        "authorized_audiences",
+        "required_permissions",
+        "exact_field_set",
+        "authoritative_for",
+        "may_not_use_for",
+        "provenance_fields",
+        "validator_refs",
+        "hash_fields",
+        "time_semantics",
+        "runtime_novelty_behavior",
+        "executable_owner_side_closure_signal"
+      ],
+      "properties": {
+        "canonical_projection_id": {
+          "$ref": "#/$defs/id"
+        },
+        "registered_route_posture": {
+          "const": "registered_atomically_with_authorization"
+        },
+        "authorized_audiences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+          }
+        },
+        "required_permissions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "exact_field_set": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "authoritative_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "may_not_use_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "provenance_fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "validator_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/pathRef"
+          }
+        },
+        "hash_fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "time_semantics": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runtime_novelty_behavior": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "executable_owner_side_closure_signal": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
     "supplementalFinding": {
       "type": "object",
-      "description": "Supplemental debt is descriptor-derived; producer-binding debt remains open until a typed producer, artifact, bridge, and semantic closure exist.",
+      "description": "Supplemental debt is descriptor-derived; producer and integrate-contract debt remain open until their typed closure signals pass.",
       "additionalProperties": false,
       "required": [
         "finding_id",
@@ -810,7 +908,8 @@
             "baseline_test_debt",
             "dependency_declaration",
             "fixture_contract_drift",
-            "producer_binding_debt"
+            "producer_binding_debt",
+            "integrate_contract_debt"
           ]
         },
         "disposition": {
@@ -832,6 +931,10 @@
         },
         "owner_slice": {
           "$ref": "#/$defs/ownerSlice"
+        },
+        "owner_team": {
+          "type": "string",
+          "pattern": "^team-[a-z0-9-]+$"
         },
         "decision_date": {
           "$ref": "#/$defs/date"
@@ -863,6 +966,9 @@
         "closure_signal": {
           "$ref": "#/$defs/nonEmptyString"
         },
+        "integrate_contract": {
+          "$ref": "#/$defs/integrateContract"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
@@ -871,7 +977,9 @@
         {
           "if": {
             "properties": {
-              "finding_kind": { "const": "producer_binding_debt" }
+              "finding_kind": {
+                "enum": ["producer_binding_debt", "integrate_contract_debt"]
+              }
             },
             "required": ["finding_kind"]
           },
@@ -887,7 +995,28 @@
             "not": {
               "anyOf": [
                 { "required": ["capability_states"] },
-                { "required": ["closure_signal"] }
+                { "required": ["closure_signal"] },
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "finding_kind": { "const": "integrate_contract_debt" }
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["owner_team", "integrate_contract"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] }
               ]
             }
           }

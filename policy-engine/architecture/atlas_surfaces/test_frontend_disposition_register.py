@@ -7,6 +7,7 @@ import importlib.util
 import json
 import unittest
 from pathlib import Path
+from typing import ClassVar
 from unittest import mock
 
 ATLAS_DIR = Path(__file__).resolve().parent
@@ -822,7 +823,8 @@ class ProducerBindingDebtTests(unittest.TestCase):
             set(descriptors),
         )
         self.assertEqual(
-            checker.BASE_EXPECTED_FINDING_IDS | set(descriptors),
+            checker.BASE_EXPECTED_FINDING_IDS
+            | set(checker.GOVERNED_DEBT_DESCRIPTORS),
             checker.EXPECTED_FINDING_IDS,
         )
 
@@ -871,7 +873,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             refreshed_text[: refreshed_start + 1],
         )
         self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
-        descriptor_ids = set(checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
+        descriptor_ids = set(checker.GOVERNED_DEBT_DESCRIPTORS)
         self.assertEqual(
             [
                 object_text
@@ -886,18 +888,18 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         before = json.loads(original_text)
         refreshed = json.loads(refreshed_text)
-        generated_descriptors = [
-            row
+        generated_descriptors = {
+            row["finding_id"]: row
             for row in checker._supplemental_findings()
             if row["finding_id"] in descriptor_ids
-        ]
+        }
         self.assertEqual(
             generated_descriptors,
-            [
-                row
+            {
+                row["finding_id"]: row
                 for row in refreshed["supplemental_findings"]
                 if row["finding_id"] in descriptor_ids
-            ],
+            },
         )
         for field in sorted(set(before) - {"supplemental_findings"}):
             with self.subTest(field=field):
@@ -1003,6 +1005,164 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         self.assertIn("`artifact_missing`", readiness_line)
         self.assertIn("registered typed refusal", readiness_line)
+
+
+class IntegrateContractDebtTests(unittest.TestCase):
+    """Prove the deferred G4 owner contract is typed and corruption-bound."""
+
+    finding_id = "g4-complete-audience-projection-contract"
+    integrate_contract: ClassVar[dict[str, object]] = {
+        "canonical_projection_id": "policy-design-case-layer3-g4-weakest-boundary",
+        "registered_route_posture": "registered_atomically_with_authorization",
+        "authorized_audiences": ["EXPERT"],
+        "required_permissions": ["mode.analyst"],
+        "exact_field_set": [
+            "blocker_refs",
+            "issue_codes",
+            "limitation_refs",
+            "produced_by",
+            "promotion_scope",
+            "promotion_state",
+            "status",
+            "weakest_boundary_reason",
+        ],
+        "authoritative_for": [
+            "presenting the owner-composed weakest-boundary result and veto "
+            "reasons for the current run attempt"
+        ],
+        "may_not_use_for": [
+            "client-side recomposition, averaging, ranking, authorization, "
+            "promotion execution, or publication"
+        ],
+        "provenance_fields": [
+            "produced_by.reducer_id",
+            "produced_by.reducer_version",
+            "produced_by.rule_version",
+            "produced_by.vocabulary_status_id",
+        ],
+        "validator_refs": [
+            "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
+        ],
+        "hash_fields": [
+            "produced_by.input_hashes",
+            "produced_by.output_hash",
+        ],
+        "time_semantics": (
+            "owner projection supplies an owner as_of or epoch bound to the current "
+            "run attempt; filesystem mtime is observation time only"
+        ),
+        "runtime_novelty_behavior": (
+            "novel owner status or projection values fail closed as explicit "
+            "unrecognized"
+        ),
+        "executable_owner_side_closure_signal": (
+            "uv run python tools/quality/validation/"
+            "check_policy_design_case_layer3_g4_readiness.py --repo-root . "
+            "--output-format json exits 0 after owner corruptions prove the "
+            "canonical projection ID and exact fields, "
+            "public_export_bundle_route_registered=true, an implemented "
+            "non-reference-only hook, atomic EXPERT mode.analyst denial, "
+            "content hashes, owner time, and runtime novelty behavior"
+        ),
+    }
+
+    @classmethod
+    def _row(cls) -> dict[str, object]:
+        return {
+            "finding_id": cls.finding_id,
+            "finding_kind": "integrate_contract_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "owner_slice": "DS5",
+            "owner_team": "team-runtime-quality",
+            "capability_states": [
+                "implemented_but_not_orchestrated",
+                "bridge_missing",
+                "consumer_missing",
+                "surface_missing",
+                "semantic_test_missing",
+            ],
+            "evidence_refs": [
+                "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+                "architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
+                "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+                "architecture/generated_artifacts.toml",
+            ],
+            "integrate_contract": copy.deepcopy(cls.integrate_contract),
+            "rationale": (
+                "The G4 owner publishes only reduced reference projections; DS5 may not "
+                "invent or route the complete eight-field audience projection."
+            ),
+            "closure_signal": cls.integrate_contract[
+                "executable_owner_side_closure_signal"
+            ],
+            "decision_date": "2026-08-02",
+        }
+
+    def test_schema_requires_external_owner_and_complete_integrate_contract(
+        self,
+    ) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        data["supplemental_findings"] = [self._row()]
+        self.assertEqual([], checker._schema_errors(data, checker.SCHEMA_PATH))
+
+        for field in (
+            "owner_team",
+            "capability_states",
+            "closure_signal",
+            "integrate_contract",
+        ):
+            with self.subTest(missing=field):
+                mutation = copy.deepcopy(data)
+                mutation["supplemental_findings"][0].pop(field)
+                self.assertTrue(checker._schema_errors(mutation, checker.SCHEMA_PATH))
+
+        for field in self.integrate_contract:
+            with self.subTest(contract_field=field):
+                mutation = copy.deepcopy(data)
+                mutation["supplemental_findings"][0]["integrate_contract"].pop(
+                    field
+                )
+                self.assertTrue(checker._schema_errors(mutation, checker.SCHEMA_PATH))
+
+        wrong_owner = copy.deepcopy(data)
+        wrong_owner["supplemental_findings"][0]["owner_team"] = "DS5"
+        self.assertTrue(checker._schema_errors(wrong_owner, checker.SCHEMA_PATH))
+
+    def test_g4_integrate_debt_is_descriptor_bound_and_corruption_rejected(
+        self,
+    ) -> None:
+        descriptors = checker.INTEGRATE_DEBT_DESCRIPTORS
+        self.assertEqual({self.finding_id}, set(descriptors))
+        self.assertEqual(
+            self._row(), checker.GOVERNED_DEBT_DESCRIPTORS[self.finding_id]
+        )
+
+        generated = {
+            row["finding_id"]: row for row in checker._supplemental_findings()
+        }
+        self.assertEqual(self._row(), generated[self.finding_id])
+
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        for field in ("owner_team", "capability_states", "integrate_contract"):
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == self.finding_id
+                )
+                value = row[field]
+                row[field] = list(reversed(value)) if isinstance(value, list) else "drift"
+                errors = checker.validate_register(
+                    mutation,
+                    live_probes=False,
+                    report_parity=False,
+                )
+                self.assertIn(
+                    f"integrate_contract_debt_drift:{self.finding_id}:{field}",
+                    errors,
+                )
 
 
 if __name__ == "__main__":

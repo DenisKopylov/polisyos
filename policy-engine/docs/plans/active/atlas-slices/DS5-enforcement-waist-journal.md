@@ -382,3 +382,19 @@ or characterization receipts, not non-receipts.
   C02 contract or capability label was promoted. Base-to-working scope is the
   original exact eight paths, cap nine, with no canonical-owner gap, generated
   contract change, fence escape, or owner-path expansion.
+
+## DS5-C10 — deferred owner integrate contract
+
+- **Disposition:** deferred on 2026-08-02; this downstream gap does not block
+  C01-C09 or C11 onward.
+- **Typed debt:** `g4-complete-audience-projection-contract` records
+  `team-runtime-quality` as owner, the five incomplete capability states, the
+  exact eight-field projection contract, EXPERT `mode.analyst` authorization,
+  provenance/hash/time/novelty requirements, and the executable owner-side
+  closure signal.
+- **Owner evidence:** the current G4 contract remains `projection_only`, route
+  unregistered, and `out_of_scope_reference_only`; DS5 does not route or
+  reclassify the raw owner artifact.
+- **Register receipt:** the byte-preserving supplemental writer and report
+  writer completed; the live checker returned 261 roots, 14 supplemental
+  findings, 23 seeded negatives, and 8 censuses.

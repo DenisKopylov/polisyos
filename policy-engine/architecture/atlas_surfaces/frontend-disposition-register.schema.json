@@ -883,9 +883,110 @@
         }
       }
     },
+    "authoritySourceReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "line"],
+      "properties": {
+        "role": {
+          "enum": ["component_declaration", "prop_declaration", "consumer"]
+        },
+        "path": {
+          "$ref": "#/$defs/pathRef"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "site_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"role": {"const": "consumer"}},
+            "required": ["role"]
+          },
+          "then": {
+            "required": ["site_sha256"],
+            "not": {"required": ["content_sha256"]}
+          },
+          "else": {
+            "required": ["content_sha256"],
+            "not": {"required": ["site_sha256"]}
+          }
+        }
+      ]
+    },
+    "authoritySinkDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sink_kind",
+        "descriptor_id",
+        "component",
+        "component_declaration",
+        "consumer_count",
+        "consumer_sites"
+      ],
+      "properties": {
+        "sink_kind": {
+          "enum": ["prop_boundary", "direct_badge_group"]
+        },
+        "descriptor_id": {
+          "$ref": "#/$defs/id"
+        },
+        "component": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prop": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "component_declaration": {
+          "$ref": "#/$defs/authoritySourceReceipt"
+        },
+        "prop_declaration": {
+          "$ref": "#/$defs/authoritySourceReceipt"
+        },
+        "consumer_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "consumer_sites": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/authoritySourceReceipt"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"sink_kind": {"const": "prop_boundary"}},
+            "required": ["sink_kind"]
+          },
+          "then": {
+            "required": ["prop", "prop_declaration"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {"required": ["prop"]},
+                {"required": ["prop_declaration"]}
+              ]
+            }
+          }
+        }
+      ]
+    },
     "supplementalFinding": {
       "type": "object",
-      "description": "Supplemental debt is descriptor-derived; producer and integrate-contract debt remain open until their typed closure signals pass.",
+      "description": "Supplemental debt is descriptor-derived; producer, integrate-contract, and authority-presentation debt remain open until their typed closure signals pass.",
       "additionalProperties": false,
       "required": [
         "finding_id",
@@ -909,7 +1010,8 @@
             "dependency_declaration",
             "fixture_contract_drift",
             "producer_binding_debt",
-            "integrate_contract_debt"
+            "integrate_contract_debt",
+            "authority_presentation_debt"
           ]
         },
         "disposition": {
@@ -969,6 +1071,9 @@
         "integrate_contract": {
           "$ref": "#/$defs/integrateContract"
         },
+        "authority_sink": {
+          "$ref": "#/$defs/authoritySinkDescriptor"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
@@ -978,7 +1083,11 @@
           "if": {
             "properties": {
               "finding_kind": {
-                "enum": ["producer_binding_debt", "integrate_contract_debt"]
+                "enum": [
+                  "producer_binding_debt",
+                  "integrate_contract_debt",
+                  "authority_presentation_debt"
+                ]
               }
             },
             "required": ["finding_kind"]
@@ -997,7 +1106,8 @@
                 { "required": ["capability_states"] },
                 { "required": ["closure_signal"] },
                 { "required": ["owner_team"] },
-                { "required": ["integrate_contract"] }
+                { "required": ["integrate_contract"] },
+                { "required": ["authority_sink"] }
               ]
             }
           }
@@ -1019,6 +1129,20 @@
                 { "required": ["integrate_contract"] }
               ]
             }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "finding_kind": {"const": "authority_presentation_debt"}
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["authority_sink"]
+          },
+          "else": {
+            "not": {"required": ["authority_sink"]}
           }
         }
       ]

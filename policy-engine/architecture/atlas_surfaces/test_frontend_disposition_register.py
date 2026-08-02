@@ -824,7 +824,8 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         self.assertEqual(
             checker.BASE_EXPECTED_FINDING_IDS
-            | set(checker.GOVERNED_DEBT_DESCRIPTORS),
+            | set(checker.GOVERNED_DEBT_DESCRIPTORS)
+            | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
             checker.EXPECTED_FINDING_IDS,
         )
 
@@ -1163,6 +1164,245 @@ class IntegrateContractDebtTests(unittest.TestCase):
                     f"integrate_contract_debt_drift:{self.finding_id}:{field}",
                     errors,
                 )
+
+
+class AuthorityPresentationCensusTests(unittest.TestCase):
+    """Prove every finite C01a sink is branded, benign, or typed debt."""
+
+    def test_every_authority_presentation_prop_is_branded_or_typed_debt(
+        self,
+    ) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        rows = checker._authority_presentation_rows()
+
+        self.assertEqual(39, len(rows))
+        self.assertEqual(
+            12,
+            sum(row["authority_sink"]["sink_kind"] == "prop_boundary" for row in rows),
+        )
+        self.assertEqual(
+            27,
+            sum(
+                row["authority_sink"]["sink_kind"] == "direct_badge_group"
+                for row in rows
+            ),
+        )
+        self.assertEqual(
+            [],
+            checker._authority_presentation_errors(data, live_probes=True),
+        )
+
+    def test_authority_debt_corruptions_fail_closed(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        finding_id = "authority-presentation-prop-control-approval-readiness"
+        corruptions = {}
+
+        missing = copy.deepcopy(data)
+        missing["supplemental_findings"] = [
+            row
+            for row in missing["supplemental_findings"]
+            if row["finding_id"] != finding_id
+        ]
+        corruptions["finding_id"] = missing
+
+        for field in ("owner_slice", "capability_states", "closure_signal"):
+            mutation = copy.deepcopy(data)
+            row = next(
+                item
+                for item in mutation["supplemental_findings"]
+                if item["finding_id"] == finding_id
+            )
+            row.pop(field)
+            corruptions[field] = mutation
+
+        moved = copy.deepcopy(data)
+        row = next(
+            item
+            for item in moved["supplemental_findings"]
+            if item["finding_id"] == finding_id
+        )
+        row["authority_sink"]["consumer_sites"][0]["site_sha256"] = (
+            "sha256:" + "0" * 64
+        )
+        corruptions["authority_sink"] = moved
+
+        for field, mutation in corruptions.items():
+            with self.subTest(field=field):
+                errors = checker._authority_presentation_errors(
+                    mutation, live_probes=False
+                )
+                self.assertIn(
+                    f"authority_presentation_debt_drift:{finding_id}:{field}",
+                    errors,
+                )
+
+    def test_authority_census_rejects_unclassified_and_reclassified_badges(
+        self,
+    ) -> None:
+        scan = checker._authority_presentation_scan()
+        classifications = copy.deepcopy(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
+        debt_location = next(
+            location
+            for location, classification in classifications.items()
+            if classification.startswith("debt:")
+        )
+        classifications[debt_location] = "benign:interaction_state"
+        errors = checker._badge_classification_errors(scan, classifications)
+        self.assertTrue(
+            any(error.startswith("authority_badge_reclassification:") for error in errors),
+            errors,
+        )
+
+        classifications = copy.deepcopy(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
+        classifications.pop(next(iter(classifications)))
+        errors = checker._badge_classification_errors(scan, classifications)
+        self.assertTrue(
+            any(error.startswith("authority_badge_unclassified:") for error in errors),
+            errors,
+        )
+
+        fingerprint_drift = copy.deepcopy(scan)
+        benign_location = next(
+            location
+            for location, classification in checker.AUTHORITY_BADGE_CLASSIFICATIONS.items()
+            if classification.startswith("benign:")
+        )
+        site = next(
+            item
+            for item in fingerprint_drift["badgeSites"]
+            if (item["path"], item["line"]) == benign_location
+        )
+        site["siteSha256"] = "sha256:" + "0" * 64
+        errors = checker._badge_classification_errors(fingerprint_drift)
+        self.assertTrue(
+            any(
+                error.startswith("authority_badge_partition_hash_drift:")
+                for error in errors
+            ),
+            errors,
+        )
+
+        prop_fingerprint_drift = copy.deepcopy(scan)
+        benign_prop_id = next(
+            descriptor_id
+            for descriptor_id, spec in checker.AUTHORITY_PROP_CLASSIFICATIONS.items()
+            if spec["classification"].startswith("benign:")
+        )
+        prop_fact = next(
+            item
+            for item in prop_fingerprint_drift["authorityPropCensus"]
+            if item["descriptorId"] == benign_prop_id
+        )
+        prop_fact["propDeclarationSha256"] = "sha256:" + "0" * 64
+        errors = checker._authority_prop_classification_errors(
+            prop_fingerprint_drift
+        )
+        self.assertTrue(
+            any(
+                error.startswith("authority_prop_partition_hash_drift:")
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_new_direct_badge_site_is_unclassified_until_adjudicated(self) -> None:
+        probe_path = (
+            "apps/runtime-dashboard/src/shared/lib/domain/"
+            "unclassifiedAuthorityBadgeProbe.tsx"
+        )
+        scan = checker.status_checker._scan(
+            {
+                probe_path: (
+                    'import { Badge } from "@polisyos/atlas-ui";\n'
+                    'export const Probe = () => <Badge kind="ok">ready</Badge>;\n'
+                )
+            },
+            authority_prop_descriptors=checker._authority_prop_descriptors(),
+        )
+        errors = checker._badge_classification_errors(scan)
+        self.assertTrue(
+            any(
+                error.startswith(f"authority_badge_unclassified:{probe_path}:")
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_c01a_dates_and_writer_preserve_accepted_history(self) -> None:
+        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        refreshed = checker._refresh_supplemental_findings_text(original_text)
+        self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
+        before = json.loads(original_text)
+        after = json.loads(refreshed)
+        new_ids = set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
+
+        self.assertEqual(
+            {
+                row["finding_id"]: row["decision_date"]
+                for row in before["supplemental_findings"]
+                if row["finding_id"] not in new_ids
+            },
+            {
+                row["finding_id"]: row["decision_date"]
+                for row in after["supplemental_findings"]
+                if row["finding_id"] not in new_ids
+            },
+        )
+        self.assertEqual(
+            {"2026-08-02"},
+            {
+                row["decision_date"]
+                for row in after["supplemental_findings"]
+                if row["finding_id"] in new_ids
+            },
+        )
+
+    def test_duplicate_ids_and_decision_date_rewrites_fail_closed(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+
+        duplicate = copy.deepcopy(data)
+        duplicate["supplemental_findings"].append(
+            copy.deepcopy(duplicate["supplemental_findings"][0])
+        )
+        self.assertIn(
+            "duplicate_supplemental_finding_id",
+            checker.validate_register(
+                duplicate,
+                live_probes=False,
+                schema=False,
+                report_parity=False,
+            ),
+        )
+
+        old_row = copy.deepcopy(data)
+        old_id = old_row["supplemental_findings"][0]["finding_id"]
+        old_row["supplemental_findings"][0]["decision_date"] = "2026-08-02"
+        self.assertIn(
+            f"supplemental_decision_date_drift:{old_id}",
+            checker.validate_register(
+                old_row,
+                live_probes=False,
+                schema=False,
+                report_parity=False,
+            ),
+        )
+
+        authority = copy.deepcopy(data)
+        authority_row = next(
+            row
+            for row in authority["supplemental_findings"]
+            if row["finding_kind"] == "authority_presentation_debt"
+        )
+        authority_row["decision_date"] = "2026-07-17"
+        self.assertIn(
+            "supplemental_decision_date_drift:" + authority_row["finding_id"],
+            checker.validate_register(
+                authority,
+                live_probes=False,
+                schema=False,
+                report_parity=False,
+            ),
+        )
 
 
 if __name__ == "__main__":

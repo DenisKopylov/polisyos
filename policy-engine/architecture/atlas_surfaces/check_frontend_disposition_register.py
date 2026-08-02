@@ -11,13 +11,13 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import posixpath
 import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
-from datetime import date, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -41,6 +41,15 @@ BASELINE_PATH = ATLAS_DIR / "frontend-baseline-debt-manifest.json"
 BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
+STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
+
+_STATUS_SPEC = importlib.util.spec_from_file_location(
+    "frontend_disposition_status_checker", STATUS_CHECKER_PATH
+)
+if _STATUS_SPEC is None or _STATUS_SPEC.loader is None:  # pragma: no cover
+    raise RuntimeError(f"Unable to import status checker from {STATUS_CHECKER_PATH}")
+status_checker = importlib.util.module_from_spec(_STATUS_SPEC)
+_STATUS_SPEC.loader.exec_module(status_checker)
 
 LINT_ORIGIN_COUNT = 75
 LINT_ORIGIN_FILE_COUNT = 22
@@ -1566,6 +1575,1321 @@ INTEGRATE_DEBT_DESCRIPTORS = {
     }
 }
 
+DS5_C01A_DECISION_DATE = "2026-08-02"
+AUTHORITY_PRESENTATION_PLAN_REF = (
+    "docs/plans/active/atlas-slices/"
+    "DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary"
+)
+
+
+def _authority_closure(signal: str) -> str:
+    return (
+        "python3 architecture/atlas_surfaces/"
+        "check_frontend_disposition_register.py --check --corruption-probes "
+        "exits 0 after "
+        + signal
+    )
+
+
+AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
+    "prop-review-presence-status": {
+        "classification": "benign:interaction_state",
+        "component": "ReviewPresenceSummary",
+        "component_declaration_path": "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx",
+        "component_declaration_line": 47,
+        "prop": "status",
+        "prop_declaration_line": 36,
+        "uses": [
+            ("apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx", 1211),
+            ("apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx", 63),
+        ],
+    },
+    "prop-control-approval-readiness": {
+        "classification": "debt",
+        "component": "ControlApprovalPanel",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+        "component_declaration_line": 737,
+        "prop": "readiness",
+        "prop_declaration_line": 744,
+        "uses": [("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1259)],
+        "owner_slice": "DS14",
+        "capability_states": [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
+        "closure_signal": _authority_closure(
+            "a generated approval-readiness issuer owns clothing and mixed deny/unknown cases remain non-positive"
+        ),
+    },
+    "prop-form-section-tone": {
+        "classification": "benign:layout_accent",
+        "component": "AtlasFormSection",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "component_declaration_line": 126,
+        "prop": "tone",
+        "prop_declaration_line": 140,
+        "uses": [
+            ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1240),
+            ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1664),
+        ],
+    },
+    "prop-composer-summary-tone": {
+        "classification": "benign:layout_accent",
+        "component": "ComposerSummaryMetric",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        "component_declaration_line": 62,
+        "prop": "tone",
+        "prop_declaration_line": 68,
+        "uses": [("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 432)],
+    },
+    "prop-decision-grade-presentation": {
+        "classification": "debt",
+        "component": "DecisionGradeBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        "component_declaration_line": 27,
+        "prop": "presentation",
+        "prop_declaration_line": 30,
+        "uses": [
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 116),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 119),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 142),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 147),
+        ],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 supplies DecisionGrade through the generated client and a private exhaustive issuer replaces this structural presentation"
+        ),
+    },
+    "prop-authored-text-confidence": {
+        "classification": "benign:captured_quantity",
+        "component": "AuthoredText",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        "component_declaration_line": 38,
+        "prop": "confidence",
+        "prop_declaration_line": 30,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 57),
+            ("apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx", 907),
+        ],
+    },
+    "prop-data-freshness": {
+        "classification": "debt",
+        "component": "DataFreshnessBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+        "component_declaration_line": 17,
+        "prop": "freshness",
+        "prop_declaration_line": 7,
+        "uses": [
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 396),
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 419),
+        ],
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "ProjectionFreshness enters a private exhaustive issuer and runtime-novel states render unrecognized without cache-age inference"
+        ),
+    },
+    "prop-decision-card-verdict": {
+        "classification": "debt",
+        "component": "DecisionCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        "component_declaration_line": 39,
+        "prop": "verdict",
+        "prop_declaration_line": 26,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 53),
+            ("apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx", 250),
+        ],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private issuer replace the raw verdict boundary with novelty tests"
+        ),
+    },
+    "prop-decision-card-confidence": {
+        "classification": "debt",
+        "component": "DecisionCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        "component_declaration_line": 39,
+        "prop": "confidence",
+        "prop_declaration_line": 27,
+        "uses": [("apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx", 251)],
+        "owner_slice": "DS17",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence and rejects structural lookalikes"
+        ),
+    },
+    "prop-explainability-verdict": {
+        "classification": "debt",
+        "component": "ExplainabilityCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+        "component_declaration_line": 62,
+        "prop": "verdict",
+        "prop_declaration_line": 40,
+        "uses": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 563)],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private issuer replace the nested raw verdict path"
+        ),
+    },
+    "prop-counterfactual-status": {
+        "classification": "debt",
+        "component": "CounterfactualBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+        "component_declaration_line": 17,
+        "prop": "status",
+        "prop_declaration_line": 13,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx", 87),
+            ("apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx", 51),
+            ("apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx", 54),
+        ],
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated scenario-status issuer owns icon, tone, and label while novel values fail closed"
+        ),
+    },
+    "prop-verification-status-cue": {
+        "classification": "debt",
+        "component": "StatusCue",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "component_declaration_line": 308,
+        "prop": "status",
+        "prop_declaration_line": 308,
+        "uses": [("apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx", 191)],
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a private verification-status issuer owns cue clothing and runtime novelty is explicit"
+        ),
+    },
+    "prop-lineage-freshness-cue": {
+        "classification": "debt",
+        "component": "FreshnessCue",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "component_declaration_line": 325,
+        "prop": "freshness",
+        "prop_declaration_line": 325,
+        "uses": [("apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx", 192)],
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a source-owned lineage freshness issuer owns the cue and absence cannot be upgraded"
+        ),
+    },
+    "prop-time-semantics-freshness": {
+        "classification": "debt",
+        "component": "TimeSemanticsLabel",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+        "component_declaration_line": 16,
+        "prop": "freshness",
+        "prop_declaration_line": 10,
+        "uses": [
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 398),
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 452),
+        ],
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior"
+        ),
+    },
+    "prop-dispute-status": {
+        "classification": "debt",
+        "component": "DisputeBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+        "component_declaration_line": 11,
+        "prop": "status",
+        "prop_declaration_line": 7,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx", 82),
+            ("apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx", 79),
+        ],
+        "owner_slice": "DS11",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a private exhaustive dispute issuer owns clothing and runtime-novel dispute states render unrecognized"
+        ),
+    },
+    "prop-verification-status-icon-tone": {
+        "classification": "debt",
+        "component": "StatusIcon",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+        "component_declaration_line": 74,
+        "prop": "tone",
+        "prop_declaration_line": 74,
+        "uses": [("apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx", 43)],
+        "owner_slice": "DS11",
+        "capability_states": ["verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected"
+        ),
+    },
+    "prop-authority-badge-presentation": {
+        "classification": "branded:authority_presentation",
+        "component": "AuthorityBadge",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "component_declaration_line": 214,
+        "prop": "presentation",
+        "prop_declaration_line": 64,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 60),
+            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 64),
+            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 86),
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 483),
+        ],
+    },
+    "prop-envelope-authority-purpose": {
+        "classification": "branded:governed_authority_purpose",
+        "component": "EnvelopeChip",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/EnvelopeChip.tsx",
+        "component_declaration_line": 15,
+        "prop": "authorityPurpose",
+        "prop_declaration_line": 9,
+        "uses": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 90),
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 426),
+        ],
+    },
+    "prop-segmented-control-tone": {
+        "classification": "benign:responsive_layout",
+        "component": "SegmentedControl",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/SegmentedControl.tsx",
+        "component_declaration_line": 40,
+        "prop": "tone",
+        "prop_declaration_line": 24,
+        "uses": [("apps/runtime-dashboard/src/app/layout/Sidebar.tsx", 25)],
+    },
+}
+
+
+AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
+    "badge-review-required-aggregate": {
+        "owner_slice": "DS9",
+        "capability_states": ["consumer_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/app/layout/Header.tsx", 115)],
+        "closure_signal": _authority_closure(
+            "a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive"
+        ),
+    },
+    "badge-bureaucratic-legal-review": {
+        "owner_slice": "DS9",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx", 18)],
+        "closure_signal": _authority_closure(
+            "a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized"
+        ),
+    },
+    "badge-preflight-readiness": {
+        "owner_slice": "DS7",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 269),
+            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 312),
+            ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 418),
+        ],
+        "closure_signal": _authority_closure(
+            "typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw preview clothing is absent"
+        ),
+    },
+    "badge-artifact-pipeline-decision-grade": {
+        "owner_slice": "DS5",
+        "capability_states": ["producer_missing", "consumer_missing", "verification_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 364),
+            ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 461),
+        ],
+        "closure_signal": _authority_closure(
+            "C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty"
+        ),
+    },
+    "badge-control-approval-quality": {
+        "owner_slice": "DS9",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", line)
+            for line in (760, 765, 771, 774, 782, 790, 798, 806, 887, 920, 1092)
+        ],
+        "closure_signal": _authority_closure(
+            "generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests"
+        ),
+    },
+    "badge-promotion-candidate-status": {
+        "owner_slice": "DS15",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 469)],
+        "closure_signal": _authority_closure(
+            "a generated promotion union enters a private issuer and novel values render unrecognized"
+        ),
+    },
+    "badge-evidence-source-freshness": {
+        "owner_slice": "DS8",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx", line)
+            for line in (49, 69, 73)
+        ],
+        "closure_signal": _authority_closure(
+            "owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority"
+        ),
+    },
+    "badge-comparability": {
+        "owner_slice": "DS16",
+        "capability_states": ["consumer_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx", 37)],
+        "closure_signal": _authority_closure(
+            "a generated comparability union uses an incomparable veto and runtime-novelty tests"
+        ),
+    },
+    "badge-provenance-drift": {
+        "owner_slice": "DS16",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx", 37)],
+        "closure_signal": _authority_closure(
+            "a private invalidation-posture issuer vetoes on every load-bearing provenance change"
+        ),
+    },
+    "badge-run-deck-authority-summary": {
+        "owner_slice": "DS7",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx", line)
+            for line in (130, 138, 139, 263)
+        ],
+        "closure_signal": _authority_closure(
+            "a live typed run-deck contract rejects fixture_only and prevents local authority synthesis"
+        ),
+    },
+    "badge-compound-decision-grade": {
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 96),
+            ("apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx", 99),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx", 44),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 36),
+        ],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck"
+        ),
+    },
+    "badge-governance-issue-severity": {
+        "owner_slice": "DS9",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx", 185),
+            ("apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx", 194),
+        ],
+        "closure_signal": _authority_closure(
+            "a generated owner severity field enters a branded issuer with runtime novelty"
+        ),
+    },
+    "badge-public-packet-authority-framing": {
+        "owner_slice": "DS12",
+        "capability_states": ["producer_missing", "artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", line)
+            for line in (54, 82, 114)
+        ],
+        "closure_signal": _authority_closure(
+            "generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test"
+        ),
+    },
+    "badge-governed-projection-availability": {
+        "owner_slice": "DS7",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", line)
+            for line in (383, 418)
+        ],
+        "closure_signal": _authority_closure(
+            "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
+        ),
+    },
+    "badge-governed-projection-rights-bar": {
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 439)],
+        "closure_signal": _authority_closure(
+            "a generated may_not_use_for item enters a branded veto presentation"
+        ),
+    },
+    "badge-governed-source-validation": {
+        "owner_slice": "DS7",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 462)],
+        "closure_signal": _authority_closure(
+            "generated source validation status enters an exhaustive issuer with novelty tests"
+        ),
+    },
+    "badge-uncertainty-dispute": {
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 720)],
+        "closure_signal": _authority_closure(
+            "an owner uncertainty artifact keeps disputed as a mixed-case veto or warning"
+        ),
+    },
+    "badge-operator-blocker-overridability": {
+        "owner_slice": "DS14",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 74)],
+        "closure_signal": _authority_closure(
+            "a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck"
+        ),
+    },
+    "badge-candidate-declared-authority-purpose": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 72)],
+        "closure_signal": _authority_closure(
+            "a candidate-purpose issuer cannot grant governed authority"
+        ),
+    },
+    "badge-projection-source-freshness": {
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx", line)
+            for line in (21, 30)
+        ],
+        "closure_signal": _authority_closure(
+            "ProjectionFreshness state enters an exhaustive issuer with explicit absence and novelty behavior"
+        ),
+    },
+    "badge-decision-confidence": {
+        "owner_slice": "DS16",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 103)],
+        "closure_signal": _authority_closure(
+            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence"
+        ),
+    },
+    "badge-explainability-governance-counts": {
+        "owner_slice": "DS9",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx", line)
+            for line in (124, 130, 137)
+        ],
+        "closure_signal": _authority_closure(
+            "a typed governance summary proves counts cannot synthesize composed authority"
+        ),
+    },
+    "badge-negative-certificate-blocker": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx", 61)],
+        "closure_signal": _authority_closure(
+            "a generated blocker issuer prevents non-blockers from occupying the slot"
+        ),
+    },
+    "badge-public-integrity-result": {
+        "owner_slice": "DS12",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 39),
+            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 128),
+            ("apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx", 26),
+        ],
+        "closure_signal": _authority_closure(
+            "a verifier-private integrity presentation remains explicitly outside closeout authority"
+        ),
+    },
+    "badge-public-anti-authority-role": {
+        "owner_slice": "DS12",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 101)],
+        "closure_signal": _authority_closure(
+            "a branded refusal from packet authorityRole cannot be upgraded to authority"
+        ),
+    },
+    "badge-threshold-unavailable": {
+        "owner_slice": "DS16",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "locations": [("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 356)],
+        "closure_signal": _authority_closure(
+            "a typed unavailable or refusal artifact replaces the static caller-owned threshold token"
+        ),
+    },
+    "badge-candidate-refusal-markers": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "locations": [
+            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 92),
+            ("apps/runtime-dashboard/src/shared/ui/compounds/ReasoningChainDisplay.tsx", 209),
+        ],
+        "closure_signal": _authority_closure(
+            "typed candidate and refusal postures cannot be presented as governed output"
+        ),
+    },
+}
+
+BRANDED_BADGE_LOCATIONS = {
+    ("packages/atlas-ui/src/primitives/AuthorityBadge.tsx", 222): (
+        "branded:authority_presentation"
+    ),
+    ("packages/atlas-ui/src/primitives/EnvelopeChip.tsx", 23): (
+        "branded:governed_authority_purpose"
+    ),
+}
+
+BENIGN_BADGE_BASES = (
+    "interaction_or_editor_state",
+    "transport_or_runtime_health",
+    "workflow_or_lifecycle_display_without_terminality_inference",
+    "layout_or_counts",
+    "opaque_metadata_or_taxonomy",
+)
+
+BENIGN_BADGE_LOCATIONS = (
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 26),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 28),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 91),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 94),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 102),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 107),
+    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 112),
+    ("apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx", 61),
+    ("apps/runtime-dashboard/src/features/clerk/components/AIDiffView.tsx", 163),
+    ("apps/runtime-dashboard/src/features/clerk/components/AIDiffView.tsx", 284),
+    ("apps/runtime-dashboard/src/features/clerk/components/ChatMessage.tsx", 54),
+    ("apps/runtime-dashboard/src/features/clerk/components/ClerkHistoryList.tsx", 45),
+    ("apps/runtime-dashboard/src/features/clerk/components/ClerkProgressiveStream.tsx", 32),
+    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 70),
+    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 122),
+    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 148),
+    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1010),
+    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1012),
+    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1097),
+    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1199),
+    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1200),
+    ("apps/runtime-dashboard/src/features/clerk/components/ConversationHistorySearch.tsx", 60),
+    ("apps/runtime-dashboard/src/features/clerk/components/ConversationHistorySearch.tsx", 120),
+    ("apps/runtime-dashboard/src/features/clerk/routes/ClerkRunSummaryPage.tsx", 36),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 324),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 545),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 641),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 777),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 876),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1220),
+    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1644),
+    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 142),
+    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 172),
+    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 206),
+    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 224),
+    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 476),
+    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 99),
+    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 105),
+    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 184),
+    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 205),
+    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 211),
+    ("apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx", 66),
+    ("apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx", 123),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 295),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 302),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 315),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 447),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 480),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 506),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1025),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1081),
+    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1163),
+    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 49),
+    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 54),
+    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 59),
+    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 167),
+    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 259),
+    ("apps/runtime-dashboard/src/features/runs/compare/CausalDeltaStrip.tsx", 46),
+    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 201),
+    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 286),
+    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 662),
+    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 703),
+    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 732),
+    ("apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx", 104),
+    ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 55),
+    ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 134),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 65),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 230),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 389),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 51),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 81),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 154),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 170),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 282),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 309),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 329),
+    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 390),
+    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 63),
+    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 81),
+    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 86),
+    ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 480),
+    ("apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx", 179),
+    ("apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx", 230),
+    ("apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx", 66),
+    ("apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx", 76),
+    ("apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx", 190),
+    ("apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx", 31),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 122),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 425),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 426),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 430),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 585),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 766),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx", 179),
+    ("apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx", 486),
+    ("apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx", 497),
+    ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 68),
+    ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 94),
+    ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 116),
+    ("apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx", 164),
+    ("apps/runtime-dashboard/src/shared/ui/compounds/ProvenanceChain.tsx", 100),
+    ("apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx", 45),
+    ("apps/runtime-dashboard/src/shared/ui/compounds/WeakestLinkExplainer.tsx", 29),
+)
+
+BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
+    "interaction_or_editor_state": {
+        "ReviewCollaborationIndicators.tsx": (61,),
+        "AIDiffView.tsx": (163,),
+        "ComposerModeSections.tsx": (1220, 1644),
+        "LaunchRunPage.tsx": (172,),
+        "DisputeRegistryPanel.tsx": (55, 134),
+        "OperatorCraftPanel.tsx": (65,),
+        "PublicationPacketPanel.tsx": (51, 309, 329),
+        "PublicDecisionViewerPage.tsx": (31,),
+        "CausalTab.tsx": (497,),
+    },
+    "transport_or_runtime_health": {
+        "Header.tsx": (26, 28, 91, 94, 102, 107),
+        "ControlFailurePanel.tsx": (1199, 1200),
+        "DashboardPage.tsx": (99, 105),
+        "ConnectorCharacterCards.tsx": (66,),
+        "EvidenceFabricPage.tsx": (1025, 1081),
+        "PlatformHealthPage.tsx": (49, 167, 259),
+        "AgentPipelinePanel.tsx": (201, 286),
+        "AmbientTelemetryHud.tsx": (104,),
+        "RunDetailLayout.tsx": (585,),
+    },
+    "workflow_or_lifecycle_display_without_terminality_inference": {
+        "ChatMessage.tsx": (54,),
+        "ClerkHistoryList.tsx": (45,),
+        "ClerkProgressiveStream.tsx": (32,),
+        "ControlFailurePanel.tsx": (1010, 1097),
+        "ClerkRunSummaryPage.tsx": (36,),
+        "ComposerModeSections.tsx": (324,),
+        "LaunchRunPage.tsx": (224,),
+        "DashboardPage.tsx": (184,),
+        "AgentPipelinePanel.tsx": (662, 703, 732),
+        "NodeDebugPanel.tsx": (76,),
+        "RunChoreographyPanel.tsx": (63, 81, 86),
+        "WorkflowDagPanel.tsx": (179, 230),
+        "RunDetailLayout.tsx": (122, 425, 430),
+        "RunsListPage.tsx": (179, 486),
+        "StatusTimeline.tsx": (45,),
+    },
+    "layout_or_counts": {
+        "Header.tsx": (112,),
+        "AIDiffView.tsx": (284,),
+        "ControlFailurePanel.tsx": (1012,),
+        "ConversationHistorySearch.tsx": (120,),
+        "ComposerModeSections.tsx": (545, 641, 876),
+        "LaunchRunPage.tsx": (206, 476),
+        "DashboardPage.tsx": (205, 211),
+        "EvidenceFabricPage.tsx": (295, 302, 447, 480, 506),
+        "PlatformHealthPage.tsx": (54, 59),
+        "CausalDeltaStrip.tsx": (46,),
+        "OperatorCraftPanel.tsx": (230,),
+        "PublicationPacketPanel.tsx": (154,),
+    },
+    "opaque_metadata_or_taxonomy": {
+        "ClerkStructuredResponse.tsx": (70, 122, 148),
+        "ConversationHistorySearch.tsx": (60,),
+        "ComposerModeSections.tsx": (777,),
+        "LaunchRunPage.tsx": (142,),
+        "FreshnessBraidPanel.tsx": (123,),
+        "EvidenceFabricPage.tsx": (315, 1163),
+        "ErrorsPanel.tsx": (66,),
+        "NodeDebugPanel.tsx": (190,),
+        "OperatorCraftPanel.tsx": (389,),
+        "PublicationPacketPanel.tsx": (81, 170, 282, 390),
+        "RunExplainabilityPanel.tsx": (480,),
+        "RunDetailLayout.tsx": (426, 766),
+        "DecisionCard.tsx": (116,),
+        "NegativeCertificateCard.tsx": (164,),
+        "ProvenanceChain.tsx": (100,),
+        "WeakestLinkExplainer.tsx": (29,),
+        "OperatorDiagnosticPanel.tsx": (68, 94),
+    },
+}
+
+_BENIGN_BADGE_CLASS_BY_BASENAME_LINE: dict[tuple[str, int], str] = {}
+for _benign_class, _files in BENIGN_BADGE_CLASS_SPECS.items():
+    for _basename, _lines in _files.items():
+        for _line in _lines:
+            _key = (_basename, _line)
+            if _key in _BENIGN_BADGE_CLASS_BY_BASENAME_LINE:
+                raise RuntimeError(f"duplicate benign Badge class: {_key}")
+            _BENIGN_BADGE_CLASS_BY_BASENAME_LINE[_key] = _benign_class
+
+_BENIGN_BADGE_KEYS = {
+    (Path(path).name, line) for path, line in BENIGN_BADGE_LOCATIONS
+}
+if set(_BENIGN_BADGE_CLASS_BY_BASENAME_LINE) != _BENIGN_BADGE_KEYS:
+    raise RuntimeError("benign Badge class census does not match its source locations")
+if set(BENIGN_BADGE_CLASS_SPECS) != set(BENIGN_BADGE_BASES):
+    raise RuntimeError("benign Badge class vocabulary drift")
+if len(_BENIGN_BADGE_KEYS) != len(BENIGN_BADGE_LOCATIONS):
+    raise RuntimeError("benign Badge basename/line identity is not unique")
+
+AUTHORITY_BADGE_CLASSIFICATIONS = {
+    location: (
+        "benign:"
+        + _BENIGN_BADGE_CLASS_BY_BASENAME_LINE[(Path(location[0]).name, location[1])]
+    )
+    for location in BENIGN_BADGE_LOCATIONS
+}
+AUTHORITY_BADGE_CLASSIFICATIONS.update(BRANDED_BADGE_LOCATIONS)
+for _group_id, _spec in AUTHORITY_BADGE_DEBT_SPECS.items():
+    for _location in _spec["locations"]:
+        if _location in AUTHORITY_BADGE_CLASSIFICATIONS:
+            raise RuntimeError(f"duplicate authority Badge classification: {_location}")
+        AUTHORITY_BADGE_CLASSIFICATIONS[_location] = f"debt:{_group_id}"
+
+AUTHORITY_PRESENTATION_DEBT_SPECS = {
+    "authority-presentation-" + descriptor_id: spec
+    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items()
+    if spec["classification"] == "debt"
+}
+AUTHORITY_PRESENTATION_DEBT_SPECS.update(
+    {
+        "authority-presentation-" + descriptor_id: spec
+        for descriptor_id, spec in AUTHORITY_BADGE_DEBT_SPECS.items()
+    }
+)
+
+AUTHORITY_PRESENTATION_COUNTS = {
+    "badge_total": 163,
+    "badge_branded": 2,
+    "badge_debt": 58,
+    "badge_benign": 103,
+    "prop_total": 19,
+    "prop_branded": 2,
+    "prop_debt": 12,
+    "prop_benign": 5,
+    "prop_use_total": 35,
+    "prop_use_branded": 6,
+    "prop_use_debt": 21,
+    "prop_use_benign": 8,
+}
+AUTHORITY_BADGE_PARTITION_SHA256 = (
+    "sha256:28e6c934ceb073b29a122f891424f75ae3f320353fc0ad65f59a046dffca79a2"
+)
+AUTHORITY_PROP_PARTITION_SHA256 = (
+    "sha256:0b012a06e76027af5dd0d592c195d2ab7d55e1704da75a346bbfb69f82123410"
+)
+
+
+def _authority_prop_descriptors() -> list[dict[str, str]]:
+    """Project the finite, declaration-anchored prop census into the scanner."""
+    return [
+        {
+            "descriptorId": descriptor_id,
+            "component": str(spec["component"]),
+            "componentDeclarationPath": str(spec["component_declaration_path"]),
+            "prop": str(spec["prop"]),
+        }
+        for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items())
+    ]
+
+
+@lru_cache(maxsize=1)
+def _authority_presentation_scan() -> dict[str, Any]:
+    """Return the live finite sink census; no value-flow inference is performed."""
+    return status_checker._scan(
+        authority_prop_descriptors=_authority_prop_descriptors()
+    )
+
+
+def _site_location(site: Mapping[str, Any]) -> tuple[str, int]:
+    return (str(site.get("path", "")), int(site.get("line", 0)))
+
+
+def _badge_classification_errors(
+    scan: Mapping[str, Any],
+    classifications: Mapping[tuple[str, int], str] = AUTHORITY_BADGE_CLASSIFICATIONS,
+) -> list[str]:
+    """Validate the exact 163-site Badge partition as a finite set property."""
+    errors: list[str] = []
+    sites = scan.get("badgeSites", [])
+    if not isinstance(sites, list):
+        return ["authority_badge_census_invalid"]
+    live_locations = {
+        _site_location(site)
+        for site in sites
+        if isinstance(site, Mapping)
+    }
+    configured_locations = set(classifications)
+    for path, line in sorted(live_locations - configured_locations):
+        errors.append(f"authority_badge_unclassified:{path}:{line}")
+    for path, line in sorted(configured_locations - live_locations):
+        errors.append(f"authority_badge_stale_classification:{path}:{line}")
+    for location in sorted(configured_locations & set(AUTHORITY_BADGE_CLASSIFICATIONS)):
+        observed = classifications[location]
+        expected = AUTHORITY_BADGE_CLASSIFICATIONS[location]
+        if observed != expected:
+            errors.append(
+                "authority_badge_reclassification:"
+                + f"{location[0]}:{location[1]}:{expected}:{observed}"
+            )
+
+    categories = Counter(
+        "debt"
+        if value.startswith("debt:")
+        else "branded"
+        if value.startswith("branded:")
+        else "benign"
+        if value.startswith("benign:")
+        else "invalid"
+        for location, value in classifications.items()
+        if location in live_locations
+    )
+    exact_classifications = Counter(
+        value
+        for location, value in classifications.items()
+        if location in live_locations
+    )
+    expected_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["badge_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["badge_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["badge_benign"],
+    }
+    if len(live_locations) != AUTHORITY_PRESENTATION_COUNTS["badge_total"]:
+        errors.append(
+            "authority_badge_count_drift:"
+            + f"expected={AUTHORITY_PRESENTATION_COUNTS['badge_total']}:"
+            + f"actual={len(live_locations)}"
+        )
+    for category, expected_count in expected_counts.items():
+        if categories[category] != expected_count:
+            errors.append(
+                f"authority_badge_{category}_count_drift:"
+                + f"expected={expected_count}:actual={categories[category]}"
+            )
+    if categories["invalid"]:
+        errors.append(
+            f"authority_badge_invalid_classification:{categories['invalid']}"
+        )
+    for benign_class, files in sorted(BENIGN_BADGE_CLASS_SPECS.items()):
+        expected_count = sum(len(lines) for lines in files.values())
+        observed_count = exact_classifications[f"benign:{benign_class}"]
+        if observed_count != expected_count:
+            errors.append(
+                f"authority_badge_benign_class_count_drift:{benign_class}:"
+                + f"expected={expected_count}:actual={observed_count}"
+            )
+    for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
+        expected_locations = set(spec["locations"])
+        observed_locations = {
+            location
+            for location, classification in classifications.items()
+            if classification == f"debt:{group_id}"
+        }
+        if observed_locations != expected_locations:
+            errors.append(f"authority_badge_group_drift:{group_id}")
+    if live_locations <= configured_locations:
+        partition_rows = sorted(
+            [
+                {
+                    "path": str(site["path"]),
+                    "line": int(site["line"]),
+                    "site_sha256": str(site.get("siteSha256", "")),
+                    "classification": classifications[_site_location(site)],
+                }
+                for site in sites
+                if isinstance(site, Mapping)
+            ],
+            key=lambda row: (row["path"], row["line"], row["site_sha256"]),
+        )
+        partition_sha256 = "sha256:" + hashlib.sha256(
+            json.dumps(
+                partition_rows,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        if partition_sha256 != AUTHORITY_BADGE_PARTITION_SHA256:
+            errors.append(
+                "authority_badge_partition_hash_drift:"
+                + f"expected={AUTHORITY_BADGE_PARTITION_SHA256}:"
+                + f"actual={partition_sha256}"
+            )
+    return errors
+
+
+def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
+    """Validate the exact declaration/use identity of all 19 prop groups."""
+    errors: list[str] = []
+    facts = scan.get("authorityPropCensus", [])
+    if not isinstance(facts, list):
+        return ["authority_prop_census_invalid"]
+    by_id = {
+        str(fact.get("descriptorId")): fact
+        for fact in facts
+        if isinstance(fact, Mapping)
+    }
+    if set(by_id) != set(AUTHORITY_PROP_CLASSIFICATIONS):
+        errors.append(
+            "authority_prop_descriptor_drift:missing="
+            + str(sorted(set(AUTHORITY_PROP_CLASSIFICATIONS) - set(by_id)))
+            + ":extra="
+            + str(sorted(set(by_id) - set(AUTHORITY_PROP_CLASSIFICATIONS)))
+        )
+    observed_counts: Counter[str] = Counter()
+    observed_use_counts: Counter[str] = Counter()
+    for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+        fact = by_id.get(descriptor_id)
+        if fact is None:
+            continue
+        classification = str(spec["classification"]).split(":", 1)[0]
+        observed_counts[classification] += 1
+        consumer_sites = fact.get("consumerSites", [])
+        observed_use_counts[classification] += (
+            len(consumer_sites) if isinstance(consumer_sites, list) else 0
+        )
+        expected_identity = {
+            "component": spec["component"],
+            "componentDeclarationPath": spec["component_declaration_path"],
+            "componentDeclarationLine": spec["component_declaration_line"],
+            "prop": spec["prop"],
+            "propDeclarationPath": spec["component_declaration_path"],
+            "propDeclarationLine": spec["prop_declaration_line"],
+        }
+        for field, expected_value in expected_identity.items():
+            if fact.get(field) != expected_value:
+                errors.append(f"authority_prop_identity_drift:{descriptor_id}:{field}")
+        expected_uses = sorted(spec["uses"])
+        observed_uses = sorted(
+            _site_location(site)
+            for site in consumer_sites
+            if isinstance(site, Mapping)
+        )
+        if observed_uses != expected_uses:
+            errors.append(f"authority_prop_consumer_drift:{descriptor_id}")
+        for hash_field in (
+            "componentDeclarationSha256",
+            "propDeclarationSha256",
+        ):
+            value = fact.get(hash_field)
+            if not isinstance(value, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", value
+            ):
+                errors.append(f"authority_prop_fingerprint_missing:{descriptor_id}:{hash_field}")
+        for site in consumer_sites if isinstance(consumer_sites, list) else []:
+            value = site.get("siteSha256") if isinstance(site, Mapping) else None
+            if not isinstance(value, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", value
+            ):
+                errors.append(f"authority_prop_site_fingerprint_missing:{descriptor_id}")
+
+    expected_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["prop_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["prop_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["prop_benign"],
+    }
+    expected_use_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["prop_use_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["prop_use_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["prop_use_benign"],
+    }
+    for category, expected_count in expected_counts.items():
+        if observed_counts[category] != expected_count:
+            errors.append(f"authority_prop_{category}_count_drift")
+        if observed_use_counts[category] != expected_use_counts[category]:
+            errors.append(f"authority_prop_{category}_use_count_drift")
+    if len(by_id) != AUTHORITY_PRESENTATION_COUNTS["prop_total"]:
+        errors.append("authority_prop_total_count_drift")
+    if sum(observed_use_counts.values()) != AUTHORITY_PRESENTATION_COUNTS["prop_use_total"]:
+        errors.append("authority_prop_use_total_count_drift")
+    if set(by_id) == set(AUTHORITY_PROP_CLASSIFICATIONS):
+        partition_rows = []
+        for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+            fact = by_id[descriptor_id]
+            consumer_sites = fact.get("consumerSites", [])
+            partition_rows.append(
+                {
+                    "descriptor_id": descriptor_id,
+                    "classification": spec["classification"],
+                    "component": fact.get("component"),
+                    "component_declaration_path": fact.get(
+                        "componentDeclarationPath"
+                    ),
+                    "component_declaration_line": fact.get(
+                        "componentDeclarationLine"
+                    ),
+                    "component_declaration_sha256": fact.get(
+                        "componentDeclarationSha256"
+                    ),
+                    "prop": fact.get("prop"),
+                    "prop_declaration_path": fact.get("propDeclarationPath"),
+                    "prop_declaration_line": fact.get("propDeclarationLine"),
+                    "prop_declaration_sha256": fact.get(
+                        "propDeclarationSha256"
+                    ),
+                    "consumer_sites": sorted(
+                        [
+                            {
+                                "path": site.get("path"),
+                                "line": site.get("line"),
+                                "site_sha256": site.get("siteSha256"),
+                            }
+                            for site in consumer_sites
+                            if isinstance(site, Mapping)
+                        ],
+                        key=lambda row: (
+                            str(row["path"]),
+                            int(row["line"] or 0),
+                            str(row["site_sha256"]),
+                        ),
+                    ),
+                }
+            )
+        partition_sha256 = "sha256:" + hashlib.sha256(
+            json.dumps(
+                partition_rows,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        if partition_sha256 != AUTHORITY_PROP_PARTITION_SHA256:
+            errors.append(
+                "authority_prop_partition_hash_drift:"
+                + f"expected={AUTHORITY_PROP_PARTITION_SHA256}:"
+                + f"actual={partition_sha256}"
+            )
+    return errors
+
+
+def _source_receipt(
+    *, role: str, path: str, line: int, sha256: str, site: bool = False
+) -> dict[str, Any]:
+    receipt: dict[str, Any] = {"role": role, "path": path, "line": line}
+    receipt["site_sha256" if site else "content_sha256"] = sha256
+    return receipt
+
+
+def _authority_presentation_rows(
+    scan: Mapping[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Build the 39 typed debt rows from the live finite census."""
+    scan = scan or _authority_presentation_scan()
+    census_errors = [
+        *_badge_classification_errors(scan),
+        *_authority_prop_classification_errors(scan),
+    ]
+    if census_errors:
+        raise RuntimeError(
+            "authority presentation census invalid: " + ", ".join(census_errors)
+        )
+    prop_by_id = {
+        fact["descriptorId"]: fact for fact in scan["authorityPropCensus"]
+    }
+    badge_by_location = {
+        _site_location(site): site for site in scan["badgeSites"]
+    }
+    rows: list[dict[str, Any]] = []
+
+    for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+        if spec["classification"] != "debt":
+            continue
+        fact = prop_by_id[descriptor_id]
+        consumer_sites = [
+            _source_receipt(
+                role="consumer",
+                path=str(site["path"]),
+                line=int(site["line"]),
+                sha256=str(site["siteSha256"]),
+                site=True,
+            )
+            for site in fact["consumerSites"]
+        ]
+        finding_id = "authority-presentation-" + descriptor_id
+        rows.append(
+            {
+                "finding_id": finding_id,
+                "finding_kind": "authority_presentation_debt",
+                "disposition": "rebind_pending",
+                "status": "open_debt",
+                "evidence_refs": [
+                    AUTHORITY_PRESENTATION_PLAN_REF,
+                    f"{fact['componentDeclarationPath']}:{fact['componentDeclarationLine']}",
+                    *sorted(
+                        {
+                            f"{site['path']}:{site['line']}"
+                            for site in fact["consumerSites"]
+                        }
+                    ),
+                ],
+                "owner_slice": spec["owner_slice"],
+                "decision_date": DS5_C01A_DECISION_DATE,
+                "rationale": (
+                    "C01a classifies this authority-bearing prop boundary as "
+                    "unbranded typed debt; its owner must replace structural "
+                    "clothing with the existing private-issuer brand pattern."
+                ),
+                "capability_states": spec["capability_states"],
+                "closure_signal": spec["closure_signal"],
+                "authority_sink": {
+                    "sink_kind": "prop_boundary",
+                    "descriptor_id": descriptor_id,
+                    "component": fact["component"],
+                    "prop": fact["prop"],
+                    "component_declaration": _source_receipt(
+                        role="component_declaration",
+                        path=str(fact["componentDeclarationPath"]),
+                        line=int(fact["componentDeclarationLine"]),
+                        sha256=str(fact["componentDeclarationSha256"]),
+                    ),
+                    "prop_declaration": _source_receipt(
+                        role="prop_declaration",
+                        path=str(fact["propDeclarationPath"]),
+                        line=int(fact["propDeclarationLine"]),
+                        sha256=str(fact["propDeclarationSha256"]),
+                    ),
+                    "consumer_count": len(consumer_sites),
+                    "consumer_sites": consumer_sites,
+                },
+            }
+        )
+
+    for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
+        badge_sites = [badge_by_location[location] for location in spec["locations"]]
+        first = badge_sites[0]
+        component_identity = (
+            first["component"],
+            first["componentDeclarationPath"],
+            first["componentDeclarationLine"],
+            first["componentDeclarationSha256"],
+        )
+        if any(
+            (
+                site["component"],
+                site["componentDeclarationPath"],
+                site["componentDeclarationLine"],
+                site["componentDeclarationSha256"],
+            )
+            != component_identity
+            for site in badge_sites
+        ):
+            raise RuntimeError(f"Badge declaration identity drift: {group_id}")
+        consumer_sites = [
+            _source_receipt(
+                role="consumer",
+                path=str(site["path"]),
+                line=int(site["line"]),
+                sha256=str(site["siteSha256"]),
+                site=True,
+            )
+            for site in badge_sites
+        ]
+        finding_id = "authority-presentation-" + group_id
+        rows.append(
+            {
+                "finding_id": finding_id,
+                "finding_kind": "authority_presentation_debt",
+                "disposition": "rebind_pending",
+                "status": "open_debt",
+                "evidence_refs": [
+                    AUTHORITY_PRESENTATION_PLAN_REF,
+                    f"{first['componentDeclarationPath']}:{first['componentDeclarationLine']}",
+                    *sorted(
+                        {
+                            f"{site['path']}:{site['line']}"
+                            for site in badge_sites
+                        }
+                    ),
+                ],
+                "owner_slice": spec["owner_slice"],
+                "decision_date": DS5_C01A_DECISION_DATE,
+                "rationale": (
+                    "C01a classifies this direct authority-bearing Badge group "
+                    "as unbranded typed debt; its owner must replace caller-chosen "
+                    "clothing with the existing private-issuer brand pattern."
+                ),
+                "capability_states": spec["capability_states"],
+                "closure_signal": spec["closure_signal"],
+                "authority_sink": {
+                    "sink_kind": "direct_badge_group",
+                    "descriptor_id": group_id,
+                    "component": first["component"],
+                    "component_declaration": _source_receipt(
+                        role="component_declaration",
+                        path=str(first["componentDeclarationPath"]),
+                        line=int(first["componentDeclarationLine"]),
+                        sha256=str(first["componentDeclarationSha256"]),
+                    ),
+                    "consumer_count": len(consumer_sites),
+                    "consumer_sites": consumer_sites,
+                },
+            }
+        )
+    return sorted(rows, key=lambda row: row["finding_id"])
+
+
+def _authority_presentation_errors(
+    data: Mapping[str, Any], *, live_probes: bool = True,
+    scan: Mapping[str, Any] | None = None,
+) -> list[str]:
+    """Bind every authority debt row byte-for-byte to its finite live census."""
+    errors: list[str] = []
+    stored_rows = data.get("supplemental_findings", [])
+    if not isinstance(stored_rows, list):
+        return ["authority_presentation_debt_invalid_container"]
+    authority_scan = scan or _authority_presentation_scan()
+    try:
+        expected_rows = _authority_presentation_rows(authority_scan)
+    except RuntimeError as exc:
+        return [str(exc)]
+    expected_by_id = {row["finding_id"]: row for row in expected_rows}
+    stored_by_id = {
+        str(row.get("finding_id")): row
+        for row in stored_rows
+        if isinstance(row, Mapping)
+    }
+    for finding_id, expected in expected_by_id.items():
+        row = stored_by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"authority_presentation_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        for field, expected_value in expected.items():
+            if row.get(field) != expected_value:
+                errors.append(
+                    f"authority_presentation_debt_drift:{finding_id}:{field}"
+                )
+    for row in stored_rows:
+        if not isinstance(row, Mapping):
+            continue
+        if row.get("finding_kind") == "authority_presentation_debt":
+            finding_id = str(row.get("finding_id", "unknown"))
+            if finding_id not in expected_by_id:
+                errors.append(
+                    "authority_presentation_debt_descriptor_missing:" + finding_id
+                )
+    if live_probes:
+        errors.extend(_badge_classification_errors(authority_scan))
+        errors.extend(_authority_prop_classification_errors(authority_scan))
+    return errors
+
 GOVERNED_DEBT_DESCRIPTORS = {
     finding_id: {
         "finding_id": finding_id,
@@ -1595,7 +2919,11 @@ C23_RATIONALE = (
     "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
 )
 
-EXPECTED_FINDING_IDS = BASE_EXPECTED_FINDING_IDS | set(GOVERNED_DEBT_DESCRIPTORS)
+EXPECTED_FINDING_IDS = (
+    BASE_EXPECTED_FINDING_IDS
+    | set(GOVERNED_DEBT_DESCRIPTORS)
+    | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
+)
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
@@ -1937,6 +3265,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         copy.deepcopy(descriptor)
         for _finding_id, descriptor in sorted(GOVERNED_DEBT_DESCRIPTORS.items())
     )
+    findings.extend(copy.deepcopy(row) for row in _authority_presentation_rows())
     return findings
 
 
@@ -2022,7 +3351,10 @@ def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
 
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
-    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS)
+    descriptor_ids = (
+        set(GOVERNED_DEBT_DESCRIPTORS)
+        | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
+    )
     generated = {
         row["finding_id"]: row
         for row in _supplemental_findings()
@@ -3558,6 +4890,29 @@ def validate_register(
     errors: list[str] = []
     _validate_producer_binding_debt_findings(data, errors)
     _validate_integrate_contract_debt_findings(data, errors)
+    errors.extend(
+        _authority_presentation_errors(data, live_probes=live_probes)
+    )
+    supplemental_rows = data.get("supplemental_findings", [])
+    if isinstance(supplemental_rows, list):
+        supplemental_ids = [
+            str(row.get("finding_id"))
+            for row in supplemental_rows
+            if isinstance(row, Mapping)
+        ]
+        if len(supplemental_ids) != len(set(supplemental_ids)):
+            errors.append("duplicate_supplemental_finding_id")
+        expected_dates = {
+            row["finding_id"]: row["decision_date"]
+            for row in _supplemental_findings()
+        }
+        for row in supplemental_rows:
+            if not isinstance(row, Mapping):
+                continue
+            finding_id = str(row.get("finding_id", "unknown"))
+            expected_date = expected_dates.get(finding_id)
+            if expected_date is not None and row.get("decision_date") != expected_date:
+                errors.append(f"supplemental_decision_date_drift:{finding_id}")
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
@@ -4033,6 +5388,13 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
 def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes: list[tuple[str, dict[str, Any]]] = []
 
+    def corrupt_value(value: Any) -> Any:
+        if isinstance(value, list):
+            return list(reversed(value)) if len(value) > 1 else []
+        if isinstance(value, dict):
+            return {"corrupt": True}
+        return str(value) + "-corrupt"
+
     missing_root = copy.deepcopy(data)
     missing_root["entries"].pop()
     probes.append(("missing-root", missing_root))
@@ -4130,10 +5492,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 if item["finding_id"] == finding_id
             )
             value = row[field]
-            if isinstance(value, list):
-                row[field] = list(reversed(value))
-            else:
-                row[field] = str(value) + "-corrupt"
+            row[field] = corrupt_value(value)
             probes.append(
                 (f"producer-binding-debt-{finding_id}-{field}", mutation)
             )
@@ -4147,20 +5506,79 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 if item["finding_id"] == finding_id
             )
             value = row[field]
-            if isinstance(value, list):
-                row[field] = list(reversed(value))
-            elif isinstance(value, dict):
-                row[field] = {"corrupt": True}
-            else:
-                row[field] = str(value) + "-corrupt"
+            row[field] = corrupt_value(value)
             probes.append(
                 (f"integrate-contract-debt-{finding_id}-{field}", mutation)
             )
+
+    authority_id = "authority-presentation-prop-control-approval-readiness"
+    missing_authority = copy.deepcopy(data)
+    missing_authority["supplemental_findings"] = [
+        row
+        for row in missing_authority["supplemental_findings"]
+        if row["finding_id"] != authority_id
+    ]
+    probes.append(("authority-presentation-row-removal", missing_authority))
+    for field in ("owner_slice", "capability_states", "closure_signal"):
+        mutation = copy.deepcopy(data)
+        row = next(
+            item
+            for item in mutation["supplemental_findings"]
+            if item["finding_id"] == authority_id
+        )
+        row[field] = corrupt_value(row[field])
+        probes.append((f"authority-presentation-{field}-drift", mutation))
+    moved_authority_site = copy.deepcopy(data)
+    row = next(
+        item
+        for item in moved_authority_site["supplemental_findings"]
+        if item["finding_id"] == authority_id
+    )
+    row["authority_sink"]["consumer_sites"][0]["site_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    probes.append(("authority-presentation-site-hash-drift", moved_authority_site))
+
+    duplicate_finding = copy.deepcopy(data)
+    duplicate_finding["supplemental_findings"].append(
+        copy.deepcopy(duplicate_finding["supplemental_findings"][0])
+    )
+    probes.append(("duplicate-supplemental-finding", duplicate_finding))
+
+    old_row_restamp = copy.deepcopy(data)
+    old_row_restamp["supplemental_findings"][0]["decision_date"] = (
+        DS5_C01A_DECISION_DATE
+    )
+    probes.append(("accepted-history-decision-date-restamp", old_row_restamp))
+
+    new_row_backdate = copy.deepcopy(data)
+    row = next(
+        item
+        for item in new_row_backdate["supplemental_findings"]
+        if item["finding_id"] == authority_id
+    )
+    row["decision_date"] = DECISION_DATE
+    probes.append(("authority-presentation-decision-date-backdate", new_row_backdate))
 
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)
+
+    authority_scan = _authority_presentation_scan()
+    reclassified = dict(AUTHORITY_BADGE_CLASSIFICATIONS)
+    debt_location = next(
+        location
+        for location, classification in reclassified.items()
+        if classification.startswith("debt:")
+    )
+    reclassified[debt_location] = "benign:interaction_state"
+    if not _badge_classification_errors(authority_scan, reclassified):
+        failures.append("authority-badge-reclassification")
+    unclassified = dict(AUTHORITY_BADGE_CLASSIFICATIONS)
+    unclassified.pop(next(iter(unclassified)))
+    if not _badge_classification_errors(authority_scan, unclassified):
+        failures.append("authority-badge-unclassified-site")
 
     retained = {
         name

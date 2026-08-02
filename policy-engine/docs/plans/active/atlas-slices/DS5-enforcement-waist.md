@@ -122,8 +122,8 @@ architecture guardrails.
    independent NO-GO reviews exposed three distinct bypass classes. Architect
    ruling `636645bec` withdraws that mechanism as an optimistic completeness
    envelope. C01 is continuously re-cut as C01a/C01b/C01c. The committed
-   `b67084dd6` is amended down to the sound retained core; it is not a base for
-   another analyzer and no follow-on commit is stacked on it first.
+   `b67084dd6` remains as honest history; a forward C01a commit removes its
+   rejected analyzer and retains its sound core. It is not a base for another analyzer.
 
 ## DS5-C00: measured entry contract and stop gate
 
@@ -652,7 +652,7 @@ re-cut with the next continuous number. No cap is enlarged after entry.
 
 The C00 caps remain binding. Adding the mandatory disposition report, affected
 tests and the source-complete construction registries exceeded several original
-clusters; none is enlarged. At the still-clean C00/C01a-amend boundary they are
+clusters; none is enlarged. At the still-clean C00/C01a forward-commit boundary they are
 continuously re-cut as follows. Each child cap is at or below its parent's C00
 cap; the listed count includes its journal and every generated-report path.
 
@@ -724,15 +724,15 @@ generic disposition checker. No other C00 cap changes.
 ### DS5-C01a — authority-sink census and brand/debt boundary
 
 **Architecture re-cut:** architect ruling `636645bec` replaces C01. The current
-commit `b67084dd6` is amended down, not stacked. Delete the abandoned
+commit `b67084dd6` remains as honest history; C01a removes its abandoned
 whole-program analysis machinery and tests written only for it. Retain only exact
 generated provenance driven by governed paths/hashes, the status-inventory
 bridge, declaration-derived Atlas prop census, and the DS5-only compiler-
 diagnostics gate.
 
-**Measured set:** exactly 14 paths; cap 15: the current eight C01 paths
+**Measured set:** exactly 14 paths; cap 15: the current eight C01a paths
 (`status_retirement_scan.mjs`, status checker/test/inventory, DS5 checker/test,
-dashboard `package.json`, journal), this plan, and the disposition
+the dashboard compile witness, journal), this plan, and the disposition
 register/schema/checker/test plus its generated reference report. The production census is 610 files, 19 semantic
 prop groups/35 uses: 2 already branded/6 uses; 12 unbranded authority props/21
 uses/10 declaration files; 5 benign/8 uses. The complete direct-`Badge` census
@@ -774,7 +774,7 @@ owns exact `decision_date: 2026-08-02`; the existing global
 date bytes remain unchanged. The surgical writer is run twice and the second
 run is byte-identical; an unrelated restamp is red.
 
-**Expected amended commit:** `DS5-C01a census branded authority sinks`.
+**Expected forward commit:** `DS5-C01a census branded authority sinks`.
 
 ### DS5-C01b — bounded authority escape-hatch lint
 

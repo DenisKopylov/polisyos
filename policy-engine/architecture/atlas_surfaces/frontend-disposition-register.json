@@ -5290,6 +5290,1911 @@
       "rationale": "The G4 owner publishes only reduced reference projections; DS5 may not invent or route the complete eight-field audience projection.",
       "closure_signal": "uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior",
       "decision_date": "2026-08-02"
+    },
+    {
+      "finding_id": "authority-presentation-badge-artifact-pipeline-decision-grade",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx:364",
+        "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx:461"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "consumer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-artifact-pipeline-decision-grade",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+            "line": 364,
+            "site_sha256": "sha256:bc39e26b94339fee059f835e89e5ba525e8b0726a633c4c605cb301b387934bc"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+            "line": 461,
+            "site_sha256": "sha256:c190ebdf4e331f7dfdd70a4aa0b0abac0d357b0e40a175cc473b42ea4985da62"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-bureaucratic-legal-review",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx:18"
+      ],
+      "owner_slice": "DS9",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "consumer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-bureaucratic-legal-review",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx",
+            "line": 18,
+            "site_sha256": "sha256:d2e73411ef987b9bfcf75cc21d261dd4fd633203a0e4ca1debb414d60e788b9e"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-candidate-declared-authority-purpose",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx:72"
+      ],
+      "owner_slice": "DS8",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a candidate-purpose issuer cannot grant governed authority",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-candidate-declared-authority-purpose",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "line": 72,
+            "site_sha256": "sha256:5a4bd0b58bf0f356bbee0ecc6b6321335beee2d020c96a1953d65da824accab4"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-candidate-refusal-markers",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx:92",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ReasoningChainDisplay.tsx:209"
+      ],
+      "owner_slice": "DS8",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after typed candidate and refusal postures cannot be presented as governed output",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-candidate-refusal-markers",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+            "line": 92,
+            "site_sha256": "sha256:e7cb356809e26bba02b637cde922555a87e85f886b9c460bf160bdcf9564677a"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/ReasoningChainDisplay.tsx",
+            "line": 209,
+            "site_sha256": "sha256:94860ea888ca4af2b960d156be40b9c21bfcc038485df1d92b7b50ee59b3e4eb"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-comparability",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx:37"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated comparability union uses an incomparable veto and runtime-novelty tests",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-comparability",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx",
+            "line": 37,
+            "site_sha256": "sha256:45bee93127149fa7263d5b49da1fb2eb167d2c39f67b9b612af81e2394e0b08d"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-compound-decision-grade",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:36",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx:44",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx:96",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx:99"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "surface_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-compound-decision-grade",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 4,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+            "line": 96,
+            "site_sha256": "sha256:c99ded562f8f56241916e6e4c5ffa6c4368d803cbe99430e7f9ef7df11626f92"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+            "line": 99,
+            "site_sha256": "sha256:3f09b0384c6482d8d1694bf100e2a512dfa04201cfc01e8a09fbad32df546d08"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+            "line": 44,
+            "site_sha256": "sha256:a4b601adb74c308901ebdbf1db310cc80f241c35c6215e16805547fd46bf7945"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "line": 36,
+            "site_sha256": "sha256:1b1413375318356da2bb7f393f06c80d2ebfbf3e01d766fbfcc844ef13f3a03f"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-control-approval-quality",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:1092",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:760",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:765",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:771",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:774",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:782",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:790",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:798",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:806",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:887",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:920"
+      ],
+      "owner_slice": "DS9",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-control-approval-quality",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 11,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 760,
+            "site_sha256": "sha256:50dc1ae9d46c149aaf02bc5da48d28e734ca172afebe9c026e71a01868f8c5c2"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 765,
+            "site_sha256": "sha256:305a58cffd47f6371f84bb8e953dc904d09215ec3543d9dfcf388c4fd64eafd5"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 771,
+            "site_sha256": "sha256:f642010c47a54c6e5262e9dcda2c1ca03548fcf85d432f0299fd6ebbbeb8ccb2"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 774,
+            "site_sha256": "sha256:9630be953e368e99d59a01c7671d5eca28a91bb04a28bd4306bb4ab33d78657e"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 782,
+            "site_sha256": "sha256:751392ee7d18e5dbf4092533a9a256a693c50463e75e87f092a7841f38e366f3"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 790,
+            "site_sha256": "sha256:4b05eacd623db1fccc49a651c5e06becce69b2adcc9c5d76ba4a43b6006ea843"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 798,
+            "site_sha256": "sha256:2fa776e9a21371a7de179b43a0c0696626e37d26f6889a8c49466253e2e7dfa2"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 806,
+            "site_sha256": "sha256:9567e1a844416e3b45b50bad4883e108fb6580694a076c6f3c234faee275df88"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 887,
+            "site_sha256": "sha256:8b1ef712fa651a22831af1174401e802d40a528bcfa9106c6f08455771444638"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 920,
+            "site_sha256": "sha256:c9cc7866d02eeaf4218946dd8433d474680ad62d5d12f16768bbd47e329bd0ec"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 1092,
+            "site_sha256": "sha256:848e67c3149e64fb01a13ff0b8edf2ec6cbbd28556d46963dc454363c68e7551"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-decision-confidence",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx:103"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-decision-confidence",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+            "line": 103,
+            "site_sha256": "sha256:82b13c2ce22bc7b2e4dc99649563d890b97e51ec159a187e5ba44894f58fe01e"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-evidence-source-freshness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx:49",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx:69",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx:73"
+      ],
+      "owner_slice": "DS8",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-evidence-source-freshness",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+            "line": 49,
+            "site_sha256": "sha256:73f3bd90ab6963201e6a8ccd8f7c8531cf6a5c4efc798d8370e4325874d2bc6e"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+            "line": 69,
+            "site_sha256": "sha256:6d5c44af2e4591bd5fe5614e707d3b7a55c0a670f533aa44f274d50f46218c26"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+            "line": 73,
+            "site_sha256": "sha256:b6ecc9078a1212eb3e6af770139ab16b7e6789d4669ac8d93cc3f052e5c6ef54"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-explainability-governance-counts",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx:124",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx:130",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx:137"
+      ],
+      "owner_slice": "DS9",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed governance summary proves counts cannot synthesize composed authority",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-explainability-governance-counts",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+            "line": 124,
+            "site_sha256": "sha256:3e975c3f115fdc9f0cae73a70a5afd6668d19505e8567cd04bfa46c15e6346da"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+            "line": 130,
+            "site_sha256": "sha256:822c061028c217b457db4b2d7946c609b8b2bbb2d460d24c84c56ee1be4c8747"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+            "line": 137,
+            "site_sha256": "sha256:45174ce34e2b332e6ef0c7eefc87312eef464240a2bc7f98162440948952b43d"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-governance-issue-severity",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx:194",
+        "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx:185"
+      ],
+      "owner_slice": "DS9",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated owner severity field enters a branded issuer with runtime novelty",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-governance-issue-severity",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+            "line": 185,
+            "site_sha256": "sha256:f252defccbd6e7e29f96b6acdf9167b8c2835443c55b1b414edd99884ad0a5c6"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+            "line": 194,
+            "site_sha256": "sha256:806d09e1a70df0ac8d17ca2506ff777acbd167bedfe05ce1805d357068ea2dd5"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-governed-projection-availability",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:383",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:418"
+      ],
+      "owner_slice": "DS7",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated availability union enters an exhaustive issuer and novel values render unrecognized",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-governed-projection-availability",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 383,
+            "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 418,
+            "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-governed-projection-rights-bar",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:439"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated may_not_use_for item enters a branded veto presentation",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-governed-projection-rights-bar",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 439,
+            "site_sha256": "sha256:f5b0d2b865fba3d2bb9804e1a0e97a3e6b3591fa5e2ce8713746678f5ee6a66c"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-governed-source-validation",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:462"
+      ],
+      "owner_slice": "DS7",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated source validation status enters an exhaustive issuer with novelty tests",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-governed-source-validation",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 462,
+            "site_sha256": "sha256:8f89134fa6975051cab6f6c84f8aa1a818f427708df999bb629a9502d9bb3902"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-negative-certificate-blocker",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx:61"
+      ],
+      "owner_slice": "DS8",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated blocker issuer prevents non-blockers from occupying the slot",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-negative-certificate-blocker",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx",
+            "line": 61,
+            "site_sha256": "sha256:2f7164873fddd2a59c77b5462ebd0e70c474e68acb0df377d1a83938c2deb29a"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-operator-blocker-overridability",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx:74"
+      ],
+      "owner_slice": "DS14",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-operator-blocker-overridability",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "line": 74,
+            "site_sha256": "sha256:477400a9248ee74584d47c9d1473470d6f14ff0def73b899403e2c508d021551"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-preflight-readiness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx:269",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx:312",
+        "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx:418"
+      ],
+      "owner_slice": "DS7",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw preview clothing is absent",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-preflight-readiness",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+            "line": 269,
+            "site_sha256": "sha256:588750bed922c923ae00d474fce557d43ccd7400845d9954d1b23ac03645fd11"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+            "line": 312,
+            "site_sha256": "sha256:c6b58e5a07d4e7545d7883f7c8e31089aece7134f5125f7cce58a4a324befa92"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+            "line": 418,
+            "site_sha256": "sha256:7a7192541950d1b501d83eee0a80f11eec2cbe293d8f37f050ae086e5356cc06"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-projection-source-freshness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx:21",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx:30"
+      ],
+      "owner_slice": "DS18",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after ProjectionFreshness state enters an exhaustive issuer with explicit absence and novelty behavior",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-projection-source-freshness",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+            "line": 21,
+            "site_sha256": "sha256:b2267b4a2120a9adfd033991a086333f547d1019fcd08f2cb845279a451ccefa"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+            "line": 30,
+            "site_sha256": "sha256:f63e0e83415f56ce3b1585da69bb475a9c1d41e63c5e24f452110aa621b71e57"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-promotion-candidate-status",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx:469"
+      ],
+      "owner_slice": "DS15",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "consumer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated promotion union enters a private issuer and novel values render unrecognized",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-promotion-candidate-status",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx",
+            "line": 469,
+            "site_sha256": "sha256:965d1e9d9e6a5548f0d002a86e5a42eb03f1ed341d85b12556b37752d10c7fd3"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-provenance-drift",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx:37"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "consumer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a private invalidation-posture issuer vetoes on every load-bearing provenance change",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-provenance-drift",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx",
+            "line": 37,
+            "site_sha256": "sha256:56116599b116d9cf84b183f6119045bcc9f160898e92cfb8a92fbc3c48ed320c"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-public-anti-authority-role",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:101"
+      ],
+      "owner_slice": "DS12",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a branded refusal from packet authorityRole cannot be upgraded to authority",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-public-anti-authority-role",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 101,
+            "site_sha256": "sha256:68c55d5c14641ae1504cde0d18356fdba56b1cbbe94fe9b2a243b27030f3580c"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-public-integrity-result",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:128",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:39",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:26"
+      ],
+      "owner_slice": "DS12",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a verifier-private integrity presentation remains explicitly outside closeout authority",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-public-integrity-result",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 39,
+            "site_sha256": "sha256:9eb26ee30416c96bea808f1e10f4a9011a3deebb40c8002472a70ad9f4e295d6"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 128,
+            "site_sha256": "sha256:69f935f66df709cf41c7ee21b274a36fa1d64bf269a8b36946cedaff2c117286"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx",
+            "line": 26,
+            "site_sha256": "sha256:9f96e2afab34fecd61e40ccdde93808e59b0c8bf49263b29eec2399aaf4237ec"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-public-packet-authority-framing",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:114",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:54",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:82"
+      ],
+      "owner_slice": "DS12",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-public-packet-authority-framing",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 54,
+            "site_sha256": "sha256:84bfc4b4782b63b5213a8a85440c1794ef961bfa41718662132103afc8409103"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 82,
+            "site_sha256": "sha256:00001905fd7545191a0ea2e8432def274b017868b077f3ae773dfb74e5b2e64a"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 114,
+            "site_sha256": "sha256:0ad59ee245b9ec6c6888fce599cd64578c43646539abcdc915b6fd59b9df15c1"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-review-required-aggregate",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/app/layout/Header.tsx:115"
+      ],
+      "owner_slice": "DS9",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-review-required-aggregate",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/app/layout/Header.tsx",
+            "line": 115,
+            "site_sha256": "sha256:e9fa54bd2e4c415e2a4dab68a24c6fb2a4d558383f312fae503da2f6d95ba550"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-run-deck-authority-summary",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx:130",
+        "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx:138",
+        "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx:139",
+        "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx:263"
+      ],
+      "owner_slice": "DS7",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a live typed run-deck contract rejects fixture_only and prevents local authority synthesis",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-run-deck-authority-summary",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 4,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
+            "line": 130,
+            "site_sha256": "sha256:9f68d48e86afa110eb7b3980e9d74571ae7ab908b23c486293f067e5123bb389"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
+            "line": 138,
+            "site_sha256": "sha256:f556dc8b9545a91360d67f9ba9df5fd255d0b77771b9df97284649e3803a9f40"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
+            "line": 139,
+            "site_sha256": "sha256:3b5ee18525cee4f3d35ed7ddc2219b189f15b402d855baf2032f787e7cb2eb87"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
+            "line": 263,
+            "site_sha256": "sha256:707ba2bd5393fb99c3f1c1b345552a51f1ddf30a20542ac20af820f5fe7bb910"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-threshold-unavailable",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:356"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed unavailable or refusal artifact replaces the static caller-owned threshold token",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-threshold-unavailable",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+            "line": 356,
+            "site_sha256": "sha256:af6ed5ae5dc18dd0293c50bc33ec0c1799de56c8e74cb5c783f2b38d3e8c22e0"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-badge-uncertainty-dispute",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx:720"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after an owner uncertainty artifact keeps disputed as a mixed-case veto or warning",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-uncertainty-dispute",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+            "line": 720,
+            "site_sha256": "sha256:bf00ed6e644f1319bbc35ba52201a66342ea6207868f682e3e094c9803fa342e"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-control-approval-readiness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:737",
+        "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx:1259"
+      ],
+      "owner_slice": "DS14",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated approval-readiness issuer owns clothing and mixed deny/unknown cases remain non-positive",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-control-approval-readiness",
+        "component": "ControlApprovalPanel",
+        "prop": "readiness",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+          "line": 737,
+          "content_sha256": "sha256:4994d697ccc2cf6a2563e4405d771d222da3b039c557fef541353525e3f8c318"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+          "line": 744,
+          "content_sha256": "sha256:11351e844f79f3ff8ad126a4b27e491dec4f5eb225c1bc57d5c6d7f539e750fb"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+            "line": 1259,
+            "site_sha256": "sha256:8241cb7082c8b25e2da59d96003990c12fe2cc21a42795101ae0cf89405ba237"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-counterfactual-status",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx:17",
+        "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx:51",
+        "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx:54",
+        "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx:87"
+      ],
+      "owner_slice": "DS8",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated scenario-status issuer owns icon, tone, and label while novel values fail closed",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-counterfactual-status",
+        "component": "CounterfactualBadge",
+        "prop": "status",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+          "line": 17,
+          "content_sha256": "sha256:9c8fd85201b89b5664bdb08ad9561cc6e9241919e8af9c12af8a62e7cb6b079a"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+          "line": 13,
+          "content_sha256": "sha256:d2255074aab10545f7a53795b4532f974c8efa287a57e369864c191337a0f26c"
+        },
+        "consumer_count": 3,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx",
+            "line": 51,
+            "site_sha256": "sha256:2c7c80f715d172cf47a16f79f67629735d4e6faad8ab740f4865955dd6b95860"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
+            "line": 54,
+            "site_sha256": "sha256:e7cd9119b60f49e56f79783d7488b064660c611e5b47b2eefa96d0816cfda29a"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+            "line": 87,
+            "site_sha256": "sha256:f3fc4c0ff7a76051d6a9140f4668526c3b2c7edf0ac6b83bef1fd7bc68806507"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-data-freshness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx:17",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:396",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:419"
+      ],
+      "owner_slice": "DS18",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after ProjectionFreshness enters a private exhaustive issuer and runtime-novel states render unrecognized without cache-age inference",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-data-freshness",
+        "component": "DataFreshnessBadge",
+        "prop": "freshness",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+          "line": 17,
+          "content_sha256": "sha256:596f5d95b0b9d335b4b6fb09a4dffd2729bdca43b03e18e3c88467de82b95650"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+          "line": 7,
+          "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 396,
+            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 419,
+            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-decision-card-confidence",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx:39",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx:251"
+      ],
+      "owner_slice": "DS17",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence and rejects structural lookalikes",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-decision-card-confidence",
+        "component": "DecisionCard",
+        "prop": "confidence",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+          "line": 39,
+          "content_sha256": "sha256:f799928a0d338f29a48f6e5c80a028d549d963453fc2ccb818b5060e991335ce"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+          "line": 27,
+          "content_sha256": "sha256:be1dbb1fda01ac9db551da5f48eda808f4dbb657ed7c729915ae1ae2855a0f09"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+            "line": 251,
+            "site_sha256": "sha256:6416579e316fc41cd6ac7c789103a3f03baee3b526d6fe1f4f45bc46d7dd5d32"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-decision-card-verdict",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx:39",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx:250",
+        "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx:53"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "surface_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 generated DecisionGrade and a private issuer replace the raw verdict boundary with novelty tests",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-decision-card-verdict",
+        "component": "DecisionCard",
+        "prop": "verdict",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+          "line": 39,
+          "content_sha256": "sha256:f799928a0d338f29a48f6e5c80a028d549d963453fc2ccb818b5060e991335ce"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+          "line": 26,
+          "content_sha256": "sha256:472b8e33ef4657e8e074fd5be10df75aac9c73aab31a5e4cccc141ae46058f92"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+            "line": 250,
+            "site_sha256": "sha256:aec520bec9a00dc2be8d46cd46ce4cb960fdddaf6af30e21580177e8857ed05e"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "line": 53,
+            "site_sha256": "sha256:e100ddaedcd89231228024e3bdca55447621ab87f388e0f95e6a4f8c00fcd3ed"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-decision-grade-presentation",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:27",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:116",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:119",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:142",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx:147"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "surface_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 supplies DecisionGrade through the generated client and a private exhaustive issuer replaces this structural presentation",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-decision-grade-presentation",
+        "component": "DecisionGradeBadge",
+        "prop": "presentation",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 27,
+          "content_sha256": "sha256:86c30585cf602fadb7cc67023870247e0469f53ce9cc416ff972768e03c023d3"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 30,
+          "content_sha256": "sha256:a732a318b22dae22a9cef1401637d322f942fd32e6d29638a70f7414cad3c5bc"
+        },
+        "consumer_count": 4,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "line": 116,
+            "site_sha256": "sha256:026e42a9c493925f6cb9d456638bbf147dea9864a1c7726bffc4d66703f846d0"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "line": 119,
+            "site_sha256": "sha256:f99dc98dbda399a9187d3c3c46b007aff102265614235d099b935d14bb4513fd"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "line": 142,
+            "site_sha256": "sha256:026e42a9c493925f6cb9d456638bbf147dea9864a1c7726bffc4d66703f846d0"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "line": 147,
+            "site_sha256": "sha256:f99dc98dbda399a9187d3c3c46b007aff102265614235d099b935d14bb4513fd"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-dispute-status",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx:11",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx:82",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx:79"
+      ],
+      "owner_slice": "DS11",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a private exhaustive dispute issuer owns clothing and runtime-novel dispute states render unrecognized",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-dispute-status",
+        "component": "DisputeBadge",
+        "prop": "status",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+          "line": 11,
+          "content_sha256": "sha256:66b9a2be27f7f6d20065b11f3229f1e805b87870b35fbd85fa9f4e76ca6c5e71"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+          "line": 7,
+          "content_sha256": "sha256:10e61aeba290847f729d9bef1e9064daedd57f3dadeb118c8df644147ed193b2"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "line": 82,
+            "site_sha256": "sha256:27fcfa2499f281c5f9c1ef0f7f83ec01cc9d6851135402bcbceeef6cfbfab94d"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "line": 79,
+            "site_sha256": "sha256:1e7369a34e3debbad6dbbca3f698b86c3910bbec2f77413dc02b0dfe724b87fa"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-explainability-verdict",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx:62",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:563"
+      ],
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "surface_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 generated DecisionGrade and a private issuer replace the nested raw verdict path",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-explainability-verdict",
+        "component": "ExplainabilityCard",
+        "prop": "verdict",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 62,
+          "content_sha256": "sha256:898e96862d3380b23a02162e9cb4e4483343fa51bbc5d54a8f2bffea88c6ac80"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 40,
+          "content_sha256": "sha256:a10d722a4b62090fa1c6650ae9c9c8e290a873d0e9a21a6802fe705bb4d88222"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 563,
+            "site_sha256": "sha256:b262d8aef8564aad8036622cdb5ce3992c04a503550aee82a8b6a0a0ea9f08c2"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-lineage-freshness-cue",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx:325",
+        "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx:192"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a source-owned lineage freshness issuer owns the cue and absence cannot be upgraded",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-lineage-freshness-cue",
+        "component": "FreshnessCue",
+        "prop": "freshness",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 325,
+          "content_sha256": "sha256:0575556fb157f3b29b8884b760110362804ae9e8f3792e1c5ae1c84e45447d72"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 325,
+          "content_sha256": "sha256:9a08899e224d0112148f1b859bdbcd9762459abe35261a709a80a59007f6362b"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+            "line": 192,
+            "site_sha256": "sha256:8dcc1d3dab7a63b57caf992a71c5ab7e71f578abed4300a2157b64126a487ac4"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-time-semantics-freshness",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx:16",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:398",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:452"
+      ],
+      "owner_slice": "DS18",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-time-semantics-freshness",
+        "component": "TimeSemanticsLabel",
+        "prop": "freshness",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+          "line": 16,
+          "content_sha256": "sha256:fcce4805a97b36ce6799c026974fb7c514f9cc3d4d1270ef3023bd2da414e44c"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+          "line": 10,
+          "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
+        },
+        "consumer_count": 2,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 398,
+            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "line": 452,
+            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-verification-status-cue",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx:308",
+        "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx:191"
+      ],
+      "owner_slice": "DS16",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a private verification-status issuer owns cue clothing and runtime novelty is explicit",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-verification-status-cue",
+        "component": "StatusCue",
+        "prop": "status",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 308,
+          "content_sha256": "sha256:0c964271849127cb91698cf8a1691db82481f0592ff753ccf5566433eb00763f"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 308,
+          "content_sha256": "sha256:d5621d91ef745b7d1bbe87084b667efd9d65e3ca844ec3e226b558875199b264"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+            "line": 191,
+            "site_sha256": "sha256:0be8b4d47dc2632e2e2779e8cb6ed0de45005a4be3dd73b1f12a2bf7acc32944"
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "authority-presentation-prop-verification-status-icon-tone",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx:74",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx:43"
+      ],
+      "owner_slice": "DS11",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected",
+      "authority_sink": {
+        "sink_kind": "prop_boundary",
+        "descriptor_id": "prop-verification-status-icon-tone",
+        "component": "StatusIcon",
+        "prop": "tone",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+          "line": 74,
+          "content_sha256": "sha256:a031d1e2b4f4d9515d9de9bbef19a844638664fe4da47c5dc1bad413a56f069f"
+        },
+        "prop_declaration": {
+          "role": "prop_declaration",
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+          "line": 74,
+          "content_sha256": "sha256:93b32ce41788f3e2d12d1eef280ba8ff9015a36e5403249d1d9cdeef3cc8bd29"
+        },
+        "consumer_count": 1,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+            "line": 43,
+            "site_sha256": "sha256:0d1b4ff81196ffb28c2d93b5284cae6529255f51469e0abfa95a852a2cfc4758"
+          }
+        ]
+      }
     }
   ],
   "seeded_negative_lifecycle": [

@@ -115,8 +115,9 @@ def _scan_json(request_json: str) -> dict[str, Any]:
         "definitions",
         "interactionLeaks",
         "protectedRevivals",
-        "unauthorizedStatusOwners",
-        "unauthorizedStatusSinks",
+        "authoritySinkDeclarations",
+        "badgeSites",
+        "authorityPropCensus",
     ):
         if not isinstance(result.get(finding_key), list):
             raise RuntimeError(
@@ -157,6 +158,7 @@ def _scan(
     *,
     inventory: Mapping[str, Any] | None = None,
     validate_override_diagnostics: bool = False,
+    authority_prop_descriptors: Sequence[Mapping[str, str]] = (),
 ) -> dict[str, Any]:
     request = (
         {"sourceOverrides": dict(sorted(source_overrides.items()))}
@@ -165,6 +167,11 @@ def _scan(
     )
     if source_overrides is not None and validate_override_diagnostics:
         request["validateOverrideDiagnostics"] = True
+    if authority_prop_descriptors:
+        request["authorityPropDescriptors"] = [
+            dict(sorted(descriptor.items()))
+            for descriptor in authority_prop_descriptors
+        ]
     if inventory is not None:
         request["protectedDefinitions"] = _protected_semantic_definitions(inventory)
         generated = inventory.get("sources", {}).get("generated_client", {})

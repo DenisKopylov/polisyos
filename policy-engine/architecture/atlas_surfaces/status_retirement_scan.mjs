@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import path from "node:path";
 import process from "node:process";
@@ -38,6 +39,10 @@ function lineOf(sourceFile, node) {
 
 function endLineOf(sourceFile, node) {
   return sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line + 1;
+}
+
+function textSha256(value) {
+  return `sha256:${createHash("sha256").update(value).digest("hex")}`;
 }
 
 function propertyNameText(name) {
@@ -1101,13 +1106,19 @@ function directProjectionControls(checker, node) {
   };
 }
 
-function isAuthorizedBadgeToneProjection(checker, node, parameters) {
+function isAuthorizedBadgeToneProjection(
+  checker,
+  node,
+  parameters,
+  governedPaths,
+) {
   return (
     parameters.length > 0 &&
     isAtlasBadgeToneType(checker, node.type) &&
     parameters.every(
       (parameter) =>
-        parameter.type && isGeneratedClosedInputType(checker, parameter.type),
+        parameter.type &&
+        isGeneratedClosedInputType(checker, parameter.type, governedPaths),
     )
   );
 }
@@ -1219,6 +1230,7 @@ function collectAuthoredProjectionRevivals(
   protectedDefinitions,
   pathOf,
   checker,
+  governedPaths,
 ) {
   const descriptors = Array.isArray(protectedDefinitions)
     ? protectedDefinitions
@@ -1401,7 +1413,7 @@ function collectAuthoredProjectionRevivals(
     const { controls, parameters } = directProjectionControls(checker, node);
     const authorized =
       controls.size > 0 &&
-      isAuthorizedBadgeToneProjection(checker, node, parameters);
+      isAuthorizedBadgeToneProjection(checker, node, parameters, governedPaths);
     if (authorized) authorizedFunctions.add(symbol);
     if (controls.size > 0 && !authorized) {
       projectedFunctions.set(
@@ -2082,6 +2094,7 @@ function collectProtectedRevivals(
   protectedDefinitions,
   pathOf,
   checker,
+  governedPaths,
 ) {
   const descriptors = Array.isArray(protectedDefinitions)
     ? protectedDefinitions
@@ -2092,6 +2105,7 @@ function collectProtectedRevivals(
     descriptors,
     pathOf,
     checker,
+    governedPaths,
   )) {
     revivals.set(`${fact.candidateId}:${fact.path}:${fact.line}`, fact);
   }
@@ -2305,1336 +2319,6 @@ function collectInteractionLeaks(sourceFiles, identities) {
   return leaks;
 }
 
-function collectUnauthorizedStatusOwnership(
-  sourceFiles,
-  checker,
-  pathOf,
-  generatedDefinitionPaths = [],
-) {
-  const governedPaths = new Set(generatedDefinitionPaths);
-  const candidateBySymbol = new Map();
-  const candidateById = new Map();
-  let nextOwnerId = 0;
-
-  const addCandidate = (
-    sourceFile,
-    node,
-    nameNode,
-    typeNode,
-    declarationName,
-    fieldName,
-  ) => {
-    const relative = pathOf(sourceFile);
-    if (!relative.startsWith("packages/atlas-ui/src/")) return;
-    if (
-      typeNode &&
-      isGeneratedClosedInputType(checker, typeNode, governedPaths)
-    ) {
-      return;
-    }
-    const type = checker.getTypeAtLocation(nameNode);
-    const enumClosed =
-      ts.isEnumDeclaration(node) && enumMembers(node).length > 0;
-    if (!enumClosed && !isClosedStringLiteralType(type)) return;
-    const symbol = symbolIdentity(checker, nameNode);
-    if (!symbol || candidateBySymbol.has(symbol)) return;
-    const ownerId = `owner:${nextOwnerId++}`;
-    const candidate = {
-      ownerId,
-      path: relative,
-      line: lineOf(sourceFile, node),
-      declarationName,
-      fieldName,
-    };
-    candidateBySymbol.set(symbol, candidate);
-    candidateById.set(ownerId, candidate);
-  };
-
-  for (const sourceFile of sourceFiles) {
-    const visit = (node) => {
-      if (ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)) {
-        addCandidate(
-          sourceFile,
-          node,
-          node.name,
-          ts.isTypeAliasDeclaration(node) ? node.type : undefined,
-          node.name.text,
-          null,
-        );
-      }
-      if (
-        (ts.isPropertySignature(node) ||
-          ts.isPropertyDeclaration(node) ||
-          ts.isParameter(node)) &&
-        node.type &&
-        stringUnionMembers(node.type)
-      ) {
-        const fieldName = propertyNameText(node.name);
-        if (fieldName) {
-          addCandidate(sourceFile, node, node.name, node.type, null, fieldName);
-        }
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(sourceFile);
-  }
-
-  const emptyValue = () => ({
-    owners: new Set(),
-    objects: new Set(),
-    callables: new Set(),
-  });
-  const cloneValue = (value) => ({
-    owners: new Set(value.owners),
-    objects: new Set(value.objects),
-    callables: new Set(value.callables),
-  });
-  const mergeValueInto = (target, source) => {
-    let changed = false;
-    for (const field of ["owners", "objects", "callables"]) {
-      for (const atom of source[field]) {
-        if (!target[field].has(atom)) {
-          target[field].add(atom);
-          changed = true;
-        }
-      }
-    }
-    return changed;
-  };
-  const mergedValue = (...values) => {
-    const result = emptyValue();
-    for (const value of values) mergeValueInto(result, value);
-    return result;
-  };
-  const valueSignature = (value) =>
-    JSON.stringify({
-      owners: [...value.owners].sort(),
-      objects: [...value.objects].sort(),
-      callables: [...value.callables].sort(),
-    });
-
-  const symbolIds = new Map();
-  const symbolId = (symbol) => {
-    if (!symbolIds.has(symbol)) symbolIds.set(symbol, symbolIds.size);
-    return symbolIds.get(symbol);
-  };
-  const emptyState = () => ({ cells: new Map(), heap: new Map() });
-  const cloneState = (state) => ({
-    cells: new Map(
-      [...state.cells].map(([symbol, value]) => [symbol, cloneValue(value)]),
-    ),
-    heap: new Map(
-      [...state.heap].map(([objectId, properties]) => [
-        objectId,
-        new Map(
-          [...properties].map(([key, value]) => [key, cloneValue(value)]),
-        ),
-      ]),
-    ),
-  });
-  const mergeStateInto = (target, source) => {
-    let changed = false;
-    for (const [symbol, value] of source.cells) {
-      if (!target.cells.has(symbol)) target.cells.set(symbol, emptyValue());
-      changed = mergeValueInto(target.cells.get(symbol), value) || changed;
-    }
-    for (const [objectId, properties] of source.heap) {
-      if (!target.heap.has(objectId)) target.heap.set(objectId, new Map());
-      const targetProperties = target.heap.get(objectId);
-      for (const [key, value] of properties) {
-        if (!targetProperties.has(key)) targetProperties.set(key, emptyValue());
-        changed = mergeValueInto(targetProperties.get(key), value) || changed;
-      }
-    }
-    return changed;
-  };
-  const mergedState = (...states) => {
-    const result = emptyState();
-    for (const state of states) mergeStateInto(result, state);
-    return result;
-  };
-  const stateSignature = (state) =>
-    JSON.stringify({
-      cells: [...state.cells]
-        .map(([symbol, value]) => [symbolId(symbol), valueSignature(value)])
-        .sort(([left], [right]) => left - right),
-      heap: [...state.heap]
-        .map(([objectId, properties]) => [
-          objectId,
-          [...properties]
-            .map(([key, value]) => [key, valueSignature(value)])
-            .sort(([left], [right]) => left.localeCompare(right)),
-        ])
-        .sort(([left], [right]) => left.localeCompare(right)),
-    });
-
-  const ownersForType = (type, seen = new Set()) => {
-    const owners = new Set();
-    if (!type || seen.has(type)) return owners;
-    seen.add(type);
-    for (const symbol of [type.aliasSymbol, type.symbol]) {
-      const candidate = candidateBySymbol.get(symbol);
-      if (candidate) owners.add(candidate.ownerId);
-    }
-    if (owners.size > 0) return owners;
-    for (const member of type.types ?? []) {
-      for (const ownerId of ownersForType(member, seen)) owners.add(ownerId);
-    }
-    return owners;
-  };
-  const ownersForTypeNode = (typeNode, seen = new Set()) => {
-    const owners = new Set();
-    if (!typeNode || seen.has(typeNode)) return owners;
-    seen.add(typeNode);
-    if (ts.isParenthesizedTypeNode(typeNode)) {
-      return ownersForTypeNode(typeNode.type, seen);
-    }
-    if (ts.isTypeReferenceNode(typeNode)) {
-      const candidate = candidateBySymbol.get(
-        symbolIdentity(checker, typeNode.typeName),
-      );
-      if (candidate) owners.add(candidate.ownerId);
-    }
-    if (ts.isUnionTypeNode(typeNode) || ts.isIntersectionTypeNode(typeNode)) {
-      for (const member of typeNode.types) {
-        for (const ownerId of ownersForTypeNode(member, seen)) {
-          owners.add(ownerId);
-        }
-      }
-    }
-    return owners;
-  };
-  const declaredOwnerValue = (typeNode) => {
-    const value = emptyValue();
-    if (!typeNode) return value;
-    const syntacticOwners = ownersForTypeNode(typeNode);
-    if (syntacticOwners.size > 0) {
-      for (const ownerId of syntacticOwners) value.owners.add(ownerId);
-      return value;
-    }
-    for (const ownerId of ownersForType(
-      checker.getTypeFromTypeNode(typeNode),
-    )) {
-      value.owners.add(ownerId);
-    }
-    return value;
-  };
-  const ownerAt = (node) => {
-    const value = emptyValue();
-    const candidate = candidateBySymbol.get(symbolIdentity(checker, node));
-    if (candidate) value.owners.add(candidate.ownerId);
-    return value;
-  };
-
-  const functionBySymbol = new Map();
-  const functionById = new Map();
-  const functionIdByNode = new Map();
-  const globalInitializerBySymbol = new Map();
-  const globalInitializersInProgress = new Set();
-  const nodeId = (node) =>
-    `${pathOf(node.getSourceFile())}:${node.pos}:${node.end}`;
-  for (const sourceFile of sourceFiles) {
-    const visit = (node) => {
-      if (ts.isFunctionLike(node) && node.body) {
-        const id = `function:${nodeId(node)}`;
-        functionIdByNode.set(node, id);
-        functionById.set(id, node);
-        const symbol = functionSymbol(checker, node);
-        if (symbol) functionBySymbol.set(symbol, id);
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(sourceFile);
-  }
-  for (const sourceFile of sourceFiles) {
-    for (const statement of sourceFile.statements) {
-      if (!ts.isVariableStatement(statement)) continue;
-      for (const declaration of statement.declarationList.declarations) {
-        if (!ts.isIdentifier(declaration.name)) continue;
-        const symbol = symbolIdentity(checker, declaration.name);
-        if (
-          symbol &&
-          (!declaration.initializer ||
-            !ts.isFunctionLike(declaration.initializer))
-        ) {
-          globalInitializerBySymbol.set(symbol, declaration);
-        }
-      }
-    }
-  }
-
-  const localSymbolsByFunction = new Map();
-  const capturesByFunction = new Map();
-  const capturedWritesByFunction = new Map();
-  const calleesByFunction = new Map();
-  const assignmentOperators = new Set([
-    ts.SyntaxKind.EqualsToken,
-    ts.SyntaxKind.PlusEqualsToken,
-    ts.SyntaxKind.MinusEqualsToken,
-    ts.SyntaxKind.AsteriskEqualsToken,
-    ts.SyntaxKind.AsteriskAsteriskEqualsToken,
-    ts.SyntaxKind.SlashEqualsToken,
-    ts.SyntaxKind.PercentEqualsToken,
-    ts.SyntaxKind.AmpersandEqualsToken,
-    ts.SyntaxKind.BarEqualsToken,
-    ts.SyntaxKind.CaretEqualsToken,
-    ts.SyntaxKind.LessThanLessThanEqualsToken,
-    ts.SyntaxKind.GreaterThanGreaterThanEqualsToken,
-    ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
-    ts.SyntaxKind.BarBarEqualsToken,
-    ts.SyntaxKind.AmpersandAmpersandEqualsToken,
-    ts.SyntaxKind.QuestionQuestionEqualsToken,
-  ]);
-  const addNameSymbols = (name, target) => {
-    for (const identifier of bindingNames(name)) {
-      const symbol = symbolIdentity(checker, identifier);
-      if (symbol) target.add(symbol);
-    }
-  };
-  for (const [functionId, node] of functionById) {
-    const locals = new Set();
-    const references = new Set();
-    const writes = new Set();
-    const callees = new Set();
-    for (const parameter of node.parameters) {
-      addNameSymbols(parameter.name, locals);
-    }
-    if (node.name) addNameSymbols(node.name, locals);
-    const collect = (current) => {
-      if (current !== node && ts.isFunctionLike(current)) {
-        if (current.name) addNameSymbols(current.name, locals);
-        if (
-          ts.isVariableDeclaration(current.parent) ||
-          ts.isPropertyDeclaration(current.parent) ||
-          ts.isPropertyAssignment(current.parent)
-        ) {
-          addNameSymbols(current.parent.name, locals);
-        }
-        return;
-      }
-      if (ts.isVariableDeclaration(current)) {
-        addNameSymbols(current.name, locals);
-      } else if (ts.isCatchClause(current) && current.variableDeclaration) {
-        addNameSymbols(current.variableDeclaration.name, locals);
-      } else if (ts.isFunctionDeclaration(current) && current.name) {
-        addNameSymbols(current.name, locals);
-      }
-      if (ts.isIdentifier(current)) {
-        const symbol = symbolIdentity(checker, current);
-        if (symbol) references.add(symbol);
-      }
-      if (
-        ts.isBinaryExpression(current) &&
-        assignmentOperators.has(current.operatorToken.kind)
-      ) {
-        const left = unwrapExpression(current.left);
-        if (ts.isIdentifier(left)) {
-          const symbol = symbolIdentity(checker, left);
-          if (symbol) writes.add(symbol);
-        }
-      }
-      if (
-        (ts.isPrefixUnaryExpression(current) ||
-          ts.isPostfixUnaryExpression(current)) &&
-        (current.operator === ts.SyntaxKind.PlusPlusToken ||
-          current.operator === ts.SyntaxKind.MinusMinusToken)
-      ) {
-        const operand = unwrapExpression(current.operand);
-        if (ts.isIdentifier(operand)) {
-          const symbol = symbolIdentity(checker, operand);
-          if (symbol) writes.add(symbol);
-        }
-      }
-      if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
-        const symbol = symbolIdentity(checker, current.expression);
-        const callee = symbol ? functionBySymbol.get(symbol) : undefined;
-        if (callee) callees.add(callee);
-      }
-      ts.forEachChild(current, collect);
-    };
-    collect(node.body);
-    localSymbolsByFunction.set(functionId, locals);
-    capturesByFunction.set(
-      functionId,
-      new Set([...references].filter((symbol) => !locals.has(symbol))),
-    );
-    capturedWritesByFunction.set(
-      functionId,
-      new Set([...writes].filter((symbol) => !locals.has(symbol))),
-    );
-    calleesByFunction.set(functionId, callees);
-  }
-  let capturesChanged = true;
-  while (capturesChanged) {
-    capturesChanged = false;
-    for (const [functionId, callees] of calleesByFunction) {
-      const locals = localSymbolsByFunction.get(functionId) ?? new Set();
-      const captures = capturesByFunction.get(functionId);
-      const writes = capturedWritesByFunction.get(functionId);
-      for (const callee of callees) {
-        for (const symbol of capturesByFunction.get(callee) ?? []) {
-          if (!locals.has(symbol) && !captures.has(symbol)) {
-            captures.add(symbol);
-            capturesChanged = true;
-          }
-        }
-        for (const symbol of capturedWritesByFunction.get(callee) ?? []) {
-          if (!locals.has(symbol) && !writes.has(symbol)) {
-            writes.add(symbol);
-            capturesChanged = true;
-          }
-        }
-      }
-    }
-  }
-
-  const callableValue = (functionId) => {
-    const value = emptyValue();
-    if (functionId) value.callables.add(functionId);
-    return value;
-  };
-  const allocationId = (node, contextKey) =>
-    `object:${nodeId(node)}:${contextKey}`;
-  const UNKNOWN_PROPERTY = "*";
-  const ensureObject = (state, objectId) => {
-    if (!state.heap.has(objectId)) state.heap.set(objectId, new Map());
-    return state.heap.get(objectId);
-  };
-  const readProperty = (state, objectValue, key) => {
-    const result = emptyValue();
-    for (const objectId of objectValue.objects) {
-      const properties = state.heap.get(objectId) ?? new Map();
-      if (key === null) {
-        for (const value of properties.values()) mergeValueInto(result, value);
-      } else {
-        mergeValueInto(result, properties.get(key) ?? emptyValue());
-        mergeValueInto(
-          result,
-          properties.get(UNKNOWN_PROPERTY) ?? emptyValue(),
-        );
-      }
-    }
-    return result;
-  };
-  const writeProperty = (state, objectValue, key, value) => {
-    const strong = objectValue.objects.size === 1 && key !== null;
-    for (const objectId of objectValue.objects) {
-      const properties = ensureObject(state, objectId);
-      if (strong) {
-        properties.set(key, cloneValue(value));
-      } else if (key === null) {
-        if (properties.size === 0) {
-          properties.set(UNKNOWN_PROPERTY, cloneValue(value));
-        } else {
-          for (const property of properties.values()) {
-            mergeValueInto(property, value);
-          }
-          if (!properties.has(UNKNOWN_PROPERTY)) {
-            properties.set(UNKNOWN_PROPERTY, cloneValue(value));
-          }
-        }
-      } else {
-        if (!properties.has(key)) properties.set(key, emptyValue());
-        mergeValueInto(properties.get(key), value);
-      }
-    }
-  };
-  const reachableObjects = (state, rootValues) => {
-    const reachable = new Set();
-    const pending = rootValues.flatMap((value) => [...value.objects]);
-    while (pending.length > 0) {
-      const objectId = pending.pop();
-      if (reachable.has(objectId)) continue;
-      reachable.add(objectId);
-      for (const value of (state.heap.get(objectId) ?? new Map()).values()) {
-        for (const nestedId of value.objects) {
-          if (!reachable.has(nestedId)) pending.push(nestedId);
-        }
-      }
-    }
-    return reachable;
-  };
-  const copyHeapClosure = (source, target, rootValues) => {
-    for (const objectId of reachableObjects(source, rootValues)) {
-      const properties = source.heap.get(objectId);
-      if (!properties) continue;
-      target.heap.set(
-        objectId,
-        new Map(
-          [...properties].map(([key, value]) => [key, cloneValue(value)]),
-        ),
-      );
-    }
-  };
-  const callableCaptureSymbols = (state, rootValues) => {
-    const symbols = new Set();
-    const values = [...rootValues];
-    for (const objectId of reachableObjects(state, rootValues)) {
-      values.push(...(state.heap.get(objectId) ?? new Map()).values());
-    }
-    for (const value of values) {
-      for (const functionId of value.callables) {
-        for (const symbol of capturesByFunction.get(functionId) ?? []) {
-          symbols.add(symbol);
-        }
-      }
-    }
-    return symbols;
-  };
-
-  const constantKey = (node, seen = new Set()) => {
-    const current = unwrapExpression(node);
-    if (
-      ts.isStringLiteral(current) ||
-      ts.isNoSubstitutionTemplateLiteral(current) ||
-      ts.isNumericLiteral(current)
-    ) {
-      return current.text;
-    }
-    if (ts.isIdentifier(current)) {
-      const symbol = symbolIdentity(checker, current);
-      if (!symbol || seen.has(symbol)) return null;
-      seen.add(symbol);
-      const declarations = symbol.declarations ?? [];
-      if (declarations.length !== 1) return null;
-      const declaration = declarations[0];
-      if (
-        ts.isVariableDeclaration(declaration) &&
-        declaration.initializer &&
-        (declaration.parent.flags & ts.NodeFlags.Const) !== 0
-      ) {
-        return constantKey(declaration.initializer, seen);
-      }
-    }
-    const constant = checker.getConstantValue(current);
-    if (typeof constant === "string" || typeof constant === "number") {
-      return String(constant);
-    }
-    const type = checker.getTypeAtLocation(current);
-    if ((type.flags & ts.TypeFlags.StringLiteral) !== 0) return type.value;
-    if ((type.flags & ts.TypeFlags.NumberLiteral) !== 0) {
-      return String(type.value);
-    }
-    return null;
-  };
-
-  const sinkFacts = [];
-  const sinkKeys = new Set();
-  const atlasDeclarationForTag = (tagName) => {
-    const symbol = symbolIdentity(checker, tagName);
-    return (symbol?.declarations ?? []).find((declaration) =>
-      declarationPath(declaration)?.startsWith("packages/atlas-ui/src/"),
-    );
-  };
-  const componentPropsType = (tagName) => {
-    const tagType = checker.getTypeAtLocation(tagName);
-    for (const signature of checker.getSignaturesOfType(
-      tagType,
-      ts.SignatureKind.Call,
-    )) {
-      const parameter = signature.getParameters()[0];
-      if (parameter)
-        return checker.getTypeOfSymbolAtLocation(parameter, tagName);
-    }
-    return null;
-  };
-  const typeHasProperty = (type, field, seen = new Set()) => {
-    if (!type || seen.has(type)) return false;
-    seen.add(type);
-    if (checker.getPropertyOfType(type, field)) return true;
-    return (type.types ?? []).some((member) =>
-      typeHasProperty(member, field, seen),
-    );
-  };
-  const sinkDescriptor = (tagName, field) => {
-    const declaration = atlasDeclarationForTag(tagName);
-    if (!declaration) return null;
-    const declarationFile = declarationPath(declaration);
-    if (
-      field === "presentation" &&
-      declarationFile === "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
-    ) {
-      return declarationFile;
-    }
-    if (!LIFECYCLE_SINK_ATTRIBUTES.has(field)) return null;
-    const propsType = componentPropsType(tagName);
-    return typeHasProperty(propsType, field) ? declarationFile : null;
-  };
-  const recordSink = (sourceFile, node, field, declarationFile, value) => {
-    for (const ownerId of value.owners) {
-      const owner = candidateById.get(ownerId);
-      if (!owner) continue;
-      const key = `${ownerId}:${pathOf(sourceFile)}:${lineOf(sourceFile, node)}:${field}`;
-      if (sinkKeys.has(key)) continue;
-      sinkKeys.add(key);
-      sinkFacts.push({
-        path: pathOf(sourceFile),
-        line: lineOf(sourceFile, node),
-        sinkField: field,
-        sinkDeclarationPath: declarationFile,
-        ownerId,
-        ownerDeclarationName: owner.declarationName,
-        ownerFieldName: owner.fieldName,
-        ownerPath: owner.path,
-      });
-    }
-  };
-
-  const contexts = new Map();
-  let contextVersion = 0;
-  let currentAnalysisEpoch = 0;
-  let evaluateExpression;
-  let executeStatement;
-  let initializeGlobalSymbol;
-
-  const bindValue = (state, name, value) => {
-    if (ts.isIdentifier(name)) {
-      const symbol = symbolIdentity(checker, name);
-      if (symbol) state.cells.set(symbol, cloneValue(value));
-      return;
-    }
-    if (ts.isObjectBindingPattern(name)) {
-      for (const element of name.elements) {
-        const key = propertyNameText(element.propertyName ?? element.name);
-        bindValue(
-          state,
-          element.name,
-          key === null ? emptyValue() : readProperty(state, value, key),
-        );
-      }
-      return;
-    }
-    if (ts.isArrayBindingPattern(name)) {
-      name.elements.forEach((element, index) => {
-        if (!ts.isOmittedExpression(element)) {
-          bindValue(
-            state,
-            element.name,
-            readProperty(state, value, String(index)),
-          );
-        }
-      });
-    }
-  };
-
-  const assignLeft = (state, left, value, contextKey) => {
-    const current = unwrapExpression(left);
-    if (
-      ts.isArrayLiteralExpression(current) ||
-      ts.isObjectLiteralExpression(current)
-    ) {
-      return;
-    }
-    if (ts.isIdentifier(current)) {
-      const symbol = symbolIdentity(checker, current);
-      if (symbol) state.cells.set(symbol, cloneValue(value));
-      return;
-    }
-    if (ts.isPropertyAccessExpression(current)) {
-      writeProperty(
-        state,
-        evaluateExpression(current.expression, state, contextKey),
-        current.name.text,
-        value,
-      );
-      return;
-    }
-    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
-      writeProperty(
-        state,
-        evaluateExpression(current.expression, state, contextKey),
-        constantKey(current.argumentExpression),
-        value,
-      );
-    }
-  };
-
-  const assignObjectLiteral = (node, state, contextKey) => {
-    const objectId = allocationId(node, contextKey);
-    state.heap.set(objectId, new Map());
-    const objectValue = emptyValue();
-    objectValue.objects.add(objectId);
-    for (const property of node.properties) {
-      if (ts.isSpreadAssignment(property)) {
-        const spread = evaluateExpression(
-          property.expression,
-          state,
-          contextKey,
-        );
-        const properties = ensureObject(state, objectId);
-        for (const spreadId of spread.objects) {
-          for (const [key, value] of state.heap.get(spreadId) ?? []) {
-            if (key === UNKNOWN_PROPERTY) {
-              if (!properties.has(key)) properties.set(key, emptyValue());
-              mergeValueInto(properties.get(key), value);
-            } else {
-              properties.set(key, cloneValue(value));
-            }
-          }
-        }
-      } else if (ts.isPropertyAssignment(property)) {
-        const key = propertyNameText(property.name);
-        if (key !== null) {
-          const value = evaluateExpression(
-            property.initializer,
-            state,
-            contextKey,
-          );
-          ensureObject(state, objectId).set(key, value);
-        }
-      } else if (ts.isShorthandPropertyAssignment(property)) {
-        ensureObject(state, objectId).set(
-          property.name.text,
-          evaluateExpression(property.name, state, contextKey),
-        );
-      } else if (ts.isMethodDeclaration(property)) {
-        ensureObject(state, objectId).set(
-          propertyNameText(property.name) ?? UNKNOWN_PROPERTY,
-          callableValue(functionIdByNode.get(property)),
-        );
-      }
-    }
-    return objectValue;
-  };
-
-  initializeGlobalSymbol = (symbol, state) => {
-    if (state.cells.has(symbol)) return;
-    const declaration = globalInitializerBySymbol.get(symbol);
-    if (!declaration || globalInitializersInProgress.has(symbol)) return;
-    globalInitializersInProgress.add(symbol);
-    try {
-      const value = declaration.initializer
-        ? evaluateExpression(
-            declaration.initializer,
-            state,
-            `global:${pathOf(declaration.getSourceFile())}`,
-          )
-        : emptyValue();
-      mergeValueInto(value, declaredOwnerValue(declaration.type));
-      bindValue(state, declaration.name, value);
-    } finally {
-      globalInitializersInProgress.delete(symbol);
-    }
-  };
-
-  const callFunction = (
-    functionId,
-    arguments_,
-    callerState,
-    callNode,
-    callerContextKey,
-  ) => {
-    const node = functionById.get(functionId);
-    if (!node) return emptyValue();
-    const callerAnchor = String(callerContextKey).split("|caller:")[0];
-    const contextKey = `${functionId}@${nodeId(callNode)}|caller:${callerAnchor}`;
-    const captureSymbols = new Set(capturesByFunction.get(functionId) ?? []);
-    for (const symbol of callableCaptureSymbols(callerState, arguments_)) {
-      captureSymbols.add(symbol);
-    }
-    for (const symbol of captureSymbols) {
-      initializeGlobalSymbol(symbol, callerState);
-    }
-    const projectedInput = emptyState();
-    const inputRoots = [...arguments_];
-    for (const symbol of captureSymbols) {
-      const value = callerState.cells.get(symbol);
-      if (!value) continue;
-      projectedInput.cells.set(symbol, cloneValue(value));
-      inputRoots.push(value);
-    }
-    copyHeapClosure(callerState, projectedInput, inputRoots);
-    let context = contexts.get(contextKey);
-    if (!context) {
-      context = {
-        entryState: emptyState(),
-        arguments: node.parameters.map(() => emptyValue()),
-        returnValue: emptyValue(),
-        exitState: emptyState(),
-        active: false,
-        analyzed: false,
-        analysisEpoch: -1,
-      };
-      contexts.set(contextKey, context);
-      contextVersion += 1;
-    }
-    let inputChanged = mergeStateInto(context.entryState, projectedInput);
-    node.parameters.forEach((parameter, index) => {
-      if (!context.arguments[index]) context.arguments[index] = emptyValue();
-      inputChanged =
-        mergeValueInto(
-          context.arguments[index],
-          arguments_[index] ?? emptyValue(),
-        ) || inputChanged;
-    });
-    if (inputChanged) contextVersion += 1;
-    if (
-      !context.active &&
-      (inputChanged ||
-        !context.analyzed ||
-        context.analysisEpoch !== currentAnalysisEpoch)
-    ) {
-      context.analysisEpoch = currentAnalysisEpoch;
-      let changed = true;
-      while (changed) {
-        const state = cloneState(context.entryState);
-        node.parameters.forEach((parameter, index) => {
-          const parameterValue = cloneValue(
-            context.arguments[index] ?? emptyValue(),
-          );
-          mergeValueInto(parameterValue, declaredOwnerValue(parameter.type));
-          bindValue(state, parameter.name, parameterValue);
-        });
-        context.active = true;
-        const flow = ts.isBlock(node.body)
-          ? executeStatement(state, node.body, contextKey)
-          : {
-              state,
-              returns: evaluateExpression(node.body, state, contextKey),
-              signal: "return",
-            };
-        context.active = false;
-        context.analyzed = true;
-        changed = mergeValueInto(context.returnValue, flow.returns);
-        const effectState = emptyState();
-        const effectSymbols = new Set(
-          capturedWritesByFunction.get(functionId) ?? [],
-        );
-        for (const symbol of callableCaptureSymbols(flow.state, [
-          flow.returns,
-        ])) {
-          effectSymbols.add(symbol);
-        }
-        const effectRoots = [flow.returns];
-        for (const symbol of effectSymbols) {
-          const value = flow.state.cells.get(symbol);
-          if (!value) continue;
-          effectState.cells.set(symbol, cloneValue(value));
-          effectRoots.push(value);
-        }
-        const inputObjects = emptyValue();
-        for (const objectId of context.entryState.heap.keys()) {
-          inputObjects.objects.add(objectId);
-        }
-        effectRoots.push(inputObjects);
-        copyHeapClosure(flow.state, effectState, effectRoots);
-        changed = mergeStateInto(context.exitState, effectState) || changed;
-        if (changed) contextVersion += 1;
-      }
-    }
-    for (const [symbol, value] of context.exitState.cells) {
-      callerState.cells.set(symbol, cloneValue(value));
-    }
-    for (const [objectId, properties] of context.exitState.heap) {
-      callerState.heap.set(
-        objectId,
-        new Map(
-          [...properties].map(([key, value]) => [key, cloneValue(value)]),
-        ),
-      );
-    }
-    return cloneValue(context.returnValue);
-  };
-
-  const evaluateJsx = (node, state, contextKey) => {
-    const opening = ts.isJsxElement(node) ? node.openingElement : node;
-    if (ts.isJsxFragment(node)) {
-      for (const child of node.children) {
-        if (ts.isJsxExpression(child) && child.expression) {
-          evaluateExpression(child.expression, state, contextKey);
-        } else if (
-          ts.isJsxElement(child) ||
-          ts.isJsxSelfClosingElement(child)
-        ) {
-          evaluateJsx(child, state, contextKey);
-        }
-      }
-      return emptyValue();
-    }
-    const effective = new Map();
-    for (const attribute of opening.attributes.properties) {
-      if (ts.isJsxAttribute(attribute)) {
-        const field = propertyNameText(attribute.name);
-        if (field === null) continue;
-        const value =
-          attribute.initializer &&
-          ts.isJsxExpression(attribute.initializer) &&
-          attribute.initializer.expression
-            ? evaluateExpression(
-                attribute.initializer.expression,
-                state,
-                contextKey,
-              )
-            : emptyValue();
-        effective.set(field, value);
-      } else {
-        const spread = evaluateExpression(
-          attribute.expression,
-          state,
-          contextKey,
-        );
-        const spreadProperties = new Map();
-        let hasUnknown = false;
-        for (const objectId of spread.objects) {
-          for (const [field, value] of state.heap.get(objectId) ?? []) {
-            if (field === UNKNOWN_PROPERTY) {
-              hasUnknown = true;
-              for (const existing of effective.values()) {
-                mergeValueInto(existing, value);
-              }
-            } else if (spreadProperties.has(field)) {
-              mergeValueInto(spreadProperties.get(field), value);
-            } else {
-              spreadProperties.set(field, cloneValue(value));
-            }
-          }
-        }
-        for (const [field, value] of spreadProperties) {
-          if (hasUnknown && effective.has(field)) {
-            mergeValueInto(effective.get(field), value);
-          } else {
-            effective.set(field, value);
-          }
-        }
-      }
-    }
-    for (const [field, value] of effective) {
-      const declarationFile = sinkDescriptor(opening.tagName, field);
-      if (declarationFile) {
-        recordSink(
-          node.getSourceFile(),
-          opening,
-          field,
-          declarationFile,
-          value,
-        );
-      }
-    }
-    if (ts.isJsxElement(node)) {
-      for (const child of node.children) {
-        if (ts.isJsxExpression(child) && child.expression) {
-          evaluateExpression(child.expression, state, contextKey);
-        } else if (
-          ts.isJsxElement(child) ||
-          ts.isJsxSelfClosingElement(child)
-        ) {
-          evaluateJsx(child, state, contextKey);
-        }
-      }
-    }
-    return emptyValue();
-  };
-
-  evaluateExpression = (node, state, contextKey) => {
-    const current = unwrapExpression(node);
-    if (ts.isIdentifier(current)) {
-      const shorthand =
-        ts.isShorthandPropertyAssignment(current.parent) &&
-        current.parent.name === current
-          ? checker.getShorthandAssignmentValueSymbol(current.parent)
-          : null;
-      const symbol = shorthand ?? symbolIdentity(checker, current);
-      if (symbol && state.cells.has(symbol)) {
-        return cloneValue(state.cells.get(symbol));
-      }
-      if (symbol && globalInitializerBySymbol.has(symbol)) {
-        initializeGlobalSymbol(symbol, state);
-        return cloneValue(state.cells.get(symbol) ?? emptyValue());
-      }
-      return mergedValue(
-        callableValue(symbol ? functionBySymbol.get(symbol) : undefined),
-        ownerAt(current),
-      );
-    }
-    if (
-      ts.isArrowFunction(current) ||
-      ts.isFunctionExpression(current) ||
-      ts.isFunctionDeclaration(current)
-    ) {
-      return callableValue(functionIdByNode.get(current));
-    }
-    if (ts.isPropertyAccessExpression(current)) {
-      const propertySymbol = symbolIdentity(checker, current);
-      return mergedValue(
-        readProperty(
-          state,
-          evaluateExpression(current.expression, state, contextKey),
-          current.name.text,
-        ),
-        callableValue(
-          propertySymbol ? functionBySymbol.get(propertySymbol) : undefined,
-        ),
-        ownerAt(current.name),
-      );
-    }
-    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
-      return mergedValue(
-        readProperty(
-          state,
-          evaluateExpression(current.expression, state, contextKey),
-          constantKey(current.argumentExpression),
-        ),
-        ownerAt(current),
-      );
-    }
-    if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
-      const callee = evaluateExpression(current.expression, state, contextKey);
-      const arguments_ = (current.arguments ?? []).map((argument) =>
-        evaluateExpression(argument, state, contextKey),
-      );
-      const result = emptyValue();
-      for (const functionId of callee.callables) {
-        mergeValueInto(
-          result,
-          callFunction(functionId, arguments_, state, current, contextKey),
-        );
-      }
-      return result;
-    }
-    if (ts.isObjectLiteralExpression(current)) {
-      return assignObjectLiteral(current, state, contextKey);
-    }
-    if (ts.isArrayLiteralExpression(current)) {
-      const objectId = allocationId(current, contextKey);
-      state.heap.set(objectId, new Map());
-      current.elements.forEach((element, index) => {
-        if (!ts.isOmittedExpression(element)) {
-          const value = evaluateExpression(element, state, contextKey);
-          ensureObject(state, objectId).set(String(index), value);
-        }
-      });
-      const value = emptyValue();
-      value.objects.add(objectId);
-      return value;
-    }
-    if (ts.isConditionalExpression(current)) {
-      evaluateExpression(current.condition, state, contextKey);
-      const thenState = cloneState(state);
-      const elseState = cloneState(state);
-      const thenValue = evaluateExpression(
-        current.whenTrue,
-        thenState,
-        contextKey,
-      );
-      const elseValue = evaluateExpression(
-        current.whenFalse,
-        elseState,
-        contextKey,
-      );
-      const joined = mergedState(thenState, elseState);
-      state.cells = joined.cells;
-      state.heap = joined.heap;
-      return mergedValue(thenValue, elseValue);
-    }
-    if (ts.isBinaryExpression(current)) {
-      const operator = current.operatorToken.kind;
-      if (
-        operator === ts.SyntaxKind.EqualsToken ||
-        operator === ts.SyntaxKind.BarBarEqualsToken ||
-        operator === ts.SyntaxKind.AmpersandAmpersandEqualsToken ||
-        operator === ts.SyntaxKind.QuestionQuestionEqualsToken
-      ) {
-        const value = evaluateExpression(current.right, state, contextKey);
-        assignLeft(state, current.left, value, contextKey);
-        return value;
-      }
-      return mergedValue(
-        evaluateExpression(current.left, state, contextKey),
-        evaluateExpression(current.right, state, contextKey),
-      );
-    }
-    if (
-      ts.isJsxElement(current) ||
-      ts.isJsxSelfClosingElement(current) ||
-      ts.isJsxFragment(current)
-    ) {
-      return evaluateJsx(current, state, contextKey);
-    }
-    if (ts.isTemplateExpression(current)) {
-      return mergedValue(
-        ...current.templateSpans.map((span) =>
-          evaluateExpression(span.expression, state, contextKey),
-        ),
-      );
-    }
-    if (
-      ts.isAwaitExpression(current) ||
-      ts.isYieldExpression(current) ||
-      ts.isSpreadElement(current) ||
-      ts.isPrefixUnaryExpression(current) ||
-      ts.isPostfixUnaryExpression(current) ||
-      ts.isVoidExpression(current) ||
-      ts.isDeleteExpression(current)
-    ) {
-      const operand = current.operand ?? current.expression;
-      return operand
-        ? evaluateExpression(operand, state, contextKey)
-        : emptyValue();
-    }
-    return ownerAt(current);
-  };
-
-  const emptyFlow = (state, signal = "normal") => ({
-    state,
-    returns: emptyValue(),
-    signal,
-  });
-  const mergeFlows = (flows) => {
-    const result = emptyFlow(mergedState(...flows.map((flow) => flow.state)));
-    for (const flow of flows) mergeValueInto(result.returns, flow.returns);
-    result.signal = flows.every((flow) => flow.signal === flows[0].signal)
-      ? flows[0].signal
-      : "normal";
-    return result;
-  };
-
-  executeStatement = (inputState, statement, contextKey) => {
-    const state = inputState;
-    if (ts.isBlock(statement)) {
-      let flow = emptyFlow(state);
-      for (const nested of statement.statements) {
-        if (flow.signal !== "normal") break;
-        const next = executeStatement(flow.state, nested, contextKey);
-        mergeValueInto(next.returns, flow.returns);
-        flow = next;
-      }
-      return flow;
-    }
-    if (ts.isVariableStatement(statement)) {
-      for (const declaration of statement.declarationList.declarations) {
-        const value = declaration.initializer
-          ? evaluateExpression(declaration.initializer, state, contextKey)
-          : emptyValue();
-        mergeValueInto(value, declaredOwnerValue(declaration.type));
-        bindValue(state, declaration.name, value);
-      }
-      return emptyFlow(state);
-    }
-    if (ts.isExpressionStatement(statement)) {
-      evaluateExpression(statement.expression, state, contextKey);
-      return emptyFlow(state);
-    }
-    if (ts.isReturnStatement(statement)) {
-      const flow = emptyFlow(state, "return");
-      if (statement.expression) {
-        mergeValueInto(
-          flow.returns,
-          evaluateExpression(statement.expression, state, contextKey),
-        );
-      }
-      return flow;
-    }
-    if (ts.isThrowStatement(statement)) {
-      if (statement.expression) {
-        evaluateExpression(statement.expression, state, contextKey);
-      }
-      return emptyFlow(state, "throw");
-    }
-    if (ts.isBreakStatement(statement)) return emptyFlow(state, "break");
-    if (ts.isContinueStatement(statement)) return emptyFlow(state, "continue");
-    if (ts.isIfStatement(statement)) {
-      evaluateExpression(statement.expression, state, contextKey);
-      const thenFlow = executeStatement(
-        cloneState(state),
-        statement.thenStatement,
-        contextKey,
-      );
-      const elseFlow = statement.elseStatement
-        ? executeStatement(
-            cloneState(state),
-            statement.elseStatement,
-            contextKey,
-          )
-        : emptyFlow(cloneState(state));
-      return mergeFlows([thenFlow, elseFlow]);
-    }
-    if (
-      ts.isWhileStatement(statement) ||
-      ts.isDoStatement(statement) ||
-      ts.isForStatement(statement) ||
-      ts.isForInStatement(statement) ||
-      ts.isForOfStatement(statement)
-    ) {
-      let header = cloneState(state);
-      if (ts.isForStatement(statement) && statement.initializer) {
-        if (ts.isVariableDeclarationList(statement.initializer)) {
-          for (const declaration of statement.initializer.declarations) {
-            const value = declaration.initializer
-              ? evaluateExpression(declaration.initializer, header, contextKey)
-              : emptyValue();
-            bindValue(header, declaration.name, value);
-          }
-        } else {
-          evaluateExpression(statement.initializer, header, contextKey);
-        }
-      }
-      if ("expression" in statement && statement.expression) {
-        evaluateExpression(statement.expression, header, contextKey);
-      }
-      let iterationSource = emptyValue();
-      if (ts.isForInStatement(statement) || ts.isForOfStatement(statement)) {
-        iterationSource = evaluateExpression(
-          statement.expression,
-          header,
-          contextKey,
-        );
-        if (ts.isForOfStatement(statement)) {
-          iterationSource = readProperty(header, iterationSource, null);
-        }
-      }
-      let returns = emptyValue();
-      let changed = true;
-      while (changed) {
-        const bodyState = cloneState(header);
-        if (ts.isForInStatement(statement) || ts.isForOfStatement(statement)) {
-          if (ts.isVariableDeclarationList(statement.initializer)) {
-            for (const declaration of statement.initializer.declarations) {
-              bindValue(bodyState, declaration.name, iterationSource);
-            }
-          } else {
-            assignLeft(
-              bodyState,
-              statement.initializer,
-              iterationSource,
-              contextKey,
-            );
-          }
-        }
-        const bodyFlow = executeStatement(
-          bodyState,
-          statement.statement,
-          contextKey,
-        );
-        mergeValueInto(returns, bodyFlow.returns);
-        if (ts.isForStatement(statement) && statement.incrementor) {
-          evaluateExpression(statement.incrementor, bodyFlow.state, contextKey);
-        }
-        changed = mergeStateInto(header, bodyFlow.state);
-      }
-      const flow = emptyFlow(header);
-      flow.returns = returns;
-      return flow;
-    }
-    if (ts.isSwitchStatement(statement)) {
-      evaluateExpression(statement.expression, state, contextKey);
-      const branches = [];
-      for (
-        let start = 0;
-        start < statement.caseBlock.clauses.length;
-        start += 1
-      ) {
-        let flow = emptyFlow(cloneState(state));
-        for (
-          let index = start;
-          index < statement.caseBlock.clauses.length &&
-          flow.signal === "normal";
-          index += 1
-        ) {
-          const clause = statement.caseBlock.clauses[index];
-          if (ts.isCaseClause(clause)) {
-            evaluateExpression(clause.expression, flow.state, contextKey);
-          }
-          flow = executeStatement(
-            flow.state,
-            ts.factory.createBlock([...clause.statements], true),
-            contextKey,
-          );
-        }
-        if (flow.signal === "break") flow.signal = "normal";
-        branches.push(flow);
-      }
-      branches.push(emptyFlow(cloneState(state)));
-      return mergeFlows(branches);
-    }
-    if (ts.isTryStatement(statement)) {
-      const tryFlow = executeStatement(
-        cloneState(state),
-        statement.tryBlock,
-        contextKey,
-      );
-      const alternatives = [tryFlow];
-      if (statement.catchClause) {
-        alternatives.push(
-          executeStatement(
-            cloneState(state),
-            statement.catchClause.block,
-            contextKey,
-          ),
-        );
-      }
-      let flow = mergeFlows(alternatives);
-      if (statement.finallyBlock) {
-        const finalFlow = executeStatement(
-          flow.state,
-          statement.finallyBlock,
-          contextKey,
-        );
-        mergeValueInto(finalFlow.returns, flow.returns);
-        flow = finalFlow;
-      }
-      return flow;
-    }
-    if (ts.isLabeledStatement(statement)) {
-      return executeStatement(state, statement.statement, contextKey);
-    }
-    return emptyFlow(state);
-  };
-
-  const globalState = emptyState();
-
-  const containsJsx = (node) => {
-    let found = false;
-    const visit = (current) => {
-      if (
-        ts.isJsxElement(current) ||
-        ts.isJsxSelfClosingElement(current) ||
-        ts.isJsxFragment(current)
-      ) {
-        found = true;
-        return;
-      }
-      if (current !== node && ts.isFunctionLike(current)) return;
-      ts.forEachChild(current, visit);
-    };
-    visit(node.body);
-    return found;
-  };
-  for (const [functionId, node] of functionById) {
-    if (!containsJsx(node)) continue;
-    let previousContextVersion;
-    do {
-      previousContextVersion = contextVersion;
-      currentAnalysisEpoch += 1;
-      const state = cloneState(globalState);
-      node.parameters.forEach((parameter) => {
-        bindValue(state, parameter.name, declaredOwnerValue(parameter.type));
-      });
-      if (ts.isBlock(node.body)) {
-        executeStatement(state, node.body, `${functionId}@root`);
-      } else {
-        evaluateExpression(node.body, state, `${functionId}@root`);
-      }
-    } while (contextVersion !== previousContextVersion);
-  }
-
-  const reachedOwnerIds = new Set(sinkFacts.map((sink) => sink.ownerId));
-  return {
-    owners: [...candidateById.values()]
-      .filter((owner) => reachedOwnerIds.has(owner.ownerId))
-      .map(({ ownerId: _ownerId, ...owner }) => owner)
-      .sort((left, right) =>
-        `${left.path}:${left.line}`.localeCompare(
-          `${right.path}:${right.line}`,
-        ),
-      ),
-    sinks: sinkFacts.sort((left, right) =>
-      `${left.path}:${left.line}:${left.ownerId}`.localeCompare(
-        `${right.path}:${right.line}:${right.ownerId}`,
-      ),
-    ),
-  };
-}
-
 function consumerKind(sourceFile, node) {
   const relative = relativePath(sourceFile.fileName);
   if (/\.stories\.[cm]?tsx?$/.test(relative)) return "story";
@@ -3680,10 +2364,247 @@ function symbolIdentity(checker, node) {
   return symbol;
 }
 
+function atlasComponentDeclaration(checker, tagName) {
+  const symbol = symbolIdentity(checker, tagName);
+  return (symbol?.declarations ?? []).find((declaration) =>
+    declarationPath(declaration)?.startsWith("packages/atlas-ui/src/"),
+  );
+}
+
+function componentPropsType(checker, tagName) {
+  const tagType = checker.getTypeAtLocation(tagName);
+  for (const signature of checker.getSignaturesOfType(
+    tagType,
+    ts.SignatureKind.Call,
+  )) {
+    const parameter = signature.getParameters()[0];
+    if (parameter) return checker.getTypeOfSymbolAtLocation(parameter, tagName);
+  }
+  return null;
+}
+
+function typeHasProperty(checker, type, field, seen = new Set()) {
+  if (!type || seen.has(type)) return false;
+  seen.add(type);
+  if (checker.getPropertyOfType(type, field)) return true;
+  return (type.types ?? []).some((member) =>
+    typeHasProperty(checker, member, field, seen),
+  );
+}
+
+function atlasSinkDeclaration(checker, tagName, prop) {
+  const declaration = atlasComponentDeclaration(checker, tagName);
+  if (!declaration) return null;
+  const componentDeclarationPath = declarationPath(declaration);
+  if (
+    prop === "presentation" &&
+    componentDeclarationPath ===
+      "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
+  ) {
+    return componentDeclarationPath;
+  }
+  if (!LIFECYCLE_SINK_ATTRIBUTES.has(prop)) return null;
+  const propsType = componentPropsType(checker, tagName);
+  return typeHasProperty(checker, propsType, prop)
+    ? componentDeclarationPath
+    : null;
+}
+
+function collectAuthoritySinkDeclarations(sourceFiles, checker, pathOf) {
+  const declarations = new Map();
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        for (const prop of ["presentation", ...LIFECYCLE_SINK_ATTRIBUTES]) {
+          const hasAttribute = node.attributes.properties.some(
+            (attribute) =>
+              ts.isJsxAttribute(attribute) && attribute.name.text === prop,
+          );
+          if (!hasAttribute) continue;
+          const componentDeclarationPath = atlasSinkDeclaration(
+            checker,
+            node.tagName,
+            prop,
+          );
+          if (!componentDeclarationPath) continue;
+          const key = `${componentDeclarationPath}:${prop}`;
+          if (!declarations.has(key)) {
+            declarations.set(key, {
+              componentDeclarationPath,
+              prop,
+              observedAt: {
+                path: pathOf(sourceFile),
+                line: lineOf(sourceFile, node),
+              },
+            });
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return [...declarations.values()].sort((left, right) =>
+    `${left.componentDeclarationPath}:${left.prop}`.localeCompare(
+      `${right.componentDeclarationPath}:${right.prop}`,
+    ),
+  );
+}
+
+function jsxOpening(node) {
+  if (ts.isJsxElement(node)) return node.openingElement;
+  return ts.isJsxSelfClosingElement(node) ? node : null;
+}
+
+function componentDeclarationIdentity(checker, tagName) {
+  const symbol = symbolIdentity(checker, tagName);
+  const declarations = (symbol?.declarations ?? [])
+    .map((declaration) => ({
+      declaration,
+      path: declarationPath(declaration),
+      line: lineOf(declaration.getSourceFile(), declaration),
+      declarationSha256: textSha256(
+        declaration.getText(declaration.getSourceFile()),
+      ),
+    }))
+    .filter(({ path: candidatePath }) => Boolean(candidatePath));
+  return {
+    component: String(symbol?.name ?? tagName.getText()),
+    declarations,
+  };
+}
+
+function siteReceipt(sourceFile, node, pathOf) {
+  return {
+    path: pathOf(sourceFile),
+    line: lineOf(sourceFile, node),
+    siteSha256: textSha256(node.getText(sourceFile)),
+  };
+}
+
+function collectDirectBadgeSites(sourceFiles, checker, pathOf) {
+  const sites = [];
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      const opening = jsxOpening(node);
+      if (opening) {
+        const identity = componentDeclarationIdentity(checker, opening.tagName);
+        const badgeDeclaration = identity.declarations.find(
+          ({ path: candidatePath }) =>
+            candidatePath === "packages/atlas-ui/src/primitives/Badge.tsx",
+        );
+        if (badgeDeclaration) {
+          sites.push({
+            ...siteReceipt(sourceFile, node, pathOf),
+            component: identity.component,
+            componentDeclarationPath: badgeDeclaration.path,
+            componentDeclarationLine: badgeDeclaration.line,
+            componentDeclarationSha256: badgeDeclaration.declarationSha256,
+          });
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return sites.sort((left, right) =>
+    `${left.path}:${String(left.line).padStart(8, "0")}:${left.siteSha256}`.localeCompare(
+      `${right.path}:${String(right.line).padStart(8, "0")}:${right.siteSha256}`,
+    ),
+  );
+}
+
+function collectAuthorityPropCensus(sourceFiles, checker, pathOf, descriptors) {
+  const requested = new Map(
+    (Array.isArray(descriptors) ? descriptors : []).map((descriptor) => [
+      `${descriptor.component}:${descriptor.componentDeclarationPath}:${descriptor.prop}`,
+      descriptor,
+    ]),
+  );
+  const facts = new Map();
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      const opening = jsxOpening(node);
+      if (!opening) {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const identity = componentDeclarationIdentity(checker, opening.tagName);
+      for (const {
+        declaration,
+        path: componentDeclarationPath,
+      } of identity.declarations) {
+        const descriptorEntries = [...requested.entries()].filter(
+          ([, descriptor]) =>
+            descriptor.component === identity.component &&
+            descriptor.componentDeclarationPath === componentDeclarationPath,
+        );
+        if (descriptorEntries.length === 0) continue;
+        const propsType = componentPropsType(checker, opening.tagName);
+        for (const [key, descriptor] of descriptorEntries) {
+          const attribute = opening.attributes.properties.find(
+            (candidate) =>
+              ts.isJsxAttribute(candidate) &&
+              candidate.name.text === descriptor.prop,
+          );
+          if (!attribute) continue;
+          const propSymbol = propsType
+            ? checker.getPropertyOfType(propsType, descriptor.prop)
+            : undefined;
+          const propDeclaration = propSymbol?.declarations?.[0];
+          if (!facts.has(key)) {
+            facts.set(key, {
+              descriptorId: descriptor.descriptorId,
+              component: identity.component,
+              componentDeclarationPath,
+              componentDeclarationLine: lineOf(
+                declaration.getSourceFile(),
+                declaration,
+              ),
+              componentDeclarationSha256: textSha256(
+                declaration.getText(declaration.getSourceFile()),
+              ),
+              prop: descriptor.prop,
+              propDeclarationPath: propDeclaration
+                ? declarationPath(propDeclaration)
+                : null,
+              propDeclarationLine: propDeclaration
+                ? lineOf(propDeclaration.getSourceFile(), propDeclaration)
+                : null,
+              propDeclarationSha256: propDeclaration
+                ? textSha256(
+                    propDeclaration.getText(propDeclaration.getSourceFile()),
+                  )
+                : null,
+              consumerSites: [],
+            });
+          }
+          facts
+            .get(key)
+            .consumerSites.push(siteReceipt(sourceFile, attribute, pathOf));
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return [...facts.values()]
+    .map((fact) => ({
+      ...fact,
+      consumerSites: fact.consumerSites.sort((left, right) =>
+        `${left.path}:${String(left.line).padStart(8, "0")}`.localeCompare(
+          `${right.path}:${String(right.line).padStart(8, "0")}`,
+        ),
+      ),
+    }))
+    .sort((left, right) => left.descriptorId.localeCompare(right.descriptorId));
+}
+
 function collectProgramFacts(
   program,
   protectedDefinitions = [],
   generatedDefinitionPaths = [],
+  authorityPropDescriptors = [],
 ) {
   const checker = program.getTypeChecker();
   const definitions = [];
@@ -3897,12 +2818,7 @@ function collectProgramFacts(
     protectedDefinitions,
     (sourceFile) => relativePath(sourceFile.fileName),
     checker,
-  );
-  const unauthorizedStatusOwnership = collectUnauthorizedStatusOwnership(
-    definitionSources,
-    checker,
-    (sourceFile) => relativePath(sourceFile.fileName),
-    generatedDefinitionPaths,
+    new Set(generatedDefinitionPaths),
   );
   return {
     authorityCandidates,
@@ -3919,8 +2835,22 @@ function collectProgramFacts(
         ),
       ).length,
     },
-    unauthorizedStatusOwners: unauthorizedStatusOwnership.owners,
-    unauthorizedStatusSinks: unauthorizedStatusOwnership.sinks,
+    authoritySinkDeclarations: collectAuthoritySinkDeclarations(
+      definitionSources,
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+    ),
+    badgeSites: collectDirectBadgeSites(
+      definitionSources,
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+    ),
+    authorityPropCensus: collectAuthorityPropCensus(
+      definitionSources,
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+      authorityPropDescriptors,
+    ),
   };
 }
 
@@ -4054,14 +2984,16 @@ function collectOverrideFacts(
   protectedDefinitions = [],
   generatedDefinitionPaths = [],
   validateOverrideDiagnostics = false,
+  authorityPropDescriptors = [],
 ) {
   const facts = {
     authorityCandidates: [],
     definitions: [],
     interactionLeaks: [],
     protectedRevivals: [],
-    unauthorizedStatusOwners: [],
-    unauthorizedStatusSinks: [],
+    authoritySinkDeclarations: [],
+    badgeSites: [],
+    authorityPropCensus: [],
   };
   const program = createOverrideProgram(overrides);
   if (validateOverrideDiagnostics) {
@@ -4185,16 +3117,27 @@ function collectOverrideFacts(
       protectedDefinitions,
       (sourceFile) => relativePath(sourceFile.fileName),
       checker,
+      new Set(generatedDefinitionPaths),
     ),
   );
-  const unauthorizedStatusOwnership = collectUnauthorizedStatusOwnership(
-    sourceFiles,
-    checker,
-    (sourceFile) => relativePath(sourceFile.fileName),
-    generatedDefinitionPaths,
+  facts.authoritySinkDeclarations.push(
+    ...collectAuthoritySinkDeclarations(sourceFiles, checker, (sourceFile) =>
+      relativePath(sourceFile.fileName),
+    ),
   );
-  facts.unauthorizedStatusOwners.push(...unauthorizedStatusOwnership.owners);
-  facts.unauthorizedStatusSinks.push(...unauthorizedStatusOwnership.sinks);
+  facts.badgeSites.push(
+    ...collectDirectBadgeSites(sourceFiles, checker, (sourceFile) =>
+      relativePath(sourceFile.fileName),
+    ),
+  );
+  facts.authorityPropCensus.push(
+    ...collectAuthorityPropCensus(
+      sourceFiles,
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+      authorityPropDescriptors,
+    ),
+  );
   return facts;
 }
 
@@ -4220,6 +3163,7 @@ if (request.sourceOverrides) {
         request.protectedDefinitions,
         request.generatedDefinitionPaths,
         request.validateOverrideDiagnostics === true,
+        request.authorityPropDescriptors,
       ),
     ),
   );
@@ -4242,6 +3186,7 @@ if (request.sourceOverrides) {
         program,
         request.protectedDefinitions,
         request.generatedDefinitionPaths,
+        request.authorityPropDescriptors,
       ),
     ),
   );

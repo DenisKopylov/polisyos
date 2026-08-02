@@ -56,15 +56,16 @@ def _artifacts() -> tuple[dict[str, object], dict[str, object]]:
 class StatusRetirementInventoryTests(unittest.TestCase):
     """Prove the guard recomputes ownership rather than trusting markers."""
 
-    def test_shared_scan_adds_package_findings_without_changing_ds4_estate(
+    def test_shared_scan_adds_declaration_census_without_changing_ds4_estate(
         self,
     ) -> None:
         inventory, debt = _artifacts()
         scan = checker._scan()
 
         self.assertEqual(36, scan["sourceDenominators"]["atlasUiProduction"])
-        self.assertEqual([], scan["unauthorizedStatusOwners"])
-        self.assertEqual([], scan["unauthorizedStatusSinks"])
+        self.assertNotIn("unauthorizedStatusOwners", scan)
+        self.assertNotIn("unauthorizedStatusSinks", scan)
+        self.assertIsInstance(scan["authoritySinkDeclarations"], list)
         self.assertEqual(
             {
                 "current_authored": 15,

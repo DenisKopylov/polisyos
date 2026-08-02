@@ -2474,7 +2474,7 @@
     "command": "node ./scripts/check-architecture.mjs --format=json",
     "producer": "runtime-dashboard-custom-import-boundary",
     "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
-    "producer_sha256": "703bcac18f5eefb2bd76daa5ffe998aa11c166ed4604d97936081ec54d03db4b",
+    "producer_sha256": "35fa930524ef2ab245f807782c46b7ed208fef2c7edb04f7366cd931e1e5aa5e",
     "exit_code": 0,
     "violation_count": 0,
     "source_file_count": 0,

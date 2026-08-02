@@ -442,3 +442,143 @@
   rows; the complete status suite passed 38/38 in 190.955 seconds. The Atlas
   enforcement corruption battery also passes against the refreshed content
   binding at the unchanged 17-path / 45-site denominator.
+
+## DS5-C02 — architecture recurrence in both engines
+
+### Entry, red-first proof, and measured boundary
+
+- Entry was branch-attached at clean committed boundary `33a530d12`. The
+  installed workspace resolved `@polisyos/atlas-ui`, and C02 remained
+  independent of the two frozen C01c producer-binding debts. Read-only entry
+  inspection confirmed that the dashboard custom checker already takes its
+  project root from `cwd`, dependency-cruiser already accepts the same real
+  temporary graph, and only the Atlas UI sibling lacked a bounded source-root
+  seam.
+- The governed plan measured six inspection paths with cap 7. The realized
+  cluster touches six paths including this journal: the two architecture
+  scripts, the Atlas enforcement checker/test, the active frontend baseline
+  manifest receipt, and this journal. The dependency-cruiser configuration was
+  executed unchanged; no churn was introduced merely to match the inspection
+  set.
+- Witness authoring produced three parseable but non-promoted reds before the
+  property witness was valid: `shared -> api` was outside the live
+  `shared -> app/features` rule; unused TypeScript imports were correctly
+  elided by dependency-cruiser; and a missing Python string concatenation made
+  the fixture itself invalid. Each was corrected before positive product work.
+  Dependency-cruiser's JSON reporter also returns process status 0 while
+  reporting `summary.error = 2`; the governed gate therefore consumes the
+  structured violation packet instead of mistaking process status for proof.
+- The valid red-first run failed in 3.190 seconds at
+  `test_real_illegal_edges_fail_custom_and_dependency_engines`: the dashboard
+  custom engine rejected both real illegal edges and dependency-cruiser
+  rejected the real forbidden edge and cycle, but the Atlas sibling ignored
+  `--source-root` and returned 0. The package-wiring negative then failed after
+  54.408 seconds with missing `architecture_recurrence`, proving that
+  `lint:enforcement` did not yet execute the engines.
+
+### Smallest sound mechanism
+
+- The dashboard checker now emits its discovered source-file count with its
+  existing structured violation rows. The Atlas sibling uses the same parser
+  and package-boundary rules for an explicit source root, emits deterministic
+  source-relative rule rows, and rejects a missing root argument. Its
+  production command remains unchanged and scans the real package.
+- The Atlas enforcement gate runs the dashboard custom checker,
+  dependency-cruiser, and Atlas sibling in parallel over the live graph. It
+  fails closed on missing executables, timeout, unparseable or malformed
+  packets, nonzero live exits, or any live violation. It then runs the same
+  engines over one eleven-module bad/benign dashboard graph and one three-module
+  Atlas graph. The bad graph must yield exactly
+  `app-no-feature-internals` + `app-state-no-app-providers` +
+  `shared-no-app-or-features`, `app-no-feature-internals` + `no-circular` +
+  `shared-no-app-or-features`, and
+  `atlas-forbidden-import`; removing only the imports while retaining their
+  marker text must make all three engines green.
+- Benign controls are a feature public barrel, shared-to-shared import, numeric
+  error-budget width, and three-member responsive layout. The mechanism checks
+  only resolved module-graph properties and performs no value-flow analysis.
+  Two independent executions produced identical normalized receipts.
+- Live zero is measured at 942 dashboard custom source files, 1,019
+  dependency-cruiser modules / 4,150 dependency edges, and 36 Atlas UI source
+  files. The active dashboard producer hash moved mechanically from
+  `703bcac1…` to `35fa9305…`; only that hash line changed in
+  `frontend-baseline-debt-manifest.json`. The immutable DS4 origin receipt,
+  disposition register, and DS19 status-inventory binding did not move.
+
+### Pre-review gates
+
+- Focused architecture witnesses passed 2/2 in 36.384 seconds. The full Atlas
+  enforcement suite passed 20/20 in 135.402 seconds. The package-wired
+  `lint:enforcement` gate and the checker corruption battery both pass with
+  `corruption_witnesses_rejected=true` and `benign_graphs_accepted=true`.
+- Dashboard production architecture is green at 1,019 modules / 4,150
+  dependencies. Dashboard ESLint passed in 2.748 seconds; the production build
+  passed after typecheck with 3,885 transformed modules and 108 PWA precache
+  entries. Atlas UI typecheck, ESLint, architecture across 36 sources, and its
+  serial 18-file / 85-test suite are green.
+- The status-retirement suite passed 38/38 in 64.594 seconds; its checker and
+  corruption battery pass at 47 DS1 rows, 15 authored statuses, 55 semantic
+  exemptions, zero retirement debt, and 3 waist rows. The disposition suite
+  passed 38/38 in 42.139 seconds; after the surgical active-producer receipt
+  refresh, its checker and corruption battery pass at 261 roots, 55 findings,
+  23 seeded negatives, and 8 censuses.
+- Python compilation, scoped Ruff `E,F,I,ANN`, Node syntax, scoped Prettier,
+  JSON parsing, receipt determinism, and `git diff --check` pass. There is no
+  generated-client regeneration, backend write, register-row transition,
+  debt addition, flow-analysis claim, C03 work, or C10 build.
+
+### Review fix round 1
+
+- Independent review returned NO-GO with 0 Critical / 2 Important / 0 Minor.
+  The corruption graph covered the 35 DS4
+  `shared-no-app-or-features` origins but omitted the single inherited
+  `app-no-feature-internals` origin; separately, normalized packets accepted
+  non-integer source/error denominators despite the fail-closed journal claim.
+- Red first, the two reviewer witnesses failed together in 5.095 seconds: the
+  exact dashboard rule set lacked `app-no-feature-internals`, and malformed
+  dashboard/Atlas source counts plus dependency error count produced no packet
+  errors. No enforcement change preceded those failures.
+- The shared fixture now adds one resolvable app-to-feature-internal edge while
+  retaining its separate public-barrel benign edge. Both dashboard engines must
+  reject all inherited origin classes; the bad graph is 11 modules and the
+  marker-preserving benign rewrite remains 11 modules.
+- Packet normalization now validates positive source counts, exact process
+  status, nonempty rule identities, dependency module/dependency-list shape,
+  and a nonnegative dependency error count equal to its violation rows. Fourteen
+  corruptions cover every consumed packet field. The reviewer-focused tests
+  passed 3/3 in 4.628 seconds.
+
+### Review fix round 2
+
+- Delta-only re-review closed the inherited-rule finding and returned NO-GO
+  with 0 Critical / 1 Important / 0 Minor on the remaining packet boundary:
+  dependency-cruiser module rows did not require a source identity, and their
+  dependency rows did not require a mapping with a resolved target identity.
+- Red first, the field-corruption test failed three subtests in 0.001 seconds:
+  a source-less module, a `None` dependency row, and an empty resolved target
+  all produced no error. No checker repair preceded those witnesses.
+- Normalization now requires every module to have a nonempty, unique source;
+  every dependency container to be a real non-string sequence; and every
+  dependency row to be a mapping with a nonempty resolved target. Invalid rows
+  may still be counted for diagnostic context, but they always make the gate
+  red. The three reviewer-focused tests passed 3/3 in 4.570 seconds.
+
+### Final review and commit receipt
+
+- Final delta-only review returned GO with 0 Critical / 0 Important / 0 Minor.
+  The reviewer confirmed that source-less or duplicate module identities,
+  invalid dependency containers, non-mapping dependency rows, and empty
+  resolved identities all fail, while edge counts derive from the validated
+  enumeration. Both allowed fix rounds are closed; no third repair loop was
+  entered.
+- The post-review Atlas enforcement suite passed 22/22 in 156.525 seconds.
+  The standalone corruption command and package-wired `lint:enforcement` are
+  green with the 11-module bad/benign graph, all three inherited dashboard rule
+  classes, the Atlas package-boundary rule, and deterministic live denominators
+  of 942 custom sources, 1,019 dependency-cruiser modules / 4,150 edges, and 36
+  Atlas sources.
+- Final status-retirement and disposition corruption commands pass at their
+  unchanged 47-row / 15-authored / 55-exemption / zero-debt / 3-waist and
+  261-root / 55-finding / 23-negative / 8-census denominators. The final tree
+  remains six paths under cap 7, with no uncommitted tail intended to cross the
+  C02 boundary.

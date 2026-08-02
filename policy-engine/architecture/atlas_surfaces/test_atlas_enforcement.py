@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
+import json
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 from typing import Any
@@ -75,6 +79,201 @@ class AtlasEnforcementTests(unittest.TestCase):
             source_overrides=sources,
             enforce_authority_escapes=enforce_authority_escapes,
         )
+
+    def test_real_illegal_edges_fail_custom_and_dependency_engines(self) -> None:
+        errors, receipt = checker._architecture_recurrence_errors()
+
+        self.assertEqual([], errors)
+        self.assertEqual(
+            {
+                "app-no-feature-internals",
+                "app-state-no-app-providers",
+                "shared-no-app-or-features",
+            },
+            set(receipt["corruption"]["dashboard-custom"]["violation_rules"]),
+        )
+        self.assertEqual(
+            {
+                "app-no-feature-internals",
+                "no-circular",
+                "shared-no-app-or-features",
+            },
+            set(receipt["corruption"]["dependency-cruiser"]["violation_rules"]),
+        )
+        self.assertEqual(
+            ["atlas-forbidden-import"],
+            receipt["corruption"]["atlas-ui"]["violation_rules"],
+        )
+        self.assertEqual(
+            {
+                "atlas-ui": 3,
+                "dashboard-custom": 11,
+                "dependency-cruiser": 11,
+            },
+            {
+                engine_id: facts["source_files"]
+                for engine_id, facts in receipt["corruption"].items()
+            },
+        )
+        self.assertEqual(
+            [],
+            [
+                engine_id
+                for engine_id, facts in receipt["benign"].items()
+                if facts.get("violation_rules", facts.get("violations"))
+                or facts["return_code"] != 0
+            ],
+        )
+
+    def test_architecture_receipts_reject_malformed_consumed_fields(self) -> None:
+        errors, _facts = checker._architecture_packet_facts(
+            {
+                "dashboard-custom": {
+                    "producer": "runtime-dashboard-custom-import-boundary",
+                    "returnCode": 0,
+                    "sourceFiles": "not-a-count",
+                    "violations": [],
+                },
+                "dependency-cruiser": {
+                    "returnCode": 0,
+                    "modules": [{"source": "src/safe.ts", "dependencies": []}],
+                    "summary": {"error": "zero", "violations": []},
+                },
+                "atlas-ui": {
+                    "producer": "atlas-ui-import-boundary",
+                    "returnCode": 0,
+                    "sourceFiles": None,
+                    "violations": [],
+                },
+            }
+        )
+
+        self.assertEqual(
+            {
+                "architecture_engine_reported_error_count_invalid:dependency-cruiser",
+                "architecture_engine_source_count_invalid:atlas-ui",
+                "architecture_engine_source_count_invalid:dashboard-custom",
+            },
+            set(errors),
+        )
+
+    def test_architecture_receipts_validate_each_consumed_field(self) -> None:
+        valid_packets = {
+            "dashboard-custom": {
+                "producer": "runtime-dashboard-custom-import-boundary",
+                "returnCode": 0,
+                "sourceFiles": 1,
+                "violations": [],
+            },
+            "dependency-cruiser": {
+                "returnCode": 0,
+                "modules": [{"source": "src/safe.ts", "dependencies": []}],
+                "summary": {"error": 0, "violations": []},
+            },
+            "atlas-ui": {
+                "producer": "atlas-ui-import-boundary",
+                "returnCode": 0,
+                "sourceFiles": 1,
+                "violations": [],
+            },
+        }
+        corruptions = {
+            "custom-return": (
+                ("dashboard-custom", "returnCode"),
+                2,
+                "architecture_engine_return_code_invalid:dashboard-custom",
+            ),
+            "custom-count": (
+                ("dashboard-custom", "sourceFiles"),
+                0,
+                "architecture_engine_source_count_invalid:dashboard-custom",
+            ),
+            "custom-rule": (
+                ("dashboard-custom", "violations"),
+                [{}],
+                "architecture_engine_violation_invalid:dashboard-custom",
+            ),
+            "dependency-return": (
+                ("dependency-cruiser", "returnCode"),
+                1,
+                "architecture_engine_return_code_invalid:dependency-cruiser",
+            ),
+            "dependency-count": (
+                ("dependency-cruiser", "modules"),
+                [],
+                "architecture_engine_source_count_invalid:dependency-cruiser",
+            ),
+            "dependency-edges": (
+                ("dependency-cruiser", "modules", 0, "dependencies"),
+                "not-a-list",
+                "architecture_engine_module_invalid:dependency-cruiser",
+            ),
+            "dependency-source": (
+                ("dependency-cruiser", "modules", 0, "source"),
+                "",
+                "architecture_engine_module_invalid:dependency-cruiser",
+            ),
+            "dependency-row": (
+                ("dependency-cruiser", "modules", 0, "dependencies"),
+                [None],
+                "architecture_engine_dependency_invalid:dependency-cruiser",
+            ),
+            "dependency-resolved": (
+                ("dependency-cruiser", "modules", 0, "dependencies"),
+                [{"resolved": ""}],
+                "architecture_engine_dependency_invalid:dependency-cruiser",
+            ),
+            "dependency-errors": (
+                ("dependency-cruiser", "summary", "error"),
+                -1,
+                "architecture_engine_reported_error_count_invalid:dependency-cruiser",
+            ),
+            "dependency-rule": (
+                ("dependency-cruiser", "summary", "violations"),
+                [{"rule": {}}],
+                "architecture_engine_violation_invalid:dependency-cruiser",
+            ),
+            "atlas-return": (
+                ("atlas-ui", "returnCode"),
+                2,
+                "architecture_engine_return_code_invalid:atlas-ui",
+            ),
+            "atlas-count": (
+                ("atlas-ui", "sourceFiles"),
+                0,
+                "architecture_engine_source_count_invalid:atlas-ui",
+            ),
+            "atlas-rule": (
+                ("atlas-ui", "violations"),
+                [{}],
+                "architecture_engine_violation_invalid:atlas-ui",
+            ),
+        }
+
+        for label, (path, value, expected_error) in corruptions.items():
+            with self.subTest(label=label):
+                packets = copy.deepcopy(valid_packets)
+                target: Any = packets
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] = value
+                errors, _facts = checker._architecture_packet_facts(packets)
+                self.assertIn(expected_error, errors)
+
+    def test_lint_enforcement_executes_the_three_architecture_engines(self) -> None:
+        output = StringIO()
+        with redirect_stdout(output):
+            exit_code = checker.main(["--check"])
+
+        self.assertEqual(0, exit_code)
+        packet = json.loads(output.getvalue())
+        receipt = packet["architecture_recurrence"]
+        self.assertEqual(
+            {"atlas-ui", "dashboard-custom", "dependency-cruiser"},
+            set(receipt["live"]),
+        )
+        self.assertTrue(receipt["corruption_witnesses_rejected"])
+        self.assertTrue(receipt["benign_graphs_accepted"])
 
     def test_enforcement_scan_exposes_only_retained_local_facts(self) -> None:
         errors, scan = self._validate(

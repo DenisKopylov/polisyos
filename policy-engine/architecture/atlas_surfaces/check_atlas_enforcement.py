@@ -8,8 +8,11 @@ import copy
 import importlib.util
 import json
 import re
+import subprocess
 import sys
+import tempfile
 from collections.abc import Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Literal, NamedTuple
@@ -1080,7 +1083,474 @@ def validate_enforcement(
     return sorted(set(errors)), scan
 
 
-def _corruption_probes() -> list[str]:
+def _run_architecture_json(
+    command: Sequence[str],
+    *,
+    cwd: Path,
+    engine_id: str,
+) -> tuple[list[str], dict[str, Any]]:
+    """Execute one real architecture engine and parse its structured packet."""
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return [f"architecture_engine_execution_failed:{engine_id}:{error}"], {}
+    try:
+        parsed = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        return [f"architecture_engine_unparseable:{engine_id}"], {}
+    if not isinstance(parsed, Mapping):
+        return [f"architecture_engine_packet_invalid:{engine_id}"], {}
+    return [], {**parsed, "returnCode": completed.returncode}
+
+
+def _architecture_engine_packets(
+    *,
+    dashboard_root: Path,
+    atlas_source_root: Path,
+) -> tuple[list[str], dict[str, dict[str, Any]]]:
+    """Run the three bounded module-graph engines over the supplied roots."""
+    repo_root = status_checker.REPO_ROOT
+    dashboard_script = repo_root / "apps/runtime-dashboard/scripts/check-architecture.mjs"
+    dashboard_config = repo_root / "apps/runtime-dashboard/.dependency-cruiser.mjs"
+    dependency_binary = repo_root / "apps/runtime-dashboard/node_modules/.bin/depcruise"
+    atlas_script = repo_root / "packages/atlas-ui/scripts/check-architecture.mjs"
+    commands = {
+        "dashboard-custom": (
+            ["node", str(dashboard_script), "--format=json"],
+            dashboard_root,
+        ),
+        "dependency-cruiser": (
+            [
+                str(dependency_binary),
+                "--config",
+                str(dashboard_config),
+                "--output-type",
+                "json",
+                "src",
+            ],
+            dashboard_root,
+        ),
+        "atlas-ui": (
+            [
+                "node",
+                str(atlas_script),
+                "--source-root",
+                str(atlas_source_root),
+                "--format=json",
+            ],
+            repo_root,
+        ),
+    }
+
+    packets: dict[str, dict[str, Any]] = {}
+    errors: list[str] = []
+    with ThreadPoolExecutor(max_workers=len(commands)) as executor:
+        futures = {
+            engine_id: executor.submit(
+                _run_architecture_json,
+                command,
+                cwd=cwd,
+                engine_id=engine_id,
+            )
+            for engine_id, (command, cwd) in commands.items()
+        }
+        for engine_id, future in futures.items():
+            engine_errors, packet = future.result()
+            errors.extend(engine_errors)
+            packets[engine_id] = packet
+    return errors, packets
+
+
+def _architecture_packet_facts(
+    packets: Mapping[str, Mapping[str, Any]],
+) -> tuple[list[str], dict[str, dict[str, Any]]]:
+    """Normalize only the decidable facts emitted by the real engines."""
+    errors: list[str] = []
+    facts: dict[str, dict[str, Any]] = {}
+
+    custom = packets.get("dashboard-custom", {})
+    custom_violations = custom.get("violations")
+    if (
+        custom.get("producer") != "runtime-dashboard-custom-import-boundary"
+        or not isinstance(custom_violations, Sequence)
+        or isinstance(custom_violations, (str, bytes))
+    ):
+        errors.append("architecture_engine_packet_invalid:dashboard-custom")
+    else:
+        custom_rows_valid = all(
+            isinstance(row, Mapping)
+            and isinstance(row.get("rule_id"), str)
+            and bool(row["rule_id"])
+            for row in custom_violations
+        )
+        custom_rules = sorted(
+            str(row.get("rule_id"))
+            for row in custom_violations
+            if isinstance(row, Mapping)
+        )
+        if not custom_rows_valid:
+            errors.append("architecture_engine_violation_invalid:dashboard-custom")
+        custom_source_files = custom.get("sourceFiles")
+        if (
+            type(custom_source_files) is not int
+            or custom_source_files <= 0
+        ):
+            errors.append("architecture_engine_source_count_invalid:dashboard-custom")
+        expected_custom_return = 1 if custom_violations else 0
+        if (
+            type(custom.get("returnCode")) is not int
+            or custom.get("returnCode") != expected_custom_return
+        ):
+            errors.append("architecture_engine_return_code_invalid:dashboard-custom")
+        facts["dashboard-custom"] = {
+            "return_code": custom.get("returnCode"),
+            "source_files": custom_source_files,
+            "violation_rules": custom_rules,
+        }
+
+    dependency = packets.get("dependency-cruiser", {})
+    dependency_summary = dependency.get("summary")
+    dependency_modules = dependency.get("modules")
+    dependency_violations = (
+        dependency_summary.get("violations")
+        if isinstance(dependency_summary, Mapping)
+        else None
+    )
+    if (
+        not isinstance(dependency_summary, Mapping)
+        or not isinstance(dependency_modules, Sequence)
+        or isinstance(dependency_modules, (str, bytes))
+        or not isinstance(dependency_violations, Sequence)
+        or isinstance(dependency_violations, (str, bytes))
+    ):
+        errors.append("architecture_engine_packet_invalid:dependency-cruiser")
+    else:
+        dependency_rows_valid = all(
+            isinstance(row, Mapping)
+            and isinstance((rule := row.get("rule")), Mapping)
+            and isinstance(rule.get("name"), str)
+            and bool(rule["name"])
+            for row in dependency_violations
+        )
+        dependency_rules = sorted(
+            str(rule.get("name"))
+            for row in dependency_violations
+            if isinstance(row, Mapping)
+            and isinstance((rule := row.get("rule")), Mapping)
+        )
+        if not dependency_rows_valid:
+            errors.append("architecture_engine_violation_invalid:dependency-cruiser")
+        module_sources = [
+            module.get("source")
+            for module in dependency_modules
+            if isinstance(module, Mapping)
+        ]
+        dependency_containers_valid = all(
+            isinstance(module, Mapping)
+            and isinstance(module.get("dependencies"), Sequence)
+            and not isinstance(module.get("dependencies"), (str, bytes))
+            for module in dependency_modules
+        )
+        module_identities_valid = (
+            len(module_sources) == len(dependency_modules)
+            and all(isinstance(source, str) and bool(source) for source in module_sources)
+            and len(set(module_sources)) == len(module_sources)
+        )
+        modules_valid = dependency_containers_valid and module_identities_valid
+        if not modules_valid:
+            errors.append("architecture_engine_module_invalid:dependency-cruiser")
+        dependency_rows = [
+            dependency
+            for module in dependency_modules
+            if isinstance(module, Mapping)
+            and isinstance(module.get("dependencies"), Sequence)
+            and not isinstance(module.get("dependencies"), (str, bytes))
+            for dependency in module["dependencies"]
+        ]
+        if not all(
+            isinstance(dependency, Mapping)
+            and isinstance(dependency.get("resolved"), str)
+            and bool(dependency["resolved"])
+            for dependency in dependency_rows
+        ):
+            errors.append("architecture_engine_dependency_invalid:dependency-cruiser")
+        if len(dependency_modules) <= 0:
+            errors.append("architecture_engine_source_count_invalid:dependency-cruiser")
+        reported_errors = dependency_summary.get("error")
+        if (
+            type(reported_errors) is not int
+            or reported_errors < 0
+            or reported_errors != len(dependency_violations)
+        ):
+            errors.append(
+                "architecture_engine_reported_error_count_invalid:dependency-cruiser"
+            )
+        if type(dependency.get("returnCode")) is not int or dependency.get(
+            "returnCode"
+        ) != 0:
+            errors.append("architecture_engine_return_code_invalid:dependency-cruiser")
+        facts["dependency-cruiser"] = {
+            "return_code": dependency.get("returnCode"),
+            "reported_errors": reported_errors,
+            "source_files": len(dependency_modules),
+            "dependency_edges": len(dependency_rows),
+            "violation_rules": dependency_rules,
+        }
+
+    atlas = packets.get("atlas-ui", {})
+    atlas_violations = atlas.get("violations")
+    if (
+        atlas.get("producer") != "atlas-ui-import-boundary"
+        or not isinstance(atlas_violations, Sequence)
+        or isinstance(atlas_violations, (str, bytes))
+    ):
+        errors.append("architecture_engine_packet_invalid:atlas-ui")
+    else:
+        atlas_rows_valid = all(
+            isinstance(row, Mapping)
+            and isinstance(row.get("rule_id"), str)
+            and bool(row["rule_id"])
+            for row in atlas_violations
+        )
+        atlas_rules = sorted(
+            str(row.get("rule_id"))
+            for row in atlas_violations
+            if isinstance(row, Mapping)
+        )
+        if not atlas_rows_valid:
+            errors.append("architecture_engine_violation_invalid:atlas-ui")
+        atlas_source_files = atlas.get("sourceFiles")
+        if type(atlas_source_files) is not int or atlas_source_files <= 0:
+            errors.append("architecture_engine_source_count_invalid:atlas-ui")
+        expected_atlas_return = 1 if atlas_violations else 0
+        if (
+            type(atlas.get("returnCode")) is not int
+            or atlas.get("returnCode") != expected_atlas_return
+        ):
+            errors.append("architecture_engine_return_code_invalid:atlas-ui")
+        facts["atlas-ui"] = {
+            "return_code": atlas.get("returnCode"),
+            "source_files": atlas_source_files,
+            "violation_rules": atlas_rules,
+        }
+
+    return errors, facts
+
+
+def _write_architecture_fixture(path: Path, source: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dedent(source).strip() + "\n", encoding="utf-8")
+
+
+def _populate_architecture_fixture(
+    dashboard_root: Path,
+    atlas_source_root: Path,
+    *,
+    illegal: bool,
+) -> None:
+    """Write the measured bad or benign graph without changing rule markers."""
+    write = _write_architecture_fixture
+    write(
+        dashboard_root / "tsconfig.app.json",
+        '{"compilerOptions":{"module":"ESNext","moduleResolution":"Bundler"}}',
+    )
+    write(
+        dashboard_root / "src/app/providers/provider.ts",
+        "export const provider = 'provider';",
+    )
+    write(dashboard_root / "src/shared/peer.ts", "export const peer = 'peer';")
+    write(
+        dashboard_root / "src/shared/benign.ts",
+        """
+        import { peer } from "./peer";
+        export const errorBudgetWidth = 3;
+        export const responsiveColumns = [1, 2, 3] as const;
+        export { peer };
+        """,
+    )
+    write(
+        dashboard_root / "src/features/example/index.ts",
+        "export const publicFeature = 'public';",
+    )
+    write(
+        dashboard_root / "src/features/example/internal.ts",
+        "export const privateFeature = 'private';",
+    )
+    write(
+        dashboard_root / "src/app/routes.ts",
+        'export { publicFeature } from "../features/example";',
+    )
+    prefix = "" if illegal else "// retained rule witness: "
+    write(
+        dashboard_root / "src/app/feature-internal.ts",
+        f'{prefix}import {{ privateFeature }} from "../features/example/internal";\n'
+        + (
+            "export const featureValue = privateFeature;"
+            if illegal
+            else "export const featureValue = 'public-only';"
+        ),
+    )
+    write(
+        dashboard_root / "src/shared/illegal.ts",
+        f'{prefix}import {{ provider }} from "../app/providers/provider";\n'
+        + (
+            "export const sharedValue = provider;"
+            if illegal
+            else "export const sharedValue = 'shared';"
+        ),
+    )
+    write(
+        dashboard_root / "src/app/state/store.ts",
+        f'{prefix}import {{ provider }} from "../providers/provider";\n'
+        + (
+            "export const store = provider;"
+            if illegal
+            else "export const store = 'store';"
+        ),
+    )
+    write(
+        dashboard_root / "src/cycle/a.ts",
+        f'{prefix}import {{ b }} from "./b";\n'
+        + ('export const a = b;' if illegal else 'export const a = "a";'),
+    )
+    write(
+        dashboard_root / "src/cycle/b.ts",
+        f'{prefix}import {{ a }} from "./a";\n'
+        + ('export const b = a;' if illegal else 'export const b = "b";'),
+    )
+    write(
+        atlas_source_root / "index.ts",
+        'export { safe } from "./primitives/Safe";',
+    )
+    write(
+        atlas_source_root / "primitives/Safe.ts",
+        "export const safe = 'safe';",
+    )
+    write(
+        atlas_source_root / "primitives/Illegal.ts",
+        (
+            'import type { OperatorDiagnostic } from "@polisyos/runtime-api-client";'
+            if illegal
+            else '// retained rule witness: import type {} from "runtime-api-client";'
+        ),
+    )
+
+
+def _architecture_recurrence_errors() -> tuple[list[str], dict[str, Any]]:
+    """Recompute live zero and adversarial recurrence from real module graphs."""
+    repo_root = status_checker.REPO_ROOT
+    live_execution_errors, live_packets = _architecture_engine_packets(
+        dashboard_root=repo_root / "apps/runtime-dashboard",
+        atlas_source_root=repo_root / "packages/atlas-ui/src",
+    )
+    live_packet_errors, live = _architecture_packet_facts(live_packets)
+    errors = [*live_execution_errors, *live_packet_errors]
+    for engine_id, facts in live.items():
+        violations = facts.get("violation_rules", facts.get("violations", ()))
+        if violations or facts.get("return_code") != 0:
+            errors.append(f"architecture_live_graph_red:{engine_id}")
+    if live.get("dependency-cruiser", {}).get("reported_errors") != 0:
+        errors.append("architecture_live_graph_red:dependency-cruiser-summary")
+
+    with tempfile.TemporaryDirectory(prefix="ds5-c02-") as temporary:
+        fixture_root = Path(temporary)
+        dashboard_root = fixture_root / "runtime-dashboard"
+        atlas_source_root = fixture_root / "atlas-ui/src"
+        _populate_architecture_fixture(
+            dashboard_root,
+            atlas_source_root,
+            illegal=True,
+        )
+        red_execution_errors, red_packets = _architecture_engine_packets(
+            dashboard_root=dashboard_root,
+            atlas_source_root=atlas_source_root,
+        )
+        red_packet_errors, red = _architecture_packet_facts(red_packets)
+        errors.extend(red_execution_errors)
+        errors.extend(red_packet_errors)
+
+        expected_red = {
+            "dashboard-custom": {
+                "app-no-feature-internals",
+                "app-state-no-app-providers",
+                "shared-no-app-or-features",
+            },
+            "dependency-cruiser": {
+                "app-no-feature-internals",
+                "no-circular",
+                "shared-no-app-or-features",
+            },
+        }
+        for engine_id, expected_rules in expected_red.items():
+            observed = set(red.get(engine_id, {}).get("violation_rules", ()))
+            if observed != expected_rules:
+                errors.append(f"architecture_corruption_escaped:{engine_id}")
+        atlas_red = red.get("atlas-ui", {})
+        if atlas_red.get("violation_rules") != ["atlas-forbidden-import"]:
+            errors.append("architecture_corruption_escaped:atlas-ui")
+        expected_source_files = {
+            "atlas-ui": 3,
+            "dashboard-custom": 11,
+            "dependency-cruiser": 11,
+        }
+        if {
+            engine_id: facts.get("source_files")
+            for engine_id, facts in red.items()
+        } != expected_source_files:
+            errors.append("architecture_corruption_discovery_drift")
+        if red.get("dashboard-custom", {}).get("return_code") != 1:
+            errors.append("architecture_corruption_exit_drift:dashboard-custom")
+        if atlas_red.get("return_code") != 1:
+            errors.append("architecture_corruption_exit_drift:atlas-ui")
+        if red.get("dependency-cruiser", {}).get("reported_errors") != 3:
+            errors.append("architecture_corruption_summary_drift:dependency-cruiser")
+
+        _populate_architecture_fixture(
+            dashboard_root,
+            atlas_source_root,
+            illegal=False,
+        )
+        benign_execution_errors, benign_packets = _architecture_engine_packets(
+            dashboard_root=dashboard_root,
+            atlas_source_root=atlas_source_root,
+        )
+        benign_packet_errors, benign = _architecture_packet_facts(benign_packets)
+        errors.extend(benign_execution_errors)
+        errors.extend(benign_packet_errors)
+        for engine_id, facts in benign.items():
+            violations = facts.get("violation_rules", facts.get("violations", ()))
+            if violations or facts.get("return_code") != 0:
+                errors.append(f"architecture_benign_graph_red:{engine_id}")
+        if benign.get("dependency-cruiser", {}).get("reported_errors") != 0:
+            errors.append("architecture_benign_graph_red:dependency-cruiser-summary")
+
+    corruption_rejected = not any(
+        error.startswith("architecture_corruption_") for error in errors
+    )
+    benign_accepted = not any(
+        error.startswith("architecture_benign_") for error in errors
+    )
+    return sorted(set(errors)), {
+        "live": live,
+        "corruption": red,
+        "benign": benign,
+        "corruption_witnesses_rejected": corruption_rejected,
+        "benign_graphs_accepted": benign_accepted,
+    }
+
+
+def _corruption_probes(
+    *,
+    architecture_errors: Sequence[str] | None = None,
+    architecture_receipt: Mapping[str, Any] | None = None,
+) -> list[str]:
     """Return labels for retained-core properties that a corruption escaped."""
     escaped: list[str] = []
     package_path = "packages/atlas-ui/src/index.ts"
@@ -1384,6 +1854,14 @@ def _corruption_probes() -> list[str]:
         not in issuer_fact_errors
     ):
         escaped.append("authority-issuer-construction-sites")
+    if architecture_errors is None or architecture_receipt is None:
+        architecture_errors, architecture_receipt = _architecture_recurrence_errors()
+    if architecture_errors:
+        escaped.append("architecture-recurrence-execution")
+    if not architecture_receipt.get("corruption_witnesses_rejected"):
+        escaped.append("architecture-recurrence-corruption")
+    if not architecture_receipt.get("benign_graphs_accepted"):
+        escaped.append("architecture-recurrence-benign")
     return escaped
 
 
@@ -1417,17 +1895,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--corruption-probes", action="store_true")
     args = parser.parse_args(argv)
     errors, scan = validate_enforcement()
+    architecture_errors, architecture_receipt = _architecture_recurrence_errors()
+    errors.extend(architecture_errors)
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
     if args.corruption_probes:
-        escaped = _corruption_probes()
+        escaped = _corruption_probes(
+            architecture_errors=architecture_errors,
+            architecture_receipt=architecture_receipt,
+        )
         if escaped:
             print("corruption probes escaped: " + ", ".join(escaped), file=sys.stderr)
             return 1
         print("Atlas enforcement corruption probes: PASS")
-    print(json.dumps(_summary(scan), indent=2, sort_keys=True))
+    summary = _summary(scan)
+    summary["architecture_recurrence"] = architecture_receipt
+    print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
 
 

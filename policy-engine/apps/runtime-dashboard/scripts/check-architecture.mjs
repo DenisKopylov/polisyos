@@ -270,7 +270,7 @@ function sourceSha256(sourceText) {
   return createHash("sha256").update(sourceText).digest("hex");
 }
 
-async function collectViolations() {
+async function collectArchitecture() {
   const files = await listFiles(srcRoot);
   const violations = [];
 
@@ -318,17 +318,18 @@ async function collectViolations() {
     }
   }
 
-  return violations;
+  return { sourceFiles: files.length, violations };
 }
 
 async function main() {
-  const violations = await collectViolations();
+  const { sourceFiles, violations } = await collectArchitecture();
   const jsonOutput = process.argv.includes("--format=json");
 
   if (jsonOutput) {
     console.log(
       JSON.stringify({
         producer: "runtime-dashboard-custom-import-boundary",
+        sourceFiles,
         violations,
       }),
     );

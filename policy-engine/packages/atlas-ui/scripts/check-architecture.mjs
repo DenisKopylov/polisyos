@@ -3,7 +3,19 @@ import path from "node:path";
 import ts from "typescript";
 
 const packageRoot = path.resolve(import.meta.dirname, "..");
-const sourceRoot = path.join(packageRoot, "src");
+const sourceRootArgument = process.argv.indexOf("--source-root");
+const sourceRootValue =
+  sourceRootArgument === -1 ? undefined : process.argv[sourceRootArgument + 1];
+if (
+  sourceRootArgument !== -1 &&
+  (!sourceRootValue || sourceRootValue.startsWith("--"))
+) {
+  throw new Error("--source-root requires an explicit directory");
+}
+const sourceRoot =
+  sourceRootArgument === -1
+    ? path.join(packageRoot, "src")
+    : path.resolve(sourceRootValue);
 const forbiddenImport =
   /(^@\/|runtime-dashboard|runtime-api-client|(^|\/)apps\/|(^|\/)api(\/|$)|polisyos\/|backend|atlas-v15)/;
 const generatedTypeBridges = [
@@ -143,6 +155,22 @@ function isGeneratedTypeBridge(file, dependency) {
 
 const violations = [];
 const evidenceTypeBridge = generatedTypeBridges[0];
+const sourceFiles = walk(sourceRoot);
+
+function addViolation(ruleId, message, { file = null, specifier = null } = {}) {
+  const sourcePath = file
+    ? `src/${path.relative(sourceRoot, file).replaceAll(path.sep, "/")}`
+    : null;
+  violations.push({
+    rule_id: ruleId,
+    source_path: sourcePath,
+    specifier,
+    message,
+    display: sourcePath
+      ? `${sourcePath}${specifier ? ` -> ${specifier}` : ""} :: ${message}`
+      : message,
+  });
+}
 
 const valueImportProbe = importedDependencies(
   evidenceTypeBridge.file,
@@ -152,7 +180,10 @@ if (
   !valueImportProbe ||
   isGeneratedTypeBridge(evidenceTypeBridge.file, valueImportProbe)
 ) {
-  violations.push("generated bridge corruption probe accepted a value import");
+  addViolation(
+    "generated-bridge-self-probe",
+    "generated bridge corruption probe accepted a value import",
+  );
 }
 
 const broadTypeImportProbe = importedDependencies(
@@ -163,7 +194,8 @@ if (
   !broadTypeImportProbe ||
   isGeneratedTypeBridge(evidenceTypeBridge.file, broadTypeImportProbe)
 ) {
-  violations.push(
+  addViolation(
+    "generated-bridge-self-probe",
     "generated bridge corruption probe accepted a broad type import",
   );
 }
@@ -176,7 +208,8 @@ if (
   !aliasedTypeImportProbe ||
   isGeneratedTypeBridge(evidenceTypeBridge.file, aliasedTypeImportProbe)
 ) {
-  violations.push(
+  addViolation(
+    "generated-bridge-self-probe",
     "generated bridge corruption probe accepted an aliased type import",
   );
 }
@@ -193,7 +226,10 @@ if (
     importTypeProbe,
   )
 ) {
-  violations.push("architecture corruption probe missed an import type");
+  addViolation(
+    "import-parser-self-probe",
+    "architecture corruption probe missed an import type",
+  );
 }
 
 const wrongFileProbe = importedDependencies(
@@ -207,7 +243,10 @@ if (
     wrongFileProbe,
   )
 ) {
-  violations.push("generated bridge corruption probe accepted the wrong file");
+  addViolation(
+    "generated-bridge-self-probe",
+    "generated bridge corruption probe accepted the wrong file",
+  );
 }
 
 const requireProbe = importedDependencies(
@@ -223,7 +262,10 @@ if (
     requireProbe,
   )
 ) {
-  violations.push("architecture corruption probe missed require()");
+  addViolation(
+    "import-parser-self-probe",
+    "architecture corruption probe missed require()",
+  );
 }
 
 const importEqualsProbe = importedDependencies(
@@ -239,23 +281,37 @@ if (
     importEqualsProbe,
   )
 ) {
-  violations.push("architecture corruption probe missed import-equals");
+  addViolation(
+    "import-parser-self-probe",
+    "architecture corruption probe missed import-equals",
+  );
 }
 
-for (const file of walk(sourceRoot)) {
+for (const file of sourceFiles) {
   for (const dependency of importedDependencies(file)) {
     const { specifier } = dependency;
     if (isGeneratedTypeBridge(file, dependency)) {
       continue;
     }
     if (forbiddenImport.test(specifier)) {
-      violations.push(`${path.relative(packageRoot, file)} -> ${specifier}`);
+      addViolation("atlas-forbidden-import", "forbidden package dependency", {
+        file,
+        specifier,
+      });
     }
     if (specifier.startsWith(".")) {
       const resolved = path.resolve(path.dirname(file), specifier);
-      if (!resolved.startsWith(`${packageRoot}${path.sep}`)) {
-        violations.push(
-          `${path.relative(packageRoot, file)} escapes package -> ${specifier}`,
+      if (
+        resolved !== sourceRoot &&
+        !resolved.startsWith(`${sourceRoot}${path.sep}`)
+      ) {
+        addViolation(
+          "atlas-package-escape",
+          "relative import escapes source root",
+          {
+            file,
+            specifier,
+          },
         );
       }
     }
@@ -267,7 +323,8 @@ const packageJson = JSON.parse(
 );
 const exportKeys = Object.keys(packageJson.exports ?? {});
 if (exportKeys.length !== 1 || exportKeys[0] !== ".") {
-  violations.push(
+  addViolation(
+    "atlas-package-exports",
     `package exports must be root-only; received ${exportKeys.join(", ")}`,
   );
 }
@@ -276,14 +333,27 @@ if (
   rootExport?.types !== "./src/index.ts" ||
   rootExport?.import !== "./src/index.ts"
 ) {
-  violations.push("root export must resolve types/import to ./src/index.ts");
+  addViolation(
+    "atlas-package-exports",
+    "root export must resolve types/import to ./src/index.ts",
+  );
 }
 
-if (violations.length > 0) {
-  console.error(violations.join("\n"));
+if (process.argv.includes("--format=json")) {
+  console.log(
+    JSON.stringify({
+      producer: "atlas-ui-import-boundary",
+      sourceRoot,
+      sourceFiles: sourceFiles.length,
+      violations,
+    }),
+  );
+  process.exitCode = violations.length > 0 ? 1 : 0;
+} else if (violations.length > 0) {
+  console.error(violations.map((violation) => violation.display).join("\n"));
   process.exitCode = 1;
 } else {
   console.log(
-    `atlas-ui architecture: PASS (${walk(sourceRoot).length} source files)`,
+    `atlas-ui architecture: PASS (${sourceFiles.length} source files)`,
   );
 }

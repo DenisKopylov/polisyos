@@ -183,12 +183,15 @@ These are input samples, not yet the catalog. Exact source anchors will be store
   `1d24793a193121e1acf8abb794f25a93392c18dc`. The profiler was an ignored scratch harness;
   tracked status was clean before and after the attempt. It did not edit runtime source, tests, or
   governed artifacts.
-- `production_data` was exposed to the isolated worktree through a read-only ignored symlink to
-  the main checkout. The isolation-local `.venv` initially lacked OR-Tools. The command
+- `production_data` was exposed to the isolated worktree through an ignored symlink to the main
+  checkout. The profiler used that input without writing it, but the symlink and its owner-writable
+  target did not enforce read-only permissions. The isolation-local `.venv` initially lacked
+  OR-Tools. The command
   `uv sync --offline --extra solvers` returned an honest non-receipt because the locked
   `ortools==9.15.6755` arm64 wheel was absent from the local uv cache. Existing `ortools` and
-  `immutabledict` packages were then linked read-only from the main checkout's venv; the exact
-  link targets are captured in the raw receipt.
+  `immutabledict` packages were then symlinked from the main checkout's venv and used only for
+  imports; their owner-writable targets likewise did not enforce read-only access. The exact link
+  targets are captured in the raw receipt.
 - Exactly one fresh-process owner derivation was attempted. It exited `1` after
   `160.194786417s`, with peak RSS `3,926,081,536` bytes. The authority path failed closed after
   `147.702943792s` of owner load with `OwnerProjectionError`:
@@ -295,12 +298,18 @@ Capability labels are `verification_missing` for reusable dominant state and `br
 the correct cross-process owner intake. The pattern pass closes this iteration against P05/P07
 (authority and replay), P29 (live property rather than markers), P31 (correct chokepoint rather
 than the cited cheap instance cache), P32 (no trusted self-hashed blob), and P33 (no implementation
-taught to the 240x witness). P34 requires retaining the pre-existing provenance failure as a
-non-receipt, not excluding or repairing it outside scope.
+taught to the 240x witness). P34 requires retaining the provenance failure present at the
+`1d24793a1` Gate-0 boundary as a non-receipt, not attributing it to an earlier boundary that was
+not measured and not excluding or repairing it outside scope.
 
 Part C therefore changes no runtime source or test, does not close the GY-DI1 debt row, runs none
-of the six implementation witnesses, and triggers no deployment-identity replay. Before remains
-the user's measured closeout cycle of approximately `1h52m` (`6,720s`). After is unchanged at
-approximately `1h52m`: no safe cache was delivered. The one `160.195s` failed process is a Gate-0
-measurement receipt, not a comparable full closeout cycle. Corruption counts, flip counts,
-governance numbers, semantic denominators, gates, and artifact hashes are unchanged.
+of the six implementation witnesses, and triggers no deployment-identity replay. The supplied
+before receipts (`1,086 + 951 + 951 + 937 + 975 + 952`) total `5,852s`, or `1h37m32s`. The user's
+separate headline says approximately `1h52m` (`6,720s`), leaving `868s` not accounted for by the
+six listed lanes; both are retained rather than silently treating the approximation as the
+arithmetic receipt. Because no cache was implemented, there is no distinct measured after cycle.
+The after state is unchanged by construction: the same `5,852s` listed-lane baseline and the same
+approximately `1h52m` user headline remain applicable, but that is an inference from no source or
+execution change, not a new measurement. The one `160.195s` failed process is a Gate-0 measurement
+receipt, not a comparable full closeout cycle. Corruption counts, flip counts, governance numbers,
+semantic denominators, gates, and artifact hashes are unchanged.

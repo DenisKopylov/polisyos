@@ -743,6 +743,54 @@ def test_output_parent_swap_cannot_escape_the_worktree(
     assert (displaced_parent / output.name).read_bytes() == b"previous-valid-package\n"
 
 
+def test_output_parent_swap_during_replace_restores_prior_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch the final parent-check/replace window destroying a displaced package."""
+
+    repo, base = _init_repo(tmp_path)
+    (repo / "fix.py").write_text("FIXED = True\n", encoding="utf-8")
+    head = _commit(repo, "fix")
+    output_parent = repo / "review"
+    output_parent.mkdir()
+    output = output_parent / "existing.review"
+    original = b"previous-valid-package\n"
+    output.write_bytes(original)
+    displaced_parent = repo / "review-before-replace-swap"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    replace = review_package.os.replace
+    swapped = False
+
+    def _swap_parent_then_replace(
+        source: str | bytes,
+        destination: str | bytes,
+        **kwargs: object,
+    ) -> None:
+        nonlocal swapped
+        if not swapped and destination == output.name and kwargs.get("dst_dir_fd") is not None:
+            output_parent.rename(displaced_parent)
+            output_parent.symlink_to(outside, target_is_directory=True)
+            swapped = True
+        replace(source, destination, **kwargs)
+
+    monkeypatch.setattr(review_package.os, "replace", _swap_parent_then_replace)
+
+    with pytest.raises(review_package.ReviewPackageError, match="output parent changed"):
+        review_package.build_review_package(
+            base_revision=base,
+            head_revision=head,
+            output_path=output,
+            invocation_cwd=repo,
+        )
+
+    assert swapped is True
+    assert not (outside / output.name).exists()
+    assert (displaced_parent / output.name).read_bytes() == original
+    assert list(displaced_parent.glob(".polisyos-review-*.tmp")) == []
+
+
 def test_delta_rejects_invalid_checklists_and_worktree_path_escapes(tmp_path: Path) -> None:
     """Catch a missing checklist or escaped path being accepted as review evidence."""
 

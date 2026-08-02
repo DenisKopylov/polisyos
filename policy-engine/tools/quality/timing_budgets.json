@@ -8,7 +8,7 @@
       "samples_ms": [11610.0],
       "measured_p95_ms": 11610.0,
       "recommended_timeout_ms": 23220.0,
-      "source_refs": ["docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:151-152"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:414"]
     },
     {
       "timing_key": "atlas.python-governance:default",
@@ -88,7 +88,7 @@
       "samples_ms": [9090.0],
       "measured_p95_ms": 9090.0,
       "recommended_timeout_ms": 18180.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2521"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:415"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:rederive-audit",
@@ -98,7 +98,7 @@
       "samples_ms": [1493170.0],
       "measured_p95_ms": 1493170.0,
       "recommended_timeout_ms": 2986340.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2522"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:416"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:source-flip-mutations",
@@ -108,7 +108,7 @@
       "samples_ms": [226770.0],
       "measured_p95_ms": 226770.0,
       "recommended_timeout_ms": 453540.0,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2523"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:417"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_depth_n_universality_contract:write",
@@ -118,7 +118,7 @@
       "samples_ms": [727520.0, 3660436.012, 1613412.167],
       "measured_p95_ms": 3660436.012,
       "recommended_timeout_ms": 7320872.024,
-      "source_refs": ["docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2524", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403"]
+      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:418", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403", "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:403"]
     },
     {
       "timing_key": "quality.validation.check_layer3_gy_design_generation_contract:rederive-audit",

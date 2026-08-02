@@ -213,8 +213,8 @@ _SECONDS_FIELD_RE = re.compile(
 )
 
 
-def _default_lane_workload_markers(lane: dict[str, object]) -> tuple[str, ...]:
-    """Derive explicit workload tokens for a non-action command."""
+def _lane_workload_identity_markers(lane: dict[str, object]) -> tuple[str, ...]:
+    """Derive command/tool identity tokens independently of an action flag."""
 
     command = lane.get("command")
     tool = lane.get("tool")
@@ -227,14 +227,6 @@ def _default_lane_workload_markers(lane: dict[str, object]) -> tuple[str, ...]:
             markers.append(tokens[index + 1])
     script_indexes = [index for index, token in enumerate(tokens) if token.endswith(".py")]
     markers.extend(Path(tokens[index]).name for index in script_indexes)
-    if script_indexes:
-        trailing_actions = [
-            token[2:].split("=", 1)[0]
-            for token in tokens[script_indexes[-1] + 1 :]
-            if token.startswith("--")
-        ]
-        if trailing_actions:
-            markers.append(trailing_actions[-1])
     markers.append(tool.rsplit(".", 1)[-1])
     return tuple(dict.fromkeys(marker for marker in markers if marker))
 
@@ -243,6 +235,46 @@ def _normalized_workload_text(value: str) -> str:
     """Normalize punctuation without weakening token order or word identity."""
 
     return " ".join(re.findall(r"[a-z0-9]+", value.casefold()))
+
+
+def _source_derived_unittest_denominator(path: Path) -> int:
+    """Count source-declared unittest and module test nodes without importing the suite."""
+
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    classes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
+    test_case_names: set[str] = set()
+    changed = True
+    while changed:
+        changed = False
+        for node in classes:
+            base_names = {
+                (
+                    f"{base.value.id}.{base.attr}"
+                    if isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name)
+                    else base.id
+                    if isinstance(base, ast.Name)
+                    else ""
+                )
+                for base in node.bases
+            }
+            if node.name not in test_case_names and (
+                {"unittest.TestCase", "TestCase"} & base_names
+                or test_case_names & base_names
+            ):
+                test_case_names.add(node.name)
+                changed = True
+    test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
+    module_tests = sum(
+        isinstance(node, test_node_types) and node.name.startswith("test_")
+        for node in tree.body
+    )
+    class_tests = sum(
+        isinstance(member, test_node_types) and member.name.startswith("test_")
+        for node in classes
+        if node.name in test_case_names
+        for member in node.body
+    )
+    return module_tests + class_tests
 
 
 def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
@@ -286,20 +318,19 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
             excerpt = "\n".join(lines[start - 1 : end])
             mode = lane.get("mode")
             assert isinstance(mode, str)
+            workload_markers = _lane_workload_identity_markers(lane)
+            normalized_excerpt = f" {_normalized_workload_text(excerpt)} "
+            if not any(
+                f" {_normalized_workload_text(marker)} " in normalized_excerpt
+                for marker in workload_markers
+            ):
+                violations.append(
+                    f"{timing_key}:uncited_workload_identity:{'|'.join(workload_markers)}"
+                )
             if mode != "default":
                 workload_marker = f"--{mode}"
                 if workload_marker not in excerpt:
                     violations.append(f"{timing_key}:uncited_workload:{workload_marker}")
-            else:
-                workload_markers = _default_lane_workload_markers(lane)
-                normalized_excerpt = f" {_normalized_workload_text(excerpt)} "
-                if not any(
-                    f" {_normalized_workload_text(marker)} " in normalized_excerpt
-                    for marker in workload_markers
-                ):
-                    violations.append(
-                        f"{timing_key}:uncited_workload:{'|'.join(workload_markers)}"
-                    )
             cited_milliseconds: set[Decimal] = set()
             for duration_match in _DURATION_RE.finditer(excerpt):
                 duration = Decimal(duration_match.group("value"))
@@ -987,6 +1018,43 @@ def test_timing_budget_evidence_rejects_receipts_swapped_with_samples() -> None:
     )
 
 
+def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
+    """Catch action-only binding that accepts another tool's same-mode receipts."""
+
+    payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
+    swapped = copy.deepcopy(payload)
+    lanes = swapped["lanes"]
+    assert isinstance(lanes, list)
+    depth_check = next(
+        lane
+        for lane in lanes
+        if isinstance(lane, dict)
+        and lane.get("timing_key")
+        == "quality.validation.check_layer3_gy_depth_n_universality_contract:check"
+    )
+    confidence_check = next(
+        lane
+        for lane in lanes
+        if isinstance(lane, dict)
+        and lane.get("timing_key")
+        == "quality.validation.check_layer3_gy_confidence_ledger:check"
+    )
+    measurement_fields = (
+        "samples_ms",
+        "measured_p95_ms",
+        "recommended_timeout_ms",
+        "source_refs",
+    )
+    depth_measurements = {field: depth_check[field] for field in measurement_fields}
+    confidence_measurements = {field: confidence_check[field] for field in measurement_fields}
+    depth_check.update(confidence_measurements)
+    confidence_check.update(depth_measurements)
+
+    violations = _catalog_evidence_violations(swapped)
+    assert any("depth_n_universality_contract:check" in item for item in violations)
+    assert any("confidence_ledger:check" in item for item in violations)
+
+
 def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> None:
     """Catch a timing lane that combines samples from different Atlas governance suites."""
 
@@ -1011,11 +1079,45 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
     source_line = (
         REPO_ROOT / atlas["source_refs"][0].rsplit(":", 1)[0]
     ).read_text(encoding="utf-8").splitlines()[47]
-    assert "`67` tests passed" in source_line
+    command_test_paths = [
+        REPO_ROOT / token
+        for token in shlex.split(atlas["command"])
+        if token.startswith("architecture/") and Path(token).name.startswith("test_")
+    ]
+    source_denominator = sum(
+        _source_derived_unittest_denominator(path) for path in command_test_paths
+    )
+    receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
+    assert receipt_count_match is not None
+    assert int(receipt_count_match.group("count")) == source_denominator
     assert all("<" not in lane["command"] for lane in lanes if isinstance(lane, dict))
     assert not any(
         isinstance(lane, dict) and lane.get("timing_key") == "atlas.status-governance:default"
         for lane in lanes
+    )
+
+
+def test_atlas_source_denominator_changes_when_a_test_method_is_removed(
+    tmp_path: Path,
+) -> None:
+    """Catch a source census that stays green when a collected test disappears."""
+
+    source_path = REPO_ROOT / "architecture/atlas_surfaces/test_frontend_disposition_register.py"
+    tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    removed = next(
+        member
+        for node in tree.body
+        if isinstance(node, ast.ClassDef)
+        for member in node.body
+        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and member.name.startswith("test_")
+    )
+    removed.name = f"removed_{removed.name}"
+    mutated_path = tmp_path / source_path.name
+    mutated_path.write_text(ast.unparse(tree), encoding="utf-8")
+
+    assert _source_derived_unittest_denominator(mutated_path) == (
+        _source_derived_unittest_denominator(source_path) - 1
     )
 
 

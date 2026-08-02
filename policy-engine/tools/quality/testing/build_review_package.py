@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import os
 import secrets
+import stat
 import subprocess
 import sys
 import tempfile
@@ -671,6 +672,62 @@ def _bound_parent_matches_path(bound_output: _BoundOutput) -> bool:
     return os.path.samestat(path_stat, descriptor_stat)
 
 
+def _snapshot_bound_destination(bound_output: _BoundOutput) -> str | None:
+    """Hard-link the prior regular output so a detected parent race can roll back."""
+
+    try:
+        destination_stat = os.stat(
+            bound_output.filename,
+            dir_fd=bound_output.parent_fd,
+            follow_symlinks=False,
+        )
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(destination_stat.st_mode):
+        raise ReviewPackageError("output changed to a non-regular file after validation")
+    backup_name = f".polisyos-review-prior-{secrets.token_hex(16)}.tmp"
+    try:
+        os.link(
+            bound_output.filename,
+            backup_name,
+            src_dir_fd=bound_output.parent_fd,
+            dst_dir_fd=bound_output.parent_fd,
+            follow_symlinks=False,
+        )
+        backup_stat = os.stat(
+            backup_name,
+            dir_fd=bound_output.parent_fd,
+            follow_symlinks=False,
+        )
+        if not os.path.samestat(destination_stat, backup_stat):
+            raise ReviewPackageError("output changed while its prior version was preserved")
+    except BaseException:
+        with suppress(FileNotFoundError):
+            os.unlink(backup_name, dir_fd=bound_output.parent_fd)
+        raise
+    return backup_name
+
+
+def _restore_bound_destination(
+    bound_output: _BoundOutput,
+    *,
+    backup_name: str | None,
+) -> None:
+    """Restore the pre-replace output (or absence) inside the still-held directory."""
+
+    if backup_name is None:
+        with suppress(FileNotFoundError):
+            os.unlink(bound_output.filename, dir_fd=bound_output.parent_fd)
+    else:
+        os.replace(
+            backup_name,
+            bound_output.filename,
+            src_dir_fd=bound_output.parent_fd,
+            dst_dir_fd=bound_output.parent_fd,
+        )
+    os.fsync(bound_output.parent_fd)
+
+
 def _atomic_write_bound_output(bound_output: _BoundOutput, payload: bytes) -> None:
     """Atomically replace an output relative to its verified parent descriptor."""
 
@@ -678,6 +735,8 @@ def _atomic_write_bound_output(bound_output: _BoundOutput, payload: bytes) -> No
         raise ReviewPackageError("output parent changed after validation")
     temporary_name = f".polisyos-review-{secrets.token_hex(16)}.tmp"
     temporary_fd: int | None = None
+    backup_name: str | None = None
+    preserve_backup = False
     try:
         temporary_fd = os.open(
             temporary_name,
@@ -696,6 +755,9 @@ def _atomic_write_bound_output(bound_output: _BoundOutput, payload: bytes) -> No
         temporary_fd = None
         if not _bound_parent_matches_path(bound_output):
             raise ReviewPackageError("output parent changed during package write")
+        backup_name = _snapshot_bound_destination(bound_output)
+        if not _bound_parent_matches_path(bound_output):
+            raise ReviewPackageError("output parent changed before atomic replace")
         os.replace(
             temporary_name,
             bound_output.filename,
@@ -703,12 +765,28 @@ def _atomic_write_bound_output(bound_output: _BoundOutput, payload: bytes) -> No
             dst_dir_fd=bound_output.parent_fd,
         )
         if not _bound_parent_matches_path(bound_output):
+            try:
+                _restore_bound_destination(bound_output, backup_name=backup_name)
+                backup_name = None
+            except OSError as exc:
+                preserve_backup = backup_name is not None
+                raise ReviewPackageError(
+                    "output parent changed during atomic replace and prior output "
+                    f"rollback failed; retained backup {backup_name or 'was absent'}"
+                ) from exc
             raise ReviewPackageError("output parent changed during atomic replace")
+        if backup_name is not None:
+            os.unlink(backup_name, dir_fd=bound_output.parent_fd)
+            backup_name = None
+        os.fsync(bound_output.parent_fd)
     finally:
         if temporary_fd is not None:
             os.close(temporary_fd)
         with suppress(FileNotFoundError):
             os.unlink(temporary_name, dir_fd=bound_output.parent_fd)
+        if backup_name is not None and not preserve_backup:
+            with suppress(FileNotFoundError):
+                os.unlink(backup_name, dir_fd=bound_output.parent_fd)
 
 
 def _normalize_git_text(payload: bytes) -> bytes:

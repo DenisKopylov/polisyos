@@ -405,3 +405,63 @@ The following lines introduce no new measurements. They make each historical rec
 - `quality.validation.check_layer3_gy_confidence_ledger:check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --check`; sample `898666.254ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-772` (the independent recomputing check).
 - `quality.validation.check_layer3_gy_confidence_ledger:source-flip-mutations`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --source-flip-mutations`; sample `844533ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:756-757` (the 17/17 source-flip lane).
 - `quality.validation.check_layer3_gy_confidence_ledger:write`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_confidence_ledger.py --write`; samples `1173279.650ms`, `1111911.306ms`; origin `docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:771-772` (the two dependency-ordered final N11 writes).
+
+## Historical timing receipt identity normalization
+
+These entries add no measurements. They bind the remaining abbreviated historical receipts to an
+exact command identity while preserving the original source as provenance.
+
+- `atlas.disposition-governance:default`; command `.venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check --verify-baseline-source-bytes --corruption-probes`; sample `11610ms`; origin `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md:151-152`.
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:corrupt-field-drift-check`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --corrupt-field-drift-check --output-format json`; sample `9090ms`; origin `docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2521`.
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:rederive-audit`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --rederive-audit --output-format json`; sample `1493170ms`; origin `docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2522`.
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:source-flip-mutations`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --source-flip-mutations --output-format json`; sample `226770ms`; origin `docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2523`.
+- `quality.validation.check_layer3_gy_depth_n_universality_contract:write`; command `.venv/bin/python tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --write --output-format json`; sample `727520ms`; origin `docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md:2524`.
+
+## Whole-branch delta review and second repair wave
+
+- The first whole-branch repair source froze in commits `45dc19344` (Part A) and `b9048c185`
+  (Part B). The committed Part B tool built the exact `5ceb8443c..b9048c185` delta twice:
+  `168724` bytes and SHA-256
+  `1fdfa7b51caaebc88f358ddf89a80c2caf4b44b765d7868d25da18ed3c3ce833` both times. Its
+  embedded 3609-byte round-1 checklist was byte-identical to the supplied file and authenticated
+  by SHA-256 `89536a38e323a6d89f9deb5a855cbce4d8dc06b8ba047386fc014668e0c4d35b`.
+- Delta-only independent review returned NO-GO with `0` Critical, `5` Important, and `0` Minor:
+  same-mode cross-tool receipt swaps passed; Atlas's corrected 67-test receipt was checked by a
+  prose marker instead of source collection; a parent rename in the final check/replace window
+  overwrote the displaced prior package; the representative tenfold reduction lacked an
+  authenticated receipt; and the checklist literally claimed no test/gate byte changes even
+  though this tools task necessarily changes instrumentation tests.
+- The second repair wave was red-first. The cross-tool `:check` swap witness failed because both
+  swapped lanes produced no evidence violation. The Atlas gate failed with the new source-derived
+  denominator function absent. The replace-window race failed after the builder returned an error
+  because the displaced file contained the new package instead of `previous-valid-package`.
+- Timing evidence now requires both a command/tool identity token and the exact action flag for
+  every non-default sample; default lanes require the same independent command/tool identity.
+  Abbreviated historical receipts were normalized append-only at lines 414-418. The Atlas gate
+  derives the two command-named files' 30 + 37 unittest methods directly from their ASTs and
+  compares that 67 to the receipt; a remove-one-test mutation changes the derived denominator.
+- The review-package writer hard-links an existing regular destination inside the held parent
+  immediately before replacement. If the parent path identity changes during replacement, it
+  atomically restores that prior inode (or removes the new file when the prior path was absent),
+  fsyncs the held directory, refuses the operation, and leaves no temporary package or backup.
+- The persistent representative fixture is under ignored harness scratch
+  `ratio-fixture-b21bn4d6`. Full range
+  `00df1eb39dfd3f099b0db20646e4bdfce4b8531b..c0c296db479eeada67e053bed123fe9e2810f577`
+  produced `43897` bytes, SHA-256
+  `ede39ef46fe3ce716b5ab997581d1098ebab26d15dc3927dc32ab87d3ffe6b00`; fix delta
+  `c0c296db479eeada67e053bed123fe9e2810f577..0b70aa13fe23460f32fe6b53644d40a39da0f953`
+  produced `899` bytes, SHA-256
+  `d8989ea4c461f9ac7eeaff3f918fca68cfcac0286bb89f52e85bfa8191f4432b`. Both rebuilt
+  byte-identically. The ratio is `899 / 43897 = 0.0204797594` (`2.048%`), satisfying
+  `delta_size <= full_size / 10`; the 646-byte JSON receipt SHA-256 is
+  `92c8d6880906d114130861bbfd77a2dfe883991113c63029db669da8c05e29f0` and its exact
+  66-byte findings payload SHA-256 is
+  `358b8290af6f9071090542d1feb6587ef24913391aa0faa64e6c436d9b65a068`.
+- The corrected invariant is semantic, not textual: no validator acceptance/rejection behavior,
+  semantic gate, corruption/source-flip case count, governance-suite membership, governed
+  artifact hash, or byte under `src/polisyos/**` changes. The journal's `30` -> `67` edit corrects
+  the label for the already-existing 30 + 37 two-file suite; it neither adds nor removes a test.
+- After these fixes, the combined timing/CLI/package suite returned `77 passed`; Ruff check over
+  the six changed implementation/test surfaces and whole-range `git diff --check` returned `0`.
+  Ruff format still names only the three already-recorded cosmetic debts (`timing.py`,
+  `test_timing.py`, `test_unified_cli.py`). No expensive GY or browser lane was rerun.

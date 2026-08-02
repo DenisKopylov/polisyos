@@ -166,3 +166,10 @@ These are input samples, not yet the catalog. Exact source anchors will be store
   `ad0fc323d891037817ad65b76ebf7948ab1856fce474c505f480b5e4baf79bc3`; embedded checklist
   length `1448`, SHA-256
   `26f8ed446a8852ce18f773f341e4df1682a09f7acf386de559ec6aaab6bec601`.
+- The original round-2 reviewer process returned an honest workspace-credit non-receipt before
+  reading the delta. A fresh independent reviewer then authenticated the `10300`-byte package and
+  embedded checklist, inspected only the exact fix delta, and returned **approved: `0` Critical,
+  `0` Important**. It confirmed generic local/worktree `diff.*` enumeration, fail-closed handling
+  for every unsupported key, fixed-argv neutralization for the allowlisted keys, both pre-render
+  and pre-replace checks, the two original hostile probes, and the separate worktree
+  `xfuncname` variant. Part B is complete; no source or semantic denominator changed.

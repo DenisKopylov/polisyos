@@ -5,7 +5,7 @@
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:bdab45ab5bae3317c1c89470ea5f5cb0e1a1cca1baee5ba9b9300cc5a2502e43",
+  "census_content_hash": "sha256:fb98cc5070e919a140d544c75a640a809d3bcc0bbdc1808b6129ffc8de0cfd0d",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -358,7 +358,7 @@
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_trace_content_hash": "sha256:6db6d4544ccdb58ac015965d3af243de3c111c2e52cce9c9f83761ab887c7050",
+  "cycle_trace_content_hash": "sha256:6c5367c1abee4f5fbe68f2d969b90fa7562a517e1436594ccc5d49177899160c",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -379,15 +379,15 @@
       "source_hashes": {
         "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
         "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:531427f638c50dbb90d2af08e869db2e547bb56ee115f73dff6c7f78ec26bb86"
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:741299fd635e52eef3ea46502d6c353d07f9312e1a5a4883be92dd151cede844"
       },
       "transport_comparison_status": "not_evaluated_first_vertical_context_unresolved",
       "transport_covariates": []
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:a2c6bfed2d1aa77f23f69aaf85fc6ddee7024ac10771bda34e3f7426d35637f0",
-  "manifest_content_hash": "sha256:910eff90aa7fb3d5cdee45ea6040b0e23cb34c0b0865cedf3112e921bf5997fb",
+  "gap_report_content_hash": "sha256:6d873cfa8a00c10b181df35e67a39bbce97f4a3bb667793b6ebb4fd7857e50e9",
+  "manifest_content_hash": "sha256:a0e0c7e23de8c376d950e8f946b620d8625f92bc423b053c076f8da725ddef59",
   "n7_acquisition": {
     "attempt_effective_owner_config": {
       "allow_explore_fallback": true,
@@ -4535,7 +4535,7 @@
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:f732dff34897d0bf61a36cccbc3e9681659eb930e90a0e4c626f2d8aae9bf184",
+  "smoke_problem_content_hash": "sha256:d40e3fe557d6d287e549e3a7f0373e2052fd137ae9ce56ba75e9c29c73f770e5",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [

@@ -15,13 +15,13 @@
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_substrate_context_content_hash": "sha256:2e668ab4836227242608f1a83141ec28f0feec581fd1c476d4e873b6442c1257",
+  "cycle_substrate_context_content_hash": "sha256:8d1f20e87b2074211cb9ce22e4fde375a7e763a4f7fa1cd96f507e0fa9580297",
   "execution_status": "completed",
   "gap_triage": [
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
-      "receipt_ref": "sha256:beb876ff359db1bd2b9838dcbd13fd7180abb17625969fee8a1f3fa7d105cd4b",
+      "receipt_ref": "sha256:6db0ec7b9dfc23b35e0f161ff5545a03209fdba83b2674049444dcf45edc073c",
       "status": "closed"
     },
     {
@@ -39,7 +39,7 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "s0_to_n4_l6_bridge_missing",
-      "receipt_ref": "sha256:d55877fab1dea65875fe981149b5382ccffc9371a40f0f76d07a94830d203958",
+      "receipt_ref": "sha256:56484f1105e1076f96a9cc6ebca8a59f5070755fe01d7a5d17507cfc2b568831",
       "status": "closed"
     },
     {
@@ -51,13 +51,13 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n8_transport_tuple_hardcode",
-      "receipt_ref": "sha256:4baeddedb4f7f5ef7c587273d2047fd437c21e385e8018486fa79ddc66681548",
+      "receipt_ref": "sha256:6cbfd4cff772670a888a0e8c2cd2c0f8cea16d97d4f77f4f2abb388e2bbff88f",
       "status": "closed"
     },
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n6_single_terminal_validation_gap",
-      "receipt_ref": "sha256:babf4a1c894716fbfa5b0194728d15ea9fa1377104dc8adde976eb62ba00b97c",
+      "receipt_ref": "sha256:01c5f67e3cc2049a33662cc461fa7e32a08d4a09dcacef93fcd7c69ed1796743",
       "status": "closed"
     }
   ],
@@ -172,7 +172,7 @@
           "acquisition_records": [
             {
               "accepted_deficit_ref": null,
-              "acquisition_id": "acquisition:n7-routing:education_second_domain_smoke:0:requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+              "acquisition_id": "acquisition:n7-routing:education_second_domain_smoke:0:requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
               "authority_boundary": {
                 "authoritative_for": [
                   "gap_detected",
@@ -196,10 +196,10 @@
               },
               "authority_level": "research",
               "blocker_ref": null,
-              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
               "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
               "commit_authority": "advisory_recommendation_only",
-              "compiled_requirement_ref": "runtime-requirement:grounding-coverage:f9abba11551d933a:v1",
+              "compiled_requirement_ref": "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1",
               "decision_owner": "runtime_planner",
               "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
               "eligible_strategies": [
@@ -207,8 +207,8 @@
                 "rerun",
                 "accepted_deficit"
               ],
-              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-f9abba11551d933a.json",
-              "gap_id": "requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-421f2d8e7c7370ba.json",
+              "gap_id": "requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
               "gap_type": "data_snapshot_release",
               "ineligible_strategies": [
                 "academic_retrieval",
@@ -348,7 +348,7 @@
               ],
               "limitation_ref": null,
               "mandatory_gate_refs": [
-                "runtime-requirement:grounding-coverage:f9abba11551d933a:v1"
+                "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1"
               ],
               "mandatory_gate_state": "none",
               "missing_requirement_fields": [
@@ -359,7 +359,7 @@
                   "action": "build_production_snapshot",
                   "blocks_closeout": false,
                   "commit_required": false,
-                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-f9abba11551d933a.json",
+                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-421f2d8e7c7370ba.json",
                   "message": "Acquire or remediate evidence via production_snapshot_build for grounding-claim:gy_n4.blended_learning_expansion.",
                   "owner": "polisyos.runtime.quality.acquisition_planner",
                   "producer_expected": "data_forge.snapshot",
@@ -368,16 +368,16 @@
               ],
               "planner_posture": "advisory",
               "producer_expected": "data_forge.snapshot",
-              "producer_output_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+              "producer_output_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
               "public_projection_effect": "no_public_effect_until_producer_output",
               "recommended_strategy": "production_snapshot_build",
               "requirement_family": "data_requirement",
-              "requirement_gap_ref": "requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+              "requirement_gap_ref": "requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
               "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
-              "runtime_event_ref": "event://runtime/acquisition/n7-routing-education-second-domain-smoke-0/requirement-gap-data-requirement-grounding-coverage-f9abba11551d933a",
+              "runtime_event_ref": "event://runtime/acquisition/n7-routing-education-second-domain-smoke-0/requirement-gap-data-requirement-grounding-coverage-421f2d8e7c7370ba",
               "scenario_requirement_refs": [
-                "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
-                "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+                "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                 "cg1_cert_c78509e4668eb495",
                 "sha256:c78509e4668eb495a243e850bc343546c3652225d442274f99d08278bb8cbb88",
                 "cg2_cert_3001506e8ce4c0a3",
@@ -455,7 +455,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-08-01T14:18:57Z",
+          "generated_at": "2026-08-02T02:05:37Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -512,7 +512,7 @@
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
         },
         "cycle_index": 0,
-        "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
+        "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
         "driven_by_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
         "grammar_elements": [
           "seed"
@@ -522,12 +522,12 @@
             "authority_level": "research",
             "calibration_feedback_ref": null,
             "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
-            "compiled_requirement_ref": "runtime-requirement:grounding-coverage:f9abba11551d933a:v1",
+            "compiled_requirement_ref": "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1",
             "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
             "gap_type": "data_snapshot_release",
             "limitation_permitted": false,
             "mandatory_gate_refs": [
-              "runtime-requirement:grounding-coverage:f9abba11551d933a:v1"
+              "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1"
             ],
             "mandatory_gate_state": "none",
             "metadata": {
@@ -537,7 +537,7 @@
               "candidate_binding": {
                 "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
                 "candidate_id": "gy_n4.blended_learning_expansion",
-                "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160"
+                "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10"
               },
               "evidence_refs": [
                 "cg1_cert_c78509e4668eb495",
@@ -551,7 +551,7 @@
                 "cg5_ticket_17c67730197fa779",
                 "sha256:17c67730197fa779b4613b4eb7a4985966e943677f36868c82f8d3fad18efcdf"
               ],
-              "grounding_report_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+              "grounding_report_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
               "issue_codes": [
                 "unknown_blocked",
                 "false_analog_hard_abstain",
@@ -565,13 +565,13 @@
             "missing_requirement_fields": [
               "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
             ],
-            "producer_output_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+            "producer_output_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
             "requirement_family": "data_requirement",
-            "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+            "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
             "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
             "scenario_requirement_refs": [
-              "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
-              "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+              "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
               "cg1_cert_c78509e4668eb495",
               "sha256:c78509e4668eb495a243e850bc343546c3652225d442274f99d08278bb8cbb88",
               "cg2_cert_3001506e8ce4c0a3",
@@ -622,7 +622,7 @@
             "terminal_for_this_round"
           ],
           "quarantine_action": "none",
-          "report_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+          "report_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
           "status": "grounding_failed"
         },
         "introduced_grammar_elements": [],
@@ -751,7 +751,7 @@
             "nl_provenance": {
               "raw_request": "Improve education outcomes through evidence-backed interventions.",
               "source_context": {
-                "census_content_hash": "sha256:bdab45ab5bae3317c1c89470ea5f5cb0e1a1cca1baee5ba9b9300cc5a2502e43"
+                "census_content_hash": "sha256:fb98cc5070e919a140d544c75a640a809d3bcc0bbdc1808b6129ffc8de0cfd0d"
               },
               "source_surface": "gy_n10a_second_domain_pack"
             },
@@ -793,12 +793,12 @@
                       "authority_level": "research",
                       "calibration_feedback_ref": null,
                       "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
-                      "compiled_requirement_ref": "runtime-requirement:grounding-coverage:f9abba11551d933a:v1",
+                      "compiled_requirement_ref": "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1",
                       "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
                       "gap_type": "data_snapshot_release",
                       "limitation_permitted": false,
                       "mandatory_gate_refs": [
-                        "runtime-requirement:grounding-coverage:f9abba11551d933a:v1"
+                        "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1"
                       ],
                       "mandatory_gate_state": "none",
                       "metadata": {
@@ -808,7 +808,7 @@
                         "candidate_binding": {
                           "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
                           "candidate_id": "gy_n4.blended_learning_expansion",
-                          "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160"
+                          "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10"
                         },
                         "evidence_refs": [
                           "cg1_cert_c78509e4668eb495",
@@ -822,7 +822,7 @@
                           "cg5_ticket_17c67730197fa779",
                           "sha256:17c67730197fa779b4613b4eb7a4985966e943677f36868c82f8d3fad18efcdf"
                         ],
-                        "grounding_report_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                        "grounding_report_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                         "issue_codes": [
                           "unknown_blocked",
                           "false_analog_hard_abstain",
@@ -836,13 +836,13 @@
                       "missing_requirement_fields": [
                         "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
                       ],
-                      "producer_output_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                      "producer_output_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                       "requirement_family": "data_requirement",
-                      "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+                      "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
                       "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
                       "scenario_requirement_refs": [
-                        "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
-                        "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                        "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+                        "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                         "cg1_cert_c78509e4668eb495",
                         "sha256:c78509e4668eb495a243e850bc343546c3652225d442274f99d08278bb8cbb88",
                         "cg2_cert_3001506e8ce4c0a3",
@@ -891,12 +891,12 @@
                 "authority_level": "research",
                 "calibration_feedback_ref": null,
                 "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
-                "compiled_requirement_ref": "runtime-requirement:grounding-coverage:f9abba11551d933a:v1",
+                "compiled_requirement_ref": "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1",
                 "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
                 "gap_type": "data_snapshot_release",
                 "limitation_permitted": false,
                 "mandatory_gate_refs": [
-                  "runtime-requirement:grounding-coverage:f9abba11551d933a:v1"
+                  "runtime-requirement:grounding-coverage:421f2d8e7c7370ba:v1"
                 ],
                 "mandatory_gate_state": "none",
                 "metadata": {
@@ -906,7 +906,7 @@
                   "candidate_binding": {
                     "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
                     "candidate_id": "gy_n4.blended_learning_expansion",
-                    "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160"
+                    "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10"
                   },
                   "evidence_refs": [
                     "cg1_cert_c78509e4668eb495",
@@ -920,7 +920,7 @@
                     "cg5_ticket_17c67730197fa779",
                     "sha256:17c67730197fa779b4613b4eb7a4985966e943677f36868c82f8d3fad18efcdf"
                   ],
-                  "grounding_report_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                  "grounding_report_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                   "issue_codes": [
                     "unknown_blocked",
                     "false_analog_hard_abstain",
@@ -934,13 +934,13 @@
                 "missing_requirement_fields": [
                   "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
                 ],
-                "producer_output_ref": "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                "producer_output_ref": "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                 "requirement_family": "data_requirement",
-                "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:f9abba11551d933a",
+                "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:421f2d8e7c7370ba",
                 "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
                 "scenario_requirement_refs": [
-                  "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
-                  "sha256:986f92e4f80fe80be0faf20fb549f6c55412dffb908b20a6cea28ba11363036b",
+                  "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+                  "sha256:b25acf4f646cbb663b65ddd3035bd3a6de07ff580f15ebb9d107bd0e29b6cc0d",
                   "cg1_cert_c78509e4668eb495",
                   "sha256:c78509e4668eb495a243e850bc343546c3652225d442274f99d08278bb8cbb88",
                   "cg2_cert_3001506e8ce4c0a3",
@@ -1399,7 +1399,7 @@
         }
       }
     ],
-    "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
+    "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
     "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
     "fronts": {
       "decision": {
@@ -1444,7 +1444,7 @@
         "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
       }
     },
-    "run_id": "generation_cycle_8ce063a9d851b2a7",
+    "run_id": "generation_cycle_43561e7acdefbfdf",
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
@@ -1897,21 +1897,21 @@
           "call_index": 0,
           "historical_prompt_hash": "sha256:7daba540e277824f3b7ab6bd84570b73b405a3c1edee299ea91595ecb9bb796c",
           "raw_response_hash": "sha256:b6797c87952605879c59a16853021c5d190afba03085dfa9091b7bbf40f1deea",
-          "replay_prompt_hash": "sha256:11b235db02896dfd9c5881aa4b307e969c05d826734b5762c6aaaf11f058e2eb",
+          "replay_prompt_hash": "sha256:01830ada4bf65983eea923dd389c07e86032ff4eb27547a15fde140b3a21264a",
           "role_hint": "draft"
         },
         {
           "call_index": 1,
           "historical_prompt_hash": "sha256:c27bed56b9fdff5337e2171c786a07624db5063beeb4bada3e3f2f366d5aed9a",
           "raw_response_hash": "sha256:5d80ef434582bab5594926d160acdf9ae319639f2aa73dbdfb54eb89490a5138",
-          "replay_prompt_hash": "sha256:9d69a9cf4cf62ad96c5c2655fef5a4bc687a36315887657491996ba385c3bc0e",
+          "replay_prompt_hash": "sha256:40e759612e2cc954d21a83b0f872a610fdb2bb35a1fdce56a6a61c631d8387d0",
           "role_hint": "drafter_multipass"
         },
         {
           "call_index": 2,
           "historical_prompt_hash": "sha256:df88c69147e3286e7f7f0dde15af22e5d9b7f409da8ad4bcabe69ecb49bf9042",
           "raw_response_hash": "sha256:a2c19ff06e52c542e8f9343581ef6e5fee48aa9bfc79596712bd316b83414405",
-          "replay_prompt_hash": "sha256:90bbfec17551836025c2eae31ec6fec2248f8ef5decc2a6e1feb9f4473cb7ec8",
+          "replay_prompt_hash": "sha256:347358e0b7bb779802e3dc37027fdd5dcc073586ec0d1d5a434e58bf1b5e8f91",
           "role_hint": "drafter_multipass"
         },
         {
@@ -1925,7 +1925,7 @@
           "call_index": 4,
           "historical_prompt_hash": "sha256:14be1a97292adb0137e3d3e9e7d7645356308b9b5a518f2fba85e3e66fa835b4",
           "raw_response_hash": "sha256:beb283e4db4b4bcae2aa333eb0d0dcbaca8dec4109a618c1bdb2635ca770ad17",
-          "replay_prompt_hash": "sha256:a4d902cab4de68d6b042e5ec876e657792cff756066aa3f09be6a4d9a1a3fa17",
+          "replay_prompt_hash": "sha256:8a7e887b9fee28f63f4fc4e452c501b18b58c997b270e8d7dbf60ace1a295156",
           "role_hint": "critic"
         }
       ],
@@ -1933,9 +1933,9 @@
         "cycle_substrate_context_content_hash",
         "design_problem_ref"
       ],
-      "current_design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
-      "historical_capture_content_hash": "sha256:44b50a37de16844fe9880cdfd1a12901dfecbdebcdc4b392ac28c0d5492458de",
-      "historical_design_problem_ref": "sha256:ab258ef9471f875515200a0a1e9e1de5f4ae88dfc11bb7330d6f137568a19238",
+      "current_design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+      "historical_capture_content_hash": "sha256:d55877fab1dea65875fe981149b5382ccffc9371a40f0f76d07a94830d203958",
+      "historical_design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
       "problem_semantic_projection": {
         "authority_profile": {
           "authority_refs": [
@@ -2048,12 +2048,12 @@
           }
         ]
       },
-      "receipt_content_hash": "sha256:d6a95155e847cfe96ecad43ea9bf95dbb578199a204358bbb2081582fe6682e2",
+      "receipt_content_hash": "sha256:2ac24ac178d8f995864208c1b3feaf6214ce82e2bcd7b70e199cfc1e229bbdf4",
       "schema_version": "policyos.policy_design_case.gy_n10.n4_replay_receipt.v1"
     },
     "input_binding": {
-      "cycle_substrate_context_content_hash": "sha256:2e668ab4836227242608f1a83141ec28f0feec581fd1c476d4e873b6442c1257",
-      "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
+      "cycle_substrate_context_content_hash": "sha256:8d1f20e87b2074211cb9ce22e4fde375a7e763a4f7fa1cd96f507e0fa9580297",
+      "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
       "domain": "education",
       "selected_registry_entry_hashes": [
         "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8"
@@ -2116,7 +2116,7 @@
     "owner_result_projection": {
       "critique_present": true,
       "degraded_artifact_count": 0,
-      "design_problem_ref": "sha256:8ce063a9d851b2a79f4affc78e42037e4eea93d4e4b017e65b194210168dd160",
+      "design_problem_ref": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
       "draft_present": true,
       "effective_runtime_config": {
         "cg1_index_prewarm_enabled": true,
@@ -2157,11 +2157,11 @@
         "terminal_salvage_retry_count": 2
       },
       "exact_call_prompt_hashes": [
-        "sha256:11b235db02896dfd9c5881aa4b307e969c05d826734b5762c6aaaf11f058e2eb",
-        "sha256:9d69a9cf4cf62ad96c5c2655fef5a4bc687a36315887657491996ba385c3bc0e",
-        "sha256:90bbfec17551836025c2eae31ec6fec2248f8ef5decc2a6e1feb9f4473cb7ec8",
+        "sha256:01830ada4bf65983eea923dd389c07e86032ff4eb27547a15fde140b3a21264a",
+        "sha256:40e759612e2cc954d21a83b0f872a610fdb2bb35a1fdce56a6a61c631d8387d0",
+        "sha256:347358e0b7bb779802e3dc37027fdd5dcc073586ec0d1d5a434e58bf1b5e8f91",
         "sha256:525c5540e21b0df8989a8c7486b6591a781ab98da01dcf04cf6049b751e06a2b",
-        "sha256:a4d902cab4de68d6b042e5ec876e657792cff756066aa3f09be6a4d9a1a3fa17"
+        "sha256:8a7e887b9fee28f63f4fc4e452c501b18b58c997b270e8d7dbf60ace1a295156"
       ],
       "exact_formalizer_input_hashes": [
         "sha256:525c5540e21b0df8989a8c7486b6591a781ab98da01dcf04cf6049b751e06a2b"
@@ -2214,8 +2214,8 @@
           "legacy_linker_issues": [],
           "lever_resolution": {
             "candidate_entry_content_hash": "sha256:f84205ae9561311375d260d8300e47f6b764da5f6e207dbb676469afcfd22494",
-            "content_hash": "sha256:beb876ff359db1bd2b9838dcbd13fd7180abb17625969fee8a1f3fa7d105cd4b",
-            "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+            "content_hash": "sha256:6db0ec7b9dfc23b35e0f161ff5545a03209fdba83b2674049444dcf45edc073c",
+            "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
             "instrument": "education.blended_learning",
             "lever_id": "education_blended_learning",
             "operator_kind": "education_blended_learning",
@@ -2314,8 +2314,8 @@
           "legacy_linker_issues": [],
           "lever_resolution": {
             "candidate_entry_content_hash": "sha256:57bb9c8d74b0871c254a2e5cbce19ef8d04ef8af6f5769ed18f4450be883ffa6",
-            "content_hash": "sha256:b1ab0136d4a3d778893f460b81b889105d2b5f7f7735cecc17122999710f4ca5",
-            "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+            "content_hash": "sha256:51f69c38887a744da764769506765f1e6b817037a660ac4981d374dacfe50208",
+            "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
             "instrument": "education.teaching_method",
             "lever_id": "education_teaching_method",
             "operator_kind": "education_teaching_method",
@@ -2414,8 +2414,8 @@
           "legacy_linker_issues": [],
           "lever_resolution": {
             "candidate_entry_content_hash": "sha256:620f96884455e109e63f539e6394677a70d3e8a5e37e749d896f0cbedb190a56",
-            "content_hash": "sha256:4bd4e19d61ae2681dbb3d6563068f36311ce3dccdad42adec52dd18049e2a86e",
-            "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+            "content_hash": "sha256:337b036e20fc316bfc6125fe1834daa6daee410de9122815ad0e6eac4fb59d1c",
+            "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
             "instrument": "education.stem_education",
             "lever_id": "education_stem_education",
             "operator_kind": "education_stem_education",
@@ -2514,8 +2514,8 @@
           "legacy_linker_issues": [],
           "lever_resolution": {
             "candidate_entry_content_hash": "sha256:51c829902446e6fbc380afd29db5c1e9157e108889c78a7a5755db54309e8f5e",
-            "content_hash": "sha256:7b2c9d56344a4eeb543e80b8f6d0046e02a3cf3ab1988c9546b75e0b25375e53",
-            "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+            "content_hash": "sha256:c69838847813b7b2a2cb9091aa733c170d68c76b14255725bdebff95521e8196",
+            "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
             "instrument": "education.dialogic_reading_modality",
             "lever_id": "education_dialogic_reading_modality",
             "operator_kind": "education_dialogic_reading_modality",
@@ -2577,7 +2577,7 @@
           "status": "candidate_unverified"
         }
       ],
-      "lever_space_prompt_slice_content_hash": "sha256:9ac89bd842639f495fbcd49882166a955254e0af4129106895148f75e1701318",
+      "lever_space_prompt_slice_content_hash": "sha256:79a417c17d396f54441370cff5b13f9c4ebd5165f4252b78fae893f01b6da7ef",
       "model_id": "moonshotai/Kimi-K2.6",
       "preflight_status": "supported",
       "prompt_slice_operator_kinds": [
@@ -2627,7 +2627,7 @@
       "trinity_bundle_present": true
     },
     "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
-    "recording_content_hash": "sha256:d55877fab1dea65875fe981149b5382ccffc9371a40f0f76d07a94830d203958",
+    "recording_content_hash": "sha256:56484f1105e1076f96a9cc6ebca8a59f5070755fe01d7a5d17507cfc2b568831",
     "recording_source": "historical_capture_raw_responses_replayed_through_current_n4_owner",
     "response": {
       "call_index": 0,
@@ -2702,7 +2702,7 @@
         "problem_frame_ref": "education_second_domain_smoke",
         "rationale": "This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population."
       },
-      "prompt_hash": "sha256:11b235db02896dfd9c5881aa4b307e969c05d826734b5762c6aaaf11f058e2eb",
+      "prompt_hash": "sha256:01830ada4bf65983eea923dd389c07e86032ff4eb27547a15fde140b3a21264a",
       "provider": "recorded_gateway_replay",
       "raw_llm_response": " {\n  \"draft_id\": \"d8f3a9b2-6c4e-4f1d-9e7a-3b5c2d1e0f4a\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"narrative\": \"To improve measured education outcomes and maximize years of schooling, this policy proposes a coordinated suite of learner-centered interventions grounded in verified pedagogical evidence. Rather than relying on broad structural claims or untested writability assumptions, the strategy targets the instructional interface itself\u2014where teaching practices, curricular content, and learning modalities directly influence student retention and progression. By modernizing how material is delivered, deepening the quality of classroom interaction, and strengthening foundational and advanced skill domains, the policy aims to reduce dropout risk and extend educational attainment.\\n\\nThe first pillar focuses on blended learning and teaching method reform. Blended learning integrates digital and face-to-face instruction, allowing learners to access flexible, self-paced materials while preserving the social and instructional benefits of classroom presence. Complementing this, a systematic shift in teaching methods toward evidence-based active learning, differentiated instruction, and formative assessment is designed to increase engagement and comprehension. Together, these interventions address both the delivery infrastructure and the pedagogical quality of daily instruction, targeting the moments when learners are most at risk of disengagement.\\n\\nThe second pillar supports domain-specific and foundational skill acquisition through enhanced STEM education and dialogic reading modalities. Expanding access to rigorous, inquiry-based STEM curricula improves academic success and signals long-term educational value to learners, encouraging continued enrollment. Simultaneously, dialogic reading interventions\u2014structured, interactive story-based sessions\u2014target early learners to build language comprehension and motivation at critical developmental stages. By anchoring early literacy in active conversation rather than passive reception, this modality establishes the foundational proficiency that predicts future schooling continuity.\\n\\nAll four interventions are presented as candidate-bound levers, explicitly avoiding claims of unverified authority or unsupported world-slot writability. Each is justified by its direct, evidence-backed pathway to sustained enrollment and learning, ensuring that no component is promoted beyond its established grounding. The combination is designed to be mutually reinforcing: early literacy and dialogic engagement foster readiness; improved teaching methods maintain quality; blended learning provides flexibility; and STEM enrichment supplies forward-looking academic motivation.\",\n  \"interventions\": [\n    {\n      \"name\": \"Blended Learning Expansion\",\n      \"description\": \"Integrate digital learning platforms with traditional classroom instruction to increase flexibility, engagement, and access to personalized learning resources.\",\n      \"mechanism_type\": \"education_blended_learning\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"digital_access_rate\": 0.85,\n        \"in_person_instruction_ratio\": 0.6,\n        \"weekly_digital_hours\": 5\n      },\n      \"rationale\": \"By combining online and face-to-face instruction, blended learning can accommodate diverse learning paces and reduce barriers to attendance, directly supporting the goal of maximizing years of schooling.\"\n    },\n    {\n      \"name\": \"Pedagogical Reform Initiative\",\n      \"description\": \"Implement evidence-based teaching methods\u2014including active learning, differentiated instruction, and formative assessment\u2014across targeted learning environments.\",\n      \"mechanism_type\": \"education_teaching_method\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"methodology_type\": \"active_learning\",\n        \"teacher_training_days\": 10,\n        \"adoption_rate\": 0.75\n      },\n      \"rationale\": \"Improving the quality of daily instruction increases learner comprehension and engagement, reducing dropout likelihood and extending educational attainment.\"\n    },\n    {\n      \"name\": \"Enhanced STEM Curriculum Access\",\n      \"description\": \"Expand inquiry-based science, technology, engineering, and mathematics education to improve academic success and motivate continued enrollment.\",\n      \"mechanism_type\": \"education_stem_education\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"curriculum_hours_per_week\": 6,\n        \"teacher_training_hours\": 40,\n        \"hands_on_lab_ratio\": 0.5\n      },\n      \"rationale\": \"Stronger STEM education correlates with improved academic outcomes and higher perceived returns to schooling, encouraging learners to remain enrolled longer.\"\n    },\n    {\n      \"name\": \"Early Dialogic Reading Program\",\n      \"description\": \"Deploy structured interactive reading sessions in which learners and facilitators engage in conversation about stories to build comprehension and motivation.\",\n      \"mechanism_type\": \"education_dialogic_reading_modality\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"target_age_min\": 4,\n        \"target_age_max\": 8,\n        \"sessions_per_week\": 3,\n        \"group_size\": 6\n      },\n      \"rationale\": \"Dialogic reading strengthens foundational literacy and language skills early in the educational trajectory, creating the base proficiency that supports continuous progression through school.\"\n    }\n  ],\n  \"rationale\": \"This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population.\",\n  \"alternatives_considered\": [\n    \"Unconditional cash transfers to families to indirectly boost enrollment, rejected due to lack of direct lever grounding in the derived education-specific operator set.\",\n    \"School infrastructure expansion alone, rejected because it lacks the direct instructional mechanism linkage required by the derived lever space.\",\n    \"Standardized testing mandates without pedagogical reform, rejected due to weak evidence for increasing years of schooling absent complementary teaching method changes.\"\n  ],\n  \"confidence\": 0.78\n}",
       "raw_response": " {\n  \"draft_id\": \"d8f3a9b2-6c4e-4f1d-9e7a-3b5c2d1e0f4a\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"narrative\": \"To improve measured education outcomes and maximize years of schooling, this policy proposes a coordinated suite of learner-centered interventions grounded in verified pedagogical evidence. Rather than relying on broad structural claims or untested writability assumptions, the strategy targets the instructional interface itself\u2014where teaching practices, curricular content, and learning modalities directly influence student retention and progression. By modernizing how material is delivered, deepening the quality of classroom interaction, and strengthening foundational and advanced skill domains, the policy aims to reduce dropout risk and extend educational attainment.\\n\\nThe first pillar focuses on blended learning and teaching method reform. Blended learning integrates digital and face-to-face instruction, allowing learners to access flexible, self-paced materials while preserving the social and instructional benefits of classroom presence. Complementing this, a systematic shift in teaching methods toward evidence-based active learning, differentiated instruction, and formative assessment is designed to increase engagement and comprehension. Together, these interventions address both the delivery infrastructure and the pedagogical quality of daily instruction, targeting the moments when learners are most at risk of disengagement.\\n\\nThe second pillar supports domain-specific and foundational skill acquisition through enhanced STEM education and dialogic reading modalities. Expanding access to rigorous, inquiry-based STEM curricula improves academic success and signals long-term educational value to learners, encouraging continued enrollment. Simultaneously, dialogic reading interventions\u2014structured, interactive story-based sessions\u2014target early learners to build language comprehension and motivation at critical developmental stages. By anchoring early literacy in active conversation rather than passive reception, this modality establishes the foundational proficiency that predicts future schooling continuity.\\n\\nAll four interventions are presented as candidate-bound levers, explicitly avoiding claims of unverified authority or unsupported world-slot writability. Each is justified by its direct, evidence-backed pathway to sustained enrollment and learning, ensuring that no component is promoted beyond its established grounding. The combination is designed to be mutually reinforcing: early literacy and dialogic engagement foster readiness; improved teaching methods maintain quality; blended learning provides flexibility; and STEM enrichment supplies forward-looking academic motivation.\",\n  \"interventions\": [\n    {\n      \"name\": \"Blended Learning Expansion\",\n      \"description\": \"Integrate digital learning platforms with traditional classroom instruction to increase flexibility, engagement, and access to personalized learning resources.\",\n      \"mechanism_type\": \"education_blended_learning\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"digital_access_rate\": 0.85,\n        \"in_person_instruction_ratio\": 0.6,\n        \"weekly_digital_hours\": 5\n      },\n      \"rationale\": \"By combining online and face-to-face instruction, blended learning can accommodate diverse learning paces and reduce barriers to attendance, directly supporting the goal of maximizing years of schooling.\"\n    },\n    {\n      \"name\": \"Pedagogical Reform Initiative\",\n      \"description\": \"Implement evidence-based teaching methods\u2014including active learning, differentiated instruction, and formative assessment\u2014across targeted learning environments.\",\n      \"mechanism_type\": \"education_teaching_method\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"methodology_type\": \"active_learning\",\n        \"teacher_training_days\": 10,\n        \"adoption_rate\": 0.75\n      },\n      \"rationale\": \"Improving the quality of daily instruction increases learner comprehension and engagement, reducing dropout likelihood and extending educational attainment.\"\n    },\n    {\n      \"name\": \"Enhanced STEM Curriculum Access\",\n      \"description\": \"Expand inquiry-based science, technology, engineering, and mathematics education to improve academic success and motivate continued enrollment.\",\n      \"mechanism_type\": \"education_stem_education\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"curriculum_hours_per_week\": 6,\n        \"teacher_training_hours\": 40,\n        \"hands_on_lab_ratio\": 0.5\n      },\n      \"rationale\": \"Stronger STEM education correlates with improved academic outcomes and higher perceived returns to schooling, encouraging learners to remain enrolled longer.\"\n    },\n    {\n      \"name\": \"Early Dialogic Reading Program\",\n      \"description\": \"Deploy structured interactive reading sessions in which learners and facilitators engage in conversation about stories to build comprehension and motivation.\",\n      \"mechanism_type\": \"education_dialogic_reading_modality\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"target_age_min\": 4,\n        \"target_age_max\": 8,\n        \"sessions_per_week\": 3,\n        \"group_size\": 6\n      },\n      \"rationale\": \"Dialogic reading strengthens foundational literacy and language skills early in the educational trajectory, creating the base proficiency that supports continuous progression through school.\"\n    }\n  ],\n  \"rationale\": \"This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population.\",\n  \"alternatives_considered\": [\n    \"Unconditional cash transfers to families to indirectly boost enrollment, rejected due to lack of direct lever grounding in the derived education-specific operator set.\",\n    \"School infrastructure expansion alone, rejected because it lacks the direct instructional mechanism linkage required by the derived lever space.\",\n    \"Standardized testing mandates without pedagogical reform, rejected due to weak evidence for increasing years of schooling absent complementary teaching method changes.\"\n  ],\n  \"confidence\": 0.78\n}",
@@ -2793,7 +2793,7 @@
           "problem_frame_ref": "education_second_domain_smoke",
           "rationale": "This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population."
         },
-        "prompt_hash": "sha256:11b235db02896dfd9c5881aa4b307e969c05d826734b5762c6aaaf11f058e2eb",
+        "prompt_hash": "sha256:01830ada4bf65983eea923dd389c07e86032ff4eb27547a15fde140b3a21264a",
         "provider": "recorded_gateway_replay",
         "raw_llm_response": " {\n  \"draft_id\": \"d8f3a9b2-6c4e-4f1d-9e7a-3b5c2d1e0f4a\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"narrative\": \"To improve measured education outcomes and maximize years of schooling, this policy proposes a coordinated suite of learner-centered interventions grounded in verified pedagogical evidence. Rather than relying on broad structural claims or untested writability assumptions, the strategy targets the instructional interface itself\u2014where teaching practices, curricular content, and learning modalities directly influence student retention and progression. By modernizing how material is delivered, deepening the quality of classroom interaction, and strengthening foundational and advanced skill domains, the policy aims to reduce dropout risk and extend educational attainment.\\n\\nThe first pillar focuses on blended learning and teaching method reform. Blended learning integrates digital and face-to-face instruction, allowing learners to access flexible, self-paced materials while preserving the social and instructional benefits of classroom presence. Complementing this, a systematic shift in teaching methods toward evidence-based active learning, differentiated instruction, and formative assessment is designed to increase engagement and comprehension. Together, these interventions address both the delivery infrastructure and the pedagogical quality of daily instruction, targeting the moments when learners are most at risk of disengagement.\\n\\nThe second pillar supports domain-specific and foundational skill acquisition through enhanced STEM education and dialogic reading modalities. Expanding access to rigorous, inquiry-based STEM curricula improves academic success and signals long-term educational value to learners, encouraging continued enrollment. Simultaneously, dialogic reading interventions\u2014structured, interactive story-based sessions\u2014target early learners to build language comprehension and motivation at critical developmental stages. By anchoring early literacy in active conversation rather than passive reception, this modality establishes the foundational proficiency that predicts future schooling continuity.\\n\\nAll four interventions are presented as candidate-bound levers, explicitly avoiding claims of unverified authority or unsupported world-slot writability. Each is justified by its direct, evidence-backed pathway to sustained enrollment and learning, ensuring that no component is promoted beyond its established grounding. The combination is designed to be mutually reinforcing: early literacy and dialogic engagement foster readiness; improved teaching methods maintain quality; blended learning provides flexibility; and STEM enrichment supplies forward-looking academic motivation.\",\n  \"interventions\": [\n    {\n      \"name\": \"Blended Learning Expansion\",\n      \"description\": \"Integrate digital learning platforms with traditional classroom instruction to increase flexibility, engagement, and access to personalized learning resources.\",\n      \"mechanism_type\": \"education_blended_learning\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"digital_access_rate\": 0.85,\n        \"in_person_instruction_ratio\": 0.6,\n        \"weekly_digital_hours\": 5\n      },\n      \"rationale\": \"By combining online and face-to-face instruction, blended learning can accommodate diverse learning paces and reduce barriers to attendance, directly supporting the goal of maximizing years of schooling.\"\n    },\n    {\n      \"name\": \"Pedagogical Reform Initiative\",\n      \"description\": \"Implement evidence-based teaching methods\u2014including active learning, differentiated instruction, and formative assessment\u2014across targeted learning environments.\",\n      \"mechanism_type\": \"education_teaching_method\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"methodology_type\": \"active_learning\",\n        \"teacher_training_days\": 10,\n        \"adoption_rate\": 0.75\n      },\n      \"rationale\": \"Improving the quality of daily instruction increases learner comprehension and engagement, reducing dropout likelihood and extending educational attainment.\"\n    },\n    {\n      \"name\": \"Enhanced STEM Curriculum Access\",\n      \"description\": \"Expand inquiry-based science, technology, engineering, and mathematics education to improve academic success and motivate continued enrollment.\",\n      \"mechanism_type\": \"education_stem_education\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"curriculum_hours_per_week\": 6,\n        \"teacher_training_hours\": 40,\n        \"hands_on_lab_ratio\": 0.5\n      },\n      \"rationale\": \"Stronger STEM education correlates with improved academic outcomes and higher perceived returns to schooling, encouraging learners to remain enrolled longer.\"\n    },\n    {\n      \"name\": \"Early Dialogic Reading Program\",\n      \"description\": \"Deploy structured interactive reading sessions in which learners and facilitators engage in conversation about stories to build comprehension and motivation.\",\n      \"mechanism_type\": \"education_dialogic_reading_modality\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"target_age_min\": 4,\n        \"target_age_max\": 8,\n        \"sessions_per_week\": 3,\n        \"group_size\": 6\n      },\n      \"rationale\": \"Dialogic reading strengthens foundational literacy and language skills early in the educational trajectory, creating the base proficiency that supports continuous progression through school.\"\n    }\n  ],\n  \"rationale\": \"This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population.\",\n  \"alternatives_considered\": [\n    \"Unconditional cash transfers to families to indirectly boost enrollment, rejected due to lack of direct lever grounding in the derived education-specific operator set.\",\n    \"School infrastructure expansion alone, rejected because it lacks the direct instructional mechanism linkage required by the derived lever space.\",\n    \"Standardized testing mandates without pedagogical reform, rejected due to weak evidence for increasing years of schooling absent complementary teaching method changes.\"\n  ],\n  \"confidence\": 0.78\n}",
         "raw_response": " {\n  \"draft_id\": \"d8f3a9b2-6c4e-4f1d-9e7a-3b5c2d1e0f4a\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"narrative\": \"To improve measured education outcomes and maximize years of schooling, this policy proposes a coordinated suite of learner-centered interventions grounded in verified pedagogical evidence. Rather than relying on broad structural claims or untested writability assumptions, the strategy targets the instructional interface itself\u2014where teaching practices, curricular content, and learning modalities directly influence student retention and progression. By modernizing how material is delivered, deepening the quality of classroom interaction, and strengthening foundational and advanced skill domains, the policy aims to reduce dropout risk and extend educational attainment.\\n\\nThe first pillar focuses on blended learning and teaching method reform. Blended learning integrates digital and face-to-face instruction, allowing learners to access flexible, self-paced materials while preserving the social and instructional benefits of classroom presence. Complementing this, a systematic shift in teaching methods toward evidence-based active learning, differentiated instruction, and formative assessment is designed to increase engagement and comprehension. Together, these interventions address both the delivery infrastructure and the pedagogical quality of daily instruction, targeting the moments when learners are most at risk of disengagement.\\n\\nThe second pillar supports domain-specific and foundational skill acquisition through enhanced STEM education and dialogic reading modalities. Expanding access to rigorous, inquiry-based STEM curricula improves academic success and signals long-term educational value to learners, encouraging continued enrollment. Simultaneously, dialogic reading interventions\u2014structured, interactive story-based sessions\u2014target early learners to build language comprehension and motivation at critical developmental stages. By anchoring early literacy in active conversation rather than passive reception, this modality establishes the foundational proficiency that predicts future schooling continuity.\\n\\nAll four interventions are presented as candidate-bound levers, explicitly avoiding claims of unverified authority or unsupported world-slot writability. Each is justified by its direct, evidence-backed pathway to sustained enrollment and learning, ensuring that no component is promoted beyond its established grounding. The combination is designed to be mutually reinforcing: early literacy and dialogic engagement foster readiness; improved teaching methods maintain quality; blended learning provides flexibility; and STEM enrichment supplies forward-looking academic motivation.\",\n  \"interventions\": [\n    {\n      \"name\": \"Blended Learning Expansion\",\n      \"description\": \"Integrate digital learning platforms with traditional classroom instruction to increase flexibility, engagement, and access to personalized learning resources.\",\n      \"mechanism_type\": \"education_blended_learning\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"digital_access_rate\": 0.85,\n        \"in_person_instruction_ratio\": 0.6,\n        \"weekly_digital_hours\": 5\n      },\n      \"rationale\": \"By combining online and face-to-face instruction, blended learning can accommodate diverse learning paces and reduce barriers to attendance, directly supporting the goal of maximizing years of schooling.\"\n    },\n    {\n      \"name\": \"Pedagogical Reform Initiative\",\n      \"description\": \"Implement evidence-based teaching methods\u2014including active learning, differentiated instruction, and formative assessment\u2014across targeted learning environments.\",\n      \"mechanism_type\": \"education_teaching_method\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"methodology_type\": \"active_learning\",\n        \"teacher_training_days\": 10,\n        \"adoption_rate\": 0.75\n      },\n      \"rationale\": \"Improving the quality of daily instruction increases learner comprehension and engagement, reducing dropout likelihood and extending educational attainment.\"\n    },\n    {\n      \"name\": \"Enhanced STEM Curriculum Access\",\n      \"description\": \"Expand inquiry-based science, technology, engineering, and mathematics education to improve academic success and motivate continued enrollment.\",\n      \"mechanism_type\": \"education_stem_education\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"curriculum_hours_per_week\": 6,\n        \"teacher_training_hours\": 40,\n        \"hands_on_lab_ratio\": 0.5\n      },\n      \"rationale\": \"Stronger STEM education correlates with improved academic outcomes and higher perceived returns to schooling, encouraging learners to remain enrolled longer.\"\n    },\n    {\n      \"name\": \"Early Dialogic Reading Program\",\n      \"description\": \"Deploy structured interactive reading sessions in which learners and facilitators engage in conversation about stories to build comprehension and motivation.\",\n      \"mechanism_type\": \"education_dialogic_reading_modality\",\n      \"target_population\": \"Learners\",\n      \"parameters\": {\n        \"target_age_min\": 4,\n        \"target_age_max\": 8,\n        \"sessions_per_week\": 3,\n        \"group_size\": 6\n      },\n      \"rationale\": \"Dialogic reading strengthens foundational literacy and language skills early in the educational trajectory, creating the base proficiency that supports continuous progression through school.\"\n    }\n  ],\n  \"rationale\": \"This integrated policy leverages four distinct, evidence-grounded lever mechanisms drawn directly from the derived lever space. By addressing both foundational skills and advanced curricular engagement, and by reforming both modality and method, the draft targets multiple decision points that influence learner retention. It respects the constraint against unverified promotion by keeping each intervention tightly bound to its established pedagogical function and actor population.\",\n  \"alternatives_considered\": [\n    \"Unconditional cash transfers to families to indirectly boost enrollment, rejected due to lack of direct lever grounding in the derived education-specific operator set.\",\n    \"School infrastructure expansion alone, rejected because it lacks the direct instructional mechanism linkage required by the derived lever space.\",\n    \"Standardized testing mandates without pedagogical reform, rejected due to weak evidence for increasing years of schooling absent complementary teaching method changes.\"\n  ],\n  \"confidence\": 0.78\n}",
@@ -2881,7 +2881,7 @@
             }
           ]
         },
-        "prompt_hash": "sha256:9d69a9cf4cf62ad96c5c2655fef5a4bc687a36315887657491996ba385c3bc0e",
+        "prompt_hash": "sha256:40e759612e2cc954d21a83b0f872a610fdb2bb35a1fdce56a6a61c631d8387d0",
         "provider": "recorded_gateway_replay",
         "raw_llm_response": " {\"findings\":[{\"category\":\"equity_concern\",\"severity\":\"high\",\"description\":\"Blended Learning Expansion sets digital_access_rate to 0.85, explicitly leaving 15% of learners without full access. This risks widening attainment gaps for low-income, rural, and disabled learners who lack reliable devices, internet, or accessible digital interfaces.\",\"suggested_fix\":\"Add an explicit equity rider mandating device/internet provision and accessible design for the uncovered 15%, or specify an alternative modality for learners without digital access.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0.parameters.digital_access_rate\"},{\"category\":\"missing_group\",\"severity\":\"high\",\"description\":\"Every intervention lists target_population as 'Learners' without disaggregation. The draft omits specific accommodation or reach strategies for learners with disabilities, multilingual or minority-language learners, and socioeconomically marginalized groups, despite these groups facing disproportionate barriers to years-of-schooling attainment.\",\"suggested_fix\":\"Revise target_population fields to specify inclusion criteria for disability, language, and poverty status; add accessibility and linguistic-accommodation parameters to each intervention.\",\"affected_intervention\":null,\"anchor\":\"field:interventions[*].target_population\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"Deploying four simultaneous, large-scale reforms (blended learning, pedagogical reform, STEM expansion, dialogic reading) imposes substantial implementation burden on educators. The draft ignores risks of teacher burnout, diluted fidelity, and capacity constraints, especially where Pedagogical Reform Initiative only budgets ten days of teacher training.\",\"suggested_fix\":\"Introduce a phased rollout with sequencing priorities and add teacher workload/capacity safeguards, including adequate training time and relief from competing mandates during adoption periods.\",\"affected_intervention\":null,\"anchor\":\"intervention:1.parameters.teacher_training_days\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"Enhanced STEM Curriculum Access specifies six weekly hours and a 0.5 hands-on lab ratio without addressing opportunity costs. This may displace arts, humanities, vocational, or physical education time, negatively impacting learners whose attainment and retention are driven by non-STEM strengths or career interests.\",\"suggested_fix\":\"Specify a net-neutral scheduling model (e.g., integration rather than replacement) or justify the opportunity cost with evidence linking STEM-hour increases directly to years of schooling without harming overall engagement.\",\"affected_intervention\":\"Enhanced STEM Curriculum Access\",\"anchor\":\"intervention:2.parameters.curriculum_hours_per_week\"},{\"category\":\"missing_group\",\"severity\":\"medium\",\"description\":\"Early Dialogic Reading Program caps target_age_max at 8, which excludes older learners with foundational literacy deficits. Struggling readers above this threshold lose access to a foundational intervention precisely when delayed literacy becomes a critical predictor of dropout.\",\"suggested_fix\":\"Extend or adapt the dialogic reading modality for older struggling readers (e.g., ages 8\u201312) with age-appropriate texts, or pair it with a complementary adolescent literacy catch-up program.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"intervention:3.parameters.target_age_max\"},{\"category\":\"equity_concern\",\"severity\":\"medium\",\"description\":\"Dialogic reading assumes facilitator and learner shared language proficiency and cultural familiarity with narrative conventions. Multilingual learners and minority-language speakers may be implicitly disadvantaged if sessions are conducted only in a dominant instructional language.\",\"suggested_fix\":\"Add bilingual facilitation parameters and culturally responsive story-selection criteria to ensure dialogic reading benefits multilingual and minority-language learners.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"intervention:3\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"The Pedagogical Reform Initiative mandates active learning and differentiated instruction at 75% adoption without specifying accessibility guardrails. Active-learning environments can inadvertently disadvantage learners with anxiety, autism spectrum profiles, or sensory processing differences if participation formats are not designed inclusively.\",\"suggested_fix\":\"Add accessibility and neurodiversity parameters to the teaching method reform, such as opt-in participation alternatives, sensory-friendly settings, and co-design with disability experts.\",\"affected_intervention\":\"Pedagogical Reform Initiative\",\"anchor\":\"intervention:1.parameters.methodology_type\"}],\"confidence_adjustment\":-0.05}",
         "raw_response": " {\"findings\":[{\"category\":\"equity_concern\",\"severity\":\"high\",\"description\":\"Blended Learning Expansion sets digital_access_rate to 0.85, explicitly leaving 15% of learners without full access. This risks widening attainment gaps for low-income, rural, and disabled learners who lack reliable devices, internet, or accessible digital interfaces.\",\"suggested_fix\":\"Add an explicit equity rider mandating device/internet provision and accessible design for the uncovered 15%, or specify an alternative modality for learners without digital access.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0.parameters.digital_access_rate\"},{\"category\":\"missing_group\",\"severity\":\"high\",\"description\":\"Every intervention lists target_population as 'Learners' without disaggregation. The draft omits specific accommodation or reach strategies for learners with disabilities, multilingual or minority-language learners, and socioeconomically marginalized groups, despite these groups facing disproportionate barriers to years-of-schooling attainment.\",\"suggested_fix\":\"Revise target_population fields to specify inclusion criteria for disability, language, and poverty status; add accessibility and linguistic-accommodation parameters to each intervention.\",\"affected_intervention\":null,\"anchor\":\"field:interventions[*].target_population\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"Deploying four simultaneous, large-scale reforms (blended learning, pedagogical reform, STEM expansion, dialogic reading) imposes substantial implementation burden on educators. The draft ignores risks of teacher burnout, diluted fidelity, and capacity constraints, especially where Pedagogical Reform Initiative only budgets ten days of teacher training.\",\"suggested_fix\":\"Introduce a phased rollout with sequencing priorities and add teacher workload/capacity safeguards, including adequate training time and relief from competing mandates during adoption periods.\",\"affected_intervention\":null,\"anchor\":\"intervention:1.parameters.teacher_training_days\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"Enhanced STEM Curriculum Access specifies six weekly hours and a 0.5 hands-on lab ratio without addressing opportunity costs. This may displace arts, humanities, vocational, or physical education time, negatively impacting learners whose attainment and retention are driven by non-STEM strengths or career interests.\",\"suggested_fix\":\"Specify a net-neutral scheduling model (e.g., integration rather than replacement) or justify the opportunity cost with evidence linking STEM-hour increases directly to years of schooling without harming overall engagement.\",\"affected_intervention\":\"Enhanced STEM Curriculum Access\",\"anchor\":\"intervention:2.parameters.curriculum_hours_per_week\"},{\"category\":\"missing_group\",\"severity\":\"medium\",\"description\":\"Early Dialogic Reading Program caps target_age_max at 8, which excludes older learners with foundational literacy deficits. Struggling readers above this threshold lose access to a foundational intervention precisely when delayed literacy becomes a critical predictor of dropout.\",\"suggested_fix\":\"Extend or adapt the dialogic reading modality for older struggling readers (e.g., ages 8\u201312) with age-appropriate texts, or pair it with a complementary adolescent literacy catch-up program.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"intervention:3.parameters.target_age_max\"},{\"category\":\"equity_concern\",\"severity\":\"medium\",\"description\":\"Dialogic reading assumes facilitator and learner shared language proficiency and cultural familiarity with narrative conventions. Multilingual learners and minority-language speakers may be implicitly disadvantaged if sessions are conducted only in a dominant instructional language.\",\"suggested_fix\":\"Add bilingual facilitation parameters and culturally responsive story-selection criteria to ensure dialogic reading benefits multilingual and minority-language learners.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"intervention:3\"},{\"category\":\"side_effect\",\"severity\":\"medium\",\"description\":\"The Pedagogical Reform Initiative mandates active learning and differentiated instruction at 75% adoption without specifying accessibility guardrails. Active-learning environments can inadvertently disadvantage learners with anxiety, autism spectrum profiles, or sensory processing differences if participation formats are not designed inclusively.\",\"suggested_fix\":\"Add accessibility and neurodiversity parameters to the teaching method reform, such as opt-in participation alternatives, sensory-friendly settings, and co-design with disability experts.\",\"affected_intervention\":\"Pedagogical Reform Initiative\",\"anchor\":\"intervention:1.parameters.methodology_type\"}],\"confidence_adjustment\":-0.05}",
@@ -2946,7 +2946,7 @@
           ],
           "verification_code": "# Check parameter ranges\nassert all(0 <= p <= 1 for p in [interventions[0]['parameters']['digital_access_rate'], interventions[0]['parameters']['in_person_instruction_ratio'], interventions[1]['parameters']['adoption_rate'], interventions[2]['parameters']['hands_on_lab_ratio']]), \"Ratio out of bounds\"\nassert interventions[3]['parameters']['target_age_min'] < interventions[3]['parameters']['target_age_max'], \"Age range inverted\"\nassert all(x > 0 for x in [interventions[0]['parameters']['weekly_digital_hours'], interventions[1]['parameters']['teacher_training_days'], interventions[2]['parameters']['curriculum_hours_per_week'], interventions[2]['parameters']['teacher_training_hours'], interventions[3]['parameters']['sessions_per_week'], interventions[3]['parameters']['group_size']]), \"Non-positive parameter\"\n# Check target population consistency\nassert len(set(i['target_population'] for i in interventions)) == 1, \"Multiple actor classes defined\"\n"
         },
-        "prompt_hash": "sha256:90bbfec17551836025c2eae31ec6fec2248f8ef5decc2a6e1feb9f4473cb7ec8",
+        "prompt_hash": "sha256:347358e0b7bb779802e3dc37027fdd5dcc073586ec0d1d5a434e58bf1b5e8f91",
         "provider": "recorded_gateway_replay",
         "raw_llm_response": " {\"findings\": [{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 1 (Pedagogical Reform Initiative) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 2 (Enhanced STEM Curriculum Access) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 3 (Early Dialogic Reading Program) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"constraint_conflict\",\"severity\":\"medium\",\"description\":\"Intervention 3 (Early Dialogic Reading Program) targets age range 4\u20138 while intervention 0 (Blended Learning Expansion) sets digital_access_rate=0.85 and weekly_digital_hours=5. The overlap population (ages roughly 6\u20138) may be subject to both digital platform requirements and dialogic reading, yet the parameters do not specify scheduling precedence or integration rules, risking inconsistent exposure assumptions.\",\"suggested_fix\":\"Specify age-gating rules or explicit non-overlap constraints in target_population definitions to ensure consistent exposure modeling for the overlapping age band.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"field:interventions[*].target_population\"}], \"confidence_adjustment\": -0.05, \"verification_code\": \"# Check parameter ranges\\nassert all(0 <= p <= 1 for p in [interventions[0]['parameters']['digital_access_rate'], interventions[0]['parameters']['in_person_instruction_ratio'], interventions[1]['parameters']['adoption_rate'], interventions[2]['parameters']['hands_on_lab_ratio']]), \\\"Ratio out of bounds\\\"\\nassert interventions[3]['parameters']['target_age_min'] < interventions[3]['parameters']['target_age_max'], \\\"Age range inverted\\\"\\nassert all(x > 0 for x in [interventions[0]['parameters']['weekly_digital_hours'], interventions[1]['parameters']['teacher_training_days'], interventions[2]['parameters']['curriculum_hours_per_week'], interventions[2]['parameters']['teacher_training_hours'], interventions[3]['parameters']['sessions_per_week'], interventions[3]['parameters']['group_size']]), \\\"Non-positive parameter\\\"\\n# Check target population consistency\\nassert len(set(i['target_population'] for i in interventions)) == 1, \\\"Multiple actor classes defined\\\"\\n\"}",
         "raw_response": " {\"findings\": [{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 1 (Pedagogical Reform Initiative) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 2 (Enhanced STEM Curriculum Access) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"target_overlap\",\"severity\":\"medium\",\"description\":\"Interventions 0 (Blended Learning Expansion) and 3 (Early Dialogic Reading Program) both specify target_population as 'Learners' without further disaggregation or mutual exclusion, creating formal overlap in the actor space.\",\"suggested_fix\":\"Differentiate targeting by grade band, subject domain, or delivery node, or merge the parameter sets under a single intervention if simultaneous deployment is required.\",\"affected_intervention\":\"Blended Learning Expansion\",\"anchor\":\"intervention:0\"},{\"category\":\"constraint_conflict\",\"severity\":\"medium\",\"description\":\"Intervention 3 (Early Dialogic Reading Program) targets age range 4\u20138 while intervention 0 (Blended Learning Expansion) sets digital_access_rate=0.85 and weekly_digital_hours=5. The overlap population (ages roughly 6\u20138) may be subject to both digital platform requirements and dialogic reading, yet the parameters do not specify scheduling precedence or integration rules, risking inconsistent exposure assumptions.\",\"suggested_fix\":\"Specify age-gating rules or explicit non-overlap constraints in target_population definitions to ensure consistent exposure modeling for the overlapping age band.\",\"affected_intervention\":\"Early Dialogic Reading Program\",\"anchor\":\"field:interventions[*].target_population\"}], \"confidence_adjustment\": -0.05, \"verification_code\": \"# Check parameter ranges\\nassert all(0 <= p <= 1 for p in [interventions[0]['parameters']['digital_access_rate'], interventions[0]['parameters']['in_person_instruction_ratio'], interventions[1]['parameters']['adoption_rate'], interventions[2]['parameters']['hands_on_lab_ratio']]), \\\"Ratio out of bounds\\\"\\nassert interventions[3]['parameters']['target_age_min'] < interventions[3]['parameters']['target_age_max'], \\\"Age range inverted\\\"\\nassert all(x > 0 for x in [interventions[0]['parameters']['weekly_digital_hours'], interventions[1]['parameters']['teacher_training_days'], interventions[2]['parameters']['curriculum_hours_per_week'], interventions[2]['parameters']['teacher_training_hours'], interventions[3]['parameters']['sessions_per_week'], interventions[3]['parameters']['group_size']]), \\\"Non-positive parameter\\\"\\n# Check target population consistency\\nassert len(set(i['target_population'] for i in interventions)) == 1, \\\"Multiple actor classes defined\\\"\\n\"}",
@@ -3331,7 +3331,7 @@
           "report_id": "550e8400-e29b-41d4-a716-446655440000",
           "verdict": "NEEDS_REVISION"
         },
-        "prompt_hash": "sha256:a4d902cab4de68d6b042e5ec876e657792cff756066aa3f09be6a4d9a1a3fa17",
+        "prompt_hash": "sha256:8a7e887b9fee28f63f4fc4e452c501b18b58c997b270e8d7dbf60ace1a295156",
         "provider": "recorded_gateway_replay",
         "raw_llm_response": " {\n  \"report_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"ir_ref\": \"sha256:a3b5c7...\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"verdict\": \"NEEDS_REVISION\",\n  \"issues\": [\n    {\n      \"issue_id\": \"schema_invalid_interaction_topology\",\n      \"category\": \"SCHEMA\",\n      \"severity\": \"BLOCKER\",\n      \"message\": \"model_spec.agent_config.interaction_topology is set to 'random', which is not a valid enum value. Contract permits only 'network', 'grid', 'well_mixed', or 'none'.\",\n      \"location\": \"model_spec.agent_config.interaction_topology\",\n      \"suggestion\": \"Change interaction_topology to 'well_mixed' (the semantically closest valid value) or another permitted enum string.\"\n    },\n    {\n      \"issue_id\": \"schema_invalid_fidelity_level\",\n      \"category\": \"SCHEMA\",\n      \"severity\": \"BLOCKER\",\n      \"message\": \"model_spec.fidelity_level is set to 'surrogate_fluid', which is not a valid enum value. Contract permits only 'low', 'medium', 'high', or 'hybrid'.\",\n      \"location\": \"model_spec.fidelity_level\",\n      \"suggestion\": \"Revert fidelity_level to 'low' or another permitted enum string.\"\n    },\n    {\n      \"issue_id\": \"metric_proxy_misalignment\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"WARNING\",\n      \"message\": \"ProblemFrame success criteria defines the estimand on 'years_of_schooling', but the IR objective uses metric_id 'welfare'. While an assumption documents the proxy, this weakens direct alignment with the stated education goal.\",\n      \"location\": \"problem_frame.objectives[0].metric_id\",\n      \"suggestion\": \"If registry constraints prevent using 'years_of_schooling', keep the documented assumption but add a derived_metric or post-processing mapping so the simulation output can be reinterpreted toward the original target variable.\"\n    },\n    {\n      \"issue_id\": \"intervention_homogenization\",\n      \"category\": \"COMPLETENESS\",\n      \"severity\": \"WARNING\",\n      \"message\": \"All four interventions (blended_learning, teaching_method, stem_education, dialogic_reading) have identical params, observation_space, and action_space. The distinct pedagogical content of each lever is lost in translation; the bundle does not differentiate how a STEM curriculum differs from dialogic reading in executable terms.\",\n      \"location\": \"policy_spec.interventions[].params\",\n      \"suggestion\": \"Differentiate each intervention's action_space, observation_space, or params (e.g., distinct agent fields like agents.skill_level vs agents.literacy_score, or distinct categorical actions) so the simulation captures heterogeneous treatment effects across the four lever types.\"\n    },\n    {\n      \"issue_id\": \"action_space_category_mismatch\",\n      \"category\": \"CONSISTENCY\",\n      \"severity\": \"WARNING\",\n      \"message\": \"action_space.n_categories is 4 but the actions array contains only 3 elements ('no_support', 'basic_support', 'intensive_support'), creating an off-by-one inconsistency.\",\n      \"location\": \"policy_spec.interventions[0].params.action_space.n_categories\",\n      \"suggestion\": \"Set n_categories to 3 to match the length of the provided actions list, or add a fourth action label if four categories are intended.\"\n    },\n    {\n      \"issue_id\": \"income_proxy_for_education\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"WARNING\",\n      \"message\": \"All interventions affect agents.income as a proxy for education engagement. The ProblemFrame is explicitly about pedagogical and curricular mechanisms. Income transfers do not directly model teaching methods, blended learning modalities, or dialogic reading, making causal interpretation toward 'years_of_schooling' tenuous.\",\n      \"location\": \"policy_spec.interventions[*].params.action_space.affects\",\n      \"suggestion\": \"If the registry truly lacks education-specific slots, document this rigorously and consider adding a structural assumption that maps income shocks to schooling decisions via an explicit behavioral channel (e.g., income -> enrollment cost reduction).\"\n    },\n    {\n      \"issue_id\": \"dropped_parameters\",\n      \"category\": \"COMPLETENESS\",\n      \"severity\": \"INFO\",\n      \"message\": \"Notes indicate four learning_rate parameters were dropped as unresolved. This removes tunable knobs that could differentiate intervention intensity.\",\n      \"location\": \"policy_spec.notes\",\n      \"suggestion\": \"Reintroduce parameters for each intervention's learning_rate or intensity scalar under policy_spec.parameters, referencing the correct intervention_id and param_path.\"\n    },\n    {\n      \"issue_id\": \"missing_success_criteria_translation\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"INFO\",\n      \"message\": \"ProblemFrame specifies a detailed success_criteria.outcome_of_interest block that is dropped in the IR problem_frame.success_criteria (empty list).\",\n      \"location\": \"problem_frame.success_criteria\",\n      \"suggestion\": \"Mirror the original frame's outcome_of_interest into the IR success_criteria, even if metric_id remains a proxy, to preserve evaluability.\"\n    }\n  ],\n  \"alignment_score\": 0.55,\n  \"completeness_score\": 0.6,\n  \"overall_quality\": 0.5,\n  \"reflexion_hint\": \"Fix the two schema blockers first: set model_spec.agent_config.interaction_topology to 'well_mixed' (or another valid enum value) and set model_spec.fidelity_level to 'low' (or another valid enum value). Then differentiate the four interventions so they are not carbon copies: vary their action_space.affects, observation_space fields, or action labels to reflect the distinct pedagogical levers (blended_learning, stem_education, teaching_method, dialogic_reading) requested in the ProblemFrame.\"\n}",
         "raw_response": " {\n  \"report_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"ir_ref\": \"sha256:a3b5c7...\",\n  \"problem_frame_ref\": \"education_second_domain_smoke\",\n  \"verdict\": \"NEEDS_REVISION\",\n  \"issues\": [\n    {\n      \"issue_id\": \"schema_invalid_interaction_topology\",\n      \"category\": \"SCHEMA\",\n      \"severity\": \"BLOCKER\",\n      \"message\": \"model_spec.agent_config.interaction_topology is set to 'random', which is not a valid enum value. Contract permits only 'network', 'grid', 'well_mixed', or 'none'.\",\n      \"location\": \"model_spec.agent_config.interaction_topology\",\n      \"suggestion\": \"Change interaction_topology to 'well_mixed' (the semantically closest valid value) or another permitted enum string.\"\n    },\n    {\n      \"issue_id\": \"schema_invalid_fidelity_level\",\n      \"category\": \"SCHEMA\",\n      \"severity\": \"BLOCKER\",\n      \"message\": \"model_spec.fidelity_level is set to 'surrogate_fluid', which is not a valid enum value. Contract permits only 'low', 'medium', 'high', or 'hybrid'.\",\n      \"location\": \"model_spec.fidelity_level\",\n      \"suggestion\": \"Revert fidelity_level to 'low' or another permitted enum string.\"\n    },\n    {\n      \"issue_id\": \"metric_proxy_misalignment\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"WARNING\",\n      \"message\": \"ProblemFrame success criteria defines the estimand on 'years_of_schooling', but the IR objective uses metric_id 'welfare'. While an assumption documents the proxy, this weakens direct alignment with the stated education goal.\",\n      \"location\": \"problem_frame.objectives[0].metric_id\",\n      \"suggestion\": \"If registry constraints prevent using 'years_of_schooling', keep the documented assumption but add a derived_metric or post-processing mapping so the simulation output can be reinterpreted toward the original target variable.\"\n    },\n    {\n      \"issue_id\": \"intervention_homogenization\",\n      \"category\": \"COMPLETENESS\",\n      \"severity\": \"WARNING\",\n      \"message\": \"All four interventions (blended_learning, teaching_method, stem_education, dialogic_reading) have identical params, observation_space, and action_space. The distinct pedagogical content of each lever is lost in translation; the bundle does not differentiate how a STEM curriculum differs from dialogic reading in executable terms.\",\n      \"location\": \"policy_spec.interventions[].params\",\n      \"suggestion\": \"Differentiate each intervention's action_space, observation_space, or params (e.g., distinct agent fields like agents.skill_level vs agents.literacy_score, or distinct categorical actions) so the simulation captures heterogeneous treatment effects across the four lever types.\"\n    },\n    {\n      \"issue_id\": \"action_space_category_mismatch\",\n      \"category\": \"CONSISTENCY\",\n      \"severity\": \"WARNING\",\n      \"message\": \"action_space.n_categories is 4 but the actions array contains only 3 elements ('no_support', 'basic_support', 'intensive_support'), creating an off-by-one inconsistency.\",\n      \"location\": \"policy_spec.interventions[0].params.action_space.n_categories\",\n      \"suggestion\": \"Set n_categories to 3 to match the length of the provided actions list, or add a fourth action label if four categories are intended.\"\n    },\n    {\n      \"issue_id\": \"income_proxy_for_education\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"WARNING\",\n      \"message\": \"All interventions affect agents.income as a proxy for education engagement. The ProblemFrame is explicitly about pedagogical and curricular mechanisms. Income transfers do not directly model teaching methods, blended learning modalities, or dialogic reading, making causal interpretation toward 'years_of_schooling' tenuous.\",\n      \"location\": \"policy_spec.interventions[*].params.action_space.affects\",\n      \"suggestion\": \"If the registry truly lacks education-specific slots, document this rigorously and consider adding a structural assumption that maps income shocks to schooling decisions via an explicit behavioral channel (e.g., income -> enrollment cost reduction).\"\n    },\n    {\n      \"issue_id\": \"dropped_parameters\",\n      \"category\": \"COMPLETENESS\",\n      \"severity\": \"INFO\",\n      \"message\": \"Notes indicate four learning_rate parameters were dropped as unresolved. This removes tunable knobs that could differentiate intervention intensity.\",\n      \"location\": \"policy_spec.notes\",\n      \"suggestion\": \"Reintroduce parameters for each intervention's learning_rate or intensity scalar under policy_spec.parameters, referencing the correct intervention_id and param_path.\"\n    },\n    {\n      \"issue_id\": \"missing_success_criteria_translation\",\n      \"category\": \"ALIGNMENT\",\n      \"severity\": \"INFO\",\n      \"message\": \"ProblemFrame specifies a detailed success_criteria.outcome_of_interest block that is dropped in the IR problem_frame.success_criteria (empty list).\",\n      \"location\": \"problem_frame.success_criteria\",\n      \"suggestion\": \"Mirror the original frame's outcome_of_interest into the IR success_criteria, even if metric_id remains a proxy, to preserve evaluability.\"\n    }\n  ],\n  \"alignment_score\": 0.55,\n  \"completeness_score\": 0.6,\n  \"overall_quality\": 0.5,\n  \"reflexion_hint\": \"Fix the two schema blockers first: set model_spec.agent_config.interaction_topology to 'well_mixed' (or another valid enum value) and set model_spec.fidelity_level to 'low' (or another valid enum value). Then differentiate the four interventions so they are not carbon copies: vary their action_space.affects, observation_space fields, or action labels to reflect the distinct pedagogical levers (blended_learning, stem_education, teaching_method, dialogic_reading) requested in the ProblemFrame.\"\n}",
@@ -3355,16 +3355,18 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 10616.19862500811,
+    "aggregate_value_port_wall_time_ms": 10509.59337502718,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 10616.19862500811
+        "value_port_wall_time_ms": 10509.59337502718
       }
-    ]
+    ],
+    "n4_live_capture_journal_entry_count": 5,
+    "n4_source_capture_call_wall_seconds": 0.0
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "smoke_problem_content_hash": "sha256:f732dff34897d0bf61a36cccbc3e9681659eb930e90a0e4c626f2d8aae9bf184",
+  "smoke_problem_content_hash": "sha256:d40e3fe557d6d287e549e3a7f0373e2052fd137ae9ce56ba75e9c29c73f770e5",
   "smoke_status": "typed_terminal_after_real_n4_and_grounding_attempt",
   "source_pack_content_hash": "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664",
   "stage_attempts": {
@@ -3382,10 +3384,10 @@
       ],
       "generation_channel": "n4_owner",
       "lever_source_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-      "n4_owner_capture_content_hash": "sha256:d55877fab1dea65875fe981149b5382ccffc9371a40f0f76d07a94830d203958",
+      "n4_owner_capture_content_hash": "sha256:56484f1105e1076f96a9cc6ebca8a59f5070755fe01d7a5d17507cfc2b568831",
       "owner": "polisyos.runtime.quality.design_generation.generate_design_candidate_bundle_under_a",
       "owner_status": "generated",
-      "prompt_slice_content_hash": "sha256:9ac89bd842639f495fbcd49882166a955254e0af4129106895148f75e1701318",
+      "prompt_slice_content_hash": "sha256:79a417c17d396f54441370cff5b13f9c4ebd5165f4252b78fae893f01b6da7ef",
       "prompt_slice_operator_kinds": [
         "education_blended_learning",
         "education_stem_education",
@@ -3408,11 +3410,11 @@
     "grounding": {
       "attempted": true,
       "candidate_entry_content_hash": "sha256:f84205ae9561311375d260d8300e47f6b764da5f6e207dbb676469afcfd22494",
-      "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+      "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
       "disposition": "unknown_blocked",
       "grounding_source": "cgf_firewall",
       "grounding_status": "grounding_failed",
-      "lever_resolution_content_hash": "sha256:beb876ff359db1bd2b9838dcbd13fd7180abb17625969fee8a1f3fa7d105cd4b",
+      "lever_resolution_content_hash": "sha256:6db0ec7b9dfc23b35e0f161ff5545a03209fdba83b2674049444dcf45edc073c",
       "lever_resolution_reason_code": "knob_operator_unresolved",
       "lever_resolution_status": "candidate_unbound",
       "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
@@ -3424,7 +3426,7 @@
     },
     "world_model": {
       "attempted": true,
-      "context_binding_hash": "sha256:2ad9b6e018b94d486e8422df1ec4e940b79fb4ab187ba7eb154bddef8360fa66",
+      "context_binding_hash": "sha256:3f1d1740de7c9fb67269c355933512df929a5a4c42093590455e27d636e86409",
       "identity_evidence_kind": "simulation_object_identity",
       "object_identity_reused": true,
       "owner": "polisyos.runtime.quality.generation_cycle._build_boundary_world_model_record",
@@ -3438,6 +3440,6 @@
     }
   },
   "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-  "trace_content_hash": "sha256:6db6d4544ccdb58ac015965d3af243de3c111c2e52cce9c9f83761ab887c7050",
+  "trace_content_hash": "sha256:6c5367c1abee4f5fbe68f2d969b90fa7562a517e1436594ccc5d49177899160c",
   "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
 }

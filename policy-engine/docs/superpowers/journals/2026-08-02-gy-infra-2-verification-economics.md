@@ -125,3 +125,12 @@ These are input samples, not yet the catalog. Exact source anchors will be store
 - Focused GREEN after all fixes:
   `.venv/bin/python -m pytest tests/repo_quality/tools/test_review_package.py -q` (`12` passed).
   Focused Ruff, Ruff format check, and `git diff --check` also passed.
+- Fix commit: `495bb07490ec8b97af508989635aa3927f7c1a5c` (`fix(tools): make review
+  packages hermetic`). The committed tool produced the required fix-only delta for
+  `c8c02072a4dd673db62dcc2038452b51c2849048..495bb07490ec8b97af508989635aa3927f7c1a5c`
+  with the exact round-1 findings as its checklist. Package:
+  `.superpowers/sdd/2026-08-02-gy-infra-2-verification-economics/part-b-delta-c8c0207..495bb07.review`,
+  `22525` bytes, SHA-256
+  `d3823f059dda1891bd3ae80d8d6ef2d926df90fdd544bd5cb52f06cd6a98e119`; embedded checklist
+  length `2312`, SHA-256
+  `679b7659f5a14cba3814ab07bf09bcdf2983b3f4a2768abaa9d5099200fe1264`.

@@ -843,6 +843,30 @@ Loosening the ratified posture is out of scope for every slice.
   escape-hatch lint is syntactic, runtime novelty is the adapters' job — DS5
   claims those three, and does not claim a complete flow invariant. No DS5 lint
   may reassert one.
+- **Execution-order law (architect, 2026-08-02 — added after the ruling above was
+  over-applied).** The mechanism ruling binds each lint **when that lint is
+  built**; it is not a licence to re-derive the whole plan before writing code.
+  Read literally as a task, it produced a session with **zero net output**: the
+  slice plan grew 1,104 → 1,902 lines across ~15 independent plan reviews while
+  HEAD stayed on a rejected commit and the work sat in a stash. That is the
+  *over-specified-contract gravity well* and P01 contract-only capability — the
+  exact anti-patterns this programme distilled. Three rules follow, binding on
+  every Atlas slice.
+  **(1) Re-derive at entry, not ahead.** A cluster's mechanism re-derivation
+  happens in that cluster's own commit, when it is entered. Planning a cluster
+  you are not about to execute is deferred work, not progress.
+  **(2) Plan-only commits are capped.** After a slice's C00 is committed, a
+  plan-only commit is allowed **once** per architect ruling that forces one.
+  Every other commit must change product or test code. Plan prose has no
+  fixpoint — code does (its tests pass) — so unbounded review of a document
+  converges on nothing. Independent review remains mandatory for **code**;
+  for plan text it is **one round**, scoped to the cluster about to be entered.
+  **(3) A downstream owner gap never halts upstream clusters.** Pre-sized
+  clusters exist to execute independently. When cluster N hits a canonical-owner
+  gap, record it as a typed integrate-debt row with its owner and closure signal,
+  **defer cluster N**, and continue with the clusters that do not depend on it.
+  Halting the slice is correct only when the gap blocks the cluster actually in
+  hand.
 - **Producer & bridge work (in-slice):** the **audience↔permission mapping**
   over DS20's server-projected vocabulary; the three waist unions above;
   weakest-boundary/status composition exposed in the schema where not yet

@@ -2295,6 +2295,14 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   static import closure of the ledger entry point. That is a **21×** over-binding. Three artifacts
   are deployment-bound (N9, generation-cycle, N11) at ≈1.5–2 h of cold recomputation each, so an
   edit to any of the other ~2,400 files re-prices the full replay for no semantic reason.
+  **Direction of the defect (classified by the N11 slice, and load-bearing for priority):
+  over-binding is *conservative* — it can falsely WITHDRAW authority and irreversibly poison an
+  active ledger scope, but it can never falsely GRANT it.** This is a false-withdrawal and
+  replay/governance-cost defect, not an unsafe-authority-grant defect. Read it that way when
+  scheduling: it is expensive and it degrades availability, and it is **not** a security hole.
+  The `semantic_test_missing` state is precise — the current tests carry no unrelated-drift
+  negative control, so nothing proves today that an edit outside the closure leaves identity
+  unchanged.
   **Why it is debt and not an in-flight fix:** narrowing the identity *changes what the authority
   binding means*, so it needs its own red-first slice, independent review, and exactly one replay —
   doing it opportunistically inside another task would be the very P32 shortcut the ledger exists to

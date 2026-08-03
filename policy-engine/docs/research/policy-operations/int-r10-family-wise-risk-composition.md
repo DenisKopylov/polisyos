@@ -171,7 +171,7 @@ an unbiased effect estimate, population performance, or benchmark success.
 ### 1.3 Canonical owner
 
 Repository rules require owner-first reuse and reject parallel owners and author-written proof
-(`AGENTS.md:35-66`, `AGENTS.md:71-89`). The confidence ledger already owns risk scopes, exact
+(`AGENTS.md:17-27`, `AGENTS.md:37-55`). The confidence ledger already owns risk scopes, exact
 rational allocation, typed theorem refusal, risk burning before owner execution, immutable events,
 canonical receipts, conditionality, and N9 projections
 (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52`,
@@ -646,7 +646,7 @@ The mandatory falsifier is **not blocked at the pinned baseline**, exactly as GY
 3. **Collapse three problems to one scope.** This contradicts the canonical one-problem scope rule
    at `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`.
 4. **Parent family scope or second ledger.** This violates owner-first/P27/P28 constraints at
-   `AGENTS.md:35-66` and `AGENTS.md:71-89`.
+   `AGENTS.md:17-27` and `AGENTS.md:37-55`.
 5. **Post-outcome cap equalization.** Final arithmetic may look correct while predictability is
    false.
 6. **Refund after refusal/void.** Without a prospective theorem, this reopens search-until-positive.
@@ -659,7 +659,7 @@ The mandatory falsifier is **not blocked at the pinned baseline**, exactly as GY
 9. **E-value product targets wrong event.** A product/global-null result is not automatically strong
    FWER for any false authority promotion.
 10. **Author-written family receipt.** Markers without live roots/heads are P29/P32, prohibited by
-    `AGENTS.md:35-66` and `AGENTS.md:71-89`.
+    `AGENTS.md:17-27` and `AGENTS.md:37-55`.
 11. **After-the-fact spend check.** Small realized spend does not prove execution used the smaller
     error cap; current risk is burned before owner execution at
     `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`.
@@ -676,10 +676,10 @@ The mandatory falsifier is **not blocked at the pinned baseline**, exactly as GY
 
 | Pattern | Risk | Correct pattern |
 | --- | --- | --- |
-| P27/P28 | Parallel family ledger/scope | One confidence-ledger projection over unchanged scopes (`AGENTS.md:71-89`). |
-| P29/P32 | Hand-authored green record | Live behavioral recomputation (`AGENTS.md:35-66`, `AGENTS.md:71-89`). |
-| P31 | One special patch for INT-R9 | Generic finite/predictable family relation (`AGENTS.md:35-66`). |
-| P33 | Validator recognizes only literal A/B/C | Generate substitutions, refunds, stale heads, fourth scope, and adaptive repair (`AGENTS.md:35-66`, `AGENTS.md:71-89`). |
+| P27/P28 | Parallel family ledger/scope | One confidence-ledger projection over unchanged scopes (`AGENTS.md:37-55`). |
+| P29/P32 | Hand-authored green record | Live behavioral recomputation (`AGENTS.md:17-27`, `AGENTS.md:37-55`). |
+| P31 | One special patch for INT-R9 | Generic finite/predictable family relation (`AGENTS.md:17-27`, `AGENTS.md:37-55`). |
+| P33 | Validator recognizes only literal A/B/C | Generate substitutions, refunds, stale heads, fourth scope, and adaptive repair (`AGENTS.md:17-27`, `AGENTS.md:37-55`). |
 
 ---
 
@@ -769,7 +769,7 @@ by display rounding, unregistered e-value product, unregistered fourth positive,
 and after-the-fact-only cap checking.
 
 The P29 property-removal control must delete effective cap enforcement while retaining all marker
-fields. Validation must fail, consistent with `AGENTS.md:35-66`.
+fields. Validation must fail, consistent with `AGENTS.md:17-27`.
 
 A paired adaptive fixture lets member 1's result select member 2's implementation. It must refuse
 without a selection-valid theorem and pass only when the canonical verifier covers the selector and
@@ -834,7 +834,7 @@ the projection.
 
 Neither artifact may own a second mutable head, local owner checks, a family ordinal used to price
 local checks, an independent delta registry, a replacement risk scope, or a second promotion
-decision. These prohibitions follow the owner rules in `AGENTS.md:35-66` and `AGENTS.md:71-89` and
+decision. These prohibitions follow the owner rules in `AGENTS.md:17-27` and `AGENTS.md:37-55` and
 the canonical scope rule in
 `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`.
 
@@ -944,7 +944,7 @@ blocks candidate work merely because authority composition is missing.
 
 These kill rules follow the canonical scope path
 (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`), owner/refusal and
-behavioral-verification rules (`AGENTS.md:35-66`, `AGENTS.md:71-89`), INT-R1 conditionality
+behavioral-verification rules (`AGENTS.md:17-27`, `AGENTS.md:37-55`), INT-R1 conditionality
 (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`),
 and candidate-band rule
 (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:160-190`).

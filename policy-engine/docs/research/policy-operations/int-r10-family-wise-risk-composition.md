@@ -9,10 +9,10 @@ repository_branch: research/int-r10-family-wise-risk-composition
 repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
 authoritative_for:
-  - independent research conclusion for family-wise false-promotion composition over distinct canonical N9 design-problem confidence scopes
-  - proof of the weighted-union composition theorem under exact prospective local caps and stated maintained assumptions
-  - impossibility result for retaining one delta across several ordinary full-delta scopes without additional composition structure
-  - research-level adaptive-continuation theorem boundary and required history-conditional validity premise
+  - independent research conclusion for composing false-promotion risk over distinct canonical N9 design-problem confidence scopes
+  - weighted-union theorem under exact prospective local caps and stated maintained assumptions
+  - impossibility result for retaining one delta across several ordinary full-delta scopes without additional canonical composition structure
+  - adaptive-continuation theorem boundary and required history-conditional, uniform, or otherwise selection-valid local guarantee
   - research-level handoff constraints for extending the canonical confidence ledger without weakening per-problem scope identity or creating a second ledger
   - bounded claim language that INT-R9 may use before and after a canonical owner extension
 may_not_use_for:
@@ -24,9 +24,9 @@ may_not_use_for:
   - capability claim
   - benchmark passage
   - assertion that cross-scope composition is implemented at the pinned baseline
-  - assertion that the adaptive INT-R9 repair policy has a family-wise numeric theorem
+  - assertion that INT-R9's outcome-dependent repair policy has a family-wise numeric theorem
   - unconditional claim about false promotion outside the declared obligation sets and maintained assumptions
-  - population performance, external-validity, legal-compliance, or institutional-competence conclusion
+  - population performance, external validity, legal compliance, institutional competence, or production readiness
 research_only: true
 ---
 
@@ -34,7 +34,7 @@ research_only: true
 
 ## Executive Finding
 
-**Result: `accepted_narrow_scope`. Current runtime capability: `blocked`.**
+**Result: `accepted_narrow_scope`. Current repository capability: `blocked`.**
 
 A valid family-wise composition is available without weakening the canonical per-problem scope,
 without a common null, without exchangeability, and without independence. It is the exact weighted
@@ -46,158 +46,169 @@ union composition:
 > for that cap under the named maintained assumptions, and `sum_i alpha_i <= delta_F`, then
 > `P(any member of F falsely promotes | maintained assumptions) <= delta_F`.
 
-The proof is the union inequality. It is valid for heterogeneous design problems because the
-controlled object is a union of authority-error events, not a shared statistical estimand. The
-bound can be sharp: three disjoint local false-promotion events of probability `delta` satisfy all
-three local bounds and have family probability `3 * delta`. No generic improvement follows from
-three local bounds alone.
+The proof is the union inequality. It applies to heterogeneous design problems because the
+controlled object is a union of authority-error events, not a shared estimand or a shared null.
+The bound is sharp from the declared information alone: three disjoint false-promotion events of
+probability `delta` satisfy all three local bounds and have family probability `3 * delta`.
+Therefore no generic improvement below the sum may be claimed without additional verified
+structure.
 
-The pinned repository does **not** implement the premises of that theorem. N9 derives a different
+The pinned repository does **not** implement the premises of that theorem. N9 derives a distinct
 canonical scope for each `design_problem_id`; each scope has its own immutable root, local event
-history, ordinal sequence, and registry-level `delta`; `start_check()` sums prior spend only from
-that scope; and no cross-scope cap, family binding, or family recomputation path exists
+history, ordinal series, and registry-level `delta`; `start_check()` sums prior spend only from the
+current scope; and no cross-scope cap, family binding, or family recomputation path exists
 (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`;
 `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:156-184`, `:518-557`,
 `:1301-1364`; `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`).
-Consequently the audit’s fully compliant trace remains live:
+The audit's fully compliant trace therefore remains possible:
 
 ```text
-slot 1 -> problem A -> scope A -> fresh top-level delta
-slot 2 -> problem B -> scope B -> fresh top-level delta
-slot 3 -> problem C -> scope C -> fresh top-level delta
+slot 1 -> design-problem A -> scope A -> ordinal 0 -> fresh top-level delta
+slot 2 -> design-problem B -> scope B -> ordinal 0 -> fresh top-level delta
+slot 3 -> design-problem C -> scope C -> ordinal 0 -> fresh top-level delta
 stop on first positive
 ```
 
-For three ordinary scopes the only generic family statement is
-`P(false first promotion | maintained assumptions) <= min(1, 3 * delta)`. With the live registry’s
-`delta = 1/100`, that is `3/100`, not `1/100`
-(`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`). A sentence saying
-“one cumulative scope” cannot alter this result.
+For three ordinary scopes, the strongest generic composition of three valid local `delta`
+guarantees is
 
-A compatible future pattern is available: preserve the three canonical scope IDs; prospectively
-bind each to a local cap, such as `delta_F / 3`; let the existing Basel-square schedule allocate
-**inside** that local cap; and have the **same confidence ledger** recompute a composition projection
-from the live family declaration, live N9 scope derivation, canonical roots, current-head receipts,
-and consumer chronology. This is an extension of the canonical owner, not a parent scope or second
-ledger. Equal thirds are an engineering convenience; any exact nonnegative cap vector summing to
-at most `delta_F` satisfies the theorem.
+```text
+P(false first promotion in the exact family | joint maintained assumptions)
+  <= min(1, 3 * delta).
+```
+
+With the live registry's `delta = 1/100`, that is `3/100`, not `1/100`
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`). This is a theorem
+about what follows from valid local guarantees; it is not a claim that the current proving ground
+has produced a positive governed sequence or a live family certificate.
+
+A compatible future design is available. Preserve the three canonical scope IDs. Before any
+family result-bearing execution, bind an exact cap vector—for example `delta_F/3` per member—and a
+complete **member-specific implementation/revision plan**. Different members may have different
+precommitted revisions, configurations, models, prompts, or evidence cutoffs; the theorem does not
+require one identical implementation. What it forbids in the non-adaptive case is selecting or
+changing those member plans after family outcomes become known. The existing Basel-square schedule
+may then allocate **inside** each local cap, and the **same confidence ledger** may recompute a
+family composition projection from the live declaration, live N9 scope derivation, canonical
+roots, current-head receipts, and attempt chronology. This is an extension of the canonical owner,
+not a parent risk scope or second ledger.
 
 Adaptive continuation is a separate theorem boundary. INT-R9 permits “general implementation
 repair” after an earlier refusal or void. A later implementation selected using earlier outcomes
-is not another fixed look. A family bound survives that policy only if each reached member’s local
-false-promotion guarantee holds conditional on the full prior history—or uniformly over every
-implementation the repair policy may select—and the allocation is predictable with a pathwise
-sum at most `delta_F`. The current ledger has no such cross-scope owner theorem. Therefore INT-R9
-must either freeze one decisive implementation across the family, obtain a canonical adaptive
-validity theorem, or withdraw the numeric family claim. Arithmetic alone cannot validate repair.
+is not covered merely because the next local scope is anytime-valid. A family bound survives that
+policy only if each reached member's false-promotion guarantee remains valid conditional on the
+full prior history—or under an equivalent uniform or selection-aware theorem—and the allocation is
+predictable with a pathwise total at most `delta_F`. The current ledger supplies no such cross-scope
+owner theorem. INT-R9 must therefore either precommit the complete member plan, obtain a canonical
+adaptive-validity theorem, or withdraw the numeric family claim. Arithmetic alone cannot validate
+repair.
 
 E-values do not remove this obligation. Products or martingale mergers require conditional
-e-validity or justified dependence structure and must target the relevant null. The current
-registry’s executable e-process is the closed constant-one process, which cannot satisfy a
-promotion obligation; owner-verified e-value/e-process profiles are registered as
+e-validity or a justified dependence structure and must target the relevant null. The current
+registry's executable e-process is the closed constant-one process, which cannot satisfy a
+promotion obligation; owner-verified e-value/e-process/sequential instruments are registered under
 `owner_theorem_unavailable_v1`
 (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). No empirical
-calibration can fill the gap: the project has no positive governed promotion history from which to
+calibration can fill the gap: PolicyOS has no positive governed promotion history from which to
 learn a family error rate.
 
-The supporting research package is:
+Supporting artifacts:
 
-- [primary-source and transfer ledger](int-r10/source-and-transfer-ledger.md); and
-- [artifact, recomputation, and executable fixture sketch](int-r10/fixture-and-artifact-sketch.md).
+- [Primary-source and transfer ledger](int-r10/source-and-transfer-ledger.md)
+- [Artifact, recomputation, and executable fixture sketch](int-r10/fixture-and-artifact-sketch.md)
 
 ---
 
 ## 1. Task And Project Fit
 
-### 1.1 Exact research question
+### 1.1 Exact question and acceptance target
 
-The question is not whether several probabilities can be added in the abstract. It is:
+The research question is:
 
-> When several PolicyOS design problems are evaluated in a prospectively governed sequence and
-> the first valid positive becomes an authority-bearing promotion, what exact event is controlled,
-> how does that event relate to the canonical per-problem confidence scopes, and what bound can be
-> reproduced from the live owner artifacts?
+> When PolicyOS evaluates several design problems in an exact family and reports the first valid
+> positive, what composition is available over the canonical per-problem confidence scopes, and
+> what may then honestly be claimed?
 
-INT-R9 required one cumulative confidence budget across three precommitted slots, but its audit
-found that the canonical source creates three scope IDs and supplies no family arithmetic. The
-audit made eight properties mandatory and supplied the three-fresh-scope falsifier
-(`policy-engine/docs/research/policy-operations/audits/int-r9/int-r9-recommended-revision.md:30-83`).
-INT-R10 answers that owner-level arithmetic question. It does not re-design the case-selection,
-sealing, adjudication, or publication protocol.
+INT-R9 needed one cumulative risk statement for three precommitted slots. Its audit found that the
+canonical source instead creates three risk scopes and gave eight acceptance requirements plus a
+mandatory three-fresh-budget falsifier
+(`policy-engine/docs/research/policy-operations/audits/int-r9/int-r9-recommended-revision.md:30-105`).
+INT-R10 answers the missing owner-level arithmetic. It does not redesign INT-R9's case selection,
+sealing, adjudication, publication, or public-record machinery.
+
+A valid result must distinguish three questions:
+
+1. **Local validity:** what does each canonical problem scope prove about its own false-promotion
+   event?
+2. **Family accounting:** how are the local guarantees composed over the exact family event?
+3. **Selection validity:** do the local guarantees remain valid when earlier outcomes influence
+   later implementation, data, or evaluation choices?
+
+The current repository is strong on local accounting but has no canonical answer to questions 2
+or 3.
 
 ### 1.2 Exact family event
 
-For a prospectively committed ordered family `F = (1, ..., m)`, define:
+For an ordered family `F = (1, ..., m)`, define:
 
-- `R_i`: member `i` is reached under the family’s stopping and dispute rules;
-- `P_i`: member `i` emits a valid canonical positive promotion terminal;
+- `R_i`: slot `i` is reached under the declared stopping, dispute, and no-substitution rules;
+- `P_i`: slot `i` emits a canonical positive promotion terminal;
 - `W_i`: that promotion is false relative to its declared obligation set and maintained
   assumptions;
-- `V_i = R_i ∩ P_i ∩ W_i`: reached member `i` falsely promotes; and
+- `V_i = R_i ∩ P_i ∩ W_i`: reached slot `i` falsely promotes; and
 - `V_F = union_i V_i`: at least one reached member falsely promotes.
 
-Under stop on the first canonical positive, `V_F` is exactly the event that the reported first
-promotion is false. Reachability matters: a member after a prior positive is never part of the
-realized authority path, while an earlier refusal, void, dispute, or negative remains part of the
-family chronology and cap disposition.
+Under stop on the first canonical positive, `V_F` is exactly the event that the family's reported
+first promotion is false. Earlier refused, void, disputed, or negative members remain in the
+family chronology even when they do not themselves promote. Members after a valid positive are
+unreached rather than silently deleted.
 
-The controlled quantity is therefore **family-wise false authority promotion**, not:
-
-- a common-null rejection event;
-- the probability that a useful design exists;
-- the probability that every external obligation is known;
-- an effect-estimation error for the selected design;
-- population performance; or
-- a benchmark success rate.
+The controlled quantity is **false authority promotion**. It is not the probability that a useful
+design exists, the probability that every external obligation is known, a common-null rejection,
+an unbiased effect estimate for the selected design, population performance, or benchmark success.
 
 ### 1.3 Why the arithmetic belongs to the confidence ledger
 
-The repository’s operating rule is reuse-first and owner-first: extend the live semantic owner
-instead of creating plan-local authority; P27/P28 reject parallel owners and unstrangled duplicate
-paths, while P29 rejects author-written proof
-(`AGENTS.md:35-66`, `:71-89`). The confidence ledger already owns risk scopes, exact allocation,
-owner-proof profiles, risk burning, immutable events, current-head receipts, conditionality, and
-N9 projections. INT-R9 consumes those outputs; it does not own their probability arithmetic.
+The repository requires owner-first reuse and rejects parallel owner paths and author-written proof
+(`AGENTS.md:35-66`, `:71-89`). The confidence ledger already owns risk scopes, exact rational
+allocation, proof-profile refusal, risk burning before owner execution, immutable events, canonical
+receipts, conditionality, and N9 projections. INT-R9 consumes those outputs; it does not own their
+probability arithmetic.
 
-Accordingly:
+The owner split is therefore:
 
-- **the confidence ledger owns** family cap composition, local-cap enforcement, and the live
-  composition projection;
-- **N9 owns** canonical problem binding and per-problem scope derivation;
-- **INT-R9 owns** the prospective queue, case custody, stopping, publication, and repair governance;
-- **INT-R1 supplies** each member’s declared obligation basis and keeps the open-world remainder
-  visible; and
-- **Atlas or the existing public projection owner** may later display the bounded claim without
-  becoming its source.
+- **Confidence ledger / N11 lane:** local-cap enforcement, aggregate composition, theorem/refusal
+  profile, and live family projection.
+- **N9:** canonical design-problem binding and per-problem scope derivation.
+- **INT-R9:** family membership/order, case custody, stopping, publication, disputes, and repair
+  governance.
+- **INT-R1:** each member's declared obligation basis and visible open-world remainder.
+- **Existing public projection owner:** display of the bounded claim, never creation of the bound.
 
 ### 1.4 Four-way boundary verdict
 
 | Plane | Verdict | PolicyOS responsibility | Boundary retained |
 | --- | --- | --- | --- |
-| Arithmetic and custody of a PolicyOS family-wise false-promotion claim over its own canonical promotion receipts | **OWN** | Bind the exact family, cap vector, scope identities, maintained assumptions, terminal history, source versions, and correction standing; recompute the claim from the canonical owner. | Ownership is of PolicyOS’s risk claim, not of the external truth of every obligation or policy effect. |
-| N9 problem bindings, INT-R1 obligation declarations, owner certificates, evaluator/adjudicator records, external source facts, and implementation freezes | **INTEGRATE** | Verify, purpose-admit, content-bind, and react fail-closed when these inputs change. | PolicyOS does not become the external legal, empirical, evaluator, or institutional authority. |
-| Unadmitted dependence hypotheses, empirical base-rate suggestions, criticism, suspected scope coupling, or proposed family definitions | **OBSERVE** | Retain as candidate research or challenge signals; never use observation to mint a tighter bound. | Observation and projection do not establish an assumption or theorem. |
-| Creating legal effect, certifying population efficacy, deciding external institutional competence, or operating the underlying policy | **OUT_OF_SCOPE** | Publish only the bounded PolicyOS claim and route external acts/evidence to their competent owners. | A risk composition theorem does not make PolicyOS an administrator, regulator, court, or implementation operator. |
+| Arithmetic and custody of PolicyOS's family-wise false-promotion statement over its own promotion receipts | **OWN** | Bind family, caps, scope identities, maintained assumptions, member-plan versions, terminal history, currentness, and correction; recompute the statement from canonical artifacts. | Ownership is of PolicyOS's signed risk statement, not of external legal or empirical truth. |
+| N9 problem bindings, INT-R1 declarations, owner certificates, evaluators, adjudicators, external sources, and implementation freezes | **INTEGRATE** | Verify, purpose-admit, content-bind, and react fail-closed when these inputs change. | PolicyOS does not become the external source, court, regulator, evaluator, or institutional authority. |
+| Unadmitted dependence claims, proposed weights, criticism, suspected coupling, or candidate family definitions | **OBSERVE** | Retain as research/challenge signals; never use them to mint a tighter bound. | Observation or projection cannot establish a theorem premise. |
+| Creating legal effect, operating the policy, certifying population efficacy, or deciding institutional competence | **OUT_OF_SCOPE** | Publish only the bounded PolicyOS claim and route external acts to competent owners. | Risk composition does not make PolicyOS an administrator or sovereign authority. |
 
-This follows S0-K05’s no-authority-by-observation rule and S0-K16’s bounded-passage rule. It also
-uses the authority-band/candidate-band lens: absence of family composition blocks the numeric
-cross-problem authority claim but must not prohibit candidate exploration under a declared
+This follows S0-K05 and S0-K16 and the authority-band/candidate-band lens. Missing composition must
+block the numeric cross-problem authority claim, not candidate exploration under a declared
 limitation
 (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:45-112`,
 `:160-190`).
 
 ### 1.5 Result standing
 
-The result has two different standings that must not be compressed:
+Two standings must remain distinct:
 
-1. **Research theorem standing: accepted narrow scope.** Weighted union composition under exact
-   prospective caps is established, as is the adaptive conditional-validity boundary.
-2. **Repository capability standing: blocked.** The pinned source has no canonical cross-scope cap
-   or recomputed family receipt, so neither the fixed-family `delta_F` claim nor the adaptive claim
-   is executable today.
+- **Research theorem:** `accepted_narrow_scope`.
+- **Current runtime capability:** `blocked` / `cross_scope_composition_missing`.
 
-A negative runtime finding is part of the result, not a reason to soften the frontmatter. The
-research does not appoint an owner—the owner already exists—and does not authorize code.
+The result neither appoints a new owner nor authorizes code. A future implementation must be a
+separate governed task and must pass the behavioral falsifiers in §6.
 
 ---
 
@@ -205,334 +216,328 @@ research does not appoint an owner—the owner already exists—and does not aut
 
 ### 2.1 Pinned inspection
 
-- Repository: `https://github.com/DenisKopylov/polisyos`.
-- Branch inspected: `main`.
-- Exact baseline: `978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`.
-- Research branch: `research/int-r10-family-wise-risk-composition`, created from that exact commit.
-- Inspection date: `2026-08-03`.
-- Source changes: none. This branch adds research Markdown only.
+- Repository: `https://github.com/DenisKopylov/polisyos`
+- Branch inspected: `main`
+- Exact baseline: `978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`
+- Research branch: `research/int-r10-family-wise-risk-composition`
+- Inspection date: `2026-08-03`
+- Changes made: three new research Markdown files only; no source, test, or existing document was
+  modified.
 
-The task’s supplied anchors were materially correct. One precision is important: an ordinal-zero
-check does not literally spend the whole `delta` in one operation. It receives a scheduled fraction
-of the scope’s top-level budget. The defect is that each fresh scope owns a fresh **top-level
-`delta` guarantee and allocation series**, not that its first check consumes all of `delta`.
+The supplied orientation was materially correct. One precision matters: an ordinal-zero check does
+not literally consume the whole `delta`; it receives a scheduled fraction. The defect is that each
+fresh scope receives a fresh **top-level delta budget and guarantee series**, not that its first
+check spends all of `delta`.
 
-### 2.2 Line-anchored census
+### 2.2 Line-anchored scope, ordinal, allocation, and refusal census
 
-| Repository anchor | Verified source fact | Family consequence |
+| Repository anchor | Verified fact | Family consequence |
 | --- | --- | --- |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52` | The ledger allocates before owner execution, fails closed when a statistical theorem verifier is absent, declares exact maintained assumptions, and says its good-event composition uses the union bound without an independence claim. | The existing mathematical style already supports conservative event composition, but only for objects actually inside the owner path. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:156-184` | `ConfidenceRiskBudgetScope` is the stable scope for one non-resettable budget. `scope_id` is derived from owner, purpose, owner-scope key, and epoch; mutable owner content is a root binding. | Scope identity is deliberately stable and must not be weakened or replaced by a family ID. |
-| `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375` | `confidence_risk_scope_for_problem()` is documented as the only N11 scope for one N9 binding and sets `owner_scope_key = design-problem:<design_problem_id>`. | Distinct fresh design problems naturally and correctly produce distinct canonical scope IDs. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:257-377` | The registry has one top-level `delta`; schedules have bounded mass; obligation pools must totally partition the obligation enum and weights must sum exactly to one. | Internal allocation is exact relative to the registry, but there is no second denominator over problem scopes. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557` | An immutable root binds one `risk_scope` to registry, schedule, obligation split, `budget_delta`, conditionality, and maintained assumptions. | Every problem scope receives its own root and its own top-level budget binding. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:723-752` | A canonical receipt recomputes one scope’s current durable head, events, checks, total spend, budget status, good-event clause, and maintained assumptions. | The receipt is rich enough to be a member input to a future family projection, but it is scope-local. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364` | `start_check()` loads one scope’s state, assigns the next ordinal from that scope’s current checks, computes spend from the registry’s `delta`, sums prior spend from those checks, blocks only if that local total exceeds the registry `delta`, and burns risk before the owner call. | Three fresh scopes each begin at ordinal zero and do not see one another’s spend or top-level budget. |
-| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3998-4024` | `basel_square_v1` allocates `delta * obligation_weight * mass * c/(t+1)^2` with an exact rational lower bound for `6/pi^2`; the projection hash binds kernel, coefficient, delta, and obligation weights. | Basel-square is a correct **within-scope** ordinal schedule. It is not a cross-scope family schedule. |
-| `policy-engine/architecture/production_quality/confidence_ledger.toml:1-18` | Live `delta` is exactly `1/100`; schedules have mass `1` and `1/2`. | No `1/3` family allocation or family cap is registered. Schedule mass changes local schedule mass; it does not bind three roots into one family. |
-| `policy-engine/architecture/production_quality/confidence_ledger.toml:53-121` | Profiles are dominated by refusal/unavailable/deterministic paths; the only executable e-process is constant one and cannot satisfy obligations; owner-verified e-value/e-process/sequential instruments use an unavailable-owner theorem profile. | There is no executable e-value composition or empirical family theorem to reuse. |
-| `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10` | GY-GAP2 records that per-problem scopes are correct, no `cross_scope`, `family_wise`, or `parent_scope` implementation exists, and three fresh problems can obtain three fresh top-level budgets. | The gap is a missing composition capability, not a defect in N11 scope identity. |
-| `policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:600-650` | INT-R9 permits general implementation repair between refused/void slots while asserting one cumulative risk scope. | The queue is adaptive in implementation, not merely sequential in observation; a fixed-look theorem cannot be assumed. |
-| `policy-engine/docs/research/policy-operations/audits/int-r9/int-r9-recommended-revision.md:30-105` | Audit R1 requires the exact family event, canonical-scope relation, no fresh budgets, terminal effects, aggregate proof, adaptive validity or narrowed claim, owner reuse, and live reproduction. | These are the acceptance conditions applied in §4.12 and the fixture package. |
-| `policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90` | INT-R1 accepts only completeness relative to a declared closure basis and keeps the risk statement conditional on that basis and validator soundness. | Family composition can add local bounds; it cannot discharge open-world obligation or validator assumptions. |
+| `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52` | The ledger allocates before owner execution, refuses statistical families without a repository-owned theorem verifier, carries exact maintained assumptions, and states that good-event composition uses the union bound without an independence claim. | Conservative event composition is already the owner's style, but only for objects represented in its live path. |
+| `.../confidence_ledger.py:156-184` | `ConfidenceRiskBudgetScope` is the stable owner scope for one non-resettable budget; `scope_id` derives from owner, authority purpose, owner-scope key, and epoch. | Per-problem scope identity is deliberate and must not be weakened or replaced by a family ID. |
+| `.../promotion_sequence.py:356-375` | `confidence_risk_scope_for_problem()` is the only admissible N11 scope for one N9 binding and sets `owner_scope_key = design-problem:<design_problem_id>`. | Distinct fresh design problems correctly produce distinct canonical scope IDs. |
+| `.../confidence_ledger.py:250-390` | Registry policy has one top-level `delta`; schedules have bounded mass; obligation pools must totally partition the declared denominator and sum exactly to one. | Internal allocation is exact relative to one scope/registry, but there is no denominator over design-problem scopes. |
+| `.../confidence_ledger.py:518-557` | An immutable root binds one risk scope to registry, schedule, obligation split, `budget_delta`, conditionality, and maintained assumptions. | Each problem scope receives its own root-level budget binding. |
+| `.../confidence_ledger.py:723-752` | A canonical receipt recomputes one scope's current head, events, checks, total spend, budget status, good-event clause, and maintained assumptions. | Existing receipts are suitable member evidence for a future family projection, but remain scope-local. |
+| `.../confidence_ledger.py:1180-1280` | `prepare_check()` binds claim/instrument facts before outcome; preflight refusals are persisted with zero spend. | Refusal is typed and durable locally; no family terminal/cap disposition is defined. |
+| `.../confidence_ledger.py:1301-1364` | `start_check()` reads one scope, assigns the next ordinal from that scope's checks, computes spend from registry `delta`, sums prior spend only inside that scope, rejects only local overspend, and burns risk before owner execution. | Three new scopes each start at local ordinal zero and do not see one another's budget or spend. |
+| `.../confidence_ledger.py:3740-3855` | `_instrument_preflight_refusal()` rejects disallowed roles, ineligible profiles, unavailable owner theorems, and non-anytime-valid profiles; receipt validation requires zero-spend refusal semantics. | The current owner is capable of honest refusal and should similarly refuse an unavailable family theorem. |
+| `.../confidence_ledger.py:3890-4025` | Receipt validation recomputes contiguous local ordinals and every schedule spend, rejects forged rows/decimal drift, and implements the exact Basel-square allocation. | The within-scope schedule is reproducible; it is not a cross-scope family schedule. |
+| `policy-engine/architecture/production_quality/confidence_ledger.toml:1-18` | Live `delta` is exactly `1/100`; registered schedules have mass `1` and `1/2`. | No family cap vector or one-third top-level allocation is registered. |
+| `.../confidence_ledger.toml:53-121` | The registry is dominated by deterministic, ineligible, and unavailable-theorem profiles; the only executable e-process is constant one and cannot satisfy a promotion obligation. | No executable e-value/e-process family theorem can be inferred from registry labels. |
+| `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10` | GY-GAP2 records that per-problem scopes are correct and that no `cross_scope`, `family_wise`, or `parent_scope` composition exists. | The gap is missing composition, not wrong scope identity. |
+| `policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650` | INT-R9 fixes three slots and stopping but permits “general implementation repair” after refusal/void while asserting cumulative risk. | Its sequence is adaptive unless the complete member-plan vector is precommitted; a fixed-plan theorem cannot be silently extended to repair. |
+| `policy-engine/docs/research/policy-operations/audits/int-r9/int-r9-recommended-revision.md:30-105` | Audit R1 requires exact family event, canonical-scope relation, no fresh budgets, terminal effects, aggregate proof, adaptive validity or narrowed claim, owner reuse, and live reproduction. | These eight requirements are answered in §4.11 and §6. |
+| `policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90` | INT-R1 permits only relative obligation coverage and keeps the risk statement conditional on declared basis and validator soundness. | Family composition cannot discharge open-world or validator premises. |
 
-### 2.3 The mandatory falsifier at the pinned baseline
+### 2.3 Mandatory falsifier at the pinned baseline
 
-Take three newly authored N9 problem bindings with distinct IDs `A`, `B`, and `C`.
+For distinct N9 problem IDs `A`, `B`, and `C`:
 
-1. N9 derives `scope_A`, `scope_B`, and `scope_C` from the three IDs. They are pairwise distinct
-   because the owner-scope key participates in the scope hash
-   (`promotion_sequence.py:356-375`; `confidence_ledger.py:156-184`).
-2. Each scope opens a separate root with registry `budget_delta = 1/100`
-   (`confidence_ledger.py:518-557`; `confidence_ledger.toml:1-18`).
-3. Each empty scope’s first started check receives local ordinal zero. Its spend is calculated from
-   the same top-level registry delta, obligation weight, schedule mass, and Basel coefficient
-   (`confidence_ledger.py:1301-1364`, `:3998-4024`).
-4. Prior spend for `scope_B` excludes `scope_A`; prior spend for `scope_C` excludes both earlier
+1. N9 derives pairwise distinct `scope_A`, `scope_B`, and `scope_C` because the problem ID is in the
+   owner-scope key.
+2. Each scope receives its own immutable root with registry `budget_delta = 1/100`.
+3. Each empty scope can assign its first started check local ordinal zero.
+4. Each spend calculation uses the same registry top-level delta and the local obligation/schedule
+   factors.
+5. Prior spend in `scope_B` excludes `scope_A`; prior spend in `scope_C` excludes both earlier
    scopes.
-5. No live source object requires `cap_A + cap_B + cap_C <= 1/100`.
-6. Stopping on the first positive changes which events are observed, but it does not reduce the
-   probability of their union below the sum of valid local upper bounds without additional
-   structure.
+6. No live source object requires the sum of admitted top-level caps over A/B/C to be at most
+   `1/100`.
 
-Thus the trace is not blocked. If each scope supplies only
-`P(V_i | A_i) <= delta`, the generic family statement is:
+The trace therefore passes local source rules. A prose assertion that the slots are “one cumulative
+scope” is not closure evidence.
 
-```text
-P(V_A union V_B union V_C | joint maintained assumptions)
-  <= P(V_A) + P(V_B) + P(V_C)
-  <= 3 * delta.
-```
+### 2.4 Current arithmetic and sharpness
 
-At the registry instance:
+Suppose each local canonical theorem supplies only
 
 ```text
-delta = 1/100
-3 * delta = 3/100.
+P(V_A | A_F) <= delta
+P(V_B | A_F) <= delta
+P(V_C | A_F) <= delta.
 ```
 
-### 2.4 Why `3 * delta` is not merely conservative rhetoric
-
-For `delta <= 1/3`, take a probability space with three disjoint events `E_A`, `E_B`, `E_C`, each
-of probability `delta`. Let the three local false-promotion events equal those events. Every local
-scope satisfies its `delta` guarantee, while:
+Then
 
 ```text
-P(E_A union E_B union E_C) = 3 * delta.
+P(V_A union V_B union V_C | A_F) <= 3 * delta.
 ```
 
-This witness proves that the factor three is attainable under the information currently declared.
-A stronger generic bound would be false. Perfect positive dependence could instead produce a
-family probability of only `delta`, but the repository neither asserts nor verifies that dependence.
-One cannot choose the favorable dependence after seeing the desired answer.
+This is not merely conservative wording. For `delta <= 1/3`, construct three disjoint events, each
+with probability `delta`, and identify them with the three false-promotion events. Every local
+bound holds and the family probability is exactly `3 * delta`. A tighter generic claim is false.
 
 ### 2.5 Honest empirical state
 
-The registry does not supply a calibration route. Its statistical production path has essentially
-no demonstrated positive use, while deterministic and refusal profiles dominate
-(`confidence_ledger.toml:53-121`). The broader project records no positive governed promotion,
-`useful_design_rate = 0`, and an unbuilt D3.8 promotion gate
-(`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:404-430`).
+The repository has no empirical basis for a learned dependence correction or outcome-calibrated
+weighting. The live proof registry is dominated by refusal/unavailable/deterministic paths
+(`confidence_ledger.toml:53-121`). The proving ground remains unconverted: all 13 cases are typed
+blockers, `useful_design_rate = 0`, and D3.8 is not built
+(`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:390-398`).
 
-Therefore INT-R10 does not estimate correlation among false-promotion events, learn unequal cap
-weights from historical outcomes, fit a prior probability of success, or justify a Šidák/product
-correction empirically. Such values would be authored assumptions over nonexistent data.
+INT-R10 therefore does not estimate correlation among false-promotion events, learn cap weights
+from prior successes, fit a positive base rate, or justify a Šidák/product correction. Such numbers
+would be authored assumptions over nonexistent governed outcome data.
 
 ### 2.6 Capability-chain verdict
 
-| Capability element | Standing at `978e6b958...` |
+| Capability | Standing at `978e6b958...` |
 | --- | --- |
-| Per-problem stable non-resettable scope | `implemented` |
-| Exact rational within-scope allocation | `implemented` |
+| Stable non-resettable scope per design problem | `implemented` |
+| Exact rational within-scope schedule | `implemented` |
 | Risk burn before owner execution | `implemented` |
-| Immutable scope-local root/event/receipt chain | `implemented` |
+| Typed preflight refusal and unavailable-theorem refusal | `implemented` |
+| Immutable scope-local root/event/receipt | `implemented` |
 | Conditionality on obligation completeness and validator soundness | `implemented` |
-| Cross-scope family declaration admitted by ledger | `missing` |
+| Prospective cross-scope family declaration admitted by ledger | `missing` |
 | Enforced local cap derived from family allocation | `missing` |
-| Aggregate exact cap verifier | `missing` |
-| Recomputed family projection over live scope heads | `missing` |
-| Adaptive-repair owner theorem | `missing` |
-| Behavioral mandatory-falsifier test | `missing` |
+| Exact aggregate cap/spend verifier | `missing` |
+| Live family projection over canonical scope heads | `missing` |
+| Selection-valid theorem for outcome-dependent repair | `missing` |
+| Mandatory three-budget behavioral falsifier | `missing` |
 | INT-R9 single-`delta` family claim | `blocked` |
-
-The correct baseline description is: **per-scope accounting implemented; family composition and
-adaptive validity missing**.
 
 ---
 
 ## 3. External Research Baseline
 
-The detailed citation and transfer ledger is preserved in
-[int-r10/source-and-transfer-ledger.md](int-r10/source-and-transfer-ledger.md). This section records
-the load-bearing conclusions.
+The detailed transfer analysis is in
+[int-r10/source-and-transfer-ledger.md](int-r10/source-and-transfer-ledger.md). Only primary sources
+are used for load-bearing transfers.
 
-### 3.1 Multiple testing: what directly transfers
+### 3.1 Multiple testing and online FWER
 
-Holm’s step-down procedure controls family-wise error for a finite family of valid p-values and can
-improve on single-step Bonferroni without relying on favorable dependence
-([Holm 1979](https://doi.org/10.2307/4615733)). Tian and Ramdas extend online FWER control to
-sequences of hypotheses; simple Bonferroni-style allocations extend directly, while their more
-adaptive power improvements require independent or locally dependent p-values
-([Tian & Ramdas 2021](https://doi.org/10.1177/0962280220983381),
+Holm's step-down procedure controls family-wise error for a finite family of valid p-values and can
+improve on single-step Bonferroni without favorable dependence
+([Holm 1979, DOI 10.2307/4615733](https://doi.org/10.2307/4615733)). Tian and Ramdas develop online
+FWER control for an a priori unbounded sequence; simple Bonferroni-style allocations transfer
+broadly, while more adaptive power gains require independence or local-dependence conditions
+([Tian & Ramdas 2021, DOI 10.1177/0962280220983381](https://doi.org/10.1177/0962280220983381),
 [arXiv:1910.04900](https://arxiv.org/abs/1910.04900)).
 
-The transferable core is not a p-value algorithm. It is:
+The directly transferable principle is:
 
 ```text
-choose nonnegative allocations predictably;
-prove each local error statement at its allocation;
-keep the aggregate allocation within the family bound.
+allocate nonnegative local error caps predictably;
+prove every local authority-error statement at its assigned cap;
+keep the exact total within the declared family bound.
 ```
 
-PolicyOS does not currently expose one valid p-value per scope or a family rejection ordering, so
-Holm is not directly executable. Weighted union accounting is executable as a theorem once local
-caps and local guarantees are real.
+PolicyOS does not currently expose one family of valid p-values or a step-down owner, so Holm is a
+possible future design family, not a theorem about current artifacts.
 
-### 3.2 Group sequential and alpha-spending designs
+### 3.2 Group-sequential designs and alpha spending
 
-Pocock and O’Brien–Fleming show that repeated looks and early stopping must be priced as one
-procedure rather than fresh tests
-([Pocock 1977](https://doi.org/10.1093/biomet/64.2.191);
-[O’Brien & Fleming 1979](https://doi.org/10.2307/2530245)). Lan and DeMets formalize an
-alpha-spending function whose boundary depends on past/current information times rather than all
-future looks ([Lan & DeMets 1983](https://doi.org/10.1093/biomet/70.3.659)).
+Pocock and O'Brien–Fleming show that repeated looks and early stopping must be controlled as one
+procedure rather than treated as fresh tests
+([Pocock 1977, DOI 10.1093/biomet/64.2.191](https://doi.org/10.1093/biomet/64.2.191);
+[O'Brien & Fleming 1979, DOI 10.2307/2530245](https://doi.org/10.2307/2530245)). Lan and DeMets
+formalize alpha-spending boundaries indexed by information time
+([Lan & DeMets 1983, DOI 10.1093/biomet/70.3.659](https://doi.org/10.1093/biomet/70.3.659)).
 
-What transfers is pre-allocation, cumulative accounting, and no reset. The boundary formulas do
-not transfer: those papers concern repeated analyses of one accumulating experiment under a
-specified joint model. Three PolicyOS design problems are not three information times for one
-estimand. Calling slot number “information time” would be a category error.
+What transfers is pre-allocation, cumulative accounting, and no fresh reset after an unfavorable
+look. Their boundary formulas do not transfer: those papers analyze repeated observations of one
+accumulating experiment under a specified joint model. Three PolicyOS design problems are not
+three information times for one effect.
 
-### 3.3 Šidák and stronger dependence-based corrections
+### 3.3 Šidák and model-dependent improvements
 
-Šidák’s rectangle result is grounded in a multivariate-normal probability structure
-([Šidák 1967](https://doi.org/10.1080/01621459.1967.10482935)). Product-form corrections can be
-stronger than a union bound when the required dependence/model premises hold. PolicyOS has no
-verified common multivariate distribution or exchangeability relation over heterogeneous design
-problems. A Šidák number would therefore be an unsupported empirical/theoretical assumption.
+Šidák's rectangle inequality is tied to a multivariate-normal probability structure
+([Šidák 1967, DOI 10.1080/01621459.1967.10482935](https://doi.org/10.1080/01621459.1967.10482935)).
+Product-form corrections can improve on a union bound when their dependence/model assumptions are
+true. PolicyOS has no verified common multivariate model, exchangeability premise, or cross-problem
+dependence contract. A Šidák number would therefore be an unsupported theorem premise.
 
 ### 3.4 Anytime-valid inference and optional continuation
 
-Confidence sequences and nonnegative supermartingales can preserve validity uniformly over time
-and at stopping times under their process assumptions
-([Howard et al. 2021](https://doi.org/10.1214/20-AOS1991);
-[Howard et al. 2020](https://doi.org/10.1214/18-PS321)). Ramdas, Grünwald, Vovk, and Shafer make the
-filtration and predictability boundary explicit: optional stopping or continuation can be safe,
-but selecting a betting strategy after seeing outcomes is not
-([Ramdas et al. 2023](https://doi.org/10.1214/23-STS894),
+Confidence sequences and nonnegative supermartingales provide time-uniform validity under their
+stated filtration/process assumptions
+([Howard et al. 2021, DOI 10.1214/20-AOS1991](https://doi.org/10.1214/20-AOS1991);
+[Howard et al. 2020, DOI 10.1214/18-PS321](https://doi.org/10.1214/18-PS321)). Ramdas, Grünwald,
+Vovk, and Shafer make the predictability boundary explicit: optional stopping or continuation can
+be safe, but choosing a betting strategy after seeing its result is not
+([Ramdas et al. 2023, DOI 10.1214/23-STS894](https://doi.org/10.1214/23-STS894),
 [arXiv:2210.01948](https://arxiv.org/abs/2210.01948)).
 
-This transfers directly to INT-R9 repair. If earlier failures influence a later implementation,
-the later local theorem must be valid conditional on that complete history or uniformly over the
-permitted selector. “Anytime-valid” inside the later scope does not retroactively validate how
-that scope’s implementation was selected.
+This transfers directly to INT-R9. A local anytime-valid process does not automatically validate
+the outcome-dependent choice of the next implementation. The actual filtration must include every
+earlier reveal, result, repair decision, model/configuration change, adjudication, and source fact
+used to select the later procedure.
 
-### 3.5 E-values: combination is target- and assumption-specific
+### 3.5 E-values
 
-Vovk and Wang show that e-values can be calibrated and combined; averaging can merge e-values for
-one hypothesis under arbitrary dependence
-([Vovk & Wang 2021](https://doi.org/10.1214/20-AOS2020)). Sequential e-value merging uses
-martingale constructions, and independent merging is a separate structured case
-([Vovk & Wang 2020, arXiv:2007.06382](https://arxiv.org/abs/2007.06382)); multiple-testing gains
-for independent or sequential e-values likewise state those assumptions
-([arXiv:2003.00593](https://arxiv.org/abs/2003.00593)).
+E-values can be calibrated and combined; averaging merges e-values for one null under arbitrary
+dependence
+([Vovk & Wang 2021, DOI 10.1214/20-AOS2020](https://doi.org/10.1214/20-AOS2020)). Sequential
+merging uses martingale constructions and conditional validity, while independent merging is a
+separate structured case
+([Vovk & Wang 2020, arXiv:2007.06382](https://arxiv.org/abs/2007.06382)). Multiple-testing gains
+for independent or sequential e-values state those assumptions explicitly
+([Vovk & Wang 2020, arXiv:2003.00593](https://arxiv.org/abs/2003.00593)).
 
-The slogan “e-values multiply” is insufficient. A product needs conditional e-validity or the
-specified independence structure and usually targets a joint/intersection null. PolicyOS needs
-strong control of a union event across every relevant truth configuration. A local e-process may
-be a useful instrument, but it does not eliminate the family owner, cap allocation, or exact event
-definition.
+“E-values multiply” is not a family theorem. The merger must have the correct null/target and every
+factor must satisfy its conditional or dependence premise. A product often targets a joint or
+global null; PolicyOS needs strong control of the event that **any** authority promotion is false
+across heterogeneous truth configurations.
 
 ### 3.6 Selective inference
 
-Fithian, Sun, and Taylor formalize that inference after selection must account for the selection
-event ([arXiv:1410.2597](https://arxiv.org/abs/1410.2597)). A prospectively bounded family can
-include stop-on-first-positive selection in its error event, but the bound does not estimate the
-selected policy’s effect without selection bias, prove representativeness, or grant external
-validity. INT-R10 closes only the false-authority family event.
+Inference after selection must account for the selection event
+([Fithian, Sun & Taylor, arXiv:1410.2597](https://arxiv.org/abs/1410.2597)). A prospective family
+bound can include stop-on-first-positive selection in its error event. It does not thereby supply
+an unbiased effect estimate, representativeness, population generalization, or protection against
+upstream case-pool selection.
 
-### 3.7 External-baseline verdict
+### 3.7 Transfer verdict
 
-| Method family | Transfer verdict |
+| Method family | INT-R10 disposition |
 | --- | --- |
-| Exact weighted union / Bonferroni event accounting | **Transfers directly** once local bounds and caps are owner-enforced. |
-| Holm step-down | **Potential future option**, but requires valid family p-values and a canonical procedure not present. |
+| Exact weighted union / Bonferroni event accounting | **Transfers directly** once local guarantees and caps are canonical and real. |
+| Holm step-down | **Potential future option** requiring valid family p-values and a canonical family procedure. |
 | Šidák/product correction | **Does not transfer** without verified joint structure. |
-| Pocock/O’Brien–Fleming/Lan–DeMets | **Accounting pattern only**; boundary theorem does not transfer across different problems. |
-| Confidence sequences/e-processes | **Transfers within a valid process** and to adaptive families only with history-conditional/uniform validity. |
-| E-value multiplication/merging | **Not automatic**; requires correct target and conditional/dependence premises. |
-| Selective inference | **Meaning constraint**, not a family-composition implementation. |
-| Empirical calibration | **Unavailable** because the project lacks the required governed outcome history. |
+| Pocock/O'Brien–Fleming/Lan–DeMets | **Accounting lesson only**; their repeated-look boundary theorem does not cross heterogeneous problems. |
+| Confidence sequences/e-processes | **Transfers within a valid process**; adaptive families additionally need history-conditional, uniform, or selection-valid local guarantees. |
+| E-value multiplication/merging | **Not automatic**; correct target and conditional/dependence premises are required. |
+| Selective inference | **Constrains meaning**, not a current composition implementation. |
+| Empirical calibration | **Unavailable** at the current project state. |
 
 ---
 
 ## 4. Result
 
-### 4.1 Epistemic classification
+### 4.1 Explicit epistemic classification
 
-| Kind | INT-R10 result |
+| Category | Result |
 | --- | --- |
-| **Theorem** | Exact weighted-union composition over heterogeneous canonical scopes; adaptive extension under predictable allocations and history-conditional or uniform local validity. |
-| **Empirical rule** | None is needed for the theorem. Any learned weighting, dependence correction, or base-rate calibration would require data the project does not have. Equal thirds are not empirical truth. |
-| **Design pattern** | Keep every canonical per-problem scope; prospectively bind it to a local cap; run the existing within-scope schedule inside that cap; recompute one ledger-owned family projection over live member receipts. |
-| **Governance protocol** | Exact family/order commitment, no substitution, terminal retention, no outcome-dependent refund by default, result-independent disclosure, fixed-revision or theorem-backed adaptive policy, and bounded public wording. |
-| **Impossibility result** | Three ordinary full-`delta` scopes do not imply one `delta`; `3 * delta` is sharp without additional structure. A fixed-scope theorem cannot cover arbitrary outcome-dependent repair. |
-| **Engineering convenience** | Three slots, equal `delta_F/3` caps, a no-refund rule, placeholder artifact names, and one suggested error-code vocabulary. These are replaceable if the invariants and proof remain. |
+| **Theorem** | Weighted-union composition over heterogeneous canonical scopes; adaptive extension under predictable/pathwise-bounded allocations and history-conditional, uniform, or equivalent selection-valid local guarantees. |
+| **Empirical rule** | None is required for the theorem. Learned weights or dependence corrections would require governed data the project does not have. |
+| **Design pattern** | Preserve every canonical per-problem scope; prospectively bind local caps and the complete member-specific plan; run the existing local schedule inside each cap; recompute one ledger-owned family projection. |
+| **Governance protocol** | Exact family/order commitment, no substitution, durable earlier terminals, no outcome-dependent refund by default, result-independent disclosure, and explicit fixed-plan versus adaptive standing. |
+| **Impossibility result** | Three ordinary full-`delta` scopes do not imply one `delta`; `3 * delta` is sharp without extra structure. A fixed-plan theorem cannot silently cover outcome-dependent repair. |
+| **Engineering convenience** | Three slots, equal `delta_F/3` caps, conservative no-refund, and placeholder artifact names. Other choices are permitted if the invariants and proof remain. |
 
-### 4.2 Theorem 1 — fixed-family weighted union composition
+### 4.2 Theorem A — prospectively fixed family composition
 
-**Setup.** Let `F = {1, ..., m}` be an exact prospectively declared family. For every member `i`,
-let `V_i` be the reached-member false-promotion event defined in §1.2. Let `A_F` denote the named
-joint premise set, including each member’s obligation-completeness and validator-soundness premise,
-canonical scope derivation, prospective family membership, local-cap enforcement, and source/
-revision bindings.
+Let `F = {1, ..., m}` be an exact family. Before any family result-bearing execution, prospectively
+bind:
 
-Let `M(A_F)` be the class of data-generating and execution processes under which those premises
-hold. Suppose the canonical owner enforces exact nonnegative rational caps `alpha_i` before any
-result-bearing probabilistic execution and, for every `P` in `M(A_F)`,
+- member identity and order;
+- each exact N9 problem binding and canonical scope derivation;
+- local nonnegative exact rational cap `alpha_i`;
+- each member's implementation/revision/configuration/model/prompt/evidence-cutoff plan;
+- stopping, dispute, retry, and no-substitution rules; and
+- the joint maintained-assumption set `A_F`.
+
+Different members may have different precommitted plans. “Fixed” means the complete vector is fixed
+before family outcomes, not that all members run identical bytes.
+
+Let `M(A_F)` be the class of execution/data processes satisfying the named assumptions. Suppose the
+canonical owner enforces each `alpha_i` before result-bearing execution and, for every process in
+`M(A_F)`, provides the local guarantee
 
 ```text
-P(V_i) <= alpha_i  for all i,
+P(V_i) <= alpha_i
+```
+
+for the actual member plan and family reach rule. Suppose also
+
+```text
+alpha_i >= 0
 sum_i alpha_i <= delta_F.
 ```
 
-**Conclusion.** For every `P` in `M(A_F)`,
+Then
 
 ```text
-P(V_F) = P(union_i V_i) <= delta_F.
+P(V_F) = P(union_i V_i)
+       <= sum_i P(V_i)
+       <= sum_i alpha_i
+       <= delta_F.
 ```
 
-**Proof.** By subadditivity of probability,
+No common null, shared estimand, exchangeability, or independence appears in the proof. The local
+owner may use different valid statistical instruments for different members; the family theorem
+only requires that each local false-authority event is genuinely bounded at its assigned cap.
+
+The public shorthand may be
 
 ```text
-P(union_i V_i) <= sum_i P(V_i) <= sum_i alpha_i <= delta_F.
-```
-
-No independence, exchangeability, common null, or common estimand appears in the proof. QED.
-
-The repository’s public style may express this as conditioning on maintained assumptions:
-
-```text
-P(any reached member falsely promotes in family F
+P(any reached member falsely promotes in exact family F
   | named maintained assumptions) <= delta_F.
 ```
 
-The model-class statement above clarifies that the assumptions are theorem premises, not a
-probability claim that the assumptions themselves are true.
+The model-class formulation above clarifies that assumptions are premises, not random facts whose
+truth probability was estimated.
 
-### 4.3 Corollary — current three-scope bound
+### 4.3 Impossibility and sharpness theorem
 
-At the pinned baseline, every ordinary problem scope is bound only by the registry top-level
-`delta`. Taking `alpha_1 = alpha_2 = alpha_3 = delta` gives:
+For `m * delta <= 1`, construct `m` disjoint events, each with probability `delta`, and let them be
+the local false-promotion events. Every local `delta` guarantee holds while
 
 ```text
-P(false first promotion in the exact three-slot family
-  | joint local maintained assumptions) <= min(1, 3 * delta).
+P(union_i V_i) = m * delta.
 ```
 
-At `delta = 1/100`, the bound is `3/100`. The `min(1, ...)` is needed for general `delta`; the live
-instance is below one.
+Therefore no generic procedure using only the local upper bounds can prove a smaller universal
+family bound. Precommitment of names/order is valuable governance but does not itself change the
+arithmetic.
 
-This is the strongest generic statement available from the current owner semantics. It is not a
-recommendation to advertise `3/100`; the current probabilistic path is largely refused and the
-family protocol remains operationally blocked. It is the arithmetic upper bound that prevents a
-false `1/100` implication.
+A tighter result requires an additional verified property, such as smaller owner-enforced caps, a
+valid family testing procedure, a justified dependence model, conditionally valid e-values with a
+correct family merger, or another canonical theorem.
 
-### 4.4 Impossibility result — no stronger generic bound from local bounds alone
+### 4.4 Corollary for the current three-scope semantics
 
-The disjoint-event construction in §2.4 satisfies every local `delta` statement and attains
-`3 * delta`. Therefore no procedure that observes only the three local upper bounds can prove a
-smaller universal family bound. A smaller bound requires at least one additional truth-bearing
-property, such as:
+If three valid local problem-scope guarantees are each bounded only at the registry `delta`, then
 
-- smaller owner-enforced local caps;
-- a verified dependence/model relation;
-- valid family p-values with a family testing procedure;
-- conditionally valid e-values and a merger targeted to the family event; or
-- a different exact theorem supplied and verified by the canonical owner.
+```text
+P(false first promotion in the exact three-member family | joint assumptions)
+  <= min(1, 3 * delta).
+```
 
-Precommitment of names and order is necessary governance but not one of those mathematical
-properties.
+At `delta = 1/100`, the arithmetic bound is `3/100`. The current repository has no family receipt
+and no positive governed sequence, so this is the strongest generic implication of hypothetical
+valid local guarantees—not a claim of demonstrated real-world performance.
 
 ### 4.5 Design pattern — capped canonical scopes
 
-A compatible fixed-family composition has four layers:
+A compatible family composition has four semantic layers:
 
-1. **Canonical scope layer.** N9 continues deriving one scope from each exact problem binding.
-   Scope IDs remain pairwise distinct.
-2. **Prospective family allocation.** Before any result-bearing execution, an exact family
-   declaration binds member order, problem hashes, expected canonical scope IDs, family `delta_F`,
-   and local caps `alpha_i` with exact sum at most `delta_F`.
-3. **Local enforcement.** The confidence ledger constrains member scope `i` to an effective
-   top-level ceiling no greater than `alpha_i` before owner execution. Its existing Basel-square
-   schedule then allocates over local ordinals and obligation weights inside that ceiling.
-4. **Family projection.** The confidence ledger recomputes the family result from the declaration,
-   live scope derivation, canonical roots/current-head receipts, terminal chronology, and source
-   identities. INT-R9 consumes the projection.
+1. **Canonical scopes remain unchanged.** N9 derives one scope from each problem binding.
+2. **Prospective family relation.** Before family outcomes, bind family event, member order,
+   member-specific plan vector, exact caps, family delta, theorem profile, and assumptions.
+3. **Local enforcement.** Before owner execution, the confidence ledger constrains member scope
+   `i` to an effective top-level ceiling no greater than `alpha_i`. Existing Basel-square
+   allocation then runs over local ordinals and obligation weights inside that ceiling.
+4. **Family projection.** The same ledger recomputes the relation from the declaration, live N9
+   scope derivation, canonical roots/current-head receipts, source/deployment identities, and
+   consumer chronology.
 
-This does not require one family scope. The composition object is a relation over scopes, just as a
-verified aggregate can relate several owner receipts without owning their local event histories.
+The family object is a composition relation, not another `ConfidenceRiskBudgetScope`. It owns no
+local ordinal, owner invocation, mutable head, or independent delta registry.
 
-For equal allocation:
+Equal allocation is transparent:
 
 ```text
 delta_F = 1/100
@@ -540,347 +545,243 @@ alpha_1 = alpha_2 = alpha_3 = 1/300
 sum alpha_i = 1/100.
 ```
 
-For weighted allocation, choose prospective exact weights `w_i >= 0`, `sum w_i <= 1`, and set
-`alpha_i = w_i * delta_F`. The theorem is unchanged. Choosing weights after seeing outcomes is
-invalid.
+Unequal exact weights are equally valid if prospectively fixed and summed exactly. No weight may be
+chosen after observing family outcomes unless an adaptive theorem explicitly covers that rule.
 
-### 4.6 Governance protocol — terminal effects and no bypass
+### 4.6 Governance protocol — terminal and cap effects
 
-A cap vector closes the audit only if terminal states cannot be used to mint a new unaccounted
-budget.
+The following is a conservative protocol, not the only mathematical possibility:
 
-| Earlier member terminal | Family effect | Cap effect |
+| Earlier member state | Family chronology | Default cap disposition |
 | --- | --- | --- |
-| Preflight refusal before result-bearing owner execution | Retain and publish; advance only if protocol allows. | Actual spend may be zero, but the assigned cap is retired for this family version. |
-| Prospectively defined infrastructure failure proved before any result-bearing execution | Retry may occur only as the same member, same scope, same cap. | No new cap or scope; no advancement by relabeling. |
-| Owner refusal/error after start | Retain as result-bearing terminal. | Reserved spend is burned; unused member cap is retired. |
-| Result-bearing void | Retain in chronology; no substitution. | Spend remains; unused cap is retired. |
-| Dispute | Halt until prospectively resolved. | No cap is made available to a later scope. |
-| Completed negative / grounded refusal | Advance to the next exact member. | Unused cap is retired. |
-| Valid positive | Stop permanently. | Its spend remains charged; later caps expire unused. |
+| Preflight refusal before owner execution | Retain and publish; advance only under the declared rule. | Actual spend may be zero, but assigned cap retires for this family version. |
+| Proven infrastructure failure before any result-bearing exposure | Retry only as the same member, same scope, same cap, under a prospective deterministic retry rule. | No new cap. |
+| Owner refusal/error after `started` | Retain as result-bearing terminal. | Reserved spend is burned; unused cap retires. |
+| Result-bearing void | Retain; no substitution. | Spend remains; unused cap retires. |
+| Dispute | Halt until prospectively resolved. | No cap becomes available to a later scope. |
+| Completed negative / grounded refusal | Advance to next committed member. | Unused cap retires. |
+| Valid positive | Stop permanently. | Spend remains charged; later caps expire unused. |
 | Unreached after positive | Record as unreached. | Assigned cap expires unused. |
 
-No-refund is a conservative governance protocol, not a theorem that recycling is impossible. A
-prospective recycling rule could be valid with its own owner proof. The current repository has no
-such proof, so recycling cannot be implied.
+A prospective recycling rule may be mathematically possible, but it needs its own canonical theorem
+and falsifiers. No-refund is the minimal auditable rule available without that proof.
 
-### 4.7 Theorem 2 — adaptive continuation under conditional validity
+### 4.7 Theorem B — adaptive continuation
 
-Let `H_{i-1}` be the complete history before member `i`, including all earlier inputs, outputs,
-terminal reasons, adjudication, source changes, implementation/model/prompt/config changes, and
-repair decisions. Let reachability `R_i` and cap `alpha_i` be measurable before member `i`’s
-result. Caps may depend on history if they are predictable, nonnegative, and satisfy the **pathwise**
-constraint:
+Let `H_{i-1}` be the complete history before member `i`, including all earlier reveals, outputs,
+terminal reasons, adjudication, source changes, implementation/model/prompt/configuration changes,
+and repair decisions. Let `R_i` and local cap `alpha_i(H_{i-1})` be determined before member `i`'s
+result. Require the pathwise constraint
 
 ```text
+alpha_i(H_{i-1}) >= 0
 sum_i alpha_i(H_{i-1}) <= delta_F
 ```
 
 for every allowed history.
 
-Suppose that, whenever member `i` is reached, the selected implementation’s local theorem gives:
+Suppose that whenever member `i` is reached, the actual adaptively selected procedure satisfies
 
 ```text
 P(P_i ∩ W_i | H_{i-1}, R_i) <= alpha_i(H_{i-1})
 almost surely.
 ```
 
-Then:
+An equivalent uniform theorem over all implementations selectable by the repair policy, or another
+selection-aware theorem proving the same local error statement, is also acceptable.
 
-```text
-P(V_F) <= delta_F.
-```
-
-**Proof.** Because `R_i` is determined by prior history,
+Then
 
 ```text
 P(V_i)
-  = E[1_{R_i} * P(P_i ∩ W_i | H_{i-1}, R_i)]
-  <= E[1_{R_i} * alpha_i(H_{i-1})].
+  = E[1_{R_i} P(P_i ∩ W_i | H_{i-1}, R_i)]
+  <= E[1_{R_i} alpha_i(H_{i-1})].
 ```
 
-Summing and using the union inequality:
+Using the union inequality and the pathwise cap:
 
 ```text
 P(V_F)
   <= sum_i P(V_i)
-  <= E[sum_i 1_{R_i} * alpha_i(H_{i-1})]
-  <= E[sum_i alpha_i(H_{i-1})]
+  <= E[sum_i 1_{R_i} alpha_i(H_{i-1})]
   <= delta_F.
 ```
 
-QED.
-
-An equivalent uniform local theorem over every implementation selectable by the repair policy is
-also sufficient. The proof does not require that later implementations equal earlier ones; it
-requires the local guarantee to remain valid for the actual adaptive selector and history.
+Thus adaptation is not intrinsically incompatible with family control. It is incompatible with
+**claiming** control when the local theorem does not cover the adaptive selector.
 
 ### 4.8 Adaptive result at the pinned baseline
 
-INT-R9’s §4.6 permits general implementation repair after an earlier refused or void member
-(`int-r9-first-promotion-evaluation-protocol.md:600-650`). The current confidence ledger records a
-filtration reference for checks and supports anytime-valid profile metadata, but it does not own a
-cross-scope theorem proving that a repaired implementation selected from prior family outcomes
-satisfies Theorem 2. Registry profiles for owner-verified confidence sequences, e-values,
-e-processes, and sequential tests are explicitly unavailable
+INT-R9 permits general implementation repair between members
+(`int-r9-first-promotion-evaluation-protocol.md:590-650`). The current ledger records local
+filtration data and recognizes anytime-valid profiles, but it does not prove that a later procedure
+selected using earlier family outcomes remains valid. Relevant owner-verified confidence sequence,
+e-value, e-process, and sequential-test profiles are registered as unavailable
 (`confidence_ledger.toml:53-121`).
 
 Therefore:
 
-- **fixed implementation family:** mathematically composable after local caps and family
-  recomputation are implemented;
-- **adaptive implementation family:** numeric composition remains blocked until a verified
-  history-conditional or uniform theorem exists;
-- **adaptive governance without numeric theorem:** may still run as candidate/development work if
-  public language omits the family probability bound and preserves all limitations.
+- a **prospectively fixed member-plan vector** is mathematically composable after canonical caps
+  and family projection are implemented;
+- **outcome-dependent repair** remains numerically blocked until a selection-valid owner theorem is
+  delivered; and
+- adaptive development may continue in the candidate band if public language omits the family
+  probability claim and preserves the limitation.
 
-The audit’s distinction between “general” and “case-specific” repair is also a governance problem:
-classification after seeing a favorable later result can itself be selective. A future adaptive
-protocol must decide repair admissibility at a prospectively governed time, from specified evidence,
-with a conflict rule and a fail-closed consequence. Even that governance does not replace the
-conditional statistical theorem.
+Prospective governance of whether a repair is “general” or “case-specific” is still necessary, but
+that classification alone is not a statistical theorem.
 
-### 4.9 E-value disposition
+### 4.9 Empirical rule disposition
 
-E-values are neither rejected nor appointed as the family mechanism.
+No empirical rule is used to close the theorem. Equal thirds are a governance/engineering choice,
+not an observed optimum. Learned weights, empirical correlations, or historical false-promotion
+rates remain unavailable until PolicyOS has an adequate, governed, non-selected evidence base.
 
-- A local e-process can provide optional-stopping validity inside one scope if its owner theorem is
-  real.
-- Sequential products can be e-valid if every factor is conditionally valid given prior history.
-- Multiple-testing procedures over e-values can control specified error criteria under their own
-  assumptions.
+### 4.10 E-value disposition
 
-But the current family target is a union of false authority promotions across distinct problem
-truth configurations. Multiplying three unrelated e-values does not automatically provide strong
-family-wise protection for that event. The family target, local nulls, merger theorem, filtration,
-and truth configurations would all need canonical definition and verification. The live registry
-currently refuses the relevant owner theorem, so e-values are a deferred instrument option, not a
-closure claim.
+E-values remain a possible local instrument or future family input; they are not appointed as the
+answer. A valid merger must define the target event/null, truth configurations, filtration, and
+conditional/dependence premises. The current registry refuses the relevant owner theorem. External
+literature cannot be cited as if it were a live repository verifier.
 
-### 4.10 What may honestly be claimed
+### 4.11 Audit R1 acceptance matrix
 
-#### At the pinned baseline
-
-INT-R9 may say:
-
-> The three precommitted design problems use three distinct canonical non-resettable confidence
-> scopes. Subject to each scope’s declared obligation set and maintained assumptions, the current
-> generic upper bound on any false first promotion across the exact three-member family is
-> `min(1, 3 * delta)`. The repository does not implement a canonical single-`delta` family
-> composition, and no numeric bound is established for outcome-dependent implementation repair.
-
-It may **not** say:
-
-- “all slots share one cumulative `delta`”;
-- “the first promotion has false-promotion probability at most `delta`”;
-- “Basel-square automatically spans the queue”;
-- “precommitment removes multiplicity”;
-- “e-values make the scopes composable”; or
-- “general repair is covered by optional stopping.”
-
-#### After a fixed-family canonical owner extension
-
-If the confidence ledger enforces prospective caps, verifies their exact total, and recomputes the
-family projection over live member artifacts, INT-R9 may say:
-
-> For exact family `F`, exact member scope IDs `S`, exact cap vector `alpha`, fixed implementation
-> revision `R`, registry and theorem profile `G`, declared obligation bases `O`, validator and
-> family maintained assumptions `A`, and stop-on-first-canonical-positive rule `T`, the canonical
-> confidence-ledger composition proves
-> `P(any reached member falsely promotes | A) <= delta_F`.
-
-The claim must name or link the exact family receipt and retain INT-R1’s open-world rider.
-
-#### After adaptive repair
-
-The same numeric sentence is allowed only if the receipt also binds a verified canonical theorem
-satisfying Theorem 2 for the permitted repair selector. Otherwise INT-R9 may describe a
-prospectively governed adaptive development sequence but must omit a family numeric guarantee.
-
-### 4.11 Why this is not a second ledger
-
-The family projection has no independent local checks, risk burns, ordinals, owner routes, or
-mutable head. It consumes the existing ledger’s exact scope roots and current-head receipts,
-recomputes the prospective cap relation, and emits one bounded projection. The confidence ledger
-remains the sole owner of the arithmetic and local evidence. This is analogous to an owner-provided
-aggregate projection, not a peer authority.
-
-A proposed “family scope” that receives its own `ConfidenceRiskBudgetScope`, then contains or
-reprices the problem scopes, would create two risk identities for the same protected claim and
-would fail P27/P28. A family ID may identify the declaration/union event, but it cannot replace the
-member scope IDs or become another execution budget root.
-
-### 4.12 Audit R1 acceptance criteria
-
-| Requirement | INT-R10 answer |
+| Audit R1 requirement | INT-R10 answer |
 | --- | --- |
 | 1. Exact family event | `V_F = union_i(R_i ∩ P_i ∩ W_i)`: any reached member in the stop-on-first-positive family falsely promotes. |
-| 2. Relation to canonical scopes | Every member binds one live N9 problem binding and its recomputed, distinct canonical scope ID; no collapse or replacement. |
-| 3. No fresh unaccounted budgets | A valid future composition requires prospective local caps whose exact sum is at most `delta_F` and which bind before owner execution. Current source fails this requirement. |
-| 4. Earlier terminal effects | Refusal, void, dispute, negative, positive, and unreached semantics are explicit; no default refund, substitution, or new scope. |
-| 5. Aggregate proof | Theorem 1 proves weighted-union composition; the disjoint-event witness proves the current `3 * delta` result is sharp. |
-| 6. Adaptive continuation | Theorem 2 states the exact predictable-allocation and history-conditional/uniform validity requirements. Current adaptive repair claim is withdrawn/blocked. |
+| 2. Relationship to canonical scopes | Every member binds one live N9 problem binding and its recomputed, distinct canonical scope ID; scopes are not collapsed. |
+| 3. No fresh unaccounted budgets | Valid composition requires pre-execution local caps whose exact sum is at most `delta_F`; current source lacks this and therefore fails the requirement. |
+| 4. Earlier terminal effects | Refusal, void, dispute, negative, positive, retry, and unreached effects are explicit; no default refund, substitution, or new cap. |
+| 5. Aggregate proof | Theorem A proves weighted-union composition; the disjoint-event witness proves the current `3 * delta` bound is sharp. |
+| 6. Adaptive continuation | Theorem B states predictable/pathwise cap and selection-valid local premises. INT-R9's current repair policy has no such owner theorem and the numeric claim is withdrawn. |
 | 7. Canonical owner reuse | The confidence ledger is extended through a projection; no second ledger, parent risk scope, or duplicate owner is proposed. |
-| 8. Live reproducibility | The artifact/fixture sketch requires recomputation from live scope derivation, family declaration, roots, current-head receipts, cap enforcement, source identity, and chronology. Author-written records fail. |
+| 8. Live reproducibility | §6 and §7 require recomputation from live scope derivation, family declaration, roots, current heads, cap enforcement, deployment/registry identity, and chronology. Author-written records fail. |
 
-The mandatory falsifier is **not blocked at the pinned baseline**. This research says so plainly.
-It specifies the exact canonical extension and negative fixture that would have to block it before
-a single-`delta` claim becomes eligible.
+The mandatory falsifier is **not blocked at the pinned baseline**. The result states that plainly and
+specifies what a canonical extension must enforce before a single-`delta_F` claim becomes eligible.
+
+### 4.12 Honest claim boundaries
+
+**Current baseline:**
+
+> Three distinct design problems use three distinct canonical non-resettable scopes. The current
+> repository has no canonical single-`delta` family composition. From three valid local `delta`
+> guarantees, the strongest generic family implication is `min(1, 3 * delta)` under their joint
+> maintained assumptions. No numeric theorem is established for outcome-dependent repair.
+
+**After a fixed-plan canonical extension:**
+
+> For exact family `F`, exact canonical scope vector `S`, exact local-cap vector `alpha`, exact
+> prospectively committed member-plan vector `R`, theorem/registry versions `G`, obligation bases
+> `O`, maintained assumptions `A`, and stopping rule `T`, the canonical confidence-ledger
+> projection proves `P(any reached member falsely promotes | A) <= delta_F`.
+
+**After adaptive repair:** the same sentence is allowed only when the canonical projection binds a
+verified theorem satisfying Theorem B or an equivalent selection-valid result. Otherwise only the
+governance chronology may be claimed, with no family probability.
 
 ---
 
 ## 5. Counterexamples And Failure Modes
 
-### 5.1 F1 — three compliant fresh budgets
+### 5.1 Three fully compliant fresh scopes
 
-```text
-A -> scope A -> root delta
-B -> scope B -> root delta
-C -> scope C -> root delta
-stop on first positive
-```
+A, B, and C each use the canonical N9 derivation and each receive an ordinary top-level `delta`.
+Stopping on first positive does not make their union a one-`delta` event. **Required reaction:**
+`family_composition_missing`, not prose override.
 
-Everything is canonical locally. The family receives three local guarantees. Without a family cap,
-`delta_F = delta` is false; the generic bound is `3 * delta`.
+### 5.2 Disjoint local errors
 
-**Diagnostic:** derive every scope from live N9 and sum its top-level admitted family cap, not its
-slot number or author-written “cumulative” label.
+Three disjoint error events attain `3 * delta`. **Diagnostic:** name the verified dependence premise
+that rules out disjointness. If none exists, a tighter bound is unsupported.
 
-### 5.2 F2 — sharp disjoint errors
+### 5.3 Collapsing distinct problems to one scope
 
-Three disjoint false-promotion events each have probability `delta`. Local checks are perfectly
-valid, yet the family error is `3 * delta`.
+Changing all owner keys to one family key would make the local Basel schedule look cumulative but
+would corrupt problem ownership, replay, and audit identity. **Required reaction:** reject canonical
+scope derivation mismatch.
 
-**Diagnostic:** ask which verified dependence premise rules out disjoint errors. If none, a tighter
-bound is unsupported.
+### 5.4 Parent family scope or second ledger
 
-### 5.3 F3 — collapse three problems into one scope
+A new risk scope with its own head, ordinal, or registry beside the member roots duplicates the
+canonical owner. **Required reaction:** reject P27/P28 design; a family ID may identify a relation,
+not a replacement risk-budget scope.
 
-An implementation changes all member keys to one family key so the current within-scope Basel
-schedule supplies one budget.
+### 5.5 Post-outcome cap equalization
 
-**Failure:** this weakens canonical problem identity, mixes unrelated owner histories, creates a
-wrong replay/audit unit, and contradicts the explicit “only N11 scope for one N9 problem binding.”
-It fixes arithmetic by corrupting ownership.
+After slot 1 fails, its recorded cap is reduced and the difference is moved to slot 2 while the
+final total remains `delta_F`. Exact arithmetic cannot rescue non-prospective allocation.
 
-**Required result:** reject scope mismatch; preserve three scope IDs.
+### 5.6 Refund after refusal or void
 
-### 5.4 F4 — family scope as a parent budget owner
+Unused cap is transferred to a new scope without a prospective recycling theorem. This reopens the
+search-until-positive path. Conservative default: retire the cap.
 
-A new `ConfidenceRiskBudgetScope` is created for the family, with member scopes nested beneath it,
-while local roots continue to exist.
+### 5.7 Outcome-dependent repair under a fixed-plan theorem
 
-**Failure:** two budget identities and two potential mutable histories now govern one family claim.
-Unless the existing ledger itself defines this as one internal projection with no duplicate owner,
-it is P27/P28.
+Earlier failure class `X` selects later implementation `R_X`; the local certificate covered `R_X`
+only when fixed independently of `X`. Aggregate caps are correct but selection validity is absent.
+**Required reaction:** `adaptive_validity_unproved`.
 
-**Required result:** family ID is a declaration/projection identity, never a replacement risk scope.
+### 5.8 “Anytime-valid” treated as universal permission
 
-### 5.5 F5 — post-outcome equalization
+Optional stopping inside one valid process is confused with post hoc selection among processes.
+**Required reaction:** verify the actual filtration and selector theorem.
 
-Slot 1 fails. The protocol reduces its recorded cap and reallocates the difference to slot 2 while
-keeping the final sum at `delta_F`.
+### 5.9 E-value product targets the wrong event
 
-**Failure:** the allocation was selected using result-bearing information. The final arithmetic is
-correct but the theorem premise is false.
+Three local e-values are multiplied and labeled family FWER evidence without a registered merger
+or correct truth-configuration theorem. **Required reaction:** `family_owner_theorem_unavailable`.
 
-**Required result:** `allocation_not_prospective` or equivalent.
+### 5.10 Author-written family receipt
 
-### 5.6 F6 — refund after refusal or void
+INT-R9 stores `within_family_budget: true` but no canonical verifier opens roots, heads, or local
+cap bindings. **Required reaction:** corrupt a real cap/head while retaining markers; validation
+must turn red.
 
-A refused slot spent little or zero, so the protocol gives its unused amount to a new problem scope.
+### 5.11 After-the-fact spend check
 
-**Failure:** absent a prospective recycling theorem, opening the next scope can search repeatedly
-while presenting only one nominal total. The audit’s bypass remains.
+Actual spend happens to sum below `delta_F`, but members executed under larger nominal local
+thresholds. The protected property is the error cap governing execution, not merely observed spend.
+**Required reaction:** require pre-execution effective-cap evidence.
 
-**Required result:** assigned cap retires; retry before result exposure stays in the same member,
-scope, and cap.
+### 5.12 Conditionality disappears
 
-### 5.7 F7 — adaptive repair under a fixed theorem
+Family arithmetic is valid but public language omits member obligation bases or validator
+soundness. This silently reverses INT-R1. **Required reaction:** refuse incomplete family
+conditionality.
 
-After seeing failure class `X` in slot 1, developers choose implementation `R_X` for slot 2. The
-local certificate for `R_X` was valid only when `R_X` was fixed independently of slot-1 output.
+### 5.13 Learned weights from nonexistent history
 
-**Failure:** local validity does not hold for the selector. This is not repaired by exact cap sums.
+Weights are described as empirically calibrated despite no governed positive history. **Required
+reaction:** relabel as prospective governance choice or refuse the empirical claim.
 
-**Required result:** `adaptive_validity_unproved`; no numeric family claim.
+### 5.14 Strictness leaks into the candidate band
 
-### 5.8 F8 — “anytime-valid” as universal permission
+Missing family composition is used to prohibit all multi-problem candidate work. **Required
+reaction:** block only the numeric authority claim; carry the limitation while candidate work
+continues.
 
-A later scope uses an e-process, so the protocol declares every prior repair and scope choice safe.
+### 5.15 Pattern pass
 
-**Failure:** optional stopping within a valid process is not post hoc choice among processes. The
-actual filtration and conditional construction must cover the selection.
-
-**Required result:** verify the owner theorem against the full history and repair policy.
-
-### 5.9 F9 — e-value product targets the wrong event
-
-Three e-values for three local nulls are multiplied, and the product is labeled the probability
-that any false promotion occurred.
-
-**Failure:** product e-validity needs conditional/independence premises and a defined joint null;
-FWER for a union across arbitrary truth configurations is a different target.
-
-**Required result:** refuse without a registered family theorem and verifier.
-
-### 5.10 F10 — author-written family receipt
-
-INT-R9 stores `within_family_budget: true` and three scope IDs but no canonical verifier opens the
-scope roots or heads.
-
-**Failure:** markers restate the claim. They do not prove cap enforcement, currentness, or complete
-member history; this is P29/P32.
-
-**Required result:** corrupt a real member head/cap while retaining markers; validation must turn
-red.
-
-### 5.11 F11 — obligation conditionality disappears
-
-The cap arithmetic is valid, but public text says `P(false first promotion) <= delta_F` without
-naming the declared obligation bases and validator-soundness premise.
-
-**Failure:** family composition controls only errors relative to the local theorem inputs. It does
-not bound an unknown obligation outside the basis. This silently reverses INT-R1.
-
-**Required result:** family projection refuses missing/mismatched member conditionality.
-
-### 5.12 F12 — strictness leaks into the candidate band
-
-Because family composition is absent, the system prohibits all generation, analysis, or candidate
-repair across multiple problems.
-
-**Failure:** S0-K06 binds the affected authority action, not candidate computation. The correct
-reaction is to block the numeric family claim and carry a typed limitation, not disable learning.
-
-### 5.13 F13 — learned weights from nonexistent history
-
-The protocol claims slot 1 is safer and gives it a larger cap based on “observed promotion rates,”
-but no governed positive history exists.
-
-**Failure:** the weighting rationale is fabricated. Prospective policy weights may be chosen for
-resource or consequence reasons, but must be labeled governance choices, not calibrated risks.
-
-### 5.14 Pattern pass
-
-| Pattern | Risk in this task | Correct pattern |
+| Pattern | Risk | Correct pattern |
 | --- | --- | --- |
-| P27 owner-bypass duplication | Family scope/ledger beside N11 | Confidence-ledger-owned projection over unchanged scopes. |
-| P28 unstrangled legacy | INT-R9 prose path remains able to assert cumulative delta | Consumer must require the canonical family receipt or publish the narrower bound/no bound. |
-| P29 authorial proof | Markdown/YAML boolean accepted as closure | Live recomputation plus property-removal negative control. |
-| P31 instance patch | Special-case only INT-R9’s three slots | Generic exact family relation over any finite/predictable sequence. |
-| P32 trust by form | IDs/fields present but caps not enforced | Execute real scope derivation, root, reservation, and head validation. |
-| P33 teaching to test | Validator rejects only literal A/B/C trace | Generate scope substitutions, cap refunds, stale heads, fourth scope, and adaptive repair. |
+| P27 | Parallel family ledger/scope beside N11 | Confidence-ledger-owned relation/projection over unchanged scopes. |
+| P28 | INT-R9 prose remains a shadow authority path | Consumer requires canonical projection or publishes the narrower/no numeric claim. |
+| P29 | Hand-authored green record | Live recomputation plus property-removal negative control. |
+| P31 | Special-case only three named slots | Generic finite/predictable family relation. |
+| P32 | Trust IDs/fields without executing source | Recompute scopes, roots, caps, spends, heads, and chronology. |
+| P33 | Validator recognizes only literal A/B/C fixture | Generate substitutions, refunds, stale heads, fourth scope, and adaptive repair. |
 
 ---
 
 ## 6. Benchmark Or Fixture Proposal
 
-The complete executable specification is in
-[int-r10/fixture-and-artifact-sketch.md](int-r10/fixture-and-artifact-sketch.md). No test is added by
-this research branch.
+The full executable specification is in
+[int-r10/fixture-and-artifact-sketch.md](int-r10/fixture-and-artifact-sketch.md). This research adds
+no test code.
 
-### 6.1 Fixture identity and fixed inputs
+### 6.1 Fixture identity
 
 ```yaml
 fixture_id: INT-R10-FWC-001
@@ -888,15 +789,25 @@ baseline_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 family_delta: {numerator: 1, denominator: 100}
 family_size: 3
 stopping_rule: stop_on_first_canonical_positive
-revision_policy: fixed_revision_only
+member_plan_mode: prospectively_fixed_vector
 members:
-  - {order: 1, design_problem_id: FWC-A, local_cap: 1/300}
-  - {order: 2, design_problem_id: FWC-B, local_cap: 1/300}
-  - {order: 3, design_problem_id: FWC-C, local_cap: 1/300}
+  - order: 1
+    design_problem_id: FWC-A
+    local_cap: {numerator: 1, denominator: 300}
+    implementation_revision_hash: sha256:<R-A>
+  - order: 2
+    design_problem_id: FWC-B
+    local_cap: {numerator: 1, denominator: 300}
+    implementation_revision_hash: sha256:<R-B>
+  - order: 3
+    design_problem_id: FWC-C
+    local_cap: {numerator: 1, denominator: 300}
+    implementation_revision_hash: sha256:<R-C>
 ```
 
-Problem contents, hashes, owner fixtures, and expected scope IDs must be deterministically generated
-from committed inputs. Expected IDs must not be fed into the implementation under test.
+`R-A`, `R-B`, and `R-C` may differ but all must be committed before any family result-bearing
+execution. Problem contents, hashes, owner fixtures, and expected scope identities must be
+deterministically generated from committed inputs rather than copied from expected output.
 
 ### 6.2 Positive future-conformance trace
 
@@ -909,26 +820,28 @@ stop
 
 Required assertions:
 
-1. live N9 derivation produces three distinct scope IDs;
-2. all three local ordinal-zero starts remain valid—the fixture does not force one ordinal stream;
-3. each scope is constrained to `1/300` **before** any probabilistic owner call;
-4. existing within-scope allocation runs inside that cap and refuses a reservation exceeding it;
-5. exact cap sum is `1/100` using `Fraction`-equivalent arithmetic;
-6. slot 1 and slot 2 terminals remain in the family projection;
-7. no cap is refunded or transferred;
-8. the first positive comes from the registered third scope and stops the family;
-9. the confidence ledger recomputes the family projection from live source, roots, current heads,
-   receipts, and chronology;
-10. public conditionality names every member’s obligation/validator premises and family premises;
-11. a second recomputation is semantically identical; and
-12. corrupting a cap, scope binding, earlier terminal, or head makes validation fail.
+1. Live N9 derivation produces three pairwise distinct scope IDs.
+2. All three scopes may start at local ordinal zero; the fixture does not invent one family ordinal.
+3. Before any probabilistic owner call, each scope is constrained to its assigned `1/300` cap.
+4. Every local scheduled reservation is recomputed from that effective cap and refuses overspend.
+5. Exact allocated-cap sum is `1/100`; exact aggregate actual spend is at most the cap sum and
+   therefore at most `1/100`.
+6. Earlier refused, void, disputed, or negative members remain in the projection.
+7. No cap is refunded, transferred, or silently reused.
+8. The positive comes from the registered third scope and stops the family.
+9. The projection is recomputed from live source, roots, current-head receipts, member-plan hashes,
+   and consumer chronology.
+10. Conditionality names every member's obligation/validator premises and family premises.
+11. Revalidation yields the same semantic projection.
+12. Corrupting a cap, member plan, scope binding, earlier terminal, registry/deployment identity,
+    or head makes validation fail.
 
-The current baseline is expected to refuse this positive control as
-`family_composition_unavailable`; that is not a fixture failure.
+At the current baseline, this positive control should refuse `family_composition_unavailable`; that
+is an honest baseline result.
 
 ### 6.3 Mandatory negative control
 
-Run the exact audit falsifier with the ordinary live registry:
+Execute the audit falsifier against the live ordinary registry:
 
 ```text
 scope A -> top-level 1/100
@@ -936,16 +849,9 @@ scope B -> top-level 1/100
 scope C -> top-level 1/100
 ```
 
-At the pinned baseline the fixture must demonstrate:
-
-- distinct live scope IDs;
-- independent local ordinal-zero histories;
-- root `budget_delta = 1/100` for each;
-- no cross-scope cap or composition receipt; and
-- aggregate admitted top-level family allocation `3/100` if all three are counted.
-
-After a future extension, the same trace must go red before any family claim with one of these
-semantics or an equivalent:
+Baseline characterization must show distinct scope IDs, independent local ordinal-zero histories,
+root `budget_delta = 1/100` for each, and no cross-scope cap/projection. A future implementation
+must make the same trace go red **before** any single-`1/100` family claim, with an equivalent of:
 
 ```text
 family_declaration_missing
@@ -953,222 +859,206 @@ family_member_cap_missing
 family_budget_exceeded: allocated=3/100, declared=1/100
 ```
 
-A prose flag from INT-R9 must not override the result.
+An INT-R9 sentence or author-written boolean cannot override the failure.
 
-### 6.4 Required negative/metamorphic set
+### 6.4 Required metamorphic negatives
 
-The implementer must also cover:
+The implementation fixture must also reject:
 
-- refunding cap after refusal;
-- omitting an earlier void/refusal;
-- substituting a fourth problem after failure;
+- refunding cap after refusal or void;
+- omitting an earlier terminal;
+- substituting problem/scope D after seeing A fail;
 - swapping supplied scope IDs while preserving field shape;
-- duplicate problem/scope identities;
+- duplicate member scope/problem identities;
 - changing cap weights after an outcome while preserving final sum;
-- adaptive repair without a conditional/uniform theorem;
-- hand-authored green receipt without live heads;
-- stale member receipt when a newer head exists;
-- missing one member’s maintained assumptions;
-- decimal-rounding overspend hidden by display strings;
+- changing an uncommitted later member plan after an earlier result;
+- adaptive repair without a selection-valid theorem;
+- hand-authored green projection without live heads;
+- stale member receipt while a later head exists;
+- missing one member's maintained assumptions;
+- rational overspend hidden by display rounding;
 - unregistered e-value multiplication;
 - positive from an unregistered fourth scope; and
-- collapsing distinct problems to one scope.
+- collapsing three problems to one scope.
 
-The property-removal control is mandatory: remove local-cap enforcement from the real owner path
-while keeping every schema field and marker. The validator must fail. Otherwise it is form-based.
+The P29 property-removal control is mandatory: remove effective local-cap enforcement from the real
+owner path while keeping every schema field and marker. The verifier must fail.
 
-### 6.5 Theorem fixture
+### 6.5 Sharpness and adaptive fixtures
 
-A deterministic mathematical test constructs three disjoint events of probability `1/100` and
-asserts their union is `3/100`. This prevents future reviewers from treating the factor three as
-merely a cautious approximation.
+A pure theorem fixture constructs three disjoint probability events of `1/100` and asserts their
+union is `3/100`.
 
-### 6.6 Adaptive fixture
+An adaptive fixture lets slot 1's result select slot 2's implementation. Cap arithmetic remains
+valid, but the supplied local theorem covers only a plan fixed independently of slot 1. The family
+projection must refuse `adaptive_validity_unproved`. A paired positive differs only by supplying a
+canonical theorem whose verifier covers the selector and full history.
 
-Slot 1’s failure selects a repaired implementation for slot 2. Cap arithmetic remains valid, but
-the supplied local theorem covers only an implementation fixed independently of slot 1. The
-family projection must refuse `adaptive_validity_unproved`. A paired positive control differs only
-by supplying a canonical theorem whose verifier covers the selector and full history.
+### 6.6 Fixture authority boundary
 
-### 6.7 Fixture authority boundary
-
-The fixture is authoritative only for the observable composition property it samples. It may not
-be used for production readiness, open-world obligation completeness, validator soundness,
-population performance, or proof that a real positive promotion exists.
+Passing proves only the composition property for the named source revision and fixtures. It does
+not prove local statistical soundness on real data, open-world obligation completeness, validator
+truth, a positive promotion, production readiness, or policy efficacy.
 
 ---
 
 ## 7. Artifact Contract Sketch
 
-The full non-normative shapes and recomputation pseudocode are in
-[int-r10/fixture-and-artifact-sketch.md](int-r10/fixture-and-artifact-sketch.md). Two semantic
-objects are sufficient for research handoff.
+Names below are placeholders, not final schemas.
 
-### 7.1 `FamilyRiskCompositionDeclaration` — placeholder
+### 7.1 `FamilyRiskCompositionDeclaration`
 
-Purpose: prospectively bind the exact union event and local cap vector before any result-bearing
-member execution.
+Purpose: prospectively bind the exact union event and the member-cap/plan vector before any family
+result-bearing execution.
 
-Minimum semantic fields:
+Minimum semantic content:
 
-- schema and theorem-profile versions;
-- content-derived family ID;
+- schema/theorem-profile versions and content-derived family ID;
 - family purpose and confidence-ledger owner reference;
-- exact consumer protocol and repository/deployment/registry references;
+- exact consumer protocol, repository, deployment, and registry bindings;
 - exact rational `family_delta`;
-- exact ordered members with slot ID, design-problem ID, problem content hash, recomputed canonical
-  scope ID, and exact local cap;
-- stopping/dispute/no-substitution rule;
-- fixed or adaptive revision policy;
-- adaptive theorem reference when applicable;
+- ordered members containing slot ID, design-problem ID, problem content hash, recomputed canonical
+  scope ID, local cap, member-specific implementation/revision/configuration digest, local theorem
+  profile, and obligation-set reference;
+- stopping, dispute, retry, no-substitution, and cap-disposition rules;
+- `prospectively_fixed_member_plan` or an adaptive policy plus theorem reference;
 - local and family maintained assumptions;
 - exact controlled event;
-- commitment/transaction evidence preceding result-bearing execution; and
-- `authoritative_for`, `may_not_use_for`, `research_only` boundaries.
+- independently visible commitment evidence preceding result-bearing execution; and
+- explicit `authoritative_for`, `may_not_use_for`, and `research_only` fields.
 
-**Authoritative for:** declaring a proposed exact family and cap vector for canonical verification.
+**Authoritative for:** proposing an exact family relation and cap/member-plan vector for canonical
+verification.
 
 **May not use for:** proving local certificates, proving the aggregate bound, promotion authority,
-production capability, changing scope identity, or creating a second ledger.
+production capability, changing per-problem scope identity, or creating a second ledger.
 
-### 7.2 `FamilyRiskCompositionReceipt` — placeholder
+### 7.2 `FamilyRiskCompositionProjection`
 
 Purpose: canonical confidence-ledger recomputation of the family relation over live member roots
 and current-head receipts.
 
-Minimum semantic fields:
+Minimum semantic content:
 
-- declaration/family identity and content reference;
-- family `delta`, theorem profile, source/deployment/registry identity;
-- revision-policy result;
-- each member’s exact canonical scope, local cap, root/receipt/head references, local total spend,
-  terminal, and cap disposition;
-- exact aggregate cap and violation counts;
-- canonical-scope, current-head, chronology, no-refund, and no-unregistered-positive results;
+- declaration/family identity and artifact reference;
+- family delta, theorem profile, source/deployment/registry identity;
+- member-plan standing: prospectively fixed or adaptive theorem verified/refused;
+- each member's exact canonical scope, local cap, plan digest, root/receipt/head references, total
+  spend, terminal, and cap disposition;
+- exact aggregate allocated cap and aggregate actual spend;
+- canonical-scope, current-head, chronology, no-refund/no-substitution, and no-unregistered-positive
+  results;
 - full conditionality and maintained assumptions;
 - eligibility/refusal state; and
 - recomputed projection hash.
 
-**Authoritative for:** the canonical owner’s recomputation that the named family cap relation holds
+**Authoritative for:** the canonical owner's recomputation that the named family cap relation holds
 over the bound live artifacts.
 
-**May not use for:** open-world completeness, validator truth, external validity, legal compliance,
-institutional competence, production readiness, or any family/revision/assumption outside the
-receipt.
+**May not use for:** open-world completeness, validator soundness, external validity, legal
+compliance, institutional competence, production readiness, or any family/member plan/assumption
+outside the projection.
 
 ### 7.3 Anti-duplication constraints
 
-Neither object may own:
+Neither artifact may own:
 
-- a second mutable event head;
-- local confidence checks or owner invocation;
-- a second execution ordinal;
-- an independent registry or budget delta;
+- a second mutable confidence head;
+- local owner checks or invocation;
+- a family execution ordinal used to price local checks;
+- an independent registry/delta;
 - a replacement `ConfidenceRiskBudgetScope`;
 - a second promotion decision; or
-- a boolean trusted without recomputation.
+- an author-supplied green boolean trusted without recomputation.
 
-The declaration is an admitted prospective constraint. The receipt is a projection from the
-canonical ledger. Local roots and receipts remain authoritative for local accounting.
+The declaration is an admitted prospective constraint. The projection is derived by the existing
+owner. Local roots/receipts remain authoritative for local accounting.
 
-### 7.4 Required local-cap observable
+### 7.4 Required pre-execution observable
 
-A later implementation must expose evidence that the local cap constrained the scope before the
-first probabilistic `started` event. After-the-fact `total_spend <= cap` is not sufficient by
-itself because the local owner may have executed under a larger threshold. Acceptable internal
-architectures are left open, but the observable property is fixed:
+A later implementation must prove that the assigned cap constrained the local scope **before** the
+first result-bearing probabilistic start:
 
 ```text
-before owner execution:
-  effective local ceiling <= assigned family cap
-  prior local spend + next reservation <= effective local ceiling
+effective_local_ceiling <= assigned_family_cap
+prior_local_spend + next_reservation <= effective_local_ceiling
 ```
 
-The within-scope Basel kernel then remains the allocation mechanism inside that ceiling.
+After-the-fact `total_spend <= cap` is insufficient because the local procedure may have executed
+under a larger nominal error threshold.
+
+### 7.5 Canonical recomputation outline
+
+A verifier must:
+
+1. validate exact rationals and recompute declaration/family identity;
+2. verify prospective visibility before all result-bearing execution;
+3. derive every scope through live `confidence_risk_scope_for_problem()`;
+4. reject duplicate, substituted, or omitted members;
+5. sum local caps exactly and require the result at most `delta_F`;
+6. validate every canonical root/current-head receipt through the existing ledger;
+7. verify the effective cap was bound before local execution and total local spend is within it;
+8. reconstruct terminal chronology from live protocol/ledger artifacts;
+9. verify the prospectively fixed member-plan vector, or require the adaptive theorem;
+10. preserve member obligation/validator assumptions and currentness; and
+11. recompute the projection hash from live source and artifacts.
 
 ---
 
 ## 8. Later Integration Handoff
 
-### 8.1 Canonical owner to extend
+### 8.1 Canonical owner
 
-**Owner:** `polisyos.runtime.quality.confidence_ledger` / the N11 confidence-ledger lane.
+**Owner to extend:** `polisyos.runtime.quality.confidence_ledger` / N11 confidence-ledger lane.
 
-The extension is cross-scope composition over existing roots. It is not owned by INT-R9, N9, an
-Atlas surface, or a new family service. The repository itself already records GY-GAP2 in the
-confidence-ledger lane
+The extension is a cross-scope composition projection over existing roots. It is not owned by
+INT-R9, N9, Atlas, or a new family service. GY-GAP2 already records this owner seam
 (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`).
 
-### 8.2 Minimum integration properties
+### 8.2 Minimum owner-first integration chain
 
-A later implementation/consolidation sequence must deliver, in owner-first order:
+```text
+prospective family declaration
+-> live member-scope derivation
+-> pre-execution effective local-cap enforcement
+-> existing local owner execution and immutable receipts
+-> exact cap/spend aggregation
+-> member-plan or adaptive-theorem verification
+-> consumer chronology verification
+-> canonical family projection
+-> INT-R9 consumption and bounded public claim
+-> correction/suspension and behavioral falsifiers
+```
 
-1. an admitted prospective family declaration or semantically equivalent owner input;
-2. exact local-cap enforcement before probabilistic execution while preserving scope ID;
-3. existing Basel-square allocation evaluated inside the local cap;
-4. exact rational aggregate verification;
-5. live canonical scope derivation for every member;
-6. current-root/current-head receipt verification for every member;
-7. terminal chronology and no-refund/no-substitution verification;
-8. fixed-revision eligibility and adaptive-theorem refusal/verification;
-9. one recomputed family projection consumed by INT-R9; and
-10. behavioral positive, mandatory negative, adaptive negative, and property-removal fixtures.
+No package, field spelling, storage topology, or final schema is ratified here.
 
-No package, field spelling, or storage layout is ratified here.
+### 8.3 What INT-R9 may claim
 
-### 8.3 INT-R9 handoff
-
-INT-R9 must amend every “one cumulative scope/budget” sentence to one of three positions.
-
-| Execution mode | What INT-R9 may claim |
+| Standing | Permitted statement |
 | --- | --- |
-| Current baseline, three ordinary scopes | Generic family bound `min(1, 3 * delta)` under joint local assumptions; no implemented family receipt; no adaptive numeric theorem. |
-| Future fixed implementation, ledger-owned caps and receipt | `P(any reached member falsely promotes in exact family F | named assumptions) <= delta_F`, with exact member scopes/caps/revisions/receipt. |
-| Adaptive repair | Same numeric claim only with a verified history-conditional or uniform owner theorem; otherwise governance claim only, no family probability. |
+| Current baseline | The repository has three distinct canonical scopes and no single-`delta` family composition. If three valid local `delta` guarantees exist, their strongest generic family composition is `min(1, 3 * delta)` under joint assumptions. No adaptive numeric theorem is established. |
+| Future exact family with prospectively fixed member-plan vector and canonical caps/projection | `P(any reached member falsely promotes in exact family F | named assumptions) <= delta_F`, bound to exact scope, cap, member-plan, registry, obligation, evaluator, and source versions. |
+| Outcome-dependent repair | The same numeric claim only when a canonical selection-valid theorem is verified; otherwise governance chronology only, with no family probability. |
 
-A family receipt does not make a positive result exist. Refusal, dispute, void, and exhaustion remain
-valid protocol outcomes.
+INT-R9 may not restore “one cumulative scope.” It should reference the family projection while
+retaining three canonical scope IDs.
 
 ### 8.4 INT-R1 handoff
 
-Each member must bind its own exact `ObligationSetDeclaration` or consolidation-approved
-successor. The family projection must preserve member-specific closure basis, cutoff, compiler/
-validator versions, and open-world remainder. It may summarize compatible assumptions but may not
-replace them with one bare family boolean.
+Every member must bind its exact obligation declaration/closure basis, cutoff, compiler/validator
+versions, and unresolved remainder. The family projection may relate these declarations but may
+not manufacture one universal family obligation set or remove the open-world rider.
 
-A later-discovered obligation or validator defect can invalidate a member’s current authority and
-therefore the family claim’s current standing. Correction must append and reissue; the historical
-receipt remains evidence of what was proved under its actual premises, not eternal authority.
+A later-discovered obligation or validator defect may suspend a member's current authority and the
+family claim. Correction appends and reissues; historical proof is not rewritten into eternal
+current validity.
 
 ### 8.5 Public projection handoff
 
-Any public surface must display at least:
-
-- exact family identity and member count;
-- fixed versus adaptive revision posture;
-- family `delta_F` and cap profile reference;
-- canonical family receipt reference and currentness;
-- obligation/validator conditionality;
-- first positive, exhausted, disputed, or blocked terminal;
-- scope of authority and external-validity limits; and
-- correction/suspension status.
-
-The surface must not translate `accepted_narrow_scope` research into implemented capability or
-compress “relative to declared obligation sets” into “all obligations.”
-
-### 8.6 Reuse map
-
-| Existing owner asset | Reuse | Extension needed |
-| --- | --- | --- |
-| `ConfidenceRiskBudgetScope` | Preserve unchanged per problem. | None to identity. |
-| Exact `RationalSpec` / `Fraction` path | Reuse for caps and totals. | Family exact-sum projection. |
-| Registry and theorem profiles | Reuse as source of local theorem eligibility. | Family theorem profile/refusal route, if ratified. |
-| Basel-square schedule | Reuse inside each local cap. | Bind effective local ceiling before schedule allocation. |
-| Immutable root/event/current-head receipt | Reuse as member evidence. | Cross-scope recomputed projection. |
-| Deployment/registry/schedule hashes | Reuse for reproducibility. | Bind all members and family declaration together. |
-| Conditionality clause / maintained assumptions | Reuse per member. | Preserve and reconcile in family projection. |
-| N9 scope derivation | Reuse live, never copy IDs. | Family membership verifier calls/recomputes it. |
-| INT-R9 queue chronology | Consume as governance evidence. | Canonical bridge from protocol artifacts to family projection. |
+A public surface must expose at least family identity, member count, prospectively fixed versus
+adaptive posture, family delta/cap profile, canonical projection reference/currentness,
+obligation/validator conditionality, terminal standing, bounded authority scope, and correction or
+suspension status. It must not translate research acceptance into implemented capability.
 
 ---
 
@@ -1176,134 +1066,106 @@ compress “relative to declared obligation sets” into “all obligations.”
 
 ### 9.1 Research promotion rule
 
-This research result may be consolidated as `accepted_narrow_scope` only with both halves intact:
+Consolidation may accept INT-R10 only with both conclusions intact:
 
-- weighted-union composition is a valid theorem under exact prospective owner-enforced caps; and
-- the current repository does not implement those caps or an adaptive theorem, so INT-R9’s
-  single-`delta` claim remains blocked.
+1. weighted-union composition is valid under exact owner-enforced local caps and the stated local
+   guarantees; and
+2. the current repository lacks those cross-scope caps/projection and lacks a theorem for INT-R9's
+   outcome-dependent repair.
 
-Consolidation that adopts the theorem while deleting the blocked capability statement would turn a
-conditional design result into a false current claim.
+Adopting the theorem while deleting the blocked capability statement would recreate the false
+single-`delta` implication.
 
-### 9.2 Conditions before implementation authorization can even be considered
+### 9.2 Conditions before implementation authorization
 
-A separate implementation task must have:
+A separate implementation task must first have:
 
-1. a ratified semantic owner handoff naming the confidence ledger, not a new service;
-2. a decision whether the decisive INT-R9 family is fixed-revision or adaptive;
-3. a local-cap enforcement design reviewed against scope identity and replay semantics;
-4. a declared family event and theorem profile;
-5. INT-R1 member obligation interfaces;
-6. a live-source recomputation design;
-7. terminal/no-refund semantics;
-8. a public correction/suspension path; and
-9. the fixtures in §6 as acceptance criteria.
-
-This document supplies research inputs, not authorization.
+- ratified owner-first semantics naming the confidence ledger;
+- exact family event and theorem profile;
+- decision between prospectively fixed member-plan vector and adaptive selection;
+- effective local-cap design that preserves canonical scope identity/replay;
+- INT-R1 member obligation interfaces;
+- live-source recomputation and currentness design;
+- terminal/no-refund or separately proved recycling semantics;
+- public correction/suspension path; and
+- §6 fixtures as acceptance criteria.
 
 ### 9.3 Kill rules
 
-Any proposed consolidation or implementation is **NO-GO** if it does any of the following:
+Any proposal is **NO-GO** if it:
 
-- weakens `design-problem:<design_problem_id>` scope identity;
-- resets or reuses a per-problem scope to obtain fresh budget;
+- weakens `design-problem:<design_problem_id>` identity;
+- resets/reuses a scope for fresh budget;
 - creates a second confidence ledger, parent risk scope, independent head, or duplicate theorem
   owner;
-- asserts a family cap only in INT-R9 prose or a hand-authored record;
-- checks caps after result-bearing execution instead of enforcing them before owner calls;
-- uses floats or rounded display decimals in budget authority;
-- permits outcome-dependent cap changes, refunds, substitution, or a fourth scope without a
-  prospective verified theorem;
-- treats an earlier refusal/void/dispute as absent from chronology;
-- imports Holm, Šidák, clinical boundaries, or e-value products without the required statistical
-  objects and assumptions;
-- claims adaptive validity from a fixed implementation theorem;
-- hides INT-R1’s obligation/validator conditionality;
-- accepts stale member heads or supplied scope IDs without live recomputation;
+- asserts composition only in INT-R9 prose or an author-written record;
+- checks caps only after result-bearing execution;
+- uses floats/display rounding in budget authority;
+- changes caps or uncommitted member plans after outcomes without a verified adaptive theorem;
+- refunds, substitutes, or inserts a fourth scope without a prospectively proved rule;
+- omits earlier refusal/void/dispute from chronology;
+- imports Holm, Šidák, clinical boundaries, or e-value products without their required objects and
+  assumptions;
+- claims adaptive validity from a local anytime-valid label alone;
+- hides INT-R1 conditionality;
+- accepts stale heads or supplied scope IDs without live recomputation;
 - lets a marker-only validator pass after local-cap enforcement is removed;
-- converts the family result into population performance, legal compliance, or production
-  readiness; or
-- blocks candidate exploration merely because authority-band family composition is absent.
+- generalizes to policy efficacy, legal compliance, or production readiness; or
+- blocks candidate exploration merely because authority-band composition is missing.
 
-### 9.4 Evidence required to close GY-GAP2
+### 9.4 GY-GAP2 closure evidence
 
-GY-GAP2 is not closed by a schema or unit test. Closure requires the full chain:
-
-```text
-prospective family declaration
--> canonical member-scope derivation
--> pre-execution local-cap enforcement
--> local owner checks and immutable receipts
--> exact aggregate recomputation
--> consumer chronology verification
--> family projection
--> INT-R9 consumption/public bounded claim
--> mandatory negative and adaptive falsifiers
-```
-
-Missing producer, bridge, consumer, verifier, or behavioral fixture must be labeled precisely
-rather than called complete.
+GY-GAP2 closes only when the full chain exists: producer/admission of the prospective family
+relation, local-cap enforcement, canonical member receipts, aggregate recomputation, consumer
+bridge, public/audit projection or explicit boundary, correction path, and behavioral positive/
+negative/adaptive tests. A schema alone is `contract_only`, not closure.
 
 ### 9.5 Benchmark passage rule
 
-Even after implementation, passing the INT-R10 fixture proves only the family-composition property
-for the named revision and test artifacts. It does not prove that any real owner certificate is
-statistically sound, that obligation bases are externally complete, that a real positive exists,
-or that the system is ready for production. S0-K16 remains controlling.
+Passing INT-R10 fixtures proves only the named composition property for the tested revision and
+artifacts. It does not prove local theorem soundness on real data, open-world obligation
+completeness, existence of a positive promotion, or production readiness. S0-K16 remains binding.
 
 ---
 
 ## 10. Open Questions For Consolidation
 
-1. **Fixed or adaptive decisive sequence.** Will INT-R9 freeze one implementation across the three
-   decisive members, or retain repair? Fixed revision gives the earliest defensible numeric path;
-   adaptive repair requires a materially stronger owner theorem and governance classifier.
-2. **Local-cap representation.** What owner-internal mechanism constrains a scope to `alpha_i`
-   before execution while preserving its canonical `scope_id`, root semantics, replay, and
-   deployment binding? This research fixes the observable property, not the field layout.
-3. **Family commitment time.** Which existing custody mechanism proves that membership, order,
-   cap vector, and revision policy were independently visible before every result-bearing
-   execution? INT-R10 needs the property but does not duplicate S0-GAP-02’s commitment owner.
-4. **Finite versus online families.** Should the first implementation support only an exact finite
-   family, or a predictable unbounded allocation stream with pathwise total at most `delta_F`?
-   The theorem supports both; the narrower finite path is easier to audit.
-5. **Weight selection.** Are equal thirds acceptable governance, or should weights reflect
-   prospectively declared consequence/materiality differences? No empirical weighting is
-   currently available.
-6. **Cap recycling.** Is conservative no-refund sufficient, or is there a real need for prospective
-   recycling? Any recycling proposal needs a canonical theorem and additional adversarial tests.
-7. **Adaptive theorem owner.** Which local proof profiles could establish validity conditional on
-   prior family history and implementation selection? The current `owner_theorem_unavailable_v1`
-   posture is honest and may remain the answer.
-8. **Member obligation compatibility.** How should the family projection expose different
-   obligation bases, cutoffs, validators, and unresolved remainders without manufacturing one
-   universal family obligation set?
-9. **Instance identity.** INT-R1’s audit records a separate obligation-instance identity gap. Does
-   family verification need to bind instance-level obligation declarations before it can claim
-   member assumptions are complete enough for composition? This must be coordinated, not solved by
-   adding another denominator here.
-10. **Dispute resolution and cap standing.** When a disputed earlier member is later corrected,
-    does the same family version resume, or must a new family declaration/version be issued? The
-    no-rewrite custody rule favors append and explicit reissue.
-11. **Currentness and perturbation.** Which change classes—registry, theorem profile, source,
-    validator, problem content, implementation, evaluator, obligation basis—suspend the family
-    claim, and which require a full new family version?
-12. **Public wording.** What minimum surface text prevents `delta_F` from being read as a world-wide
-    probability of policy harm or missed obligation?
-13. **E-value future path.** If real owner-verified e-processes arrive, is the desired object still
-    strong FWER over false authority promotion, or a different global-null/evidence claim? The
-    target must be chosen before a merger.
-14. **Holm or closed testing.** If future scopes expose valid p-values for compatible local nulls,
-    is a step-down family procedure worth the complexity, or is weighted union preferable for
-    transparency and heterogeneous authority semantics?
-15. **Dependency evidence.** What evidence would be competent to justify any stronger-than-union
-    dependence correction across design problems? The current answer is none.
-16. **Correction of INT-R9.** Consolidation must decide whether to amend INT-R9 immediately to the
-    current `3 * delta`/no-adaptive-bound position or keep it fully blocked until a ledger extension
-    exists. It must not retain the single-`delta` implication.
+1. Will INT-R9 use a complete prospectively fixed member-plan vector, or retain outcome-dependent
+   repair and commission a selection-valid theorem?
+2. What owner-internal mechanism constrains a scope to `alpha_i` before execution while preserving
+   the canonical `scope_id`, root semantics, replay, and deployment binding?
+3. Which existing custody mechanism proves that membership, order, cap vector, and member-plan
+   vector were independently visible before result-bearing execution?
+4. Should the first implementation support only an exact finite family or a predictable online cap
+   stream with pathwise total at most `delta_F`?
+5. Are equal thirds acceptable governance, or should prospectively declared consequence weights be
+   used? No empirical weighting is currently justified.
+6. Is conservative no-refund sufficient, or is a prospective recycling theorem worth the added
+   complexity?
+7. Which local proof profiles, if any, can establish validity conditional on earlier family history
+   and implementation selection? `owner_theorem_unavailable_v1` may remain the honest answer.
+8. How should the family projection expose different obligation bases, cutoffs, validators, and
+   unresolved remainders without manufacturing one universal denominator?
+9. Does the separate INT-R1 obligation-instance identity gap block a family claim for any member
+   whose decisive obligation instances cannot yet be represented?
+10. When a disputed member is later corrected, may the same family version resume, or must an
+    append-only new family version be issued?
+11. Which changes—registry, theorem profile, source, validator, problem content, member plan,
+    evaluator, or obligation basis—suspend versus invalidate the family projection?
+12. What minimum public language prevents `delta_F` from being read as a world-wide probability of
+    policy harm or missed obligation?
+13. If real owner-verified e-processes arrive, is the desired target still strong family-wise false
+    authority control, or a different global-null/evidence claim?
+14. If future scopes expose compatible valid p-values, is Holm/closed testing worth the complexity,
+    or is weighted union preferable for transparent heterogeneous authority semantics?
+15. What competent evidence, if any, could justify a stronger-than-union dependence correction
+    across design problems? At the pinned baseline the answer is none.
+16. Should consolidation amend INT-R9 immediately to the current no-single-`delta` position, or keep
+    it fully blocked until a canonical family projection exists? It must not retain the implication
+    that three ordinary scopes share one top-level budget.
 
-The open questions do not weaken the central answer. **Today, three ordinary problem scopes mean
-three local top-level budgets and at most `3 * delta` generically. A future single-`delta_F` family
-claim is mathematically available only through prospective local caps enforced and recomputed by
-the canonical confidence ledger. Adaptive repair additionally requires a history-conditional or
-uniform owner theorem.**
+The central answer is stable despite these open choices: **today, three ordinary problem scopes
+provide at most the generic composition of three valid local guarantees—`3 * delta` in the live
+three-member case. A future single-`delta_F` family claim is available only through prospective
+local caps enforced and recomputed by the canonical confidence ledger. Outcome-dependent repair
+additionally requires a selection-valid local theorem.**

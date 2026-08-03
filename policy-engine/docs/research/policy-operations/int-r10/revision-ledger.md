@@ -13,6 +13,7 @@ inspection_date: 2026-08-03
 authoritative_for:
   - mapping every INT-R10 independent-audit finding to the revision that disposes it
   - preservation ledger for audited commendations
+  - complete disposition of the thirty-two audited weak GY-GAP2 citation sites
   - traceability from corrected mathematics, formal premises, anchors, fixtures, and standing to revised sections
   - bounded verification checklist for a later independent re-auditor
 may_not_use_for:
@@ -99,12 +100,71 @@ assumptions. The arithmetic is a theorem, not a live owner projection.
 | `INT-R10-C-002` | undefined alternate theorem was embedded as a proved disjunct | **repaired** — removed from theorem; possible alternate routes are now a separate note, each requiring its own event, filtration, assumptions, owner profile, verifier, binding, and falsifier | primary §4.7; fixture §8.2 |
 | `INT-R10-E-001` | self-graded matrix conflated theorem, future criterion, and live capability | **repaired** — eight R1 rows now have separate `Research theorem/result`, `Future closure criterion`, and `Pinned capability` columns | primary §4.10 |
 | `INT-R10-E-006` | positive live reproduction was presented too close to capability standing | **repaired** — live reproduction is explicitly a future closure criterion; the positive fixture must refuse at the baseline | primary §4.10 row 8 and §6; fixture §§4.3 and 10 |
-| `INT-R10-F-001` | thirty-two citations routed readers to GY revision metadata rather than the gap block | **repaired** — every retained GY-GAP2 citation in the three revised research files uses the substantive corrected block `:2440-2476`; the weak `:1-10` range is removed | primary, source ledger, and fixture throughout |
+| `INT-R10-F-001` | thirty-two citations routed readers to GY revision metadata rather than the gap block | **repaired** — every surviving GY-GAP2 claim in the three revised research files points to the substantive corrected block `:2440-2476`; citation-bearing claims deleted during mathematical correction are individually accounted for in §3.1 below | primary, source ledger, and fixture throughout |
 | `INT-R10-F-002` | burn-order anchor ended before durable append and invocation boundary | **repaired** — arithmetic claims retain `:1301-1364`; durable pre-execution claims use `:1356-1382` | primary §2.3; fixture §§4.2 and 7; source ledger §2 |
 | `INT-R10-G-002` | support file functioned as a de facto schema | **repaired** — final class names, schema strings, package refs, complete field bundles, fixed enum/refusal vocabularies, and loadable YAML were removed; unresolved design choices are explicit | primary §7; fixture §§1 and 9 |
 
 No material finding is declined. The revision also preserves the audit's broader requirement that
 future family custody be verified behaviorally rather than by marker presence.
+
+### 3.1 Complete disposition of the thirty-two audited GY-GAP2 citation sites
+
+The audit found 17 weak sites in the primary report, 5 in the fixture, and 10 in the source ledger.
+The table below accounts for every site. `Re-anchored` means the revised claim directly cites
+`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`. `Removed with
+claim` means the old sentence depended on the refuted arithmetic or contract-like design and was
+removed; its corrected replacement is identified and uses the substantive block where the missing
+capability is asserted.
+
+#### Primary report — 17 sites
+
+| # | Audited site | Disposition in revision |
+| ---: | --- | --- |
+| 1 | Executive — missing cross-scope composition | re-anchored in Executive Finding |
+| 2 | §1.5 — current standing | re-anchored in §1.5 |
+| 3 | §2.2 — baseline census row | moved to §§2.6–2.8 and re-anchored |
+| 4 | §2.3 — mandatory falsifier item | moved to §2.6 and re-anchored |
+| 5 | §2.6 — family declaration/cap capability | retained in §2.8 and re-anchored |
+| 6 | §2.6 — live family projection capability | retained in §2.8 and re-anchored |
+| 7 | §3.3 — absence of dependence contract | refuted arithmetic framing removed; missing-model/capability replacement is in §§3.4 and 4.5 with substantive gap anchor |
+| 8 | §4.4 — old current-scope corollary | replaced by §§4.4–4.5; capability boundary re-anchored |
+| 9 | §4.10 — pinned public language | replaced by §4.9; capability claim re-anchored |
+| 10 | §4.11 — mandatory falsifier standing | replaced by §4.10 final paragraph and re-anchored |
+| 11 | §6.2 — positive fixture baseline refusal | moved to fixture §4.3; re-anchored there |
+| 12 | §6.3 — negative-control family binding | moved to fixture §§5.2–5.4; re-anchored there |
+| 13 | §8.1 — canonical owner handoff | retained and re-anchored |
+| 14 | §8.2 — INT-R9 baseline handoff | corrected in §8.2; missing capability remains supported by §8.1 substantive anchor |
+| 15 | §9.1 — research promotion condition | corrected source arithmetic replaces obsolete gap sentence; §9.4 carries substantive anchor |
+| 16 | §9.4 — closure evidence | retained and re-anchored |
+| 17 | §10 — stronger-than-union open question | replaced by corrected closure question 15 and re-anchored |
+
+#### Fixture and artifact sketch — 5 sites
+
+| # | Audited site | Disposition in revision |
+| ---: | --- | --- |
+| 18 | §1 — pinned missing capability | retained and re-anchored |
+| 19 | §1 — expected baseline refusal | retained and re-anchored |
+| 20 | §7.2 — positive future-control refusal | moved to §4.3 and re-anchored |
+| 21 | §7.3 — mandatory negative control | moved to §§5.2–5.4 and re-anchored |
+| 22 | §10 — pinned expected result | retained and re-anchored |
+
+#### Source and transfer ledger — 10 sites
+
+| # | Audited site | Disposition in revision |
+| ---: | --- | --- |
+| 23 | §2 — pinned repository predicates | retained and re-anchored |
+| 24 | S01 — Holm non-transfer | retained and re-anchored |
+| 25 | S05 — online-FWER non-transfer | retained and re-anchored |
+| 26 | S13 — Sidak non-transfer | retained and re-anchored |
+| 27 | §4.1 — old weighted-union current conclusion | replaced by §§4.2–4.4; capability boundary re-anchored |
+| 28 | §5 — exact family membership standing | retained in §6 assumption ledger and re-anchored |
+| 29 | §5 — prospective local-cap standing | obsolete equal-cap framing removed; corrected root/schedule standing is in §§2 and 6 with substantive anchor |
+| 30 | §5 — exact/pathwise aggregate-cap standing | replaced by canonical envelope §§4.1–4.4; missing projection remains re-anchored in §6 |
+| 31 | §5 — live-source verifier standing | retained in §6 and re-anchored |
+| 32 | §6 — final carried conclusion | retained in §7 and re-anchored |
+
+No audited weak site is silently omitted. The literal metadata range is no longer used as a
+repository citation in any of the three research files.
 
 ---
 
@@ -177,7 +237,8 @@ A later independent verifier should confirm all of the following directly from t
 8. no root-count probability oracle remains;
 9. Theorem B states filtered-space, reach, procedure, and allocation measurability;
 10. no undefined alternate theorem appears inside the proved statement;
-11. all GY-GAP2 anchors use `:2440-2476` and no `:1-10` citation remains;
+11. every surviving GY-GAP2 citation uses `:2440-2476`, every deleted site is accounted for in
+    §3.1, and no metadata-only citation remains;
 12. all burn-before-invocation claims reach `:1356-1382`;
 13. the source ledger enumerates 13 instruments, 5 proof profiles, 7 pools, 2 schedules, and 6
     routes;

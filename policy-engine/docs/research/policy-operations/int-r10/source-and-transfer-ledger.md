@@ -10,7 +10,7 @@ inspection_date: 2026-08-03
 authoritative_for:
   - primary-source orientation for the INT-R10 research result
   - research-level transfer and non-transfer judgments for family-wise error control, sequential design, anytime-valid inference, e-values, and selective inference
-  - citation provenance for the theorem and impossibility conclusions stated in the primary INT-R10 deliverable
+  - citation provenance for theorem and impossibility conclusions in the primary INT-R10 deliverable
 may_not_use_for:
   - production implementation authorization
   - final code or wire contract
@@ -20,7 +20,7 @@ may_not_use_for:
   - benchmark passage
   - legal or regulatory compliance conclusion
   - assertion that PolicyOS currently implements cross-scope composition
-  - assertion that a cited statistical method applies without the assumptions stated here
+  - assertion that a cited statistical method applies without its stated assumptions
 research_only: true
 ---
 
@@ -28,223 +28,219 @@ research_only: true
 
 ## 1. Purpose and transfer standard
 
-This supporting artifact records which external results can be carried into the PolicyOS
-question and which cannot. The target is not generic statistical significance. The target event
-is an authority event:
+The target is not generic statistical significance. It is the authority event:
 
-> at least one member of an exact, prospectively governed family of PolicyOS evaluations emits a
-> false promotion that is accepted as the first valid positive.
+> at least one reached member of an exact governed PolicyOS family emits a false promotion, and the
+> family reports the first such canonical positive.
 
-A source is transferable only when its guarantee can be rewritten over that event without
-silently importing a common estimand, a common null, exchangeability, independence, an observed
-p-value, a calibrated historical base rate, or a single accumulating data stream that PolicyOS
-does not have.
+A source transfers only when its guarantee can be rewritten over that event without silently
+importing a common estimand, common null, exchangeability, independence, valid p-values that do not
+exist, a calibrated base rate, or one accumulating data stream.
 
-The decisive distinction is between:
+Three layers must remain separate:
 
-1. **event accounting**, which can combine upper bounds on heterogeneous false-promotion events;
-2. **construction of each local bound**, which remains the responsibility of the canonical
-   per-problem confidence owner and its maintained assumptions; and
-3. **power improvements**, which generally require extra statistical objects or dependence
-   assumptions and therefore cannot be treated as free arithmetic.
+1. **event accounting** — composition of valid upper bounds on heterogeneous false-promotion events;
+2. **local bound construction** — the canonical per-problem confidence owner's theorem and
+   maintained assumptions; and
+3. **power improvements** — procedures requiring additional statistical objects or dependence
+   assumptions.
 
-The elementary union inequality used by INT-R10 is proved directly in the primary deliverable.
-It does not need an external authority. The sources below are used to test whether a stronger or
-more adaptive transfer is available.
+The union inequality used by INT-R10 is proved directly in the primary deliverable. External
+sources are used to determine whether stronger or adaptive transfers are justified.
 
-## 2. Primary-source ledger
+## 2. Pinned repository predicates used in transfer judgments
 
-| ID | Primary source | Result inspected | Assumptions or object supplied by the source | Transfer to INT-R10 | Non-transfer / limit |
+The following repository facts delimit what can be imported:
+
+- N9 derives one canonical confidence scope per design-problem binding
+  (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`).
+- Each scope owns one root-level non-resettable budget and local receipt/history
+  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:156-184`,
+  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`,
+  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:723-752`).
+- Local ordinals and prior spend are calculated only inside the current scope; risk is burned
+  before owner execution
+  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`).
+- Exact local spend is recomputed under the Basel-square kernel
+  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`).
+- The live top-level delta is `1/100`
+  (`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`).
+- Relevant owner-verified e-value/e-process/sequential profiles are unavailable, while the
+  executable constant-one e-process cannot satisfy a promotion obligation
+  (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
+- GY-GAP2 records no cross-scope/family/parent-scope composition
+  (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`).
+- INT-R9 permits general implementation repair between slots
+  (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`).
+- INT-R1 keeps every probability statement conditional on a declared obligation basis and
+  validator soundness
+  (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
+- The project has no positive governed promotion history from which to calibrate a family model
+  (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:390-398`).
+
+## 3. Primary-source ledger
+
+| ID | Primary source | Result inspected | Required object/assumption | Transfer | Non-transfer / limit |
 | --- | --- | --- | --- | --- | --- |
-| S01 | Sture Holm, “A Simple Sequentially Rejective Multiple Test Procedure,” *Scandinavian Journal of Statistics* 6(2), 65–70 (1979), [JSTOR 4615733](https://www.jstor.org/stable/4615733), [DOI 10.2307/4615733](https://doi.org/10.2307/4615733). | A step-down multiple-testing procedure with protection against at least one type-I error for any configuration of true hypotheses. | A finite family of valid local p-values and an ordered rejection procedure. No beneficial dependence assumption is needed for the classical Holm guarantee. | Confirms that family-wise control can be stronger than a single-step equal Bonferroni allocation when the family exposes valid comparable p-values and a family procedure owns the ordering. | The PolicyOS ledger does not expose one p-value per design problem, has no family-level step-down owner, and decides authority obligations rather than a homogeneous p-value family. Holm is therefore an available future design family, not a theorem about the current artifacts. |
-| S02 | Stuart J. Pocock, “Group Sequential Methods in the Design and Analysis of Clinical Trials,” *Biometrika* 64(2), 191–199 (1977), [DOI 10.1093/biomet/64.2.191](https://doi.org/10.1093/biomet/64.2.191). | Repeated significance tests over accumulated observations can be designed to control the overall procedure rather than treating each look as fresh. | A specified group-sequential experiment, repeated looks at one accumulating treatment comparison, and the paper’s normal-response design model. | Transfers the governance lesson that stopping at an early positive must be included in the error-controlled procedure. | Three distinct PolicyOS design problems are not repeated looks at one accumulating statistic. Pocock boundaries cannot be copied as cross-problem arithmetic. |
-| S03 | Peter C. O’Brien and Thomas R. Fleming, “A Multiple Testing Procedure for Clinical Trials,” *Biometrics* 35(3), 549–556 (1979), [DOI 10.2307/2530245](https://doi.org/10.2307/2530245), [PubMed 497341](https://pubmed.ncbi.nlm.nih.gov/497341/). | A fixed maximum number of interim tests can preserve the overall size of one clinical-trial procedure while allowing early termination. | One treatment comparison, accumulated data, a fixed maximum number of analyses, and the paper’s test-statistic model. | Transfers the same aggregate-procedure lesson as S02. | Does not establish that different estimands, implementations, evidence sets, or authority claims can share one O’Brien–Fleming boundary. |
-| S04 | K. K. Gordon Lan and David L. DeMets, “Discrete Sequential Boundaries for Clinical Trials,” *Biometrika* 70(3), 659–663 (1983), [DOI 10.1093/biomet/70.3.659](https://doi.org/10.1093/biomet/70.3.659). | An alpha-spending function can determine a boundary from past and current decision times without fixing all future decision times. | A sequential experiment with a meaningful information-time scale and a valid joint model for its repeated analyses. | Transfers the accounting pattern “allocate before use; cumulative spend must stay within the declared total.” It also supports leaving unspent mass unused. | The paper’s information-time boundary theorem does not turn several unrelated design problems into looks at one trial. PolicyOS may reuse the spending metaphor, not the clinical boundary theorem. |
-| S05 | Jinjin Tian and Aaditya Ramdas, “Online Control of the Familywise Error Rate,” *Statistical Methods in Medical Research* 30(4), 976–993 (2021), [DOI 10.1177/0962280220983381](https://doi.org/10.1177/0962280220983381), [arXiv:1910.04900](https://arxiv.org/abs/1910.04900). | Family-wise error can be controlled for an a priori unbounded online sequence. Bonferroni-style allocations extend directly; the paper’s more adaptive gains require independent or locally dependent p-values. | Sequentially arriving valid p-values; predictable allocation rules; extra dependence conditions for the stronger adaptive algorithms. | Strongly supports predictable nonnegative allocations whose total is bounded, even when the future family length is not known. This is the closest external analogue to a ledger-owned cap vector or spending stream. | PolicyOS currently has neither cross-scope p-values nor a family controller. The paper does not make outcome-dependent repair safe unless the local evidence remains valid conditional on the enlarged history under the procedure’s assumptions. |
-| S06 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform, Nonparametric, Nonasymptotic Confidence Sequences,” *Annals of Statistics* 49(2), 1055–1080 (2021), [DOI 10.1214/20-AOS1991](https://doi.org/10.1214/20-AOS1991), [arXiv:1810.08240](https://arxiv.org/abs/1810.08240). | Confidence sequences provide simultaneous coverage over time and therefore remain valid at stopping times under the paper’s conditions. | A specified stochastic process, filtration, estimand, and time-uniform construction. | Supports the requirement that a local certificate intended to survive optional continuation must be valid with respect to the actual filtration. | Time-uniform validity within one process does not compose several separately selected processes, estimands, or repaired implementations into one family claim. |
-| S07 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform Chernoff Bounds via Nonnegative Supermartingales,” *Probability Surveys* 17, 257–317 (2020), [DOI 10.1214/18-PS321](https://doi.org/10.1214/18-PS321), [arXiv:1808.03204](https://arxiv.org/abs/1808.03204). | Nonnegative supermartingales and line-crossing inequalities provide time-uniform control under stated process assumptions. | A filtration and a supermartingale or sub-ψ process satisfying the stated conditions. | Supplies the mathematical reason predictable, history-adapted choices can remain valid when the local process is conditionally valid. | It does not certify an arbitrary implementation chosen after earlier results. The process and conditional supermartingale property must actually include that adaptation. |
-| S08 | Aaditya Ramdas, Peter Grünwald, Vladimir Vovk, and Glenn Shafer, “Game-Theoretic Statistics and Safe Anytime-Valid Inference,” *Statistical Science* 38(4), 576–601 (2023), [DOI 10.1214/23-STS894](https://doi.org/10.1214/23-STS894), [arXiv:2210.01948](https://arxiv.org/abs/2210.01948). | E-processes and confidence sequences can remain valid under optional stopping or continuation, because the wager at each step is predictable relative to the filtration. The paper also distinguishes valid continuation from choosing a betting strategy after observing its outcome. | Test martingale/e-process conditions, a declared filtration, and predictable bets. | Directly supports INT-R10’s adaptive theorem condition: the slot-i error guarantee must hold conditional on the full prior history, and its allocation must be fixed before the slot-i outcome. | “Anytime-valid” is not “selection-proof across any collection of processes.” Running many strategies and reporting the best is explicitly not legitimized. A later repaired implementation needs its own conditional/uniform theorem. |
-| S09 | Vladimir Vovk and Ruodu Wang, “E-values: Calibration, Combination, and Applications,” *Annals of Statistics* 49(3), 1736–1754 (2021), [DOI 10.1214/20-AOS2020](https://doi.org/10.1214/20-AOS2020), [arXiv:1912.06116](https://arxiv.org/abs/1912.06116). | E-values are nonnegative evidence variables with expectation at most one under a null. For multiple tests of a single hypothesis, e-values can be merged by arithmetic averaging under arbitrary dependence; the paper also develops multiple-testing uses. | Valid e-values for named null hypotheses and the combining rule’s stated target. | Shows that e-values can be easier to combine than p-values when the null target and validity conditions align. | Averaging evidence against one null is not the PolicyOS family event. Three design problems need not share a null or estimand. A merged e-value does not by itself control “any false authority promotion” under every configuration. |
-| S10 | Vladimir Vovk and Ruodu Wang, “Merging Sequential E-values via Martingales” (2020), [arXiv:2007.06382](https://arxiv.org/abs/2007.06382). | Sequential e-values can be merged through martingale constructions; independent e-value merging is a separate, more structured problem. | Sequential conditional e-validity or an explicitly stated independence structure, plus a merger targeted to the relevant null. | Supports product/martingale composition only when each factor is valid conditionally on the past and the merged object tests the intended null. | The current PolicyOS registry’s different problem scopes do not expose such a cross-scope conditional e-value sequence. Multiplication is not a free replacement for family-wise event accounting. |
-| S11 | Vladimir Vovk and Ruodu Wang, “True and False Discoveries with Independent and Sequential E-values” (2020), [arXiv:2003.00593](https://arxiv.org/abs/2003.00593). | Multiple-testing gains are developed for independent or sequential e-values. | Independent or sequentially valid e-values and a multiple-testing procedure. | Confirms that e-value-based multiplicity is possible when those objects and assumptions are real. | Neither independence nor sequential conditional e-validity across PolicyOS design problems is established at the pinned baseline. |
-| S12 | William Fithian, Dennis Sun, and Jonathan Taylor, “Optimal Inference After Model Selection” (2014/2017), [arXiv:1410.2597](https://arxiv.org/abs/1410.2597). | Valid post-selection inference must account for the selection event; the paper controls selective type-I error conditional on selection in exponential-family settings. | A statistical model, a defined selection event, and inference conditional on that event. | Transfers the warning that “report the first passing result” changes the inferential target. Family control must include the selection/stopping rule. | The paper does not convert one selected PolicyOS promotion into a population-performance or effect-estimation theorem. INT-R10 controls only the false-promotion family event, not post-selection estimation or generalization. |
-| S13 | Zbyněk Šidák, “Rectangular Confidence Regions for the Means of Multivariate Normal Distributions,” *Journal of the American Statistical Association* 62(318), 626–633 (1967), [DOI 10.1080/01621459.1967.10482935](https://doi.org/10.1080/01621459.1967.10482935), [JSTOR 2283989](https://www.jstor.org/stable/2283989). | A rectangle-probability inequality for multivariate normal distributions underlies Šidák-style simultaneous regions. | A specified multivariate-normal structure; modern Šidák corrections additionally rely on a justified joint structure rather than arbitrary heterogeneous events. | Demonstrates that a product-form correction can improve on a union bound when its dependence/model conditions hold. | PolicyOS has no common multivariate-normal model, exchangeability premise, or verified cross-problem dependence structure. A Šidák number would therefore be authored convenience, not a proven bound. |
+| S01 | Sture Holm, “A Simple Sequentially Rejective Multiple Test Procedure,” *Scandinavian Journal of Statistics* 6(2), 65–70 (1979), [DOI 10.2307/4615733](https://doi.org/10.2307/4615733), [JSTOR 4615733](https://www.jstor.org/stable/4615733). | Step-down control of at least one type-I error for any configuration of true hypotheses. | A finite family of valid local p-values and the ordered rejection procedure. | Confirms that a canonical family procedure can improve on single-step Bonferroni when its p-values exist. | PolicyOS exposes no family of valid p-values and no step-down owner at the pinned baseline (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+| S02 | Stuart J. Pocock, “Group Sequential Methods in the Design and Analysis of Clinical Trials,” *Biometrika* 64(2), 191–199 (1977), [DOI 10.1093/biomet/64.2.191](https://doi.org/10.1093/biomet/64.2.191). | Repeated looks can be designed as one overall-size-controlled procedure. | One accumulating treatment comparison and the paper's response model. | Early stopping must be included in the controlled procedure. | Three PolicyOS design problems are not repeated looks at one statistic; canonical scope derivation is per problem (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`). |
+| S03 | Peter C. O'Brien and Thomas R. Fleming, “A Multiple Testing Procedure for Clinical Trials,” *Biometrics* 35(3), 549–556 (1979), [DOI 10.2307/2530245](https://doi.org/10.2307/2530245), [PubMed 497341](https://pubmed.ncbi.nlm.nih.gov/497341/). | A fixed maximum number of interim tests can preserve overall size while allowing early termination. | One accumulating comparison, fixed maximum analyses, and the paper's statistic model. | Same aggregate-procedure lesson as S02. | Does not establish one O'Brien–Fleming boundary across different problems, claims, evidence sets, or implementations. |
+| S04 | K. K. Gordon Lan and David L. DeMets, “Discrete Sequential Boundaries for Clinical Trials,” *Biometrika* 70(3), 659–663 (1983), [DOI 10.1093/biomet/70.3.659](https://doi.org/10.1093/biomet/70.3.659). | Alpha-spending can determine boundaries from past/current information times. | A sequential experiment with meaningful information time and a valid joint model. | Transfers “allocate before use; cumulative allocation stays within total” and supports unused mass remaining unused. | Does not turn several unrelated design problems into one trial. PolicyOS's Basel schedule is local to each scope (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`). |
+| S05 | Jinjin Tian and Aaditya Ramdas, “Online Control of the Familywise Error Rate,” *Statistical Methods in Medical Research* 30(4), 976–993 (2021), [DOI 10.1177/0962280220983381](https://doi.org/10.1177/0962280220983381), [arXiv:1910.04900](https://arxiv.org/abs/1910.04900). | FWER can be controlled over an a priori unbounded online sequence; stronger adaptive algorithms use independence/local dependence. | Sequential valid p-values and predictable allocation; extra dependence assumptions for stronger procedures. | Strongly supports predictable nonnegative family caps with bounded total. | PolicyOS lacks cross-scope p-values/controller (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`); outcome-dependent repair also needs local conditional validity. |
+| S06 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform, Nonparametric, Nonasymptotic Confidence Sequences,” *Annals of Statistics* 49(2), 1055–1080 (2021), [DOI 10.1214/20-AOS1991](https://doi.org/10.1214/20-AOS1991), [arXiv:1810.08240](https://arxiv.org/abs/1810.08240). | Simultaneous coverage over time and validity at stopping times. | Specified process, filtration, estimand, and time-uniform construction. | A local certificate intended to survive continuation must be valid for the actual filtration. | Time-uniform validity inside one process does not compose separately selected processes or repaired implementations. |
+| S07 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform Chernoff Bounds via Nonnegative Supermartingales,” *Probability Surveys* 17, 257–317 (2020), [DOI 10.1214/18-PS321](https://doi.org/10.1214/18-PS321), [arXiv:1808.03204](https://arxiv.org/abs/1808.03204). | Nonnegative supermartingales provide time-uniform line-crossing control. | A filtration and valid supermartingale/sub-ψ process. | Explains why predictable history-adapted choices can remain valid when the local process is conditionally valid. | Does not certify an arbitrary implementation selected after earlier outcomes. |
+| S08 | Aaditya Ramdas, Peter Grünwald, Vladimir Vovk, and Glenn Shafer, “Game-Theoretic Statistics and Safe Anytime-Valid Inference,” *Statistical Science* 38(4), 576–601 (2023), [DOI 10.1214/23-STS894](https://doi.org/10.1214/23-STS894), [arXiv:2210.01948](https://arxiv.org/abs/2210.01948). | E-process/confidence-sequence validity under optional continuation depends on predictability relative to the filtration. | Test martingale/e-process conditions, declared filtration, predictable bets. | Direct support for history-conditional local validity in INT-R10's adaptive theorem. | “Anytime-valid” is not selection-proof across an arbitrary menu of processes. INT-R9's repair clause is outcome-dependent unless separately proved (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`). |
+| S09 | Vladimir Vovk and Ruodu Wang, “E-values: Calibration, Combination, and Applications,” *Annals of Statistics* 49(3), 1736–1754 (2021), [DOI 10.1214/20-AOS2020](https://doi.org/10.1214/20-AOS2020), [arXiv:1912.06116](https://arxiv.org/abs/1912.06116). | E-values are nonnegative with expectation at most one under a null; arithmetic averaging can merge e-values for one hypothesis under arbitrary dependence. | Valid e-values and a merger targeted to the named null. | Shows e-values can be easier to merge when the target aligns. | One-null averaging is not strong FWER for “any false authority promotion” across different problem truth configurations. |
+| S10 | Vladimir Vovk and Ruodu Wang, “Merging Sequential E-values via Martingales” (2020), [arXiv:2007.06382](https://arxiv.org/abs/2007.06382). | Sequential e-values can be merged through martingale constructions; independent merging is separately structured. | Sequential conditional e-validity or explicit independence, plus correct merger target. | Product/martingale composition is valid only when every factor meets its conditional premise. | The pinned PolicyOS registry exposes no such cross-scope conditional e-value sequence (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
+| S11 | Vladimir Vovk and Ruodu Wang, “True and False Discoveries with Independent and Sequential E-values” (2020), [arXiv:2003.00593](https://arxiv.org/abs/2003.00593). | Multiple-testing procedures for independent or sequential e-values. | Independent or sequentially valid e-values and a family procedure. | Confirms e-value multiplicity is possible when objects/assumptions are real. | Neither independence nor sequential conditional e-validity across PolicyOS scopes is implemented (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
+| S12 | William Fithian, Dennis Sun, and Jonathan Taylor, “Optimal Inference After Model Selection” (2014/2017), [arXiv:1410.2597](https://arxiv.org/abs/1410.2597). | Valid post-selection inference accounts for the selection event. | Statistical model, defined selection event, conditional inference. | “Report first passing result” changes the inferential target; selection/stopping must be inside the controlled procedure. | Does not turn a selected PolicyOS promotion into a population-effect or generalization theorem. |
+| S13 | Zbyněk Šidák, “Rectangular Confidence Regions for the Means of Multivariate Normal Distributions,” *Journal of the American Statistical Association* 62(318), 626–633 (1967), [DOI 10.1080/01621459.1967.10482935](https://doi.org/10.1080/01621459.1967.10482935), [JSTOR 2283989](https://www.jstor.org/stable/2283989). | Rectangle-probability inequality for multivariate normal distributions. | Specified multivariate-normal structure. | Demonstrates that model/dependence structure can improve on a union bound. | PolicyOS has no verified cross-problem joint model or family object (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
 
-## 3. Transfer conclusions by method family
+## 4. Transfer conclusions
 
-### 3.1 Weighted union / Bonferroni accounting transfers directly
+### 4.1 Weighted union transfers directly
 
-Let `V_i` be the event that the reached slot `i` falsely promotes, and let a valid local theorem
-provide
+Let `V_i` be reached-member false promotion and suppose a valid local theorem gives
 
 ```text
-P(V_i | A_F) <= alpha_i
+P(V_i | A_F) <= alpha_i.
 ```
 
-for the exact family assumptions `A_F`. Then, without independence, exchangeability, a common
-null, or a common estimand,
+Then, without independence, exchangeability, a common null, or a common estimand,
 
 ```text
-P(any false promotion in the family | A_F)
-  = P(union_i V_i | A_F)
+P(union_i V_i | A_F)
   <= sum_i P(V_i | A_F)
   <= sum_i alpha_i.
 ```
 
-This is event algebra, not a transfer of biomedical-trial authority. It applies because the
-controlled event is a union. The local theorems may concern different design problems, provided
-each one genuinely bounds its own false authority event and the family assumptions are jointly
-maintained.
+For `m * alpha <= 1`, disjoint events of probability `alpha` attain `m * alpha`; no stronger generic
+bound follows from local upper bounds alone.
 
-The bound can be sharp under the stated information. For `m * alpha <= 1`, construct disjoint
-false-promotion events with probability `alpha` each. Every local guarantee holds and the family
-probability is exactly `m * alpha`. Therefore no generic improvement below the sum can be claimed
-from local upper bounds alone.
+At the pinned baseline, three canonical problem scopes each receive the ordinary registry-level
+budget structure
+(`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`,
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`,
+`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`), while no cross-scope
+cap relation exists
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). Hence the best
+generic composition of three valid local `delta` guarantees is `min(1, 3 * delta)`; at live
+`delta = 1/100`, `3/100`.
 
-### 3.2 Classical sequential boundaries transfer only as an accounting analogy
+### 4.2 Sequential boundaries transfer only as an accounting analogy
 
-Pocock, O’Brien–Fleming, and Lan–DeMets solve repeated-look problems with one accumulating
-experiment and a modeled joint path. PolicyOS’s three fresh design problems have different
-problem identities, evidence, claim scopes, and potentially different implementations. The
-following transfers:
+Pocock, O'Brien–Fleming, and Lan–DeMets support:
 
 - include early stopping in the controlled procedure;
-- allocate error before the result-bearing look;
-- do not reset after an unfavorable look;
-- leave unspent allocation unused unless a valid prospective rule permits reuse.
+- allocate error before result-bearing execution;
+- do not reset after an unfavorable look; and
+- leave unused allocation unused unless a prospective theorem permits recycling.
 
-The following does not transfer:
+They do not supply clinical critical values, information time, or a common-effect model for three
+PolicyOS problems. The repository's Basel-square kernel is a predictable **within-scope** schedule
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`); it does not create a
+family ordinal.
 
-- a clinical critical-value boundary;
-- information time inferred from slot number;
-- the assumption that all slots estimate one treatment effect;
-- the assumption that changing implementation between slots is merely taking another look.
+### 4.3 Online FWER supports predictable caps, not silent repair
 
-The repository’s Basel-square kernel is already a within-scope predictable spending schedule. It
-is mathematically analogous to an alpha-spending allocation over execution ordinals, but that
-analogy does not make its scope-local ordinal a family ordinal.
-
-### 3.3 Online FWER supports predictable family caps, not silent repair
-
-Tian and Ramdas show that simple online Bonferroni allocations can control FWER over a growing
-sequence, while more adaptive power gains require explicit independence or local-dependence
-conditions. The transferable minimal rule is:
+The minimal transferable adaptive arithmetic is:
 
 ```text
-alpha_i is measurable before outcome i, alpha_i >= 0,
-and the realized path satisfies sum_i alpha_i <= delta_F.
+alpha_i is measurable before outcome i;
+alpha_i >= 0;
+sum_i alpha_i <= delta_F pathwise.
 ```
 
-For a PolicyOS sequence whose later implementation may depend on earlier outcomes, that arithmetic
-is only half of the theorem. The local false-promotion guarantee must also be valid conditional on
-the same prior history. Otherwise a repair process can search over implementations until it finds
-one whose nominal local certificate is no longer valid for the selection mechanism.
+For later implementation chosen from earlier outcomes, arithmetic is only half of the theorem. The
+local false-promotion guarantee must remain valid conditional on the same history. INT-R9 permits
+general repair
+(`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`),
+but the live owner lacks the corresponding theorem
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
 
-### 3.4 Anytime-valid inference solves within-process optional stopping
+### 4.4 Anytime-valid inference solves within-process stopping
 
-Howard et al. and Ramdas et al. justify arbitrary stopping or continuation when the evidence
-process is a valid nonnegative supermartingale/e-process relative to the actual filtration. The
-word **actual** is load-bearing. The filtration must include earlier slot outputs, disclosed case
-facts, adjudication, repair choices, model changes, and any other information used to select the
-next implementation.
+Time-uniform methods remain valid relative to their actual filtration. That filtration must include
+earlier outputs, disclosed case facts, adjudication, repair choice, model/configuration changes, and
+all information used to select the later procedure.
 
-Thus the valid adaptive condition is of the form
+A sufficient local adaptive premise is:
 
 ```text
-P(V_i | H_{i-1}, slot i is reached, A_F) <= alpha_i almost surely,
+P(V_i | H_{i-1}, R_i, A_F) <= alpha_i(H_{i-1}) almost surely,
 ```
 
-or an equivalent uniform theorem covering every implementation that the permitted repair policy
-can select. A certificate proved only for a fixed implementation and then invoked after
-outcome-dependent implementation selection does not satisfy this condition.
+or an equivalent uniform/selection-aware theorem. A fixed-procedure theorem invoked after the
+procedure was selected from `H_{i-1}` does not satisfy this premise.
 
-### 3.5 E-values are not an automatic heterogeneous-family solution
+### 4.5 E-values are not an automatic heterogeneous-family solution
 
-The e-value literature supplies three distinct operations that must not be conflated:
+Do not conflate:
 
-1. **averaging e-values for one null** under arbitrary dependence;
-2. **multiplying sequential e-values** when each factor is conditionally e-valid given the past;
-3. **multiple-testing procedures over many nulls** with their own error criterion and dependence
-   assumptions.
+1. averaging e-values for one null under arbitrary dependence;
+2. multiplying sequential e-values under conditional e-validity;
+3. multiple-testing procedures over many nulls under their own criterion/assumptions.
 
-The PolicyOS target is instead a union of false authority events over different problem scopes.
-Even if each scope someday exposes an e-value, multiplying them generally produces evidence for a
-joint/intersection target, not direct strong-FWER protection against any false promotion under all
-truth configurations. E-values may become local instruments or inputs to a future family
-procedure, but the target event, conditional validity, and family verifier still have to be
-specified.
+PolicyOS controls a union of false authority events. Even if local e-values later exist, a product
+generally targets a joint/global-null object rather than strong control of “any false promotion”
+under every truth configuration. The live registry currently refuses the relevant owner theorem
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
 
-The pinned registry makes this distinction operationally decisive. Its only executable
-statistical e-process is the closed constant-one process, which is anytime-valid but cannot reject
-or satisfy a promotion obligation; owner-verified e-value/e-process instruments are registered
-under `owner_theorem_unavailable_v1`
-(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). External theory
-cannot fill that repository-owned proof gap by citation.
+### 4.6 Selective inference limits meaning
 
-### 3.6 Selective inference limits the meaning of a first passing result
+A prospective family bound can include stop-on-first-positive selection because the reported false
+first positive lies in the union of local false-promotion events. It does **not** provide an
+unbiased effect estimate, population validity, representativeness, immunity from upstream case-pool
+selection, or unconditional validity after obligation/validator assumptions fail. INT-R1's
+conditionality remains controlling
+(`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
 
-A prospectively fixed family-wise bound can include the stop-on-first-positive selection event:
-the event that the reported first positive is false is contained in—and with reached-slot events,
-equal to—the union of false slot promotions. That handles the family error event.
+## 5. Assumption ledger for a family theorem
 
-It does **not** provide:
-
-- an unbiased estimate of the selected design’s effect;
-- population or domain generalization;
-- a claim that the selected case was representative;
-- a guarantee against upstream case-pool selection;
-- a guarantee that implementation repair was non-selective; or
-- an unconditional claim after the obligation or validator assumptions fail.
-
-Those remain separate selective-inference, external-validity, custody, and governance questions.
-
-## 4. Assumption ledger for a PolicyOS family theorem
-
-A family-wise statement must name, rather than compress, the premises below.
-
-| Premise | Why it is required | Current baseline standing |
+| Premise | Why required | Pinned standing |
 | --- | --- | --- |
-| Exact family membership and order | Defines the union being bounded and prevents favorable substitution. | INT-R9 sketches a queue; N11 has no canonical cross-scope binding. |
-| Exact canonical scope derivation | Preserves the per-problem owner and prevents scope weakening. | Implemented per problem in `confidence_risk_scope_for_problem()`. |
-| Prospective nonnegative cap per member | Makes each top-level allocation checkable before its result. | Missing across scopes. |
-| Pathwise aggregate cap | Blocks three fresh top-level deltas and outcome-dependent refunds. | Missing across scopes. |
-| Valid local false-promotion theorem | Supplies `P(V_i) <= alpha_i`; accounting cannot manufacture it. | Mostly refused/unavailable on the probabilistic path. |
-| Jointly maintained obligation/validator assumptions | Preserves INT-R1 and the ledger’s conditionality. | Declared per receipt; no family projection. |
-| History-conditional or uniform validity for adaptation | Keeps the theorem valid after earlier outputs influence later implementation. | Not established. |
-| Recomputable live-source verifier | Prevents an author-written family record from becoming its own proof. | Missing. |
-| No duplicate family owner | Preserves P27/P28 and the confidence ledger’s authority. | Required design constraint. |
+| Exact family membership/order | Defines the union and prevents substitution. | INT-R9 sketches a queue, but N11 has no family binding (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`; `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+| Exact canonical scope derivation | Preserves per-problem ownership. | Implemented (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`). |
+| Prospective nonnegative cap per member | Makes every local top-level allocation checkable before result. | Missing across scopes (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+| Exact/pathwise aggregate cap | Blocks three fresh top-level deltas and outcome-dependent refunds. | Missing (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+| Valid local false-promotion theorem | Accounting cannot manufacture local validity. | Mostly refused/unavailable on the probabilistic path (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
+| Joint obligation/validator assumptions | Preserves INT-R1 conditionality. | Declared locally; no family projection (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52`; `policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`). |
+| Precommitted member-plan vector or selection-valid adaptive theorem | Prevents outcome-dependent repair from using a fixed theorem. | INT-R9 permits repair; owner theorem unavailable (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`; `policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
+| Live-source verifier | Prevents author-written proof. | Missing for family composition (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+| No duplicate owner | Preserves P27/P28. | Required by repository rules (`AGENTS.md:35-66`, `AGENTS.md:71-89`). |
 
-## 5. Negative findings
+## 6. Negative findings and carried conclusion
 
-1. No inspected primary source proves that arbitrary heterogeneous authority claims can share a
-   single `delta` merely because they are precommitted and stopped at the first positive.
+1. No inspected primary source proves that arbitrary heterogeneous authority claims share one
+   `delta` merely because names/order are precommitted and execution stops at first positive.
 2. No source turns a per-problem anytime-valid certificate into a cross-problem family guarantee
-   without an allocation/composition rule.
-3. No e-value result makes multiplication valid after arbitrary outcome-dependent choice of the
-   next e-value process.
-4. No sequential-clinical result justifies treating a repaired implementation on a different
-   design problem as another look at the same experiment.
-5. No multiplicity procedure removes the ledger’s maintained assumptions about obligation
-   completeness and validator soundness.
-6. No cited theorem supplies the historical calibration data that PolicyOS does not have.
-7. No stronger-than-union generic bound follows from the current local statements alone.
+   without a family allocation/composition rule.
+3. No e-value theorem makes multiplication valid after arbitrary outcome-dependent process choice.
+4. No clinical sequential theorem makes a repaired implementation on another problem another look
+   at one experiment.
+5. No multiplicity method removes obligation completeness or validator soundness; INT-R1 remains
+   controlling
+   (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
+6. No historical calibration route is available at the current empirical state
+   (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:390-398`).
+7. No stronger-than-union generic bound follows from current local statements alone.
 
-## 6. Research conclusion carried to the primary deliverable
+The established research conclusion is:
 
-The only composition established without new statistical objects or dependence assumptions is:
+> Preserve every canonical per-problem scope. Before family outcomes, bind exact local caps and the
+> complete member-specific plan vector. Require the canonical confidence ledger to enforce each
+> cap before execution and recompute the exact aggregate from live source and receipts. If
+> outcome-dependent repair is allowed, additionally require a history-conditional, uniform, or
+> otherwise selection-valid local theorem.
 
-> preserve every canonical per-problem scope; prospectively bind each family member to a local
-> top-level cap; require the canonical confidence-ledger owner to verify that the caps sum to at
-> most the family bound; and require every local false-promotion theorem to remain valid under the
-> declared joint assumptions and, where adaptation is permitted, conditional on the actual prior
-> history.
+Equal `delta_F/3` caps for a three-member family are a transparent engineering choice, not a
+uniquely optimal theorem. The existing Basel-square schedule may allocate inside each local cap but
+cannot itself enforce their sum because it is scope-local
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`).
 
-For a fixed three-slot family, equal caps `delta_F / 3` are a transparent engineering choice, not
-a uniquely optimal theorem. Unequal weights are equally valid if prospectively fixed and summed
-exactly. The existing within-scope Basel-square schedule can then allocate **inside** each local
-cap. It cannot itself enforce the sum of caps across three independent scope roots.
-
-Under the pinned source, no such binding or verifier exists. Consequently, three ordinary scopes
-with top-level `delta` retain only the generic `min(1, 3 * delta)` family bound. The intended
-single-`delta` INT-R9 claim remains blocked. Adaptive repair remains numerically unbounded at the
-family level until a history-conditional or uniform owner theorem is delivered.
+Under the pinned source, the necessary cross-scope binding/projection is missing
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). Three ordinary
+full-`delta` scopes therefore retain only the generic `min(1, 3 * delta)` composition of valid local
+guarantees. The intended single-`delta` INT-R9 claim remains blocked, and outcome-dependent repair
+has no family numeric theorem while the relevant owner profiles remain unavailable
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).

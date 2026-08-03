@@ -1,246 +1,392 @@
 ---
-title: INT-R10 — Primary-Source and Transfer Ledger
+title: INT-R10 — Primary-Source, Canonical-Envelope, and Transfer Ledger
 status: delivered
 kind: deep-research-support
 research_task: INT-R10
+result_type: accepted_narrow_scope
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r10-family-wise-risk-composition
-repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+repository_branch: research/int-r10-revision
+historical_audited_commit: 317fc9c36e710ac75634096c4d14a714b8bff504
+current_repository_commit: f5c9103ba390d471dd3f2806ca10e2b0f1288a08
+revised_after_audit: research/int-r10-independent-audit@7f41bf8b7f6ca8e20bc885656314563de2e2cfc6
 inspection_date: 2026-08-03
 authoritative_for:
-  - primary-source orientation for the INT-R10 research result
-  - research-level transfer and non-transfer judgments for family-wise error control, sequential design, anytime-valid inference, e-values, and selective inference
-  - citation provenance for theorem and impossibility conclusions in the primary INT-R10 deliverable
+  - primary-source orientation for the revised INT-R10 result
+  - exact programmatic census of the pinned confidence-ledger registry
+  - derivation of the pinned all-path schedule envelope from live source
+  - transfer and non-transfer judgments for family-wise error control, sequential design, anytime-valid inference, e-values, and selective inference
 may_not_use_for:
   - production implementation authorization
-  - final code or wire contract
+  - final code, wire, schema, package, database, or serialization contract
   - canonical owner appointment
   - authority grant
   - capability claim
   - benchmark passage
-  - legal or regulatory compliance conclusion
-  - assertion that PolicyOS currently implements cross-scope composition
-  - assertion that a cited statistical method applies without its stated assumptions
+  - assertion that a canonical family projection exists
+  - assertion that an imported method applies without its stated assumptions
 research_only: true
 ---
 
-# INT-R10 — Primary-Source and Transfer Ledger
+# INT-R10 — Primary-Source, Canonical-Envelope, and Transfer Ledger
 
 ## 1. Purpose and transfer standard
 
-The target is not generic statistical significance. It is the authority event:
+The target event is:
 
-> at least one reached member of an exact governed PolicyOS family emits a false promotion, and the
-> family reports the first such canonical positive.
+> at least one reached member of an exact governed PolicyOS family falsely produces a canonical
+> promotion, with stop-on-first-positive reporting.
 
 A source transfers only when its guarantee can be rewritten over that event without silently
 importing a common estimand, common null, exchangeability, independence, valid p-values that do not
 exist, a calibrated base rate, or one accumulating data stream.
 
-Three layers must remain separate:
+This ledger keeps four layers separate:
 
-1. **event accounting** — composition of valid upper bounds on heterogeneous false-promotion events;
-2. **local bound construction** — the canonical per-problem confidence owner's theorem and
-   maintained assumptions; and
-3. **power improvements** — procedures requiring additional statistical objects or dependence
+1. **event accounting** — composition of valid upper bounds on heterogeneous authority-error
+   events;
+2. **canonical local allocation** — the exact reservations and all-path envelope imposed by the
+   pinned confidence owner;
+3. **family custody** — evidence that exact membership, roots, current heads, chronology, and
+   assumptions are complete and current; and
+4. **power improvements** — methods requiring additional statistical objects or dependence
    assumptions.
 
-The union inequality used by INT-R10 is proved directly in the primary deliverable. External
-sources are used to determine whether stronger or adaptive transfers are justified.
+The revised result accepts the first two as mathematics, records the third as a missing live
+capability, and refuses to infer the fourth from method names.
 
-## 2. Pinned repository predicates used in transfer judgments
+---
 
-The following repository facts delimit what can be imported:
+## 2. Pinned repository predicates
 
-- N9 derives one canonical confidence scope per design-problem binding
+The revised baseline is `f5c9103ba390d471dd3f2806ca10e2b0f1288a08`.
+
+- N9 derives one canonical scope per design-problem binding
   (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`).
-- Each scope owns one root-level non-resettable budget and local receipt/history
+- Each scope has one stable root-level policy and local immutable history
   (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:156-184`,
-  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`,
-  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:723-752`).
-- Local ordinals and prior spend are calculated only inside the current scope; risk is burned
-  before owner execution
+  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`).
+- The registry expands pool weights equally over the typed members of each pool
+  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:405-419`).
+- The next ordinal, exact reservation, and prior-spend check use the current scope's history
   (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`).
-- Exact local spend is recomputed under the Basel-square kernel
+- The `started` reservation is durably appended before owner invocation
+  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1356-1382`).
+- Exact spend is recomputed under the Basel-square kernel
   (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`).
-- The live top-level delta is `1/100`
-  (`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`).
-- Relevant owner-verified e-value/e-process/sequential profiles are unavailable, while the
-  executable constant-one e-process cannot satisfy a promotion obligation
-  (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
-- GY-GAP2 records no cross-scope/family/parent-scope composition
-  (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`).
-- INT-R9 permits general implementation repair between slots
+- The live root policy delta is `1/100`; schedule masses are `1` and `1/2`
+  (`policy-engine/architecture/production_quality/confidence_ledger.toml:1-16`).
+- No live family declaration, chronology verifier, current-head aggregate projection, or public
+  owner statement exists
+  (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
+- INT-R9 permits general implementation repair between members
   (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`).
-- INT-R1 keeps every probability statement conditional on a declared obligation basis and
-  validator soundness
-  (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
-- The project has no positive governed promotion history from which to calibrate a family model
+- INT-R1 keeps probability conditional on declared obligation coverage and validator soundness
+  (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:35-79`).
+- The project has no governed positive promotion history from which to calibrate a family model
   (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:390-398`).
 
-## 3. Primary-source ledger
+The gap is missing family custody and reproduction, not a defect in per-problem scope identity
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
 
-| ID | Primary source | Result inspected | Required object/assumption | Transfer | Non-transfer / limit |
-| --- | --- | --- | --- | --- | --- |
-| S01 | Sture Holm, “A Simple Sequentially Rejective Multiple Test Procedure,” *Scandinavian Journal of Statistics* 6(2), 65–70 (1979), [DOI 10.2307/4615733](https://doi.org/10.2307/4615733), [JSTOR 4615733](https://www.jstor.org/stable/4615733). | Step-down control of at least one type-I error for any configuration of true hypotheses. | A finite family of valid local p-values and the ordered rejection procedure. | Confirms that a canonical family procedure can improve on single-step Bonferroni when its p-values exist. | PolicyOS exposes no family of valid p-values and no step-down owner at the pinned baseline (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| S02 | Stuart J. Pocock, “Group Sequential Methods in the Design and Analysis of Clinical Trials,” *Biometrika* 64(2), 191–199 (1977), [DOI 10.1093/biomet/64.2.191](https://doi.org/10.1093/biomet/64.2.191). | Repeated looks can be designed as one overall-size-controlled procedure. | One accumulating treatment comparison and the paper's response model. | Early stopping must be included in the controlled procedure. | Three PolicyOS design problems are not repeated looks at one statistic; canonical scope derivation is per problem (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`). |
-| S03 | Peter C. O'Brien and Thomas R. Fleming, “A Multiple Testing Procedure for Clinical Trials,” *Biometrics* 35(3), 549–556 (1979), [DOI 10.2307/2530245](https://doi.org/10.2307/2530245), [PubMed 497341](https://pubmed.ncbi.nlm.nih.gov/497341/). | A fixed maximum number of interim tests can preserve overall size while allowing early termination. | One accumulating comparison, fixed maximum analyses, and the paper's statistic model. | Same aggregate-procedure lesson as S02. | Does not establish one O'Brien–Fleming boundary across different problems, claims, evidence sets, or implementations. |
-| S04 | K. K. Gordon Lan and David L. DeMets, “Discrete Sequential Boundaries for Clinical Trials,” *Biometrika* 70(3), 659–663 (1983), [DOI 10.1093/biomet/70.3.659](https://doi.org/10.1093/biomet/70.3.659). | Alpha-spending can determine boundaries from past/current information times. | A sequential experiment with meaningful information time and a valid joint model. | Transfers “allocate before use; cumulative allocation stays within total” and supports unused mass remaining unused. | Does not turn several unrelated design problems into one trial. PolicyOS's Basel schedule is local to each scope (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`). |
-| S05 | Jinjin Tian and Aaditya Ramdas, “Online Control of the Familywise Error Rate,” *Statistical Methods in Medical Research* 30(4), 976–993 (2021), [DOI 10.1177/0962280220983381](https://doi.org/10.1177/0962280220983381), [arXiv:1910.04900](https://arxiv.org/abs/1910.04900). | FWER can be controlled over an a priori unbounded online sequence; stronger adaptive algorithms use independence/local dependence. | Sequential valid p-values and predictable allocation; extra dependence assumptions for stronger procedures. | Strongly supports predictable nonnegative family caps with bounded total. | PolicyOS lacks cross-scope p-values/controller (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`); outcome-dependent repair also needs local conditional validity. |
-| S06 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform, Nonparametric, Nonasymptotic Confidence Sequences,” *Annals of Statistics* 49(2), 1055–1080 (2021), [DOI 10.1214/20-AOS1991](https://doi.org/10.1214/20-AOS1991), [arXiv:1810.08240](https://arxiv.org/abs/1810.08240). | Simultaneous coverage over time and validity at stopping times. | Specified process, filtration, estimand, and time-uniform construction. | A local certificate intended to survive continuation must be valid for the actual filtration. | Time-uniform validity inside one process does not compose separately selected processes or repaired implementations. |
-| S07 | Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, and Jasjeet Sekhon, “Time-Uniform Chernoff Bounds via Nonnegative Supermartingales,” *Probability Surveys* 17, 257–317 (2020), [DOI 10.1214/18-PS321](https://doi.org/10.1214/18-PS321), [arXiv:1808.03204](https://arxiv.org/abs/1808.03204). | Nonnegative supermartingales provide time-uniform line-crossing control. | A filtration and valid supermartingale/sub-ψ process. | Explains why predictable history-adapted choices can remain valid when the local process is conditionally valid. | Does not certify an arbitrary implementation selected after earlier outcomes. |
-| S08 | Aaditya Ramdas, Peter Grünwald, Vladimir Vovk, and Glenn Shafer, “Game-Theoretic Statistics and Safe Anytime-Valid Inference,” *Statistical Science* 38(4), 576–601 (2023), [DOI 10.1214/23-STS894](https://doi.org/10.1214/23-STS894), [arXiv:2210.01948](https://arxiv.org/abs/2210.01948). | E-process/confidence-sequence validity under optional continuation depends on predictability relative to the filtration. | Test martingale/e-process conditions, declared filtration, predictable bets. | Direct support for history-conditional local validity in INT-R10's adaptive theorem. | “Anytime-valid” is not selection-proof across an arbitrary menu of processes. INT-R9's repair clause is outcome-dependent unless separately proved (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`). |
-| S09 | Vladimir Vovk and Ruodu Wang, “E-values: Calibration, Combination, and Applications,” *Annals of Statistics* 49(3), 1736–1754 (2021), [DOI 10.1214/20-AOS2020](https://doi.org/10.1214/20-AOS2020), [arXiv:1912.06116](https://arxiv.org/abs/1912.06116). | E-values are nonnegative with expectation at most one under a null; arithmetic averaging can merge e-values for one hypothesis under arbitrary dependence. | Valid e-values and a merger targeted to the named null. | Shows e-values can be easier to merge when the target aligns. | One-null averaging is not strong FWER for “any false authority promotion” across different problem truth configurations. |
-| S10 | Vladimir Vovk and Ruodu Wang, “Merging Sequential E-values via Martingales” (2020), [arXiv:2007.06382](https://arxiv.org/abs/2007.06382). | Sequential e-values can be merged through martingale constructions; independent merging is separately structured. | Sequential conditional e-validity or explicit independence, plus correct merger target. | Product/martingale composition is valid only when every factor meets its conditional premise. | The pinned PolicyOS registry exposes no such cross-scope conditional e-value sequence (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
-| S11 | Vladimir Vovk and Ruodu Wang, “True and False Discoveries with Independent and Sequential E-values” (2020), [arXiv:2003.00593](https://arxiv.org/abs/2003.00593). | Multiple-testing procedures for independent or sequential e-values. | Independent or sequentially valid e-values and a family procedure. | Confirms e-value multiplicity is possible when objects/assumptions are real. | Neither independence nor sequential conditional e-validity across PolicyOS scopes is implemented (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
-| S12 | William Fithian, Dennis Sun, and Jonathan Taylor, “Optimal Inference After Model Selection” (2014/2017), [arXiv:1410.2597](https://arxiv.org/abs/1410.2597). | Valid post-selection inference accounts for the selection event. | Statistical model, defined selection event, conditional inference. | “Report first passing result” changes the inferential target; selection/stopping must be inside the controlled procedure. | Does not turn a selected PolicyOS promotion into a population-effect or generalization theorem. |
-| S13 | Zbyněk Šidák, “Rectangular Confidence Regions for the Means of Multivariate Normal Distributions,” *Journal of the American Statistical Association* 62(318), 626–633 (1967), [DOI 10.1080/01621459.1967.10482935](https://doi.org/10.1080/01621459.1967.10482935), [JSTOR 2283989](https://www.jstor.org/stable/2283989). | Rectangle-probability inequality for multivariate normal distributions. | Specified multivariate-normal structure. | Demonstrates that model/dependence structure can improve on a union bound. | PolicyOS has no verified cross-problem joint model or family object (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
+---
 
-## 4. Transfer conclusions
+## 3. Programmatic registry census
 
-### 4.1 Weighted union transfers directly
+### 3.1 Enumeration method
 
-Let `V_i` be reached-member false promotion and suppose a valid local theorem gives
+The revision reran this exact-rational census against the complete live registry:
 
-```text
-P(V_i | A_F) <= alpha_i.
+```python
+from collections import Counter
+from fractions import Fraction
+from pathlib import Path
+import tomllib
+
+path = Path("architecture/production_quality/confidence_ledger.toml")
+registry = tomllib.loads(path.read_text(encoding="utf-8"))
+
+for key in (
+    "schedule_profiles",
+    "obligation_pools",
+    "proof_profiles",
+    "instruments",
+    "certificate_class_routes",
+):
+    print(key, len(registry[key]))
+
+expanded = {}
+for pool in registry["obligation_pools"]:
+    pool_weight = Fraction(pool["weight"]["numerator"], pool["weight"]["denominator"])
+    member_weight = pool_weight / len(pool["obligation_classes"])
+    for obligation_class in pool["obligation_classes"]:
+        expanded[obligation_class] = member_weight
+
+print("schedule_ids", [item["profile_id"] for item in registry["schedule_profiles"]])
+print("proof_profile_ids", [item["profile_id"] for item in registry["proof_profiles"]])
+print("instrument_ids", [item["instrument_id"] for item in registry["instruments"]])
+print("route_ids", [item["certificate_class"] for item in registry["certificate_class_routes"]])
+print("proof_kernel_counts", Counter(item["proof_kernel_id"] for item in registry["proof_profiles"]))
+print("pool_weight_sum", sum(
+    Fraction(item["weight"]["numerator"], item["weight"]["denominator"])
+    for item in registry["obligation_pools"]
+))
+print("expanded_class_weight_sum", sum(expanded.values()))
+print("max_expanded_class_weight", max(expanded.items(), key=lambda item: item[1]))
 ```
 
-Then, without independence, exchangeability, a common null, or a common estimand,
+### 3.2 Reproduced output
 
 ```text
-P(union_i V_i | A_F)
-  <= sum_i P(V_i | A_F)
-  <= sum_i alpha_i.
+registry_line_count = 232
+schedule_profiles = 2
+obligation_pools = 7
+proof_profiles = 5
+instruments = 13
+certificate_class_routes = 6
+
+schedule_ids =
+  default_basel_square
+  half_mass_basel_square
+
+proof_profile_ids =
+  closed_constant_unit_e_process
+  owner_theorem_unavailable
+  deterministic_owner
+  bayesian_credible_interval_ineligible
+  fixed_time_ineligible
+
+instrument_ids =
+  constant_unit_e_process
+  owner_verified_confidence_sequence
+  owner_verified_e_value
+  owner_verified_e_process
+  owner_verified_sequential_test
+  deterministic_owner_proof
+  deterministic_refusal_certificate
+  bayesian_credible_interval
+  fixed_time_confidence_interval
+  causal_sensitivity_e_value
+  ddm_online_fdr_controller
+  foundry_empirical_confidence_sequence
+  split_conformal_interval
+
+route_ids =
+  n8_fixed_time_calibration_candidate
+  n8_data_trust_promotion_candidate
+  owner_acquisition_route
+  estimand_binding_refusal
+  owner_data_gap
+  admission_passport
+
+proof_kernel_counts =
+  closed_constant_unit_e_process_v1: 1
+  deterministic_owner_v1: 1
+  ineligible_v1: 2
+  owner_theorem_unavailable_v1: 1
+
+pool_weight_sum = 1
+expanded_class_weight_sum = 1
+max_expanded_class_weight = calibration: 3/20
 ```
 
-For `m * alpha <= 1`, disjoint events of probability `alpha` attain `m * alpha`; no stronger generic
-bound follows from local upper bounds alone.
+The set ranges are:
 
-At the pinned baseline, three canonical problem scopes each receive the ordinary registry-level
-budget structure
-(`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`,
-`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`,
-`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`), while no cross-scope
-cap relation exists
-(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). Hence the best
-generic composition of three valid local `delta` guarantees is `min(1, 3 * delta)`; at live
-`delta = 1/100`, `3/100`.
+- schedules: `confidence_ledger.toml:8-16`;
+- pools: `:18-51`;
+- proof profiles: `:53-95`;
+- instruments: `:96-172`; and
+- certificate routes: `:174-232`.
 
-### 4.2 Sequential boundaries transfer only as an accounting analogy
+Five proof profiles are therefore not an instrument inventory. The thirteen instruments map as:
 
-Pocock, O'Brien–Fleming, and Lan–DeMets support:
+| Disposition | Count | Instruments |
+| --- | ---: | --- |
+| constant-unit conformance e-process | 1 | `constant_unit_e_process` |
+| owner theorem unavailable | 4 | owner-verified confidence sequence, e-value, e-process, sequential test |
+| deterministic owner | 2 | owner proof, deterministic refusal certificate |
+| ineligible | 6 | Bayesian interval, fixed-time interval, causal-sensitivity metric, online-FDR controller, empirical confidence proxy, split conformal interval |
 
-- include early stopping in the controlled procedure;
-- allocate error before result-bearing execution;
-- do not reset after an unfavorable look; and
-- leave unused allocation unused unless a prospective theorem permits recycling.
+This complete census strengthens the negative empirical result: the registry contains no useful
+probabilistic promotion path. It does not change the missing family-custody standing
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
 
-They do not supply clinical critical values, information time, or a common-effect model for three
-PolicyOS problems. The repository's Basel-square kernel is a predictable **within-scope** schedule
-(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`); it does not create a
-family ordinal.
+### 3.3 Expanded obligation-class weights
 
-### 4.3 Online FWER supports predictable caps, not silent repair
+| Pool | Pool weight | Classes | Expanded weight per class |
+| --- | ---: | --- | ---: |
+| `value` | `1/5` | normative, value | `1/10` |
+| `ground` | `3/20` | syntax, type, slot, param | `3/80` |
+| `id` | `1/5` | effect, identification, measurement | `1/15` |
+| `cal` | `3/20` | calibration | `3/20` |
+| `data` | `1/10` | data | `1/10` |
+| `eval` | `1/10` | implementation, eval_safety | `1/20` |
+| `mc` | `1/10` | coupling, equilibrium | `1/20` |
 
-The minimal transferable adaptive arithmetic is:
+The maximum is `3/20`, not a pool-level maximum copied without expansion.
+
+---
+
+## 4. Canonical envelope derivation
+
+### 4.1 Per-check law
+
+The source defines
 
 ```text
-alpha_i is measurable before outcome i;
-alpha_i >= 0;
-sum_i alpha_i <= delta_F pathwise.
+c_B = 76614/126025 < 6/pi^2
 ```
 
-For later implementation chosen from earlier outcomes, arithmetic is only half of the theorem. The
-local false-promotion guarantee must remain valid conditional on the same history. INT-R9 permits
-general repair
-(`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`),
-but the live owner lacks the corresponding theorem
-(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
-
-### 4.4 Anytime-valid inference solves within-process stopping
-
-Time-uniform methods remain valid relative to their actual filtration. That filtration must include
-earlier outputs, disclosed case facts, adjudication, repair choice, model/configuration changes, and
-all information used to select the later procedure.
-
-A sufficient local adaptive premise is:
+and, for probabilistic local ordinal `t`,
 
 ```text
-P(V_i | H_{i-1}, R_i, A_F) <= alpha_i(H_{i-1}) almost surely,
+alpha_t = delta * w(q_t) * M * c_B / (t+1)^2,
 ```
 
-or an equivalent uniform/selection-aware theorem. A fixed-procedure theorem invoked after the
-procedure was selected from `H_{i-1}` does not satisfy this premise.
+where `w(q_t)` is the expanded class weight and `M` is schedule mass
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:20-52`,
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3998-4015`).
 
-### 4.5 E-values are not an automatic heterogeneous-family solution
+### 4.2 All-path local envelope
 
-Do not conflate:
+The class sequence may be selected adaptively from prior local history. That does not defeat the
+bound because every path satisfies `w(q_t) <= 3/20`:
 
-1. averaging e-values for one null under arbitrary dependence;
-2. multiplying sequential e-values under conditional e-validity;
-3. multiple-testing procedures over many nulls under their own criterion/assumptions.
+```text
+sum_t alpha_t
+  <= delta * M * (3/20) * c_B * sum_t 1/(t+1)^2
+  =  delta * M * (3/20) * c_B * pi^2/6
+  <  delta * M * (3/20).
+```
 
-PolicyOS controls a union of false authority events. Even if local e-values later exist, a product
-generally targets a joint/global-null object rather than strong control of “any false promotion”
-under every truth configuration. The live registry currently refuses the relevant owner theorem
-(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
+The strict final step uses the certified downward coefficient. This is prospective and pathwise;
+it is not a statement about realized low spend.
 
-### 4.6 Selective inference limits meaning
+### 4.3 From checks to one member
 
-A prospective family bound can include stop-on-first-positive selection because the reported false
-first positive lies in the union of local false-promotion events. It does **not** provide an
-unbiased effect estimate, population validity, representativeness, immunity from upstream case-pool
-selection, or unconditional validity after obligation/validator assumptions fail. INT-R1's
-conditionality remains controlling
-(`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
+The N11 design requires the selected local theorem to establish the protected false-claim bound
+conditional on prior local history, and defines the good event as the intersection of executed
+probabilistic good events
+(`policy-engine/docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:120-151`,
+`policy-engine/docs/superpowers/plans/2026-07-20-gy-n11-honest-confidence-ledger.md:235-248`).
+For promotion-role checks, false member promotion must be contained in the union of those false-
+claim events under the maintained assumptions. Therefore the member event inherits the all-path
+schedule envelope.
 
-## 5. Assumption ledger for a family theorem
+This bridge remains conditional on local theorem soundness, obligation completeness, and validator
+soundness. Accounting does not manufacture those premises.
 
-| Premise | Why required | Pinned standing |
+### 4.4 Exact family union
+
+For an exact family of scopes `s in F`,
+
+```text
+P(V_F | A_F)
+  <= sum_s P(V_s | A_F)
+  <  sum_s delta_s * M_s * 3/20.
+```
+
+For the exact current three-scope, mass-one, common-delta case, the right-hand side is below
+`(9/20) * delta`, and at the live policy value it is below `9/2000`.
+
+That mathematical result does not establish live family eligibility. The owner still cannot attest
+that the scope set is complete, current, chronologically coherent, and free of omitted positives
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
+
+### 4.5 Abstract sharpness after coarsening
+
+If one deliberately discards the schedule, class weights, masses, ordinals, and executable-profile
+restrictions and retains only marginal statements
+
+```text
+P(V_i | A_F) <= b_i,
+```
+
+then mutually disjoint events of probabilities `b_i` attain `sum_i b_i`. The union bound is sharp
+for that **coarsened information state**. It is not a source-sharpness claim about the pinned owner.
+
+---
+
+## 5. Primary-source transfer ledger
+
+| ID | Primary source | Object and assumptions | Transfer to INT-R10 | Non-transfer / pinned limit |
+| --- | --- | --- | --- | --- |
+| S01 | Holm, “A Simple Sequentially Rejective Multiple Test Procedure,” 1979, [DOI 10.2307/4615733](https://doi.org/10.2307/4615733) | finite family of valid p-values; step-down strong FWER | possible future family procedure | no canonical PolicyOS p-value family or step-down owner (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`) |
+| S02 | Pocock, “Group Sequential Methods in the Design and Analysis of Clinical Trials,” 1977, [DOI 10.1093/biomet/64.2.191](https://doi.org/10.1093/biomet/64.2.191) | repeated looks at one accumulating comparison under paper's model | early stopping belongs to one controlled procedure | heterogeneous PolicyOS problems are not one information stream |
+| S03 | O'Brien and Fleming, “A Multiple Testing Procedure for Clinical Trials,” 1979, [DOI 10.2307/2530245](https://doi.org/10.2307/2530245) | fixed maximum analyses and joint statistic model | aggregate-procedure lesson | no direct boundary across different problems or implementations |
+| S04 | Lan and DeMets, “Discrete Sequential Boundaries for Clinical Trials,” 1983, [DOI 10.1093/biomet/70.3.659](https://doi.org/10.1093/biomet/70.3.659) | information-time alpha spending in one sequential experiment | predictable allocation and cumulative accounting | local Basel schedule is already scope-specific; no family information time |
+| S05 | Tian and Ramdas, “Online Control of the Familywise Error Rate,” 2021, [DOI 10.1177/0962280220983381](https://doi.org/10.1177/0962280220983381), [arXiv:1910.04900](https://arxiv.org/abs/1910.04900) | sequential valid p-values; predictable allocation; stronger methods use independence/local dependence | supports predictable bounded family allocation | no live cross-scope p-value controller or family owner (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`) |
+| S06 | Howard et al., “Time-Uniform, Nonparametric, Nonasymptotic Confidence Sequences,” 2021, [DOI 10.1214/20-AOS1991](https://doi.org/10.1214/20-AOS1991) | specified process, filtration, estimand, time-uniform construction | local certificate must match actual filtration | does not validate a repaired procedure selected after earlier family outcomes |
+| S07 | Howard et al., “Time-Uniform Chernoff Bounds via Nonnegative Supermartingales,” 2020, [DOI 10.1214/18-PS321](https://doi.org/10.1214/18-PS321) | valid supermartingale/sub-psi process and filtration | explains history-conditional local validity | no theorem for arbitrary post-outcome procedure selection |
+| S08 | Ramdas, Grunwald, Vovk, and Shafer, “Game-Theoretic Statistics and Safe Anytime-Valid Inference,” 2023, [DOI 10.1214/23-STS894](https://doi.org/10.1214/23-STS894) | predictable strategies and valid e-process/CS conditions | supports the filtered adaptive premise | an `anytime_valid` label is not selector-validity evidence |
+| S09 | Vovk and Wang, “E-values: Calibration, Combination, and Applications,” 2021, [DOI 10.1214/20-AOS2020](https://doi.org/10.1214/20-AOS2020) | e-values for a named null; averaging for one null under arbitrary dependence | e-values can merge when target aligns | one-null averaging is not strong control of any false authority promotion |
+| S10 | Vovk and Wang, “Merging Sequential E-values via Martingales,” 2020, [arXiv:2007.06382](https://arxiv.org/abs/2007.06382) | conditional sequential e-validity or explicit independence; correct merger target | product/martingale route possible under its conditions | current registry supplies no useful cross-scope sequence or merger theorem |
+| S11 | Vovk and Wang, “True and False Discoveries with Independent and Sequential E-values,” 2020, [arXiv:2003.00593](https://arxiv.org/abs/2003.00593) | independent or sequential e-values plus a family criterion | confirms multiplicity methods can exist | objects and owner are absent |
+| S12 | Fithian, Sun, and Taylor, “Optimal Inference After Model Selection,” [arXiv:1410.2597](https://arxiv.org/abs/1410.2597) | defined statistical model and selection event | selection must enter claim meaning | does not supply a PolicyOS family owner or population-validity theorem |
+| S13 | Sidak, “Rectangular Confidence Regions for the Means of Multivariate Normal Distributions,” 1967, [DOI 10.1080/01621459.1967.10482935](https://doi.org/10.1080/01621459.1967.10482935) | multivariate-normal rectangle inequality | verified Gaussian structure could justify conservative product-style regions | repository has no cross-problem Gaussian model (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`) |
+
+### 5.1 Independent product versus Gaussian rectangle
+
+For precision:
+
+- **Independent tests:** exact product calculations require independence of the relevant component
+  events or valid independent p-values.
+- **Sidak 1967:** the conservative rectangle result is tied to multivariate-normal structure.
+
+Neither may be generalized to arbitrary positive dependence, and neither is represented by current
+PolicyOS family artifacts.
+
+### 5.2 E-value disposition
+
+“Not automatic” is not an under-claim. A future route needs:
+
+- target-aligned local e-values;
+- a declared null/error polarity;
+- conditional sequential validity or verified independence as required;
+- a specified family criterion;
+- a repository-owned merger verifier; and
+- live family custody.
+
+The current registry instead maps four owner-verified sequential/e-value instruments to an
+unavailable theorem profile.
+
+---
+
+## 6. Assumption and capability ledger
+
+| Premise | Why required | Revised standing |
 | --- | --- | --- |
-| Exact family membership/order | Defines the union and prevents substitution. | INT-R9 sketches a queue, but N11 has no family binding (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`; `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| Exact canonical scope derivation | Preserves per-problem ownership. | Implemented (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`). |
-| Prospective nonnegative cap per member | Makes every local top-level allocation checkable before result. | Missing across scopes (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| Exact/pathwise aggregate cap | Blocks three fresh top-level deltas and outcome-dependent refunds. | Missing (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| Valid local false-promotion theorem | Accounting cannot manufacture local validity. | Mostly refused/unavailable on the probabilistic path (`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
-| Joint obligation/validator assumptions | Preserves INT-R1 conditionality. | Declared locally; no family projection (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52`; `policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`). |
-| Precommitted member-plan vector or selection-valid adaptive theorem | Prevents outcome-dependent repair from using a fixed theorem. | INT-R9 permits repair; owner theorem unavailable (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`; `policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
-| Live-source verifier | Prevents author-written proof. | Missing for family composition (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| No duplicate owner | Preserves P27/P28. | Required by repository rules (`AGENTS.md:17-27`, `AGENTS.md:37-55`). |
+| Exact family membership/order | defines the union and prevents substitution | research criterion established; live family declaration missing (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`) |
+| Exact canonical scope derivation | preserves per-problem ownership | implemented |
+| Root/registry/schedule identity | determines `delta_s`, mass, weights, and coefficient | implemented locally; not aggregated as a family |
+| Exact check reservations | replaces root-budget shorthand | implemented and recomputable |
+| Check-to-member false-promotion implication | accounting cannot invent local validity | conditional on valid local theorem and validator soundness |
+| Cross-scope exact sum | gives mathematical family envelope | established for an exact declared family in §4 |
+| Complete chronology/current heads | prevents omitted terminals and stale evidence | live family verifier missing (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`) |
+| Fixed member plans or adaptive selector theorem | prevents post-outcome procedure choice from using a fixed theorem | fixed theorem available; useful adaptive owner theorem unavailable |
+| INT-R1 assumptions | preserves relative coverage boundary | mandatory and not discharged |
+| One canonical owner | prevents P27/P28 duplication | required; no second owner proposed |
 
-## 6. Negative findings and carried conclusion
+A family projection remains a **future closure criterion**, not a live capability
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
 
-1. No inspected primary source proves that arbitrary heterogeneous authority claims share one
-   `delta` merely because names/order are precommitted and execution stops at first positive.
-2. No source turns a per-problem anytime-valid certificate into a cross-problem family guarantee
-   without a family allocation/composition rule.
-3. No e-value theorem makes multiplication valid after arbitrary outcome-dependent process choice.
-4. No clinical sequential theorem makes a repaired implementation on another problem another look
-   at one experiment.
-5. No multiplicity method removes obligation completeness or validator soundness; INT-R1 remains
-   controlling
-   (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`).
-6. No historical calibration route is available at the current empirical state
-   (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:390-398`).
-7. No stronger-than-union generic bound follows from current local statements alone.
+---
 
-The established research conclusion is:
+## 7. Carried conclusions
 
-> Preserve every canonical per-problem scope. Before family outcomes, bind exact local caps and the
-> complete member-specific plan vector. Require the canonical confidence ledger to enforce each
-> cap before execution and recompute the exact aggregate from live source and receipts. If
-> outcome-dependent repair is allowed, additionally require a history-conditional, uniform, or
-> otherwise selection-valid local theorem.
+1. The fixed-family weighted-union theorem is valid.
+2. Abstract disjoint-event sharpness is valid only after deliberately discarding canonical
+   schedule information.
+3. The exact pinned local envelope is below `delta_s * mass_s * 3/20`.
+4. An exact three-member mass-one family is mathematically below `(9/20) * delta` under the named
+   assumptions.
+5. The arithmetic result does not create family custody or a public owner statement.
+6. No second ledger, parent risk scope, or weakened problem identity is needed.
+7. Outcome-dependent repair has no current numeric family theorem.
+8. E-values remain a possible future instrument family, not an automatic answer.
+9. No empirical calibration route exists.
+10. `GY-GAP2` remains `contract_missing` until family membership, chronology, current heads,
+    aggregate recomputation, consumer projection, and correction are behaviorally wired
+    (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2440-2476`).
 
-Equal `delta_F/3` caps for a three-member family are a transparent engineering choice, not a
-uniquely optimal theorem. The existing Basel-square schedule may allocate inside each local cap but
-cannot itself enforce their sum because it is scope-local
-(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`).
-
-Under the pinned source, the necessary cross-scope binding/projection is missing
-(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). Three ordinary
-full-`delta` scopes therefore retain only the generic `min(1, 3 * delta)` composition of valid local
-guarantees. The intended single-`delta` INT-R9 claim remains blocked, and outcome-dependent repair
-has no family numeric theorem while the relevant owner profiles remain unavailable
-(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
+The revised result is therefore mathematically accepted in a narrow scope while the runtime family
+capability remains blocked.

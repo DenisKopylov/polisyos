@@ -2455,12 +2455,14 @@ nothing.
   what a check actually allocates, and it is wrong.** A scope's root `budget_delta` is δ, but the
   Basel-square kernel allocates
   `α_t = δ · obligation_weight · schedule_mass · (6/π²) / (t+1)²`, and the coefficient is chosen
-  so the series **telescopes**: the total scheduled probabilistic risk of one scope is exactly
-  `δ · weight · mass`. No pool in the live registry carries weight 1 — the seven pools are
-  `1/5, 3/20, 1/5, 3/20, 1/10, 1/10, 1/10` — so **one scope's total scheduled risk is strictly
-  below δ**, and three scopes are correspondingly far below `3δ`. The exact constant depends on
-  which pool carries the single live e-process, and pinning it is the INT-R10 revision's job; do
-  not quote a figure from this row. **The gap itself is unchanged and still real:** there is no
+  so the series **telescopes**. The weight that enters is the **expanded per-class** weight — the
+  pool weight divided across the classes in that pool — and in the live registry its maximum is
+  **`3/20`**, on `calibration`, the only singleton pool with that weight. The pathwise envelope
+  over *any* adaptive sequence of executed classes in one scope is therefore
+  `Σ_t α_t < δ · (3/20) · mass`: **one scope's total scheduled risk is strictly below δ**, and
+  three scopes sit below `(9/20)·δ` — that is, **below a single δ**, not at `3δ`. This is an
+  envelope, not a realized figure: it assumes nothing about dependence, realized spend, or
+  post-outcome cap choice. Restating its exact mathematical content is the INT-R10 revision's job. **The gap itself is unchanged and still real:** there is no
   family declaration, no chronology verifier, and no aggregate current-head projection, so nothing
   canonical composes several scopes at all. Only the arithmetic characterization was wrong, and it
   was wrong in the *safe* direction — the system is more conservative than the earlier wording

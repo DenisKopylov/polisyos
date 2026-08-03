@@ -164,13 +164,13 @@ the decisive-obligation mutation fixture.
 
 ## 11. Overall claim disposition
 
-| Category | Count | Result |
-| --- | ---: | --- |
-| Verified or verified with harmless narrowing | 58 | Supports `accepted_narrow_scope`. |
-| Design-only, correctly labeled | 10 | No implementation or benchmark passage inferred. |
-| Unsupported at stated strength and requiring material revision | 5 | CL-023, CL-033, CL-034, CL-037/CL-040 as capability, CL-061; some rows overlap one finding. |
-| Refuted propositions that the deliverable itself correctly rejects | 12 | Evidence of honesty, not defects. |
-| Blocking false load-bearing claim | 0 | Overall verdict remains `GO_WITH_REVISIONS`. |
+| Category | Result |
+| --- | --- |
+| Verified or verified with narrowing | Most load-bearing repository, formal, authority-boundary, and lifecycle claims survive within their stated scope. |
+| Design-only, correctly labeled | Typed artifacts, state machine, challenger process, and benchmark protocol remain unimplemented research designs. |
+| Unsupported at stated strength and requiring material revision | CL-023, CL-033, CL-034, CL-035, CL-037, CL-040, CL-061, and CL-063 identify the over-strong readings that consolidation must not ratify. |
+| Refuted propositions that the deliverable itself rejects | These are honesty checks rather than defects: no world-completeness proof, no auto-promotion, no self-scoring, and no benchmark passage. |
+| Blocking false load-bearing claim | None. Overall verdict remains `GO_WITH_REVISIONS`. |
 
 The machine-checkable consolidation gate is: do not promote any `unsupported_as_stated` claim
 into the ratified result. The negative open-world result, relative-only public rider, one-lattice

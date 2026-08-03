@@ -5,13 +5,17 @@ kind: deep-research-support
 research_task: INT-R9
 result_type: accepted_narrow_scope
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r9-first-promotion-protocol
+repository_branch: research/int-r9-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
-current_repository_commit: d152565dcc11cea457dacd61fadc6e15dc3ecc86
-inspection_date: 2026-08-02
+current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+inspection_date: 2026-08-03
+amended_after_audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
+bound_int_r10_commit: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+bound_int_r1_amendment_commit: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 authoritative_for:
-  - repository-grounded contamination classification of the thirteen canonical proving-ground cases at the pinned commit
+  - repository-grounded contamination classification of the thirteen canonical proving-ground cases at the pinned baseline
   - reconciliation of the thirteen-case proving-ground denominator with the fifteen adjudication manifests
+  - exact fifteen-manifest calibration, topology, authority-level, and answer-bearing-field census
   - research-only eligibility decisions for public regression, decisive sealed holdout, and adjacent unseen evaluation
 may_not_use_for:
   - production implementation authorization
@@ -22,6 +26,8 @@ may_not_use_for:
   - promise that a positive promotion is achievable
   - benchmark passage
   - legal compliance conclusion
+  - proof that a newly authored pool is free of upstream tractability judgment
+  - a sequence-level numeric false-promotion claim
 research_only: true
 ---
 
@@ -29,171 +35,197 @@ research_only: true
 
 ## 1. Census rule
 
-For INT-R9, **contamination** means prior access by an implementation author, case selector,
-criteria author, evaluator author, or their tools to information that can rationally affect
-case choice, bindings, criteria, stopping, thresholds, or expected output. Exact string
-leakage is only one form. Public source packs, expected claim identifiers, gold cards,
-reviewer votes, labels, prior slice use, and end-to-end debugging all count, with different
-severity.
+For INT-R9, **contamination** is prior access by implementation authors, case selectors, criteria or evaluator authors, adjudicators, their tools, or shared development processes to information that can rationally affect case choice, bindings, criteria, stopping, thresholds, interpretation, or expected output. Literal answer leakage is only one class. Public source packs, expected claim IDs, labels, gold-card contents or null patterns, votes, rationales, prior slice use, and end-to-end debugging all matter.
 
-This is an exposure census, not an accusation that any contributor optimized against an
-answer. The risk exists even when all contributors acted honestly: the repository makes
-many outcome-relevant choices visible, and the current architecture has been developed
-through repeated contact with some cases.
+This is an exposure census, not an allegation of intentional tuning. Honest development can still make a case unsuitable as one-time evidence.
 
-The corpus README names **13 real cases across 12 domains** and says their annotations are
-evaluation authority only, not runtime or claim authority
-([`policy-engine/docs/research/universal-policy-design/outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md)).
-The adjudication README names **15 committed manifests**: the same 13 real cases plus
-`housing-rent-stabilization-001` and `public-health-outreach-001`
-([`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/README.md:1-52`](../../universal-policy-design/outcome-corpus/adjudications/README.md)).
-Therefore:
+The outcome-corpus README identifies **13 real cases across 12 domains** and limits annotation authority (`policy-engine/docs/research/universal-policy-design/outcome-corpus/README.md:1-48`). The adjudication README lists **15 manifests**, adding two synthetic cases (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/README.md:1-52`).
 
-- proving-ground denominator = **13 real cases**;
-- adjudication-manifest denominator = **15**;
-- the two synthetic manifests are calibration/adjudication fixtures, not additional
-  proving-ground cases;
-- all 15 may be public regression material;
-- none of the 15 is a sealed holdout at this commit.
+```text
+proving-ground denominator = 13 real cases
+adjudication-manifest denominator = 15
+synthetic calibration fixtures = 2
+sealed decisive cases at the pinned baseline = 0
+adjacent unseen cases at the pinned baseline = 0
+```
 
-## 2. Contamination classes
+## 2. Exposure classes
 
-| Class | Meaning | Consequence for INT-R9 |
+| Class | Meaning | INT-R9 consequence |
 | --- | --- | --- |
-| `C0_unseen` | No outcome-relevant package, expectation, label, binding, or run visible to the implementation side before freeze. | Potential decisive holdout, subject to independent custody proof. |
-| `C1_source_seen` | Case sources, seed claims, expected evidence families, or limitations are public. | Public regression only unless a distinct hidden expectation can still be proven independent. |
-| `C2_answer_seen` | Expected claim IDs, gold cards, labels, or reviewer votes are implementation-visible. | Not a sealed holdout. A fresh answer key cannot retroactively erase exposure. |
-| `C3_slice_development_seen` | The case appears in mechanism-growth, envelope-revision, or other development evidence. | Not adjacent-unseen evidence; heightened bespoke-binding review. |
-| `C4_integrated_loop_seen` | The full composed loop was built, debugged, or repeatedly exercised against the case. | Ineligible as the decisive first-promotion case. Development/public-regression use only. |
+| `C0_unseen` | No outcome-relevant input, answer, binding, case-selection, or run exposure before the relevant freeze, supported by custody evidence. | Potential decisive or adjacent evidence, subject to all other requirements. |
+| `C1_source_seen` | Sources, seed claims, evidence families, or limitations are public. | Public regression unless a distinct answer and selection history remain independently held. |
+| `C2_answer_seen` | Expected IDs, labels, votes, rationales, non-null gold cards, or equivalent answer-bearing structures are visible. | Not a sealed holdout. Null gold card does not reverse other answer exposure. |
+| `C3_slice_development_seen` | Case appears in mechanism growth, envelope revision, or other development evidence. | Not adjacent-unseen evidence; heightened bespoke-binding review. |
+| `C4_integrated_loop_seen` | Full composed loop was built, debugged, or repeatedly exercised against the case. | Ineligible as decisive first-promotion or adjacent case. |
 
-Classes are cumulative: `C4` includes `C1`–`C3`; `C3` includes `C1`–`C2`.
+The classes are cumulative. “No stronger repository exposure found” is not proof that no person or model ever saw the case.
 
-## 3. Thirteen-case census
+## 3. Corrected thirteen-case census
 
-The adjudication files expose `expected_claim_ids`, `label`, `gold_card`,
-`reviewer_votes`, reviewer-role metadata, and authority/calibration fields. The table
-records only what the pinned tree supports. “No integrated-loop evidence found” does
-**not** mean the case was never viewed by a person; it means no stronger repository claim
-is made.
+Every adjudication anchor below uses the exact existing range `:1-120`, verified at `978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`. The former uniform `:1-170` ranges overran EOF and are retired.
 
-| Canonical case | Domain | Public expected answer at the pinned commit | Additional repository exposure | Highest class | INT-R9 disposition |
-| --- | --- | --- | --- | --- | --- |
-| `ua-msme-affordable-loans-2022` | MSME credit, Ukraine | `expected_claim_ids=[claim:wartime-credit-access-support]`; `label=limitation_required`; gold card and reviewer votes committed; role-only reviewers; calibration round null. [`.../adjudications/ua-msme-affordable-loans-2022.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/ua-msme-affordable-loans-2022.adjudication.json) | The constitution says this is the **only** case run through the full composed loop; all 12 others are per-slice only. It is also used in S12 envelope growth and S13 envelope revision/certified-delta records, and the N9 input defaults its governed-promotion reference to the ua-msme record. [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md); [`.../layer2_s14_universality_assurance_manifest.json:1-260`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json); [`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:130-180`](../../../../src/polisyos/runtime/quality/promotion_sequence.py) | `C4_integrated_loop_seen` | **Ineligible** as decisive first-promotion holdout and as adjacent-unseen case. Keep as development/public regression. |
-| `berlin-rent-cap-2020` | Housing | `expected_claim_ids=[claim:berlin-rent-cap-tenant-relief]`; `label=false_pass`; gold card and votes committed; `deep-pilot-round-1`. [`.../adjudications/w11a_berlin_rent_cap_2020.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_berlin_rent_cap_2020.adjudication.json) | The tree establishes public corpus/adjudication and per-slice classification, but this census found no integrated-loop or S12/S13 development reference comparable to ua-msme. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `boston-operation-ceasefire-1996` | Public safety | `expected_claim_ids=[claim:ceasefire-reduced-youth-gun-violence]`; `label=limitation_required`; gold card and votes committed; `deep-pilot-round-1`. [`.../adjudications/w11a_boston_operation_ceasefire_1996.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_boston_operation_ceasefire_1996.adjudication.json) | Used in the S12 envelope-growth evidence set. [`.../layer2_s14_universality_assurance_manifest.json:170-245`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json) | `C3_slice_development_seen` | Public regression only; not sealed or adjacent unseen. |
-| `eu-temporary-protection-ukraine-2022` | Migration | `expected_claim_ids=[claim:temporary-protection-immediate-rights]`; `label=semantic_pass`; gold card and votes committed; `deep-pilot-round-1`. [`.../adjudications/w11a_eu_temporary_protection_ukraine_2022.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_eu_temporary_protection_ukraine_2022.adjudication.json) | Used in the S13 envelope-revision evidence set. [`.../layer2_s14_universality_assurance_manifest.json:190-250`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json) | `C3_slice_development_seen` | Public regression only; not sealed or adjacent unseen. |
-| `ghana-free-shs-2017` | Education access | `expected_claim_ids=[claim:free-shs-expands-access]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_ghana_free_shs_2017.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_ghana_free_shs_2017.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `india-aadhaar-dbt-2016` | Digital public service | `expected_claim_ids=[claim:aadhaar-dbt-targets-benefits]`; `label=semantic_pass`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_india_aadhaar_dbt_2016.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_india_aadhaar_dbt_2016.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `mexico-ssb-tax-2014` | Public health | `expected_claim_ids=[claim:ssb-tax-reduces-purchases]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_mexico_ssb_tax_2014.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_mexico_ssb_tax_2014.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `netherlands-room-for-the-river-2007` | Climate adaptation | `expected_claim_ids=[claim:room-for-river-reduces-flood-risk]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_netherlands_room_for_river_2007.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_netherlands_room_for_river_2007.adjudication.json) | Used in the S13 certified-envelope-delta evidence set. [`.../layer2_s14_universality_assurance_manifest.json:200-255`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json) | `C3_slice_development_seen` | Public regression only; not sealed or adjacent unseen. |
-| `pakistan-ehsaas-emergency-cash-2020` | Social protection | `expected_claim_ids=[claim:ehsaas-rapid-social-protection]`; `label=semantic_pass`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_pakistan_ehsaas_cash_2020.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_pakistan_ehsaas_cash_2020.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `uk-levelling-up-fund-2021` | Infrastructure | `expected_claim_ids=[claim:luf-prioritises-local-infrastructure]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_uk_levelling_up_fund_2021.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_uk_levelling_up_fund_2021.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `uk-making-tax-digital-vat-2019` | Tax enforcement | `expected_claim_ids=[claim:mtd-improves-tax-compliance]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_uk_mtd_vat_2019.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_uk_mtd_vat_2019.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `uk-work-programme-2011` | Labour activation | `expected_claim_ids=[claim:work-programme-sustained-employment]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_uk_work_programme_2011.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_uk_work_programme_2011.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
-| `us-ppp-2020` | MSME emergency credit | `expected_claim_ids=[claim:ppp-emergency-payroll-support]`; `label=limitation_required`; gold card and votes committed; calibration round null. [`.../adjudications/w11a_us_ppp_2020.adjudication.json:1-170`](../../universal-policy-design/outcome-corpus/adjudications/w11a_us_ppp_2020.adjudication.json) | Public corpus/adjudication and per-slice classification; no integrated-loop evidence found. [`.../outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md); [`.../universal-policy-design-system-vision-and-organizing-rules.md:404-430`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md) | `C2_answer_seen` | Public regression/calibration only; not sealed or adjacent unseen. |
+| Canonical case | Domain | Public answer/development exposure | Highest class | INT-R9 use |
+| --- | --- | --- | --- | --- |
+| `ua-msme-affordable-loans-2022` | MSME credit, Ukraine | `expected_claim_ids=[claim:wartime-credit-access-support]`; `label=limitation_required`; non-null cards and votes; `authority_level=governed`; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/ua-msme-affordable-loans-2022.adjudication.json:1-120`). It is the only full-loop case; all twelve others are per-slice (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`), appears in S12/S13 evidence (`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:170-255`), and is named by the N9 default (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:130-180`). | `C4_integrated_loop_seen` | **Ineligible** as primary and adjacent. Public regression/development only. |
+| `berlin-rent-cap-2020` | housing | `expected_claim_ids=[claim:berlin-rent-cap-tenant-relief]`; `label=false_pass`; non-null card and votes; governed; `deep-pilot-round-1` (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_berlin_rent_cap_2020.adjudication.json:1-120`). No integrated-loop evidence found beyond the public corpus/per-slice baseline (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `boston-operation-ceasefire-1996` | public safety | `expected_claim_ids=[claim:ceasefire-reduced-youth-gun-violence]`; `label=limitation_required`; non-null card and votes; research; `deep-pilot-round-1` (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_boston_operation_ceasefire_1996.adjudication.json:1-120`). Used in S12 envelope-growth evidence (`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:170-245`). | `C3_slice_development_seen` | Public regression only. |
+| `eu-temporary-protection-ukraine-2022` | migration | `expected_claim_ids=[claim:temporary-protection-immediate-rights]`; `label=semantic_pass`; votes visible; `gold_card=null`; production; `deep-pilot-round-1` (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_eu_temporary_protection_ukraine_2022.adjudication.json:1-120`). Used in S13 envelope-revision evidence (`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:190-250`). | `C3_slice_development_seen` | Public regression only. |
+| `ghana-free-shs-2017` | education access | `expected_claim_ids=[claim:free-shs-expands-access]`; `label=limitation_required`; non-null card and votes; research; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_ghana_free_shs_2017.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `india-aadhaar-dbt-2016` | digital public service | `expected_claim_ids=[claim:aadhaar-dbt-targets-benefits]`; `label=semantic_pass`; votes visible; `gold_card=null`; production; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_india_aadhaar_dbt_2016.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `mexico-ssb-tax-2014` | public health | `expected_claim_ids=[claim:ssb-tax-reduces-purchases]`; `label=limitation_required`; non-null card and votes; research; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_mexico_ssb_tax_2014.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `netherlands-room-for-the-river-2007` | climate adaptation | `expected_claim_ids=[claim:room-for-river-reduces-flood-risk]`; `label=limitation_required`; non-null card and votes; research; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_netherlands_room_for_river_2007.adjudication.json:1-120`). Used in S13 certified-envelope-delta evidence (`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:200-255`). | `C3_slice_development_seen` | Public regression only. |
+| `pakistan-ehsaas-emergency-cash-2020` | social protection | Repository alias `w11a_pakistan_ehsaas_cash_2020`; `expected_claim_ids=[claim:ehsaas-rapid-social-protection]`; `label=semantic_pass`; votes visible; `gold_card=null`; production; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_pakistan_ehsaas_cash_2020.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `uk-levelling-up-fund-2021` | infrastructure | `expected_claim_ids=[claim:luf-prioritises-local-infrastructure]`; `label=limitation_required`; non-null card and votes; governed; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_levelling_up_fund_2021.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `uk-making-tax-digital-vat-2019` | tax enforcement | `expected_claim_ids=[claim:mtd-improves-tax-compliance]`; `label=limitation_required`; non-null card and votes; governed; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_mtd_vat_2019.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `uk-work-programme-2011` | labour activation | `expected_claim_ids=[claim:work-programme-sustained-employment]`; `label=limitation_required`; non-null card and votes; governed; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_work_programme_2011.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
+| `us-ppp-2020` | MSME emergency credit | `expected_claim_ids=[claim:ppp-emergency-payroll-support]`; `label=limitation_required`; non-null card and votes; production; calibration null (`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_us_ppp_2020.adjudication.json:1-120`). No integrated-loop evidence found (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:382-398`). | `C2_answer_seen` | Public regression/calibration only. |
 
-### Name reconciliation
+All table anchors above are full repository paths with exact ranges present at the pinned baseline.
 
-The human-facing task uses names without the repository's `w11a_` prefix and calls the
-Pakistan case `pakistan-ehsaas-emergency-cash-2020`; the committed file names use
-`w11a_*` and `w11a_pakistan_ehsaas_cash_2020`. These are aliases for census reporting,
-not new identities. The canonical source rows and committed manifest names remain the
-repository spellings ([`outcome-corpus/README.md:18-48`](../../universal-policy-design/outcome-corpus/README.md);
-[`adjudications/README.md:29-52`](../../universal-policy-design/outcome-corpus/adjudications/README.md)).
+## 4. Programmatic fifteen-manifest enumeration
 
-## 4. The ua-msme dilemma — decision and cost
+The amendment enumeration operated on the exact manifest roster from `adjudications/README.md:29-52` and extracted:
 
-### Decision
+```text
+manifest filename
+case role (real/synthetic)
+authority_level
+reviewer_topology.topology_mode
+reviewer_topology.calibration_round_id
+whether any adjudication gold_card is null
+whether expected_claim_ids, label, and reviewer_votes are present
+```
 
-`ua-msme-affordable-loans-2022` is **excluded from the decisive first-promotion
-holdout**. It remains mandatory public regression material and may be used to prove that
-the frozen implementation has not regressed, but its result cannot establish “the first
-positive governed promotion without cherry-picking.”
+Exact output:
 
-### Why
+| # | Manifest | Role | Topology | Calibration | Authority | Null card present |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 1 | `housing-rent-stabilization-001.adjudication.json` | synthetic | `deep_pilot_overlap` | `deep-pilot-round-1` | `governed` | yes, one semantic-pass adjudication |
+| 2 | `public-health-outreach-001.adjudication.json` | synthetic | `partial_disjoint` | `null` | `production` | no |
+| 3 | `ua-msme-affordable-loans-2022.adjudication.json` | real | `partial_disjoint` | `null` | `governed` | no |
+| 4 | `w11a_berlin_rent_cap_2020.adjudication.json` | real | `deep_pilot_overlap` | `deep-pilot-round-1` | `governed` | no |
+| 5 | `w11a_boston_operation_ceasefire_1996.adjudication.json` | real | `deep_pilot_overlap` | `deep-pilot-round-1` | `research` | no |
+| 6 | `w11a_eu_temporary_protection_ukraine_2022.adjudication.json` | real | `deep_pilot_overlap` | `deep-pilot-round-1` | `production` | yes |
+| 7 | `w11a_ghana_free_shs_2017.adjudication.json` | real | `partial_disjoint` | `null` | `research` | no |
+| 8 | `w11a_india_aadhaar_dbt_2016.adjudication.json` | real | `partial_disjoint` | `null` | `production` | yes |
+| 9 | `w11a_mexico_ssb_tax_2014.adjudication.json` | real | `partial_disjoint` | `null` | `research` | no |
+| 10 | `w11a_netherlands_room_for_river_2007.adjudication.json` | real | `partial_disjoint` | `null` | `research` | no |
+| 11 | `w11a_pakistan_ehsaas_cash_2020.adjudication.json` | real | `partial_disjoint` | `null` | `production` | yes |
+| 12 | `w11a_uk_levelling_up_fund_2021.adjudication.json` | real | `partial_disjoint` | `null` | `governed` | no |
+| 13 | `w11a_uk_mtd_vat_2019.adjudication.json` | real | `partial_disjoint` | `null` | `governed` | no |
+| 14 | `w11a_uk_work_programme_2011.adjudication.json` | real | `partial_disjoint` | `null` | `governed` | no |
+| 15 | `w11a_us_ppp_2020.adjudication.json` | real | `partial_disjoint` | `null` | `production` | no |
 
-1. The case was selected and developed long before this protocol.
-2. It is the only full-loop case, so system shape and case tractability are entangled.
-3. It appears in multiple development records.
-4. N9 carries a ua-msme governed-promotion reference by default.
-5. Its expected adjudication answer is public.
+Set-level results:
 
-The letter of “do not choose after seeing this run” would therefore preserve a
-substantive selection leak: years of prior case-conditioned engineering happened before
-the formal run. Calling it unseen would be false.
+```text
+calibration_round_id values = {null, "deep-pilot-round-1"}
+  deep-pilot-round-1: 4
+  null: 11
 
-### Cost
+topology_mode values = {"deep_pilot_overlap", "partial_disjoint"}
+  deep_pilot_overlap: 4
+  partial_disjoint: 11
 
-The decisive attempt must use a newly authored, independently held case that has never
-completed the loop. It may refuse, dispute, or fail to converge. The project therefore
-loses the easiest path to a positive headline and accepts the possibility that the first
-protocol version yields **no promotion**.
+authority_level values = {"production", "governed", "research"}
+  production: 5
+  governed: 6
+  research: 4
 
-### Evidence that could reopen the decision
+all 15 expose expected_claim_ids: yes
+all 15 expose adjudication labels: yes
+all 15 expose reviewer_votes: yes
+all adjudications have non-null gold_card: no
+```
 
-Only a custody proof strong enough to defeat the facts above could reopen it—for example,
-proof that the decisive expectation and all case-specific binding choices were generated
-outside the implementation team, remained inaccessible before the code/configuration
-freeze, and that prior ua-msme work could not affect the tested predicates. The pinned
-repository supplies the opposite evidence. A fresh hidden label alone would not remove
-case-selection and implementation contamination.
+These facts correct the original prompt's sampled generalizations and the original INT-R9's incomplete “three deep-pilot manifests” statement. They do not cure the independence problem: reviewer IDs remain role-shaped, conflicts remain `none_declared`, and no named-person signature, employment/funding, reporting-line, or first-promotion access evidence exists.
 
-## 5. Reviewer and calibration exposure
+## 5. ua-msme decision and the price paid
 
-The adjudication guide requires preserving reviewer role, expertise basis, conflicts,
-and substantive disagreement; it also states that deep-pilot manifests overlap reviewers
-for calibration and later manifests may be partially disjoint
-([`adjudications/README.md:9-27`](../../universal-policy-design/outcome-corpus/adjudications/README.md)).
-The committed manifests identify role-shaped reviewer IDs and declarations such as
-`none_declared`, not accountable natural persons. Most have `calibration_round_id: null`;
-three deep-pilot manifests record `deep-pilot-round-1`. This is useful public-regression
-metadata, but it is not proof of independent adjudication for an irreversible first
-promotion. INT-R9 therefore treats all existing reviewer topology as **development and
-calibration exposure**, never as the independent panel required for the decisive run.
+### 5.1 Why it stays excluded
 
-## 6. Public regression population
+The contamination evidence is cumulative:
 
-The public regression battery may use:
+- public expected answer;
+- only full-loop case;
+- S12/S13 development use;
+- current N9 default reference; and
+- long prior engineering contact.
 
-- all 13 real case packs and adjudications;
+A hidden new answer cannot undo implementation and selection history. ua-msme therefore remains barred from both primary and adjacent roles.
+
+### 5.2 Cost
+
+The decisive attempt must use a newly authored case that may expose missing bridges, refuse, or never converge. The protocol accepts **no promotion** as a complete outcome and prohibits falling back to ua-msme for a favorable headline.
+
+### 5.3 Reopening evidence
+
+Reopening would require a custody and causal-isolation proof that prior ua-msme work could not influence the tested predicates, binding, configuration, source choice, criteria, or implementation behavior. The pinned tree supplies contrary evidence. This is a high bar because the contamination is substantive; it is not written merely to be impossible.
+
+## 6. New-case independence: exact claim and residual
+
+A newly authored pool can establish, with evidence:
+
+1. answer secrecy;
+2. implementation-side non-access;
+3. separation of implementation, case/answer authorship, eligibility review, custody, and adjudication roles; and
+4. non-discretionary selection and order **within the committed pool**.
+
+It cannot by those facts alone establish:
+
+- that pool authors did not choose tractable mechanisms;
+- that the pool is representative of policy space;
+- that case and answer authors do not share substantive priors;
+- that a language model had no prior source exposure; or
+- that upstream topic judgment was independent of known system strengths.
+
+If one case unit authors both inputs and answers, custody may keep answers hidden but pool-level tractability bias remains. Public wording must call the pool purposive unless an external frame and independent construction evidence support more.
+
+## 7. Reviewer exposure and independence standing
+
+Public manifests are useful calibration material. They are not decisive independent adjudication. The four deep-pilot manifests overlap roles for calibration; the eleven partial-disjoint manifests have null round IDs. Authority metadata is heterogeneous. None of that creates accountable human identity or proves independence.
+
+A future panel must supply corroborating evidence for contribution history, authorship, access, line management, employment, funding, compensation, and outcome incentives. Informal network and reputational ties remain declared residuals. Same-network friendliness receives an explicit conflict disposition; it is not an automatic pass.
+
+## 8. Public regression population
+
+The public battery may use:
+
+- all 13 real packs and adjudications;
 - both synthetic adjudications;
-- ID-renumbered, delivery-order, wrong-scope, source-flip, and obligation-removal
-  mutations whose expectations are public;
-- the S14 assurance material only within its declared scope.
+- public ID, delivery-order, wrong-scope, source-flip, obligation-removal, and accounting characterizations;
+- S14 assurance material only inside its stated boundary.
 
-The S14 manifest itself limits its authority and bars production, recommendation,
-publication, claim, closeout, and gold-label authority
-([`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:1-340`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json)).
-A green public battery can show regression conformance to named visible predicates; it
-cannot supply the sealed evidence needed for INT-R9.
+S14 itself bars production, recommendation, publication, claim, closeout, and gold-label authority (`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:1-340`). A green public battery shows regression conformance to named visible predicates, never sealed first-promotion evidence.
 
-## 7. Decisive holdout requirement
+## 9. Decisive holdout requirement
 
-Because every current real case is at least `C2_answer_seen`, the decisive holdout must
-be **newly authored after this census and before candidate inspection**, with:
+Because all current real cases are at least `C2_answer_seen`, any decisive case must be newly authored and independently held with:
 
-1. input package authored under a declared domain method;
-2. expectation/evaluator package held separately;
-3. commitment and access-log custody reused from S0-GAP-02;
-4. no implementation-side access to the answer package before output freeze;
-5. no prior case-specific code, configuration, binding, alias, or fixture;
-6. a separately sealed adjacent case;
-7. precommitted attempt ordering and stopping, so a failed case cannot be swapped for a
-   successful public or unregistered case.
+- separate input and expectation/evaluator packages;
+- S0-GAP-02 custody, or an expressly governed canonical supersession;
+- no implementation-side answer access before output freeze;
+- no prior case-specific code/configuration/binding/alias/fixture;
+- separately sealed adjacent case;
+- precommitted selection/order/stopping;
+- disclosed purposive-pool boundary; and
+- named evidence-backed human adjudication.
 
-A new case is not automatically clean. It becomes `C0_unseen` only if custody evidence
-supports the claim.
+A case becomes `C0_unseen` only through custody evidence. Newness is not enough.
 
-## 8. Census falsifier
+## 10. Census falsifiers and final denominator
 
-This census is wrong if the auditor finds either:
+This census should be revised if an auditor finds:
 
-- a current corpus case whose expected answer was not implementation-visible before the
-  relevant freeze and whose case-selection and implementation history are demonstrably
-  independent; or
-- repository evidence that one of the cases classified only `C2` was in fact used for
-  integrated-loop or case-specific development, which would raise, not lower, its class.
+- a current case with demonstrably independent answer, selection, and implementation history; or
+- stronger development/integrated exposure for a case currently classified only `C2`.
 
-Until such evidence appears, the honest denominator is: **13 public real regression
-cases, 2 public synthetic adjudication fixtures, 0 sealed decisive cases, 0 adjacent
-unseen cases.**
+The first would lower a class only with affirmative evidence; the second would raise it. Until then:
+
+```text
+13 public real regression cases
++ 2 public synthetic calibration fixtures
++ 0 sealed decisive cases
++ 0 adjacent unseen cases
+```

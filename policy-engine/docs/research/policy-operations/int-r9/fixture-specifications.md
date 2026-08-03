@@ -5,23 +5,28 @@ kind: deep-research-support
 research_task: INT-R9
 result_type: accepted_narrow_scope
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r9-first-promotion-protocol
+repository_branch: research/int-r9-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
-current_repository_commit: d152565dcc11cea457dacd61fadc6e15dc3ecc86
-inspection_date: 2026-08-02
+current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+inspection_date: 2026-08-03
+amended_after_audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
+bound_int_r10_commit: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+bound_int_r1_amendment_commit: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 authoritative_for:
   - research-level properties and adversarial fixture specifications for the first-promotion protocol
-  - bounded interpretation of source-flip, obligation-removal, adjacent-unseen, sealing, and no-case-specific-code probes
-  - edge-case fixtures required by INT-R9
+  - bounded interpretation of source-flip, obligation-removal, adjacent-unseen, sealing, no-case-specific-code, materiality, independence, and multiplicity probes
+  - edge-case fixtures required by INT-R9 and its independent audit
 may_not_use_for:
   - production implementation authorization
-  - final code, test, or wire contract
+  - final code, test, wire, or evaluator contract
   - canonical fixture ownership or package placement
   - authority grant
   - capability claim
   - promise that a positive promotion is achievable
   - benchmark passage
   - proof of open-world obligation completeness
+  - a sequence-level numeric false-promotion claim
+  - proof that abstention is not strategically dominant
   - legal compliance conclusion
 research_only: true
 ---
@@ -30,502 +35,187 @@ research_only: true
 
 ## 1. Fixture doctrine
 
-A fixture samples a property; it is not the property itself. PolicyOS's failure register warns
-against treating a witness or probe as the specification (P33) and against declaring premature
-green by excluding a failing run before completing an isolation proof (P34)
-([`policy-engine/docs/reference/policy-design-case-failure-patterns.md:350-900`](../../../reference/policy-design-case-failure-patterns.md)).
-The ratified custody kernel likewise requires observable predicates, semantically equivalent
-implementations, memorization resistance, dissent preservation, committed evaluator packages,
-mutations, an adjacent unseen case, and immutable failed-run history
-([`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:90-109`](../../../system-design-decisions/stage0-custody-kernel-ratification.md)).
+A fixture samples a semantic property; it is not the property. P29, P33, and P34 reject authorial proof, witness-as-specification, and premature green through post-result exclusion (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:70-78`). S0-K13, S0-K15, and S0-K16 require semantic predicates, equivalent implementations, memorization resistance, committed packages, retained dissent and failures, adjacent unseen evidence, and bounded passage (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:90-109`).
 
-Every fixture below therefore specifies:
+Each fixture states the property, controlled construction, expected relation, deciding evidence, bounded inference, adversarial bypass, and invalidation condition. No fixture changes a canonical threshold, denominator, validator, obligation class, status, or governance number. Runtime outcomes remain with N9/waist/firewall/confidence owners (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:1-270`; `policy-engine/src/polisyos/pdc/_impl/gy_waist.py:120-310`; `policy-engine/src/polisyos/runtime/quality/candidate_firewall.py:1-260`).
 
-- the **property** under test;
-- the **construction** and controlled differences;
-- the **expected relation**, not an implementation-specific enum or graph;
-- evidence needed to decide the probe;
-- the bounded inference allowed by a pass;
-- an adversarial implementation that would appear green if the fixture were misread.
+The amendment chooses adaptive Option B. A fixture may verify chronology and absence of prohibited selection, but it may never emit a sequence-level `delta`, `3 * delta`, cumulative scope, family ordinal, or family projection.
 
-No fixture changes an existing canonical threshold, denominator, validator, obligation class,
-or governance number. Runtime outcomes remain owned by the existing promotion sequence,
-waist contracts, firewall, and confidence ledger
-([`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:1-270`](../../../../src/polisyos/runtime/quality/promotion_sequence.py);
-[`policy-engine/src/polisyos/pdc/_impl/gy_waist.py:120-310`](../../../../src/polisyos/pdc/_impl/gy_waist.py);
-[`policy-engine/src/polisyos/runtime/quality/candidate_firewall.py:1-260`](../../../../src/polisyos/runtime/quality/candidate_firewall.py)).
-
-## 2. Fixture matrix
+## 2. Core fixture matrix
 
 | ID | Property | Minimum construction | Required relation | Pass supports | Pass does not support |
 | --- | --- | --- | --- | --- | --- |
-| FP-F01 | Prospective registration | Commit protocol, all slot identities/order, case packages, expectations, criteria, stopping, adjudicators, and publication rule; establish independent transaction visibility before any inspection. | `transaction_visible_at < first_inspection_at`, accounting for clock accuracy. | This attempt was governed prospectively. | Absence of secret collusion or completeness of criteria. |
-| FP-F02 | Fixed selection/order | Precommit a finite ordered queue; make a later unregistered case produce a superficially better result. | Only the next committed slot can be scored; unregistered success is exploratory. | No post-result case substitution occurred. | The committed selection rule was substantively representative. |
-| FP-F03 | Public regression conformance | Run all 13 real cases, 2 synthetic adjudications, and public mutations with the frozen implementation. | All predeclared visible predicates pass before holdout reveal. | No named public regression under that revision. | Holdout validity or generalization. |
-| FP-F04 | Sealed answer custody | Separate input and answer/evaluator packages; hiding commitment, independent custody, access log, dual-control reveal. | No prohibited answer access before candidate-output freeze; commitment verifies on reveal. | The answer package was not observably available through governed channels. | Impossibility of covert leakage or correctness of the answer. |
-| FP-F05 | Source-dependency sensitivity | Flip/revoke/supersede one predesignated material dependency while preserving transport shape and unrelated facts. | Same positive authority claim cannot survive unchanged. | Sensitivity for the sampled dependency relation. | Sensitivity to every possible source or obligation. |
-| FP-F06 | Obligation monotonicity | Remove, invalidate, or make unknown one predesignated material required obligation/certificate. | Positive promotion under the same authority claim is impossible. | Monotone response for the sampled material obligation. | Open-world obligation completeness. |
-| FP-F07 | Identifier independence | Consistently replace case, source, claim, artifact, and delivery IDs with opaque values. | Semantically equivalent terminal decision and trace relations. | No dependence on sampled literal identifiers. | Absence of semantic fingerprinting or hidden case-specific aliases. |
-| FP-F08 | Delivery-order robustness | Permute admissible arrival order without changing source facts or temporal semantics. | Equivalent authoritative outcome after canonical ordering/replay semantics. | Robustness to sampled delivery order. | Correctness under every late-data scenario. |
-| FP-F09 | Wrong-scope sensitivity | Create a surface-similar case with changed jurisdiction, validity interval, purpose, delegation, or authority scope. | Original positive authority is not silently reused. | Scope sensitivity for sampled boundary change. | Full legal or institutional scope correctness. |
-| FP-F10 | No case-specific code | Freeze all executable/configuration assets; scan IDs/fingerprints; inspect provenance; opaque-ID mutation; same-binary adjacent run. | No direct or indirect case-conditioned branch, binding, prompt, registry entry, or adapter. | No detected case-specific mechanism under the stated audit. | Mathematical proof that no semantic shortcut exists. |
-| FP-F11 | Adjacent transfer | Pair a separately authored, separately sealed case in the same declared mechanism/problem family but materially different context. | Same frozen binary/configuration reaches the sealed-oracle-correct terminal behavior. | One bounded transfer check. | Population external validity or requirement that both cases promote. |
-| FP-F12 | Nontrivial abstention | Public deterministic positive control plus known-groundable public seeds; retain owner floors. | System can traverse the technical positive path on the control and does not invariantly refuse known-groundable seeds. | Refusal is not mechanically constant on named controls. | Existence of a promotable real policy case. |
-| FP-F13 | No hidden rerun / best-run selection | Instrument run IDs, seeds, source snapshots, and execution ordinals; inject an initially unfavorable output followed by a favorable rerun. | First result-bearing run is scored; later run cannot replace it. | No observed best-run selection. | Full protection against fabricated logs. |
-| FP-F14 | Result-independent publication | Produce a refusal/void/dispute outcome. | Same durable public record, raw votes, deviations, denominator, and review visibility as promotion. | Negative outcome was not put in the file drawer. | Organizational absence of informal career penalties. |
-| FP-F15 | Post-promotion correction | After a promotion record, reveal a material source invalidation or custody defect. | Append-only challenge and canonical suspension/correction/withdrawal/supersession; original retained. | Current and historical truth remain reconstructable. | That the initial decision was reasonable ex ante. |
-| FP-F16 | Pre-inspection amendment | Discover an error before any input, output, answer, or result-bearing access. | Old version retired only with affirmative no-inspection proof; new version gets new commitment and public diff. | Prospective correction without outcome tuning. | Cleanliness when access evidence is incomplete. |
-| FP-F17 | Criterion ambiguity | Reveal a case for which a sealed criterion has two materially different reasonable readings. | Dispute; no favorable interpretation chosen for the scored run; clarification applies only prospectively. | Ambiguity cannot be resolved by outcome preference. | That all criteria are unambiguous. |
-| FP-F18 | Adjudicator succession | Remove one panel member after partial review. | Only a predeclared clean alternate may substitute; otherwise dispute. | No outcome-conditioned reviewer shopping. | Absolute independence from undisclosed ties. |
-| FP-F19 | Simultaneous qualifiers | Two slots appear qualifying in overlapping wall-clock time. | Earlier committed slot and canonical transaction order determine firstness. | “First” was not selected by attractiveness. | Comparative quality of the two candidates. |
-| FP-F20 | Old hand-coded binding | Introduce a binding authored in an earlier slice whose author has left, without a literal current case ID. | Automatic NO-GO when provenance shows heldout-case conditioning. | Contributor departure does not cleanse contamination. | Detection of every undocumented historical binding. |
-
-## 3. Detailed falsifier specifications
-
-### 3.1 FP-F05 — source flip
-
-**Property.** A positive authority-bearing claim must remain dependent on its admitted material
-sources. A source change that removes the justification cannot leave the same claim green merely
-because transport, signature, or payload shape still validates.
-
-**Pre-registration fields.** Before candidate inspection, the expectation package identifies:
-
-1. the source artifact and canonical owner relationship;
-2. why it is material to the candidate authority claim;
-3. the mutation type: `revoked`, `superseded`, `reversed`, `scope_changed`,
-   `effective_time_changed`, or `credibility_invalidated`;
-4. controlled fields that remain unchanged;
-5. acceptable terminal relations after the flip, expressed semantically rather than as one
-   enum name;
-6. the owner whose output decides the consequence.
-
-**Construction.** Start from the sealed primary input. Change one material source fact while
-preserving unrelated evidence, identifiers where possible, transport validity, and input shape.
-Examples include:
-
-- an authority instrument remains cryptographically authentic but is revoked before the
-  relevant validity interval;
-- a source that supported an effect estimate is replaced by a valid correction reversing the
-  direction;
-- jurisdiction changes while payload text remains identical;
-- a dependency is superseded by a later instrument whose scope excludes the candidate.
-
-**Required relation.** The canonical system must not issue the same positive authority claim
-with the same scope and maintained assumptions. Depending on existing owner semantics, acceptable
-responses include refusal, typed unknown, limitation, revalidation requirement, suspension, or a
-narrower claim.
-
-**NO-GO.** Any unchanged positive promotion; a trace that never references the changed dependency;
-or a post hoc declaration that the source “was not material” contrary to the sealed package.
-
-**Adversarial pass-by-probe implementation.** Code recognizes the fixture's source ID and refuses
-only that ID. FP-F07 opaque identities and the independently authored sealed mutation are therefore
-required companions. The property is dependency sensitivity, not recognition of a known red-team
-string.
-
-**Bounded inference.** A pass is evidence for one sampled material dependency under one frozen
-revision. It is not proof that all external-source changes propagate correctly.
-
-### 3.2 FP-F06 — obligation removal
-
-**Property.** Removing or making unknown a required material obligation cannot make a candidate
-more promotable or leave a positive authority claim unchanged.
-
-**INT-R1 seam.** INT-R1 supplies the versioned obligation-set declaration and the honest strength
-of its completeness claim. INT-R9 selects one obligation already declared material; it does not
-infer that the declaration exhausts the open world.
-
-**Construction.** Preserve the candidate, sources, outputs, and unrelated obligations. For one
-precommitted required obligation, perform exactly one mutation:
-
-- remove the obligation artifact;
-- replace its verification with `unknown`;
-- invalidate its certificate;
-- change applicability so that satisfaction is no longer established;
-- withdraw the owner theorem/assumption needed to treat it as discharged.
-
-**Required relation.** The canonical owner cannot produce a positive promotion under the same
-scope. The trace must identify the missing/unknown obligation or its owner-backed consequence.
-
-**NO-GO.** Promotion remains green; the obligation silently disappears from the denominator; a
-new threshold is chosen; or the fixture is excluded after failure without a completed isolation
-proof.
-
-**Adversarial pass-by-probe implementation.** Refuse only when a field is physically absent, while
-accepting an invalid or unknown certificate. The fixture family must vary the semantic removal
-mechanism and evaluate owner state, not one serialization.
-
-**Bounded inference.** One monotonicity sample. No claim of obligation completeness.
-
-### 3.3 FP-F10 — no-case-specific-code check
-
-**Property.** The result arises from general discovery, grounding, evidence admission, and owner
-predicates, not a branch or binding conditioned on the heldout case or its semantic fingerprint.
-Organizing Rule 12 requires free growth without production hard-coding
-([`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:145-230`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md)).
-
-**Freeze scope.** Before primary input reveal, bind:
-
-- source tree, generated source, build outputs, dependency lock and resolved artifacts;
-- models, prompts, templates, feature flags, environment variables, and random-seed policy;
-- adapters, aliases, registries, lookup tables, bindings, evidence dictionaries, and source
-  fingerprints;
-- query code, source cutoff, caches, and evaluator executable;
-- infrastructure image and declared nondeterministic dependencies.
-
-**Evidence bundle.** A passing check requires all of:
-
-1. pre-reveal/post-run equality receipts for frozen assets;
-2. literal case/source/claim identifier scan;
-3. semantic fingerprint and alias review;
-4. binding provenance: author, first commit, purpose, source inputs, case exposure, later edits;
-5. registry/adapter delta proof;
-6. opaque-identity mutation;
-7. same-binary, same-configuration adjacent case;
-8. signed declarations from responsible maintainers, treated as evidence but not sufficient
-   alone;
-9. investigation of prior case-conditioned development, including departed contributors.
-
-**Automatic failure.** A direct branch, hidden fixture, hand-coded binding, case-only adapter,
-post-reveal prompt/configuration change, or an older case-conditioned mapping whose provenance
-predates the current author.
-
-**Why literal scans are insufficient.** A case can be selected by source URL, claim phrase,
-domain alias, vector fingerprint, evidence-family combination, or an indirectly activated
-registry. The check is provenance- and behavior-based.
-
-**Adversarial pass-by-probe implementation.** Replace `if case_id == X` with a hash, source URL,
-or semantically equivalent alias. FP-F07, FP-F11, provenance review, and registry audit close
-this obvious loophole but cannot prove absence of every hidden semantic shortcut.
-
-### 3.4 FP-F11 — adjacent unseen case
-
-**Property.** The frozen implementation's behavior is not unique to one concealed case.
-
-**Construction.** The independent case-author team creates the primary/adjacent pair before
-implementation-side reveal and commits both. The adjacency declaration names:
-
-- shared mechanism or policy-problem family;
-- the dimensions intentionally held comparable;
-- at least two material differences, chosen from jurisdiction, time, source family, affected
-  population, administrative form, implementation context, or evidence quality;
-- why the adjacent case is not a paraphrase, field-order mutation, or identifier substitution;
-- separate authorship and custody evidence.
-
-**Execution.** The adjacent case is run with the exact same frozen source, build, dependencies,
-model/prompt, configuration, adapters, evaluator executable, and rule versions. No adjacent-case
-patch is permitted.
-
-**Required relation.** The sealed oracle determines the correct terminal **behavior**, which may
-be promotion, limitation, refusal, or unknown. Requiring a second positive would optimize the
-forbidden useful-design rate and could reward overclaiming. A correct refusal on the adjacent case
-can be the right transfer result.
-
-**NO-GO.** Different binary/configuration; material case-specific binding; incorrect sealed-oracle
-behavior; the adjacent case was public or previously developed against; or adjacency was declared
-only after seeing both results.
-
-**Bounded inference.** Evidence of one adjacent transfer, not representativeness or domain-wide
-external validity.
-
-### 3.5 FP-F04 — sealed-holdout construction and leak test
-
-All 13 current real cases and both synthetic adjudications are public, with expected claim IDs,
-labels, gold cards, and reviewer votes in the git tree; they are therefore regression/calibration
-material, not a sealed holdout
-([`policy-engine/docs/research/universal-policy-design/outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md);
-[`policy-engine/docs/research/universal-policy-design/outcome-corpus/adjudications/README.md:1-52`](../../universal-policy-design/outcome-corpus/adjudications/README.md)).
-
-**Required construction.** Reuse S0-GAP-02 for:
-
-- independent input and expectation/evaluator packages;
-- canonical serialization;
-- hiding and binding commitment with high-entropy randomness or another approved hiding
-  mechanism;
-- custodian signatures and independently verifiable transaction/proof-of-existence;
-- least-privilege access, immutable access logs, dual-control reveal, rotation, succession,
-  challenge, and incident response;
-- reveal verification and retained raw expectations.
-
-A plain hash of a small predictable answer space can prove later change detection but may be
-brute-forced and does not itself establish secrecy. NIST FIPS 180-4 describes hash digests as a
-way to detect message changes; commitment literature distinguishes hiding from binding; RFC 3161
-provides a proof-of-existence time-stamp building block. Mechanism choice remains with S0-GAP-02.
-
-**Leak injection.** Before candidate-output freeze, grant one unauthorized implementation-side
-principal access to any answer-bearing content or provide a side channel that narrows a
-promotion-critical expectation.
-
-**Required relation.** The slot becomes `void` or `disputed`; no favorable result survives; the
-slot remains in history, denominator, and chronological risk scope.
-
-**Adversarial pass-by-probe implementation.** Log only formal file downloads while exposing the
-answer in issue text, branch names, model context, screenshots, reviewer comments, or metadata.
-The access model must cover all governed disclosure channels, and incident attestation cannot be
-limited to one storage service.
-
-## 4. Insider adversaries
-
-### 4.1 FP-A01 — insider wants a positive result and follows every literal rule
-
-**Attack.** Before sealing, the insider authors an “unseen” case that closely mirrors known
-ua-msme bindings; chooses three easy strata; writes vague materiality rules; appoints friendly
-nominally external reviewers; commits a queue but encodes the likely winner first; uses an
-unsalted hash of a tiny answer key; and rewards the team when useful-design rate rises. No rule
-that merely says “preregister, seal, use an independent reviewer” is literally broken.
-
-**Required protections.** The protocol passes this adversary only if it requires:
-
-- case authors independent of implementation and case selection;
-- explicit population and exclusion rules plus independently reviewed queue selection;
-- all primary/adjacent cases and answers sealed before first inspection;
-- operational human independence and conflict disclosures;
-- hiding commitment and access proof, not “a hash exists”;
-- criteria calibrated and materiality resolved before sealing;
-- no-case-specific-code provenance review;
-- immutable order and result-independent publication;
-- observable useful-design-rate firewall and no output-contingent incentives;
-- bounded public claim and challenge route.
-
-**Residual impossibility.** No governance record proves the absence of secret collusion or
-fabricated custody evidence. The protocol closes observable and opportunistic degrees of freedom;
-it does not make fraud mathematically impossible.
-
-### 4.2 FP-A02 — insider wants to avoid blame and refuses everything
-
-**Attack.** The system returns a generic blocker for every case. Because abstention is praised as
-honest, no individual risks issuing the first positive claim. Useful-design rate remains zero and
-every NO-GO is technically “safe.” This realizes tradeoff T6: the incentive gradient points away
-from expensive grounding
-([`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:300-455`](../../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md)).
-
-**Required protections.** Without promising a real positive, the protocol requires:
-
-- owner-backed, evidence-linked refusal reasons rather than generic safety prose;
-- public contract-level positive control demonstrating that the technical path is not locked;
-- known-groundable public seeds to measure false abstention/search recall;
-- acquisition/repair records where existing owners support them;
-- no domain-ceiling claim while search recall, index freshness, or evidence acquisition is
-  inadequate;
-- identical publication visibility for refusal and promotion;
-- review of invariant refusal across semantically different cases.
-
-**Boundary.** The positive control is not a real promotion, does not enter the useful-design-rate
-numerator, and does not prove a positive real case exists. It distinguishes technical paralysis
-from honest refusal only within its specified contract surface.
-
-### 4.3 FP-A03 — departed author left a hand-coded binding
-
-**Attack.** Three slices earlier, a contributor wrote a source-to-lever mapping for what later
-became a sealed case. The current team did not select the case after seeing a result and nobody
-currently remembers the code's purpose.
-
-**Required relation.** Provenance, source fingerprints, historical commit context, and behavior
-show case conditioning; FP-F10 fails automatically. Employment status and current intent are
-irrelevant.
-
-## 5. Required edge-case fixtures
-
-### FP-E01 — registered case fails; unregistered case succeeds
-
-- **Setup:** slot 1 refuses; a developer runs an unregistered case and obtains a positive owner
-  receipt.
-- **Expected:** slot 1 remains refused; unregistered run is labeled development/exploratory and
-  cannot become first promotion; slot 2 is the only next scored case.
-- **Falsifier:** any public wording treating the unregistered result as governed first promotion.
-
-### FP-E02 — adjudicator unavailable mid-adjudication
-
-- **Setup:** one panel member becomes unavailable after other votes are recorded.
-- **Expected:** use only the predeclared clean alternate, with no outcome-conditioned choice;
-  otherwise dispute.
-- **Falsifier:** appointing a replacement after inspecting vote direction or candidate result.
-
-### FP-E03 — criterion ambiguous after sealing
-
-- **Setup:** two reasonable interpretations lead to different outcomes.
-- **Expected:** material ambiguity produces dispute; no interpretation is retroactively chosen;
-  a clarified v2 applies only to fresh cases.
-- **Falsifier:** “clarification” that rescues the current positive.
-
-### FP-E04 — sealed holdout leaks
-
-- **Setup:** answer-bearing information is exposed before candidate-output freeze.
-- **Expected:** void/dispute; slot retained; no substitute inserted; incident published.
-- **Falsifier:** rotating the answer key and pretending the same case is unseen.
-
-### FP-E05 — promotion later found unjustified
-
-- **Setup:** later evidence establishes source invalidity, hidden binding, or oracle error.
-- **Expected:** append-only challenge and canonical correction/suspension/withdrawal/supersession;
-  original record preserved; public currentness changes.
-- **Falsifier:** deleting the first record or leaving the public claim unqualified.
-
-### FP-E06 — two candidates qualify simultaneously
-
-- **Setup:** asynchronous execution makes slots 1 and 2 appear positive at similar times.
-- **Expected:** this situation itself is nonconforming if slot 2 began before slot 1 was terminal;
-  firstness follows committed order and canonical transaction order, not finish time or quality.
-- **Falsifier:** selecting the more impressive case.
-
-### FP-E07 — preregistration mis-specified before any result is seen
-
-- **Setup:** an unambiguous clerical/schema defect is found before any case or answer access.
-- **Expected:** old version may be retired only with affirmative no-inspection proof; publish diff,
-  new commitment, and new transaction time.
-- **Falsifier:** relying on participant memory where access logs are incomplete.
-
-### FP-E08 — hidden rerun
-
-- **Setup:** first result-bearing execution refuses; a second succeeds after nondeterministic
-  variation.
-- **Expected:** first run is scored; second is retained but cannot replace it; retry is permitted
-  only under a predeclared infrastructure-failure rule proving no result was exposed.
-- **Falsifier:** “best of N” under an undeclared seed policy.
-
-### FP-E09 — exclusion after failure without isolation proof
-
-- **Setup:** a failed fixture is called irrelevant or corrupt after the outcome is known.
-- **Expected:** retain failure; exclusion can affect later protocol versions only after a completed,
-  owner-backed isolation proof independent of the desired result.
-- **Falsifier:** removing it from denominator, regression set, or public record immediately.
-
-### FP-E10 — earlier slot disputed; later slot appears positive
-
-- **Setup:** slot 1 enters material dispute; slot 2 has already been run or is proposed for reveal.
-- **Expected:** halt. Slot 2 cannot become first until slot 1 is resolved; initiating slot 2 while
-  the rule required a halt is itself a process violation.
-- **Falsifier:** calling slot 2 “first uncontested promotion.”
-
-## 6. Public regression battery
-
-The visible battery may include all 13 canonical real cases, both synthetic adjudications, and
-public metamorphic mutations. It must be run before any sealed holdout reveal. The current corpus
-README limits annotation authority to evaluation and explicitly denies runtime/claim authority
-([`policy-engine/docs/research/universal-policy-design/outcome-corpus/README.md:1-48`](../../universal-policy-design/outcome-corpus/README.md)).
-The S14 assurance manifest similarly carries a narrow `authoritative_for`/`may_not_use_for`
-boundary and development evidence involving ua-msme and other cases
-([`policy-engine/architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json:1-340`](../../../../architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json)).
-
-Minimum public mutations:
-
-1. opaque IDs;
-2. admissible delivery-order permutations;
-3. semantically equivalent encodings;
-4. wrong-scope look-alikes;
-5. source flip;
-6. obligation removal/unknown;
-7. stale-but-cryptographically-valid source;
-8. one deterministic contract-level positive control;
-9. known-groundable seeds for false-abstention/search-recall monitoring;
-10. one visible case carrying intentionally hand-coded binding, expected to fail the
-    no-case-specific-code check.
-
-A public battery failure is an automatic NO-GO before sealed answer reveal. Passing it supports
-only named regression predicates.
-
-## 7. Sealed primary and adjacent package template
-
-```yaml
-SealedCasePairPackage:
-  package_id: opaque
-  package_version: exact
-  authors_and_conflicts: [signed identity/disclosure refs]
-  selection_rule_ref: exact
-  primary:
-    input_commitment: hiding/binding commitment ref
-    expectation_evaluator_commitment: hiding/binding commitment ref
-    declared_domain_stratum: text
-    source_and_time_scope_commitment: ref
-  adjacent:
-    input_commitment: hiding/binding commitment ref
-    expectation_evaluator_commitment: hiding/binding commitment ref
-    adjacency_declaration_commitment: ref
-  falsifiers:
-    source_flip_commitment: ref
-    obligation_removal_commitment: ref
-    wrong_scope_commitment: ref
-  custody:
-    custodian: accountable identity
-    received_at: CTM R5
-    transaction_visible_at: CTM R6
-    access_policy_ref: ref
-    access_log_ref: ref
-    dual_control_reveal_rule_ref: ref
-  disclosure_order:
-    - freeze implementation/environment/source cutoff/evaluator executable
-    - reveal primary input
-    - freeze candidate output
-    - reveal primary expectation/evaluator package
-    - if primary otherwise qualifies, reveal and run paired adjacent input with same freeze
-    - freeze adjacent output
-    - reveal adjacent expectation/evaluator package
-  authority_boundary:
-    authoritative_for:
-      - exact heldout input/expectation relation and sealed evaluation instructions
-    may_not_use_for:
-      - legal truth beyond cited sources
-      - domain representativeness
-      - proof a positive result exists
-      - production authorization
+| `FP-F01` | prospective registration | Commit protocol, pool/order, criteria, materiality, panel, publication, and no-family-number boundary; establish independent visibility before access. | `transaction_visible_at < first_result_bearing_access`, accounting for clock uncertainty. | Prospective procedure. | Criterion completeness or absence of collusion. |
+| `FP-F02` | fixed selection/order | Precommit finite ordered queue; let later unregistered case look better. | Only earliest unresolved committed slot is scored. | No post-result case substitution. | Representative selection. |
+| `FP-F03` | public regression | Run 13 real cases, 2 synthetic manifests, and public mutations under exact freeze. | All predeclared visible predicates pass before reveal. | No named visible regression. | Holdout validity or generalization. |
+| `FP-F04` | sealed answer custody | Separate input/expectation packages; hiding and binding commitment; independent custody/access log/dual reveal. | No prohibited answer access before output freeze; reveal verifies commitment. | Governed-channel non-access. | Oracle correctness or impossibility of covert leakage. |
+| `FP-F05` | source dependency sensitivity | Revoke/reverse/supersede/rescope/retime/invalidate one material dependency while preserving shape and unrelated facts. | Same positive authority claim cannot survive unchanged. | Sampled dependency remains live. | Universal source sensitivity. |
+| `FP-F06` | obligation monotonicity | Remove/invalidate/make unknown one material obligation from the exact coverage input. | Same protected-action positive cannot survive. | Sampled obligation response. | Open-world completeness. |
+| `FP-F07` | identifier independence | Replace case/source/claim/artifact/delivery IDs with opaque consistent values. | Semantically equivalent terminal and trace relations. | No sampled literal-ID dependence. | Absence of every semantic fingerprint. |
+| `FP-F08` | delivery-order robustness | Permute admissible arrival order while preserving facts/time semantics. | Equivalent owner result after canonical ordering/replay. | Sampled order robustness. | Every late-data case. |
+| `FP-F09` | wrong-scope sensitivity | Surface-similar case changes jurisdiction, validity, purpose, delegation, or authority scope. | Original positive authority is not silently reused. | Sampled boundary sensitivity. | Full legal correctness. |
+| `FP-F10` | no case-specific mechanism | Freeze assets; scan IDs/fingerprints; inspect provenance/registries; opaque IDs; same-binary adjacent run. | No detected case-conditioned branch, binding, prompt, alias, registry, fixture, or adapter. | No detected bespoke mechanism under named audit. | Mathematical proof against all shortcuts. |
+| `FP-F11` | adjacent transfer | Separately authored/sealed case shares declared mechanism family and differs on at least two material dimensions. | Same freeze reaches evaluator-correct terminal behavior. | One bounded transfer relation. | Population validity or required second positive. |
+| `FP-F12` | mechanical refusal detector | Public deterministic positive control plus known-groundable seeds and owner floors. | Technical positive path works on control; named seeds are not invariantly refused. | Refusal is not mechanically constant on named controls. | Strategic abstention solved or a real positive exists. |
+| `FP-F13` | no best-run selection | Instrument runs/seeds/snapshots; inject unfavorable first output and favorable rerun. | First result-bearing run is scored. | No observed best-run substitution. | Protection against fabricated logs. |
+| `FP-F14` | result-independent publication | Produce refusal, void, dispute, no-attempt, or exhaustion. | Same durable artifact class, raw votes, deviations, chronology, and review visibility as positive. | Negative result not silently filed away. | Absence of informal prestige asymmetry. |
+| `FP-F15` | post-promotion correction | Reveal material source/custody/coverage defect after positive. | Append challenge and canonical currentness action; retain original. | Historical/current truth reconstructable. | Initial decision was reasonable. |
+| `FP-F16` | pre-inspection amendment | Discover defect before any input/output/answer access. | Retire only with affirmative no-access proof; new diff/commitments/times. | Prospective correction. | Cleanliness if access evidence is incomplete. |
+| `FP-F17` | criterion ambiguity | Sealed criterion has two materially different reasonable readings. | Dispute; no result-favorable reading; future-only clarification. | No outcome-selected interpretation. | Every criterion unambiguous. |
+| `FP-F18` | adjudicator succession | Panel member unavailable after partial review. | Clean predeclared alternate only; otherwise dispute. | No reviewer shopping. | Absolute independence from undisclosed ties. |
+| `FP-F19` | simultaneous qualifiers | Two slots appear qualifying in overlapping time. | Committed order and canonical transaction order determine firstness. | First not selected by attractiveness. | Comparative quality. |
+| `FP-F20` | historical hand-coded binding | Earlier-slice binding by departed contributor, no literal current case ID. | Automatic NO-GO when provenance shows heldout-case conditioning. | Departure does not cleanse contamination. | Detection of every undocumented binding. |
+
+## 3. Amendment-specific falsifier matrix
+
+| ID | Audit property | Construction | Required result | Failure condition |
+| --- | --- | --- | --- | --- |
+| `FP-R01` | three fresh local scopes do not become one family | Cases A/B/C create distinct design-problem scopes, each local ordinal zero with ordinary local allocation. | Record three separate local receipts; no family scope/spend/ordinal/bound or public number. | Any `P(false first promotion) <= delta`, `3*delta`, or “cumulative budget” claim is emitted. |
+| `FP-R02` | result-informed repair is adaptive | Slot 1 fails; revision 2 is designed from that failure and succeeds on still-sealed slot 2. | Publish repair ancestry/diff/information used; retain slot 1; call continuation adaptive; no family number. | Repair is relabeled a fixed-plan look or rescored into slot 1. |
+| `FP-R03` | materiality right is prospective | Adverse dissent appears; a friendly assessor invents a new non-material rationale. | Dispute. Future protocol may clarify; current score cannot. | Late assessor admits positive. |
+| `FP-R04` | independence requires evidence | Panel has no direct code/case/line/pay conflict but shares funder, governance network, and reputational stake. | Documentary ties and residuals receive explicit predeclared disposition; declarations alone fail. | `none_declared` or signatures auto-qualify panel. |
+| `FP-R05` | coverage gap cannot be cured by narrowing | After inspection envelope is `known_incomplete` or materially `open_world_unresolved`; actor proposes narrower claim. | Original slot NO-GO; narrower action requires new identity, envelope, protocol version, commitments, and fresh cases. | Same run/case is reinterpreted into positive. |
+| `FP-R06` | metric denominator remains external | History includes unselected, unreached, retired, inspected void, refused, disputed, and promoted facts. | Chronology records all; denominator membership omitted or supplied by canonical metric owner. | INT-R9 chooses “all precommitted” or “only inspected” as new canonical rule. |
+| `FP-R07` | YAML is not executable | Load file with standard YAML parser and inspect non-comment tokens. | Parsed value `null`; no non-comment protocol keys, IDs, counts, enums, transitions, vote rules, or conformance fields. | Loader returns a protocol object or literals can support a conformance claim. |
+| `FP-R08` | no sibling S0-GAP-02 framework | Team creates INT-R9-local commitment service, reviewer registry, and challenge path with similar properties. | Reject as P27/P28 duplication unless governance expressly supersedes canonical S0-GAP-02. | “Equivalent” sibling is accepted. |
+| `FP-R09` | purposive pool remains bounded | Separated case unit authors every pair around known system strengths; secrecy and random selection are perfect. | Selection is valid within pool, but public claim states purposive construction and residual tractability judgment. | Random draw is described as independent of upstream tractability or representative. |
+| `FP-R10` | strategic supported refusal remains possible | System passes public controls, then refuses all unseen cases with exact canonical reasons and acquisition records. | Protocol conforms and publishes exhaustion. | Document says controls prove abstention is not dominant or forces a positive. |
+
+## 4. Detailed falsifier specifications
+
+### 4.1 `FP-F05` — source flip
+
+**Property.** A positive authority claim remains dependent on admitted material sources.
+
+**Precommitment.** Before inspection, the expectation package identifies the source/owner relation, why it is material, mutation family, controlled fields, acceptable semantic responses, materiality record, and deciding owner.
+
+**Construction.** Preserve unrelated evidence and transport validity while revoking, reversing, superseding, rescoping, retiming, or invalidating one material dependency. Examples include an authentic instrument revoked before its validity interval; a correction reversing an estimate; unchanged text under the wrong jurisdiction; or a superseding instrument excluding the candidate.
+
+**Pass relation.** The exact same positive claim/scope/assumptions do not survive. Existing owner semantics may yield refusal, unknown, limitation, revalidation, suspension, or narrower future action.
+
+**Adversarial bypass.** Implementation refuses only a known fixture ID. Pair with opaque identities and independently authored semantic variants.
+
+**NO-GO.** Unchanged positive; trace ignores dependency; or materiality is reclassified after seeing failure.
+
+### 4.2 `FP-F06` — obligation removal
+
+**Property.** Removing or making unknown a required material obligation cannot leave the same protected-action positive.
+
+**Interface.** The obligation comes from the exact `ObligationCoverageEnvelope`; INT-R9 does not infer completeness.
+
+**Construction.** Preserve candidate, sources, and unrelated obligations. Remove the artifact, replace verification with unknown, invalidate the certificate, change applicability so satisfaction is unestablished, or withdraw the owner theorem/assumption.
+
+**Pass relation.** Canonical owner cannot produce the same positive and trace identifies the missing/unknown obligation or owner-backed consequence.
+
+**NO-GO.** Promotion remains green; obligation disappears from the declared basis; a new threshold is chosen; or the same action is narrowed after inspection.
+
+### 4.3 `FP-F10` — no-case-specific mechanism
+
+**Freeze scope.** Source/generated source, build, dependencies, model/prompt/templates/flags, environment, seed policy, adapters, aliases, registries, bindings, evidence dictionaries, source fingerprints, queries, cutoff, caches, evaluator executable, and infrastructure image.
+
+**Evidence bundle.** Equality receipts; literal identifier scan; semantic fingerprint/alias/source/embedding review; binding provenance with author/first commit/purpose/case exposure; registry/adapter delta; opaque IDs; same-freeze adjacent run; maintainer declarations as nonsufficient evidence; and historical review including departed contributors.
+
+**Automatic failure.** Direct branch, hash/source/alias shortcut, hidden fixture, case-only adapter, case-conditioned old binding, or post-reveal prompt/config change.
+
+### 4.4 `FP-F11` — adjacent unseen case
+
+**Construction.** Pair created and committed before reveal. Adjacency declaration names shared mechanism/problem family, comparable dimensions, at least two material differences, separate authorship/custody evidence, and why it is not paraphrase/ID/order mutation.
+
+**Execution.** Exact same frozen source, build, dependencies, model/prompt, configuration, adapters, evaluator executable, and rules. No adjacent-specific patch.
+
+**Required relation.** Evaluator-correct terminal behavior, which may be positive, limited, unknown, or refused. Requiring a second positive would optimize the forbidden metric.
+
+**Bounded inference.** One adjacent transfer relation, not representativeness.
+
+### 4.5 `FP-F04` — sealed holdout
+
+All current cases are visible regression/calibration and cannot be resealed retroactively. A new holdout requires separated input/expectation packages; canonical serialization; binding and hiding commitment with adequate entropy or another approved construction; custodian signature and independent transaction evidence; least privilege and access logs; dual-control reveal; implementation freeze before input reveal; output freeze before expectation reveal; reveal verification; incident/challenge procedure; and retained raw expectations.
+
+FIPS 180-4 supports digest/change detection. Hiding against a low-entropy predictable answer requires commitment construction and threat-model analysis; a plain unsalted digest is insufficient.
+
+### 4.6 `FP-R01` — audit D-001 replay
+
+Execute the exact compliant trace:
+
+```text
+slot 1 -> design-problem A -> local scope A -> ordinal 0 -> local allocation
+slot 2 -> design-problem B -> local scope B -> ordinal 0 -> local allocation
+slot 3 -> design-problem C -> local scope C -> ordinal 0 -> local allocation
+stop on first positive
 ```
 
-## 8. Acceptance table
+**Expected.** All local receipts remain valid only for their own scopes/assumptions. The INT-R9 public/evaluation artifact has no family-risk field or sentence. This closes the original claim by withdrawal, not by pretending source changed.
 
-A slot can reach procedural `promoted` only when every applicable row is green and every
-underlying existing owner receipt independently permits promotion.
+### 4.7 `FP-R02` — adaptive repair
 
-| Gate family | Pass condition | Refusal/void/dispute trigger |
-| --- | --- | --- |
-| Prospectivity | FP-F01 strict order proven. | Missing/ambiguous order, late seal, unlogged access. |
-| Selection | FP-F02 next slot; no substitution or hidden prior slot. | Wrong case, omitted attempt, best-case selection. |
-| Public regression | FP-F03 complete green on frozen revision. | Any predeclared visible regression failure. |
-| Sealing | FP-F04 commitment verifies; no prohibited access. | Leak, unverifiable commitment, custodian breach. |
-| Canonical owners | Existing promotion/obligation/firewall/confidence receipts valid and in scope. | Any fail, unknown, scope insufficiency, bypass, or invalid receipt. |
-| Falsification | FP-F05 and FP-F06 produce required authority downgrade/refusal. | Same positive claim survives. |
-| Generality | FP-F07/08/09 and FP-F10 pass. | Identifier, order, scope, or case-specific dependence. |
-| Adjacent transfer | FP-F11 sealed-oracle-correct with same freeze. | Wrong behavior or changed implementation/configuration. |
-| Non-paralysis | FP-F12 controls behave as declared. | Invariant refusal or technically locked positive path. |
-| Run custody | FP-F13 first result-bearing run retained. | Hidden rerun or seed selection. |
-| Adjudication | Named panel, quorum, no dispute/material dissent, calibrated criteria. | Role-only identity, conflicts, quorum loss, material ambiguity. |
-| Publication | FP-F14 complete regardless of sign. | Negative result hidden, delayed, or demoted. |
-| Claim boundary | Named revision/case/environment/evaluator/assumptions only. | Legal, production, population, or competence overclaim. |
+Slot 1 reveals a generic-looking failure. Implementers publish the failure information used, repair rationale, exact changed assets, authors/reviewers/conflicts, and new freeze before slot 2 reveal. Slot 1 remains terminal. Slot 2 may proceed if its package remained sealed and all rules pass. The later positive is an adaptive-sequence result with no family number.
 
-## 9. Fixture kill rules
+A syntactically general repair is still adaptive if selected from result-bearing evidence. No “general repair” exemption changes that fact.
 
-A fixture family is killed or redesigned prospectively when:
+### 4.8 `FP-R03` — materiality after direction
 
-- it depends on one literal runtime enum, graph topology, scheduler, or state machine rather
-  than the semantic property;
-- the expected answer becomes implementation-visible before the relevant freeze;
-- its case or mutation has been used for tuning;
-- the oracle/evaluator package cannot be reconstructed and versioned;
-- a material ambiguity has no prospectively declared resolution;
-- the fixture only distinguishes a known hard-coded string and fails under semantic aliases;
-- it changes an existing canonical owner threshold or denominator;
-- it rewards invariant refusal or presupposes a positive real-policy outcome;
-- a passing result would be advertised beyond the bounded inference listed here.
+Adverse dissent appears and a previously unlisted assessor offers a new rationale. Without a valid presealed specification, accountable owner mapping, evidence rule, and conflict rule, the slot becomes disputed. A future version may use the learning; the current score cannot.
 
-A killed fixture is never silently removed from a completed scored run. The old run and reason
-remain public; redesigned fixtures apply only to a new protocol version.
+### 4.9 `FP-R04` — friendly panel
 
-## 10. Primary-source orientation for the fixtures
+Three named people have no direct implementation/case/criteria authorship, line management, or contingent pay, but share funder, board, close network, and reputational stake. Documentary ties are collected and a predeclared conflict rule issues a reasoned disposition. Unresolved common-mode risk blocks or limits standing. Covert collusion remains outside proof.
 
-The fixture design borrows narrowly from several external regimes:
+### 4.10 `FP-R05` — post-result narrower action
 
-- Dwork et al. formalize adaptive holdout reuse; INT-R9 takes the warning that repeated
-  feedback makes a holdout part of development, but does not claim their distributional theorem
-  for an n=1 authority decision.
-- Registered Reports bind review and publication before results and use outcome-neutral quality
-  checks; INT-R9 transfers prospective acceptance, deviation retention, negative-result
-  publication, and positive controls, not randomized-study inference.
-- Simmons et al. and Gelman/Loken identify outcome-relevant researcher degrees of freedom even
-  without conscious fraud; INT-R9 therefore binds selection, stopping, exclusions, criteria,
-  adjudicators, runs, and publication, not only thresholds.
-- Recht et al. and later contamination work motivate fresh one-time cases and semantic, not only
-  string, decontamination; INT-R9 still treats adjacent evidence as bounded.
-- Cohen and Krippendorff supply agreement diagnostics; INT-R9 does not treat agreement as truth.
-- Rosenthal and Registered-Report evidence motivate result-independent publication; the
-  protocol still cannot by itself remove every informal career incentive.
+When the exact envelope becomes `known_incomplete` or materially `open_world_unresolved`, original action is NO-GO. A narrower action needs new protected-action identity, current envelope, protocol version, commitments, selection, and fresh cases. The old result remains nonpositive.
 
-Full references and transfer limits appear in the primary INT-R9 report.
+## 5. Positive control and anti-abstention boundary
+
+The public control demonstrates only that the technical positive path and canonical contracts are not mechanically locked. It is public, deterministic at contract level, clearly synthetic/non-policy, excluded from any real-promotion numerator by the canonical metric owner, and incapable of satisfying decisive case, adjacent, human, or external-validity predicates.
+
+A system can pass the control and known-groundable seeds yet honestly refuse every unseen real case. That is conforming. These fixtures detect mechanical or unsupported refusal, not strategic-dominance elimination.
+
+## 6. Independence and calibration fixtures
+
+The exact public roster is four `deep_pilot_overlap` / `deep-pilot-round-1` and eleven `partial_disjoint` / null; authority metadata is 5 production, 6 governed, 4 research. This describes calibration material, not independent people.
+
+For every adjudicator dimension test three states:
+
+1. `evidenced` — corroborating record exists;
+2. `declared_not_evidenced` — signed disclosure only and residual remains; and
+3. `disqualifying_or_unresolved` — conflict or missing evidence blocks.
+
+Give all panel members a shared mistaken premise. High agreement must not auto-promote. Kappa/alpha are diagnostics, not correctness or independence tokens.
+
+## 7. Publication, correction, and retry fixtures
+
+- Generate refusal, void, dispute, terminal-no-attempt, and exhaustion; verify same artifact class, release channel, archival priority, raw votes/deviations, and review agenda as positive.
+- After positive, reveal source invalidation, coverage challenge, or leakage; retain original, append challenge, and use canonical currentness action.
+- After positive, attempt to infer family `delta` from local receipts; reject. A future family projection cannot retroactively change what original protocol proved without a new bounded public statement and full provenance.
+- For infrastructure retry, predeclare exact failure classes and no-output/no-answer proof. Any result-bearing access means first run remains scored or slot becomes void/disputed.
+- Create slot-1 dispute and apparent slot-2 positive; later input should not be released and firstness cannot skip the dispute.
+
+## 8. Required edge-case ledger
+
+| Edge | Required disposition |
+| --- | --- |
+| preregistered case fails, unregistered succeeds | registered refusal remains; unregistered result exploratory |
+| adjudicator unavailable | clean predeclared alternate or dispute |
+| criterion ambiguous after seal | dispute; future-only clarification |
+| holdout leaks | void/dispute; retain chronology, no replacement |
+| promotion later unjustified | append challenge and canonical correction/currentness action |
+| two candidates qualify simultaneously | committed order and canonical transaction time decide |
+| preregistration mis-specified before access | retire only with affirmative no-access proof |
+| old binding discovered | automatic NO-GO regardless of author departure |
+| three fresh scopes | separate local receipts; no family number |
+| result-informed repair | adaptive record; no rescore or numeric family claim |
+| materiality owner sees direction first | dispute |
+| narrower action proposed after coverage gap | new prospective protocol identity required |
+| same-network panel has declarations only | independence unresolved |
+| all real cases refused with supported reasons | publish exhaustion; still conforming |
+| metric owner cannot map chronology | record interface gap; do not define denominator |
+
+## 9. Acceptance and kill rules
+
+Accept the fixture battery only if every probe names a semantic property and bounded inference; current corpus is never called holdout; ua-msme cannot enter primary/adjacent roles; hidden packages use S0-GAP-02 or canonical supersession; no fixture ID becomes an implementation branch; failed/void/disputed probes remain; same freeze applies to adjacent case; materiality is prospective or disputed; independence evidence is dimension-specific; exact current coverage governs the action; post-result narrowing is impossible; useful-design denominator remains external; strategic supported refusal remains possible; and no sequence-level numeric family claim is emitted.
+
+Invalidate the program if a witness becomes the specification; a failure is excluded after outcome; public answers are called sealed; semantic shortcuts pass via hashes/aliases; adjacent positive is required; declarations alone compute independence; friendly assessors classify materiality after direction; the same action narrows after coverage failure; three local scopes are called one budget; INT-R9 defines the metric denominator; retired YAML is executable; or a sibling S0-GAP-02 framework appears.
+
+## 10. Bounded meaning of a full pass
+
+A full pass supports only that the named revision, environment, cases, mutations, evaluator, protocol, people/evidence, coverage posture, and assumptions satisfied the sampled predicates and that INT-R9 did not make the audit-refuted family claim. It does not prove oracle infallibility, representativeness, obligation completeness, every source dependency, absence of all semantic shortcuts, absence of collusion, strategic abstention solved, future passage, legal/institutional competence, production readiness, or any sequence-level probability.

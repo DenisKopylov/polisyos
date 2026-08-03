@@ -207,7 +207,7 @@ conditionality remains controlling
 | Joint obligation/validator assumptions | Preserves INT-R1 conditionality. | Declared locally; no family projection (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1-52`; `policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`). |
 | Precommitted member-plan vector or selection-valid adaptive theorem | Prevents outcome-dependent repair from using a fixed theorem. | INT-R9 permits repair; owner theorem unavailable (`policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md:590-650`; `policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`). |
 | Live-source verifier | Prevents author-written proof. | Missing for family composition (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). |
-| No duplicate owner | Preserves P27/P28. | Required by repository rules (`AGENTS.md:35-66`, `AGENTS.md:71-89`). |
+| No duplicate owner | Preserves P27/P28. | Required by repository rules (`AGENTS.md:17-27`, `AGENTS.md:37-55`). |
 
 ## 6. Negative findings and carried conclusion
 

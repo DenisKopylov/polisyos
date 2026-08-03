@@ -39,9 +39,13 @@ The independent audit at `research/int-r9-independent-audit@a09128e6b91429259705
 INT-R10 at `research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504` subsequently established:
 
 - **Theorem A:** prospectively enforced local caps `alpha_i` compose by the union inequality when `sum_i alpha_i <= delta_F`;
-- **sharpness:** three disjoint local `delta` error events can produce family error exactly `3 * delta`;
-- **current arithmetic:** at live `delta=1/100`, three ordinary local scopes generically support `3/100`, not `1/100`; and
+- **sharpness:** ~~three disjoint local `delta` error events can produce family error exactly `3 * delta`~~ — **withdrawn 2026-08-03** (architect, after the INT-R10 audit): the result holds only in the abstract, after coarsening the local owner to `P(V_i) <= delta`; it does not hold for the pinned owner;
+- **current arithmetic:** ~~at live `delta=1/100`, three ordinary local scopes generically support `3/100`, not `1/100`~~ — **withdrawn 2026-08-03**: the Basel-square series telescopes, so one scope's pathwise envelope is strictly below `delta * (3/20) * mass` and three scopes sit below `(9/20) * delta`, i.e. below a single `delta`; and
 - **current capability:** pre-execution family caps and a canonical family projection are absent.
+
+Neither withdrawal touches an INT-R9 claim: Option B attaches no probability to the first-positive
+event. The binding is now `research/int-r10-revision`, superseding
+`research/int-r10-family-wise-risk-composition@317fc9c36`.
 
 INT-R10 Theorem B says adaptive continuation may be composable under history-measurable pathwise caps and a selection-valid local theorem. Its independent audit is pending. No numeric INT-R9 claim relies on Theorem B.
 

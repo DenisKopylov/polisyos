@@ -9,7 +9,7 @@ repository_branch: research/int-r1-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
 current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
-amended_after_audit: research/int-r1-independent-audit@0893a739e4739a6cd31dd95bc0b88526e1ff29ae
+amended_after_audit: research/int-r1-independent-audit@887bce985e6797c1a94dba24f33c6424ab09c0a5
 authoritative_for:
   - mapping of INT-R1 audit findings and revision requirements to the amended research files
   - evidence that the independent audit acceptance checklist was applied item by item
@@ -117,7 +117,7 @@ All six amended research files:
 - use `repository_branch: research/int-r1-amendment`;
 - record `current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`;
 - record
-  `amended_after_audit: research/int-r1-independent-audit@0893a739e4739a6cd31dd95bc0b88526e1ff29ae`;
+  `amended_after_audit: research/int-r1-independent-audit@887bce985e6797c1a94dba24f33c6424ab09c0a5`;
 - remain `research_only: true`; and
 - deny production implementation authorization, final wire/schema authority, canonical-owner
   appointment, authority grant, legal compliance, benchmark passage, and current

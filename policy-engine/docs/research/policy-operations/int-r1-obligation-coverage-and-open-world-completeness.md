@@ -9,7 +9,7 @@ repository_branch: research/int-r1-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
 current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
-amended_after_audit: research/int-r1-independent-audit@0893a739e4739a6cd31dd95bc0b88526e1ff29ae
+amended_after_audit: research/int-r1-independent-audit@887bce985e6797c1a94dba24f33c6424ab09c0a5
 authoritative_for:
   - audited research conclusion for INT-R1 at the pinned repository baseline
   - premise-relative impossibility result for an unconditional open-world obligation-completeness certificate

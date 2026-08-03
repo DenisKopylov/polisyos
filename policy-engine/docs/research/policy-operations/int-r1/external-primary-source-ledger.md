@@ -5,14 +5,15 @@ kind: deep-research
 research_task: INT-R1
 result_type: accepted_narrow_scope
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r1-obligation-coverage
+repository_branch: research/int-r1-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
-current_repository_commit: d152565dcc11cea457dacd61fadc6e15dc3ecc86
-inspection_date: 2026-08-02
+current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+inspection_date: 2026-08-03
+amended_after_audit: research/int-r1-independent-audit@0893a739e4739a6cd31dd95bc0b88526e1ff29ae
 authoritative_for:
-  - research-level primary-source baseline for relative completeness, normative gaps, open-world closure, assurance cases, bounded safety diligence, audit evidence, test adequacy, and anytime-valid inference
-  - explicit transfer and non-transfer limits for INT-R1
-  - bibliography and source-selection rationale for the primary INT-R1 report
+  - audited research-level source baseline for relative completeness, open-world closure, assurance, bounded diligence, audit evidence, test adequacy, and anytime-valid inference
+  - explicit transfer and non-transfer limits used by the amended INT-R1 result
+  - stable bibliography and source-selection rationale for consolidation
 may_not_use_for:
   - production implementation authorization
   - final code or wire contract
@@ -23,423 +24,369 @@ may_not_use_for:
   - benchmark passage
   - certification to any cited standard
   - proof that a cited institutional doctrine governs PolicyOS
+  - detailed substantive attribution to Normative Systems beyond the support stated here
 research_only: true
 ---
 
 # INT-R1 — External Primary-Source Transfer Ledger
 
-## 1. Method
+## 1. Method and audit disposition
 
-This ledger asks a narrower question than “what fields have discussed completeness?” For each
-source it records:
+For each external source this ledger records four distinct propositions:
 
-1. the proposition the source actually supports;
-2. the bounded move that can transfer to PolicyOS;
-3. the proposition that **does not** transfer; and
-4. how the source constrains the INT-R1 result.
+1. what the source itself supports;
+2. the bounded move that can transfer to INT-R1;
+3. the proposition that does **not** transfer; and
+4. the resulting constraint on PolicyOS wording.
 
-Canonical papers, standards, regulator guidance, and author-maintained reports are preferred.
-Secondary catalog or table-of-contents pages are used only where a book is not openly available,
-and are labelled as bibliographic orientation rather than substantive authority. No source is
-treated as granting PolicyOS legal authority or certifying its architecture.
+The independent audit verified the existence, attribution, and transfer limits of the named
+sources. It found one material citation problem: the open catalog record for Alchourrón and
+Bulygin's *Normative Systems* establishes bibliographic existence, not the report's original
+detailed claims about its internal formal apparatus. That section is narrowed below. No detailed
+book proposition is now load-bearing without a page-exact primary source.
 
-## 2. Normative systems: completeness is relative to a chosen universe
+Canonical references use stable DOI strings or official report/specification identifiers where
+available. A landing page is navigation; the DOI/report/standard identifier is the cited identity.
+No source is treated as granting PolicyOS legal authority, as proving the external obligation
+world complete, or as certifying any current implementation.
+
+## 2. Normative systems — bibliographic orientation only
 
 ### 2.1 Alchourrón and Bulygin
 
-**Primary work.** Carlos E. Alchourrón and Eugenio Bulygin, *Normative Systems*, Library of
-Exact Philosophy 5, Springer-Verlag, 1971, xviii + 208 pages, ISBN 0-387-81019-6.
-Bibliographic record: [UC Berkeley Law Library](https://lawcat.berkeley.edu/record/40108) and
-[Google Books](https://books.google.com/books/about/Normative_systems.html?id=f-180AEACAAJ).
+**Work identified.** Carlos E. Alchourrón and Eugenio Bulygin, *Normative Systems*, Library of
+Exact Philosophy 5, Springer-Verlag, 1971, ISBN `0-387-81019-6`. The UC Berkeley Law Library
+catalog and Google Books record establish the authors, title, publisher, date, and edition-level
+bibliographic existence.
 
-**Relevant structure.** The work constructs a normative system relative to a factual range,
-normative range, universe of properties, universe of cases, universe of actions/solutions, and
-normative basis. It then treats relevance and axiological gaps, open and closed systems, rules
-of closure, judicial decisions in the presence of normative gaps, and the scope and limits of
-completeness as a rational ideal. The chapter-level orientation is independently visible in the
-publisher-derived table of contents
-([Kriso bibliographic page](https://www.kriso.ee/normative-systems-db-9783211810194.html));
-that page is secondary orientation, not the substantive source.
+**Audited support boundary.** The openly cited catalog pages do not expose primary page text
+sufficient to verify the original report's detailed attribution concerning universes of cases,
+solutions, relevance, closure rules, and normative gaps. Those detailed propositions are not used
+as evidence in the amended theorem. A later consolidation pass may add edition/page anchors if it
+has lawful access to the primary text; absent that, the attribution remains orientation.
 
-**Transfer to INT-R1.** “Complete” is not meaningful without specifying at least a universe of
-cases and a universe of solutions. A closure rule can make a formal system complete relative
-to those choices, but the choice of relevant properties/cases and the legitimacy of the closure
-rule remain separate questions. This directly supports an envelope that declares scope,
-closure basis, exclusions, and remainder.
+**Narrow transfer retained.** The work belongs to the legal-theory tradition in which normative
+systems, gaps, and closure are analyzed relative to a specified formal problem. That orientation
+is consistent with—but does not prove—the independently derived INT-R1 requirement that any
+formal completeness claim name the universe and closure rule to which it is relative.
 
-**Does not transfer.** A formal reconstruction of a legal system does not prove that PolicyOS
-has identified every actually applicable enactment, decision, institutional norm, local rule,
-contract, exception, factual trigger, or future reinterpretation. Nor does it authorize a
-“whatever is not found is permitted” closure rule. INT-R1 therefore rejects any move from
-formal closure to universal worldly completeness.
+**Does not transfer.** The bibliographic existence of the work does not prove that PolicyOS has
+selected every actually applicable enactment, decision, norm, exception, factual trigger, or
+institutional source. It does not authorize a rule that “not found” means permitted or not
+applicable.
 
-**INT-R1 consequence.** The strongest honest phrase is “complete relative to the declared
-universe/closure basis,” not “complete for the world.” A closure basis must itself be
-challengeable, versioned, time-bounded, and attributable to a competent owner.
+**INT-R1 consequence.** The amended result stands on its own definitions, repository facts, and
+indistinguishability argument. *Normative Systems* is not a substitute for a per-scope closure
+premise.
 
 ## 3. Relative completeness in formal methods
 
 ### 3.1 Cook's relative completeness theorem
 
-**Primary source.** Stephen A. Cook, “Soundness and Completeness of an Axiom System for Program
-Verification,” *SIAM Journal on Computing* 7(1), 1978, 70–90,
-[doi:10.1137/0207005](https://doi.org/10.1137/0207005), with corrigendum in *SIAM Journal on
-Computing* 10(3), 1981, 612,
-[doi:10.1137/0210045](https://doi.org/10.1137/0210045).
+**Primary identity.** Stephen A. Cook, “Soundness and Completeness of an Axiom System for Program
+Verification,” *SIAM Journal on Computing* 7(1), 1978, 70–90, DOI
+`10.1137/0207005`; corrigendum, *SIAM Journal on Computing* 10(3), 1981, 612, DOI
+`10.1137/0210045`.
 
-The paper proves a Hoare-style system sound and, in a qualified sense, complete **relative to
-an interpretive semantics**. The qualification is not an embarrassment; it identifies the
-oracle or semantic strength on which the proof depends.
+**Supported proposition.** The publisher describes the proof system as sound and, in a qualified
+sense, complete relative to interpretive semantics. The qualification identifies the semantic
+strength assumed by the proof.
 
-**Transfer to INT-R1.** The shape of a theorem may be:
+**Transfer to INT-R1.** The formal shape is legitimate:
 
-> if the declared obligation language and its source-to-obligation oracle contain the relevant
-> semantic truth, and the proof system/validators are sound relative to that language, then all
-> obligations derivable in that language are covered.
+```text
+if a fixed declared semantics contains the relevant source-to-obligation truth,
+and traversal/compiler/validators satisfy their declared semantic properties,
+then every obligation derivable under that semantics is included and checked.
+```
 
-This is a genuine reduction because it separates mechanical proof obligations from an
-external adequacy assumption.
+This is the shape of the amended **Conditional Relative-Inclusion Theorem**.
 
-**Does not transfer.** Cook's theorem gives no method for proving that the interpretive
-semantics captures every legal, normative, measurement, or implementation obligation in an
-open institutional world. Renaming a hand-authored enum “the obligation language” does not
-establish its adequacy.
+**Does not transfer.** Cook's theorem does not establish that a PolicyOS obligation language,
+compiler, enum, or selected source basis captures every external legal, normative, measurement,
+or implementation obligation. Compiler semantic completeness and validator soundness remain
+assumptions until separately supported for the declared domain.
 
-**INT-R1 consequence.** The δ theorem can remain mathematically meaningful, but its public
-scope must be explicit: relative to the declared obligation set/language, closure basis,
-versions, and maintained assumptions.
+**INT-R1 consequence.** “Relative to declared semantics” is a necessary limitation, not a
+solution to semantic adequacy. Independent review and mutation testing provide evidence about the
+assumptions; they do not make them true by theorem.
 
 ## 4. Open-world and closed-world reasoning
 
 ### 4.1 W3C RDF Semantics
 
-**Primary standard.** Patrick Hayes, ed., *RDF Semantics*, W3C Recommendation, 10 February
-2004, [https://www.w3.org/TR/rdf-mt/](https://www.w3.org/TR/rdf-mt/), especially §0.1,
-§1.3, and Appendix B.
+**Primary standard.** Patrick Hayes, ed., *RDF Semantics*, W3C Recommendation, 10 February 2004,
+official identifier `W3C-rdf-mt-20040210` / Recommendation URL `https://www.w3.org/TR/rdf-mt/`.
 
-RDF's assertional semantics is monotonic and cannot itself express a closed-world assumption.
-The specification also makes a crucial distinction: an explicit assertion that a corpus is
-complete, with provenance carried into the conclusion, can make the closure assumption
-visible; the unsafe move is implicit negation-by-failure.
+**Supported proposition.** RDF's assertional semantics is monotonic; absence of a statement does
+not by itself establish its negation. The specification also distinguishes ordinary assertions
+from an explicit assertion that a corpus is complete, with provenance carried into conclusions.
 
-**Transfer to INT-R1.** Closure must be an explicit, provenance-bearing assertion rather than
-an inference from silence. A reader must be able to identify which corpus/snapshot was claimed
-complete, by whom, for what scope, and at what cutoff.
+**Transfer.** A closure premise must be explicit, scoped, attributable, and provenance-bearing.
+Silence or an empty search result cannot become `not_applicable` by default.
 
-**Does not transfer.** Making a closure assertion explicit does not make it true. Provenance
-supports accountability and reproducibility, not completeness of the external world.
+**Non-transfer.** Making closure explicit does not establish that the assertion is true or that
+the declaring owner is competent for the exact PolicyOS scope.
 
 ### 4.2 W3C SHACL
 
 **Primary standard.** Holger Knublauch and Dimitris Kontokostas, eds., *Shapes Constraint
-Language (SHACL)*, W3C Recommendation, 20 July 2017,
-[https://www.w3.org/TR/shacl/](https://www.w3.org/TR/shacl/), especially §§3–3.6 and the
-`sh:ClosedConstraintComponent` definition.
+Language (SHACL)*, W3C Recommendation, 20 July 2017, official Recommendation URL
+`https://www.w3.org/TR/shacl/`; the closed-shape component is §4.8.1.
 
-SHACL validation consumes a specified data graph and shapes graph and emits a conformance
-report. `sh:closed` closes the declared properties of a shape; it does not claim that the
-shapes graph contains every constraint the world could impose.
+**Supported proposition.** Validation is performed against a supplied data graph and shapes
+graph. `sh:closed` restricts properties relative to the declared shape; it does not say the
+shapes graph contains every constraint that the world may impose.
 
-**Transfer to INT-R1.** Validation results must bind both the evaluated data/source snapshot
-and the rule/shape set. A green result means no violation under those inputs and semantics.
+**Transfer.** A conformance result must bind both evaluated source/data and rule/shape versions.
+A green result means no declared violation under those inputs.
 
-**Does not transfer.** Conformance to a shapes graph is not evidence that the shapes graph is
-semantically adequate or complete. This is the exact analogue of a promotion receipt that is
-total over `PromotionObligationClass` but omits a decisive world obligation.
+**Non-transfer.** Conformance does not prove semantic adequacy or world completeness. This is the
+same boundary as exact totality over a declared PolicyOS denominator.
 
 ### 4.3 Circumscription
 
-**Primary source.** John McCarthy, “Circumscription—A Form of Non-Monotonic Reasoning,” 1986
-web edition, [Stanford Formal Reasoning Group](https://www-formal.stanford.edu/jmc/circumscription/circumscription.html).
-The abstract describes circumscription as formalizing conjectural reasoning that the objects
-known to have a property are the only objects that do.
+**Primary source.** John McCarthy, “Circumscription—A Form of Non-Monotonic Reasoning,” Stanford
+Formal Reasoning Group author-hosted text.
 
-**Transfer to INT-R1.** A closed-world move is a deliberate minimization/default assumption,
-not a discovered fact. It should be named, scoped, and defeasible.
+**Supported proposition.** Circumscription formalizes a deliberate minimization/default move in
+which known instances are treated as the only instances satisfying a predicate.
 
-**Does not transfer.** Circumscription cannot justify the empirical or institutional truth of
-the minimized universe. It explains what an explicit closure rule does, not when PolicyOS is
-entitled to use it.
+**Transfer.** Closed-world treatment is an assumption or rule, not a fact discovered from
+absence. It must be named, scoped, defeasible, and attributed.
 
-**INT-R1 consequence across all three sources.** Absence from a search result cannot become
-“not applicable.” It remains unknown unless an independently justified closure assertion
-covers that scope.
+**Non-transfer.** Circumscription does not tell PolicyOS when a minimization is institutionally or
+legally warranted, and it does not prove the minimized universe matches the world.
 
-## 5. Safety engineering: disciplined adequacy without exhaustiveness
+### 4.4 Combined constraint
+
+These sources support the rule that absence is not falsity and closure must be explicit. They do
+not establish a closure premise for any actual PolicyOS scope. The amended protocol therefore
+requires one of `closed_by_competent_basis`, `open_under_unseen_extension`, or
+`closure_not_established` for every protected use.
+
+## 5. Safety and risk-analysis discipline
 
 ### 5.1 STPA
 
-**Primary practitioner handbook.** Nancy G. Leveson and John P. Thomas, *STPA Handbook*,
-MIT Partnership for Systems Approaches to Safety and Security, MIT-STAMP-001, available from
-[MIT PSASS Books and Handbooks](https://psas.scripts.mit.edu/home/books-and-handbooks/).
+**Primary identity.** Nancy G. Leveson and John P. Thomas, *STPA Handbook*, MIT Partnership for
+Systems Approaches to Safety and Security, report identifier `MIT-STAMP-001`.
 
-The handbook structures hazard analysis by defining the purpose and losses, modelling control
-structures, identifying unsafe control actions, constructing causal scenarios, and deriving
-constraints and requirements. It extends beyond component failures to software, humans,
-organizations, and social systems.
+**Supported proposition.** STPA structures analysis around losses, control structures, unsafe
+control actions, causal scenarios, and derived constraints, including organizational and social
+components.
 
-**Transfer to INT-R1.** A disciplined, reviewable search process can be tested for whether it
-covered declared perspectives, control relationships, loss scenarios, and change over time.
-The process can produce useful challenger prompts and metamorphic variants.
+**Transfer.** A source/obligation search can be systematic, perspective-complete relative to a
+method, independently reviewable, and capable of generating challenger and metamorphic cases.
 
-**Does not transfer.** STPA does not prove that every possible hazard or obligation has been
-identified. Its systematic process supports an adequacy argument, not an exhaustive-world
-theorem.
+**Non-transfer.** Completing STPA is not a theorem that every hazard or obligation has been found.
+It supports a disciplined adequacy argument only.
 
 ### 5.2 IEC 31010:2019
 
-**Primary standard.** IEC 31010:2019, *Risk management — Risk assessment techniques*, second
-edition, June 2019, [IEC publication 59809](https://webstore.iec.ch/en/publication/59809) and
-[ISO catalogue 72140](https://www.iso.org/standard/72140.html).
+**Primary identity.** IEC 31010:2019, *Risk management — Risk assessment techniques*, second
+edition, official IEC publication `59809` / ISO catalogue `72140`.
 
-The standard guides selection and application of risk-assessment techniques under uncertainty
-and explicitly adds detail on planning, implementing, verifying, and validating the use of
-those techniques. It catalogs techniques such as FMEA and HAZOP rather than claiming one
-universal exhaustive method.
+**Supported proposition.** The standard guides selection, application, verification, and
+validation of risk-assessment techniques under uncertainty. It catalogs multiple techniques
+rather than making one universal.
 
-**Transfer to INT-R1.** The search strategy, method selection, assumptions, validation, and
-limitations should be declared and reviewable. Different obligation families may require
-different source and analysis methods.
+**Transfer.** Method choice, assumptions, validation, source coverage, and limitations should be
+explicit and proportionate to the problem. Different obligation families may need different
+methods.
 
-**Does not transfer.** A completed risk-assessment technique is not proof that the risk or
-obligation universe is exhaustive. Method completion and universe completeness are different
-properties.
+**Non-transfer.** Method completion does not prove universe exhaustiveness.
 
-### 5.3 ALARP/SFAIRP and relevant good practice
+### 5.3 HSE ALARP/SFAIRP and relevant good practice
 
-**Primary regulator guidance.** UK Health and Safety Executive:
+**Primary source family.** UK Health and Safety Executive official guidance on pipeline standards,
+design codes, and emergency isolation.
 
-- [Use of pipeline standards and good practice guidance](https://www.hse.gov.uk/pipelines/resources/pipelinestandards.htm);
-- [Pipeline design codes and standards for UK CO2 storage and sequestration projects](https://www.hse.gov.uk/pipelines/resources/designcodes.htm);
-- [Emergency Isolation](https://www.hse.gov.uk/comah/sragtech/techmeasisolatio.htm).
+**Supported proposition.** In the contexts it governs, relevant good practice is a minimum;
+alternative practice requires gap analysis, and complex/high-risk/out-of-scope situations may
+require more.
 
-The guidance treats relevant good practice as a minimum in the contexts it governs, requires a
-gap analysis for alternative standards, and warns that good practice alone can be insufficient
-in high-risk, complex, or out-of-scope situations. Additional reasonably practicable measures
-must be considered where risk remains.
+**Transfer.** A bounded diligence protocol may relate methods, stakes, source gaps, review effort,
+and reasons for stopping. A governed stopping rule is evidence about process and judgment.
 
-**Transfer to INT-R1.** Bounded diligence may be expressed as a reviewable process tied to
-risk, stakes, applicable good practice, gaps, proportional search effort, and documented reasons
-for stopping. Higher stakes justify broader sources, stronger independence, and shorter TTLs.
+**Non-transfer.** ALARP/SFAIRP does not govern PolicyOS merely by analogy, does not yield a
+probability that no obligation exists, and cannot erase non-derogable duties through cost-benefit
+reasoning. Applicable legal standards remain for competent owners.
 
-**Does not transfer.** ALARP/SFAIRP is a legal/regulatory doctrine in particular jurisdictions
-and domains. It does not govern PolicyOS by analogy, does not produce a probability that no
-unknown obligation exists, and does not authorize cost-benefit closure of rights or legal duties.
+**INT-R1 consequence.** “Looked enough under a governed rule” is an institutional judgment, not
+a world-completeness theorem. It cannot currently produce `bounded_complete` without the rest of
+the admitted capability chain.
 
-**INT-R1 consequence.** “We looked enough under a governed stopping rule” is an empirical and
-institutional judgment. It may support `bounded_complete` relative to a basis; it cannot support
-world completeness or legal compliance.
-
-## 6. Assurance cases: explicit claims, assumptions, evidence, and defeaters
+## 6. Assurance cases and defeaters
 
 ### 6.1 SACM and GSN
 
-**Primary standards.** Object Management Group, *Structured Assurance Case Metamodel (SACM)*
-2.3, formally adopted October 2023,
-[https://www.omg.org/spec/SACM/2.3/About-SACM](https://www.omg.org/spec/SACM/2.3/About-SACM).
-Assurance Case Working Group, *Goal Structuring Notation Community Standard*, Version 3,
-4 May 2021, [citation record](https://scsc.uk/resources/citation_r1386.html) and
-[standard page](https://scsc.uk/gsn-standard).
+**Primary identities.** Object Management Group, *Structured Assurance Case Metamodel (SACM)*
+2.3, official specification `SACM/2.3`; Assurance Case Working Group, *Goal Structuring Notation
+Community Standard*, Version 3, 4 May 2021.
 
-SACM supplies a metamodel for structured assurance cases. GSN supplies an authoritative
-notation definition and best-practice guidance for argument owners, readers, authors, and
-approvers.
+**Supported proposition.** These standards provide structures/notation for claims, context,
+argument, evidence, assumptions, justifications, and undeveloped elements.
 
-**Transfer to INT-R1.** Coverage should be an assurance claim with explicit context, strategy,
-evidence, assumptions, justifications, undeveloped elements, defeaters, owners, and review
-status. PolicyOS's existing `assurance_case.py` can project these structures without claiming
-that the notation discovers obligations.
+**Transfer.** INT-R1 coverage should be represented as an assurance claim with visible basis,
+assumptions, evidence, defeaters, limitations, owners, review, and lifecycle standing. Existing
+PolicyOS assurance-case structures are adjacent reusable machinery.
 
-**Does not transfer.** A well-formed assurance case can still be unsound, incomplete, biased,
-or supported by weak evidence. Notation conformance is not obligation completeness.
+**Non-transfer.** A well-formed assurance case may be false or incomplete. Notation conformance is
+not obligation completeness.
 
 ### 6.2 Eliminative induction and defeaters
 
-**Primary report.** John B. Goodenough, Charles Weinstock, and Ari Z. Klein, *Toward a Theory
-of Assurance Case Confidence*, CMU/SEI-2012-TR-002, 2012,
-[doi:10.1184/R1/6585362.v1](https://doi.org/10.1184/R1/6585362.v1).
+**Primary identity.** John B. Goodenough, Charles Weinstock, and Ari Z. Klein, *Toward a Theory of
+Assurance Case Confidence*, `CMU/SEI-2012-TR-002`, DOI `10.1184/R1/6585362.v1`.
 
-The report frames confidence through defeasible reasoning and eliminative induction: identify
-reasons for doubt and eliminate them where evidence permits.
+**Supported proposition.** The report develops defeasible reasoning and eliminative induction over
+identified reasons for doubt.
 
-**Transfer to INT-R1.** A challenger process should preserve unresolved defeaters rather than
-hide them in a scalar confidence score. A green coverage state requires closure of named
-material defeaters within the declared scope, and a new defeater can reopen the claim.
+**Transfer.** A challenger process should retain and resolve named material defeaters rather than
+hide them in a scalar. New evidence can reopen current reliance.
 
-**Does not transfer.** Eliminating identified defeaters does not prove that all possible
-defeaters have been identified. The unknown remainder remains load-bearing.
+**Non-transfer.** Eliminating every identified defeater does not prove that no unidentified
+defeater exists. The public remainder remains explicit.
 
-### 6.3 Limits of quantified assurance confidence
+### 6.3 Quantified confidence limits
 
-**Primary government report.** Patrick J. Graydon and C. Michael Holloway, *An Investigation
-of Proposed Techniques for Quantifying Confidence in Assurance Arguments*, NASA/TM-2016-219195,
-2016, [NASA NTRS 20160006526](https://ntrs.nasa.gov/citations/20160006526).
+**Primary identity.** Patrick J. Graydon and C. Michael Holloway, *An Investigation of Proposed
+Techniques for Quantifying Confidence in Assurance Arguments*, `NASA/TM-2016-219195`, NTRS record
+`20160006526`.
 
-The authors find little evidence that proposed quantitative confidence techniques deliver
-trustworthy results in practice, demonstrate implausible outputs in some cases, and conclude
-that further validation is needed before using such techniques as a basis for fielding a
-critical system.
+**Supported proposition.** The report found insufficient validation and implausible behavior in
+some proposed quantitative assurance-confidence methods.
 
-**Transfer to INT-R1.** Keep the world-coverage judgment categorical and evidence-linked; do
-not manufacture a numeric “probability of completeness” without a validated model and data.
+**Transfer.** Do not invent a scalar probability for the unknown obligation remainder without a
+validated model and data.
 
-**Does not transfer.** The report does not prohibit the existing δ theorem for false promotion
-under its maintained assumptions. It prohibits conflating that statistical guarantee with a
-validated quantitative measure of obligation-universe adequacy.
+**Non-transfer.** This does not invalidate the existing conditional δ arithmetic inside its
+specified statistical model.
 
-## 7. Professional audit evidence: reasonable basis, independence, and post-report work
+## 7. Professional audit evidence
 
 ### 7.1 PCAOB AS 1105
 
-**Primary standard.** Public Company Accounting Oversight Board, AS 1105, *Audit Evidence*,
-[https://pcaobus.org/oversight/standards/auditing-standards/details/AS1105](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1105),
-especially paragraphs .01–.10, .17–.20, and .22–.29.
+**Primary identity.** Public Company Accounting Oversight Board, AS 1105, *Audit Evidence*.
 
-The standard separates sufficiency (quantity) from appropriateness (relevance and reliability),
-warns that more evidence of the same poor quality cannot compensate for weakness, generally
-rates independent knowledgeable sources above internal-only sources, states that inquiry alone
-is insufficient, defines reperformance as independent execution, requires response to
-contradictions or reliability doubts, and warns that testing selected specific items does not
-support projection to the whole population.
+**Supported proposition.** The standard distinguishes sufficiency/quantity from
+appropriateness/quality; stronger independent evidence and reperformance can outweigh inquiry;
+contradictions/reliability doubts require response; selected-item testing does not automatically
+support projection to a population.
 
-**Transfer to INT-R1.** Search breadth and source quality must be separate. Independent
-reperformance and source-to-obligation mutation tests are stronger than a producer attestation.
-A source sample cannot be represented as full-population coverage.
+**Transfer.** Source quantity and quality must be separate. Producer inquiry or self-attestation
+is insufficient. Reperformance and independent evidence are stronger, and contradictions must
+remain visible.
 
-**Does not transfer.** Audit evidence supports a reasonable basis for an opinion under an audit
-objective; it is not a mathematical proof of every obligation and does not establish which
-audit law applies to PolicyOS.
+**Non-transfer.** Audit sufficiency is not a mathematical completeness proof, and this standard
+does not automatically apply as PolicyOS law.
 
 ### 7.2 PCAOB AS 1215
 
-**Primary standard.** PCAOB AS 1215, *Audit Documentation*,
-[https://pcaobus.org/oversight/standards/auditing-standards/details/AS1215](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1215),
-especially paragraphs .02–.10 and .14–.19. At the INT-R1 inspection date, the page notes that
-specific amendments to paragraphs .09 and .11 become effective on 15 December 2026; this
-research does not prematurely treat those future amendments as effective.
+**Primary identity.** PCAOB AS 1215, *Audit Documentation*.
 
-The current standard requires documentation of procedures, evidence, conclusions, performers,
-reviewers, dates, and contradictory evidence. If later information suggests procedures or
-evidence may have been omitted, the auditor must demonstrate sufficiency with persuasive other
-evidence or follow omitted-procedure rules. After the completion date, documentation is not
-deleted or discarded; additions identify date, preparer, and reason.
+**Supported proposition.** The standard requires retained documentation of procedures, evidence,
+conclusions, performers/reviewers, dates, and contradictions. Later additions are attributable
+and reasoned; completed documentation is not silently rewritten.
 
-**Transfer to INT-R1.** Preserve the original coverage envelope, challenge, contradictory
-evidence, and later additions. A missed obligation after publication triggers append-only
-assessment and reissue; it must not rewrite the historical search record.
+**Transfer.** A missed obligation after publication triggers append-only challenge, additional
+work, suspension, and reissue. The original coverage record remains inspectable.
 
-**Does not transfer.** AS 1215's retention periods and regulated audit roles do not become
-PolicyOS rules by analogy. Only the append-only accountability pattern transfers.
+**Non-transfer.** PCAOB roles and retention periods do not become PolicyOS duties by analogy.
 
 ### 7.3 GAO Yellow Book
 
-**Primary standard.** U.S. Government Accountability Office, *Government Auditing Standards:
-2024 Revision*, GAO-24-106786, 2024,
-[report page](https://www.gao.gov/products/gao-24-106786) and
-[Yellow Book hub](https://www.gao.gov/yellowbook). The revision is effective for covered
-periods/performance audits beginning on or after 15 December 2025, and its quality-management
-system implementation deadline was 15 December 2025.
+**Primary identity.** U.S. Government Accountability Office, *Government Auditing Standards: 2024
+Revision*, official report `GAO-24-106786`.
 
-The standards emphasize competence, integrity, objectivity, independence, evidence, engagement
-quality, monitoring, and a quality-management system that gives reasonable—not absolute—assurance
-that work and reports comply with applicable standards and law.
+**Supported proposition.** The standards emphasize competence, integrity, objectivity,
+independence, evidence, engagement quality, monitoring, quality management, and reasonable rather
+than absolute assurance.
 
-**Transfer to INT-R1.** Validator governance needs named owners, independence/conflict checks,
-review, monitoring, change control, and post-incident learning.
+**Transfer.** Validator governance needs named owners, independence/conflict evidence, review,
+monitoring, change control, and post-incident learning.
 
-**Does not transfer.** “Reasonable assurance” is an institutional standard of professional
-work, not a bound on unknown obligations and not a substitute for the δ theorem.
+**Non-transfer.** Reasonable assurance is not a probability of unknown-obligation absence and is
+not a substitute for the conditional δ theorem.
 
-## 8. Test adequacy: relative to a fault model
+## 8. Test adequacy
 
 ### 8.1 Mutation testing
 
-**Primary paper.** Richard A. DeMillo, Richard J. Lipton, and Frederick G. Sayward, “Hints on
-Test Data Selection: Help for the Practicing Programmer,” *Computer* 11(4), 1978, 34–41,
-[doi:10.1109/C-M.1978.218136](https://doi.org/10.1109/C-M.1978.218136).
+**Primary identity.** Richard A. DeMillo, Richard J. Lipton, and Frederick G. Sayward, “Hints on
+Test Data Selection: Help for the Practicing Programmer,” *Computer* 11(4), 1978, 34–41, DOI
+`10.1109/C-M.1978.218136`.
 
-Mutation testing evaluates whether tests distinguish a program from defined fault-bearing
-variants. The method operationalizes adequacy against a fault model and supports the mandated
-INT-R1 “remove the decisive obligation” probe.
+**Supported proposition.** Mutation testing evaluates whether tests distinguish an implementation
+from variants bearing faults in a declared mutation model.
 
-**Transfer to INT-R1.** Create mutants that omit, misclassify, duplicate, stale, scope-shift,
-or falsely satisfy obligations, and validator mutants that always pass, invert, ignore an
-unknown, trust an unresolved reference, or share the same faulty parser. Require the governed
-claim to turn red.
+**Transfer.** INT-R1 must include omission, mis-scope, stale-rule, unknown-to-satisfied,
+always-pass, common-mode, and projection faults, and require authority behavior—not a marker—to
+turn red.
 
-**Does not transfer.** Killing every declared mutant does not prove that the mutant model spans
-every possible omission or world obligation. Mutation score is benchmark adequacy, not open-world
-completeness.
+**Non-transfer.** Killing all declared mutants does not prove that the fault model or world
+obligation set is exhaustive. OM-01 itself remains blocked on GY-GAP1 until an instance layer
+exists.
 
 ### 8.2 MC/DC
 
-**Primary government tutorial.** Kelly J. Hayhurst, Dan S. Veerhusen, John J. Chilenski, and
-Leanna K. Rierson, *A Practical Tutorial on Modified Condition/Decision Coverage*,
-NASA/TM-2001-210876, 2001,
-[NASA NTRS PDF record](https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20010057789.pdf).
+**Primary identity.** Kelly J. Hayhurst, Dan S. Veerhusen, John J. Chilenski, and Leanna K.
+Rierson, *A Practical Tutorial on Modified Condition/Decision Coverage*, official report
+`NASA/TM-2001-210876`, NTRS record `20010057789`.
 
-The tutorial presents a five-step method for evaluating MC/DC claims and discusses tool
-qualification, lifecycle data, and common structural-coverage pitfalls.
+**Supported proposition.** The tutorial presents a method for evaluating whether individual
+conditions independently affect a decision and discusses tool/structural-coverage limitations.
 
-**Transfer to INT-R1.** Each decisive obligation or coverage predicate should be shown to
-independently affect the promotion result. A test that merely executes a branch or checks a
-marker is inadequate.
+**Transfer.** A decisive obligation or coverage predicate must independently affect the protected
+decision. Branch execution or marker presence alone is insufficient.
 
-**Does not transfer.** Structural coverage says nothing about whether the right obligations or
-conditions were specified. One can obtain complete structural coverage of an incomplete model.
+**Non-transfer.** Complete structural coverage of an incomplete model remains incomplete.
 
-**INT-R1 consequence across both methods.** The benchmark can falsify weak implementations and
-support a governed adequacy claim. It cannot certify that no unknown obligation exists.
+## 9. Anytime-valid inference
 
-## 9. Anytime-valid inference: what the δ machinery does and does not cover
+**Primary identity.** Aaditya Ramdas, Peter Grünwald, Vladimir Vovk, and Glenn Shafer,
+“Game-Theoretic Statistics and Safe Anytime-Valid Inference,” *Statistical Science* 38(4), 2023,
+576–601, DOI `10.1214/23-STS894`; author manuscript `arXiv:2210.01948`.
 
-**Primary paper.** Aaditya Ramdas, Peter Grünwald, Vladimir Vovk, and Glenn Shafer,
-“Game-Theoretic Statistics and Safe Anytime-Valid Inference,” *Statistical Science* 38(4),
-2023, 576–601, [doi:10.1214/23-STS894](https://doi.org/10.1214/23-STS894); open version
-[arXiv:2210.01948](https://arxiv.org/abs/2210.01948).
+**Supported proposition.** E-processes and related anytime-valid methods preserve their stated
+error control at stopping times under the specified model/process.
 
-E-processes and confidence sequences remain valid at all stopping times under their statistical
-hypothesis/model, accommodating continuous monitoring and optional stopping or continuation.
+**Transfer.** Once obligation, validator, allocation, filtration, and evidence process are
+correctly specified, repeated monitoring and optional stopping need not invalidate the bound.
 
-**Transfer to INT-R1.** Once an obligation, validator, risk allocation, and eligible evidence
-process are correctly specified, an e-process can preserve type-I error control under repeated
-looks and adaptive stopping. It is well suited to the ledger's statistical subproblem.
+**Non-transfer.** An e-process cannot discover an obligation absent from the model, establish
+source competence, prove compiler semantic completeness, or make a validator semantically sound.
 
-**Does not transfer.** An e-process cannot detect that an obligation was never represented, that
-a source was absent, that a validator encodes the wrong semantic property, or that the closure
-basis was institutionally incompetent. Optional-stopping validity does not repair model or
-obligation omission.
+**INT-R1 consequence.** A later witnessed omission may leave historical arithmetic correct for the
+old model while making current authority use red.
 
-**INT-R1 consequence.** A witnessed coverage or validator fault is a maintained-assumption
-breach. The numerical process may remain arithmetically correct for its old model, but its result
-is red and unusable for the protected authority action.
+## 10. Cross-field transfer table
 
-## 10. Cross-field synthesis
-
-| Field | Honest bounded claim | Unsafe overclaim rejected by INT-R1 |
+| Field | Bounded transferable claim | Overclaim explicitly rejected |
 | --- | --- | --- |
-| Normative systems | Complete relative to a declared universe of cases/solutions and closure rule | The legal/normative world is necessarily complete or has no gaps |
-| Formal methods | Complete relative to an oracle/semantics/language | The oracle/language captures every external obligation |
-| Open-world reasoning | Closure is explicit, scoped, provenance-bearing, defeasible | Silence or search failure means false/not applicable |
-| Safety analysis | A governed method systematically searched declared perspectives and hazards | Every hazard/obligation was found |
-| ALARP/SFAIRP | Diligence and stopping can be justified relative to risk and applicable doctrine | A cost judgment proves no obligation remains or governs PolicyOS by analogy |
-| Assurance cases | Claims, evidence, assumptions, contexts, and defeaters are explicit and reviewable | A well-formed argument is true or exhaustive |
-| Professional audit | Sufficient appropriate evidence provides a reasonable basis for a scoped opinion | Audit sufficiency is mathematical or world completeness |
-| Mutation/MC/DC | Tests are adequate relative to declared mutants/structure | The specification or fault model is complete |
-| Anytime-valid inference | Error control survives optional stopping under the maintained model | The model discovered every obligation or its validators are semantically sound |
+| Normative systems | bibliographic orientation to relative formal closure/gaps | the cited catalog proves detailed doctrine or PolicyOS world closure |
+| Formal methods | inclusion/completeness relative to assumed semantics | the semantics capture every external obligation |
+| Open-world reasoning | closure is explicit, scoped, attributable, and defeasible | silence or failed search means false/not applicable |
+| Safety/risk analysis | methods and stopping can be systematic and reviewable | every hazard/obligation was found |
+| Assurance cases | assumptions, evidence, defeaters, and limitations are visible | a well-formed argument is true or exhaustive |
+| Professional audit | sufficient appropriate evidence and independence support a scoped opinion | audit evidence is mathematical/world completeness |
+| Mutation/MC/DC | adequacy relative to declared faults/structure | the specification/fault model is complete |
+| Anytime-valid inference | optional-stopping safety within a specified model | the model discovered all obligations or proves validator semantics |
 
-### Result of the external baseline
+## 11. External-baseline result
 
-No inspected field supplies a defensible theorem of global obligation completeness for an open
-institutional world. The common successful pattern is instead:
+No audited source supplies a theorem of global obligation completeness for an open institutional
+world. The convergent safe pattern is:
 
-1. declare the universe, source basis, scope, semantics, and fault model;
-2. prove or test mechanical coverage relative to them;
-3. govern source selection and validator change independently;
-4. retain assumptions, exclusions, defeaters, and unknown remainder;
-5. set review/expiry triggers proportional to change and stakes;
-6. permit challenge and append-only correction/reissue; and
-7. refuse to project a relative result as universal.
+1. declare scope, basis, semantics, versions, and fault model;
+2. prove mechanical traversal/inclusion relative to them under explicit semantic assumptions;
+3. keep source adequacy, compiler completeness, and validator soundness visible as premises;
+4. require actual independent evidence before protected reliance;
+5. retain exclusions, conflicts, defeaters, and unknown remainder;
+6. expire, challenge, suspend, and reissue append-only; and
+7. forbid relative passage from being projected as universal.
 
-That pattern supports `accepted_narrow_scope`: a bounded relative-coverage protocol is defensible;
-a claim that the open-world obligation universe is complete is refuted.
+That pattern supports `accepted_narrow_scope`. It does not establish a current
+`bounded_complete` capability, benchmark passage, legal compliance, or absence of world
+obligations outside the declared basis.

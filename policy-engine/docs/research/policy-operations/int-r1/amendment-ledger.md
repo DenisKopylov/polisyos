@@ -107,9 +107,13 @@ The amendment preserves the audit's thirteen substantive strengths.
 
 ## 5. Frontmatter and capability integrity
 
-All six amended research files now:
+The primary deliverable, the external-source ledger, the formal note, the artifact sketch, and
+the benchmark specification retain `result_type: accepted_narrow_scope`. The repository census
+retains its narrower factual `result_type: confirmed`; it does not use that label to claim the
+missing INT-R1 capability.
 
-- retain `result_type: accepted_narrow_scope`;
+All six amended research files:
+
 - use `repository_branch: research/int-r1-amendment`;
 - record `current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`;
 - record
@@ -118,9 +122,6 @@ All six amended research files now:
 - deny production implementation authorization, final wire/schema authority, canonical-owner
   appointment, authority grant, legal compliance, benchmark passage, and current
   `bounded_complete` capability.
-
-The supporting files use `result_type: confirmed` only where the artifact is a repository-fact
-census; no such label is used to claim the missing capability.
 
 ## 6. Files and boundaries verified by this amendment
 

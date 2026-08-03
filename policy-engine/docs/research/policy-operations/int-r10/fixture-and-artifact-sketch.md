@@ -351,7 +351,7 @@ research_only: true
 
 The projection must not own an independent mutable head, execution ordinal, risk-spend chain,
 registry, local verifier route, replacement risk scope, or promotion decision. These constraints
-follow the repository's owner/behavioral-proof rules at `AGENTS.md:35-66` and `AGENTS.md:71-89`.
+follow the repository's owner/behavioral-proof rules at `AGENTS.md:17-27` and `AGENTS.md:37-55`.
 
 A content hash, declaration reference, member receipt references, and derived aggregate are allowed
 because they summarize existing authority. Local roots/receipts remain the local owners, following
@@ -530,7 +530,7 @@ INT-R9 prose cannot override the failure.
 | FWC-NEG-18 | Remove effective cap enforcement but keep fields. | Property-removal test must fail. |
 | FWC-NEG-19 | Actual spend is low, but owner executed under ordinary `1/100`. | Cap not enforced before execution. |
 
-The marker-preserving property-removal requirement follows `AGENTS.md:35-66`.
+The marker-preserving property-removal requirement follows `AGENTS.md:17-27`.
 
 ### 7.5 Sharpness witness
 

@@ -27,34 +27,53 @@ research_only: true
 
 # INT-R10 — Family Composition Artifact and Fixture Sketch
 
-## 1. Standing and non-duplication rule
+## 1. Standing, owner, and baseline anchors
 
-This is a research sketch, not a final schema. A later implementation may rename every field while
-preserving the semantic properties.
+This is a research sketch, not a final schema. Names and serialization are replaceable; the semantic
+properties are not.
 
-The canonical owner to extend is the existing confidence ledger in
-`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py`. The sketch does **not** introduce:
+The canonical owner to extend is the existing confidence ledger. It already owns one stable,
+non-resettable budget scope per owner key
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:156-184`), canonical roots and
+scope-local receipts
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557`,
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:723-752`), local ordinal/spend
+assignment and risk burn before owner execution
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`), typed refusal for
+unavailable theorems
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3740-3855`), and exact
+recomputation of local spend
+(`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`). N9 derives one
+canonical scope from each design-problem binding
+(`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`).
 
-- a second risk ledger;
-- a second mutable confidence head;
-- a family execution ordinal that competes with each scope's canonical local ordinal;
+At the pinned baseline, no cross-scope/family/parent-scope composition exists; GY-GAP2 records this
+as a missing capability rather than a defect in per-problem scope identity
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`). The live registry
+sets `delta = 1/100` and exposes no family cap vector
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`). Relevant adaptive
+owner theorem profiles remain unavailable
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
+
+Accordingly, this sketch does **not** introduce:
+
+- a second risk ledger or mutable confidence head;
+- a family ordinal competing with each scope's local ordinal;
 - a replacement or weakened `ConfidenceRiskBudgetScope`;
-- a parent risk scope containing the design-problem scopes;
+- a parent risk scope containing the problem scopes;
 - a second promotion gate or status lattice; or
 - an author-written proof record accepted without live recomputation.
 
 The family object is a **prospective composition declaration plus a recomputed projection over
-existing canonical roots and receipts**. Each per-problem scope remains the owner of its local
-ordinals, local checks, local owner invocation, and local append history.
+existing canonical roots and receipts**. At `978e6b958...`, a conforming validator must refuse an
+equivalent of `family_composition_unavailable`, consistent with
+`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`.
 
-At `978e6b958...`, this capability does not exist. A conforming validator must report an equivalent
-of `family_composition_unavailable`; Markdown cannot simulate closure.
-
-## 2. Controlled event and theorem interface
+## 2. Controlled event and theorem interfaces
 
 For ordered family `F = (1, ..., m)`:
 
-- `R_i`: member `i` is reached under the declared stopping/dispute rules;
+- `R_i`: member `i` is reached under declared stopping/dispute rules;
 - `P_i`: member `i` emits a canonical positive promotion;
 - `W_i`: that promotion is false relative to its declared obligation set and maintained
   assumptions;
@@ -64,31 +83,27 @@ For ordered family `F = (1, ..., m)`:
 With stop on first canonical positive, `V_F` is exactly the event that the reported first promotion
 is false.
 
-### 2.1 Prospectively fixed member-plan theorem interface
+### 2.1 Prospectively fixed member-plan interface
 
 Before any family result-bearing execution, bind the exact family/order, cap vector, and complete
-member-specific plan vector. Member plans may differ: member A can use revision `R_A`, member B
-`R_B`, and member C `R_C`. What matters is that the complete vector is fixed before any family
-outcome and that every local theorem covers its own exact member plan.
+member-specific plan vector. Member A may use revision `R_A`, B `R_B`, and C `R_C`; all may differ.
+The fixed-plan theorem requires the complete vector to be committed before outcomes, not identical
+implementations.
 
 ```text
-local premise i:
-  P(V_i | A_F) <= alpha_i
-
-composition premises:
-  alpha_i >= 0
-  sum_i alpha_i <= delta_F
-
-conclusion:
-  P(V_F | A_F) <= delta_F
+P(V_i | A_F) <= alpha_i
+alpha_i >= 0
+sum_i alpha_i <= delta_F
+--------------------------------
+P(V_F | A_F) <= delta_F
 ```
 
 No common null, estimand, exchangeability, or independence is required.
 
-### 2.2 Adaptive theorem interface
+### 2.2 Adaptive interface
 
-For outcome-dependent repair or member selection, let `H_{i-1}` contain the complete prior history.
-A sufficient interface is:
+For outcome-dependent repair, let `H_{i-1}` contain the full prior history. A sufficient interface
+is:
 
 ```text
 alpha_i(H_{i-1}) is chosen before member-i outcome;
@@ -97,16 +112,17 @@ sum_i alpha_i(H_{i-1}) <= delta_F pathwise;
 P(P_i and W_i | H_{i-1}, R_i, A_F) <= alpha_i(H_{i-1}) almost surely.
 ```
 
-An equivalent uniform or selection-aware theorem is acceptable. A theorem for a procedure fixed
-independently of `H_{i-1}` is not sufficient when `H_{i-1}` selected that procedure.
+An equivalent uniform or selection-aware theorem is acceptable. A local anytime-valid label alone
+is insufficient; the live registry's relevant owner profiles are unavailable at
+`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`.
 
-## 3. Placeholder artifact: `FamilyRiskCompositionDeclaration`
+## 3. Placeholder declaration
 
 ### 3.1 Purpose
 
-The declaration binds the exact union event, canonical member relation, local cap vector, and
-member-plan vector before family outcomes. It is an input admitted by the confidence ledger, not a
-receipt authored by INT-R9 and not authority by itself.
+`FamilyRiskCompositionDeclaration` prospectively binds the exact union event, member relation,
+local caps, and member-plan vector. It is an input admitted by the confidence ledger, not an INT-R9
+receipt and not authority by itself.
 
 ### 3.2 Illustrative shape
 
@@ -119,14 +135,12 @@ consumer_protocol_ref: policy-operations/INT-R9:sha256:<hash>
 source_repository_commit: <exact commit>
 deployment_identity: policy-engine-deployment:sha256:<hash>
 registry_content_hash: sha256:<hash>
-family_delta:
-  numerator: 1
-  denominator: 100
+family_delta: {numerator: 1, denominator: 100}
 composition_theorem_profile: weighted_union_v1
 allocation_timing: before_any_family_result_bearing_execution
 member_plan_policy:
   kind: prospectively_fixed_member_plan
-  plan_vector_hash: sha256:<hash of every member plan>
+  plan_vector_hash: sha256:<hash of all member plans>
   adaptive_owner_theorem_ref: null
 stopping_rule:
   kind: stop_on_first_canonical_positive
@@ -201,51 +215,52 @@ may_not_use_for:
 research_only: true
 ```
 
-### 3.3 Declaration acceptance requirements
+### 3.3 Acceptance requirements
 
-A canonical implementation must verify at least:
+A canonical implementation must verify:
 
-1. `family_id` and `plan_vector_hash` are recomputed from canonical serialization.
-2. `family_delta` and every `local_cap` are exact nonnegative rationals; floats are forbidden in the
-   authority path.
-3. Exact `sum(local_cap) <= family_delta`.
-4. Member order is total and unique.
-5. Slot IDs, design-problem IDs, problem hashes, and canonical scope IDs are unique and complete.
-6. Every scope ID is recomputed through the live canonical N9 scope derivation from the exact
-   problem binding; supplied IDs are not trusted.
-7. The declaration and complete member-plan vector were independently visible before the earliest
-   family result-bearing execution. A local timestamp is insufficient.
-8. Repository/deployment/registry/theorem/stopping/terminal rules are content-bound.
-9. The controlled event is explicit; “shared cumulative confidence” is not an event definition.
-10. Every local theorem profile is admitted by the existing owner; the declaration cannot override
-    a local `owner_theorem_unavailable` refusal.
-11. If `member_plan_policy.kind` is adaptive, a canonical adaptive theorem reference and verifier
-    must exist; otherwise the numeric family claim is ineligible.
+1. family and plan-vector hashes from canonical serialization;
+2. exact nonnegative rational caps and exact `sum(local_cap) <= family_delta`;
+3. total unique member order and unique slot/problem/scope identities;
+4. every scope through live N9 derivation, whose source is
+   `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`;
+5. declaration and complete member-plan visibility before any family result-bearing execution;
+6. content-bound repository/deployment/registry/theorem/stopping/terminal rules;
+7. explicit controlled event rather than “shared cumulative confidence” prose;
+8. every local theorem profile through the existing owner refusal machinery at
+   `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3740-3855`; and
+9. for adaptive policy, a canonical selection-valid theorem and verifier.
 
-### 3.4 Local-cap enforcement requirement
+### 3.4 Effective local-cap requirement
 
-A declaration does not itself reduce a member's false-promotion bound. Before any probabilistic
-owner call in member scope `i`, the canonical ledger must enforce an effective top-level ceiling no
-greater than `alpha_i`.
+A declaration does not itself reduce the local false-promotion bound. Before a probabilistic owner
+call in scope `i`, the confidence ledger must enforce an effective ceiling no greater than
+`alpha_i`:
 
-Observable properties:
+```text
+effective_local_ceiling <= assigned_family_cap
+prior_local_spend + next_reservation <= effective_local_ceiling
+```
+
+Observable requirements:
 
 - cap binding precedes the first result-bearing `started` event;
-- the local schedule uses the effective ceiling rather than the ordinary full registry delta;
-- `prior_local_spend + next_reservation > local_cap` fails before owner execution;
-- local receipts expose the effective cap and family relation;
-- a verifier recomputes the cap from the declaration and live source; and
-- the canonical per-problem `scope_id` remains unchanged.
+- the local schedule uses the effective ceiling instead of the ordinary full registry delta;
+- overspend fails before owner execution;
+- local receipts expose the effective cap/family binding;
+- the verifier recomputes the cap from live source; and
+- canonical per-problem `scope_id` remains unchanged.
 
-Checking after execution that actual spend happened to be small is insufficient. The procedure may
-already have executed under a larger nominal error threshold.
+This extends the current pre-execution risk-burn path at
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`; after-the-fact low spend
+is not enough.
 
-## 4. Placeholder artifact: `FamilyRiskCompositionProjection`
+## 4. Placeholder projection
 
 ### 4.1 Purpose
 
-The projection is a canonical confidence-ledger recomputation proving that the named family
-composition was enforced over the bound live scopes. It is not independently authored by INT-R9.
+`FamilyRiskCompositionProjection` is a confidence-ledger recomputation over the bound live scopes.
+It is not independently authored by INT-R9.
 
 ### 4.2 Illustrative shape
 
@@ -314,19 +329,8 @@ aggregate:
   live_receipts_valid: true
 conditionality_clause: >-
   P(any reached member falsely promotes under the exact family and member-plan
-  vector | maintained assumptions) <= family_delta; this is conditional on every
-  member's declared obligation completeness and validator soundness plus the named
-  family composition assumptions.
-maintained_assumptions:
-  - obligation_completeness_by_member
-  - validator_soundness_by_member
-  - exact_family_membership
-  - prospective_allocation
-  - canonical_scope_derivation
-  - local_cap_enforcement
-  - prospectively_fixed_member_plan
-  - no_outcome_dependent_refund
-within_family_budget: true
+  vector | maintained assumptions) <= family_delta; conditional on every member's
+  declared obligation completeness and validator soundness plus the named family assumptions.
 eligible_for_family_risk_claim: true
 refusal_code: null
 projection_hash: sha256:<recomputed hash>
@@ -343,24 +347,18 @@ may_not_use_for:
 research_only: true
 ```
 
-### 4.3 What the projection must not own
+### 4.3 Anti-duplication
 
-It must not acquire:
+The projection must not own an independent mutable head, execution ordinal, risk-spend chain,
+registry, local verifier route, replacement risk scope, or promotion decision. These constraints
+follow the repository's owner/behavioral-proof rules at `AGENTS.md:35-66` and `AGENTS.md:71-89`.
 
-- an independently mutable `family_head`;
-- an execution ordinal used to price local checks;
-- an independent risk-spend event chain;
-- an independently configurable delta registry;
-- a second owner/verifier route for local certificates;
-- a family risk scope replacing the canonical member scope IDs; or
-- an author-supplied boolean accepted without recomputation.
-
-A content hash, declaration reference, member receipt references, and derived aggregate are
-permitted because they bind and summarize existing authority rather than creating a peer owner.
+A content hash, declaration reference, member receipt references, and derived aggregate are allowed
+because they summarize existing authority. Local roots/receipts remain the local owners, following
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557` and
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:723-752`.
 
 ## 5. Canonical recomputation algorithm
-
-Semantic pseudocode only:
 
 ```text
 INPUT:
@@ -371,7 +369,7 @@ INPUT:
   canonical roots/current-head receipts L[1..m]
   consumer chronology C
 
-1. Validate D and all exact rationals.
+1. Validate D and exact rationals.
 2. Recompute family_id and member-plan-vector hash.
 3. Require D.registry_content_hash == hash(G).
 4. Require D and the complete fixed member-plan vector were visible before every
@@ -380,68 +378,55 @@ INPUT:
 6. For each i:
      expected_scope_i = live confidence_risk_scope_for_problem(B[i]).scope_id
      require expected_scope_i == D.members[i].canonical_scope_id
-     require design_problem_id and problem hash match B[i]
-     recompute member_plan_hash
-7. Require all expected_scope_i are distinct.
-8. allocated = exact_sum(D.members[i].local_cap)
-   require allocated <= D.family_delta.
+     require problem identity/hash and member-plan hash match
+7. Require all expected scopes distinct.
+8. Require exact_sum(local caps) <= family_delta.
 9. For each i:
-     validate canonical root and current-head receipt through existing ledger
+     validate canonical root/current-head receipt through existing ledger
      require receipt.scope_id == expected_scope_i
-     require effective local cap == D.members[i].local_cap
+     require effective local cap == declared local cap before execution
      require every probabilistic reservation was made under that cap
-     require local_total_spend <= local_cap
-     require local conditionality/assumptions are complete
-10. Reconstruct chronology from live protocol and ledger artifacts:
-      no later member precedes unresolved earlier member
+     require local_total_spend <= local cap
+     require local assumptions/conditionality complete
+10. Reconstruct chronology:
+      no later member before unresolved earlier member
       disputes halt
       stop after first canonical positive
-      every earlier refused/void/completed member remains
-      no positive comes from an unregistered scope
-11. Apply cap-disposition rules without refund or substitution.
-12. If any member plan was selected or changed using earlier family outcomes:
-      require a canonical selection-valid owner theorem and verifier;
-      otherwise eligible_for_family_risk_claim = false and
-      refusal_code = adaptive_validity_unproved.
-13. Recompute aggregate cap, actual spend, conditionality, and projection hash.
-14. Emit eligible_for_family_risk_claim only if every requirement holds.
+      every earlier terminal remains
+      no positive from unregistered scope
+11. Apply declared cap dispositions without unproved refund/substitution.
+12. If any member plan was selected/changed using earlier family outcomes:
+      require canonical selection-valid theorem;
+      otherwise refuse adaptive_validity_unproved.
+13. Recompute aggregate cap, actual spend, assumptions, and projection hash.
+14. Emit numeric eligibility only if every check passes.
 ```
 
-Step 9 is the canonical-owner seam. A Markdown declaration cannot manufacture a local `alpha_i`
-guarantee; the owner must have constrained execution and must expose verifiable evidence.
+Steps 6 and 9 must execute the real scope and receipt paths at
+`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375` and
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`; supplied markers are not
+proof.
 
 ## 6. Terminal and cap-disposition semantics
 
-| Member state | Result-bearing information exposed? | Default local risk treatment | Sequence treatment | Cap transferable? |
-| --- | --- | --- | --- | --- |
-| `preflight_refused` before owner execution | No owner result; refusal may still reveal eligibility information | Actual spend zero; assigned cap retires for this family version | Retain/publish; advance if protocol permits | No |
-| Deterministic infrastructure failure proved before any result-bearing execution | No | Retry same member/scope/cap under prospective rule | Does not replace/advance slot | No |
-| `started` then owner refusal/error | Yes or potentially yes | Reserved spend burned; remaining cap retires | Retain terminal; advance only under protocol | No |
-| `void_result_bearing` | Yes or exposure cannot be excluded | Spend burned; remaining cap retires | Retain; no substitution | No |
-| `disputed` | Yes | Spend remains; remaining cap held/retired | Halt until prospectively resolved | No |
-| `completed_negative` / grounded refusal | Yes | Spend remains; unused cap retires | Advance | No |
-| `promoted` | Yes | Spend remains charged | Stop family | No |
-| `unreached` after prior positive | No | No spend; assigned cap expires unused | Record unreached | No |
+| Member state | Default local risk treatment | Sequence treatment | Cap transferable? |
+| --- | --- | --- | --- |
+| Preflight refusal before owner execution | Actual spend zero; assigned cap retires for this version. | Retain/publish; advance if declared rule permits. | No |
+| Proven deterministic infrastructure failure before result-bearing exposure | Retry same member/scope/cap. | Does not replace/advance slot. | No |
+| `started` then owner refusal/error | Reserved spend burned; remaining cap retires. | Retain terminal; advance only under protocol. | No |
+| Result-bearing void | Spend burned; remaining cap retires. | Retain; no substitution. | No |
+| Dispute | Spend remains; remaining cap held/retired. | Halt until prospectively resolved. | No |
+| Completed negative / grounded refusal | Spend remains; unused cap retires. | Advance. | No |
+| Promoted | Spend remains charged. | Stop family. | No |
+| Unreached after prior positive | No spend; cap expires unused. | Record unreached. | No |
 
-No-refund is a governance protocol, not a theorem that recycling can never be valid. A more powerful
-recycling rule needs prospective specification, a canonical theorem, and dedicated falsifiers.
+Local preflight refusal behavior is already typed at
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1175-1298`. The no-refund rule is a
+conservative governance protocol; a recycling rule requires its own canonical theorem and tests.
 
-## 7. Fixture package
+## 7. Executable fixture package
 
-### 7.1 Execution boundary
-
-The fixture has two modes:
-
-1. **Baseline characterization** at `978e6b958...`: reproduce three unaccounted top-level budgets
-   and prove no family projection exists.
-2. **Future conformance** after a canonical ledger extension: preserve three distinct scopes while
-   enforcing local caps and producing a live recomputed family projection.
-
-A hand-built model of the property is insufficient. The validator must import and execute the real
-canonical scope derivation and ledger paths, then remove the protected property while retaining
-markers to prove behavioral verification.
-
-### 7.2 Common deterministic inputs
+### 7.1 Common inputs
 
 ```yaml
 fixture_id: INT-R10-FWC-001
@@ -449,36 +434,18 @@ family_delta: {numerator: 1, denominator: 100}
 composition_profile: weighted_union_v1
 stopping_rule: stop_on_first_canonical_positive
 member_plan_policy: prospectively_fixed_member_plan
-problems:
-  - slot: 1
-    design_problem_id: FWC-A
-    problem_hash: sha256:<A>
-    implementation_revision_hash: sha256:<R-A>
-    local_cap: {numerator: 1, denominator: 300}
-  - slot: 2
-    design_problem_id: FWC-B
-    problem_hash: sha256:<B>
-    implementation_revision_hash: sha256:<R-B>
-    local_cap: {numerator: 1, denominator: 300}
-  - slot: 3
-    design_problem_id: FWC-C
-    problem_hash: sha256:<C>
-    implementation_revision_hash: sha256:<R-C>
-    local_cap: {numerator: 1, denominator: 300}
-expected_scope_relation:
-  all_distinct: true
-expected_scope_ordinals:
-  first_started_check_in_each_scope: 0
-maintained_assumptions:
-  - obligation_completeness_by_member
-  - validator_soundness_by_member
+members:
+  - {slot: 1, problem: FWC-A, revision: sha256:<R-A>, local_cap: 1/300}
+  - {slot: 2, problem: FWC-B, revision: sha256:<R-B>, local_cap: 1/300}
+  - {slot: 3, problem: FWC-C, revision: sha256:<R-C>, local_cap: 1/300}
+expected_scope_relation: all_distinct
+expected_first_local_ordinal: 0
 ```
 
-The three revisions may differ; all three member plans must be committed before any family
-result-bearing execution. IDs/hashes must be generated from committed inputs, never copied from
-expected output.
+The revisions may differ; all member plans must be committed before any family result-bearing
+execution. IDs/hashes are generated from committed inputs, never copied from expected output.
 
-### 7.3 Positive future-conformance control
+### 7.2 Positive future-conformance control
 
 ```text
 slot 1 -> FWC-A -> scope A -> local ordinal 0 -> completed negative/refused
@@ -489,37 +456,24 @@ stop
 
 Required assertions:
 
-1. `scope_A`, `scope_B`, and `scope_C` are recomputed by live N9 and pairwise distinct.
-2. Local ordinal zero in all three scopes is accepted; there is no family ordinal substitution.
-3. Before any probabilistic owner call, each scope has effective cap `1/300`.
-4. Every local schedule reservation is recomputed from the effective cap and overspend is refused.
-5. Exact allocated-cap total equals `1/100`.
-6. Exact aggregate actual spend is at most `1/100`.
-7. Earlier refused, void, or negative terminals remain in the projection.
-8. No unused cap moves between members.
-9. The first positive is the registered third member and stops the family.
-10. The member-plan vector is the exact prospectively committed vector; differing `R-A/R-B/R-C`
-    do not invalidate the fixed-plan theorem.
-11. The projection is recomputed from live source, roots, current-head receipts, deployment/
-    registry identity, member plans, and chronology.
-12. Conditionality names all local and family premises.
-13. Revalidation yields the same semantic projection.
-14. Corrupting any cap, member plan, scope binding, earlier terminal, root/head, or registry identity
-    fails validation.
+1. live N9 produces three pairwise distinct scopes, using
+   `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`;
+2. local ordinal zero remains valid in all three scopes, consistent with
+   `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`;
+3. each scope has effective cap `1/300` before owner execution;
+4. every reservation is recomputed from the effective cap and overspend is refused;
+5. exact allocated cap equals `1/100` and exact actual spend is at most `1/100`;
+6. earlier terminals remain and no cap moves;
+7. the positive is the registered third member and stops the family;
+8. differing `R-A/R-B/R-C` remain eligible because the vector was prospectively fixed;
+9. live roots/current heads, registry/deployment identity, plans, assumptions, and chronology are
+   recomputed; and
+10. corrupting any cap, plan, scope, terminal, root/head, or source identity fails.
 
-Expected future result:
+At the pinned baseline, this control must honestly refuse because GY-GAP2 is open
+(`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`).
 
-```text
-within_family_budget = true
-eligible_for_family_risk_claim = true
-allocated_cap = 1/100
-actual_spend <= 1/100
-controlled_event = any reached member falsely promotes
-```
-
-At the pinned baseline, the expected result is an honest refusal because the capability is absent.
-
-### 7.4 Mandatory negative control — three fresh full budgets
+### 7.3 Mandatory negative control
 
 Execute:
 
@@ -532,14 +486,17 @@ stop on first positive
 
 Baseline assertions:
 
-- all three scope IDs are distinct;
-- each scope starts from its own empty history and can assign local ordinal zero;
-- each root receives the registry top-level `1/100` delta;
-- prior spend is summed only inside the current scope;
-- no live family declaration, cap binding, or family projection blocks the trace.
+- distinct scope IDs from
+  `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`;
+- independent local ordinal/spend histories from
+  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`;
+- root-level `1/100` per scope from
+  `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:518-557` and
+  `policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`; and
+- no family cap/projection from
+  `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`.
 
-Future conformance result: the same trace goes red before any single-`1/100` family claim, with an
-equivalent of:
+A future implementation must make this trace go red before any single-`1/100` family claim:
 
 ```text
 family_declaration_missing
@@ -548,95 +505,89 @@ family_budget_exceeded: allocated=3/100, declared=1/100
 unregistered_family_scope
 ```
 
-A passing INT-R9 record or a sentence saying “same cumulative budget” cannot override the failure.
+INT-R9 prose cannot override the failure.
 
-### 7.5 Negative and metamorphic controls
+### 7.4 Metamorphic controls
 
 | ID | Mutation | Required result |
 | --- | --- | --- |
-| FWC-NEG-02 | After member 1 refuses, move its unused cap to member 2. | `outcome_dependent_refund_forbidden` or theorem-specific refusal. |
-| FWC-NEG-03 | Omit member 1's refusal and begin projection at member 2. | `prior_member_history_incomplete`. |
-| FWC-NEG-04 | Substitute problem D/scope D after seeing A fail. | `family_member_substitution`. |
-| FWC-NEG-05 | Supply scope B under member A while keeping field shape. | `canonical_scope_derivation_mismatch`. |
-| FWC-NEG-06 | Duplicate a scope or design-problem ID. | Duplicate-member refusal. |
-| FWC-NEG-07 | Change cap weights after member 1 outcome while final sum remains `1/100`. | `allocation_not_prospective`. |
-| FWC-NEG-08 | Change member 2 implementation after member 1 outcome; provide no selection-valid theorem. | `adaptive_validity_unproved`. |
-| FWC-NEG-09 | Precommit different `R-A`, `R-B`, `R-C` before any result. | **Must remain eligible** if every local theorem/cap is valid; prevents accidental “one identical revision” requirement. |
-| FWC-NEG-10 | Hand-author green family projection without loading live scope heads. | `family_projection_recomputation_mismatch`. |
-| FWC-NEG-11 | Use stale member receipt while a newer head exists. | `member_receipt_not_canonical_head`. |
-| FWC-NEG-12 | Remove one member's obligation-completeness assumption but leave budget booleans green. | `family_conditionality_incomplete`. |
-| FWC-NEG-13 | Use rounded decimals that appear within budget while exact rationals exceed it. | Exact rational validation rejects. |
-| FWC-NEG-14 | Multiply three e-values without a registered conditional merger theorem. | `family_owner_theorem_unavailable`. |
-| FWC-NEG-15 | Let an unregistered fourth scope produce the first positive. | `unregistered_positive_scope`. |
-| FWC-NEG-16 | Keep a revision marker constant while changing executable/model/config bytes. | Member-plan/deployment mismatch. |
-| FWC-NEG-17 | Give all three problems one owner key to force one scope. | Identity weakening / problem-binding mismatch. |
-| FWC-NEG-18 | Remove effective local-cap enforcement but keep declaration/projection fields. | Property-removal control must fail. |
-| FWC-NEG-19 | Local actual spend is below `1/300`, but owner executed using ordinary `1/100` threshold. | `local_cap_not_enforced_before_execution`. |
+| FWC-NEG-02 | Move unused member-1 cap after refusal. | Unproved refund refusal. |
+| FWC-NEG-03 | Omit member-1 terminal from projection. | Prior history incomplete. |
+| FWC-NEG-04 | Substitute problem/scope D after A fails. | Member substitution. |
+| FWC-NEG-05 | Supply B's scope under A while preserving field shape. | Live scope derivation mismatch. |
+| FWC-NEG-06 | Duplicate scope/problem ID. | Duplicate-member refusal. |
+| FWC-NEG-07 | Change cap weights after outcome while final sum stays `1/100`. | Allocation not prospective. |
+| FWC-NEG-08 | Change member-2 plan after member-1 outcome without adaptive theorem. | `adaptive_validity_unproved`. |
+| FWC-NEG-09 | Precommit different `R-A/R-B/R-C`. | Must remain eligible if local theorems/caps are valid. |
+| FWC-NEG-10 | Hand-author green projection without live heads. | Recalculation mismatch. |
+| FWC-NEG-11 | Use stale receipt while newer head exists. | Non-current head refusal. |
+| FWC-NEG-12 | Remove one member's obligation assumption. | Conditionality incomplete. |
+| FWC-NEG-13 | Hide exact overspend behind rounded decimals. | Exact-rational refusal. |
+| FWC-NEG-14 | Multiply e-values without registered merger theorem. | Owner theorem unavailable. |
+| FWC-NEG-15 | Unregistered fourth scope produces positive. | Unregistered positive. |
+| FWC-NEG-16 | Keep revision marker but change executable/config/model bytes. | Plan/deployment mismatch. |
+| FWC-NEG-17 | Force three problems into one scope. | Identity weakening refusal. |
+| FWC-NEG-18 | Remove effective cap enforcement but keep fields. | Property-removal test must fail. |
+| FWC-NEG-19 | Actual spend is low, but owner executed under ordinary `1/100`. | Cap not enforced before execution. |
 
-### 7.6 Sharpness witness
+The marker-preserving property-removal requirement follows `AGENTS.md:35-66`.
 
-For `delta <= 1/3`, construct disjoint events `E_A`, `E_B`, and `E_C`, each probability `delta`.
-Define the three local false-promotion events as those events. Then:
+### 7.5 Sharpness witness
+
+For `delta <= 1/3`, construct disjoint `E_A`, `E_B`, `E_C`, each probability `delta`. Then
 
 ```text
-P(E_A) = P(E_B) = P(E_C) = delta
 P(E_A union E_B union E_C) = 3 * delta.
 ```
 
-At the live `delta = 1/100`, the family probability is exactly `3/100`. This is a deterministic
-theorem fixture, not a simulation estimate.
+At live `delta = 1/100`, the family probability is exactly `3/100`. This is a theorem fixture, not a
+simulation.
 
-### 7.7 Adaptive-continuation fixture
+### 7.6 Adaptive fixture
 
-Use member 1 outcome to select member 2 implementation:
+Member 1's result selects member 2 implementation `R_X`; the local theorem for `R_X` covered only a
+procedure fixed independently of that result. Cap arithmetic remains valid, but projection must
+refuse `adaptive_validity_unproved`. The positive pair supplies a canonical theorem covering the
+selector/full history. The current registry has no such owner profile
+(`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`).
 
-```text
-member 1 runs precommitted R0;
-if result class X occurs, choose repair R_X for member 2;
-local certificate for R_X was proved only when R_X was fixed independently of X.
-```
+## 8. Audit R1 matrix
 
-Even if exact cap totals remain within `delta_F`, the family projection must refuse
-`adaptive_validity_unproved`. The positive paired fixture supplies a canonical theorem whose
-verifier covers the selector and complete history; only then may the adaptive family claim become
-eligible.
-
-This separates arithmetic validity from selection validity.
-
-## 8. Audit R1 acceptance matrix
-
-| R1 requirement | Closure property | Fixture evidence |
+| Requirement | Closure property | Evidence |
 | --- | --- | --- |
-| Exact family event | `V_F = union_i(R_i ∩ P_i ∩ W_i)`. | Projection and all refusals name the event. |
-| Relation to canonical scopes | Live derivation; distinct member scopes preserved. | Positive assertion 1; scope-swap/collapse negatives. |
-| No fresh unaccounted budgets | Prospective local caps sum within `delta_F` and bind before execution. | Positive assertions 3–6; mandatory `3/100` negative. |
-| Earlier terminal effects | Explicit no-refund/no-substitution dispositions. | Trace plus FWC-NEG-02/03/15. |
-| Aggregate proof | Weighted union plus exact rational cap/spend totals. | Positive projection and sharpness witness. |
-| Adaptive continuation | Fixed member-plan vector is covered; outcome-dependent change requires selection-valid theorem. | FWC-NEG-08/09 and adaptive pair. |
-| Canonical owner reuse | Projection has no second head, ordinal, risk scope, or registry. | Structural review and author-written projection negative. |
-| Live reproducibility | Scope derivation, roots, receipts, heads, caps, plans, and chronology recomputed. | FWC-NEG-10/11/18/19. |
+| Exact family event | `V_F = union_i(R_i ∩ P_i ∩ W_i)`. | Projection names it. |
+| Relation to canonical scopes | Live N9 derivation; distinct scopes preserved. | Positive plus scope-swap/collapse negatives. |
+| No fresh budgets | Prospective local caps sum within `delta_F` and bind before execution. | Positive plus mandatory `3/100` negative. |
+| Earlier terminal effects | Explicit no-refund/no-substitution dispositions. | Terminal table and negatives. |
+| Aggregate proof | Weighted union and exact rational cap/spend totals. | Positive plus sharpness witness. |
+| Adaptive continuation | Fixed vector allowed; outcome-dependent change requires selection-valid theorem. | FWC-NEG-08/09 and adaptive pair. |
+| Canonical owner reuse | No second head, ordinal, scope, or registry. | Structural constraints and hand-authored projection negative. |
+| Live reproducibility | Scope derivation, roots, heads, caps, plans, chronology recomputed. | FWC-NEG-10/11/18/19. |
 
 ## 9. Handoff invariants
 
-A later implementation may choose names and serialization only after consolidation. It must
-preserve:
+A later implementation must preserve:
 
-1. Per-problem scope identity unchanged.
-2. Confidence ledger as the only risk-accounting owner.
-3. Local caps bound before result-bearing execution.
-4. Exact rational authority path.
-5. Existing Basel allocation inside the effective local cap.
-6. No refund by default; recycling needs a theorem.
-7. Different prospectively fixed member plans are allowed.
-8. Outcome-dependent plan selection is an adaptive theorem boundary.
-9. INT-R1 conditionality remains visible per member.
-10. Verifier executes live source and survives property-removal probes.
-11. Missing family composition blocks the numeric authority claim, not candidate work.
+1. per-problem scope identity from
+   `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375`;
+2. confidence ledger as sole risk-accounting owner;
+3. local caps bound before execution, extending
+   `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`;
+4. exact rational authority path and local recomputation from
+   `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:3890-4025`;
+5. existing local Basel allocation inside the effective cap;
+6. no refund by default;
+7. different prospectively fixed member plans allowed;
+8. outcome-dependent selection treated as an adaptive theorem boundary;
+9. INT-R1 conditionality visible per member
+   (`policy-engine/docs/research/policy-operations/int-r1-obligation-coverage-and-open-world-completeness.md:1-90`);
+10. behavioral live-source verification; and
+11. missing composition blocks only numeric authority, consistent with
+    `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:160-190`.
 
-## 10. Current-baseline expected result
+## 10. Pinned-baseline expected result
 
-At `978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`, a validator built from this specification should
-report:
+A validator at `978e6b958...` should report:
 
 ```yaml
 family_composition_capability: missing
@@ -651,5 +602,13 @@ best_generic_composition_of_three_valid_local_delta_guarantees: min(1, 3 * delta
 live_registry_instance_at_delta_1_over_100: 3/100
 ```
 
-That is a successful negative baseline. The sketch does not authorize a production claim until the
-canonical owner extension and behavioral fixtures exist.
+Evidence: per-problem scope and local spending are implemented at
+`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:356-375` and
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:1301-1364`; the live `delta` is at
+`policy-engine/architecture/production_quality/confidence_ledger.toml:1-18`; cross-scope
+composition remains missing at
+`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:1-10`; and adaptive owner
+profiles remain unavailable at
+`policy-engine/architecture/production_quality/confidence_ledger.toml:53-121`.
+
+That negative baseline is successful research. It does not authorize a production claim.

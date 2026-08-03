@@ -5,14 +5,15 @@ kind: deep-research
 research_task: INT-R1
 result_type: accepted_narrow_scope
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r1-obligation-coverage
+repository_branch: research/int-r1-amendment
 historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
-current_repository_commit: d152565dcc11cea457dacd61fadc6e15dc3ecc86
-inspection_date: 2026-08-02
+current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+inspection_date: 2026-08-03
+amended_after_audit: research/int-r1-independent-audit@0893a739e4739a6cd31dd95bc0b88526e1ff29ae
 authoritative_for:
-  - research-level typed shape for ObligationCoverageEnvelope
-  - research-level typed shape for ValidatorGovernanceRecord
-  - research-level challenger, perturbation, rollback, reissue, and public-projection semantics
+  - research-level typed shape for an ObligationCoverageEnvelope
+  - research-level typed shape for a ValidatorGovernanceRecord
+  - research-level per-scope closure-premise, challenger, perturbation, suspension, reissue, and public-projection semantics
   - research-level mapping of coverage assessments into the one existing status lattice
   - research-level obligation-coverage lifecycle state machine
 may_not_use_for:
@@ -22,57 +23,72 @@ may_not_use_for:
   - canonical owner appointment
   - authority grant
   - capability claim
+  - current issuance of bounded_complete
   - legal compliance conclusion
   - benchmark passage
   - database migration
   - API or generated-client commitment
+  - evidence that an independent checker, scorer, or governance producer exists
 research_only: true
 ---
 
 # INT-R1 — Artifact and State-Machine Sketch
 
-## 1. Standing and design constraints
+## 1. Standing after independent audit
 
-The types below are **research sketches**. They make the proposed semantics checkable enough for
-an auditor and a later implementation planner, but they do not establish a new canonical owner,
-package, API, serialization, or authority grant.
+The types below are **research sketches**. They make semantics concrete enough to review and hand
+off, but establish no canonical owner, package, API, persistence format, generated client, or
+authority grant.
 
-They are constrained by existing repository law:
+The audit adds one decisive current-capability rule:
 
-- one status lattice; no parallel authority-status universe
+```text
+At 978e6b958, PolicyOS cannot issue bounded_complete.
+```
+
+No admitted independent source-to-obligation checker/scorer, validator-governance producer,
+coverage-envelope producer, or complete N9/N11/N12/claim bridge exists. S0-GAP-02 remains an
+independent-oracle dependency. A producer-populated field that says “independent” is not evidence
+of independence. `open_world_unresolved` is therefore the honest current steady state for an
+attempted protected use, as Atlas DS17 also records
+(`policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:7`).
+
+A future `bounded_complete` branch remains in the sketch only to specify the evidence and
+fail-closed behavior a later governed capability would need. It is not reachable merely by
+serializing these fields.
+
+The sketch is constrained by existing repository law:
+
+- one status lattice, no parallel authority universe
   (`policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:184-186`);
-- fail closed for the affected authority-band action while allowing candidate work under a
-  declared limitation
+- fail closed for the affected authority-band action while candidate work may continue only under
+  a declared limitation
   (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:164-187`);
-- no authority by observation, transport, or projection, and no authority from passage alone
-  (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:97-116`);
-- receipt, verification, purpose-scoped admission, and PolicyOS publication/lifecycle action are
-  distinct temporal roles
+- no authority by observation, transport, projection, or passage alone
+  (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:43-116`);
+- distinct source-effect, receipt, transaction, verification, admission, publication, and owner-
+  reaction temporal roles
   (`policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md:1-220`);
-- the canonical claim owner decides the actual reaction to a late or corrective event; a payload
-  may recommend but may not mint that reaction
-  (`policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md:146-220`);
-- candidate content cannot fill protected obligation-authority slots without admitted evidence
+- candidate content cannot fill protected obligation-authority slots
   (`policy-engine/src/polisyos/runtime/quality/candidate_firewall.py:1-73`); and
-- every capability requires producer, persisted artifact/event, bridge, consumer, verification,
-  and surface, not a schema alone (`AGENTS.md:68-96`).
+- capability requires producer, persisted artifact/event, bridge, consumer, verification, and
+  surface, not a schema alone (`AGENTS.md:68-96`).
 
-## 2. Shared semantic vocabulary
+## 2. Local semantic vocabulary
 
-The following vocabulary is local to the sketch. It is not a proposal for a new runtime enum.
+These literals are local explanatory notation, not a proposal for new canonical runtime enums.
 
 ```python
 CoverageAssessment = Literal[
-    "bounded_complete",
+    "bounded_complete",       # future governed assessment only; currently unissuable
     "known_incomplete",
     "open_world_unresolved",
 ]
 
-ClosureBasisKind = Literal[
-    "competent_closed_register",       # external competent owner asserts scoped closure
-    "governed_stopping_rule",          # diligence basis, not world closure
-    "partial_registry",                # known source-family or scope gaps remain
-    "unknown",                         # closure basis cannot be characterized
+ClosurePremiseDisposition = Literal[
+    "closed_by_competent_basis",
+    "open_under_unseen_extension",
+    "closure_not_established",
 ]
 
 ChallengeDisposition = Literal[
@@ -86,8 +102,8 @@ ChallengeDisposition = Literal[
 ]
 ```
 
-A later implementation may reuse existing lifecycle/status vocabularies rather than introduce
-these exact literals. The semantic requirements, not the spelling, are load-bearing.
+A later implementation may reuse different existing vocabularies. The semantic distinctions are
+load-bearing; spelling and serialization are not.
 
 ## 3. Typed sketch: `ObligationCoverageEnvelope`
 
@@ -101,16 +117,36 @@ class ScopeDescriptor(TypedDict):
     candidate_or_claim_ref: str
     protected_action: str
     purpose: str
+    audience_classes: tuple[str, ...]
     policy_domain: str
     population_or_target_scope: str
     geographic_scope: str | None
     materiality_or_stakes_class: str
     source_effect_cutoff: str | None
+    source_publication_cutoff: str | None
     observation_cutoff: str | None
     knowledge_transaction_cutoff: str
     admission_cutoff: str
     publication_cutoff: str | None
     declared_scope_limitations: tuple[str, ...]
+
+
+class ClosurePremiseEvidence(TypedDict):
+    disposition: ClosurePremiseDisposition
+    assertion_ref: str | None
+    assertion_content_hash: str | None
+    competent_owner_ref: str | None
+    owner_mandate_ref: str | None
+    competence_verification_ref: str | None
+    exact_authority_scope: str | None
+    exact_purpose_and_audience_scope: str | None
+    effective_interval: str | None
+    exhaustive_register_or_rule_ref: str | None
+    source_hierarchy_or_closure_semantics_ref: str | None
+    exception_and_conflict_rule_refs: tuple[str, ...]
+    change_and_successor_rule_ref: str | None
+    challenge_route_ref: str
+    limitations: tuple[str, ...]
 
 
 class SourceSearchEntry(TypedDict):
@@ -185,19 +221,39 @@ class ObligationCompilationBinding(TypedDict):
     compiled_obligation_set_hash: str
     source_to_obligation_derivation_ref: str
     traversal_receipt_ref: str
-    internal_totality_receipt_ref: str
+    internal_denominator_totality_receipt_ref: str
+
+    # Research requirement needed for OM-01, not a current field or frozen schema.
+    pre_aggregation_instance_set_ref: str | None
+    pre_aggregation_instance_set_hash: str | None
+    instance_identity_rule_ref: str | None
+    instance_to_class_aggregation_rule_ref: str | None
+
+
+class IndependenceEvidence(TypedDict):
+    organizational_evidence_ref: str | None
+    implementation_evidence_ref: str | None
+    source_or_data_evidence_ref: str | None
+    oracle_evidence_ref: str | None
+    economic_or_incentive_conflict_ref: str | None
+    temporal_independence_evidence_ref: str | None
+    shared_component_refs: tuple[str, ...]
+    residual_common_mode_risks: tuple[str, ...]
+    conflict_disposition_ref: str | None
 
 
 class IndependentCoverageReview(TypedDict):
     review_ref: str
     reviewer_or_validator_ref: str
-    reviewer_independence_record_ref: str
+    independence_evidence: IndependenceEvidence
     review_scope_hash: str
     source_reperformance_receipt_ref: str | None
     compiler_reperformance_receipt_ref: str | None
+    validator_reperformance_receipt_refs: tuple[str, ...]
     validator_governance_record_refs: tuple[str, ...]
-    mutation_suite_receipt_ref: str
-    metamorphic_suite_receipt_ref: str
+    mutation_suite_receipt_ref: str | None
+    metamorphic_suite_receipt_ref: str | None
+    independent_scorer_receipt_ref: str | None
     unresolved_defeaters: tuple[str, ...]
     review_conclusion: CoverageAssessment
     verification_time: str
@@ -214,9 +270,7 @@ class ObligationCoverageEnvelope(TypedDict):
     audience_classes: tuple[str, ...]
 
     scope: ScopeDescriptor
-    closure_basis_kind: ClosureBasisKind
-    closure_basis_assertion_ref: str | None
-    closure_basis_assertion_owner_ref: str | None
+    closure_premise: ClosurePremiseEvidence
     closure_basis_content_hash: str
     searched_sources: tuple[SourceSearchEntry, ...]
     required_source_family_manifest_ref: str
@@ -225,7 +279,7 @@ class ObligationCoverageEnvelope(TypedDict):
     unknown_remainder: tuple[UnknownRemainder, ...]
 
     compilation: ObligationCompilationBinding
-    independent_review: IndependentCoverageReview
+    independent_review: IndependentCoverageReview | None
     coverage_assessment: CoverageAssessment
     assessment_reason_codes: tuple[str, ...]
     known_material_defeater_refs: tuple[str, ...]
@@ -234,7 +288,7 @@ class ObligationCoverageEnvelope(TypedDict):
     source_occurrence_or_effect_times: tuple[str, ...]
     policyos_receipt_time: str
     transaction_visible_time: str
-    verification_time: str
+    verification_time: str | None
     purpose_scoped_admission_time: str | None
     policyos_publication_time: str | None
     review_due_time: str
@@ -265,70 +319,54 @@ class ObligationCoverageEnvelope(TypedDict):
 
 ### 3.1 Required semantics
 
-An envelope is not valid merely because all fields are populated. A later governed contract
-would need at least these semantic invariants:
+Populated fields do not establish validity. A later governed contract would need at least:
 
-1. `envelope_content_hash` binds every semantic field, nested record, and referenced immutable
-   receipt needed to reproduce the result.
-2. Every `required_for_scope` source family is either searched and verified or represented as a
-   material exclusion/unavailable source. Absence may not default to “not applicable.”
-3. `bounded_complete` is permitted only when relative traversal, compiler binding, validator
-   governance, independent review, currentness, and internal-defeater checks all pass.
-4. `closure_basis_kind = governed_stopping_rule` always retains an explicit open-world rider;
-   it never becomes an assertion that the world is closed.
-5. `closure_basis_kind = competent_closed_register` still records the external owner and exact
-   scope of the closure assertion. PolicyOS verifies and admits it for a purpose; PolicyOS does
-   not become the source authority.
-6. `unknown_remainder.cardinality_claim` and `.probability_claim` prevent invented counts or
-   calibrated probabilities at the current evidence state.
-7. An unresolvable content hash, owner, rule, compiler, validator, or review receipt is a typed
-   blocker, not a warning-only pass.
-8. Expiry or a material accepted challenge invalidates current usability without modifying the
-   historical envelope.
-9. `public_rider` is mandatory even for `bounded_complete`.
-10. The envelope itself never sets `promoted`; the canonical N9/claim owner consumes it as one
-    input.
+1. `envelope_content_hash` binds every semantic field and immutable receipt required to reproduce
+   the result.
+2. Every required source family is searched and verified or represented as a material
+   unavailable/excluded item. Absence never defaults to not applicable.
+3. One per-scope closure disposition is present and evidence-bound.
+4. `closed_by_competent_basis` requires competent owner/mandate, exact scope/purpose/interval,
+   closure semantics, exception/conflict/change rules, currentness, and challenge route.
+5. `open_under_unseen_extension` and `closure_not_established` retain explicit remainder and block
+   affected protected use.
+6. A future `bounded_complete` requires the conditional theorem's mechanical conditions **and**
+   separately admitted evidence for compiler/validator assumptions, actual independence,
+   no-known-material-defeater, currentness, and projection integrity.
+7. At the pinned repository that precondition set cannot be met; attempted positive issuance is
+   invalid and must resolve to `open_world_unresolved`.
+8. `governed_stopping_rule`-style diligence, if represented by a later schema, never becomes a
+   world-closure assertion by itself.
+9. `unknown_remainder.cardinality_claim` and `.probability_claim` prohibit invented counts or
+   probabilities at the current evidence state.
+10. Unresolvable hashes, owners, rules, compilers, validators, independence evidence, or review
+    receipts are blockers, not warning-only passes.
+11. Expiry or an admitted material perturbation invalidates current usability without modifying
+    historical bytes.
+12. `public_rider` is mandatory for any future positive relative assessment.
+13. The envelope never sets `promoted`; N9/canonical claim owners consume it as one input.
+14. `pre_aggregation_instance_*` fields are a research requirement only. Current absence is
+    GY-GAP1; this sketch does not freeze their representation.
 
-### 3.2 Artifact-level authority declaration
+### 3.2 Authority declaration
 
-A future governed instance may be authoritative only for:
+A future admitted envelope may be authoritative only for what PolicyOS searched/received,
+which snapshots/rules/compiler/validators it used, the declared closure-premise evidence, what it
+compiled and checked, exclusions/remainder, independent-evidence standing, lifecycle standing,
+and PolicyOS's own publication/correction history.
 
-- what PolicyOS searched and received;
-- what snapshots, rules, compiler, and validators it used;
-- what obligation set was compiled;
-- whether that declared basis was mechanically covered and independently checked;
-- what exclusions and unknown remainder were declared;
-- the envelope's current lifecycle standing; and
-- PolicyOS's own publication and correction history.
-
-It may not be used for:
-
-- a legal-compliance conclusion;
-- proof that no external obligation exists;
-- proof that an external institution performed its function;
-- authority to legislate, adjudicate, administer, notify, pay, deliver, or remediate;
-- an unconditional δ claim;
-- automatic promotion; or
-- a statement that the coarse obligation-class vocabulary is universal.
+It may not establish legal compliance, prove no external obligation exists, prove an external
+institution performed its function, authorize external administration, support an unconditional
+δ claim, auto-promote, or establish that the coarse class vocabulary is universal.
 
 ## 4. Typed sketch: `ValidatorGovernanceRecord`
 
 ```python
-class IndependenceDeclaration(TypedDict):
-    organizational_independence: str
-    implementation_independence: str
-    source_or_data_independence: str
-    economic_or_incentive_conflicts: tuple[str, ...]
-    shared_components: tuple[str, ...]
-    residual_common_mode_risks: tuple[str, ...]
-    conflict_disposition_ref: str | None
-
-
 class ValidatorChangeRule(TypedDict):
     change_process_ref: str
     proposal_owner_ref: str
     required_reviewers: tuple[str, ...]
-    independent_approver_ref: str
+    independent_approver_ref: str | None
     compatibility_rule_ref: str
     migration_or_reissue_trigger_ref: str
     emergency_change_rule_ref: str
@@ -339,16 +377,15 @@ class ValidatorChangeRule(TypedDict):
 class ValidatorTestEvidence(TypedDict):
     test_plan_ref: str
     test_plan_hash: str
-    independent_oracle_ref: str
-    oracle_independence_record_ref: str
+    independent_oracle_ref: str | None
+    oracle_independence_evidence_ref: str | None
     mutation_operator_manifest_ref: str
     mutation_operator_manifest_hash: str
-    mutation_receipt_ref: str
+    mutation_receipt_ref: str | None
     metamorphic_law_manifest_ref: str
     metamorphic_law_manifest_hash: str
-    metamorphic_receipt_ref: str
+    metamorphic_receipt_ref: str | None
     negative_fixture_manifest_ref: str
-    structural_coverage_receipt_ref: str | None
     differential_or_reperformance_receipt_ref: str | None
     unresolved_equivalent_mutant_refs: tuple[str, ...]
     surviving_material_mutant_refs: tuple[str, ...]
@@ -372,10 +409,10 @@ class ValidatorGovernanceRecord(TypedDict):
     rule_owner_ref: str
     compiler_owner_ref: str
     validator_owner_ref: str
-    independent_checker_owner_ref: str
+    independent_checker_owner_ref: str | None
     change_approver_ref: str
     incident_response_owner_ref: str
-    independence: IndependenceDeclaration
+    independence_evidence: IndependenceEvidence
 
     rule_ref: str
     rule_version: str
@@ -386,9 +423,9 @@ class ValidatorGovernanceRecord(TypedDict):
     validator_ref: str
     validator_version: str
     validator_content_hash: str
-    independent_checker_ref: str
-    independent_checker_version: str
-    independent_checker_content_hash: str
+    independent_checker_ref: str | None
+    independent_checker_version: str | None
+    independent_checker_content_hash: str | None
 
     typed_exemptions: tuple[str, ...]
     exemption_justification_refs: tuple[str, ...]
@@ -401,7 +438,7 @@ class ValidatorGovernanceRecord(TypedDict):
     open_challenge_refs: tuple[str, ...]
 
     policyos_receipt_time: str
-    verification_time: str
+    verification_time: str | None
     purpose_scoped_admission_time: str | None
     valid_from: str
     review_due_time: str
@@ -424,37 +461,30 @@ class ValidatorGovernanceRecord(TypedDict):
     research_only: bool
 ```
 
-### 4.1 Independence is multidimensional
+### 4.1 Independence is evidence, not vocabulary
 
-“Independent validator check” is unsafe if it means only a second function name. The record must
-make common-mode risk visible:
+Independence is not achieved because fields are nonempty. A later admission mechanism must verify:
 
-- **organizational independence:** reviewer is not subordinate to the result owner for the
-  decision under review, or the residual conflict is disclosed and mitigated;
-- **implementation independence:** independent checker does not execute the exact same mutated
-  compiler/parser/validator path as the primary producer;
-- **source independence:** where possible, source-to-obligation coverage is reperformed from the
-  immutable basis rather than from the producer's already-compiled set;
-- **oracle independence:** expected results are not generated by the implementation under test;
-- **economic/incentive independence:** pressure to promote or close a release is declared; and
-- **temporal independence:** a stale prior review does not bless a changed rule/validator.
+- the reviewer/checker is sufficiently separate from the result owner for the stakes;
+- the independent path does not invoke the same mutated parser/compiler/validator;
+- source-to-obligation coverage is reperformed from immutable sources, not producer output;
+- expected outcomes are frozen outside the implementation under test;
+- shared indexes, ontologies, rule libraries, code generators, and data are disclosed;
+- incentive conflicts are disclosed and dispositioned; and
+- a prior review is invalidated by relevant source/rule/code changes.
 
-Perfect independence may be unavailable. The honest outcome is then
-`independence_unresolved`, feeding `open_world_unresolved` or `scope_insufficient`; it is not a
-self-attested exception.
+Perfect independence may be unavailable. The honest result is then
+`independence_unresolved`, feeding `open_world_unresolved` or existing
+`scope_insufficient`/`unknown`. No exception may be self-attested.
 
-### 4.2 Validator-governance authority declaration
+### 4.2 Current repository standing
 
-A governed record could be authoritative for the identity, version, ownership, review,
-independence claims, change process, and benchmark receipts of the named validator configuration.
-It may not establish that the obligation language is world-complete, that a validator is sound
-outside its declared domain, that a benchmark fault model is exhaustive, or that a passing
-validator grants promotion authority.
+At the pinned repository, `independent_checker_ref`, oracle evidence, scorer receipt, and the
+complete governance producer are not available. S0-GAP-02 is a dependency, not a permissible
+placeholder string. Consequently no current `ValidatorGovernanceRecord` can support
+`bounded_complete`.
 
-## 5. Typed challenger and perturbation records
-
-An envelope and governance record do not provide a challenger process by themselves. The minimum
-append-only process needs two additional typed records.
+## 5. Challenger and perturbation records
 
 ### 5.1 `ObligationChallengeRecord`
 
@@ -486,7 +516,7 @@ class ObligationChallengeRecord(TypedDict):
     accepted_for_independent_review: bool | None
     triage_reason_codes: tuple[str, ...]
     independent_reviewer_ref: str | None
-    reviewer_independence_record_ref: str | None
+    reviewer_independence_evidence_ref: str | None
     verification_time: str | None
 
     disposition: ChallengeDisposition | None
@@ -506,8 +536,8 @@ class ObligationChallengeRecord(TypedDict):
 ```
 
 The challenge record is authoritative only for receipt, triage, evidence, review, disposition,
-and PolicyOS reaction records. It is not proof that the challenger is legally correct, and its
-`recommended_claim_reaction` cannot mint the actual lifecycle action.
+and recorded PolicyOS reaction. It is not proof that the allegation is legally correct. A
+recommendation cannot mint the lifecycle action.
 
 ### 5.2 `CoveragePerturbationEvent`
 
@@ -524,6 +554,7 @@ class CoveragePerturbationEvent(TypedDict):
         "source_revision_or_repeal",
         "scope_expanded",
         "material_conflict_discovered",
+        "closure_premise_invalidated",
         "coverage_ttl_expired",
     ]
     source_record_refs: tuple[str, ...]
@@ -544,85 +575,100 @@ class CoveragePerturbationEvent(TypedDict):
     research_only: bool
 ```
 
-The event carries evidence and a revalidation requirement. It does not itself reverse an
-external legal, administrative, financial, or service-delivery act.
+Transporting the event does not itself withdraw a claim. The canonical claim owner makes the
+current-use decision.
 
-## 6. Coverage assessment into the one existing status lattice
+## 6. Coverage evidence into the one existing lattice
 
-The coverage labels are not outcomes of substantive obligations and may never be rendered as a
-second promotion state. They contribute a coverage-specific input to the existing N9 result.
+The three coverage labels are evidence assessments, not substantive obligation outcomes or a
+parallel promotion state.
 
 ```text
 coverage_effect(envelope, affected_action):
 
   if envelope is missing, unresolved, unverified, expired, suspended, or hash-invalid:
-      return existing SCOPE_INSUFFICIENT or UNKNOWN for affected_action
+      return existing SCOPE_INSUFFICIENT or UNKNOWN
 
   if coverage_assessment == open_world_unresolved:
-      return existing SCOPE_INSUFFICIENT when required source/scope/owner is absent
+      return existing SCOPE_INSUFFICIENT when a required source/scope/owner is absent
       else existing UNKNOWN
 
   if coverage_assessment == known_incomplete:
-      if accepted missed obligation is decisively violated:
+      if an accepted missed obligation is decisively violated:
           return existing FAILED
       if required evidence/owner/scope is missing:
           return existing SCOPE_INSUFFICIENT
       else:
           return existing UNKNOWN
 
-  if coverage_assessment == bounded_complete and envelope is current:
-      return NO_COVERAGE_BLOCKER
-      # Not SATISFIED. Every substantive obligation still decides independently.
+  if coverage_assessment == bounded_complete and all future governed prerequisites are admitted:
+      return absence_of_additional_coverage_blocker
+      # Not SATISFIED. Not a persisted status. Not promotion.
 ```
 
-### 6.1 Composition rules
+### 6.1 `NO_COVERAGE_BLOCKER` anti-laundering rule
 
-1. `bounded_complete` never upgrades a failed, unknown, scope-insufficient, stale, contradictory,
-   or unverified substantive obligation.
-2. `known_incomplete` is not automatically `failed`; the existing outcome depends on whether the
-   witness is a violated obligation, missing scope/evidence, or unresolved applicability.
-3. `open_world_unresolved` cannot be hidden behind a green aggregate. For the affected protected
-   action it produces `unknown` or `scope_insufficient`.
-4. Mixed scopes are decomposed. A bounded envelope for one jurisdiction or population cannot
-   cover another.
-5. Candidate-band exploration may proceed under either incomplete label only if the limitation is
-   preserved and no protected authority slot is filled.
-6. The final promotion and claim-lifecycle decision remains with the existing canonical owner.
+Earlier pseudocode used `NO_COVERAGE_BLOCKER`. That token has **no canonical or persisted
+standing**. It is only prose shorthand for “coverage introduced no additional blocker for this
+exact scope after all other prerequisites were independently admitted.” It must never be:
 
-## 7. Obligation-coverage lifecycle state machine
+- persisted as a status;
+- exported in a wire/API schema;
+- ordered in a lattice;
+- rendered as a public state;
+- counted as obligation satisfaction; or
+- consumed as an automatic promotion signal.
 
-The state machine describes the current lifecycle projection of immutable envelopes and events.
-It is **not** the one authority-status lattice and must not be used as a substitute for N9 or
-claim status.
+A later implementation should express the same logic through the absence of a coverage-specific
+refusal while the existing substantive lattice and canonical promotion owner remain decisive.
+
+### 6.2 Composition rules
+
+1. Future `bounded_complete` never upgrades a failed, unknown, scope-insufficient, stale,
+   contradictory, revoked, unverified, or suspended substantive obligation.
+2. `known_incomplete` maps according to the witness; it is not automatically one status.
+3. `open_world_unresolved` cannot be hidden behind a green aggregate.
+4. Mixed scopes are decomposed; a narrow envelope cannot cover a wider jurisdiction/population/
+   purpose/audience/time.
+5. Candidate-band work may proceed only while the limitation remains attached and protected slots
+   remain unfilled.
+6. Current repository attempts cannot enter the positive branch; independence/capability is
+   missing.
+7. Final promotion and lifecycle reaction remain with existing canonical owners.
+
+## 7. Lifecycle state machine
+
+The state machine is a projection over immutable artifacts/events, not the authority-status
+lattice.
 
 ```mermaid
 stateDiagram-v2
     [*] --> draft_unassessed
-    draft_unassessed --> search_in_progress: search opened
-    search_in_progress --> independent_review_pending: basis + compilation frozen
-    search_in_progress --> known_gap: required source/obligation missing
-    search_in_progress --> open_remainder: closure/scope materially unresolved
+    draft_unassessed --> search_in_progress: governed search opened
+    search_in_progress --> independent_review_pending: basis and compilation frozen
+    search_in_progress --> known_gap: concrete required item missing
+    search_in_progress --> open_remainder: closure, scope, or independence unresolved
 
-    independent_review_pending --> bounded_current: relative checks pass
-    independent_review_pending --> known_gap: omission/fault witnessed
-    independent_review_pending --> open_remainder: review cannot resolve basis/scope
+    independent_review_pending --> bounded_current_future: all future governed prerequisites pass
+    independent_review_pending --> known_gap: omission or fault witnessed
+    independent_review_pending --> open_remainder: evidence cannot support bounded reliance
 
-    bounded_current --> challenged: material challenge accepted for review
-    bounded_current --> expired: TTL/review deadline reached
-    bounded_current --> suspended: validator/source/mandate defect verified
+    bounded_current_future --> challenged: material challenge accepted
+    bounded_current_future --> expired: earliest decisive deadline reached
+    bounded_current_future --> suspended: validator, source, mandate, or closure defect admitted
 
-    challenged --> bounded_current: challenge rejected or accepted nonmaterial
+    challenged --> bounded_current_future: independently rejected or accepted nonmaterial
     challenged --> suspended: material or materially inconclusive
 
     expired --> reissue_pending: owner opens fresh assessment
     suspended --> reissue_pending: owner opens corrective assessment
-    known_gap --> reissue_pending: gap remediation attempted
-    open_remainder --> reissue_pending: scope/source closure attempted
+    known_gap --> reissue_pending: remediation attempted
+    open_remainder --> reissue_pending: closure/source/independence work attempted
 
-    reissue_pending --> superseded: replacement envelope issued
-    reissue_pending --> withdrawn: no replacement; claim withdrawn
+    reissue_pending --> superseded: replacement admitted/published
+    reissue_pending --> withdrawn: no replacement
 
-    bounded_current --> superseded: planned replacement issued
+    bounded_current_future --> superseded: planned replacement admitted
     known_gap --> withdrawn: owner ends claim path
     open_remainder --> withdrawn: owner ends claim path
 
@@ -631,169 +677,172 @@ stateDiagram-v2
     historical_only --> [*]
 ```
 
-### 7.1 State semantics, owners, clocks, and public meaning
+`bounded_current_future` is intentionally named as a future governed state. It is unreachable in
+the current repository because independent producers/scoring and the complete bridge are missing.
+Current attempted protected use enters `open_remainder`/`open_world_unresolved`.
 
-| State | Entry condition | Owner of transition | Clock/trigger | Effect on affected protected action | Public meaning |
+### 7.1 State semantics
+
+| State | Entry condition | Transition owner | Clock/trigger | Protected-use effect | Public meaning |
 | --- | --- | --- | --- | --- | --- |
-| `draft_unassessed` | Envelope identity exists but no governed search has started | candidate/search owner | creation/transaction time | no authority use | “Coverage not assessed.” |
-| `search_in_progress` | Scope and source work underway | search producer | receipt/query progress; source cutoffs | no authority use | “Coverage review in progress; no coverage conclusion.” |
-| `independent_review_pending` | Basis/compilation frozen for review | independent review owner | verification deadline | no authority use | “Producer work complete; independent review pending.” |
-| `bounded_current` | `bounded_complete`, governance current, unexpired, no material defeater | canonical consumer admits review result; publisher projects | verification/admission/publication times; expires-at | removes only the coverage-specific blocker | “Bounded complete relative to the declared sources/rules; unknown obligations outside them may exist.” |
-| `known_gap` | Concrete omission, unavailable required source, or validator/traversal fault | coverage assessor records; claim owner reacts | verification/admission time | `failed`, `scope_insufficient`, or `unknown` in existing lattice | “A material coverage gap is known; affected action is not supported.” |
-| `open_remainder` | Closure/scope/owner/independence materially unresolved without a concrete omission | coverage assessor records; claim owner reacts | verification/admission time | `scope_insufficient` or `unknown` | “Coverage could not be bounded for this scope; affected action is unresolved.” |
-| `challenged` | A challenge passed provenance/standing/materiality triage and needs independent review | challenge triage owner, then independent reviewer | challenge receipt and review deadline | fail closed for challenged affected scope pending disposition | “Current coverage claim is under material challenge.” |
-| `expired` | Earliest decisive source, governance, mandate, review, or envelope deadline reached | deterministic lifecycle owner; claim owner reacts | derived TTL or event trigger | `scope_insufficient`/stale; no current authority use | “Coverage record expired; historical only until revalidated.” |
-| `suspended` | Verified validator/source/mandate fault, accepted material challenge, or material inconclusive challenge | canonical claim owner | admission of perturbation | current use stopped; revalidation required | “Coverage is suspended and cannot support the affected claim.” |
-| `reissue_pending` | Corrective assessment opened | canonical claim/coverage owner | new epoch/cutoffs | old record remains unusable; candidate work may proceed | “Correction/reissue is in progress.” |
-| `superseded` | Replacement envelope published/admitted | canonical claim owner | publication/lifecycle action time | old envelope cannot support current use | “Replaced by a newer coverage record; retained for history.” |
-| `withdrawn` | Owner ends current claim without replacement | canonical claim owner | lifecycle action time | no current support | “Withdrawn; no replacement coverage claim currently stands.” |
-| `historical_only` | Terminal projection after supersession/withdrawal | custody/publication owner | transaction/history query | replay only | “Historical record, not current authority.” |
+| `draft_unassessed` | identity exists, no governed search | candidate/search owner | creation/transaction | no authority use | “Coverage not assessed.” |
+| `search_in_progress` | source work underway | search producer | receipt/query/cutoff progress | no authority use | “Coverage review in progress.” |
+| `independent_review_pending` | basis/compilation frozen | independent review owner | verification deadline | no authority use | “Independent evidence pending.” |
+| `bounded_current_future` | future conditional theorem and admitted protocol pass | canonical consumer admits; publisher projects | verification/admission/publication/expiry | removes only additional coverage refusal | “Bounded relative to declared basis/language; outside obligations may exist.” |
+| `known_gap` | concrete omission, missing required source, or fault | assessor records; claim owner reacts | verification/admission | existing failed/scope-insufficient/unknown | “A material coverage gap is known.” |
+| `open_remainder` | closure/source/owner/independence materially unresolved | assessor records; claim owner reacts | verification/admission | existing scope-insufficient/unknown | “Coverage could not be bounded.” |
+| `challenged` | material challenge accepted for independent review | triage then reviewer | receipt/review deadline | fail closed for affected scope | “Current claim under material challenge.” |
+| `expired` | earliest decisive deadline reached | lifecycle owner; claim owner reacts | TTL/event | no current authority use | “Expired; historical until revalidated.” |
+| `suspended` | material fault/challenge/closure invalidation admitted | canonical claim owner | admission of perturbation | current use stopped | “Suspended; cannot support affected action.” |
+| `reissue_pending` | corrective assessment opened | canonical claim/coverage owner | new epoch/cutoffs | old record remains unusable | “Correction/reissue in progress.” |
+| `superseded` | replacement admitted/published | canonical claim owner | lifecycle publication | old record historical only | “Replaced by newer record.” |
+| `withdrawn` | owner ends claim without replacement | canonical claim owner | lifecycle action | no current support | “Withdrawn.” |
+| `historical_only` | terminal projection | custody/publication owner | history query | replay only | “Historical, not current authority.” |
 
 ### 7.2 Terminality and reopening
 
 For one immutable envelope, `superseded`, `withdrawn`, and `historical_only` are terminal. A
-missed obligation does not reopen or edit the envelope. It creates:
+missed obligation, invalidated closure premise, or validator fault creates:
 
-1. a new challenge/perturbation event linked to the old envelope;
-2. a current suspension or withdrawal action by the canonical claim owner; and
-3. a new envelope in a new decision context/epoch if reissue is attempted.
+1. a new challenge/perturbation event;
+2. a suspension/withdrawal action by the canonical owner; and
+3. a new envelope in a new epoch if reissue is attempted.
 
-This preserves historical replay and prevents the post-publication record from being rewritten
-to look as if the omitted obligation had always been checked.
+The old record is never edited to imply the obligation was always checked.
 
-## 8. TTL and event-trigger semantics
+## 8. TTL and event triggers
 
-A single universal duration is not justified. TTL is derived from owner-supplied rules and may
-be shortened by an event. A defensible design pattern is:
+No universal duration is justified. A design pattern is:
 
 ```text
-envelope.expires_at = earliest known decisive deadline among:
-  - source freshness/review deadline,
-  - source authority or mandate validity,
-  - compiler/rule-version validity,
-  - validator-governance validity,
-  - independent-review validity,
-  - policy/claim epoch deadline,
-  - scope-specific statutory or institutional change trigger,
-  - envelope maximum review interval.
+expires_at = earliest known decisive deadline among:
+  source freshness/review;
+  source authority or mandate validity;
+  closure premise validity;
+  compiler/rule version validity;
+  validator-governance validity;
+  independent-review/scorer validity;
+  claim epoch;
+  scope-specific legal/institutional trigger;
+  maximum governed review interval.
 ```
 
-This is an engineering pattern, not a theorem. If a decisive deadline is unknown, the envelope
-cannot silently choose a long default; it becomes `open_world_unresolved` or
-`scope_insufficient` for the affected action. Event triggers—revocation, repeal, competent-owner
-change, accepted challenge, validator incident, source outage, scope expansion—may suspend the
-envelope before the calendar TTL.
+This is engineering guidance, not a theorem. Unknown decisive deadlines do not justify a long
+default. The assessment becomes unresolved/scope-insufficient. Revocation, repeal, retroactivity,
+accepted challenge, source outage, owner succession, scope expansion, rule/code change, or
+validator incident may suspend before calendar expiry. Non-expiry is never world-completeness
+evidence.
 
 ## 9. Challenger protocol
 
-### Step 1 — submission and receipt
+### Step 1 — receive and preserve
 
-Accept challenges from public, reviewer, expert, machine, internal incident, and competent-owner
-routes. Record exact submitted evidence, source identity/provenance, PolicyOS receipt time, and
-confidentiality constraints. Transport alone grants no authority.
+Accept public, reviewer, expert, machine, internal-incident, and competent-owner routes. Record
+submitted evidence, provenance, receipt/transaction time, affected scope, and confidentiality.
+Transport grants no authority.
 
-### Step 2 — triage without merits laundering
+### Step 2 — triage without deciding merits
 
-Triage only duplicate status, affected envelope/scope, minimum evidence integrity, abuse/security,
-and whether the allegation could be material. The producer whose work is challenged must not
-unilaterally dispose of a material merits challenge.
+Triage duplicates, affected envelope/scope, minimum evidence integrity, abuse/security, and
+potential materiality. The challenged producer may not unilaterally close a material merits
+challenge.
 
 ### Step 3 — independent verification
 
-Resolve and content-bind evidence; verify source competence and temporal applicability; reperform
-the source-to-obligation derivation; reproduce the old envelope at its declared cutoff; and test
-the current claim separately. Unresolvable evidence remains unknown rather than false.
+Resolve/content-bind evidence; verify source competence and temporal applicability; reproduce the
+old envelope at its cutoff; reperform source-to-obligation and validator properties through an
+independent path; distinguish current from historical truth. Unresolvable evidence is unknown,
+not false.
 
 ### Step 4 — disposition
 
-- `rejected_out_of_scope`: preserve reason and route to the competent owner where possible;
-- `rejected_not_supported`: preserve contrary evidence and reviewer reasoning;
+- `rejected_out_of_scope`: preserve reason and route where possible;
+- `rejected_not_supported`: preserve evidence and reasoning;
 - `duplicate_linked`: link without hiding independent submissions;
-- `accepted_nonmaterial`: retain challenge, explain why no protected action changes;
+- `accepted_nonmaterial`: retain and explain no protected effect;
 - `accepted_material`: emit perturbation and require canonical reaction;
-- `inconclusive_material`: fail closed for affected authority use until resolved or reissued; or
-- `withdrawn_by_challenger`: do not delete evidence already relevant to safety/authority review.
+- `inconclusive_material`: fail closed pending resolution/reissue; or
+- `withdrawn_by_challenger`: do not delete evidence already relevant to authority/safety review.
 
-### Step 5 — claim-owner reaction
+### Step 5 — canonical reaction
 
-The canonical claim owner decides suspend, withdraw, refuse, revalidate, or reissue. A coverage
-reviewer may recommend but may not mint the lifecycle action. Atlas only projects the owner's
-result.
+The canonical claim owner decides suspend, withdraw, refuse, revalidate, or reissue. The coverage
+reviewer may recommend but cannot mint the lifecycle action. Atlas renders the result only.
 
 ### Step 6 — append-only public notice
 
-Publish the current standing, affected scope, reason class, and replacement link subject to
-privacy/security/legal redaction. Never silently edit the original δ receipt or envelope.
+Publish current standing, affected scope, reason class, and replacement link subject to lawful
+redaction. Never silently edit the original coverage or δ receipt.
 
 ## 10. Rollback and reissue semantics
 
-“Rollback” is dangerously ambiguous. INT-R1 defines four separate operations:
-
-| Operation | PolicyOS ownership | Required semantics |
+| Operation | PolicyOS boundary | Required semantics |
 | --- | --- | --- |
-| Stop using the old envelope for a protected action | **OWN** | Immediate current-use suspension/withdrawal after admitted material perturbation. |
-| Correct the PolicyOS public record | **OWN** | Append notice; retain original; link superseding/reissued record. |
-| Recompute/reissue PolicyOS claim and δ receipt | **OWN**, subject to existing owners | New epoch/cutoffs, new source basis, new obligation set, new validators/receipts; no reuse-by-identity. |
-| Reverse legal/administrative/payment/service/implementation action | **OUT_OF_SCOPE** | Emit typed evidence/notice to competent external owner; PolicyOS does not execute the reversal. |
+| Stop using old envelope for protected action | **OWN** | immediate current-use suspension/withdrawal after admitted material perturbation |
+| Correct PolicyOS public record | **OWN** | append notice, retain original, link replacement |
+| Recompute/reissue PolicyOS claim/receipt | **OWN**, through existing owners | new epoch/cutoffs/basis/obligation set/validators/receipts |
+| Reverse external legal/administrative/payment/service act | **OUT_OF_SCOPE** | send typed evidence to competent owner; PolicyOS does not execute reversal |
 
-A mathematically valid old receipt relative to `O0` is not erased. Its **current authority use**
-is rolled back because the coverage assumption was breached. This distinction is required by
-content-equality-not-authority-validity and append-only custody.
+Historical arithmetic may remain correct for old `O0`; current authority use is nevertheless
+rolled back because a maintained assumption failed or lost support.
 
 ## 11. Public projections
 
-### 11.1 Public minimum for `bounded_complete`
+### 11.1 Current minimum
 
-> **Coverage:** bounded complete relative to the declared source set, scope, obligation language,
-> and validator versions as of [cutoff]. The statistical risk statement is conditional on that
-> declared obligation set and maintained assumptions. Unknown obligations outside the declared
-> basis may exist. Review expires [date/time]. [View sources, exclusions, remainder, challenge
-> route, and history.]
+Because current `bounded_complete` is unavailable:
 
-### 11.2 Public minimum for `known_incomplete`
+> **Coverage unresolved:** PolicyOS does not currently have an admitted independent
+> source-to-obligation checker/scorer and complete governance/bridge needed to issue bounded
+> coverage. This is not evidence that no obligation applies. The affected protected action is
+> blocked or limited as shown. The declared sources, gaps, remainder, challenge route, and history
+> remain available.
 
-> **Coverage gap known:** at least one material obligation, required source, or validator property
-> is missing or defective for the stated scope. The affected claim/action is not supported. A
-> correction or reissue may be pending.
+This is a steady-state refusal, not a loading indicator.
 
-### 11.3 Public minimum for `open_world_unresolved`
+### 11.2 Future positive minimum
 
-> **Coverage unresolved:** PolicyOS could not establish a bounded source/obligation basis for the
-> stated scope. This is not evidence that no obligation applies. The affected protected action is
-> blocked or limited as shown.
+Only after governed capability exists:
 
-### 11.4 Public challenge/suspension minimum
+> **Coverage:** bounded relative to the declared source basis, exact scope, obligation language,
+> compiler/validator versions, and cutoff. Compiler completeness and validator soundness remain
+> maintained assumptions supported by the linked evidence. Unknown obligations outside the
+> declared basis may exist. Review expires [time]. [View closure disposition, sources,
+> exclusions, remainder, challenge route, and history.]
 
-> **Under material challenge / suspended:** new evidence may change the declared obligation set or
-> validator standing. The prior record remains available for history but cannot currently support
-> the affected action.
+The bare phrase “bounded complete” is prohibited on public surfaces.
 
-Audience-specific projections may redact protected evidence, but every audience must preserve
-scope, relativity, currentness, unknown remainder, and challenge standing. Compression may not
-turn `bounded complete relative to B` into `complete`.
+### 11.3 Known gap
+
+> **Coverage gap known:** at least one material obligation, required source, compiler property, or
+> validator property is missing or defective. The affected action is not supported. Correction or
+> reissue may be pending.
+
+### 11.4 Challenge/suspension
+
+> **Under material challenge / suspended:** new evidence may change the declared obligation set,
+> closure premise, or validator standing. The prior record remains available for history but
+> cannot currently support the affected action.
+
+Every audience must preserve scope, relativity, currentness, assumptions, remainder, and
+challenge standing. Compression cannot transform relative coverage into compliance or competence.
 
 ## 12. Reuse-first owner disposition
 
-This sketch establishes no owner. The smallest visible later handoff is:
+This sketch appoints no owner. The smallest later path is:
 
-- PDC waist retains coarse obligation classification and existing statuses
-  (`policy-engine/src/polisyos/pdc/_impl/gy_waist.py:218-255`);
-- N9/promotion sequence compiles obligation instances and remains the promotion consumer
-  (`policy-engine/src/polisyos/runtime/quality/promotion_sequence.py:760-1900`);
-- N11/confidence ledger binds the envelope/governance references to its maintained assumptions
-  if later ratified, without changing δ or creating another ledger
-  (`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py:37-50`, `:500-1010`);
-- formal invariant and receipt-validation machinery carries generic traversal and negative-test
-  rules (`policy-engine/src/polisyos/runtime/quality/formal_invariants.py:23-105`);
-- evidence spine, claim registry, and assurance case bind provenance, limitations, blockers, and
-  defeaters (`policy-engine/src/polisyos/runtime/quality/evidence_spine.py:1-125`;
-  `policy-engine/src/polisyos/runtime/quality/claim_registry.py:1-107`;
-  `policy-engine/src/polisyos/runtime/quality/assurance_case.py:120-173`);
-- acquisition planner/INT-R2 handle typed source and non-data gap routes
-  (`policy-engine/src/polisyos/runtime/quality/acquisition_planner.py:1-190`);
-- N12/CTM owners manage expiry, perturbation, suspension, and reissue; and
-- Atlas DS12/DS17/DS18 render but never decide the result
-  (`policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:7`).
+- PDC waist retains the coarse governed vocabulary and existing statuses;
+- N9 remains the substantive obligation/promotion consumer and would require a future
+  pre-aggregation instance bridge after GY-GAP1;
+- N11 may bind admitted envelope/governance references without changing δ or adding a risk ledger;
+- formal invariants and receipt validators may carry generic traversal/negative rules, but same-
+  path recomputation is not independent;
+- assurance case, evidence spine, and claim registry carry assumptions, provenance, limitations,
+  blockers, and defeaters;
+- acquisition planner/INT-R2 carry typed source/non-data gaps;
+- N12/CTM and canonical claim owners manage expiry, perturbation, suspension, and reissue;
+- S0-GAP-02 remains the independent oracle/scoring dependency; and
+- Atlas DS12/DS17/DS18 render but never decide.
 
-If consolidation finds that no existing owner can produce the source-closure basis, it must
-record that absence rather than allow this research sketch to appoint a new authority service.
+If consolidation finds no existing owner can produce a competent closure basis or independent
+review, it must record that absence rather than let this sketch appoint a new authority service.

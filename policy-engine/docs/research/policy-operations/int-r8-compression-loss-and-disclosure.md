@@ -1,14 +1,18 @@
 ---
 title: "INT-R8 — Compression Loss and Disclosure Composition"
 research_id: INT-R8
+artifact_role: primary-report
 result_standing: accepted_narrow_scope
+amendment_conformance: pending_independent_verification
 research_only: true
 repository: DenisKopylov/polisyos
 baseline_ref: main
 baseline_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
-research_branch: research/int-r8-compression-loss-and-disclosure
+audited_head: 90b372964d29a9e97605a6ef733ef03ffe7938d2
+research_branch: research/int-r8-amendment
 prepared_at: 2026-08-04
 composition_result: procedural_no_number
+amended_after_audit: research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2
 may_not_use_for:
   - production_implementation_authorization
   - final_wire_schema_package_database_serialization_or_api_contract
@@ -25,502 +29,355 @@ may_not_use_for:
 
 # INT-R8 — Compression Loss and Disclosure Composition
 
-## Executive decision
+## 0. Controlling amendment notice
+
+This is the controlling amended primary report. It executes the revision register in
+`audits/int-r8/int-r8-recommended-revision.md` after audit
+`research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2`.
+The audited version remains immutable at
+`research/int-r8-compression-loss-and-disclosure@90b372964d29a9e97605a6ef733ef03ffe7938d2`.
+Where this report or an amended supporting artifact conflicts with that version, the amendment
+controls. Unchanged conclusions are preserved because the audit commended them, not because the
+author reasserts them.
+
+Ordinary GitHub clone access was unavailable in the amendment environment because DNS resolution
+for `github.com` failed. Exact-ref reads and ordinary Markdown commits used the connected GitHub
+interface. No workflow, upload fragment, staging directory, base64 payload, or self-executing
+repository mechanism was added.
+
+## 1. Amended executive decision
 
 ### Result standing: `accepted_narrow_scope`
 
-INT-R8 settles:
+The standing is retained **after execution of R1-R13 and pending independent conformance
+verification**.
 
-1. the semantic contract of a `CompressionLossReceipt` as an extension of the existing projection/omission/redaction substrate;
-2. a checkable definition of semantic parity for legitimately shorter records;
-3. the minimum semantic set a summary must retain;
+INT-R8 settles, at research-contract level:
+
+1. `CompressionLossReceipt` semantics as an extension of the existing projection, omission,
+   redaction, contest, recourse, denied-use, and audit substrate;
+2. use-relative conservative semantic parity for legitimately shorter records;
+3. a derived minimum retained set for public-policy records;
 4. the boundary between `lossy_but_safe` and `blocked_material_omission`;
-5. a formal, distribution-free treatment of cross-view and temporal reconstruction;
-6. screenshot, deep-link, diff, hash, ordering, timing, provenance and export threats;
-7. a red-first falsifier suite and repository integration handoff.
+5. exact cross-view and temporal reconstruction for a declared finite or decidable model;
+6. an adaptive, number-free prefix discipline over a declared release family under custody;
+7. an open release-channel threat registry;
+8. atomic equality-ready falsifier requirements; and
+9. a construction-neutral semantic interface to INT-R7.
 
-INT-R8 **does not establish a numeric repeated-disclosure budget**. The present release mechanism is a curated deterministic/editorial projection, not an established randomized privacy mechanism with a declared adjacency relation, prospectively enforced local guarantees, adaptive composition theorem and canonical accountant. Issuing a number would violate the premises ratified by `INT-K04` and `INT-K07` (`policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:143-218`).
+INT-R8 does **not** establish a numerical repeated-disclosure guarantee. The controlling reason
+is narrower than the audited wording:
 
-The accepted composition result is instead an `INT-K06` **no-number procedural custody claim**:
+> No canonical numerical disclosure-composition claim is justified for the current PolicyOS
+> release path under any model established in the repository.
 
-> Every actual candidate disclosure prefix is checked prospectively against a declared semantic-loss and reconstruction rule family; release membership, chronology, current heads, assumptions and verifier versions remain reproducible; no post-hoc narrowing or silent history deletion manufactures a pass.
+The obstruction is not determinism. Differential privacy, maximal leakage, maximal-alpha
+leakage, statistic maximal leakage, min-entropy leakage, and generalized-gain quantitative
+information flow each require their own declared secret, channel, support or prior assumptions,
+gain/loss function, local validity conditions, composition rule, and canonical accounting owner.
+None of those complete models is established in the pinned repository. Therefore no epsilon,
+percentage, leakage value, remaining budget, or cumulative safety score may be issued now.
 
-That claim is falsifiable and useful. It is not differential privacy, a probability of confidentiality, legal compliance, competence or publication authority.
+The accepted composition result remains the `INT-K06` procedural claim:
 
-## 1. Answer to the research question
+> For a versioned declared release family under custody, every controlled candidate disclosure
+> prefix is evaluated prospectively against a fixed semantic-loss and exact-or-proved-conservative
+> reconstruction family; membership, chronology, current heads, model versions, inputs, and
+> verifier dispositions are reproducible; no deletion, reclassification, or post-hoc narrowing
+> of controlled history manufactures a pass.
 
-### What is lost in summary and compression?
+This is a Boolean custody claim, not a scalar budget. It is falsifiable and adaptive. It proves
+only enforcement of the declared checks over the declared custody boundary.
 
-A summary can lose more than text. It can lose:
+## 2. Preserved audit-confirmed strengths
 
-- a claim's declared basis, scope, assumptions or conditionality;
-- the limitation that changes who or when the result applies to;
-- an active denied use (`may_not_use_for`);
-- an attack, counterexample, conflict or counterevidence considered by the decision-maker;
-- dissent or minority reasoning on a material issue;
-- contest/dispute status and a real recourse route;
-- the negative fact that a governed process ended in refusal, void, no-attempt or exhaustion;
-- a load-bearing step in a no-number procedural history;
-- currentness, supersession or correction lineage;
-- privacy, when the combination of releases determines protected information.
+The amendment preserves all commendation-backed positions:
 
-A fluent short sentence can therefore be lexically accurate yet institutionally false: conditional becomes unconditional, majority becomes consensus, refusal becomes absence, a bounded custody history becomes “the process was proper,” and an old version appears current.
+- the branch orientation identifies substantial existing projection and public-export substrate;
+- the four audiences remain exactly PUBLIC, REVIEWER, EXPERT, and MACHINE;
+- denied-use semantics remain first-class and monotone under compression;
+- a bare `delta` is always blocked under `INT-K02`;
+- hidden refusal, void, dispute, terminal no-attempt, and exhaustion are always blocked under
+  `INT-K08`;
+- exact consistency-set reconstruction and strict coalition synergy are mathematically correct
+  under their declared premises;
+- the exact singleton/non-uniqueness test is genuinely number-free;
+- actual-prefix evaluation handles adaptive next-release choice without a numerical theorem;
+- the existing threat model is materially stronger than body-text-only review;
+- the receipt extends existing owners and creates no fifth audience, global status lattice, or
+  confidence ledger;
+- the public-administration minimum set is grounded in reasons, contestability, dissent,
+  accessibility, deletion indication, and output checking;
+- differential-privacy composition is not imported by analogy;
+- the strongest red cases and all five reject-all-preventing green purposes remain;
+- INT-R8 remains on the content side of the INT-R7 seam;
+- existing projection and public-export capabilities are not erased; and
+- every artifact remains research-only and non-authorizing.
 
-### What can be reconstructed by combining the four views and side channels?
+The full 35-finding disposition, including each of 19 commendations, is in
+`int-r8/amendment-ledger.md`.
 
-Anything whose possible values collapse to one after intersecting the constraints carried by PUBLIC, REVIEWER, EXPERT and MACHINE releases — including their historical versions, diffs, hashes, ordering, timestamps, provenance identifiers, URLs, screenshots and exports.
+## 3. Corrected repository capability reality
 
-The formal test is not “did one view display the secret?” It is:
+Missing-state labels are used only when their prerequisites are evidenced. Plan text is not a
+consumer, endpoint, wired chain, or capability.
 
-> After observing the complete obtainable transcript, do at least two full records with different protected values remain observationally possible?
-
-If not, the protected predicate has been reconstructed. Two individually safe projections may therefore be jointly unsafe.
-
-## 2. Repository orientation and measured delta
-
-Pass I independently verified the commission against exact Git object `02c5b8d23c757c92b9231e6e1e802d5701588908`. The full ledger and reproduction recipe are in [`int-r8/orientation-ledger.md`](int-r8/orientation-ledger.md).
-
-### 2.1 Existing substrate to extend
-
-`projection_semantics.py` already builds one truth into the four canonical audiences and carries:
-
-- `closeout_truth`;
-- `projection_gaps`;
-- `omission_manifest`;
-- `contested_records`;
-- `recourse_pointer`;
-- `deficit_register`;
-- participation requirements;
-- invariant summary;
-- `redaction_summary`;
-- source/audit references;
-- `may_not_be_used_for`;
-- an explicit `projection_only` authority role.
-
-It then calls `assert_policy_design_projection_not_authority` (`policy-engine/src/polisyos/runtime/quality/projection_semantics.py:275-575`). The four audiences are exactly PUBLIC, REVIEWER, EXPERT and MACHINE (`projection_semantics.py:648-655`). Existing S9-S14 contracts already check per-view faithfulness and authority laundering; S14 includes a hidden/gold-payload guard.
-
-`public_export.py` already:
-
-- builds the public export bundle;
-- consumes projection semantics;
-- runs S9-S14 gates;
-- requires omitted claim IDs to occur in the omission manifest;
-- runs candidate and replay-drift firewalls;
-- emits canonical scanner redaction reasons;
-- preserves a projection-only authority boundary (`policy-engine/src/polisyos/runtime/quality/public_export.py:1540-1995`).
-
-The exact 2,103-line literal census confirmed:
-
-| Literal | Count |
-|---|---:|
-| `omitted_claim` | 8 |
-| `projection_faithfulness` | 13 |
-| `redaction_reason` | 2 |
-| `omissions_manifested` | 2 |
-| `lossy` | 0 |
-| `blocked_material` | 0 |
-| `compression` | 0 |
-| `retained_limitation` | 0 |
-
-The gap is therefore not “discover omissions.” It is:
-
-- classify what semantic class was retained/dropped;
-- decide whether loss is materially safe;
-- preserve limitations, denied uses, counterevidence, dissent and negative outcomes;
-- evaluate the union and history of releases;
-- issue a checkable verdict.
-
-### 2.2 Capability reality
-
-- `build_public_export_bundle` producer: **present**.
-- HTTP/public-surface binding: **`bridge_missing`**. In `policy-engine/src`, the complete token-containing set is the definition plus `runtime/quality/__init__.py` re-export; no `runtime/http` caller exists.
-- Compression-loss receipt producer: **`producer_missing`**.
-- Material-loss/transcript verifier: **`verification_missing`**.
-- Screenshot/export/cross-view red-first suite: **`semantic_test_missing`**.
-- GY-PA3: plan entry only, not capability. It expressly plans a producer reusing G6 ledgers, `projection_semantics` and `public_export` (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2278-2330`).
-
-The complete exact-token census also confirmed 106 Python files using `may_not_use_for`; denied use is a live mechanism, not documentation convention.
-
-### 2.3 Current frontend compression point
-
-The Atlas packet is explicitly a rendering view model, never authority. It nevertheless shows the practical loss gap:
-
-- `publicRef` truncates after masking to 96 characters;
-- `publicText` truncates after masking to 320 characters (`publicationPacket.ts:389-434`);
-- deterministic explanation rendering keeps only the first four metrics (`publicationPacket.ts:632-724`);
-- `buildProjectionSemantics` carries a narrow subset and omits the canonical omission/gap/contest/recourse/deficit/audit structures (`publicationPacket.ts:913-956`);
-- the packet itself is serialized and base64url-encoded into the deep-link path (`publicationPacket.ts:1019-1174`);
-- the private-context heuristic searches only five literal needles (`publicationPacket.ts:1194-1214`).
-
-These are not findings that the frontend should own materiality. They show why loss must be classified upstream and rendered downstream.
-
-## 3. Binding ratified constraints
-
-The decision applies the ratified kernel by finding ID, not by adjacency:
-
-- **S0-K07:** projection cannot mint authority.
-- **INT-K02:** every `delta` claim must retain declared obligation set, maintained assumptions and visible relative-basis rider. A bare `delta` is a different false claim and always `blocked_material_omission`.
-- **INT-K04:** a composed bound requires prospectively fixed/enforced local bounds and canonical reproduction of membership, chronology, current heads and assumptions. Prose is not an invariant.
-- **INT-K05:** do not create a second confidence/risk ledger or parent scope.
-- **INT-K06:** a binding falsifiable procedural custody claim may carry no probability.
-- **INT-K07:** adaptive selection needs a guarantee valid for the actual history-selected procedure and a pathwise aggregate bound before any number is allowed.
-- **INT-K08:** refusal, void, dispute, terminal no-attempt and exhaustion are completed governed results; compression may not hide them (`int-wave-claim-semantics-ratification.md:77-245`).
-
-The Atlas DS12 gate already treats INT-R8 as a pre-publication research input, keeps the current packet only as rendering, consumes a no-number custody claim, requires the `delta` declared-set rider and forbids hiding negative completion (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1203-1300`). DS13 then owns public dispute/history surfaces, and DS14 is the intended receipt-rendering consumer (`:1301-1345`).
-
-## 4. Comparative model selection
-
-The full primary-source and transfer analysis is in [`int-r8/external-source-and-transfer-ledger.md`](int-r8/external-source-and-transfer-ledger.md).
-
-| Model | Decision | Eliminating property / retained role |
+| Capability or surface | Pinned evidence | Amended reality statement |
 |---|---|---|
-| National-statistical-institute disclosure control | **Adopt as release-discipline layer** | Suppression, thresholds, output checking and differencing are valuable, but cell rules do not preserve policy reasons, dissent, denied uses or authority scope. |
-| Differential privacy | **Reject as current general composition theorem** | Editorial projections have no established adjacency, randomization, local DP guarantee or accountant. Retain only as future narrow option for defined statistical mechanisms. |
-| Information-theoretic leakage | **Adopt as formal diagnostic, not budget** | Exact consistency-set reconstruction works now. A scalar needs a justified secret, distribution, channel and gain function. |
-| Access-control / need-to-know | **Adopt as perimeter only** | Roles overlap and content is copyable; authorized views can be joined. It cannot establish parity or prevent coalition leakage. |
-| Redaction with manifest | **Adopt as canonical base** | Closest to current substrate; insufficient alone because manifest/diff/hash/history can reconstruct information and IDs do not classify materiality. |
-| Provenance completeness | **Adopt as binding/currentness layer** | A full-record pointer supports audit but does not cure a materially misleading visible summary. |
-| Administrative-law reasons-giving | **Adopt as materiality/contestability layer** | Material findings, reasons, evidence and dissent identify what government cannot casually drop; exact duties remain jurisdiction-specific. |
-| Unstructured editorial summary without receipt | **Reject** | Silent loss is undetectable; no inventory, parity test, denied-use monotonicity, transcript or fail-closed verdict. |
-
-### Selected layered answer
-
-1. Administrative reasons/dissent practice identifies load-bearing public-administration semantics.
-2. Existing omission/redaction machinery records typed removal.
-3. `CompressionLossReceipt` classifies safe versus material loss.
-4. Existing access controls constrain ordinary audience access.
-5. SDC-style output checking treats every view/version/export as a disclosure event.
-6. Consistency-set analysis tests joint and temporal reconstruction.
-7. Provenance/currentness connects summary to the authoritative revision.
-8. INT-R7 binds the content and history cryptographically.
-9. Composition presently remains a no-number procedural prefix claim.
-
-## 5. `CompressionLossReceipt` semantic contract
-
-The detailed contract is in [`int-r8/semantic-contract-and-loss-boundary.md`](int-r8/semantic-contract-and-loss-boundary.md).
-
-### 5.1 What is reused
-
-The receipt reuses, by reference and identifier:
-
-- canonical audience and projection source revision;
-- `omission_manifest` and normalization/deduplication;
-- `redaction_summary` and approved reason vocabulary;
-- projection gaps, limitations, deficit register;
-- contested records, recourse and participation surface;
-- audit/provenance references;
-- current `may_not_use_for` semantics;
-- S9-S14 verification and projection-only authority boundary.
-
-### 5.2 What is new
-
-For each semantic source item the receipt adds:
-
-- retained / dropped-manifested / not-applicable disposition;
-- item class: claim, basis, assumption, limitation, attack, denied use, counterevidence, dissent, negative terminal, chronology, provenance or protected detail;
-- affected claim IDs;
-- canonical reason;
-- semantic effect on truth, scope, authority/status, use, contestability, history or privacy;
-- declared use/predicate version;
-- actual transcript predecessor/current head;
-- verifier finding and issue code;
-- one of the two loss verdicts.
-
-This is a semantic inventory, not a final schema or package decision.
-
-### 5.3 Receipt outcomes
-
-- **`lossy_but_safe`** — information was removed, but every mandatory semantic invariant is retained or faithfully condensed, every drop is manifested, the summary is no broader/more authoritative than the full record, and the complete actual transcript passes declared reconstruction checks.
-- **`blocked_material_omission`** — any mandatory semantic, parity, reason, completeness, contestability, currentness or reconstruction test fails or is unresolved.
-
-No “unknown but safe,” “editor approved,” “privacy score” or local publication status is added. Missing verification fails closed through the existing gate.
-
-## 6. Semantic parity and minimum retained set
-
-### 6.1 Parity definition
-
-Semantic parity is **use-relative conservative observational equivalence**, not byte equality.
-
-For full record `R`, summary+receipt `S`, declared use set `U` and versioned decision predicates `D_U`, parity holds only when:
-
-1. every surfaced claim in `S` resolves to `R`;
-2. claim type, basis, scope, assumptions, material conditions and limitations are preserved;
-3. for every `d ∈ D_U`, the conclusion from `S` equals the conclusion from `R` or is more conservative — never broader, more favorable, more certain or more authoritative;
-4. denied uses are monotone: `may_not_use_for(S) ⊇ may_not_use_for(R)`;
-5. negative states, contest, dissent and recourse remain visible when material;
-6. all drops are manifested;
-7. the accumulated transcript remains non-reconstructing under the declared model.
-
-This permits duplicate wording, repeated citations and low-level paths to disappear. It does not permit a truth-changing rider to disappear.
-
-### 6.2 Derived minimum retained set
-
-The minimum is derived by asking whether removal can change truth, scope, authority, use, contestability, history/currentness or privacy. The mandatory set is:
-
-1. source record/revision, release version and current/superseded state;
-2. actual outcome and existing status, without local proxies;
-3. claim ID and claim type (`delta`, refusal/negative, or no-number custody);
-4. subject/jurisdiction/time/envelope and declared basis;
-5. for `delta`: obligation set, maintained assumptions and relative-basis rider;
-6. for procedural custody: load-bearing ordered history, sealing, firstness, substitutions/deviations, adjudication, dissent, negative and correction state;
-7. material limitations and conditionality;
-8. all active denied uses;
-9. material counterevidence, attacks and dissent — existence, affected claim and disposition, with protected detail safely redacted;
-10. contest/dispute and competent recourse/correction pointer;
-11. typed omission/redaction notice and reason;
-12. public-safe provenance/full-record binding/current-head pointer;
-13. receipt verdict, issue codes and verifier reference.
-
-A deep link to the full record is necessary but not sufficient.
-
-## 7. Loss-typing boundary
-
-### 7.1 Decision procedure
-
-A conforming verifier evaluates, in order:
-
-1. source/revision/use/inventory completeness;
-2. categorical mandatory semantics;
-3. conservative parity over governed predicates;
-4. canonical reason/affected-claim integrity;
-5. joint and temporal transcript reconstruction;
-6. final two-valued verdict.
-
-Any unknown materiality, missing history, unresolved source item or unavailable check blocks.
-
-### 7.2 Categorical anchors
-
-#### Bare `delta`
-
-Keeping the number while dropping its declared set, assumptions or rider broadens a conditional statement into a false general one. Always `blocked_material_omission`.
-
-#### Hidden refusal/void/dispute/exhaustion
-
-Replacing a completed negative with blank/“unavailable” turns outcome into ambiguity and enables deadline/success-pressure laundering. Always blocked.
-
-#### No-number procedural custody
-
-“The process was properly followed” is not a safe compression of a bounded history claim. If a step such as pre-result sealing, first qualifying attempt, no prohibited substitution, dissent or correction is load-bearing, dropping it broadens the claim. Blocked.
-
-A shorter sentence that explicitly preserves those bounded steps and disclaims compliance/competence/efficacy can be `lossy_but_safe`.
-
-### 7.3 Safe examples
-
-Potentially safe after transcript verification:
-
-- five duplicate references become one while support/conflict/independence semantics remain;
-- protected personal name becomes a role while material dissent, mandate and conflict facts remain;
-- low-level artifact paths become public-safe references;
-- raw cells become an approved aggregate while population/time, uncertainty, contributor rule, conditionality, disclosure reason and denied uses remain;
-- repetitive procedural event prose is normalized without removing unique chronology, firstness or substitution facts.
-
-## 8. Cross-view reconstruction
-
-The formal analysis is in [`int-r8/reconstruction-composition-and-threat-model.md`](int-r8/reconstruction-composition-and-threat-model.md).
-
-### 8.1 Consistency-set definition
-
-Let `T` be the complete obtainable disclosure transcript and `𝓡` the declared set of compatible full records:
-
-`C(T) = { r ∈ 𝓡 : the release process for r is observationally consistent with T }`.
-
-A protected predicate `q` is exactly reconstructed when:
-
-`| { q(r) : r ∈ C(T) } | = 1`.
-
-Strict cross-view reconstruction occurs when `q` is not determined by any single obtainable projection but is determined by their union. Temporal reconstruction is the same condition over successive versions.
-
-This formalism applies to deterministic editorial projection and does not require an invented prior.
-
-### 8.2 Transcript denominator
-
-The verifier includes:
-
-- all obtainable canonical audience projections;
-- historical versions and corrections;
-- diffs and counts;
-- hashes, ETags and stable fingerprints;
-- ordering, rank, gaps and pagination;
-- timing and update cadence;
-- provenance and join keys;
-- deep-link representation;
-- screenshot, print, clipboard and downloadable artifacts;
-- hidden DOM/accessibility/embedded metadata;
-- caches, logs, analytics/referrer and error channels;
-- current/superseded state.
-
-Per-view safety is necessary and insufficient.
-
-## 9. Composition: refusal of a number and accepted alternative
-
-### 9.1 Why differential-privacy composition does not currently transfer
-
-DP composition theorems combine mechanisms that already satisfy explicit local privacy guarantees under a defined neighboring-input relation and randomized output law. The current projection has none of those established premises. Later editorial choices are normally adaptive.
-
-NIST SP 800-226, the Kairouz–Oh–Viswanath composition theorem and maximal-leakage literature therefore supply a premise/audit vocabulary, not a current PolicyOS scalar. The external ledger records exact identifiers and transfer limits.
-
-### 9.2 No-number prefix discipline
-
-Define `Safe_F(T)` as a deterministic predicate over the complete transcript under a fixed versioned check family `F`. If:
-
-1. the base transcript passes;
-2. before each release the actual candidate prefix is built with all known channels;
-3. release occurs only after the full prefix passes;
-4. history is append-only logically, with correction/supersession instead of deletion;
-5. membership, chronology, heads, inputs and verifier version are reproducible;
-
-then every released prefix passed `Safe_F` when released. This follows by induction.
-
-The claim is intentionally bounded: it proves enforcement of declared checks, not completeness of attacks or a probability of secrecy. Adaptation is allowed because the actual history-selected candidate is checked; it does not create a numeric adaptive guarantee.
-
-## 10. Screenshot, deep-link and export threat model
-
-### 10.1 Deep links
-
-The current frontend encodes the packet into the path. The URL is therefore itself a release copy, potentially present in browser history, referrers, logs, analytics, previews and support tickets. INT-R8 requires analysis of the decoded URL representation, not merely visible DOM. An opaque-handle architecture may later be chosen, but route/proof design is outside this research.
-
-### 10.2 Screenshot/print
-
-A detached capture must visibly preserve:
-
-- identity/version/currentness;
-- claim type/outcome and negative terminal;
-- material basis/rider and limitations;
-- denied uses;
-- material contest/dissent indicator;
-- omission notice;
-- current-status/full-record reference.
-
-Hover-only, collapsed, off-viewport or print-hidden caveats do not count.
-
-### 10.3 Exports
-
-Every PDF/DOCX/HTML/JSON/CSV/clipboard export is a separate disclosure event. The exact rendered bytes and metadata must be checked for:
-
-- dropped minimum semantics;
-- hidden comments/revisions/attachments/source JSON;
-- private author/path/reference metadata;
-- formulas/raw cells;
-- differences from prior releases;
-- stale/superseded presentation.
-
-Format conversion is not presumed semantically neutral.
-
-### 10.4 Named no-reconstruction channels
-
-- **Diff:** no raw before/after disclosure of protected content.
-- **Hash:** no low-entropy secret membership/persistence oracle; INT-R7 must supply any safe proof binding.
-- **Ordering:** no hidden score/rank/gap leakage.
-- **Timing:** disclose minimum chronology needed for custody; coarsen non-material precision where necessary.
-- **Provenance:** no unauthorized cross-audience join key.
-- **Manifest:** enough to prevent misleading silence, not enough to identify the protected value.
-
-## 11. Falsifier suite
-
-The executable behavioral specification is in [`int-r8/falsifier-suite-and-integration-handoff.md`](int-r8/falsifier-suite-and-integration-handoff.md).
-
-Required red cases include:
-
-1. retained limitation dropped;
-2. bare `delta` without declared set/rider;
-3. hidden refusal/negative terminal;
-4. two locally safe projections jointly reconstruct a withheld claim;
-5. absent/non-canonical/self-disclosing redaction reason;
-6. procedural custody step omitted;
-7. denied use narrowed;
-8. material dissent/counterevidence rendered as consensus;
-9. low-entropy hash oracle;
-10. diff/order/timing/provenance reconstruction;
-11. screenshot/print drops minimum semantics;
-12. export/deep-link contains unrendered protected field;
-13. stale record appears current;
-14. unknown materiality coerced to safe;
-15. receipt mints authority;
-16. adaptive release checked locally rather than against the full prefix;
-17. prior transcript member removed post hoc;
-18. unjustified numeric budget attached.
-
-Positive controls prevent a reject-everything implementation: duplicate references, non-material identity replacement, correctly disclosure-controlled aggregate, faithful no-number history condensation and added conservative caution can pass.
-
-## 12. Repository integration handoff
-
-| Capability | Existing owner/surface to extend | Pinned label | Required behavior |
+| Four-audience projection semantics | `runtime/quality/projection_semantics.py` producer, contracts, and tests | `implemented` for the existing projection substrate only. |
+| Public-export bundle producer | `runtime/quality/public_export.py::build_public_export_bundle`, tests, and tooling callers | Existing producer is present and remains projection-only. |
+| Public-export producer to intended public/runtime route | Existing producer plus existing runtime/public surfaces, with no caller binding the producer into that route | `bridge_missing`; both sides exist, the connection does not. |
+| Compression-loss semantic contract | This amended research contract; no source producer or admitted wired consumer | `contract_only`. |
+| Compression-loss runtime producer / GY-PA3 | GY-PA3 is plan text only | Absent and unallocated at the pinned commit; no downstream maturity label is assigned. |
+| Material-loss publication gate | No receipt producer, admitted receipt artifact, or wired consumer chain | Absent and unallocated at the pinned commit. |
+| Cross-view/temporal transcript custody and verifier | No approved owner, artifact, consumer, or wired chain | Absent and unallocated at the pinned commit. |
+| Atlas receipt rendering | Existing packet/viewer render other data; no owner-issued receipt endpoint or artifact | Existing rendering surface is present; INT-R8 receipt integration is absent and unallocated. |
+| Screenshot/print/export semantic tests | Real rendering/export surfaces exist; INT-R8 cases do not | `semantic_test_missing` for those existing scoped surfaces. |
+| INT-R7 proof relation | Parallel research contract, not implementation | `contract_only`; current first-public-record gate remains closed. |
+| Numerical disclosure accountant | No authorized model or consumer; current result refuses a number | Not a missing implementation capability. It is an optional future research direction only after a model and consumer are competently established. |
+
+No row appoints an owner. Any future implementation must re-run prerequisite classification at
+its own exact commit.
+
+## 4. Comparative model selection after R3
+
+| Model family | What it can establish | Required premises | Current disposition |
 |---|---|---|---|
-| Projection semantics | `runtime/quality/projection_semantics.py` | substrate `implemented`; receipt `producer_missing` | Reuse four audiences, IDs, omissions, limitations, denied uses, contest, recourse, audit refs and authority boundary. |
-| Public export | `runtime/quality/public_export.py` | loss `verification_missing`; HTTP `bridge_missing` | Consume exact-revision verified receipt; reject blocked/missing/unknown; do not improvise materiality. |
-| Planned loss producer | GY-PA3 runtime-quality plan entry | `producer_missing` | Emit retained/dropped authority delta and receipt only after approved implementation; `authoritative_for = ∅`. |
-| Frontend packet/viewer | Atlas DS12/DS14 rendering | receipt `bridge_missing`; capture/export `semantic_test_missing` | Render owner result/minimum set; no client-side safe-loss or authority decision. |
-| Release transcript | Existing competent custody/history boundary to be selected by architecture | `producer_missing`, `verification_missing` | Reproduce all releases/channels/heads; no new confidence ledger. |
-| INT-R7 proof | Parallel research dependency | `contract_only` until closed | Bind source revision, retained set, omission classes/reasons, verdict and transcript head without exposing drops. |
-| Numeric accountant | None | `producer_missing`; research gap | Not authorized. Use no-number discipline. |
+| Statistical disclosure control | Suppression, contributor thresholds, differencing review, and release checking | Output class, local rule, underlying evidence, prior-output inventory, competent checker | Adopt as release discipline and attack source, not a universal semantic theorem. |
+| Differential privacy | Per-mechanism probabilistic privacy and adaptive composition | Neighbor relation, randomized mechanism, local `(epsilon, delta)` validity, prospective allocation, history-valid accountant | No current transfer; retain as a future bounded statistical mechanism family. |
+| Maximal / maximal-alpha leakage | Guessing-gain or alpha-loss leakage, with data-processing and model-specific composition properties | Secret/channel model, support or prior assumptions, adversary objective, local leakage evaluation, applicable composition theorem | Mathematically available for deterministic or randomized channels; no current PolicyOS value because its model and owner are absent. |
+| Statistic maximal leakage | Leakage about a specified statistic, including computation for deterministic releases in the cited model | Named statistic/secret, prior/support treatment, deterministic channel semantics, local value and composition conditions | Candidate future model; not established for editorial policy records. |
+| Min-entropy and generalized-gain QIF | Posterior guessing advantage under a declared vulnerability or gain function | Secret distribution/support, gain function, channel, observation relation, local and composed analysis | Candidate diagnostic/research family; no current canonical quantity. |
+| Exact consistency-set reconstruction | Whether a protected predicate becomes uniquely determined | Declared nonempty model, observational equivalence, protected predicate, exact or proved-conservative decision | Adopt now for bounded Boolean decisions. It is not a scalar budget. |
+| Access control | Ordinary role separation | Principal/role mapping and enforcement | Perimeter only; authorized views may still be joined. |
+| Redaction with manifest | Detectable typed removal | Canonical reason relation and safe granularity | Canonical base, extended by the receipt and transcript checks. |
+| Provenance completeness | Binding, currentness, and authorized full-record access | Non-leaking references and proof relation | Required layer, not a cure for misleading visible prose. |
+| Administrative reasons-giving | Material reasons, findings, evidence, dissent, and contestability classes | Jurisdiction/procedure-specific competence and confidentiality limits | Materiality layer with explicit transfer limits. |
+| Unstructured editorial summary without receipt | Readability only | None capable of proving material safety | Rejected as a governed publication basis. |
 
-This names reuse directions, not canonical owner appointments.
+## 5. Semantic parity and the minimum retained set
 
-## 13. INT-R7 seam
+Semantic parity remains **use-relative conservative observational equivalence**. For source
+record `R`, summary plus receipt `S`, declared use package `U`, governed predicate package `D_U`,
+and authority order `<=`, parity requires:
 
-INT-R8 owns content. It requires INT-R7 to bind:
+1. every surfaced claim resolves to `R`;
+2. claim type, basis, scope, assumptions, conditions, and material limitations are preserved;
+3. every governed decision from `S` equals the decision from `R` or is more conservative;
+4. `may_not_use_for(S)` is a superset of `may_not_use_for(R)` at claim and projection level;
+5. negative terminals, contest, material dissent, recourse, supersession, and correction remain
+   visible when their governed effects are active;
+6. every dropped inventory item has a canonical transformation/semantic reason relation;
+7. the exact rendered object and declared delivery channels pass the transcript check; and
+8. unresolved model, materiality, history, or verifier input blocks.
 
-- source revision;
-- audience/surface;
+The minimum retained set is derived by asking whether removal changes truth, scope, authority,
+use, contestability, history/currentness, or privacy. It contains:
+
+- source record/revision, release identity, and current/superseded state;
+- actual existing outcome and status, without a local approval proxy;
+- claim identity and claim type;
+- subject, jurisdiction, material time/envelope, and declared basis;
+- for `delta`, the obligation set, maintained assumptions, and visible relative-basis rider;
+- for no-number custody, the version-bound constitutive event set and order relation;
+- material limitations and conditionality;
+- every active denied use;
+- material counterevidence, attacks, dissent, contest, and disposition at safe granularity;
+- a competent recourse/correction pointer where one exists;
+- typed omission/redaction class, reason relation, affected public claims, and semantic effect;
+- public-safe provenance/current-head/full-record binding; and
+- the receipt verdict, model identities, issue codes, and verifier disposition.
+
+A full-record link remains necessary for authorized audit and insufficient to cure a misleading
+visible summary.
+
+## 6. Bounded reconstruction model and explicit outcomes
+
+Let `R_model` be a declared nonempty finite record family or a record family represented in a
+decidable symbolic fragment. Let `Obs_F(r)` be the observations generated for declared release
+family `F`, and let `t` be the observed controlled transcript. Define:
+
+`C_F(t) = { r in R_model : Obs_F(r) is observationally equal to t }`.
+
+For total protected predicate `q`, exact reconstruction occurs when:
+
+`| { q(r) : r in C_F(t) } | = 1`.
+
+Strict cross-view reconstruction occurs when every single obtainable audience transcript leaves
+at least two `q` values possible, while one declared obtainable coalition leaves exactly one.
+Temporal reconstruction is the same condition over successive releases.
+
+The executable claim is bounded as follows:
+
+| Evaluation state | Required verifier disposition | Publication loss outcome |
+|---|---|---|
+| At least two protected values remain possible | `not_reconstructed_under_declared_model` | Privacy limb may pass if all other gates pass. |
+| Exactly one protected value remains possible | `reconstructed` | `blocked_material_omission`. |
+| `C_F(t)` is empty | `model_observation_inconsistent` | Blocked; never interpreted as safe. |
+| Exact solver times out or exhausts resources | `not_established_timeout` | Blocked. |
+| Symbolic theory is unsupported or undecidable for the supplied instance | `not_established_unsupported_theory` | Blocked. |
+| Abstraction has a proved no-false-safe direction and reports possible reconstruction | `conservative_risk_found` | Blocked. |
+| Abstraction has a proved no-false-safe direction and discharges the exact obligation it is authorized to decide | `not_reconstructed_under_proved_conservative_abstraction` | May pass only within that exact abstraction scope. |
+| Sampling, classifier, posterior threshold, heuristic search, or unproved approximation | `not_established_unowned_approximation` | Blocked; it does not inherit the number-free theorem. |
+
+This contract does not claim tractability for arbitrary PolicyOS records. A general operational
+verifier remains absent and unallocated.
+
+## 7. Declared release family and prefix discipline
+
+A release-family declaration is versioned and separates:
+
+1. **controlled registered releases** — server responses, registered audience projections,
+   generated deep links, known exports, registered screenshots/print objects, controlled caches,
+   delivery metadata, and corrections whose membership and observation must be reproducible;
+2. **observed external copies** — third-party or recipient copies that have been discovered and
+   admitted to the transcript with provenance and observation limits; and
+3. **uncontrolled or unknown channels** — unobserved screenshots, external institutional
+   disclosures, covert exfiltration, unknown archives, and unknown auxiliary datasets.
+
+Missing or rewritten controlled history blocks. Observed external copies extend the transcript.
+Uncontrolled or unknown channels do not disappear: they set the completeness disposition to
+`bounded_to_declared_release_family` or `external_history_not_established` and prevent any
+unqualified claim of universal disclosure safety.
+
+For fixed versioned Boolean rule family `G`, let `Safe_G(T_i)` mean that the complete controlled
+candidate prefix passes every required semantic-loss and exact/proved-conservative reconstruction
+obligation. If the base prefix passes, one canonical enforcement path constructs each actual
+history-selected candidate prefix, release occurs only after `Safe_G(T_i)`, and controlled
+history is append-only except by appended correction/supersession, then every released controlled
+prefix passed `G` when released. The proof is induction and uses no non-adaptive selection
+premise.
+
+This proves enforcement, not attack completeness, legal compliance, competence, or secrecy
+against unknown external channels.
+
+## 8. Materiality, constitutive procedure, and canonical reasons
+
+### 8.1 Materiality relation
+
+Every source semantic item binds to one or more governed effects:
+
+- `truth_condition`;
+- `scope_or_basis`;
+- `authority_or_status`;
+- `permitted_or_denied_use`;
+- `contestability_or_recourse`;
+- `history_or_currentness`; or
+- `privacy_or_reconstruction`.
+
+It also binds the competent basis, affected claim IDs, predicate package version, and allowed
+condensation relation. Removal is material when it changes any bound effect under a declared use.
+An unresolved basis or effect returns `compression_materiality_not_established` and blocks.
+
+### 8.2 Constitutive no-number steps
+
+A no-number custody claim must declare its constitutive event classes and order constraints, such
+as prospective sealing, first qualifying attempt, prohibited-substitution rule, deviations,
+adjudication, dissent, negative publication, and correction. A shorter rendering is safe only if
+it preserves every unique constitutive event and order predicate. Duplicate prose may disappear;
+a unique step may not.
+
+The verifier does not decide constitution by free-text similarity. It compares the declared
+constitutive relation and the summary's faithful-event mapping. Removing one decisive event must
+turn the relevant predicate red; removing duplicate wording must not.
+
+### 8.3 One reason relation
+
+The receipt does not create a third reason vocabulary. It consumes one approved relation:
+
+`transformation_reason -> omission_semantic_class -> affected_claims -> governed_effect -> safe_public_explanation`.
+
+- canonical scanner reasons remain the transformation reasons for scanner-detected email,
+  keyed-secret, and secret/PII removal;
+- canonical projection omission reasons remain source omission identifiers where applicable;
+- receipt-level semantics add typed effect and affected-claim bindings through an approved
+  extension relation, not a competing identifier with the same meaning;
+- the public explanation must not expose the protected value; and
+- missing, unknown, mismatched, duplicate-conflicting, or self-disclosing reason relations block.
+
+A future implementation requires a complete duplicate/overlap census before claiming one
+canonical live registry. This amendment appoints none.
+
+## 9. Open release-channel registry
+
+The channel registry is versioned and explicitly open. Existing classes remain: body content,
+omission manifests, diffs, hashes/ETags, ordering/rank/pagination, timing/cadence, provenance
+joins, deep links, screenshots, print, clipboard, PDF/DOCX/HTML/JSON/CSV, hidden DOM,
+accessibility tree, embedded metadata, source maps, headers, caches, logs, analytics, referrers,
+errors, and currentness.
+
+The amendment adds:
+
+1. locale, translation, fallback-language, and translation-memory divergence;
+2. email, push, webhook, RSS/Atom, social-card/Open Graph, and chat syndication;
+3. compression-ratio, content-encoding, packet-length, TLS-record-count, range-response, and
+   conditional-request oracles;
+4. sitemap, indexing, autocomplete, search-snippet, result-count, and cache-invalidation
+   discovery channels; and
+5. proof metadata, including key identifiers, certificate paths, transparency-log positions,
+   witness sets, proof-object sizes, and commitment/linkage identifiers.
+
+An unclassified channel yields `release_channel_out_of_model` and cannot inherit a broad safe
+verdict. INT-R7 must ensure that its proof construction and metadata do not reconstruct protected
+content; INT-R8 does not choose the mitigation.
+
+## 10. INT-R7 semantic proof interface
+
+The content-side relation requires proof binding or typed disposition for:
+
+- source record and revision;
+- audience and surface;
+- exact transformed/rendered/exported public object identifiers;
 - retained semantic-item set;
-- omission classes, affected claims and canonical reasons;
+- omission classes, affected claims, reason relation, and governed effects;
 - loss verdict and rule version;
-- predecessor/current transcript head and current/superseded state.
+- declared uses and denied uses;
+- materiality/decision-predicate package;
+- semantic-inventory version and completeness disposition;
+- record/consistency model;
+- protected-predicate family;
+- channel-registry and declared-release-family version;
+- coalition/delegation availability model;
+- auxiliary/background-information assumptions and incompleteness statement;
+- predecessor/current transcript head and transcript-completeness disposition;
+- empty-set, timeout, unsupported-theory, exact, or abstraction verifier status;
+- current/superseded state; and
+- the unchanged projection-only authority boundary.
 
-Redaction must be a well-defined operation on the proof-bound object, and proof material must not become a hash/identifier oracle for protected content. Signature algorithms, key policy, rotation, revocation, long-term verification and anti-equivocation construction remain with INT-R7.
+INT-R7 remains free to select canonicalization, signature, commitment, key, rotation, revocation,
+witness, transparency, archival, and offline-verification construction.
 
-## 14. Open questions for consolidation
+A failed or missing INT-R8 relation means that public projection faithfulness/loss safety is not
+established and no public-current positive may rely on it. It does **not** imply that the issuer
+never authentically issued the source record. Issuer issuance authenticity, projection
+faithfulness, public-history establishment, durable verifiability, and current authority remain
+separately reportable dimensions. This aligns with audit finding `INT-R7-VIII-003`; it does not
+adopt the unverified INT-R7 amendment as authority.
 
-### Engineering
+## 11. Falsifier and handoff status
 
-- Which existing custody/history owner can reproduce deep links, screenshots and exports without becoming a second confidence ledger?
-- How is the heterogeneous semantic inventory derived without prematurely fixing package/schema cardinality?
-- Which renderer/metadata harness will test PDF/DOCX/print/accessibility outputs?
-- How will audience-safe provenance remain authorized-resolvable but non-joinable?
-- What is fail-closed behavior when historical bytes or metadata are unavailable?
+Suite v1 remains immutable at the audited commit. The controlling amended specification is
+`INT-R8-COMPRESSION-FALSIFIERS-v2` in
+`int-r8/falsifier-suite-and-integration-handoff.md`. It preserves F01-F25 and G01-G05 as family
+identities, splits them into atomic subfixtures, adds exact evaluation-status fields, and adds
+five channel families required by R6.
 
-### Institutional
+No suite has run and no capability is inferred from the specification.
 
-- Which competent office defines “material issue,” canonical reason classes and when dissent identity is material?
-- Which audience coalitions/auxiliary sources must be assumed under delegation, FOI, litigation, insider access and copying?
-- What recourse/full-record access must an affected person receive when detail is withheld?
-- What plain-language, translation and accessibility review establishes comprehensibility without semantic loss?
-- What retention/correction obligations govern cached/exported predecessors?
+## 12. Updated standing and non-authorization
 
-### Additional research
+**Amended standing: `accepted_narrow_scope`, retained pending independent conformance
+verification.**
 
-- Can a narrow statistical release class be made genuinely DP with defined adjacency, randomized mechanism and adaptive accountant?
-- Which secret predicates/gain functions justify maximal-leakage analysis for policy records?
-- Can semantic entailment/materiality checking be made sound enough to admit useful condensation?
-- What auxiliary-information model is conservative and testable?
-- How should multilingual compression preserve legal qualifiers?
-- How do later appeal, incident, retraction, law change or bias findings invalidate prior receipts while preserving history?
+The central result remains:
 
-## 15. External grounding summary
+> Safe compression is a conservative, receipt-bearing transformation checked against the
+> declared controlled release transcript. Exact or proved-conservative reconstruction is a
+> Boolean gate. A public summary is blocked when it loses a truth-changing basis, material
+> limitation, denied use, counterposition, dissent, negative outcome, constitutive procedural
+> step, currentness fact, or when a declared obtainable coalition or temporal transcript uniquely
+> reconstructs protected information.
 
-Primary sources cover at least four jurisdictions/practice systems:
-
-- United States: 5 U.S.C. §§ 552 and 557; Plain Writing Act, Pub. L. 111-274;
-- Australia: ADJR Act 1977, s 13, Federal Register `C2004A01697`; FOI Act 1982 `C2004A02562`; NSW MHRT dissent practice; ABS DataLab clearance/output rules;
-- European Union: Directive (EU) 2016/2102, CELEX `32016L2102`; EUIPO official summary/full-decision practice;
-- United Kingdom: ONS statistical disclosure control and SRS Output Checking Guidance.
-
-Privacy-theoretic anchors are NIST SP 800-226, DOI `10.6028/NIST.SP.800-226`; Kairouz, Oh & Viswanath, PMLR 37 / arXiv `1311.0776`; and Issa, Wagner & Kamath, DOI `10.1109/TIT.2019.2962804` / arXiv `1807.07878`.
-
-The transfer ledger states explicitly what each source does **not** establish.
-
-## 16. Supporting artifacts
-
-- [`int-r8/orientation-ledger.md`](int-r8/orientation-ledger.md) — exact-ref Pass I, censuses, caller/reality audit and reproduction recipe.
-- [`int-r8/semantic-contract-and-loss-boundary.md`](int-r8/semantic-contract-and-loss-boundary.md) — full receipt semantics, parity, minimum set, decision procedure and examples.
-- [`int-r8/reconstruction-composition-and-threat-model.md`](int-r8/reconstruction-composition-and-threat-model.md) — consistency-set formalism, composition refusal, no-number proposition and release-channel threat model.
-- [`int-r8/falsifier-suite-and-integration-handoff.md`](int-r8/falsifier-suite-and-integration-handoff.md) — red/green fixtures, properties, missing-state labels and typed open questions.
-- [`int-r8/external-source-and-transfer-ledger.md`](int-r8/external-source-and-transfer-ledger.md) — primary sources, comparative models, selected layers and transfer/non-transfer limits.
-
-## 17. Final ruling
-
-INT-R8 authorizes one narrow research conclusion:
-
-> PolicyOS can define safe compression only as a conservative, use-relative, receipt-bearing transformation of the canonical projection, checked against the complete cross-view and temporal release transcript. A summary is blocked whenever it loses a truth-changing basis, material limitation, denied use, counterposition, dissent, negative outcome, procedural step or currentness fact, or when combined releases reconstruct protected information.
-
-It does not authorize implementation or publication. It does not establish a scalar disclosure budget. The honest current composition result is the no-number procedural discipline described above.
+The amendment does not authorize implementation, publication, a canonical owner, a final schema,
+a proof construction, a legal conclusion, or any numerical disclosure claim. The first public
+governed-record gate remains closed.

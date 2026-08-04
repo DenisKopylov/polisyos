@@ -68,7 +68,7 @@ The audited standing **`accepted_narrow_scope` is the correct substantive target
 required revisions R1-R10**. It is not stronger than that: no present producer, verifier,
 transcript custody, public proof or publication authority is established.
 
-## 2. Scope and delivery method
+## 2. Scope and method
 
 The audit reads the exact audited head
 `90b372964d29a9e97605a6ef733ef03ffe7938d2` against baseline
@@ -91,6 +91,25 @@ The seven audit artifacts separate orientation, sources, formal argument, claim 
 kernel/seam, revisions and the executive register. Every repository-state statement in those
 files was read back from the output branch after its commit.
 
+### 2.1 Evidence path key
+
+Every abbreviated anchor below expands to this exact audited-head or pinned-baseline path:
+
+- `PRIMARY` = `policy-engine/docs/research/policy-operations/int-r8-compression-loss-and-disclosure.md`
+- `ORIENT` = `policy-engine/docs/research/policy-operations/int-r8/orientation-ledger.md`
+- `SOURCE` = `policy-engine/docs/research/policy-operations/int-r8/external-source-and-transfer-ledger.md`
+- `FORMAL` = `policy-engine/docs/research/policy-operations/int-r8/reconstruction-composition-and-threat-model.md`
+- `SEMANTIC` = `policy-engine/docs/research/policy-operations/int-r8/semantic-contract-and-loss-boundary.md`
+- `SUITE` = `policy-engine/docs/research/policy-operations/int-r8/falsifier-suite-and-integration-handoff.md`
+- `PROJECTION` = `policy-engine/src/polisyos/runtime/quality/projection_semantics.py`
+- `PUBEXP` = `policy-engine/src/polisyos/runtime/quality/public_export.py`
+- `PACKET` = `policy-engine/apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts`
+- `RATIFY-INT` = `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md`
+- `RATIFY-S0` = `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md`
+
+Thus, for example, `FORMAL:75-190` is a path:line anchor to the audited head, not an
+adjacent-prose shorthand.
+
 ## 3. Separate competence verdicts
 
 ### 3.1 Engineering
@@ -98,81 +117,50 @@ files was read back from the output branch after its commit.
 **Verdict: strong substrate orientation; incomplete executable contract.**
 
 The receipt is not a parallel projection system wearing borrowed words. Every principal reuse
-point exists in the pinned source:
+point exists in the pinned source: omission manifest, redaction summary, projection gaps,
+deficit rows, contested records, recourse, audit references, denied-use semantics, S9-S14
+checks and projection-only authority boundaries. The work identifies the actual frontend
+compression point and correctly keeps materiality out of the browser.
 
-- `omission_manifest`;
-- `redaction_summary`;
-- projection gaps and deficit rows;
-- contested records and recourse;
-- audit references;
-- live denied-use semantics;
-- S9-S14 consumer checks; and
-- projection-only authority boundaries.
-
-The work also identifies the actual frontend compression point and correctly keeps materiality
-out of the browser.
-
-The engineering gaps are material:
-
-- “material,” “faithful condensation” and “constitutive step” are still judgment interfaces;
-- exact versus approximate reconstruction is not contractually separated;
-- scanner, projection and receipt reason vocabularies are not reconciled;
-- many falsifiers cannot be loaded as exact equality fixtures; and
-- the capability-reality labels violate their own prerequisites.
+The engineering gaps are material: “material,” “faithful condensation” and “constitutive step”
+remain judgment interfaces; exact and approximate reconstruction are not contractually
+separated; reason vocabularies are not reconciled; many falsifiers are not equality-ready; and
+the capability-reality labels violate their prerequisites.
 
 ### 3.2 Mathematical
 
 **Verdict: correct formal core after narrowing; general executability not established.**
 
 For a declared nonempty finite or decidable model class, a specified observation relation and a
-total protected predicate, the consistency set
-
-```text
-C(T) = {r in R : Release(r) is observationally consistent with T}
-```
-
-is well-defined. Reconstruction when `q` has one possible value on `C(T)` is correct. Strict
-cross-view reconstruction—no single available audience determines `q`, an available coalition
-does—is also correctly stated.
+total protected predicate, `C(T)` is well-defined. Reconstruction when `q` has one possible
+value on `C(T)` is correct. Strict cross-view reconstruction—no single available audience
+determines `q`, an available coalition does—is also correctly stated.
 
 The strongest result is substantive: requiring at least two protected values to remain possible
 is a Boolean condition, not a cumulative quantity. Rechecking the complete controlled actual
 prefix handles adaptive release selection by induction.
 
-The work overreaches in two ways:
-
-- randomization is a DP premise, not a universal premise of numerical information leakage; and
-- a general PolicyOS record/channel model is not shown finite, decidable or tractable.
-
-Only exact decisions or proved-conservative abstractions inherit the number-free claim. A
-thresholded classifier, estimated posterior, sampling search or timeout-as-safe would introduce
-an unowned validity quantity.
+The work overreaches because randomization is a DP premise, not a universal premise of numerical
+information leakage, and because a general PolicyOS record/channel model is not shown finite,
+decidable or tractable. Only exact decisions or proved-conservative abstractions inherit the
+no-number claim.
 
 ### 3.3 Public administration and policy development
 
 **Verdict: the strongest competence in the delivery.**
 
-The minimum retained set is derived rather than merely asserted. It tracks why an affected
-person, reviewer or public body may be misled or lose contestability when compression removes:
-
-- material findings and reasons;
-- the evidence basis and conditionality of a number;
-- a denied use that prevents out-of-scope citation;
-- material counterevidence or dissent;
-- contest/dispute and real recourse;
-- refusal, void, no-attempt or exhaustion as a completed outcome;
-- the procedural history constituting a no-number custody claim; or
-- current/superseded/correction state.
-
-The legal, accessibility and statistical sources are used with explicit transfer limits. The
-work does not claim universal statutory applicability or legal sufficiency. Two living-source
-citations need stronger version custody, but the domain argument itself is sound.
+The minimum retained set is derived rather than asserted. It tracks material reasons, evidence
+basis, number conditionality, denied use, counterevidence, dissent, dispute, recourse, negative
+completion, constitutive custody history and current/superseded state. The legal, accessibility
+and statistical sources are used with explicit transfer limits and no universal legal-sufficiency
+claim. Two living-source citations need stronger version custody, but the domain argument is
+sound.
 
 ## 4. Highest-value determinations
 
 ### 4.1 Numerical refusal
 
-The refusal is **argued, not merely asserted**. No repository component supplies the local
+The refusal is argued, not merely asserted. No repository component supplies the local
 quantity, model, prospective allocation, adaptive accountant or canonical custody required for a
 numerical authority claim. DP composition is not strawmanned.
 
@@ -185,67 +173,47 @@ composition premises—not determinism alone—eliminate a current PolicyOS numb
 Prefix discipline is not a budget with the number hidden. Under the exact model it is a Boolean
 predicate over a declared controlled transcript. It becomes a hidden quantitative claim only if
 an implementation substitutes a confidence threshold, posterior, classifier, sample, unsound
-abstraction or timeout approximation.
-
-The adaptivity point is handled correctly: the actual next candidate is checked after observing
-actual history. No non-adaptive local guarantee is silently reused.
+abstraction or timeout approximation. The adaptivity point is handled correctly because the
+actual next candidate is checked after observing actual history.
 
 ### 4.3 Loss boundary
 
-The bare-`delta` and hidden-negative anchors are categorical and correct. The denied-use
-monotonicity rule is also precise. The frontier remains the no-number custody history: until a
-versioned constitutive-step relation and allowed-condensation relation exist, the third anchor is
-not mechanically decidable.
+The bare-`delta` and hidden-negative anchors are categorical and correct. Denied-use monotonicity
+is precise. The frontier remains the no-number custody history: until a versioned
+constitutive-step and allowed-condensation relation exists, the third anchor is not mechanically
+decidable.
 
 ### 4.4 Falsifier suite
 
-The suite is broad and has unusually good green controls. F04's local-before-joint proof, F12's
-hash dictionary, F19's deep-link payload, F24's history rewrite and F25's invented number should
-survive.
-
-It is not a frozen executable suite as written. At least thirteen families bundle alternative
-mutations or expected codes. It also misses locale/translation, notification/syndication,
-network compression, discovery/index and proof-metadata attacks.
+The suite is broad and has unusually good green controls. F04, F12, F19, F24 and F25 should
+survive. It is not a frozen executable suite as written: at least thirteen families bundle
+alternative mutations or expected codes, and it misses locale, syndication, network
+compression, discovery/index and proof-metadata channels.
 
 ### 4.5 Capability honesty
 
-The real projection and public-export substrates are correctly preserved. That is a
-commendation. The new receipt/transcript/gate/accountant rows are not entitled to downstream
-missing-state labels. Correcting this one table is the only blocking revision.
+The real projection and public-export substrates are correctly preserved. The new
+receipt/transcript/gate/accountant rows are not entitled to downstream missing-state labels.
+Correcting this table is the only blocking revision.
 
 ## 5. Pass X — prohibitions and standing
 
-A complete 6/6 audited-artifact census confirms every file carries:
-
-- `research_only: true`; and
-- a `may_not_use_for` block prohibiting production implementation, final wire/schema/package,
-  owner appointment, authority/capability claims, legal sufficiency, publication permission and
-  a numeric disclosure bound.
-
-Across 6/6 artifacts, no passage:
-
-- appoints a canonical owner;
-- fixes a wire, package, database, serialization or API schema;
-- creates a fifth audience;
-- creates a second confidence ledger;
-- weakens `may_not_use_for`;
-- creates a global status lattice;
-- chooses signature algorithms, keys, rotation or revocation; or
-- claims the repository can currently emit a `CompressionLossReceipt`.
-
-The two receipt outcomes are local verifier dispositions feeding existing gates, not a new
-system-wide authority status.
+A complete 6/6 audited-artifact census confirms every file carries `research_only: true` and a
+`may_not_use_for` block. Across 6/6 artifacts, no passage appoints an owner, fixes a wire or
+schema, creates a fifth audience, creates a second confidence ledger, weakens denied-use
+semantics, creates a global status lattice, chooses key-lifecycle mechanics or claims current
+receipt capability. The two receipt outcomes are local verifier dispositions feeding existing
+gates.
 
 ### INT-R8-X-001 — commendation — all six artifacts carry effective prohibitions
 
-**Evidence:** all six audited files, frontmatter lines 1-24.
+**Evidence:** `PRIMARY:1-24`; `ORIENT:1-24`; `SOURCE:1-24`; `FORMAL:1-24`;
+`SEMANTIC:1-24`; `SUITE:1-24`.
 
 ### INT-R8-X-002 — commendation — `accepted_narrow_scope` remains the correct substantive standing
 
-**Evidence:** audited primary report
-`policy-engine/docs/research/policy-operations/int-r8-compression-loss-and-disclosure.md:25-48,480-526`;
-formal findings `INT-R8-III-001`, `INT-R8-III-003`, `INT-R8-III-005` and
-`INT-R8-IV-001`.
+**Evidence:** `PRIMARY:25-48,480-526`; findings `INT-R8-III-001`,
+`INT-R8-III-003`, `INT-R8-III-005` and `INT-R8-IV-001`.
 
 The standing survives only after R1-R10. It authorizes no implementation or publication.
 
@@ -253,41 +221,41 @@ The standing survives only after R1-R10. It authorizes no implementation or publ
 
 | Finding ID | Severity | Pass | Determination | Evidence |
 | --- | --- | --- | --- | --- |
-| `INT-R8-I-001` | commendation | I | Delivery geometry, source file lengths and four-audience count are exact. | Exact compare; audited `int-r8/orientation-ledger.md:1-45`; pinned `projection_semantics.py:648-655,3758-3763`; `public_export.py:2098-2103`. |
-| `INT-R8-I-002` | material | I | `omitted_claim` is eight matched lines but nine literal occurrences; the ledger calls eight occurrences and its `text.count` recipe returns nine. | Audited `int-r8/orientation-ledger.md:45-102,137-197`; pinned `public_export.py:1690-1845`. |
-| `INT-R8-I-003` | commendation | I | The 67 runtime + 12 scientist + 27 remainder `may_not_use_for` partition is genuinely disjoint and totals 106 token-containing Python files. | Complete exact-token path searches at the pinned commit; audited `int-r8/orientation-ledger.md:25-44,103-136`. |
-| `INT-R8-I-004` | minor | I | Caller prose omits the validation tool and calls a definition/re-export “two callers”; no-HTTP conclusion survives. | Audited `int-r8/orientation-ledger.md:103-136`; whole-tree invocation set: `public_export.py`, two tools, two tests. |
-| `INT-R8-I-005` | commendation | I | Named budget/loss source absence is correctly qualified against GY-PA3 planning prose. | Audited `int-r8/orientation-ledger.md:65-80,103-136`; pinned GY plan GY-PA3; zero source-token results. |
-| `INT-R8-II-001` | commendation | II | Primary sources support bounded reasons, dissent, accessibility, deletion-manifest and output-checking propositions with honest transfer limits. | Audited `int-r8/external-source-and-transfer-ledger.md:25-170`; stable IDs 5 U.S.C. §§552/557, C2004A01697, C2004A02562, CELEX 32016L2102, ONS/ABS official guidance. |
-| `INT-R8-II-002` | minor | II | ONS SRS “12 June 2023” is not version-pinned; the living official download has advanced. | Audited `external-source-and-transfer-ledger.md:79-86`; official ONS SRS Output Checking Guidance page. |
-| `INT-R8-II-003` | minor | II | NSW dissent direction needs a dated/versioned full-text anchor for exact wording. | Audited `external-source-and-transfer-ledger.md:65-78`; official NSW MHRT Practice Direction General No. 2 locator. |
-| `INT-R8-II-004` | commendation | II | Differential-privacy composition is read correctly and not transferred by analogy. | Audited `external-source-and-transfer-ledger.md:100-150`; NIST SP 800-226 DOI `10.6028/NIST.SP.800-226`; Kairouz et al. arXiv:1311.0776/PMLR 37. |
-| `INT-R8-III-001` | commendation | III | Refusing a current canonical numerical disclosure claim is correct. | Audited primary report `:30-48,154-220`; reconstruction artifact `:25-75`; zero source owner/local guarantee/accountant. |
-| `INT-R8-III-002` | material | III | Randomization is overclaimed as necessary for every numerical framework; deterministic quantitative-information-flow channels exist. | Audited primary `:30-48,154-220`; reconstruction `:25-75`; Issa et al. DOI `10.1109/TIT.2019.2962804`. |
-| `INT-R8-III-003` | commendation | III | Exact singleton/non-uniqueness reconstruction is a genuinely number-free Boolean predicate. | Audited reconstruction `:75-190`; semantic contract `:120-205`. |
-| `INT-R8-III-004` | material | III | Approximate/heuristic reconstruction would introduce unowned thresholds or error quantities unless soundness is proved. | Audited reconstruction `:150-280`; falsifier handoff `:45-75,350-410`. |
-| `INT-R8-III-005` | commendation | III | Actual-prefix evaluation correctly handles adaptive release selection for a fixed versioned Boolean family. | Audited reconstruction `:215-315`; falsifiers F23-F24. |
-| `INT-R8-III-006` | material | III | “Complete actual transcript” is not scoped to a reproducible controlled release universe. | Audited primary `:210-290`; reconstruction `:280-436`; handoff ENG-01/ENG-05. |
-| `INT-R8-IV-001` | commendation | IV | `C(T)` and strict coalition reconstruction are correctly stated conditionally. | Audited reconstruction `:75-175`; primary `:55-85`. |
-| `INT-R8-IV-002` | material | IV | General decidability, empty-set behavior and realistic-scale executability are not established. | Audited reconstruction `:150-280`; primary claim of checkability at `:25-43`. |
-| `INT-R8-IV-003` | material | IV | Threat channels omit locale, syndication, network compression, discovery/index and proof metadata. | Audited reconstruction `:280-390`; primary `:390-430`; F11-F20. |
-| `INT-R8-IV-004` | commendation | IV | Existing channel coverage is unusually broad and rejects body-text-only review. | Audited reconstruction `:90-390`; primary `:360-430`. |
-| `INT-R8-V-001` | commendation | V | Bare `delta` and hidden negative terminals are correctly categorical, with no override path. | Audited semantic contract `:140-250`; falsifiers F02-F03; ratified `INT-K02`/`INT-K08`. |
-| `INT-R8-V-002` | material | V | Materiality, faithful condensation and constitutive procedural steps are not operationalized enough to decide the hardest case. | Audited semantic contract `:85-260`; falsifier F06/G04. |
-| `INT-R8-V-003` | material | V | Scanner, projection and receipt reason semantics are not reconciled into one canonical relation. | Audited semantic contract `:25-115`; falsifier F05; pinned `public_export.py:1685-1845`. |
-| `INT-R8-V-004` | minor | V | Reuse prose overstates a universal existing `limitations` field. | Audited primary `:230-310`; semantic contract `:25-65`; pinned `projection_semantics.py:350-425`. |
-| `INT-R8-V-005` | commendation | V | The receipt genuinely extends existing projection/public-export machinery and does not create a new lattice. | Audited semantic contract `:25-115`; pinned `projection_semantics.py:275-575`; `public_export.py:430-470,1685-1845`. |
-| `INT-R8-VI-001` | material | VI | F01-F25/G01-G05 are not equality-harness executable as written; at least thirteen families are disjunctive or bundled. | Audited `int-r8/falsifier-suite-and-integration-handoff.md:45-390`; comparison only: `INT-R7-V-001`. |
-| `INT-R8-VI-002` | commendation | VI | F04/F12/F19/F24/F25 and five green controls are unusually strong and prevent reject-all passage. | Audited falsifier suite `:90-150,225-390`. |
-| `INT-R8-VI-003` | material | VI | Five realistic channel attacks have no falsifier. | Audited falsifier suite `:170-350`; constructed attacks in formal audit Pass VI. |
-| `INT-R8-VII-001` | commendation | VII | `INT-K02`, `INT-K06`, `INT-K08`, `S0-K07` and `INT-K05` are applied in the correct direction. | Audited primary `:130-180`; semantic contract `:140-250`; ratified findings by ID. |
-| `INT-R8-VII-002` | commendation | VII | Exact prefix discipline respects `INT-K04`/`INT-K07` after narrowing the deterministic-number claim. | Audited reconstruction `:215-315`; ratified `INT-K04` and `INT-K07`. |
-| `INT-R8-VIII-001` | commendation | VIII | INT-R8 stays on the content side of the INT-R7 proof/key-lifecycle boundary. | Audited primary `:438-465`; handoff `:420-470`; parallel `INT-R7-VIII-001`. |
-| `INT-R8-VIII-002` | material | VIII | The proof interface omits load-bearing use, model, predicate, channel, coalition, rendering and completeness identities and must separate issuer authenticity from projection faithfulness. | Audited primary `:438-465`; handoff `:420-470`; parallel `INT-R7-VIII-003`. |
-| `INT-R8-IX-001` | blocking | IX | Capability labels upgrade research sketches beyond missing-state prerequisites; the refused accountant is miscast as pending engineering. | Audited primary `:430-480`; handoff `:390-486`; repository vocabulary; parallel `INT-R7-X-001`. |
-| `INT-R8-IX-002` | commendation | IX | Existing projection/public-export producers are not erased; semantic-test debt is attached to real rendered surfaces. | Audited orientation `:45-136`; primary `:85-140,430-480`; pinned source. |
-| `INT-R8-X-001` | commendation | X | All six artifacts carry effective research/prohibition frontmatter and appoint no owner or schema. | All 6/6 audited files, lines 1-24. |
-| `INT-R8-X-002` | commendation | X | `accepted_narrow_scope` is the correct substantive standing after required revisions. | Audited primary `:25-48,480-526`; findings III-001/003/005 and IV-001. |
+| `INT-R8-I-001` | commendation | I | Delivery geometry, source file lengths and four-audience count are exact. | Exact compare; `ORIENT:1-45`; `PROJECTION:648-655,3758-3763`; `PUBEXP:2098-2103`. |
+| `INT-R8-I-002` | material | I | `omitted_claim` is eight matched lines but nine literal occurrences; the ledger calls eight occurrences and its `text.count` recipe returns nine. | `ORIENT:45-102,137-197`; `PUBEXP:1690-1845`. |
+| `INT-R8-I-003` | commendation | I | The 67 runtime + 12 scientist + 27 remainder partition is disjoint and totals 106 token-containing Python files. | Complete exact-token path searches at the pinned commit; `ORIENT:25-44,103-136`. |
+| `INT-R8-I-004` | minor | I | Caller prose omits the validation tool and calls a definition/re-export “two callers”; no-HTTP conclusion survives. | `ORIENT:103-136`; whole-tree invocation set resolves to definition, two tools and two tests. |
+| `INT-R8-I-005` | commendation | I | Named budget/loss source absence is correctly qualified against GY-PA3 planning prose. | `ORIENT:65-80,103-136`; GY-PA3 plan entry; zero source-token results. |
+| `INT-R8-II-001` | commendation | II | Primary sources support bounded reasons, dissent, accessibility, deletion-manifest and output-checking propositions with honest transfer limits. | `SOURCE:25-170`; stable IDs 5 U.S.C. §§552/557, C2004A01697, C2004A02562, CELEX 32016L2102 and official ONS/ABS guidance. |
+| `INT-R8-II-002` | minor | II | ONS SRS “12 June 2023” is not version-pinned; the living official download has advanced. | `SOURCE:79-86`; official ONS SRS Output Checking Guidance page. |
+| `INT-R8-II-003` | minor | II | NSW dissent direction needs a dated/versioned full-text anchor for exact wording. | `SOURCE:65-78`; official NSW MHRT Practice Direction General No. 2 locator. |
+| `INT-R8-II-004` | commendation | II | Differential-privacy composition is read correctly and not transferred by analogy. | `SOURCE:100-150`; NIST SP 800-226 DOI `10.6028/NIST.SP.800-226`; arXiv:1311.0776/PMLR 37. |
+| `INT-R8-III-001` | commendation | III | Refusing a current canonical numerical disclosure claim is correct. | `PRIMARY:30-48,154-220`; `FORMAL:25-75`; zero source owner/local guarantee/accountant. |
+| `INT-R8-III-002` | material | III | Randomization is overclaimed as necessary for every numerical framework; deterministic quantitative-information-flow channels exist. | `PRIMARY:30-48,154-220`; `FORMAL:25-75`; Issa et al. DOI `10.1109/TIT.2019.2962804`. |
+| `INT-R8-III-003` | commendation | III | Exact singleton/non-uniqueness reconstruction is a genuinely number-free Boolean predicate. | `FORMAL:75-190`; `SEMANTIC:120-205`. |
+| `INT-R8-III-004` | material | III | Approximate reconstruction introduces unowned thresholds/error quantities unless soundness is proved. | `FORMAL:150-280`; `SUITE:45-75,350-410`. |
+| `INT-R8-III-005` | commendation | III | Actual-prefix evaluation handles adaptive release selection for a fixed versioned Boolean family. | `FORMAL:215-315`; `SUITE:310-350` (F23-F24). |
+| `INT-R8-III-006` | material | III | “Complete actual transcript” is not scoped to a reproducible controlled release universe. | `PRIMARY:210-290`; `FORMAL:280-436`; `SUITE:440-486` (ENG-01/ENG-05). |
+| `INT-R8-IV-001` | commendation | IV | `C(T)` and strict coalition reconstruction are correctly stated conditionally. | `FORMAL:75-175`; `PRIMARY:55-85`. |
+| `INT-R8-IV-002` | material | IV | General decidability, empty-set behavior and realistic-scale executability are not established. | `FORMAL:150-280`; `PRIMARY:25-43`. |
+| `INT-R8-IV-003` | material | IV | Threat channels omit locale, syndication, network compression, discovery/index and proof metadata. | `FORMAL:280-390`; `PRIMARY:390-430`; `SUITE:190-310` (F11-F20). |
+| `INT-R8-IV-004` | commendation | IV | Existing channel coverage is unusually broad and rejects body-text-only review. | `FORMAL:90-390`; `PRIMARY:360-430`. |
+| `INT-R8-V-001` | commendation | V | Bare `delta` and hidden negative terminals are categorical, with no override path. | `SEMANTIC:140-250`; `SUITE:95-135` (F02-F03); `RATIFY-INT:104-142,218-245`. |
+| `INT-R8-V-002` | material | V | Materiality, faithful condensation and constitutive procedural steps are not operationalized enough. | `SEMANTIC:85-260`; `SUITE:160-185,360-385` (F06/G04). |
+| `INT-R8-V-003` | material | V | Scanner, projection and receipt reason semantics are not reconciled into one canonical relation. | `SEMANTIC:25-115`; `SUITE:135-160` (F05); `PUBEXP:1685-1845`. |
+| `INT-R8-V-004` | minor | V | Reuse prose overstates a universal existing `limitations` field. | `PRIMARY:230-310`; `SEMANTIC:25-65`; `PROJECTION:350-425`. |
+| `INT-R8-V-005` | commendation | V | The receipt genuinely extends existing projection/public-export machinery and creates no new lattice. | `SEMANTIC:25-115`; `PROJECTION:275-575`; `PUBEXP:430-470,1685-1845`. |
+| `INT-R8-VI-001` | material | VI | F01-F25/G01-G05 are not equality-harness executable as written; at least thirteen families are disjunctive or bundled. | `SUITE:45-390`; comparison only: parallel finding `INT-R7-V-001`. |
+| `INT-R8-VI-002` | commendation | VI | F04/F12/F19/F24/F25 and five green controls are strong and prevent reject-all passage. | `SUITE:105-145,210-390`. |
+| `INT-R8-VI-003` | material | VI | Five realistic channel attacks have no falsifier. | `SUITE:170-350`; independently constructed attacks in the formal audit Pass VI. |
+| `INT-R8-VII-001` | commendation | VII | `INT-K02`, `INT-K06`, `INT-K08`, `S0-K07` and `INT-K05` are applied in the correct direction. | `PRIMARY:130-180`; `SEMANTIC:140-250`; `RATIFY-INT:104-245`; `RATIFY-S0:35-92`. |
+| `INT-R8-VII-002` | commendation | VII | Exact prefix discipline respects `INT-K04`/`INT-K07` after narrowing the deterministic-number claim. | `FORMAL:215-315`; `RATIFY-INT:143-218`. |
+| `INT-R8-VIII-001` | commendation | VIII | INT-R8 stays on the content side of the INT-R7 proof/key-lifecycle boundary. | `PRIMARY:438-465`; `SUITE:420-470`; parallel finding `INT-R7-VIII-001`. |
+| `INT-R8-VIII-002` | material | VIII | The proof interface omits load-bearing model/channel identities and must separate issuer authenticity from projection faithfulness. | `PRIMARY:438-465`; `SUITE:420-470`; parallel finding `INT-R7-VIII-003`. |
+| `INT-R8-IX-001` | blocking | IX | Capability labels upgrade research sketches beyond missing-state prerequisites; the refused accountant is miscast as pending engineering. | `PRIMARY:430-480`; `SUITE:390-486`; repository missing-state prerequisites; parallel finding `INT-R7-X-001`. |
+| `INT-R8-IX-002` | commendation | IX | Existing projection/public-export producers are not erased; semantic-test debt is attached to real rendered surfaces. | `ORIENT:45-136`; `PRIMARY:85-140,430-480`; `PROJECTION:275-575`; `PUBEXP:25-470`. |
+| `INT-R8-X-001` | commendation | X | All six artifacts carry effective prohibition frontmatter and appoint no owner or schema. | `PRIMARY:1-24`; `ORIENT:1-24`; `SOURCE:1-24`; `FORMAL:1-24`; `SEMANTIC:1-24`; `SUITE:1-24`. |
+| `INT-R8-X-002` | commendation | X | `accepted_narrow_scope` is the correct substantive standing after required revisions. | `PRIMARY:25-48,480-526`; findings III-001/003/005 and IV-001. |
 
 ## 7. Count reconciliation
 
@@ -306,22 +274,10 @@ The prose uses the same counts: **1 blocking, 11 material, 4 minor and 19 commen
 ## 8. Required revisions and adoption boundary
 
 The executable revision register is
-[`int-r8-recommended-revision.md`](int-r8-recommended-revision.md).
+[`int-r8-recommended-revision.md`](int-r8-recommended-revision.md). R1-R10 are required for
+standing; R11-R13 are improvements.
 
-Required for standing:
-
-1. recompute missing-state labels;
-2. correct the line/occurrence census;
-3. narrow the numerical-refusal theorem;
-4. bind exact/proved-conservative decidability and unknown outcomes;
-5. scope controlled transcript completeness;
-6. add the five missing channel families;
-7. operationalize materiality/constitutive steps;
-8. reconcile canonical reason semantics;
-9. make fixtures atomic and equality-ready; and
-10. complete the INT-R7 semantic binding and authenticity separation.
-
-Until those revisions are independently read back:
+Until R1-R10 are independently read back:
 
 - no present `CompressionLossReceipt` capability exists;
 - no public export is INT-R8-gated;

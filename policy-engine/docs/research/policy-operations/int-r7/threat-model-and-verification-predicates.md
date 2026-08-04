@@ -7,6 +7,7 @@ repository: https://github.com/DenisKopylov/polisyos
 repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -755,3 +756,190 @@ This ordering prevents a mathematically valid signature from masking a more impo
 ## 14. Threat-model conclusion
 
 The decisive security property is not “Ed25519 verification succeeds.” It is the conjunction of exact statement binding, institutional authority-at-time, trusted chronology, witnessed append-only publication, canonical epoch/currentness, INT-R8 projection relation, and timely preserved migration evidence. Each layer has a distinct assumption and a distinct failure outcome. That separation is what makes `withdrawn-but-verifiable`, post-compromise recovery, split-view detection, organizational succession, and twenty-year offline verification representable without rewriting history.
+
+## 15. Post-audit controlling decomposition
+
+This section supersedes the aggregate definitions in §§7–8 and every later use of `HistoricalAuthenticity` as a single conjunction. It executes `R1`, `R2`, `R3`, `R4`, `R15`, and `R16`. Earlier formulas remain visible as the audited history; they are not the amended contract.
+
+### 15.1 Result algebra and truth discipline
+
+Every dimension returns one of three semantic evidence results unless a narrower result is stated:
+
+- `established` — the supplied evidence proves the bounded proposition under the named policy;
+- `contradicted` — authenticated evidence disproves the proposition;
+- `not_established` — evidence is missing, unavailable, conflicting, unsupported, or cannot safely decide.
+
+`not_established` is never silently converted to `contradicted`. This preserves the difference between **what happened** and **what a verifier can presently prove**. Loss of a witness snapshot or preservation link may make durable/public verification unavailable; it does not rewrite the issuer's historical act.
+
+The dimensions are **separately reportable**, not logically independent.
+
+### 15.2 Issuer-side statement and issuance
+
+```text
+IssuerStatementComplete(R) :=
+    CanonicalStatementRecognized
+  ∧ ContentBound
+  ∧ ClaimClassBound
+  ∧ AudienceBound
+  ∧ JurisdictionBound
+  ∧ AuthorityBoundaryBound
+  ∧ EpochBound
+  ∧ (claim_class != delta ∨ BasisBound)
+  ∧ (claim_class != procedural ∨ ProceduralHistoryBound)
+```
+
+`ProjectionRelationValid` is deliberately absent from this issuer-side definition.
+
+```text
+IssuerIssuanceAuthentic(R, t_s) :=
+    IssuerStatementComplete(R)
+  ∧ SignatureValid
+  ∧ SignerCredentialValidAtIssuance
+  ∧ AuthorityValidAtIssuance
+  ∧ TrustedIssuanceTimeEstablished
+  ∧ PreCompromiseOrRevocationEstablished
+```
+
+A post-revocation signature with valid signature mathematics returns:
+
+- `SignatureValid = established`;
+- `PreCompromiseOrRevocationEstablished = contradicted`;
+- `IssuerIssuanceAuthentic = contradicted`;
+- terminal `ISSUANCE_TEMPORALLY_UNAUTHORIZED`.
+
+It is not classified as content tamper or mathematical signature failure.
+
+### 15.3 Projection, public history and durable verification
+
+```text
+ProjectionFaithful(R, P8) :=
+    INT_R8_result_is_independently_admitted
+  ∧ ProjectionRelationValid
+  ∧ source_revision_bound
+  ∧ audience_bound
+  ∧ retained_item_set_bound
+  ∧ typed_omission_classes_and_reasons_bound
+  ∧ loss_verdict_and_rule_version_bound
+  ∧ transcript_head_bound
+  ∧ redaction_transformation_well_defined
+  ∧ permitted_redaction_preserves_verifiability
+  ∧ dropped_content_not_exposed_by_proof_metadata
+```
+
+INT-R8 has been delivered at `90b372964d29a9e97605a6ef733ef03ffe7938d2`, but it is unaudited. Therefore `ProjectionFaithful` remains hypothetical and unsatisfied in this amendment. Its provisional interface comparison is in `repository-integration-and-dependencies.md` §11.3.
+
+```text
+PublicHistoryEstablished(R) :=
+    LogIncluded
+  ∧ LogAppendOnlyConsistent
+  ∧ WitnessPolicySatisfied
+  ∧ CommonViewEstablished
+```
+
+```text
+DurablyVerifiableAt(R, t_v) :=
+    OriginalBytesRetained
+  ∧ ValidationMaterialComplete
+  ∧ PreservationChainValid
+  ∧ AlgorithmPolicySatisfied
+  ∧ VerifierClosureComplete
+```
+
+Failure of `ProjectionFaithful`, `PublicHistoryEstablished`, or `DurablyVerifiableAt` blocks the corresponding public/durable reliance result while leaving `IssuerIssuanceAuthentic` separately visible.
+
+### 15.4 Snapshot selection and anti-rollback
+
+An authentic status snapshot is not automatically the snapshot a verifier is entitled to use. Report a separate selection result:
+
+- `latest_established_under_policy` — authenticated monotonic evidence establishes that no later applicable snapshot is being suppressed;
+- `supplied_snapshot_only` — the supplied snapshot is authentic, but latest-applicable status is not established;
+- `rollback_detected` — authenticated evidence shows a later applicable snapshot or head;
+- `not_established` — selection cannot be decided.
+
+```text
+CurrentAuthorityAsOf(R, t_q) :=
+    GY_N12_interface_independently_admitted
+  ∧ StatusSnapshotAuthentic
+  ∧ StatusSnapshotSelection = latest_established_under_policy
+  ∧ CurrentAuthorityAtAsOf
+  ∧ ¬StaleAtAsOf
+  ∧ ¬WithdrawnAtAsOf
+  ∧ ¬SupersededAtAsOf
+  ∧ permitted_by_canonical_challenge_policy
+```
+
+A historical query may use an authentic older snapshot as an explicit historical coordinate, but it cannot call that result latest/current. GY-N12 remains contract-only/planned; `CurrentAuthorityAsOf` is therefore hypothetical and unsatisfied.
+
+### 15.5 Public evidence obtainability
+
+A verifier also reports how a citizen can obtain the evidence needed for the requested evaluation:
+
+- `public_available` — the permitted proof closure is directly obtainable;
+- `records_process_available` — a competent records/access process can supply the permitted evidence;
+- `competently_restricted` — a competent authority lawfully withholds identified evidence and exposes the restriction, route and effect on verification;
+- `not_established` — no dependable acquisition route is evidenced.
+
+`EvidenceObtainability` is not part of signature mathematics or issuer issuance. A proof may exist but be practically unobtainable. A public surface must not claim independent citizen verifiability when the result is `competently_restricted` or `not_established`; it must display the restriction or acquisition failure separately.
+
+### 15.6 Top-level conjunctions
+
+```text
+TechnicallyVerifiedCurrent(R, t_v, t_q) :=
+    IssuerIssuanceAuthentic(R, t_s) = established
+  ∧ ProjectionFaithful(R, P8) = established
+  ∧ PublicHistoryEstablished(R) = established
+  ∧ DurablyVerifiableAt(R, t_v) = established
+  ∧ CurrentAuthorityAsOf(R, t_q) = established
+  ∧ freshness_claim_is_bounded_to(t_q)
+```
+
+```text
+PubliclyVerifiableCurrent(R, t_v, t_q) :=
+    TechnicallyVerifiedCurrent(R, t_v, t_q)
+  ∧ EvidenceObtainability ∈ {public_available, records_process_available}
+```
+
+The public UI may retain `VERIFIED_CURRENT_AS_OF` as a human label only for `PubliclyVerifiableCurrent`, with all five dimensions and obtainability visible in the machine result.
+
+For a withdrawn record, report a vector rather than collapsing history:
+
+```text
+WithdrawnButVerifiableReport(R, t_v, t_q) :=
+    IssuerIssuanceAuthentic(R, t_s) = established
+  ∧ DurablyVerifiableAt(R, t_v) = established
+  ∧ StatusSnapshotAuthentic
+  ∧ StatusSnapshotSelection = latest_established_under_policy
+  ∧ WithdrawnAtAsOf
+  ∧ ¬CurrentAuthorityAtAsOf
+```
+
+`ProjectionFaithful` and `PublicHistoryEstablished` remain separately reported. A public withdrawn outcome requires them for the public projection/history being shown; their failure does not retroactively negate issuer issuance.
+
+The superseded report follows the same structure and additionally requires an authenticated, non-substitutive successor relation.
+
+### 15.7 Added adversarial obligations
+
+The threat model now explicitly requires exact falsifiers for:
+
+1. signer and timestamp authority collusion with no independent chronology;
+2. selection of an older but authentic currentness snapshot;
+3. two conflicting, individually valid succession claims;
+4. parser/canonicalization differentials across conforming consumers; and
+5. selective withholding of a negative/refusal terminal from a procedural history.
+
+These are mandatory suite families in `INT-R7-PV-FALSIFIERS-v2`. The fifth attack is load-bearing for `INT-K06`: a claim about a history fails when a required step of that history is selectively withheld.
+
+### 15.8 F-08 consequence
+
+For a split-view log fixture:
+
+- `IssuerIssuanceAuthentic = established` when issuer-side evidence passes;
+- `PublicHistoryEstablished = not_established` or `contradicted` according to the witness evidence;
+- `TechnicallyVerifiedCurrent = false`;
+- no public-current positive is permitted.
+
+The common-view failure does not erase issuer-side issuance.
+
+### 15.9 Anti-wire-format warning
+
+The dimension names, evidence-result words and formulas above specify propositions and conformance behavior. They do not prescribe an enum, JSON object, API response, database schema or package format. A semantically equivalent representation is allowed if it preserves all five dimensions, snapshot selection, evidence obtainability and exact failure visibility.

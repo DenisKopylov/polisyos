@@ -76,6 +76,8 @@ presence, checksum integrity, or schema compatibility.
 | P32 | Trust-by-form (presence/shape/string/keyword/self-attestation = permission; absence = permission) | Resolve-bind-verify evidence intake, fail closed on absence | Does an authority/promotion/Ring-2 decision admit evidence because a ref/field is PRESENT, well-SHAPED, name/keyword-matched, or self-stamped with a verifier role — or because it RESOLVES to a committed artifact, CONTENT-BINDS by hash to THIS claim/graph/program/port, and carries VERIFIER (non-producer) provenance? Does absence grant, or fail closed? | Admit evidence for an authority decision only via resolve + content-bind + verifier-provenance; presence/shape/keyword/string/inline/self-attestation is not evidence; unresolved/mismatched/missing → cap/block, never grant. This operationalizes P05/P10/P15 for reference-based evidence and is the unifying root behind `model_construct` bypass, synthetic-as-measurement, `no_authority->allowed`, keyword-feedback, and presence-of-ref laundering. |
 | P33 | Witness-as-spec / teaching-to-the-test | Property fix + adversarial-variant self-generation | Does the fix make the EXACT acceptance/audit probe pass while a near-variant (synonym, malformed input, present-but-fake ref, cross-bound id, another consumer) re-breaks it? Is the probe being treated as the specification? | Fix the general property the probe samples, not the probe. Before claiming done, self-generate and pass adversarial variants of every probe (synonym, malformed, present-but-fake, partial-bind, sibling consumer). An audit probe is a witness, never the spec. |
 | P34 | Premature-green via uncompleted exclusion | Completed isolation before exclusion | Is a failing test/lane excluded by calling it "honest-empty" or "unrelated / pre-existing dirty worktree" WITHOUT a completed revert/stash isolation proof? Could the change itself have caused it, or is a broken downstream state (inconsistent manifest, blocked-used-as-conversion) being asserted honest? | Complete the isolation — revert/stash only the change and confirm the failure is independent — before excluding it. Prove an "honest" downstream state is actually honest (consistent top==summary status, no laundering), not merely relabeled from a fail. |
+| P35 | Sampled-denominator generalization | Full-set enumeration by script | Is a SET-LEVEL fact (a count, a distribution, "all of them are X", "the field is always null") derived from opening one member, a truncated `grep -A N`, or a frontmatter summary — rather than from walking the whole set? Would the claim change if the set had one more member than you looked at? | Produce every set-level fact with a script that walks the complete set and prints the denominator, then quote the denominator with the fact. Never generalize from a sampled member, and never let a truncated context window define a set boundary. Applies to enums, registries, manifests, pools, finding registers, and file censuses alike. |
+| P36 | Authority by adjacency | Cite the finding by ID, not the prose around it | Is a downstream document relying on a sentence from an authoritative source that was NOT the source's finding — an aside, a motivating example, an explanatory paraphrase — and treating it as carrying the source's authority? Can you name the finding ID that the relied-upon statement IS? | Cite the finding by its ID and reproduce set-level and arithmetic claims from the pinned owner rather than from the citing document. A document is authoritative only for what it establishes; the prose around a finding carries the document's tone, not its warrant. When correcting such a chain, follow every dependent BINDING (grep the key/ID), not only the narrative that reads wrong. |
 
 Notes:
 
@@ -114,6 +116,28 @@ Notes:
   resolve+content-bind+verifier-provenance, and self-generate adversarial variants before
   declaring done. P34 is the partner: do not let an excluded "honest/unrelated" failure
   close the loop without a completed isolation.
+- P35 and P36 are **research/review-process** patterns, added 2026-08-04 from the
+  INT-R1/R9/R10 wave. They look similar and are not: they have different causes and
+  different closure moves, which is why they are two rows.
+  **P35 is about denominators.** Three orientation packs in that wave asserted set-level facts
+  measured from one sampled member — an enum said to have 14 members had 15 (a truncated
+  `grep -A 16` cut the last one), a field said to be uniformly null was null in 11 of 15
+  manifests, and an authority label read off one file was three labels across fifteen.
+  Every instance came from generalizing a sample. The fix is mechanical: walk the whole set
+  with a script and print the denominator.
+  **P36 is about warrant.** An independent audit correctly established that the ledger has no
+  cross-scope composition. In explaining *why* that mattered, it wrote in passing that three
+  scopes each open "with a fresh δ" — an aside, not a finding, and arithmetically wrong: it
+  conflates a scope's root budget with what a check allocates under a telescoping schedule.
+  Three downstream documents, including this project's own gap register, adopted the aside as
+  established, and the chain reached four substantive documents before a later audit
+  enumerated the live registry and refuted it. No enumeration would have caught this, because
+  the failure was not a denominator — it was inherited warrant. The fix is to cite the finding
+  by ID and recompute arithmetic from the pinned owner.
+  **Corollary, learned when correcting that chain:** repairing the narrative is not repairing
+  the binding. A correction that fixes the prose but leaves `bound_*` frontmatter keys, YAML
+  headers, or ID references pointing at the superseded artifact has not landed. Follow the
+  correction by grepping the KEY, not by reading for what sounds stale.
 
 ## Grounding Anchors
 
@@ -154,6 +178,8 @@ plans, or backlog docs.
 | P30 | `src/polisyos/runtime/quality/workspace/loop.py`, `workspace/foundry_consumption.py`, `workspace/agent_proposal_bridge.py`, `workspace/scientist_node_adapters.py`, `proving_ground/bounded_request_agent.py`, `adapter_contracts.py`, `semantic_binding.py`, `data_forge_binding.py`; the 124-file `src/polisyos/runtime/quality/` namespace |
 | P31/P32/P33 | `src/polisyos/runtime/quality/design_axes/coupling_composition.py` (GY-G: `resolve_bind_verify` single intake, the `verified_evidence` collection, and the single authority-emission chokepoint + guard) vs the per-site patches that kept reopening on the next consumer (consistency -> P14 -> cert -> emergent grounding -> SubDesignContract port intake); `src/polisyos/pdc/_impl/gy_waist.py` `assert_ring2_verifier_provenance` (Phase-0 boundary check the composition gate must reuse) |
 | P34 | the GY-G G5 exclusion (`layer3_proving_ground_conversion.py` no-governed-input terminal — asserted honest, was laundering blocked-as-conversion) and the canary/public-export exclusion (`runtime/quality/public_export.py` dirty worktree — only confirmed unrelated after a completed stash isolation) |
+| P35 | `src/polisyos/pdc/_impl/gy_waist.py` `PromotionObligationClass` (15 members, reported as 14 from a truncated `grep -A 16`); the fifteen INT-R9 manifests (`calibration_round_id` null in 11 of 15, not all; `authority_level` = 5 production / 6 governed / 4 research, not one value); `architecture/production_quality/confidence_ledger.toml` (13 instruments vs 5 proof profiles, conflated in one orientation) |
+| P36 | the `3δ` chain: the INT-R9 independent audit's aside about "a fresh δ" propagated into `docs/plans/active/layer3-slices/GY-engine-subordination.md` (GY-GAP2, Rev 23), the original INT-R10 research and its fixture, and the INT-R9 amendment summary, before the INT-R10 audit enumerated `confidence_ledger.py`'s Basel-square allocation and refuted it (corrected in Rev 24); the incomplete-rebinding corollary is the `bound_int_r10_commit` key surviving in five INT-R9 frontmatters plus a YAML header after the narrative was corrected (closed in `65b0beb72`) |
 
 ## Repair Priority
 
@@ -176,6 +202,8 @@ plans, or backlog docs.
 - Do not commit a proof, benchmark, capability, or closure artifact without checking P29: it must be emitted by the real run, recomputed by its validator from live code/artifacts, and measured on a representative substrate (or marked `surface_out_of_scope`); confirm the drift/self-check itself fails on a corrupted artifact.
 - Do not fix an authority/promotion/gate/admission defect site-by-site without checking P31/P32: close the whole class with one structural invariant (single intake + single emission), admit evidence only by resolve+content-bind+verifier-provenance (never presence/shape/keyword/self-attestation), and grep that every sibling consumer/intake routes through it.
 - Do not declare a fix done by passing the named probe without checking P33/P34: fix the property and self-generate adversarial variants (synonym, malformed, present-but-fake, sibling consumer); do not exclude a failing test as "honest/unrelated" without a completed revert/stash isolation.
+- Do not state a set-level fact — a count, a distribution, a "the field is always X" — in a context pack, orientation, audit, review, or plan annotation without checking P35: derive it from a script that walks the complete set, and quote the denominator alongside the fact.
+- Do not rely on a statement from an authoritative document without checking P36: name the finding ID it is, or reproduce it from the pinned owner. When correcting an inherited claim, grep the binding key and fix every dependent reference, not only the prose that reads wrong.
 - Do not touch compatibility roots or imports without checking P06.
 - Do not change admissibility, taxonomy, claim-support, or closeout logic without checking P04, P07, P08, and P10.
 - Do not change monitoring, DDM, invalidation, reissue, or calibration behavior without checking P01, P02, P07, P08, and P09.

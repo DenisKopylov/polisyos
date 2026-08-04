@@ -3,11 +3,15 @@ title: "INT-R8 external primary-source and transfer ledger"
 research_id: INT-R8
 artifact_role: source-and-transfer-ledger
 status: accepted_narrow_scope
+amendment_conformance: pending_independent_verification
 research_only: true
 repository: DenisKopylov/polisyos
 baseline_ref: main
 baseline_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
+audited_head: 90b372964d29a9e97605a6ef733ef03ffe7938d2
 prepared_at: 2026-08-04
+source_as_of: 2026-08-04
+amended_after_audit: research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2
 may_not_use_for:
   - production_implementation_authorization
   - final_wire_schema_package_database_serialization_or_api_contract
@@ -24,180 +28,182 @@ may_not_use_for:
 
 # INT-R8 external primary-source and transfer ledger
 
-## 1. Scope and source-selection rule
+## 0. Controlling amendment notice
 
-This ledger grounds INT-R8 in official law, official administrative/statistical practice and primary mathematical literature. It does not conclude that PolicyOS complies with any jurisdiction or that an institution is competent to issue a governed result.
+This source ledger executes R3 and R12. It preserves the audited source corpus and transfer limits,
+corrects two mutable-source custody defects, and adds deterministic quantitative-information-flow
+families that the audited version omitted.
 
-Source priority was:
+No source below establishes that PolicyOS complies with a jurisdiction, that any institution is
+competent to publish, or that any numerical disclosure value is presently justified.
 
-1. enacted law or official consolidated legislation;
-2. official tribunal/agency practice direction or release rule;
-3. official statistical-institute guidance;
-4. primary peer-reviewed or official technical publication.
+## 1. Source-selection and version-custody rule
 
-Secondary commentary was used only to locate primary material and is not relied on for the recommendations.
+Priority remains:
 
-## 2. Primary source ledger
+1. enacted or officially consolidated law;
+2. official tribunal, agency, or statistical-institute practice;
+3. primary peer-reviewed or official technical literature.
 
-### 2.1 United States — reasons, disclosure and plain language
+For mutable web guidance, this ledger records an `as_of` date and narrows the proposition to what
+was independently readable on that date. A living page is not silently represented as a frozen
+historical edition.
 
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
+Resolution vocabulary:
+
+- `stable` — statute, DOI, CELEX, arXiv, Federal Register ID, or official fixed file path;
+- `living_as_of_2026-08-04` — official page/download whose proposition was checked as of that date;
+- `historical_edition_not_pinned` — the old edition named in v1 cannot be reproduced from a stable
+  identifier and is not used as current evidence; and
+- `candidate_future_model` — mathematically real, but no PolicyOS model or owner is established.
+
+## 2. Public-administration, access, reasons, and accessibility sources
+
+| ID | Stable identifier / custody | Proposition used | Transfer to INT-R8 | Non-transfer boundary |
+|---|---|---|---|---|
+| US-APA-557 | 5 U.S.C. § 557(c)(3)(A), official U.S. Code; `stable` | Covered formal adjudication decisions state findings/conclusions and reasons or basis on material issues. | Material findings and reasons are candidate mandatory semantics. | Not a universal duty for every PolicyOS record. |
+| US-FOIA-552 | 5 U.S.C. § 552(b), final paragraph; `stable` | Reasonably segregable material is released after exempt deletion; amount/place of deletion is generally indicated unless that indication harms the protected interest. | Supports typed omission and the rule that a manifest may itself need safe coarsening. | No direct FOIA applicability or requirement to expose self-disclosing metadata. |
+| US-PWA-2010 | Plain Writing Act, Pub. L. 111-274, 124 Stat. 2861, GovInfo `PLAW-111publ274`; `stable` | Covered federal documents use clear communication the public can understand and use. | Supports faithful plain-language condensation. | Readability does not authorize loss of basis, limitations, dissent, or negative outcomes. |
+| AU-ADJR-1977 | Administrative Decisions (Judicial Review) Act 1977 (Cth), Federal Register `C2004A01697`, s 13; `stable` | A qualifying requester may obtain material factual findings, evidence/material references, and reasons, subject to exceptions. | Supports reasons and contestability as load-bearing. | Not a universal reasons format or legal-sufficiency finding. |
+| AU-FOI-1982 | Freedom of Information Act 1982 (Cth), Federal Register `C2004A02562`; `stable` | Official access, exemption, review, and complaint structures coexist. | Supports layered access plus honest visible summary. | Access control/exemption does not itself prove compression parity. |
+| NSW-MHRT-PD-G2 | NSW MHRT official file `files/mhrt/pdf/GeneralNo2-Dissenting Opinions.pdf`, official index last-modified 2025-03-24, checked 2026-08-04; `living_as_of_2026-08-04` | The Tribunal maintains a formal General No. 2 practice direction dedicated to dissenting opinions. | Supports treating dissent as a formally governed decision artifact rather than informal noise. | V1's exact three-member/material-matter/signed-and-dated wording is not relied upon here without a content digest or fixed edition text; no universal identity/publication rule follows. |
+| EU-WAD-2016 | Directive (EU) 2016/2102, CELEX `32016L2102`, ELI `dir/2016/2102/oj`; `stable` | Public-sector websites and apps are subject to accessibility requirements and monitoring/statement duties. | Critical caveats must survive accessible and alternate representations. | The Directive does not define PolicyOS semantic parity. |
+| EUIPO-BOA-SUMMARY | EUIPO Boards of Appeal official decisions/overview page, checked 2026-08-04; `living_as_of_2026-08-04` | Selected summaries are informational and may not reproduce exact wording; case references lead to decisions. | Supports explicit summary status and authoritative pointer. | A pointer/notice does not cure materially misleading visible prose. |
+
+## 3. Statistical disclosure-control sources
+
+| ID | Stable identifier / custody | Proposition used | Transfer to INT-R8 | Non-transfer boundary |
+|---|---|---|---|---|
+| UK-ONS-SDC | ONS official “Statistical disclosure control” policy page, checked 2026-08-04; `living_as_of_2026-08-04` | Outputs for publication or specific recipients are checked for disclosure risk and controlled as required; assessment is contextual. | Every audience view/version/export is a release event and prior outputs matter. | No exhaustive theorem for narrative policy records. |
+| UK-ONS-SRS-CURRENT | ONS “Supporting your research project” / output, ingest and transfer guidance plus current related `SRS Output Checking Guidance Document`, checked 2026-08-04; `living_as_of_2026-08-04` | Material leaving the SRS is an output request subject to checking; request files are retained for stated periods. | Supports prospective actual-output review and custody of release requests. | The audited “12 June 2023” edition is not treated as the current fixed edition. Risk classes or thresholds must be cited to a pinned edition before exact import. |
+| UK-ONS-SRS-2023-HIST | V1 label “SRS Output Checking Guidance Document, 12 June 2023”; `historical_edition_not_pinned` | Historical proposition only: an official guidance edition existed. | Preserved as audit history. | It is not current authority and supplies no exact quoted rule until an official archive/digest is bound. |
+| AU-ABS-DATALAB | ABS DataLab Clearance official guidance, checked 2026-08-04; `living_as_of_2026-08-04` | Outputs require ABS approval before leaving DataLab; users apply output rules and provide evidence. | Supports pre-release checking of actual candidate output. | Not a numerical PolicyOS budget. |
+| AU-ABS-OUTPUT-RULES | ABS DataLab Output Rules / detailed examples, checked 2026-08-04; `living_as_of_2026-08-04` | Official examples use contributor thresholds and differencing/secondary-disclosure checks. | Supplies rule-of-N and cumulative-output comparators. | The number 10 is not imported as a universal threshold or legal guarantee. |
+
+### R12 disposition
+
+The mutable ONS and NSW items now have explicit custody:
+
+- the current ONS proposition is tied to the living official page/download as of 2026-08-04;
+- the former 12 June 2023 label is marked historical and unpinned rather than silently current;
+- the NSW item is tied to the official file path and index modification date; and
+- the NSW proposition is narrowed to the existence and subject of the formal dissent practice
+  direction. Exact internal wording requires a fixed byte digest or edition before stronger use.
+
+## 4. Differential privacy and quantitative-information-flow sources
+
+| ID | Stable identifier | Primary proposition used | INT-R8 disposition |
 |---|---|---|---|
-| US-APA-557 | **5 U.S.C. § 557(c)(3)(A)** | An agency decision in the covered formal-adjudication setting must include findings and conclusions, and the reasons or basis, on all material issues of fact, law or discretion presented on the record. | “Material reasons” and material issues are not optional explanatory garnish. Compression that removes a basis necessary to understand or challenge the result is blocked. Scope is limited to the statute's covered setting; it is not treated as a universal global rule. |
-| US-FOIA-552 | **5 U.S.C. § 552(b), final paragraph (segregability/deletion indication)** | A reasonably segregable portion must be provided after exempt portions are deleted; the amount of information deleted and the place of deletion generally must be indicated unless doing so would harm the protected interest. | Supports redaction-with-manifest and the important qualification that even omission metadata may be too revealing. Transfers as design logic, not a determination that a PolicyOS release is legally subject to FOIA. |
-| US-PWA-2010 | **Plain Writing Act of 2010, Pub. L. 111-274, 124 Stat. 2861** | Covered federal documents should use clear communication that the public can understand and use. | Supports shorter/plain-language rendering, but not semantic deletion. Accessibility/readability and reasons fidelity must be jointly satisfied. |
+| NIST-DP-800-226 | NIST SP 800-226 (2025), DOI `10.6028/NIST.SP.800-226` | DP guarantees depend on correctly specified neighboring inputs, mechanisms, parameters, implementation, and threat assumptions. | Premise-audit source; no DP label by analogy. |
+| DP-COMPOSITION-2015 | Kairouz, Oh, Viswanath, PMLR 37:1376-1385; arXiv `1311.0776` | Composition characterizes privacy degradation for mechanisms already satisfying local DP guarantees, including adaptive interaction under its premises. | Valid theorem family; current PolicyOS editorial projection has no local DP contract/accountant. |
+| MAX-LEAKAGE-2020 | Issa, Wagner, Kamath, DOI `10.1109/TIT.2019.2962804`; arXiv `1807.07878` | Maximal leakage measures multiplicative guessing improvement through a channel. | Demonstrates that a numerical leakage framework is not excluded by deterministic channel semantics alone. No current PolicyOS secret/channel model exists. |
+| QIF-MINENTROPY-2009 | Geoffrey Smith, “On the Foundations of Quantitative Information Flow,” FoSSaCS 2009, DOI `10.1007/978-3-642-00596-1_21` | Min-entropy vulnerability/leakage quantifies adversarial guessing under a declared secret distribution and channel. | Candidate deterministic or probabilistic QIF model; no canonical PolicyOS prior/support/channel. |
+| QIF-GLEAKAGE-2012 | Alvim, Chatzikokolakis, Palamidessi, Smith, IEEE CSF 2012, DOI `10.1109/CSF.2012.26`, HAL `hal-00734044v1` | Generalized gain functions model different adversary benefits and induce g-leakage/capacity relations. | Shows that the gain function is a load-bearing model choice. PolicyOS has no competent canonical gain package. |
+| MAX-ALPHA-2019 | Liao, Kosut, Sankar, Calmon, IEEE TIT 65(12):8043-8066, DOI `10.1109/TIT.2019.2935768`; arXiv `1809.09231` | Maximal-alpha leakage interpolates information-leakage objectives, has data processing and sub-additivity supporting a weak composition result. | Candidate numerical family for deterministic or randomized channels under its assumptions; no local value or applicable composition owner exists in PolicyOS. |
+| STAT-MAX-LEAKAGE-2026 | Wang, Lin, Fanti, “Statistic Maximal Leakage,” Entropy 28(7):819, DOI `10.3390/e28070819`; arXiv `2411.18531` | Measures leakage about a specified statistic, has composition/post-processing properties, and analyzes efficient computation for deterministic release mechanisms. | Direct counterexample to “determinism makes numerical leakage impossible.” It does not define the statistic, prior/support, channel, or owner for PolicyOS. |
 
-Canonical official locations: U.S. House Office of the Law Revision Counsel for 5 U.S.C. §§ 552 and 557; GovInfo package `PLAW-111publ274` for the Plain Writing Act.
+## 5. Corrected R3 theorem and transfer test
 
-### 2.2 Australia — reasons, access and dissent
+### 5.1 What is established
 
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
+The repository cannot currently issue a canonical numerical disclosure-composition claim because
+no established source contract supplies the complete premises of any surveyed quantitative model:
+
+- declared protected secret or statistic;
+- release channel, including side channels and history;
+- support or prior assumptions where required;
+- adversary gain/loss objective;
+- local leakage or privacy guarantee valid for the actual release mechanism;
+- prospective allocation or acceptance rule;
+- composition theorem applicable to the history-selected sequence;
+- canonical owner able to reproduce membership, chronology, model versions, local values, and
+  aggregate result; and
+- authority boundary preventing the number from becoming a compliance or publication claim.
+
+Therefore the controlling conclusion is:
+
+> No canonical numerical disclosure-composition claim is justified for the current PolicyOS
+> release path under any model established in the repository.
+
+### 5.2 What is not established
+
+The amendment withdraws the broader claim that randomization is necessary for every numerical
+leakage framework. Randomization is a defining premise of differential privacy's probabilistic
+comparison. It is not an eliminating property for maximal leakage, maximal-alpha leakage,
+statistic maximal leakage, min-entropy leakage, or generalized-gain QIF.
+
+No new number is issued. These families become specified future research doors, not current
+capabilities.
+
+## 6. Comparative-model transfer ledger
+
+| Imported family | Transfers now | Does not transfer now | What would settle future use |
 |---|---|---|---|
-| AU-ADJR-1977 | **Administrative Decisions (Judicial Review) Act 1977 (Cth), Act No. 59 of 1977, Federal Register ID C2004A01697, s 13** | A person entitled to seek review may request a written statement of findings on material questions of fact, reference to evidence/material, and reasons, subject to statutory exceptions. | Reinforces that findings, evidence basis and reasons are contestability infrastructure. A public summary may be shorter, but cannot silently replace the actual basis with a favorable conclusion. |
-| AU-FOI-1982 | **Freedom of Information Act 1982 (Cth), Act No. 3 of 1982, Federal Register ID C2004A02562** | Establishes an official-access regime with exemptions, review and publication structures. | Supports a layered model: lawful withholding and public access coexist. Access control/exemption does not justify an unreceipted misleading summary. No legal-coverage conclusion is drawn for PolicyOS. |
-| NSW-MHRT-PD-G2 | **NSW Mental Health Review Tribunal, Practice Direction General No. 2 — Dissenting Opinions** | For a three-member panel, a dissent on a material matter relevant to determination is formally recorded; the dissenting member's reasons are signed and dated. | Directly supports retaining the existence and material subject of dissent and preserving its custody. It does not imply that every committee in every jurisdiction must publish personal identity or full confidential text. |
+| DP | Neighbor/mechanism/local-guarantee/accountant premise checklist | Epsilon/delta for editorial projections | A bounded statistical release contract with tested local DP guarantees and adaptive accountant. |
+| Maximal leakage | Explicit secret/channel/guessing objective and view-synergy analysis | Current scalar or universal legal/privacy meaning | Canonical secret/channel/support model, local computation, composition semantics, and owner. |
+| Maximal-alpha leakage | Tunable adversary objective, data processing, model-specific weak composition | Automatic summation or one alpha for heterogeneous harms | Competently selected alpha/loss semantics, local channel values, and applicable composition rule. |
+| Statistic maximal leakage | A named protected statistic can be analyzed even for deterministic release | Treating every policy-record harm as one statistic | A canonical statistic family, prior/support semantics, deterministic channel model, and owner. |
+| Min-entropy leakage | Worst-case guessing vulnerability under declared distribution/channel | Distribution-free exact reconstruction or universal risk score | Justified prior/support and channel; otherwise retain exact consistency-set Boolean analysis. |
+| Generalized-gain leakage | Explicitly model what the adversary values | One self-evident gain function for citizens, insiders, reviewers, or institutions | Competent gain-package governance and separate reporting for heterogeneous harms. |
+| Exact consistency sets | Distribution-free exact uniqueness/non-uniqueness test | Approximate/high-confidence leakage or protection against unknown auxiliary data | Finite/decidable model or proved-conservative abstraction, protected predicates, and declared release family. |
 
-### 2.3 European Union — accessible official communication and decision summaries
+## 7. Legal and administrative transfer ledger
 
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
-|---|---|---|---|
-| EU-WAD-2016 | **Directive (EU) 2016/2102, CELEX 32016L2102, ELI `dir/2016/2102/oj`** | Public-sector websites and mobile applications are subject to accessibility requirements and related monitoring/statement mechanisms. | Accessibility is part of the release contract. Critical caveats cannot live only in inaccessible hover/collapse behavior. The Directive does not prescribe PolicyOS claim semantics. |
-| EUIPO-BOA-SUMMARY | **EUIPO Boards of Appeal, official “Decisions / Overview of Boards of Appeal decisions” publication page** | The official page states that selected summaries are for information and do not necessarily reproduce the exact wording; case references link to the decisions. | Strong comparator for “summary plus authoritative full decision pointer and explicit non-equivalence notice.” The pointer/notice layer is adopted, but it cannot cure material broadening in the summary. |
-
-### 2.4 United Kingdom — official statistical disclosure control
-
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
-|---|---|---|---|
-| UK-ONS-SDC | **Office for National Statistics, “Statistical disclosure control” official policy page** | ONS states that statistical outputs for general publication or specific recipients are checked for disclosure risk and controlled as required. | Supports treating every output as a release event and checking recipient-specific outputs, not just public tables. It does not supply a theorem for narrative policy records. |
-| UK-ONS-SRS-2023 | **ONS Secure Research Service, “SRS Output Checking Guidance Document,” Statistical Disclosure Control work strand, 12 June 2023** | Classifies outputs by disclosure risk and assigns output-checking burdens; release can be withheld or adjusted when checks identify risk. | Supplies a practical fail-closed release discipline and differentiates low/high-risk outputs. Thresholds/rules remain context-specific and cannot become PolicyOS-wide safe-loss rules. |
-
-### 2.5 Australia — DataLab output checking and the rule of N
-
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
-|---|---|---|---|
-| AU-ABS-DATALAB | **Australian Bureau of Statistics, DataLab User Guide — DataLab Clearance** | ABS must approve and clear DataLab outputs before they leave the environment; users apply output rules, provide evidence and request only what is needed. | Direct support for prospectively checking the actual release and minimizing accumulated outputs. This is procedural, not a numeric PolicyOS budget. |
-| AU-ABS-OUTPUT-RULES | **ABS “DataLab Output Rules — Detailed Examples” official workbook** | Official examples require underlying counts to evidence contributor thresholds (including examples using at least 10 contributors) and treat differencing across tables. | Supplies the required “rule of N” comparator and secondary-disclosure lesson. The number 10 is not imported as a universal PolicyOS threshold; it is a domain-specific example of a fixed, evidenced local rule. |
-
-### 2.6 Differential privacy and information leakage
-
-| ID | Stable identifier | Primary proposition used | INT-R8 relevance |
-|---|---|---|---|
-| NIST-DP-800-226 | **NIST SP 800-226 (2025), DOI 10.6028/NIST.SP.800-226** | Differential privacy is a mathematical framework whose guarantee depends on correctly specified and implemented mechanisms, parameters and threat assumptions; the publication emphasizes evaluation hazards in practice. | Supports the premise audit. It does not license epsilon language for deterministic curated summaries. |
-| DP-COMPOSITION-2015 | **Kairouz, Oh & Viswanath, “The Composition Theorem for Differential Privacy,” PMLR 37 (2015), pp. 1376-1385; arXiv:1311.0776** | Characterizes privacy degradation when composing mechanisms that already satisfy differential-privacy guarantees. | The theorem transfers only after local mechanism guarantees and their parameters exist. Those premises are absent for the current editorial projection. |
-| MAX-LEAKAGE-2020 | **Issa, Wagner & Kamath, “An Operational Approach to Information Leakage,” IEEE Transactions on Information Theory 66(3):1625-1639 (2020), DOI 10.1109/TIT.2019.2962804; arXiv:1807.07878** | Defines maximal leakage through multiplicative improvement in guessing an adversarially chosen function of a secret after observing output. | Supplies a useful adversary/gain lens and motivates cross-view synergy analysis. A numerical value requires a declared channel/distribution and is therefore not issued here. |
-
-## 3. Required comparative-model survey
-
-### 3.1 Decision table
-
-| Model | Guarantee it can supply | Property that eliminates it as the sole answer | Disposition in selected design |
-|---|---|---|---|
-| 1. National-statistical-institute SDC | Suppression/perturbation/thresholds, output checking, differencing review, release minimization | Cell/contributor rules do not capture legal reasons, dissent, denied uses, authority/status or narrative scope; thresholds are dataset/output-specific | **Adopt as release-discipline and attack layer**, not universal semantic rule or scalar budget. |
-| 2. Differential privacy | Formal per-mechanism privacy and composition when adjacency, randomization and local guarantees hold | Curated editorial projections are not established DP mechanisms; no adjacency, randomization, local guarantee or accountant exists | **Reject as current general composition theorem**; retain as future narrow candidate for defined statistical mechanisms. |
-| 3. Information-theoretic leakage | Formal inference/guessing measures and view synergy under a declared channel/distribution | No justified distribution or single secret/gain function; one number would hide heterogeneous harms | **Adopt consistency-set exact reconstruction now; retain leakage measures as diagnostic research**, not budget. |
-| 4. Access control / need-to-know | Reduces ordinary audience access | Roles overlap, delegation/collusion/copying/export exist; content can leak across authorized views; access does not preserve semantic parity | **Adopt as perimeter layer only**. |
-| 5. Redaction with manifest | Makes removal detectable and supplies typed reasons | Manifest can itself leak; it does not test joint/temporal reconstruction; IDs alone do not classify materiality | **Adopt as canonical base**, extended by `CompressionLossReceipt` and transcript checks. |
-| 6. Provenance completeness / full-record pointer | Supports audit, currentness, correction and authorized access to full reasoning | Pointer does not cure a misleading visible claim and may be inaccessible to affected readers | **Adopt as binding/currentness layer**, never as sole parity guarantee. |
-| 7. Administrative-law reasons-giving | Identifies material findings, evidence/reasons and contestability as non-optional decision content | Duties vary by jurisdiction/procedure; may permit confidentiality and do not define privacy composition | **Adopt as materiality/contestability layer**, bounded by source scope. |
-| 8. Unstructured editorial summarization without receipt | Low cost, readable prose | Silent loss is unobservable; no complete inventory, materiality test, denied-use monotonicity, reconstruction check or fail-closed verdict | **Reject completely** as governed publication basis. This is the negative comparator. |
-
-### 3.2 Selected composition of layers
-
-The recommendation is not one model. It is a layered contract:
-
-1. **Administrative reasons/dissent practice** defines classes of load-bearing content whose loss can defeat understanding and contestability.
-2. **Existing redaction-with-manifest substrate** records typed removal and prevents silent claim-ID omission.
-3. **Compression-loss semantic verifier** decides whether shortening preserves truth conditions, scope, negative state, limitations, denied uses and material counterpositions.
-4. **Access control** limits who receives each canonical projection.
-5. **SDC-style output checking** treats every view/export/version as a release and checks differencing/secondary disclosure.
-6. **Consistency-set transcript analysis** tests exact joint and temporal reconstruction without inventing a probability model.
-7. **Provenance/currentness pointer** connects the summary to the authoritative revision and correction state.
-8. **INT-R7 proof** will bind those contents and history; INT-R8 does not choose how.
-9. **No-number procedural composition** proves only that every actual prefix was prospectively checked under a declared rule family.
-
-## 4. Transfer ledger
-
-### 4.1 Legal and administrative imports
-
-| Imported result | Transfers to PolicyOS | Does not transfer |
+| Imported result | Transfers | Does not transfer |
 |---|---|---|
-| Findings/reasons on material issues (US APA; AU ADJR) | A summary must preserve the actual material basis and enough evidence/counterposition structure for understanding and challenge | Universal legal duty, sufficiency finding or competence conclusion for every PolicyOS record |
-| Segregability and indication of deletion (US FOIA) | Remove protected detail while disclosing safe typed omission; do not silently erase | Requirement to reveal omission metadata when that metadata would expose the protected interest; direct statutory applicability |
-| Formal dissent custody (NSW MHRT) | Preserve existence, affected material issue, reasons custody and signed/dated status where relevant | Universal publication of identity/full dissent; treating dissent as automatically outcome-determinative |
-| Plain writing/accessibility (US PWA; EU Directive 2016/2102) | Shorter accessible language and visible critical caveats across UI/print/accessibility tree | Permission to omit qualifiers, reasons, denied uses or negative states for readability |
-| Official summary plus full decision link (EUIPO) | Clearly label summary as summary, provide authoritative pointer and case/currentness reference | Treat pointer as cure for materially misleading prose |
+| Material findings/reasons | Preserve basis needed for understanding and challenge | Universal legal duty or sufficiency result |
+| Segregability/deletion indication | Safe typed omission rather than silent deletion | Self-disclosing omission metadata or direct statutory applicability |
+| Formal dissent practice | Preserve existence and material effect of dissent where governed | Universal publication of identity, wording, or outcome effect |
+| Plain language/accessibility | Faithful shorter language and visible caveats across representations | Permission to delete qualifiers for readability |
+| Summary plus full-decision pointer | Explicitly label summary and bind current authoritative record | Pointer as cure for false or materially broadened prose |
+| Output checking | Check each actual view/version/export and accumulated prior releases | Cell rules as narrative reasons or universal scalar budget |
 
-### 4.2 Statistical-confidentiality imports
+## 8. Source conflicts and adjudication
 
-| Imported result | Transfers to PolicyOS | Does not transfer |
-|---|---|---|
-| Every output is checked (ONS/ABS) | Every audience view, revision, screenshot and export is a disclosure event; check actual candidate before release | A presumption that passing one view means future views are safe |
-| Request/release only what is needed (ABS) | Minimize projections and optional metadata; accumulated outputs are part of threat model | Automatic deletion of material reasons/limitations under “minimization” |
-| Contributor threshold/rule of N | Fixed local threshold must be evidenced and checked; underlying counts may be required for the checker | The number 10 as a universal threshold; narrative/legal confidentiality guarantee |
-| Differencing/secondary disclosure | Compare proposed output with prior outputs and other audience releases | A claim that all inference risks are covered by table differencing |
-| Output checker may adjust/withhold | `blocked_material_omission` is a valid release refusal; safety is not a formatting suggestion | Authority to publish after an editor informally adjusts prose without rerunning the full gate |
+### Deletion indication versus confidentiality
 
-### 4.3 Privacy-theoretic imports
+The FOIA source contains its own exception where indication would harm the protected interest.
+INT-R8 therefore requires a safe semantic-class/effect notice, not either silent deletion or a
+manifest that becomes an oracle.
 
-| Imported result | Transfers to PolicyOS | Does not transfer |
-|---|---|---|
-| DP composition theorem | Premise template: define mechanism, local guarantee, prospective parameter, history-selected validity and canonical accountant | Any current epsilon/delta budget for deterministic editorial summaries |
-| NIST DP evaluation guidance | Mechanism assumptions and implementation reality must be audited; labels are not guarantees | Treating “DP-inspired,” “anytime-valid” or “privacy-aware” as theorem satisfaction |
-| Maximal leakage | Specify adversary objective; analyze whether combined views improve guessing; use data processing/composition properties only with valid channel model | A canonical scalar without probability/channel/gain assumptions; equivalence to legal/materiality harm |
-| Consistency-set reconstruction (INT-R8 formalization) | Distribution-free exact reconstruction test for finite/symbolic models | Proof against every unknown auxiliary source or future attack |
+### Plain language versus full reasons
 
-## 5. Domain findings that drive the minimum retained set
+Faithful condensation is allowed. Truth-changing qualifiers, material counterpositions, denied
+uses, and negative outcomes remain mandatory. Accessibility is evaluated on the actual rendered
+representation, not merely source text.
 
-The source families converge on five non-generic public-administration requirements:
+### Statistical thresholds versus cumulative inference
 
-1. **Reasons and material findings:** a conclusion without its material basis can be unreviewable even when every retained number is accurate.
-2. **Counterevidence and dissent:** a majority result and a unanimous result are not interchangeable; confidentiality can justify detail removal, not fabricated consensus.
-3. **Conditionality and denied use:** “only under this basis” and “may not be used for X” are part of the claim's meaning.
-4. **Negative governed results:** refusal/exhaustion/dispute are outcomes, not empty slots to be hidden for a cleaner narrative.
-5. **Accessible visible caveats:** a condition available only in a linked full record, hover state or inaccessible control can disappear in the citizen's actual artifact.
+A local threshold can pass while differencing across releases fails. The transferable rule is
+actual-output and prior-output review, not one number.
 
-These findings explain why generic information retention, token counts or compression ratios are not acceptable materiality measures.
+### DP versus deterministic QIF
 
-## 6. Source conflicts and adjudication
+DP does not transfer because its mechanism premises are absent. Deterministic QIF is not rejected;
+it remains unavailable because PolicyOS has not established its secret/channel/gain/composition
+model or owner.
 
-### 6.1 “Indicate deletion” versus confidentiality of the indication
+## 9. Stable-reference checklist
 
-FOIA's deletion-indication structure contains its own safety qualification: the amount/location need not be indicated when doing so would harm the protected interest. INT-R8 therefore rejects both extremes:
+A future verifier should resolve at least:
 
-- silent untyped omission; and
-- a manifest so specific that it reconstructs the secret.
-
-The selected rule is a safe typed semantic-class/effect notice with affected public claims, tested as part of the transcript.
-
-### 6.2 Plain language versus exact reasons
-
-Plain-language law/practice favors understandable documents; reasons-giving favors material completeness. There is no necessary conflict. INT-R8 permits faithful condensation and normalized language but blocks loss of a truth-changing qualifier, counterposition or negative state.
-
-### 6.3 Statistical threshold versus cumulative inference
-
-A local contributor threshold may pass while multiple tables fail through differencing. Official output-checking practice resolves the conflict in favor of transcript/context review. INT-R8 follows that direction and refuses to treat the rule of N as a composition theorem.
-
-### 6.4 DP theorem versus editorial practice
-
-The mathematics is not disputed. The mechanism premise fails. The result is not “DP is unsuitable”; it is “DP composition is unavailable until the release is actually defined and enforced as a qualifying mechanism.”
-
-## 7. Stable-reference checklist for a future audit
-
-An independent auditor should be able to resolve at least:
-
-- `5 U.S.C. 557(c)(3)(A)` and `5 U.S.C. 552(b)` through the U.S. Code;
-- `PLAW-111publ274` through GovInfo;
-- `C2004A01697`, s 13, and `C2004A02562` through Australia's Federal Register of Legislation;
-- NSW MHRT Practice Direction General No. 2 through the Tribunal's official publications;
-- `CELEX:32016L2102` / ELI `dir/2016/2102/oj` through EUR-Lex;
-- ONS SDC policy and SRS Output Checking Guidance (12 June 2023) through ONS;
-- ABS DataLab Clearance and detailed output rules through ABS;
+- 5 U.S.C. §§ 552 and 557;
+- GovInfo `PLAW-111publ274`;
+- Federal Register `C2004A01697` and `C2004A02562`;
+- NSW MHRT official `GeneralNo2-Dissenting Opinions.pdf` plus a future content digest;
+- CELEX `32016L2102` / ELI `dir/2016/2102/oj`;
+- ONS SDC and SRS output/transfer living pages with an explicit as-of date;
+- ABS DataLab clearance/output-rules pages with an explicit as-of date;
 - DOI `10.6028/NIST.SP.800-226`;
-- PMLR volume 37 `kairouz15` / arXiv `1311.0776`;
-- DOI `10.1109/TIT.2019.2962804` / arXiv `1807.07878`.
+- arXiv `1311.0776` / PMLR 37;
+- DOI `10.1109/TIT.2019.2962804`;
+- DOI `10.1007/978-3-642-00596-1_21`;
+- DOI `10.1109/CSF.2012.26`;
+- DOI `10.1109/TIT.2019.2935768`; and
+- DOI `10.3390/e28070819` / arXiv `2411.18531`.
 
-A later webpage update must not be allowed to silently change the proposition attributed to a stable statute, document edition or paper.
+## 10. Source-ledger standing
 
-## 8. Result standing
-
-**`accepted_narrow_scope`.** The selected layered model is source-grounded across the United States, Australia, the European Union and the United Kingdom, plus primary privacy literature. Every import has an explicit non-transfer boundary. No source supports a current numeric disclosure budget for PolicyOS editorial projections.
+The external grounding remains `accepted_narrow_scope`. The legal and administrative domain
+argument is preserved. The numerical refusal is narrowed to models actually established in the
+repository. No source authorizes a scalar, implementation, publication, or compliance claim.

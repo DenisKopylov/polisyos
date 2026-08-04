@@ -10,7 +10,7 @@ historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
 current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
 amended_after_audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
-bound_int_r10_commit: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+bound_int_r10_commit: research/int-r10-revision@a334f7d844733bfd17f1857a4cb56fbf219378ef
 bound_int_r1_amendment_commit: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 authoritative_for:
   - repository-grounded contamination classification of the thirteen canonical proving-ground cases at the pinned baseline

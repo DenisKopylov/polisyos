@@ -9,7 +9,7 @@
 # Amendment branch: research/int-r9-amendment
 # Amendment baseline: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 # Independent audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
-# Bound INT-R10: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+# Bound INT-R10: research/int-r10-revision@a334f7d844733bfd17f1857a4cb56fbf219378ef
 # Bound amended INT-R1: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 # Result standing: accepted_narrow_scope for a nonnumeric anti-selection and custody protocol.
 # Current execution readiness: blocked.

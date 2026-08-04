@@ -10,7 +10,7 @@ historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
 current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
 amended_after_audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
-bound_int_r10_commit: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+bound_int_r10_commit: research/int-r10-revision@a334f7d844733bfd17f1857a4cb56fbf219378ef
 bound_int_r1_amendment_commit: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 amendment_choice: option_b_keep_adaptive_repair_withdraw_numeric_family_claim
 authoritative_for:
@@ -61,7 +61,7 @@ This amendment chooses **Option B** from the audit's R1/R2 specification:
 
 > Keep result-bearing implementation repair between slots, classify the sequence honestly as adaptive continuation, and withdraw every numeric family-wise claim.
 
-That choice has a real cost. Chronology, anti-substitution, sealing, adjudication, falsification, and bounded publication remain governed, but no `delta`, `3 * delta`, or other probability is attached to the event that the reported first positive is false. Each confidence receipt remains local, conditional, and owned by the canonical ledger. INT-R10 Theorem B is audit-pending and is used only to mark why outcome-dependent repair needs a selection-valid owner theorem; no numeric claim in INT-R9 relies on it.
+That choice has a real cost. Chronology, anti-substitution, sealing, adjudication, falsification, and bounded publication remain governed, but no `delta`, `3 * delta`, or other probability is attached to the event that the reported first positive is false. Each confidence receipt remains local, conditional, and owned by the canonical ledger. INT-R10 Theorem B was verified conformant in the INT-R10 revision and is used here only to mark why outcome-dependent repair needs a selection-valid owner theorem; no numeric claim in INT-R9 relies on it.
 
 The strongest permitted positive statement is procedural:
 
@@ -512,7 +512,7 @@ This cannot eliminate informal prestige differences. It makes formal retaliation
 ## 10. Open Questions For Consolidation
 
 1. **INT-R1 producer/bridge:** who may issue/admit a future envelope without self-scoring, and how is a new narrower action given a fresh prospective identity?
-2. **INT-R10 / GY-GAP2:** a future numeric family claim needs pre-execution local caps, live recomputed family projection, canonical owner extension, and re-audit. Theorem B remains audit-pending.
+2. **INT-R10 / GY-GAP2:** a future numeric family claim needs pre-execution local caps, live recomputed family projection, canonical owner extension, and re-audit. Theorem B is verified conformant in the INT-R10 revision; what remains absent is a selection-valid owner theorem for outcome-dependent repair, not the theorem's audit standing.
 3. **S0-GAP-02:** only a governed canonical supersession may replace it; no sibling equivalent.
 4. **Materiality:** which existing competent owners decide source, obligation, deviation, dissent, and challenge materiality before direction is known?
 5. **INT-R5:** how are competence, delegation, named-person eligibility, and relationship conflicts evidenced?

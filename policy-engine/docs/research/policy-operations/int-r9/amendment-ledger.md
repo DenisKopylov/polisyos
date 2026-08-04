@@ -10,7 +10,7 @@ historical_repository_commit: 4813b49f6ce14e8debf3aaea096f0967d38d9768
 current_repository_commit: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
 inspection_date: 2026-08-03
 amended_after_audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
-bound_int_r10_commit: research/int-r10-family-wise-risk-composition@317fc9c36e710ac75634096c4d14a714b8bff504
+bound_int_r10_commit: research/int-r10-revision@a334f7d844733bfd17f1857a4cb56fbf219378ef
 bound_int_r1_amendment_commit: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
 amendment_choice: option_b_keep_adaptive_repair_withdraw_numeric_family_claim
 authoritative_for:
@@ -25,6 +25,7 @@ may_not_use_for:
   - authority grant or capability claim
   - benchmark passage
   - a sequence-level numeric false-promotion claim
+  - a promise that a positive promotion is achievable
   - proof that INT-R10 Theorem B has passed independent audit
   - replacement of the independent re-audit
 research_only: true
@@ -67,7 +68,7 @@ Consequences applied consistently:
 
 | Revision | Required action | Disposition | Amended locations |
 | --- | --- | --- | --- |
-| **R1** | Prove or withdraw single-`delta` claim. | **Executed by withdrawal.** INT-R10 union/sharpness/current arithmetic recorded; all sequence numeric claims prohibited. | main Executive, §§2.2, 4.1, 4.4, 5, 7–10; state §§1–2, 5; fixtures `FP-R01` |
+| **R1** | Prove or withdraw single-`delta` claim. | **Executed by withdrawal.** The recorded INT-R10 result is the fixed-family Boole union theorem (with sharpness valid only after coarsening the local owner to marginal statements). The `3 * delta` sharpness reading and the `3/100` current-arithmetic reading are **withdrawn**, not recorded — see the §1 strikes. All sequence numeric claims prohibited. | main Executive, §§2.2, 4.1, 4.4, 5, 7–10; state §§1–2, 5; fixtures `FP-R01` |
 | **R2** | Align standing everywhere. | **Executed.** Accepted narrow nonnumeric protocol; current execution blocked. Same in every frontmatter, executive, handoff, public shape, kill rule, YAML note, and final answer. | all amended artifacts |
 | **R3** | Make adaptive revision explicit. | **Executed.** Every result-informed repair is adaptive even when syntactically general; prior slot is not rescored; no family number follows. | main §4.4; state invariant 8 and `AdaptiveRepairRecord`; fixtures `FP-R02` |
 | **R4** | Close materiality right prospectively. | **Executed as hard prerequisite.** Sealed specification, competent existing owner mapping, evidence/conflict/time rules, and default dispute. No owner appointed by research. | main §4.7; state §§2, 5; fixtures `FP-R03` |
@@ -169,13 +170,23 @@ No R-item was declined.
 | `INT-R9-J-003` | minor | Committed answer-bearing fields distinguished from non-null gold-card values. |
 | `INT-R9-J-004` | commendation | Remaining verified orientation retained: 13+2, ua integrated depth, 0/13, registry profile counts, GY preregistration gate, malformed frontmatter warning. |
 
+**`J-004` preservation standing (architect, 2026-08-04).** The amendment conformance verification
+found that `J-004`'s central facts — 13+2, ua-msme integrated depth, 0/13, and the GY
+pre-inspection gate — survive with anchored narrative in the primary report and the census, while
+the exact confidence-registry profile count and the malformed-frontmatter warning survive only as
+this compact row. That asymmetry is **expressly accepted, not repaired**: those two subfacts are
+facts of the audit's own orientation history. They record what the audit checked about the
+researcher's context pack; the amended Option-B protocol does not depend on either of them, and
+re-anchoring them would import orientation bookkeeping into a protocol artifact. They remain
+recoverable from the independent audit at its pinned commit.
+
 ## 4. Required re-audit evidence from audit §7
 
 | Requested evidence | Delivered evidence |
 | --- | --- |
 | revised commit and baseline | branch `research/int-r9-amendment`; baseline `978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d`; final HEAD obtainable from branch |
 | claim-by-claim audit disposition | §§2–3 of this ledger |
-| family-risk derivation or withdrawal | Option B in §1; INT-R10 theorem/sharpness recorded; main Executive/§4.1 |
+| family-risk derivation or withdrawal | Option B in §1; the recorded INT-R10 result is the fixed-family union theorem, with the `3 * delta` sharpness and `3/100` arithmetic readings struck in §1; main Executive/§4.1 |
 | three-distinct-problem trace | §5.1 and fixture `FP-R01` |
 | refused/void/disputed effects | main §9; state §2; chronology retained, dispute halts, no rescoring |
 | adaptive-revision and materiality rules | main §§4.4, 4.7; state invariants; fixtures `FP-R02`/`FP-R03` |

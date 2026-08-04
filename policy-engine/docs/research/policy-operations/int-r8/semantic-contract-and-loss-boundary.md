@@ -3,11 +3,14 @@ title: "INT-R8 semantic contract and loss-typing boundary"
 research_id: INT-R8
 artifact_role: semantic-contract
 status: accepted_narrow_scope
+amendment_conformance: pending_independent_verification
 research_only: true
 repository: DenisKopylov/polisyos
 baseline_ref: main
 baseline_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
+audited_head: 90b372964d29a9e97605a6ef733ef03ffe7938d2
 prepared_at: 2026-08-04
+amended_after_audit: research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2
 may_not_use_for:
   - production_implementation_authorization
   - final_wire_schema_package_database_serialization_or_api_contract
@@ -24,336 +27,442 @@ may_not_use_for:
 
 # INT-R8 semantic contract and loss-typing boundary
 
-## 1. Decision
+## 0. Controlling amendment notice
 
-This artifact settles the **content semantics** of a `CompressionLossReceipt` and the boundary between:
+This artifact executes R7, R8, R10, and the semantic part of R13. It preserves audit
+commendations `INT-R8-V-001`, `V-005`, `VII-001`, `VII-002`, and `VIII-001` while correcting
+findings `INT-R8-V-002`, `V-003`, `V-004`, and `VIII-002`.
+
+The audited version remains immutable at
+`research/int-r8-compression-loss-and-disclosure@90b372964d29a9e97605a6ef733ef03ffe7938d2`.
+This version controls where the two differ.
+
+## 1. Decision and authority boundary
+
+`CompressionLossReceipt` is a research-level semantic extension of the canonical projection and
+public-export substrate. Its two outcomes are:
 
 - `lossy_but_safe`; and
 - `blocked_material_omission`.
 
-These are **receipt verdicts**, not a new PolicyOS status lattice. A blocked receipt feeds the existing publication/authority gate as a blocking issue. A safe receipt does not mint authority, publication permission, compliance, competence, or truth. Absence of a verified receipt is not a third favorable outcome; it is `verification_missing` and must fail closed at any surface that claims the INT-R8 gate.
+They are verifier dispositions, not a new PolicyOS status lattice. A safe receipt does not grant
+approval, publication, closeout, compliance, competence, truth, or current authority. A blocked,
+missing, wrong-revision, model-inconsistent, timed-out, or otherwise not-established receipt
+fails the protected publication gate. No third favorable outcome is implied.
 
-The contract is an extension of the existing projection substrate. The pinned projection owner already emits `projection_gaps`, `omission_manifest`, `contested_records`, `recourse_pointer`, `deficit_register`, participation requirements, `redaction_summary`, denied uses and `audit_refs`, and then asserts that the result remains `projection_only` (`policy-engine/src/polisyos/runtime/quality/projection_semantics.py:275-475`). Public export already blocks omitted claim IDs not represented in that manifest (`policy-engine/src/polisyos/runtime/quality/public_export.py:1685-1814`). INT-R8 adds **classification and composition over those facts**, not a parallel omission registry.
+The receipt remains:
 
-## 2. Reuse versus new semantic delta
+- `authority_role = projection_only`;
+- `authoritative_for = []`; and
+- subject to every applicable source and projection denied use.
 
-| Semantic concern | Reused canonical substrate | New INT-R8 delta |
-|---|---|---|
-| Audience | Existing `PUBLIC`, `REVIEWER`, `EXPERT`, `MACHINE` enumeration (`projection_semantics.py:648-655`) | None; no fifth audience. |
-| Omitted claims | `omission_manifest`, normalization and deduplication; public-export omitted-ID check | For each affected item: retained/dropped disposition, semantic class, materiality predicate, affected use and outcome. |
-| Redaction | `redaction_summary`; canonical scanner reasons in `public_export.py` | Canonical reason required for every dropped/redacted semantic item, not only scanner placeholders; reason must not disclose the protected value. |
-| Limitations | Existing closeout/projection limitations, gaps and deficit register | Explicit retained-versus-dropped limitation inventory and proof that a retained claim did not lose a truth-changing qualifier. |
-| Denied use | Existing `may_not_use_for` / `may_not_be_used_for` propagation | Per-claim denied-use retention check; no compression may narrow the prohibition set. |
-| Contest, counterevidence and recourse | Existing contested records, recourse pointer, participation surface, audit refs | Material counterevidence/attack/dissent inventory, affected claim IDs, disposition and summary-preservation test. |
-| Faithfulness | Existing S9 projection faithfulness and S9-S14 consumer gates | A use-relative semantic-parity verdict across claim type, basis, scope, status, limitations, denied uses and negative results. |
-| Cross-view privacy | Existing per-view leak/firewall checks, including S14 hidden/gold payload protection | Joint and temporal transcript reconstruction test across all authorized projections, diffs, hashes, ordering, time, provenance, links, screenshots and exports. |
-| Repeated release | Existing history/current-head and public revision structures | A no-number disclosure-discipline receipt over the actual transcript; no numeric budget is established by this research. |
+## 2. Exact reuse surface
 
-## 3. Semantic object, not proposed wire schema
+The receipt must consume canonical identifiers and facts rather than reproduce them in a parallel
+projection system.
 
-The following is a **semantic field inventory**. It deliberately does not fix Pydantic classes, JSON names, package location, cardinalities, serialization or API shape.
+### 2.1 Base projection carriers reused
 
-### 3.1 Receipt identity and boundary
+The base projection in `runtime/quality/projection_semantics.py` emits or derives:
 
-A receipt must identify, by content-bound references suitable for the INT-R7 proof interface:
+- `closeout_truth`, including blocker and limitation codes;
+- `projection_gaps`;
+- `omission_manifest`;
+- `contested_records`;
+- `recourse_pointer`;
+- `deficit_register`;
+- `participation_requirements`;
+- `invariant_summary`;
+- `redaction_summary`;
+- `audit_refs` and source-authority references;
+- `may_not_be_used_for`;
+- the four canonical audience values; and
+- the projection-only authority boundary.
 
-- the canonical source record and source revision;
-- the projection audience and release surface;
-- the release event and predecessor/current transcript head;
-- the declared intended uses of the summary;
-- the full-record semantic inventory version and rule version used by the loss verifier;
-- the current/superseded status of the release;
-- the existing authority boundary, unchanged and never upgraded by the receipt.
+Surface-specific S10-S14 enrichment may add named limitation fields or a `limitations` list. The
+base projection does **not** establish one universal top-level limitations collection. The
+receipt normalizes semantic effect across concrete carriers without claiming an existing unified
+storage shape.
 
-### 3.2 Retained/dropped inventory
+### 2.2 Public-export behavior reused
 
-For every source semantic item in the verifier's declared inventory, the receipt records exactly one of:
+`runtime/quality/public_export.py` already:
 
-- **retained** — represented directly or by an unambiguous faithful condensation;
-- **dropped_manifested** — absent from the summary but represented in the existing omission/redaction machinery with a canonical reason, semantic effect and affected claim IDs;
-- **not_applicable_to_projection** — outside the audience contract, with a typed reason and no implication that the item does not exist.
+- consumes projection semantics;
+- runs projection and S9-S14 checks;
+- rejects omitted claim IDs absent from the omission manifest;
+- runs candidate-firewall and replay-drift checks;
+- emits canonical scanner transformation reasons for email, keyed secret, and general secret/PII
+  findings; and
+- preserves projection-only official-use limits.
 
-The declared inventory must cover at least these classes:
+The receipt adds materiality, retained/dropped classification, exact rendered-object identity,
+model identity, and transcript findings. It does not replace these checks.
 
-1. claims and claim type;
-2. basis, scope and maintained assumptions;
-3. limitations and conditions;
-4. attacks, rebuttals and unresolved defeaters;
+## 3. Semantic inventory and dispositions
+
+For a fixed source revision and declared use package, every source semantic item receives exactly
+one disposition:
+
+- `retained_exact`;
+- `retained_faithful_condensation`;
+- `dropped_manifested`; or
+- `not_applicable_to_declared_projection`.
+
+An item with zero or multiple dispositions yields `compression_item_disposition_invalid` and
+blocks.
+
+The inventory covers at least:
+
+1. claim identity and claim type;
+2. declared basis, subject, jurisdiction, time, envelope, and assumptions;
+3. limitations, conditions, uncertainty, and conditionality;
+4. attacks, rebuttals, counterexamples, and unresolved defeaters;
 5. denied uses;
 6. counterevidence and conflicting evidence;
 7. contest/dispute state;
-8. dissent/minority position where material;
-9. recourse and competent change-authority pointer;
-10. negative terminal and chronology;
-11. provenance/audit references;
-12. privacy-sensitive material and redaction reason.
+8. dissent/minority position and its material issue;
+9. recourse and competent correction route;
+10. refusal, void, terminal no-attempt, exhaustion, and other negative terminals;
+11. constitutive procedural events and ordering;
+12. currentness, supersession, withdrawal, and correction;
+13. provenance/audit references; and
+14. privacy-sensitive content and release-channel observations.
 
-An item not inventoried is not silently classified as safe. It yields an incomplete receipt and therefore blocks the INT-R8 gate.
+## 4. Governed materiality relation
+
+The audit correctly found that “material,” “faithful,” and “constitutive” cannot remain free-text
+judgments. The controlling relation is versioned and evidence-bound.
 
-### 3.3 Per-item semantic effect
+For each source item `x`, define a materiality record:
 
-Every dropped item must state, without restating protected content:
+`Mat(x, U, D) -> (basis, effects, affected_claims, condensation_relation, disposition)`
 
-- affected claim IDs;
-- item class;
-- canonical redaction/omission reason;
-- whether it alters truth conditions, scope, authority/status, permitted use, contestability, procedural history or privacy;
-- the declared summary use for which it was tested;
-- whether an authorized full-record pointer exists;
-- the verifier result and issue code.
+where:
 
-### 3.4 Receipt verdict
+- `U` is the declared use and denied-use package;
+- `D` is the governed decision/materiality predicate package;
+- `basis` identifies the competent rule, source finding, authority boundary, or institutional
+  disposition that makes the effect governable;
+- `effects` is a nonempty subset of the effect classes below when `x` is material;
+- `affected_claims` binds existing claim identifiers;
+- `condensation_relation` identifies which summary representation, if any, preserves those
+  effects; and
+- `disposition` is one of `material`, `non_material_for_declared_use`, or `not_established`.
+
+### 4.1 Governed effect classes
+
+- `truth_condition` — changes the proposition that is true or false;
+- `scope_or_basis` — changes population, subject, jurisdiction, time, envelope, obligation set,
+  assumptions, or relative basis;
+- `authority_or_status` — changes claim type, authority role, outcome, currentness, or
+  supersession;
+- `permitted_or_denied_use` — changes a permission or prohibition;
+- `contestability_or_recourse` — changes whether material evidence, dissent, dispute, reasons, or
+  a real challenge route is visible;
+- `history_or_currentness` — changes prospectivity, firstness, ordering, substitution,
+  adjudication, negative publication, correction, or current head; and
+- `privacy_or_reconstruction` — changes a protected predicate or the declared coalition's ability
+  to reconstruct it.
 
-The receipt contains only the two commission-required loss verdicts:
+### 4.2 Materiality outcomes
+
+| Materiality disposition | Required evidence | Compression consequence |
+|---|---|---|
+| `material` | Bound basis, effect class, affected claims, and predicate package | Item or faithful condensation is mandatory. |
+| `non_material_for_declared_use` | Bound basis proves every governed effect unchanged for the declared use | Item may be dropped with manifested reason. |
+| `not_established` | Missing basis, unresolved claim mapping, unsupported predicate, conflict, or timeout | `blocked_material_omission`. |
 
-- `lossy_but_safe`: shorter and information-losing, but every mandatory semantic invariant below passes and the actual release transcript passes the declared reconstruction tests;
-- `blocked_material_omission`: at least one materiality, parity, reason, reconstruction or completeness condition fails.
+An editor's statement that an item is “obvious,” “minor,” “technical,” or “non-material” is not
+valid evidence.
 
-The verdict is accompanied by issue codes, affected claim IDs and verifier references. It is not accompanied by an invented probability, privacy score, confidence, approval or publication status.
+## 5. Faithful condensation relation
 
-## 4. Semantic parity
+A condensation is not validated by string similarity. It is a mapping from source semantic items
+to visible summary items under `U` and `D`.
 
-### 4.1 Why byte equality is wrong
+`Condense(x_set, s, U, D) = pass`
 
-A useful public summary must be shorter. Byte equality, sentence alignment and full entailment of every low-level detail would make compression impossible and would conflict with plain-language and accessibility duties. Conversely, “roughly the same meaning” is not testable.
+only when:
 
-INT-R8 defines parity as **use-relative conservative observational equivalence**.
+1. every source item in `x_set` has one summary representative or is proved semantic duplicate;
+2. every bound effect in section 4 is preserved;
+3. claim identity and claim type remain resolvable;
+4. no source proposition becomes broader, more favorable, more certain, less contested, more
+   current, or more authoritative;
+5. denied uses are equal or more restrictive;
+6. omitted detail is manifested through the canonical reason relation;
+7. the exact rendered object remains understandable for its declared audience and accessible
+   representation; and
+8. the controlled transcript passes the reconstruction check.
 
-Let:
+The relation returns:
 
-- `R` be the full governed record at a fixed revision;
-- `S` be one audience summary plus its receipt;
-- `U` be a declared set of permitted and prohibited uses;
-- `D_U` be a versioned set of decision predicates that a competent consumer/gate applies for those uses;
-- `⊑` be the existing PolicyOS authority order, where a result may stay equal or become more conservative but may not broaden authority.
+- `faithful_condensation_established`;
+- `condensation_effect_changed`; or
+- `condensation_not_established`.
 
-`S` has semantic parity with `R` for `U` exactly when all of the following hold:
+Only the first can support `retained_faithful_condensation`.
+
+## 6. Constitutive procedural-step relation
+
+A no-number custody claim is defined by a versioned constitutive event and order package, not by
+an unbounded sentence such as “the process was proper.”
+
+For claim `c`, declare:
+
+`Procedure(c) = (E_c, <_c, uniqueness, allowed_normalizations, basis)`
 
-1. **Claim identity:** every surfaced claim in `S` resolves to a claim in `R`; compression creates no new claim.
-2. **Truth-condition preservation:** claim type, basis, scope, assumptions, conditions and material limitations needed to interpret that claim are retained.
-3. **Conservative decision equivalence:** for every `d ∈ D_U`, `d(S)` equals `d(R)` or is strictly more conservative under `⊑`; it is never broader, more favorable, more certain or more authoritative.
-4. **Denied-use monotonicity:** `may_not_use_for(S) ⊇ may_not_use_for(R)` for every retained claim and for the projection as a whole. Compression may add a prohibition; it may not remove one.
-5. **Negative-state preservation:** refusal, void, dispute, no-attempt, exhaustion, supersession and blocked chronology remain visible whenever they affect interpretation.
-6. **Contestability preservation:** material counterevidence, attack, dissent and recourse remain visible enough that a reasonable reader is not told or induced to infer that the result was uncontested or unanimous.
-7. **Manifest completeness:** every dropped source item in the declared inventory has a typed row in the reused omission/redaction machinery.
-8. **Transcript safety:** adding `S` and its delivery metadata to all prior releases does not make a declared withheld predicate reconstructible.
+where:
+
+- `E_c` is the finite set of constitutive event classes;
+- `<_c` contains required partial-order relations;
+- `uniqueness` identifies first/earliest/single governing events;
+- `allowed_normalizations` identifies duplicate prose or storage details that may be collapsed;
+  and
+- `basis` binds the governing custody rule and source records.
+
+Candidate event classes include:
+
+- commitment or rule sealing before result-bearing execution;
+- first qualifying attempt and the qualifying population;
+- prohibited-substitution policy and actual substitution/deviation record;
+- execution chronology;
+- adjudication/evaluator disposition;
+- dissent preservation;
+- negative/refusal publication; and
+- correction/supersession history.
+
+### 6.1 Mechanical check
+
+A summary preserves the procedural claim only when:
+
+- every unique constitutive event has a visible or proof-bound faithful representative;
+- every required order relation remains decidable from the public object and bound proof inputs;
+- no prohibited substitution is converted into silence;
+- every negative and dissent event required by the package remains visible at safe granularity;
+- duplicate prose removal is explicitly identified by `allowed_normalizations`; and
+- the summary does not generalize the bounded history into legal compliance, competence,
+  efficacy, or production readiness.
+
+Removing one constitutive event yields `compression_procedural_step_missing`. Reversing or
+obscuring an order relation yields `compression_procedural_order_not_established`. An absent or
+unresolved `Procedure(c)` package yields `compression_procedural_basis_not_established`. All
+block.
 
-This definition is checkable. The verifier evaluates a finite governed predicate set, source inventory, summary inventory, authority boundary and actual release transcript. It does not claim perfect natural-language equivalence for every possible reader or future use.
+## 7. One canonical transformation-and-omission reason relation
 
-### 4.2 What may legitimately be shorter
+The receipt does not create a third reason vocabulary. It consumes one approved relation:
 
-Compression may collapse:
+`Reason = transformation_reason -> omission_semantic_class -> affected_claims -> governed_effects -> safe_public_explanation`.
+
+### 7.1 Relation roles
 
-- repeated wording and duplicated citations, when the support, independence, conflict and source class remain represented;
-- boilerplate that does not alter a governed interpretation predicate;
-- low-level storage paths replaced by public-safe opaque references;
-- names replaced by roles when personal identity is not material to mandate, conflict, dissent, competence or recourse;
-- several equivalent limitations into one lossless normalized limitation;
-- raw confidential cells into an approved aggregate while retaining conditionality, uncertainty, disclosure-control reason and denied uses.
+- `transformation_reason` is the canonical source reason. Scanner-detected email, keyed-secret,
+  and general secret/PII removal reuse the existing scanner reason identifiers.
+- `omission_semantic_class` maps the transformation into an approved claim/basis/limitation/
+  attack/denied-use/counterevidence/dissent/negative/history/provenance/privacy class.
+- `affected_claims` uses canonical claim IDs already present in projection/omission machinery.
+- `governed_effects` uses the effect classes in section 4.
+- `safe_public_explanation` states enough to prevent misleading silence without disclosing the
+  protected value.
 
-The verifier, not the editor, decides whether the condensation is equivalent for the declared use.
+### 7.2 Extension boundary
 
-## 5. Derivation of the minimum retained set
+A non-scanner semantic omission may require a new approved relation row, but not a receipt-local
+identifier that competes with an existing scanner or projection reason. Before any implementation
+claims one live registry, a complete duplicate/overlap census must show:
 
-The minimum is derived from the ways a shorter record could make an official claim materially broader, less contestable or privately reconstructible.
+- no same identifier with conflicting meaning;
+- no two identifiers with the same meaning and different gate effects unless an explicit alias
+  relation exists;
+- every scanner reason maps to an omission semantic class where it affects a claim;
+- every projection omission reason maps to affected claim IDs and governed effects; and
+- every public explanation is checked as a release channel.
 
-### 5.1 Derivation rule
+### 7.3 Blocking reason findings
 
-For each candidate semantic atom `x`, ask whether removing `x` can change at least one of:
+- `compression_redaction_reason_missing`;
+- `compression_redaction_reason_noncanonical`;
+- `compression_redaction_reason_mismatch`;
+- `compression_reason_duplicate_conflict`;
+- `compression_affected_claim_missing`; and
+- `compression_reason_self_disclosing`.
 
-- the proposition's truth conditions;
-- the population, subject, jurisdiction, time, envelope or obligation set to which it applies;
-- its authority/status or currentness;
-- a permitted or prohibited use;
-- whether the outcome is positive, negative, contested or superseded;
-- whether a person can understand reasons, identify material counterevidence, seek recourse or challenge the result;
-- whether the release transcript reconstructs protected information.
+Each is atomic in suite v2.
 
-If **yes**, `x` or a faithful typed condensation of `x` is mandatory. If no for every governed predicate in `D_U`, it may be manifested as dropped and can still yield `lossy_but_safe`.
+## 8. Semantic parity
 
-### 5.2 Minimum retained set
+For full governed record `R`, exact summary object `S`, declared use package `U`, governed
+predicate package `D`, and controlled transcript `T`, parity is use-relative conservative
+observational equivalence:
 
-Every summary must therefore carry, directly or through a faithful visible condensation:
+1. every surfaced claim in `S` resolves to a source claim in `R`;
+2. claim type, basis, scope, assumptions, material conditions, and limitations pass the
+   materiality/condensation relation;
+3. every `d in D` returns the same result on `S` and `R` or a more conservative result on `S`;
+4. `may_not_use_for(S, c)` is a superset of `may_not_use_for(R, c)` for every retained claim and
+   for the projection as a whole;
+5. negative outcomes, material dissent, contest, recourse, and currentness are preserved;
+6. every dropped item has one valid reason relation;
+7. the exact rendered/exported object passes accessible-representation checks; and
+8. the declared controlled transcript passes exact or proved-conservative reconstruction.
 
-1. **Record identity and currentness** — source record/revision, release version, current/superseded state and current-head pointer.
-2. **Outcome and existing status** — the actual outcome from the existing lattice; no locally minted “approved”, “verified” or “successful” proxy.
-3. **Claim identity and type** — at minimum `delta`, honest refusal/negative result, or no-number procedural custody claim.
-4. **Scope and basis** — subject, jurisdiction, material time/envelope and the declared basis needed to stop a narrow claim becoming universal.
-5. **`delta` rider** — declared obligation set, maintained assumptions and visible relative-basis rider. This is categorical under INT-K02.
-6. **Procedural history for no-number claims** — the load-bearing ordered steps, commitments, substitutions/deviations, adjudication, dissent, negative terminals and correction state on which the custody claim depends.
-7. **Material limitations and conditions** — including conditionality of numbers and known coverage/transport/measurement constraints.
-8. **Denied uses** — all active `may_not_use_for` restrictions, monotonically preserved.
-9. **Material counterevidence, attacks and dissent** — existence, affected claim, disposition and a faithful summary sufficient not to imply consensus; confidential detail may be withheld under a typed reason.
-10. **Contest and recourse** — dispute state and a pointer to the competent challenge/correction route where one exists; absence must not be fabricated as “none”.
-11. **Typed omission/redaction notice** — what class was removed, why, affected claim IDs and semantic effect, without revealing the protected value.
-12. **Provenance/full-record pointer** — an audience-appropriate, non-leaking pointer that lets an authorized consumer reach the authoritative record and lets INT-R7 bind the release to it.
-13. **Receipt verdict and audit reference** — the loss verdict, issue codes and verifier reference.
+This permits shorter language. It does not permit a truth-changing rider to disappear.
 
-A pointer to the full record is necessary but not sufficient: a citizen cannot be expected to infer that the visible summary omitted the one limitation, dissent or negative terminal that changes its meaning.
+## 9. Derived minimum retained set
 
-## 6. Loss-typing decision procedure
+The minimum remains derived from the governed effect classes. Every summary carries directly or
+by faithful condensation:
 
-The verifier consumes:
+1. source record/revision, release identity, and current/superseded state;
+2. actual outcome and existing status, without a local approval proxy;
+3. claim identity and claim type;
+4. subject, jurisdiction, material time/envelope, and declared basis;
+5. for `delta`, the declared obligation set, maintained assumptions, and visible relative-basis
+   rider;
+6. for no-number custody, the version-bound constitutive event and order package;
+7. every material limitation, condition, and numerical conditionality;
+8. every active denied use;
+9. material counterevidence, attack, dissent, contest, and disposition at safe granularity;
+10. a competent recourse/correction pointer where one exists;
+11. typed omission class, canonical reason relation, affected claims, and governed effect;
+12. public-safe provenance, source binding, current-head reference, and transcript head; and
+13. receipt outcome, issue codes, declared models, completeness disposition, and verifier status.
 
-- the fixed full-record semantic inventory for one source revision;
-- the audience summary and reused projection fields;
-- the declared intended/prohibited uses and predicate set `D_U`;
-- the accumulated actual disclosure transcript, including non-body metadata;
-- canonical omission/redaction-reason vocabulary;
-- the existing authority boundary and status.
+A full-record pointer is necessary for authorized audit and insufficient to cure false visible
+meaning.
 
-It executes the following ordered procedure:
+## 10. Total fail-closed decision procedure
 
-### Gate 1 — identity and inventory completeness
+The procedure is total over its declared executable input contract because every unresolved or
+nonterminating subcheck has a blocking disposition.
 
-Reject as `blocked_material_omission` when the source revision, audience, rule version or declared semantic inventory cannot be resolved, or when a source item has no retained/dropped/not-applicable disposition.
+### Gate 1 — identity, inventory, and model completeness
 
-Suggested issue families: `compression_source_unresolved`, `compression_inventory_incomplete`, `compression_item_unclassified`.
+Require source revision, audience, exact rendered object, semantic inventory version, use and
+predicate packages, record model, protected predicates, channel/release family, coalition and
+background models, transcript head, and authority boundary.
 
-### Gate 2 — categorical retained semantics
+Missing input -> `compression_input_package_incomplete` -> blocked.
 
-Reject when any mandatory item from §5.2 is missing or transformed incompatibly. This includes bare `delta`, hidden refusal/void/dispute/exhaustion, missing material limitation, narrowed denied-use set, concealed supersession and a procedural custody claim with a load-bearing history step removed.
+### Gate 2 — categorical semantics
 
-Suggested issue families: `compression_delta_basis_missing`, `compression_negative_terminal_hidden`, `compression_retained_limitation_missing`, `compression_denied_use_narrowed`, `compression_procedural_step_missing`.
+Always block:
 
-### Gate 3 — materiality and conservative parity
+- bare `delta` missing obligation set, assumptions, or rider;
+- hidden refusal, void, dispute, terminal no-attempt, or exhaustion;
+- narrowed denied use;
+- hidden currentness/supersession; and
+- missing declared constitutive event or order relation.
 
-For every dropped item, evaluate its effect over `D_U`. Reject if any predicate becomes more favorable, broader, more certain, less contested, less reviewable or more authoritative. An unknown materiality result blocks; uncertainty is not converted into safe loss.
+No materiality override applies to `INT-K02` or `INT-K08` anchors.
 
-Suggested issue families: `compression_truth_condition_changed`, `compression_scope_broadened`, `compression_authority_broadened`, `compression_contestability_reduced`, `compression_materiality_unknown`.
+### Gate 3 — materiality and condensation
 
-### Gate 4 — reason and manifest integrity
+Evaluate every retained or dropped source item under sections 4-6. Changed effect or
+`not_established` -> blocked.
 
-Reject if a dropped/redacted item lacks a canonical reason, the reason is inconsistent with the transformation, the affected claim set is absent, or the reason itself leaks the protected value.
+### Gate 4 — reason relation
 
-Suggested issue families: `compression_redaction_reason_missing`, `compression_redaction_reason_noncanonical`, `compression_affected_claim_missing`, `compression_reason_self_disclosing`.
+Require one canonical reason relation for every dropped/redacted item. Missing, conflicting,
+mismatched, or self-disclosing relation -> blocked.
 
-### Gate 5 — cross-view and temporal reconstruction
+### Gate 5 — exact/proved-conservative transcript reconstruction
 
-Append the proposed release and every delivery channel to the candidate transcript. Reject if any declared withheld predicate becomes reconstructible through union, differencing, hash comparison, order/rank, timing, provenance joins, deep-link payload, screenshot/export, cache or prior versions.
+Use the dispositions in `reconstruction-composition-and-threat-model.md`. Reconstructed, empty,
+timeout, unsupported, unowned approximation, incomplete controlled history, or out-of-model
+channel -> blocked.
 
-Suggested issue families: `compression_cross_view_reconstruction`, `compression_temporal_reconstruction`, `compression_hash_oracle`, `compression_ordering_channel`, `compression_timing_channel`, `compression_export_channel`.
+### Gate 6 — authority and final outcome
 
-### Gate 6 — final verdict
+Reject any receipt that mints authority or a number. Only if Gates 1-5 pass and the candidate is
+actually shorter may the receipt return `lossy_but_safe`. Every other terminal returns
+`blocked_material_omission` with exact issue codes and affected IDs.
 
-Only if Gates 1-5 pass may the verifier issue `lossy_but_safe`. Any failure yields `blocked_material_omission` with the exact issue, item and affected claim IDs. A gate timeout, unresolved predicate or unavailable transcript is failure, not safe loss.
+## 11. Calibration anchors
 
-## 7. Boundary anchors and worked examples
+### 11.1 `INT-K02`: bare `delta`
 
-### 7.1 Categorical blocked: INT-K02 bare `delta`
+Full claim carries `delta`, declared obligation set, maintained assumptions, and relative-basis
+rider. Dropping any one changes `scope_or_basis` and broadens the statement. Always
+`blocked_material_omission` with `compression_delta_basis_missing`.
 
-Full record:
+### 11.2 `INT-K08`: hidden negative completion
 
-> Within declared obligation set `O_v7`, under assumptions `A1-A4`, the bounded false-promotion quantity is `delta`; the result is relative to that basis and is not a probability that no applicable obligation was omitted.
+Replacing refusal, void, dispute, terminal no-attempt, or exhaustion with blank, unavailable, or
+pending converts a completed outcome into ambiguity. Always `blocked_material_omission` with
+`compression_negative_terminal_hidden`.
 
-Compressed summary:
+### 11.3 `INT-K06`: constitutive no-number history
 
-> The policy passed with risk `delta`.
+A source claim declares sealing before execution, first qualifying attempt, no prohibited
+substitution, chronology, adjudication, dissent, negative publication, and correction. A summary
+saying “the process was properly followed” without the declared event mapping fails. Dropping one
+unique event returns `compression_procedural_step_missing`; losing order returns
+`compression_procedural_order_not_established`; missing the constitutive package returns
+`compression_procedural_basis_not_established`.
 
-The summary drops the declared set, maintained assumptions and relative-basis rider. The visible sentence changes a conditional statement into a broad risk claim. Outcome: **`blocked_material_omission`**, even when the number itself is copied exactly.
+A shorter form may pass only when it visibly preserves every constitutive event/order predicate,
+retains the no-compliance/no-competence boundary, and drops only declared duplicate prose or
+low-level paths.
 
-### 7.2 Categorical blocked: INT-K08 hidden negative terminal
+## 12. Safe-loss controls preserved
 
-Full record: the governed process ends in `refusal` after exhaustion; no positive promotion exists.
+Potentially `lossy_but_safe`, after all gates pass:
 
-Compressed summary:
+- five duplicate citations become one while support, source class, conflict, independence, and
+  affected claim remain;
+- a protected personal name becomes a role when identity is proved non-material for the declared
+  use and dissent, mandate, issue, date/status, conflict, and recourse remain;
+- low-level storage paths become public-safe references;
+- raw confidential cells become a disclosure-controlled aggregate while population/time,
+  conditionality, uncertainty, local rule, reason, denied uses, and prior-output checks remain;
+- repeated procedural prose is normalized while every unique event and order relation remains;
+  and
+- the summary adds a denied use or returns a more conservative result without altering source
+  truth.
 
-> No recommendation is shown.
+These examples are green-control purposes, not self-executing verdicts. Suite v2 supplies exact
+fixtures and prerequisite statuses.
 
-The summary turns a completed governed negative into ambiguous absence and allows a reader to infer that the process is pending, omitted for convenience or available for gate weakening. Outcome: **`blocked_material_omission`**.
+## 13. INT-R7 proof interface
 
-A safe condensation would say, in plain language, that the process completed in refusal/exhaustion, preserve the decisive reason class and recourse/correction state, and manifest any confidential detail withheld.
-
-### 7.3 Frontier: INT-K06 no-number procedural custody claim
-
-Full record supports only:
-
-> Commitments were sealed before result-bearing execution; the earliest qualifying attempt was used; no prohibited substitution occurred; the chronology, dissent, negative terminal and correction history are preserved.
-
-Unsafe summary:
-
-> The process was properly followed.
-
-The broad sentence hides which history was actually established and may imply compliance, competence or substantive correctness. Dropping one load-bearing history step can convert a bounded falsifiable claim into an unbounded endorsement. Outcome: **`blocked_material_omission`**.
-
-Safe shorter form:
-
-> The release carries a no-number custody claim: pre-result sealing, first qualifying attempt, no prohibited substitution, chronology, dissent and negative outcomes are recorded. It does not establish legal compliance, competence, efficacy or production readiness.
-
-Duplicated event prose and low-level storage paths may be dropped with manifested reasons. Outcome may be **`lossy_but_safe`** if the transcript check also passes.
-
-### 7.4 Safe: duplicate evidence references
-
-Full record cites the same public report in five equivalent locations. The summary retains one citation, the support relationship, source class, independence/conflict state and affected claim. The four duplicates are manifested as `duplicate_nonsemantic_reference`. No decision predicate changes. Outcome: **`lossy_but_safe`**.
-
-### 7.5 Safe: confidential identity replaced by role
-
-A dissenting panel member's name is protected in this audience, but the fact of dissent, the member's decision role, affected material issue, disposition and signed/dated dissent reference are preserved. Identity is dropped under a canonical confidentiality reason and is not material to mandate, conflict or recourse for the declared use. Outcome may be **`lossy_but_safe`**.
-
-If identity is material to a disclosed conflict of interest, competence or recusal issue, the same removal becomes **`blocked_material_omission`** unless a faithful non-identifying disclosure preserves that issue.
-
-### 7.6 Blocked: “broad consensus” after selected-set compression
-
-The full record contains several counterexamples, one dissent and a selected low-effective-diversity subset. The summary says “experts broadly agreed” and omits the attack/counterevidence inventory. Even if no individual sentence is false in isolation, the framing changes the contestability and apparent evidential breadth. Outcome: **`blocked_material_omission`**.
-
-### 7.7 Safe statistical redaction, conditional
-
-Raw cells are suppressed under an approved disclosure-control rule. The public summary retains the aggregate, population/time definition, conditionality, uncertainty, contributor-threshold statement, disclosure-control reason and prohibited uses. The proposed release is checked against previous tables for differencing. Outcome may be **`lossy_but_safe`**.
-
-The same table released without the threshold/conditionality, or in combination with a prior table that reconstructs a cell, is **`blocked_material_omission`**.
-
-## 8. Hard cases and dispositions
-
-| Hard case | Disposition |
-|---|---|
-| A limitation is “obvious” to an expert but absent from the summary. | Block unless the governed predicate set proves it immaterial for the declared audience/use. Expertise is not a substitute for visible qualification. |
-| Counterevidence is confidential. | Preserve existence, affected claim, reason category, disposition and contest state; drop protected detail with canonical reason. Silence is blocked. |
-| Dissent exists but did not change the majority result. | Preserve when it concerns a material issue or changes the apparent degree of consensus/reviewability. |
-| Full record is available by link. | Link does not cure a materially misleading summary. |
-| Summary is “more cautious” but omits the actual negative terminal. | Block. Generic caution is not equivalent to the completed negative outcome. |
-| A numeric claim is replaced with qualitative language. | Safe only when the qualitative statement is entailed, does not conceal conditionality or broaden use, and the number is not needed for reasons/contestability. |
-| A no-number custody claim drops a duplicated event but preserves the unique ordered history. | Potentially safe; verifier must establish that order, firstness, substitution and correction predicates are unchanged. |
-| Materiality verifier returns unknown. | Block; unknown does not imply safe. |
-| Individually safe views become unsafe together. | Block the proposed release or alter its content/metadata; per-view safety is not sufficient. |
-
-## 9. Producer and gate obligations
-
-### Producer must emit
-
-A future approved producer extending the canonical projection/runtime-quality path must emit:
-
-- the resolved source semantic inventory and retained/dropped mapping;
-- all required per-item effects and reasons;
-- the declared use/predicate version;
-- transcript predecessor/current-head references;
-- the two-valued loss verdict with issue codes;
-- an unchanged projection-only authority boundary.
-
-### Gate must reject
-
-A consumer gate must reject:
-
-- a missing, unverifiable or wrong-revision receipt;
-- any `blocked_material_omission`;
-- any incomplete inventory or unknown materiality;
-- a receipt whose denied-use set is narrower than the source;
-- a source/summary/transcript mismatch;
-- a safe verdict produced before the actual candidate release, metadata and prior transcript were evaluated;
-- any receipt that attempts to mint authority, approval, publication permission or a privacy/confidence number.
-
-## 10. INT-R7 seam
-
-INT-R8 requires, but does not construct, a proof interface in which the public proof can bind:
+INT-R8 requires proof binding or typed disposition for:
 
 - source record/revision;
 - audience and surface;
-- retained semantic-item identifiers;
-- omission classes, affected claims and canonical reasons;
-- the loss verdict and rule version;
-- predecessor/current transcript head and current/superseded state.
+- exact rendered/exported public object identifiers;
+- retained semantic-item set;
+- omitted class, affected claim IDs, reason relation, and governed effects;
+- loss outcome and rule version;
+- declared uses and denied uses;
+- materiality/decision predicate package;
+- semantic inventory version and completeness;
+- constitutive procedure package where applicable;
+- record/consistency model and protected-predicate family;
+- channel registry and declared release-family version;
+- coalition/delegation model;
+- auxiliary/background-information assumptions and incompleteness;
+- transcript predecessor/current head and completeness disposition;
+- exact, empty, timeout, unsupported, abstraction, or approximation verifier status;
+- current/superseded state; and
+- unchanged projection-only authority boundary.
 
-Redaction must be a well-defined operation on the proof-bound object, and the proof must not reveal dropped content merely by binding it. Signature algorithm, key policy, verification construction, rotation, revocation and anti-equivocation mechanics remain entirely with INT-R7.
+INT-R7 owns canonicalization, algorithms, key lifecycle, timestamps, transparency, witnesses,
+archival preservation, offline verification, and proof representation.
 
-## 11. Result standing
+A failed or absent INT-R8 relation blocks public projection faithfulness and public-current
+positive reliance. It does not imply that an authentic issuer-side source issuance never
+occurred. Issuer issuance authenticity, projection faithfulness, public-history establishment,
+durable verifiability, and current authority remain separately reportable. This requirement is
+anchored to audit finding `INT-R7-VIII-003`; no unverified INT-R7 amendment conclusion is adopted.
 
-**`accepted_narrow_scope`.** The receipt semantics, parity definition, minimum retained set and loss-typing decision procedure are settled for research handoff. This artifact does not authorize the producer, wire contract or publication path, and it intentionally carries no numeric disclosure budget.
+## 14. Result standing
+
+**`accepted_narrow_scope`, retained pending independent conformance verification.**
+
+The amendment supplies a checkable materiality relation, a constitutive procedural relation, a
+single reason relation, concrete reuse carriers, a total fail-closed procedure over declared
+executable inputs, and the complete semantic proof interface. It appoints no owner, fixes no
+schema, and authorizes no implementation, publication, legal conclusion, or numerical bound.

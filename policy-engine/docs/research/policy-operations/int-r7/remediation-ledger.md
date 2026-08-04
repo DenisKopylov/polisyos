@@ -245,4 +245,28 @@ This ledger does not claim independent conformance, suite passage, production ca
 
 ## 9. Post-write verification record
 
-This section is completed after all writes by reading every touched file back from `research/int-r7-remediation` and comparing the branch to amendment head `2d922813ef542f3eebd21d2a189c017b15512803`. Until that final read-back is recorded, repository geometry beyond the source head is not asserted here.
+A complete comparison from amendment head `2d922813ef542f3eebd21d2a189c017b15512803` to this remediation branch established the bounded path set before this final ledger-only update:
+
+| Path | Final role |
+| --- | --- |
+| `int-r7-public-verification-lifecycle.md` | modified primary supersession signposting |
+| `int-r7/threat-model-and-verification-predicates.md` | modified V-104 diagnosis and formulas |
+| `int-r7/frozen-falsifier-suite.md` | modified V-103 grammar/baseline and V-104 overlays |
+| `int-r7/amendment-ledger.md` | modified evidence paths and remediation index |
+| `int-r7/remediation-ledger.md` | added bounded accountability record |
+
+Denominator: **5 changed Markdown paths / 5 total; 4 modified and 1 added; 0 non-Markdown paths**. The merge base is exactly the amendment head, and the branch is 0 commits behind it. The final update to this ledger changes no path membership or merge base.
+
+Post-write reads from `research/int-r7-remediation` established these exact blobs before the final ledger-only update:
+
+| File | Read-back blob SHA |
+| --- | --- |
+| primary report | `6af28e4c5f1b991d3265fbc652f48e9cbdcd5f7f` |
+| threat model | `72ccbc97b84e5c96081be6587050e8531e1d1860` |
+| falsifier suite | `d308fde3f56545bca58ad2ac70ab842bbad148d7` |
+| amendment ledger | `3d1d696f4b2d6c546b61a11c078418496f3d997b` |
+| remediation ledger, pre-final record | `4235084e03b8464d92ebd48284b22c6f89a19072` |
+
+Each read-back confirmed `research_only: true`, a non-empty `may_not_use_for`, the existing `amended_after_audit` binding where applicable, and the exact `remediated_after_verification` binding on every touched artifact. This final ledger version is read back after its commit and reported by exact branch head/blob in the delivery response.
+
+No pull request is opened. No write targets the amendment, verification, audit, baseline, or any other branch. The first-public-signature gate remains closed.

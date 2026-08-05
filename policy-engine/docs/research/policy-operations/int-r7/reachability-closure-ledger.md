@@ -331,4 +331,18 @@ Result: **20 intact / 20 total; 0 weakened; 0 lost**.
 
 ## 8. Post-write verification record
 
-This section is finalized after the threat-model artifact and this ledger are read back from `research/int-r7-reachability-closure`, and after a complete compare against remediation head `92c05323ed4c13c8f9eadb586d4e627c8d33a409` confirms the bounded changed-path set.
+A complete comparison from remediation head `92c05323ed4c13c8f9eadb586d4e627c8d33a409` to this closure branch, taken after the threat-model update and initial ledger write, found exactly **2 changed Markdown paths / 2 total**:
+
+| Path | Status at comparison | Additions | Deletions |
+| --- | --- | ---: | ---: |
+| `int-r7/threat-model-and-verification-predicates.md` | modified | 18 | 0 |
+| `int-r7/reachability-closure-ledger.md` | added | 334 | 0 |
+
+The merge base was exactly the remediation head; the branch was 2 commits ahead and 0 behind; no non-Markdown file was present. This final ledger-only update changes no path membership, merge base, threat-model diff, or deletion count.
+
+Post-write reads established:
+
+- threat-model blob `7b19c8790c62c76242fec51387d978321facd03a`, including the exact closure binding, invariant, advance map, §15 signal, and §15.2 point-of-use notice;
+- closure-ledger pre-final blob `cda71b09f9c576b16851664f9488e3c28c61ed0c`, including `research_only: true`, a non-empty `may_not_use_for`, and all three existing bindings plus `reachability_closed_after`.
+
+The final ledger version is read back after this commit and its final branch head/blob are reported in the delivery response. No pull request is opened, no other branch is written, and the first-public-signature gate remains closed.

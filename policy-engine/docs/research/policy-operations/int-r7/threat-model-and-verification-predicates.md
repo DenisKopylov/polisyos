@@ -8,6 +8,7 @@ repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
 amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
+remediated_after_verification: research/int-r7-amendment-verification@5225f8bf6cc995f0d3a9cb622454c1af9432745d
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -943,3 +944,81 @@ The common-view failure does not erase issuer-side issuance.
 ### 15.9 Anti-wire-format warning
 
 The dimension names, evidence-result words and formulas above specify propositions and conformance behavior. They do not prescribe an enum, JSON object, API response, database schema or package format. A semantically equivalent representation is allowed if it preserves all five dimensions, snapshot selection, evidence obtainability and exact failure visibility.
+
+### 15.10 Bounded predicate-collision remediation
+
+This subsection closes `INT-R7-V-104`. It supersedes the overloaded meanings of `AudienceBound`, `JurisdictionBound`, and `ProceduralHistoryBound` in §§7.1 and 15.2 wherever one name combined an issuer-side declaration with a requested-use or released-history judgment. The five-dimension architecture is unchanged.
+
+#### Diagnosis
+
+The three named failing fixtures exposed a name collision, not three independent Boolean mistakes:
+
+- F-09a authenticates an issued statement whose declared audience remains intact, then evaluates a different requested relying purpose;
+- F-10a authenticates an issued statement whose declared jurisdiction remains intact, then evaluates an unrecognized requested jurisdictional use; and
+- AX-05a authenticates an issuer-side procedural history commitment, then withholds a required negative terminal from the released/public history.
+
+Issuer occurrence, requested-use permissibility, and released-history completeness are different propositions and therefore require different predicates.
+
+#### Controlling predicate split
+
+- `IssuerAudienceDeclaredAndBound`: the signed issuer statement declares its audience and relying-purpose semantics without ambiguity.
+- `RequestedAudienceUsePermitted`: the verifier's requested use matches the bound audience/purpose or an authenticated transfer policy permits it.
+- `IssuerJurisdictionDeclaredAndBound`: the signed issuer statement declares its jurisdiction/recognition-policy semantics without ambiguity.
+- `RequestedJurisdictionUsePermitted`: the requested evaluation is accepted under the configured recognition policy.
+- `IssuerProceduralHistoryBound`: the issuer-side statement binds the prospective seal, chronology, firstness, deviations, adjudication, dissent, and required negative-terminal-set commitment.
+- `ReleasedProceduralHistoryComplete`: the released projection/history contains or verifiably accounts for every required procedural step and negative/refusal terminal under the admitted projection contract.
+
+The old three names remain visible only as audited history and are not used by the controlling v2 fixture manifest.
+
+#### Corrected issuer and requested-use algebra
+
+```text
+IssuerStatementComplete(R) :=
+    CanonicalStatementRecognized
+  ∧ ContentBound
+  ∧ ClaimClassBound
+  ∧ IssuerAudienceDeclaredAndBound
+  ∧ IssuerJurisdictionDeclaredAndBound
+  ∧ AuthorityBoundaryBound
+  ∧ EpochBound
+  ∧ (claim_class != delta ∨ BasisBound)
+  ∧ (claim_class != procedural ∨ IssuerProceduralHistoryBound)
+```
+
+```text
+IssuerIssuanceAuthentic(R, t_s) :=
+    IssuerStatementComplete(R)
+  ∧ SignatureValid
+  ∧ SignerCredentialValidAtIssuance
+  ∧ AuthorityValidAtIssuance
+  ∧ TrustedIssuanceTimeEstablished
+  ∧ PreCompromiseOrRevocationEstablished
+```
+
+```text
+RequestedUseAuthorized(R, request) :=
+    RequestedAudienceUsePermitted
+  ∧ RequestedJurisdictionUsePermitted
+  ∧ requested_authority_boundary_permitted
+```
+
+For a procedural public projection:
+
+```text
+ProjectionFaithfulProcedural(R, P8) :=
+    ProjectionFaithful(R, P8)
+  ∧ ReleasedProceduralHistoryComplete
+```
+
+A requested-use mismatch blocks reliance for that request without rewriting issuer issuance. Selective release withholding blocks projection/public-history reliance without rewriting the issuer-side history commitment.
+
+#### Complete v2 consistency sweep
+
+The complete v2 manifest contains **29 subfixtures / 29 total subfixtures**. Six require the split vocabulary:
+
+- F-09a — issuer audience bound remains true; requested audience use is false;
+- F-10a — issuer jurisdiction bound remains true; requested jurisdiction use is false;
+- F-12a, F-12b, F-12c — issuer procedural history binding is false, so issuer issuance is contradicted; and
+- AX-05a — issuer procedural history binding remains true; released procedural history completeness is false, so projection is contradicted while issuer issuance remains established.
+
+No other v2 subfixture sets a necessary issuer-side predicate false while reporting `IssuerIssuanceAuthentic = established`. The exact corrected vectors are in `frozen-falsifier-suite.md` §10.

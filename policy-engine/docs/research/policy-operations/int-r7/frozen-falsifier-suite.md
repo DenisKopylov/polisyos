@@ -8,8 +8,10 @@ repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
 amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
+remediated_after_verification: research/int-r7-amendment-verification@5225f8bf6cc995f0d3a9cb622454c1af9432745d
 suite_id: INT-R7-PV-FALSIFIERS-v1
 amended_suite_id: INT-R7-PV-FALSIFIERS-v2
+controlling_remediation: "§10 — Bounded remediation after conformance verification"
 suite_frozen: true
 research_only: true
 int_r8_seam: proof_only
@@ -669,6 +671,8 @@ Under `S0-K16`, the passage report must name the implementation, commit, environ
 
 ## 9. Controlling amendment — `INT-R7-PV-FALSIFIERS-v2`
 
+> **Remediation notice.** Section 10 controls the typed grammar, B0/B1 baseline pairs, and the six predicate overlays identified by `INT-R7-V-103` and `INT-R7-V-104`. The original §9 text remains visible as amendment history; where it conflicts with §10, it is not the executable v2 contract.
+
 Suite v1 is preserved above as the audited history. It is **not executable as written** because conditional/disjunctive pseudo-values conflict with exact equality and several families combine distinct mutations. Suite v2 supersedes v1 for conformance while preserving `F-01` through `F-18` as immutable family IDs.
 
 INT-R8 remains unaudited and GY-N12 remains planned. Positive dependency material in this suite is therefore a **fixture contract only**, not evidence that PolicyOS can currently produce the result.
@@ -1235,3 +1239,137 @@ Under `S0-K16`, even 29/29 passage supports only that the named implementation, 
 ### 9.8 Anti-wire-format warning
 
 The YAML-like blocks are a static conformance specification, not a mandated API or wire format. Implementations may encode equivalent fixtures/results differently, but the immutable family IDs, exact semantic values, evaluation-status distinction, denominators and failure meanings must be preserved.
+
+## 10. Bounded remediation after conformance verification
+
+This section closes `INT-R7-V-103` and applies the predicate split required by `INT-R7-V-104`. It supersedes §§9.1–9.4 only for the typed value grammar, value/status pairing, B0/B1 baselines, and the six named fixture overlays. It does not add, delete, renumber, or weaken any family or subfixture.
+
+### 10.1 Exact whole-token grammar
+
+A validator parses each scalar as one complete token. It does **not** scan substrings.
+
+```text
+BooleanValue      := true | false
+EvidenceValue     := established | contradicted | not_established
+SelectionValue    := latest_established_under_policy | supplied_snapshot_only | rollback_detected
+ObtainabilityValue:= public_available | records_process_available | competently_restricted
+NoValue           := null
+EvaluationStatus  := evaluated | short_circuited | not_applicable | dependency_unavailable
+```
+
+Each predicate/dimension slot declares which non-null value family it accepts. The pair grammar is:
+
+```text
+EvaluatedPair     := {value: <slot-permitted non-null token>, evaluation_status: evaluated}
+UnevaluatedPair   := {value: null, evaluation_status: short_circuited | not_applicable | dependency_unavailable}
+```
+
+A conditional or free-prose pseudo-value fails because the complete scalar is not a member of the slot's grammar. A validator must never reject a permitted token because a character substring such as `or` or `if` appears inside that token.
+
+### 10.2 Corrected static-validator rules
+
+A static suite validator rejects the controlling v2 specification when:
+
+1. a `value` token is not an exact member of the grammar declared for that slot;
+2. an `evaluation_status` token is not an exact member of `EvaluationStatus`;
+3. `evaluation_status: evaluated` is paired with `value: null`;
+4. any unevaluated status is paired with a non-null value;
+5. a subfixture lacks one exact top-level outcome;
+6. a family alternative is expressed inside one mutation/expectation instead of a separately identified subfixture;
+7. an offline subfixture omits an exact network-contact expectation;
+8. expanded machine and human expected outcome/reason-code sets differ;
+9. family or subfixture denominators differ from the frozen manifest; or
+10. an existing family ID is removed or weakened without a new suite version.
+
+### 10.3 Corrected exact baselines
+
+```yaml
+baselines:
+  B0:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: established, evaluation_status: evaluated}
+      ProjectionFaithful: {value: established, evaluation_status: evaluated}
+      PublicHistoryEstablished: {value: established, evaluation_status: evaluated}
+      DurablyVerifiableAt: {value: established, evaluation_status: evaluated}
+      CurrentAuthorityAsOf: {value: established, evaluation_status: evaluated}
+      StatusSnapshotSelection: {value: latest_established_under_policy, evaluation_status: evaluated}
+      EvidenceObtainability: {value: public_available, evaluation_status: evaluated}
+    predicates:
+      ContentBound: {value: true, evaluation_status: evaluated}
+      SignatureValid: {value: true, evaluation_status: evaluated}
+      SignaturePolicySatisfied: {value: true, evaluation_status: evaluated}
+      BasisBound: {value: null, evaluation_status: not_applicable}
+      IssuerAudienceDeclaredAndBound: {value: true, evaluation_status: evaluated}
+      RequestedAudienceUsePermitted: {value: true, evaluation_status: evaluated}
+      IssuerJurisdictionDeclaredAndBound: {value: true, evaluation_status: evaluated}
+      RequestedJurisdictionUsePermitted: {value: true, evaluation_status: evaluated}
+      IssuerProceduralHistoryBound: {value: true, evaluation_status: evaluated}
+      ReleasedProceduralHistoryComplete: {value: true, evaluation_status: evaluated}
+      OfflineClosureComplete: {value: true, evaluation_status: evaluated}
+  B1:
+    inherit: B0
+    predicates:
+      BasisBound: {value: true, evaluation_status: evaluated}
+```
+
+The complete value/status sweep covers **31 fixture records / 31 total fixture records**: B0, B1, and 29 mandatory subfixtures. B0's `BasisBound` pair was the only pair inconsistent with the declared not-applicable representation. F-02a's `{value: null, evaluation_status: short_circuited}` remains valid.
+
+### 10.4 Corrected predicate overlays
+
+These overlays replace only the listed predicate maps after baseline expansion.
+
+```yaml
+corrected_overlays:
+  F-09a:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: established, evaluation_status: evaluated}
+    predicates:
+      IssuerAudienceDeclaredAndBound: {value: true, evaluation_status: evaluated}
+      RequestedAudienceUsePermitted: {value: false, evaluation_status: evaluated}
+
+  F-10a:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: established, evaluation_status: evaluated}
+    predicates:
+      IssuerJurisdictionDeclaredAndBound: {value: true, evaluation_status: evaluated}
+      RequestedJurisdictionUsePermitted: {value: false, evaluation_status: evaluated}
+
+  F-12a:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: contradicted, evaluation_status: evaluated}
+    predicates:
+      IssuerProceduralHistoryBound: {value: false, evaluation_status: evaluated}
+
+  F-12b:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: contradicted, evaluation_status: evaluated}
+    predicates:
+      IssuerProceduralHistoryBound: {value: false, evaluation_status: evaluated}
+
+  F-12c:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: contradicted, evaluation_status: evaluated}
+    predicates:
+      IssuerProceduralHistoryBound: {value: false, evaluation_status: evaluated}
+
+  AX-05a:
+    dimensions:
+      IssuerIssuanceAuthentic: {value: established, evaluation_status: evaluated}
+      ProjectionFaithful: {value: contradicted, evaluation_status: evaluated}
+    predicates:
+      IssuerProceduralHistoryBound: {value: true, evaluation_status: evaluated}
+      ReleasedProceduralHistoryComplete: {value: false, evaluation_status: evaluated}
+      NegativeTerminalSetComplete: {value: false, evaluation_status: evaluated}
+```
+
+F-09a and F-10a are requested-use failures, not defects in the issuer's signed declaration. AX-05a is a released-history/projection failure, not evidence that the issuer omitted the negative-terminal-set commitment from the signed procedural statement.
+
+### 10.5 Complete algebra-consistency sweep
+
+The controlling v2 manifest remains **23 families / 23 total** and **29 subfixtures / 29 total**. A complete subfixture sweep against the remediated issuer formula found six overlays requiring the split vocabulary: F-09a, F-10a, F-12a, F-12b, F-12c, and AX-05a. After applying §10.4, no subfixture sets a necessary issuer-side predicate false while reporting `IssuerIssuanceAuthentic = established`.
+
+The old `AudienceBound`, `JurisdictionBound`, and `ProceduralHistoryBound` entries in §9.4 remain visible as amendment history. They are not controlling v2 expectations after this remediation.
+
+### 10.6 Denominator and passage boundary preserved
+
+The exact expected result in §9.5 remains unchanged: 23 families, 29 mandatory subfixtures, and zero failures or unexpected positives for a conforming run. No run is claimed here. Passage remains bounded by `S0-K16`, and the first-public-signature gate remains closed.

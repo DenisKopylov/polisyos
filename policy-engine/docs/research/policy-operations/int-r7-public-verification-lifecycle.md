@@ -11,6 +11,8 @@ pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 delivery_branch: research/int-r7-public-verification-lifecycle
 inspection_date: 2026-08-04
 amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
+remediated_after_verification: research/int-r7-amendment-verification@5225f8bf6cc995f0d3a9cb622454c1af9432745d
+controlling_post_audit_amendment: "§21 — Post-audit controlling amendment"
 research_only: true
 int_r8_seam: proof_only
 authoritative_for:
@@ -38,6 +40,8 @@ may_not_use_for:
 
 **Result: `GO_WITH_REVISIONS`.**
 
+> **Controlling reading notice.** This report preserves the audited text. Section 21 is the controlling post-audit amendment. Before relying on any earlier aggregate formula, dependency status, capability label, suite denominator, recovery-gate wording, source transfer, or independence claim, follow the point-of-use notice to the named §21 subsection. Where earlier text conflicts with §21, the earlier text is audited history and is not the current research contract.
+
 A coherent public-verification lifecycle exists, but it is not “Ed25519 plus a public-key directory.” The minimum viable profile is a composition of independently scoped layers:
 
 1. a domain-separated signature over the complete semantic statement;
@@ -52,6 +56,8 @@ A coherent public-verification lifecycle exists, but it is not “Ed25519 plus a
 10. citizen and machine outcomes that separate historical authenticity from current authority.
 
 No single surveyed model supplies all ten properties. The selected composition gives every guarantee one named owner and one named assumption. Detached signatures supply exact statement integrity; credentials supply bounded institutional identity; trusted time/status distinguishes pre-revocation issuance from post-compromise forgery; transparency plus independent witnesses supplies common-view evidence; GY-N12 supplies currentness; INT-R8 supplies the content/projection relation; preservation renewal carries the proof through key, certificate, algorithm, format, and organizational change.
+
+> **Superseded dependency and suite snapshot.** The following pre-audit gate list is retained as history. Section 21.3 governs INT-R8/GY-N12 dependency status, §21.5 governs the suite denominator, and §21.6 governs the recovery drill.
 
 The research profile is strong enough for consolidation and DS12 design work. The **first-public-signature gate remains closed** until:
 
@@ -114,7 +120,11 @@ The supplied assertion that `build_public_export_bundle` appears in exactly two 
 - `policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py`;
 - `policy-engine/tests/unit/runtime/quality/test_public_export.py`.
 
-`runtime/quality/__init__.py` is a re-export, not a caller. The narrower production conclusion remains true: no production caller outside the defining `src` module and no HTTP route were found. The correct capability classification is:
+`runtime/quality/__init__.py` is a re-export, not a caller. The narrower production conclusion remains true: no production caller outside the defining `src` module and no HTTP route were found.
+
+> **Superseded capability labels.** The classification list below is retained as audited history. Section 21.4 and `int-r7/repository-integration-and-dependencies.md` §11 govern the pinned capability disposition; only the real export-producer-to-route connection remains `bridge_missing`.
+
+The correct capability classification is:
 
 - public projection producer: present;
 - public proof producer: `producer_missing`;
@@ -190,6 +200,8 @@ The model includes:
 The full controls/observations/goals are in `threat-model-and-verification-predicates.md`.
 
 ### 4.2 Predicate vector
+
+> **Superseded aggregate algebra.** The predicate list and formulas in this subsection are retained as audited history. Section 21.2 and `int-r7/threat-model-and-verification-predicates.md` §15 govern: issuer issuance, projection faithfulness, public history, durable verifiability, and current authority are separately reportable; current/projection positives require admitted GY-N12 and INT-R8 interfaces.
 
 The verifier evaluates at least:
 
@@ -539,6 +551,8 @@ The following must exist **before issuance**.
 - threshold/co-authorization evidence where required;
 - later succession statements.
 
+> **Superseded source transfer.** The US-01 sentence below is retained as audited history. Section 21.7 and `int-r7/external-source-and-transfer-ledger.md` §6 govern: US-01 is historical-only and officially superseded.
+
 NARA's Trust Documentation Set guidance is a strong public-record transfer: preserve transaction signature/certificate/status/time evidence together with administrative policy, configuration, testing, and operational records for the retention period [US-01]. The transfer does not make US guidance universally applicable.
 
 ### 12.3 Retained public-history closure
@@ -662,6 +676,8 @@ Structurally impossible states include:
 
 ## 15. Frozen falsifier suite
 
+> **Superseded suite version.** The v1/18-case material below is retained as audited history. Section 21.5 and `int-r7/frozen-falsifier-suite.md` §9, as remediated after verification, govern the 23-family/29-subfixture v2 specification.
+
 `frozen-falsifier-suite.md` defines exactly 18 minimum cases:
 
 1. attacker-chosen legacy FNV packet with correctly recomputed code;
@@ -713,6 +729,8 @@ Any failure keeps the first-signature gate closed. Passage is not a capability, 
 | dashboard packet/viewer | FNV self-consistency presentation | strangle positive path; retain only rendering model or explicit negative fixture |
 
 ### 16.2 Genuine new capability classes
+
+> **Superseded missing-state labels.** The capability labels below are retained as audited history. Section 21.4 and the repository handoff §11 govern; N-01–N-07 are absent/unallocated at the pinned commit, while the real export-to-route connection remains `bridge_missing`.
 
 - public authority credential and organizational-succession evidence: `producer_missing` plus institutional dependency;
 - trusted issuance-time and signing-time status closure: `producer_missing`, `verification_missing`;
@@ -837,6 +855,8 @@ The full typed list is in `repository-integration-and-dependencies.md`.
 
 ## 19. Before-first-signature gate
 
+> **Superseded generic gate wording.** The pre-audit gate below is retained as history. Section 21.5 governs the v2 suite denominator and §21.6 governs the pre-live ceremonial and bounded first-live recovery drills.
+
 DS12 may not emit the first public signature until all of the following are evidenced:
 
 - versioned canonical semantic statement;
@@ -862,6 +882,8 @@ A technically valid signature emitted before those conditions would authenticate
 ## 20. Result standing and exact reason
 
 **`GO_WITH_REVISIONS`.**
+
+> **Superseded independence wording.** The consolidation list below is retained as audited history where it says dimensions are “independent.” Section 21.2 governs: they are separately reportable and are not claimed to be logically or statistically independent.
 
 ### Safe to consolidate as research semantics
 
@@ -1025,3 +1047,7 @@ The first-public-signature gate remains closed. That is a correct outcome, not a
 ### 21.10 Anti-wire-format warning
 
 Dimension names, predicate names, outcome names, YAML-like fixtures, lifecycle states, function-like notation and evidence classes throughout the amended research are semantic propositions and conformance vocabulary only. They do not prescribe or authorize an enum, class, database schema, event envelope, API response, package, wire format, container or vendor implementation.
+
+### 21.11 Bounded remediation status
+
+Conformance findings `INT-R7-V-102`, `INT-R7-V-103`, and `INT-R7-V-104` are closed at the authoring level by reachable supersession markers, a self-consistent typed validator/baseline, and separation of issuer-side declaration from requested-use and released-history predicates. Standing remains **`GO_WITH_REVISIONS` pending independent delta-only re-verification**. The first-public-signature gate remains closed.

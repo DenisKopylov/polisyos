@@ -3,11 +3,14 @@ title: "INT-R8 orientation ledger — compression loss and disclosure compositio
 research_id: INT-R8
 artifact_role: orientation-ledger
 status: accepted_narrow_scope
+amendment_conformance: pending_independent_verification
 research_only: true
 repository: DenisKopylov/polisyos
 baseline_ref: main
 baseline_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
+audited_head: 90b372964d29a9e97605a6ef733ef03ffe7938d2
 prepared_at: 2026-08-04
+amended_after_audit: research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2
 may_not_use_for:
   - production_implementation_authorization
   - final_wire_schema_package_database_serialization_or_api_contract
@@ -24,118 +27,237 @@ may_not_use_for:
 
 # INT-R8 orientation ledger
 
-## 1. Audit scope and method
+## 0. Controlling correction notice
 
-This ledger records Pass I of INT-R8. It verifies the orientation facts supplied in the commission against the exact Git object `02c5b8d23c757c92b9231e6e1e802d5701588908`. No repository statement below is inferred from a moving branch. The GitHub exact-ref interface was used because ordinary outbound Git/GitHub DNS was unavailable in the execution environment. The research branch was created from the exact commit, not from the then-current textual name `main`.
+This ledger supersedes the audited orientation ledger where the two conflict. The audited text is
+preserved at commit `90b372964d29a9e97605a6ef733ef03ffe7938d2`. The correction executes audit
+findings `INT-R8-I-002` and `INT-R8-I-004` and preserves `INT-R8-I-001`, `I-003`, and `I-005`.
 
-Set-level claims use complete-set denominators. For the two largest set claims, the complete result was partitioned into disjoint paths so that connector page limits could not silently turn a sample into a denominator:
+Ordinary local Git access was attempted during the amendment and failed because `github.com`
+could not be resolved. The published recipe's **operations** were re-run against the pinned
+object through the connected exact-ref interface. The literal shell block was not executed in a
+local checkout. This is an environment variation, not a claim that the shell ran.
 
-- `may_not_use_for`: `runtime` (67 files) + `scientist` (12 files) + all remaining `policy-engine/src/polisyos` paths excluding those two disjoint roots (27 files) = **106/106 Python files returned by the complete exact-token census**;
-- `build_public_export_bundle` production-source presence: the complete `policy-engine/src` token-containing set is **2/2 files** — the definition and the `runtime/quality/__init__.py` re-export. Tooling and tests contain invocations, but no `runtime/http` binding exists.
+## 1. Count vocabulary
 
-The pinned repository itself defines P35 as the prohibition on sampled-denominator generalization and P36 as the prohibition on authority by adjacency; this audit applies those findings by ID and not by nearby prose (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:170-260`).
+Every numeric census below identifies its unit:
 
-## 2. Orientation findings
+- **line count** — physical newline-delimited source lines;
+- **matched-line count** — lines containing at least one exact case-sensitive token;
+- **literal-occurrence count** — non-overlapping exact case-sensitive substring occurrences;
+- **token-containing-file count** — distinct files containing at least one exact token;
+- **invocation-file count** — distinct Python files containing the exact call/definition token
+  `build_public_export_bundle(`; and
+- **commit/file/addition count** — values returned by exact Git comparison.
 
-| ID | Supplied fact | Independent result | Evidence at pinned commit | Consequence for INT-R8 |
-|---|---|---|---|---|
-| OR-001 | `projection_semantics.py` is 3,763 lines. | **Confirmed.** The final executable/export line is line 3,763. | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:3758-3763` | Treat it as a substantial canonical substrate, not a seed to replace. |
-| OR-002 | The named omission, redaction, gap, limitation, contest, recourse, participation, visibility, invariant and audit helpers exist. | **Confirmed.** The projection builder invokes the named helpers and keeps the projection explicitly non-authoritative. | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:80-760` | `CompressionLossReceipt` must extend this owner and reuse its identifiers. |
-| OR-003 | Four audiences are canonical. | **Confirmed exactly:** `PUBLIC`, `REVIEWER`, `EXPERT`, `MACHINE`. | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:648-655` | No fifth audience is admissible in this research. |
-| OR-004 | Per-projection consumer contracts S9-S14 and authority-laundering checks already exist. | **Confirmed.** The verifier family rejects projection-specific hidden blockers, missing omissions, contested-state loss and authority laundering. S14 additionally checks hidden/gold payload. | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:760-2400`; `:1900-2250` | INT-R8 adds material-loss and transcript composition checks; it does not duplicate S9-S14. |
-| OR-005 | `_s14_contains_hidden_or_gold_payload` exists. | **Confirmed.** It participates in the S14 issue path. | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:1900-2250` | Hidden held-out content remains a pre-existing per-view firewall; cross-view reconstruction is the missing delta. |
-| OR-006 | `public_export.py` is 2,103 lines. | **Confirmed.** | `policy-engine/src/polisyos/runtime/quality/public_export.py:2098-2103` | The export producer is mature enough to consume a loss verdict but does not currently produce one. |
-| OR-007 | Public export already manifests omitted claims and canonical redaction reasons. | **Confirmed.** `_assert_public_claim_omissions_manifested` compares omitted IDs found recursively in artifacts to claim IDs in the projection omission manifest; `_canonical_redaction_reason` emits three canonical scanner-derived reasons. | `policy-engine/src/polisyos/runtime/quality/public_export.py:1691-1875`; `:300-650` | Existing omission and redaction metadata are reused. Materiality, class of loss and cross-release effect are new. |
-| OR-008 | Public export already has candidate-firewall and replay-drift gates. | **Confirmed.** | `policy-engine/src/polisyos/runtime/quality/public_export.py:1760-1970` | New checks must compose with these gates, not bypass them. |
-| OR-009 | Exact public-export token census: `omitted_claim` 8; `projection_faithfulness` 13; `redaction_reason` 2; `omissions_manifested` 2; `lossy`, `blocked_material`, `compression`, `retained_limitation` 0. | **Confirmed by exact-literal scan of the complete 2,103-line file.** Denominator: one complete file, 2,103 lines. | `policy-engine/src/polisyos/runtime/quality/public_export.py:1-2103` | The measured delta is loss typing and composition, not omission discovery. |
-| OR-010 | `build_public_export_bundle` has no HTTP caller. | **Confirmed with qualification.** Within `policy-engine/src`, the complete token-containing set is 2/2 files: `public_export.py` and `runtime/quality/__init__.py`. Tests and an operations runner call it, but no `runtime/http` path does. | `policy-engine/src/polisyos/runtime/quality/public_export.py:1-650`; `policy-engine/src/polisyos/runtime/quality/__init__.py:900-1150` | Producer present; surface binding is `bridge_missing`, not `producer_missing`. |
-| OR-011 | No disclosure-budget owner exists in source. | **Confirmed.** Complete searches of `policy-engine/src` for `disclosure_budget`, `composition_budget`, `privacy_budget`, `compression_loss`, and `CompressionLoss` return zero source files. | Complete exact-token source-tree census at the pinned commit. | A scalar budget cannot be treated as latent infrastructure. |
-| OR-012 | `CompressionLoss` appears nowhere. | **Qualified.** It appears in research/planning prose, including the planned GY-PA3 entry, but in **zero source files**. | `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2300-2400`; complete `policy-engine/src` census | The planned producer is not a present capability. |
-| OR-013 | `may_not_use_for` is live and occurs in 106 Python files. | **Confirmed: 106/106 files in the complete exact-token census.** Disjoint partition: runtime 67, scientist 12, remainder 27. The set includes the three examples named in the commission. | `policy-engine/src/polisyos/core/contracts/runtime.py`; `policy-engine/src/polisyos/core/contracts/rule_evolution.py`; `policy-engine/src/polisyos/evidence/portfolio/conflict_records.py`; complete census | Denied-use is a first-class retained semantic, never optional prose. |
-| OR-014 | The frontend publication packet is 1,214 lines and is consumed by the public viewer. | **Confirmed.** The viewer decodes and renders that packet through `PublicationPacketPanel`. | `policy-engine/apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1208-1214`; `policy-engine/apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:1-65` | The packet is a rendering consumer and current compression point, never the semantic owner. |
-| OR-015 | Frontend compression currently drops semantics without a receipt. | **Confirmed and sharpened.** The packet preserves only a narrow projection subset; `publicText` truncates to 320 characters, `publicRef` to 96, deterministic explanations cap metrics with `slice(0, 4)`, and `buildProjectionSemantics` does not carry the existing omission manifest, redaction summary, projection gaps, contested records, recourse pointer, participation surface, deficit register or audit refs. | `policy-engine/apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:336-460`; `:621-735`; `:889-1018` | This is the de facto unreceipted editorial-compression comparator. It is not evidence that every current packet is materially false; it is evidence that material loss is not detectable from the packet contract. |
-| OR-016 | The deep link embeds the packet. | **Confirmed.** `signPublicDecisionPacket` serializes the packet, base64url-encodes it and places the payload in `/public/decisions/{signedId}`; verification is client-side. | `policy-engine/apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1019-1214` | URL, browser history, referrer, logs, screenshots and copied links are disclosure channels and must enter the transcript threat model. Proof construction remains INT-R7's scope. |
-| OR-017 | Atlas DS12, DS13 and DS14 consume the result; DS12 gates the first public record on INT-R8. | **Confirmed.** DS12 retains the packet only as a rendering view model and names INT-R1, INT-R9, INT-R7 and INT-R8 as pre-publication research inputs; DS13 owns accountability-history surfaces; DS14 consumes compression-loss work. | `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1100-1800` | INT-R8 is a binding research input, not an implementation or plan amendment. |
-| OR-018 | The Atlas reconnaissance Publication row says no authoritative public-record producer/verifier exists. | **Confirmed.** | `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:175-260` | Frontend integrity cues cannot satisfy INT-R7 or INT-R8. |
-| OR-019 | GY-PA3 is the planned compression-loss producer and G6 has no compression ledger. | **Confirmed as plan text, not capability.** The entry names the desired receipt and red-first conditions and says to reuse `projection_semantics` and `public_export`. | `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2300-2400` | Reality label remains `producer_missing`; INT-R8 defines semantics before that producer may close. |
-| OR-020 | The two ratification records are 264 and 379 lines and change the task. | **Confirmed.** The authority-band lens is in the Stage-0 record; INT-K02, K04, K05, K06, K07 and K08 are in the INT-wave record. | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:35-92,258-264`; `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:77-245,373-379` | Bare `delta` and hidden negative terminals are categorical blocked omissions; a no-number custody claim is a first-class compression target; current numeric composition is not justified. |
+Matched lines and literal occurrences are not interchangeable. One line can contain a token more
+than once.
 
-## 3. Public-export census detail
+## 2. Delivery geometry
 
-### 3.1 Exact literal census
+Exact comparison of baseline
+`02c5b8d23c757c92b9231e6e1e802d5701588908` to audited head
+`90b372964d29a9e97605a6ef733ef03ffe7938d2` establishes:
 
-The complete-file denominator is `public_export.py` at 2,103 lines. Counts are case-sensitive literal occurrences, not semantic aliases:
+| Quantity | Unit | Value |
+|---|---|---:|
+| commits ahead | commits | 6 |
+| commits behind | commits | 0 |
+| added Markdown files | files | 6 |
+| modified files | files | 0 |
+| deleted files | files | 0 |
+| added lines | diff additions | 2,207 |
 
-| Literal | Count | Interpretation |
-|---|---:|---|
-| `omitted_claim` | 8 | Omitted-claim discovery and manifest enforcement exist. |
-| `projection_faithfulness` | 13 | S9 faithfulness is already integrated. |
-| `redaction_reason` | 2 | Canonical redaction reason production exists. |
-| `omissions_manifested` | 2 | The fail-closed omission-manifest assertion exists and is called. |
-| `lossy` | 0 | No safe-loss outcome exists. |
-| `blocked_material` | 0 | No material-omission outcome exists. |
-| `compression` | 0 | No compression semantic exists in this owner. |
-| `retained_limitation` | 0 | No explicit retained-limitation accounting exists. |
+Audited file line counts are 526, 486, 436, 359, 203, and 197; their arithmetic sum is 2,207.
 
-The census supports a narrow gap statement only: `public_export.py` can detect some silent omitted-claim IDs, but cannot classify whether loss is materially safe, account for limitations/attacks/denied uses/counterevidence as retained versus dropped, or compose several releases.
+## 3. Corrected complete-file token census
 
-### 3.2 Caller census
+Complete-file denominator: all 2,103/2,103 lines of
+`policy-engine/src/polisyos/runtime/quality/public_export.py` at the pinned baseline.
 
-The source-tree denominator is every file below `policy-engine/src`. Exactly two source files contain `build_public_export_bundle`:
+| Exact token | Matched lines | Literal occurrences | Interpretation |
+|---|---:|---:|---|
+| `omitted_claim` | 8 | **9** | Omitted-claim discovery and manifestation handling exist. One source line contains the token twice. |
+| `projection_faithfulness` | 13 | 13 | S9 faithfulness is integrated. |
+| `redaction_reason` | 2 | 2 | Canonical scanner-reason production exists. |
+| `omissions_manifested` | 2 | 2 | The fail-closed omission-manifest assertion exists and is called. |
+| `lossy` | 0 | 0 | No safe-loss outcome exists in this owner. |
+| `blocked_material` | 0 | 0 | No material-omission outcome exists in this owner. |
+| `compression` | 0 | 0 | No compression semantic exists in this owner. |
+| `retained_limitation` | 0 | 0 | No explicit retained-limitation accounting exists in this owner. |
+
+The audited ledger incorrectly named 8 as the literal-occurrence count for `omitted_claim`.
+Python `text.count("omitted_claim")` returns 9. The architectural conclusion is unchanged: omission
+handling exists; typed compression loss does not.
+
+## 4. File-size and canonical-audience census
+
+| Claim | Unit | Re-derived result | Pinned evidence |
+|---|---|---|---|
+| `projection_semantics.py` size | source lines | 3,763 | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:3758-3763` |
+| `public_export.py` size | source lines | 2,103 | `policy-engine/src/polisyos/runtime/quality/public_export.py:2098-2103` |
+| `publicationPacket.ts` size | source lines | 1,214 | `policy-engine/apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1208-1214` |
+| Stage-0 ratification size | source lines | 264 | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:258-264` |
+| INT-wave ratification size | source lines | 379 | `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:373-379` |
+| canonical audiences | enum members | 4: PUBLIC, REVIEWER, EXPERT, MACHINE | `projection_semantics.py:648-655` |
+| new audience introduced by INT-R8 | audited-file census | 0 in 6/6 audited artifacts | Complete audited-artifact read |
+
+The no-fifth-audience statement is a scope rule for this research, not a claim that a competent
+future architecture act can never amend the canonical contract.
+
+## 5. `may_not_use_for` complete-set census
+
+Search universe: every Python file below `policy-engine/src/polisyos` at the pinned commit.
+Result unit: **distinct token-containing Python files**, not lines or occurrences.
+
+The complete hit set was partitioned into disjoint path roots:
+
+| Partition | Path rule | Token-containing files |
+|---|---|---:|
+| runtime | below `policy-engine/src/polisyos/runtime/` | 67 |
+| scientist | below `policy-engine/src/polisyos/scientist/` | 12 |
+| remainder | below `policy-engine/src/polisyos/`, excluding both roots above | 27 |
+| **union** | three disjoint partitions | **106** |
+
+The path sets are disjoint by construction and 67 + 12 + 27 = 106. The denominator is the
+complete token-containing hit set, not “all Python files equal 106.” The token may occur multiple
+times in a file; no occurrence count is claimed.
+
+This census includes the named examples:
+
+- `policy-engine/src/polisyos/core/contracts/runtime.py`;
+- `policy-engine/src/polisyos/core/contracts/rule_evolution.py`; and
+- `policy-engine/src/polisyos/evidence/portfolio/conflict_records.py`.
+
+Denied use is therefore live source semantics, not a documentation convention.
+
+## 6. Corrected `build_public_export_bundle` censuses
+
+### 6.1 Production-source symbol-containing set
+
+Search universe: every Python file below `policy-engine/src`.
+Unit: distinct files containing the exact symbol text `build_public_export_bundle`.
+
+Exactly 2 files contain the symbol:
 
 1. `policy-engine/src/polisyos/runtime/quality/public_export.py` — definition;
 2. `policy-engine/src/polisyos/runtime/quality/__init__.py` — re-export.
 
-Calls in tests and `policy-engine/tools/ops_runners/runtime/canary_evidence.py` prove test/operations use, not an HTTP publication surface. No `policy-engine/src/polisyos/runtime/http/**` caller exists. Therefore the reality statement is exactly:
+The second file is not a caller. No file below
+`policy-engine/src/polisyos/runtime/http/` contains a call binding this producer to an HTTP route.
 
-- public-export producer: present;
-- HTTP/public-surface binding: `bridge_missing`;
-- compression-loss receipt producer: `producer_missing`;
-- material-loss verifier: `verification_missing`;
-- required mutation and cross-view tests: `semantic_test_missing`.
+### 6.2 Whole-tree invocation-file set
 
-## 4. Frontend compression delta
+Search universe: every Python file in the complete repository tree.
+Unit: distinct files containing the exact invocation/definition token
+`build_public_export_bundle(`.
 
-The current packet is safer than an unconstrained free-form summary in several respects: it carries explicit non-authority framing, preserves projection `may_not_be_used_for`, masks a limited set of textual patterns, presents an argument map, and rejects malformed client packets. Those strengths must survive consolidation.
+The complete set contains **5 files**:
 
-The packet nevertheless cannot establish semantic parity:
+1. `policy-engine/src/polisyos/runtime/quality/public_export.py` — definition;
+2. `policy-engine/tools/ops_runners/runtime/canary_evidence.py` — tooling caller;
+3. `policy-engine/tools/quality/validation/check_layer3_workflow_failure_authority.py` — validation-tool caller;
+4. `policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py` — test caller;
+5. `policy-engine/tests/unit/runtime/quality/test_public_export.py` — test caller.
 
-1. `buildDecisionSummary` maps a larger decision view into `runId`, `verdict`, `confidence`, `generatedAt`, a headline and one already-authored `policySummary` (`publicationPacket.ts:410-445`). It has no retained/dropped inventory.
-2. `publicText` and `publicRef` perform length truncation after pattern replacement (`publicationPacket.ts:354-409`). A qualifier after the cut point can disappear without a typed omission.
-3. `buildDeterministicExplanations` uses only the first four metrics (`publicationPacket.ts:621-735`). There is no materiality test for later metrics.
-4. `buildProjectionSemantics` copies authority role, closeout truth, display states, evidence class, time, denied uses, policy, provenance kind and surface, but not the canonical omission, gap, contest, recourse, limitation and audit structures (`publicationPacket.ts:889-956`).
-5. The model-card limitation sentence says restricted notes, raw values and embargoed evidence are excluded, but does not identify affected claim IDs, category, disposition or semantic effect (`publicationPacket.ts:735-840`).
-6. The deep link contains the serialized packet itself (`publicationPacket.ts:1019-1165`). This makes the URL a disclosure artifact; it does not by itself prove a private leak, but it invalidates any threat model that analyzes only visible DOM text.
-7. `packetContainsPrivateContext` searches five string needles (`publicationPacket.ts:1195-1214`). It is a narrow heuristic, not a complete privacy or cross-view proof.
+Therefore there are **4 caller files outside the definition**: two tools and two tests.
+`runtime/quality/__init__.py` is in the two-file symbol set but not in the five-file invocation set.
 
-These are not findings that the frontend should become an authority owner. They establish why the future receipt must be produced upstream and merely rendered downstream.
+The no-HTTP conclusion survives. The audited orientation's phrase “two callers” does not.
 
-## 5. Ratified constraints applied by ID
+## 7. Named owner/source absence census
 
-- **S0-K07:** a projection cannot mint authority. The receipt classifies content loss; it does not confer publication or closeout authority.
-- **INT-K02:** a `delta` claim without its declared obligation set, maintained assumptions and relative-basis rider is a different false claim. Dropping that basis is always `blocked_material_omission`.
-- **INT-K04:** a number over several events requires prospectively fixed local bounds and owner-reproducible membership, chronology, current heads and assumptions.
-- **INT-K05:** there is one confidence owner and no parent scope or second confidence ledger. A disclosure quantity, if later justified, must be distinct and must not shadow confidence authority.
-- **INT-K06:** a falsifiable procedural custody claim may carry no probability. INT-R8 uses this as the present composition alternative.
-- **INT-K07:** adaptive event selection needs a valid guarantee for the actually history-selected mechanism and a pathwise bound.
-- **INT-K08:** refusal, void, dispute, terminal no-attempt and exhaustion are completed governed outcomes. Compression may not turn their absence of a positive result into silence.
+Search universe: all files below `policy-engine/src` at the pinned commit. Unit: distinct source
+files containing each exact case-sensitive token.
 
-Primary source: `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:77-245`.
+| Token | Source files |
+|---|---:|
+| `disclosure_budget` | 0 |
+| `composition_budget` | 0 |
+| `privacy_budget` | 0 |
+| `compression_loss` | 0 |
+| `CompressionLoss` | 0 |
 
-## 6. Orientation verdict
+This establishes absence of these named source owners/contracts. It does not prove that no
+differently named component could be adapted after a competent architecture decision.
 
-No supplied fact was false in a way that changes the commission. Two qualifications matter:
+A whole-repository search for `CompressionLoss` resolves planning/research prose, including:
 
-1. “zero `CompressionLoss` files” is true for `policy-engine/src`, not for the whole repository, because plans already name GY-PA3;
-2. “two callers” is true for the production source surface; tests and tooling also invoke the function, while no HTTP caller exists.
+- `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md`;
+- `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md`;
+- `policy-engine/docs/research/deep-research-value-distillation.md`; and
+- `policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md`.
 
-The verified architecture delta is therefore:
+Planning prose is not source capability.
 
-> PolicyOS already has canonical four-audience projections, omission manifests, canonical scanner reasons, authority-laundering checks, candidate firewalls and public-export construction. It does not have a producer or verifier for typed material compression loss, does not analyze the union and temporal transcript of releases, and has no owner or theorem for a numeric repeated-disclosure budget.
+## 8. Re-derived orientation register
 
-## 7. Hostile-audit reproduction recipe
+| OR ID | Amended disposition |
+|---|---|
+| OR-001 | Confirmed: `projection_semantics.py` is 3,763 lines. |
+| OR-002 | Confirmed: named omission, gap, contest, recourse, deficit, participation, invariant, redaction, and audit helpers exist. |
+| OR-003 | Confirmed: four canonical audiences; no fifth is introduced. |
+| OR-004 | Confirmed: S9-S14 checks and authority-laundering protections exist. |
+| OR-005 | Confirmed: S14 hidden/gold-payload guard exists. |
+| OR-006 | Confirmed: `public_export.py` is 2,103 lines. |
+| OR-007 | Confirmed with scope: omitted claim IDs and canonical scanner reasons exist; general materiality does not. |
+| OR-008 | Confirmed: candidate-firewall and replay-drift gates exist. |
+| OR-009 | Corrected: `omitted_claim` is 8 matched lines / 9 literal occurrences; the other seven rows reproduce exactly. |
+| OR-010 | Corrected: 2 production-source symbol files; 5 whole-tree invocation files including definition; 4 caller files outside definition; no HTTP binding. |
+| OR-011 | Confirmed as exact named-token source absence. |
+| OR-012 | Confirmed: `CompressionLoss` appears in plans/research but in zero source files. |
+| OR-013 | Confirmed: 106 distinct token-containing Python files, partitioned 67/12/27. |
+| OR-014 | Confirmed: 1,214-line frontend packet is consumed by the public viewer. |
+| OR-015 | Confirmed: truncation, four-metric cap, and narrow copied semantics have no material-loss receipt. |
+| OR-016 | Confirmed: serialized packet is embedded in the deep-link path. |
+| OR-017 | Confirmed: Atlas DS12/DS13/DS14 consume INT-R8 as planning/research input. |
+| OR-018 | Confirmed: Atlas reconnaissance records no authoritative public-record producer/verifier. |
+| OR-019 | Confirmed as plan text, not capability. Amended maturity: GY-PA3 is absent/unallocated, not `producer_missing`. |
+| OR-020 | Confirmed by finding ID: `INT-K02`, `K04`, `K05`, `K06`, `K07`, `K08`, and `S0-K07` constrain this result. |
 
-The following is a reproduction recipe for an auditor with an exact checkout. It is included to make the denominator explicit; it is not an implementation authorization.
+## 9. Existing reuse anchors, stated without a universal limitations field
+
+The base projection emits or derives these concrete carriers:
+
+- `closeout_truth` and closeout limitation/blocker codes;
+- `projection_gaps`;
+- `omission_manifest`;
+- `contested_records`;
+- `recourse_pointer`;
+- `deficit_register`;
+- `participation_requirements`;
+- `invariant_summary`;
+- `redaction_summary`;
+- `audit_refs` and source-authority references;
+- `may_not_be_used_for`; and
+- `authority_role = projection_only` with empty `authoritative_for`.
+
+Surface-specific S10-S14 enrichment may also carry fields named `limitations` or a named public
+limitation. The base projection does not provide one universal top-level limitations collection.
+A future receipt may normalize the semantic effect of these carriers; it may not pretend the
+storage shape is already unified.
+
+Public export consumes projection semantics, runs existing checks, manifests omitted claim IDs,
+and emits scanner-derived reasons. This is the substrate the receipt extends.
+
+## 10. Frontend orientation retained
+
+The packet remains a rendering model, not authority. The pinned source:
+
+- truncates public references to 96 characters and public text to 320;
+- limits deterministic metric explanations to the first four metrics;
+- copies a narrow projection subset rather than the canonical omission/gap/contest/recourse/
+  deficit/audit structures;
+- serializes and base64url-encodes the packet into the deep-link path; and
+- uses a five-needle private-context heuristic.
+
+These facts establish a detectable receipt gap, not that every current packet is materially
+false.
+
+## 11. Reproduction recipe
+
+The recipe prints both matched-line and literal-occurrence columns and distinguishes symbol files
+from invocation files. An auditor with an exact checkout can run:
 
 ```bash
 git checkout --detach 02c5b8d23c757c92b9231e6e1e802d5701588908
@@ -149,49 +271,82 @@ wc -l \
 python - <<'PY'
 from pathlib import Path
 
-root = Path("policy-engine/src")
-public_export = root / "polisyos/runtime/quality/public_export.py"
-text = public_export.read_text(encoding="utf-8")
-for token in (
-    "omitted_claim",
-    "projection_faithfulness",
-    "redaction_reason",
-    "omissions_manifested",
-    "lossy",
-    "blocked_material",
-    "compression",
-    "retained_limitation",
-):
-    print(token, text.count(token))
+repo = Path('.')
+src = repo / 'policy-engine/src'
+public_export = src / 'polisyos/runtime/quality/public_export.py'
+lines = public_export.read_text(encoding='utf-8').splitlines()
+text = public_export.read_text(encoding='utf-8')
 
-python_files = sorted((root / "polisyos").rglob("*.py"))
-may_not_files = [
+tokens = (
+    'omitted_claim',
+    'projection_faithfulness',
+    'redaction_reason',
+    'omissions_manifested',
+    'lossy',
+    'blocked_material',
+    'compression',
+    'retained_limitation',
+)
+for token in tokens:
+    matched_lines = sum(token in line for line in lines)
+    occurrences = text.count(token)
+    print(token, 'matched_lines', matched_lines, 'occurrences', occurrences)
+
+python_files = sorted((src / 'polisyos').rglob('*.py'))
+hits = {
     path for path in python_files
-    if "may_not_use_for" in path.read_text(encoding="utf-8")
-]
-print("may_not_use_for_files", len(may_not_files), "denominator", len(python_files))
+    if 'may_not_use_for' in path.read_text(encoding='utf-8')
+}
+runtime = {path for path in hits if (src / 'polisyos/runtime') in path.parents}
+scientist = {path for path in hits if (src / 'polisyos/scientist') in path.parents}
+remainder = hits - runtime - scientist
+assert not (runtime & scientist or runtime & remainder or scientist & remainder)
+assert runtime | scientist | remainder == hits
+print('may_not_use_for_token_files', len(hits))
+print('runtime', len(runtime), 'scientist', len(scientist), 'remainder', len(remainder))
 
-caller_files = [
-    path for path in sorted(root.rglob("*.py"))
-    if "build_public_export_bundle" in path.read_text(encoding="utf-8")
+symbol_files = [
+    path for path in sorted(src.rglob('*.py'))
+    if 'build_public_export_bundle' in path.read_text(encoding='utf-8')
 ]
-print("source_token_files", len(caller_files))
-for path in caller_files:
+print('source_symbol_files', len(symbol_files))
+for path in symbol_files:
+    print(path)
+
+invocation_files = [
+    path for path in sorted(repo.rglob('*.py'))
+    if 'build_public_export_bundle(' in path.read_text(encoding='utf-8')
+]
+print('whole_tree_invocation_files_including_definition', len(invocation_files))
+for path in invocation_files:
     print(path)
 
 for token in (
-    "disclosure_budget",
-    "composition_budget",
-    "privacy_budget",
-    "compression_loss",
-    "CompressionLoss",
+    'disclosure_budget',
+    'composition_budget',
+    'privacy_budget',
+    'compression_loss',
+    'CompressionLoss',
 ):
-    hits = [
-        path for path in sorted(root.rglob("*"))
-        if path.is_file() and token in path.read_text(encoding="utf-8", errors="ignore")
+    token_files = [
+        path for path in sorted(src.rglob('*'))
+        if path.is_file()
+        and token in path.read_text(encoding='utf-8', errors='ignore')
     ]
-    print(token, len(hits))
+    print(token, 'source_files', len(token_files))
 PY
 ```
 
-The intended audit comparison is against the counts and qualifications above, not against an unpinned future branch.
+The amendment re-ran these operations through exact-ref reads. They produced the amended values
+above, including `omitted_claim: 8 matched lines / 9 literal occurrences` and the five-file
+whole-tree invocation set. The local shell execution remains unavailable and is not claimed.
+
+## 12. Orientation conclusion
+
+The corrected delta is:
+
+> PolicyOS has a real canonical projection substrate and a real public-export producer. It has
+> no source producer, admitted wired gate, controlled transcript custody, or canonical numerical
+> model for compression-loss composition. The present research is a contract-only semantic
+> result. The exact bounded reconstruction predicate and scoped prefix discipline survive; the
+> former census and caller wording do not.

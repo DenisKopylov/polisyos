@@ -9,6 +9,7 @@ pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
 amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 remediated_after_verification: research/int-r7-amendment-verification@5225f8bf6cc995f0d3a9cb622454c1af9432745d
+reachability_closed_after: research/int-r7-remediation-verification@f705c4a7c92511c63541addffd6af2eb870a12bd
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -24,6 +25,19 @@ may_not_use_for:
 ---
 
 # Threat model and verification predicates
+
+## Editing discipline — supersession reachability invariant
+
+For every ordered pair `(E, S)` in the INT-R7 artifact set where section `S` supersedes, corrects, narrows, or otherwise displaces any proposition in section `E`, a reader travelling the affected document in order must encounter, **at or before the first displaced proposition in `E`**, an actionable signal that names `S` specifically enough to navigate to it and identifies the proposition class that `S` controls. The displaced text remains visible as history but is not the current contract.
+
+The rule applies equally to document-level amendments, a subsection that supersedes an earlier subsection of its own controlling section, and a supersession introduced in the same change. The change that creates or changes `S` must create or update the advance signal in the same commit. A generic statement that a document “was amended” or an unqualified “see later” does not satisfy the invariant.
+
+For this document, the advance map is:
+
+- §§7–8 and every later use of `HistoricalAuthenticity` as one conjunction are controlled by §15;
+- the overloaded issuer/request/release meanings of `AudienceBound`, `JurisdictionBound`, and `ProceduralHistoryBound` in §7.1 and §15.2 are controlled by §15.10.
+
+The complete cross-artifact `(E, S)` register and denominator are in `reachability-closure-ledger.md`. Any future controlling section or subsection must update that register and the affected advance signal in the same change.
 
 ## 1. Security question
 
@@ -762,6 +776,8 @@ The decisive security property is not “Ed25519 verification succeeds.” It is
 
 This section supersedes the aggregate definitions in §§7–8 and every later use of `HistoricalAuthenticity` as a single conjunction. It executes `R1`, `R2`, `R3`, `R4`, `R15`, and `R16`. Earlier formulas remain visible as the audited history; they are not the amended contract.
 
+Within this controlling section, §15.10 controls the issuer/request/release predicate split and supersedes the overloaded names used in §15.2. The advance map above also names the §7.1 relation before that earlier definition is encountered.
+
 ### 15.1 Result algebra and truth discipline
 
 Every dimension returns one of three semantic evidence results unless a narrower result is stated:
@@ -775,6 +791,8 @@ Every dimension returns one of three semantic evidence results unless a narrower
 The dimensions are **separately reportable**, not logically independent.
 
 ### 15.2 Issuer-side statement and issuance
+
+> **Point-of-use supersession signal.** The formulas below retain the audited overloaded names `AudienceBound`, `JurisdictionBound`, and `ProceduralHistoryBound`. Section 15.10 is the controlling issuer/request/release split: it replaces those names here with `IssuerAudienceDeclaredAndBound`, `IssuerJurisdictionDeclaredAndBound`, and `IssuerProceduralHistoryBound`, while requested-use and released-history predicates are reported separately. The formulas below are history, not the current contract.
 
 ```text
 IssuerStatementComplete(R) :=

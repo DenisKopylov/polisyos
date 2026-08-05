@@ -6,6 +6,7 @@ result_standing: GO_WITH_REVISIONS
 repository: https://github.com/DenisKopylov/polisyos
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -387,3 +388,34 @@ Removing any selected mandatory layer loses a required property:
 ## 13. Recommendation standing
 
 **Recommendation: GO_WITH_REVISIONS for the research profile.** The composite is technically coherent and institutionally recognizable. The first-public-signature gate remains closed until the dependencies and institutional commitments named in the integration handoff are resolved, and until implementation authority selects concrete formats, services, owners and policies.
+
+## 14. Post-audit comparative clarification
+
+This section controls the comparative conclusion after findings `INT-R7-III-002`, `INT-R7-III-003`, `INT-R7-II-005`, and `INT-R7-II-006`.
+
+### 14.1 Separately reportable dimensions, not logically independent predicates
+
+The selected layers remain justified, but their outputs are **separately reportable dimensions**. They are not claimed to be statistically or logically independent. In particular:
+
+- signature, credential, trusted time and signing-time status support `IssuerIssuanceAuthentic`;
+- INT-R8 supports `ProjectionFaithful`;
+- log plus independently governed checkpoint evidence supports `PublicHistoryEstablished`;
+- preservation and verifier closure support `DurablyVerifiableAt(t_v)`;
+- GY-N12 supports `CurrentAuthorityAsOf(t_q)`.
+
+A later projection, witness, archive or currentness failure cannot retroactively make a genuine issuer-side issuance event not have happened. It changes what can presently be proved or publicly relied upon. Public-current outcomes require the conjunction of all five dimensions, but every dimension remains visible when another fails.
+
+### 14.2 Source-transfer narrowing
+
+- RFC 9162 supports Merkle inclusion/consistency and the need for monitoring/checkpoint comparison. The requirement for a declared independent witness/quorum policy is INT-R7's design inference under a named non-collusion assumption, not an RFC 9162 standardized quorum.
+- Sigstore's exact bundle structure is anchored by supplemental source `SIG-05`, *Sigstore Bundle Format*, Version 0.3.2. It demonstrates verification material and signature-content packaging; it does not establish public administrative competence.
+- ETSI EN 319 142-1 V1.2.1 metadata is corrected to 2024-01 in the source ledger.
+- NARA `US-01` is historical-only and is not used as current authority; Federal PKI `US-02` is nonbinding and Federal Register-specific.
+
+### 14.3 Selection survives the audit
+
+All nine mandatory models remain genuinely evaluated by eliminating property. No option is rejected because the current repository makes it awkward. The composite still wins because no surveyed single model supplies issuer authenticity, projection faithfulness, public-history evidence, durable verifiability and current authority together.
+
+### 14.4 Anti-wire-format warning
+
+The layer names and five dimension names are semantic allocation vocabulary. They do not prescribe a result enum, serialized proof object, endpoint, database table or container. A conforming implementation may represent them differently if it preserves the exact propositions, failures and composition boundary.

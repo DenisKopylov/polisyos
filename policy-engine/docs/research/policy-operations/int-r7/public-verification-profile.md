@@ -7,6 +7,7 @@ repository: https://github.com/DenisKopylov/polisyos
 repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -617,3 +618,107 @@ Governance must decide competent issuing/custody roles, recognized credential/ti
 ## 17. Profile conclusion
 
 The profile is a composition of distinct evidence layers, not a choice of one signature algorithm. Exact signature binding proves who controlled a credential for the statement; trusted time and status establish when; witnessed transparency establishes the bounded public history; GY-N12 establishes currentness; INT-R8 establishes the public projection relation; and preservation renewal carries the evidence across cryptographic and organizational change. Only their typed conjunction can support `VERIFIED_CURRENT_AS_OF`, while the same profile keeps an old record authentically verifiable after it has become withdrawn, stale, superseded, or archive-only.
+
+## 18. Post-audit controlling profile amendment
+
+This section supersedes §§2, 10, 13, 15–17 wherever they collapse issuer issuance, projection faithfulness, public history, preservation and currentness into one result. It carries the decomposition from `threat-model-and-verification-predicates.md` §15 into the profile.
+
+### 18.1 Five separately reportable dimensions
+
+A conforming verifier must report, without forcing one representation:
+
+1. **`IssuerIssuanceAuthentic`** — whether the exact issuer-side statement, signature, credential, authority, trusted time and signing-time status establish an authorized issuance event;
+2. **`ProjectionFaithful`** — whether the public projection is verifiably related to the governed bound object under the admitted INT-R8 contract;
+3. **`PublicHistoryEstablished`** — whether inclusion, append-only extension and the declared independently governed checkpoint policy establish the bounded public history;
+4. **`DurablyVerifiableAt(t_v)`** — whether originals, validation material, preservation renewals, algorithm policy and verifier closure support verification at `t_v`;
+5. **`CurrentAuthorityAsOf(t_q)`** — whether the canonical GY-N12 status owner, using an authenticated and non-rolled-back applicable snapshot, establishes current authority at `t_q`.
+
+Every dimension reports `established`, `contradicted`, or `not_established` as appropriate. A failure in dimensions 2–5 does not rewrite an issuer event established by dimension 1. A public-current positive requires all five to be `established`.
+
+### 18.2 Amended proof proposition
+
+A public-current proof supports only this conjunction:
+
+> The issuer-side issuance is authentic; the displayed projection is faithful to the governed bound object; the record participates in the declared common public history; the evidence remains durably verifiable at the evaluation time; and the canonical currentness owner establishes current authority at the authenticated, latest-applicable cutoff.
+
+The machine result preserves each component even when the conjunction fails.
+
+### 18.3 Amended INT-R8 binding requirements
+
+INT-R8 is delivered but unaudited. Its declared §9 offer is provisionally compared in `repository-integration-and-dependencies.md` §11.3. Pending its audit, `ProjectionFaithful` is hypothetical and unsatisfied.
+
+Without choosing a construction, the signed/referenced proof must be capable of binding:
+
+- source revision and audience;
+- retained-item set;
+- typed omission classes and reasons;
+- loss verdict and rule version;
+- disclosure transcript head;
+- the well-defined redaction transformation;
+- evidence that verification survives permitted redaction;
+- proof-metadata constraints preventing dropped content from being exposed through raw hashes, identifiers or inference-susceptible commitments;
+- current/superseded references and anti-equivocation evidence.
+
+The original stable retained-claim commitment, projection-policy identity, typed outcome, successor relation and offline-evidence requirements remain. The unresolved points are determinism/equivalence of the transformation, a distinct projection-policy identity where needed, and an explicit disconnected proof closure.
+
+### 18.4 Snapshot selection and rollback resistance
+
+`StatusSnapshotAuthentic` and `StatusSnapshotSelection` are separate. Selection reports:
+
+- `latest_established_under_policy`;
+- `supplied_snapshot_only`;
+- `rollback_detected`; or
+- `not_established`.
+
+Only `latest_established_under_policy` can support `CurrentAuthorityAsOf`. An older authentic snapshot may support an explicitly historical query but cannot be presented as latest/current.
+
+### 18.5 Evidence obtainability
+
+The verifier reports one of:
+
+- `public_available`;
+- `records_process_available`;
+- `competently_restricted`; or
+- `not_established`.
+
+This dimension states whether a citizen or journalist can obtain the permitted evidence needed to reproduce the requested result. It is not signature authenticity. A technically valid proof that cannot be obtained must not be described as independently citizen-verifiable.
+
+### 18.6 Amended outcome conditions
+
+| Human outcome | Required amended condition |
+| --- | --- |
+| `VERIFIED_CURRENT_AS_OF` | all five dimensions established; snapshot latest established; freshness bounded; evidence obtainability is `public_available` or `records_process_available` |
+| `AUTHENTIC_HISTORICAL_WITHDRAWN` | issuer issuance and durable verification established; authenticated/latest-applicable status says withdrawn/current=false; projection and public-history dimensions reported separately and required for the public representation being shown |
+| `AUTHENTIC_HISTORICAL_SUPERSEDED` | same, plus valid non-substitutive successor relation; original issuer attribution unchanged |
+| `AUTHENTIC_HISTORICAL_STALE` | issuer issuance and durable verification established; canonical status says stale/revalidation required; not current |
+| `AUTHENTIC_HISTORICAL_AS_OF` | issuer issuance and durable verification established; supplied authentic historical cutoff is explicit; latest currentness not claimed |
+| `ISSUANCE_TEMPORALLY_UNAUTHORIZED` | signature mathematics succeeds, but issuance is at/after an effective revocation/compromise boundary |
+| `COMMON_VIEW_NOT_ESTABLISHED` | issuer issuance may remain established; public-history dimension is non-positive; no public-current result |
+| `PROJECTION_RELATION_NOT_ESTABLISHED` | issuer issuance may remain established; projection dimension is non-positive; no public-current result |
+| `PRESERVATION_CHAIN_BROKEN` | issuer issuance result remains separately reported; durable-verification dimension is non-positive |
+| `EVIDENCE_NOT_OBTAINABLE` | required permitted evidence cannot be obtained through a public or competent records process; other dimensions remain visible |
+
+### 18.7 Positive lawful succession
+
+A successor organization may produce a valid custody/preservation/status statement under its own credential while:
+
+- preserving predecessor issuer attribution and original proof material;
+- identifying the competent succession evidence and effective interval;
+- keeping the successor's proposition distinct from original issuance;
+- preserving current/superseded status from the canonical owner.
+
+This positive case is mandatory in suite v2 beside the substitution attack. Lawful succession is representable; it is not treated only as a failure mode.
+
+### 18.8 Pre-issuance evidence gate
+
+Before the first live public authority-bearing signature, the project must pass a disconnected drill over a representative **non-authoritative/ceremonial corpus** through the real verifier, trust/status, log/witness, projection/currentness fixtures, preservation and restore paths. After first live issuance, a bounded first-live-record drill confirms the actual record closure. A paper runbook, diagram or mocked Boolean does not satisfy either drill.
+
+The first-public-signature gate remains closed because INT-R8 is unaudited, GY-N12 is planned, the required public-proof capabilities are absent/unallocated, and no suite-v2 or recovery passage exists.
+
+### 18.9 Corrected pinned capability statement
+
+At the pinned commit the public projection producer exists and its production route remains `bridge_missing`. Public proof issuance, public predicate evaluation, authority/time/log/currentness composition, independent offline trust distribution, preservation renewal and citizen proof outcomes are otherwise **absent/unallocated at pinned commit**. This research profile is not an implemented contract.
+
+### 18.10 Anti-wire-format warning
+
+All dimension names, result words, outcome codes, function-like notation, state lists and evidence classes in this profile are implementation-neutral semantics and conformance vocabulary. They do not authorize a wire format, enum, API, class hierarchy, database schema or package. A future design may use different representations only if the propositions, failure distinctions and one-owner boundaries remain equivalent.

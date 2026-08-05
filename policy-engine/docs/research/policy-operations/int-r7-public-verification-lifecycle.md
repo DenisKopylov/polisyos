@@ -10,6 +10,7 @@ repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 delivery_branch: research/int-r7-public-verification-lifecycle
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 authoritative_for:
@@ -899,3 +900,128 @@ A technically valid signature emitted before those conditions would authenticate
 - that this research grants permission to publish or automatically amends Atlas or a system-design decision.
 
 The first-public-signature gate therefore remains closed even though INT-R7 itself is a positive research completion.
+
+## 21. Post-audit controlling amendment
+
+This section is the controlling primary-report amendment after audit `research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db`. It supersedes earlier aggregate formulas, capability labels, source uses, suite counts and dependency-status statements where they conflict with the amended supporting artifacts. It does not delete the audited text or weaken any commendation-backed result.
+
+### 21.1 Audit verdict and preserved core
+
+The hostile audit returned `GO_WITH_REVISIONS` with **42 findings / 42 total findings**: **1 blocking, 15 material, 6 minor and 20 commendations**. The amendment accepts that count and preserves the audit's core confirmations:
+
+- signature validity is one bounded dimension and does not establish an administrative fact by itself;
+- `signed_at` and `signer_identity` remain outside the current signed `SignatureStatement`;
+- revocation remains timeless key-ID membership without effective time, reason or compromise interval;
+- the current implementation therefore cannot distinguish a genuine pre-compromise signature from a later cryptographically valid forgery backdated through mutable metadata;
+- `INT-K06` makes chronology and anti-backdating security semantics for the first procedural claim;
+- `INT-K02` keeps `delta`, declared obligation set, maintained assumptions and rider atomic;
+- correction, withdrawal and supersession append without erasing reproducible history;
+- one log view is not a common view;
+- preservation or successor custody never launders original issuer identity;
+- INT-R7 owns proof, INT-R8 owns content/projection semantics and GY-N12 owns epoch/currentness.
+
+### 21.2 Controlling five-dimension model
+
+The phrase “independent predicates” is replaced by **separately reportable dimensions**. Public verification reports:
+
+1. `IssuerIssuanceAuthentic`;
+2. `ProjectionFaithful`;
+3. `PublicHistoryEstablished`;
+4. `DurablyVerifiableAt(t_v)`;
+5. `CurrentAuthorityAsOf(t_q)`.
+
+It additionally reports `StatusSnapshotSelection` and `EvidenceObtainability`.
+
+A public-current positive requires all five dimensions to be established, a latest-applicable authenticated status snapshot, bounded freshness, and evidence obtainable publicly or through a competent records process. A failure of projection, witness evidence, preservation or currentness cannot retroactively negate an established issuer-side issuance event; it changes what can currently be proved or relied upon.
+
+The exact controlling algebra is in `int-r7/threat-model-and-verification-predicates.md` §15 and `int-r7/public-verification-profile.md` §18.
+
+### 21.3 Dependency status after INT-R8 delivery
+
+INT-R8 was delivered after the audit at `research/int-r8-compression-loss-and-disclosure@90b372964d29a9e97605a6ef733ef03ffe7938d2`, standing `accepted_narrow_scope`. It has not been independently audited for use by this amendment. Therefore:
+
+- INT-R8 is no longer described as absent;
+- no INT-R8 conclusion is imported as established;
+- every `ProjectionFaithful` positive remains hypothetical and unsatisfied;
+- the item-by-item comparison against INT-R8's declared §9 offer is provisional pending its audit;
+- the comparison records matches, partial matches and a disconnected/offline-evidence gap without weakening INT-R7's interface.
+
+The provisional comparison is in `int-r7/repository-integration-and-dependencies.md` §11.3.
+
+GY-N12 remains contract-only/planned. Every current-authority positive remains hypothetical and unsatisfied.
+
+### 21.4 Capability honesty
+
+The audit's sole blocking finding is executed. Research-only capability sketches are not labelled as if a consumer or wired chain already exists.
+
+At the pinned commit:
+
+- the artifact signer, operational rotation, audit verifier, standalone verifier substrate, Fulcio supply-chain path and public-export producer remain honestly recognized for their existing scopes;
+- N-01 through N-07 and the proposed public proof/evaluator/outcome capabilities are **absent/unallocated at pinned commit**;
+- the real `runtime/quality/public_export.py` producer is preserved;
+- its missing production connection to the intended runtime/public surface remains correctly classified as `bridge_missing`.
+
+The corrected evidence map is in `int-r7/repository-integration-and-dependencies.md` §11.
+
+### 21.5 Executable falsifier suite
+
+Suite v1 remains preserved as the audited historical specification. The controlling suite is now `INT-R7-PV-FALSIFIERS-v2`:
+
+- **23 families / 23 total families**;
+- **29 mandatory subfixtures / 29 total mandatory subfixtures**;
+- exact typed values and a separate evaluation-status field;
+- a static validator that rejects conditional/disjunctive/free-prose pseudo-values;
+- `F-04` returns `ISSUANCE_TEMPORALLY_UNAUTHORIZED` while preserving `SignatureValid = true`;
+- `F-08` preserves issuer issuance while public history/common view is non-positive;
+- `F-18` includes both substitution failure and positive lawful succession;
+- added signer+TSA collusion, authentic-snapshot rollback, conflicting succession, parser/canonicalization differential and selective negative-terminal withholding attacks;
+- evidence obtainability is also falsified under competent restriction.
+
+Exact v2 passage is 29/29 with zero unexpected positives, network contacts, semantic mismatches, legacy-positive paths and pseudo-value validation errors. Passage remains bounded by `S0-K16`.
+
+### 21.6 Preservation and public access
+
+Before the first **live public authority-bearing signature**, a representative non-authoritative/ceremonial corpus must traverse the real intended verifier, trust/status, log/witness, projection/currentness fixture, preservation and disconnected-restore paths. A paper runbook or mocked Boolean does not pass. After first live issuance, a bounded first-live-record drill restores and verifies that exact closure without converting the drill into retroactive authorization.
+
+Recovery must detect authentic-snapshot rollback and operate from an independently governed custody domain when the primary is unavailable or suspected compromised. A lawful successor can preserve and serve predecessor evidence without becoming the original issuer. The verifier separately reports whether evidence is public, available through a competent records process, competently restricted or not established.
+
+### 21.7 Source corrections
+
+The amended source ledger preserves the original 30/30 source audit and adds two supplemental official rows, producing **32 source rows / 32 total rows** for the amended corpus.
+
+- ETSI EN 319 142-1 V1.2.1 metadata is corrected to 2024-01.
+- NARA `US-01` is historical-only and officially superseded; it is not current authority.
+- Federal PKI `US-02` is nonbinding and Federal Register submission-specific.
+- RFC 9162 supports inclusion/consistency and external observation; INT-R7's witness quorum remains a separate design inference.
+- exact Sigstore bundle structure is anchored through supplemental `SIG-05`.
+- current-status-limited NARA `US-03` is added without making it universally applicable.
+
+Every source row has amended currentness/recheck metadata, and institutional guidance requires manual revalidation before consolidation or implementation.
+
+### 21.8 Orientation correction and reproduction evidence
+
+The supplied assertion that the INT-wave ratification occurred “four days before” the research was false and was missed in the original orientation pass. The ratification, pinned repository object and inspection date are all 2026-08-04. No substantive design conclusion follows from the correction.
+
+The orientation ledger preserves static complete-set records for O-05 (14/14 paths) and O-09 (5/5 AST call/definition expressions) and preserves `not_established` for the exact O-02 and O-08 lexical counts. Ordinary local clone access remained unavailable; that limitation is not hidden.
+
+### 21.9 Updated standing
+
+**Amended standing: `GO_WITH_REVISIONS`, retained pending independent conformance verification.**
+
+R1–R15 are executed in the amended artifacts. R16–R22 are also executed; R20 is executed with a recorded environment variation because the original complete-set outputs are preserved but a fresh independent local AST rerun was unavailable. The amendment ledger records every revision and all 42 finding dispositions.
+
+The standing remains `GO_WITH_REVISIONS`, not `CONFORMS`, because:
+
+- amendment execution has not yet been independently verified;
+- INT-R8 remains unaudited for this seam;
+- GY-N12 and OPS-R14 remain unresolved dependencies;
+- the proposed public-verification capabilities remain absent/unallocated at the pinned commit;
+- suite v2 and the two-phase recovery drills have not run;
+- institutional roles, trust policies, retention rules and jurisdiction-specific legal mappings remain unassigned;
+- no present publication capability or permission is established.
+
+The first-public-signature gate remains closed. That is a correct outcome, not an amendment failure.
+
+### 21.10 Anti-wire-format warning
+
+Dimension names, predicate names, outcome names, YAML-like fixtures, lifecycle states, function-like notation and evidence classes throughout the amended research are semantic propositions and conformance vocabulary only. They do not prescribe or authorize an enum, class, database schema, event envelope, API response, package, wire format, container or vendor implementation.

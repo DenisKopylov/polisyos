@@ -7,6 +7,7 @@ repository: https://github.com/DenisKopylov/polisyos
 repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 inspection_method: connected GitHub exact-ref reads and complete pinned-ref code searches; local clone unavailable because the execution environment denied GitHub DNS/egress
 research_only: true
 int_r8_seam: proof_only
@@ -203,3 +204,44 @@ The capability conclusion is unchanged and narrowly stated at the pinned commit:
 - public proof lifecycle, temporal revocation, common-view proof, archival renewal, production publication bridge and citizen-grade verification semantics: absent or missing at the classified links.
 
 This is research evidence only, not a capability claim about a later revision and not authorization to publish.
+
+## 7. Post-audit orientation correction and static reproduction record
+
+This section is the controlling amendment for orientation claims after audit `INT-R7-I-005` and revision items `R14` and `R20`. It appends corrections; it does not rewrite the original observations.
+
+### O-18 — the supplied “four days before” timeline was false and was missed
+
+| Supplied assertion | Result | Correction and evidence |
+| --- | --- | --- |
+| The INT-wave claim-semantics ratification was made “four days before” INT-R7 began. | **corrected; missed by the original orientation pass** | `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md` records `created: 2026-08-04` and `last_reviewed: 2026-08-04`; this ledger records `inspection_date: 2026-08-04`; the pinned commit is the repository object inspected that day. The ratification, pinned inspection and research inspection are same-day facts, not four days apart. |
+
+No substantive INT-R7 conclusion depends on the erroneous interval. The error matters because an orientation ledger must record briefing defects even when the correction changes no design result.
+
+### Static P35 record for O-05
+
+The following is the exact set retained from the original complete connected search at `02c5b8d23c757c92b9231e6e1e802d5701588908`.
+
+- root: `policy-engine/src/polisyos/**/*.py`
+- inclusion rule: actual import rooted at `cryptography`, `jwt`, or `hmac`, or inspected module-qualified use; false-positive name matches excluded
+- denominator: **14 included paths / 14 total included paths**
+- paths: the 14 entries in §3, in the same order
+
+The amendment environment again lacked an ordinary local checkout because GitHub DNS/egress was denied. This static output is therefore preserved evidence from the original connected complete-set run, not a claim that the independent auditor reran it. A fresh local AST walk using §5.4 would settle independent reproducibility.
+
+### Static P35 record for O-09
+
+The original complete pinned-tree AST walk retained these **5 call/definition expressions / 5 total expressions**:
+
+| Path | Classification |
+| --- | --- |
+| `policy-engine/src/polisyos/runtime/quality/public_export.py` | definition |
+| `policy-engine/tools/ops_runners/runtime/canary_evidence.py` | call |
+| `policy-engine/tools/quality/validation/check_layer3_workflow_failure_authority.py` | call |
+| `policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py` | call |
+| `policy-engine/tests/unit/runtime/quality/test_public_export.py` | call |
+
+`policy-engine/src/polisyos/runtime/quality/__init__.py` is a re-export and is excluded from the call/definition denominator. The production conclusion remains narrower: the defining `src` module exists, no other production `src` caller was found, and no HTTP route was found. Thus the real projection producer survives and its absent production route remains `bridge_missing`; no downstream label is inferred for research-only capabilities.
+
+### Reservations preserved
+
+The `not_established` results for O-02 and O-08 remain unchanged. They are not retrofitted into exact numerical claims without the complete local reruns described in §5.2 and the corresponding full-file census.

@@ -7,6 +7,7 @@ repository: https://github.com/DenisKopylov/polisyos
 repository_branch_inspected: main
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -663,3 +664,119 @@ The UI/data flow must make the following states structurally impossible:
 ## 12. UX result standing
 
 These requirements are implementable as a behavioral projection over the semantic predicate vector. They do not authorize the current route to publish and do not select a UI framework or API. At the pinned commit the public viewer's positive state is `verification_missing` and `semantic_test_missing`; DS12 must strangle the FNV predecessor before any positive public outcome can exist.
+
+## 13. Post-audit controlling UX amendment
+
+This section supersedes the two-question model in UX-T03, the aggregate uses of “historical authenticity” in §§3, 5, 10–12, and the capability labels in §12. It executes `R1`, `R2`, `R7`, `R8`, `R15`, `R18`, and `R19` for the human/machine surface.
+
+### 13.1 Five visible questions plus evidence access
+
+A non-expert result answers six bounded questions, all backed by the same machine report:
+
+1. **Was this exact issuer-side statement authentically issued?** (`IssuerIssuanceAuthentic`)
+2. **Does this public view faithfully correspond to the governed bound object?** (`ProjectionFaithful`)
+3. **Was the bounded public history/common view established?** (`PublicHistoryEstablished`)
+4. **Can the evidence still be verified at this evaluation time?** (`DurablyVerifiableAt(t_v)`)
+5. **Is the record current under the latest applicable authenticated status as of the displayed cutoff?** (`CurrentAuthorityAsOf(t_q)`)
+6. **Can the user obtain the permitted evidence needed to reproduce the result?** (`EvidenceObtainability`)
+
+The first five are separately reportable dimensions, not logically independent predicates. A public-current positive requires all five to be established; the sixth must be `public_available` or `records_process_available` for a claim of independent citizen verifiability.
+
+### 13.2 Information hierarchy amendment
+
+Layer 2 shows the five dimensions in plain language and states the snapshot-selection result. Layer 3 shows evidence obtainability and every non-positive dimension. Layer 4 exposes exact machine results, evidence identifiers, snapshot/head provenance and access/restriction routes.
+
+A single top-level heading may summarize the conjunction, but it must never hide an issuer-side positive behind a projection/log/archive failure or hide a projection/log/archive failure behind issuer authenticity.
+
+### 13.3 `VERIFIED_CURRENT_AS_OF` amended behavior
+
+The heading is permitted only when:
+
+- `IssuerIssuanceAuthentic = established`;
+- `ProjectionFaithful = established`;
+- `PublicHistoryEstablished = established`;
+- `DurablyVerifiableAt(t_v) = established`;
+- `CurrentAuthorityAsOf(t_q) = established` using `latest_established_under_policy`;
+- freshness is bounded to `t_q`;
+- evidence obtainability is `public_available` or `records_process_available`.
+
+Because INT-R8 is unaudited and GY-N12 is planned, no such positive is established by this research amendment.
+
+### 13.4 New and corrected non-positive behaviors
+
+#### `ISSUANCE_TEMPORALLY_UNAUTHORIZED`
+
+**Heading:** **Signature mathematics passed, but issuance occurred after the applicable authorization boundary.**
+
+Show `SignatureValid = established`, the effective revocation/compromise boundary, trusted issuance time and `IssuerIssuanceAuthentic = contradicted`. Never call it tampered or signature-invalid unless content/signature math also fails.
+
+#### `STATUS_SNAPSHOT_ROLLBACK_DETECTED`
+
+**Heading:** **The supplied status is authentic but not the latest applicable status.**
+
+Show the supplied and later authenticated heads, block currentness, preserve issuer/projection/history/durability results, and offer a safe refresh or evidence route. An older authentic snapshot may be used only for an explicitly historical query.
+
+#### `EVIDENCE_NOT_OBTAINABLE`
+
+**Heading:** **The evidence needed to reproduce this result could not be obtained.**
+
+Distinguish:
+
+- no public or competent records route (`not_established`);
+- competent lawful restriction (`competently_restricted`), with authority, scope, review route and effect on verification;
+- temporary access failure, without converting it into evidence of tamper.
+
+Do not claim independent public verifiability.
+
+### 13.5 Existing outcomes under decomposition
+
+- `COMMON_VIEW_NOT_ESTABLISHED` shows whether issuer issuance remains established and explicitly says public history/common view is non-positive.
+- `PROJECTION_RELATION_NOT_ESTABLISHED` shows issuer issuance separately and blocks only projection-dependent/public-current reliance.
+- `PRESERVATION_CHAIN_BROKEN` shows the issuer-side result separately and marks `DurablyVerifiableAt(t_v)` non-positive.
+- `AUTHENTIC_HISTORICAL_WITHDRAWN` and `AUTHENTIC_HISTORICAL_SUPERSEDED` preserve original issuer attribution, durable evidence and current=false; projection and public-history dimensions remain visible.
+- `TEMPORAL_VALIDITY_INDETERMINATE` remains non-positive where event ordering cannot be established; it differs from the definite `ISSUANCE_TEMPORALLY_UNAUTHORIZED` result.
+
+### 13.6 Evidence obtainability task
+
+Every result offers one of these explicit routes:
+
+- direct public download or mirror;
+- competent records/access/FOI process;
+- competent restriction notice and review route;
+- `not_established` when no dependable route is evidenced.
+
+The route must identify expected evidence classes without exposing restricted content. PolicyOS does not adjudicate the access right; it reports the technical consequence of what is or is not obtainable.
+
+### 13.7 Additional behavioral acceptance criteria
+
+#### UX-A19 — split view preserves issuance result
+
+Given valid issuer-side issuance and conflicting witness checkpoints, the UI shows `IssuerIssuanceAuthentic = established`, `PublicHistoryEstablished = not_established`, and no current/public positive.
+
+#### UX-A20 — authentic snapshot rollback
+
+Given an authentic older snapshot and a later authenticated applicable head, the UI shows `STATUS_SNAPSHOT_ROLLBACK_DETECTED`, never current.
+
+#### UX-A21 — positive lawful succession
+
+Given valid predecessor issuance plus a competent successor custody/preservation statement, the UI retains the predecessor as original issuer, labels the successor as custodian/preservation signer, and shows canonical current/superseded status separately.
+
+#### UX-A22 — conflicting succession
+
+Given two individually valid but conflicting succession statements without competent adjudication, the UI reports succession/current authority not established; it does not choose a winner.
+
+#### UX-A23 — selective negative-terminal withholding
+
+Given a procedural claim whose required negative/refusal terminal is omitted from the released history, `ProceduralHistoryBound` and `ProjectionFaithful` are non-positive, even when signature mathematics and other chronology edges pass.
+
+#### UX-A24 — unavailable evidence
+
+Given a proof reference that cannot be obtained publicly or through a competent records process, the UI shows `EVIDENCE_NOT_OBTAINABLE` and does not describe the record as independently citizen-verifiable.
+
+### 13.8 Corrected pinned capability statement
+
+At `02c5b8d`, the legacy FNV viewer exists and must be strangled. The replacement public predicate evaluator and citizen outcome projection are **absent/unallocated at pinned commit**. The real public-export producer exists, while its production route remains `bridge_missing`. No `verification_missing` or `semantic_test_missing` label is used to imply that the proposed replacement chain is already wired.
+
+### 13.9 Anti-wire-format warning
+
+Outcome names, dimension names, layer descriptions and function-like terms are behavioral semantics, not a UI component API, response schema, enum or serialization. Human and machine implementations may differ structurally only if their observable meanings, reason codes and failure ordering remain equivalent.

@@ -6,6 +6,7 @@ result_standing: GO_WITH_REVISIONS
 repository: https://github.com/DenisKopylov/polisyos
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -148,3 +149,69 @@ The primary-source corpus supports a minimum institutional and technical profile
 9. a separate currentness/epoch status path that never erases historical authenticity.
 
 These requirements support the INT-R7 recommendation. They do **not** establish that PolicyOS presently possesses the capabilities, that a particular trust service is legally sufficient, or that publication is authorized.
+
+## 6. Post-audit source correction and currentness ledger
+
+This section controls source use after findings `INT-R7-II-002` through `INT-R7-II-006` and revisions `R12`, `R13`, `R17`, and `R22`. The original **30/30** primary-source denominator is preserved. Two post-audit supplemental official sources are added, producing **32 source rows / 32 total rows** for the amended corpus; this addition does not retroactively change the audit's 30/30 result.
+
+### 6.1 Controlling corrections
+
+| ID | Corrected status or attribution | Controlling transfer limit |
+| --- | --- | --- |
+| ETSI-05 | ETSI EN 319 142-1 V1.2.1 was published **2024-01**, not 2024-06. | It demonstrates a PAdES baseline family; it does not select a PolicyOS container or establish legal sufficiency. |
+| IETF-04 | RFC 9162 specifies Certificate Transparency inclusion/consistency and motivates external monitoring/checkpoint comparison. | INT-R7's witness-independence/quorum policy is a **design inference**, not an RFC 9162 standardized quorum. |
+| US-01 | **historical_only; officially superseded; no longer accurate for present guidance**. | The “Trust Documentation Set” is retained only as historical public-sector precedent. No current requirement or present normative implication may rest on US-01. |
+| US-02 | Current official playbook page, Version 2.1 dated 2026-03-27; **not official policy or mandated action**. | It is specifically about delegated signatures for **Federal Register document submissions**. Only purpose limitation, recorded delegation, separate authorization and custody-control patterns transfer; it is not a general public-administration mandate. |
+| SIG-04 | General Cosign verification guidance. | Use it for the operational fact that bundles can support offline verification; do not use it as the exact field schema. |
+| SIG-05 | Sigstore, *Sigstore Bundle Format*, Version 0.3.2, last updated 2025-01-14; official locator `https://docs.sigstore.dev/about/bundle/`. | Exact bundle classes—verification material, certificate/public-key material, transparency entries/checkpoints, RFC 3161 timestamps and signature content—are supply-chain structures, not institutional-authority or public-record semantics. |
+| US-03 | NARA Bulletin 2015-03, *Guidance on Managing Digital Identity Authentication Records*, 2015-08-11; official locator `https://www.archives.gov/records-mgmt/bulletins/2015/2015-03.html`; stated to expire when revoked or superseded. | Current replacement evidence for managing digital identity authentication transactional records. It does not prescribe INT-R7's complete preservation profile, nor apply outside its issuing jurisdiction by default. |
+
+### 6.2 Manual currentness review metadata for all source rows
+
+`checked_on` for this amendment is **2026-08-04**. “Versioned reference” means the cited object existed and is intentionally pinned; it does not claim that no later edition exists.
+
+| Source ID | Status at check | Recheck rule |
+| --- | --- | --- |
+| EU-01 | official versioned consolidated snapshot | recheck consolidation and target-jurisdiction law before implementation |
+| EU-02 | official versioned regulation | recheck legal applicability before implementation |
+| ETSI-01 | official versioned standard | recheck edition and algorithm policy |
+| ETSI-02 | official versioned standard | recheck edition before validator selection |
+| ETSI-03 | official versioned standard | recheck edition before container selection |
+| ETSI-04 | official versioned standard | recheck edition before container selection |
+| ETSI-05 | official versioned standard; date corrected to 2024-01 | recheck edition before container selection |
+| IETF-01 | stable RFC | recheck applicable profiles and cryptographic policy |
+| IETF-02 | stable RFC | recheck applicable profiles and digest policy |
+| IETF-03 | stable RFC | recheck preservation profile and algorithm policy |
+| IETF-04 | stable RFC | recheck monitoring ecosystem; quorum remains an INT-R7 policy inference |
+| IETF-05 | stable RFC | recheck jurisdictional certificate policy |
+| IETF-06 | stable RFC | recheck status-service profile and privacy posture |
+| IETF-07 | stable RFC | recheck scheme suitability if threshold use is authorized |
+| IETF-08 | stable RFC | recheck package profile; no active-substitution protection inferred |
+| IETF-09 | stable RFC | recheck only if JSON/JCS becomes a candidate encoding |
+| NIST-01 | official versioned guidance | recheck key-management revision |
+| NIST-02 | official versioned transition guidance | recheck current transition dates/status |
+| NIST-03 | official standard | recheck approved profiles and interoperability |
+| NIST-04 | official standard | recheck approved profiles and interoperability |
+| NIST-05 | official versioned report | recheck only if an external ledger is proposed |
+| US-01 | **historical_only; superseded** | never use as current authority; retain for history only |
+| US-02 | official page; **nonbinding and Federal Register-specific** | recheck page version and disclaimer before reuse |
+| CA-01 | official government guidance snapshot | recheck current page and target applicability |
+| ISO-01 | official versioned standard record | recheck adopted edition and licensed normative text |
+| LOC-01 | official versioned metadata dictionary | recheck version if PREMIS mapping is proposed |
+| SIG-01 | official project documentation snapshot | recheck trust-root model/version before transfer |
+| SIG-02 | official project threat-model snapshot | recheck threat-model revision |
+| SIG-03 | official project log documentation snapshot | recheck log protocol/current service assumptions |
+| SIG-04 | official project verification guidance snapshot | recheck current tooling; exact fields come from SIG-05 |
+| SIG-05 | official bundle-format documentation, Version 0.3.2 | recheck format version before any bundle mapping |
+| US-03 | official NARA bulletin; currentness subject to “revoked or superseded” condition | recheck NARA current/cancelled guidance before consolidation or implementation |
+
+### 6.3 Recheck trigger
+
+Before consolidation, jurisdictional mapping, or implementation design, a human reviewer must manually re-open every institutional-guidance row whose currentness is load-bearing, record the check date and disposition, and replace or narrow any superseded source. This ledger promises no automatic future monitoring.
+
+### 6.4 Corrected transfer propositions
+
+- The amended preservation requirement is an **INT-R7 design conclusion** supported by current technical standards, CA-01, ISO-01, LOC-01 and the current-status-limited US-03; US-01 is historical precedent only.
+- Purpose-limited delegation remains a useful public-administration pattern, but US-02 supports it only within its nonbinding Federal Register use case.
+- RFC 9162 supports inclusion, consistency and the need for external observation; the chosen witness independence/quorum proposition remains separately governed.
+- Sigstore demonstrates a concrete offline-bundle structure through SIG-05; neither SIG-04 nor SIG-05 supplies administrative competence, currentness, succession or legal sufficiency.

@@ -6,6 +6,7 @@ result_standing: GO_WITH_REVISIONS
 repository: https://github.com/DenisKopylov/polisyos
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -547,3 +548,114 @@ INT-R7 signs and verifies those outputs; it does not define or own them.
 ## 10. Preservation profile conclusion
 
 The minimum profile is feasible only as a continuing institutional service, not as one signature operation. Its defining act is not choosing Ed25519, PAdES or a blockchain. It is committing before issuance to preserve the entire validation closure, publish append-only status/common-view evidence, renew it before cryptographic degradation, and keep historical authenticity separate from current authority through organizational succession.
+
+## 11. Post-audit preservation and recovery amendment
+
+This section supersedes the aggregate historical-verification wording in §§3, 5, 6, 9 and 10 wherever it lets a present projection, witness or archive failure rewrite issuer-side issuance. It executes `R1`, `R10`, `R11`, `R12`, `R18`, and `R19`.
+
+### 11.1 Preservation affects current proof, not past occurrence
+
+The lifecycle reports these dimensions separately:
+
+- `IssuerIssuanceAuthentic` — issuer-side issuance evidence only;
+- `ProjectionFaithful` — INT-R8 projection evidence;
+- `PublicHistoryEstablished` — log/common-view evidence;
+- `DurablyVerifiableAt(t_v)` — preservation and verifier closure at the evaluation time;
+- `CurrentAuthorityAsOf(t_q)` — GY-N12 currentness under a selected latest-applicable snapshot.
+
+A broken preservation chain returns `DurablyVerifiableAt(t_v) = not_established` or `contradicted` according to evidence. It does not assert that an earlier issuer act never occurred. Original issuance evidence, its loss and the resulting inability to prove it are distinct historical facts.
+
+The state labels in §3 remain semantic descriptions. A public report must expose the five dimensions rather than infer one Boolean from a lifecycle label.
+
+### 11.2 Two-phase drill gate
+
+The phrase “before first signature” means before the first **live public authority-bearing signature**, not before candidate work, test keys or ceremonial fixtures.
+
+#### Phase A — pre-live disconnected ceremonial drill
+
+Before live issuance, run a representative **non-authoritative/ceremonial corpus** through the real paths intended for production:
+
+- real canonical statement/profile dispatch;
+- real verifier and independently authenticated trust inputs;
+- signing-time status and trusted-time fixtures;
+- real log/inclusion/consistency and independently supplied witness/checkpoint fixtures;
+- INT-R8 projection/currentness fixtures explicitly labelled hypothetical where dependencies are unaudited or planned;
+- preservation event generation and retained verifier closure;
+- disconnected restore into a clean environment;
+- exact positive, negative, withdrawn, superseded, compromise-interval, algorithm-renewal and tamper outcomes.
+
+The corpus carries no external authority and cannot be shown as a public governed record. Passing Phase A proves only the named implementation, environment and fixtures under `S0-K16`.
+
+A paper runbook, diagram, tabletop discussion or mocked `verified=true` value does not satisfy Phase A.
+
+#### Phase B — bounded first-live-record drill
+
+After the first live record is issued—but before claiming fleet-wide readiness—restore and verify that exact record from the retained closure in a clean, disconnected environment. Report the five dimensions, snapshot selection, evidence obtainability and all limitations. This drill is bounded to the first live record and does not retroactively authorize its issuance; Phase A and all other preconditions must already have passed.
+
+### 11.3 Authentic-snapshot anti-rollback outcomes
+
+Recovery must distinguish an authentic snapshot from the latest applicable authentic snapshot. The restored verifier reports:
+
+- `latest_established_under_policy` when independently authenticated monotonic evidence establishes the applicable head;
+- `supplied_snapshot_only` when authenticity passes but no-later-snapshot suppression cannot be excluded;
+- `rollback_detected` when a later authenticated applicable head is evidenced; or
+- `not_established` when selection cannot be proved.
+
+Current authority cannot be reported from `supplied_snapshot_only`, `rollback_detected` or `not_established`. An authentic old snapshot may be used only for an explicitly historical query.
+
+Required anti-rollback fixtures include:
+
+- restore an older correctly signed status snapshot while retaining a later witnessed head;
+- remove the later head from the restored package but retain it in an independent custody domain;
+- present a recovered catalog whose internal signatures validate but whose monotonic position is stale;
+- restore conflicting checkpoint/status heads and require non-positive currentness.
+
+### 11.4 Compromised-primary and cross-custody recovery
+
+The recovery path must operate when the primary storage, publication server, trust snapshot distribution point or preservation operator is unavailable or suspected compromised.
+
+A successful cross-custody drill must:
+
+1. begin from an independently governed retained copy or legal-deposit/archival custody domain;
+2. authenticate its trust, status, checkpoint and policy roots independently of the compromised primary;
+3. compare the restored head against independently retained witness/checkpoint observations;
+4. detect deletion, rollback, replacement and unlogged renewal;
+5. preserve original issuer attribution and label the recovering/successor institution only as custodian or preservation signer;
+6. keep current authority non-positive until the canonical currentness interface is authenticated;
+7. record divergence, unresolved evidence and affected-record scope;
+8. avoid reactivating old private signing authority or silently trusting recovered secret material;
+9. expose `EvidenceObtainability` for citizens and monitors after the primary channel is lost.
+
+Recovery from the same compromised control plane without an independent trust/checkpoint path is not evidence of recovery correctness.
+
+### 11.5 Positive lawful succession
+
+A lawful successor may preserve and serve predecessor proof closures and append its own custody/status statement when competent succession evidence and effective time are established. The result must preserve:
+
+- predecessor as original issuer;
+- successor as current custodian/preservation signer only;
+- original bytes, signature and issuance-time evidence;
+- separately authenticated succession proposition;
+- canonical current/superseded status;
+- conflicting-claim outcome when two valid-looking succession statements cannot be adjudicated.
+
+The suite includes both the substitution failure and a positive lawful-succession fixture.
+
+### 11.6 Corrected NARA use
+
+The present-tense NARA sentence in §5.2 is superseded. `US-01` is officially superseded and may be cited only as historical precedent for a “Trust Documentation Set.” Current U.S. records-management support must be re-established from current guidance, including current-status-limited `US-03`, before any implementation or legal conclusion. The preservation profile remains an INT-R7 design conclusion supported by the broader technical and archival corpus; it is not a current NARA mandate.
+
+### 11.7 Evidence obtainability and lawful restriction
+
+Long-term custody must preserve not only bytes but a route by which a citizen, journalist, court, archive or other authorized verifier can obtain the permitted evidence. Each drill records:
+
+- `public_available`;
+- `records_process_available`;
+- `competently_restricted`; or
+- `not_established`.
+
+A lawful restriction identifies the competent decision, scope, review route and exact effect on verification. It does not become a silent “proof exists somewhere” positive.
+
+### 11.8 Anti-wire-format warning
+
+The lifecycle states, drill phases, dimension names and recovery outcomes are semantic requirements and test propositions. They do not prescribe a persisted state enum, event envelope, archive package, API, schema or vendor topology. OPS-R14 and implementation authority retain mechanics, provided the observable outcomes above remain reproducible.

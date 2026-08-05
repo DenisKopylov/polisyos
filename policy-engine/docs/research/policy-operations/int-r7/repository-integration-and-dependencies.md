@@ -6,6 +6,7 @@ result_standing: GO_WITH_REVISIONS
 repository: https://github.com/DenisKopylov/polisyos
 pinned_repository_commit: 02c5b8d23c757c92b9231e6e1e802d5701588908
 inspection_date: 2026-08-04
+amended_after_audit: research/int-r7-independent-audit@54e8f41d790cb257a616c5bb5f96d996fbe3e9db
 research_only: true
 int_r8_seam: proof_only
 may_not_use_for:
@@ -347,3 +348,67 @@ Must remain blocked:
 - automatic plan/SDD amendment.
 
 Result: **GO_WITH_REVISIONS for INT-R7 research closure; the first-public-signature gate remains closed.**
+
+## 11. Post-audit capability and dependency amendment
+
+This section supersedes the missing-state labels in §§2, 4 and 6 for all post-audit use. It executes `R5`, `R3`, `R4`, and the interface part of `R18`. Repository labels are used only when their prerequisites are evidenced at the pinned commit.
+
+### 11.1 Corrected capability reality map
+
+| Existing owner or proposed class | Pinned evidence | Corrected disposition at `02c5b8d` |
+| --- | --- | --- |
+| `core/artifacts/signing.py` | Real Ed25519 artifact signer/verifier; public semantic statement type does not exist. | Artifact-signing primitive **implemented** for its existing scope. Public-verification statement/profile capability **absent/unallocated at pinned commit**; research prose is not a `contract_only` runtime contract. |
+| `core/security/rotation.py` | Real JWT/operator and local Ed25519 key-file rotation. | Existing operational rotation **implemented** for its scope. Public-record temporal lifecycle outputs **absent/unallocated at pinned commit**. |
+| `core/audit/verifier.py` | Real audit-package/CAS/provenance/signature verifier. | Existing audit verification substrate **implemented** for its scope. The proposed public authority/time/log/epoch/projection/preservation evaluator is **absent/unallocated at pinned commit**, not `verification_missing`, because no such chain is wired. |
+| `core/audit/standalone_verifier_template.py` | Real portable package verifier, including package-relative key loading. | Portable execution substrate **implemented** for its existing scope. Independently authenticated public trust/status closure is **absent/unallocated at pinned commit**. |
+| `core/security/slsa/fulcio.py` | Real supply-chain OIDC short-lived certificate path. | Supply-chain pattern **implemented** for its scope. Public administrative authority adaptation is **absent/unallocated at pinned commit**. |
+| `runtime/quality/public_export.py` | Real public projection producer; complete O-09 tree walk found no production route/caller outside the defining module. | Projection producer exists. The production connection from that real producer to the intended public/runtime consumer remains **`bridge_missing`**, because the producer and intended surface exist but are not connected. This is the retained and cited repository label commended by `INT-R7-X-002`. |
+| Runtime HTTP/public route | Intended public surface exists; it does not call the real export producer or a public proof producer. | The export-to-route connection is **`bridge_missing`**. Public proof production itself is **absent/unallocated**, not `producer_missing`, because no admitted proof consumer contract is evidenced. |
+| `publicationPacket.ts` and `PublicDecisionViewerPage.tsx` | Real legacy FNV self-consistency path and positive presentation. | Legacy path is implemented but non-authoritative and must be strangled. The replacement predicate evaluator and citizen outcome projection are **absent/unallocated at pinned commit**; their tests are likewise absent, not evidence that an otherwise-complete capability merely lacks semantic tests. |
+| GY-N12 | Plan text defines epoch/currentness semantics; no delivered implementation was established. | **contract-only/planned dependency**. Every current-authority positive remains hypothetical and unsatisfied. |
+| INT-R8 | Research delivered later at `90b372964d29a9e97605a6ef733ef03ffe7938d2`, standing `accepted_narrow_scope`; no independent audit result is consumed here. | **Delivered but unaudited research dependency**. Offered semantics are compared provisionally below; no projection-positive is established. |
+| DS13 | Plan owns later accountability/transparency surfaces. | Planned/unallocated; no `producer_missing` or `bridge_missing` label is inferred for the planned capability. |
+| OPS-R14 | Backlog assigns custody-grade resilience and replay research. | Planned/undelivered dependency; no implemented-capability label is inferred. |
+
+### 11.2 Corrected N-01 through N-07 dispositions
+
+| ID | Research need | Corrected pinned disposition |
+| --- | --- | --- |
+| N-01 | public authority credential and succession evidence | **absent/unallocated at pinned commit**, plus unresolved institutional dependency |
+| N-02 | trusted issuance-time and signing-time status closure | **absent/unallocated at pinned commit** |
+| N-03 | transparency/checkpoint/witness proof | **absent/unallocated at pinned commit** |
+| N-04 | append-only public proof/status history consuming canonical status outputs | **absent/unallocated at pinned commit**; ownership must not duplicate GY-N12/DS13 |
+| N-05 | preservation evidence renewal | **absent/unallocated at pinned commit**, plus OPS-R14 and institutional dependencies |
+| N-06 | independently authenticated offline trust/status/checkpoint closure | **absent/unallocated at pinned commit**; existing standalone verifier is only a substrate |
+| N-07 | citizen proof outcome projection over one canonical evaluator | **absent/unallocated at pinned commit**; the current FNV viewer is a predecessor, not the proposed consumer |
+
+These plain dispositions deliberately do not borrow `producer_missing`, `verification_missing`, `semantic_test_missing`, or `bridge_missing` from a maturity chain that does not yet exist.
+
+### 11.3 Provisional INT-R8 offered-interface comparison
+
+This comparison reads only INT-R8's explicitly declared §9 interface at `research/int-r8-compression-loss-and-disclosure@90b372964d29a9e97605a6ef733ef03ffe7938d2`. It is **provisional pending the independent INT-R8 audit**. No INT-R8 conclusion is imported as established, and no INT-R7 requirement is weakened to obtain a match.
+
+| INT-R7 required interface | INT-R8 declared offered interface | Provisional comparison |
+| --- | --- | --- |
+| stable retained-claim-set commitment | release proof binds retained-item set | **match in declared shape**, pending audit and exact identity semantics |
+| source/public object revision binding | release proof binds source revision | **match**; INT-R7 must bind the offered source revision in its signed proof statement |
+| audience binding | release proof binds audience | **match**; reinforces INT-R7's existing `AudienceBound` requirement |
+| deterministic projection/redaction relation | redaction is a well-defined transformation of the bound object | **partial match**; “well-defined transformation” is offered, but determinism/equivalence conditions remain to be fixed by the eventual admitted contract |
+| proof survives permitted redaction | proof remains verifiable after permitted redaction | **match in declared requirement**, pending construction and audit |
+| policy/version identity | release proof binds rule version | **partial match**; rule version is offered, while a distinct projection/redaction-policy identity may still be needed |
+| typed pass/failure outcome | release proof binds typed omission classes/reasons and loss verdict | **match in declared shape**, pending audit of outcome completeness |
+| successor relation/currentness reference | current/superseded state can be checked | **match in declared purpose**, but canonical currentness remains a GY-N12 dependency |
+| anti-equivocation inputs | anti-equivocation can be checked | **match in purpose**; construction and witness policy remain INT-R7 concerns |
+| offline-verifiable evidence | proof remains verifiable after permitted redaction | **gap**; §9 does not expressly promise a complete disconnected/offline evidence closure |
+| no disclosure through proof metadata | proof does not expose dropped content through raw hashes, identifiers or inference-susceptible commitments | **match and strengthening**; INT-R7 adopts this as an explicit proof-metadata privacy requirement |
+| release-history binding | release proof binds transcript head | **additional offered requirement accepted provisionally**; INT-R7 must bind the transcript head without deciding disclosure semantics |
+
+Therefore INT-R8-dependent positives remain **hypothetical and unsatisfied** in this amendment. Delivery of unaudited research changes the dependency from “not delivered” to “delivered but unaudited”; it does not close the proof/content seam.
+
+### 11.4 GY-N12 condition remains open
+
+GY-N12 remains contract-only/planned at the pinned baseline. `CurrentAuthorityAsOf`, stale/revalidation, withdrawal and supersession outputs may be named as required inputs, but no positive result using them is established until the canonical owner delivers and its evidence is admitted.
+
+### 11.5 Anti-wire-format warning
+
+Names in this handoff—dimension names, outcome labels, state names, function-like notation and evidence classes—are semantic requirements and test vocabulary only. They are not a schema, enum, API, package, database layout or wire format. Implementation authority may use semantically equivalent representations while preserving one canonical owner and the required failure visibility.

@@ -12,6 +12,7 @@ audited_head: 90b372964d29a9e97605a6ef733ef03ffe7938d2
 prepared_at: 2026-08-04
 suite_version: INT-R8-COMPRESSION-FALSIFIERS-v2
 amended_after_audit: research/int-r8-independent-audit@f45f338f9d9b0de94edc16efbc334789e70e34e2
+remediated_after_verification: research/int-r8-amendment-verification@ead4aca36f94d6014879c9f70b1074800c4ffabf
 may_not_use_for:
   - production_implementation_authorization
   - final_wire_schema_package_database_serialization_or_api_contract
@@ -86,7 +87,7 @@ harness may not substitute a similar code or infer an unstated premise.
 - `F30` — proof metadata channel.
 
 Complete v2 denominator: **30/30 red families** and
-**67/67 mandatory atomic red subfixtures**. Family and subfixture counts are
+**71/71 mandatory atomic red subfixtures**. Family and subfixture counts are
 different quantities.
 
 ## 3. Atomic red subfixtures
@@ -116,7 +117,9 @@ F07-A | F07 | delete denied use production_recommendation from claim C-1 | block
 F07-B | F07 | replace denied use approval_authority with advisory text | blocked_material_omission | evaluated | {compression_denied_use_narrowed} | {C-1} | not_evaluated_precondition
 F08-A | F08 | delete dissent record D-1 from visible summary | blocked_material_omission | evaluated | {compression_contestability_reduced} | {C-1} | not_evaluated_precondition
 F08-B | F08 | replace majority_with_dissent wording with experts_agreed | blocked_material_omission | evaluated | {compression_consensus_overstated} | {C-1} | not_evaluated_precondition
-F09-A | F09 | remove rejected_set and conflict rows while setting summary_consensus=broad | blocked_material_omission | evaluated | {compression_consensus_overstated} | {C-evidence} | not_evaluated_precondition
+F09-A | F09 | remove rejected_set only | blocked_material_omission | evaluated | {compression_material_counterevidence_missing} | {C-evidence} | not_evaluated_precondition
+F09-B | F09 | remove conflict rows only | blocked_material_omission | evaluated | {compression_material_counterevidence_missing} | {C-evidence} | not_evaluated_precondition
+F09-C | F09 | set summary_consensus=broad only | blocked_material_omission | evaluated | {compression_consensus_overstated} | {C-evidence} | not_evaluated_precondition
 F10-A | F10 | delete visible limitation L-1 while retaining full_record_pointer | blocked_material_omission | evaluated | {compression_retained_limitation_missing} | {C-1} | not_evaluated_precondition
 F10-B | F10 | delete visible counterevidence E-counter while retaining full_record_pointer | blocked_material_omission | evaluated | {compression_material_counterevidence_missing} | {C-1} | not_evaluated_precondition
 F11-A | F11 | publish deleted protected text in version diff | blocked_material_omission | evaluated | {compression_temporal_reconstruction} | {C-hidden} | reconstructed
@@ -142,6 +145,8 @@ F20-C | F20 | cache returns old HTML without currentness state | blocked_materia
 F21-A | F21 | force exact solver timeout | blocked_material_omission | not_established_timeout | {compression_reconstruction_not_established} | {C-private} | not_established_timeout
 F21-B | F21 | remove materiality_predicate_package_ref | blocked_material_omission | not_evaluated_missing_input | {compression_input_package_incomplete} | {C-1} | not_evaluated_precondition
 F21-C | F21 | remove semantic inventory item disposition for L-1 | blocked_material_omission | evaluated | {compression_item_disposition_invalid} | {C-1} | not_evaluated_precondition
+F21-D | F21 | select record model M-empty in which no admitted record emits controlled observation t-7 | blocked_material_omission | model_observation_inconsistent | {model_observation_inconsistent} | {C-private} | model_observation_inconsistent
+F21-E | F21 | use sampled_search_100 as the reconstruction evaluator and return safe after it finds no reconstruction witness | blocked_material_omission | not_established_unowned_approximation | {not_established_unowned_approximation} | {C-private} | not_established_unowned_approximation
 F22-A | F22 | set receipt authority_role=approval_input | blocked_material_omission | evaluated | {compression_receipt_mints_authority} | {} | not_evaluated_precondition
 F22-B | F22 | set receipt authoritative_for={public_decision} | blocked_material_omission | evaluated | {compression_receipt_mints_authority} | {} | not_evaluated_precondition
 F23-A | F23 | reuse pre-history local pass without evaluating candidate prefix | blocked_material_omission | evaluated | {compression_transcript_prefix_not_checked} | {C-private} | not_evaluated_precondition
@@ -170,10 +175,12 @@ G01-A | G01 | collapse five duplicate citations to one; duplicate relation is es
 G02-A | G02 | replace person name with role; materiality=non_material_for_declared_use; no cross-view join | lossy_but_safe | evaluated | {} | {C-dissent} | not_reconstructed_under_declared_model
 G03-A | G03 | replace raw cells with approved aggregate retaining population, time, uncertainty, rule, reason, and denied uses | lossy_but_safe | evaluated | {} | {C-stat} | not_reconstructed_under_declared_model
 G04-A | G04 | remove duplicate event prose while preserving every constitutive event and order edge | lossy_but_safe | evaluated | {} | {C-custody} | not_reconstructed_under_declared_model
+G04-B | G04 | condense events adjudication_opened and adjudication_closed into 'adjudication completed' while retaining both event refs, effects={authority_or_status,contestability_or_recourse,history_or_currentness}, and order edges={seal_before_adjudication,adjudication_before_publication} | lossy_but_safe | evaluated | {} | {C-custody} | not_reconstructed_under_declared_model
 G05-A | G05 | add denied use production_recommendation and retain every source semantic | lossy_but_safe | evaluated | {} | {C-1} | not_reconstructed_under_declared_model
+G05-B | G05 | admit unknown external-copy possibility, set completeness=external_history_not_established, and emit only bounded_to_declared_release_family claim | lossy_but_safe | evaluated | {} | {C-release-boundary} | external_history_not_established
 ```
 
-Complete green denominator: **5/5 families and 5/5 atomic controls**.
+Complete green denominator: **5/5 families and 7/7 atomic controls**.
 
 ## 5. Preserved high-value cases
 
@@ -183,6 +190,10 @@ Complete green denominator: **5/5 families and 5/5 atomic controls**.
 - F19-A decodes the complete deep-link representation rather than testing visible DOM only.
 - F24-A/F24-B preserve append-only membership and reject post-hoc coalition narrowing.
 - F25-A/F25-B/F25-C reject differently named scalars under one exact issue code.
+- G04-B is green only while every listed effect and order edge remains; deleting any one invokes
+  the corresponding materiality or procedural-order block.
+- G05-B limits the claim to the declared release family; it neither treats unknown external
+  history as complete nor converts that bounded limitation into a full block.
 - G01-G05 preserve duplicate condensation, non-material role replacement, controlled aggregate,
   faithful no-number history condensation, and added conservative caution.
 
@@ -248,7 +259,7 @@ implementation tasks.
 
 ## 10. Standing
 
-The v2 specification contains 67 atomic red subfixtures and 5 atomic green
+The v2 specification contains 71 atomic red subfixtures and 7 atomic green
 subfixtures. It has not run. The handoff preserves existing substrate, uses prerequisite-valid
 labels, and authorizes no owner, schema, implementation, publication, benchmark passage, or
 numerical guarantee.

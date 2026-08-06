@@ -4,7 +4,7 @@ status: active
 kind: research-backlog
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-08-05 (Rev 5 — the INT-R7/INT-R8 wave CLOSED and RATIFIED as PV-K01-PV-K09 [docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md], the third ratification act after Stage-0 custody and INT-wave claim semantics. Both tasks ran the full pipeline twice over - research, independent audit, amendment, conformance verification, bounded remediation, delta verification - then consolidation. Standing: INT-R7 GO_WITH_REVISIONS with its independent closure gate met at controlling head 3883b454; INT-R8 accepted_narrow_scope verified CONFORMS [0 blocking / 0 material / 0 minor / 8 commendation] at controlling head 286ade10. Across six independent registers the wave holds 106 findings [4 blocking, 32 material, 11 minor, 59 commendation] and every blocking finding is closed. The R7/R8 seam was adjudicated item by item in BOTH directions for the first time and holds at the research-contract level - though it holds BY CONSTRUCTION, since INT-R7 binds the complete semantic statement and producibility is therefore generic, so it can fail only institutionally or at the candidate layer. Completion Ledger gains INT-R7 and INT-R8. Group D gains NXR-01 and NXR-02, both DORMANT behind concrete triggers, and is renamed to carry the NXR series. Counts: 25 active / 4 dormant / 7 merged / 36 deferred-with-trigger. The structural result of the previous wave is now doubly confirmed and extended: NO ACTIVE RESEARCH REMAINS on either first-milestone path. What is left is engineering in existing lanes - including GY-GAP1 on the promotion path and the newly registered GY-GAP3 on the disclosure path - plus institutional evidence that no repository edit can supply. | Rev 4 — the INT wave CLOSED and RATIFIED. INT-R1, INT-R9 and INT-R10 each ran the full pipeline research -> independent audit -> amendment/revision -> conformance verification, were consolidated into eight authority-band candidates, and all eight are RATIFIED as INT-K01-INT-K08 [docs/system-design-decisions/int-wave-claim-semantics-ratification.md] - a separate decision from the Stage-0 custody kernel because its subject is what a NUMBER may mean, not who owns a claim. Standing: INT-R1 verified with one carried anchor gap; INT-R9 verified CONFORMS_WITH_GAPS, superseding its original NO_GO, with both carried gaps closed by the architect in 65b0beb72; INT-R10 revision verified CONFORMS. Completion Ledger gains three delivered rows plus two dormant registrations. Group D is renamed and gains INT-GAP-01 [selection-valid family control for outcome-dependent repair] and INT-GAP-02 [constructed independence for bounded obligation coverage], both DORMANT with explicit activation triggers and both carrying their already-written full specifications by reference. S0-GAP-02 is UNCHANGED: the wave adds consumers to it and makes it an INPUT to INT-GAP-02, but does not broaden its commission. The wave's structural result, which is why both new rows are dormant rather than queued: the critical path to a first public governed promotion no longer runs through any open research - INT-GAP-01, INT-GAP-02 and GY-GAP2 are all off it, and what remains is institutional evidence [fresh decisive cases, named humans, a materiality owner, sealed custody] plus obligation-instance identity in GY-GAP1. Research has outrun execution. Counts: 25 active / 2 dormant / 7 merged / 36 deferred-with-trigger. | Rev 3 — Stage 0 CLOSED and RATIFIED. PAO-R0, PAO-R1 and OPS-R15 delivered and independently audited; consolidated into the sixteen-statement custody kernel; all sixteen ratified 2026-08-02 [docs/system-design-decisions/stage0-custody-kernel-ratification.md]. S0-GAP-01 delivered and its naming carried into ratified S0-K01. OPS-R4 delivered accepted_narrow_scope and ADOPTED as the Custody Time Model [docs/system-design-decisions/policy-design-custody-time-model.md] - which refutes the universal persisted OperationalEventEnvelope, so the OPS-R4 row narrows accordingly. New Group D holds the one active Stage-0 gap: S0-GAP-02, commissioned by the ratification act because ratified S0-K14 blocks OPS-R15 SCORING until an independent oracle exists - designing the capstone under K13/K15 is not blocked. Completion Ledger is now populated, not a template. Counts: 25 active / 7 merged / 36 deferred-with-trigger. | Rev 2 — reshaped under the ratified identity/custody-boundary decision; disposition ledger over all 67 Rev-1 IDs: 24 active / 7 merged / 36 deferred-with-trigger)
+revised: 2026-08-05 (Rev 6 — the ADOPTED EXECUTION SEQUENCE for the seventeen remaining active tasks is recorded in the Parallel Execution Protocol. Five waves, ordered by FIRE-ORDER rather than importance: with implementation capacity separate from research capacity every remaining task is write-early-fire-late, so the discriminating question is which result is consumed soonest. Wave 4 = OPS-R14 + PAO-R36 + PAO-R4 + S0-GAP-02, four parallel with one declared seam [OPS-R14 owns the mechanics of durability and expiring authority, PAO-R36 owns the semantics of correction and supersession], all consumed at DS12; wave 5 = INT-R5 + INT-R3 + INT-R6, authority meeting a person; wave 6 = OPS-R1/R2/R3 as one machine; wave 7 = OPS-R8 with OPS-R9, then OPS-R10 before OPS-R11; wave 8 = the declared joint pair INT-R4 with OPS-R5, plus INT-R2. A BLOCKING PRECONDITION is recorded before wave 6: Group B's nine tasks name a future H2 custody-runtime plan as their integration target and NO SUCH PLAN EXISTS in docs/plans/active - running them first would produce nine outputs with no owner, which is the GY-GAP3 failure multiplied by nine. The four dormant rows are explicitly NOT sequenced, being trigger-driven. Standing caveat recorded: none of the seventeen moves the institutional layer INST-01-INST-05, so if that is not advanced in parallel the programme completes into a fully specified system nobody can sign. | Rev 5 — the INT-R7/INT-R8 wave CLOSED and RATIFIED as PV-K01-PV-K09 [docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md], the third ratification act after Stage-0 custody and INT-wave claim semantics. Both tasks ran the full pipeline twice over - research, independent audit, amendment, conformance verification, bounded remediation, delta verification - then consolidation. Standing: INT-R7 GO_WITH_REVISIONS with its independent closure gate met at controlling head 3883b454; INT-R8 accepted_narrow_scope verified CONFORMS [0 blocking / 0 material / 0 minor / 8 commendation] at controlling head 286ade10. Across six independent registers the wave holds 106 findings [4 blocking, 32 material, 11 minor, 59 commendation] and every blocking finding is closed. The R7/R8 seam was adjudicated item by item in BOTH directions for the first time and holds at the research-contract level - though it holds BY CONSTRUCTION, since INT-R7 binds the complete semantic statement and producibility is therefore generic, so it can fail only institutionally or at the candidate layer. Completion Ledger gains INT-R7 and INT-R8. Group D gains NXR-01 and NXR-02, both DORMANT behind concrete triggers, and is renamed to carry the NXR series. Counts: 25 active / 4 dormant / 7 merged / 36 deferred-with-trigger. The structural result of the previous wave is now doubly confirmed and extended: NO ACTIVE RESEARCH REMAINS on either first-milestone path. What is left is engineering in existing lanes - including GY-GAP1 on the promotion path and the newly registered GY-GAP3 on the disclosure path - plus institutional evidence that no repository edit can supply. | Rev 4 — the INT wave CLOSED and RATIFIED. INT-R1, INT-R9 and INT-R10 each ran the full pipeline research -> independent audit -> amendment/revision -> conformance verification, were consolidated into eight authority-band candidates, and all eight are RATIFIED as INT-K01-INT-K08 [docs/system-design-decisions/int-wave-claim-semantics-ratification.md] - a separate decision from the Stage-0 custody kernel because its subject is what a NUMBER may mean, not who owns a claim. Standing: INT-R1 verified with one carried anchor gap; INT-R9 verified CONFORMS_WITH_GAPS, superseding its original NO_GO, with both carried gaps closed by the architect in 65b0beb72; INT-R10 revision verified CONFORMS. Completion Ledger gains three delivered rows plus two dormant registrations. Group D is renamed and gains INT-GAP-01 [selection-valid family control for outcome-dependent repair] and INT-GAP-02 [constructed independence for bounded obligation coverage], both DORMANT with explicit activation triggers and both carrying their already-written full specifications by reference. S0-GAP-02 is UNCHANGED: the wave adds consumers to it and makes it an INPUT to INT-GAP-02, but does not broaden its commission. The wave's structural result, which is why both new rows are dormant rather than queued: the critical path to a first public governed promotion no longer runs through any open research - INT-GAP-01, INT-GAP-02 and GY-GAP2 are all off it, and what remains is institutional evidence [fresh decisive cases, named humans, a materiality owner, sealed custody] plus obligation-instance identity in GY-GAP1. Research has outrun execution. Counts: 25 active / 2 dormant / 7 merged / 36 deferred-with-trigger. | Rev 3 — Stage 0 CLOSED and RATIFIED. PAO-R0, PAO-R1 and OPS-R15 delivered and independently audited; consolidated into the sixteen-statement custody kernel; all sixteen ratified 2026-08-02 [docs/system-design-decisions/stage0-custody-kernel-ratification.md]. S0-GAP-01 delivered and its naming carried into ratified S0-K01. OPS-R4 delivered accepted_narrow_scope and ADOPTED as the Custody Time Model [docs/system-design-decisions/policy-design-custody-time-model.md] - which refutes the universal persisted OperationalEventEnvelope, so the OPS-R4 row narrows accordingly. New Group D holds the one active Stage-0 gap: S0-GAP-02, commissioned by the ratification act because ratified S0-K14 blocks OPS-R15 SCORING until an independent oracle exists - designing the capstone under K13/K15 is not blocked. Completion Ledger is now populated, not a template. Counts: 25 active / 7 merged / 36 deferred-with-trigger. | Rev 2 — reshaped under the ratified identity/custody-boundary decision; disposition ledger over all 67 Rev-1 IDs: 24 active / 7 merged / 36 deferred-with-trigger)
 governed_by: docs/system-design-decisions/policyos-identity-and-custody-boundary.md
 relationship: sibling of docs/research/remaining-deep-research-backlog.md; distils later into docs/research/deep-research-value-distillation.md; INT/PAO findings gate or extend the active GY/Atlas plans, while OPS findings primarily shape a future dedicated H2 custody-runtime implementation plan whose artifacts GY and Atlas consume
 authoritative_for: [research_task_specification, parallel_dispatch_registry, wave2_disposition_ledger]
@@ -207,6 +207,73 @@ merging; these remain and must be consolidated deliberately):
   causal safety are joint closeout inputs to the deployed-effect update/write-back path.
 - `OPS-R10`/`OPS-R11` ↔ Lex: extend the canonical Lex owners; do not create a second legal
   release, jurisdiction, time, or competence model.
+
+### Adopted execution sequence for the seventeen remaining active tasks (Rev 6, 2026-08-05)
+
+Three waves are closed and ratified — Stage 0 (`S0-K01`–`S0-K16`), the INT wave
+(`INT-K01`–`INT-K08`), and public verification and disclosure (`PV-K01`–`PV-K09`). Ten tasks are
+delivered. The seventeen still-active tasks are sequenced below.
+
+**The ordering criterion is fire-order, not importance-order.** With implementation capacity
+separate from research capacity, every remaining task is "write early, fire late"; the only
+discriminating question is *which result is consumed soonest*. Four corrections apply, each learned
+from a measured failure in the delivered waves:
+
+1. **Declare the seam before running a pair.** `INT-R1` ‖ `INT-R9` failed at an undeclared seam and
+   cost a third task (`INT-R10`); `INT-R7` ‖ `INT-R8` succeeded with the seam written into both
+   briefs.
+2. **Coupled tasks run together or produce incompatible models.**
+3. **Never research into a destination that does not exist** — the `GY-GAP3` lesson applied at
+   programme scale (see the wave-6 precondition below).
+4. **Institutionally dependent tasks are designed now and executed when the people exist** —
+   `INT-R9`'s standing precedent.
+
+| Wave | Tasks | Shape | Consumed at |
+| ---: | --- | --- | --- |
+| **4** | `OPS-R14`, `PAO-R36`, `PAO-R4`, `S0-GAP-02` | 4 parallel; one declared seam | DS12 / the first public record |
+| **5** | `INT-R5`, `INT-R3`, `INT-R6` | 3 parallel | DS9, DS11–DS14, GY-PA2 |
+| — | **Precondition: the H2 custody-runtime plan must exist** | blocking | — |
+| **6** | `OPS-R1`, `OPS-R2`, `OPS-R3` | 3, only together | H2 custody runtime |
+| **7** | `OPS-R8` ‖ `OPS-R9`; then `OPS-R10` → `OPS-R11` | 2 parallel + 2 sequential | H2 runtime, Lex |
+| **8** | `INT-R4` ‖ `OPS-R5`; `INT-R2` | declared pair + 1 | GY Phase 6 / O1/O3 |
+
+**Wave 4 — publication readiness.** All four have their inputs and are consumed at the same
+milestone. `OPS-R14` is named by the ratified PV profile as an undelivered dependency: the 10–30
+year preservation lifecycle must already be *operating* before the first public signature, and its
+input (`INT-R7` key lifecycle) is now delivered. `PAO-R36` owns how a public correction is
+*operated*, where `PV-K02` ratified only what correction *means*. `PAO-R4` guards the DS12 public
+boundary against a policy-level output silently deciding an individual case. `S0-GAP-02` has been
+commissioned and unstarted since 2026-08-02 and is fully disjoint from the other three.
+**Declared seam:** `OPS-R14` ↔ `PAO-R36` share "the published record over time" — `OPS-R14` owns the
+mechanics of durability, recovery and expiring authority; `PAO-R36` owns the semantics of
+correction, notice and supersession. Neither defines the other's half.
+
+**Wave 5 — authority meets a person.** Three faces of one question: who may decide (`INT-R5`, which
+also supplies the *form* of the competence certificate `INT-R9`'s institutional blocker needs),
+whether a real operator acts correctly on what is shown (`INT-R3`, whose execution needs live
+operators and is therefore designed now), and whether authority semantics survive translation
+(`INT-R6`, unblocked since the D4 language policy was ratified).
+
+**Wave-6 precondition — the destination must exist first.** Group B's nine tasks declare their
+integration target as "a future dedicated H2 custody-runtime implementation plan." **No such plan
+exists in `docs/plans/active/`.** Running Group B before it does would produce nine research
+outputs with no owner — the exact failure corrected in `GY-GAP3`, multiplied by nine. Create or
+commission the plan before wave 6 opens.
+
+**Waves 6–8 — the untouched slab.** `OPS-R1`/`R2`/`R3` are one machine (a case is suspended, the
+world changes, it is revalidated, it may be migrated) and researched separately would yield three
+incompatible models of time, state and invalidation. `OPS-R11` declares `OPS-R10` as its dependency,
+so that order is fixed. `INT-R4` ‖ `OPS-R5` is the only explicitly declared **joint binding input**
+in this register and must not be split.
+
+**Not sequenced.** `INT-GAP-01`, `INT-GAP-02`, `NXR-01` and `NXR-02` are trigger-driven, not
+scheduled. Dispatching one before its trigger fires is speculative research and each row forbids it.
+
+**Standing caveat.** None of the seventeen moves the institutional layer. `INST-01`–`INST-05`
+(mandate, independent witnesses, preservation custody, materiality competence, contest and recourse
+operation) require accountable actors and commitments that no research artifact can supply. If that
+layer is not advanced in parallel, wave 8 completes into a fully specified system that still has
+nobody able to sign.
 
 ## Mandatory Repo Baseline Study
 

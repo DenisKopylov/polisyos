@@ -110,7 +110,7 @@ failure-visible delivery chain.
 | Orientation proposition | Re-derived evidence at the pin | Disposition |
 | --- | --- | --- |
 | `rule_evolution.py` is the canonical evolution owner | The file declares the shared rule-evolution registry, replay, public annotation, producer/reader owners, and an explicit public-policy blocker at `policy-engine/src/polisyos/core/contracts/rule_evolution.py:1-38`; its capability-reality record names producer, artifact, bridge, consumer, verification, and surface at `:177-189`. | **Agrees on owner.** It must be extended, not duplicated. |
-| `rule_evolution.py` has 30 top-level classes/functions | Complete exact-file declaration search found 18 top-level `def`, 2 top-level `class`, and 0 top-level `async def`: 20 total. | **Disagrees.** The exact top-level declaration count is 20, not 30. Constants and nested methods are not top-level classes/functions. |
+| `rule_evolution.py` has 30 top-level classes/functions | A complete four-range read of all 839/839 source lines found 28 column-zero `def` declarations and 2 column-zero `class` declarations, with no column-zero `async def`: 30 total. | **Agrees.** The arithmetic is 28 + 2 = 30; the nested protocol method is excluded because it is not top-level. |
 | Silent semantic upgrade is already prohibited | The public annotation sets `silent_upgrade_allowed` false and binds closed-case replay to original logic at `rule_evolution.py:302-330`. | **Agrees.** PAO-R36 makes this publicly detectable; it does not re-ratify it. |
 | `public_export.py` is 2,103 lines | The prior complete-file INT-R8 orientation re-derived 2,103 lines at `policy-engine/docs/research/policy-operations/int-r8/orientation-ledger.md:88-105`. | **Agrees.** |
 | `projection_semantics.py` is 3,763 lines and owns four audiences | The prior complete-file ledger records 3,763 lines and PUBLIC, REVIEWER, EXPERT, MACHINE at `int-r8/orientation-ledger.md:104-113`; the enum is also visible at `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:648-655`. | **Agrees.** No fifth correction audience is proposed. |
@@ -171,8 +171,7 @@ Therefore:
 The qualitative asymmetry in the commission brief survives, but several supplied figures do not:
 internal supersession is extensively represented while named outward-correction tokens are absent
 from connector search; however, the 48/34 supersession file counts are not reproduced, the all-file
-`retraction` denominator is seven rather than six, and `rule_evolution.py` has 20 rather than 30
-exact top-level declarations.
+`retraction` denominator is seven rather than six, and the stated 30 top-level declarations in `rule_evolution.py` reproduce exactly as 28 functions plus 2 classes.
 
 The correct research posture is not to normalize these discrepancies. It is to bind every later
 claim to its precise denominator, mark unavailable literal counts as not established, and avoid any

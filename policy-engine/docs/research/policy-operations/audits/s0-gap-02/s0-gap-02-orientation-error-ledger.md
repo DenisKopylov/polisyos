@@ -27,4 +27,4 @@ Repository API references used to reproduce the exact tree:
 
 - [Pinned Git commit object](https://api.github.com/repos/DenisKopylov/polisyos/git/commits/1a7a2d05ebba22fae80e9934329e4b880806588e)
 - [Pinned ordinary commit object](https://api.github.com/repos/DenisKopylov/polisyos/commits/1a7a2d05ebba22fae80e9934329e4b880806588e)
-- [Recursive public tree and contents service](https://gh.kaf.sh/api/DenisKopylov/polisyos)
+- [Exact structured extraction of policy-engine/src at the pin](https://gitextract.com/api/v1/ingest?url=DenisKopylov/polisyos&branch=1a7a2d05ebba22fae80e9934329e4b880806588e&subpath=policy-engine/src&include_json=true&max_file_size_kb=20480)

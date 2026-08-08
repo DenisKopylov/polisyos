@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import asyncio
 import copy
@@ -55,6 +59,7 @@ from polisyos.runtime.quality.promotion_sequence import (
 )
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
 _FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
@@ -1018,4 +1023,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

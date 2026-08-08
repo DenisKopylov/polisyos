@@ -146,6 +146,7 @@ def test_report_timing_summarizes_budgeted_runs(tmp_path: Path, capsys) -> None:
             started_at="2026-04-13T10:00:00+00:00",
             duration_ms=450000.0,
             exit_code=0,
+            mode="check",
         ),
     )
     append_timing_record(
@@ -182,9 +183,60 @@ def test_report_timing_summarizes_budgeted_runs(tmp_path: Path, capsys) -> None:
     assert exit_code == 0
     assert payload["record_count"] == 2
     assert payload["summaries"][0]["tool"] == "workspace.verify"
+    assert payload["summaries"][0]["latest_mode"] == "check"
     assert payload["summaries"][0]["over_budget_runs"] == 1
     assert summary_path.exists()
     assert "Tool Timing Summary" in summary_path.read_text(encoding="utf-8")
+
+
+def test_report_timing_lists_measured_catalog_lanes_without_a_timing_log(
+    tmp_path: Path, capsys
+) -> None:
+    """Catch a report surface that hides a measured lane before local execution."""
+
+    missing_log = tmp_path / "missing.jsonl"
+
+    exit_code = main(
+        [
+            "report-timing",
+            "--timing-log",
+            str(missing_log),
+            "--output-format",
+            "json",
+            "--include-unmeasured",
+        ]
+    )
+
+    payload = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert payload["record_count"] == 0
+    assert payload["timing_budget_catalog_scope"] == "requested_expensive_lanes_only"
+    assert payload["uncatalogued_lanes"] == "outside_requested_expensive_lane_scope"
+    frontend_lint = next(
+        lane for lane in payload["lane_summaries"] if lane["timing_key"] == "frontend.eslint:default"
+    )
+    assert frontend_lint["state"] == "measured"
+    assert frontend_lint["local_runs"] == 0
+
+
+def test_report_timing_text_lists_catalog_lanes_without_a_timing_log(
+    tmp_path: Path, capsys
+) -> None:
+    """Catch text rendering that returns before printing its before-run catalog projection."""
+
+    exit_code = main(
+        [
+            "report-timing",
+            "--timing-log",
+            str(tmp_path / "missing.jsonl"),
+            "--include-unmeasured",
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+    assert "Measured budget lanes:" in output
+    assert "frontend.eslint:default: state=measured" in output
 
 
 def test_quarantined_preflight_records_skipped_run(tmp_path: Path, capsys) -> None:

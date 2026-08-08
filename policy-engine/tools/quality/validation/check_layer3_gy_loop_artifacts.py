@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import contextlib
 import hashlib
@@ -17,6 +21,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
+
+from tools.lib.timing import run_timed_entrypoint
 
 FAMILY_ID = "policy-design-case-layer3-gy-loop-artifacts"
 SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-loop-source-artifacts"
@@ -1218,4 +1224,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

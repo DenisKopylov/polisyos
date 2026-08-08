@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import asyncio
 import hashlib
@@ -36,6 +40,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 from polisyos.runtime.quality.data_state_substrate import (
     l1_dcat_variable_availability,
 )
+from tools.lib.timing import run_timed_entrypoint
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_CARRIER_LIVENESS_UPDATE,
     DEFAULT_D6_PRIMARY_METADATA_EVIDENCE,
@@ -1721,4 +1726,13 @@ def require_new_live_execution_outputs(
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

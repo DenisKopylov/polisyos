@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import asyncio
 import copy
@@ -63,6 +67,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayUsage,
 )
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
 RECORDING_FIXTURE_PATH = (
@@ -3973,4 +3978,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

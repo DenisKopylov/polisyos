@@ -17,11 +17,17 @@ Usage:
 """
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import hashlib
 import json
 import sys
 from pathlib import Path
+
+from tools.lib.timing import run_timed_entrypoint
 
 ROOT = Path(__file__).resolve().parents[3]
 ART = ROOT / "architecture" / "policy_design_case" / "layer3_gy_task0_audit" / "layer3_gy_workflow_mode_truth_audit.json"
@@ -137,4 +143,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

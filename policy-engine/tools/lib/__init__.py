@@ -33,6 +33,8 @@ from .timing import (
     ToolRunRecord,
     append_timing_record,
     make_timing_record,
+    run_timed_entrypoint,
+    run_timed_operation,
     timed_tool_run,
     timing_log_from_env,
 )
@@ -67,6 +69,8 @@ __all__ = [
     "repo_root_from",
     "run_command",
     "run_preflight",
+    "run_timed_entrypoint",
+    "run_timed_operation",
     "timed_tool_run",
     "timing_log_from_env",
     "validate_command_prefix",

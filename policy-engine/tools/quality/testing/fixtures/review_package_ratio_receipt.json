@@ -1,0 +1,15 @@
+{
+  "base_commit": "e559ca312fb813df4aaf030ad529396cced694c9",
+  "delta_bytes": 899,
+  "delta_commit": "cc3116745f36e6e77a395137e880dbcff5d9a065",
+  "delta_package_sha256": "4d4cc01214da73d048b5555322bb836af12984d509dd9a710b3b490bb8a680b8",
+  "delta_to_full_ratio": 0.020479759436863566,
+  "fixture_rules_sha256": "919a2fec08d3af9a8dc35863b1bbef617d30167b6e37fffc515734be2a9e9c5a",
+  "full_bytes": 43897,
+  "full_package_sha256": "340cf8d0b590338bd6da6a83c4e1c94428f8d1cab081587dac8ac9157144f345",
+  "prior_findings_bytes": 66,
+  "prior_findings_sha256": "358b8290af6f9071090542d1feb6587ef24913391aa0faa64e6c436d9b65a068",
+  "prior_review_point": "808a3bb6436617dfa946ca335e2f4bf3d1fbb315",
+  "requirement_delta_at_most_full_tenth": true,
+  "schema_version": 1
+}

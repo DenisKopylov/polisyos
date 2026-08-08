@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import asyncio
 import contextlib
@@ -19,6 +23,8 @@ from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+
+from tools.lib.timing import run_timed_entrypoint
 
 os.environ["JAX_PLATFORM_NAME"] = "cpu"
 os.environ["JAX_PLATFORMS"] = "cpu"
@@ -2465,4 +2471,13 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

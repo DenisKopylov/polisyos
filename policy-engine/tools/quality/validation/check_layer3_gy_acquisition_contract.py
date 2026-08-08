@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
 import argparse
 import ast
 import copy
@@ -49,6 +53,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry,
     build_substrate_registry_entry,
 )
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_acquisition_contract.json"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.acquisition_contract.v1"
@@ -1057,4 +1062,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

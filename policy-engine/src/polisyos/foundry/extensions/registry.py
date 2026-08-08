@@ -2,21 +2,29 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib
+import json
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from polisyos.core.components import ComponentEntry, ComponentRegistry, DuplicateComponentIdPolicy
+from polisyos.core.components import (
+    ComponentDiscoveryManifest,
+    ComponentEntry,
+    ComponentRegistry,
+    DuplicateComponentIdPolicy,
+)
 from polisyos.foundry.methods.components.bridge import (
     ComponentsBridgeError,
     bootstrap_method_registry_from_components,
 )
 from polisyos.foundry.methods.selection.registry import (
     MethodRegistry,
+    RegistrySnapshot,
     get_registry,
-    get_registry_audit_log,  # noqa: F401
-    registry_scope,  # noqa: F401
+    get_registry_audit_log,
+    registry_scope,
 )
 
 
@@ -30,10 +38,18 @@ class FoundryExtensionRegistryReport:
     discovery_errors: list[str] = field(default_factory=list)
     components_total: int = 0
     sources_processed: int = 0
+    discovery_manifest: ComponentDiscoveryManifest | None = None
+    preexisting_method_fqns: tuple[str, ...] = ()
+    registry_fqns: tuple[str, ...] = ()
+    registry_binding_sha256: str | None = None
 
     @property
     def success(self) -> bool:
         return not self.errors and not self.discovery_errors
+
+
+class UnboundFoundryDiscoveryInputError(RuntimeError):
+    """Refuse registry mutation when an ambient discovery input is not content-bound."""
 
 
 def bootstrap_foundry_method_registry(
@@ -45,9 +61,11 @@ def bootstrap_foundry_method_registry(
     include_dev_scan: bool = True,
     dev_scan_paths: Sequence[Path | str] | None = None,
     duplicate_policy: DuplicateComponentIdPolicy = DuplicateComponentIdPolicy.WARN,
+    require_bound_discovery_manifest: bool = False,
 ) -> FoundryExtensionRegistryReport:
     """Discover Foundry method plugins and register them into a `MethodRegistry`."""
     method_registry = registry if registry is not None else get_registry()
+    preexisting_method_fqns = tuple(entry.fqn for entry in method_registry.snapshot().entries())
 
     if components_index is None:
         from .discovery import build_foundry_method_components_index
@@ -64,14 +82,33 @@ def bootstrap_foundry_method_registry(
             for error in discovery_report.errors
         ]
         sources_processed = discovery_report.sources_processed
+        discovery_manifest = discovery_report.manifest
+        if require_bound_discovery_manifest and (
+            discovery_manifest is None or not discovery_manifest.is_bound
+        ):
+            reasons = (
+                ("discovery_manifest_missing",)
+                if discovery_manifest is None
+                else discovery_manifest.unbound_inputs
+            )
+            raise UnboundFoundryDiscoveryInputError(
+                "unbound_foundry_discovery_input:" + "|".join(reasons)
+            )
     else:
         discovery_errors = []
         sources_processed = 0
+        discovery_manifest = None
+        if require_bound_discovery_manifest:
+            raise UnboundFoundryDiscoveryInputError(
+                "unbound_foundry_discovery_input:discovery_manifest_missing:"
+                "caller_supplied_components_index"
+            )
 
     bridge_report = bootstrap_method_registry_from_components(
         components_index,
         method_registry,
     )
+    admitted_snapshot = method_registry.snapshot()
     return FoundryExtensionRegistryReport(
         registered=bridge_report.registered,
         duplicates=bridge_report.duplicates,
@@ -79,7 +116,32 @@ def bootstrap_foundry_method_registry(
         discovery_errors=discovery_errors,
         components_total=len(components_index.list_all()),
         sources_processed=sources_processed,
+        discovery_manifest=discovery_manifest,
+        preexisting_method_fqns=preexisting_method_fqns,
+        registry_fqns=tuple(entry.fqn for entry in admitted_snapshot.entries()),
+        registry_binding_sha256=_method_registry_snapshot_binding_sha256(admitted_snapshot),
     )
+
+
+def _method_registry_snapshot_binding_sha256(snapshot: RegistrySnapshot) -> str:
+    """Content-bind one already-frozen registry snapshot."""
+    rows = [
+        {
+            "fqn": entry.fqn,
+            "signature_digest": entry.signature.stable_digest(),
+            "metadata_digest": entry.metadata.stable_digest(),
+            "import_module": entry.import_module,
+            "import_qualname": entry.import_qualname,
+        }
+        for entry in snapshot.entries()
+    ]
+    encoded = json.dumps(
+        rows,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def register_foundry_method_plugin(
@@ -159,6 +221,7 @@ __all__ = sorted(
         "ComponentsBridgeError",
         "FoundryExtensionRegistryReport",
         "MethodRegistry",
+        "UnboundFoundryDiscoveryInputError",
         "bootstrap_builtin_foundry_method_family",
         "bootstrap_foundry_method_registry",
         "get_registry",

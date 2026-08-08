@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from importlib import import_module
-from typing import Callable
 
+from polisyos.foundry.extensions.registry import FoundryExtensionRegistryReport
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 _FamilyBootstrap = Callable[[MethodRegistry | None], None]
@@ -114,15 +115,18 @@ def ensure_validation_methods_registered(registry: MethodRegistry | None = None)
     _ensure_family_registered("validation", registry)
 
 
-def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> None:
+def ensure_all_methods_registered(
+    registry: MethodRegistry | None = None,
+) -> FoundryExtensionRegistryReport:
     """Register installed Foundry method extensions into `registry` or the singleton."""
     from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
 
-    bootstrap_foundry_method_registry(
+    return bootstrap_foundry_method_registry(
         registry if registry is not None else MethodRegistry.get_instance(),
         include_builtins=True,
         include_entry_points=True,
         include_dev_scan=True,
+        require_bound_discovery_manifest=False,
     )
 
 

@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import platform
+from collections.abc import Mapping, Sequence
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from typing import Any
 
@@ -22,6 +27,10 @@ from polisyos.core.observability.truthfulness import (
     parse_truthfulness_scope,
     parse_truthfulness_tier,
     reconcile_truthfulness_tiers,
+)
+from polisyos.foundry.extensions.registry import (
+    ComponentDiscoveryManifest,
+    FoundryExtensionRegistryReport,
 )
 from polisyos.foundry.methods.backends.dispatch import (
     BackendNotAvailableError as MethodBackendNotAvailableError,
@@ -48,15 +57,49 @@ from polisyos.ir.analytics.causal_capabilities import (
 )
 
 
+class MethodCatalogDiscoveryProvenanceError(RuntimeError):
+    """Refuse a governed snapshot whose exact registry intake is not established."""
+
+
 def build_method_catalog_snapshot(
     *,
     run_id: str | None = None,
     registry: MethodRegistry | None = None,
     capability_contract: CausalCapabilityContract | None = None,
+    registry_report: FoundryExtensionRegistryReport | None = None,
+    require_bound_discovery: bool = False,
 ) -> MethodCatalogSnapshot:
     """Build a `MethodCatalogSnapshot` with backend availability and semantic metadata."""
-    reg = registry or MethodRegistry.get_instance()
-    ensure_all_methods_registered(reg)
+    reg = registry if registry is not None else MethodRegistry.get_instance()
+    registry_scope = reg.snapshot_scope() if require_bound_discovery else nullcontext()
+    with registry_scope:
+        _admit_catalog_registry(
+            reg,
+            registry_report=registry_report,
+            require_bound_discovery=require_bound_discovery,
+        )
+        snapshot = _build_method_catalog_snapshot_from_admitted_registry(
+            run_id=run_id,
+            registry=reg,
+            capability_contract=capability_contract,
+        )
+        if registry_report is not None:
+            _admit_catalog_registry(
+                reg,
+                registry_report=registry_report,
+                require_bound_discovery=require_bound_discovery,
+            )
+        return snapshot
+
+
+def _build_method_catalog_snapshot_from_admitted_registry(
+    *,
+    run_id: str | None,
+    registry: MethodRegistry,
+    capability_contract: CausalCapabilityContract | None,
+) -> MethodCatalogSnapshot:
+    """Build from a registry held inside its mutation-excluding snapshot scope."""
+    reg = registry
     contract = capability_contract or build_causal_capability_contract()
     available_backends = _available_execution_backends()
     signatures = reg.list_all()
@@ -317,9 +360,7 @@ def build_method_catalog_snapshot(
                 output_interpretation=str(getattr(entry.metadata, "output_interpretation", ""))
                 if entry is not None
                 else "",
-                simulator_regime_schema=dict(
-                    getattr(entry.metadata, "simulator_regime_schema", {})
-                )
+                simulator_regime_schema=dict(getattr(entry.metadata, "simulator_regime_schema", {}))
                 if entry is not None
                 else {},
                 summary_schema_ref=getattr(entry.metadata, "summary_schema_ref", None)
@@ -350,6 +391,357 @@ def build_method_catalog_snapshot(
         entries=entries,
         notes=[f"method_count:{len(entries)}"],
     )
+
+
+def build_method_catalog_runtime_identity(
+    snapshot: MethodCatalogSnapshot,
+) -> dict[str, Any]:
+    """Build a named package/backend identity from snapshot-owned runtime posture."""
+    bindings: list[dict[str, Any]] = []
+    package_versions: dict[str, set[str]] = {}
+    backend_fingerprints: set[tuple[str, str]] = set()
+    for entry in snapshot.entries:
+        posture = entry.capability_matrix.get("runtime_posture")
+        if not isinstance(posture, Mapping):
+            raise MethodCatalogDiscoveryProvenanceError(
+                f"catalog_runtime_posture_missing:{entry.fqn}"
+            )
+        fingerprint = str(posture.get("fingerprint") or "")
+        if not fingerprint:
+            raise MethodCatalogDiscoveryProvenanceError(
+                f"catalog_backend_fingerprint_missing:{entry.fqn}"
+            )
+        libraries = posture.get("library_versions")
+        if not isinstance(libraries, Mapping):
+            raise MethodCatalogDiscoveryProvenanceError(
+                f"catalog_runtime_package_identity_missing:{entry.fqn}"
+            )
+        normalized_libraries = {
+            str(name): str(version)
+            for name, version in sorted(libraries.items(), key=lambda item: str(item[0]))
+        }
+        for name, version in normalized_libraries.items():
+            package_versions.setdefault(name, set()).add(version)
+        backend = str(posture.get("backend") or entry.execution_backend)
+        backend_fingerprints.add((backend, fingerprint))
+        bindings.append(
+            {
+                "fqn": entry.fqn,
+                "backend": backend,
+                "fingerprint": fingerprint,
+                "library_versions": normalized_libraries,
+            }
+        )
+
+    policy_engine_version = safe_version("policy-engine")
+    if policy_engine_version is None:
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_runtime_package_identity_missing:policy-engine"
+        )
+    runtime_packages = [
+        {
+            "name": "policy-engine",
+            "version": policy_engine_version,
+        },
+        {
+            "name": "python",
+            "version": platform.python_version(),
+            "implementation": platform.python_implementation(),
+        },
+        *(
+            {
+                "name": name,
+                "versions": sorted(versions),
+            }
+            for name, versions in sorted(package_versions.items())
+        ),
+    ]
+    canonical_bindings = sorted(bindings, key=lambda row: row["fqn"])
+    payload: dict[str, Any] = {
+        "schema_version": "policyos.method_catalog_runtime_identity.v1",
+        "runtime_packages": runtime_packages,
+        "backend_fingerprints": [
+            {"backend": backend, "fingerprint": fingerprint}
+            for backend, fingerprint in sorted(backend_fingerprints)
+        ],
+        "entry_runtime_binding_count": len(canonical_bindings),
+        "entry_runtime_bindings_sha256": _sha256_payload(canonical_bindings),
+    }
+    payload["identity_id"] = "method_catalog_runtime_identity_" + _sha256_payload(
+        payload
+    ).removeprefix("sha256:")
+    return payload
+
+
+def build_method_catalog_provenance_manifest(
+    snapshot: MethodCatalogSnapshot,
+    *,
+    registry_report: FoundryExtensionRegistryReport,
+    ambient_manifest: ComponentDiscoveryManifest,
+    additional_predicate_provenance: Sequence[Mapping[str, object]] = (),
+    predicate_bindings: Mapping[str, Sequence[str]] | None = None,
+) -> dict[str, Any]:
+    """Bind discovery, runtime identity, and consumer-specific gate predicates."""
+    governed_manifest = registry_report.discovery_manifest
+    if governed_manifest is None or not governed_manifest.is_bound:
+        raise MethodCatalogDiscoveryProvenanceError("catalog_governed_discovery_manifest_unbound")
+    if (
+        governed_manifest.entry_point_groups
+        or governed_manifest.dev_scan_enabled
+        or len(governed_manifest.builtin_loaders) != 1
+    ):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_governed_source_policy_not_builtins_only"
+        )
+    from polisyos.foundry.extensions.discovery import BUILTIN_LOADER, ENTRY_POINT_GROUP
+
+    expected_builtin_loader = str(BUILTIN_LOADER[0])
+    if governed_manifest.builtin_loaders != (expected_builtin_loader,):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_governed_builtin_loader_identity_mismatch"
+        )
+    if (
+        ambient_manifest.entry_point_groups != (ENTRY_POINT_GROUP,)
+        or ambient_manifest.builtin_loaders
+        or not ambient_manifest.dev_scan_enabled
+    ):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_ambient_source_policy_mismatch"
+        )
+    if registry_report.registry_binding_sha256 is None:
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_governed_registry_binding_missing"
+        )
+    catalog_fqns = tuple(entry.fqn for entry in snapshot.entries)
+    if catalog_fqns != registry_report.registry_fqns:
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_snapshot_admission_membership_mismatch"
+        )
+
+    governed_component_ids = tuple(sorted(row.component_id for row in governed_manifest.components))
+    if catalog_fqns != governed_component_ids:
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_snapshot_governed_manifest_membership_mismatch"
+        )
+    ambient_component_ids = tuple(sorted(row.component_id for row in ambient_manifest.components))
+    governed_set = set(governed_component_ids)
+    ambient_set = set(ambient_component_ids)
+    additions = tuple(sorted(ambient_set - governed_set))
+    overlaps = tuple(sorted(ambient_set & governed_set))
+    ambient_unbound = not ambient_manifest.is_bound
+    ambient_status = "quarantined_unbound" if ambient_unbound else "declared_not_admitted"
+    predicate_provenance = [
+        {
+            "predicate": "governed_discovery_policy",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        *(
+            {
+                "predicate": f"governed.{row.predicate}",
+                "classification": row.classification,
+                "decisive": True,
+                "fail_closed_action": "reject",
+            }
+            for row in governed_manifest.predicate_provenance
+        ),
+        {
+            "predicate": "registry_matches_governed_manifest",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        {
+            "predicate": "governed_registry_content_binding",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        {
+            "predicate": "ambient_discovery_exclusion_policy",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        *(
+            {
+                "predicate": f"ambient.{row.predicate}",
+                "classification": row.classification,
+                "decisive": False,
+                "fail_closed_action": "quarantine",
+            }
+            for row in ambient_manifest.predicate_provenance
+        ),
+        {
+            "predicate": "runtime_backend_package_identity",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        {
+            "predicate": "recorded_live_provenance_equality",
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        },
+        *(dict(row) for row in additional_predicate_provenance),
+    ]
+    predicate_names = [str(row.get("predicate") or "") for row in predicate_provenance]
+    if any(not name for name in predicate_names) or len(set(predicate_names)) != len(
+        predicate_names
+    ):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_predicate_provenance_names_invalid"
+        )
+    canonical_bindings = {
+        str(field): list(references)
+        for field, references in sorted((predicate_bindings or {}).items())
+    }
+    known_predicates = set(predicate_names)
+    if any(
+        not references or any(reference not in known_predicates for reference in references)
+        for references in canonical_bindings.values()
+    ):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_predicate_binding_reference_invalid"
+        )
+    payload: dict[str, Any] = {
+        "schema_version": "policyos.method_catalog_provenance_manifest.v1",
+        "governed_discovery": {
+            "source_policy": {
+                "include_builtins": True,
+                "include_entry_points": False,
+                "include_dev_scan": False,
+            },
+            "manifest_id": governed_manifest.manifest_id,
+            "component_count": len(governed_component_ids),
+            "component_set_sha256": _sha256_payload(governed_component_ids),
+            "registry_fqn_set_sha256": _sha256_payload(catalog_fqns),
+            "registry_binding_sha256": registry_report.registry_binding_sha256,
+            "unbound_inputs": list(governed_manifest.unbound_inputs),
+        },
+        "ambient_discovery": {
+            "source_policy": {
+                "include_builtins": False,
+                "include_entry_points": True,
+                "include_dev_scan": True,
+            },
+            "manifest_id": ambient_manifest.manifest_id,
+            "entry_points": [row.as_dict() for row in ambient_manifest.entry_points],
+            "dev_scan_roots": [row.as_dict() for row in ambient_manifest.dev_scan_roots],
+            "dev_scan_files": [row.as_dict() for row in ambient_manifest.dev_scan_files],
+            "component_count": len(ambient_component_ids),
+            "component_set_sha256": _sha256_payload(ambient_component_ids),
+            "added_component_ids": list(additions),
+            "overlap_component_count": len(overlaps),
+            "overlap_component_set_sha256": _sha256_payload(overlaps),
+            "unbound_inputs": list(ambient_manifest.unbound_inputs),
+            "admission": {
+                "status": ambient_status,
+                "included_in_governed_denominator": False,
+                "fail_closed_action": "quarantine",
+            },
+        },
+        "runtime_backend_identity": build_method_catalog_runtime_identity(snapshot),
+        "predicate_provenance": predicate_provenance,
+        "predicate_bindings": canonical_bindings,
+        "predicate_admission_policy": [
+            {
+                "classification": "recomputed",
+                "admitted": True,
+                "fail_closed_action": None,
+            },
+            {
+                "classification": "independently_reconciled",
+                "admitted": True,
+                "fail_closed_action": None,
+            },
+            {
+                "classification": "consumer_asserted",
+                "admitted": False,
+                "fail_closed_action": "reject_or_quarantine",
+            },
+            {
+                "classification": "institutionally_supplied",
+                "admitted": False,
+                "fail_closed_action": "reject_or_quarantine",
+            },
+            {
+                "classification": "not_established",
+                "admitted": False,
+                "fail_closed_action": "reject_or_quarantine",
+            },
+        ],
+    }
+    payload["provenance_id"] = "method_catalog_provenance_" + _sha256_payload(payload).removeprefix(
+        "sha256:"
+    )
+    return payload
+
+
+def _admit_catalog_registry(
+    registry: MethodRegistry,
+    *,
+    registry_report: FoundryExtensionRegistryReport | None,
+    require_bound_discovery: bool,
+) -> None:
+    if registry_report is None:
+        if require_bound_discovery:
+            raise MethodCatalogDiscoveryProvenanceError("catalog_discovery_provenance_missing")
+        ensure_all_methods_registered(registry)
+        return
+
+    if require_bound_discovery:
+        if registry_report.preexisting_method_fqns:
+            raise MethodCatalogDiscoveryProvenanceError(
+                "catalog_registry_preexisting_membership_not_admitted:"
+                + "|".join(registry_report.preexisting_method_fqns)
+            )
+        manifest = registry_report.discovery_manifest
+        if manifest is None:
+            raise MethodCatalogDiscoveryProvenanceError("catalog_discovery_provenance_missing")
+        if not manifest.is_bound:
+            raise MethodCatalogDiscoveryProvenanceError(
+                "catalog_discovery_provenance_unbound:" + "|".join(manifest.unbound_inputs)
+            )
+        if not registry_report.success:
+            raise MethodCatalogDiscoveryProvenanceError("catalog_registry_admission_errors_present")
+
+    current_snapshot = registry.snapshot()
+    current_fqns = tuple(entry.fqn for entry in current_snapshot.entries())
+    if current_fqns != registry_report.registry_fqns:
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_registry_admission_membership_mismatch"
+        )
+    from polisyos.foundry.extensions.registry import (
+        _method_registry_snapshot_binding_sha256,
+    )
+
+    if (
+        registry_report.registry_binding_sha256 is None
+        or _method_registry_snapshot_binding_sha256(current_snapshot)
+        != registry_report.registry_binding_sha256
+    ):
+        raise MethodCatalogDiscoveryProvenanceError("catalog_registry_admission_content_mismatch")
+    if require_bound_discovery:
+        manifest = registry_report.discovery_manifest
+        assert manifest is not None
+        manifest_fqns = tuple(sorted(row.component_id for row in manifest.components))
+        if manifest_fqns != current_fqns:
+            raise MethodCatalogDiscoveryProvenanceError(
+                "catalog_registry_manifest_membership_mismatch"
+            )
+
+
+def _sha256_payload(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def persist_method_catalog_snapshot(
@@ -746,7 +1138,10 @@ def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
 
 
 __all__ = [
+    "MethodCatalogDiscoveryProvenanceError",
     "build_method_capability_matrix",
+    "build_method_catalog_provenance_manifest",
+    "build_method_catalog_runtime_identity",
     "build_method_catalog_snapshot",
     "persist_method_catalog_snapshot",
 ]

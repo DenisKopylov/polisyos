@@ -2,8 +2,12 @@
 id: OPS-R14-INTEGRATION-HANDOFF
 artifact_kind: research_handoff
 status: research_only
-standing: NO_GO
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+research_standing: accepted_narrow_scope
+capability_standing: NO_GO
+gate_standing: NO_GO
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+audited_head: 3a694212aa47c4c2d8a631f8edc4ba8f7e15dce7
+audit_head: 34c65a04ef178b9a59f70b9fb2012edee17a67cd
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, or API contract
@@ -26,179 +30,165 @@ may_not_use_for:
 
 ## 1. Vocabulary discipline
 
-This handoff uses the repository's capability-reality vocabulary exactly as defined at
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:17-34`:
+This handoff uses the capability-reality vocabulary at
+`policy-engine/docs/reference/policy-design-case-failure-patterns.md:14-35` literally:
 
-- `implemented`: the precisely scoped chain has a contract/artifact, producer, persisted effect,
-  bridge, consumer, verification, surface/limits, and a meaningful negative or semantic test;
-- `contract_only`: a contract/status shape exists, but no producing/consuming workflow establishes
-  the capability;
-- `producer_missing`: a **named consumer** expects an event/artifact and no producer exists;
-- `bridge_missing`: both concrete endpoints exist but orchestration between them is absent;
-- `verification_missing`: the chain is wired but no end-to-end verification establishes it;
-- `semantic_test_missing`: structural tests exist, but the authority/content property is not tested;
-- `absent/unallocated`: no admitted capability contract/owner chain exists at the pinned state.
+- `implemented`: the precisely scoped chain has a typed contract/artifact, producer, persisted effect,
+  bridge, consumer, verification, visible/audit surface or explicit surface disposition, and a
+  meaningful negative semantic test;
+- `contract_only`: a type/schema/status or admitted semantic contract exists, but no producing/
+  consuming workflow establishes the capability;
+- `producer_missing`: a named consumer expects an event/artifact and no producer exists;
+- `artifact_missing`: producer logic exists but its event/artifact is not persisted/queryable/replayable;
+- `bridge_missing`: both concrete endpoints exist but orchestration does not connect them;
+- `consumer_missing`: an event/artifact is produced and persisted but no reader acts on it;
+- `verification_missing`: an already wired chain lacks end-to-end verification;
+- `implemented_but_not_orchestrated`: a component works in isolation but is not in the runtime flow;
+- `semantic_test_missing`: structural tests exist but the authority/content property is untested;
+- `surface_missing` / `surface_out_of_scope`: surface state after internal capability is established;
+- `absent/unallocated`: no admitted prerequisite chain exists.
 
-A label is not shorthand for urgency. It is used only when its prerequisites are evidenced.
+A factual statement such as “five runbooks are present and substantive” is not a maturity label. A
+label is used only where its prerequisites are evidenced. Research delivery and runtime capability are
+reported separately.
 
 ## 2. Handoff matrix
 
-| Scope | Label at the pinned repository | Prerequisite evidence | Why no stronger or different label |
+| Scope | Canonical capability label at the pin | Factual evidence and layer | Why no stronger/different label |
 | --- | --- | --- | --- |
-| Snapshot-level legal-hold retention classification and GC protection | **implemented**, narrowly | Contract/artifact: `SnapshotRetentionClass.LEGAL_HOLD` and tagged `WorldSnapshotRecord`; producer/admission path: snapshot registration/classification; persisted effect: snapshot metadata/tags; bridge/consumer: `gc_world_snapshots()` calls `classify_snapshot_retention()` and protects the result; negative/semantic tests: missing encryption metadata is rejected and a legal-hold snapshot survives GC even with ordinary retain tags empty. | This label applies only to snapshot metadata and GC. It does not imply a legal-hold lifecycle, legal sufficiency, or cross-store barrier. Evidence: `policy-engine/src/polisyos/fabric/security/retention.py:32-38,100-112`; `policy-engine/src/polisyos/fabric/world/store/snapshots.py:661-689`; `policy-engine/tests/unit/fabric/test_world_time_travel.py:340-400`. |
-| General legal-hold issuance, scope, third-party notice/freeze, multiple-hold aggregation, release authority, cross-store deletion barrier, correction interaction, and public effect | **absent/unallocated** | No admitted end-to-end contract or owner chain was found. The two source files above do not contain these semantics. | Not `contract_only`: the complete lifecycle contract is not present in runtime source. Not `bridge_missing`: both lifecycle endpoints are not established. Not `verification_missing`: no wired chain exists to verify. |
-| First-class `WatchedDependencyRecord` for expiring rights | **absent/unallocated** | No exact-ref source candidate for `WatchedDependencyRecord`, `renewal_owner`, `renewal_evidence`, or `affected_case_query`; the only Python `renewal` literal is worker-lease documentation. | Not `producer_missing`: no concrete runtime consumer contract for this record is admitted at the pin. Not `contract_only`: no runtime contract exists. This research supplies prose semantics only. Evidence: `policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-85,128-174`. |
-| Worker lease renewal | **implemented**, out of OPS-R14 authority scope | `ControlWorker` leases jobs, heartbeats, and renews the processing lease. | This is not a watched legal/institutional right and must not be reused as proof that authority renewal exists. Evidence: `policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-174`. |
-| Per-custody-class RPO/RTO and durable acknowledgement policy | **absent/unallocated** | The inspected runbooks do not define the seven classes, their acknowledgement boundary, measured objectives, or restored predicate. | Not `contract_only`: no admitted repository contract for the class model exists at the pin. This research recommends one but authorizes no implementation. |
-| Cross-store `Restored(c, cutoff)` verifier and independent high-water marks | **absent/unallocated** | Useful procedures exist, but no admitted end-to-end contract/owner chain joins CAS, control journal/database, public log, trust/status closure, holds, dependencies, and measured objective. | Not `verification_missing`: that label presupposes a wired chain. Here the chain itself is not established. |
-| Replay/restore, retained artifact recovery, corruption recovery, key rotation, and fabric data-plane recovery procedure documents | **implemented as documentation artifacts only** | The five named Markdown files exist and contain concrete steps, commands, checks, and evidence locations. | This does not promote the procedures to a custody-grade recovery capability. Their existence is an input to drills, not evidence of execution. Evidence: `policy-engine/docs/runbooks/replay-or-restore.md:1-128`; `policy-engine/docs/runbooks/retained-artifact-recovery.md:1-180`; `policy-engine/docs/runbooks/artifact-corruption-recovery.md:1-119`; `policy-engine/docs/runbooks/key-rotation.md:1-113`; `policy-engine/docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md:1-178`. |
-| Ten-to-thirty-year signed-record replay across key, algorithm, format, and organization change | **absent/unallocated**, with reusable implemented procedures | INT-R7 supplies controlling research semantics; the operational runbooks supply fragments. No admitted implementation chain or qualifying drill is established. | Not `bridge_missing`: archive/verifier/succession endpoints are not all implemented. Not `verification_missing`: no wired complete chain. INT-R7 explicitly keeps capability claims bounded. |
-| Custody-grade drill evidence package and disconnected restore gate | **absent/unallocated** | Acceptance evidence closes posture from document presence/tabletop; no inspected event package contains frozen corpus, failure injection, clean restore, measured RPO/RTO, restored predicate, and disconnected proof. | Not `verification_missing`: the full recovery chain is not already wired. Evidence: `policy-engine/docs/archive/reports/platform-acceptance.md:15,23,30`; `policy-engine/docs/archive/reports/platform-acceptance-manual.md:85-95`. |
-| GY-N12 epoch, currentness, stale certificates, append-only reissue, and release-family chronology | **contract_only** | The normative plan defines the owner and semantics but is explicitly a build-new task and no live capability is established. | This is the canonical currentness dependency; OPS-R14 must not create a parallel owner. Evidence: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2053-2120`. |
-| INT-R7 public-proof lifecycle research | **delivered dependency; runtime capability deliberately unclaimed** | The controlling amendment specifies five dimensions, pre-live ceremonial/disconnected drill, anti-rollback, independent custody, succession, and evidence obtainability. | Do not force this research-delivery fact into a runtime label. For the runtime minimum profile, the repository's own terminal text does not permit a capability claim. Evidence: `policy-engine/docs/research/policy-operations/int-r7-public-verification-lifecycle.md:990-1025`; `policy-engine/docs/research/policy-operations/int-r7/lifecycle-migration-preservation.md:550-650`. |
-| OPS-R14 to PAO-R36 public-change interface | **absent/unallocated at this pin; declared dependency seam** | PAO-R36 is parallel. Neither side's concrete implementation endpoint is established in the inspected pin. | Not `bridge_missing`: both concrete endpoints do not yet exist. OPS-R14 requires immutable relation/current-head and fan-out-completion evidence but does not define correction/notice/feed semantics. Evidence: `policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:512-532`. |
-| Institutional-scale continuity and replacement of whole organizations | **deferred to OPS-R12; intentionally not classified as OPS-R14 work** | The backlog keeps the continuity directorate deferred while OPS-R14 is narrowed to PolicyOS's own records and expiring authority. | Absorbing it would violate the commission boundary. Evidence: `policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:130-151,500-505`. |
+| Snapshot-level legal-hold classification and GC protection | **`implemented`**, narrowly | `SnapshotRetentionClass.LEGAL_HOLD`; persisted snapshot metadata/tags; GC consumer; tests reject missing encryption metadata and preserve held snapshots. | Applies only to snapshot metadata and GC. It does not imply issuance, scope aggregation, release, third-party freeze, cross-store barrier, or legal sufficiency. Evidence: `fabric/security/retention.py:32-38,100-112`; `fabric/world/store/snapshots.py:661-689`; `tests/unit/fabric/test_world_time_travel.py:340-400`. |
+| General legal-hold lifecycle | **`absent/unallocated`** | No admitted end-to-end owner/contract/producer/consumer chain establishes issuance, aggregation, release, third-party propagation, correction interaction, or public effect. | Not `contract_only`, `bridge_missing`, or `verification_missing`: the prerequisite runtime endpoints are not established. |
+| First-class watched dependency, including WD-05A delivery reconciliation | **`absent/unallocated`** | This amended package supplies a prose semantic contract. The pinned runtime does not establish the right record, producer, independent event reconciliation, affected-case consumer, or authority gate chain. | Not `producer_missing`: no implemented consumer contract expecting this artifact is established. The only Python `renewal` literal remains worker-lease documentation. |
+| Worker processing-lease renewal | **`implemented`**, outside OPS-R14 authority scope | `ControlWorker` leases jobs, heartbeats, and renews processing leases. | A worker lease is not a delegation, agreement, licence, certification, consent, fiscal authority, contract, or jurisdiction review. It must never be reused as authority-renewal evidence. Evidence: `control_worker.py:84-174`. |
+| Per-custody-class RPO/RTO and durable acknowledgement | **`absent/unallocated`** | Seven classes and objectives are accepted research architecture only. | No admitted runtime contract/producer/measurement/consumer chain at the pin; not `contract_only` merely because this prose exists. |
+| Cross-store `Restored(c,cutoff)` verifier, common-mode independence, and authenticated high-water marks | **`absent/unallocated`** | Useful storage/replay procedures exist; the complete control/content/log/trust/hold/dependency/measurement chain does not. | Not `verification_missing`: the chain itself is not wired. |
+| Custody-grade recovery capability for which five runbooks are inputs | **`absent/unallocated`** | **Factual non-label statement:** the five named Markdown procedures are present and substantive, with commands, checks, and evidence destinations. | Document presence is an input, not a capability chain or drill. The prior phrase `implemented as documentation artifacts only` is removed because it is not a repository maturity label. |
+| Ten-to-thirty-year signed-record replay across key, algorithm, format, parser, time, and organization change | **`absent/unallocated`** | INT-R7 supplies controlling research semantics and runbooks supply fragments. | Archive/verifier/succession endpoints are not all runtime capabilities; not `bridge_missing` or `verification_missing`. |
+| Custody-grade drill package and disconnected restore gate | **`absent/unallocated`** | Acceptance evidence records runbook presence, restore posture, and a tabletop; no DE-01–DE-10 package is established. | The full chain is not wired, so `verification_missing` would overstate reality. `OPS-R14-ACCEPTANCE-001` is the documentation/tabletop-versus-exercised-recovery taxonomy finding. |
+| GY-N12 epoch/currentness/stale/reissue/release chronology | **Project semantic/plan contract layer: `contract_only`; runtime capability: `absent/unallocated`.** | The normative plan defines ownership and semantics as a build-new task. It is not a delivered runtime type, schema, producer, or consumer chain. | This qualification prevents the contract-layer label from being read as runtime implementation. GY-N12 remains the sole currentness owner. Evidence: `GY-engine-subordination.md:2053-2120`. |
+| INT-R7 public-proof lifecycle | **Runtime capability: `absent/unallocated` for the complete minimum profile.** | **Factual non-label statement:** the research dependency is delivered and defines five dimensions, pre-live ceremonial/disconnected drill, anti-rollback, independent custody, succession, and obtainability. | Research delivery does not satisfy runtime prerequisites or open a gate. Evidence: `int-r7-public-verification-lifecycle.md:990-1025`; `int-r7/lifecycle-migration-preservation.md:550-650`. |
+| OPS-R14 to PAO-R36 public-change interface | **Runtime interface chain: `absent/unallocated`.** | The seam is declared and semantically complete from OPS-R14's side. Concrete runtime endpoints are not both established at the pin. | Not `bridge_missing`: both implemented endpoints are prerequisites. F11 closure is the conjunction `RP-10 + RC-01 + RC-07 + F-04 + F-09 + DE-07`. |
+| Institutional-scale continuity/replacement of whole organizations | **Not an OPS-R14 capability row; deferred scope boundary.** | Backlog keeps OPS-R12 deferred while OPS-R14 covers PolicyOS's own records and expiring authority. | Absorbing or maturity-labeling OPS-R12 here would violate the commissioned boundary. Evidence: backlog `:130-151,500-505`. |
 
 ## 3. Labels intentionally not used
 
 ### 3.1 `producer_missing`
 
-No OPS-R14 runtime row is labelled `producer_missing`. The relevant proposed consumers are themselves
-research contracts or parallel/undelivered work, not concrete implemented consumers at the pin. The
-public-verification kernel names OPS-R14 as a dependency, but the complete runtime consumer chain is
-not established; calling the gap `producer_missing` would skip that prerequisite.
-
-A future use of this label must name the exact implemented consumer, the exact event/artifact it
-expects, and the source evidence showing that expectation.
+No OPS-R14 row is labelled `producer_missing`. Proposed consumers are research requirements or
+parallel/undelivered work, not a proven implemented consumer expecting one exact runtime artifact. A
+future use must cite the concrete consumer and expected persisted event/artifact.
 
 ### 3.2 `bridge_missing`
 
-No selected row has both implemented endpoints without orchestration. The PAO-R36 seam and the
-cross-store recovery chain are earlier-stage: one or more endpoints remain absent. A future
-`bridge_missing` claim must cite both endpoint implementations and show only the connecting workflow
-is absent.
+No selected row has two implemented endpoints with only orchestration missing. PAO-R36 and the
+cross-store recovery chain are earlier-stage. A future use must cite both endpoint implementations.
 
 ### 3.3 `verification_missing`
 
-The custody-grade recovery chain is not merely untested; it is not fully wired. Therefore
-`verification_missing` would overstate implementation. The narrow snapshot legal-hold GC path does
-have semantic tests and is labelled `implemented` only within that scope.
+The aggregate custody chain is not merely untested; it is not fully wired. The narrow snapshot hold/
+GC path has semantic tests and is `implemented` only within that exact scope.
 
 ### 3.4 `semantic_test_missing`
 
-No row is assigned this label without first proving structural tests and a wired property whose
-content/authority semantics are the only remaining gap. Several proposed fixtures may later expose
-such a state, but the pinned evidence does not justify the label today.
+No row receives this label without a wired structural chain whose remaining defect is specifically
+a missing authority/content semantic test. The amended fixtures specify future tests but do not
+establish those prerequisites at the pin.
 
-## 4. Integration interfaces required for future consolidation
+## 4. Integration interfaces required for consolidation
 
 These are dependency declarations, not final APIs.
 
-### 4.1 GY-N12 interface required by OPS-R14
+### 4.1 GY-N12
 
-OPS-R14 requires GY-N12 to accept an explicit query coordinate and evidence of expiry, revocation,
-renewal, stale review, and succession, and to return the canonical currentness/epoch finding plus the
-selected latest-applicable snapshot evidence. OPS-R14 retains and restores those inputs/outputs. It
-does not own the currentness projection.
+OPS-R14 supplies an explicit query coordinate and retained evidence of expiry, revocation, renewal,
+stale review, time rollback, and succession. GY-N12 returns the canonical currentness/epoch finding
+and latest-applicable evidence when its runtime owner is delivered. OPS-R14 retains/restores the
+inputs and outputs; it never owns the currentness projection.
 
-### 4.2 INT-R7 interface consumed by OPS-R14
+### 4.2 INT-R7
 
-OPS-R14 consumes the original signed record and complete public-proof closure, five separately
-reportable dimensions, anti-rollback evidence, independently retained checkpoints, disconnected
-verifier corpus, and lawful-succession semantics. OPS-R14 provides custody, recovery, and drill
-evidence; it does not choose a competing public-proof profile.
+OPS-R14 consumes original bytes and complete public-proof closure, five separate dimensions,
+anti-rollback evidence, independently reconciled checkpoints, disconnected verifier corpus, and
+lawful/scoped succession semantics. It supplies custody, recovery, and drill evidence without
+selecting a competing public-proof profile.
 
-### 4.3 PAO-R36 interface required by OPS-R14
+### 4.3 PAO-R36
 
-OPS-R14 requires an immutable correction/supersession relation, the canonical applicable public
-head, the exact owned-surface/recipient denominator, and durable fan-out-completion evidence. It
-verifies those survive recovery. PAO-R36 owns correction meaning, notice, caches, subscribers,
-correction feeds, and translation parity.
+OPS-R14 requires an immutable predecessor/successor relation, canonical applicable public head,
+frozen owned-surface/recipient denominator, and member-bound completion evidence. It independently
+reconciles those after recovery. PAO-R36 owns correction meaning, notice, caches, subscribers, feeds,
+and translation parity.
 
-### 4.4 OPS-R12 boundary
+The “recovery must never un-correct” seam is not carried by RP-10 alone. It requires
+`RP-10 + RC-01 + RC-07 + F-04 + F-09 + DE-07`.
 
-OPS-R14 assumes at least one competent independent custody domain and a continuing institution or
-lawful successor. Institutional replacement, national continuity, workforce/site continuity,
-mission-essential-function governance, and recovery after total institutional loss remain OPS-R12.
+### 4.4 OPS-R12
 
-## 5. Proposed consolidation sequence
+OPS-R14 assumes at least one competent independently governed custody domain and a continuing
+institution or lawful successor. Replacement of the whole institution, national continuity,
+workforce/site continuity, and simultaneous loss of every independent domain remain OPS-R12.
 
-This sequence is research advice only and does not amend a backlog.
+## 5. Consolidation sequence
 
-1. Ratify the semantic boundary: watched rights and recovery mechanics in OPS-R14; currentness in
-   GY-N12; public change in PAO-R36; institutional continuity in OPS-R12.
-2. Resolve institutional owner-role and authority questions before selecting any wire or vendor.
-3. Establish the seven custody classes, acknowledgement boundaries, and restored predicate as one
-   reviewed contract.
-4. Establish the watched-dependency semantic contract and complete affected-case query requirement.
+This sequence is research advice only and does not amend a backlog:
+
+1. Ratify the boundary among OPS-R14, GY-N12, PAO-R36, and OPS-R12.
+2. Resolve institutional role/authority questions before any wire or vendor selection.
+3. Establish the seven classes, acknowledgement boundaries, and restored predicate.
+4. Establish the watched-dependency contract, WD-05A due-event reconciliation, and affected query.
 5. Establish legal-hold issuance/release and cross-store disposal-barrier semantics.
-6. Define only then the implementation endpoints and decide whether any gap qualifies as
-   `producer_missing` or `bridge_missing`.
-7. Build and wire the complete chain under a separate implementation authorization.
-8. Add generic behavioral verification and the disaster fixture suite.
-9. Execute the pre-live disconnected ceremonial drill required by INT-R7.
-10. Re-read and audit the resulting repository state before any capability or gate claim.
+6. Classify every decisive predicate under P37 and make consumer-asserted, institutionally supplied,
+   or not-established predicates non-positive.
+7. Define implementation endpoints and only then apply producer/bridge labels.
+8. Build and wire the complete chain under separate authorization.
+9. Add generic behavioral verification and the seventeen-fixture suite.
+10. Execute the pre-live disconnected ceremonial drill required by INT-R7.
+11. Re-read the resulting branch/runtime state before any capability or gate claim.
 
-## 6. Open questions for consolidation
+## 6. Open questions
 
 ### Engineering
 
-1. Which independently failing domains must acknowledge each custody class before the API can return
-   durable success, and how is the independent high-water mark authenticated?
-2. What event-journal/reducer preservation strategy can replay historical control state when the
-   runtime, dependencies, and database engine have changed?
-3. How is the authority-dependency graph made complete-by-construction so a new protected action
-   cannot omit a watched right?
-4. How does the affected-case query remain reproducible across index, rule, and schema migration
-   without becoming a second chronology owner?
-5. What is the exact PAO-R36 completion evidence denominator for owned surfaces, caches, subscribers,
-   feeds, and translations, and how does OPS-R14 restore it without designing the protocol?
-6. How are hold barriers enforced across CAS, databases, logs, indexes, backups, third-party custody,
-   encryption-key destruction, and destructive migrations?
-7. Which disconnected verifier dependencies must be source-retained, binary-retained, emulated, or
-   reproducibly built over the required horizon?
+1. Which independently governed domains must acknowledge each class, and how are shared substrate,
+   control-account, key-root, and high-water-mark dependencies detected?
+2. What event-journal/reducer preservation strategy replays historical state after engine change?
+3. How is dependency registration complete-by-construction for every protected action?
+4. How does the affected query survive index/rule/schema migration without a second chronology owner?
+5. How is the PAO-R36 frozen denominator independently reconciled without defining its protocol?
+6. How are hold barriers enforced across content, DBs, logs, indexes, backups, third parties, keys,
+   and destructive migrations?
+7. Which verifier dependencies are source-retained, binary-retained, emulated, or reproducibly built,
+   and how is test-stub substitution rejected?
+8. Which authenticated/monotonic time evidence resolves rollback at expiry and replay coordinates?
 
 ### Institutional
 
-1. Which competent roles may create, narrow, review, and release a legal hold, and how is vacancy or
-   succession evidenced without appointing holders in this research?
-2. Which roles own renewal work for each right family, and which renewals require a counterparty,
-   subject, certifier, fiscal authority, or delegator rather than an internal role?
-3. Which custody copies are independently governed enough to survive primary compromise, and which
-   institution is willing and authorized to accept that long-term responsibility?
-4. What access route must remain for citizens, journalists, courts, archives, auditors, and restricted
-   requesters after the primary publisher or organization disappears?
-5. Which retention schedules, archives, disclosure regimes, procurement clauses, and litigation
-   processes apply in each deployment, and how will applicability be revalidated over time?
-6. Who may declare the start and end of a recovery measurement, accept a failed objective, and require
-   remediation/retest?
-7. What lawful succession evidence resolves organizational merger, abolition, or split, especially
-   where two successors claim the same record family?
+1. Which competent roles create, narrow, review, and release holds, and how is succession evidenced?
+2. Which roles seek each renewal, and which require a counterparty, subject, certifier, fiscal
+   authority, or delegator rather than local action?
+3. Which copies are independently governed, and which institution is authorized to hold them?
+4. What controlled access route survives for public, court, archive, audit, and restricted requesters?
+5. Which retention, archive, disclosure, procurement, and litigation regimes apply per deployment?
+6. Who declares recovery measurement boundaries and accepts a miss/retest?
+7. What evidence resolves merger, abolition, or scoped split with disputed overlap?
 
 ### Additional research
 
-1. Complete a true byte-level tree census of all expiry/TTL constructs at the pin and classify each by
-   right family, protected action, and current consumer before migration planning.
-2. Determine whether a generic dependency-registration rule can make omission fail at build/test time
-   rather than relying on a manually maintained list.
-3. Model mass-expiry storms under realistic queue, storage, and verification loads, including class
-   priority, backpressure, and public fan-out dependencies.
-4. Compare long-horizon evidence-renewal profiles and verifier-preservation strategies without
-   selecting a final wire format or archive service.
-5. Research public-sector organizational succession and archival transfer patterns for the actual
-   intended jurisdictions.
-6. Research how legal hold, privacy erasure/minimization duties, classified material, privilege, and
-   public verification interact in the intended deployments without treating any one regime as
-   universal.
-7. Resolve the seam question of whether PAO-R36's completion evidence can be made durable without
-   moving correction meaning into OPS-R14; if not, return the seam for ratification rather than
-   crossing it informally.
+1. Classify the architect-supplied complete expiry/TTL census by right family, protected action, and
+   current consumer before migration planning.
+2. Determine whether dependency registration can make omission fail at build/test time.
+3. Model mass-expiry storms with class priority, backpressure, and public fan-out dependencies.
+4. Compare long-horizon renewal/verifier-preservation strategies without selecting a wire or archive.
+5. Research actual-jurisdiction succession and archival-transfer patterns.
+6. Research hold interaction with privacy erasure/minimization, classified material, privilege, and
+   public verification without treating one regime as universal.
 
 ## 7. Standing
 
-**NO_GO.** The pinned repository does not establish a first-class expiring-right record and owner
-chain, per-class durable acknowledgement and restored predicates, cross-store recovery closure,
-general legal-hold lifecycle, or qualifying disconnected drill evidence. GY-N12 is `contract_only`,
-PAO-R36 is parallel, and institutional roles and independent custody commitments are unresolved.
-These are prerequisites to a custody-grade claim, not revisions that can be deferred until after the
-first public signature.
+The handoff architecture and label discipline are accepted in narrow research scope. The pinned
+repository lacks the watched-right chain, class acknowledgement/restoration chain, general hold
+lifecycle, and qualifying drill.
+
+**Research standing:** `accepted_narrow_scope`.  
+**Capability standing:** `NO_GO`.  
+**First-public-signature gate standing:** `NO_GO`.

@@ -410,6 +410,7 @@ def test_default_method_route_excludes_changed_ambient_entry_points(
 ) -> None:
     """A governed route is byte-stable when ambient plugin membership changes."""
 
+    monkeypatch.delenv("POLISYOS_PACKS_PATHS", raising=False)
     unit = Unit("dimensionless", "1")
 
     class AmbientRouteMethod:

@@ -1,8 +1,4 @@
 import { buildRuntimeStreamUrl } from "@/api/stream";
-import {
-  authorityTransportPurpose,
-  bindEventSourceAuthorityInput,
-} from "@/shared/network/authorityTransport";
 import type {
   RealtimeSubscription,
   RealtimeSubscriptionHandlers,
@@ -42,15 +38,9 @@ export class SseRealtimeTransport implements RealtimeTransport<RunsRealtimeSubsc
     request: RunsRealtimeSubscriptionRequest,
     handlers: RealtimeSubscriptionHandlers,
   ): RealtimeSubscription {
-    const source = new EventSource(
-      bindEventSourceAuthorityInput(
-        authorityTransportPurpose.governed_channel,
-        resolveSseUrl(request),
-      ),
-      {
+    const source = new EventSource(resolveSseUrl(request), {
       withCredentials: true,
-      },
-    );
+    });
 
     if (handlers.onOpen) {
       source.onopen = handlers.onOpen;

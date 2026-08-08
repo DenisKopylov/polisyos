@@ -941,18 +941,18 @@ classification agree. No transport implementation changes in C03a-R1.
 
 **Expected commit:** `DS5-C03a-R1 record raw transport drift`.
 
-### DS5-C03b-R2 — direct authority-transport construction lint
+### DS5-C03b-R1 — direct authority-transport construction lint
 
 **Ruling re-derivation:** the guarantee is only the bounded syntactic census of
 direct imported/callee transport constructions. Typed purpose owners make the
-sanctioned paths explicit; C03b-R2 makes no claim about arbitrary indirect call
+sanctioned paths explicit; C03b-R1 makes no claim about arbitrary indirect call
 flow.
 
-**Measured set:** exactly 16 implementation/governed paths plus journal = 17;
-cap 17: the shared C01a scanner/checker/test, one canonical typed raw-transport
+**Measured set:** exactly 12 implementation/governed paths plus journal = 13;
+cap 13: the shared C01a scanner/checker/test, one canonical typed raw-transport
 purpose module, the five production owner files, frontend disposition register
 and generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
-and journal. C01a already wires `lint:enforcement`; C03b-R2
+and journal. C01a already wires `lint:enforcement`; C03b-R1
 does not retouch `package.json`. Current targets are 7 constructors / 5
 production files: auth 3, flags 1, telemetry 1, SSE 1, WebSocket 1.
 
@@ -972,7 +972,7 @@ grandfathered; telemetry remains DS12-limited; review WS remains N018
 `bridge_missing`. Register transitions and generated report land with the five
 owner migrations.
 
-**Expected commit:** `DS5-C03b-R2 type raw authority transports`.
+**Expected commit:** `DS5-C03b-R1 type raw authority transports`.
 
 ### DS5-C04a-R1 — strangle the live capability fallback
 
@@ -1820,7 +1820,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C01c | `DS5-C01c bind authority issuers to owner unions` | 13 |
 | C02 | `DS5-C02 make architecture zero recurrent` | 7 |
 | C03a-R1 | `DS5-C03a-R1 record raw transport drift` | 7 |
-| C03b-R2 | `DS5-C03b-R2 type raw authority transports` | 17 |
+| C03b-R1 | `DS5-C03b-R1 type raw authority transports` | 13 |
 | C04a-R1 | `DS5-C04a-R1 strangle capability fallback` | 11 |
 | C04b | `DS5-C04b lint authored capability discovery` | 4 |
 | C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |

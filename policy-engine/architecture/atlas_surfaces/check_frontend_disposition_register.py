@@ -939,7 +939,7 @@ RAW_TRANSPORT_CLOSURE_SIGNAL = (
     'test_name="test_direct_authority_transport_requires_typed_purpose_factory"; '
     'test_method=getattr(test_class,test_name,None) if test_class is not None else None; '
     'absent=not callable(test_method); '
-    'absent and sys.stderr.write("C03B_R2_TEST_ABSENT"); '
+    'absent and sys.stderr.write("C03B_R1_TEST_ABSENT"); '
     "sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run("
     "test_class(test_name)).wasSuccessful() else 1)' "
     "# exits 0 only when exact live 7/5 typed-owner agreement holds "
@@ -1035,14 +1035,19 @@ def _direct_transport_census(
 
 
 def _raw_transport_drift_descriptor() -> dict[str, Any]:
-    """Return the retained historical/live receipt after its typed-owner repair."""
+    """Return the typed historical/live denominator distinction for C03b-R1."""
     return {
         "finding_id": RAW_TRANSPORT_DRIFT_FINDING_ID,
         "finding_kind": "producer_binding_debt",
-        "disposition": "use_as_is",
-        "status": "repaired",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
         "owner_slice": "DS5",
         "decision_date": RAW_TRANSPORT_DRIFT_DECISION_DATE,
+        "capability_states": [
+            "contract_only",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
         "evidence_refs": [
             RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
             RAW_TRANSPORT_DS19_DELETION_REF,
@@ -1069,25 +1074,6 @@ def _raw_transport_drift_descriptor() -> dict[str, Any]:
         ),
         "closure_signal": RAW_TRANSPORT_CLOSURE_SIGNAL,
     }
-
-
-def _raw_transport_owner_receipt_errors() -> list[str]:
-    """Run the exact bounded Atlas enforcement test without evaluating register text."""
-    completed = subprocess.run(
-        [
-            "python3",
-            "-m",
-            "unittest",
-            "architecture.atlas_surfaces.test_atlas_enforcement."
-            "AtlasEnforcementTests.test_direct_authority_transport_requires_typed_purpose_factory",
-        ],
-        cwd=REPO_ROOT,
-        check=False,
-        capture_output=True,
-        text=True,
-        timeout=90,
-    )
-    return [] if completed.returncode == 0 else ["raw_transport_owner_receipt_failed"]
 
 
 def _owner_exports(path: str, source: str, module_prefix: str) -> set[str]:
@@ -5179,8 +5165,6 @@ def validate_register(
             errors,
             sources=direct_transport_sources,
         )
-    if live_probes:
-        errors.extend(_raw_transport_owner_receipt_errors())
     _validate_integrate_contract_debt_findings(data, errors)
     errors.extend(
         _authority_presentation_errors(data, live_probes=live_probes)

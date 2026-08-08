@@ -1137,28 +1137,16 @@
       "allOf": [
         {
           "if": {
-            "allOf": [
-              {
-                "properties": {
-                  "finding_kind": {
-                    "enum": [
-                      "producer_binding_debt",
-                      "integrate_contract_debt",
-                      "authority_presentation_debt"
-                    ]
-                  }
-                },
-                "required": ["finding_kind"]
-              },
-              {
-                "not": {
-                  "properties": {
-                    "finding_id": { "const": "raw-transport-denominator-drift" }
-                  },
-                  "required": ["finding_id"]
-                }
+            "properties": {
+              "finding_kind": {
+                "enum": [
+                  "producer_binding_debt",
+                  "integrate_contract_debt",
+                  "authority_presentation_debt"
+                ]
               }
-            ]
+            },
+            "required": ["finding_kind"]
           },
           "then": {
             "required": ["capability_states", "closure_signal"],
@@ -1169,23 +1157,14 @@
             "not": { "required": ["repair_commit"] }
           },
           "else": {
-            "if": {
-              "properties": {
-                "finding_id": { "const": "raw-transport-denominator-drift" }
-              },
-              "required": ["finding_id"]
-            },
-            "then": {},
-            "else": {
-              "not": {
-                "anyOf": [
-                  { "required": ["capability_states"] },
-                  { "required": ["closure_signal"] },
-                  { "required": ["owner_team"] },
-                  { "required": ["integrate_contract"] },
-                  { "required": ["authority_sink"] }
-                ]
-              }
+            "not": {
+              "anyOf": [
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] },
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] },
+                { "required": ["authority_sink"] }
+              ]
             }
           }
         },
@@ -1240,34 +1219,10 @@
           ]
         },
         "then": {
-          "required": ["raw_transport_receipt", "closure_signal"],
-          "properties": {
-            "disposition": { "const": "use_as_is" },
-            "status": { "const": "repaired" }
-          },
-          "not": { "required": ["capability_states"] }
+          "required": ["raw_transport_receipt"]
         },
         "else": {
           "not": { "required": ["raw_transport_receipt"] }
-        }
-      },
-      {
-        "if": {
-          "allOf": [
-            {
-              "properties": {
-                "finding_kind": { "const": "producer_binding_debt" },
-                "status": { "const": "repaired" }
-              },
-              "required": ["finding_kind", "status"]
-            }
-          ]
-        },
-        "then": {
-          "properties": {
-            "finding_id": { "const": "raw-transport-denominator-drift" }
-          },
-          "required": ["finding_id"]
         }
       }
     ]

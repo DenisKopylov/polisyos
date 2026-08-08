@@ -1,8 +1,4 @@
 import { buildRuntimeWebSocketUrl } from "@/api/url";
-import {
-  authorityTransportPurpose,
-  bindWebSocketAuthorityInput,
-} from "@/shared/network/authorityTransport";
 import type {
   RealtimeSubscription,
   RealtimeSubscriptionHandlers,
@@ -55,12 +51,7 @@ export class WebSocketRealtimeTransport implements RealtimeTransport<WebSocketRe
       throw new Error("WebSocket is not available in this environment");
     }
 
-    const socket = new WebSocket(
-      bindWebSocketAuthorityInput(
-        authorityTransportPurpose.governed_channel,
-        resolveWebSocketUrl(request),
-      ),
-    );
+    const socket = new WebSocket(resolveWebSocketUrl(request));
 
     socket.onopen = (event) => {
       handlers.onOpen?.(event);

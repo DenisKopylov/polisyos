@@ -576,22 +576,19 @@ def _catalog_denominators_cached() -> dict[str, Any]:
     from polisyos.foundry.extensions.discovery import (
         discover_foundry_method_components,
     )
-    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
     from polisyos.foundry.methods.catalog.snapshot import (
         build_method_catalog_provenance_manifest,
         build_method_catalog_snapshot,
     )
     from polisyos.foundry.methods.selection import reachable_value_method_fqns
-    from polisyos.foundry.methods.selection.registry import registry_scope
 
-    with registry_scope() as registry:
-        registry_report = bootstrap_foundry_method_registry(
-            registry,
-            include_builtins=True,
-            include_entry_points=False,
-            include_dev_scan=False,
-            require_bound_discovery_manifest=True,
-        )
+    with controlled_builtin_foundry_method_registry_scope() as (
+        registry,
+        registry_report,
+    ):
         registered = registry_report.registry_fqns
         first = build_method_catalog_snapshot(
             registry=registry,

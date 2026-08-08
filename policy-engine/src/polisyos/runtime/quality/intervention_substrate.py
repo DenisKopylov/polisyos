@@ -7,10 +7,8 @@ content-addressed resolution records that N2/N4/N8 can consume.
 
 from __future__ import annotations
 
-import contextlib
 import importlib
 import importlib.util
-import io
 import json
 import math
 import re
@@ -735,15 +733,19 @@ def route_observation_family_method(
     _assert_compiled_contract(bundle.observation_manifest, contract_id)
     resolved_registry = registry
     if resolved_registry is None:
-        catalog_module = importlib.import_module("polisyos.foundry.methods.catalog")
-        registry_module = importlib.import_module(
-            "polisyos.foundry.methods.selection.registry"
+        from polisyos.foundry.extensions.registry import (
+            controlled_builtin_foundry_method_registry_scope,
         )
-        resolved_registry = registry_module.get_registry()
-        _ensure_all_methods_registered_quietly(
-            catalog_module.ensure_all_methods_registered,
-            resolved_registry,
-        )
+
+        with controlled_builtin_foundry_method_registry_scope() as (
+            controlled_registry,
+            _registry_report,
+        ):
+            return route_observation_family_method(
+                bundle,
+                family=family_id,
+                registry=controlled_registry,
+            )
     registry_methods = list(resolved_registry.list_all())
     candidates = _registered_methods_for_contract(
         resolved_registry,
@@ -789,6 +791,9 @@ def route_observation_family_method(
 def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     """Exercise the L6 intervention substrate over real data and mutation witnesses."""
 
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
     from polisyos.runtime.quality.substrate_registry import (
         SubstrateLayer,
         build_substrate_registry_from_existing_catalogs,
@@ -798,10 +803,6 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     bundle = load_l6_intervention_substrate(repo_root)
     world_record = _production_composed_world_model_record(repo_root.as_posix())
     lex_module = importlib.import_module("polisyos.lex.knowledge.store")
-    catalog_module = importlib.import_module("polisyos.foundry.methods.catalog")
-    registry_module = importlib.import_module(
-        "polisyos.foundry.methods.selection.registry"
-    )
     lex_store = lex_module.LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_DB_PATH,
         (repo_root / DEFAULT_L3_LEX_DB_PATH).parent,
@@ -1000,12 +1001,10 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         },
     )
 
-    with registry_module.registry_scope():
-        registry = registry_module.get_registry()
-        _ensure_all_methods_registered_quietly(
-            catalog_module.ensure_all_methods_registered,
-            registry,
-        )
+    with controlled_builtin_foundry_method_registry_scope() as (
+        registry,
+        _registry_report,
+    ):
         method_coverage = coverage["method_route"]
         record(
             case_id="family_method_route_real_available_and_truthful_blockers",
@@ -1728,9 +1727,8 @@ def _coverage_report(
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
     bundle = verify_intervention_substrate_bundle_content_hash(bundle)
-    catalog_module = importlib.import_module("polisyos.foundry.methods.catalog")
-    registry_module = importlib.import_module(
-        "polisyos.foundry.methods.selection.registry"
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
     )
 
     world_details: list[dict[str, Any]] = []
@@ -1806,12 +1804,10 @@ def _coverage_report(
     method_available = 0
     method_unavailable = 0
     method_unresolved = 0
-    with registry_module.registry_scope():
-        registry = registry_module.get_registry()
-        _ensure_all_methods_registered_quietly(
-            catalog_module.ensure_all_methods_registered,
-            registry,
-        )
+    with controlled_builtin_foundry_method_registry_scope() as (
+        registry,
+        _registry_report,
+    ):
         for route in _mapping_list(bundle.observation_manifest.get("routes")):
             family = str(route.get("family") or "").strip()
             if not family:
@@ -2654,14 +2650,6 @@ def _module_available(dep: str) -> bool:
         "sklearn": "sklearn",
     }.get(dep, dep.replace("-", "_"))
     return importlib.util.find_spec(module_name) is not None
-
-
-def _ensure_all_methods_registered_quietly(
-    bootstrap: Callable[[_MethodRegistryProtocol], object],
-    registry: _MethodRegistryProtocol,
-) -> None:
-    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-        bootstrap(registry)
 
 
 def _mapping_list(value: object) -> list[dict[str, Any]]:

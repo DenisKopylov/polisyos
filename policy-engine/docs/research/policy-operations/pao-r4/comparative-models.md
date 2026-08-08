@@ -2,13 +2,16 @@
 title: PAO-R4 — Comparative firewall models
 research_id: PAO-R4
 artifact_role: comparative-models
-status: research
+status: amended_research
 research_only: true
 repository: DenisKopylov/polisyos
-baseline_commit: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a27c3da9942b03881dbee1005a8a1e44e5ac44b4
+audit_commit: 69182c079fb5dc99808d7cd27874d50433efd5a4
+pinned_repository_commit: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
 result_standing: GO_WITH_REVISIONS
+adoption_status: NO_GO_pending_independent_conformance
 authoritative_for:
-  - research comparison of policy-to-individual boundary controls
+  - amended research comparison of policy-to-individual boundary controls
   - selection and rejection reasons for the PAO-R4 contract
 may_not_use_for:
   - production implementation authorization
@@ -23,160 +26,187 @@ may_not_use_for:
 
 # Comparative models — breadth before selection
 
-## 1. Selection criterion
+## 1. Amended selection criterion
 
-A model is sufficient only if it makes the commission's failure observable:
+A model is retained only if it contributes an observable to the commissioned falsifier:
 
-> a policy-level statistical rule is consumed as an individual eligibility rule and no gate goes red.
+> an empirical policy-level statistical rule is admitted for a permitted population purpose, later
+> consulted in an individual eligibility action, and no consumer/use gate goes red.
 
-The decisive properties are:
+The amended comparison separates two questions that the original crossing table conflated:
 
-1. **export decidability** — unsafe structure can be rejected from the artifact and request;
-2. **use visibility** — a prohibited material contribution inside an external case system becomes an
-   observable event;
-3. **restriction monotonicity** — derivation, projection, correction, and re-export cannot weaken a
-   denied use;
-4. **complete denominator** — silence cannot be interpreted as compliance;
-5. **fail-closed unknowns** — incomplete auxiliary-information or release-history models return
-   `not_established` or refusal;
-6. **anti-role fit** — PolicyOS owns the boundary contract, not the individual decision system.
+1. **semantic class** — empirical population claim (E), competent normative general rule (G),
+   individual/pointwise artifact (X), synthetic non-case example (S), or unknown/mixed; and
+2. **authority effect** — whether the artifact is merely computed/transmitted in the candidate band
+   or is represented as an individual fact, reason, recommendation, or determination in the
+   authority band.
 
-No single required comparator satisfies all six. The selected result is a composition.
+Executability is not a refusal predicate. A normative rule is expected to be executable under an
+external authority's own fact finding and procedure. The firewall instead blocks empirical
+individualization, pointwise recoverability, and any representation that transport itself created
+case authority.
 
-## 2. Model survey
+A sufficient composite must provide:
 
-| # | Model | What it contributes | Eliminating property when used alone | Disposition |
+- semantic-class and pointwise-recoverability decisions;
+- artifact-local and named-context export checks;
+- denied-use monotonicity under `PV-K04`;
+- a mandatory consumer/use gate based on observable consultation, not a declared counterfactual;
+- complete returning evidence with independently reconciled denominators;
+- an explicit outside-boundary residual; and
+- refusal when a positive cannot be observed.
+
+## 2. Survey and disposition
+
+| # | Model | Contribution | Eliminating property when used alone | Amended disposition |
 |---:|---|---|---|---|
-| 1 | Artifact-class allow-list | Creates a finite, reviewable export surface and makes unknown classes fail closed. | Class name alone cannot detect executable parameters, joins, later derivatives, or prohibited downstream use. | **Selected as the first gate, never alone.** |
-| 2 | Form-based transformation gates — aggregate-only, k-anonymized, rule-level without parameters | Detects row-level material, small cells, identifiers, and some mechanically applicable forms. | A safe-looking aggregate can be re-identified by composition; `k` does not establish semantic non-resolution under auxiliary information; a rule can remain individually actionable without an obvious parameter field. | **Selected as necessary evidence, rejected as a complete firewall.** |
-| 3 | Contract-based denied-use declarations enforced by the consumer, with attestation | Reuses the live `may_not_use_for` pattern and moves the check to the point where individual purpose is known. | A voluntary, sampled, or self-attested consumer can omit the use; contract prose without a complete evidence denominator is observationally equivalent to no enforcement. | **Selected only with mandatory returning evidence and reconciliation.** |
-| 4 | Provenance-carried restriction that travels with the artifact and is machine-checkable downstream | Preserves source basis and denied uses across derivation; composes with `PV-K04`. | A carrier can be stripped, copied into an uncontrolled medium, or ignored by a consumer; it does not reveal actual use by itself. | **Selected as the monotonicity carrier.** |
-| 5 | Purpose binding at request time | Makes the proposed use known before disclosure and blocks an explicitly denied request. | A truthful planning purpose can later drift; an operator can apply the artifact manually or through a derivative; declared purpose is not evidence of actual purpose. | **Selected as an intake condition, never as proof of use.** |
-| 6 | Human-in-the-loop boundary control | Preserves a human decision opportunity and may support review or explanation duties. | A human can rubber-stamp, receive a default/rank, or rely materially on the same population inference. Formal finality does not erase material contribution. | **Rejected as the firewall; retained only as an external safeguard.** |
-| 7 | Returning-evidence audit as the only real detection layer, with export permissive | Can reveal actual downstream use and supports after-the-fact reconciliation. | It permits harm before detection, cannot cure voluntary silence, and cannot make off-ledger use visible. | **Rejected alone; selected as mandatory evidence for otherwise safe crossing classes.** |
-| 8 | Refusal to export the class at all | Eliminates the downstream observability problem for the refused bytes/class. | Overbroad refusal would block useful, non-individual population planning and leak authority-band strictness into candidate work. | **Selected for individually actionable or non-observable classes only.** |
-| 9 | Current state: live `may_not_use_for`, no individual-decision concept or export gate | Supplies the generic denial carrier and examples of consumer-side enforcement. | It cannot name individual use, classify a policy-to-case crossing, inspect composition, or require returning evidence. | **Negative comparator; rejected.** |
+| 1 | Artifact-class allow-list | Makes the crossing surface enumerable and default-deny. | A class label can be wrong; “aggregate,” “rule,” and “synthetic” do not decide semantics or pointwise recoverability. | **Selected after semantic classification, never alone.** |
+| 2 | Form-based transformation gates — aggregate-only, k-anonymized, rule-level-without-parameters | Detect obvious rows, keys, small cells and some deterministic surfaces. | Form does not settle auxiliary-information joins, deterministic partitions, differencing, or semantic rule authority. Removing parameters also wrongly treats executability as the danger. | **Selected as evidence inputs, not permission.** |
+| 3 | Contract-based denied-use declarations enforced by the consumer | Reuses the live `may_not_use_for` carrier and puts a red gate where the protected action is known. | Declared request purpose, declared completeness, or a self-reported “not material” answer can be false while markers remain intact. | **Selected only with `P37` predicate provenance, conservative consultation, and mandatory reconciliation.** |
+| 4 | Provenance-carried machine-checkable restriction | Preserves basis and denial union through controlled derivation and projection. | A carrier can be stripped or ignored and does not prove actual use. | **Selected as carrier; `PV-K04` controls monotonicity.** |
+| 5 | Purpose binding at request time | Blocks an openly denied request and records the admitted population purpose. | The commissioned failure is later purpose drift after a truthful allowed request. | **Selected as intake evidence, explicitly not proof of later use.** |
+| 6 | Human-in-the-loop as boundary control | Can support external case facts, reasons, review and responsibility. | A human can consult or rubber-stamp the same empirical inference. Human presence says nothing about artifact contribution. | **Rejected as firewall; retained only as an external procedural safeguard.** |
+| 7 | Returning-evidence audit with permissive export | Makes observed imports, consultations, derivatives and protected actions reviewable. | It is retrospective; voluntary silence is unidentifiable; content binding proves records, not a self-reported counterfactual; outside-boundary cognition remains invisible. | **Rejected alone; selected as mandatory evidence for otherwise admissible crossings.** |
+| 8 | Refusal to export the class | Eliminates prohibited downstream use for refused bytes. | Blanket refusal based on executability would consume the candidate band and forbid transport of PolicyOS's own governed rule output. | **Selected for E/S artifacts that are individualizable, all X artifacts, unknown/mixed protected crossings, and unobservable actionable classes; not for G merely because executable.** |
+| 9 | Current state — live denied-use carrier with no individual-use concept or gate | Supplies declaration/propagation and bounded consumer rejection in existing owners. | Cannot name E/G/X/S, pointwise recoverability, protected consultation, complete evidence return, or policy-to-case composition. | **Negative comparator; insufficient.** |
 
 ## 3. Selected composite
 
-The PAO-R4 contract is:
+The amended research contract is:
 
 ```text
-allow-listed class
-AND export-time subject-resolution/non-executability gate
-AND declared basis preserved
-AND union of denied uses preserved
-AND purpose bound before receipt
-AND named consumer enforces at actual use
-AND complete returning evidence reconciles every protected action
-ELSE refuse or not_established
+establish semantic class E/G/X/S
+AND classify every decisive predicate under P37
+AND perform artifact-local checks
+AND evaluate individualizability/composition against named history H
+AND preserve source/derivation denied-use union
+AND record the permitted request purpose without treating it as use proof
+AND route every in-boundary protected-action consultation through the consumer gate
+AND reconcile imports, derivatives, consultations, verdicts and protected actions
+ELSE refuse, block, or return NOT_ESTABLISHED
 ```
 
-The composition has two distinct enforcement locations.
+For G, candidate-band rule-level transport is allowed only as external rule input with no PolicyOS
+authority effect. External competence, applicability, case facts and procedure remain outside and
+are not converted into PolicyOS positives.
 
-### 3.1 Export boundary
+## 4. Observation-location comparison
 
-The PolicyOS-side gate evaluates:
-
-- class allow-list;
-- subject and case resolvability;
-- individual scores, rows, keys, and recommendations;
-- executable parameters, thresholds, lookup surfaces, and complete rule functions;
-- basis, limitations, purpose, consumer, and denied-use preservation;
-- release-history composition and auxiliary-information assumptions.
-
-Its possible outputs are `ALLOW_NON_INDIVIDUAL`, `REFUSE_EXPORT`, `BLOCK_PURPOSE`,
-`BLOCK_PERMISSION_AMPLIFICATION`, `BLOCK_COMPOSITION`, or `NOT_ESTABLISHED`.
-
-### 3.2 Consumer boundary and return path
-
-The named case-system consumer evaluates actual purpose and material contribution before a protected
-case action. It returns complete evidence of imports, derivatives, use attempts, and case actions.
-A denied purpose yields `BLOCK_PURPOSE`; missing or unreconciled evidence yields
-`FIREWALL_CLAIM_NOT_ESTABLISHED` and cannot be interpreted as non-use.
-
-The contract does not design the consumer's case workflow or data model.
-
-## 4. Why form-based anonymization does not win
-
-Anonymization is not a syntactic state. It is a claim relative to:
-
-- the released fields and granularity;
-- the declared auxiliary-information model;
-- every prior and concurrent export in the controlled release family;
-- linkage, uniqueness, and small-cell behavior;
-- the protected predicate that must remain unresolved.
-
-A `k>=5` marker can be useful evidence for one attack model. It is not a proof that the artifact
-cannot resolve a person after joins, differencing, repeated queries, or outside information. Under
-**`PV-K06`**, a heuristic, sampling result, timeout, incomplete history, or unproved approximation
-cannot inherit a safe verdict. Therefore an unproved “anonymized” artifact is treated as
-person-resolvable and refused.
-
-## 5. Why human review does not win
-
-The relevant event is not “machine made the final click.” It is whether the exported policy artifact
-materially supplied, defaulted, ranked, thresholded, recommended, evidentially weighted, explained,
-or routed the individual action. A human review step can coexist with every one of those effects.
-
-The human-review model also fails the commission's silent-use falsifier: an operator can reasonably
-apply a population threshold, then approve the suggested result, while every system reports that a
-human decided. No firewall gate goes red unless material contribution is itself observed.
-
-## 6. Why permissive export plus audit does not win
-
-Audit-only control is structurally retrospective. Three observations defeat it:
-
-1. the protected action may already have occurred;
-2. a voluntary or selectively sampled return channel makes prohibited use plus silence identical to
-   compliant non-use;
-3. off-ledger reading, screenshots, memory, and uncontrolled derivatives may produce no event at all.
-
-Audit is therefore a necessary reconciliation layer for crossing classes already safe enough to
-export. It cannot make an individually actionable class exportable.
-
-## 7. Current-state negative comparator
-
-The pinned repository has a real denial mechanism, projection-only enforcement, and a public export
-producer. It has zero source files containing the exact concepts `individual_decision`,
-`export_gate`, or `prohibited_use`. The operator-visible result for the PAO-R4 fixtures is:
-
-| Fixture | What the pinned state evaluates | What an operator sees | Current-state verdict |
+| Location | What it can decide | Required input | Honest incomplete result |
 |---|---|---|---|
-| Population statistical rule requested for one person's eligibility | Generic authority limits may be present, but no individual-purpose vocabulary is evaluated. | Export/consumption can appear structurally ordinary; no individual-use red signal is required. | **silent false pass** |
-| Two separately permitted aggregates joined to identify a person | Each object is considered independently; no complete policy-to-case release-history check exists. | Both exports may remain permitted; join risk is invisible at this boundary. | **silent false pass** |
-| Rule-level export with complete thresholds/parameters | Existing projection checks prevent authority minting but do not classify per-case executability. | Projection-only label remains; no individual-rule gate is required. | **silent false pass** |
-| Projection removes an existing denied use | Existing `PV-K04`-aligned projection checks can reject bounded permission amplification where the denial is in the governed carrier. | A red projection-contract result is possible. | **detected only for existing named denials** |
-| Sequence of compliant queries reconstructs an individual determination | No complete transcript/composition owner is bound to this use class. | Each query may pass; reconstructed determination has no PAO-R4 event. | **silent false pass** |
-| Voluntary returning evidence is absent | No PAO-R4 denominator or reconciliation obligation exists. | Silence is simply silence. | **not observable** |
-| Manual use of a displayed aggregate | No instrumented use event is required. | Human decision appears independent even when materially influenced. | **not observable** |
+| artifact-local | explicit case rows/keys, registered basis-field absence, explicit score/rank/recommendation, denial shrinkage over resolved lineage | artifact and canonical lineage | `NOT_ESTABLISHED` when artifact/lineage cannot resolve |
+| export-context | joins, singleton resolution, deterministic partitions, query reconstruction, E/G/X/S class, composition safety | named auxiliary/history model `H`, behavioral interpreter, independent inventory | `NOT_ESTABLISHED` and refuse protected crossing |
+| downstream use-context | resolved subject/action, consultation, denied purpose/effect, bypass, denominator reconciliation | instrumented governed consumer and independent totals | `FIREWALL_CLAIM_NOT_ESTABLISHED` when instrumentation or denominator is incomplete |
+| outside declared boundary | memory, screenshots, hidden local models, lineage-stripped relay, unmodelled joins | no complete observable under current contract | no positive; refuse actionable class when route is material |
 
-The one bounded success—projection preservation of an already named denied use—is the substrate the
-firewall extends. It is not evidence that the policy-to-individual firewall exists.
+This four-location partition refines the original three-class result without weakening it. It keeps
+“where is the observable?” as the controlling question and prevents artifact-local certainty from
+being claimed for model-relative facts.
 
-## 8. Refusal frontier
+## 5. Semantic class tests
 
-Refusal is required when any of the following holds:
+### 5.1 Empirical population claim E
 
-- subject or case resolution is possible;
-- the artifact is individually executable or already contains a score/rank/recommendation;
-- composition safety is not established over the complete controlled history;
-- actual individual use can be known only through voluntary, sampled, or unverifiable reporting;
-- uncontrolled copies or manual use remain a material route and the artifact is individually
-  actionable through that route.
+A non-degenerate empirical mean, rate, distribution, effect or calibrated probability can cross for
+population planning only when it is not pointwise recoverable under `H`, its basis is visible, and all
+individual uses remain denied. Reference-class membership does not fill an individual fact or
+determination slot.
 
-This is narrower than refusing all population analysis. Candidate-band computation, research, and
-programme planning remain allowed. What is refused is a crossing whose prohibited use cannot be
-made visible.
+### 5.2 Normative general rule G
 
-## 9. Decision
+A competent general rule may be intentionally applied to a person. It can travel as rule-level input,
+including executable parameters, because executability belongs to the candidate band. The crossing
+must not represent PolicyOS as the authority, fact finder, reason giver or final decision maker.
+Applicability and competence remain institutionally supplied and unavailable as PolicyOS positives.
 
-**Selected: composite firewall plus refusal frontier.**
+### 5.3 Individual/pointwise artifact X
 
-**Rejected:** any single comparator as sufficient; human-in-the-loop as the boundary; permissive
-export with audit as the only enforcement; form labels as proof of non-individual meaning; and the
-current state as a firewall capability.
+Singleton aggregates, deterministic empirical partitions, subject rows, individual scores,
+watchlists, rankings, recommendations and equivalent query families are refused for a protected
+case-system crossing. Their empirical “population” labels do not control.
 
-The exact result standing remains `GO_WITH_REVISIONS`: the research contract is coherent, while the
-repository lacks the vocabulary, export gate, named case consumer, and mandatory returning-evidence
-chain required to claim implementation.
+### 5.4 Synthetic example S
+
+Synthetic examples can cross only while non-resolvable under the named `H`. A real-subject match
+reclassifies them as X.
+
+## 6. Why executability is not the gate predicate
+
+The obligation/admissibility calculus at PolicyOS's core computes case-relevant obligations from
+rules. A firewall that rejects every executable rule would prohibit exporting PolicyOS's own governed
+output and would bind the candidate band rather than the authority band. The Stage-0 lens requires the
+opposite: compute and transmit candidates freely, while strictly controlling what may be claimed or
+used as determinative authority.
+
+Accordingly:
+
+- Artifact C — a competent normative rule — is not rejected merely for being executable;
+- an empirical decision tree with identical syntax is refused because it is E reclassified as X and
+  would fill an individual decision slot without separate authority; and
+- an unknown/mixed object is refused for a protected crossing because its semantic class is not
+  established, not because a machine can execute it.
+
+## 7. Why declared predicates do not win
+
+`P37` closes the common bypass:
+
+- request purpose is `consumer_asserted`;
+- external rule competence is `institutionally_supplied`;
+- operator counterfactual reliance is `consumer_asserted`;
+- complete history and protected-action denominators must be `independently_reconciled`; and
+- semantic classification and consultation events must be recomputed from controlled content/events.
+
+A declaration can block an openly forbidden request. It cannot prove a permitted use. Falsifying a
+declared premise while retaining its marker must degrade or block the gate.
+
+## 8. Voluntary evidence — preserved impossibility and recovered narrow value
+
+The observational-equivalence proof remains decisive:
+
+```text
+compliant non-use + no report
+prohibited use + no report
+same observation
+```
+
+Therefore voluntary reporting cannot support a complete non-use firewall claim. It may support only
+bounded claims: reported incidents, a lower bound when a denominator is known, or a sampled estimate
+under a valid predeclared frame. Those narrower claims do not make the export safe when complete
+use-time detection is required.
+
+## 9. Current-state negative comparator
+
+| Attack | What the pinned state can see | Missing PAO-R4 observable | Result |
+|---|---|---|---|
+| allowed planning request later used for eligibility | request and generic authority metadata | mandatory consumer consultation gate and returned violation | silent false pass possible |
+| two aggregates joined | each artifact in isolation | complete `H` and release-family composition | reconstruction may remain invisible |
+| singleton or deterministic empirical partition | aggregate-looking form | pointwise recoverability | disguised X may pass |
+| competent normative rule | executable syntax | semantic distinction between G and empirical X | an executability-only rule would falsely refuse |
+| projection drops denial | existing resolved denial carrier | none for already named denial | bounded substrate can detect under `PV-K04` |
+| purpose synonym `workload_balancing` delays one person | purpose string | action-effect mapping | benign label can bypass |
+| false “not material” operator statement | assertion marker | conservative consultation or independent causal evidence | declaration may stay green |
+| lineage-stripped relay | final narrative only | source lineage and relay boundary | original restriction disappears |
+
+The current repository has no exact `individual_decision`, `export_gate`, or `prohibited_use` source
+concept and no complete consumer/return path. The PAO-R4 capability remains `absent/unallocated`.
+
+## 10. Owner placement
+
+The denied-use carrier and projection owners are established. `public_export.py` is adjacent and real,
+but it is authoritative only for its public-bundle responsibility. No pinned finding appoints it as
+the canonical emission chokepoint for every non-public case-system handoff. Under `P36`, owner
+placement remains an open consolidation decision. This comparison appoints no owner and authorizes no
+new exporter.
+
+## 11. Decision
+
+**Selected:** semantic-class composite, `P37` predicate provenance, four observation locations,
+conservative consultation gate, mandatory reconciled returning evidence, and an authority-scoped
+refusal frontier.
+
+**Rejected as sufficient:** any single comparator, form labels, executability as the danger,
+request-purpose declaration as later-use proof, human presence, permissive audit, voluntary silence,
+and the current state.
+
+The research standing remains `GO_WITH_REVISIONS`; adoption remains `NO_GO` until independent
+conformance verifies the amended properties at an exact commit.

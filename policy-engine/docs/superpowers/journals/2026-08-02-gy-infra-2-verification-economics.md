@@ -465,3 +465,31 @@ exact command identity while preserving the original source as provenance.
   the six changed implementation/test surfaces and whole-range `git diff --check` returned `0`.
   Ruff format still names only the three already-recorded cosmetic debts (`timing.py`,
   `test_timing.py`, `test_unified_cli.py`). No expensive GY or browser lane was rerun.
+
+## Whole-branch round-two delta evidence correction
+
+- A fresh package-only re-review authenticated the `30389`-byte round-two delta and its
+  `2195`-byte carried checklist, then returned `1` Critical and `2` Important findings. Its
+  Critical compared the package's head
+  `14648fa5b875e90e36834fa807249388a682c3da` with
+  `14648fa5ba8cc242828185489faec2b3ddab7f55`. The latter is not a Git object (`git cat-file`
+  refuses it); `git rev-parse HEAD` on the attached branch is the former, exactly as named in the
+  package header. This is a review-request transcription error, not a different source revision;
+  no source change is made for it.
+- The two Important findings were accepted. The former ignored-scratch ratio receipt is replaced
+  by committed
+  `tools/quality/testing/fixtures/review_package_ratio_receipt.json`. Its behavioral test creates
+  the fixture repository with fixed author/committer timestamps, rebuilds both packages twice,
+  and content-binds the fixture source, all three commit identities, checklist bytes, package
+  byte counts, package SHA-256 values, and the ratio. The committed receipt records a `43897`-byte
+  full package (`340cf8d0b590338bd6da6a83c4e1c94428f8d1cab081587dac8ac9157144f345`) and a
+  `899`-byte delta (`4d4cc01214da73d048b5555322bb836af12984d509dd9a710b3b490bb8a680b8`):
+  `899 / 43897 = 0.0204797594`, safely below one tenth.
+- The round-two checklist's claim that all `22` historical repair items remain closed is not
+  repeated as a delta-review invariant. It has no item-level evidence in that package, and a
+  delta-only rereview must authorize closure only of the exact immediately preceding findings it
+  carries. The earlier 22-item checklist and its review remain historical evidence; the next
+  delta carries the five directly preceding findings and will make no unbounded closure claim.
+- Red-first receipt test: the committed-receipt witness first failed against placeholder values;
+  after binding the receipt it and the pre-existing one-tenth behavioral witness both passed
+  (`2 passed`).

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -12,6 +13,9 @@ from tools.quality.testing import build_review_package as review_package
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REVIEW_PACKAGE_BUILDER = REPO_ROOT / "tools" / "quality" / "testing" / "build_review_package.py"
+RATIO_FIXTURE_RECEIPT = (
+    REPO_ROOT / "tools" / "quality" / "testing" / "fixtures" / "review_package_ratio_receipt.json"
+)
 
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -38,6 +42,35 @@ def _commit(repo: Path, message: str) -> str:
 
     _git(repo, "add", "-A")
     _git(repo, "commit", "--no-gpg-sign", "-m", message)
+    return _git(repo, "rev-parse", "HEAD").stdout.strip()
+
+
+def _commit_at_timestamp(repo: Path, message: str, timestamp: str) -> str:
+    """Commit fixture content with fixed author and committer timestamps."""
+
+    _git(repo, "add", "-A")
+    subprocess.run(  # noqa: S603 - arguments and environment are controlled test fixtures.
+        [
+            "git",
+            "-c",
+            "user.name=PolicyOS Test",
+            "-c",
+            "user.email=policyos-test@example.invalid",
+            "commit",
+            "--no-gpg-sign",
+            "-m",
+            message,
+        ],
+        cwd=repo,
+        env={
+            **os.environ,
+            "GIT_AUTHOR_DATE": timestamp,
+            "GIT_COMMITTER_DATE": timestamp,
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return _git(repo, "rev-parse", "HEAD").stdout.strip()
 
 
@@ -1090,3 +1123,98 @@ def test_typical_fix_delta_is_at_most_one_tenth_of_its_full_package(tmp_path: Pa
     assert b"diff --git" not in diff_stat
     assert len(diff_stat) * 10 < len(patch)
     assert len(full_package) < len(patch) * 1.25
+
+
+def test_committed_ratio_fixture_receipt_is_replayable(tmp_path: Path) -> None:
+    """Catch a size-ratio receipt that cannot be regenerated from committed inputs."""
+
+    receipt = json.loads(RATIO_FIXTURE_RECEIPT.read_text(encoding="utf-8"))
+    assert receipt["schema_version"] == 1
+
+    repo = (tmp_path / "receipt-fixture").resolve()
+    repo.mkdir()
+    _git(repo, "init", "-b", "main")
+    (repo / ".gitignore").write_text("*.review\n", encoding="utf-8")
+    (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
+    (repo / "config.ini").write_text("status=limited\n", encoding="utf-8")
+    (repo / "obsolete.txt").write_text("remove me\n", encoding="utf-8")
+    base = _commit_at_timestamp(repo, "initial", "1700000000 +0000")
+
+    feature = repo / "policy" / "admissibility_rules.py"
+    feature.parent.mkdir()
+    rules = [
+        "from __future__ import annotations",
+        "",
+        "# A representative first review adds a substantial rule implementation.",
+    ]
+    for index in range(180):
+        rules.extend(
+            (
+                f"def rule_{index:03d}(authority: str, status: str) -> bool:",
+                f'    """Evaluate authority/status composition rule {index:03d}."""',
+                f"    allowed = {{'authority-{index:03d}', 'delegated-{index:03d}'}}",
+                "    return authority in allowed and status not in {'blocked', 'contested'}",
+                "",
+            )
+        )
+    feature.write_text("\n".join(rules), encoding="utf-8")
+    prior_review_point = _commit_at_timestamp(
+        repo,
+        "implement admissibility rule family",
+        "1700000001 +0000",
+    )
+    full_output = repo / "reviews" / "full.review"
+    full = _run_builder(repo, base=base, head=prior_review_point, output=full_output)
+    assert full.returncode == 0, full.stderr
+
+    (repo / "policy" / "review_fix.py").write_text(
+        "FAIL_CLOSED = True\n",
+        encoding="utf-8",
+    )
+    head = _commit_at_timestamp(repo, "refuse unverified evidence", "1700000002 +0000")
+    findings_bytes = b"Important: unverified evidence must fail closed before promotion.\n"
+    findings = repo / "reviews" / "prior-findings.md"
+    findings.write_bytes(findings_bytes)
+    delta_output = repo / "reviews" / "delta.review"
+    delta = _run_builder(
+        repo,
+        base=prior_review_point,
+        head=head,
+        output=delta_output,
+        prior_findings=findings,
+    )
+    assert delta.returncode == 0, delta.stderr
+
+    full_output_again = repo / "reviews" / "full-again.review"
+    delta_output_again = repo / "reviews" / "delta-again.review"
+    assert _run_builder(
+        repo,
+        base=base,
+        head=prior_review_point,
+        output=full_output_again,
+    ).returncode == 0
+    assert _run_builder(
+        repo,
+        base=prior_review_point,
+        head=head,
+        output=delta_output_again,
+        prior_findings=findings,
+    ).returncode == 0
+
+    full_bytes = full_output.read_bytes()
+    delta_bytes = delta_output.read_bytes()
+    assert full_output_again.read_bytes() == full_bytes
+    assert delta_output_again.read_bytes() == delta_bytes
+    assert base == receipt["base_commit"]
+    assert prior_review_point == receipt["prior_review_point"]
+    assert head == receipt["delta_commit"]
+    assert hashlib.sha256(feature.read_bytes()).hexdigest() == receipt["fixture_rules_sha256"]
+    assert len(findings_bytes) == receipt["prior_findings_bytes"]
+    assert hashlib.sha256(findings_bytes).hexdigest() == receipt["prior_findings_sha256"]
+    assert len(full_bytes) == receipt["full_bytes"]
+    assert hashlib.sha256(full_bytes).hexdigest() == receipt["full_package_sha256"]
+    assert len(delta_bytes) == receipt["delta_bytes"]
+    assert hashlib.sha256(delta_bytes).hexdigest() == receipt["delta_package_sha256"]
+    assert len(delta_bytes) / len(full_bytes) == receipt["delta_to_full_ratio"]
+    assert receipt["requirement_delta_at_most_full_tenth"] is True
+    assert len(delta_bytes) <= len(full_bytes) / 10

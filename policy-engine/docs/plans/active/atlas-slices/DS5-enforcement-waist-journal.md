@@ -1,5 +1,20 @@
 # DS5 Enforcement Waist Journal
 
+## 2026-08-08 — content-bound sizing-class documentation pass
+
+- C03a cost one full stop at clean C02. The root cause was omission of an
+  induced DS19 receipt path: a disposition-register write re-anchors the
+  status-retirement inventory that pins it.
+- The complete audit found 23 remaining disposition-register writers: 20
+  no-fit by one path and 3 already fit. The P31 class fix is the new structural
+  sizing law and continuously numbered `-R1` successors; no product or
+  governed artifact changed.
+
+| Worker | Tier | Stage | Measured report size | Paid | Result |
+| --- | --- | --- | ---: | --- | --- |
+| `ds5_recut_audit` | terra | read-only census | ~100 lines | yes | Found 7 seed-list omissions and the complete 23/20/3 partition. |
+| `ds5_recut_plan_writer` | terra | serialized docs implementation | 8 lines | yes | Recut the two DS5 documents; no product/governed artifact changed. |
+
 ## DS5-C01 — rejected mechanism retained as history
 
 - Commit `b67084dd6` built an open-estate value-flow analyzer. Three independent
@@ -13,7 +28,7 @@
   local syntax checks govern the escape hatches in C01b; issuers govern runtime
   novelty in C01c.
 
-## DS5-C10 — deferred owner integrate contract
+## DS5-C10-R1 — deferred owner integrate contract
 
 - **Disposition:** deferred on 2026-08-02; this downstream gap does not block
   C01-C09 or C11 onward.
@@ -137,7 +152,7 @@
 ### Scope and residual claim
 
 - Current measured scope is 14 paths under cap 15. There is no generated-client
-  regeneration, backend write, engine-internal write, C02 work, or C10 build.
+  regeneration, backend write, engine-internal write, C02 work, or C10-R1 build.
 - C01a claims only a finite current-estate census, nominal branded-slot compiler
   enforcement, content-bound classification, and typed owner debt for every
   unbranded measured sink. It does not claim semantic discovery or complete
@@ -327,7 +342,7 @@
   green.
 - Pre-review scope was exactly 9 paths under cap 13. There was no register mutation,
   generated-client regeneration, backend write, flow-analysis claim, C02 work,
-  or C10 build.
+  or C10-R1 build.
 
 ### Review fix round 1
 
@@ -408,7 +423,7 @@
 - Pre-freeze scope was 9 paths under cap 13. The plan delta was 22 additions /
   13 deletions (35 changed lines, within the 40-line allowance). There was no
   generated-client regeneration, backend write, flow-analysis claim, C02 work,
-  or C10 build.
+  or C10-R1 build.
 
 ### Final review and freeze
 
@@ -525,7 +540,7 @@
 - Python compilation, scoped Ruff `E,F,I,ANN`, Node syntax, scoped Prettier,
   JSON parsing, receipt determinism, and `git diff --check` pass. There is no
   generated-client regeneration, backend write, register-row transition,
-  debt addition, flow-analysis claim, C03 work, or C10 build.
+  debt addition, flow-analysis claim, C03 work, or C10-R1 build.
 
 ### Review fix round 1
 

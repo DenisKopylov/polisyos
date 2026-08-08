@@ -109,7 +109,7 @@ architecture guardrails.
    as owner, while the higher master and this mission assign tenant/user/expiry
    cache discipline to DS5. DS5 owns only that cross-cutting storage-discipline
    sublayer and its live migrations; the domain capabilities and their root
-   rows remain with the named slices. C14a-C17b attach isolation evidence without
+   rows remain with the named slices. C14a-C17b-R1 attach isolation evidence without
    falsely claiming those domain features rebound. The stale review-attention
    row receives DS4 deletion evidence and a fresh census, not a resurrected
    implementation.
@@ -199,12 +199,12 @@ byte-unmodified. Any new identity is red.
 | governed projection audiences | entry 13 definitions: 5 EXPERT, 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 adds one source-bound EXPERT G4 definition, producing the C07 entry denominator 14 = 6 EXPERT + 8 MACHINE; C07 enforces all four classes without relabeling the 13 existing definitions |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
-| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a removes active `ru` exposure without touching catalogs/parity; C05b governs semantic-copy issuance without claiming human review complete |
-| query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b prove that consumer, C12a-C12b register/enforce the remaining policy without inventing source time |
+| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-R1 governs semantic-copy issuance without claiming human review complete |
+| query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 2 stores; queue has exactly 2 kinds | promotion approve/reject barred; composer drafts enveloped |
-| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b migrate the live units plus composer |
-| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-C16b exclude causal `edges[].status` and keep dispute `status` explicitly interaction-only |
-| persistence API census | 41 symbol-resolved lifecycle/construction calls / 14 production files: 23 Web Storage, 5 Zustand, 13 IndexedDB | C17b content-binds every current site as registered authority-like or fingerprint-bound benign; earlier clusters migrate only their named families |
+| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
+| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1-C16b-R1 exclude causal `edges[].status` and keep dispute `status` explicitly interaction-only |
+| persistence API census | 41 symbol-resolved lifecycle/construction calls / 14 production files: 23 Web Storage, 5 Zustand, 13 IndexedDB | C17b-R1 content-binds every current site as registered authority-like or fingerprint-bound benign; earlier clusters migrate only their named families |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
 The historical 9/5 fetch and six-store denominators remain provenance facts,
@@ -238,7 +238,7 @@ commands and their receipts are in the baseline table above.
 | 11 N010 expressions / 6 production consumers | literal `authority_and_store_census` command below; its per-path output is 1/2/1/1/2/4 |
 | 14 fallback capability records | `sed -n '/features: \\[/,/^  \\],/p' apps/runtime-dashboard/src/shared/lib/capabilities.ts \| rg -c '^      key:'`; `rg -n 'FALLBACK_CAPABILITY_MANIFEST\|capabilitiesQuery.isLoading'` locates the two production bypass consumers |
 | 43 fixed surfaces / 19 nonempty capability requirements | literal TypeScript-AST `surface_census` command below; recorded components are workspace 6/4, run 8/4, panel 29/11 |
-| 2 ratified active of 3 currently exposed locales; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts` records the current `en/uk/ru` + `en` default drift C05a must close |
+| 2 ratified active of 3 currently exposed locales; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts` records the current `en/uk/ru` + `en` default drift C05a-R1 must close |
 | 18 explicit frozen-compatible locale functions / 9 modules | literal installed-TypeScript `frozen_locale_compatibility_census` command below; product persistence/resolution functions are excluded from this compatibility denominator |
 | 1 `may_not_use_for` production consumer / 0 semantic-review receipt owners | `rg -l 'packet\.may_not_use_for' apps/runtime-dashboard/src --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/test/**'` returns exactly `RunExplainabilityPanel.tsx`; a separate `rg -l 'AuthoritySemanticCopy\|authority-semantic-copy\|semantic_review_receipt\|competent_reviewer' apps/runtime-dashboard/src packages/atlas-ui/src architecture/atlas_surfaces` returns exit 1 with no output, recorded honestly as the zero entry census rather than piped through a success exit |
 | 66 query syntax / 40 files; 42 producers / 39 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\b(useQuery\|queryOptions)(<[^>]+>)?\\s*\\(' apps/runtime-dashboard/src`; repeat with `rg -l`; repeat both for `\\bqueryFn\\s*:` |
@@ -573,12 +573,12 @@ NODE
 ```
 
 Recorded output: `41` sites / `14` files; Web Storage `23`, Zustand `5`,
-IndexedDB `13`. C17b governs this exact declaration-resolved API set and
-remeasures it at its clean entry after C13a-C16b; it does not infer payload
+IndexedDB `13`. C17b-R1 governs this exact declaration-resolved API set and
+remeasures it at its clean entry after C13a-C16b-R1; it does not infer payload
 semantics from method or field names.
 
 The surface and store commands are bounded structural censuses, not future lint
-implementations. C01a records its measured declaration set; C12a and C17b replace
+implementations. C01a records its measured declaration set; C12a and C17b-R1 replace
 their entry receipts with direct construction-site registries. None becomes a
 claim about arbitrary program behavior.
 
@@ -648,36 +648,51 @@ Every implementation cluster follows this order:
 A cluster measured above its cap stops at the preceding clean commit and is
 re-cut with the next continuous number. No cap is enlarged after entry.
 
+**Content-binding sizing law (P31 class fix):** A cluster that writes a
+content-bound governed artifact also owns every induced re-anchor of a receipt
+that pins it. The induced path counts against the cap. This replaces the
+instance-by-instance report accounting with one structural rule for every
+disposition-register writer; the induced status-inventory receipt is not an
+optional tail or a later-cluster cost.
+
 ### Sizing-law re-cuts after the architecture ruling
 
-The C00 caps remain binding. Adding the mandatory disposition report, affected
-tests and the source-complete construction registries exceeded several original
-clusters; none is enlarged. At the still-clean C00/C01a forward-commit boundary they are
-continuously re-cut as follows. Each child cap is at or below its parent's C00
-cap; the listed count includes its journal and every generated-report path.
+The C00 caps remain binding. The earlier re-cuts counted a disposition report
+but omitted the induced `architecture/atlas_surfaces/status-retirement-inventory.json`
+receipt re-anchor. The complete writer census below applies the sizing law to
+every remaining disposition-register writer. Original rows are stopped
+historical evidence, never enlarged clusters; each no-fit row receives its
+first continuously numbered `-R1` successor.
 
-| C00 cluster / cap | Measured reason | Continuously numbered re-cut |
-| --- | --- | --- |
-| C03 / 12 | typed DS1 drift row needs schema/checker/report in addition to 7 live transport owners | C03a 6; C03b 12 |
-| C04 / 12 | live fallback repair plus recurrence lint plus report is 13 | C04a 10; C04b 4 |
-| C05 / 13 | locale/typography and semantic-receipt families are 18 together | C05a 10; C05b 11 |
-| C08 / 10 | test-fixture consumers must stop importing production fallback before the 10-path identity repair | C08a 5; C08b 10 |
-| C09 / 12 | six consumers, recurrence checker and report total 13 | C09a 10; C09b 7 |
-| C11 / 10 | real `OverviewTab` wiring and report raise the cache cluster to 13 | C11a 5; C11b 9 |
-| C12 / 9 | 66-call/42-producer registry plus governed builder totals 13 | C12a 7; C12b 9 |
-| C13 / 18 | queue removal, three renames, SW proof, affected composer test and report total 23 paths | C13a 18; C13b 9 |
-| C14 / 7 | nominal adapter plus composer consumer/report total 9 | C14a 3; C14b 7 |
-| C15 / 5 | store codec plus live identity bridge/report total 6 | C15a 3; C15b 5 |
-| C16 / 7 | causal and dispute families plus report total 9 | C16a 5; C16b 7 |
-| C17 / 11 | operator migration plus 41-site registry/report total 15 | C17a 9; C17b 9 |
-| C18 / 6 | strict registry plus provider/report total 7 | C18a 3; C18b 5 |
+| Original cluster | Declared cap | Corrected unique paths (includes induced status-inventory re-anchor) | Fit | Execution successor |
+| --- | ---: | ---: | --- | --- |
+| C03a | 6 | 7 | no-fit | C03a-R1 / 7 |
+| C03b | 12 | 13 | no-fit | C03b-R1 / 13 |
+| C04a | 10 | 11 | no-fit | C04a-R1 / 11 |
+| C05a | 10 | 11 | no-fit | C05a-R1 / 11 |
+| C05b | 11 | 12 | no-fit | C05b-R1 / 12 |
+| C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
+| C07 | 26 | 25 | FIT | C07 / 26 (already fit) |
+| C08b | 10 | 11 | no-fit | C08b-R1 / 11 |
+| C09a | 10 | 11 | no-fit | C09a-R1 / 11 |
+| C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
+| C10 | 7 | 8 | no-fit | C10-R1 / 8 (DEFERRED) |
+| C11b | 9 | 10 | no-fit | C11b-R1 / 10 |
+| C12b | 9 | 10 | no-fit | C12b-R1 / 10 |
+| C13a | 18 | 18 | FIT | C13a / 18 (already fit) |
+| C13b | 9 | 10 | no-fit | C13b-R1 / 10 |
+| C14b | 7 | 8 | no-fit | C14b-R1 / 8 |
+| C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
+| C16a | 5 | 6 | no-fit | C16a-R1 / 6 |
+| C16b | 7 | 8 | no-fit | C16b-R1 / 8 |
+| C17a | 9 | 10 | no-fit | C17a-R1 / 10 |
+| C17b | 9 | 10 | no-fit | C17b-R1 / 10 |
+| C18b | 5 | 6 | no-fit | C18b-R1 / 6 |
+| C19 | 13 | 14 | no-fit | C19-R1 / 14 |
 
-C01a/C01b/C01c are the separately authorized `636645bec` re-cut. C06 is
-shrunk to 24 by reusing the generic disposition checker and regenerating its
-report; C07 measures 25 under its unchanged cap 26; C10 is shrunk to its
-original cap 7 by keeping packet,
-issuer, request and sink in one module; C19 is shrunk to 13 by reusing the
-generic disposition checker. No other C00 cap changes.
+The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
+C01b/C01c are the separately authorized `636645bec` re-cut. C06, C07 and
+C13a retain their IDs and caps because their corrected sets already fit.
 
 ### Register transition map
 
@@ -685,33 +700,33 @@ generic disposition checker. No other C00 cap changes.
 | --- | --- | --- |
 | 47 status rows + authority presentation census | C01a-C01c | preserve 15/0 estate and exact generated provenance; account 2 branded props/6 uses plus 2 branded direct sites, 39 typed debt descriptors (12 prop boundaries + 27 direct-`Badge` groups), 5 benign prop groups and all 103 benign direct sites; forbid enumerated escape syntax only on branded paths; prove issuer exhaustiveness/novelty |
 | architecture baseline/recurrence receipts | C02 | zero remains zero; real custom and dependency-cruiser violations fail even with marker bytes intact |
-| `raw-fetch-auth-refresh`, `raw-fetch-auth-initial`, `raw-fetch-auth-replay` | C03b | bounded `use_as_is` inside the typed auth transport owner plus symbol-bound exemption and corrupt sibling negative |
-| `raw-fetch-flag-manifest` | C03b | bounded `use_as_is` inside the strict registry adapter; C18a-C18b supply the consumer semantics |
-| `transport-ws-review` | C03b | remains `bridge_missing`; typed constructor classification does not close N018 authentication/degradation |
-| DS1 raw-transport historical receipt | C03a | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
-| hardcoded capability fallback / `cache-query-memory` | C04a-C04b then C11a-C12b | fallback removed in C04a and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
-| `route-app-layout::ru-ui-catalog` | C05a | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
-| `authority-presentation-governed-projection-rights-bar` | C05b then C10 | the C01a debt row drops `bridge_missing` and `semantic_test_missing` after the private semantic-ID issuer and strength-upgrade negatives land; it remains `rebind_pending/open_debt` with `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; C10 adds its second live consumer to the same issuer/brand evidence rather than reopening raw copy |
+| `raw-fetch-auth-refresh`, `raw-fetch-auth-initial`, `raw-fetch-auth-replay` | C03b-R1 | bounded `use_as_is` inside the typed auth transport owner plus symbol-bound exemption and corrupt sibling negative |
+| `raw-fetch-flag-manifest` | C03b-R1 | bounded `use_as_is` inside the strict registry adapter; C18a-C18b-R1 supply the consumer semantics |
+| `transport-ws-review` | C03b-R1 | remains `bridge_missing`; typed constructor classification does not close N018 authentication/degradation |
+| DS1 raw-transport historical receipt | C03a-R1 | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
+| hardcoded capability fallback / `cache-query-memory` | C04a-R1-C04b then C11a-C12b-R1 | fallback removed in C04a-R1 and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
+| `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
+| `authority-presentation-governed-projection-rights-bar` | C05b-R1 then C10-R1 | the C01a debt row drops `bridge_missing` and `semantic_test_missing` after the private semantic-ID issuer and strength-upgrade negatives land; it remains `rebind_pending/open_debt` with `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; deferred C10-R1 retains the supplemental owner integrate-contract rather than reopening raw copy |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
 | audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
-| `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
-| composed/recomputed status verification | C06 then C10-C12b | C06 projects the existing G4 owner artifact as a complete generated packet; C10 nominalizes it inside a request-scoped non-query live boundary; C11a-C12b own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
-| `cache-query-memory` | C12a-C12b | rebound only for the governed builder, one C11a-C11b consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
-| `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
-| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
-| four flag disposition rows | C18a-C19 | strict registry then provider wiring; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
+| `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
+| composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 projects the existing G4 owner artifact as a complete generated packet; deferred C10-R1 retains its nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
+| `cache-query-memory` | C12a-C12b-R1 | rebound only for the governed builder, one C11a-C11b-R1 consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
+| `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b-R1 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
+| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R1 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
+| four flag disposition rows | C18a-C19-R1 | strict registry then provider wiring; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
 | 21 historical DS5 readiness rows vs 17 live DS5 roots | C20 | update only supported chain fields; deleted/handoff rows stay honest; no denominator collapse |
 
 ### Wave boundaries
 
 - **W0 — C00:** plan, install/link proof, measured baseline, clean plan commit.
-- **W1 — C01a-C05b:** branded authority slots, escape syntax, issuer novelty,
+- **W1 — C01a-C05b-R1:** branded authority slots, escape syntax, issuer novelty,
   status, architecture, transport, capability, and semantic-ID
   enforcement. Full dashboard/Atlas gates plus governed corruption probes.
-- **W2 — C06-C10:** generated waist, audience denial, N010, and composition.
+- **W2 — C06-C10-R1:** generated waist, audience denial, N010, and composition.
   Full runtime contract, focused HTTP, generated-client, dashboard, and scanner
   gates.
-- **W3 — C11a-C17b:** query cache, offline action, and four bounded local-state
+- **W3 — C11a-C17b-R1:** query cache, offline action, and four bounded local-state
   families.
   Full dashboard suite, browser cache/offline tests, architecture, and zero-new
   baseline comparison.
@@ -907,11 +922,12 @@ property; it makes no status, presentation, numeric or control semantics claim.
 
 **Expected commit:** `DS5-C02 make architecture zero recurrent`.
 
-### DS5-C03a — record the raw-transport denominator drift
+### DS5-C03a-R1 — record the raw-transport denominator drift
 
-**Measured set:** exactly 5 governed artifact paths plus journal = 6; cap 6:
+**Measured set:** exactly 6 governed artifact paths plus journal = 7; cap 7:
 frontend disposition register/schema/checker/test, its generated reference
-report, and journal. The typed receipt preserves both measurements: DS1 9 raw
+report, `architecture/atlas_surfaces/status-retirement-inventory.json`, and
+journal. The typed receipt preserves both measurements: DS1 9 raw
 fetches/5 files; current 5 fetches/3 files and 7 raw constructors/5 files.
 
 **Red first:** `test_raw_transport_drift_row_binds_historical_and_live_census`.
@@ -921,21 +937,22 @@ writer must be byte-preserving and idempotent.
 
 **Acceptance:** the historical number can no longer circulate as a live lint
 denominator; the row stays open until the direct source census and typed owner
-classification agree. No transport implementation changes in C03a.
+classification agree. No transport implementation changes in C03a-R1.
 
-**Expected commit:** `DS5-C03a record raw transport drift`.
+**Expected commit:** `DS5-C03a-R1 record raw transport drift`.
 
-### DS5-C03b — direct authority-transport construction lint
+### DS5-C03b-R1 — direct authority-transport construction lint
 
 **Ruling re-derivation:** the guarantee is only the bounded syntactic census of
 direct imported/callee transport constructions. Typed purpose owners make the
-sanctioned paths explicit; C03b makes no claim about arbitrary indirect call
+sanctioned paths explicit; C03b-R1 makes no claim about arbitrary indirect call
 flow.
 
-**Measured set:** exactly 11 implementation/governed paths plus journal = 12;
-cap 12: the shared C01a scanner/checker/test, one canonical typed raw-transport
+**Measured set:** exactly 12 implementation/governed paths plus journal = 13;
+cap 13: the shared C01a scanner/checker/test, one canonical typed raw-transport
 purpose module, the five production owner files, frontend disposition register
-and generated report, and journal. C01a already wires `lint:enforcement`; C03b
+and generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal. C01a already wires `lint:enforcement`; C03b-R1
 does not retouch `package.json`. Current targets are 7 constructors / 5
 production files: auth 3, flags 1, telemetry 1, SSE 1, WebSocket 1.
 
@@ -955,15 +972,16 @@ grandfathered; telemetry remains DS12-limited; review WS remains N018
 `bridge_missing`. Register transitions and generated report land with the five
 owner migrations.
 
-**Expected commit:** `DS5-C03b type raw authority transports`.
+**Expected commit:** `DS5-C03b-R1 type raw authority transports`.
 
-### DS5-C04a — strangle the live capability fallback
+### DS5-C04a-R1 — strangle the live capability fallback
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `shared/lib/capabilities.ts` + test,
+**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
+cap 11: `shared/lib/capabilities.ts` + test,
 `api/hooks/useCapabilities.ts`, `api/hooks/controlQueries.test.tsx`,
 `runDetailSurfaces.test.tsx`, `CommandPalette.tsx` + test, frontend disposition
-register + generated report, and journal. The violation is 14 fallback feature
+register + generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal. The violation is 14 fallback feature
 records in two production consumers; CommandPalette currently treats loading
 as allow. The 43 fixed surfaces and 19 capability gates are benign chrome.
 
@@ -976,7 +994,7 @@ workspace tab and typed `requiredCapabilities` gate are positive controls.
 only that value; no fallback inventory survives; loading cannot invent a
 feature. Consumer and disposition/report evidence land together.
 
-**Expected commit:** `DS5-C04a strangle capability fallback`.
+**Expected commit:** `DS5-C04a-R1 strangle capability fallback`.
 
 ### DS5-C04b — make capability discovery recurrent
 
@@ -991,16 +1009,17 @@ availability gates are benign.
 
 **Acceptance:** the AST rule guards only issuer construction and direct authored
 `CapabilityFeatureInfo` literals. It does not infer menu behavior or ban fixed
-chrome; C04a's behavioral tests own the live consumer claim.
+chrome; C04a-R1's behavioral tests own the live consumer claim.
 
 **Expected commit:** `DS5-C04b lint authored capability discovery`.
 
-### DS5-C05a — D4 active-locale and frozen-continuity boundary
+### DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `locale.ts`, `LocaleProvider.tsx` + test; typography `typography.ts` +
+**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
+cap 11: `locale.ts`, `LocaleProvider.tsx` + test; typography `typography.ts` +
 test, `quoteMarks.ts`, `nonBreakingSpaces.ts`; frontend disposition register +
-generated report; and journal. Each en/uk/ru catalog has 2,449 leaves; no
+generated report; `architecture/atlas_surfaces/status-retirement-inventory.json`;
+and journal. Each en/uk/ru catalog has 2,449 leaves; no
 catalog or parity file is edited. The unedited, source-measured compatibility
 surface is 18 explicit-locale functions across 9 modules: the locale owner;
 formatter `shared`, `number`, `currency`, and `date`; ICU messages; and the
@@ -1032,19 +1051,20 @@ points remain explicit-input-only and the disposition/report record
 `legacy_continuity_frozen`, never active support. The three DS6 parity failures
 remain exact.
 
-**Expected commit:** `DS5-C05a separate product and frozen locales`.
+**Expected commit:** `DS5-C05a-R1 separate product and frozen locales`.
 
-### DS5-C05b — INT-R6 semantic IDs and static authority copy
+### DS5-C05b-R1 — INT-R6 semantic IDs and static authority copy
 
 **Ruling re-derivation:** canonical ID plus content-bound review issuance is a
 private nominal construction boundary. The checker guards that registry/issuer
 site and same-ID uniqueness; it neither compares prose for semantic meaning nor
 traces arbitrary copy values through the program.
 
-**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
-cap 11: `RunExplainabilityPanel.tsx` + its governed-projection test; new
+**Measured set:** exactly 11 implementation/governed paths plus journal = 12;
+cap 12: `RunExplainabilityPanel.tsx` + its governed-projection test; new
 `AuthoritySemanticCopy.ts` + test; new semantic-copy registry/schema; DS5
-checker/test; frontend disposition register + generated report; and journal.
+checker/test; frontend disposition register + generated report;
+`architecture/atlas_surfaces/status-retirement-inventory.json`; and journal.
 The one current real authority-copy consumer is `packet.may_not_use_for`;
 accepted human-review receipts are 0 at entry.
 
@@ -1074,10 +1094,10 @@ IDs are a benign control and are never treated as duplicates by string match.
 unreviewed localized copy falls back honestly;
 the `may_not_use_for` consumer accepts only the branded presentation; the two
 strength-upgrade corruptions and the same-ID copy collision fail while the
-same-word/different-ID control passes. C05b claims the mechanical
+same-word/different-ID control passes. C05b-R1 claims the mechanical
 receipt/issuer gate, not completed human semantic review.
 
-**Expected commit:** `DS5-C05b anchor authority copy by semantic ID`.
+**Expected commit:** `DS5-C05b-R1 anchor authority copy by semantic ID`.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
@@ -1213,18 +1233,19 @@ The test harness and story fail until they use an explicit test-only generated-
 shape fixture; a fixture can seed tests but is rejected as product identity.
 
 **Acceptance:** no test/story helper depends on `FALLBACK_AUTH_ME`; production
-still behaves byte-identically until C08b. This removes the compile-time tail
-that would otherwise force C08b over its cap.
+still behaves byte-identically until C08b-R1. This removes the compile-time tail
+that would otherwise force C08b-R1 over its cap.
 
 **Expected commit:** `DS5-C08a isolate auth test identity fixtures`.
 
-### DS5-C08b — N010 fail-closed client identity
+### DS5-C08b-R1 — N010 fail-closed client identity
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `api/queryKeys.ts`, `useAuthMe.ts` + test, `AuthzProvider.tsx` + new
+**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
+cap 11: `api/queryKeys.ts`, `useAuthMe.ts` + test, `AuthzProvider.tsx` + new
 test, `app/authz/permissions.ts` + new test, frontend disposition register +
-generated report, and journal. Six downstream production consumers contain 11
-default-allow expressions and remain the separately sized C09a/C09b boundary.
+generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal. Six downstream production consumers contain 11 default-allow
+expressions and remain the separately sized C09a-R1/C09b-R1 boundary.
 
 **Red first:**
 `test_authz_provider_denies_loading_error_malformed_401_prior_user_and_tenant_switch_identity`.
@@ -1236,14 +1257,15 @@ revision; unknown identity is explicit and empty; dashboard permissions import
 the generated 33-value type and the three collaboration literals disappear.
 DS20 server identity is consumed, not reimplemented.
 
-**Expected commit:** `DS5-C08b fail closed on unknown identity`.
+**Expected commit:** `DS5-C08b-R1 fail closed on unknown identity`.
 
-### DS5-C09a — N010 default deny in application chrome
+### DS5-C09a-R1 — N010 default deny in application chrome
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `WorkspaceBoundary.tsx`, `Sidebar.tsx`, `Header.tsx`, one new cross-
+**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
+cap 11: `WorkspaceBoundary.tsx`, `Sidebar.tsx`, `Header.tsx`, one new cross-
 surface behavioral test, shared C01a scanner/checker/test, frontend disposition
-register + generated report, and journal.
+register + generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal.
 
 **Red first:** `test_unknown_authz_decision_never_defaults_authority_surface_to_allow`.
 Loading, absent provider, error, cached-prior-user and tenant-switch variants
@@ -1257,32 +1279,38 @@ this half requires the verified branch. A bounded AST
 rule rejects direct `?? true` and conditional-true defaults only in imports of
 the decision API; it does not infer equivalent arbitrary program behavior.
 
-**Expected commit:** `DS5-C09a default deny application chrome`.
+**Expected commit:** `DS5-C09a-R1 default deny application chrome`.
 
-### DS5-C09b — N010 default deny in modes and run surfaces
+### DS5-C09b-R1 — N010 default deny in modes and run surfaces
 
-**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
-cap 7: `InterfaceModeProvider.tsx`, `CommandPalette.tsx`,
-`RunDetailLayout.tsx`, the C09a-C09b cross-surface behavioral test, frontend
-disposition register + generated report, and journal.
+**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
+cap 8: `InterfaceModeProvider.tsx`, `CommandPalette.tsx`,
+`RunDetailLayout.tsx`, the C09a-R1-C09b-R1 cross-surface behavioral test,
+frontend disposition register + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 
 **Red first:** extend
 `test_unknown_authz_decision_never_defaults_authority_surface_to_allow` over
 the remaining direct-mode, keyboard and run-route expressions. A fixed
 permission-free run chrome control remains visible.
 
-**Acceptance:** all 11 original default-allow expressions across C09a-C09b
+**Acceptance:** all 11 original default-allow expressions across C09a-R1-C09b-R1
 commits now require current verified identity; the existing bounded syntax gate
 automatically covers the latter importers. No permission-bearing mode, command
 or run surface treats unknown as allow; register/report evidence lands with the
 three consumers.
 
-**Expected commit:** `DS5-C09b default deny modes and run surfaces`.
+**Expected commit:** `DS5-C09b-R1 default deny modes and run surfaces`.
 
-### DS5-C10 — owner-composed weakest-boundary presentation
+### DS5-C10-R1 — owner-composed weakest-boundary presentation
+
+**Disposition: DEFERRED.** This successor remains deferred and is not
+authorized for execution. Its supplemental finding is
+`g4-complete-audience-projection-contract`; the contract below remains a
+minimum owner-integrate pointer, not a DS5 implementation authorization.
 
 **Ruling re-derivation:** the C06 generated DTO is structural and is not itself
-the nominal boundary. C10 extends the existing private-symbol/private-issuer
+the nominal boundary. C10-R1 extends the existing private-symbol/private-issuer
 pattern at the first live client boundary after
 `RuntimeApiClient.getGovernedProjection`; it does not export a constructor,
 packet type, packet value or selector and does not search source for arithmetic
@@ -1296,20 +1324,21 @@ owner fields (`blocker_refs`, `limitation_refs`, `issue_codes`,
 `produced_by`) before
 issuing a frozen nominal packet to its module-private sink. The generated
 projection envelope's separate `may_not_use_for` list remains an explicit
-rights-bar veto. It is rendered only by importing the C05b
-`AuthoritySemanticCopy` issuer/brand; C10 owns no copy table, fallback string or
+rights-bar veto. It is rendered only by importing the C05b-R1
+`AuthoritySemanticCopy` issuer/brand; C10-R1 owns no copy table, fallback string or
 parallel semantic issuer and does not invent a `rights_bar` field in the G4 artifact. A
 runtime-novel owner status remains explicit
 `unrecognized` rather than being silently coerced.
 
-**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
-cap 7: new `G4WeakestBoundaryPresentation.tsx` + test; `OverviewTab.tsx` + the
+**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
+cap 8: new `G4WeakestBoundaryPresentation.tsx` + test; `OverviewTab.tsx` + the
 existing `runDetailSurfaces.test.tsx`; frontend disposition register + generated
-report; and journal. C06 supplies the generated G4 DTO. The C01b checker already
+report; `architecture/atlas_surfaces/status-retirement-inventory.json`; and
+journal. C06 supplies the generated G4 DTO. The C01b checker already
 derives branded issuer modules from the governed census; the new row brings this
 module under that gate without editing the checker. The module deliberately has no TanStack
 `useQuery`, `queryOptions`, `queryFn`, query key, local store or persistent
-cache, so it does not change the 42-producer C11a-C12b denominator.
+cache, so it does not change the 42-producer C11a-C12b-R1 denominator.
 
 **Red first:** `test_weakest_boundary_presentation_requires_complete_generated_g4_packet`.
 The DS5 diagnostics harness proves a complete structural lookalike and one-lane
@@ -1325,7 +1354,7 @@ must withhold the packet immediately. Response `as_of` and
 snapshot observation and never upgraded to owner time. A
 runtime-novel status reaches the private sink as `unrecognized`. Duration
 averages, chart layout and non-authority numeric reductions remain benign
-because C10 does not lint arithmetic identifiers.
+because C10-R1 does not lint arithmetic identifiers.
 
 **Acceptance:** only the module-private canonical live adapter can issue or
 consume the nominal owner-validated G4 packet; its type, symbol, constructor,
@@ -1340,10 +1369,10 @@ only C05b-issued `AuthoritySemanticCopy`, and the disposition/report append this
 second consumer without changing the residual DS6 `verification_missing` state.
 This establishes request-scoped nominal consumption of one
 owner-composed result; it makes no claim that client arithmetic was universally
-detected. C11a-C12b continue to govern the unchanged 42 actual TanStack query
+detected. C11a-C12b-R1 continue to govern the unchanged 42 actual TanStack query
 producers.
 
-**Expected commit:** `DS5-C10 present owner-composed weakest boundary`.
+**Deferred expected commit:** `DS5-C10-R1 present owner-composed weakest boundary` (not authorized).
 
 ### DS5-C11a — derive cache posture from one real query observation
 
@@ -1373,12 +1402,13 @@ yet claim a visible presentation.
 
 **Expected commit:** `DS5-C11a derive governed cache posture`.
 
-### DS5-C11b — render cache posture in the live run surface
+### DS5-C11b-R1 — render cache posture in the live run surface
 
-**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
-cap 9: `TimeSemanticsLabel.tsx` + test, `RunExplainabilityPanel.tsx` + its
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `TimeSemanticsLabel.tsx` + test, `RunExplainabilityPanel.tsx` + its
 governed-projection test, `OverviewTab.tsx` + `runDetailSurfaces.test.tsx`,
-frontend disposition register + generated report, and journal.
+frontend disposition register + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 `TimeSemanticsLabel` currently renders twice and receives no `cacheAgeLabel`.
 
 **Red first:** `test_migrated_governed_query_never_emits_offline_queued` plus live
@@ -1391,7 +1421,7 @@ union values stay unrecognized; the migrated governed consumer never renders
 `offline_queued`. Register/report transition only after `OverviewTab` passes the
 typed observation into the panel.
 
-**Expected commit:** `DS5-C11b render governed cache posture`.
+**Expected commit:** `DS5-C11b-R1 render governed cache posture`.
 
 ### DS5-C12a — source-bind query constructions and producers
 
@@ -1426,14 +1456,14 @@ claim and edits none of the 40 call-site files.
 
 **Expected commit:** `DS5-C12a register query construction debt`.
 
-### DS5-C12b — make the governed query path unrepresentable
+### DS5-C12b-R1 — make the governed query path unrepresentable
 
-**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
-cap 9: new `governedQueryPolicy.ts` + test,
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: new `governedQueryPolicy.ts` + test,
 `useDepthNCycleBoardProjection.ts` + test, the shared DS5 enforcement test
 established in C01a,
 query-cache policy register, frontend disposition register + generated report,
-and journal.
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 
 **Red first:** `test_governed_query_wrapper_forbids_retained_authority_without_owner_as_of`.
 Builder corruptions derive posture from request time or pin authority data with
@@ -1450,7 +1480,7 @@ producers with one governed wrapper/producer and 65/41 exact legacy debts.
 `ApiMeta.generated_at` is never owner time. No claim is made that legacy sites
 were migrated or semantically inferred.
 
-**Expected commit:** `DS5-C12b enforce governed query policy`.
+**Expected commit:** `DS5-C12b-R1 enforce governed query policy`.
 
 ### DS5-C13a — delete authority mutation replay
 
@@ -1476,19 +1506,19 @@ writer or replay provider survives; no IndexedDB mutation row and no optimistic
 approved/rejected state remain. Retry is an explicit live action through current
 server identity, permission, step-up, tenant and producer-state enforcement and
 renders denial. Both deleted status definitions retire surgically; the queue
-disposition/report transitions; composer persistence remains. C13b owns SW
+disposition/report transitions; composer persistence remains. C13b-R1 owns SW
 proof and naming cleanup. The README removes the deleted provider/mount claim in
 this commit, so no stale reference crosses the boundary.
 
 **Expected commit:** `DS5-C13a delete authority mutation replay`.
 
-### DS5-C13b — prove service-worker and composer-only closure
+### DS5-C13b-R1 — prove service-worker and composer-only closure
 
-**Measured set:** exactly 8 implementation/governed path names plus journal =
-9; cap 9: rename `offlineQueueRepository.ts` to `composerDraftDb.ts` (two path
+**Measured set:** exactly 9 implementation/governed path names plus journal =
+10; cap 10: rename `offlineQueueRepository.ts` to `composerDraftDb.ts` (two path
 names), `composerDraftRepository.ts` + its existing test, `sw.ts` + a new
 focused SW test, frontend disposition register + generated
-report, and journal.
+report, `architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 
 **Red first:**
 `test_service_worker_has_no_authority_sync_or_authenticated_api_cache` plus a
@@ -1502,7 +1532,7 @@ online events cannot resurrect mutation replay. Epoch/rule revalidation remains
 a DS18 integrate-contract unless the producer carries it. SW/composer
 disposition and generated report land together.
 
-**Expected commit:** `DS5-C13b close service worker and composer DB`.
+**Expected commit:** `DS5-C13b-R1 close service worker and composer DB`.
 
 ### DS5-C14a — nominal local-state envelope owner
 
@@ -1524,12 +1554,13 @@ boundary nominal while leaving semantic classification to source-bound rows.
 
 **Expected commit:** `DS5-C14a own nominal local state envelope`.
 
-### DS5-C14b — bind the composer consumer
+### DS5-C14b-R1 — bind the composer consumer
 
-**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
-cap 7: `composerDraftRepository.ts` + test, `ComposerModeSections.tsx`,
-`LaunchRunPage.test.tsx`, frontend disposition register + generated report, and
-journal. C08b verified tenant/user identity is a dependency.
+**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
+cap 8: `composerDraftRepository.ts` + test, `ComposerModeSections.tsx`,
+`LaunchRunPage.test.tsx`, frontend disposition register + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+C08b-R1 verified tenant/user identity is a dependency.
 
 **Red first:** `test_composer_draft_cannot_cross_tenant_user_or_expiry`.
 Legacy unwrapped, malformed, expired, prior-tenant and prior-user bytes never
@@ -1538,9 +1569,9 @@ hydrate. A same-scope non-authority draft is the positive control.
 **Acceptance:** composer uses the C14a envelope/codec owner; physical key and
 envelope bind family, tenant, user and expiry; no legacy byte silently migrates.
 `offline-draft-composer` gains a complete isolation consumer while
-`cache-local-storage-state` stays pending until C17b.
+`cache-local-storage-state` stays pending until C17b-R1.
 
-**Expected commit:** `DS5-C14b bind composer local state`.
+**Expected commit:** `DS5-C14b-R1 bind composer local state`.
 
 ### DS5-C15a — Clerk persisted codec and identity API
 
@@ -1561,11 +1592,12 @@ identity hydration bridge consumed next.
 
 **Expected commit:** `DS5-C15a partition Clerk session codec`.
 
-### DS5-C15b — mount the Clerk identity bridge
+### DS5-C15b-R1 — mount the Clerk identity bridge
 
-**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
-cap 5: `ClerkChatPage.tsx` + new focused test, frontend disposition register +
-generated report, and journal.
+**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
+cap 6: `ClerkChatPage.tsx` + new focused test, frontend disposition register +
+generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal.
 
 **Red first:** `test_clerk_page_binds_current_identity_before_hydration` covers
 absent, changed tenant, changed user and expired bytes; no page render observes
@@ -1575,13 +1607,13 @@ prior in-memory sessions.
 C15a API before hydration. The `cache-clerk-sessions` domain row
 remains DS14 `rebind_pending`; DS5 attaches isolation evidence only.
 
-**Expected commit:** `DS5-C15b mount Clerk identity hydration`.
+**Expected commit:** `DS5-C15b-R1 mount Clerk identity hydration`.
 
-### DS5-C16a — causal draft local state
+### DS5-C16a-R1 — causal draft local state
 
-**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
-cap 5: `CausalTab.tsx` + test, frontend disposition register + generated
-report, and journal.
+**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
+cap 6: `CausalTab.tsx` + test, frontend disposition register + generated
+report, `architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 
 **Red first:** `test_causal_state_rejects_cross_scope_stale_and_stored_status`.
 
@@ -1591,13 +1623,14 @@ candidate/unidentified and its concrete codec excludes
 display on hydration. The DS8 domain row remains `rebind_pending` with
 partition successor evidence.
 
-**Expected commit:** `DS5-C16a partition causal draft state`.
+**Expected commit:** `DS5-C16a-R1 partition causal draft state`.
 
-### DS5-C16b — dispute interaction local state
+### DS5-C16b-R1 — dispute interaction local state
 
-**Measured set:** exactly 6 implementation/governed paths plus journal = 7;
-cap 7: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
-test, frontend disposition register + generated report, and journal.
+**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
+cap 8: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
+test, frontend disposition register + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 
 **Red first:** `test_dispute_state_rejects_cross_scope_and_stale_bytes`.
 
@@ -1606,14 +1639,15 @@ test, frontend disposition register + generated report, and journal.
 presentation slot. The DS9 domain row remains `rebind_pending` with partition
 successor evidence.
 
-**Expected commit:** `DS5-C16b partition dispute interaction state`.
+**Expected commit:** `DS5-C16b-R1 partition dispute interaction state`.
 
-### DS5-C17a — operator-craft family partition
+### DS5-C17a-R1 — operator-craft family partition
 
-**Measured set:** exactly 8 implementation/governed paths plus journal = 9;
-cap 9: `operatorCraft.ts` + test, `OperatorCraftPanel.tsx`,
+**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
+cap 10: `operatorCraft.ts` + test, `OperatorCraftPanel.tsx`,
 `AmbientTelemetryHud.tsx`, the C14a `authorityLocalState.ts` owner + test,
-frontend disposition register + generated report, and journal. Operator craft
+frontend disposition register + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal. Operator craft
 is one DS1 unit with four physical families: threshold, annotations, evidence
 wallet, and onboarding.
 
@@ -1626,18 +1660,20 @@ concrete codecs, binding tenant/user/expiry. Panels consume only hydrated
 current-scope state. Domain ownership remains DS14; DS5 attaches isolation
 evidence/report without claiming operator semantics rebound.
 
-**Expected commit:** `DS5-C17a partition operator craft state`.
+**Expected commit:** `DS5-C17a-R1 partition operator craft state`.
 
-### DS5-C17b — source-bind persistence construction and reconcile stores
+### DS5-C17b-R1 — source-bind persistence construction and reconcile stores
 
-**Measured set:** exactly 8 governed/checker paths plus journal = 9; cap 9:
+**Measured set:** exactly 9 governed/checker paths plus journal = 10; cap 10:
 shared DS5 TypeScript AST scanner/checker/test, disposition
-register/schema/checker/test + generated report, and journal. C17b records the
+register/schema/checker/test + generated report,
+`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+C17b-R1 records the
 existing WhatIf deletion and a fresh zero-path/zero-import census for the
 DS4-deleted review-attention unit. The measured C00 persistence API universe is
 41 declaration-resolved lifecycle/construction sites / 14 production files: 23
-Web Storage, 5 Zustand and 13 IndexedDB. C17b reruns the identical census at its
-clean post-C17a boundary and records the exact source-derived delta before a
+Web Storage, 5 Zustand and 13 IndexedDB. C17b-R1 reruns the identical census at its
+clean post-C17a-R1 boundary and records the exact source-derived delta before a
 negative; a new authority family or edit need outside these governed paths
 triggers the sizing stop.
 
@@ -1645,7 +1681,7 @@ triggers the sizing stop.
 `test_persistence_construction_census_is_source_complete_and_scoped` covers a
 synthetic reintroduced unpartitioned review-attention store; a
 direct persistence call absent from the census; a moved fingerprint; and a raw
-structural envelope. The wave gate reruns C13a/C15a/C16a corruption tests for
+structural envelope. The wave gate reruns C13a/C15a/C16a-R1 corruption tests for
 all six measured status paths. A real `Set.add` lookalike and locale/theme/UI
 preference sites are benign symbol-resolved controls.
 
@@ -1668,19 +1704,19 @@ causal, dispute, composer and four operator keys.
 feature rows remain DS8/DS9/DS14. Review-attention becomes
 `deleted/strangled` with DS4 commit `bc1d01001` plus fresh census; N015 is at
 most `partially_reduced` without live server revalidation. The six known status
-paths are closed by C13a/C15a/C16a; dispute status is nominal
+paths are closed by C13a/C15a/C16a-R1; dispute status is nominal
 `InteractionState`. Nominal authority presentations cannot satisfy registered
 codec inputs. Unbranded semantic equivalents remain C01a owner debt, not a
 universal storage-flow claim.
 
-**Expected commit:** `DS5-C17b govern persistence construction`.
+**Expected commit:** `DS5-C17b-R1 govern persistence construction`.
 
 ### DS5-C18a — strict D5 exposure registry
 
 **Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
 feature-flag registry/test and journal. There are 12 current keys and four
 missing consumers. Provider wiring and governed row transitions are isolated in
-C18b so neither child exceeds the binding C00 cap.
+C18b-R1 so neither child exceeds the binding C00 cap.
 
 **Red first:** `test_strict_flag_registry_rejects_unknown_or_wrong_type_input`.
 Parser inputs model remote, window, props, cache and environment variants,
@@ -1692,15 +1728,16 @@ typed diagnostic and refuses partial merge; the registry API accepts only typed
 rollout state and cannot accept RuntimePermission. This closes the pure
 registry/validator unit only. Live source binding, observable provider
 diagnostics and version/expiry/scope cache behavior remain explicitly
-`consumer_missing` until C18b.
+`consumer_missing` until C18b-R1.
 
 **Expected commit:** `DS5-C18a make flag exposure registry strict`.
 
-### DS5-C18b — bind every flag source to the strict registry
+### DS5-C18b-R1 — bind every flag source to the strict registry
 
-**Measured set:** exactly 4 implementation/governed paths plus journal = 5;
-cap 5: feature-flag provider + test, frontend disposition register + generated
-reference report, and journal.
+**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
+cap 6: feature-flag provider + test, frontend disposition register + generated
+reference report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
+and journal.
 
 **Red first:** `test_every_flag_source_uses_strict_registry_and_scoped_cache`.
 Remote, window, props, cache and environment sources must all enter through the
@@ -1711,19 +1748,19 @@ the benign control.
 **Acceptance:** every live flag source feeds the strict C18a registry; the
 provider exposes only the parsed typed state and an observable invalid-source
 diagnostic; the cache is version/tenant/user/expiry bound. The four
-`consumer_missing` disposition rows remain open until C19, but their producer
+`consumer_missing` disposition rows remain open until C19-R1, but their producer
 and strict-consumer evidence plus the generated report land here.
 
-**Expected commit:** `DS5-C18b bind flag sources to strict registry`.
+**Expected commit:** `DS5-C18b-R1 bind flag sources to strict registry`.
 
-### DS5-C19 — wire three flags and retire collaboration
+### DS5-C19-R1 — wire three flags and retire collaboration
 
-**Measured set:** exactly 12 implementation/governed paths plus journal = 13;
-cap 13: `AppShell.tsx` +
+**Measured set:** exactly 13 implementation/governed paths plus journal = 14;
+cap 14: `AppShell.tsx` +
 `layoutSurfaces.test.tsx`; `surfaceRegistry.ts`; `features/runs/route.tsx` +
 `runDetailSurfaces.test.tsx`; `OverviewTab.tsx`; command palette + test; flag
-registry + test; and frontend disposition register + generated reference
-report. The generic disposition checker and corruption probes are reused
+registry + test; frontend disposition register + generated reference report;
+and `architecture/atlas_surfaces/status-retirement-inventory.json`. The generic disposition checker and corruption probes are reused
 byte-unmodified. The run-detail test is
 the registry and direct-route negative, so `surfaceRegistry.test.ts` is not a
 second edited proof. The surviving server-backed WhatIf workbench remains five
@@ -1738,7 +1775,7 @@ rollout flag true and a flag cannot satisfy permission.
 keyboard entry; collaboration key and environment surface are retired; all
 four disposition decisions carry successor/consumer or deletion evidence.
 
-**Expected commit:** `DS5-C19 wire and retire D5 flags`.
+**Expected commit:** `DS5-C19-R1 wire and retire D5 flags`.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
@@ -1761,7 +1798,7 @@ incomplete structural G4 packet assigned to the private nominal sink, cached
 payload without visible posture, query construction/producer census omission,
 governed query pin, authority queue kind, service-worker authority API cache or
 sync registration, raw/unscoped storage construction, cross-tenant/user/expiry
-codec hydration across C14b-C17a, persistence-construction census drift, unknown
+codec hydration across C14b-R1-C17a-R1, persistence-construction census drift, unknown
 flag, unbound/unscoped flag source, and flag/permission substitution must each
 fail while benign siblings pass. The meta-test imports and executes the real
 registered corruption witnesses; it does not merely search for their names.
@@ -1782,36 +1819,36 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C01b | `DS5-C01b forbid authority escape hatches` | 13 |
 | C01c | `DS5-C01c bind authority issuers to owner unions` | 13 |
 | C02 | `DS5-C02 make architecture zero recurrent` | 7 |
-| C03a | `DS5-C03a record raw transport drift` | 6 |
-| C03b | `DS5-C03b type raw authority transports` | 12 |
-| C04a | `DS5-C04a strangle capability fallback` | 10 |
+| C03a-R1 | `DS5-C03a-R1 record raw transport drift` | 7 |
+| C03b-R1 | `DS5-C03b-R1 type raw authority transports` | 13 |
+| C04a-R1 | `DS5-C04a-R1 strangle capability fallback` | 11 |
 | C04b | `DS5-C04b lint authored capability discovery` | 4 |
-| C05a | `DS5-C05a separate product and frozen locales` | 10 |
-| C05b | `DS5-C05b anchor authority copy by semantic ID` | 11 |
+| C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |
+| C05b-R1 | `DS5-C05b-R1 anchor authority copy by semantic ID` | 12 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
 | C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |
-| C08b | `DS5-C08b fail closed on unknown identity` | 10 |
-| C09a | `DS5-C09a default deny application chrome` | 10 |
-| C09b | `DS5-C09b default deny modes and run surfaces` | 7 |
-| C10 | `DS5-C10 present owner-composed weakest boundary` | 7 |
+| C08b-R1 | `DS5-C08b-R1 fail closed on unknown identity` | 11 |
+| C09a-R1 | `DS5-C09a-R1 default deny application chrome` | 11 |
+| C09b-R1 | `DS5-C09b-R1 default deny modes and run surfaces` | 8 |
+| C10-R1 | `DS5-C10-R1 present owner-composed weakest boundary` (DEFERRED) | 8 |
 | C11a | `DS5-C11a derive governed cache posture` | 5 |
-| C11b | `DS5-C11b render governed cache posture` | 9 |
+| C11b-R1 | `DS5-C11b-R1 render governed cache posture` | 10 |
 | C12a | `DS5-C12a register query construction debt` | 7 |
-| C12b | `DS5-C12b enforce governed query policy` | 9 |
+| C12b-R1 | `DS5-C12b-R1 enforce governed query policy` | 10 |
 | C13a | `DS5-C13a delete authority mutation replay` | 18 |
-| C13b | `DS5-C13b close service worker and composer DB` | 9 |
+| C13b-R1 | `DS5-C13b-R1 close service worker and composer DB` | 10 |
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
-| C14b | `DS5-C14b bind composer local state` | 7 |
+| C14b-R1 | `DS5-C14b-R1 bind composer local state` | 8 |
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |
-| C15b | `DS5-C15b mount Clerk identity hydration` | 5 |
-| C16a | `DS5-C16a partition causal draft state` | 5 |
-| C16b | `DS5-C16b partition dispute interaction state` | 7 |
-| C17a | `DS5-C17a partition operator craft state` | 9 |
-| C17b | `DS5-C17b govern persistence construction` | 9 |
+| C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | 6 |
+| C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
+| C16b-R1 | `DS5-C16b-R1 partition dispute interaction state` | 8 |
+| C17a-R1 | `DS5-C17a-R1 partition operator craft state` | 10 |
+| C17b-R1 | `DS5-C17b-R1 govern persistence construction` | 10 |
 | C18a | `DS5-C18a make flag exposure registry strict` | 3 |
-| C18b | `DS5-C18b bind flag sources to strict registry` | 5 |
-| C19 | `DS5-C19 wire and retire D5 flags` | 13 |
+| C18b-R1 | `DS5-C18b-R1 bind flag sources to strict registry` | 6 |
+| C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 
 ## Closure battery
@@ -1884,19 +1921,19 @@ backend test path.
 - No DS6 `overBudget` parity repair, frozen-set migration, `ru` catalog edit,
   or public locale-support claim.
 - No claim that automation understands Ukrainian or certifies translated legal
-  meaning. C05b validates canonical identity and content-bound external-review
+  meaning. C05b-R1 validates canonical identity and content-bound external-review
   receipts; absent review falls back honestly and remains DS6 debt.
 - No DS8 A4 print expectation change and no claim of 18/18 visual green.
 - No DS18 universal epoch/staleness chrome. DS5 supplies cache discipline and
   visible existing consumers; it does not invent producer epochs or infer
   cache age from timestamps.
-- No universal client recomputation theorem. C10 accepts only a nominal packet
+- No universal client recomputation theorem. Deferred C10-R1 accepts only a nominal packet
   issued after the canonical live client validates the complete owner-composed
-  G4 response; C11a-C12b govern one migrated builder and fingerprint-bind the
+  G4 response; C11a-C12b-R1 govern one migrated builder and fingerprint-bind the
   other 65 construction sites and 41 producer sites as typed debt with
   producer-side integrate-contracts.
 - No theorem that a storage caller classified arbitrary unbranded payload
-  meaning correctly. C13a/C15a/C16a-C16b close the six measured status paths; C17b
+  meaning correctly. C13a/C15a/C16a-R1-C16b-R1 close the six measured status paths; C17b-R1
   enforces registered constructors, nominal envelopes and concrete codecs.
   Semantic equivalents outside nominal authority types remain attached to the
   C01a typed owner debt rather than being claimed as universally detected.

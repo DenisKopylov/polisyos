@@ -493,3 +493,36 @@ exact command identity while preserving the original source as provenance.
 - Red-first receipt test: the committed-receipt witness first failed against placeholder values;
   after binding the receipt it and the pre-existing one-tenth behavioral witness both passed
   (`2 passed`).
+
+## Final whole-branch delta re-review and handoff
+
+- The final repair source commit is `5d2d98ddc4695f1ca8f95e1a437f87452415c8fb`. The committed
+  Part B tool built the exact
+  `14648fa5b875e90e36834fa807249388a682c3da..5d2d98ddc4695f1ca8f95e1a437f87452415c8fb`
+  delta twice: `13278` bytes, SHA-256
+  `6a0265b8e634ec5bc20b069b5ff1b48be930c5851bd9c63c45b64302351fe120`. The carried-open
+  checklist is `1635` bytes and contains only the two valid outstanding findings.
+- An independent delta-only reviewer authenticated those bytes and the exact range, verified the
+  replayable committed receipt and bounded review scope, and returned **GO** with `0` Critical and
+  `0` Important findings. It inspected neither the full branch diff nor prior packages.
+- Completion verification at that exact source commit: the timing, unified-CLI, and review-package
+  suites returned `78 passed`; Ruff over all changed implementation/test modules and the 41-script
+  validator E402/I/F census returned `0`; whole-range `git diff --check` returned `0`.
+  `report-timing --include-unmeasured` against a missing local log projected all `22` requested
+  expensive lanes as measured (`0` unmeasured, `0` local overruns), so a slice can obtain its
+  timeout before execution.
+- Final pattern pass: P29 is closed by behavioral subprocess, AST-derived, and receipt-replay
+  witnesses; P31 by shared timing and package paths rather than per-lane exceptions; P32 by
+  content-bound receipts/checklists rather than prose assertions; P33 by same-mode swaps,
+  remove-one-test, parent-race, and receipt-placeholder RED witnesses; P34 by retaining the
+  negative Gate-0 and baseline non-receipts rather than excluding them. The timing/packaging
+  capability is complete; Part C remains a measured `negative_finding`, not an implementation.
+- No byte under `src/polisyos/**` differs from the task base, so no E12 deployment identity moved
+  and no artifact replay was authorized. The reported closeout-cycle after state remains unchanged
+  by construction: the enumerated before receipt is `5852s` (`1h37m32s`) and the separate
+  approximate `1h52m` headline remains unreconciled by `868s`, as recorded at Gate 0. No semantic
+  denominator, corruption/source-flip count, governance number, or artifact hash changed.
+- Non-receipts/debt retained: the broad Ruff baseline and runtime architecture deep-import issue
+  predate this task; Ruff format still reports only the three previously recorded cosmetic files
+  (`timing.py`, `test_timing.py`, `test_unified_cli.py`). No expensive GY or browser suite was
+  rerun after source freeze.

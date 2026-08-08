@@ -1,374 +1,698 @@
 ---
 title: PAO-R36 - Public Correction Falsifier Suite
 research_id: PAO-R36
-status: delivered_research
+status: amended_research
 result_standing: accepted_narrow_scope
-pinned_repository_commit: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audit_disposition_of_submitted_version: NO_GO
+amendment_status: pending_independent_conformance
+pinned_repository_commit: 109ba3f4
+audited_commit: 1bccc012b636d6a13930735a4f748d1f8cf7b9cf
+audit_commit: 9bbfd37a218222ae06c1f669b95dba37c4732765
+amendment_branch: research/pao-r36-amendment
 research_only: true
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, media-type, or API contract
-  - canonical owner, vendor, or service appointment
+  - canonical owner, vendor, archive, signer, publication-of-record venue, or service appointment
   - authority grant
   - capability claim
   - legal-sufficiency or jurisdictional conclusion
   - permission to publish or open a gate
+  - translation-parity mechanism design
+  - recovery objective, retention period, expiry rule, or disaster-mode design
   - automatic amendment of any plan, backlog, or system-design decision
 ---
 
 # Public correction falsifier suite
 
-## 1. Purpose and execution rule
+## 1. Execution rule
 
-This is an executable semantic specification: each fixture defines initial governed facts, one
-adversarial change, the observation oracle, and an exact required outcome. A future implementation
-passes only by exercising the real correction path and producing the stated behavior. Marker strings,
-field presence, a hand-authored green receipt, or a test-only shortcut do not pass. This applies P29,
-P31, P33, P35, and P36 from
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:71-80`.
+Each fixture is one world with one named detector, one frozen detector-provenance class, one exact
+terminal verdict, and one forbidden green outcome. No fixture uses “if”, “or”, “as applicable”, an
+unnamed failed member, or a phase-dependent expected result. Where the submitted suite combined
+phases or attacks, the amended suite uses lettered variants.
 
-The suite uses these exact outcomes:
+A future implementation passes only by exercising the real correction path. Marker strings, field
+presence, self-authored receipts, or a test-only shortcut do not pass. This applies P29, P31, P32,
+P33, P35, P36, and P37.
 
-- `BLOCK_AUTHORITY`: no `t_authority` event may be appended;
-- `NO_EFFECTIVE`: no `t_effective` declaration may be issued;
-- `FAIL_CLOSED(member)`: the named controlled member may not return a current-authority positive;
-- `RED(gate)`: the named gate must be visibly non-green with an owned reason;
-- `APPEND_INCIDENT`: preserve the correction and append evidence of the later failure; never rewrite;
-- `REJECT_TRANSACTION`: the proposed correction object is inadmissible; and
-- `PASS`: the specified safe behavior is observed over the complete frozen denominator.
+### 1.1 Outcome vocabulary
 
-A failure discovered before `t_authority` normally requires `BLOCK_AUTHORITY`. A failure discovered
-after `t_authority` cannot be repaired by restoring the predecessor as current; it requires
-`NO_EFFECTIVE`, `FAIL_CLOSED`, `RED`, and `APPEND_INCIDENT` as applicable.
+- `BLOCK_AUTHORITY`: no `e_authority` may be appended for the transaction.
+- `REJECT_TRANSACTION`: the proposed transaction object is inadmissible.
+- `REJECT_EVENT(event)`: the named append event is not admitted.
+- `NO_EFFECTIVE`: no `e_effective` is appended for the transaction.
+- `FAIL_CLOSED(member)`: the named member may emit no current-authority/effective positive.
+- `FAIL_CLOSED_ALL(X)`: every authority-bearing member in frozen set `X` may emit no positive.
+- `RED(gate)`: the named gate is visibly non-green with an owned reason.
+- `APPEND_INCIDENT`: preserve the prior chronology and append the later failure.
+- `REJECT_AGGREGATE`: the claimed aggregate/completion result is inadmissible.
+- `REJECT_RECEIPTS(correction)`: the offered receipt family is inadmissible for the named correction.
+- `REJECT_CLASS_CHANGE(member)`: the attempted notification-obligation change is not admitted.
+- `READMIT_REQUIRED(correction,base)`: the correction must be newly admitted against the named base.
+- `PRESERVE_EFFECTIVE_EVENT`: an already appended historical effective event is not rewritten.
+- `PASS`: the detector observes the specified safe property over the complete frozen denominator.
 
-## 2. Common fixture
+An exact verdict may contain a fixed conjunction of these outcomes. The conjunction is the one
+terminal result; no branch is selected at runtime.
 
-Unless a test overrides a value, use:
+## 2. Common fixture and evidence binding
 
-- predecessor `v1`, successor `v2`, notice `n2`;
-- `S = {public_page, public_export, api_current, api_versioned, machine_projection}` with denominator 5;
-- `C = {page_edge, export_edge, api_edge, origin_object_cache}` with denominator 4;
-- `F = {public_correction_stream, machine_history_stream}` with denominator 2;
-- `A = {primary_archive, public_evidence_archive}` with denominator 2;
-- `L = {uk, en}` with denominator 2;
-- `N = {sub_1, sub_2, sub_3}` with denominator 3;
-- no uncontrolled copy is included in a controlled denominator; and
-- every completion assertion must name the exact snapshot identity and count.
+Unless a variant overrides a field:
 
-These names are fixtures, not endpoint, package, service, or schema decisions.
+- correction `C1`, predecessor `v1`, successor `v2`, notice `n2`;
+- `S@sg1 = {public_page, public_export, api_current, api_versioned, machine_projection}`, denominator 5;
+- `C@cg1 = {page_edge, export_edge, api_edge, origin_object_cache}`, denominator 4;
+- `F@fg1 = {public_correction_stream, machine_history_stream}`, denominator 2;
+- `A@ag1 = {primary_archive, public_evidence_archive}`, denominator 2;
+- `L@lg1 = {uk, en}`, denominator 2;
+- `N@ng1 = {sub_1, sub_2, sub_3}`, denominator 3;
+- each set snapshot, generation, owner, membership rule, and predicate-provenance class was frozen at
+  Step 0;
+- each receipt binds
+  `(correction_id,set_id,snapshot_id,generation,member_id,predicate_id,v1,v2,n2,as_of,evidence_cutoff,verifier_identity,verifier_provenance,outcome)`;
+- external copies are excluded explicitly; and
+- detector classes are those frozen in the single P37 table in
+  `ordered-fanout-and-completeness-contract.md` §6.
 
-## 3. Commission-required falsifiers
+The fixture names are semantic test labels, not endpoint, package, schema, service, or vendor
+appointments.
 
-### F01 - authoritative language versions diverge
+## 3. Commission-required attacks, split into deterministic worlds
 
-**Given.** `uk` and `en` are linked to one correction semantic identity. The canonical successor says
-that a benefit is unavailable after the cutoff and retains an appeal route.
+### F01-A — language divergence before authority
 
-**Attack.** The English notice omits the appeal route or says the benefit remains available.
+**World.** `e_authority` does not exist. `uk` and `en` are admitted in `L@lg1`; the English staged
+notice omits the appeal route retained by the Ukrainian staged notice.
 
-**Oracle.** Compare protected queries for claim type, scope, currentness, denied use, limitation,
-adverse effect, and recourse across every member of `L`.
+**Attack.** Submit both variants as parity-complete.
 
-**Expected before `t_authority`.** `BLOCK_AUTHORITY`; `RED(translation_parity)`; no language may say
-effective.
+**Detector.** `language_protected_query_reconciler(C1,L@lg1,n2)`.
 
-**Expected after `t_authority`.** `FAIL_CLOSED(en)`; `NO_EFFECTIVE`; `RED(translation_parity)`;
-`APPEND_INCIDENT`. Ukrainian may remain available only if it does not imply parity completeness.
+**Detector class.** `independently_reconciled`, frozen at admission.
 
-**Exact pass condition.** All 2/2 language members answer every protected query equivalently or more
-conservatively under the INT-R6 interface.
+**Exact expected verdict.** `REJECT_TRANSACTION + BLOCK_AUTHORITY + RED(translation_parity)`.
 
-### F02 - a superseded record renders as current on a controlled surface
+**Forbidden green outcome.** Any authority event or parity-complete result for `C1`.
 
-**Given.** `v2` became the GY-N12 current head at `t_authority`; `v1` remains historical.
+### F01-B — language widening after authority
 
-**Attack.** `api_current` or `public_page` returns `v1` with an unqualified current/authoritative
-presentation.
+**World.** `e_authority` exists; `e_effective` does not. `uk` denies the corrected benefit; `en`
+states it remains available.
 
-**Oracle.** Query every 5/5 member of `S` at a cutoff after `t_authority` and inspect resolved version,
-currentness, notice relation, and `as_of`.
+**Attack.** `public_page` requests the English representation as successor-current-linked.
 
-**Expected.** `FAIL_CLOSED(attacked_member)`; `NO_EFFECTIVE`; `RED(surface_convergence)`;
-`APPEND_INCIDENT`. The system must not rewrite the GY-N12 head back to `v1`.
+**Detector.** `surface_tuple_probe(C1,public_page,en,t_authority)`.
 
-**Exact pass condition.** Every 5/5 surface returns `v2` current with links, `v1` historical with
-links, or unavailable; zero members return `v1` current.
+**Detector class.** `independently_reconciled`, frozen at admission.
 
-### F03 - correction silently rewrites instead of superseding
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(translation_parity) + APPEND_INCIDENT`.
 
-**Given.** `v1` is a signed published record with stable content identity.
+**Forbidden green outcome.** `successor_current_linked` for the English surface.
 
-**Attack.** The correction changes bytes or semantic content at the `v1` identity, or replaces `v1`
-without a distinct `v2` and predecessor relation.
+### F02 — predecessor-current after authority
 
-**Oracle.** Compare the archived and canonical `v1` identity/content before and after correction;
-traverse predecessor/successor relations.
+**World.** `e_authority` exists; `e_effective` does not; GY-N12 says `v2` current.
 
-**Expected.** `REJECT_TRANSACTION`; `BLOCK_AUTHORITY`; `RED(history_integrity)`. If detected after a
-claim, `APPEND_INCIDENT` and fail affected surfaces closed. Never normalize the mutation as a valid
+**Attack.** `public_page` returns `v1` as current.
+
+**Detector.** `surface_tuple_probe(C1,public_page,uk,t_authority)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(surface_convergence) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Any predecessor-current response after `e_authority`.
+
+### F03-A — predecessor byte mutation before authority
+
+**World.** `e_authority` does not exist; archived `v1` digest is frozen.
+
+**Attack.** Change bytes at the `v1` identity.
+
+**Detector.** `predecessor_identity_reconciler(C1,v1,primary_archive)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_TRANSACTION + BLOCK_AUTHORITY + RED(history_integrity)`.
+
+**Forbidden green outcome.** Admission of the mutated object as the original predecessor.
+
+### F03-B — predecessor semantic-identity mutation before authority
+
+**World.** `e_authority` does not exist; bytes are reserialized under the same `v1` identity while a
+protected proposition changes.
+
+**Attack.** Present the object as semantically identical.
+
+**Detector.** `predecessor_semantic_identity_reconciler(C1,v1)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_TRANSACTION + BLOCK_AUTHORITY + RED(history_integrity)`.
+
+**Forbidden green outcome.** Treating changed protected semantics as the same predecessor.
+
+### F03-C — no distinct successor before authority
+
+**World.** `e_authority` does not exist; the transaction has no distinct `v2` object or resolvable
+predecessor relation.
+
+**Attack.** Submit a correction instruction that only replaces `v1` in place.
+
+**Detector.** `successor_relation_reconciler(C1,v1,v2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_TRANSACTION + BLOCK_AUTHORITY + RED(history_integrity)`.
+
+**Forbidden green outcome.** A correction with no distinct successor identity and relation.
+
+### F03-D — predecessor mutation discovered after authority
+
+**World.** `e_authority` exists; `e_effective` does not; `primary_archive` now returns changed bytes at
+`v1`.
+
+**Attack.** Preserve the existing green history marker.
+
+**Detector.** `predecessor_identity_reconciler(C1,v1,primary_archive)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(primary_archive) + NO_EFFECTIVE + RED(history_integrity) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Effective completion over the changed predecessor.
+
+### F04 — controlled cache serves predecessor-current after effect
+
+**World.** `e_effective` exists and historically names `C@cg1`; `page_edge` later serves `v1` as
+current.
+
+**Attack.** Keep the historical effective event and old green cache receipt unchanged.
+
+**Detector.** `live_cache_tuple_probe(C1,page_edge,cg1,after_t_effective)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(page_edge) + RED(cache_convergence) + APPEND_INCIDENT + PRESERVE_EFFECTIVE_EVENT`.
+
+**Forbidden green outcome.** Continuing-current cache-safety claim while `page_edge` serves `v1`.
+
+### F05-A — asynchronous subscriber failure hidden after effect
+
+**World.** `e_effective` exists. `sub_3` was frozen as `asynchronous_receipt_permitted` and has neither
+a qualifying delivery receipt nor a visible retry/escalation state.
+
+**Attack.** Aggregate says “all subscribers notified”.
+
+**Detector.** `notification_member_aggregate_recomputer(C1,N@ng1)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `RED(notification_delivery) + REJECT_AGGREGATE + PRESERVE_EFFECTIVE_EVENT`.
+
+**Forbidden green outcome.** An “all notified” result without 3/3 qualifying receipts.
+
+### F05-B — synchronous subscriber unverified at effective gate
+
+**World.** `e_authority` exists; `e_effective` does not. `sub_3` was frozen as
+`qualifying_receipt_before_effect` and has no qualifying receipt.
+
+**Attack.** Submit the effective declaration.
+
+**Detector.** `synchronous_receipt_reconciler(C1,sub_3,ng1)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(notification_receipt)`.
+
+**Forbidden green outcome.** Effect while a synchronous member is unverified.
+
+### F05-C — synchronous member moved to asynchronous after admission
+
+**World.** `e_authority` exists; `e_effective` does not. `sub_3` was frozen as
+`qualifying_receipt_before_effect`.
+
+**Attack.** Append a transaction-local declaration changing `sub_3` to
+`asynchronous_receipt_permitted` and submit effect without a receipt.
+
+**Detector.** `notification_obligation_integrity_reconciler(C1,sub_3,ng1)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_CLASS_CHANGE(sub_3) + REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(notification_obligation_integrity) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** A transaction-local downgrade that enables effect.
+
+### F06-A — named surface notice drops limitation before authority
+
+**World.** `e_authority` does not exist. `public_page` staged notice omits the geographic limit
+retained by the successor.
+
+**Attack.** Submit `public_page` as notice-safe.
+
+**Detector.** `notice_protected_query_reconciler(C1,public_page,n2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_TRANSACTION + BLOCK_AUTHORITY + RED(notice_semantic_parity)`.
+
+**Forbidden green outcome.** Fence admission of `public_page` with the defective notice.
+
+### F06-B — named surface notice drops limitation after authority
+
+**World.** `e_authority` exists; `e_effective` does not. `public_page` exposes a notice omitting the
+geographic limit.
+
+**Attack.** Return successor-current-linked.
+
+**Detector.** `surface_tuple_probe(C1,public_page,uk,t_authority)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(notice_semantic_parity) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** A positive observer label with the defective notice.
+
+### F07-A — archive linkage missing before authority
+
+**World.** `e_authority` does not exist. `public_evidence_archive` stores `v1`, `n2`, and `v2` but
+cannot traverse `v1 -> n2 -> v2`.
+
+**Attack.** Submit archive completion.
+
+**Detector.** `archive_round_trip_reconciler(C1,public_evidence_archive,ag1)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `BLOCK_AUTHORITY + RED(archive_linkage)`.
+
+**Forbidden green outcome.** Archive completion from disconnected bytes.
+
+### F07-B — archive linkage missing after authority
+
+**World.** `e_authority` exists; `e_effective` does not. `public_evidence_archive` loses the reverse
+successor-to-notice-to-predecessor relation.
+
+**Attack.** Preserve its old green receipt.
+
+**Detector.** `archive_round_trip_reconciler(C1,public_evidence_archive,ag1)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(public_evidence_archive) + NO_EFFECTIVE + RED(archive_linkage) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Effective archive completion with a broken reverse relation.
+
+## 4. Additional attacks and audit-required variants
+
+### F08-A — proposed transition would create two current heads
+
+**World.** `v1` is current. A first accepted transition proposal for `v2a` is pending at the canonical
+append point; a second proposal for `v2b` would occupy the same predecessor epoch and leave both
+current.
+
+**Attack.** Submit the second current-head event.
+
+**Detector.** `single_head_event_recomputer(v1,v2a,v2b)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_authority_v2b) + BLOCK_AUTHORITY + RED(single_current_head)`.
+
+**Forbidden green outcome.** Two current heads at one authenticated cutoff.
+
+### F08-B — restore contains two current heads
+
+**World.** Recovery completes with `v2a` and `v2b` both current at the same authenticated cutoff.
+
+**Attack.** Resume authority-positive service.
+
+**Detector.** `restored_head_recomputer(C1,restored_chronology)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED_ALL(S) + NO_EFFECTIVE + RED(single_current_head) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Any current-authority response from the forked restore.
+
+### F09-A — later revocation erases historical issuance
+
+**World.** `v1` was signed before an authenticated revocation cutoff with no contrary compromise
+evidence; terminal INT-R7 dimensions establish issuer issuance and durable verification.
+
+**Attack.** Verifier reports the original was never authentic solely because the key is now revoked.
+
+**Detector.** `int_r7_dimension_reconciler(v1,query_after_revocation)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `RED(verification_semantics) + REJECT_AGGREGATE`.
+
+**Forbidden green outcome.** A collapsed result that rewrites established issuance as false.
+
+### F09-B — historical signature mints current authority
+
+**World.** `v1` remains historically authentic; `e_authority` establishes `v2` current.
+
+**Attack.** `api_current` treats the valid `v1` signature as proof that `v1` remains current.
+
+**Detector.** `surface_tuple_probe(C1,api_current,uk,t_authority)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(api_current) + RED(verification_semantics) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Current authority derived from historical signature validity.
+
+### F10 — adverse correction disguised as neutral
+
+**World.** `e_authority` does not exist. `v2` reduces eligibility for a known class; the proposed
+classification says typographical/neutral and supplies no independently reconciled affected-party
+rule.
+
+**Attack.** Submit the ordinary asynchronous notification path.
+
+**Detector.** `risk_and_obligation_reconciler(C1,v1,v2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `BLOCK_AUTHORITY + RED(risk_direction) + RED(affected_party_decision)`.
+
+**Forbidden green outcome.** Neutral classification or asynchronous admission from producer assertion.
+
+### F11-A — recovery restores predecessor-current
+
+**World.** Before recovery, `v2` is current and effective. Restored chronology makes `v1` current.
+
+**Attack.** Resume public service.
+
+**Detector.** `restored_head_recomputer(C1,restored_chronology)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED_ALL(S) + RED(ops_r14_recovery_invariant) + APPEND_INCIDENT + PRESERVE_EFFECTIVE_EVENT`.
+
+**Forbidden green outcome.** Any predecessor-current response from the restored system.
+
+### F11-B — recovery omits notice while successor is current
+
+**World.** Restored chronology establishes `v2` current but `n2` is absent.
+
+**Attack.** Resume successor-current service.
+
+**Detector.** `restored_tuple_reconciler(C1,v1,v2,n2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED_ALL(S) + RED(ops_r14_recovery_invariant) + APPEND_INCIDENT + PRESERVE_EFFECTIVE_EVENT`.
+
+**Forbidden green outcome.** Successor-current without the admitted notice after restore.
+
+### F11-C — recovery omits completion evidence
+
+**World.** Restored chronology contains `v1`, `v2`, `n2`, and the current-head event, but lacks the
+member-bound evidence needed to establish the effective declaration.
+
+**Attack.** Project the correction as effective.
+
+**Detector.** `restored_completion_recomputer(C1,R_post,S,C,F,A,L,K)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED_ALL(S) + RED(ops_r14_recovery_invariant) + APPEND_INCIDENT + PRESERVE_EFFECTIVE_EVENT`.
+
+**Forbidden green outcome.** Effective projection from incomplete restored evidence.
+
+### F12 — mutable live subscriber registry rewrites frozen denominator
+
+**World.** `N@ng1` contains 3 members. `sub_3` lacks a qualifying receipt. The live registry later
+contains only `sub_1` and `sub_2`.
+
+**Attack.** Recompute completion as 2/2 using the live registry.
+
+**Detector.** `notification_member_aggregate_recomputer(C1,N@ng1)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `RED(notification_cohort_integrity) + REJECT_AGGREGATE`.
+
+**Forbidden green outcome.** Changing historical denominator 3 to live denominator 2.
+
+### F13-A — historical query made retroactive
+
+**World.** `v1` is current until `e_authority`; a query cutoff is one chronology position before
+`e_authority`.
+
+**Attack.** `api_versioned` returns `v2` as current at the historical cutoff.
+
+**Detector.** `current_at_cutoff_recomputer(C1,api_versioned,before_e_authority)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(api_versioned) + NO_EFFECTIVE + RED(temporal_semantics)`.
+
+**Forbidden green outcome.** Retroactive currentness for `v2`.
+
+### F13-B — current query returns predecessor after authority
+
+**World.** `e_authority` exists; query cutoff is immediately after it; `e_effective` does not exist.
+
+**Attack.** `api_current` returns `v1` as current.
+
+**Detector.** `current_at_cutoff_recomputer(C1,api_current,after_e_authority)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(api_current) + NO_EFFECTIVE + RED(temporal_semantics) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** Predecessor-current after the canonical transition.
+
+### F14 — uncontrolled mirror counted as cleared
+
+**World.** Controlled sets are complete. An external third-party mirror still shows `v1` without
+notice.
+
+**Attack.** Proposed effective notice says “all copies and all caches have been corrected”.
+
+**Detector.** `completion_scope_recomputer(C1,S,C,external_exclusions)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_TRANSACTION + RED(completeness_scope)`.
+
+**Forbidden green outcome.** Universal internet-cleared language from bounded evidence.
+
+### F15-A — notice reachable but successor unreachable before authority
+
+**World.** `e_authority` does not exist. `public_page` can retrieve `n2` but cannot retrieve/verify
+`v2`.
+
+**Attack.** Submit the staged notice as transition-ready.
+
+**Detector.** `notice_relation_reconciler(C1,public_page,n2,v2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `BLOCK_AUTHORITY + RED(referential_integrity)`.
+
+**Forbidden green outcome.** Authority transition with an unreachable successor.
+
+### F15-B — notice reachable but successor unreachable after authority
+
+**World.** `e_authority` exists; `e_effective` does not. `public_page` can retrieve `n2` but not `v2`.
+
+**Attack.** Return successor-current-linked.
+
+**Detector.** `notice_relation_reconciler(C1,public_page,n2,v2)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(referential_integrity) + APPEND_INCIDENT`.
+
+**Forbidden green outcome.** A current notice with an unreachable successor.
+
+### F16 — self-attested completion survives member-result deletion
+
+**World.** A draft effective declaration says `C@cg1` is 4/4 complete. Remove the `page_edge` result;
+keep denominator, aggregate count, and every green marker.
+
+**Attack.** Submit effect.
+
+**Detector.** `completion_member_join_recomputer(C1,C@cg1)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_AGGREGATE + REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(completeness_evidence)`.
+
+**Forbidden green outcome.** Completion with 3 member results and 4/4 markers.
+
+## 5. Amendment-specific attacks
+
+### F17 — falsify the declaration while keeping it intact
+
+**World.** `page_edge` has a valid-looking declaration and green receipt saying it cannot serve
+predecessor-current. The declaration, receipt, hashes, and marker strings remain intact. The live
+property is changed so `page_edge` serves `v1` as current.
+
+**Attack.** Submit `Complete(C)` and effect.
+
+**Detector.** `live_cache_tuple_probe(C1,page_edge,cg1,before_e_effective)`.
+
+**Detector class.** `independently_reconciled`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(page_edge) + REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(declared_predicate_false)`.
+
+**Forbidden green outcome.** A gate that tests the declaration rather than the live property.
+
+### F18 — serialized stale-base correction loses an intervening correction
+
+**World.** C1 and C2 are both staged against `v1`. C1 appends `v1 -> v2`; exactly one current head
+exists. C2 then proposes `v1 -> v3`; exactly one head would still exist under last-writer wins.
+
+**Attack.** Append C2 without re-admission against `v2`.
+
+**Detector.** `admitted_base_head_recomputer(C2,v1,current_head=v2)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_authority_C2) + READMIT_REQUIRED(C2,v2) + RED(base_head_integrity)`.
+
+**Forbidden green outcome.** A single-head `v3` state that silently loses C1.
+
+### F19 — complete receipt family replayed from another correction
+
+**World.** C1 and C2 use identical member names and denominators. Every C1 receipt is valid for C1.
+C2 has no own receipts.
+
+**Attack.** Offer the complete C1 receipt family to `Complete(S/C)` for C2.
+
+**Detector.** `receipt_tuple_join_recomputer(C2,S,C)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_RECEIPTS(C2) + REJECT_EVENT(e_effective_C2) + NO_EFFECTIVE + RED(receipt_binding)`.
+
+**Forbidden green outcome.** C2 completion using C1-bound evidence.
+
+### F20-A — effective event appended before final synchronous receipt
+
+**World.** `sub_3` is synchronous and unverified. All other gates are green.
+
+**Attack.** Append `e_effective` before the receipt.
+
+**Detector.** `event_precedence_recomputer(C1,chronology,receipt_cutoffs)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(event_order)`.
+
+**Forbidden green outcome.** Effect before the final synchronous evidence exists.
+
+### F20-B — later append carries a backdated effective time
+
+**World.** Final synchronous evidence arrives at time `T2`. Proposed `e_effective` is appended later
+at `T3` but declares effective time `T1`, where `T1 < T2`.
+
+**Attack.** Project `T1` as `t_effective`.
+
+**Detector.** `anti_backdating_recomputer(C1,e_effective,evidence_cutoffs)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(anti_backdating)`.
+
+**Forbidden green outcome.** An effective time earlier than its decisive evidence.
+
+### F20-C — equal display timestamps hide reversed append order
+
+**World.** `e_effective` and the final member receipt display the same timestamp; append sequence puts
+`e_effective` first.
+
+**Attack.** Accept equality of timestamps as sufficient ordering.
+
+**Detector.** `event_sequence_recomputer(C1,chronology)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `REJECT_EVENT(e_effective) + NO_EFFECTIVE + RED(event_order)`.
+
+**Forbidden green outcome.** Reversed event sequence hidden by equal display timestamps.
+
+### F21 — controlled generation changes after snapshot
+
+**World.** `S@sg1` is frozen. Before effect, live generation `sg2` adds controlled surface
+`api_mobile`. `api_mobile` has no member probe.
+
+**Attack.** Keep the old 5-member denominator and classify `api_mobile` as external.
+
+**Detector.** `controlled_generation_recomputer(C1,S@sg1,live=sg2)`.
+
+**Detector class.** `recomputed`, frozen at admission.
+
+**Exact expected verdict.** `FAIL_CLOSED(api_mobile) + REJECT_EVENT(e_effective) + NO_EFFECTIVE + READMIT_REQUIRED(C1,v2) + RED(generation_integrity)`.
+
+**Forbidden green outcome.** Effect against stale `sg1` while controlled `sg2` is live.
+
+### F22-A — correct successor paired with wrong notice
+
+**World.** `e_authority` exists; `public_page` selects `v2` but links notice `n_other` from another
 correction.
 
-**Exact pass condition.** `v1` is byte/semantic-identity stable, `v2` is distinct, and both directions
-of the correction relation resolve.
+**Attack.** Label the response successor-current-linked.
 
-### F04 - a controlled cache serves the old version after effective is declared
+**Detector.** `surface_tuple_probe(C1,public_page,uk,t_authority)`.
 
-**Given.** An effective declaration names `C` denominator 4 and `S` denominator 5.
+**Detector class.** `independently_reconciled`, frozen at admission.
 
-**Attack.** `page_edge` serves `v1` as current after `t_effective`.
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(observer_tuple) + APPEND_INCIDENT`.
 
-**Oracle.** Probe all 4/4 cache members and the corresponding surface, bypassing no registered variant.
+**Forbidden green outcome.** Positive observer label with a wrong correction notice.
 
-**Expected.** The continuing safe-state claim for `C`/`S` becomes false; the historical receipt at
-`t_effective` remains append-only. `FAIL_CLOSED(page_edge)`; `RED(cache_convergence)`;
-`APPEND_INCIDENT`. The canonical correction remains appended/current. A best-effort warning is not
-enough.
+### F22-B — staged notice after authority
 
-**Exact pass condition.** Zero controlled cache members can serve `v1` as current after
-`t_authority`; all 4/4 have member-bound evidence.
+**World.** `e_authority` exists; `public_page` selects `v2` and correct `n2`, but notice phase remains
+`staged`.
 
-### F05 - a subscriber is never notified and no gate goes red
+**Attack.** Label the response successor-current-linked.
 
-**Given.** `N` contains `sub_1`, `sub_2`, and `sub_3`; delivery may lag after effect.
+**Detector.** `surface_tuple_probe(C1,public_page,uk,t_authority)`.
 
-**Attack.** `sub_3` has no delivery receipt, no visible retry/escalation state, and aggregate status
-remains green or says all notified.
+**Detector class.** `independently_reconciled`, frozen at admission.
 
-**Oracle.** Recompute notification status directly from every 3/3 cohort member.
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(observer_tuple) + APPEND_INCIDENT`.
 
-**Expected.** Test fails. `RED(notification_delivery)` is mandatory. The aggregate must say 2/3
-qualifying deliveries, not complete. If an affected-party pre-effect rule applied to `sub_3`, also
-`NO_EFFECTIVE`.
+**Forbidden green outcome.** Positive observer label with a staged notice after authority.
 
-**Exact pass condition.** Every cohort member has a delivered receipt or a visible owned non-green
-state; "all notified" is permitted only for 3/3 qualifying delivery receipts.
+### F22-C — stale authenticated currentness snapshot
 
-### F06 - the notice drops a retained limitation
+**World.** `e_authority` exists in the latest canonical chronology. `public_page` supplies an older
+authentic snapshot in which `v1` was current.
 
-**Given.** The successor remains subject to a geographic limit and a denied use for individual
-eligibility decisions.
+**Attack.** Present the supplied snapshot as latest and label `v1` current.
 
-**Attack.** The notice summarizes the numerical correction but omits one of those constraints.
+**Detector.** `surface_tuple_probe(C1,public_page,uk,t_authority)`.
 
-**Oracle.** Run PV-K04 protected-query comparison from canonical successor to notice.
+**Detector class.** `independently_reconciled`, frozen at admission.
 
-**Expected before `t_authority`.** `REJECT_TRANSACTION`; `BLOCK_AUTHORITY`;
-`RED(notice_semantic_parity)`.
+**Exact expected verdict.** `FAIL_CLOSED(public_page) + NO_EFFECTIVE + RED(observer_tuple) + APPEND_INCIDENT`.
 
-**Expected after `t_authority`.** `FAIL_CLOSED` for surfaces using the defective notice;
-`NO_EFFECTIVE`; `APPEND_INCIDENT` and append a corrected notice. Do not edit the defective notice in
-place.
+**Forbidden green outcome.** A current positive from `supplied_snapshot_only` rather than
+`latest_established_under_policy`.
 
-**Exact pass condition.** Every retained limitation and denied use is visible or source-resolvable
-with a governed omission effect, and no protected answer is widened.
+## 6. Suite coverage and preservation of confirmed strengths
 
-### F07 - an archived copy loses its supersession link
+The amended suite preserves the audit-confirmed attacks:
 
-**Given.** Both members of `A` preserve `v1`, `n2`, and `v2`.
+- F09 remains two real revoked-key laundering directions;
+- F13 remains exact before/after `as_of` inversion;
+- F16 remains remove-property/keep-markers at the member-evidence layer;
+- F17 extends the same instinct to declared gate predicates;
+- F18 covers serialized stale-base corrections with one head at every instant;
+- F19 rejects cross-correction receipt replay;
+- F20 makes event order and anti-backdating falsifiable;
+- F21 binds frozen sets to source generations; and
+- F22 proves the three observer labels are projections of a full correction tuple.
 
-**Attack.** `public_evidence_archive` preserves all three byte objects but cannot traverse `v1 -> n2
--> v2`, or the reverse relation.
-
-**Oracle.** Execute round-trip relation traversal and content identity checks at both 2/2 archive
-members.
-
-**Expected before `t_authority`.** `BLOCK_AUTHORITY`; `RED(archive_linkage)`.
-
-**Expected after `t_authority`.** `NO_EFFECTIVE`; `RED(archive_linkage)`; `APPEND_INCIDENT`; fail an
-authority-bearing archive view closed. Preservation of disconnected bytes does not pass.
-
-**Exact pass condition.** Both 2/2 archives preserve identities and bidirectional correction
-relations.
-
-## 4. Additional adversarial falsifiers
-
-### F08 - forked successors create two current heads
-
-**Given.** Two correction attempts `v2a` and `v2b` both cite `v1`.
-
-**Attack.** Different controlled surfaces treat different successors as current at the same `as_of`
-cutoff.
-
-**Oracle.** Recompute the GY-N12 head and query all `S` members at one authenticated cutoff.
-
-**Expected.** `BLOCK_AUTHORITY` if pre-append; otherwise `FAIL_CLOSED(S)`;
-`NO_EFFECTIVE`; `RED(single_current_head)`; `APPEND_INCIDENT`. No last-writer rule may silently choose.
-
-**Exact pass condition.** Exactly one current successor exists at the cutoff; any competing candidate
-is non-current with an explicit disposition.
-
-### F09 - revoked-key laundering
-
-**Given.** `v1` was signed by `K_old`, later revoked; `v2` is signed by `K_new`.
-
-**Attack A.** A verifier says revocation proves `v1` was never authentic.
-
-**Attack B.** A verifier says a valid historical `K_old` signature proves `v1` remains current.
-
-**Oracle.** Evaluate issuance-time authorization, current key status, GY-N12 currentness, and
-compromise interval separately under INT-R7.
-
-**Expected.** Both attacks fail. `RED(verification_semantics)` and no current positive from the
-collapsed proposition. Historical outcome is valid, invalid, or indeterminate only from issuance-time
-evidence; current authority is separately false after supersession.
-
-**Exact pass condition.** The four propositions - content match, issuance authorization,
-compromise certainty, current authority - are separately reported and no one substitutes for another.
-
-### F10 - adverse correction is disguised as neutral maintenance
-
-**Given.** `v2` reduces eligibility or increases an enforcement burden for a known class.
-
-**Attack.** The transaction labels the change typographical/administrative, does not create a risk
-classification, and uses the ordinary lagging-notification path.
-
-**Oracle.** Compare predecessor and successor effects on protected groups/obligations and inspect the
-institutional risk/affected-party decision.
-
-**Expected.** `BLOCK_AUTHORITY`; `RED(risk_direction)` and `RED(affected_party_decision)`. Unknown is
-not neutral.
-
-**Exact pass condition.** Risk direction is explicit, adverse classes are named at a safe level, and
-the authorized direct-notice/pre-effect rule is present before transition.
-
-### F11 - recovery un-corrects the record
-
-**Given.** `v2` is current and effective; `v1` is historical.
-
-**Attack.** A restore, replay, failover, or disaster process reconstructs a state in which `v1` is
-current, `n2` is missing, or the later GY-N12 event is absent.
-
-**Oracle.** Compare restored append order, current head, notice linkage, and surface-safe states with
-the pre-recovery history.
-
-**Expected.** No authority-positive service may resume. `FAIL_CLOSED(S)`;
-`RED(ops_r14_recovery_invariant)`; `APPEND_INCIDENT`. Recovery must never be accepted by deleting or
-rewriting `v2`.
-
-**Exact pass condition.** Restored state preserves all later events and cannot return an earlier head
-as current. Mechanics belong to OPS-R14.
-
-### F12 - mutable subscriber denominator hides a missed recipient
-
-**Given.** `N` is frozen at cutoff with denominator 3.
-
-**Attack.** After `sub_3` fails delivery, the live registry changes and completion is recomputed over
-`{sub_1, sub_2}`, yielding 2/2 green.
-
-**Oracle.** Resolve the frozen cohort snapshot named by the correction, not the live registry.
-
-**Expected.** `RED(notification_cohort_integrity)`; aggregate remains incomplete against denominator
-3; deletion from the live registry cannot rewrite history.
-
-**Exact pass condition.** Completion uses the exact frozen cohort and reports later eligibility
-changes separately.
-
-### F13 - `as_of` inversion makes the correction retroactive by presentation
-
-**Given.** `v1` was current through `t_authority - 1`; `v2` becomes current at `t_authority`.
-
-**Attack.** A historical query before `t_authority` returns `v2` as if it had been current then, or a
-current query after `t_authority` returns `v1`.
-
-**Oracle.** Query exact versions and current-at-cutoff for times immediately before and after the
-transition.
-
-**Expected.** `RED(temporal_semantics)`; affected surface fails closed; no effective completeness.
-
-**Exact pass condition.** Historical queries reproduce `v1` for its interval and current queries
-select `v2` only from the actual transition cutoff onward.
-
-### F14 - unenumerated external copy is counted as cleared
-
-**Given.** Controlled sets are complete, but a third-party mirror outside PolicyOS control still
-shows `v1` without notice.
-
-**Attack.** The effective notice says all copies, all caches, or the internet have been corrected.
-
-**Oracle.** Compare the completion assertion with named `S`, `C`, and exclusion records.
-
-**Expected.** `REJECT_TRANSACTION` for the amplified notice; `RED(completeness_scope)`. The controlled
-correction may still be effective if its bounded claims are true, but the universal statement is
-false.
-
-**Exact pass condition.** The notice names controlled denominators and explicitly excludes unknown
-external copies.
-
-### F15 - notice is reachable but successor is not
-
-**Given.** `n2` is published and says `v2` is current.
-
-**Attack.** A controlled surface can resolve the notice but cannot retrieve or verify `v2`.
-
-**Oracle.** Traverse notice -> successor on all `S`, `F`, and `A` members that expose the notice.
-
-**Expected before `t_authority`.** `BLOCK_AUTHORITY`.
-
-**Expected after `t_authority`.** `FAIL_CLOSED(attacked_members)`; `NO_EFFECTIVE`;
-`RED(referential_integrity)`; `APPEND_INCIDENT`.
-
-**Exact pass condition.** Every current notice has a resolvable, identity-bound successor and
-predecessor relation wherever that notice is authority-bearing.
-
-### F16 - a self-attested completion receipt survives member deletion
-
-**Given.** An effective declaration says `C` is complete at denominator 4.
-
-**Attack.** Remove one member result while preserving the aggregate count/green markers.
-
-**Oracle.** Independently join the frozen `C` membership to member-bound evidence.
-
-**Expected.** Completion recomputation fails; `RED(completeness_evidence)`; no effective declaration.
-
-**Exact pass condition.** Removing any one of 4/4 member results makes the gate fail even when all
-aggregate marker strings remain.
-
-## 5. Current-state negative comparator for every fixture
-
-The pinned repository has internal supersession primitives, an unsigned public-export producer with
-no production HTTP bridge, four-audience projection machinery, and delivered research semantics for
-INT-R7. It has no admitted public correction notice, notification chain, correction feed, controlled
-correction cache set, archive correction relation, or translation-parity mechanism. The table below
-states what a public observer can see today if each attack occurs.
-
-| ID | Pinned current-state observer outcome | Existing red gate? |
-| --- | --- | --- |
-| F01 | The observer may receive divergent language text or no correction at all; no language-invariant correction identity is exposed. | No correction-parity gate established. |
-| F02 | An internal supersession can exist while an outward surface continues presenting the old export/current view. | No end-to-end correction surface gate established. |
-| F03 | The ratified prohibition exists, but a public observer has no correction chain proving that an outward change was append-only rather than an edit. | No public-chain rewrite detector established. |
-| F04 | A controlled cache can serve stale content; the repository has generic cache invalidation occurrences but no correction-scoped enumerated invalidation receipt. | No correction effective/cache gate established. |
-| F05 | There is no correction subscriber cohort or notification producer/consumer chain; a subscriber receives nothing. | No correction notification gate exists to turn red. |
-| F06 | There is no public correction notice contract against which retained limitations can be compared. | No notice-parity correction gate established. |
-| F07 | The observer cannot traverse a correction relation in a named public archive because no correction-specific archive fan-out exists. | No archive-linkage correction gate established. |
-| F08 | GY-N12 specifies one chronology but is contract-only/undelivered; outward surfaces have no complete head-convergence proof. | No delivered correction single-head gate. |
-| F09 | INT-R7 research can describe the correct outcome, but the public export is not a production signed correction proof. | No production public correction verification chain. |
-| F10 | No correction risk-direction or affected-party classification is exposed. | No adverse-correction gate. |
-| F11 | OPS-R14 is parallel research; the current repository cannot prove that restore preserves a correction chain that does not yet exist. | No wired cross-seam recovery invariant. |
-| F12 | No frozen correction subscriber cohort exists, so a mutable live denominator can neither be detected nor honestly reported. | No cohort-integrity gate. |
-| F13 | Currentness semantics are owned in GY-N12 but no production correction `as_of` fan-out is established. | No correction temporal-convergence gate. |
-| F14 | No enumerated correction completion assertion exists; a broad claim would be unsupported rather than falsifiably bounded. | No completion-scope gate. |
-| F15 | `public_export.py` has a producer but no production HTTP bridge, and there is no correction notice/successor traversal chain. | No correction referential-integrity gate. |
-| F16 | There is no wired correction completion receipt to recompute; marker-presence validation would prove nothing. | No correction completion-evidence gate. |
-
-The exact expected current-state result for all sixteen fixtures is therefore **no capability claim**.
-The repository cannot currently issue or prove a public correction fan-out.
-
-## 6. Graduation rule
-
-A future chain may be called verified only when:
-
-1. every fixture runs against the real producer, persisted event/artifact, bridge, consumer, visible
-   surface, and enumerated set;
-2. each mandatory negative changes the named gate exactly as specified;
-3. the remove-property/keep-markers variants fail;
-4. the test denominator is derived from the same live registry snapshot used by the correction; and
-5. current-state absences are no longer mislabeled as `verification_missing` before the chain is
-   actually wired.
-
-## 7. `may_not_use_for`
-
-This suite may not be used for production implementation authorization; a final wire, schema,
-package, database, serialization, media-type, or API contract; canonical owner, vendor, or service
-appointment; an authority grant; a capability claim; legal sufficiency or a jurisdictional
-conclusion; permission to publish or open a gate; or automatic amendment of any plan, backlog, or
-system-design decision.
+No fixture defines translation mechanics, recovery objectives, expiry rules, schemas, endpoints, or
+legal sufficiency. Those ownership boundaries remain unchanged.

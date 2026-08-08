@@ -29,12 +29,10 @@ may_not_use_for:
 
 ## 1. Execution model
 
-This is an executable **semantic specification**, not test code, a schema, an API, a case-management
-model, or a product status lattice. A future verifier must exercise the real artifact parser,
-semantic classifier, named-history evaluator, projection owner, consumer consultation gate, and
-returning-evidence reconciliation.
-
-The required research functions are:
+This is an executable **semantic specification**, not test code, schema, API, case-management model,
+or product outcome/status lattice. A future verifier must exercise the real parser, semantic
+classifier, named-history evaluator, projection owner, consumer consultation gate, and returning-
+evidence reconciliation.
 
 ```text
 classify_semantics(artifact, source_evidence) -> E | G | X | S | NOT_ESTABLISHED
@@ -49,14 +47,13 @@ return_reconciliation(issue_records, derivative_records, consultation_records,
 projection_verdict(source_denials, projected_denials)
 ```
 
-Marker strings, fixture labels, declared purpose, or a self-reported counterfactual cannot substitute
-for the corresponding behavior. This applies `P29`, `P33`, and `P37`.
+Marker strings, labels, declared purpose, and self-reported counterfactuals cannot substitute for
+behavior. This applies `P29`, `P33`, and `P37`.
 
-Local fixture verdicts are not product outcome vocabulary:
+The suite reuses its existing bounded research verdict vocabulary:
 
 ```text
 ALLOW_NON_INDIVIDUAL
-ALLOW_RULE_LEVEL_INPUT
 REFUSE_EXPORT
 BLOCK_BASIS
 BLOCK_PURPOSE
@@ -68,39 +65,42 @@ NOT_ESTABLISHED
 NOT_DETECTABLE
 ```
 
-Every case below describes one world, names one detector, and has one `expected_verdict`. Conditional
-worlds are separate cases.
+No new outcome-vocabulary element is introduced for normative-rule transport. For G, candidate-band
+transport can remain unblocked while the authority/applicability gate returns the existing bounded
+result `NOT_ESTABLISHED`.
+
+Every case below describes one world, one detector, and one `expected_verdict`.
 
 ## 2. Fixture manifest
 
 | Case | Property | Detector | Expected verdict |
 |---|---|---|---|
-| F-01 | silent allowed-purpose drift into eligibility | consumer consultation gate | `BLOCK_PURPOSE` |
-| F-02 | bypass of the F-01 gate | return reconciliation | `FIREWALL_VIOLATION` |
-| F-03 | two permitted aggregates reconstruct a subject | named-history export gate | `BLOCK_COMPOSITION` |
-| F-04 | aggregate history inventory incomplete | named-history export gate | `NOT_ESTABLISHED` |
+| F-01 | allowed planning purpose drifts into eligibility | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-02 | bypass of F-01 gate | return reconciliation | `FIREWALL_VIOLATION` |
+| F-03 | two aggregates reconstruct a subject | named-history export gate | `BLOCK_COMPOSITION` |
+| F-04 | history/auxiliary inventory is asserted or incomplete | named-history export gate | `NOT_ESTABLISHED` |
 | F-05 | Artifact A singleton empirical rate | semantic/individualizability gate | `REFUSE_EXPORT` |
 | F-06 | Artifact B deterministic empirical partition | semantic/individualizability gate | `REFUSE_EXPORT` |
-| F-07 | Artifact C competent normative rule | semantic/authority-band gate | `ALLOW_RULE_LEVEL_INPUT` |
-| F-08 | empirical decision tree using Artifact C syntax | semantic/authority-band gate | `REFUSE_EXPORT` |
+| F-07 | Artifact C normative rule | semantic authority gate | `NOT_ESTABLISHED` |
+| F-08 | empirical tree with Artifact C syntax | semantic authority gate | `REFUSE_EXPORT` |
 | F-09 | projection narrows denied uses | projection gate | `BLOCK_PERMISSION_AMPLIFICATION` |
-| F-10 | complete query transcript reconstructs determination | transcript composition gate | `BLOCK_COMPOSITION` |
-| F-11 | reconstruction occurs outside any complete transcript | boundary classifier | `NOT_DETECTABLE` |
-| F-12 | voluntary channel receives no reports | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
-| F-13 | voluntary channel receives one incident report | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
+| F-10 | complete query transcript reconstructs a determination | transcript composition gate | `BLOCK_COMPOSITION` |
+| F-11 | reconstruction lies outside a complete transcript | boundary classifier | `NOT_DETECTABLE` |
+| F-12 | voluntary channel, no reports | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
+| F-13 | voluntary channel, one incident report | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
 | F-14 | human rubber stamp after consultation | consumer consultation gate | `BLOCK_PURPOSE` |
-| F-15 | population explanation used as individual reason | consumer consultation gate | `BLOCK_PURPOSE` |
-| F-16 | corrected record weakens restriction | correction interface gate | `BLOCK_PERMISSION_AMPLIFICATION` |
+| F-15 | population explanation becomes individual reason | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-16 | correction weakens a restriction | correction interface gate | `BLOCK_PERMISSION_AMPLIFICATION` |
 | F-17 | synthetic exemplar resolves a real subject | semantic/individualizability gate | `REFUSE_EXPORT` |
 | F-18 | screenshot/manual application outside instrumentation | boundary classifier | `NOT_DETECTABLE` |
-| F-19 | safe large aggregate used for planning | export gate | `ALLOW_NON_INDIVIDUAL` |
-| F-20 | false complete-basis declaration retains all markers | predicate-provenance gate | `NOT_ESTABLISHED` |
+| F-19 | large safe aggregate used for planning | export gate | `ALLOW_NON_INDIVIDUAL` |
+| F-20 | false complete-basis declaration retains markers | predicate-provenance gate | `NOT_ESTABLISHED` |
 | F-21 | false “not material” assertion despite consultation | consumer consultation gate | `BLOCK_PURPOSE` |
 | F-22 | reference-class shopping for adverse action | consumer consultation gate | `BLOCK_PURPOSE` |
 | F-23 | benign purpose synonym masks protected triage | action-effect gate | `BLOCK_PURPOSE` |
 | F-24 | lineage disappears through multi-hop relay | governed consumer intake | `NOT_ESTABLISHED` |
 | F-25 | controlled derivative drops restrictions | derivative/projection gate | `BLOCK_PERMISSION_AMPLIFICATION` |
-| F-26 | semantic class remains mixed or unknown | semantic admission gate | `NOT_ESTABLISHED` |
+| F-26 | semantic class remains mixed/unknown | semantic admission gate | `NOT_ESTABLISHED` |
 
 ## 3. F-01 — commissioned falsifier: silent purpose drift
 
@@ -126,14 +126,14 @@ expected_verdict: BLOCK_PURPOSE
 forbidden_outcome: protected_action_proceeds
 ```
 
-The request is truthfully permitted. The red signal must come from the **consumer/use gate**, not the
-request or exporter. This is the commissioned word “silently” made executable.
+The request is truthfully permitted. The red signal must come from the consumer/use gate, not the
+request or exporter.
 
-**Remove-property/keep-markers probe:** delete the consumer gate's behavior while retaining the
-request purpose, `may_not_use_for`, event fields, and test labels. F-01 must fail because no real
-`BLOCK_PURPOSE` is produced. A marker-complete implementation is non-conforming.
+**Remove-property/keep-markers probe:** remove the consumer gate behavior while retaining request
+purpose, `may_not_use_for`, event fields, and labels. F-01 must fail because no real
+`BLOCK_PURPOSE` occurs.
 
-## 4. F-02 — bypass of the silent-purpose gate
+## 4. F-02 — bypass of silent-purpose gate
 
 ```yaml
 case_id: F-02
@@ -149,9 +149,6 @@ detector: return_reconciliation
 expected_verdict: FIREWALL_VIOLATION
 forbidden_outcome: bounded_compliance_claim
 ```
-
-A bypass is a different single world from F-01. The violation record does not retroactively make the
-action safe.
 
 ## 5. F-03 — aggregate join under complete history
 
@@ -182,7 +179,7 @@ expected_verdict: NOT_ESTABLISHED
 forbidden_outcome: ALLOW_NON_INDIVIDUAL
 ```
 
-A declared “complete history” cannot make this case green under `P37`.
+A declared “complete history” cannot make the gate green.
 
 ## 7. F-05 — Artifact A: singleton empirical rate
 
@@ -201,8 +198,6 @@ expected_verdict: REFUSE_EXPORT
 forbidden_outcome: aggregate_label_controls
 ```
 
-The artifact is reclassified X because it reveals a person's outcome.
-
 ## 8. F-06 — Artifact B: deterministic empirical partition
 
 ```yaml
@@ -219,8 +214,6 @@ expected_verdict: REFUSE_EXPORT
 forbidden_outcome: no_person_row_means_safe
 ```
 
-No explicit identifier, score field, or threshold is needed for pointwise recoverability.
-
 ## 9. F-07 — Artifact C: competent normative rule
 
 ```yaml
@@ -231,16 +224,15 @@ artifact:
   executable_parameters: present
 source_identity: independently_reconciled
 external_authority_competence: institutionally_supplied
-request_purpose: rule_level_input
+candidate_transport: not_blocked
 policyos_authority_effect: none
-detector: semantic_authority_band_gate
-expected_verdict: ALLOW_RULE_LEVEL_INPUT
-forbidden_outcome: refused_for_executability
+detector: semantic_authority_gate
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: REFUSE_EXPORT
 ```
 
-This verdict says only that rule-level transport is not prohibited by executability. It does not
-establish authority competence, case applicability, fact satisfaction, legal sufficiency, or the
-individual determination.
+`NOT_ESTABLISHED` applies to authority, applicability, case facts, and determination. It does not
+prohibit candidate-band rule transport. Executability alone cannot produce `REFUSE_EXPORT`.
 
 ## 10. F-08 — empirical decision tree with Artifact C syntax
 
@@ -255,12 +247,13 @@ artifact:
   output: individual_priority
 source_identity: empirical_model
 pointwise_action_mapping: true
-detector: semantic_authority_band_gate
+detector: semantic_authority_gate
 expected_verdict: REFUSE_EXPORT
 forbidden_outcome: syntax_matches_normative_rule_therefore_allowed
 ```
 
-F-07 and F-08 share executable syntax. Semantic class and authority effect produce opposite results.
+F-07 and F-08 have executable syntax. Semantic class and authority effect yield different bounded
+results.
 
 ## 11. F-09 — denied use narrows during projection
 
@@ -280,7 +273,7 @@ forbidden_outcome: projection_pass
 
 Controlling invariant: **`PV-K04`**.
 
-## 12. F-10 — complete query transcript reconstructs a determination
+## 12. F-10 — query transcript reconstructs determination
 
 ```yaml
 case_id: F-10
@@ -297,7 +290,7 @@ expected_verdict: BLOCK_COMPOSITION
 forbidden_outcome: local_query_passes_compose_to_pass
 ```
 
-## 13. F-11 — reconstruction outside a complete transcript
+## 13. F-11 — reconstruction outside transcript
 
 ```yaml
 case_id: F-11
@@ -310,8 +303,7 @@ expected_verdict: NOT_DETECTABLE
 forbidden_outcome: complete_non_use_claim
 ```
 
-`NOT_DETECTABLE` is not permission. The corresponding actionable query class cannot support a
-firewall-positive export.
+`NOT_DETECTABLE` is not permission.
 
 ## 14. F-12 — voluntary channel, no reports
 
@@ -326,7 +318,7 @@ expected_verdict: FIREWALL_CLAIM_NOT_ESTABLISHED
 forbidden_outcome: no_report_means_no_use
 ```
 
-## 15. F-13 — voluntary channel, one observed incident
+## 15. F-13 — voluntary channel, one incident report
 
 ```yaml
 case_id: F-13
@@ -341,7 +333,7 @@ permitted_bounded_claim: one_prohibited_use_was_reported
 forbidden_outcome: complete_non_use_or_incidence_rate_claim
 ```
 
-This is the R11 recovery of value. The observed incident is real; completeness remains unavailable.
+The incident claim is permitted; completeness remains unavailable.
 
 ## 16. F-14 — human rubber stamp
 
@@ -358,7 +350,7 @@ expected_verdict: BLOCK_PURPOSE
 forbidden_outcome: human_click_cures_use
 ```
 
-## 17. F-15 — population explanation becomes individual reason
+## 17. F-15 — population explanation becomes reason
 
 ```yaml
 case_id: F-15
@@ -387,9 +379,9 @@ expected_verdict: BLOCK_PERMISSION_AMPLIFICATION
 forbidden_outcome: correction_resets_permission
 ```
 
-This specifies only the PAO-R36 interface obligation; it does not define correction mechanics.
+This is the PAO-R36 interface obligation only.
 
-## 19. F-17 — synthetic exemplar resolves a real subject
+## 19. F-17 — synthetic exemplar resolves subject
 
 ```yaml
 case_id: F-17
@@ -402,7 +394,7 @@ expected_verdict: REFUSE_EXPORT
 forbidden_outcome: synthetic_label_controls
 ```
 
-## 20. F-18 — screenshot and manual application
+## 20. F-18 — screenshot/manual application
 
 ```yaml
 case_id: F-18
@@ -438,8 +430,6 @@ expected_verdict: ALLOW_NON_INDIVIDUAL
 forbidden_outcome: individual_authority_effect
 ```
 
-This guards the candidate band against abstention inertia.
-
 ## 22. F-20 — false complete-basis declaration
 
 ```yaml
@@ -453,8 +443,6 @@ detector: predicate_provenance_gate
 expected_verdict: NOT_ESTABLISHED
 forbidden_outcome: field_presence_grants_export
 ```
-
-This is the `P37` falsify-the-declaration probe for `B` and `L`.
 
 ## 23. F-21 — counterfactual reliance laundering
 
@@ -471,7 +459,7 @@ expected_verdict: BLOCK_PURPOSE
 forbidden_outcome: self_report_keeps_gate_green
 ```
 
-The gate turns on consultation, not on the asserted counterfactual. This closes audit Scenario S-2.
+The gate turns on consultation, not the assertion.
 
 ## 24. F-22 — reference-class shopping
 
@@ -517,8 +505,6 @@ expected_verdict: NOT_ESTABLISHED
 forbidden_outcome: lineage_absence_grants_use
 ```
 
-The consumer cannot treat an unresolved relay as a fresh unrestricted artifact.
-
 ## 27. F-25 — controlled derivative drops restrictions
 
 ```yaml
@@ -553,19 +539,18 @@ forbidden_outcome: default_to_G_or_E
 
 A later implementation conforms only when:
 
-1. every manifest row produces its single exact verdict through the named real detector;
+1. every manifest row produces its one exact verdict through the named real detector;
 2. F-01 cannot be satisfied by request-time purpose checks;
-3. deleting the real consumer-gate property while keeping marker strings makes F-01 fail;
-4. F-05 and F-06 refuse audit Artifacts A and B;
-5. F-07 permits candidate-band rule input and F-08 refuses the identical-syntax empirical decision
-   tree, proving executability is not the predicate;
-6. F-20 remains non-positive after a false declaration retains every completeness marker;
-7. F-21 blocks on consultation despite a false “not material” assertion;
-8. F-22 through F-24 close reference-class shopping, semantic-purpose relabeling, and relay lineage
-   disappearance;
-9. no conditional or disjunctive expected field is used; and
-10. the repository capability and owner standing remain `absent/unallocated` until the real chain is
-    independently demonstrated.
+3. deleting the real consumer-gate behavior while retaining markers makes F-01 fail;
+4. F-05/F-06 refuse Artifacts A/B;
+5. F-07 does not return `REFUSE_EXPORT` merely because G is executable, while authority and
+   applicability remain `NOT_ESTABLISHED`;
+6. F-08 refuses the identical-syntax empirical decision tree;
+7. F-20 stays non-positive after a false declaration retains completeness markers;
+8. F-21 blocks on consultation despite the false materiality assertion;
+9. F-22–F-24 close reference-class shopping, purpose relabeling, and relay lineage loss;
+10. no conditional/disjunctive expected field, new outcome vocabulary, capability upgrade, or owner
+    appointment is introduced.
 
-The amended research does not execute or pass this suite. Adoption remains `NO_GO` pending independent
-conformance verification at an exact commit.
+The amended research does not execute or pass this suite. Adoption remains `NO_GO` pending
+independent conformance at an exact commit.

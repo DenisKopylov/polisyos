@@ -2,10 +2,19 @@
 title: PAO-R4 repository integration handoff
 research_id: PAO-R4
 artifact_role: integration-handoff
-status: research
+status: amended_research
 research_only: true
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository: DenisKopylov/polisyos
+audited_commit: a27c3da9942b03881dbee1005a8a1e44e5ac44b4
+audit_commit: 69182c079fb5dc99808d7cd27874d50433efd5a4
+pinned_repository_commit: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
 result_standing: GO_WITH_REVISIONS
+adoption_status: NO_GO_pending_independent_conformance
+authoritative_for:
+  - amended research-only repository integration handoff
+  - prerequisite-safe capability-state classification
+  - open consolidation question for policy-to-case emission placement
+  - predicate-provenance obligations for a later implementation
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization or API contract
@@ -19,171 +28,239 @@ may_not_use_for:
 
 # Repository integration handoff
 
-## 1. Existing owners to extend
+## 1. Established owners and open placement
 
-PAO-R4 creates no parallel owner.
+PAO-R4 creates no implementation owner and appoints no external case authority.
 
-| Needed capability | Existing owner or boundary to extend | Pinned evidence | Research disposition |
+### 1.1 Established responsibilities
+
+| Needed responsibility | Existing owner or boundary | Pinned evidence | Amended research disposition |
 |---|---|---|---|
-| Denied-use declaration and consumer rejection | `polisyos.core.contracts` authority envelopes plus bounded consumer guards | `policy-engine/src/polisyos/core/contracts/runtime.py:250-290@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/src/polisyos/policy_grammar/_impl/consumer.py:60-77@1a7a2d05ebba22fae80e9934329e4b880806588e` | Extend existing `may_not_use_for`; do not create `prohibited_use`. |
-| Public/export-boundary inspection | `polisyos.runtime.quality.public_export` | `policy-engine/src/polisyos/runtime/quality/public_export.py:45-110@1a7a2d05ebba22fae80e9934329e4b880806588e` | Extend the real public/export owner with class, purpose, resolution, executability, and evidence checks. |
-| Projection monotonicity and audience semantics | `polisyos.runtime.quality.projection_semantics` and `core.contracts.PolicyDesignCaseProjection` | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:37-56,522-566@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/src/polisyos/core/contracts/policy_design_case_projection.py:12-20@1a7a2d05ebba22fae80e9934329e4b880806588e` | Consume `PV-K04`; deny-use union must survive all four canonical audiences. |
-| Data access/redaction facts | Fabric source/access contracts and runtime authorization input | `policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py:34-52,106-142@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/src/polisyos/core/security/authz.py:50-90,135-170@1a7a2d05ebba22fae80e9934329e4b880806588e` | Reuse access facts, but do not equate anonymization/redaction with firewall permission. |
-| Release-history/currentness dependency | GY-N12 lane / append-only currentness owner named by the ratified architecture | `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:269-302@1a7a2d05ebba22fae80e9934329e4b880806588e`, architect correction `RFR-06` / `GY-GAP3` | Require a controlled transcript interface; do not build a second chronology owner. |
-| Public consumer | Atlas DS12 | `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1330-1445@1a7a2d05ebba22fae80e9934329e4b880806588e` | DS12 renders the boundary result; it must not invent authority or a case workflow. |
+| Denied-use declaration and bounded consumer rejection | `polisyos.core.contracts` authority envelopes plus existing consumer guards | `policy-engine/src/polisyos/core/contracts/runtime.py:278-329@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`; `policy-engine/src/polisyos/policy_grammar/_impl/consumer.py:53-67@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | Extend `may_not_use_for`; do not create a parallel `prohibited_use` mechanism. |
+| Projection semantics and restriction monotonicity | `polisyos.runtime.quality.projection_semantics` and projection contracts | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:46-94,479-523@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`; finding `PV-K04` | Preserve the union of source/derivation denials for all canonical audiences. |
+| Public redacted bundle | `polisyos.runtime.quality.public_export` | `policy-engine/src/polisyos/runtime/quality/public_export.py:39-101@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | Reuse its facts where applicable; do not infer ownership of every case-system handoff. |
+| Access/redaction evidence | Fabric source/access contracts and runtime authorization inputs | `policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py:34-52,106-142@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`; `policy-engine/src/polisyos/core/security/authz.py:50-90,135-170@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | These facts may inform `H`; an anonymization/redaction marker is never permission by itself. |
+| Public display consumer | Atlas DS12 | `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1330-1445@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | DS12 may render a bounded result; it is not a case-system consumer or owner of the individual act. |
 
-The external case-management system is a named future integration endpoint, not a PolicyOS package.
-PolicyOS owns the typed evidence contract and fail-closed absence behavior under the identity ruling;
-it does not own the administrative function.
+### 1.2 Open consolidation decision — policy-to-case emission chokepoint
 
-## 2. Missing-state vocabulary—prerequisites first
+`public_export.py` is a real adjacent public-bundle producer. No pinned finding establishes that all
+non-public, purpose-bound case-system handoffs must flow through it. The original handoff's “no second
+exporter” language was authority by adjacency under `P36`.
 
-The project register defines capability as typed artifact + producer + persisted artifact/event +
-bridge + consumer + verification + external surface or explicit out-of-scope + semantic negative
-test (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:12-37@1a7a2d05ebba22fae80e9934329e4b880806588e`). Labels cannot be borrowed out of order.
+The canonical emission chokepoint therefore remains an **open consolidation decision**. A competent
+architecture decision must compare existing responsibilities, at minimum:
 
-| Label | Prerequisite that must already be evidenced | Evidence required before use | PAO-R4 present use |
+1. extending the public-export owner with a separately bounded non-public mode;
+2. placing the gate at an existing authority-envelope/consumer-admission boundary; or
+3. approving another canonical boundary that routes all policy-to-case emissions through one
+   structural chokepoint.
+
+This list presents alternatives; it appoints none. The decision must preserve the established denied-
+use and projection owners and avoid a parallel prohibition system.
+
+## 2. Missing-state vocabulary — prerequisites first
+
+The capability-reality register defines a complete chain as typed artifact + producer + persisted
+artifact/event + bridge + consumer + verification + visible surface or explicit out-of-scope +
+negative semantic test
+(`policy-engine/docs/reference/policy-design-case-failure-patterns.md:12-37@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`).
+
+| Label | Required prerequisite | PAO-R4 evidence at the pin | Use in this handoff |
 |---|---|---|---|
-| `contract_only` | An admitted implementation type/schema/status exists, unused by producer, consumer, and workflow. | Exact contract path plus complete non-use evidence. | **Not used.** Research prose is not an admitted contract. |
-| `producer_missing` | A named existing consumer expects a specific artifact/event. | Consumer path and expected input plus complete producer census. | **Not used.** No accepted case-system consumer contract exists in the repository. |
-| `artifact_missing` | Producer logic exists for a defined artifact/event. | Executable producer plus absence of persistence/query/replay. | **Not used.** No PAO-R4 returning-evidence producer is claimed. |
-| `bridge_missing` | Both producer and consumer exist for the same bounded artifact. | Both endpoint paths and missing orchestration evidence. | **Not used for the firewall chain.** The external consumer endpoint and returning-evidence producer are not established. |
-| `consumer_missing` | An artifact/event is already produced and persisted. | Producer/persistence evidence plus complete consumer census. | **Not used.** No PAO-R4 evidence artifact exists. |
-| `verification_missing` | The producer-artifact-bridge-consumer chain is wired. | Executed chain evidence plus absent automated check. | **Not used.** Calling the present state `verification_missing` would presuppose the chain. |
-| `implemented_but_not_orchestrated` | A component works in isolation. | Executable component evidence and orchestration absence. | **Not used.** Research design is not implementation. |
-| `surface_missing` | An internal capability exists and works. | Internal chain evidence plus absent external surface. | **Not used.** No firewall capability is established. |
-| `surface_out_of_scope` | An internal capability exists and external omission is intentional. | Internal chain, rationale, and accountable owner. | **Not used.** There is no internal capability to bound. |
-| `semantic_test_missing` | Structural tests pass over an implemented chain. | Passing structural tests plus absence of semantic negatives. | **Not used.** The chain has not reached this stage. |
+| `contract_only` | admitted implementation contract exists but is unused | no admitted E/G/X/S, purpose, gate, or return contract | not used |
+| `producer_missing` | named consumer expects a defined artifact/event | no admitted external case-consumer contract | not used |
+| `artifact_missing` | producer logic for the defined artifact/event exists | no PAO-R4 return-evidence producer | not used |
+| `bridge_missing` | both producer and consumer exist for the same artifact | endpoints absent | not used |
+| `consumer_missing` | artifact/event is produced and persisted | no PAO-R4 artifact chain | not used |
+| `verification_missing` | producer-artifact-bridge-consumer chain is wired | chain absent | not used |
+| `implemented_but_not_orchestrated` | component works in isolation | research only | not used |
+| `surface_missing` | internal capability works | no capability | not used |
+| `surface_out_of_scope` | internal capability works and surface omission is intentional | no capability | not used |
+| `semantic_test_missing` | structural implementation tests already pass | no implementation | not used |
 
 ### Present classification
 
-The PAO-R4-specific vocabulary, export gate, consumer purpose gate, complete returning-evidence
-contract, reconciliation owner, and sequence-level composition check are
-**`absent/unallocated`**. This phrase is not one of the capability-reality labels; it is used because
-the prerequisites for those labels are not met. This follows the architect correction in the
-public-verification act, where a proposed but nonexistent controlled transcript was corrected from
-`contract_only` to `absent/unallocated`
-(`policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:269-302@1a7a2d05ebba22fae80e9934329e4b880806588e`).
+The semantic-class vocabulary, pointwise-recoverability evaluator, predicate-provenance admission,
+policy-to-case emission gate, governed external consumer consultation gate, returning-evidence intake,
+independent denominator reconciliation, and composition transcript are all
+**`absent/unallocated`**.
 
-## 3. Capability-by-capability handoff
+This is a settled capability-honesty result, not a placeholder for a stronger missing-state label.
+The complete source census confirms zero files, zero matching lines, and zero occurrences for the
+exact source concepts `individual_decision`, `export_gate`, and `prohibited_use` below
+`policy-engine/src`.
 
-### 3.1 Individual-use purpose vocabulary
+## 3. Later capability handoffs
 
-**Extends:** core authority-purpose/denied-use contracts.
+### 3.1 Semantic class and authority-effect classification
 
-**Consumes:** the prohibited-use matrix in the primary report.
+**Extends:** existing authority-purpose and evidence/claim contracts after an owner decision.
 
-**Must produce later:** a canonical, reviewed vocabulary that can express eligibility, amount,
-sanction, profiling, priority, investigation, credibility, routing, evidence weighting, reasons,
-review intensity, material recommendation, and final determination.
+**Consumes:** E/G/X/S definitions and `individualizable(a,H)` from the amended primary report.
 
-**Acceptance signal:** every carrier and consumer uses the same purpose identity; a synonym cannot
-bypass the gate; no denied use shrinks under projection or derivation.
+**Required later behavior:**
 
-**Present state:** absent/unallocated.
+- classify empirical population claims separately from competent normative rules;
+- reclassify singleton/deterministic empirical artifacts as X;
+- allow G as candidate-band rule-level input without PolicyOS authority effect;
+- refuse unknown/mixed protected crossings; and
+- prove behavior over equivalent code, table, tree, prompt, and prose representations.
 
-### 3.2 Export classification and refusal gate
-
-**Extends:** `runtime/quality/public_export.py`; no second exporter.
-
-**Input semantics:** artifact class, population basis, subject-resolution surface, executable-rule
-surface, denied-use union, declared purpose/consumer, controlled release history, and returning-
-evidence requirement.
-
-**Verdicts:** bounded results from the falsifier suite; no new global status lattice.
-
-**Acceptance signal:** F-02, F-03, F-05, F-06, and F-09 exercise the real exporter and fail red.
-
-**Present state:** absent/unallocated. The generic public-export producer exists, but the PAO-R4 gate
-does not.
-
-### 3.3 Consumer-side purpose/material-contribution gate
-
-**Extends:** no PolicyOS case-system implementation; this is an INTEGRATE contract with a named
-external case-management consumer.
-
-**Input semantics:** exact artifact/derivation digest, subject reference, protected action, declared
-purpose, decision stage, and material-contribution test.
-
-**Acceptance signal:** F-01 and F-07 block before the protected action and return the attempt.
-
-**Present state:** absent/unallocated; `producer_missing` is premature because no real consumer
-contract is admitted.
-
-### 3.4 Returning-evidence intake and reconciliation
-
-**Extends:** PolicyOS runtime-quality/custody evidence intake; it does not design the case system.
-
-**Evidence semantics:** issued artifacts, imports, derivations, use attempts, protected actions,
-consumer verdicts, human/counterfactual reliance, outcome/reason refs, versions, event times,
-complete denominators, and independent reconciliation.
-
-**Failure behavior:** absent, late, contradictory, sampled, unresolved, or self-attested-only evidence
-returns `FIREWALL_CLAIM_NOT_ESTABLISHED` and blocks any positive application claim.
-
-**Acceptance signal:** the denominator reconciles against a competent independent case-event source;
-voluntary silence cannot pass F-06.
+**Acceptance evidence:** amended F-05 through F-08 run against the real classifier. Artifact C is not
+refused merely for executability; the identical-syntax empirical decision tree is refused.
 
 **Present state:** absent/unallocated.
 
-### 3.5 Composition and reconstruction boundary
+### 3.2 Predicate-provenance admission under `P37`
 
-**Extends:** the existing projection/release-history direction; consumes `PV-K06` exact-or-proved-
-conservative safety and the controlled transcript dependency, without designing GY-N12.
+**Extends:** future chosen emission and consumer admission chokepoints.
 
-**Acceptance signal:** F-02 and F-05 fail using the complete controlled history; incomplete history
-returns `not_established`.
+**Required later behavior:** every decisive predicate is frozen as exactly one of:
 
-**Present state:** absent/unallocated; no second chronology owner is authorized.
+`recomputed` · `independently_reconciled` · `consumer_asserted` ·
+`institutionally_supplied` · `not_established`.
 
-## 4. Dependencies and isolation
+A decisive predicate in the last three classes cannot produce an authority-grade positive. The
+implementation must distinguish registered-field presence from semantic completeness, request
+purpose from actual use, and counterfactual assertion from observable consultation.
+
+**Acceptance evidence:** F-20 and F-21 remain non-positive when declarations are false but markers
+remain present.
+
+**Present state:** absent/unallocated.
+
+### 3.3 Artifact-local and export-context gates
+
+**Placement:** open consolidation decision; no owner appointed.
+
+**Input semantics:** artifact bytes, resolved lineage, registered basis obligations, E/G/X/S class,
+named history/auxiliary model `H`, behavioral pointwise evaluator, denied-use union, request record,
+and predicate-provenance classifications.
+
+**Required verdict effect:**
+
+- explicit individual rows/scores/recommendations and E/S pointwise artifacts are refused;
+- unsafe composition is blocked;
+- unknown history/class/basis completeness is `NOT_ESTABLISHED` and cannot become a protected
+  crossing positive;
+- G is not refused merely for executability, but carries no PolicyOS authority/applicability claim.
+
+**Acceptance evidence:** F-03 through F-10 and F-17 through F-20 exercise the real chosen chokepoint.
+
+**Present state:** absent/unallocated.
+
+### 3.4 Governed external consumer consultation gate
+
+**Boundary:** INTEGRATE with a named external case-system consumer. PolicyOS does not implement or own
+the case workflow.
+
+**Conservative use predicate:** a resolved subject and protected action plus instrumented consultation,
+display, query, invocation, threshold, ranking, recommendation, evidence weighting, explanation, or
+routing by the PolicyOS artifact/derivative.
+
+The gate does not ask the consumer whether the artifact “really mattered.” Consultation is enough.
+Declared purpose is intake evidence only; action effects determine semantic purpose.
+
+**Acceptance evidence:** F-01 blocks silent planning-to-eligibility drift; removing the real gate while
+retaining markers makes F-01 fail; F-14, F-15, F-21, F-22, and F-23 block through actual use/effect.
+
+**Present state:** absent/unallocated.
+
+### 3.5 Returning-evidence intake and reconciliation
+
+**Extends:** a future PolicyOS evidence/custody intake owner after consolidation; no case-system schema
+is designed here.
+
+**Required semantics:** issued artifacts, derivatives, consultations, gate attempts, bypasses,
+protected actions, exact digests/lineage, effect classes, boundary identity, interval, and frozen
+predicate-provenance classes.
+
+**Trust requirement:** content-bound append-only records plus independently reconciled consultation
+and protected-action denominators. Self-attested totals and self-reported counterfactuals cannot
+support a complete positive.
+
+**Failure behavior:** missing, late, contradictory, sampled, unresolved, or self-attested-only evidence
+returns `FIREWALL_CLAIM_NOT_ESTABLISHED` for complete non-use.
+
+**Acceptance evidence:** F-02, F-12, and F-13 distinguish an observed violation, unavailable complete
+claim, and the narrow value of an observed voluntary report.
+
+**Present state:** absent/unallocated.
+
+### 3.6 Composition, relay, and outside-boundary residual
+
+**Required semantics:** complete controlled release/query transcript, named `H`, derivative lineage,
+relay identity, and explicit boundary exclusions.
+
+**Acceptance evidence:**
+
+- F-03/F-10 block known composition;
+- F-04 returns `NOT_ESTABLISHED` for an asserted/incomplete inventory;
+- F-11/F-18 honestly return `NOT_DETECTABLE` outside instrumentation;
+- F-22 detects reference-class shopping inside the boundary; and
+- F-24 refuses an unresolved lineage-stripped relay at governed intake.
+
+**Present state:** absent/unallocated.
+
+## 4. Claim-boundary handoff
+
+A later implementation may make only claims bounded by the primary report's claim-boundary table.
+The maximum positive is never institution-wide non-use. It is a content-bound statement about every
+recorded protected-action consultation inside a named governed boundary and interval whose
+consultation/action denominators independently reconcile.
+
+Voluntary reporting supports no complete non-use claim. It may support only observed-incident,
+lower-bound, or valid sampled-frame claims with explicit directional limits. This is claim bounding
+under `INT-K08`, not a new status lattice.
+
+## 5. Dependencies and isolation
 
 - **`PAO-R36`:** a corrected/superseding record may not carry a weaker individual-use restriction
-  than the predecessor. PAO-R36 owns correction, notice, and supersession mechanics.
-- **`OPS-R14`:** any durable evidence, recovery, retention, expiry, or legal-hold properties required
-  by the future chain are interface dependencies. PAO-R4 sets none.
-- **`S0-GAP-02`:** independent benchmark-oracle architecture is outside this task. A later firewall
-  verifier may consume its independence principles only after an architecture decision; PAO-R4
-  designs no oracle.
+  than its predecessor. PAO-R36 owns all correction, notice, and supersession mechanics.
+- **`OPS-R14`:** any future durability, recovery, retention, expiry, or legal-hold property for
+  firewall evidence is an interface dependency. PAO-R4 sets none.
+- **`S0-GAP-02`:** benchmark-oracle architecture is outside PAO-R4. This amendment defines semantic
+  falsifiers but no benchmark oracle, evaluator custody, or scoring system.
 
-No shared wave-4 surface is claimed beyond the restriction-survival interface above.
+No sibling artifact is modified and no sibling standing is adjudicated.
 
-## 5. Open questions for consolidation
+## 6. Open questions for consolidation
 
-### 5.1 Engineering
+### Engineering
 
-| ID | Question | Why open | Closure evidence |
-|---|---|---|---|
-| `ENG-01` | What is the smallest canonical purpose vocabulary that covers all material individual uses without string/synonym bypass? | The source has no individual-decision concept. | Owner decision, typed values, mapping rules, and synonym/adversarial tests. |
-| `ENG-02` | How is non-executability decided across code, tables, trees, prompts, and prose? | Field-name checks invite P29/P33 failure. | Behavioral evaluator over equivalent representations. |
-| `ENG-03` | What controlled-history interface lets export and query gates evaluate composition without creating a second GY-N12 owner? | F-02/F-05 need sequence context. | Accepted interface to the canonical transcript and exact/proved-conservative evaluator. |
-| `ENG-04` | How are case-event denominators reconciled without exposing identities to PolicyOS or the public? | Completeness and minimization pull in opposite directions. | Privacy/security review, stable scoped references, independent totals, and mismatch tests. |
-| `ENG-05` | What event makes material contribution decidable for human-mediated decisions? | “Displayed” is weaker than relied upon; self-report can be circular. | Counterfactual/procedural evidence model and seeded rubber-stamp tests. |
-| `ENG-06` | How do uncontrolled copies and screenshots alter the export decision? | Some classes become unobservable once readable. | Explicit channel model and refusal conditions; no unsupported prevention claim. |
+| ID | Question | Required closure evidence |
+|---|---|---|
+| `ENG-01` | Which existing responsibility becomes the canonical policy-to-case emission chokepoint? | competent owner decision, complete emission census, one structural route, and no sibling bypass |
+| `ENG-02` | How is E/G/X/S classification made representation-independent? | behavioral evaluator over equivalent code/table/tree/prompt/prose artifacts |
+| `ENG-03` | What named `H` inventory is complete enough for each non-resolution claim? | independent inventory owner, completeness proof/bound, and falsify-the-declaration test |
+| `ENG-04` | How are action effects mapped to canonical denied purposes without string bypass? | effect taxonomy, synonym/adversarial tests, and sibling-consumer coverage |
+| `ENG-05` | Which instrumented events prove consultation while minimizing false negatives? | real data-flow evidence, conservative rule, and S-1/S-2 boundary analysis |
+| `ENG-06` | How are independent protected-action totals reconciled without PolicyOS owning identity/case data? | scoped references, independent totals, mismatch handling, privacy/security review |
+| `ENG-07` | How are lineage-stripped relays refused or bounded? | governed intake resolution rule and multi-hop relay tests |
 
-### 5.2 Institutional
+### Institutional
 
-| ID | Question | Why open | Closure evidence |
-|---|---|---|---|
-| `INST-01` | Which external case-system owner accepts mandatory purpose gating and complete evidence return? | No technical contract can appoint or compel it. | Named mandate, operating agreement, system boundary, and enforcement evidence. |
-| `INST-02` | Who is competent to classify protected action and material contribution for each administrative domain? | Technical labels cannot manufacture legal/administrative competence. | Scoped role, qualifications, abstention/conflict rules, and review path. |
-| `INST-03` | Which independent source establishes the denominator of protected case actions? | Consumer self-counting cannot prove completeness. | Independent event owner, reconciliation procedure, and discrepancy handling. |
-| `INST-04` | What sanctions or operational consequences attach to missing or false returning evidence? | Mandatory-in-prose can remain voluntary in practice. | Enforceable agreement, audit rights, suspension rule, and incident evidence. |
-| `INST-05` | What affected-person review/contestability safeguards apply inside the case system? | Important but outside PolicyOS anti-roles. | External procedure and competence evidence; PolicyOS consumes only bounded implementation evidence. |
+| ID | Question | Required closure evidence |
+|---|---|---|
+| `INST-01` | Which external case-system owner accepts mandatory consultation gating and evidence return? | named mandate and operating agreement; this research appoints nobody |
+| `INST-02` | Who supplies and is competent for normative rule authority/applicability? | scoped external mandate and procedure; no PolicyOS authority claim |
+| `INST-03` | Which independent source supplies protected-action denominators? | non-producing event owner and reconciliation procedure |
+| `INST-04` | What consequence makes evidence return mandatory in practice? | enforceable agreement, suspension rule, and audit rights |
+| `INST-05` | Which affected-person safeguards apply inside each case procedure? | external hearing/reason/review/recourse procedure; outside PAO-R4 implementation |
 
-### 5.3 Additional research
+### Additional research
 
-| ID | Question | Research need | Candidate method |
-|---|---|---|---|
-| `RES-01` | Which artifact classes are provably non-individually-actionable under realistic auxiliary information? | “Anonymized” and “aggregate” are model-relative. | Reconstruction experiments, exact finite models, and proved no-false-safe abstractions. |
-| `RES-02` | Can material contribution be inferred reliably without asking the decision maker? | Self-report and UI events may understate reliance. | Randomized removal studies in synthetic case workflows, causal instrumentation, and bounded error analysis. |
-| `RES-03` | What query-sequence controls are sufficient under adaptive consumers? | Local safety does not compose automatically. | Adaptive disclosure models with prospectively enforced transcripts; consume PV-K07/PV-K08 boundaries. |
-| `RES-04` | How should reference-class uncertainty be represented when several plausible classes give different base rates? | One chosen class can silently determine an individual score. | Set-valued predictions and decision-theoretic abstention studies. |
-| `RES-05` | What evidence distinguishes legitimate general-rule implementation from prohibited statistical generalization in a case? | Both can be mechanically applicable to a person. | Formal rule/basis taxonomy and worked administrative-law cases across jurisdictions. |
+| ID | Question | Candidate method |
+|---|---|---|
+| `RES-01` | What bounded proofs establish non-individualizability under adaptive auxiliary information? | finite reconstruction models and proved conservative approximations |
+| `RES-02` | How should uncertain/disputed reference-class membership be represented? | set-valued class membership and abstention analysis |
+| `RES-03` | Which adaptive query controls prevent differencing and reference-class shopping? | prospective transcript models and adversarial sequence analysis |
+| `RES-04` | What evidence validates causal materiality beyond conservative consultation? | independently governed removal experiments or causal instrumentation |
 
-## 6. Result standing
+## 7. Standing
 
-**`GO_WITH_REVISIONS`.** The research contract is narrow, checkable, and identifies classes that
-must be refused. Revision is required before any capability claim because the purpose vocabulary,
-export gate, external consumer contract, returning-evidence chain, and composition transcript are
-absent/unallocated. No implementation or owner appointment follows.
+**Research standing: `GO_WITH_REVISIONS`. Adoption status: `NO_GO` pending independent conformance.**
+
+The amendment supplies a narrow formal and falsifier contract. It does not create the missing
+capability, choose the emission owner, appoint an external authority, or authorize implementation.

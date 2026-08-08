@@ -2,15 +2,18 @@
 title: PAO-R4 — Orientation ledger
 research_id: PAO-R4
 artifact_role: orientation-ledger
-status: research
+status: amended_research
 research_only: true
 repository: DenisKopylov/polisyos
-baseline_ref: main
-baseline_commit: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a27c3da9942b03881dbee1005a8a1e44e5ac44b4
+audit_commit: 69182c079fb5dc99808d7cd27874d50433efd5a4
+pinned_repository_commit: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+source_equivalent_original_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
 result_standing: GO_WITH_REVISIONS
+adoption_status: NO_GO_pending_independent_conformance
 authoritative_for:
-  - research orientation at the pinned repository state
-  - complete-set source vocabulary census used by PAO-R4
+  - amended research orientation at the pinned repository state
+  - architecture-supplied complete-tree source vocabulary census
   - research-only owner and boundary identification
 may_not_use_for:
   - production implementation authorization
@@ -25,100 +28,90 @@ may_not_use_for:
 
 # PAO-R4 orientation ledger
 
-## 1. Count vocabulary and pin
+## 1. Pin, source identity, and count vocabulary
 
-Every repository statement in this ledger is relative to commit
-`1a7a2d05ebba22fae80e9934329e4b880806588e`.
+The controlling documentation pin is
+`109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`. The architecture principal established that
+`policy-engine/src` is byte-identical at that commit and the original PAO-R4 pin
+`1a7a2d05ebba22fae80e9934329e4b880806588e`; the intervening delta is documentation only.
+Repository citations below use `109ba3f4` for documentation and may use the same pin for source
+because the source bytes are identical.
 
-The census units are deliberately distinct:
+Every census states two denominators:
 
-- **source-line count** — physical newline-delimited lines in one complete file;
-- **token-containing-file count** — distinct source files containing at least one matching token;
-- **matched-line count** — physical lines containing at least one match;
-- **literal-occurrence count** — non-overlapping token occurrences, including multiple matches on one line.
+- **path denominator** — the root walked, here `policy-engine/src` unless narrowed explicitly;
+- **file-type denominator** — either every non-binary source file or Python files only.
 
-The commission's six vocabulary figures are **token-containing-file counts**. They are not matched-line
-or literal-occurrence counts. PAO-R4 does not silently relabel them. Where the research run did not
-retain a matched-line or occurrence total, those columns are stated as `not_established`; no number is
-inferred from the file count.
+The measured units remain distinct:
 
-This follows failure pattern **`P35`** (complete-set enumeration with the denominator) and **`P36`**
-(cite the finding, not adjacent prose) in
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:74-80@1a7a2d05ebba22fae80e9934329e4b880806588e`.
+- **token-containing files** — distinct paths containing one or more matches;
+- **matching lines** — physical source lines containing one or more matches;
+- **occurrences** — non-overlapping matches, so a line may contain more than one occurrence.
 
-## 2. Orientation figures
+This applies the `P35` index rider: an index is not a denominator in either direction. The settled
+figures in §3 come from the architecture principal's complete tree walk using `git grep` over the
+pinned ref, binary files excluded. They are recorded rather than re-derived in this amendment, as
+directed. `P36` continues to require finding IDs instead of authority by adjacent prose, and `P37`
+requires provenance classification of every gate predicate. See
+`policy-engine/docs/reference/policy-design-case-failure-patterns.md:77-80@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, findings `P35`, `P36`, and `P37`.
 
-### 2.1 File sizes and canonical audiences
+## 2. Binding architecture and file sizes
 
-| Repository claim | Unit | Reproduced result | Pinned anchor | Disposition |
+| Repository claim | Unit | Result | Pinned evidence | Disposition |
 |---|---|---:|---|---|
-| `public_export.py` size | source lines | 2,103 | `policy-engine/src/polisyos/runtime/quality/public_export.py:2098-2103@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
-| `projection_semantics.py` size | source lines | 3,763 | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:3758-3763@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
-| public-verification ratification size | source lines | 439 | `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:434-439@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
-| Stage-0 ratification size | source lines | 264 | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:258-264@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
-| INT-wave ratification size | source lines | 379 | `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:373-379@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
-| canonical projection audiences | enum members | 4 — `PUBLIC`, `REVIEWER`, `EXPERT`, `MACHINE` | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:648-655@1a7a2d05ebba22fae80e9934329e4b880806588e` | agrees |
+| `public_export.py` | physical source lines | 2,103 | `policy-engine/src/polisyos/runtime/quality/public_export.py:2098-2103@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
+| `projection_semantics.py` | physical source lines | 3,763 | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:3758-3763@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
+| public-verification ratification | physical source lines | 439 | `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:434-439@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
+| Stage-0 ratification | physical source lines | 264 | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:258-264@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
+| INT-wave ratification | physical source lines | 379 | `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:373-379@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
+| canonical projection audiences | enum members | 4: `PUBLIC`, `REVIEWER`, `EXPERT`, `MACHINE` | `policy-engine/src/polisyos/runtime/quality/projection_semantics.py:648-655@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee` | confirmed |
 
-The public exporter builds a redacted public projection, performs secret/PII scanning, evaluates
-existing authority-surface decisions, and delegates to projection contract checks. Its official-use
-limits deny scorecard, approval, runtime-closeout, credential-validation, and tenant-resolution uses,
-but contain no individual-decision purpose. See
-`policy-engine/src/polisyos/runtime/quality/public_export.py:39-101@1a7a2d05ebba22fae80e9934329e4b880806588e`.
+The identity ruling remains controlling: PolicyOS owns the individual-decision firewall but not the
+individual decision. See
+`policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md:101-139@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding **Individual-decision firewall**. The
+Stage-0 authority-band lens at
+`stage0-custody-kernel-ratification.md:46-88@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`
+and its binding application note at `:164-176` prohibit authority leakage without prohibiting
+candidate-band computation or transport.
 
-The projection owner already emits `projection_only`, an empty `authoritative_for`, and a
-`may_not_be_used_for` collection; `assert_policy_design_projection_not_authority` fails when the
-projection mints authority or omits required denied uses. See
-`policy-engine/src/polisyos/runtime/quality/projection_semantics.py:46-94@1a7a2d05ebba22fae80e9934329e4b880806588e` and
-`:479-523@1a7a2d05ebba22fae80e9934329e4b880806588e`.
+## 3. Complete source vocabulary census — settled figures
 
-### 2.2 Complete source vocabulary census
+### 3.1 Complete table
 
-Search universe: every file under `policy-engine/src` at the pin. For `may_not_use_for`, the universe
-was narrowed to Python files under `policy-engine/src/polisyos`, matching the commission's stated
-partition. Result unit: distinct token-containing files.
+Search method: complete tree walk at the pin; path denominator `policy-engine/src`; fixed,
+case-sensitive strings except the explicitly case-insensitive `anonymi` prefix; binary files excluded.
 
-| Token/query | Token-containing files | Matched lines | Literal occurrences | Disposition |
-|---|---:|---:|---:|---|
-| exact `may_not_use_for` in `policy-engine/src/polisyos/**/*.py` | **106** | `not_established` | `not_established` | agrees; file count only |
-| exact `aggregate_only` in `policy-engine/src` | **7** | `not_established` | `not_established` | agrees; file count only |
-| case-insensitive prefix `anonymi` in `policy-engine/src` | **6** | `not_established` | `not_established` | agrees; prefix-containing file count only |
-| exact `individual_decision` in `policy-engine/src` | **0** | **0** | **0** | agrees |
-| exact `export_gate` in `policy-engine/src` | **0** | **0** | **0** | agrees |
-| exact `prohibited_use` in `policy-engine/src` | **0** | **0** | **0** | agrees |
+| Token/family | Path denominator | File-type denominator | Files | Matching lines | Occurrences |
+|---|---|---|---:|---:|---:|
+| exact `may_not_use_for` | `policy-engine/src` | Python only | **106** | **794** | **903** |
+| exact `may_not_use_for` | `policy-engine/src` | all non-binary source files | **106** | not separately supplied | not separately supplied |
+| case-insensitive prefix `anonymi` | `policy-engine/src` | all non-binary source files | **7** | not separately supplied | not separately supplied |
+| case-insensitive prefix `anonymi` | `policy-engine/src` | Python only | **6** | not separately supplied | not separately supplied |
+| exact `aggregate_only` | `policy-engine/src` | all non-binary source files | **7** | not separately supplied | not separately supplied |
+| exact `individual_decision` | `policy-engine/src` | all non-binary source files | **0** | **0** | **0** |
+| exact `export_gate` | `policy-engine/src` | all non-binary source files | **0** | **0** | **0** |
+| exact `prohibited_use` | `policy-engine/src` | all non-binary source files | **0** | **0** | **0** |
 
-For zero-file results, matched lines and literal occurrences are also zero by implication. For
-non-zero results, no line or occurrence total is inferred from a file count.
+The dash-like omissions in the supplied all-source positive rows are preserved as “not separately
+supplied”; no Python matching-line or occurrence count is silently relabelled as all-source.
 
-### 2.3 Disjoint `may_not_use_for` partition
+### 3.2 Disjoint `may_not_use_for` partition
 
-The complete 106-file hit set was partitioned by path:
+The 106 token-containing Python files form three disjoint path sets:
 
-| Partition | Path predicate | Token-containing files |
+| Partition | Path predicate | Files |
 |---|---|---:|
-| runtime | below `policy-engine/src/polisyos/runtime/` | 67 |
-| scientist | below `policy-engine/src/polisyos/scientist/` | 12 |
-| remainder | below `policy-engine/src/polisyos/`, excluding both roots | 27 |
-| **union** | three disjoint predicates | **106** |
+| runtime | below `policy-engine/src/polisyos/runtime/` | **67** |
+| scientist | below `policy-engine/src/polisyos/scientist/` | **12** |
+| remainder | Python files below `policy-engine/src/polisyos/`, excluding both roots | **27** |
+| **union** | three mutually exclusive predicates | **106** |
 
-The partition is genuinely disjoint: `runtime ∩ scientist = ∅`; the remainder is defined by set
-difference; `67 + 12 + 27 = 106`; and the union equals the complete token-containing hit set. The
-denominator is **106 token-containing Python files**, not all Python files in the source tree.
+The partition is disjoint by path construction and `67 + 12 + 27 = 106`. The denominator is the
+complete exact-token Python hit set, not every Python file in the repository.
 
-The live mechanism includes a typed authority envelope and consumer-side rejection. For example,
-`UniversalAuthorityProfile` and `UniversalPolicyGrammarAuthorityEnvelope` carry
-`may_not_use_for`, and `assert_authority_slot_eligible` rejects a purpose that is denied or absent
-from `authoritative_for`:
+### 3.3 `aggregate_only` hit set
 
-- `policy-engine/src/polisyos/core/contracts/runtime.py:278-329@1a7a2d05ebba22fae80e9934329e4b880806588e`;
-- `policy-engine/src/polisyos/policy_grammar/_impl/authority.py:17-55@1a7a2d05ebba22fae80e9934329e4b880806588e`;
-- `policy-engine/src/polisyos/policy_grammar/_impl/consumer.py:53-67@1a7a2d05ebba22fae80e9934329e4b880806588e`.
-
-The negative conclusion is therefore precise: the repository does not lack a denied-use mechanism;
-it lacks a vocabulary and boundary chain for **individual use**.
-
-### 2.4 `aggregate_only` complete hit set
-
-The seven token-containing source files were:
+The seven all-source token-containing paths are:
 
 1. `policy-engine/src/polisyos/fabric/evidence/decision_data.py`;
 2. `policy-engine/src/polisyos/runtime/quality/capability_index.py`;
@@ -128,13 +121,12 @@ The seven token-containing source files were:
 6. `policy-engine/src/polisyos/runtime/quality/design_axes/substrate_acquisition.py`;
 7. `policy-engine/src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`.
 
-The token is used for field redaction, rights envelopes, or hidden-fixture visibility. It does not
-establish a cross-export composition theorem or an individual-use prohibition. `aggregate_only` is
-therefore useful form metadata, not the firewall.
+These uses are form, redaction, rights-envelope, and fixture-visibility metadata. They do not prove
+cross-release non-resolution or downstream individual-use control.
 
-### 2.5 `anonymi*` complete hit set
+### 3.4 `anonymi` hit set and the corrected denominator
 
-The six prefix-containing source files were:
+The six Python paths are:
 
 1. `policy-engine/src/polisyos/core/security/authz.py`;
 2. `policy-engine/src/polisyos/scientist/methods/search/transfer_context.py`;
@@ -143,119 +135,69 @@ The six prefix-containing source files were:
 5. `policy-engine/src/polisyos/scientist/governance/passes/pii_check_pass.py`;
 6. `policy-engine/src/polisyos/data_forge/_impl/compliance.py`.
 
-These uses include a data-plane `requires_anonymization` flag, a stable tenant hash helper, a catalog
-comment requiring `k>=5`, middleware propagation, redaction advice, and accepted redaction-status
-vocabulary. They do not jointly define subject-resolution resistance under auxiliary information or
-multi-export composition. The firewall must therefore treat “anonymized” as a proposition requiring
-evidence, not as a permission word.
+The seventh all-source path is:
 
-## 3. Reproduction specification
+`policy-engine/src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/relevant_topics_block_context_sociocultural.csv`.
 
-The complete-set script used by the research is reproduced below so the hostile audit can distinguish
-files, matched lines, and literal occurrences. It is an executable specification, not an additional
-repository artifact.
+It contains the case-insensitive prefix in `anonymity`. The original six-file result was a Python
+count presented under an all-source denominator. The amended statement is seven all-source and six
+Python, with both denominators explicit.
 
-```bash
-PIN=1a7a2d05ebba22fae80e9934329e4b880806588e
-ROOT=policy-engine/src
+### 3.5 Settled zeroes
 
-python3 - "$PIN" "$ROOT" <<'PY'
-from pathlib import Path
-import subprocess
-import sys
+The exact all-source searches for `individual_decision`, `export_gate`, and `prohibited_use` each
+produce zero files, zero matching lines, and zero occurrences. These are settled true zeroes from a
+complete walk, not connector absences.
 
-pin, root = sys.argv[1:]
+The negative capability conclusion is therefore stronger and exact: the source can carry denied uses
+but cannot name an individual-decision concept, a policy-to-case export gate, or a parallel
+`prohibited_use` mechanism.
 
-def paths_at_pin() -> list[str]:
-    out = subprocess.check_output(
-        ["git", "ls-tree", "-r", "--name-only", pin, "--", root], text=True
-    )
-    return [p for p in out.splitlines() if p]
+## 4. Existing live mechanism
 
-def read(path: str) -> str:
-    return subprocess.check_output(["git", "show", f"{pin}:{path}"], text=True)
+The reusable primitive has three bounded operations:
 
-paths = paths_at_pin()
-queries = {
-    "aggregate_only": lambda text: "aggregate_only" in text,
-    "anonymi*": lambda text: "anonymi" in text.casefold(),
-    "individual_decision": lambda text: "individual_decision" in text,
-    "export_gate": lambda text: "export_gate" in text,
-    "prohibited_use": lambda text: "prohibited_use" in text,
-}
-for name, predicate in queries.items():
-    hit_paths, matched_lines, occurrences = [], 0, 0
-    needle = "anonymi" if name == "anonymi*" else name
-    for path in paths:
-        try:
-            text = read(path)
-        except UnicodeDecodeError:
-            continue
-        scan = text.casefold() if name == "anonymi*" else text
-        if predicate(text):
-            hit_paths.append(path)
-            matched_lines += sum(needle in line for line in scan.splitlines())
-            occurrences += scan.count(needle)
-    print(name, "files", len(hit_paths), "lines", matched_lines,
-          "occurrences", occurrences)
+1. authority envelopes declare `may_not_use_for`;
+2. producer/projection paths propagate or union restrictions; and
+3. consumer guards reject a denied purpose or a purpose absent from `authoritative_for`.
 
-py = [p for p in paths if p.startswith("policy-engine/src/polisyos/") and p.endswith(".py")]
-hits = {p for p in py if "may_not_use_for" in read(p)}
-runtime = {p for p in hits if p.startswith("policy-engine/src/polisyos/runtime/")}
-scientist = {p for p in hits if p.startswith("policy-engine/src/polisyos/scientist/")}
-remainder = hits - runtime - scientist
-assert not (runtime & scientist or runtime & remainder or scientist & remainder)
-assert runtime | scientist | remainder == hits
-print("may_not_use_for", len(hits), len(runtime), len(scientist), len(remainder))
-PY
-```
+Representative anchors are:
 
-## 4. Binding architecture orientation
+- `policy-engine/src/polisyos/core/contracts/runtime.py:278-329@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`;
+- `policy-engine/src/polisyos/policy_grammar/_impl/authority.py:17-55@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`;
+- `policy-engine/src/polisyos/policy_grammar/_impl/consumer.py:53-67@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`.
 
-### 4.1 Identity and anti-role
+`PV-K04` already ratifies that denied uses do not shrink under projection. PAO-R4 instantiates that
+property for individual-use purposes; it does not create a second prohibition mechanism or re-ratify
+the invariant.
 
-The identity ruling assigns the individual-decision firewall to PolicyOS while keeping the
-individual determination external. It also says that PolicyOS owns the typed evidence contract and
-fail-closed absence behavior for integrated functions, not the external function itself:
-`policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md:101-139@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding **Individual-decision firewall**.
+## 5. Boundary owners and open placement
 
-### 4.2 Authority-band lens
+The following ownership claims are established:
 
-The Stage-0 lens asks whether a restriction binds only the authority band or leaks into candidate
-work. PAO-R4 follows it: population analysis remains allowed; protected individual use is blocked.
-See `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:46-88@1a7a2d05ebba22fae80e9934329e4b880806588e` and the binding application note at `:164-176`, findings
-**`S0-K05`**, **`S0-K07`**, and **`S0-K11`**.
+- authority-purpose and denied-use carriers belong to existing core contracts and bounded consumers;
+- projection semantics and denial monotonicity belong to the existing projection owner;
+- Fabric/runtime authorization sources may supply access and redaction facts but cannot turn an
+  anonymization label into firewall permission.
 
-### 4.3 Projection monotonicity
+The following ownership claim is **not** established:
 
-**`PV-K04`** establishes use-relative conservative parity and says denied uses do not shrink under
-projection. PAO-R4 consumes that invariant and does not re-ratify it:
-`policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:138-146@1a7a2d05ebba22fae80e9934329e4b880806588e`.
+- `public_export.py` is a real producer of a public redacted bundle, but no pinned finding appoints it
+  as the canonical chokepoint for every non-public, purpose-bound case-system handoff.
 
-### 4.4 Population-claim basis
+Under `P36`, the policy-to-case emission chokepoint remains an open consolidation decision. This
+research appoints no owner and creates no implementation. The PAO-R4-specific chain remains
+**`absent/unallocated`**.
 
-**`INT-K02`** makes a `delta` inseparable from its declared obligation set, assumptions, and visible
-relative-basis rider. PAO-R4 generalizes the same no-basis-stripping rule to every bounded population
-claim that crosses toward case systems:
-`policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:117-126@1a7a2d05ebba22fae80e9934329e4b880806588e`.
+## 6. Orientation conclusion
 
-### 4.5 Public consumer
-
-Atlas **DS12** is the named public-boundary consumer and explicitly reuses the 2,103-line public
-export producer rather than inventing a duplicate. It is a publication surface, not a case-system
-consumer. See
-`policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1420-1535@1a7a2d05ebba22fae80e9934329e4b880806588e`.
-
-## 5. Orientation conclusions
-
-1. **The mechanism exists:** `may_not_use_for` is live in 106 source Python files and has bounded
-   consumer enforcement.
-2. **The firewall concept does not:** the three exact vocabulary probes return zero source files.
-3. **Form metadata is insufficient:** the seven `aggregate_only` and six `anonymi*` files do not
-   establish cross-release non-resolution or downstream individual-use detection.
-4. **The owner is clear:** extend `public_export.py`, `projection_semantics.py`, and the existing
-   authority-envelope/consumer-guard pattern; do not create a parallel prohibition system.
-5. **Current capability standing is absent/unallocated:** no accepted individual-decision contract,
-   consumer, export gate, or returning-evidence chain exists at the pin.
-6. **The research remains isolated:** correction mechanics belong to `PAO-R36`, durability to
-   `OPS-R14`, and benchmark-oracle design to `S0-GAP-02`.
+1. The central source shape is confirmed in full: 106 exact-token Python files, 794 matching lines,
+   903 occurrences, and the disjoint 67/12/27 partition.
+2. `aggregate_only` appears in seven all-source files and remains form metadata, not a firewall.
+3. `anonymi` appears in seven all-source files and six Python files; neither count establishes
+   non-resolution.
+4. The three missing-vocabulary zeroes are true all-source zeroes.
+5. The live denied-use mechanism is reusable and pervasive.
+6. The individual-decision vocabulary, gate, governed case consumer, evidence return, and
+   composition transcript remain absent/unallocated.
+7. No source capability or canonical handoff owner is upgraded by this amendment.

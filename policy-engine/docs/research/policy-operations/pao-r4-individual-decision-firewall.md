@@ -81,7 +81,7 @@ The following ratified findings constrain the amendment:
 - **`INT-K02`** — a `delta` is inseparable from its declared obligation set and assumptions; PAO-R4
   transfers the bounded lesson that an empirical claim stripped of its basis changes meaning.
 
-The amendment also applies two repository disciplines registered at the documentation pin:
+The amendment also applies three repository disciplines registered at the documentation pin:
 
 - **`P35`** — every set-level statement names both its path denominator and file-type denominator;
 - **`P36`** — adjacency to an owner is not authority to appoint that owner;
@@ -90,7 +90,7 @@ The amendment also applies two repository disciplines registered at the document
   positive.
 
 See
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:77-80@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`.
+`policy-engine/docs/reference/policy-design-case-failure-patterns.md:79-81@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`.
 
 ## 3. Formal population/individual boundary
 

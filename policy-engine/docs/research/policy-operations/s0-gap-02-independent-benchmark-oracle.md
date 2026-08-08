@@ -5,7 +5,12 @@ kind: research-report
 research_task: S0-GAP-02
 research_only: true
 source_repository: https://github.com/DenisKopylov/polisyos
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+source_tree_equivalent_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a7c34cc40b649a10b6878228a8a57acc498f279a
+audit_commit: 3abbaf8c2808e31fd7d8f9929b696e78dc91b3d4
+amendment_branch: research/s0-gap-02-amendment
+amendment_status: audit_amended
 source_branch: main
 delivery_branch: research/s0-gap-02-independent-benchmark-oracle
 result_standing: accepted_narrow_scope
@@ -31,17 +36,26 @@ may_not_use_for:
 
 ## 1. Result standing
 
-**`accepted_narrow_scope`.**
+**`accepted_narrow_scope`, amended after independent audit.**
 
-The architecture is sound as a research construction: it separates the product from two diverse answer-producing evaluator channels, keeps the same-code rebuild outside the verification claim, supports finite set-valued expectations, preserves dissent, seals answers, generates hidden adjacent cases, commits every version, and makes challenges and corrections append-only. Under the stated provenance, access, competence, non-collusion, coverage, and cryptographic assumptions, it establishes structural non-circularity for the named implementation-origin failure modes.
+The architecture family survives: two complementary evaluator channels `R_v` and `P_v` must both pass; disagreement blocks and is never majority-voted away; the same-code rebuild `C` remains outside verification everywhere; expectations remain finite and set-valued; dissent and prior oracle versions remain append-only; `F-04` can still return `ARCHITECTURE_FALSIFIED` against the verifier design itself; and every positive claim remains bounded by `S0-K16`.
 
-It is not `GO`. Its decisive institutional premise—a second competent and independently governed evaluator/oracle capability with enforceable authorship, access, proficiency, challenge, and continuity controls—is not established by this report or by the pinned repository. The project backlog also records that this wave does not advance the `INST-01`–`INST-05` institutional layer. (`policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:1-13@1a7a2d05ebba22fae80e9934329e4b880806588e`.) Architecture delivery is not implementation acceptance, does not authorize scoring, and does not unblock `OPS-R15`.
+The hostile independent audit returned `GO_WITH_REVISIONS` and correctly rejected the original statement that only an institution was missing. This amendment answers the four technical blockers at the **research-contract level**:
+
+1. a shared bad `B` or `O_v` is gated by specification assurance `S_v` and attack `A-14`;
+2. common provenance is limited to artifacts for which `AnswerNeutral(z,f)` is constructed, not merely declared;
+3. sealed predicates use a finite trace domain and total decidable DSL with proof-producing catch-all checks;
+4. every seeded failure is bound to an adequate discriminator witness with liveness, removal and neutralization probes.
+
+It also incorporates the remaining audit revisions: the P37 predicate-provenance register; `M_v`/`J_v`/`R_v`/`P_v` separation; reviewer proficiency; independently reconciled access evidence; role-matrix closure; and a blocking-challenge claim gate.
+
+The amendment does **not** provide the executable evaluators, allowlist gate, compiler, executed probes, proficiency results, independently reconciled logs, accepted role assignment, challenge-closure record, or the second competent independently governed function. Those technical execution premises and the institutional premise remain `not_established`. Architecture delivery is not implementation acceptance, authorizes no scoring, and does not unblock `OPS-R15`.
 
 ## 2. Commission, scope and precedence
 
-`S0-GAP-02` is a ratified obligation, not a new proposal. `S0-K14` blocks an independent verification/scoring claim until an oracle and rebuild path are independent of the product’s admission, reducers, dependency traversal, and status projection; the same finding permits a same-code rebuild to establish consistency only. `S0-K13` and `S0-K15` leave observable-semantic benchmark design active, which is why `OPS-R15` can be delivered and audited yet remain unscored. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@1a7a2d05ebba22fae80e9934329e4b880806588e`, findings `S0-K13`–`S0-K16`; `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:143-202@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K14` and commissioning action.)
+`S0-GAP-02` is a ratified obligation, not a new proposal. `S0-K14` blocks an independent verification/scoring claim until an oracle and rebuild path are independent of the product’s admission, reducers, dependency traversal, and status projection; the same finding permits a same-code rebuild to establish consistency only. `S0-K13` and `S0-K15` leave observable-semantic benchmark design active, which is why `OPS-R15` can be delivered and audited yet remain unscored. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, findings `S0-K13`–`S0-K16`; `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:143-202@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `S0-K14` and commissioning action.)
 
-The full register entry is authoritative on detail. It requires a public schema and input-only corpus, sealed set-valued expectations, independent evaluator interface, clean-rebuild/equivalence policy, authority axioms and human adjudication, oracle custody/challenge/supersession, adjacent/metamorphic generation, and bounded reproducibility receipts, while expressly denying production authorization or scoring effect. (`policy-engine/docs/research/policy-operations/consolidation/stage0/stage0-additional-research-register.md:123-199@1a7a2d05ebba22fae80e9934329e4b880806588e`, entry `S0-GAP-02`.) The present brief adds compatible specificity: a formal independence model, exact falsifiers plus additional attacks, prerequisite-safe integration vocabulary, typed open questions, and an external transfer ledger. No substantive conflict was found; the register wins if one is later discovered.
+The full register entry is authoritative on detail. It requires a public schema and input-only corpus, sealed set-valued expectations, independent evaluator interface, clean-rebuild/equivalence policy, authority axioms and human adjudication, oracle custody/challenge/supersession, adjacent/metamorphic generation, and bounded reproducibility receipts, while expressly denying production authorization or scoring effect. (`policy-engine/docs/research/policy-operations/consolidation/stage0/stage0-additional-research-register.md:123-199@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, entry `S0-GAP-02`.) The present brief adds compatible specificity: a formal independence model, exact falsifiers plus additional attacks, prerequisite-safe integration vocabulary, typed open questions, and an external transfer ledger. No substantive conflict was found; the register wins if one is later discovered.
 
 The architecture is also bounded by:
 
@@ -49,160 +63,141 @@ The architecture is also bounded by:
 - `S0-K15`: resist memorization and preserve challenge, dissent, and abstention;
 - `S0-K16`: any passage is bounded to named artifacts and carries no authority;
 - `INT-K05`: do not create a second product confidence/authority ledger;
-- `PV-K06`: an unproved approximation, timeout, empty result, unsupported theory, or incomplete history cannot inherit an acceptable verdict. (`policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:157-170@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `INT-K05`; `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:164-182@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `PV-K06`.)
+- `INT-K08`: negative completion is a valid governed result; benchmark-local non-establishment terminals do not create a fourth project outcome-vocabulary element;
+- `P37`: every load-bearing gate predicate is classified and frozen at admission, and a declared premise cannot masquerade as machine proof;
+- `PV-K06`: an unproved approximation, timeout, empty result, unsupported theory, or incomplete history cannot inherit an acceptable verdict. (`policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:157-170@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `INT-K05`; `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:164-182@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `PV-K06`.)
 
 ## 3. Direct answer to the commissioned question
 
 > How can an implementation-independent, machine-readable and challengeable oracle establish acceptable custody semantics while keeping expected results sealed, preserving ambiguity and dissent, preventing shared-code circularity, and resisting fixture memorization?
 
-Use a **dual diverse evaluator architecture** over a public observable-semantic specification and an input-only corpus:
+Use a **dual diverse evaluator architecture with a separate specification-assurance gate**:
 
-1. Freeze a public problem definition `B`: fixture/input grammar, raw observable-trace grammar, authority-scenario axioms, and explicit equivalence/metamorphic relations. It contains no expected product actions or labels.
-2. Commit and seal a versioned expectation bundle `O_v` that contains finite admissible alternatives, mandatory predicates, exclusions, bounded nonsemantic variability, reviewer records, and unresolved dissent.
-3. Evaluate the frozen product output through two answer-producing channels that are disjoint from the product and from each other beyond `B` and a tightly bounded neutral substrate:
+1. Freeze public problem definition `B`, a finite trace-domain profile, total decidable predicate DSL, input-only corpus, and public relation catalogue. No expected product actions or labels are visible.
+2. Admit common artifacts only through `AnswerNeutral(z,f)`: they may parse, canonicalize, transport, or identify declared inputs, but cannot decide admission, reduction, dependencies/affected sets, status/authority, ambiguity collapse, or expected answers. A machine allowlist, transitive source/SBOM/network evidence, poisoned helpers for every semantic family, and independent review construct—not declare—this property.
+3. Commit and seal `O_v`, containing finite explicit alternatives, mandatory positive/negative predicates, exclusions, bounded nonsemantic variability, reviewer records, and unresolved dissent. The PDL-1 compiler proves satisfiability/non-tautology and rejects catch-all alternatives; unknown proof status blocks under `PV-K06`.
+4. Evaluate the frozen product trace through two answer-producing channels:
    - `R_v`, an independently authored declarative reducer/reference semantics;
-   - `P_v`, an independently authored predicate, invariant, and metamorphic evaluator.
-4. Retain the product’s same-code incremental/clean rebuild `C` only as a diagnostic consistency control. It has zero weight in the verification conjunction.
-5. Generate hidden post-freeze adjacent cases and metamorphic variants through independent `M_v`, with committed mutation certificates and a fixed denominator.
-6. Require a signed, append-only evidence chain for package commitments, access, hidden-seed generation, run inputs, both evaluator results, reviewer conflicts/dissent/abstention, challenges, corrections, and supersessions.
-7. Accept no result unless both independent channels, integrity/provenance controls, and human-record completeness agree. Disagreement blocks; it is not majority-voted away.
-8. Emit only the bounded `S0-K16` claim that the named implementation revision, environment, fixture population, evaluator versions, expectation version, and tested predicates satisfied the recorded conditions.
+   - `P_v`, an independently authored predicate/invariant/metamorphic evaluator.
+   Both must pass. Disagreement blocks; it is never a vote.
+5. Retain product same-code control `C` only as a diagnostic consistency channel. It has zero weight in every verification or specification-assurance conjunction.
+6. Generate hidden post-freeze cases through `M_v`, and validate mutation certificates through separately governed `J_v`; neither may share a private semantic ancestor with the evaluators that decide the relation.
+7. Bind every seeded mutation to a `DiscriminatorWitness`: expected semantic delta, named discriminator, liveness result, removal probe, and neutralization probe. Removing the relevant discriminator makes acceptance fail closed as `EVALUATOR_COVERAGE_NOT_ESTABLISHED`.
+8. Maintain `S_v` over public axioms and expectations: independent derivation or dual control, reviewer proficiency/drift evidence, preserved dissent and challenges. A shared bad axiom accepted by both evaluators yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`; the stronger claim is withheld.
+9. Freeze every load-bearing premise in a P37 register as `recomputed`, `machine_observed`, `independently_reconciled`, `attested`, `institutionally_accepted`, or `not_established`. A decisive predicate in the last three classes cannot be rendered as machine proof or turn a positive gate green by itself.
+10. Bind commitments, storage/network/key-service access heads and reconciliation, roles, challenges, corrections and supersessions into an append-only receipt. A blocking challenge prevents claim rendering.
+11. Emit two different statements:
+    - when implementation-side evidence passes but `S_v` is not established: **“not refuted under the committed specification”**;
+    - only when `S_v` is established as well: the bounded `S0-K16` custody-semantics passage sentence.
 
-This design makes expected answers secret but their commitments public; makes ambiguity explicit but finite; makes dissent durable rather than averaged; makes product-code circularity mechanically detectable; and makes memorization resistance an ongoing hidden-population property rather than a static fixture claim.
+`SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`, `INDEPENDENCE_NOT_ESTABLISHED`, and `EVALUATOR_COVERAGE_NOT_ESTABLISHED` are benchmark-local negative-completion/evidence dispositions under `INT-K08`. They are not product statuses and do not add a fourth element to the project outcome vocabulary.
 
 ## 4. Pass-I orientation audit
 
-The orientation audit was completed before architecture selection and is retained in [the orientation ledger](s0-gap-02/orientation-ledger.md).
+The amended [orientation ledger](s0-gap-02/orientation-ledger.md) records the architect-supplied complete tree walk at the source-equivalent pin.
 
-### 4.1 Access and denominator discipline
+### 4.1 Denominators and reconciled counts
 
-Ordinary `git clone` and archive access failed because the execution environment could not resolve `github.com`. The connected GitHub interface supported exact-ref file reads at `1a7a2d05ebba22fae80e9934329e4b880806588e` but not a recursive raw tree/occurrence stream or write action. Under `P35`, search results were not promoted to a complete census; under `P36`, governing repository propositions are cited by finding ID. (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:71-80@1a7a2d05ebba22fae80e9934329e4b880806588e`, findings `P35`, `P36`.)
+Path denominator: `policy-engine/src`; case-sensitive fixed-string content matching; path-name matches excluded; binary files excluded. The inherited counts were Python-only matching-file counts whose file-type denominator was unstated.
 
-The commission’s six source-tree figures were therefore separated into three denominators: distinct files, matching source lines, and raw occurrences.
+| Token | Python-only files | All-source files | All-source matching lines | All-source occurrences |
+|---|---:|---:|---:|---:|
+| `benchmark` | **183** | **197** | **2,000** | **2,319** |
+| `evaluator` | **80** | **85** | **444** | **512** |
+| `oracle` | **44** | **44** | **323** | **386** |
 
-| Token | Brief’s distinct-file figure | Independent result in this run | Lines | Occurrences | Verdict |
-|---|---:|---|---|---|---|
-| `benchmark` | 183 | Exact complete-tree figure not established; dense vocabulary and named owners verified. | `not_established` | `not_established` | Do not repeat 183 as independently reproduced. |
-| `evaluator` | 80 | Exact complete-tree figure not established; connected search exceeded/altered relevant semantics. | `not_established` | `not_established` | Do not repeat 80 as independently reproduced. |
-| `oracle` | 44 | Exact lowercase complete-tree figure not established; connected case-insensitive search returned a different file result. | `not_established` | `not_established` | Query-semantic disagreement, not a repository contradiction. |
-| `metamorphic` | 3 | 3 matching files by connected search. | `not_established` | `not_established` | Agreement at file-search denominator only. |
-| `fixture_corpus` | 1 | 1 matching file by connected search. | `not_established` | `not_established` | Agreement at file-search denominator only. |
-| `sealed_expect` | 0 | 0 matching files by connected search under `policy-engine/src`. | 0 under that search | 0 under that search | Agreement within the connected-search boundary. |
+The original refusal to manufacture these figures from ranked search remains correct under `P35`; the supplied complete walk closes that evidence gap. An index establishes neither a zero nor a positive.
 
-The ledger supplies a fixed-string, case-sensitive `git grep` command that a hostile audit can run over a complete checkout to reproduce all three denominators. “Not established” records the blocked complete-set check; it is not used to avoid a feasible sample inspection.
+### 4.2 Bounded semantic conclusion
 
-### 4.2 Concept sample and the dangerous configuration
+The token census establishes extensive vocabulary, not semantic ownership. The supportable statement is: **no eligible independent custody oracle was established by the complete OPS-R15 evidence chain and the bounded three-owner sample**. It is not a universal proof that no independently implemented oracle exists anywhere under another name.
 
-The bounded concept denominator was the **three named runtime-quality benchmark owners; 3/3 were read; 3/3 are unsuitable as independent custody verifiers**:
-
-- `policy_benchmarking.py` is product runtime-quality machinery with implementation-facing metrics/criteria. (`policy-engine/src/polisyos/runtime/quality/policy_benchmarking.py:1-70@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
-- `grounding_benchmark.py` imports product admission/relation/phrasing/hash logic and carries visible expected fields. (`policy-engine/src/polisyos/runtime/quality/grounding_benchmark.py:1-140@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
-- `semantic_fixtures.py` contains product semantic fixtures, visible signals, and adjudication/gold-card behavior. (`policy-engine/src/polisyos/runtime/quality/semantic_fixtures.py:1-150@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
-
-The repository import policy exposes broad in-tree package relationships but no separately governed independent evaluator root at the pin. (`policy-engine/architecture/imports/policy.toml:1-132@1a7a2d05ebba22fae80e9934329e4b880806588e`.) This establishes the architectural trap qualitatively: existing benchmark machinery cannot simply be renamed or extended into the `S0-K14` oracle.
-
-### 4.3 OPS-R15 prior art
-
-The OPS-R15 report and all seven audit artifacts were read. Prior art already identifies a 117-row corpus with implementation-visible expected answers, set-valued outcome needs, hidden-mutation needs, and the same-code rebuild trap. Its probe showed a deliberately faulty reducer producing the same wrong answer in incremental and rebuild paths while an independent calculation differed. (`policy-engine/docs/research/policy-operations/stage0/ops-r15-custody-capstone-semantic-kernel-and-benchmark-architecture.md:326-470@1a7a2d05ebba22fae80e9934329e4b880806588e`, especially `CK-11`; `policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:80-160@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
-
-S0-GAP-02 extends that prior art with an enforceable provenance boundary, dual evaluator selection, sealed-answer/custody protocol, exact falsifiers, and institutional conditions. It does not relabel OPS-R15’s visible expected traces as an oracle.
+The concept sample remains denominator 3/3 named runtime-quality owners, 3/3 read, 3/3 unsuitable as the independent verifier. In particular, `grounding_benchmark.py` imports product admission/relation/phrasing/hash logic and exposes expected-answer fields. The OPS-R15 report plus all seven audit artifacts were read—8/8 prior-art artifacts—and already establish visible expected traces and the same-code fault trap.
 
 ## 5. What may be shared—and what must never be shared
 
-This boundary is logically prior to the component design. The full formal treatment is in [the independence model and evaluator interface](s0-gap-02/independence-model-and-evaluator-interface.md).
+The full amended boundary is in [the formal independence model](s0-gap-02/independence-model-and-evaluator-interface.md).
 
-### 5.1 Legitimately shared neutral substrate
+### 5.1 `AnswerNeutral(z,f)`
 
-The product and independent evaluators may share only material that identifies the public question or permits deterministic byte exchange without deciding the answer:
+For common artifact `z` and failure family `f`, `AnswerNeutral(z,f)` holds only when committed evidence establishes all of the following:
 
-- ratified observable-semantic requirements and the public benchmark specification;
-- input-only fixture bytes, opaque identifiers, declared units, syntactic types, version identifiers, and public authority-scenario axioms;
-- a raw observable-output grammar that contains facts/events/receipts but no product verdict mapping;
-- generic language runtimes, operating systems, cryptographic primitives, JSON/YAML parsers, canonicalization algorithms, and public conformance vectors;
-- hashes, signatures, seeds, environment descriptions, and explicitly nonsemantic ordering rules.
+- `z` only parses, canonicalizes, transports, or identifies declared inputs;
+- changing `z` cannot by itself select an expected alternative or decide admission, transition reduction, dependency/affected-set closure, status/authority projection, ambiguity collapse, or expected answer;
+- source/generated-file/SBOM/container/service/network provenance is fully enumerated and contains no prohibited semantic ancestor;
+- public conformance vectors and a poisoned helper for the named semantic family demonstrate the boundary behavior;
+- runtime load/network observations show no undeclared semantic call; and
+- an independent review reconciles the declaration with source and behavioral evidence.
 
-A helper is not neutral because of its name. If it admits evidence, reduces custody state, traverses dependencies, computes affected sets, orders by product priority, maps statuses/authority, or collapses ambiguity, it is semantic and prohibited.
+Let `A_f = {z in (N union B) | AnswerNeutral(z,f)}`. Only `A_f`, not the whole of `N union B`, may overlap between product and evaluator answer-producing provenance. This is `P37` applied to the neutrality gate.
 
-### 5.2 Never shared for an independent verification claim
+### 5.2 Legitimately shared inputs
 
-Neither `R_v` nor `P_v` may import, link, copy, generate from, call remotely, deserialize, fit to, or derive from:
+Subject to the gate above, the product and evaluators may share the public problem definition, input-only fixture bytes, opaque identifiers, declared units/types/version IDs, raw trace bytes, scoped expectation bytes after authorized reveal, generic language/OS/cryptographic primitives, deterministic canonicalization and public conformance vectors. Shared bytes are declared inputs, not proof that their semantics are correct.
 
-- product admission or re-admission logic;
-- custody transition reducers/state machines;
-- dependency traversal, closure, affected-set, or propagation logic;
-- status, posture, limitation, or authority projection/mapping;
-- implementation fixtures carrying expected actions, states, labels, mechanisms, or scores;
-- OPS-R15 implementation-visible expected traces;
-- product gold labels, semantic adjudication helpers, or test-oracle code;
-- generated schemas, lookup tables, snapshots, compiled rules, model artifacts, caches, services, or binary layers derived from prohibited product semantics;
-- the product same-code rebuild as evidence of correctness;
-- hidden expectation or challenge-answer material before the product submission is frozen.
+### 5.3 Never shared for an independent verification claim
 
-The prohibition is transitive and behavioral, not filename-based. It covers source, generated artifacts, dependencies, builds, network services, authorship inputs, review inputs, and data access.
+`R_v`, `P_v`, `M_v`, and `J_v` may not import, call, generate from, deserialize, fit to, or derive answer logic from product admission/re-admission, reducers, dependency traversal, affected-set computation, status/authority projection, answer-visible fixtures, product gold/adjudication helpers, implementation-visible OPS-R15 expected traces, product-generated semantic tables/models/services, or the same-code control `C`. `M_v` and `J_v` must also be separate from each other and from the evaluator that judges their relation except for the public relation definition and admitted `A_f` substrate.
+
+The prohibition is transitive and behavioral, covering source, generated artifacts, builds, services, network calls, authorship/review derivations and data access. A role label, repository boundary or language difference is not enough.
 
 ## 6. Formal independence model and proof
 
 ### 6.1 Components
 
-Let:
+Let `I` be the frozen implementation, `C` its same-code diagnostic, `B` the public specification/finite domain, `O_v` the sealed expectations, `R_v` and `P_v` the two evaluator channels, `M_v` the hidden generator, `J_v` the separate relation validator, `S_v` the specification-assurance record, `H_v` the human/challenge record, `L` the append-only custody log, `N` the candidate neutral substrate, and `A_f` the answer-neutral subset constructed for failure family `f`.
 
-- `I` = implementation under test at a frozen revision;
-- `C` = product same-code incremental/clean-build consistency control;
-- `B` = public benchmark specification and axioms;
-- `O_v` = sealed expectation bundle version `v`;
-- `R_v` = independently authored declarative reducer/reference semantics;
-- `P_v` = independently authored predicate/metamorphic evaluator;
-- `M_v` = hidden adjacent-case/mutation generator;
-- `H_v` = human review, conflict, dissent, abstention, and adjudication records;
-- `L` = append-only commitment/access/run/challenge/correction/supersession log;
-- `N` = allowed neutral substrate.
+`SemProv_f(X)` includes every transitive answer-producing source, generated table/model, semantic service, dependency, authoring/review derivation, build input and runtime call influencing `X`. `Input_f(X)` is every declared immutable run input. Undeclared access is a provenance violation.
 
-For component `X` and failure mode `f`, `SemProv_f(X)` is every transitive answer-producing semantic source, generated code/table/model, service, dependency, derivation/review input, build input, and runtime call that can influence `X`’s result. `Input_f(X)` is the complete set of declared immutable run data. Any undeclared data access is a semantic-provenance violation.
+### 6.2 Amended constructed-independence conditions
 
-This distinction permits two evaluators to judge the same committed fixture, trace, and expectation bytes without pretending those shared inputs are shared code. Their mutual independence is about semantic provenance. Correctness of shared `B` or `O_v` remains a separate, challengeable specification/oracle premise.
+For named implementation-origin failure families, structural independence requires:
 
-### 6.2 Constructed independence conditions
+1. product/control intersections with `R_v` and `P_v`, and the R/P intersection, are subsets of `A_f`—not merely `N ∪ B`;
+2. `M_v`, `J_v`, `R_v`, and `P_v` share no private semantic relation ancestor outside the public relation definition and `A_f`;
+3. no common/public artifact is generated, fitted or selected by observing product behavior, visible expected traces, prior hidden results or private product semantic notes;
+4. product/control declared inputs exclude plaintext expectations, hidden seeds before reveal, evaluator internals and adjudication answers;
+5. common evaluator inputs are exhaustively enumerated and committed;
+6. role assignments enforce product/evaluator/generator/validator/expectation incompatibilities, with independent derivation or dual control for `B`→`O_v`;
+7. each failure family has an adequate `DiscriminatorWitness` with semantic delta, liveness, removal and neutralization probes;
+8. every load-bearing predicate is frozen in the six-way P37 register with evidence and claim effect;
+9. `S_v` separately records whether shared specification/expectation assurance is established for the claimed scope;
+10. the receipt binds all provenance, answer-neutrality, access reconciliation, role, proficiency, discriminator, challenge and population evidence.
 
-For the named implementation-origin failure families—admission, transition reduction, dependency traversal, affected-set computation, status/authority projection, ambiguity collapse, identifier branching, and temporal ordering—the architecture claims structural implementation independence only when:
+Conditions involving competence, authorship influence and non-collusion are not mislabelled machine proof. They are `attested`, `institutionally_accepted`, or `not_established` and can only have the predeclared bounded/degrading effect.
 
-1. `SemProv_f(I ∪ C) ∩ SemProv_f(R_v) ⊆ N ∪ B`;
-2. `SemProv_f(I ∪ C) ∩ SemProv_f(P_v) ⊆ N ∪ B`;
-3. `SemProv_f(R_v) ∩ SemProv_f(P_v) ⊆ N ∪ B`;
-4. no allowed shared semantic derivation artifact is generated from, fitted to, or selected by observing product behavior, visible expected traces, or prior hidden-run results;
-5. product/control declared inputs exclude plaintext `O_v`, hidden seeds before authorized reveal, evaluator internals, and adjudication answers;
-6. evaluator common inputs are exhaustively enumerated and committed and may contain only `B`, the committed population, immutable raw trace, scoped `O_v`, and neutral conformance data;
-7. identities able to write `I` or `C` cannot write `R_v`, `P_v`, `M_v`, `O_v`, or their attestations for the same evaluation window, and pre-freeze plaintext expectation access is incompatible with implementation authorship/submission authority for that window;
-8. every failure family claimed has a precommitted independently derived discriminator and a blind or seeded acceptance challenge; unregistered families are outside the claim;
-9. the receipt contains machine-checkable evidence for conditions 1–8, including declared inputs and discriminator results.
+### 6.3 Verification and claim rules
 
-The architecture does **not** assert unconditional probabilistic independence. `B` and committed `O_v` are shared question/reference inputs; bad public axioms or expectations can therefore induce correlated specification/oracle failure. Competence, collusion, coercion, funding incentives, and coverage remain institutional or threat-model assumptions.
-
-### 6.3 Verification rule
-
-For fixture population `X`, define:
+For trace `y` on fixture `x`:
 
 ```text
-r = R_v accepts every required fixture/alternative/predicate relation
-p = P_v accepts every required predicate and metamorphic relation
-i = provenance, commitment, access, population and log integrity all hold
-h = required human records are complete and no unresolved blocking disagreement is erased
-
-V(I, X, v) = r ∧ p ∧ i ∧ h
+W(x,y;v) = r and p and a and d and i and h
+V_custody(x,y;v) = W(x,y;v) and s
 ```
 
-`C` is intentionally absent. A same-code consistency pass may be attached to the receipt as diagnostic evidence but cannot turn any zero in `V` into one.
+- `r` and `p`: R and P both accept all mandatory explicit relations; no vote;
+- `a`: every common artifact satisfies `AnswerNeutral`;
+- `d`: every claimed family has a live discriminator witness and removal/neutralization fail closed;
+- `i`: provenance, commitment, independently reconciled access, role, population and run integrity hold;
+- `h`: raw dissent/conflict/abstention/disagreement is complete and no unresolved blocking challenge exists;
+- `s`: `S_v` establishes the scope-specific shared-specification assurance premise;
+- `C`: deliberately absent.
 
-### 6.4 Proof sketch
+If `W=1` but `s` is not established, the only positive evidence sentence is “not refuted under the committed specification.” A shared bad `B`/`O_v` accepted by both evaluators yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED` and withholds the stronger passage sentence.
 
-**Non-circularity.** Let defect `δ` originate in a product semantic artifact outside `N ∪ B`. Conditions 1 and 2 exclude that artifact from both independent evaluator semantic provenances. Neither evaluator can reproduce `δ` by executing, importing, linking, generating from, or calling the defective product artifact. A coincident human mistake or shared-specification defect remains possible, but the claim is not circular with product code.
+### 6.4 Proof obligations
 
-**Single-evaluator containment.** Because `V` is a conjunction, a defect in either `R_v` or `P_v` blocks verification or creates a preserved disagreement. One channel cannot outvote the other.
+**Proposition 1—actual scope.** If a product defect's causal artifact lies in `SemProv_f(I union C) minus A_f`, the amended intersection conditions exclude that artifact from both evaluator answer paths. For an artifact inside `A_f`, non-circularity depends on the independently constructed `AnswerNeutral` evidence. The proposition does not prove shared public axioms correct.
 
-**Same-code fault discrimination.** Seed a reducer defect into the code shared by product incremental and clean-build paths. `C` may show perfect parity on the wrong result. For the registered seeded failure class, condition 8 requires at least one independent discriminator in `R_v` or `P_v` to fail, so `V=0`. If both independent channels accept the valid seeded wrong result, the architecture outputs `ARCHITECTURE_FALSIFIED`; it does not pass.
+**Proposition 2—discriminator adequacy.** A seeded shared product reducer may make `C` agree on the wrong answer. A valid witness makes at least one independent channel fail. Missing/removed/neutralized coverage yields `EVALUATOR_COVERAGE_NOT_ESTABLISHED`, never passage. If both channels accept an intact valid seeded wrong product result, the exact outcome remains `ARCHITECTURE_FALSIFIED`.
 
-**Bounded ambiguity.** Each fixture’s sealed answer is a finite nonempty set of explicit alternatives plus mandatory predicates and exclusions. Wildcards, “any reasonable outcome,” or semantic fields marked unconstrained invalidate the bundle. More than one outcome can be acceptable without making every outcome acceptable.
+**Proposition 3—no voting.** Both conjunctions require R and P. Disagreement blocks and is preserved. Knight–Leveson supports rejection of independence-by-voting; no numeric reliability gain is claimed.
 
-The proof establishes conditional structural separation. It does not establish legal correctness, evaluator competence not yet demonstrated, or a reliability probability.
+**Proposition 4—bounded ambiguity.** Within the finite enumerated trace domain and total decidable PDL-1 language, the compiler can prove alternative satisfiability, discriminator non-tautology and non-catch-all coverage. Unknown proof status blocks under `PV-K06`.
+
+**Proposition 5—specification-side fault.** `A-14` supplies a false shared axiom correctly implemented by I, R and P. Implementation-side `W` may pass, but `S_v` fails; `V_custody=0`, the stronger claim is withheld, and the negative completion is `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`.
+
+These propositions establish conditional structural separation and claim discipline. They do not establish legal correctness, evaluator competence, non-collusion or a reliability probability.
 
 ## 7. Comparative models: breadth before selection
 
@@ -231,63 +226,70 @@ The complete source-by-source transfer and non-transfer analysis is in [the exte
 ```text
                          PUBLIC / IMPLEMENTATION-VISIBLE
 
-  B: observable semantic spec + authority axioms + equivalence relations
-                         |
-  X_public: input-only fixtures -----> frozen product I -----> raw trace T
-                         |                                  |
-                         |                                  +--> C: same-code
-                         |                                       rebuild control
-                         |                                       (diagnostic only)
-                         |
-  ---------------------- commitment / access boundary ----------------------
-                         |
-       O_v: sealed finite alternatives, predicates, exclusions, dissent
-       M_v: hidden post-freeze mutations and adjacent cases
-                         |
-                 +-------+----------------+
-                 |                        |
-          R_v declarative reducer    P_v predicates/metamorphic
-          separate provenance        separate provenance from I and R
-                 |                        |
-                 +-----------+------------+
-                             |
-                   conjunction + integrity
-                             |
-                H_v preserved review/adjudication
-                             |
-               bounded reproducibility receipt Q_v
-                             |
-      L: append-only commitments, access, runs, challenges, corrections,
-         supersessions, inclusion/consistency proofs and external witnesses
+ B + finite domain + PDL-1 + public relations
+                  |
+ public inputs --> frozen product I --> raw trace T --> C same-code control
+                  |                                  (diagnostic only)
+                  |
+       AnswerNeutral / P37 admission boundary
+                  |
+ ---------------- commitment / access boundary ----------------
+                  |
+        O_v sealed finite alternatives and dissent
+        M_v hidden mutations --> J_v relation validation
+                  |                    |
+             +----+--------------------+----+
+             |                              |
+      R_v declarative reducer        P_v predicates/metamorphic
+      separate provenance            separate provenance
+             |                              |
+             +--------------+---------------+
+                            |
+                  W = r ∧ p ∧ a ∧ d ∧ i ∧ h
+                            |
+                  S_v specification assurance
+                            |
+                  V_custody = W ∧ s
+                            |
+                bounded receipt / claim gate
+                            |
+ L: commitments, reconciled access heads, roles, proficiency, raw dissent,
+    blocking challenges, corrections, supersessions and witnesses
 ```
 
-### 8.1 Component import rules
+`C` is deliberately outside `W` and `V_custody`. `M_v` and `J_v` are not part of either evaluator's private answer path. `S_v` is not a third evaluator vote; it gates the stronger claim against shared public-axiom/expectation failure.
 
-| Component | May import/read | Must not import/read |
+### 8.1 Component import and provenance rules
+
+| Component | May import/read | Must not import/read/share |
 |---|---|---|
-| Product `I` | Public `B`, public inputs, product code | Plaintext `O_v`, hidden seed/variants, evaluator source, adjudication answers |
-| Product control `C` | Product code and raw inputs | Any role in `V`; no independent-verification label |
-| Trace adapter | Product raw observations and neutral DTO/canonicalization | Acceptance logic, expected labels, dependency/status/authority mappings created for evaluation |
-| `R_v` | `B`, public/hidden input, raw trace, neutral substrate | Product semantics, product fixtures/gold labels, `P_v` internals, answer-derived generated artifacts |
-| `P_v` | `B`, public/hidden input, raw trace, neutral substrate | Product semantics, `R_v` answer path/private derivation, product fixtures/gold labels |
-| `M_v` | Public mutation grammar and axioms | Product code/behavior-derived variant selection, evaluator answer code, implementation-visible seed |
-| `O_v` compiler/custody | Approved public axioms, signed reviewer records, canonicalization/crypto | Product output-driven answer edits after freeze, unlogged plaintext export |
-| Receipt/log verifier | Committed artifacts, raw results, proofs, identities | Authority inference, product status mutation, silent correction |
+| Product `I` | Public `B`, public inputs, product code and admitted `A_f` substrate | Plaintext `O_v`, hidden seed before reveal, evaluator/generator/validator source, adjudication answers |
+| Product control `C` | Product code and raw inputs | Any role in `W`/`V_custody`; any independent-verification label |
+| Trace adapter | Product raw observations and admitted answer-neutral DTO/canonicalization | Acceptance logic, expected labels, dependency/status/authority mappings or ambiguity collapse |
+| `R_v` | `B`, committed inputs, raw trace, scoped `O_v`, admitted `A_f` | Product answer semantics, product gold/adjudication logic, `P_v` private derivation, M/J private semantic tables |
+| `P_v` | Same declared run bytes and admitted `A_f` | Product answer semantics, `R_v` private derivation, M/J private semantic tables, product gold labels |
+| `M_v` | Public mutation grammar, finite domain, public relation definitions, hidden seed | Product behavior-derived selection, R/P answer code, private relation table shared with `J_v` or deciding evaluator |
+| `J_v` | Public relation definition, mutation certificate, admitted `A_f` | Generator-private relation implementation, product semantics, R/P private answer path |
+| `O_v` compiler/custody | Approved `B`, PDL-1 compiler, independent/dual-control reviewer records | Product-output-driven edits after freeze, general predicate execution, unlogged plaintext export |
+| `S_v` | Specification derivation, proficiency, dissent, challenge and scope evidence | Product passage inference, majority-vote substitution, self-attested machine-proof labels |
+| Receipt/log verifier | Committed artifacts, raw results, role/access/proficiency/challenge evidence | Authority inference, product status mutation, silent correction or challenge suppression |
 
 ### 8.2 Enforcement—not promises
 
-A future implementation must demonstrate:
+A later implementation must produce committed evidence for:
 
-- separate repositories/build identities/service accounts for `R_v`, `P_v`, `M_v`, and `O_v`;
-- source and binary dependency allowlists plus semantic-family denylists;
-- transitive provenance graphs covering generated files, containers, model artifacts, network services, build inputs, and authorship/review sources;
-- no product repository in evaluator build context and no evaluator/expectation plaintext in product build context;
-- isolated networks with recorded egress, reproducible builds, signed source/SBOM/build attestations, and cross-language public vectors;
-- identity-enforced role incompatibilities and plaintext access logs;
-- acceptance probes for direct import, transitive import, generated-artifact laundering, poisoned neutral helpers, common private derivation, and runtime remote calls;
-- the full architecture falsifier suite before an evaluator version is accepted.
+- a machine-enforced allowlist whose common members each carry `AnswerNeutral(z,f)` evidence;
+- transitive source/generated-file/SBOM/container/model/service/network provenance;
+- poisoned “neutral helper” probes for every semantic family and the falsify-the-declaration probe;
+- isolated identities/build roots for `R_v`, `P_v`, `M_v`, and `J_v`, with role-window validation and `B`→`O_v` independent derivation or dual control;
+- `DiscriminatorWitness` records and successful liveness/removal/neutralization probes for every claimed family;
+- a proof-producing finite-domain PDL-1 compiler that rejects the audit catch-all and blocks on unknown/timeout/unsupported theory;
+- blinded reviewer proficiency and drift evidence, including A-16;
+- storage/network/key-service heads and an independently reconciled access disposition;
+- challenge classification and `no_unresolved_blocking_challenge=true` before passage rendering;
+- all attacks `F-01`–`F-06` and `A-07`–`A-21`, including A-14 specification-side failure and A-15 private relation ancestry.
 
-Organizational separation without these controls is not independence.
+Organizational separation or prose saying “enforced” is not execution evidence.
 
 ## 9. Machine-readable public schema and input-only corpus
 
@@ -331,55 +333,85 @@ A leakage scanner combines exact field denylists, semantic text/provenance revie
 
 ## 10. Sealed expectations that admit alternatives without becoming unfalsifiable
 
-For fixture `x`, the sealed bundle contains:
+The complete amended format and decision procedure are in [public schema and sealed expectations](s0-gap-02/public-schema-and-sealed-expectations.md).
+
+### 10.1 Chosen executable model
+
+This amendment chooses a **finite enumerated trace domain plus total decidable predicate DSL**, `S0-GAP-02-PDL-1`. General code, regex engines with unbounded behavior, external calls, reflection, user-defined recursion and unsupported theories are forbidden in expectation predicates. Every variable ranges over an enumerated finite domain, bounded integer interval, finite set, finite event/edge collection or explicitly bounded partial order.
+
+For each bundle version, a proof-producing compiler records:
+
+- domain and predicate-language versions/digests;
+- parse/type/totality results;
+- SAT/UNSAT and TAUT/NOT_TAUT certificates for each predicate;
+- satisfiability of every alternative;
+- non-tautology of every mandatory positive discriminator;
+- satisfiable, non-tautological forbidden boundaries;
+- an exhaustive or symbolically complete proof that the union of alternatives does not cover the entire admitted trace domain;
+- resource bounds and exact unknown/timeout/unsupported disposition.
+
+Unknown, timeout or unsupported theory blocks under `PV-K06`; it never inherits acceptance.
+
+### 10.2 Bundle shape and acceptance
 
 ```yaml
 SealedExpectation:
   fixture_digest: digest
+  finite_trace_domain_version: version
+  predicate_language: S0-GAP-02-PDL-1
+  predicate_compiler_digest: digest
+  predicate_proof_bundle_digest: digest
+  specification_assurance_digest: digest
   alternatives:
     - alternative_id: opaque
-      required_observable_predicates: [predicate]
+      mandatory_positive_predicates: [predicate]
+      mandatory_negative_predicates: [predicate]
       allowed_partial_order: [constraint]
       required_effect_set_relation: relation
       required_authority_limitations: [limitation]
-      permitted_nonsemantic_variation: [named public dimension]
-  mandatory_cross_alternative_predicates: [predicate]
-  exclusions: [forbidden observable/predicate]
-  ambiguity_basis:
-    kind: genuine_semantic_ambiguity | unresolved_dissent | bounded_nondeterminism
-    authority_and_source_records: [digest]
+      may_vary: [named bounded nonsemantic dimension]
+  cross_alternative_predicates: [predicate]
+  exclusions: [predicate]
+  ambiguity_basis: genuine_semantic_ambiguity | unresolved_dissent | bounded_nondeterminism
   reviewer_records_root: digest
   unresolved_positions: [digest]
   expectation_version: immutable version
 ```
 
-Acceptance is:
-
 ```text
-Accept(x, y) =
-  (there exists explicit alternative a in A_x such that Match(y, a))
-  AND all mandatory predicates hold
-  AND no exclusion holds
-  AND every varied field is authorized by a named bounded variability rule
+Compatible(x,y) =
+  y is a member of the admitted finite trace domain
+  and exactly the PDL-1 decision procedure terminates
+  and some explicit satisfiable alternative matches y
+  and all cross-alternative predicates hold
+  and no exclusion holds
+  and every varied field is authorized by a named bounded rule
 ```
 
-Bundle validation rejects:
+### 10.3 Catch-all rejection fixture
 
-- empty or wildcard alternative sets;
-- “any reasonable outcome” or equivalent escape hatches;
-- unconstrained status, authority, affected-set, external-act, or history fields;
-- alternatives added after observing a frozen submission without a new version/challenge;
-- discarded dissent/abstention/conflict records;
-- expectation references visible to the implementation.
+The audit's bundle is a committed negative validator case:
 
-Genuine ambiguity is preserved as explicit alternatives or a blocking unresolved record. It is never resolved merely to create a score.
+```yaml
+alternatives:
+  - alternative_id: universal
+    mandatory_positive_predicates:
+      - "event_count >= 0"
+    mandatory_negative_predicates:
+      - "event_type == 'x' and event_type != 'x'"
+    may_vary: []
+```
+
+It must be rejected before a product run because the positive predicate is tautological, the negative boundary is unsatisfiable, and the alternative covers the admitted domain. Exact validator findings are `POSITIVE_DISCRIMINATOR_TAUTOLOGY`, `NEGATIVE_BOUNDARY_UNSATISFIABLE`, and `CATCH_ALL_ALTERNATIVE`.
+
+Finite alternatives, explicit exclusions and bounded `may_vary` therefore remain; the fix does not trade away genuine ambiguity. Unresolved dissent remains an explicit blocking record and is never resolved merely to create a score.
 
 ## 11. Clean rebuild, reference semantics and equivalence policy
 
 Two “clean” concepts must remain distinct:
 
 1. **Independent reference reconstruction (`R_v`).** `R_v` starts from public/hidden fixture inputs, public axioms, and raw observations in an isolated clean environment. It recomputes the expected semantic relations through a separately authored declarative model. It may establish an independent verification predicate when all provenance conditions hold.
-2. **Product same-code clean rebuild (`C`).** `C` reruns the product’s own semantic code from a clean store/build. It may establish internal consistency or diagnose incremental drift. It cannot establish independent correctness, cannot replace `R_v` or `P_v`, and cannot contribute to `V`.
+2. **Product same-code clean rebuild (`C`).** `C` reruns the product’s own semantic code from a clean store/build. It may establish internal consistency or diagnose incremental drift. It cannot establish independent correctness, cannot replace `R_v` or `P_v`, and cannot contribute to `W` or `V_custody`.
 
 The equivalence policy is explicit per field/relation:
 
@@ -393,240 +425,230 @@ The equivalence policy is explicit per field/relation:
 
 An equivalence relation is public, versioned, independently tested, and cannot be invented after a failure. An unproved approximation receives a blocking/not-established result under `PV-K06`.
 
-## 12. Authority-scenario axioms and human adjudication
+## 12. Authority-scenario axioms, specification assurance and human adjudication
 
-The full protocol is in [oracle custody and adjudication](s0-gap-02/oracle-custody-and-adjudication-protocol.md).
+The full amended protocol is in [oracle custody and adjudication](s0-gap-02/oracle-custody-and-adjudication-protocol.md).
 
-### 12.1 Axiom record
+### 12.1 Axiom and expectation derivation
 
-Each fixture-local authority axiom states:
+Each fixture-local axiom records stable identity/version/digest, jurisdiction/institution/role/period/scope, source and limitations, machine form where feasible, contestability/uncertainty, authors/reviewers/competence/conflicts/abstentions/dissent/signatures, and supersession links. These are benchmark assumptions, not universal legal truth or an authority grant.
 
-- stable axiom ID/version and content digest;
-- jurisdiction, institution, role, temporal validity, and scenario scope;
-- source/authority references and known limitations;
-- proposition in machine-checkable form where feasible;
-- contestability class and uncertainty;
-- authors/reviewers, competence scope, conflicts, abstentions, dissents, and signatures;
-- supersedes/superseded-by links.
+The `B`→`O_v` step requires independent derivation or dual control. A scenario author cannot be the sole expectation author and sole reviewer for the same semantic premise in one evaluation window. The role validator rejects forbidden combinations before access to product output.
 
-Required axiom families cover at least evidence admissibility for the scenario, actor/claim/scope authority, temporal validity and reproof triggers, prohibited external acts, scope/tenant/cell boundaries, correction/supersession effects, and conditions that must remain unresolved.
+### 12.2 Specification assurance `S_v`
 
-These axioms are benchmark assumptions, not universal legal truth or an authority grant.
+`S_v` binds:
 
-### 12.2 Adjudication protocol
+- public axiom and expectation versions;
+- derivation/review independence or dual-control receipts;
+- scope-specific competence/mandate evidence, correctly classified as institutional rather than machine proof;
+- blinded reviewer proficiency anchors and drift checks;
+- all raw positions, minority rationales, abstentions, recusals and challenges;
+- the claim scope and exact effect when assurance is not established.
 
-1. Reviewers submit signed positions independently: support, dissent, abstain, conflict/recusal, or out-of-scope.
-2. Raw positions are committed before any aggregation; no position is overwritten.
-3. `R_v`/`P_v` disagreement or reviewer disagreement is classified by possible locus: fixture, public axiom, sealed expectation, parser/canonicalization, reducer, predicate, product trace, or access/integrity.
-4. A minimal counterexample and all affected versions/runs are recorded.
-5. Adjudication may affirm an existing version, challenge a run, or propose a new superseding fixture/axiom/expectation/evaluator version. It may not mutate an old version.
+Unanimity is not sufficient. Attack `A-16` seeds a premise defect that every otherwise competent reviewer misses; without a passed scoped proficiency anchor the exact negative completion is `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED` and the stronger claim is withheld.
+
+### 12.3 Adjudication protocol
+
+1. Reviewers submit signed support, dissent, abstention, conflict/recusal or out-of-scope positions independently.
+2. Raw positions and proficiency status are committed before aggregation; no record is overwritten.
+3. `R_v`/`P_v` or reviewer disagreement is localized to fixture, axiom, expectation, compiler/domain, parser/canonicalization, reducer, predicate, mutation relation, product trace, access/integrity or challenge state.
+4. A minimal counterexample and every affected version/run are recorded.
+5. Adjudication may affirm a version, challenge a run or propose a new superseding fixture/axiom/expectation/evaluator version. It may not mutate an old version.
 6. Abstention is not support; recusal is not absence; dissent is not averaged away; unresolved material disagreement blocks the affected claim.
-7. Every rationale, minority view, evidence link, conflict, and appeal remains retrievable.
+7. Blocking challenge classes are predeclared. `no_unresolved_blocking_challenge` is part of `h` and of the human-readable claim gate.
+8. Every rationale, minority view, evidence link, conflict and appeal remains retrievable.
 
-No reviewer panel is appointed by this report.
+No reviewer panel, competence authority or institution is appointed by this report.
 
 ## 13. Commitment, custody, access, rotation, challenge and supersession
 
-The oracle is itself a custody subject.
+The oracle is itself a custody subject. The full protocol is in [oracle custody and adjudication](s0-gap-02/oracle-custody-and-adjudication-protocol.md).
 
-### 13.1 Commitment and run order
+### 13.1 Amended run order
 
-A valid run follows this order:
+1. publish/freeze `B`, the finite domain, PDL-1, public relation catalogue and corpus commitments;
+2. freeze the P37 predicate-provenance register;
+3. accept `AnswerNeutral`, provenance, role-window and discriminator-adequacy evidence;
+4. accept and commit `R_v`, `P_v`, `M_v`, `J_v`, compiler and `S_v` versions;
+5. commit sealed `O_v`, reviewer/proficiency roots and independent/dual-control derivation evidence;
+6. freeze product revision/environment/submission/trace adapter;
+7. generate/commit hidden seed and full population manifest;
+8. execute product and diagnostic-only `C`;
+9. evaluate through R/P and validate mutation relations through J;
+10. reconcile oracle log with storage, network and key-service heads;
+11. commit raw evaluator/human/specification-assurance results and challenge state;
+12. render the evidence-only or stronger bounded claim according to `W`, `s`, and blocking-challenge status;
+13. append challenges, corrections and supersessions without rewriting any prior entry.
 
-1. publish/freeze `B` and public corpus commitments;
-2. accept and commit evaluator releases/provenance;
-3. commit sealed `O_v` and reviewer-record root without exposing plaintext;
-4. freeze product revision, environment, submission, and trace-adapter version;
-5. generate/commit hidden mutation seed and resulting population manifest;
-6. execute product and same-code diagnostic;
-7. evaluate through `R_v` and `P_v`;
-8. commit raw results and human records;
-9. emit receipt bound to all prior digests;
-10. append challenge/correction/supersession events without rewriting any prior entry.
+### 13.2 Role separation and common-origin closure
 
-### 13.2 Access and role separation
+Roles include specification/scenario author, public corpus curator, expectation author, specification reviewer, plaintext custodian, R/P authors and releasers, M author, J validator, proficiency administrator, product author, submission freezer, run operator, adjudicator, challenge receiver and log witness. A `RoleAssignmentWindow` validator rejects incompatible combinations before output access. The `B`→`O_v` step uses independent derivation or dual control; M/J/P/R private semantic ancestry is separately checked. Exceptions are signed and independently reviewed but cannot override a prohibited same-window combination.
 
-Abstract roles include specification author, public corpus curator, expectation author, plaintext custodian, evaluator-R author/releaser, evaluator-P author/releaser, mutation custodian, product author, submission freezer, run operator, reviewer/adjudicator, challenge receiver, and log witness. Incompatible roles are enforced per evaluation window; exceptions are signed and independently reviewed. Access events carry actor, role, purpose, object digest/version, operation, time, authorization, result, and prior/current log heads.
+### 13.3 Access evidence and reconciliation
 
-### 13.3 Commitments and logs
+Each access event records actor, role, purpose, object digest/version, operation, time, authorization, result and prior/current log heads. A log's silence is not proof of no access. The receipt therefore binds:
 
-- Canonical bytes use a public profile with cross-language vectors; original bytes are retained.
-- Domain-separated commitments bind object kind, version, digest algorithm, canonicalization profile, salt/key identifier, and ciphertext or content digest as applicable.
-- The append-only log records package commitments, access, key operations, freezes, seeds, runs, results, conflicts, challenges, corrections, and supersessions.
-- Inclusion and consistency proofs are witnessed by more than the log operator; equal-size inconsistent roots or missing consistency proofs trigger the split-view falsifier.
-- A hash proves byte binding, not semantic correctness.
+- oracle access-log head;
+- storage audit head;
+- network/egress audit head;
+- key-service audit head; and
+- an independent reconciliation record with coverage, gaps and disposition.
 
-### 13.4 Key rotation and compromise
+Inconsistent/tampered heads produce `RUN_INVALID`. An unresolved completeness gap affecting secrecy/provenance produces `INDEPENDENCE_NOT_ESTABLISHED`; no positive claim may treat the absent event as exculpatory.
 
-Rotation creates a new key/version record and preserves historical verification. It cannot reset access history or re-sign an old artifact as though unchanged. Compromise triggers a signed incident, scope assessment, challenges to affected runs, replacement keys, and supersession links. No KMS, algorithm suite, vendor, or final cryptographic profile is selected here.
+### 13.4 Commitments, rotation and compromise
+
+Canonical bytes use a public profile and cross-language vectors; originals are retained. Domain-separated commitments bind object kind/version, digest/canonicalization, salt/key ID and ciphertext/content digest. Inclusion/consistency proofs are externally witnessed. Rotation preserves historical verification and cannot reset access history. Compromise creates a signed incident, scope assessment, affected-run challenges, replacement keys and supersession links. No vendor, KMS or final algorithm suite is selected.
 
 ### 13.5 Challenge, correction and supersession
 
-A challenge names the challenged artifact/run, grounds, evidence, requested remedy, standing/bounded disclosure, and conflict record. It receives a signed acknowledgement and reasoned disposition. A correction always creates a new immutable version and a supersession edge. A prior receipt remains bound to the expectation/evaluator/fixture versions actually used; displays may show that it was later challenged or superseded, but cannot silently recompute it.
+Challenges identify artifact/run, grounds, evidence, requested remedy, standing/disclosure and conflicts. Blocking classes include independence/provenance, expectation leakage, specification assurance, population/denominator integrity, evaluator coverage, access reconciliation, oracle-history substitution and discarded dissent. A receipt with any unresolved blocking challenge cannot render the `S0-K16` passage sentence.
+
+A correction creates a new immutable version and supersession edge. A prior receipt remains bound to the exact expectation/evaluator/fixture/specification-assurance versions used. Displays may show later challenge/supersession but never silently rescore history. Digest mismatch against a prior receipt remains a detectable `RUN_INVALID` and oracle-history violation under retained verification evidence.
 
 ## 14. Adjacent-case and metamorphic anti-memorization layer
 
-The generator and receipt are specified in [mutation and reproducibility](s0-gap-02/mutation-and-reproducibility.md).
+The amended generator, relation validator and receipt are specified in [mutation and reproducibility](s0-gap-02/mutation-and-reproducibility.md).
 
-A metamorphic relation is a versioned statement:
+A mutation family binds:
 
 ```text
-MR = (precondition, input transform τ, expected output relation ρ,
-      semantic-dimension change certificate, exclusions, reviewer records)
+MR = (precondition, finite-domain input transform tau, expected output relation rho,
+      expected semantic delta, exclusions, public relation version, reviewer records)
 ```
 
-The generator produces source/follow-up pairs only when the precondition holds and emits a mutation certificate. Required families include:
+`M_v` produces source/follow-up pairs only when the precondition holds. `J_v`, separately governed from `M_v`, validates the certificate against the public relation language. The deciding evaluator cannot share a private relation table, prompt, generated transform, model or service with either M or J. `A-15` seeds a shared bad relation table and requires rejection before product scoring.
 
-- bijective renaming/permutation of opaque IDs;
-- irrelevant metadata and presentation perturbation;
-- input/map ordering changes where order is declared nonsemantic;
-- duplicate delivery/retry/idempotency;
-- equivalent event interleavings under a declared partial order;
-- boundary-adjacent time/value cases on both sides of a semantic threshold;
-- authority narrowing/revocation with payload held constant;
-- dependency-edge addition/removal with predicted affected-set relation;
-- correction/supersession versus historical replay;
-- tenant/scope relabeling with isolation-preserving relation;
-- controlled ambiguity/dissent alternatives;
-- asymmetric store/recovery cases;
-- prohibited external-act substitutions;
-- missing-edge and hidden-dependency perturbations;
-- Unicode/canonicalization/serialization equivalents that must not change semantics.
+Required families retain the original anti-memorization coverage: opaque-ID renaming, irrelevant metadata, declared-nonsemantic ordering, duplicate/retry, partial-order interleavings, adjacent threshold cases, authority-only invalidation with stable payload, dependency changes, correction/replay, tenant/scope isolation, ambiguity/dissent, asymmetric recovery, external-act substitutions, hidden dependencies and canonicalization variants.
 
-### 14.1 Adjacent case definition
+Every mutation certificate also identifies its bound `DiscriminatorWitness`: expected semantic delta, named R/P discriminator, liveness result, removal result and neutralization result. An invalid certificate is `TEST_SETUP_INVALID`; missing or ineffective coverage is `EVALUATOR_COVERAGE_NOT_ESTABLISHED`; neither is a product failure or passage.
 
-A case is adjacent only when a certificate identifies exactly one intended semantic dimension change (or an explicitly semantic-preserving transform), holds all others invariant, states the expected relation rather than a hidden point answer, and records why the transformed case remains in scope. An invalid certificate yields `TEST_SETUP_INVALID`, not a product failure.
-
-### 14.2 Population and exposure controls
-
-- Product revision/submission freezes before hidden seed generation.
-- Seeds and full population manifests are committed before execution.
-- Invalid generated cases are retained with reasons; failed valid cases cannot be silently dropped.
-- The receipt binds planned/generated/valid/executed/reported denominators and every omitted digest.
-- Submission/query budgets and diagnostic granularity are predeclared; adaptive probing compromises the population.
-- Exposed families are retired or reweighted only through a new prospective version, never after inspecting a run.
-
-Static visible fixture success is insufficient. The anti-memorization claim is bounded to the named hidden population and mutation families.
+Population controls remain prospective: product freeze before hidden-seed generation; seed/population commitments before execution; retained invalid/omitted cases and denominators; predeclared submission/query budgets; and versioned retirement after exposure. Static visible-fixture success is never enough.
 
 ## 15. Reproducibility receipt and bounded claim
 
-A receipt binds at minimum:
+The receipt binds at minimum:
 
-- source repository/revision and dirty-state digest;
-- product artifact/container/build attestations;
-- environment, dependencies, configuration, clocks/time profile, and resource limits;
-- public specification/corpus/fixture digests and complete population denominator;
-- trace adapter and raw trace digests;
-- same-code diagnostic version/result, labeled control-only;
-- `R_v`, `P_v`, `M_v`, `O_v`, canonicalization, and provenance-policy versions/digests;
-- expectation commitment, log heads, inclusion/consistency proofs, witnesses, access summary, and key identifiers;
-- per-fixture/per-predicate raw outcomes from both evaluators;
-- disagreement, conflict, dissent, abstention, recusal, challenge, and adjudication roots;
-- invalid/unsupported/timeout/approximation records;
-- exact harness/falsifier suite version and results;
-- signatures and reproduction instructions.
+- product repository/revision/build/environment/configuration/resource limits;
+- public `B`, finite-domain and PDL-1/compiler/proof-bundle digests;
+- public and hidden population manifests, denominators and raw trace;
+- `R_v`, `P_v`, `M_v`, `J_v`, `O_v`, `S_v` and canonicalization/provenance-policy versions;
+- same-code `C` result labelled diagnostic/control-only;
+- P37 predicate-provenance register and evidence digests;
+- `AnswerNeutral` allowlist, transitive source/SBOM/network evidence and poisoned-helper results;
+- all `DiscriminatorWitness` liveness/removal/neutralization results;
+- role-assignment-window validation and `B`→`O_v` derivation/dual-control evidence;
+- reviewer proficiency/drift, raw dissent/conflict/abstention/recusal and evaluator disagreement;
+- oracle/storage/network/key-service heads plus independent access reconciliation;
+- blocking/nonblocking challenges and `no_unresolved_blocking_challenge`;
+- correction/supersession links, compiler unknown/timeout/unsupported records and all falsifier results.
 
-The only allowed passage language is bounded:
+`C` is absent from every claim predicate.
 
-> For implementation artifact `<digest>` at repository revision `<revision>`, executed in environment `<environment-digest>` against committed fixture population `<population-digest>` containing `<valid-count>` valid cases, evaluator releases `<R-digest>` and `<P-digest>`, expectation version `<O-digest>`, mutation generator `<M-digest>`, and predicate catalog `<catalog-version>` produced the recorded compatible results; provenance, commitment, access, population, reviewer-record and log-integrity predicates named in receipt `<receipt-digest>` were satisfied. This statement applies only to those artifacts, cases, relations and conditions. It carries no authority, legal sufficiency, production capability, future-behavior, completeness, OPS-R15 score, or unblocking claim.
+### 15.1 Evidence-only statement when specification assurance is not established
 
-Any missing bound changes the claim to invalid/not-established; it cannot inherit an acceptable result.
+When `W=1` but `S_v` is not established, the receipt may say only:
+
+> For the named implementation artifact, repository revision, environment, committed population, evaluator releases and tested predicates, the implementation was **not refuted under the committed specification** by the recorded implementation-side evidence. Specification assurance for the shared public axioms/expectations was not established; no custody-semantics passage claim is made.
+
+### 15.2 Stronger bounded `S0-K16` claim
+
+The stronger sentence may render only when `V_custody=1` and `no_unresolved_blocking_challenge=true`:
+
+> For implementation artifact `<digest>` at repository revision `<revision>`, executed in environment `<environment-digest>` against committed population `<population-digest>` containing `<valid-count>` valid cases, evaluator releases `<R-digest>` and `<P-digest>`, expectation `<O-digest>`, generator/validator `<M-digest>/<J-digest>`, specification-assurance record `<S-digest>`, and predicate/domain/compiler versions `<catalog-digest>` produced the recorded compatible results; the answer-neutrality, discriminator-adequacy, provenance, commitment, access-reconciliation, population, role, proficiency, dissent, blocking-challenge and log-integrity predicates bound by receipt `<receipt-digest>` were satisfied. This statement applies only to those artifacts, cases, relations and conditions. It carries no authority, legal sufficiency, production capability, future-behavior, completeness, OPS-R15 score or unblocking claim.
+
+Any missing or indeterminate bound withholds the stronger sentence. `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`, `INDEPENDENCE_NOT_ESTABLISHED`, and `EVALUATOR_COVERAGE_NOT_ESTABLISHED` are valid negative completions under `INT-K08`, not new project outcome-vocabulary elements.
 
 ## 16. Falsifier suite
 
-[The executable research specification](s0-gap-02/falsifier-suite.md) contains the six commissioned cases and seven additional attacks. Harness outcomes are local assertions, not product statuses.
+[The amended executable research specification](s0-gap-02/falsifier-suite.md) contains the six commissioned cases plus `A-07`–`A-21`. Harness outcomes are benchmark-local evidence assertions, not product statuses or a new outcome vocabulary.
 
-| ID | Attack/fault | Exact architecture-level expected outcome |
+| ID/family | Attack | Required result |
 |---|---|---|
-| `F-01` | `R_v` or `P_v` imports product admission, reducer, dependency traversal, or status projection directly/transitively. | Offending provenance ancestors named; `ARCHITECTURE_DETECTED` + `RUN_INVALID`; no semantic aggregation. |
-| `F-02` | Public/build-visible files expose expected actions/labels through fields, prose, or an opaque lookup. | Every leak channel detected; `ARCHITECTURE_DETECTED` + `RUN_INVALID`; all exposed runs challenged. |
-| `F-03` | ID-renumbered or adjacent unseen case changes outcome without a certified semantic reason. | Valid relation violation localized; `VERIFICATION_BLOCKED`; no label-per-case escape. |
-| `F-04` | Shared product reducer reports 103 instead of independently correct 3 in both incremental and clean rebuild. | `C=CONTROL_ONLY_PASS`; `R_v` derives 3; `P_v` fails cardinality/bound predicates; `VERIFICATION_BLOCKED`. If both independent channels accept, exactly `ARCHITECTURE_FALSIFIED`. |
-| `F-05` | Expectation correction silently replaces the oracle behind a prior run. | Binding mismatch; `ARCHITECTURE_DETECTED` + `HISTORY_VIOLATION_DETECTED` + `RUN_INVALID`; old receipt remains bound to old oracle. |
-| `F-06` | Conflict, abstention, dissent, recusal, or evaluator disagreement is discarded. | Omitted records/disagreement detected; `DISSENT_PRESERVED` + `VERIFICATION_BLOCKED` + `RUN_INVALID`. |
-| `A-07` | Generated semantic artifact laundering. | Transitive product provenance detected; run invalid. |
-| `A-08` | “Neutral” helper secretly maps statuses or traverses dependencies. | Helper reclassified semantic; shared-provenance violation; run invalid. |
-| `A-09` | Commitment/evaluator canonicalization or parser split view. | Ambiguous documents rejected or one canonical digest; any split view invalidates run. |
-| `A-10` | Failed mutations selectively omitted or denominator changed. | Population mismatch and omitted digests named; run invalid. |
-| `A-11` | Adaptive repeated submissions infer hidden answers. | Query-budget violation/population compromise; affected runs invalid/challenged. |
-| `A-12` | Append-only log split view or rotation truncates access history. | Equivocation/gap detected; history violation; affected runs blocked/invalid. |
-| `A-13` | Two languages share one private semantic derivation/prompt/notes. | Shared private ancestor detected; diversity claim rejected; run invalid. |
+| `F-01` | Product admission/reducer/dependency/status semantics enter R or P directly/transitively. | Provenance violation; `RUN_INVALID`; no semantic aggregation. |
+| `F-02` | Implementation-visible answers/labels leak. | Leak channels named; affected runs invalid/challenged. |
+| `F-03` | ID-renumbered/adjacent case changes without certified semantic reason. | Relation violation; verification blocked. |
+| `F-04` | Product incremental and clean rebuild share a wrong reducer. | `C=CONTROL_ONLY_PASS`; independent discriminator fails. If both R/P accept an intact valid seeded wrong result, exactly `ARCHITECTURE_FALSIFIED`. Removing/neutralizing coverage yields `EVALUATOR_COVERAGE_NOT_ESTABLISHED`, never passage. |
+| `F-05` | Corrected expectation silently substitutes into a prior receipt. | Digest/history violation; old receipt remains bound; `RUN_INVALID`. |
+| `F-06` | Conflict, dissent, abstention, recusal or evaluator disagreement is discarded. | Record-completeness failure; claim blocked/invalid. |
+| `A-07`–`A-13` | Generated-artifact laundering, poisoned neutral helper, parser split, denominator selection, adaptive probing, log split view, declared private ancestor. | Exact provenance/population/log invalidation; no voting or post-hoc repair. |
+| `A-14` | False shared public axiom/expectation correctly implemented by I, R and P. | Implementation may be not-refuted; stronger claim withheld; exact `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`. |
+| `A-15` | M/J/P/R share a private bad relation table. | `MUTATION_PROVENANCE_VIOLATION`; rejected before product scoring. |
+| `A-16` | Competent unanimous reviewers share one seeded misconception. | Failed/missing proficiency; `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`. |
+| `A-17` | Private common ancestor omitted from declarations. | Independent source/build/network forensics and poisoned-table probe; unresolved gap invalidates/withholds independence. |
+| `A-18` | Tautological-positive/unsatisfiable-negative catch-all bundle. | Compiler rejects before run with the three named PDL-1 findings. |
+| `A-19` | Oracle access log omits a read while external heads disagree or are incomplete. | Inconsistency `RUN_INVALID`; unresolved completeness `INDEPENDENCE_NOT_ESTABLISHED`. |
+| `A-20` | Forbidden scenario/expectation/M/J/R/P role combination. | Role-window validator rejects before output access. |
+| `A-21` | Receipt has an unresolved blocking challenge. | `h=0`; `S0-K16` passage sentence cannot render. |
 
-`F-04` is dispositive. A design that merely shows product incremental/rebuild agreement fails the commission.
+`F-04` remains the dispositive self-directed product-side test. `A-14` is the separate specification-side test and prevents implementation-code independence from being misreported as acceptable custody semantics.
 
 ## 17. Repository integration handoff
 
-The full handoff and typed open questions are in [integration handoff](s0-gap-02/integration-handoff-and-open-questions.md).
+The full amended handoff is in [integration handoff](s0-gap-02/integration-handoff-and-open-questions.md).
 
-### 17.1 Missing-state vocabulary used only after prerequisites
+### 17.1 Capability honesty
 
-The repository vocabulary defines downstream gaps only after upstream capability pieces exist. (`AGENTS.md:13-37@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/docs/reference/policy-design-case-failure-patterns.md:15-45@1a7a2d05ebba22fae80e9934329e4b880806588e`.) At the pin:
+The current implementation state remains **`not_established`** as an evidence verdict. It is not `producer_missing`, `bridge_missing`, or `verification_missing`, because no accepted independent consumer, both endpoints, or wired chain is evidenced. The handoff records the exact prerequisite and safe transition order for each repository label.
 
-- **not `contract_only`:** these Markdown schemas are not implementation types/contracts;
-- **not `producer_missing`:** no accepted executable independent consumer is evidenced;
-- **not `bridge_missing`:** both independent endpoints are not evidenced;
-- **not `verification_missing`:** no wired independent producer-artifact-bridge-consumer chain is evidenced;
-- **not `implemented_but_not_orchestrated`:** research design is not an isolated working component;
-- **not `semantic_test_missing`:** no implemented chain with structural tests is claimed.
+The complete token census supports only vocabulary density. The bounded repository statement is: no eligible independent custody oracle was established by the OPS-R15 evidence chain and 3/3 named-owner sample. No universal source-tree absence is claimed.
 
-The present finding is **`not_established`** as an evidence verdict, not a new status lattice. Once a real evaluator consumer exists, a missing product trace producer may legitimately be `producer_missing`; once both endpoints exist without orchestration, `bridge_missing`; once a wired chain exists without automated end-to-end proof, `verification_missing`.
+### 17.2 P27/P28, S0-K14 and P37
 
-### 17.2 Owner placement and the P27/P28 exception
+- product owners retain product facts, raw observations and diagnostic `C`;
+- a thin raw-trace adapter extends the canonical producer but contains no verdict mapping;
+- answer-producing `R_v` and `P_v`, sealed `O_v`, generator `M_v`, relation validator `J_v`, specification assurance `S_v` and evaluator receipts remain independent by the explicit S0-K14 verification exception;
+- the exception does not authorize a second product ledger, runtime state machine, domain semantic owner or status lattice;
+- every common artifact and every adequacy/competence/access/challenge premise is admitted through the frozen P37 predicate-provenance register rather than by declaration;
+- the benchmark log remains benchmark custody evidence only and cannot become a product confidence/authority ledger under `INT-K05`.
 
-`P27`/`P28` normally require extending a canonical owner and strangling a duplicate. (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:71-72@1a7a2d05ebba22fae80e9934329e4b880806588e`, findings `P27`, `P28`.) `S0-K14` is a deliberate verification exception, not permission for arbitrary duplication:
-
-- product owners retain production semantics and raw observable outputs;
-- a thin raw-trace adapter extends the canonical product owner but contains no verdict logic;
-- the same-code control `C` may extend existing runtime-quality machinery, diagnostic only;
-- public benchmark semantics, `R_v`, `P_v`, `M_v`, `O_v`, and evaluator receipts remain independent by construction;
-- the benchmark log records benchmark custody only and cannot become a second product confidence/authority ledger under `INT-K05`.
-
-No final package/repository topology or owner is appointed.
-
-### 17.3 Capability placement summary
+### 17.3 Placement summary
 
 | Capability | Placement rule |
 |---|---|
-| Public spec/input-only corpus | Independent benchmark artifact; product-readable, no product answer generation. |
+| Public `B`, finite domain, PDL-1, input-only corpus | Independent benchmark artifact; product-readable; no product answer generation. |
 | Raw trace producer | Narrow extension of canonical product observation owner. |
-| `R_v`, `P_v`, `M_v`, `O_v` | Separate repositories/build/access/authoring by construction. |
-| Same-code rebuild `C` | Existing product quality owner; diagnostic only. |
-| Authority axioms/reviewer records | Independent benchmark-governance evidence; no institutional appointment. |
-| Commitment/access/challenge log | Independent benchmark evidence, not a product ledger/status system. |
-| Receipt | Evaluator-side bounded evidence, no authority or release mutation. |
-| Public challenge display | Later accepted publication surface; must not pre-empt PAO-R36 or create a second correction lattice. |
+| Common `N` | Shared only after `AnswerNeutral(z,f)` construction and P37 admission. |
+| `R_v`, `P_v`, `M_v`, `J_v`, `O_v` | Separate source/build/access/authoring and private semantic provenance by construction. |
+| `S_v` / proficiency / role validation | Independently governed evidence; no institution appointed. |
+| `C` | Existing product quality owner; diagnostic only and absent from claims. |
+| Access/challenge/supersession log | Independent benchmark evidence with external reconciliation; not a product ledger/status system. |
+| Receipt | Bounded evidence and claim gate; no authority or release mutation. |
+| Public challenge display | Later accepted publication surface; must not pre-empt PAO-R36 or create a rival correction lattice. |
 
 ## 18. Open questions for consolidation
 
 ### Engineering
 
-- Smallest raw trace grammar that is expressive enough yet cannot carry a hidden product verdict.
-- Transitive provenance enforcement across generated files, containers, services, models, and runtime network calls.
-- Required diversity dimensions across `R_v` and `P_v` and evidence that they address the threat model.
-- Canonicalization of large unordered/partially ordered traces without erasing duplicates, order, time, or scope semantics.
-- Hidden-seed generation, commitment, recovery, rotation, exposure budget, and diagnostic query budget.
+- Execution and maintenance of the machine-enforced `AnswerNeutral` allowlist across source, generated files, SBOMs, containers, services and runtime calls.
+- Proof-producing implementation and resource bounds of the finite-domain PDL-1 compiler.
+- Prospective discriminator-adequacy maintenance and remove/neutralize behavior as failure families evolve.
+- Independent `M_v`/`J_v` relation validation and detection of undeclared private semantic ancestry.
+- Smallest raw trace grammar that is expressive enough yet cannot carry a hidden verdict.
+- Storage/network/key-service audit-head reconciliation and exact invalid/not-established boundary.
+- Hidden-seed generation, commitment, recovery, rotation and exposure/query budgets.
 - Typed disagreement localization and minimal counterexample production.
-- Commitment construction for low-entropy answer spaces and bounded resource/timeout policy under `PV-K06`.
 
 ### Institutional
 
-- Existence, mandate, competence, funding, and continuity of a second independent evaluator team.
-- Enforceable role incompatibilities among product, evaluator, expectation, custody, run, adjudication, and challenge functions.
-- Scope-specific institutional/jurisdictional competence and proficiency renewal.
-- Procedural protection of dissent, abstention, challenge, appeal, and minority expertise.
-- Key/evidence succession through rotation, compromise, absence, or organizational dissolution.
-- Economic/funding conflicts and the body authorized to accept an evaluator release for any later scoring use.
+- Existence, mandate, competence, funding and continuity of the second competent independent function.
+- Independent derivation or dual control for `B`→`O_v` and enforceable same-window role incompatibilities.
+- Administration of blinded reviewer proficiency/drift cases without leaking them.
+- Scope-specific institutional/jurisdictional competence and the effect of non-establishment.
+- Procedural protection of dissent, abstention, challenge, appeal and minority expertise.
+- Key/evidence succession and economic/funding conflicts.
+- The body, if any, authorized later to accept an evaluator release; this report appoints none.
 
 ### Additional research
 
-- Correlated semantic error despite separate code and teams.
+- Bounded assurance over shared public axioms/expectations and correlated semantic error despite separate code.
 - Mutation adequacy against held-out real custody-fault families.
 - Set-valued outcomes over partially ordered authority/limitation semantics.
 - Hidden-fixture discriminating half-life under repeated submissions/challenges.
-- Proof-carrying metamorphic relation certificates.
-- Drift signals that preserve minority expertise instead of collapsing it to agreement scores.
-- Transparency-log witnessing/gossip against equivocation.
-- Forensic distinction between coincident identical error and prohibited provenance sharing.
+- Proof-carrying metamorphic relation certificates with diverse checkers.
+- Drift signals preserving minority expertise rather than collapsing it to agreement.
+- Transparency-log witnessing/gossip and provenance forensics for omitted private ancestors.
 
 ## 19. External primary-source transfer ledger
 
@@ -647,19 +669,20 @@ Each commissioned output is an artifact, not merely a heading:
 | # | Deliverable | File | Disposition |
 |---:|---|---|---|
 | 1 | Machine-readable public schema and input-only fixture corpus | [public-schema-and-sealed-expectations.md](s0-gap-02/public-schema-and-sealed-expectations.md) | Research schemas, corpus strata, leakage prohibitions, validators, examples. |
-| 2 | Sealed expectation format admitting alternatives | [public-schema-and-sealed-expectations.md](s0-gap-02/public-schema-and-sealed-expectations.md) | Finite set-valued alternatives, mandatory predicates, exclusions, bounded variability/dissent. |
-| 3 | Independent evaluator interface and code-independence rules | [independence-model-and-evaluator-interface.md](s0-gap-02/independence-model-and-evaluator-interface.md) | Interfaces, import/provenance/access rules, enforcement gates. |
+| 2 | Sealed expectation format admitting alternatives | [public-schema-and-sealed-expectations.md](s0-gap-02/public-schema-and-sealed-expectations.md) | Finite alternatives plus finite domain, total decidable PDL-1, proof certificates and catch-all rejection. |
+| 3 | Independent evaluator interface and code-independence rules | [independence-model-and-evaluator-interface.md](s0-gap-02/independence-model-and-evaluator-interface.md) | `AnswerNeutral`, P37 register, R/P/M/J separation, discriminator witnesses and claim rules. |
 | 4 | Clean-rebuild reference semantics and equivalence policy | [independence-model-and-evaluator-interface.md](s0-gap-02/independence-model-and-evaluator-interface.md); [public-schema-and-sealed-expectations.md](s0-gap-02/public-schema-and-sealed-expectations.md) | Independent `R_v`; explicit equivalence; same-code `C` diagnostic-only line. |
-| 5 | Authority-scenario axioms and human adjudication | [oracle-custody-and-adjudication-protocol.md](s0-gap-02/oracle-custody-and-adjudication-protocol.md) | Scoped axiom records; conflicts, abstention, dissent, disagreement, supersession. |
-| 6 | Oracle commitment/custody/access-log/rotation/challenge/supersession | [oracle-custody-and-adjudication-protocol.md](s0-gap-02/oracle-custody-and-adjudication-protocol.md) | Ordered protocol, access schema, key lifecycle, append-only history, challenge. |
-| 7 | Adjacent-case/metamorphic generator | [mutation-and-reproducibility.md](s0-gap-02/mutation-and-reproducibility.md) | Mutation families, certificates, hidden-seed/population controls, anti-memorization rules. |
-| 8 | Reproducibility receipt and bounded claim | [mutation-and-reproducibility.md](s0-gap-02/mutation-and-reproducibility.md) | Machine-readable receipt and exact `S0-K16` bounded-claim template. |
+| 5 | Authority-scenario axioms and human adjudication | [oracle-custody-and-adjudication-protocol.md](s0-gap-02/oracle-custody-and-adjudication-protocol.md) | Scoped axioms, `S_v`, independent/dual-control derivation, proficiency, dissent and role validation. |
+| 6 | Oracle commitment/custody/access-log/rotation/challenge/supersession | [oracle-custody-and-adjudication-protocol.md](s0-gap-02/oracle-custody-and-adjudication-protocol.md) | Ordered protocol, externally reconciled audit heads, key lifecycle, blocking challenges and append-only supersession. |
+| 7 | Adjacent-case/metamorphic generator | [mutation-and-reproducibility.md](s0-gap-02/mutation-and-reproducibility.md) | `M_v`/`J_v` separation, mutation certificates, discriminator witnesses and hidden-population controls. |
+| 8 | Reproducibility receipt and bounded claim | [mutation-and-reproducibility.md](s0-gap-02/mutation-and-reproducibility.md) | Evidence-only not-refuted sentence, stronger `S0-K16` gate, access/proficiency/role/challenge bindings. |
 | 9 | Formal independence model | [independence-model-and-evaluator-interface.md](s0-gap-02/independence-model-and-evaluator-interface.md) | Allowed/prohibited sharing, provenance conditions, assumptions and proofs. |
-| 10 | Falsifier suite with six named plus additional attacks | [falsifier-suite.md](s0-gap-02/falsifier-suite.md) | Six commissioned + seven new attacks, exact expected/forbidden outcomes. |
+| 10 | Falsifier suite with six named plus additional attacks | [falsifier-suite.md](s0-gap-02/falsifier-suite.md) | Six commissioned + fifteen attacks (`A-07`–`A-21`), including specification, generator, reviewer, access, role and challenge cases. |
 | 11 | Repository integration handoff with prerequisite-evidenced labels | [integration-handoff-and-open-questions.md](s0-gap-02/integration-handoff-and-open-questions.md) | Vocabulary prerequisite table, capability placement, sequence, isolation. |
 | 12 | Typed open questions | [integration-handoff-and-open-questions.md](s0-gap-02/integration-handoff-and-open-questions.md) | Engineering, institutional, additional research. |
 | 13 | External primary-source and transfer ledger | [external-source-and-transfer-ledger.md](s0-gap-02/external-source-and-transfer-ledger.md) | Stable IDs across five regimes, transfers and non-transfers. |
-| Pass I | Orientation and source census ledger | [orientation-ledger.md](s0-gap-02/orientation-ledger.md) | Pin/access method, files-vs-lines-vs-occurrences, concept sample, prior art. |
+| Pass I | Orientation and source census ledger | [orientation-ledger.md](s0-gap-02/orientation-ledger.md) | Reconciled Python/all-source/line/occurrence denominators, bounded concept sample and prior art. |
+| Amendment | Audit-finding disposition and execution ledger | [amendment-ledger.md](s0-gap-02/amendment-ledger.md) | All audit findings, R1–R15 changes and committed evidence locations. |
 
 ## 21. Wave-4 isolation
 
@@ -673,6 +696,8 @@ No artifact owned by those tasks is modified.
 
 ## 22. Non-effect and final conclusion
 
-This report authorizes no implementation, owner, evaluator, custodian, panel, vendor, wire/schema/package/database/API contract, authority grant, capability, legal conclusion, benchmark passage, score, or plan amendment. It does not declare `OPS-R15` unblocked. A future implementation must be separately built, staffed, proficiency-tested, challenged, audited, accepted, and read back before any later scoring decision could even be considered.
+This report authorizes no implementation, owner, evaluator, custodian, panel, vendor, wire/schema/package/database/API contract, authority grant, capability, legal conclusion, benchmark passage, score or plan amendment. It does not declare `OPS-R15` unblocked or scorable. A future implementation must separately provide and reproduce every R1–R11 evidence item and must still establish the second competent independent function.
 
-The research answer is nevertheless decisive: **acceptable custody semantics cannot be established by extending the current product benchmark machinery or by comparing the product with its own clean rebuild.** They can be tested non-circularly only through a public observable-semantic problem definition, sealed finite alternatives, two provenance-diverse answer channels with blocking disagreement, hidden certified mutations, immutable oracle custody, preserved dissent, and a bounded receipt. The architecture constructs that line. The institution required to operate it remains open; therefore the exact result is `accepted_narrow_scope`.
+The research answer is now more precise. Product-code circularity cannot be cured by extending current benchmark machinery or by comparing the product with its own clean rebuild. It requires `R_v` and `P_v` as blocking diverse channels, `C` outside verification, hidden certified mutations, append-only oracle custody, preserved dissent and bounded receipts. But implementation independence alone also cannot establish acceptable custody semantics when `B` or `O_v` is wrong. The stronger claim additionally requires answer-neutral common provenance, a decidable expectation language, adequate discriminators, `S_v` specification assurance, reviewer proficiency, independently reconciled access evidence, compatible roles and no unresolved blocking challenge.
+
+Those fixes are specified here but not operationally evidenced. The institution required to operate them also remains absent. Therefore the exact standing remains **`accepted_narrow_scope`**, with technical execution dependencies and an institutional dependency—not an “institution only” rationale.

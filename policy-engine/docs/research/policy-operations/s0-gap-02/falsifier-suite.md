@@ -2,7 +2,12 @@
 title: S0-GAP-02 — Independence and oracle-custody falsifier suite
 status: research
 research_only: true
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+source_tree_equivalent_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a7c34cc40b649a10b6878228a8a57acc498f279a
+audit_commit: 3abbaf8c2808e31fd7d8f9929b696e78dc91b3d4
+amendment_branch: research/s0-gap-02-amendment
+amendment_status: audit_amended
 result_standing: accepted_narrow_scope
 authoritative_for:
   - research-only executable falsifier cases and exact expected outcomes
@@ -25,27 +30,29 @@ may_not_use_for:
 
 ## 1. Purpose and standing
 
-These are architecture falsifiers, not OPS-R15 scores. A conforming future harness should be able to instantiate each case and assert the exact observations below. The uppercase outcome tokens are test-harness assertions local to this research package; they are not product statuses and do not create a new status lattice.
+These are architecture falsifiers, not OPS-R15 scores. A conforming future harness instantiates every case and asserts the exact expected and forbidden observations. The uppercase tokens below are benchmark-local evidence assertions and negative completions; they are not product statuses, do not create a status lattice, and do not activate a fourth constitutional outcome-vocabulary element.
 
-The commission’s six cases are `F-01` through `F-06`. Additional attacks constructed here are `A-07` through `A-13`. `F-04` is the discriminating test: if a shared reducer defect survives both independent channels, the claimed architecture is false even when all same-code consistency checks are green.
-
-## 2. Harness observation vocabulary
+The commissioned cases are `F-01`–`F-06`. The original additional attacks are `A-07`–`A-13`. The audit amendment adds `A-14`–`A-21`. `F-04` remains self-directed and dispositive against product-side circularity; `A-14` separately prevents agreement under a bad shared specification from being called acceptable custody semantics.
 
 ```yaml
 HarnessOutcome:
-  ARCHITECTURE_DETECTED: a prohibited condition was positively found
-  RUN_INVALID: the run cannot support any bounded verification claim
-  VERIFICATION_BLOCKED: semantic or integrity prerequisites are unsatisfied
-  CONTROL_ONLY_PASS: the same-code diagnostic agreed but has no verification weight
-  HISTORY_VIOLATION_DETECTED: an immutable prior binding was challenged or altered
-  DISSENT_PRESERVED: conflict, dissent, abstention, or disagreement remains in evidence
-  ARCHITECTURE_FALSIFIED: the design failed a required discriminating probe
-  TEST_SETUP_INVALID: the falsifier was not instantiated as specified
+  ARCHITECTURE_DETECTED: prohibited architecture condition positively found
+  RUN_INVALID: run cannot support a bounded verification claim
+  VERIFICATION_BLOCKED: semantic, specification, challenge, or integrity prerequisite absent
+  CONTROL_ONLY_PASS: same-code diagnostic agreed and has zero verification weight
+  HISTORY_VIOLATION_DETECTED: immutable prior binding or append-only history violated
+  DISSENT_PRESERVED: raw conflict, dissent, abstention, recusal, or disagreement retained
+  ARCHITECTURE_FALSIFIED: a required discriminating probe defeated the claimed design
+  TEST_SETUP_INVALID: falsifier was not instantiated as specified
+EvidenceTerminal:
+  SPECIFICATION_ASSURANCE_NOT_ESTABLISHED: shared B/O truth not established
+  INDEPENDENCE_NOT_ESTABLISHED: decisive independence premise unreconciled or institutionally absent
+  EVALUATOR_COVERAGE_NOT_ESTABLISHED: discriminator witness absent, removed, neutralized, or ineffective
 ```
 
-A test passes when the harness produces the specified expected observations. “Run invalid” here means only that the evidence package cannot support the bounded benchmark claim.
+The evidence terminals are `INT-K08` negative completions. They withhold or degrade a claim; they never authorize a weaker positive. (`policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:190-235@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `INT-K08`.)
 
-## 3. Common harness inputs
+## 2. Common harness contract
 
 ```yaml
 FalsifierCase:
@@ -56,265 +63,235 @@ FalsifierCase:
   same_code_control_digest: digest
   evaluator_r_digest: digest
   evaluator_p_digest: digest
-  generator_digest: digest
+  generator_digest: digest | null
+  relation_validator_digest: digest | null
   expectation_commitment: digest
-  access_log_head: digest
+  predicate_provenance_register_digest: digest
+  access_reconciliation_digest: digest
   injected_condition: declarative_fault_or_attack
   expected_observations: [HarnessAssertion]
   forbidden_observations: [HarnessAssertion]
   evidence_requirements: [stable_identifier]
 ```
 
-Each result binds all artifacts and the fault-injection patch/fixture digest. A narrative claim that a fault was injected is insufficient.
+Each execution binds exact source/build/run artifacts, injected patch or fixture digest, static and dynamic provenance, network calls, P37 predicate classes, raw traces, evaluator observations, access heads, reviewer/proficiency evidence, challenges, and signatures. A prose assertion that the fault was injected is insufficient.
 
-## 4. Commissioned falsifiers
+## 3. Commissioned falsifiers
 
 ### F-01 — prohibited implementation semantic import
-
-**Commissioned condition:** the evaluator imports implementation admission, reducers, dependency traversal, or status projection.
 
 ```yaml
 case_id: F-01
 setup:
-  - build evaluator-R with a direct import of product admission logic
-  - build evaluator-P with a transitive plugin import of product status projection
-  - record static imports, dynamic module loads, SBOMs, generated-file provenance, and network calls
+  evaluator_R: direct_import(product_admission)
+  evaluator_P: transitive_plugin_import(product_status_projection)
 execution:
-  - run provenance gate before any fixture evaluation
+  - inspect source, generated files, SBOM, dynamic loads, and network calls
+  - run provenance gate before fixtures
 expected:
-  provenance_gate: violated
-  offending_ancestors:
-    - product_admission_module
-    - product_status_projection_module
-  combined_outcomes:
-    - ARCHITECTURE_DETECTED
-    - RUN_INVALID
+  direct_and_transitive_ancestors_named: true
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
   - VERIFICATION_CLAIM_EMITTED
-  - offending_import_treated_as_allowed_neutral_substrate
+  - semantic_import_reclassified_as_neutral_by_name
 ```
 
-**Exact pass condition for the falsifier:** both the direct and transitive paths are named in evidence; the run is rejected before semantic results are aggregated. Missing the transitive path fails this falsifier.
-
-**Rationale:** `S0-K14` expressly disallows shared admission, reducers, traversal, and projection for the scoring oracle. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:143-199@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K14`.)
+The case passes only when both paths are named and rejected before semantic aggregation. It operationalizes `S0-K14` rather than merely citing it.
 
 ### F-02 — implementation-visible expected actions or labels
-
-**Commissioned condition:** implementation-visible files expose expected actions or labels.
 
 ```yaml
 case_id: F-02
 setup:
-  - place fields named expected_action and expected_status in one public fixture
-  - place a prose expected trace in an implementation build-context document
-  - encode a third label through an opaque-looking lookup table whose provenance names the expectation source
+  public_fixture_field: expected_action
+  implementation_document: prose_expected_trace
+  opaque_lookup_table: expectation_derived_label_map
 execution:
-  - run field-name lint, semantic text scan, entropy/dictionary probe, and provenance scan
+  - run field lint, semantic text scan, dictionary/entropy probe, and provenance scan
 expected:
-  leak_findings: 3
-  combined_outcomes:
-    - ARCHITECTURE_DETECTED
-    - RUN_INVALID
+  leak_channels_named: 3
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
-  - leak_redacted_after_implementation_freeze_and_run_retained
-  - fixture_used_for_bounded_claim
+  - post_freeze_redaction_restores_run
+  - exposed_fixture_supports_bounded_claim
 ```
 
-**Exact pass condition:** all three leak channels are detected before submission or, if discovered later, every exposed run is challenged and cannot support a bounded claim.
-
-The in-tree grounding benchmark and semantic fixture owners contain visible expected fields/signals, demonstrating that production-test formats cannot be reused unchanged. (`policy-engine/src/polisyos/runtime/quality/grounding_benchmark.py:90-140@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/src/polisyos/runtime/quality/semantic_fixtures.py:1-150@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
-
-### F-03 — ID-renumbered and adjacent unseen case changes without semantic reason
-
-**Commissioned condition:** an ID-renumbered or adjacent unseen case changes the outcome without a semantic reason.
+### F-03 — ID-renumbered or adjacent unseen case changes without semantic reason
 
 ```yaml
 case_id: F-03
 setup:
-  base_fixture: committed_fixture_x
   mutations:
-    - bijective_alpha_rename_all_opaque_ids
-    - perturb_declared_irrelevant_metadata
-    - move_boundary_value_within_same_declared_interval_side
-  relation: semantic_output_isomorphic_or_equal
+    - bijective_opaque_id_rename
+    - declared_irrelevant_metadata_perturbation
+    - same_side_temporal_boundary_shift
+  expected_relation: semantic_output_isomorphic_or_equal
 execution:
   - freeze implementation before mutation seed reveal
-  - run base and all three mutations
+  - run base and all mutations
 expected:
   mutation_certificates_valid: true
-  evaluator_r_relation: violated
-  evaluator_p_relation: violated
-  combined_outcomes:
-    - VERIFICATION_BLOCKED
+  unexplained_relation_change_detected: true
+  combined_outcomes: [VERIFICATION_BLOCKED]
 forbidden:
-  - changed_output_accepted_because_each_case_has_a_visible_label
-  - mutation_removed_from_population_after_failure
+  - visible_case_label_overrides_relation_failure
+  - failed_mutation_removed_from_denominator
 ```
 
-**Exact pass condition:** the harness identifies the smallest relation witness that differs and proves that no declared semantic dimension changed. If the mutation certificate is invalid, the result is `TEST_SETUP_INVALID`, not an implementation finding.
+An invalid mutation certificate yields `TEST_SETUP_INVALID`, not an implementation failure.
 
 ### F-04 — seeded shared reducer fault passes incremental and clean-build checks
 
-**Commissioned and discriminating condition:** a seeded shared reducer fault passes both incremental and clean-build checks.
-
-#### Seed
-
-Use a synthetic affected-set scenario with three declared subjects. Inject into the product reducer shared by incremental execution and clean rebuild:
+Use a synthetic affected-set case with three subjects. Inject into the product reducer shared by incremental execution and `C`:
 
 ```text
-fault_delta: reported_affected_count := correct_affected_count + 100
+reported_affected_count := correct_affected_count + 100
 ```
-
-The raw trace must expose the reported count and affected subject IDs. Evaluator `R_v` independently derives the graph closure; evaluator `P_v` independently checks both cardinality consistency and the bound `affected_count <= declared_subject_count`.
 
 ```yaml
 case_id: F-04
 setup:
   declared_subject_count: 3
-  independently_correct_affected_set: [s1, s2, s3]
-  independently_correct_count: 3
-  shared_product_fault_output_count: 103
+  correct_affected_set: [s1, s2, s3]
+  correct_count: 3
+  product_incremental_count: 103
+  product_clean_rebuild_count: 103
+  discriminator_witness:
+    seed_digest: sha256:fault-delta
+    expected_semantic_delta: {field: affected_count, baseline: 3, mutated: 103}
+    named_discriminators:
+      - R-AFFECTED-CLOSURE-COUNT
+      - P-CARDINALITY-MATCHES-SET
+      - P-COUNT-WITHIN-DECLARED-SUBJECTS
 execution:
-  incremental_product_output_count: 103
-  clean_rebuild_output_count: 103
+  - run C parity
+  - run intact R/P discriminators
+  - remove P-CARDINALITY-MATCHES-SET
+  - neutralize P-COUNT-WITHIN-DECLARED-SUBJECTS to constant_true
 expected:
-  same_code_control:
-    parity: true
-    outcome: CONTROL_ONLY_PASS
-  evaluator_r:
-    derived_count: 3
-    result: violated
-  evaluator_p:
-    predicate_cardinality_matches_set: violated
-    predicate_count_within_declared_subjects: violated
-  combined_outcomes:
-    - VERIFICATION_BLOCKED
+  same_code_control: {parity: true, outcome: CONTROL_ONLY_PASS}
+  intact_release:
+    evaluator_R: violated
+    evaluator_P: violated
+    verification: blocked
+  removal_probe:
+    release_admitted: false
+    evidence_terminal: EVALUATOR_COVERAGE_NOT_ESTABLISHED
+  neutralization_probe:
+    adequacy_gate: violated
+    evidence_terminal: EVALUATOR_COVERAGE_NOT_ESTABLISHED
 forbidden:
-  - same_code_parity_used_as_correctness
-  - bounded_verification_claim_emitted
-architecture_failure_condition:
-  if_evaluator_r_and_evaluator_p_both_accept: ARCHITECTURE_FALSIFIED
+  - C_agreement_contributes_to_W_or_V_custody
+  - removed_or_neutralized_discriminator_allows_acceptance
 ```
 
-**Exact pass condition:** incremental and clean-build paths agree on the wrong value, producing `CONTROL_ONLY_PASS`; both independent channels reject; combined verification is blocked. If either independent channel was implemented from the shared product reducer, `F-01` also fires. If both independent channels accept 103 despite valid setup, output is exactly `ARCHITECTURE_FALSIFIED`.
+**Architecture self-test:** with intact valid setup and independently correct discriminators, force both `R_v` and `P_v` to accept the wrong value `103`. Required result:
 
-The prior OPS-R15 probe demonstrated the same logical shape: a faulty reducer produced `3` in both incremental and rebuild paths while an independent correct result was `103`. (`policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:1-80@1a7a2d05ebba22fae80e9934329e4b880806588e`.) This falsifier reverses the numbers only to make the cardinality property self-evident; no repository semantic claim depends on the numbers.
+```yaml
+both_independent_channels_accept_wrong_value: true
+exact_outcome: ARCHITECTURE_FALSIFIED
+passage_sentence_rendered: false
+```
+
+Nothing elsewhere may soften this result.
 
 ### F-05 — oracle correction silently changes a prior run
-
-**Commissioned condition:** an oracle correction silently changes a prior scored run.
 
 ```yaml
 case_id: F-05
 setup:
-  old_expectation_digest: O_v
-  old_receipt_digest: Q_v_bound_to_O_v
-  corrected_expectation_digest: O_v_plus_1
-  supersession_record: absent_initially
+  prior_receipt: Q_old
+  bound_expectation: O_v
 attack:
-  - replace the expectation pointer used to display Q_v with O_v_plus_1
-  - leave Q_v identifier and displayed run time unchanged
+  substitute_expectation: O_v_plus_1
+  preserve_old_receipt_id: true
 execution:
-  - verify receipt bindings, Merkle inclusion, log consistency, and supersession graph
+  - verify canonical bytes, commitment, inclusion proof, version, and supersession history
 expected:
-  receipt_binding_mismatch: true
-  combined_outcomes:
-    - ARCHITECTURE_DETECTED
-    - HISTORY_VIOLATION_DETECTED
-    - RUN_INVALID
-  preservation:
-    - Q_v remains retrievable with O_v
-    - O_v_plus_1 requires a new commitment and supersession record
+  digest_or_version_mismatch: true
+  old_receipt_still_bound_to_O_v: true
+  combined_outcomes: [HISTORY_VIOLATION_DETECTED, RUN_INVALID]
 forbidden:
-  - Q_v_recomputed_in_place
-  - old_run_displayed_as_if_evaluated_against_O_v_plus_1
+  - silent_rescore_of_Q_old
+  - old_receipt_rebound_to_corrected_bundle
 ```
 
-**Exact pass condition:** substitution is detected cryptographically and historically; the old receipt is preserved; no old result is silently changed.
-
-### F-06 — reviewer conflict, abstention, dissent, or evaluator disagreement discarded
-
-**Commissioned condition:** reviewer conflict, abstention, or disagreement is discarded.
+### F-06 — reviewer conflict, abstention, dissent, recusal, or evaluator disagreement discarded
 
 ```yaml
 case_id: F-06
 setup:
-  reviewer_positions:
-    - {id: p1, value: supports}
-    - {id: p2, value: dissents}
-    - {id: p3, value: abstains}
-    - {id: p4, value: conflict_recusal}
-  evaluator_results:
-    R: compatible
-    P: violated
+  assigned_positions:
+    - supports
+    - dissents
+    - abstains
+    - conflict_recusal
+  evaluator_disagreement: true
 attack:
-  - construct receipt omitting p2, p3, p4
-  - replace evaluator disagreement with majority_acceptable
+  published_record_contains: [supports]
 execution:
-  - compare committed reviewer-record root, evaluator observations, and receipt contents
+  - compare assignments, signed positions, proficiency records, adjudication, and receipt
 expected:
-  omitted_records_detected: [p2, p3, p4]
-  evaluator_disagreement_detected: true
-  combined_outcomes:
-    - ARCHITECTURE_DETECTED
-    - DISSENT_PRESERVED
-    - VERIFICATION_BLOCKED
-    - RUN_INVALID
+  omitted_records_named: 3
+  evaluator_disagreement_preserved: true
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID, DISSENT_PRESERVED]
 forbidden:
-  - abstention_counted_as_support
-  - recusal_removed_from_denominator
-  - evaluator_disagreement_resolved_by_unplanned_majority_vote
+  - abstention_converted_to_assent
+  - dissent_removed_after_adjudication
+  - evaluator_disagreement_majority_voted_away
 ```
 
-**Exact pass condition:** every original position remains retrievable and bound to the run; the attempted omission invalidates the receipt. This operationalizes `S0-K15`. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:155-176@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K15`.)
-
-## 5. Additional attacks constructed by S0-GAP-02
+## 4. Original additional attacks
 
 ### A-07 — generated semantic artifact laundering
-
-**Attack:** evaluators avoid direct product imports but consume a generated schema, lookup table, compiled ruleset, snapshot, or model derived from product admission/reducer/projection behavior.
 
 ```yaml
 case_id: A-07
 setup:
   product_generated_artifact: generated/status_map.json
   evaluator_import: generated/status_map.json
-  direct_product_imports: none
-  provenance_edge: product_projection_source -> generator -> status_map -> evaluator
+  provenance_edge: product_projection -> generator -> status_map -> evaluator
 expected:
-  provenance_gate: violated
+  transitive_edge_named: true
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
-  - generated_artifact_treated_as_neutral_because_file_extension_is_json
+  - json_or_generated_artifact_treated_as_neutral_by_extension
 ```
 
-**Exact pass condition:** the transitive provenance edge is named and the evaluator artifact is rejected. Import lint alone is insufficient.
-
-### A-08 — poisoned “neutral” helper
-
-**Attack:** both product and evaluators share a helper marketed as canonicalization, but it folds aliases into product statuses, orders events by product priority, or computes dependency closure.
+### A-08 — poisoned “neutral” helper and falsify-the-declaration probe
 
 ```yaml
 case_id: A-08
-setup:
-  shared_helper_name: neutral_normalizer
-  hidden_semantic_behavior:
-    - product_status_alias_mapping
-    - dependency_closure
-  shared_by: [implementation, evaluator_R, evaluator_P]
-expected:
-  helper_reclassified_as_semantic: true
-  shared_provenance_violation: true
+semantic_families:
+  - admission
+  - transition_reduction
+  - dependency_traversal
+  - affected_set
+  - status_projection
+  - authority_projection
+  - ambiguity_collapse
+  - identifier_branching
+  - temporal_ordering
+for_each_family:
+  declaration_and_allowlist_entry_unchanged: true
+  poison: one_family_specific_answer_producing_behavior
+execution:
+  - run transitive provenance, behavioral vectors, runtime telemetry, and independent review
+expected_for_each_family:
+  answer_neutral: false
+  declaration_class: attested
+  behavioral_probe_class: recomputed
+  runtime_envelope_class: machine_observed
+  review_class: independently_reconciled
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
-  - helper_allowed_based_on_package_name_or_team_ownership
+  - attested_neutrality_rendered_as_machine_proved
+  - gate_green_because_declaration_is_green
 ```
 
-**Exact pass condition:** behavioral inspection or conformance probes expose both semantic functions; all affected evaluator versions are invalidated.
+All nine poisons must make the gate red. Missing one family fails this falsifier under `P37`.
 
-### A-09 — canonicalization and parser split-view
-
-**Attack:** the commitment operator and evaluator parse equivalent-looking bytes differently—for example duplicate keys, number normalization, Unicode normalization, or map ordering—allowing one plaintext to be committed and another to be evaluated.
+### A-09 — canonicalization/parser split view
 
 ```yaml
 case_id: A-09
@@ -325,120 +302,273 @@ setup:
     - unicode_confusable_document
     - alternate_map_order_document
 execution:
-  - canonicalize and parse independently at commitment, evaluator-R, evaluator-P, and challenge verifier
+  - canonicalize and parse independently at commitment, R, P, and challenge verifier
 expected:
-  duplicate_key_document: rejected
-  non_I_JSON_number_document: rejected_or_identical_under_declared_profile
-  unicode_confusable_document: explicit_byte_and_codepoint_witness
-  alternate_map_order_document: identical_commitment
-  combined_outcomes_on_any_split_view: [ARCHITECTURE_DETECTED, RUN_INVALID]
+  duplicate_keys: rejected
+  non_I_JSON_numbers: rejected_or_identical_under_profile
+  unicode: explicit_byte_and_codepoint_witness
+  alternate_map_order: identical_commitment
+  any_split_view: RUN_INVALID
 forbidden:
-  - evaluator_uses_a_plaintext_not_bound_by_the_published_commitment
+  - evaluated_plaintext_not_bound_by_commitment
 ```
 
-**Exact pass condition:** all accepted documents yield one canonical byte sequence and digest; ambiguous documents are rejected before sealing.
-
 ### A-10 — selective mutation suppression
-
-**Attack:** the run operator drops failed generated cases and reports only the passing subset.
 
 ```yaml
 case_id: A-10
 setup:
-  committed_population_count: 120
-  valid_generated_count: 120
-  executed_count: 120
+  committed_valid_population: 120
+  executed_population: 120
 attack:
-  reported_count: 117
-  omitted_case_results: [failed, failed, evaluator_disagreement]
+  reported_population: 117
+  omitted_results: [failed, failed, evaluator_disagreement]
 expected:
   population_digest_mismatch: true
-  omitted_fixture_digests_named: 3
+  omitted_fixture_count: 3
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
   - denominator_redefined_after_execution
-  - omitted_cases_labeled_unsupported_without_predeclared_rule
+  - post_hoc_unsupported_label
 ```
 
-**Exact pass condition:** the receipt verifier detects all omissions and refuses population-level aggregation.
-
 ### A-11 — adaptive hidden-oracle inference
-
-**Attack:** an implementation team submits repeated near-identical revisions or queries a comparison endpoint until it infers hidden expectations.
 
 ```yaml
 case_id: A-11
 setup:
-  predeclared_query_budget: 1_final_submission
-  hidden_population_epoch: epoch_7
+  submission_budget: 1_final_submission
+  hidden_epoch: epoch_7
 attack:
-  submissions_in_epoch: 25
+  submissions: 25
   response_detail: per_fixture_predicate_failures
 expected:
   budget_violation: true
   population_compromised: true
-  affected_runs_challenged: all_epoch_7_runs_after_first_disclosure
+  affected_runs_challenged: all_after_first_disclosure
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
   - later_submission_claimed_independent_against_same_population
 ```
 
-**Exact pass condition:** the access/submission logs expose the adaptive sequence; the hidden population is retired or challenged under the predeclared leakage policy.
-
-### A-12 — split-view append-only log or rotation truncation
-
-**Attack:** different observers receive different log histories, or key rotation omits an earlier access event.
+### A-12 — split-view log or rotation truncation
 
 ```yaml
 case_id: A-12
 setup:
-  witness_A_tree_head: {size: 900, root: root_A}
-  witness_B_tree_head: {size: 900, root: root_B}
-  root_A_not_equal_root_B: true
+  witness_A: {size: 900, root: root_A}
+  witness_B: {size: 900, root: root_B}
+  roots_differ: true
   omitted_event: plaintext_expectation_read_before_rotation
 execution:
-  - exchange signed tree heads
-  - request inclusion and consistency proofs
+  - exchange signed heads and request inclusion/consistency proofs
 expected:
   equivocation_or_gap_detected: true
-  omitted_access_event_preserved_as_challenge_evidence: true
-  affected_runs: VERIFICATION_BLOCKED
-  combined_outcomes:
-    - ARCHITECTURE_DETECTED
-    - HISTORY_VIOLATION_DETECTED
-    - RUN_INVALID
+  omitted_event_preserved: true
+  combined_outcomes: [ARCHITECTURE_DETECTED, HISTORY_VIOLATION_DETECTED, RUN_INVALID]
 forbidden:
-  - key_rotation_treated_as_permission_to_reset_history
+  - rotation_resets_history
 ```
 
-**Exact pass condition:** inconsistent equal-size roots or missing consistency proofs cause a public integrity finding and invalidate affected receipts.
-
-### A-13 — correlated evaluator derivation disguised as diversity
-
-**Attack:** `R_v` and `P_v` use different languages but were generated from the same private pseudocode, prompt transcript, or product-authored semantic notes.
+### A-13 — correlated derivation disguised as diversity
 
 ```yaml
 case_id: A-13
 setup:
   evaluator_languages: [language_A, language_B]
   common_private_derivation_digest: D_private
-  common_derivation_not_in_public_B: true
+  common_derivation_absent_from_public_B: true
 execution:
-  - inspect authorship attestations, derivation records, document provenance, and source similarity
+  - inspect authorship, derivation records, document provenance, and source similarity
 expected:
   structural_diversity_claim: rejected
   shared_semantic_ancestor: D_private
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:
-  - independence_accepted_based_only_on_language_or_repository_difference
+  - independence_accepted_from_language_or_repository_difference
 ```
 
-**Exact pass condition:** the shared private semantic ancestor is identified; both evaluators must be independently re-derived or the architecture remains invalid for the window.
+## 5. Audit-amendment attacks
 
-## 6. Machine-readable suite index
+### A-14 — shared specification/expectation defect
 
 ```yaml
-suite_id: S0-GAP-02-FALSIFIERS-1
+case_id: A-14
+setup:
+  seeded_bad_axiom:
+    proposition: expired_delegation_remains_valid_for_publication
+    seeded_truth: false
+  B_contains_seed: true
+  O_v_derived_from_seed: true
+  implementation_matches_B: true
+  R_and_P_independent_code: true
+execution:
+  product_trace: publication_allowed_after_expiry
+  evaluator_R: accept
+  evaluator_P: accept
+  implementation_provenance_gates: pass
+  blinded_specification_probe: detects_seed
+expected:
+  implementation_statement: not_refuted_under_committed_specification
+  custody_semantics_claim: withheld
+  evidence_terminal: SPECIFICATION_ASSURANCE_NOT_ESTABLISHED
+  challenge_required: true
+  combined_outcomes: [VERIFICATION_BLOCKED, DISSENT_PRESERVED]
+forbidden:
+  - acceptable_custody_semantics_established
+  - bounded_passage_sentence_rendered
+  - terminal_presented_as_new_outcome_vocabulary
+```
+
+### A-15 — generator/evaluator common private relation ancestor
+
+```yaml
+case_id: A-15
+setup:
+  generator_private_table: sha256:bad-relation-table
+  relation_validator_private_table: sha256:bad-relation-table
+  evaluator_P_private_table: sha256:bad-relation-table
+  public_relation_does_not_contain_table: true
+execution:
+  - inspect source, generated files, SBOM, network, authorship, and poisoned relation vector
+expected:
+  shared_private_semantic_ancestor: detected
+  product_execution_started: false
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
+forbidden:
+  - generated_case_scored
+  - package_or_language_difference_accepted_as_independence
+```
+
+### A-16 — competent unanimous reviewer misconception
+
+```yaml
+case_id: A-16
+setup:
+  reviewers: [r1, r2, r3]
+  eligibility_and_conflicts: valid
+  positions: [supports, supports, supports]
+  blinded_specification_seed: AX-BAD-EXPIRY-01
+execution:
+  proficiency_results: {r1: missed, r2: missed, r3: missed}
+expected:
+  unanimity_accepted_as_truth: false
+  evidence_terminal: SPECIFICATION_ASSURANCE_NOT_ESTABLISHED
+  combined_outcomes: [VERIFICATION_BLOCKED]
+forbidden:
+  - unanimity_satisfies_S_v
+  - missed_seed_deleted
+```
+
+### A-17 — undeclared private semantic ancestor
+
+```yaml
+case_id: A-17
+setup:
+  declarations_report_shared_ancestor: false
+  copied_private_table_digest: sha256:hidden-table
+execution:
+  - compare repository history, generated artifacts, build caches, SBOM, and network provenance
+  - run poisoned generated-table vector
+expected:
+  declaration_only_gate: insufficient
+  forensic_gap: detected_or_unresolved
+  combined_outcomes: [RUN_INVALID]
+  unresolved_gap_terminal: INDEPENDENCE_NOT_ESTABLISHED
+forbidden:
+  - independence_accepted_from_attestation_alone
+```
+
+### A-18 — universal expectation bundle
+
+```yaml
+case_id: A-18
+setup:
+  finite_trace_domain: bounded_synthetic_trace_domain_v1
+  positive: event_count >= 0
+  negative: event_type == 'x' and event_type != 'x'
+execution:
+  - compile under S0-GAP-02-PDL-1
+  - verify SAT_UNSAT_TAUT_NOT_TAUT certificates
+expected:
+  positive: TAUT
+  negative: UNSAT
+  alternative_union: TAUT
+  bundle_admission: rejected
+  findings:
+    - POSITIVE_DISCRIMINATOR_TAUTOLOGY
+    - NEGATIVE_BOUNDARY_UNSATISFIABLE
+    - CATCH_ALL_ALTERNATIVE
+  combined_outcomes: [ARCHITECTURE_DETECTED, VERIFICATION_BLOCKED]
+forbidden:
+  - bundle_admitted
+  - timeout_or_unsupported_theory_inherits_acceptance
+```
+
+### A-19 — access-log head without independent reconciliation
+
+```yaml
+case_id: A-19
+setup:
+  oracle_log_contains_read: false
+  storage_audit_contains_read: true
+  network_audit_contains_read: true
+  key_service_audit_contains_read: true
+execution:
+  - reconcile all signed heads for the window
+expected_when_mismatch:
+  access_reconciliation: inconsistent
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
+expected_when_decisive_source_unavailable:
+  access_reconciliation: not_established
+  evidence_terminal: INDEPENDENCE_NOT_ESTABLISHED
+  combined_outcomes: [VERIFICATION_BLOCKED]
+forbidden:
+  - log_silence_treated_as_no_access
+```
+
+### A-20 — forbidden role combination
+
+```yaml
+case_id: A-20
+forbidden_assignments:
+  - [scenario_author, expectation_author_without_dual_control]
+  - [generator_primary_author, relation_validator_primary_author]
+  - [generator_primary_author, evaluator_P_relation_primary_author]
+  - [evaluator_R_primary_author, evaluator_P_primary_author]
+execution:
+  - validate role assignment before artifact freeze
+expected:
+  each_assignment: rejected
+  artifact_freeze_started: false
+  combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
+forbidden:
+  - conflict_waived_after_observing_results
+```
+
+### A-21 — unresolved blocking challenge still renders passage
+
+```yaml
+case_id: A-21
+setup:
+  open_challenge: {class: specification_correctness, blocking: true, status: unresolved}
+execution:
+  - recompute complete challenge register
+  - invoke claim renderer
+expected:
+  no_unresolved_blocking_challenge: false
+  h: 0
+  passage_sentence_rendered: false
+  combined_outcomes: [VERIFICATION_BLOCKED]
+forbidden:
+  - open_challenge_digest_listed_but_ignored
+  - passage_sentence_rendered
+```
+
+## 6. Suite index and acceptance rule
+
+```yaml
+suite_id: S0-GAP-02-FALSIFIERS-2
 required_cases:
   - F-01
   - F-02
@@ -453,31 +583,31 @@ required_cases:
   - A-11
   - A-12
   - A-13
+  - A-14
+  - A-15
+  - A-16
+  - A-17
+  - A-18
+  - A-19
+  - A-20
+  - A-21
 architecture_acceptance_rule:
   all_cases_instantiated: true
   all_expected_observations_matched: true
   no_forbidden_observation_present: true
   F-04_if_both_independent_channels_accept: ARCHITECTURE_FALSIFIED
+  A-14_if_shared_bad_spec_is_accepted: SPECIFICATION_ASSURANCE_NOT_ESTABLISHED
+  missing_or_neutralized_discriminator: EVALUATOR_COVERAGE_NOT_ESTABLISHED
+  unresolved_blocking_challenge: VERIFICATION_BLOCKED
   missing_case_policy: TEST_SETUP_INVALID_AND_ACCEPTANCE_WITHHELD
 ```
 
-## 7. Evidence bundle per falsifier
+Every case retains base and attack digests, exact recipes, source/generated-file/SBOM/network provenance, the P37 register, answer-neutral probes, discriminator witnesses, finite-domain/compiler proofs, raw traces, `R_v`/`P_v`/`M_v`/`J_v` observations, `O_v`/`S_v`, four access heads and reconciliation, reviewer proficiency and raw positions, role-window validation, challenge register, assertion results, and signatures. A screenshot, prose summary, self-attestation, or same-code unit test does not satisfy a case.
 
-Every execution retains:
+## 7. Interpretation
 
-- base artifact and injected-fault/attack digests;
-- exact build and run recipes;
-- static imports, dynamic loads, network calls, SBOMs, and provenance graph;
-- public fixture, mutation certificate, and hidden seed commitment where applicable;
-- raw implementation traces and same-code control report;
-- both independent evaluator observations;
-- expectation commitment/inclusion evidence;
-- access and append-only log proofs;
-- reviewer conflicts, dissent, abstention, recusal, and adjudication records;
-- harness assertion results and signatures.
+Passing this suite supports only that the named architecture instance detected the seeded attacks under the named artifacts and environment. It does not establish general independence, legal correctness, institutional competence, or OPS-R15 passage.
 
-A screenshot, prose summary, or same-code unit test alone does not satisfy a falsifier.
+`F-04` stays self-directed and dispositive: same-code parity can be green while independent channels reject; if both accept the intact seeded wrong result, the architecture is falsified. `A-14` establishes the distinct specification boundary: diverse evaluators may agree under a bad shared `B`/`O_v`, so the stronger custody-semantics claim is withheld. `A-18` makes bounded ambiguity executable rather than declarative. `A-19`–`A-21` make access, role, and challenge predicates fail closed.
 
-## 8. Interpretation
-
-Passing this suite would support only the proposition that the named architecture instance detected the seeded attacks under the named artifacts and environment. It would not establish general independence, legal correctness, institutional competence, or OPS-R15 passage. Failure of `F-04`, `F-01`, or `F-02` is especially dispositive because it recreates the circularity or leakage that `S0-K14` was ratified to prevent.
+These non-establishment terminals are valid negative completions under `INT-K08`; they do not add an outcome-vocabulary element, score an implementation, or weaken a gate. No operational execution evidence is supplied by this Markdown suite; the standing remains `accepted_narrow_scope` with technical execution and institutional dependencies unestablished.

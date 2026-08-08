@@ -4033,6 +4033,122 @@ function authorityEscapeSite(sourceFile, node, pathOf, construct, target) {
   };
 }
 
+function resolvedSymbol(checker, node) {
+  let symbol = checker.getSymbolAtLocation(node);
+  while (symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    symbol = checker.getAliasedSymbol(symbol);
+  }
+  return symbol;
+}
+
+function declarationPaths(symbol) {
+  return new Set(
+    (symbol?.declarations ?? []).map((declaration) =>
+      relativePath(declaration.getSourceFile().fileName),
+    ),
+  );
+}
+
+function isNativeTransportSymbol(symbol, primitive) {
+  return (
+    symbol?.getName() === primitive &&
+    [...declarationPaths(symbol)].some((candidate) =>
+      /(?:^|\/)lib\.dom(?:\.iterable)?\.d\.ts$/u.test(candidate),
+    )
+  );
+}
+
+function collectDirectAuthorityTransports(program, candidates) {
+  const checker = program.getTypeChecker();
+  const canonicalPath =
+    "apps/runtime-dashboard/src/shared/network/authorityTransport.ts";
+  const helperByPrimitive = {
+    fetch: "bindFetchAuthorityInput",
+    EventSource: "bindEventSourceAuthorityInput",
+    WebSocket: "bindWebSocketAuthorityInput",
+  };
+  const rows = [];
+  for (const sourceFile of candidates) {
+    const visit = (node) => {
+      let primitive;
+      let callee;
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        isNativeTransportSymbol(
+          resolvedSymbol(checker, node.expression),
+          "fetch",
+        )
+      ) {
+        primitive = "fetch";
+        callee = node.expression;
+      } else if (
+        ts.isNewExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        (isNativeTransportSymbol(
+          resolvedSymbol(checker, node.expression),
+          "EventSource",
+        ) ||
+          isNativeTransportSymbol(
+            resolvedSymbol(checker, node.expression),
+            "WebSocket",
+          ))
+      ) {
+        primitive = node.expression.text;
+        callee = node.expression;
+      }
+      if (primitive && callee) {
+        const input = node.arguments?.[0];
+        const helper = input && ts.isCallExpression(input) ? input : undefined;
+        const helperSymbol = helper
+          ? resolvedSymbol(checker, helper.expression)
+          : undefined;
+        const helperPaths = declarationPaths(helperSymbol);
+        const helperName = helperSymbol?.getName();
+        const token = helper?.arguments[0];
+        const tokenReceiver =
+          token && ts.isPropertyAccessExpression(token) ? token.expression : undefined;
+        const tokenSymbol = tokenReceiver
+          ? resolvedSymbol(checker, tokenReceiver)
+          : undefined;
+        const tokenPaths = declarationPaths(tokenSymbol);
+        const purpose =
+          token && ts.isPropertyAccessExpression(token) ? token.name.text : null;
+        const location = sourceFile.getLineAndCharacterOfPosition(
+          node.getStart(sourceFile),
+        );
+        rows.push({
+          path: relativePath(sourceFile.fileName),
+          line: location.line + 1,
+          column: location.character + 1,
+          primitive,
+          purpose,
+          helperDeclarationPath:
+            helperPaths.size === 1 ? [...helperPaths][0] : null,
+          helperName: helperName ?? null,
+          purposeTokenDeclarationPath:
+            tokenPaths.size === 1 ? [...tokenPaths][0] : null,
+          purposeTokenName: tokenSymbol?.getName() ?? null,
+          bound:
+            helperPaths.size === 1 &&
+            helperPaths.has(canonicalPath) &&
+            helperName === helperByPrimitive[primitive] &&
+            tokenPaths.size === 1 &&
+            tokenPaths.has(canonicalPath) &&
+            tokenSymbol?.getName() === "authorityTransportPurpose",
+        });
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return rows.sort((left, right) =>
+    `${left.path}:${String(left.line).padStart(8, "0")}:${String(left.column).padStart(8, "0")}`.localeCompare(
+      `${right.path}:${String(right.line).padStart(8, "0")}:${String(right.column).padStart(8, "0")}`,
+    ),
+  );
+}
+
 function directiveEscapeSites(sourceFile, pathOf) {
   const sites = [];
   const addDirective = (range, construct, target) => {
@@ -4520,6 +4636,10 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
       authorityPropDescriptors,
     ),
+    directAuthorityTransports: collectDirectAuthorityTransports(
+      program,
+      statusInventorySources,
+    ),
     ...authorityEscapeFacts,
   };
 }
@@ -4669,6 +4789,7 @@ function collectOverrideFacts(
     authorityPathFiles: [],
     authorityEscapeSites: [],
     authorityIssuerFacts: emptyAuthorityIssuerFacts(),
+    directAuthorityTransports: [],
   };
   const program = createOverrideProgram(overrides);
   if (validateOverrideDiagnostics) {
@@ -4824,6 +4945,9 @@ function collectOverrideFacts(
   facts.authorityPathFiles.push(...authorityEscapeFacts.authorityPathFiles);
   facts.authorityEscapeSites.push(...authorityEscapeFacts.authorityEscapeSites);
   facts.authorityIssuerFacts = authorityEscapeFacts.authorityIssuerFacts;
+  facts.directAuthorityTransports.push(
+    ...collectDirectAuthorityTransports(program, sourceFiles),
+  );
   return facts;
 }
 

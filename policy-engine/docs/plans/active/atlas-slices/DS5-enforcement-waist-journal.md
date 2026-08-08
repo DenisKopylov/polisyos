@@ -1,5 +1,24 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C03b-R2 — direct authority-transport construction lint
+
+- Red first: `test_direct_authority_transport_requires_typed_purpose_factory`
+  failed with `KeyError: 'directAuthorityTransports'` (1 test, 26.393 seconds;
+  wall 28 seconds). The shared TypeScript scanner had no direct native
+  transport/purpose receipt, which was the intended missing-producer failure.
+- R2 schema-closure red first:
+  `test_raw_transport_drift_repair_requires_typed_owner_receipt` failed with
+  `AssertionError: 'use_as_is' != 'rebind_pending'` (1 test, 0.000 seconds;
+  wall 1 second). The row could not truthfully repair until the preserved
+  receipt and direct owner-test verifier were admitted.
+- The bounded rule uses the TypeScript compiler's resolved declaration identity:
+  it accepts only native `fetch`, `EventSource`, and `WebSocket` direct syntax
+  whose first argument is a canonical issuer call and canonical private-branded
+  purpose token. It deliberately does not claim wrapper, alias, assignment, or
+  other indirect-flow coverage. Auth and flag calls are bounded `use_as_is`;
+  telemetry remains DS12-limited, SSE remains DS3-owned, and review WebSocket
+  remains N018 `bridge_missing` despite its typed-constructor evidence.
+
 ## DS5-C03a-R1 — raw transport denominator drift
 
 - Red first: `test_raw_transport_drift_row_binds_historical_and_live_census`

@@ -5,7 +5,6 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
-import subprocess
 import unittest
 from pathlib import Path
 from typing import ClassVar
@@ -1018,6 +1017,15 @@ class ProducerBindingDebtTests(unittest.TestCase):
 class RawTransportDriftTests(unittest.TestCase):
     """Prove the historical DS1 receipt cannot become a live denominator."""
 
+    def test_raw_transport_drift_repair_requires_typed_owner_receipt(self) -> None:
+        """Allow this one preserved receipt to repair only after the real owner test."""
+        descriptor = checker._raw_transport_drift_descriptor()
+
+        self.assertEqual("use_as_is", descriptor["disposition"])
+        self.assertEqual("repaired", descriptor["status"])
+        self.assertNotIn("capability_states", descriptor)
+        self.assertEqual([], checker._raw_transport_owner_receipt_errors())
+
     def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
         descriptor = checker._raw_transport_drift_descriptor()
         self.assertEqual("raw-transport-denominator-drift", descriptor["finding_id"])
@@ -1136,7 +1144,7 @@ class RawTransportDriftTests(unittest.TestCase):
 
         for field, value in (
             ("owner_slice", "DS3"),
-            ("capability_states", ["verification_missing"]),
+            ("status", "open_debt"),
             ("closure_signal", "marker only"),
         ):
             with self.subTest(governed_field=field):
@@ -1155,7 +1163,7 @@ class RawTransportDriftTests(unittest.TestCase):
                     errors,
                 )
 
-        for field in ("owner_slice", "capability_states", "closure_signal"):
+        for field in ("owner_slice", "status", "closure_signal"):
             with self.subTest(omitted_field=field):
                 mutation = copy.deepcopy(data)
                 target = next(
@@ -1263,25 +1271,26 @@ class RawTransportDriftTests(unittest.TestCase):
         )
 
     def test_raw_transport_drift_closure_signal_is_executable_c03b_receipt(self) -> None:
-        signal = checker._raw_transport_drift_descriptor()["closure_signal"]
-        self.assertIn(
-            "test_direct_authority_transport_requires_typed_purpose_factory",
-            signal,
+        self.assertEqual([], checker._raw_transport_owner_receipt_errors())
+
+    def test_raw_transport_repair_schema_rejects_sibling_or_failed_owner(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        sibling = next(
+            item
+            for item in data["supplemental_findings"]
+            if item["finding_id"] == "run-lifecycle-terminal-fact"
         )
-        self.assertIn("exits 0", signal)
-        self.assertIn("7/5", signal)
-        self.assertIn("exit nonzero", signal)
-        result = subprocess.run(
-            signal,
-            shell=True,
-            cwd=ATLAS_DIR.parent.parent,
-            capture_output=True,
-            check=False,
-            text=True,
-        )
-        self.assertEqual(3, result.returncode, result.stderr)
-        self.assertEqual("C03B_R1_TEST_ABSENT", result.stderr)
-        self.assertNotIn("AttributeError", result.stderr)
+        sibling["status"] = "repaired"
+        self.assertTrue(checker._schema_errors(data, checker.SCHEMA_PATH))
+
+        class FailedReceipt:
+            returncode = 1
+
+        with mock.patch.object(checker.subprocess, "run", return_value=FailedReceipt()):
+            self.assertEqual(
+                ["raw_transport_owner_receipt_failed"],
+                checker._raw_transport_owner_receipt_errors(),
+            )
 
     def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -1292,7 +1301,6 @@ class RawTransportDriftTests(unittest.TestCase):
         )
         mutation = copy.deepcopy(row)
         mutation["finding_kind"] = "baseline_test_debt"
-        mutation.pop("capability_states")
         mutation.pop("closure_signal")
         self.assertTrue(
             checker._schema_errors(

@@ -65,7 +65,7 @@ export function FeatureFlagProvider({
     const abortController = new AbortController();
     setStatus("loading");
 
-    void fetch(remoteUrl, {
+    void fetch(bindFetchAuthorityInput(authorityTransportPurpose.flag_exposure, remoteUrl), {
       headers: {
         accept: "application/json",
       },
@@ -164,6 +164,11 @@ export function FeatureFlagProvider({
     </FeatureFlagContext.Provider>
   );
 }
+
+import {
+  authorityTransportPurpose,
+  bindFetchAuthorityInput,
+} from "@/shared/network/authorityTransport";
 
 export function useFeatureFlags() {
   const context = useContext(FeatureFlagContext);

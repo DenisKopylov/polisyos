@@ -3299,13 +3299,13 @@
         "ds1_entry_id": "raw-fetch-auth-refresh",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c03b_typed_authority_transport",
+      "rationale": "The canonical typed auth transport issuer preserves the refresh call, and the C03b direct-owner test proves its auth purpose and consumer binding."
     },
     {
       "unit_id": "raw-fetch-auth-initial",
@@ -3313,13 +3313,13 @@
         "ds1_entry_id": "raw-fetch-auth-initial",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c03b_typed_authority_transport",
+      "rationale": "The canonical typed auth transport issuer preserves the initial request, and the C03b direct-owner test proves its auth purpose and consumer binding."
     },
     {
       "unit_id": "raw-fetch-auth-replay",
@@ -3327,13 +3327,13 @@
         "ds1_entry_id": "raw-fetch-auth-replay",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c03b_typed_authority_transport",
+      "rationale": "The canonical typed auth transport issuer preserves the replay request, and the C03b direct-owner test proves its auth purpose and consumer binding."
     },
     {
       "unit_id": "raw-fetch-flag-manifest",
@@ -3341,13 +3341,13 @@
         "ds1_entry_id": "raw-fetch-flag-manifest",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c03b_typed_authority_transport",
+      "rationale": "The canonical typed flag-exposure transport issuer preserves manifest loading, and the C03b direct-owner test proves its purpose and consumer binding."
     },
     {
       "unit_id": "raw-fetch-collab-activity",
@@ -3421,7 +3421,7 @@
       "owner_slice": "DS12",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C03b records typed telemetry construction only; DS12 remains the owner of delivery, retention, and semantic closeout evidence."
     },
     {
       "unit_id": "status-auth-session",
@@ -4491,7 +4491,7 @@
       "owner_slice": "DS3",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C03b records the canonical governed-channel EventSource constructor; DS3 remains the owner of the stream contract and lifecycle semantics."
     },
     {
       "unit_id": "transport-sse-run-detail",
@@ -4505,7 +4505,7 @@
       "owner_slice": "DS3",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C03b records the canonical governed-channel EventSource constructor; DS3 remains the owner of the stream contract and lifecycle semantics."
     },
     {
       "unit_id": "transport-ws-review",
@@ -4519,7 +4519,7 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C03b records the canonical governed-channel WebSocket constructor, but N018 authentication and degradation remain bridge_missing."
     },
     {
       "unit_id": "transport-ws-collaboration",
@@ -7241,15 +7241,10 @@
     {
       "finding_id": "raw-transport-denominator-drift",
       "finding_kind": "producer_binding_debt",
-      "disposition": "rebind_pending",
-      "status": "open_debt",
+      "disposition": "use_as_is",
+      "status": "repaired",
       "owner_slice": "DS5",
       "decision_date": "2026-08-08",
-      "capability_states": [
-        "contract_only",
-        "consumer_missing",
-        "semantic_test_missing"
-      ],
       "evidence_refs": [
         "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls",
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
@@ -7274,7 +7269,7 @@
         "ds19_collaboration_deletion_evidence_ref": "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
       },
       "rationale": "The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator.",
-      "closure_signal": "python3 -c 'import importlib,sys,unittest; module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); test_class=getattr(module,\"AtlasEnforcementTests\",None); test_name=\"test_direct_authority_transport_requires_typed_purpose_factory\"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write(\"C03B_R1_TEST_ABSENT\"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors."
+      "closure_signal": "python3 -c 'import importlib,sys,unittest; module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); test_class=getattr(module,\"AtlasEnforcementTests\",None); test_name=\"test_direct_authority_transport_requires_typed_purpose_factory\"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write(\"C03B_R2_TEST_ABSENT\"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors."
     }
   ],
   "seeded_negative_lifecycle": [

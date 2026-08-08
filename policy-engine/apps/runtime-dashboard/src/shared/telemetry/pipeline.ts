@@ -1,4 +1,8 @@
 import { readActiveRouteTelemetryContext } from "@/shared/telemetry/routeContext";
+import {
+  authorityTransportPurpose,
+  bindFetchAuthorityInput,
+} from "@/shared/network/authorityTransport";
 
 export type TelemetryPayload = Record<string, unknown>;
 export type TelemetryEvent = {
@@ -71,7 +75,7 @@ export function emitTelemetry(event: TelemetryEvent) {
   }
 
   if (typeof fetch === "function") {
-    void fetch(TELEMETRY_ENDPOINT, {
+    void fetch(bindFetchAuthorityInput(authorityTransportPurpose.telemetry, TELEMETRY_ENDPOINT), {
       body,
       headers: {
         "content-type": "application/json",

@@ -21,6 +21,11 @@ export type AuthSessionState = {
   status: AuthSessionStatus;
 };
 
+import {
+  authorityTransportPurpose,
+  bindFetchAuthorityInput,
+} from "@/shared/network/authorityTransport";
+
 type RefreshContext = {
   reason: "manual" | "response_401";
   requestUrl?: string;
@@ -169,7 +174,7 @@ async function performRefresh(context: RefreshContext) {
     headers.set("x-csrf-token", csrfToken);
   }
 
-  const response = await fetch(refreshUrl, {
+  const response = await fetch(bindFetchAuthorityInput(authorityTransportPurpose.auth, refreshUrl), {
     credentials: "include",
     headers,
     method: "POST",
@@ -276,7 +281,9 @@ export async function refreshAuthSession(context: RefreshContext) {
 export async function authAwareRuntimeFetch(input: Request) {
   const initialRequest = withAccessToken(input, state.accessToken);
   const retryRequest = initialRequest.clone();
-  const response = await fetch(initialRequest);
+  const response = await fetch(
+    bindFetchAuthorityInput(authorityTransportPurpose.auth, initialRequest),
+  );
 
   if (
     response.status !== 401 ||
@@ -309,5 +316,7 @@ export async function authAwareRuntimeFetch(input: Request) {
       requestUrl: input.url,
     },
   });
-  return fetch(replayRequest);
+  return fetch(
+    bindFetchAuthorityInput(authorityTransportPurpose.auth, replayRequest),
+  );
 }

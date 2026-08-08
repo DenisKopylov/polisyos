@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **18988**
-- Application lines deleted: **18015**
-- Net application LOC reduction: **-973**
+- Application lines added: **19033**
+- Application lines deleted: **18023**
+- Net application LOC reduction: **-1010**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -100,9 +100,9 @@ No merge or push is performed.
 | Disposition | Root units |
 | --- | ---: |
 | `deleted` | 15 |
-| `rebind_pending` | 200 |
+| `rebind_pending` | 196 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 5 |
+| `use_as_is` | 9 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -260,7 +260,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `authority-presentation-prop-verification-status-icon-tone` | `authority_presentation_debt` | `rebind_pending` | `DS11` | `verification_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected | `open_debt` — C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern. |
 | `authority-issuer-generated-semantic-id-coverage` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_exported_vocabulary_covers_all_consumed_owner_unions exits 0 after runtime_authority and fixture_only export corruptions fail while the unrelated-constant witness remains green | `open_debt` — C01c review proved the scanner protects projection-state IDs but does not yet derive runtime-authority and fixture IDs from every closed generated union consumed by the issuer family. |
 | `authority-issuer-parity-operand-binding` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_parity_operands_are_exact_generated_pairs exits 0 after state and authority self-comparison corruptions fail | `open_debt` — C01c review proved the equality predicate and never branches are bound, but a generated Operator/Run operand can still be replaced by a self-comparison without invalidating the fact packet. |
-| `raw-transport-denominator-drift` | `producer_binding_debt` | `rebind_pending` | `DS5` | `contract_only`, `consumer_missing`, `semantic_test_missing` | python3 -c 'import importlib,sys,unittest; module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); test_class=getattr(module,"AtlasEnforcementTests",None); test_name="test_direct_authority_transport_requires_typed_purpose_factory"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write("C03B_R1_TEST_ABSENT"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors. | `open_debt` — The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator. |
+| `raw-transport-denominator-drift` | `producer_binding_debt` | `use_as_is` | `DS5` | — | python3 -c 'import importlib,sys,unittest; module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); test_class=getattr(module,"AtlasEnforcementTests",None); test_name="test_direct_authority_transport_requires_typed_purpose_factory"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write("C03B_R2_TEST_ABSENT"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors. | `repaired` — The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator. |
 
 ### Seeded-negative lifecycle
 
@@ -448,10 +448,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `api-op-get-temporal-capabilities` | `api-op-get-temporal-capabilities` | 0 | `rebind_pending` | `pending` | `DS18` | `—` |
 | `api-op-health` | `api-op-health` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-ready` | `api-op-ready` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
-| `raw-fetch-auth-refresh` | `raw-fetch-auth-refresh` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `raw-fetch-auth-initial` | `raw-fetch-auth-initial` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `raw-fetch-auth-replay` | `raw-fetch-auth-replay` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `raw-fetch-flag-manifest` | `raw-fetch-flag-manifest` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `raw-fetch-auth-refresh` | `raw-fetch-auth-refresh` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `raw-fetch-auth-initial` | `raw-fetch-auth-initial` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `raw-fetch-auth-replay` | `raw-fetch-auth-replay` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `raw-fetch-flag-manifest` | `raw-fetch-flag-manifest` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `raw-fetch-collab-activity` | `raw-fetch-collab-activity` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `raw-fetch-collab-comments-get` | `raw-fetch-collab-comments-get` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `raw-fetch-collab-comment-post` | `raw-fetch-collab-comment-post` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
@@ -559,6 +559,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `6c6c31299 DS5-C03a-R1 record raw transport drift`
 - `e69d95423 docs: recut DS5 content-bound register clusters`
 - `7cba15e56 DS5-C02 make architecture zero recurrent`
 - `33a530d12 DS5-C01c freeze issuer enforcement gaps`

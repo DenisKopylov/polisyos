@@ -627,6 +627,32 @@ AUTHORITY_OWNER_MEMBERSHIPS = {
     ),
 }
 
+DIRECT_AUTHORITY_TRANSPORTS: tuple[tuple[str, str, str], ...] = (
+    ("apps/runtime-dashboard/src/app/auth/authSession.ts", "fetch", "auth"),
+    ("apps/runtime-dashboard/src/app/auth/authSession.ts", "fetch", "auth"),
+    ("apps/runtime-dashboard/src/app/auth/authSession.ts", "fetch", "auth"),
+    (
+        "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
+        "fetch",
+        "flag_exposure",
+    ),
+    (
+        "apps/runtime-dashboard/src/app/realtime/sseTransport.ts",
+        "EventSource",
+        "governed_channel",
+    ),
+    (
+        "apps/runtime-dashboard/src/app/realtime/websocketTransport.ts",
+        "WebSocket",
+        "governed_channel",
+    ),
+    (
+        "apps/runtime-dashboard/src/shared/telemetry/pipeline.ts",
+        "fetch",
+        "telemetry",
+    ),
+)
+
 
 def _issuer_rows(
     facts: Mapping[str, Any],
@@ -933,7 +959,11 @@ def _enforcement_scan(
         {str(generated["canonical_path"]), str(generated["types_path"])}
     )
     scan = status_checker._scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
-    for key in ("authorityPathFiles", "authorityEscapeSites"):
+    for key in (
+        "authorityPathFiles",
+        "authorityEscapeSites",
+        "directAuthorityTransports",
+    ):
         if not isinstance(scan.get(key), list):
             raise RuntimeError(f"status TypeScript scan returned invalid {key}")
     if not isinstance(scan.get("authorityIssuerFacts"), Mapping):
@@ -1043,6 +1073,43 @@ def _authority_escape_errors(
     return sorted(set(errors))
 
 
+def _direct_authority_transport_errors(
+    scan: Mapping[str, Any], *, enforce_denominator: bool
+) -> list[str]:
+    """Validate direct native transports without making an indirect-flow claim."""
+    rows = scan.get("directAuthorityTransports")
+    if not isinstance(rows, list):
+        return ["direct_authority_transport_scan_invalid"]
+
+    errors: list[str] = []
+    observed: list[tuple[str, str, str]] = []
+    for row in rows:
+        if not isinstance(row, Mapping):
+            errors.append("direct_authority_transport_row_invalid")
+            continue
+        path = row.get("path")
+        primitive = row.get("primitive")
+        purpose = row.get("purpose")
+        if not all(isinstance(value, str) for value in (path, primitive, purpose)):
+            errors.append("direct_authority_transport_row_invalid")
+            continue
+        identity = (path, primitive, purpose)
+        observed.append(identity)
+        if not row.get("bound"):
+            errors.append(
+                "direct_authority_transport_unbound:"
+                f"{path}:{row.get('line')}:{primitive}"
+            )
+        if identity not in DIRECT_AUTHORITY_TRANSPORTS:
+            errors.append(
+                "direct_authority_transport_purpose_or_primitive_mismatch:"
+                f"{path}:{primitive}:{purpose}"
+            )
+    if enforce_denominator and tuple(observed) != DIRECT_AUTHORITY_TRANSPORTS:
+        errors.append("direct_authority_transport_census_drift")
+    return sorted(set(errors))
+
+
 def validate_enforcement(
     *,
     source_overrides: Mapping[str, str] | None = None,
@@ -1058,6 +1125,11 @@ def validate_enforcement(
     )
     scan["generatedOwnerReceipt"] = _generated_owner_receipt(inventory)
     errors = _override_diagnostic_errors(scan)
+    errors.extend(
+        _direct_authority_transport_errors(
+            scan, enforce_denominator=source_overrides is None
+        )
+    )
     should_enforce_escapes = (
         source_overrides is None if enforce_authority_escapes is None else enforce_authority_escapes
     )

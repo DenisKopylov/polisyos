@@ -496,6 +496,7 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
     issues = validate_bundle_payloads(live, root)
+    _preserve_frozen_operational_metrics(live, root)
     for name in ("census", "pack", "smoke_problem", "cycle_trace", "gaps"):
         if _content_bound_canonical_json(live[name]) != _content_bound_canonical_json(frozen[name]):
             issues.append({"code": "owner_rederive_drift", "artifact": name})
@@ -6354,8 +6355,13 @@ def _preserve_cycle_routing_generated_at(
         frozen_semantic = {
             key: value for key, value in frozen_report.items() if key != "generated_at"
         }
+        live_generated_at = live_report.get("generated_at")
         frozen_generated_at = frozen_report.get("generated_at")
-        if live_semantic != frozen_semantic or not isinstance(frozen_generated_at, str):
+        if (
+            live_semantic != frozen_semantic
+            or not isinstance(live_generated_at, str)
+            or not isinstance(frozen_generated_at, str)
+        ):
             continue
         live_report["generated_at"] = frozen_generated_at
         live_cycle["acquisition_routing_report"] = live_report

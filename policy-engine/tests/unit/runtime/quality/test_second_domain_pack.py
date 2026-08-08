@@ -498,6 +498,100 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
+def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compare the same byte projection that the canonical writer would emit."""
+
+    frozen = {
+        "census": {
+            "census_content_hash": "sha256:" + "a" * 64,
+            "content_hash_excluded_fields": ["runtime_metrics"],
+            "runtime_metrics": {"wall_time_seconds": 1.0},
+        },
+        "pack": {},
+        "smoke_problem": {},
+        "cycle_trace": {
+            "trace_content_hash": "sha256:" + "b" * 64,
+            "content_hash_excluded_fields": ["runtime_metrics"],
+            "runtime_metrics": {"wall_time_seconds": 1.0},
+            "generation_cycle_run": {
+                "cycles": [
+                    {
+                        "cycle_index": 0,
+                        "acquisition_routing_report": {
+                            "status": "pass",
+                            "generated_at": "2026-07-14T00:00:00Z",
+                        },
+                    }
+                ]
+            },
+        },
+        "gaps": {},
+    }
+    by_path = {
+        second_domain_pack.CENSUS_OUTPUT: frozen["census"],
+        second_domain_pack.PACK_OUTPUT: frozen["pack"],
+        second_domain_pack.SMOKE_PROBLEM_OUTPUT: frozen["smoke_problem"],
+        second_domain_pack.CYCLE_TRACE_OUTPUT: frozen["cycle_trace"],
+        second_domain_pack.GAP_REPORT_OUTPUT: frozen["gaps"],
+    }
+    for relative_path, payload in by_path.items():
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+
+    live = copy.deepcopy(frozen)
+    live["census"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
+    live["cycle_trace"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
+    live["cycle_trace"]["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "validate_bundle_payloads",
+        lambda _bundle, _root: [],
+    )
+
+    report = second_domain_pack.rederive_audit(tmp_path)
+
+    assert report["status"] == "pass"
+    assert report["issues"] == []
+
+
+def test_routing_time_preservation_does_not_manufacture_missing_runtime_property() -> None:
+    """A frozen timestamp cannot replace a property absent from the live producer."""
+
+    frozen = {
+        "generation_cycle_run": {
+            "cycles": [
+                {
+                    "cycle_index": 0,
+                    "acquisition_routing_report": {
+                        "status": "pass",
+                        "generated_at": "2026-07-14T00:00:00Z",
+                    },
+                }
+            ]
+        }
+    }
+    live = copy.deepcopy(frozen)
+    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ]
+
+    normalized = second_domain_pack._preserve_cycle_routing_generated_at(
+        live,
+        frozen=frozen,
+    )
+
+    assert "generated_at" not in normalized["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]
+
+
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
     """Persist the canonical registry payload and derive the L2 selection by source."""
 

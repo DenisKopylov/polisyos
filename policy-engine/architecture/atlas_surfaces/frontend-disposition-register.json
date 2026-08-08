@@ -7237,6 +7237,44 @@
       "rationale": "C01c review proved the equality predicate and never branches are bound, but a generated Operator/Run operand can still be replaced by a self-comparison without invalidating the fact packet.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_parity_operands_are_exact_generated_pairs exits 0 after state and authority self-comparison corruptions fail",
       "decision_date": "2026-08-02"
+    },
+    {
+      "finding_id": "raw-transport-denominator-drift",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-08",
+      "capability_states": [
+        "contract_only",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls",
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+      ],
+      "raw_transport_receipt": {
+        "historical_ds1": {
+          "raw_fetch_calls": 9,
+          "production_file_count": 5,
+          "audit_evidence_ref": "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls"
+        },
+        "live_direct_constructor_census": {
+          "fetch_calls": 5,
+          "fetch_production_file_count": 3,
+          "direct_constructor_count": 7,
+          "direct_constructor_production_file_count": 5,
+          "kind_counts": {
+            "fetch": 5,
+            "EventSource": 1,
+            "WebSocket": 1
+          }
+        },
+        "ds19_collaboration_deletion_evidence_ref": "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+      },
+      "rationale": "The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator.",
+      "closure_signal": "python3 -c 'import importlib,sys,unittest; module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); test_class=getattr(module,\"AtlasEnforcementTests\",None); test_name=\"test_direct_authority_transport_requires_typed_purpose_factory\"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write(\"C03B_R1_TEST_ABSENT\"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors."
     }
   ],
   "seeded_negative_lifecycle": [

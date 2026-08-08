@@ -929,6 +929,153 @@ def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
     return sources
 
 
+RAW_TRANSPORT_SCAN_ROOTS = ("apps/runtime-dashboard/src",)
+RAW_TRANSPORT_DRIFT_FINDING_ID = "raw-transport-denominator-drift"
+RAW_TRANSPORT_DRIFT_DECISION_DATE = "2026-08-08"
+RAW_TRANSPORT_CLOSURE_SIGNAL = (
+    "python3 -c 'import importlib,sys,unittest; "
+    'module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); '
+    'test_class=getattr(module,"AtlasEnforcementTests",None); '
+    'test_name="test_direct_authority_transport_requires_typed_purpose_factory"; '
+    'test_method=getattr(test_class,test_name,None) if test_class is not None else None; '
+    'absent=not callable(test_method); '
+    'absent and sys.stderr.write("C03B_R1_TEST_ABSENT"); '
+    "sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run("
+    "test_class(test_name)).wasSuccessful() else 1)' "
+    "# exits 0 only when exact live 7/5 typed-owner agreement holds "
+    "(fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, "
+    "removed, or reclassified direct constructors."
+)
+RAW_TRANSPORT_HISTORICAL_AUDIT_REF = (
+    "docs/reference/frontend/atlas-live-application-audit.md"
+    "#hand-written-fetches-audited-9-of-9-production-calls"
+)
+RAW_TRANSPORT_DS19_DELETION_REF = (
+    "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md"
+    "#2026-07-17---collaboration-cluster-verification"
+)
+
+_DIRECT_TRANSPORT_CENSUS_SCRIPT = r"""
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const sources = JSON.parse(raw);
+const facts = [];
+
+for (const [path, source] of Object.entries(sources)) {
+  const kind = path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  const file = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, kind);
+  const line = (node) => file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1;
+  const visit = (node) => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === "fetch"
+    ) {
+      facts.push({path, line: line(node), kind: "fetch"});
+    }
+    if (
+      ts.isNewExpression(node)
+      && ts.isIdentifier(node.expression)
+      && (node.expression.text === "EventSource" || node.expression.text === "WebSocket")
+    ) {
+      facts.push({path, line: line(node), kind: node.expression.text});
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+}
+
+process.stdout.write(JSON.stringify(facts));
+"""
+
+
+def _direct_transport_census_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, Any]:
+    """Count direct raw transport syntax without following data or call flow."""
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _DIRECT_TRANSPORT_CENSUS_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(sources),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "direct transport syntax census failed: " + completed.stderr.strip()
+        )
+    facts = json.loads(completed.stdout)
+    if not isinstance(facts, list) or any(not isinstance(fact, dict) for fact in facts):
+        raise RuntimeError("direct transport syntax census returned invalid facts")
+    kinds = ("fetch", "EventSource", "WebSocket")
+    kind_counts = {kind: sum(fact.get("kind") == kind for fact in facts) for kind in kinds}
+    fetch_paths = {
+        str(fact["path"])
+        for fact in facts
+        if fact.get("kind") == "fetch"
+    }
+    return {
+        "direct_constructor_count": len(facts),
+        "production_file_count": len({str(fact["path"]) for fact in facts}),
+        "fetch_production_file_count": len(fetch_paths),
+        "kind_counts": kind_counts,
+    }
+
+
+def _direct_transport_census(
+    sources: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    """Recompute the bounded dashboard direct-constructor denominator."""
+    if sources is None:
+        sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
+    return _direct_transport_census_from_sources(sources)
+
+
+def _raw_transport_drift_descriptor() -> dict[str, Any]:
+    """Return the typed historical/live denominator distinction for C03b-R1."""
+    return {
+        "finding_id": RAW_TRANSPORT_DRIFT_FINDING_ID,
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "decision_date": RAW_TRANSPORT_DRIFT_DECISION_DATE,
+        "capability_states": [
+            "contract_only",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
+            RAW_TRANSPORT_DS19_DELETION_REF,
+        ],
+        "raw_transport_receipt": {
+            "historical_ds1": {
+                "raw_fetch_calls": 9,
+                "production_file_count": 5,
+                "audit_evidence_ref": RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
+            },
+            "live_direct_constructor_census": {
+                "fetch_calls": 5,
+                "fetch_production_file_count": 3,
+                "direct_constructor_count": 7,
+                "direct_constructor_production_file_count": 5,
+                "kind_counts": {"fetch": 5, "EventSource": 1, "WebSocket": 1},
+            },
+            "ds19_collaboration_deletion_evidence_ref": RAW_TRANSPORT_DS19_DELETION_REF,
+        },
+        "rationale": (
+            "The DS1 audit recorded four collaboration fetches that DS19 later "
+            "deleted; historical audit coverage is evidence, not the live C03b "
+            "direct-call denominator."
+        ),
+        "closure_signal": RAW_TRANSPORT_CLOSURE_SIGNAL,
+    }
+
+
 def _owner_exports(path: str, source: str, module_prefix: str) -> set[str]:
     """Return owner module stems exported by a canonical TypeScript barrel."""
     return {
@@ -1537,7 +1684,8 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "novel status labels remain opaque; the C22 semantic negatives and "
             "DS5 ownership lint remain green."
         ),
-    }
+    },
+    RAW_TRANSPORT_DRIFT_FINDING_ID: _raw_transport_drift_descriptor(),
 }
 
 INTEGRATE_DEBT_DESCRIPTORS = {
@@ -3454,6 +3602,29 @@ def _refresh_supplemental_findings_text(text: str) -> str:
     return refreshed[:insertion_at] + insertion + refreshed[insertion_at:]
 
 
+def _raw_transport_writer_preservation_errors(
+    original_text: str, candidate_text: str
+) -> list[str]:
+    """Return byte-preservation failures for the surgical supplemental writer."""
+    original_start, original_end, original_rows = _supplemental_section(original_text)
+    candidate_start, candidate_end, candidate_rows = _supplemental_section(candidate_text)
+    errors: list[str] = []
+    if original_text[: original_start + 1] != candidate_text[: candidate_start + 1]:
+        errors.append("raw_transport_writer_prefix_drift")
+    if original_text[original_end:] != candidate_text[candidate_end:]:
+        errors.append("raw_transport_writer_suffix_drift")
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS)
+    original_accepted = [
+        text for finding_id, text in original_rows if finding_id not in descriptor_ids
+    ]
+    candidate_accepted = [
+        text for finding_id, text in candidate_rows if finding_id not in descriptor_ids
+    ]
+    if original_accepted != candidate_accepted:
+        errors.append("raw_transport_writer_accepted_row_drift")
+    return errors
+
+
 def _seeded_negatives() -> list[dict[str, Any]]:
     affected = {
         "DS1-N001": ["derivation-browser-signature"],
@@ -4880,6 +5051,45 @@ def _validate_producer_binding_debt_findings(
             )
 
 
+def _validate_raw_transport_drift(
+    data: Mapping[str, Any],
+    errors: list[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> None:
+    """Compare the typed C03a receipt with the bounded live syntax census."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    row = next(
+        (
+            item
+            for item in rows
+            if isinstance(item, Mapping)
+            and item.get("finding_id") == RAW_TRANSPORT_DRIFT_FINDING_ID
+        ),
+        None,
+    )
+    if row is None:
+        return
+    receipt = row.get("raw_transport_receipt")
+    if not isinstance(receipt, Mapping):
+        return
+    live_receipt = receipt.get("live_direct_constructor_census")
+    if not isinstance(live_receipt, Mapping):
+        return
+    observed = _direct_transport_census(sources)
+    expected = {
+        "fetch_calls": observed["kind_counts"]["fetch"],
+        "fetch_production_file_count": observed["fetch_production_file_count"],
+        "direct_constructor_count": observed["direct_constructor_count"],
+        "direct_constructor_production_file_count": observed["production_file_count"],
+        "kind_counts": observed["kind_counts"],
+    }
+    if live_receipt != expected:
+        errors.append("raw_transport_live_direct_constructor_census_drift")
+
+
 def _validate_integrate_contract_debt_findings(
     data: Mapping[str, Any], errors: list[str]
 ) -> None:
@@ -4944,10 +5154,17 @@ def validate_register(
     live_probes: bool = True,
     schema: bool = True,
     report_parity: bool = True,
+    direct_transport_sources: Mapping[str, str] | None = None,
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
     _validate_producer_binding_debt_findings(data, errors)
+    if live_probes or direct_transport_sources is not None:
+        _validate_raw_transport_drift(
+            data,
+            errors,
+            sources=direct_transport_sources,
+        )
     _validate_integrate_contract_debt_findings(data, errors)
     errors.extend(
         _authority_presentation_errors(data, live_probes=live_probes)
@@ -5556,6 +5773,60 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 (f"producer-binding-debt-{finding_id}-{field}", mutation)
             )
 
+    failures: list[str] = []
+    direct_sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
+    benign_sources = {
+        **direct_sources,
+        "apps/runtime-dashboard/src/shared/lib/directTransportControl.ts": (
+            "const control = { fetch: () => undefined };\nvoid control.fetch();\n"
+        ),
+    }
+    if validate_register(
+        data,
+        live_probes=False,
+        report_parity=False,
+        direct_transport_sources=benign_sources,
+    ):
+        failures.append("raw-transport-benign-member-call-counted")
+    for name, sources in (
+        (
+            "raw-transport-direct-constructor-added",
+            {
+                **direct_sources,
+                "apps/runtime-dashboard/src/shared/lib/directTransportAdded.ts": (
+                    'void fetch("/probe");\n'
+                ),
+            },
+        ),
+        (
+            "raw-transport-direct-constructor-removed",
+            {
+                path: source.replace(
+                    "void fetch(TELEMETRY_ENDPOINT, {", "void send(TELEMETRY_ENDPOINT, {"
+                )
+                if path == "apps/runtime-dashboard/src/shared/telemetry/pipeline.ts"
+                else source
+                for path, source in direct_sources.items()
+            },
+        ),
+        (
+            "raw-transport-direct-constructor-reclassified",
+            {
+                path: source.replace("new EventSource(", "new WebSocket(")
+                if path == "apps/runtime-dashboard/src/app/realtime/sseTransport.ts"
+                else source
+                for path, source in direct_sources.items()
+            },
+        ),
+    ):
+        if not validate_register(
+            data,
+            live_probes=False,
+            report_parity=False,
+            direct_transport_sources=sources,
+        ):
+            failures.append(name)
+
     for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
         for field in descriptor:
             mutation = copy.deepcopy(data)
@@ -5619,7 +5890,6 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     row["decision_date"] = DECISION_DATE
     probes.append(("authority-presentation-decision-date-backdate", new_row_backdate))
 
-    failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)

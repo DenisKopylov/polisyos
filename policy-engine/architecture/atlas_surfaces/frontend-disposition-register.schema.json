@@ -984,6 +984,59 @@
         }
       ]
     },
+    "rawTransportDriftReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historical_ds1",
+        "live_direct_constructor_census",
+        "ds19_collaboration_deletion_evidence_ref"
+      ],
+      "properties": {
+        "historical_ds1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["raw_fetch_calls", "production_file_count", "audit_evidence_ref"],
+          "properties": {
+            "raw_fetch_calls": { "const": 9 },
+            "production_file_count": { "const": 5 },
+            "audit_evidence_ref": {
+              "const": "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls"
+            }
+          }
+        },
+        "live_direct_constructor_census": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fetch_calls",
+            "fetch_production_file_count",
+            "direct_constructor_count",
+            "direct_constructor_production_file_count",
+            "kind_counts"
+          ],
+          "properties": {
+            "fetch_calls": { "const": 5 },
+            "fetch_production_file_count": { "const": 3 },
+            "direct_constructor_count": { "const": 7 },
+            "direct_constructor_production_file_count": { "const": 5 },
+            "kind_counts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["fetch", "EventSource", "WebSocket"],
+              "properties": {
+                "fetch": { "const": 5 },
+                "EventSource": { "const": 1 },
+                "WebSocket": { "const": 1 }
+              }
+            }
+          }
+        },
+        "ds19_collaboration_deletion_evidence_ref": {
+          "const": "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+        }
+      }
+    },
     "supplementalFinding": {
       "type": "object",
       "description": "Supplemental debt is descriptor-derived; producer, integrate-contract, and authority-presentation debt remain open until their typed closure signals pass.",
@@ -1074,6 +1127,9 @@
         "authority_sink": {
           "$ref": "#/$defs/authoritySinkDescriptor"
         },
+        "raw_transport_receipt": {
+          "$ref": "#/$defs/rawTransportDriftReceipt"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
@@ -1143,10 +1199,34 @@
           },
           "else": {
             "not": {"required": ["authority_sink"]}
-          }
         }
-      ]
-    },
+      },
+      {
+        "if": {
+          "allOf": [
+            {
+              "properties": {
+                "finding_id": { "const": "raw-transport-denominator-drift" }
+              },
+              "required": ["finding_id"]
+            },
+            {
+              "properties": {
+                "finding_kind": { "const": "producer_binding_debt" }
+              },
+              "required": ["finding_kind"]
+            }
+          ]
+        },
+        "then": {
+          "required": ["raw_transport_receipt"]
+        },
+        "else": {
+          "not": { "required": ["raw_transport_receipt"] }
+        }
+      }
+    ]
+  },
     "seededNegative": {
       "type": "object",
       "additionalProperties": false,

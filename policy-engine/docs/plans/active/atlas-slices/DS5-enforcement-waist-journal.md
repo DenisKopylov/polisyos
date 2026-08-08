@@ -1,5 +1,92 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C03a-R1 — raw transport denominator drift
+
+- Red first: `test_raw_transport_drift_row_binds_historical_and_live_census`
+  failed with `AttributeError: module 'frontend_disposition_checker' has no
+  attribute '_raw_transport_drift_descriptor'` (1 test, 0.001 seconds;
+  wall 1.458 seconds). The missing typed descriptor was the intended failure.
+- The typed `raw-transport-denominator-drift` receipt binds historical DS1
+  9 raw fetches / 5 production files to the DS1 audit and records the live
+  direct syntax census separately: 5 fetches / 3 files; 7 constructors / 5
+  files (`fetch=5`, `EventSource=1`, `WebSocket=1`). The DS19 collaboration
+  deletion receipt explains the four-fetch delta; the row remains
+  `open_debt` until C03b-R1 owner classification agrees with the live census.
+- Focused final receipt: 1/1 green in 12.461 seconds (wall 14.877 seconds).
+  Full disposition suite: 39/39 green in 99.685 seconds (wall 102.053
+  seconds). Disposition checker, report-parity check, and corruption probes:
+  PASS in 127.987 seconds (261 roots / 56 findings / 23 negatives / 8
+  censuses). Status suite: 38/38 green in 157.000 seconds (wall 158.418
+  seconds); status checker and corruption probes: PASS in 41.312 seconds.
+- Actual supplemental writer second pass: status 0, wall 90.866 seconds,
+  `byte_preserved=True`; Python compilation, JSON parse, scoped Ruff
+  (`E,F,I,B,N`, inherited `E501`/`F841` excluded), and `git diff --check`
+  passed in 0.900 seconds. Dashboard `@polisyos/atlas-ui` and
+  `@polisyos/runtime-api-client` links resolved before scanner receipts.
+- Content-binding proof from the starting HEAD: added supplemental IDs were
+  exactly `['raw-transport-denominator-drift']`; removed IDs `[]`; roots,
+  seeded negatives, reference censuses, all other top-level fields, and every
+  pre-existing supplemental finding were semantically unchanged. Only
+  `sources.ds19.sha256` changed in the status inventory, from
+  `sha256:3284fdde99ef88fa85036a5413aea6fbdf747df4e0af2786f2c75fb0d0c0a31d`
+  to `sha256:05c5d782f8edbea7374f8d75ef6113d3cbb73e77c8b7229cb4ba9f61208cc4f5`.
+
+### C03a-R1 review fix round 1
+
+- Red date witness: the new row retained `2026-07-17`, not its C03a decision
+  date `2026-08-08`; `RAW_TRANSPORT_DRIFT_DECISION_DATE` now binds only this
+  descriptor and the mutation witness rejects its backdate.
+- Red closure witness: the C03b typed-purpose-factory test name was absent;
+  the closure signal now names the executable test, exit-0 7/5 agreement, and
+  exit-nonzero constructor corruption condition. Descriptor corruption remains
+  rejected.
+- Red schema witness: an ID-correct receipt with `baseline_test_debt` returned
+  `[]` schema errors; raw receipt admission now requires both the finding ID
+  and `producer_binding_debt`, while unrelated producer rows still forbid it.
+- Red preservation witness: `_raw_transport_writer_preservation_errors` was
+  absent. Its noncanonical prefix/suffix/accepted-row oracle now proves the
+  actual surgical writer preserves bytes and rejects full reserialization and
+  outside-section mutation.
+- Focused C03a receipt: 5/5 green in 45.795 seconds (wall 47.091 seconds).
+  Disposition checker/report parity/corruption probes: PASS in 120.745
+  seconds; status checker corruption probes: PASS. The re-anchored DS19 hash
+  is `sha256:ceff842abe2aaf78700446c89a0f36601087929871fb867ac267609d8e222132`.
+
+### C03a-R1 review fix round 2
+
+- Red closure witness: the prior prose-tailed unittest invocation exited 2
+  with a shell syntax error, before any C03b absence predicate could run.
+  The closure receipt now imports the existing test module and class, emits
+  `C03B_R1_TEST_ABSENT` with intentional exit 3 while the method is absent,
+  and otherwise runs that method and returns its real result.
+- Two overlapping post-review writer launches produced no completion receipt:
+  the old invocation was terminated before any stale write, and the other was
+  not cited. Only the naturally completed final writer/report pass is used;
+  its re-anchored DS19 hash is
+  `sha256:87f064b800cd65c7c05e7002030727c65222a9d433535bbde2186842f8f24b68`.
+- Focused closure guard: PASS in 4.141 seconds; it observes the intentional
+  absent-method diagnostic rather than an import or invalid-target error.
+- Focused schema and noncanonical surgical-writer preservation witnesses:
+  PASS in 0.297 and 48.318 seconds. Disposition corruption/report parity and
+  status corruption checks: PASS in 45 and 17 seconds. JSON parse, Python
+  compilation, scoped Ruff, and `git diff --check`: PASS.
+- Post-review final wave: disposition 43/43 in 33.305 seconds plus
+  checker/corruption in 45.317 seconds; status 38/38 in 48.814 seconds plus
+  checker/corruption in 17.624 seconds. The surgical writer completed in
+  24.893 seconds, was byte-identical, and retained the stable re-anchored DS19
+  hash `sha256:87f064b800cd65c7c05e7002030727c65222a9d433535bbde2186842f8f24b68`.
+- Two newly introduced `E501` expressions (closure guard and raw-source
+  replacement corruption witness) were line-wrapped with AST-identical source.
+  The fresh exact comparison is HEAD 161 → pre-wrap 163 → post-wrap 161;
+  the prior 163 baseline statement is a non-reproducible harness receipt, and
+  zero-new means post-wrap equals HEAD. Initial review was NO-GO 0/4/0; fix 1
+  left one finding; fix 2 was GO 0/0/0.
+- Overlapping writers are non-receipts: the old writer was terminated before
+  writing, and only the final writer counts. The original implementer credit
+  failure after semantic completion is a tooling non-receipt.
+- Final orchestration receipt: 0 sol subagents; 0 escalations/temptations to
+  sol—brief repair/splitting kept work on terra.
+
 ## 2026-08-08 — content-bound sizing-class documentation pass
 
 - C03a cost one full stop at clean C02. The root cause was omission of an
@@ -14,6 +101,9 @@
 | --- | --- | --- | ---: | --- | --- |
 | `ds5_recut_audit` | terra | read-only census | ~100 lines | yes | Found 7 seed-list omissions and the complete 23/20/3 partition. |
 | `ds5_recut_plan_writer` | terra | serialized docs implementation | 8 lines | yes | Recut the two DS5 documents; no product/governed artifact changed. |
+| `ds5_c03a_impl` | terra | DS5-C03a implementation | ~45 lines | yes | Semantic implementation completed. |
+| `ds5_c03a_review` | terra | DS5-C03a review | ~22 lines | yes | Final fix round reached GO 0/0/0. |
+| `ds5_c03a_finalize` | terra | DS5-C03a mechanical finalization | ~10 lines | yes | AST-preserving wraps and bounded closeout receipts. |
 
 ## DS5-C01 — rejected mechanism retained as history
 

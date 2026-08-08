@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from typing import ClassVar
@@ -824,6 +825,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "authority-issuer-generated-semantic-id-coverage",
                 "authority-issuer-parity-operand-binding",
                 "producer-binding-readiness-scientific-depth",
+                "raw-transport-denominator-drift",
             },
             set(descriptors),
         )
@@ -1011,6 +1013,329 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         self.assertIn("`artifact_missing`", readiness_line)
         self.assertIn("registered typed refusal", readiness_line)
+
+
+class RawTransportDriftTests(unittest.TestCase):
+    """Prove the historical DS1 receipt cannot become a live denominator."""
+
+    def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
+        descriptor = checker._raw_transport_drift_descriptor()
+        self.assertEqual("raw-transport-denominator-drift", descriptor["finding_id"])
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        row = next(
+            item
+            for item in data["supplemental_findings"]
+            if item["finding_id"] == descriptor["finding_id"]
+        )
+        self.assertEqual(descriptor, row)
+
+        sources = checker._typescript_production_sources(
+            checker.RAW_TRANSPORT_SCAN_ROOTS
+        )
+        observed = checker._direct_transport_census_from_sources(sources)
+        self.assertEqual(
+            {
+                "fetch_calls": 5,
+                "fetch_production_file_count": 3,
+                "direct_constructor_count": 7,
+                "direct_constructor_production_file_count": 5,
+                "kind_counts": {"fetch": 5, "EventSource": 1, "WebSocket": 1},
+            },
+            {
+                "fetch_calls": observed["kind_counts"]["fetch"],
+                "fetch_production_file_count": observed["fetch_production_file_count"],
+                "direct_constructor_count": observed["direct_constructor_count"],
+                "direct_constructor_production_file_count": observed["production_file_count"],
+                "kind_counts": observed["kind_counts"],
+            },
+        )
+        census_errors: list[str] = []
+        checker._validate_producer_binding_debt_findings(data, census_errors)
+        checker._validate_raw_transport_drift(
+            data, census_errors, sources=sources
+        )
+        self.assertEqual([], census_errors)
+
+        for label, mutate in (
+            (
+                "historical-fetch-denominator",
+                lambda receipt: receipt["historical_ds1"].__setitem__(
+                    "raw_fetch_calls", 8
+                ),
+            ),
+            (
+                "historical-file-denominator",
+                lambda receipt: receipt["historical_ds1"].__setitem__(
+                    "production_file_count", 4
+                ),
+            ),
+            (
+                "live-fetch-denominator",
+                lambda receipt: receipt["live_direct_constructor_census"].__setitem__(
+                    "fetch_calls", 4
+                ),
+            ),
+            (
+                "live-fetch-files",
+                lambda receipt: receipt["live_direct_constructor_census"].__setitem__(
+                    "fetch_production_file_count", 2
+                ),
+            ),
+            (
+                "live-constructor-denominator",
+                lambda receipt: receipt["live_direct_constructor_census"].__setitem__(
+                    "direct_constructor_count", 6
+                ),
+            ),
+            (
+                "live-constructor-files",
+                lambda receipt: receipt["live_direct_constructor_census"].__setitem__(
+                    "direct_constructor_production_file_count", 4
+                ),
+            ),
+            (
+                "live-fetch-kind",
+                lambda receipt: receipt["live_direct_constructor_census"][
+                    "kind_counts"
+                ].__setitem__("fetch", 4),
+            ),
+            (
+                "live-eventsource-kind",
+                lambda receipt: receipt["live_direct_constructor_census"][
+                    "kind_counts"
+                ].__setitem__("EventSource", 0),
+            ),
+            (
+                "live-websocket-kind",
+                lambda receipt: receipt["live_direct_constructor_census"][
+                    "kind_counts"
+                ].__setitem__("WebSocket", 0),
+            ),
+            (
+                "ds19-deletion-evidence",
+                lambda receipt: receipt.__setitem__(
+                    "ds19_collaboration_deletion_evidence_ref", "docs/missing.md"
+                ),
+            ),
+        ):
+            with self.subTest(corruption=label):
+                mutation = copy.deepcopy(data)
+                target = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == descriptor["finding_id"]
+                )
+                mutate(target["raw_transport_receipt"])
+                errors: list[str] = []
+                checker._validate_producer_binding_debt_findings(mutation, errors)
+                self.assertIn(
+                    "producer_binding_debt_drift:"
+                    "raw-transport-denominator-drift:raw_transport_receipt",
+                    errors,
+                )
+
+        for field, value in (
+            ("owner_slice", "DS3"),
+            ("capability_states", ["verification_missing"]),
+            ("closure_signal", "marker only"),
+        ):
+            with self.subTest(governed_field=field):
+                mutation = copy.deepcopy(data)
+                target = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == descriptor["finding_id"]
+                )
+                target[field] = value
+                errors = []
+                checker._validate_producer_binding_debt_findings(mutation, errors)
+                self.assertIn(
+                    "producer_binding_debt_drift:"
+                    f"raw-transport-denominator-drift:{field}",
+                    errors,
+                )
+
+        for field in ("owner_slice", "capability_states", "closure_signal"):
+            with self.subTest(omitted_field=field):
+                mutation = copy.deepcopy(data)
+                target = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == descriptor["finding_id"]
+                )
+                target.pop(field)
+                errors = []
+                checker._validate_producer_binding_debt_findings(mutation, errors)
+                self.assertTrue(errors)
+
+        benign_sources = {
+            **sources,
+            "apps/runtime-dashboard/src/shared/lib/directTransportControl.ts": (
+                "const control = { fetch: () => undefined };\nvoid control.fetch();\n"
+            ),
+        }
+        self.assertEqual(observed, checker._direct_transport_census_from_sources(benign_sources))
+        for label, mutated_sources in (
+            (
+                "added",
+                {
+                    **sources,
+                    "apps/runtime-dashboard/src/shared/lib/directTransportAdded.ts": (
+                        'void fetch("/probe");\n'
+                    ),
+                },
+            ),
+            (
+                "removed",
+                {
+                    path: source.replace(
+                        "void fetch(TELEMETRY_ENDPOINT, {", "void send(TELEMETRY_ENDPOINT, {"
+                    )
+                    if path == "apps/runtime-dashboard/src/shared/telemetry/pipeline.ts"
+                    else source
+                    for path, source in sources.items()
+                },
+            ),
+            (
+                "reclassified",
+                {
+                    path: source.replace("new EventSource(", "new WebSocket(")
+                    if path == "apps/runtime-dashboard/src/app/realtime/sseTransport.ts"
+                    else source
+                    for path, source in sources.items()
+                },
+            ),
+        ):
+            with self.subTest(direct_constructor=label):
+                errors = []
+                checker._validate_raw_transport_drift(
+                    data, errors, sources=mutated_sources
+                )
+                self.assertIn(
+                    "raw_transport_live_direct_constructor_census_drift",
+                    errors,
+                )
+
+        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        with mock.patch.object(
+            checker,
+            "_supplemental_findings",
+            return_value=copy.deepcopy(data["supplemental_findings"]),
+        ):
+            refreshed_text = checker._refresh_supplemental_findings_text(original_text)
+            self.assertEqual(
+                refreshed_text,
+                checker._refresh_supplemental_findings_text(refreshed_text),
+            )
+        original_start, original_end, original_rows = checker._supplemental_section(
+            original_text
+        )
+        refreshed_start, refreshed_end, refreshed_rows = checker._supplemental_section(
+            refreshed_text
+        )
+        self.assertEqual(
+            original_text[: original_start + 1], refreshed_text[: refreshed_start + 1]
+        )
+        self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
+        generated_ids = set(checker.GOVERNED_DEBT_DESCRIPTORS)
+        self.assertEqual(
+            [text for finding_id, text in original_rows if finding_id not in generated_ids],
+            [text for finding_id, text in refreshed_rows if finding_id not in generated_ids],
+        )
+
+    def test_raw_transport_drift_decision_date_is_c03a_specific(self) -> None:
+        self.assertEqual(
+            "2026-08-08", checker._raw_transport_drift_descriptor()["decision_date"]
+        )
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        mutation = copy.deepcopy(data)
+        row = next(
+            item
+            for item in mutation["supplemental_findings"]
+            if item["finding_id"] == checker.RAW_TRANSPORT_DRIFT_FINDING_ID
+        )
+        row["decision_date"] = checker.DECISION_DATE
+        self.assertIn(
+            "supplemental_decision_date_drift:raw-transport-denominator-drift",
+            checker.validate_register(
+                mutation, live_probes=False, report_parity=False
+            ),
+        )
+
+    def test_raw_transport_drift_closure_signal_is_executable_c03b_receipt(self) -> None:
+        signal = checker._raw_transport_drift_descriptor()["closure_signal"]
+        self.assertIn(
+            "test_direct_authority_transport_requires_typed_purpose_factory",
+            signal,
+        )
+        self.assertIn("exits 0", signal)
+        self.assertIn("7/5", signal)
+        self.assertIn("exit nonzero", signal)
+        result = subprocess.run(
+            signal,
+            shell=True,
+            cwd=ATLAS_DIR.parent.parent,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+        self.assertEqual(3, result.returncode, result.stderr)
+        self.assertEqual("C03B_R1_TEST_ABSENT", result.stderr)
+        self.assertNotIn("AttributeError", result.stderr)
+
+    def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        row = next(
+            item
+            for item in data["supplemental_findings"]
+            if item["finding_id"] == checker.RAW_TRANSPORT_DRIFT_FINDING_ID
+        )
+        mutation = copy.deepcopy(row)
+        mutation["finding_kind"] = "baseline_test_debt"
+        mutation.pop("capability_states")
+        mutation.pop("closure_signal")
+        self.assertTrue(
+            checker._schema_errors(
+                {**data, "supplemental_findings": [mutation]}, checker.SCHEMA_PATH
+            )
+        )
+
+    def test_raw_transport_writer_preservation_oracle_rejects_full_reserialization(self) -> None:
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        noncanonical = original.replace('{\n  "$schema"', '{\n\t"$schema"', 1)
+        noncanonical = noncanonical.replace(
+            '      "finding_id": "baseline-lint-quantity-debt",',
+            '\t  "finding_id": "baseline-lint-quantity-debt",',
+            1,
+        )
+        noncanonical = noncanonical.replace(
+            '  "seeded_negative_lifecycle": [',
+            '  \t"seeded_negative_lifecycle": [',
+            1,
+        )
+        refreshed = checker._refresh_supplemental_findings_text(noncanonical)
+        self.assertEqual(
+            [],
+            checker._raw_transport_writer_preservation_errors(noncanonical, refreshed),
+        )
+        full_reserialized = json.dumps(
+            json.loads(noncanonical), indent=2, ensure_ascii=False
+        ) + "\n"
+        self.assertTrue(
+            checker._raw_transport_writer_preservation_errors(
+                noncanonical, full_reserialized
+            )
+        )
+        outside_section_mutant = refreshed.replace(
+            '\t"seeded_negative_lifecycle": [',
+            '  "seeded_negative_lifecycle": [',
+            1,
+        )
+        self.assertTrue(
+            checker._raw_transport_writer_preservation_errors(
+                noncanonical, outside_section_mutant
+            )
+        )
 
 
 class IntegrateContractDebtTests(unittest.TestCase):

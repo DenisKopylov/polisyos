@@ -2,7 +2,12 @@
 title: S0-GAP-02 — Adjacent-case generator, anti-memorization controls, and reproducibility receipt
 status: research
 research_only: true
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+source_tree_equivalent_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a7c34cc40b649a10b6878228a8a57acc498f279a
+audit_commit: 3abbaf8c2808e31fd7d8f9929b696e78dc91b3d4
+amendment_branch: research/s0-gap-02-amendment
+amendment_status: audit_amended
 result_standing: accepted_narrow_scope
 authoritative_for:
   - research-only mutation relation catalogue and generation protocol
@@ -26,9 +31,9 @@ may_not_use_for:
 
 ## 1. Objective
 
-A static public corpus tests whether an implementation recognizes known fixtures. It does not establish that behavior depends on custody semantics rather than fixture identifiers, prose fragments, event ordering, or memorized labels. `S0-K15` therefore requires adjacent and hidden cases and preservation of ambiguity/dissent. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:155-176@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K15`.) OPS-R15 already identifies ID branching and adjacent-case risk but supplies no executable generator or sealed population. (`policy-engine/docs/research/policy-operations/stage0/ops-r15-custody-capstone-semantic-kernel-and-benchmark-architecture.md:362-386@1a7a2d05ebba22fae80e9934329e4b880806588e`; `policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:80-160@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
+A static public corpus tests whether an implementation recognizes known fixtures. It does not establish that behavior depends on custody semantics rather than fixture identifiers, prose fragments, event ordering, or memorized labels. `S0-K15` therefore requires adjacent and hidden cases and preservation of ambiguity/dissent. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:155-176@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `S0-K15`.) OPS-R15 already identifies ID branching and adjacent-case risk but supplies no executable generator or sealed population. (`policy-engine/docs/research/policy-operations/stage0/ops-r15-custody-capstone-semantic-kernel-and-benchmark-architecture.md:362-386@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`; `policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:80-160@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`.)
 
-The generator is independent by construction. It may consume the public fixture schema, public semantic relations, and a hidden seed. It may not import production semantics, product fixture helpers, evaluator reducers, or plaintext expectation alternatives.
+The generator is independent only when its transformation semantics and its relation validator are provenance-diverse from the product and from the evaluator that judges the generated relation. `M_v` may consume the public fixture schema, public semantic relations, and a hidden seed; `J_v` independently validates the mutation certificate. Neither may import production semantics, product fixture helpers, evaluator reducers, plaintext expectation alternatives, or a private semantic table/prompt/model/service shared with `R_v` or `P_v`. Audit attack `A-15` makes that boundary executable.
 
 ## 2. Metamorphic relation model
 
@@ -108,13 +113,14 @@ MutationCertificate:
 
 A mutation that cannot produce this certificate is not credited as adjacent.
 
-## 5. Generator interface and independence
+## 5. Generator, relation-validator, and evaluator independence
 
 ```yaml
 MutationGenerationRequest:
   public_specification_digest: digest
   public_corpus_manifest_digest: digest
   relation_catalogue_digest: digest
+  finite_trace_domain_profile_digest: digest
   base_fixture_digests: [digest]
   population_plan_commitment: digest
   seed_commitment: digest
@@ -123,27 +129,55 @@ MutationGenerationRequest:
 
 MutationGenerationResult:
   generator_version: string
+  generator_source_revision: string
   generator_artifact_digest: digest
   generator_sbom_digest: digest
+  generator_provenance_digest: digest
   seed_reveal_or_handle: opaque_value
   generated_fixture_digests: [digest]
   mutation_certificate_digests: [digest]
-  validation_report_digest: digest
   generation_started_at: timestamp
   generation_completed_at: timestamp
   signatures: [detached_signature]
+
+MutationValidationResult:
+  relation_validator_version: string
+  source_revision: string
+  artifact_digest: digest
+  sbom_digest: digest
+  provenance_digest: digest
+  validated_certificate_digests: [digest]
+  rejected_certificate_digests: [digest]
+  private_common_ancestor_findings: [stable_identifier]
+  signed_digest: digest
 ```
+
+For mutation family `m`, let `SemProv_m` include source, generated tables, prompts, models, services, build inputs, authorship/review material, runtime loads, and network calls. The admitted relation path requires:
+
+```text
+SemProv_m(M_v) intersect SemProv_m(J_v) subseteq A_m
+SemProv_m(M_v) intersect SemProv_m(R_v union P_v) subseteq A_m
+SemProv_m(J_v) intersect SemProv_m(R_v union P_v) subseteq A_m
+```
+
+where `A_m` contains only the public relation definition and answer-neutral representation substrate. A shared private relation table, prompt transcript, generated code, model, or service violates the gate even when packages or languages differ.
 
 Enforcement requirements:
 
-- generator build has no product checkout and no plaintext expectation access;
-- seed is unavailable to implementation authors before submission freeze;
-- generation starts after the implementation artifact digest is logged;
-- transformation code is derived only from the public relation catalogue;
-- an independent relation validator checks the mutation certificate; it may share syntax but not semantic transformation code;
-- generated fixtures pass the same expected-answer leakage linter as public fixtures;
-- any manual exclusion is signed with reason and included in the population receipt;
-- generator failures or unsupported relations are visible and cannot inherit a satisfactory result, by analogy to `PV-K06`. (`policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:164-182@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `PV-K06`.)
+- `M_v` and `J_v` have separate primary authors/reviewers and build identities;
+- neither build receives product source, plaintext expectations, or evaluator private semantics;
+- the seed is unavailable to implementation authors before submission freeze;
+- generation starts after implementation freeze;
+- transformation code derives only from the public relation catalogue;
+- `J_v` validates the certificate without importing `M_v` transformation code;
+- the R/P evaluator that judges the relation independently implements the public output relation;
+- static source/SBOM/generated-file checks, runtime load/network telemetry, and authorship evidence are reconciled across all four components;
+- a poisoned private relation-table probe must be rejected before the product is scored (`A-15`);
+- generated fixtures pass the answer-leakage linter;
+- every exclusion is signed and remains in the population receipt; and
+- generator/validator failure or unsupported relation yields a blocking/not-established result under `PV-K06`.
+
+The role-assignment validator in `oracle-custody-and-adjudication-protocol.md` rejects an actor serving as generator author, relation validator, and deciding evaluator for the same relation family/window.
 
 ## 6. Population construction
 
@@ -175,19 +209,21 @@ After generation, the entire valid committed population is evaluated unless a pr
 - Retired hidden fixtures remain in historical receipts but leave the active holdback pool.
 - New hidden cases derive from fresh seeds and, where feasible, fresh semantic templates rather than cosmetic rewrites.
 
-## 7. Anti-memorization decision rules
+## 7. Anti-memorization and relation decision rules
 
 A mutation-family check is satisfied only when:
 
 1. the base and mutated inputs are both in the committed run population;
-2. the mutation certificate is valid;
-3. the implementation outputs are immutable and bound to the same frozen revision/environment profile unless the relation explicitly compares environments;
-4. both independent evaluators agree that the declared output relation holds;
-5. no expected-answer leakage or adaptive rerun occurred;
-6. no mandatory predicate is indeterminate;
-7. all exclusions and reviewer disagreements are preserved.
+2. the mutation certificate is valid under `J_v`;
+3. `M_v`, `J_v`, and the deciding R/P relation semantics pass the transitive provenance and role-assignment gates;
+4. the implementation outputs are immutable and bound to the same frozen revision/environment profile unless the relation explicitly compares environments;
+5. both independent evaluators agree that the declared output relation holds;
+6. no expected-answer leakage or adaptive rerun occurred;
+7. no mandatory predicate is indeterminate;
+8. discriminator liveness/removal/neutralization witnesses are valid for every claimed relation family; and
+9. all exclusions, reviewer disagreements, and blocking challenges are preserved.
 
-An ID-renumbered or adjacent unseen case that changes the outcome without a registered semantic reason is a failure even when both individual outputs independently match some visible product label. The relation, not the label, is the oracle.
+An ID-renumbered or adjacent unseen case that changes the outcome without a registered semantic reason is a failure even when both individual outputs match some visible product label. The relation, not the label, is the oracle. If relation provenance is shared or not established, no product result is scored and the run is invalid or blocked as specified in `A-15`/`A-17`.
 
 ## 8. Reproducibility receipt
 
@@ -212,20 +248,40 @@ CustodyBenchmarkReceipt:
     external_dependency_snapshot_digests: [digest]
   benchmark:
     public_specification_digest: digest
+    finite_trace_domain_profile_digest: digest
+    predicate_dsl_version: S0-GAP-02-PDL-1
+    predicate_compiler_proof_digest: digest
     public_corpus_manifest_digest: digest
     actual_population_digest: digest
     fixture_count: integer
     relation_family_counts: map<stable_identifier, integer>
+    population_complete: boolean
+  generator_and_relation_validator:
     generator_version: string
     generator_artifact_digest: digest
+    generator_sbom_digest: digest
+    generator_provenance_digest: digest
+    relation_validator_version: string
+    relation_validator_artifact_digest: digest
+    relation_validator_sbom_digest: digest
+    relation_validator_provenance_digest: digest
+    M_J_R_P_provenance_reconciliation_digest: digest
     seed_commitment: digest
     seed_reveal_or_custody_ref: opaque_value
   oracle:
     expectation_version: string
     expectation_commitment_root: digest
     expectation_tree_size: integer
-    access_log_head: digest
+    specification_assurance_record_digest: digest
+    specification_assurance_disposition: established_for_named_scope | not_established
     key_profile_identifier: stable_identifier
+  access_evidence:
+    oracle_access_log_head: digest
+    storage_audit_head: digest | null
+    network_audit_head: digest | null
+    key_service_audit_head: digest | null
+    access_reconciliation_record_digest: digest
+    access_reconciliation_disposition: consistent | inconsistent | not_established
   evaluators:
     declarative_reducer:
       version: string
@@ -243,6 +299,16 @@ CustodyBenchmarkReceipt:
       version: string
       artifact_digest: digest
       standing: diagnostic_consistency_only
+  independence_evidence:
+    predicate_provenance_register_digest: digest
+    answer_neutral_allowlist_digest: digest
+    answer_neutral_probe_report_digest: digest
+    independent_answer_neutral_review_digest: digest
+    discriminator_register_digest: digest
+    discriminator_liveness_digest: digest
+    discriminator_removal_digest: digest
+    discriminator_neutralization_digest: digest
+    role_assignment_window_digest: digest
   observations:
     raw_trace_digest: digest
     evaluator_r_observation_digest: digest
@@ -251,50 +317,81 @@ CustodyBenchmarkReceipt:
     integrity_report_digest: digest
     same_code_control_report_digest: digest
   human_record:
+    reviewer_qualification_digests: [digest]
     conflict_declaration_digests: [digest]
     dissent_digests: [digest]
     abstention_digests: [digest]
     recusal_digests: [digest]
     adjudication_record_digests: [digest]
-    open_challenge_digests: [digest]
+  challenges:
+    challenge_register_digest: digest
+    open_blocking_challenge_digests: [digest]
+    open_nonblocking_challenge_digests: [digest]
+    no_unresolved_blocking_challenge: boolean
   history:
     log_head: digest
     prior_receipt_ref: digest | null
     supersession_ref: digest | null
+  claim_gate:
+    implementation_not_refuted_under_committed_specification: boolean
+    acceptable_custody_semantics_established: boolean
+    evidence_terminal: SPECIFICATION_ASSURANCE_NOT_ESTABLISHED |
+                       INDEPENDENCE_NOT_ESTABLISHED |
+                       EVALUATOR_COVERAGE_NOT_ESTABLISHED | null
   bounded_claim:
-    template_id: S0-K16-BOUND-1
-    rendered_text_digest: digest
+    template_id: S0-K16-BOUND-2
+    rendered_text_digest: digest | null
   signatures: [detached_signature]
   may_not_use_for: [string]
 ```
 
+The same-code control remains present only as `diagnostic_consistency_only`; no field permits it to satisfy an independence, specification, or passage predicate.
+
 ### 8.2 Required attachments
 
-- public specification and corpus manifests;
-- evaluator build and provenance attestations;
+- public specification, finite trace-domain, predicate DSL, compiler proof, and corpus manifests;
+- frozen P37 predicate-provenance register;
+- evaluator, generator, and relation-validator builds plus transitive provenance evidence;
+- answer-neutral allowlist, poisoned-helper family matrix, and independent review;
+- discriminator register and liveness/removal/neutralization witnesses;
 - immutable implementation trace or content-addressed location;
-- mutation certificates and relation-validation report;
-- expectation inclusion proofs or authorized verification evidence;
-- access-log consistency proof;
-- conflict, dissent, abstention, and adjudication records;
-- exact commands or declarative execution recipes;
-- environment lockfiles/image manifests;
-- known limitations and unsupported predicates;
-- clean-build consistency control report, explicitly labeled non-verifying.
+- mutation certificates and `J_v` validation report;
+- expectation inclusion proofs and `S_v` specification-assurance record;
+- oracle/storage/network/key-service audit heads and reconciliation proof;
+- role assignment and reviewer proficiency records;
+- conflict, dissent, abstention, recusal, adjudication, and challenge records;
+- exact execution recipes and environment lockfiles/image manifests;
+- known limitations and unsupported predicates; and
+- clean-build consistency report explicitly labeled non-verifying.
 
-## 9. S0-K16 bounded-claim template
+## 9. S0-K16 bounded statements and challenge gate
 
-`S0-K16` states that benchmark passage is bounded and carries no authority. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K16`.) A receipt may render only the following form, with every placeholder bound to a digest:
+`S0-K16` states that benchmark passage is bounded and carries no authority. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `S0-K16`.) The amendment separates two statements.
 
-> For receipt `{receipt_digest}`, the named implementation artifact `{implementation_digest}` at revision `{revision}`, executed in environment `{environment_digest}` against fixture population `{population_digest}` under public specification `{specification_digest}`, sealed expectation version `{expectation_commitment}`, declarative evaluator `{R_digest}`, predicate/metamorphic evaluator `{P_digest}`, and generator `{M_digest}`, satisfied the tested mandatory predicates and declared metamorphic relations recorded in this receipt. This statement is limited to those artifacts, versions, inputs, observations, and assumptions. It does not establish untested behavior, general semantic correctness, production readiness, institutional acceptance, authority, legal sufficiency, or permission to score OPS-R15.
+### 9.1 Evidence statement when specification assurance is not established
 
-Forbidden receipt language includes:
+When all implementation-side gates pass but `S_v` is absent/failed/not established, the receipt may record only:
+
+> For receipt `{receipt_digest}`, the named implementation artifact `{implementation_digest}` at revision `{revision}`, in environment `{environment_digest}`, was not refuted under committed specification `{specification_digest}` and expectation commitment `{expectation_commitment}` for population `{population_digest}` by declarative evaluator `{R_digest}` and predicate/metamorphic evaluator `{P_digest}`, subject to the limitations, evidence classes, and unresolved specification assurance recorded in the receipt. This is not benchmark passage and does not establish acceptable custody semantics.
+
+The receipt also records `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`. That is a valid negative completion under `INT-K08`, not a fourth constitutional outcome type.
+
+### 9.2 Bounded passage sentence
+
+The stronger sentence may render only when `W=1`, scope-specific `S_v` is established, and `no_unresolved_blocking_challenge=true`:
+
+> For receipt `{receipt_digest}`, the named implementation artifact `{implementation_digest}` at revision `{revision}`, executed in environment `{environment_digest}` against fixture population `{population_digest}` under public specification `{specification_digest}`, finite trace-domain profile `{domain_digest}`, sealed expectation version `{expectation_commitment}`, declarative evaluator `{R_digest}`, predicate/metamorphic evaluator `{P_digest}`, generator `{M_digest}`, and relation validator `{J_digest}`, satisfied the tested mandatory predicates and declared metamorphic relations recorded in this receipt, with no unresolved blocking challenge at claim freeze. This statement is limited to those artifacts, versions, inputs, observations, accepted specification-assurance scope, and assumptions. It does not establish untested behavior, general semantic correctness, production readiness, authority, legal sufficiency, or permission to score OPS-R15.
+
+A receipt with one unresolved blocking challenge cannot produce this sentence (`A-21`).
+
+Forbidden language includes:
 
 - “PolicyOS is correct,” “safe,” “compliant,” “authorized,” or “production-ready”;
+- “acceptable custody semantics established” when `S_v` is not established;
 - “the custody kernel is verified” without the bounded artifact list;
 - “all cases,” “all jurisdictions,” or “all future versions”;
-- “independent” without attached provenance/access evidence;
-- any inference that a same-code clean rebuild supplied correctness;
+- “independent” without attached provenance, answer-neutrality, access-reconciliation, discriminator, role, and proficiency evidence;
+- any inference that `C` supplied correctness; and
 - any statement that OPS-R15 is unblocked or scored.
 
 ## 10. Reproduction procedure
@@ -302,18 +399,22 @@ Forbidden receipt language includes:
 A reproducer must be able to:
 
 1. obtain every public artifact and authorized sealed verification artifact by digest;
-2. verify signatures, Merkle inclusion/consistency proofs, and access-log head;
-3. rebuild `R_v`, `P_v`, and `M_v` from frozen sources in declared environments;
-4. verify SBOM/provenance denylist and allowlist controls;
-5. regenerate hidden cases when the seed policy permits, or verify their mutation certificates and commitments when it does not;
-6. rerun the frozen implementation artifact without altering inputs or environment;
-7. reproduce evaluator observations and relation checks;
-8. compare all output digests to the receipt;
-9. observe all dissent, abstention, recusal, challenge, and correction records;
-10. obtain the same bounded claim text—or a documented mismatch.
+2. verify signatures, Merkle inclusion/consistency proofs, and all four access-audit heads;
+3. verify the P37 predicate-provenance register and falsify-the-declaration probe;
+4. rebuild `R_v`, `P_v`, `M_v`, and `J_v` from frozen sources in declared environments;
+5. verify source/SBOM/generated-file/network provenance and role incompatibilities;
+6. reproduce answer-neutral poisoned-helper results for every semantic family;
+7. reproduce discriminator liveness/removal/neutralization results;
+8. regenerate hidden cases when seed policy permits, or verify mutation certificates/commitments when it does not;
+9. verify predicate compiler SAT/UNSAT/TAUT/NOT_TAUT certificates;
+10. rerun the frozen implementation without altering inputs/environment and reproduce evaluator observations;
+11. reconcile oracle/storage/network/key access evidence;
+12. reproduce reviewer proficiency, `S_v`, challenge classification, and `no_unresolved_blocking_challenge`;
+13. compare every output digest to the receipt; and
+14. obtain the same permitted evidence or bounded claim text—or a documented mismatch.
 
-A mismatch is reported as evidence. It is not automatically attributed to the implementation; it may identify environment drift, evaluator nonreproducibility, key/log problems, or an invalid original receipt.
+A mismatch is evidence, not automatic attribution to the implementation. Any unsupported theory, timeout, missing proof, unavailable independent audit source, or unresolved decisive predicate blocks under `PV-K06`.
 
 ## 11. Standing
 
-This design resists fixture memorization by construction only after an independent generator, relation validator, sealed population process, and competent custodial function exist. None is appointed or implemented by this research. The receipt is a bounded evidence container, not a score or authority artifact.
+The amended generator/receipt model closes the research-specification gaps around M/J/R/P common ancestry, access reconciliation, discriminator adequacy, specification assurance, and blocking challenges. No such operational generator, relation validator, receipt issuer, proof checker, access reconciler, reviewer population, or independent institution is established here. The standing remains `accepted_narrow_scope`; technical execution evidence and the institutional function are both absent. The receipt remains a bounded evidence container, not a score or authority artifact.

@@ -53,7 +53,7 @@ figures in §3 come from the architecture principal's complete tree walk using `
 pinned ref, binary files excluded. They are recorded rather than re-derived in this amendment, as
 directed. `P36` continues to require finding IDs instead of authority by adjacent prose, and `P37`
 requires provenance classification of every gate predicate. See
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:77-80@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, findings `P35`, `P36`, and `P37`.
+`policy-engine/docs/reference/policy-design-case-failure-patterns.md:79-81@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, findings `P35`, `P36`, and `P37`.
 
 ## 2. Binding architecture and file sizes
 

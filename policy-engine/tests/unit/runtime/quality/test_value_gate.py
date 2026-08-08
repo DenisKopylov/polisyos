@@ -874,6 +874,54 @@ def test_n8_catalog_provenance_names_environment_before_count_drift(
     assert "catalog_method_denominator_drift" not in codes
 
 
+@pytest.mark.parametrize(
+    ("section", "field", "corrupt_value", "expected_code"),
+    [
+        (
+            "ambient_discovery",
+            "admission",
+            {
+                "status": "declared_not_admitted",
+                "included_in_governed_denominator": False,
+                "fail_closed_action": "quarantine",
+            },
+            "catalog_ambient_admission_mismatch",
+        ),
+        (
+            "runtime_backend_identity",
+            "schema_version",
+            "policyos.method_catalog_runtime_identity.forged",
+            "catalog_runtime_backend_identity_mismatch",
+        ),
+    ],
+)
+def test_n8_catalog_provenance_recomputes_recorded_manifest_identity(
+    section: str,
+    field: str,
+    corrupt_value: object,
+    expected_code: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected_denominators = value_contract._catalog_denominators()
+    recorded_denominators = copy.deepcopy(expected_denominators)
+    recorded_denominators["catalog_provenance"][section][field] = corrupt_value
+    monkeypatch.setattr(
+        value_contract,
+        "_catalog_denominators_cached",
+        lambda: expected_denominators,
+    )
+    payload = {
+        "schema_version": value_contract.SCHEMA_VERSION,
+        "rule_version": value_contract.VALUE_GATE_RULE_VERSION,
+        "denominators": recorded_denominators,
+    }
+
+    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+
+    assert expected_code in codes
+    assert "catalog_provenance_content_hash_mismatch" in codes
+
+
 def test_n8_catalog_predicate_bindings_cover_every_denominator_field() -> None:
     denominators = value_contract._catalog_denominators()
     provenance = denominators["catalog_provenance"]

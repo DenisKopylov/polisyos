@@ -3406,9 +3406,24 @@ def _catalog_provenance_issues(
     *,
     denominator_fields: frozenset[str] | None = None,
 ) -> tuple[dict[str, Any], ...]:
+    from polisyos.foundry.methods.catalog.snapshot import (
+        method_catalog_provenance_id,
+    )
+
     issues: list[dict[str, Any]] = []
     if not isinstance(recorded, Mapping):
         return ({"code": "catalog_discovery_provenance_missing"},)
+
+    recorded_provenance_id = recorded.get("provenance_id")
+    try:
+        recomputed_provenance_id = method_catalog_provenance_id(recorded)
+    except (TypeError, ValueError):
+        recomputed_provenance_id = None
+    if (
+        not isinstance(recorded_provenance_id, str)
+        or recorded_provenance_id != recomputed_provenance_id
+    ):
+        issues.append({"code": "catalog_provenance_content_hash_mismatch"})
 
     recorded_governed = recorded.get("governed_discovery")
     expected_governed = expected.get("governed_discovery")
@@ -3462,6 +3477,8 @@ def _catalog_provenance_issues(
         if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
             issues.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
         admission = recorded_ambient.get("admission")
+        if admission != expected_ambient.get("admission"):
+            issues.append({"code": "catalog_ambient_admission_mismatch"})
         if not isinstance(admission, Mapping) or (
             admission.get("included_in_governed_denominator") is not False
             or admission.get("fail_closed_action") != "quarantine"
@@ -3474,6 +3491,8 @@ def _catalog_provenance_issues(
     if not isinstance(recorded_runtime, Mapping) or not isinstance(expected_runtime, Mapping):
         issues.append({"code": "catalog_runtime_backend_identity_missing"})
     else:
+        if recorded_runtime.get("schema_version") != expected_runtime.get("schema_version"):
+            issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("identity_id") != expected_runtime.get("identity_id"):
             issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("runtime_packages") != expected_runtime.get("runtime_packages"):

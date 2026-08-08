@@ -2,10 +2,15 @@
 id: OPS-R14-ORIENTATION
 artifact_kind: research_orientation_ledger
 status: research_only
-standing: NO_GO
+research_standing: accepted_narrow_scope
+capability_standing: NO_GO
+gate_standing: NO_GO
 repository: DenisKopylov/polisyos
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+audited_head: 3a694212aa47c4c2d8a631f8edc4ba8f7e15dce7
+audit_head: 34c65a04ef178b9a59f70b9fb2012edee17a67cd
 inspection_date: 2026-08-06
+amendment_date: 2026-08-08
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, or API contract
@@ -26,130 +31,142 @@ may_not_use_for:
 
 # OPS-R14 orientation ledger
 
-## 1. Inspection boundary and method
+The bounded orientation result is accepted. The repository capability and the first-public-signature
+gate remain `NO_GO`: this amendment supplies no institutional commitment, runtime chain, or executed
+disconnected drill.
 
-All repository readings in this ledger are pinned to commit
-`1a7a2d05ebba22fae80e9934329e4b880806588e`. Ordinary HTTPS cloning was attempted first and failed in
-this execution environment because outbound DNS and direct HTTPS access to GitHub were unavailable.
-The connected GitHub exact-ref interface was therefore used, as permitted by the commission. No CI
-workflow, upload fragment, staging directory, self-executing automation, or repository workaround was
-created. This follows the delivery rule at `AGENTS.md:27`.
+## 1. Inspection boundary and count method
 
-The connected interface can fetch named files at an exact ref and can search its exact-ref code index.
-It cannot enumerate a recursive Git tree, expose a raw repository archive, or guarantee byte-exact
-lexical search semantics. Its search also stems some terms. Consequently:
+Documentation anchors in this amended package are pinned to
+`109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`. The architect established that
+`policy-engine/src` at that pin is byte-identical to the original research pin
+`1a7a2d05ebba22fae80e9934329e4b880806588e`, so source censuses remain directly comparable.
 
-- named-file existence, contents, and exact line claims are established by `fetch_file` at the pin;
-- low-cardinality literal counts are established only where every candidate file was fetched and the
-  literal was counted directly;
-- high-cardinality set claims are not treated as complete-tree censuses merely because code search
-  returned a finite result set;
-- a code-search candidate count is recorded as a diagnostic, not silently promoted to a lexical file,
-  matching-line, or occurrence count.
+The complete literal census below was supplied by the architect from a complete tree walk using
+case-sensitive fixed-string `git grep` over the pinned ref. Its **path denominator** is
+`policy-engine/src`; binary files are excluded. Each row states its **file-type denominator**. These
+figures are not connector or search-index results. This applies the symmetric P35 index rider at
+`policy-engine/docs/reference/policy-design-case-failure-patterns.md:76-80,139-167`: an index
+establishes neither a zero nor a positive count.
 
-This distinction applies the repository's `P35` rule: a set-level claim needs a complete denominator,
-not a sampled or truncated search (`policy-engine/docs/reference/policy-design-case-failure-patterns.md:78`).
-Authority claims below cite the controlling finding ID rather than adjacent prose, applying `P36`
-(`policy-engine/docs/reference/policy-design-case-failure-patterns.md:79`).
+Count vocabulary:
 
-### 1.1 Count vocabulary
+- **files**: distinct files with at least one exact literal;
+- **matching lines**: physical lines with one or more exact literals;
+- **occurrences**: all non-overlapping exact appearances, including multiple appearances on one line;
+- **all source**: every non-binary file under the path denominator;
+- **Python only**: `*.py` files under the path denominator.
 
-- **files**: distinct files containing at least one exact, case-sensitive literal token;
-- **matching lines**: physical source lines containing at least one such token;
-- **occurrences**: non-overlapping literal-token appearances, including multiple appearances on one
-  line;
-- **indexed candidate files**: files returned by the connector search; this is not a synonym for any of
-  the three lexical counts above.
+Authority claims cite their controlling finding IDs rather than adjacent prose, applying P36.
+Load-bearing gate predicates are classified under P37 in the primary report.
 
-## 2. Orientation results
+## 2. Complete source census
 
-| Supplied claim | Independent result | Verdict | Evidence and limitation |
-| --- | --- | --- | --- |
-| The pin is on `main`. | Commit metadata identifies the exact object and the exact-ref repository reads succeeded. A local ancestry test could not run because cloning was blocked. | **Partly established.** The commit exists and is readable; branch ancestry is not independently established in this environment. | Exact-ref commit read. The limitation is recorded rather than inferred away. |
-| `AGENTS.md:27` contains the delivery rule. | The rule requires branch read-back and forbids CI workflows, base64 fragments, staging directories, and self-executing automation as blocked-egress workarounds. | **Agrees.** | `AGENTS.md:25-28`. |
-| There are 27 runbooks in `policy-engine/docs/runbooks/`. | Exact-ref indexed search returned 27 Markdown candidates. `index.md` routes 24 procedures. The five named in-scope files all exist and were read in full. Recursive tree enumeration is unavailable. | **Corroborated, not P35-established as a complete directory count.** | `policy-engine/docs/runbooks/index.md:1-76`; five named files below. |
-| The five directly in-scope runbooks exist. | All five exist and contain operational steps, commands, checks, and evidence locations. | **Agrees.** | `policy-engine/docs/runbooks/replay-or-restore.md:1-128`; `policy-engine/docs/runbooks/retained-artifact-recovery.md:1-180`; `policy-engine/docs/runbooks/artifact-corruption-recovery.md:1-119`; `policy-engine/docs/runbooks/key-rotation.md:1-113`; `policy-engine/docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md:1-178`. |
-| `expires_at` occurs in 49 source files. | Exact-ref quoted search returned **50 indexed candidate files**. Because the connector cannot perform a recursive byte walk and search semantics are not guaranteed lexical, exact files, matching lines, and occurrences are not established. | **Not established; no correction claimed.** | Diagnostic only: 50 indexed candidates under `policy-engine/src`. |
-| `ttl_seconds` occurs in 30 source files. | Search returned **33 indexed candidate files** under the same limitation. | **Not established; no correction claimed.** | Diagnostic only: 33 indexed candidates. |
-| `expiry` occurs in 27 source files. | Search returned **32 indexed candidate files** under the same limitation. | **Not established; no correction claimed.** | Diagnostic only: 32 indexed candidates. |
-| `legal_hold` occurs in 2 source files. | Exact lowercase literal: **2 files, 4 matching lines, 5 occurrences**. | **Agrees on files; adds line and occurrence counts.** | `policy-engine/src/polisyos/fabric/security/retention.py:37,103,108`; `policy-engine/src/polisyos/fabric/world/store/snapshots.py:666`. The line at `policy-engine/src/polisyos/fabric/security/retention.py:108` contains two occurrences. |
-| `renewal` occurs in 1 source file. | Exact lowercase literal: **4 files, 4 matching lines, 4 occurrences**. Only one is Python code, and that occurrence describes worker lease renewal rather than renewal of authority. | **Supplied whole-tree claim is false as written.** | `policy-engine/src/polisyos/runtime/http/services/control_worker.py:85`; `policy-engine/src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/relevant_topics_block_policy_core.csv:34`; `policy-engine/src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/relevant_topics_domain_urban_housing_transport.csv:42`; `policy-engine/src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/relevant_topics_domain_economy_finance_business.csv:58`. |
-| `grace_period` occurs in 0 source files. | Exact-ref search returned zero indexed candidates, but complete lexical zero cannot be established without a tree walk. | **Not established; no contradictory candidate found.** | Exact-ref indexed search only. |
-| `not_after` occurs in 0 source files. | Same result and limitation. | **Not established; no contradictory candidate found.** | Exact-ref indexed search only. |
-| `revocation_time` occurs in 0 source files. | Same result and limitation. | **Not established; no contradictory candidate found.** | Exact-ref indexed search only. |
-| The eleven right classes have no renewal owner in source. | No exact-ref source candidate was found for `WatchedDependencyRecord`, `renewal_owner`, `renewal_evidence`, or `affected_case_query`. The sole Python `renewal` hit is a worker lease docstring. A universal absence claim is still not P35-established. | **Strongly corroborated, formally not established as a complete-tree absence.** | `policy-engine/src/polisyos/runtime/http/services/control_worker.py:75-174`; exact-ref negative searches with the limitation above. |
-| `legal_hold` is implemented only in `retention.py` and `snapshots.py`. | Those two files contain the lowercase literal. They implement a snapshot retention class, tag/boolean classification, deletion-impact description, and GC protection for selected snapshots. | **Agrees, with a narrower semantic reading.** | `policy-engine/src/polisyos/fabric/security/retention.py:32-38,92-134`; `policy-engine/src/polisyos/fabric/world/store/snapshots.py:654-689`. |
-| `renewal` in `control_worker.py` is relevant to expiring authority. | It describes renewing a worker lease heartbeat. It does not name a right, renewal owner, lead time, renewal evidence, grace authority, affected-case query, or public consequence. | **Refuted as an expiring-authority primitive.** | `policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-85,128-174`. |
-| There are zero recorded recovery drills. | The in-scope runbooks contain checklists and evidence destinations but no drill event with a frozen corpus, injected failure, measured loss, measured elapsed recovery, restored predicate, or disconnected execution. Acceptance records mark posture green from document presence and a tabletop reading. No complete-tree proof of absolute zero is available. | **The falsifier fires against the inspected acceptance chain; universal zero is not P35-established.** | `policy-engine/docs/archive/reports/platform-acceptance.md:15,23,30`; `policy-engine/docs/archive/reports/platform-acceptance-manual.md:85-95`; five runbooks above. |
-| The three ratification acts contain 264, 379, and 439 lines. | Requests beginning at lines 264, 379, and 439 respectively returned their terminal lines and no later content. | **Agrees exactly.** | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:264`; `policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md:379`; `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:439`. |
-| S0-K08, S0-K09, and S0-K10 bind this task. | S0-K08 requires append-only correction; S0-K09 adopts the Custody Time Model; S0-K10 makes suspension durable and wake only a candidate. | **Agrees by finding IDs.** | `policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:94-110`. |
-| PV-K01, PV-K02, and PV-K07 bind this task. | PV-K01 separates durable verifiability; PV-K02 prevents present evidence failure from erasing historical authenticity; PV-K07 requires reproducible release chronology and is not issuable because its owner is missing. | **Agrees by finding IDs.** | `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:91-123,182-205`. |
-| GY-N12 owns epoch/currentness and is undelivered. | Its normative task body assigns epochs, stale certificates, append-only reissue, and release-family chronology to one planned owner and forbids a parallel time/currentness model. No implementation capability is established. | **Agrees; capability label `contract_only`.** | `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2053-2120`. |
-| INT-R7 is delivered and controls minimum public-proof preservation. | Its terminal amendment requires real production-intended paths, a ceremonial pre-live corpus, and disconnected restore; a paper runbook or mocked Boolean does not pass. | **Agrees; consumed, not redefined.** | `policy-engine/docs/research/policy-operations/int-r7-public-verification-lifecycle.md:990-1020`; `policy-engine/docs/research/policy-operations/int-r7/lifecycle-migration-preservation.md:558-650`. |
-| OPS-R14 and PAO-R36 share one declared seam. | The backlog assigns durability/recovery/expiry mechanics to OPS-R14 and correction, notice, supersession, cache/subscriber fan-out, and correction feeds to PAO-R36. | **Agrees.** | `policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:500-505,512-532`. |
-| Institutional-scale continuity belongs to deferred OPS-R12. | The disposition ledger keeps OPS-R12 deferred; OPS-R14 is explicitly re-scoped to PolicyOS's own signed records and expiring authority. | **Agrees as a scope boundary.** | `policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:130-151,500-505`. |
+**Pinned ref:** `109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`  
+**Path denominator:** `policy-engine/src`  
+**Search:** case-sensitive fixed strings; binary files excluded
 
-## 3. What the two low-cardinality literals actually do
+| Token | File-type denominator | Files | Matching lines | Occurrences | Verdict |
+| --- | --- | ---: | ---: | ---: | --- |
+| `legal_hold` | all source | **2** | **7** | **8** | Established by complete walk. |
+| `renewal` | all source | **4** | **4** | **4** | Established by complete walk. |
+| `renewal` | Python only | **1** | **1** | **1** | Established by complete walk. |
+| `expires_at` | Python only | **49** | **280** | **363** | Established by complete walk. |
+| `ttl_seconds` | Python only | **30** | **116** | **148** | Established by complete walk. |
+| `expiry` | Python only | **27** | **102** | **121** | Established by complete walk. |
+| `grace_period` | all source | **0** | **0** | **0** | True zero at the pin. |
+| `not_after` | all source | **0** | **0** | **0** | True zero at the pin. |
+| `revocation_time` | all source | **0** | **0** | **0** | True zero at the pin. |
 
-### 3.1 `legal_hold`
+### 2.1 Reconciliation with the commission and independent audit
 
-`SnapshotRetentionClass.LEGAL_HOLD` is a classification value
-(`policy-engine/src/polisyos/fabric/security/retention.py:32-38`).
-`classify_snapshot_retention()` maps a Boolean or selected tags to that class
-(`policy-engine/src/polisyos/fabric/security/retention.py:92-105`). `gc_world_snapshots()` protects snapshots classified as audit-tagged or
-legal-hold and snapshots carrying retained tags (`policy-engine/src/polisyos/fabric/world/store/snapshots.py:654-689`).
-The deletion-impact object records replay/time-travel impact before deletion
-(`policy-engine/src/polisyos/fabric/security/retention.py:108-134`).
+- The commission's `renewal = 1` is correct only for the unstated Python-only denominator. The
+  all-source result is `4 / 4 / 4`.
+- The independent audit reproduced both `renewal` denominators and the file counts for `expires_at`,
+  `ttl_seconds`, and `expiry`.
+- The audit's `legal_hold = 2 files / 4 matching lines / 5 occurrences` is wrong. The correct complete-
+  walk result is **2 / 7 / 8**. Its file count is right; its indexed candidate set was not a complete
+  line or occurrence denominator.
+- The three zeroes are established facts, not `not_established` findings.
 
-This is a useful implemented fragment. It does **not** establish a general legal-hold lifecycle. No
-inspected path establishes hold issuance authority, scope over independently failing stores, notice
-to downstream custodians, release authority, multiple-hold aggregation, race-free post-release
-disposal, correction/supersession interaction, public effect, or drill evidence. Those broader
-semantics are `absent/unallocated`, not `bridge_missing`: both endpoints of a bridge are not yet
-established.
+### 2.2 Semantic consequence
 
-### 3.2 `renewal`
+The conclusion is strengthened. Expiry and TTL are represented in many Python files, while exact
+source literals for `grace_period`, `not_after`, and `revocation_time` are absent across all source
+files. More importantly, repository inspection establishes no admitted capability chain that combines:
 
-The Python occurrence is in the `ControlWorker` docstring: the worker performs polling, leasing,
-heartbeats, and lease renewal (`policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-85`).
-The implementation renews a job-processing lease (`policy-engine/src/polisyos/runtime/http/services/control_worker.py:128-174`). It does not renew a
-public-law delegation, agreement, licence, certification, consent, budget authority, contract, or
-jurisdiction review. The remaining three occurrences are fixture text about urban or strategic
-renewal. The orientation therefore confirms the semantic hole even while correcting the supplied
-whole-source-tree file count.
+- an accountable renewal role and succession/escalation path;
+- process-derived lead time;
+- sufficient renewal evidence from a competent source;
+- affirmative grace authority;
+- a protected-use failure consequence;
+- a reproducible affected-case query; and
+- a public effect and durable fan-out requirement.
 
-## 4. Runbooks versus drill evidence
+The only Python `renewal` occurrence describes renewal of a worker processing lease
+(`policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-85,128-174`). It is not an
+authority-renewal primitive. The preemptive guard against reusing it as such remains binding.
 
-The five runbooks are not dismissed. They contain concrete operational mechanisms:
+## 3. Orientation results beyond the census
 
-- replay versus restore selection, digest checks, and rollback cautions;
-- retained-artifact lookup and recovery tests;
-- corruption isolation and fixity checking;
-- key-rotation and emergency revocation procedures;
-- quarantine, DLQ, checkpoint, deduplication, and replay controls.
+| Claim | Amended result | Evidence and boundary |
+| --- | --- | --- |
+| The five directly in-scope runbooks exist and are substantive. | **Established.** They contain commands, checks, recovery steps, and evidence destinations. | `replay-or-restore.md:1-128`; `retained-artifact-recovery.md:1-180`; `artifact-corruption-recovery.md:1-119`; `key-rotation.md:1-113`; `fabric-quarantine-dlq-and-data-plane-recovery.md:1-178`, all at the documentation pin. |
+| `legal_hold` is a complete hold lifecycle. | **Refuted.** The two files implement narrow snapshot classification and GC protection only. | `fabric/security/retention.py:32-38,92-134`; `fabric/world/store/snapshots.py:654-689`; semantic tests at `tests/unit/fabric/test_world_time_travel.py:340-400`. |
+| S0-K08, S0-K09, and S0-K10 bind the work. | **Established by finding ID.** Correction appends, the Custody Time Model applies, suspension is durable, and wake is only a candidate. | `stage0-custody-kernel-ratification.md:94-110`. |
+| PV-K01 and PV-K02 bind recovery and replay. | **Established by finding ID.** Durable verifiability is separate, and present evidentiary failure never erases a historical act. | `int-r7-r8-public-verification-and-disclosure-ratification.md:91-123`. |
+| GY-N12 owns currentness and epoch chronology. | **Established at the project semantic/plan contract layer; runtime capability absent/undelivered.** | `GY-engine-subordination.md:2053-2120`. OPS-R14 does not create a runtime type, schema, or second owner. |
+| INT-R7 controls the public-proof preservation minimum. | **Established and consumed, not redefined.** Phase A uses a ceremonial pre-live corpus and real intended paths; Phase B cannot retroactively authorize the first record. | `int-r7-public-verification-lifecycle.md:990-1020`; `int-r7/lifecycle-migration-preservation.md:558-650`. |
+| OPS-R14 and PAO-R36 have one declared seam. | **Established.** OPS-R14 owns durability/recovery/expiry/hold/drill mechanics; PAO-R36 owns correction meaning and fan-out semantics. | Backlog `:500-505,512-532`; the complete F11 closure is `RP-10 + RC-01 + RC-07 + F-04 + F-09 + DE-07`. |
+| Institutional-scale continuity belongs to OPS-R12. | **Established scope boundary.** | Backlog `:130-151,500-505`. This package assumes at least one competent continuing institution or lawful successor. |
 
-Those are necessary inputs to a drill. They are not themselves evidence that recovery objectives
-were met. The inspected acceptance report marks runbook presence and retention/restore posture green
-from policy and document existence (`policy-engine/docs/archive/reports/platform-acceptance.md:15,23,30`).
-Its manual tabletop closes an incident item by reading a runbook rather than executing a restore
-(`policy-engine/docs/archive/reports/platform-acceptance-manual.md:85-95`). This is the commission's
-second falsifier: the chain accepts documentary preparedness where `PV-K01` needs demonstrated
-durable verifiability.
+The earlier indexed count of all runbooks is not repeated as a complete directory fact because no
+complete path denominator was supplied for that separate docs census. The five in-scope named files
+are established individually.
+
+## 4. Runbooks versus exercised recovery evidence
+
+### OPS-R14-ACCEPTANCE-001 — documentation/tabletop versus exercised-recovery taxonomy
+
+At the documentation pin, `platform-acceptance.md` records:
+
+- line 15: `Runbook presence` — automated — `pass`;
+- line 23: `Retention and restore posture` — automated — `pass`, because retention policy and recovery
+  runbooks cover the posture; and
+- line 30: `Incident / runbook tabletop` — manual — `pass`.
+
+`platform-acceptance-manual.md:85-95` records review of the alert-to-runbook path and validation of
+compose syntax. These rows do **not** say that a custody-grade restore ran, that RPO/RTO was measured,
+or that `DurablyVerifiableAt(t_v)` passed. The original research phrasing was therefore too strong.
+
+The repository finding is the taxonomy gap: the acceptance surface does not distinctly report
+
+1. document/procedure present;
+2. tabletop completed;
+3. restore path exercised; and
+4. custody-grade drill predicates passed.
+
+**Closure signal:** the finding closes only when the acceptance evidence either:
+
+- carries a separate exercised-recovery row that remains non-green until a real restore is run; or
+- links a retained DE-01–DE-10 package containing frozen scope, actual failure injection, clean and
+  independent restore, measured loss and elapsed recovery, clause-by-clause restored results,
+  disconnected-path evidence, and append-only remediation/retest.
+
+The five runbooks remain necessary, substantive inputs. They are not themselves exercise evidence.
 
 ## 5. Orientation conclusion
 
-Pass I changes one inherited fact and narrows several others:
-
-1. `renewal` is **4 files / 4 matching lines / 4 occurrences**, not one file, when the stated
-   denominator is all of `policy-engine/src`.
-2. Only the one Python occurrence is operational, and it is worker-lease renewal, not authority
-   renewal.
-3. The `legal_hold` count is exactly **2 files / 4 matching lines / 5 occurrences**, but its meaning is
-   snapshot GC protection rather than a cross-store hold lifecycle.
-4. The three high-cardinality token counts and three zeroes cannot be independently promoted to
-   complete-tree lexical facts under this connector. They remain `not established`, with indexed
-   candidate diagnostics recorded.
-5. The five in-scope runbooks are substantive procedures, but the inspected evidence chain has no
-   qualifying executed, measured, disconnected recovery drill.
-
-These limits are part of the research result. They are not repaired by confident extrapolation.
+1. The complete census is now established with explicit path and file-type denominators.
+2. `renewal` is **4 / 4 / 4** over all source and **1 / 1 / 1** over Python; the Python occurrence is
+   worker-lease renewal only.
+3. `legal_hold` is **2 / 7 / 8**, correcting both the original ledger and the independent audit's line
+   and occurrence counts.
+4. `expires_at`, `ttl_seconds`, and `expiry` reproduce the original file counts and now have established
+   line and occurrence totals.
+5. `grace_period`, `not_after`, and `revocation_time` are true zeroes at the pin.
+6. The semantic absence of a complete governed renewal capability remains the operative finding.
+7. The acceptance defect is a documentation/tabletop-versus-exercised-recovery taxonomy defect, not a
+   claim that the baseline expressly accepted a paper runbook as custody-grade DR closeout.
+8. None of these corrections supplies a runtime capability, institutional commitment, or drill. The
+   capability and first-public-signature gate standings remain `NO_GO`.

@@ -21,6 +21,24 @@
   step: wait for that owner-plan producer/bridge closure, then re-run the C06
   entry audit; do not enter C06 from generated-contract shape alone.
 
+## DS5-C06-D1 debt-only waist owner boundary
+
+- Red first: `ProducerBindingDebtTests.test_c06_waist_owner_debts_bind_three_independent_planes`
+  was added before the descriptors and failed `EEE`: each named C06 descriptor
+  was absent. The green witness binds every generated row to its sole descriptor,
+  rejects finding-kind/owner/capability reclassification and a removed closure,
+  and keeps `run-lifecycle-terminal-fact` benign.
+- C06 has no executable contract remainder. Three distinct missing producer
+  planes are registered: CGF public vocabulary (runtime-quality/GY-DEF4),
+  DecisionGrade generated contract (C14), and QueryObserver cache-posture
+  artifact (C11a/C11b). Existing DS4 bridge/surface rows remain untransitioned;
+  G4 remains reference-only and `ProjectionFreshness` is not cache posture.
+- Writer receipt: the existing surgical supplemental writer refreshed only its
+  descriptor rows and report; its first attempt rejected ranged `:start-end`
+  evidence references, so those were corrected to single-line citations before
+  the successful second run. DS19 re-anchor changes only its source hash.
+- Orchestration: native Terra implementation; no Sol worker or escalation.
+
 ## DS5-C05b-D2 record-only deferral
 
 - C05b implementation is **Not yet**. This seven-path record adds no semantic-copy

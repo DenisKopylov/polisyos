@@ -672,12 +672,136 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
     observation = leaf._promotion_port(summaries=(summary,), problem=problem)
     receipt = observation.receipts[0]
 
+    monkeypatch.setattr(
+        depth_n,
+        "_domain_evidence_witness",
+        lambda **kwargs: {
+            "kind": "verification_boundary_probe",
+            "decision_grade": "blocked",
+        },
+    )
+    grounding = SimpleNamespace(
+        status="grounding_gap",
+        grounding_source="verification_probe",
+        grounding_disposition="gap",
+        issue_codes=("verification_probe",),
+        model_dump=lambda *, mode: {
+            "status": "grounding_gap",
+            "grounding_source": "verification_probe",
+        },
+    )
+    value = SimpleNamespace(
+        status="value_blocked",
+        authority_blockers=("verification_probe",),
+        decision_grade="blocked",
+        selected_method_fqn=None,
+        acquisition_requirement=None,
+        method_selection_receipt=None,
+        model_dump=lambda *, mode, exclude: {
+            "status": "value_blocked",
+            "authority_blockers": ["verification_probe"],
+        },
+    )
+    cycle = SimpleNamespace(
+        selected_candidate_ref="verification_candidate",
+        grounding=grounding,
+        simulation=SimpleNamespace(
+            status="simulation_blocked",
+            authority_blockers=("verification_probe",),
+            world_model_record=None,
+            k_world_ref_before=None,
+            k_world_ref_after=None,
+        ),
+        value_port=value,
+        acquisition_routing_report=None,
+    )
+    terminal = _lane0_leaf_terminal()
+    cycle_run = SimpleNamespace(
+        cycles=(cycle,),
+        promotion_port=observation,
+        run_id="verification-projection-run",
+    )
+    recursive_run = SimpleNamespace(
+        nodes=(
+            SimpleNamespace(
+                node_ref="design://verification/root",
+                cycle_run=cycle_run,
+            ),
+        ),
+        authority_scope="contract_testing",
+        terminal=terminal,
+        content_hash="sha256:" + "3" * 64,
+    )
+    compiled = SimpleNamespace(
+        recursive_run=recursive_run,
+        design_problem=problem,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+    )
+    projected = depth_n._project_domain_run(
+        REPO_ROOT,
+        role="unseen",
+        raw_request="verification boundary probe",
+        compiler_recording={
+            "model_id": "registry-selected-model",
+            "raw_request_content_hash": "sha256:" + "4" * 64,
+            "recording_content_hash": "sha256:" + "5" * 64,
+        },
+        compiled=compiled,
+        generation_projection={
+            "status": "generated",
+            "generation_owner": "verification_probe",
+            "generation_channel": "n4_owner",
+            "grounding_dispositions": [],
+            "proposed_interventions": [],
+            "prompt_slice_operator_kinds": [],
+        },
+        cycle_substrate_context=None,
+        recording_content_hash="sha256:" + "6" * 64,
+    )
+    compiled_authority = depth_n._compiled_authority_source_projection(
+        {
+            "recursive_run": {
+                "authority_scope": "contract_testing",
+                "nodes": [
+                    {
+                        "node_ref": "design://verification/root",
+                        "cycle_run": {
+                            "promotion_port": observation.model_dump(mode="json")
+                        },
+                    }
+                ],
+            }
+        }
+    )["promotions"][0]
+    stage_authority = projected["stage_trace"]["promotion"]
+
     assert controller._authority_scope == "contract_testing"
     assert observation.reason == "verification_n9_sequence_non_consumer"
     assert receipt["confidence_ledger_projection"]["authority_provenance"] == (
         "verification"
     )
     assert receipt["consumer_promotable"] is False
+    assert {
+        key: stage_authority[key]
+        for key in (
+            "status",
+            "reason",
+            "receipt_count",
+            "authority_provenance",
+            "all_receipts_non_consumer",
+            "certified_candidate_ids",
+        )
+    } == {
+        key: compiled_authority[key]
+        for key in (
+            "status",
+            "reason",
+            "receipt_count",
+            "authority_provenance",
+            "all_receipts_non_consumer",
+            "certified_candidate_ids",
+        )
+    }
 
 
 @pytest.mark.asyncio
@@ -2229,9 +2353,36 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         design_problem = _Problem()
         content_hash = "sha256:" + "1" * 64
 
-        def model_dump(self, *, mode: str) -> dict[str, str]:
+        def model_dump(self, *, mode: str) -> dict[str, Any]:
             assert mode == "json"
-            return {"compiled": "run"}
+            return {
+                "compiled": "run",
+                "recursive_run": {
+                    "authority_scope": "contract_testing",
+                    "nodes": [
+                        {
+                            "node_ref": "design://controlled-capture",
+                            "cycle_run": {
+                                "promotion_port": {
+                                    "status": "not_promoted",
+                                    "reason": (
+                                        "verification_n9_sequence_non_consumer"
+                                    ),
+                                    "certified_candidate_ids": [],
+                                    "receipts": [
+                                        {
+                                            "consumer_promotable": False,
+                                            "confidence_ledger_projection": {
+                                                "authority_provenance": "verification"
+                                            },
+                                        }
+                                    ],
+                                }
+                            },
+                        }
+                    ],
+                },
+            }
 
     async def _compile(**kwargs: Any) -> _Compiled:
         captured.update(kwargs)
@@ -2272,7 +2423,7 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     }
     recording = await validator._capture_domain_run(
         tmp_path,
-        role="unseen",
+        role="future_role",
         compiler_recording=compiler_recording,
         problem=_Problem(),
     )
@@ -2282,6 +2433,12 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     assert captured["controller"]._authority_scope == "contract_testing"
     assert captured["leaf_model_id"] == validator.PROOF_MODEL_ID
     assert recording["cycle_substrate_context_content_hash"] is None
+    assert recording["schema_version"] == (
+        "policyos.layer3.gy.n10.domain_run_recording.v2"
+    )
+    assert recording["authority_source_admission"]["admission_kind"] == (
+        "controlled_at_capture"
+    )
     assert recording["n4_recording"]["status"] == (
         "cycle_substrate_context_unavailable"
     )
@@ -2369,6 +2526,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         del args
         assert kwargs["compiled"] is live_compiled
         payload = {
+            "domain_role": kwargs["role"],
             "compiler_receipt": {"design_problem_ref": expected_problem_ref},
             "recording_content_hash": kwargs["recording_content_hash"],
             "recursive_run_content_hash": live_hash,
@@ -2466,6 +2624,11 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         "design_problem_ref": expected_problem_ref,
     }
     recording["recording_content_hash"] = validator._semantic_hash(recording)
+    monkeypatch.setitem(
+        validator._AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES,
+        "education",
+        recording["recording_content_hash"],
+    )
 
     if not historical_rederive_allowed:
         with pytest.raises(ValidationError, match=validation_reason):
@@ -2478,6 +2641,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         return
 
     historical_run = {
+        "domain_role": "education",
         "compiler_receipt": {"design_problem_ref": expected_problem_ref},
         "recording_content_hash": recording["recording_content_hash"],
         "recursive_run_content_hash": captured_payload["content_hash"],
@@ -3184,7 +3348,9 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
     )
 
 
-def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
+def test_normalized_recording_replaces_ambient_compiled_run_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Controlled bytes supersede ambient bytes through an append-only receipt."""
 
     validator = _universality_contract_validator()
@@ -3307,6 +3473,11 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
     historical_recording["recording_content_hash"] = validator._semantic_hash(
         historical_recording
     )
+    monkeypatch.setitem(
+        validator._AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES,
+        "education",
+        historical_recording["recording_content_hash"],
+    )
     historical_domain_run["recording_content_hash"] = historical_recording[
         "recording_content_hash"
     ]
@@ -3355,6 +3526,7 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
         refreshed_recording=refreshed,
         historical_domain_run=historical_domain_run,
         replayed_domain_run=replayed_domain_run,
+        expected_role="education",
     )
     replayed_domain_run["recording_content_hash"] = normalized[
         "recording_content_hash"
@@ -3368,6 +3540,12 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
     )
     receipt = normalized["authority_source_migration_receipt"]
 
+    assert normalized["schema_version"] == (
+        "policyos.layer3.gy.n10.domain_run_recording.v2"
+    )
+    assert normalized["authority_source_admission"]["admission_kind"] == (
+        "migrated"
+    )
     assert normalized["compiled_run"] == controlled_compiled_payload
     assert normalized["compiled_run_content_hash"] == controlled_compiled_payload[
         "content_hash"
@@ -3384,6 +3562,164 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
         normalized,
         replayed_domain_run=replayed_domain_run,
     )
+    assert not validator._authority_source_admission_issues(
+        normalized,
+        replayed_domain_run=replayed_domain_run,
+        expected_role="education",
+    )
+
+    missing_receipt = copy.deepcopy(normalized)
+    missing_receipt.pop("authority_source_migration_receipt")
+    missing_receipt["recording_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in missing_receipt.items()
+            if key != "recording_content_hash"
+        }
+    )
+    missing_receipt_run = copy.deepcopy(replayed_domain_run)
+    missing_receipt_run["recording_content_hash"] = missing_receipt[
+        "recording_content_hash"
+    ]
+    missing_receipt_run["content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in missing_receipt_run.items()
+            if key != "content_hash"
+        }
+    )
+    assert "authority_source_migration_receipt_missing" in (
+        validator._authority_source_admission_issues(
+            missing_receipt,
+            replayed_domain_run=missing_receipt_run,
+            expected_role="education",
+        )
+    )
+
+    missing_admission = copy.deepcopy(normalized)
+    missing_admission.pop("authority_source_migration_receipt")
+    missing_admission.pop("authority_source_admission")
+    missing_admission["recording_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in missing_admission.items()
+            if key != "recording_content_hash"
+        }
+    )
+    missing_admission_run = copy.deepcopy(replayed_domain_run)
+    missing_admission_run["recording_content_hash"] = missing_admission[
+        "recording_content_hash"
+    ]
+    missing_admission_run["content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in missing_admission_run.items()
+            if key != "content_hash"
+        }
+    )
+    assert validator._authority_source_admission_issues(
+        missing_admission,
+        replayed_domain_run=missing_admission_run,
+        expected_role="education",
+    ) == ("authority_source_admission_missing",)
+
+    relabeled_capture = copy.deepcopy(normalized)
+    relabeled_capture.pop("authority_source_migration_receipt")
+    relabeled_admission = relabeled_capture["authority_source_admission"]
+    relabeled_admission["admission_kind"] = "controlled_at_capture"
+    relabeled_admission["migration_receipt_content_hash"] = None
+    relabeled_admission["predicate_provenance"] = (
+        validator._authority_source_admission_predicate_provenance(
+            "controlled_at_capture",
+            predecessor_required=True,
+        )
+    )
+    relabeled_admission["admission_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in relabeled_admission.items()
+            if key != "admission_content_hash"
+        }
+    )
+    relabeled_capture["recording_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in relabeled_capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    relabeled_run = copy.deepcopy(replayed_domain_run)
+    relabeled_run["recording_content_hash"] = relabeled_capture[
+        "recording_content_hash"
+    ]
+    relabeled_run["content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in relabeled_run.items()
+            if key != "content_hash"
+        }
+    )
+    assert "authority_source_required_migration_missing" in (
+        validator._authority_source_admission_issues(
+            relabeled_capture,
+            replayed_domain_run=relabeled_run,
+            expected_role="education",
+        )
+    )
+
+    self_selected_role = copy.deepcopy(normalized)
+    self_selected_role.pop("authority_source_migration_receipt")
+    self_selected_role["role"] = "future_role"
+    self_selected_admission = self_selected_role["authority_source_admission"]
+    self_selected_admission["admission_kind"] = "controlled_at_capture"
+    self_selected_admission["governed_role"] = "future_role"
+    self_selected_admission["migration_receipt_content_hash"] = None
+    self_selected_admission["required_predecessor_recording_content_hash"] = None
+    self_selected_admission["predicate_provenance"] = (
+        validator._authority_source_admission_predicate_provenance(
+            "controlled_at_capture",
+            predecessor_required=False,
+        )
+    )
+    self_selected_admission["controlled_recording_base_content_hash"] = (
+        validator._semantic_hash(
+            validator._authority_source_recording_base(self_selected_role)
+        )
+    )
+    self_selected_admission["admission_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in self_selected_admission.items()
+            if key != "admission_content_hash"
+        }
+    )
+    self_selected_role["recording_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in self_selected_role.items()
+            if key != "recording_content_hash"
+        }
+    )
+    self_selected_run = copy.deepcopy(replayed_domain_run)
+    self_selected_run["domain_role"] = "future_role"
+    self_selected_run["recording_content_hash"] = self_selected_role[
+        "recording_content_hash"
+    ]
+    self_selected_run["content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in self_selected_run.items()
+            if key != "content_hash"
+        }
+    )
+    self_selected_issues = validator._authority_source_admission_issues(
+        self_selected_role,
+        replayed_domain_run=self_selected_run,
+        expected_role="education",
+    )
+    assert "authority_source_recording_role_mismatch" in self_selected_issues
+    assert "authority_source_domain_role_mismatch" in self_selected_issues
+    assert "authority_source_required_migration_missing" in self_selected_issues
 
     tampered = copy.deepcopy(normalized)
     tampered_receipt = tampered["authority_source_migration_receipt"]
@@ -3448,35 +3784,15 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes() -> None:
     )
 
 
-def test_static_recording_check_consumes_authority_migration_receipt(
+def test_static_recording_check_requires_authority_source_admission(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Frozen checks cannot accept a receipt that only passed during writing."""
+    """Frozen checks invoke admission even when the marker is absent."""
 
     validator, payload = _complete_universality_payload()
-    role = "education"
-    recording = payload["proof_recordings"][role]
-    recording["authority_source_migration_receipt"] = {"marker": "present"}
-    recording["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
-    )
-    payload["domain_runs"][role]["recording_content_hash"] = recording[
-        "recording_content_hash"
-    ]
-    payload["domain_runs"][role]["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in payload["domain_runs"][role].items()
-            if key != "content_hash"
-        }
-    )
     monkeypatch.setattr(
         validator,
-        "_authority_source_migration_receipt_issues",
+        "_authority_source_admission_issues",
         lambda *args, **kwargs: ("authority_source_static_sentinel",),
     )
 
@@ -3485,6 +3801,61 @@ def test_static_recording_check_consumes_authority_migration_receipt(
     assert {issue["code"] for issue in issues} >= {
         "authority_source_static_sentinel"
     }
+
+
+@pytest.mark.asyncio
+async def test_live_recording_replay_requires_authority_source_admission(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rehashed v2 recording cannot reach owners without its admission union."""
+
+    validator, payload = _complete_universality_payload()
+    role = "education"
+    recording = copy.deepcopy(payload["proof_recordings"][role])
+    historical_run = copy.deepcopy(payload["domain_runs"][role])
+    recording["schema_version"] = (
+        "policyos.layer3.gy.n10.domain_run_recording.v2"
+    )
+    recording.pop("authority_source_admission", None)
+    recording.pop("authority_source_migration_receipt", None)
+    recording["recording_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
+    historical_run["recording_content_hash"] = recording[
+        "recording_content_hash"
+    ]
+    historical_run["content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in historical_run.items()
+            if key != "content_hash"
+        }
+    )
+
+    async def _unexpected_owner(*args: Any, **kwargs: Any) -> object:
+        del args, kwargs
+        raise AssertionError("missing admission reached compiler replay")
+
+    monkeypatch.setattr(
+        validator,
+        "_replay_compiler_recording",
+        _unexpected_owner,
+    )
+
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="authority_source_admission_missing",
+    ):
+        await validator._domain_run_and_normalized_recording(
+            REPO_ROOT,
+            role=role,
+            recording=recording,
+            historical_domain_run=historical_run,
+        )
 
 
 @pytest.mark.asyncio
@@ -3511,6 +3882,11 @@ async def test_authority_migration_rejects_forged_prior_chain_before_replay(
             for key, value in recording.items()
             if key != "recording_content_hash"
         }
+    )
+    monkeypatch.setitem(
+        validator._AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES,
+        "education",
+        recording["recording_content_hash"],
     )
     historical_run["recording_content_hash"] = recording[
         "recording_content_hash"
@@ -4345,6 +4721,9 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
         "promotion_reason",
         "promotion_authority_provenance",
         "promotion_receipt_count",
+        "authority_source_migration_receipt",
+        "authority_source_admission_relabel",
+        "authority_source_role_rule_relabel",
         "compiler_response_bytes",
         "n4_response_bytes",
         "compiled_recursive_bytes",

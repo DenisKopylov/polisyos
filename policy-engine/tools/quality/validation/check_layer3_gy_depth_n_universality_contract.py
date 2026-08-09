@@ -230,9 +230,26 @@ _N4_CAPTURE_ENV = {
 _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.no_context_generation_recording.v1"
 )
-_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
+_LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.domain_run_recording.v1"
 )
+_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.domain_run_recording.v2"
+)
+_AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.authority_source_admission.v1"
+)
+_AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES = {
+    "education": (
+        "sha256:078ad47ce8854025828397e6bbccedf191631b4be59603b58879cf8575b652c6"
+    ),
+    "first_vertical": (
+        "sha256:6e2cf96da2505a54b68ed9abd1924f45c881e6101f30ae1202e1282113921c5f"
+    ),
+    "unseen": (
+        "sha256:92ad045ed043c551d47fe15aa39c0612728429e8f4470a1be3491810b77e2824"
+    ),
+}
 
 _UPSTREAM_PATHS = (
     N4_PATH,
@@ -2688,6 +2705,235 @@ def _controlled_authority_source_projection_issues(
     return tuple(sorted(set(issues)))
 
 
+def _authority_source_admission_predicate_provenance(
+    admission_kind: str,
+    *,
+    predecessor_required: bool,
+) -> list[dict[str, object]]:
+    """Return the exhaustive admission predicates for one recording union arm."""
+
+    predicates: list[dict[str, object]] = [
+        {
+            "predicate": "authority_source_admission_kind",
+            "provenance": "recomputed",
+            "decisive": True,
+            "disposition": "accepted",
+        },
+        {
+            "predicate": "governed_role_binding",
+            "provenance": "recomputed",
+            "decisive": True,
+            "disposition": "accepted",
+        },
+        {
+            "predicate": "recording_base_binding",
+            "provenance": "recomputed",
+            "decisive": True,
+            "disposition": "accepted",
+        },
+        {
+            "predicate": "isolated_verification_authority_source",
+            "provenance": "recomputed",
+            "decisive": True,
+            "disposition": "accepted",
+        },
+    ]
+    if admission_kind == "migrated":
+        predicates.append(
+            {
+                "predicate": "migration_receipt_chain_valid",
+                "provenance": "recomputed",
+                "decisive": True,
+                "disposition": "accepted",
+            }
+        )
+    if predecessor_required:
+        predicates.append(
+            {
+                "predicate": "canonical_predecessor_recording_binding",
+                "provenance": "recomputed",
+                "decisive": True,
+                "disposition": "accepted",
+            }
+        )
+    return predicates
+
+
+def _authority_source_recording_base(
+    recording: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Return the bytes bound before admission and migration envelopes."""
+
+    base = copy.deepcopy(dict(recording))
+    base.pop("recording_content_hash", None)
+    base.pop("authority_source_admission", None)
+    base.pop("authority_source_migration_receipt", None)
+    return base
+
+
+def _build_authority_source_admission(
+    recording: Mapping[str, Any],
+    *,
+    admission_kind: str,
+    expected_role: str,
+) -> dict[str, Any]:
+    """Build one content-bound controlled-at-capture or migrated admission."""
+
+    if recording.get("schema_version") != _DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
+        raise UniversalityContractError("authority_source_recording_schema_mismatch")
+    if admission_kind not in {"controlled_at_capture", "migrated"}:
+        raise UniversalityContractError("authority_source_admission_kind_invalid")
+    receipt = _mapping(recording.get("authority_source_migration_receipt"))
+    if admission_kind == "controlled_at_capture" and receipt:
+        raise UniversalityContractError(
+            "authority_source_controlled_capture_receipt_present"
+        )
+    if admission_kind == "migrated" and not receipt:
+        raise UniversalityContractError("authority_source_migration_receipt_missing")
+    if recording.get("role") != expected_role:
+        raise UniversalityContractError("authority_source_recording_role_mismatch")
+    required_predecessor = (
+        _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(expected_role)
+    )
+    if required_predecessor is not None and admission_kind != "migrated":
+        raise UniversalityContractError(
+            "authority_source_required_migration_missing"
+        )
+    if required_predecessor is not None and receipt.get(
+        "historical_recording_content_hash"
+    ) != required_predecessor:
+        raise UniversalityContractError(
+            "authority_source_predecessor_recording_mismatch"
+        )
+    authority_projection = _compiled_authority_source_projection(
+        recording.get("compiled_run")
+    )
+    controlled_issues = _controlled_authority_source_projection_issues(
+        authority_projection
+    )
+    if controlled_issues:
+        raise UniversalityContractError(
+            "authority_source_admission_projection_invalid:"
+            + ",".join(controlled_issues)
+        )
+    payload: dict[str, Any] = {
+        "schema_version": _AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION,
+        "admission_kind": admission_kind,
+        "governed_role": expected_role,
+        "source_rule": "governed_recomputation_uses_isolated_verification_state",
+        "controlled_recording_base_content_hash": _semantic_hash(
+            _authority_source_recording_base(recording)
+        ),
+        "compiled_run_content_hash": recording.get("compiled_run_content_hash"),
+        "authority_projection": authority_projection,
+        "migration_receipt_content_hash": (
+            receipt.get("receipt_content_hash") if receipt else None
+        ),
+        "required_predecessor_recording_content_hash": required_predecessor,
+        "predicate_provenance": (
+            _authority_source_admission_predicate_provenance(
+                admission_kind,
+                predecessor_required=required_predecessor is not None,
+            )
+        ),
+    }
+    payload["admission_content_hash"] = _semantic_hash(payload)
+    return payload
+
+
+def _authority_source_admission_issues(
+    recording: Mapping[str, Any],
+    *,
+    replayed_domain_run: Mapping[str, Any],
+    expected_role: str,
+) -> tuple[str, ...]:
+    """Verify the required authority-source admission and its lineage arm."""
+
+    if recording.get("schema_version") != _DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
+        return ("authority_source_recording_schema_mismatch",)
+    admission = _mapping(recording.get("authority_source_admission"))
+    if not admission:
+        return ("authority_source_admission_missing",)
+    issues: list[str] = []
+    stable_admission = {
+        key: value
+        for key, value in admission.items()
+        if key != "admission_content_hash"
+    }
+    if admission.get("admission_content_hash") != _semantic_hash(stable_admission):
+        issues.append("authority_source_admission_hash_mismatch")
+    if admission.get("schema_version") != _AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION:
+        issues.append("authority_source_admission_schema_mismatch")
+    admission_kind = str(admission.get("admission_kind") or "")
+    if recording.get("role") != expected_role:
+        issues.append("authority_source_recording_role_mismatch")
+    if replayed_domain_run and replayed_domain_run.get("domain_role") != expected_role:
+        issues.append("authority_source_domain_role_mismatch")
+    required_predecessor = (
+        _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(expected_role)
+    )
+    if admission_kind not in {"controlled_at_capture", "migrated"}:
+        issues.append("authority_source_admission_kind_invalid")
+    if admission.get("source_rule") != (
+        "governed_recomputation_uses_isolated_verification_state"
+    ):
+        issues.append("authority_source_admission_rule_mismatch")
+    if admission.get("governed_role") != expected_role:
+        issues.append("authority_source_admission_role_binding_mismatch")
+    if admission.get("predicate_provenance") != (
+        _authority_source_admission_predicate_provenance(
+            admission_kind,
+            predecessor_required=required_predecessor is not None,
+        )
+    ):
+        issues.append("authority_source_admission_predicate_provenance_mismatch")
+    if admission.get("required_predecessor_recording_content_hash") != (
+        required_predecessor
+    ):
+        issues.append("authority_source_predecessor_binding_mismatch")
+    if admission.get("controlled_recording_base_content_hash") != _semantic_hash(
+        _authority_source_recording_base(recording)
+    ):
+        issues.append("authority_source_recording_base_binding_mismatch")
+    if admission.get("compiled_run_content_hash") != recording.get(
+        "compiled_run_content_hash"
+    ):
+        issues.append("authority_source_admission_compiled_binding_mismatch")
+    authority_projection = _compiled_authority_source_projection(
+        recording.get("compiled_run")
+    )
+    if admission.get("authority_projection") != authority_projection:
+        issues.append("authority_source_admission_projection_mismatch")
+    issues.extend(_controlled_authority_source_projection_issues(authority_projection))
+
+    receipt = _mapping(recording.get("authority_source_migration_receipt"))
+    if required_predecessor is not None:
+        if admission_kind != "migrated":
+            issues.append("authority_source_required_migration_missing")
+        if receipt.get("historical_recording_content_hash") != required_predecessor:
+            issues.append("authority_source_predecessor_recording_mismatch")
+    if admission_kind == "controlled_at_capture":
+        if receipt:
+            issues.append("authority_source_controlled_capture_receipt_present")
+        if admission.get("migration_receipt_content_hash") is not None:
+            issues.append("authority_source_controlled_capture_receipt_binding_present")
+    elif admission_kind == "migrated":
+        if not receipt:
+            issues.append("authority_source_migration_receipt_missing")
+        else:
+            if admission.get("migration_receipt_content_hash") != receipt.get(
+                "receipt_content_hash"
+            ):
+                issues.append("authority_source_migration_receipt_binding_mismatch")
+            issues.extend(
+                _authority_source_migration_receipt_issues(
+                    recording,
+                    replayed_domain_run=replayed_domain_run,
+                )
+            )
+    return tuple(sorted(set(issues)))
+
+
 def _authority_source_stable_projection(
     value: object,
     *,
@@ -2919,6 +3165,7 @@ def _attach_authority_source_migration_receipt(
     refreshed_recording: Mapping[str, Any],
     historical_domain_run: Mapping[str, Any],
     replayed_domain_run: Mapping[str, Any],
+    expected_role: str,
 ) -> dict[str, Any]:
     """Attach and content-bind one authority-source migration link."""
 
@@ -2930,6 +3177,11 @@ def _attach_authority_source_migration_receipt(
     )
     normalized = copy.deepcopy(dict(refreshed_recording))
     normalized["authority_source_migration_receipt"] = receipt
+    normalized["authority_source_admission"] = _build_authority_source_admission(
+        normalized,
+        admission_kind="migrated",
+        expected_role=expected_role,
+    )
     normalized["recording_content_hash"] = _semantic_hash(
         {
             key: value
@@ -3032,16 +3284,9 @@ def _authority_source_migration_receipt_issues(
             )
         )
 
-    current_base = copy.deepcopy(dict(recording))
-    current_base.pop("authority_source_migration_receipt", None)
+    current_base = _authority_source_recording_base(recording)
     current_base.pop("historical_context_rebind_receipt", None)
-    current_base["recording_content_hash"] = _semantic_hash(
-        {
-            key: value
-            for key, value in current_base.items()
-            if key != "recording_content_hash"
-        }
-    )
+    current_base["recording_content_hash"] = _semantic_hash(current_base)
     if receipt.get("replayed_recording_content_hash_before_receipt") != (
         current_base.get("recording_content_hash")
     ):
@@ -4124,6 +4369,7 @@ def _domain_run_recording(
     n4_recording: Mapping[str, Any],
     cycle_substrate_context: object | None,
     compiled: object,
+    attach_controlled_admission: bool = True,
 ) -> dict[str, Any]:
     """Bind one current compiled run to its canonical replay evidence."""
 
@@ -4144,6 +4390,21 @@ def _domain_run_recording(
         ),
     }
     recording["recording_content_hash"] = _semantic_hash(recording)
+    if attach_controlled_admission:
+        recording["authority_source_admission"] = (
+            _build_authority_source_admission(
+                recording,
+                admission_kind="controlled_at_capture",
+                expected_role=role,
+            )
+        )
+        recording["recording_content_hash"] = _semantic_hash(
+            {
+                key: value
+                for key, value in recording.items()
+                if key != "recording_content_hash"
+            }
+        )
     return recording
 
 
@@ -4162,6 +4423,7 @@ def _refresh_domain_run_recording(
         n4_recording=n4_recording,
         cycle_substrate_context=cycle_substrate_context,
         compiled=compiled,
+        attach_controlled_admission=False,
     )
 
 
@@ -4170,15 +4432,8 @@ def _without_authority_source_migration_receipt(
 ) -> dict[str, Any]:
     """Return the content-bound current recording before its migration link."""
 
-    current = copy.deepcopy(dict(recording))
-    current.pop("authority_source_migration_receipt", None)
-    current["recording_content_hash"] = _semantic_hash(
-        {
-            key: value
-            for key, value in current.items()
-            if key != "recording_content_hash"
-        }
-    )
+    current = _authority_source_recording_base(recording)
+    current["recording_content_hash"] = _semantic_hash(current)
     return current
 
 
@@ -4472,23 +4727,53 @@ async def _domain_run_and_normalized_recording(
     prior_authority_receipt = _mapping(
         recording.get("authority_source_migration_receipt")
     )
-    if (prior_context_receipt or prior_authority_receipt) and (
-        historical_domain_run is None
-    ):
-        raise UniversalityContractError(
-            "domain_run_historical_route_projection_missing"
-        )
-    if prior_authority_receipt:
-        prior_issues = _authority_source_migration_receipt_issues(
+    prior_admission = _mapping(recording.get("authority_source_admission"))
+    recording_schema = recording.get("schema_version")
+    if recording_schema == _DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
+        if not prior_admission:
+            raise UniversalityContractError("authority_source_admission_missing")
+        if (
+            prior_admission.get("admission_kind") == "migrated"
+            or prior_context_receipt
+        ) and historical_domain_run is None:
+            raise UniversalityContractError(
+                "domain_run_historical_route_projection_missing"
+            )
+        prior_issues = _authority_source_admission_issues(
             recording,
             replayed_domain_run=_mapping(historical_domain_run),
+            expected_role=role,
         )
         if prior_issues:
             raise UniversalityContractError(
-                "authority_source_prior_migration_receipt_invalid:"
+                "authority_source_admission_invalid:"
                 + ",".join(prior_issues)
             )
-    elif prior_context_receipt:
+    elif recording_schema == _LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
+        if prior_admission or prior_authority_receipt:
+            raise UniversalityContractError(
+                "authority_source_legacy_admission_shape_invalid"
+            )
+        required_predecessor = (
+            _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(role)
+        )
+        if required_predecessor is None:
+            raise UniversalityContractError(
+                "authority_source_legacy_predecessor_not_registered"
+            )
+        if recording.get("recording_content_hash") != required_predecessor:
+            raise UniversalityContractError(
+                "authority_source_predecessor_recording_mismatch"
+            )
+        if not _controlled_authority_source_projection_issues(
+            _compiled_authority_source_projection(recording.get("compiled_run"))
+        ):
+            raise UniversalityContractError(
+                "authority_source_legacy_recording_already_controlled"
+            )
+    else:
+        raise UniversalityContractError("authority_source_recording_schema_mismatch")
+    if prior_context_receipt:
         prior_issues = _historical_context_rebind_receipt_issues(
             recording,
             replayed_domain_run=_mapping(historical_domain_run),
@@ -4541,6 +4826,13 @@ async def _domain_run_and_normalized_recording(
             "design_problem_ref"
         ):
             raise UniversalityContractError("domain_run_design_problem_ref_drift")
+    if (
+        recording_schema == _LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION
+        and historical_domain_run is None
+    ):
+        raise UniversalityContractError(
+            "authority_source_migration_historical_route_missing"
+        )
 
     n4_recording = _mapping(recording.get("n4_recording"))
     organ_run: object | None = None
@@ -4623,6 +4915,7 @@ async def _domain_run_and_normalized_recording(
             n4_recording=_no_context_generation_recording(problem),
             cycle_substrate_context=None,
             compiled=compiled,
+            attach_controlled_admission=False,
         )
     else:
         if organ_run is None:  # pragma: no cover - guarded by the context branch.
@@ -4650,6 +4943,7 @@ async def _domain_run_and_normalized_recording(
                 n4_recording=normalized_n4_recording,
                 cycle_substrate_context=context,
                 compiled=compiled,
+                attach_controlled_admission=False,
             )
         else:
             normalized_recording = _refresh_domain_run_recording(
@@ -4659,9 +4953,6 @@ async def _domain_run_and_normalized_recording(
                 compiled=compiled,
             )
     requires_authority_source_migration = False
-    historical_authority_projection = _compiled_authority_source_projection(
-        recording.get("compiled_run")
-    )
     replayed_authority_projection = _compiled_authority_source_projection(
         normalized_recording.get("compiled_run")
     )
@@ -4673,15 +4964,19 @@ async def _domain_run_and_normalized_recording(
             "authority_source_replayed_projection_invalid:"
             + ",".join(replayed_authority_issues)
         )
-    if prior_authority_receipt:
+    if prior_admission:
         if _without_authority_source_migration_receipt(recording) != (
             normalized_recording
         ):
             raise UniversalityContractError(
                 "authority_source_controlled_replay_recording_drift"
             )
-        normalized_recording["authority_source_migration_receipt"] = (
-            copy.deepcopy(prior_authority_receipt)
+        if prior_authority_receipt:
+            normalized_recording["authority_source_migration_receipt"] = (
+                copy.deepcopy(prior_authority_receipt)
+            )
+        normalized_recording["authority_source_admission"] = copy.deepcopy(
+            prior_admission
         )
         normalized_recording["recording_content_hash"] = _semantic_hash(
             {
@@ -4690,25 +4985,12 @@ async def _domain_run_and_normalized_recording(
                 if key != "recording_content_hash"
             }
         )
-    elif _controlled_authority_source_projection_issues(
-        historical_authority_projection
-    ):
+    elif recording_schema == _LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
         if context_rebind_required:
             raise UniversalityContractError(
                 "authority_source_migration_context_rebind_conflict"
             )
         requires_authority_source_migration = True
-    elif prior_context_receipt:
-        normalized_recording["historical_context_rebind_receipt"] = (
-            copy.deepcopy(prior_context_receipt)
-        )
-        normalized_recording["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in normalized_recording.items()
-                if key != "recording_content_hash"
-            }
-        )
     domain_run = _project_domain_run(
         repo_root,
         role=role,
@@ -4731,6 +5013,7 @@ async def _domain_run_and_normalized_recording(
             refreshed_recording=normalized_recording,
             historical_domain_run=historical_domain_run,
             replayed_domain_run=domain_run,
+            expected_role=role,
         )
         domain_run = _project_domain_run(
             repo_root,
@@ -4790,16 +5073,16 @@ async def _domain_run_and_normalized_recording(
                 "domain_run_context_rebind_receipt_invalid:"
                 + ",".join(receipt_issues)
             )
-    if _mapping(normalized_recording.get("authority_source_migration_receipt")):
-        receipt_issues = _authority_source_migration_receipt_issues(
-            normalized_recording,
-            replayed_domain_run=domain_run,
+    admission_issues = _authority_source_admission_issues(
+        normalized_recording,
+        replayed_domain_run=domain_run,
+        expected_role=role,
+    )
+    if admission_issues:
+        raise UniversalityContractError(
+            "authority_source_admission_invalid:"
+            + ",".join(admission_issues)
         )
-        if receipt_issues:
-            raise UniversalityContractError(
-                "authority_source_migration_receipt_invalid:"
-                + ",".join(receipt_issues)
-            )
     return domain_run, normalized_recording
 
 
@@ -4912,7 +5195,8 @@ def _project_domain_run(
         mode="json",
         exclude={"wall_time_ms"},
     )
-    promotion_receipts = _mappings(cycle_run.promotion_port.receipts)
+    promotion_payload = cycle_run.promotion_port.model_dump(mode="json")
+    promotion_receipts = _mappings(promotion_payload.get("receipts"))
     promotion_authority_provenance = sorted(
         {
             str(
@@ -5053,16 +5337,16 @@ def _project_domain_run(
             "owner": "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
             "authority_scope": recursive_run.authority_scope,
             "authority_provenance": promotion_authority_provenance,
-            "status": cycle_run.promotion_port.status,
-            "reason": cycle_run.promotion_port.reason,
+            "status": promotion_payload.get("status"),
+            "reason": promotion_payload.get("reason"),
             "receipt_count": len(promotion_receipts),
             "all_receipts_non_consumer": bool(promotion_receipts)
             and all(
                 receipt.get("consumer_promotable") is False
                 for receipt in promotion_receipts
             ),
-            "certified_candidate_ids": list(
-                cycle_run.promotion_port.certified_candidate_ids
+            "certified_candidate_ids": _strings(
+                promotion_payload.get("certified_candidate_ids")
             ),
         },
     }
@@ -6280,15 +6564,15 @@ def _static_proof_recording_issues(
                     "role": role,
                 }
             )
-        if _mapping(recording.get("authority_source_migration_receipt")):
-            issues.extend(
-                {"code": issue, "role": role}
-                for issue in _authority_source_migration_receipt_issues(
-                    recording,
-                    replayed_domain_run=run,
-                )
+        issues.extend(
+            {"code": issue, "role": role}
+            for issue in _authority_source_admission_issues(
+                recording,
+                replayed_domain_run=run,
+                expected_role=role,
             )
-        elif _mapping(recording.get("historical_context_rebind_receipt")):
+        )
+        if _mapping(recording.get("historical_context_rebind_receipt")):
             issues.extend(
                 {"code": issue, "role": role}
                 for issue in _historical_context_rebind_receipt_issues(
@@ -6784,6 +7068,73 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         _rehash_run(payload, "education")
         _finish(payload)
 
+    def _remove_authority_source_migration_receipt(
+        payload: dict[str, Any],
+    ) -> None:
+        role = "education"
+        payload["proof_recordings"][role].pop(
+            "authority_source_migration_receipt"
+        )
+        _rehash_recording(payload, role)
+        _finish(payload)
+
+    def _relabel_authority_source_as_controlled_capture(
+        payload: dict[str, Any],
+    ) -> None:
+        role = "education"
+        recording = payload["proof_recordings"][role]
+        recording.pop("authority_source_migration_receipt")
+        admission = recording["authority_source_admission"]
+        admission["admission_kind"] = "controlled_at_capture"
+        admission["migration_receipt_content_hash"] = None
+        admission["predicate_provenance"] = (
+            _authority_source_admission_predicate_provenance(
+                "controlled_at_capture",
+                predecessor_required=True,
+            )
+        )
+        admission["admission_content_hash"] = _semantic_hash(
+            {
+                key: value
+                for key, value in admission.items()
+                if key != "admission_content_hash"
+            }
+        )
+        _rehash_recording(payload, role)
+        _finish(payload)
+
+    def _relabel_authority_source_role_and_rule(
+        payload: dict[str, Any],
+    ) -> None:
+        role = "education"
+        recording = payload["proof_recordings"][role]
+        recording.pop("authority_source_migration_receipt")
+        recording["role"] = "future_role"
+        admission = recording["authority_source_admission"]
+        admission["admission_kind"] = "controlled_at_capture"
+        admission["governed_role"] = "future_role"
+        admission["migration_receipt_content_hash"] = None
+        admission["required_predecessor_recording_content_hash"] = None
+        admission["predicate_provenance"] = (
+            _authority_source_admission_predicate_provenance(
+                "controlled_at_capture",
+                predecessor_required=False,
+            )
+        )
+        admission["controlled_recording_base_content_hash"] = _semantic_hash(
+            _authority_source_recording_base(recording)
+        )
+        admission["admission_content_hash"] = _semantic_hash(
+            {
+                key: value
+                for key, value in admission.items()
+                if key != "admission_content_hash"
+            }
+        )
+        payload["domain_runs"][role]["domain_role"] = "future_role"
+        _rehash_recording(payload, role)
+        _finish(payload)
+
     def _mutate_compiler_response(payload: dict[str, Any]) -> None:
         role = "education"
         compiler = payload["proof_recordings"][role]["compiler_recording"]
@@ -6896,6 +7247,24 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
             "promotion_receipt_count",
             _mutate_promotion_receipt_count,
             {"domain_promotion_compiled_projection_mismatch"},
+        ),
+        (
+            "authority_source_migration_receipt",
+            _remove_authority_source_migration_receipt,
+            {"authority_source_migration_receipt_missing"},
+        ),
+        (
+            "authority_source_admission_relabel",
+            _relabel_authority_source_as_controlled_capture,
+            {"authority_source_required_migration_missing"},
+        ),
+        (
+            "authority_source_role_rule_relabel",
+            _relabel_authority_source_role_and_rule,
+            {
+                "authority_source_recording_role_mismatch",
+                "authority_source_domain_role_mismatch",
+            },
         ),
         (
             "compiler_response_bytes",

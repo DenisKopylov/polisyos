@@ -21,6 +21,37 @@
   step: wait for that owner-plan producer/bridge closure, then re-run the C06
   entry audit; do not enter C06 from generated-contract shape alone.
 
+## DS5-C06-D1 debt-only waist owner boundary
+
+- Red first: `ProducerBindingDebtTests.test_c06_waist_owner_debts_bind_three_independent_planes`
+  was added before the descriptors and failed `EEE`: each named C06 descriptor
+  was absent. The green witness binds every generated row to its sole descriptor,
+  rejects finding-kind/owner/capability reclassification and a removed closure,
+  and keeps `run-lifecycle-terminal-fact` benign.
+- C06 has no executable contract remainder. Three distinct missing producer
+  planes are registered: CGF public vocabulary (canonical owner unresolved),
+  DecisionGrade generated contract (C14), and QueryObserver cache-posture
+  artifact (C11a/C11b). Existing DS4 bridge/surface rows remain untransitioned;
+  G4 remains reference-only and `ProjectionFreshness` is not cache posture.
+- Writer receipt: the existing surgical supplemental writer refreshed only its
+  descriptor rows and report; its first attempt rejected ranged `:start-end`
+  evidence references, so those were corrected to single-line citations before
+  the successful second run. DS19 re-anchor changes only its source hash.
+- Orchestration: native Terra implementation; no Sol worker or escalation.
+- Review fix round 1 removed the unsupported GY owner attribution. The evidence
+  now distinguishes the private generation-cycle validator set from opaque
+  runtime owner payloads; closure waits for a canonical owner to publish a
+  public typed contract through the runtime schema.
+- Final receipts: `ProducerBindingDebtTests` passed 9/9 in 22.691s; the frontend
+  checker and corruption probes passed with 61 findings. The installed,
+  index-only status checker and corruption probes passed with 47 rows, 15
+  authored statuses, 55 exemptions, 0 retirement debt, and 3 waist rows.
+- The surgical writer was idempotent at register hash `e5089d8c…` and report
+  hash `1de83d97…`. Scoped Ruff, `py_compile`, JSON parsing, and staged/unstaged
+  diff checks passed. The live status run that observed concurrent unstaged
+  C08b drift and the first isolation without correct workspace links are
+  nonreceipts. Delta review: GO, Critical/Important/Minor `0/0/0`.
+
 ## DS5-C05b-D2 record-only deferral
 
 - C05b implementation is **Not yet**. This seven-path record adds no semantic-copy

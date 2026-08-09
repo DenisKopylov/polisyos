@@ -1808,6 +1808,102 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "census transition"
         ),
     },
+    "c06-cgf-public-vocabulary-producer-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:16",
+            "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py:34",
+            "src/polisyos/runtime/http/services/governed_projections.py:200",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
+        ],
+        "rationale": (
+            "C06 cannot project CGF disposition: a private validator set exists and "
+            "runtime owners remain opaque JsonObjectTuple values, but no public typed "
+            "owner exists. C06 may not publish or invent that contract; the DS4 "
+            "bridge/surface row remains open as a distinct plane."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_generated_cgf_disposition_union_tracks_"
+            "generation_cycle_owner_contract exits 0 after the canonical generation-cycle "
+            "owner publishes a public typed owner contract through the runtime schema"
+        ),
+    },
+    "c06-decision-grade-generated-contract-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:37",
+            "src/polisyos/pdc/_impl/layer2_readiness.py:39",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
+        ],
+        "rationale": (
+            "DecisionGrade has a PDC owner but no OpenAPI or generated-client export; "
+            "the DS4 waist row assigns its singular swap point to C14. C06 records "
+            "the missing generated producer contract and does not pre-empt C14."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_generated_decision_grade_union_tracks_pdc_owner "
+            "exits 0 after C14 publishes the generated DecisionGrade contract from "
+            "the PDC owner"
+        ),
+    },
+    "c06-queryobserver-cache-posture-artifact-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "src/polisyos/runtime/http/services/governed_projections.py:121",
+            "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103",
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:57",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c11a",
+        ],
+        "rationale": (
+            "QueryObserver emits lifecycle signals today, but no typed CachePosture "
+            "artifact exists. ProjectionFreshness records source observation and is "
+            "orthogonal to cached-copy posture; C11a/C11b own the client artifact, "
+            "bridge, and surface."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_"
+            "freshness_orthogonal exits 0 after C11a/C11b publish the typed "
+            "QueryObserver cache-posture artifact without reclassifying source freshness"
+        ),
+    },
     "producer-binding-readiness-scientific-depth": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",

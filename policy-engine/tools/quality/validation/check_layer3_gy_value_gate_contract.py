@@ -475,9 +475,7 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
     denominators = _quiet_call(_catalog_denominators)
     production_run = _quiet_call(_run_real_first_vertical_cycle)
     education_observation = _quiet_call(_run_real_education_value_refusal)
-    production_refusal = _normalized_first_vertical_data_gap_receipt(
-        production_run
-    )
+    production_refusal = _normalized_first_vertical_data_gap_receipt(production_run)
     education_refusal = _normalized_refusal_receipt(
         education_observation,
         receipt_kind="education_estimand_binding_refusal",
@@ -495,10 +493,21 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "parallel_value_engine": "blocked_by_P27",
         },
         "pattern_pass": {
-            "relevant_ids": ["P05", "P10", "P14", "P27", "P29", "P31", "P32"],
+            "relevant_ids": [
+                "P05",
+                "P10",
+                "P14",
+                "P27",
+                "P29",
+                "P30",
+                "P31",
+                "P32",
+                "P37",
+            ],
             "target_correct_pattern": (
-                "owner-resolved world knowledge gates production value; native method "
-                "contracts prove only nonproduction projection capability"
+                "owner-resolved world knowledge gates production value; the method "
+                "denominator is builtins-only with canonical discovery and runtime "
+                "provenance, while ambient inputs are separately bound and quarantined"
             ),
             "capability_labels": [
                 "producer_missing:owner_rollout_assignment",
@@ -506,7 +515,8 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
             ],
             "acceptance_signal": (
                 "real advisor selections end in typed honest refusals; six native "
-                "families project contract-only uncertainty; no value_ready is fabricated"
+                "families project contract-only uncertainty; catalog provenance drift "
+                "fails with a named dimension; no value_ready is fabricated"
             ),
         },
         "denominators": denominators,
@@ -563,25 +573,49 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
 
 @cache
 def _catalog_denominators_cached() -> dict[str, Any]:
-    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-    from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+    from polisyos.foundry.extensions.discovery import (
+        discover_foundry_method_components,
+    )
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.catalog.snapshot import (
+        build_method_catalog_provenance_manifest,
+        build_method_catalog_snapshot,
+    )
     from polisyos.foundry.methods.selection import reachable_value_method_fqns
     from polisyos.foundry.methods.selection.registry import registry_scope
 
     with registry_scope() as registry:
-        ensure_all_methods_registered(registry)
-        registered = tuple(
-            sorted(entry.fqn for entry in registry.snapshot().entries())
+        registry_report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
         )
+        registered = registry_report.registry_fqns
         first = build_method_catalog_snapshot(
             registry=registry,
             run_id="GY-N10-stage2-n8-v2",
+            registry_report=registry_report,
+            require_bound_discovery=True,
         )
         second = build_method_catalog_snapshot(
             registry=registry,
             run_id="GY-N10-stage2-n8-v2",
+            registry_report=registry_report,
+            require_bound_discovery=True,
         )
-        value_methods = reachable_value_method_fqns(registry=registry)
+        value_methods = reachable_value_method_fqns(
+            registry=registry,
+            catalog_snapshot=first,
+        )
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    if ambient_report.manifest is None:
+        raise RuntimeError("value_catalog_ambient_discovery_manifest_missing")
     catalog_fqns = tuple(entry.fqn for entry in first.entries)
     if catalog_fqns != registered or tuple(entry.fqn for entry in second.entries) != registered:
         raise RuntimeError("value_catalog_registry_denominator_mismatch")
@@ -592,7 +626,7 @@ def _catalog_denominators_cached() -> dict[str, Any]:
         ensure_ascii=True,
         separators=(",", ":"),
     ).encode("utf-8")
-    return {
+    denominator_values = {
         "evaluation_modes": list(get_args(ValueEvaluationMode)),
         "identification_statuses": ["point", "partial", "proxy"],
         "registered_method_count": len(registered),
@@ -602,10 +636,78 @@ def _catalog_denominators_cached() -> dict[str, Any]:
         "catalog_snapshot_stable": True,
         "value_capable_method_count": len(value_methods),
         "value_capable_methods": list(value_methods),
-        "value_capable_fqn_set_hash": "sha256:"
-        + hashlib.sha256(encoded).hexdigest(),
+        "value_capable_fqn_set_hash": "sha256:" + hashlib.sha256(encoded).hexdigest(),
         "native_contract_families": list(NATIVE_CONTRACT_FAMILIES),
     }
+    additional_predicates = [
+        {
+            "predicate": predicate,
+            "classification": "recomputed",
+            "decisive": True,
+            "fail_closed_action": "reject",
+        }
+        for predicate in (
+            "catalog_registry_denominator_equality",
+            "catalog_snapshot_content_identity",
+            "catalog_snapshot_repeatability",
+            "value_capability_owner_reconciliation",
+            "value_capability_set_hash_derivation",
+            "evaluation_mode_taxonomy_derivation",
+            "identification_status_taxonomy_derivation",
+            "native_contract_family_taxonomy_derivation",
+        )
+    ]
+    governed_basis = [
+        "governed_discovery_policy",
+        "governed_registry_content_binding",
+        "ambient_discovery_exclusion_policy",
+        "registry_matches_governed_manifest",
+    ]
+    predicate_bindings = {
+        "evaluation_modes": ["evaluation_mode_taxonomy_derivation"],
+        "identification_statuses": ["identification_status_taxonomy_derivation"],
+        "registered_method_count": [
+            *governed_basis,
+            "catalog_registry_denominator_equality",
+        ],
+        "catalog_entry_count": [
+            *governed_basis,
+            "catalog_registry_denominator_equality",
+        ],
+        "catalog_matches_registry": [
+            *governed_basis,
+            "catalog_registry_denominator_equality",
+        ],
+        "catalog_snapshot_id": [
+            *governed_basis,
+            "catalog_snapshot_content_identity",
+        ],
+        "catalog_snapshot_stable": [
+            *governed_basis,
+            "catalog_snapshot_repeatability",
+        ],
+        "value_capable_method_count": [
+            *governed_basis,
+            "value_capability_owner_reconciliation",
+        ],
+        "value_capable_methods": [
+            *governed_basis,
+            "value_capability_owner_reconciliation",
+        ],
+        "value_capable_fqn_set_hash": [
+            "value_capability_owner_reconciliation",
+            "value_capability_set_hash_derivation",
+        ],
+        "native_contract_families": ["native_contract_family_taxonomy_derivation"],
+    }
+    catalog_provenance = build_method_catalog_provenance_manifest(
+        first,
+        registry_report=registry_report,
+        ambient_manifest=ambient_report.manifest,
+        additional_predicate_provenance=additional_predicates,
+        predicate_bindings=predicate_bindings,
+    )
+    return {**denominator_values, "catalog_provenance": catalog_provenance}
 
 
 def _catalog_denominators() -> dict[str, Any]:
@@ -3298,6 +3400,178 @@ def _is_fixture_world_hash(value: object) -> bool:
     )
 
 
+def _catalog_provenance_issues(
+    recorded: object,
+    expected: Mapping[str, Any],
+    *,
+    denominator_fields: frozenset[str] | None = None,
+) -> tuple[dict[str, Any], ...]:
+    issues: list[dict[str, Any]] = []
+    if not isinstance(recorded, Mapping):
+        return ({"code": "catalog_discovery_provenance_missing"},)
+
+    recorded_governed = recorded.get("governed_discovery")
+    expected_governed = expected.get("governed_discovery")
+    if not isinstance(recorded_governed, Mapping) or not isinstance(expected_governed, Mapping):
+        issues.append({"code": "catalog_governed_discovery_manifest_missing"})
+    else:
+        if recorded_governed.get("source_policy") != expected_governed.get("source_policy"):
+            issues.append({"code": "catalog_governed_source_policy_mismatch"})
+        if any(
+            recorded_governed.get(field) != expected_governed.get(field)
+            for field in (
+                "manifest_id",
+                "component_count",
+                "component_set_sha256",
+                "registry_fqn_set_sha256",
+                "registry_binding_sha256",
+                "unbound_inputs",
+            )
+        ):
+            issues.append({"code": "catalog_builtin_discovery_manifest_mismatch"})
+        if recorded_governed.get("unbound_inputs"):
+            issues.append({"code": "catalog_governed_discovery_manifest_unbound"})
+
+    recorded_ambient = recorded.get("ambient_discovery")
+    expected_ambient = expected.get("ambient_discovery")
+    if not isinstance(recorded_ambient, Mapping) or not isinstance(expected_ambient, Mapping):
+        issues.append({"code": "catalog_ambient_discovery_manifest_missing"})
+    else:
+        if recorded_ambient.get("source_policy") != expected_ambient.get("source_policy"):
+            issues.append({"code": "catalog_ambient_source_policy_mismatch"})
+        if recorded_ambient.get("manifest_id") != expected_ambient.get("manifest_id"):
+            issues.append({"code": "catalog_ambient_discovery_manifest_mismatch"})
+        if recorded_ambient.get("entry_points") != expected_ambient.get("entry_points"):
+            issues.append({"code": "catalog_entry_point_distribution_manifest_mismatch"})
+        if any(
+            recorded_ambient.get(field) != expected_ambient.get(field)
+            for field in ("dev_scan_roots", "dev_scan_files")
+        ):
+            issues.append({"code": "catalog_development_scan_manifest_mismatch"})
+        if any(
+            recorded_ambient.get(field) != expected_ambient.get(field)
+            for field in (
+                "component_count",
+                "component_set_sha256",
+                "added_component_ids",
+                "overlap_component_count",
+                "overlap_component_set_sha256",
+            )
+        ):
+            issues.append({"code": "catalog_ambient_component_manifest_mismatch"})
+        if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
+            issues.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
+        admission = recorded_ambient.get("admission")
+        if not isinstance(admission, Mapping) or (
+            admission.get("included_in_governed_denominator") is not False
+            or admission.get("fail_closed_action") != "quarantine"
+            or admission.get("status") not in {"quarantined_unbound", "declared_not_admitted"}
+        ):
+            issues.append({"code": "catalog_ambient_input_not_quarantined"})
+
+    recorded_runtime = recorded.get("runtime_backend_identity")
+    expected_runtime = expected.get("runtime_backend_identity")
+    if not isinstance(recorded_runtime, Mapping) or not isinstance(expected_runtime, Mapping):
+        issues.append({"code": "catalog_runtime_backend_identity_missing"})
+    else:
+        if recorded_runtime.get("identity_id") != expected_runtime.get("identity_id"):
+            issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
+        if recorded_runtime.get("runtime_packages") != expected_runtime.get("runtime_packages"):
+            issues.append({"code": "catalog_runtime_package_identity_mismatch"})
+        if any(
+            recorded_runtime.get(field) != expected_runtime.get(field)
+            for field in (
+                "backend_fingerprints",
+                "entry_runtime_binding_count",
+                "entry_runtime_bindings_sha256",
+            )
+        ):
+            issues.append({"code": "catalog_backend_fingerprint_mismatch"})
+
+    predicate_rows = recorded.get("predicate_provenance")
+    expected_predicate_rows = expected.get("predicate_provenance")
+    if predicate_rows != expected_predicate_rows:
+        issues.append({"code": "catalog_predicate_provenance_mismatch"})
+    if not isinstance(predicate_rows, list):
+        issues.append({"code": "catalog_predicate_provenance_missing"})
+    else:
+        for row in predicate_rows:
+            if not isinstance(row, Mapping):
+                issues.append({"code": "catalog_predicate_provenance_invalid"})
+                continue
+            classification = str(row.get("classification") or "")
+            fail_closed_action = str(row.get("fail_closed_action") or "")
+            if (
+                classification
+                not in {
+                    "recomputed",
+                    "independently_reconciled",
+                    "consumer_asserted",
+                    "institutionally_supplied",
+                    "not_established",
+                }
+                or not isinstance(row.get("decisive"), bool)
+                or fail_closed_action not in {"reject", "quarantine"}
+            ):
+                issues.append({"code": "catalog_predicate_provenance_invalid"})
+                continue
+            if classification in {
+                "consumer_asserted",
+                "institutionally_supplied",
+                "not_established",
+            } and (bool(row.get("decisive")) or fail_closed_action not in {"reject", "quarantine"}):
+                issues.append(
+                    {
+                        "code": "catalog_predicate_provenance_not_admissible",
+                        "predicate": row.get("predicate"),
+                        "classification": classification,
+                    }
+                )
+
+    predicate_bindings = recorded.get("predicate_bindings")
+    expected_predicate_bindings = expected.get("predicate_bindings")
+    if predicate_bindings != expected_predicate_bindings:
+        issues.append({"code": "catalog_predicate_bindings_mismatch"})
+    if denominator_fields is not None:
+        if not isinstance(predicate_bindings, Mapping) or set(predicate_bindings) != set(
+            denominator_fields
+        ):
+            issues.append({"code": "catalog_predicate_binding_coverage_mismatch"})
+        else:
+            known_predicates = set()
+            if isinstance(predicate_rows, list):
+                known_predicates = {
+                    str(row.get("predicate") or "")
+                    for row in predicate_rows
+                    if isinstance(row, Mapping)
+                }
+            for field, references in predicate_bindings.items():
+                if (
+                    not isinstance(references, list)
+                    or not references
+                    or any(
+                        not isinstance(reference, str) or reference not in known_predicates
+                        for reference in references
+                    )
+                ):
+                    issues.append(
+                        {
+                            "code": "catalog_predicate_binding_invalid",
+                            "field": field,
+                        }
+                    )
+
+    admission_policy = recorded.get("predicate_admission_policy")
+    expected_admission_policy = expected.get("predicate_admission_policy")
+    if admission_policy != expected_admission_policy:
+        issues.append({"code": "catalog_predicate_admission_policy_mismatch"})
+    if recorded.get("schema_version") != expected.get("schema_version"):
+        issues.append({"code": "catalog_provenance_schema_version_mismatch"})
+    if recorded.get("provenance_id") != expected.get("provenance_id"):
+        issues.append({"code": "catalog_provenance_manifest_mismatch"})
+    return tuple(issues)
+
+
 def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     issues: list[dict[str, Any]] = []
     if payload.get("schema_version") != SCHEMA_VERSION:
@@ -3311,13 +3585,19 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
         issues.append({"code": "denominators_missing"})
     else:
         expected_denominators = _catalog_denominators_cached()
+        provenance_issues = _catalog_provenance_issues(
+            denominators.get("catalog_provenance"),
+            expected_denominators["catalog_provenance"],
+            denominator_fields=frozenset(expected_denominators) - {"catalog_provenance"},
+        )
+        issues.extend(provenance_issues)
         modes = tuple(denominators.get("evaluation_modes") or ())
         if modes != tuple(get_args(ValueEvaluationMode)):
             issues.append({"code": "evaluation_mode_denominator_not_full"})
         statuses = tuple(denominators.get("identification_statuses") or ())
         if statuses != ("point", "partial", "proxy"):
             issues.append({"code": "identification_status_denominator_not_full"})
-        if any(
+        if not provenance_issues and any(
             denominators.get(field) != expected_denominators[field]
             for field in (
                 "registered_method_count",
@@ -3330,7 +3610,7 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
             issues.append({"code": "catalog_method_denominator_drift"})
         methods = tuple(denominators.get("value_capable_methods") or ())
         expected_methods = tuple(expected_denominators["value_capable_methods"])
-        if (
+        if not provenance_issues and (
             denominators.get("value_capable_method_count")
             != expected_denominators["value_capable_method_count"]
             or methods != expected_methods
@@ -3345,23 +3625,17 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
             "sha256:" + hashlib.sha256(encoded).hexdigest()
         ):
             issues.append({"code": "value_capability_set_hash_mismatch"})
-        if tuple(denominators.get("native_contract_families") or ()) != (
-            NATIVE_CONTRACT_FAMILIES
-        ):
+        if tuple(denominators.get("native_contract_families") or ()) != (NATIVE_CONTRACT_FAMILIES):
             issues.append({"code": "native_contract_family_denominator_drift"})
     expected_methods = tuple(
-        denominators.get("value_capable_methods") or ()
-        if isinstance(denominators, Mapping)
-        else ()
+        denominators.get("value_capable_methods") or () if isinstance(denominators, Mapping) else ()
     )
     production = payload.get("production_refusal")
     if not isinstance(production, Mapping):
         issues.append({"code": "production_refusal_missing"})
     else:
         issues.extend(_validate_first_vertical_data_gap_receipt(production))
-        if production.get("status") == "value_ready" or production.get(
-            "value_receipt"
-        ) is not None:
+        if production.get("status") == "value_ready" or production.get("value_receipt") is not None:
             issues.append({"code": "fabricated_production_value_ready"})
     acquisition = payload.get("acquisition_routing")
     if not isinstance(acquisition, Mapping):
@@ -3381,9 +3655,7 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
                 expected_methods=expected_methods,
             )
         )
-        if education.get("status") == "value_ready" or education.get(
-            "value_receipt"
-        ) is not None:
+        if education.get("status") == "value_ready" or education.get("value_receipt") is not None:
             issues.append({"code": "fabricated_education_value_ready"})
     proofs = payload.get("native_projector_contract_proofs")
     if not isinstance(proofs, list):
@@ -3407,15 +3679,13 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
                 first_transport.get("candidate_id") != production.get("candidate_id")
                 or first_transport.get("candidate_content_hash")
                 != production.get("candidate_content_hash")
-                or first_transport.get("design_problem_ref")
-                != production.get("design_problem_ref")
+                or first_transport.get("design_problem_ref") != production.get("design_problem_ref")
                 or first_transport.get("world_model_record_id")
                 != production.get("world_model_record_id")
                 or first_transport.get("world_model_record_content_hash")
                 != production.get("world_model_record_content_hash")
                 or not isinstance(owner_availability, Mapping)
-                or first_transport.get("query_outcome")
-                != owner_availability.get("variable_id")
+                or first_transport.get("query_outcome") != owner_availability.get("variable_id")
             ):
                 issues.append({"code": "first_vertical_transport_receipt_unbound"})
     census = payload.get("fork_b_census_receipt")
@@ -3452,9 +3722,10 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
                 {"code": "decisive_mutation_expectation_invalid", "mutation_id": mutation_id}
             )
     source_harness = payload.get("source_flip_mutation_harness")
-    if not isinstance(source_harness, Mapping) or tuple(
-        source_harness.get("mutation_ids") or ()
-    ) != SOURCE_FLIP_MUTATION_IDS:
+    if (
+        not isinstance(source_harness, Mapping)
+        or tuple(source_harness.get("mutation_ids") or ()) != SOURCE_FLIP_MUTATION_IDS
+    ):
         issues.append({"code": "source_flip_mutation_denominator_drift"})
     volatile_paths = _volatile_content_paths(payload)
     for path in volatile_paths:
@@ -3990,10 +4261,37 @@ def corrupt_field_drift_check(repo_root: Path) -> int:
     legacy["contract_content_hash"] = _content_hash(legacy)
     cases.append(("legacy_positive_alias", legacy, "legacy_positive_key_forbidden"))
 
+    ambient_distribution = json.loads(json.dumps(base))
+    entry_points = ambient_distribution["denominators"]["catalog_provenance"][
+        "ambient_discovery"
+    ]["entry_points"]
+    if entry_points:
+        entry_points[0]["distribution_name"] = "corrupt-environment"
+    else:
+        entry_points.append(
+            {
+                "group": "polisyos.foundry_methods",
+                "name": "corrupt-environment",
+                "value": "corrupt_environment:factory",
+                "distribution_name": "corrupt-environment",
+                "distribution_version": "0",
+                "entry_points_sha256": "sha256:" + "0" * 64,
+                "direct_url_sha256": None,
+                "editable_install": None,
+                "source_byte_closure": "not_established",
+            }
+        )
+    ambient_distribution["contract_content_hash"] = _content_hash(ambient_distribution)
+    cases.append(
+        (
+            "ambient_distribution_manifest_drift",
+            ambient_distribution,
+            "catalog_entry_point_distribution_manifest_mismatch",
+        )
+    )
+
     production_contract = json.loads(json.dumps(base))
-    production_contract["native_projector_contract_proofs"][0][
-        "production_value_eligible"
-    ] = True
+    production_contract["native_projector_contract_proofs"][0]["production_value_eligible"] = True
     production_contract["contract_content_hash"] = _content_hash(production_contract)
     cases.append(
         (
@@ -4022,8 +4320,7 @@ def corrupt_field_drift_check(repo_root: Path) -> int:
         )
         return 1
     print(
-        "corrupt-field drift check: FAIL corruption survived "
-        + json.dumps(results, sort_keys=True)
+        "corrupt-field drift check: FAIL corruption survived " + json.dumps(results, sort_keys=True)
     )
     return 0
 

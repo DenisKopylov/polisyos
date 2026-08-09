@@ -459,6 +459,27 @@ artifact back into itself.
   discover upstream staleness, and no completed upstream node is revisited unless its declared input
   changes.
 
+### 2026-08-09 orchestration stop note — GY-DEF6 closure and successor handoff
+
+- **`defect_standing`: GY-DEF6 is CLOSED.** The controlled builtins-only catalog denominator binds
+  its declared inputs, quarantines unbound ambient discovery, reproduces across independent
+  processes, and keeps the recorded `389/389` / `method_catalog_9483326427331f16` value. No
+  denominator rebaseline occurred.
+- **`capability_standing`: the cold closeout chain is STILL BLOCKED.** The terminal N11 writer
+  failed after `512.873833` seconds at
+  `authority_source_controlled_replay_recording_drift`, before `owner_bundle_loaded`. No cold,
+  replay, or close receipt exists.
+- The walk stops at that RED. No N13/downstream rerun, E11 successor freeze, reviewer commission,
+  expensive lane, replay, or close is authorized by this note.
+- Six independently registered defects, GY-DEF7 through GY-DEF12, now own the cascade findings:
+  N10a operational normalization, stale Depth-N compiled bytes and migration lineage, ambient
+  durable authority history, controlled clock admission, import-order-dependent E12 identity, and
+  rebound callable admission. Their evidence and smallest correct closures live in the registered
+  defects block and the GY-DEF6 journal; this historical N11 plan does not schedule them.
+- `codex/gy-def6-e11` is retained as the successor task's starting state. Its source repairs and E12
+  artifact reissues are not reverted and are not attributed to the one-commit GY-DEF6 repair. The
+  successor needs an architect-scoped objective and explicit stop rule before any further wave.
+
 ## Pattern pass
 
 - Relevant patterns: P01/P02/P03, P04/P05/P07/P08/P09/P10/P12/P13/P14/P15, P27-P34.

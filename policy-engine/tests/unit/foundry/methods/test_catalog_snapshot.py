@@ -5,27 +5,314 @@ from dataclasses import replace
 
 import pytest
 
+from polisyos.foundry.extensions.discovery import discover_foundry_method_components
+from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
 from polisyos.foundry.methods.base import MethodMetadata
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.bayesian.regression import (
     BayesianLinearRegressionEstimator,
 )
 from polisyos.foundry.methods.catalog.snapshot import (
+    MethodCatalogDiscoveryProvenanceError,
     build_method_capability_matrix,
+    build_method_catalog_provenance_manifest,
+    build_method_catalog_runtime_identity,
     build_method_catalog_snapshot,
 )
+from polisyos.foundry.methods.selection import reachable_value_method_fqns
 from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 
+def test_governed_snapshot_consumes_supplied_builtin_provenance_without_rediscovery(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        monkeypatch.setattr(
+            "polisyos.foundry.methods.catalog.snapshot.ensure_all_methods_registered",
+            lambda _registry: pytest.fail("governed snapshot reran ambient discovery"),
+        )
+
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    assert report.discovery_manifest is not None
+    assert report.discovery_manifest.is_bound is True
+    assert tuple(entry.fqn for entry in snapshot.entries) == report.registry_fqns
+
+
+def test_value_method_denominator_consumes_controlled_snapshot_without_rediscovery(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+        monkeypatch.setattr(
+            "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+            lambda _registry: pytest.fail("controlled denominator reran ambient discovery"),
+        )
+
+        methods = reachable_value_method_fqns(
+            registry=registry,
+            catalog_snapshot=snapshot,
+        )
+
+    assert methods
+    assert set(methods) < set(report.registry_fqns)
+
+
+def test_governed_snapshot_fails_closed_without_discovery_provenance() -> None:
+    with (
+        registry_scope() as registry,
+        pytest.raises(
+            MethodCatalogDiscoveryProvenanceError,
+            match="catalog_discovery_provenance_missing",
+        ),
+    ):
+        build_method_catalog_snapshot(
+            registry=registry,
+            require_bound_discovery=True,
+        )
+
+
+def test_governed_snapshot_rejects_registry_mutation_after_admission() -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        registry.unregister(report.registry_fqns[0])
+
+        with pytest.raises(
+            MethodCatalogDiscoveryProvenanceError,
+            match="catalog_registry_admission_membership_mismatch",
+        ):
+            build_method_catalog_snapshot(
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+            )
+
+
+def test_governed_snapshot_rejects_same_fqn_override_after_admission() -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        original = registry.get(report.registry_fqns[0])
+
+        class AmbientOverride:
+            signature = original.signature
+            metadata = replace(
+                original.metadata,
+                description="ambient same-FQN override with markers intact",
+            )
+
+            @staticmethod
+            def pure_step(state, params):
+                return original.pure_step(state, params)
+
+        registry.register(AmbientOverride, override=True)
+
+        with pytest.raises(
+            MethodCatalogDiscoveryProvenanceError,
+            match="catalog_registry_admission_content_mismatch",
+        ):
+            build_method_catalog_snapshot(
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+            )
+
+
+def test_governed_snapshot_rejects_same_fqn_override_during_build(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        target_fqn = report.registry_fqns[0]
+        original = registry.get(target_fqn)
+        from polisyos.foundry.methods.catalog import snapshot as snapshot_module
+
+        real_available_backends = snapshot_module._available_execution_backends
+
+        def _override_after_admission() -> set[str]:
+            class MidBuildOverride:
+                signature = original.signature
+                metadata = replace(
+                    original.metadata,
+                    description="same-FQN override injected after admission",
+                )
+
+                @staticmethod
+                def pure_step(state, params):
+                    return original.pure_step(state, params)
+
+            registry.register(MidBuildOverride, override=True)
+            return real_available_backends()
+
+        monkeypatch.setattr(
+            snapshot_module,
+            "_available_execution_backends",
+            _override_after_admission,
+        )
+
+        with pytest.raises(
+            MethodCatalogDiscoveryProvenanceError,
+            match="catalog_registry_admission_content_mismatch",
+        ):
+            build_method_catalog_snapshot(
+                registry=registry,
+                registry_report=report,
+                require_bound_discovery=True,
+            )
+
+
+def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    assert report.discovery_manifest is not None
+    with pytest.raises(
+        MethodCatalogDiscoveryProvenanceError,
+        match="catalog_ambient_source_policy_mismatch",
+    ):
+        build_method_catalog_provenance_manifest(
+            snapshot,
+            registry_report=report,
+            ambient_manifest=report.discovery_manifest,
+        )
+
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    assert ambient_report.manifest is not None
+    provenance = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=report,
+        ambient_manifest=ambient_report.manifest,
+    )
+
+    assert provenance["governed_discovery"]["registry_binding_sha256"] == (
+        report.registry_binding_sha256
+    )
+
+
+def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    identity = build_method_catalog_runtime_identity(snapshot)
+
+    assert identity["schema_version"] == "policyos.method_catalog_runtime_identity.v1"
+    assert identity["identity_id"].startswith("method_catalog_runtime_identity_")
+    assert identity["entry_runtime_binding_count"] == len(snapshot.entries)
+    assert identity["backend_fingerprints"]
+    runtime_packages = {row["name"]: row for row in identity["runtime_packages"]}
+    assert runtime_packages["python"]["version"]
+    assert runtime_packages["policy-engine"]["version"]
+    expected_fingerprints = {
+        (
+            str(entry.capability_matrix["runtime_posture"]["backend"]),
+            str(entry.capability_matrix["runtime_posture"]["fingerprint"]),
+        )
+        for entry in snapshot.entries
+    }
+    assert {
+        (str(row["backend"]), str(row["fingerprint"])) for row in identity["backend_fingerprints"]
+    } == expected_fingerprints
+
+
+def test_catalog_runtime_identity_fails_closed_without_policy_engine_package(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.snapshot.safe_version",
+        lambda package_name: None if package_name == "policy-engine" else "test-version",
+    )
+
+    with pytest.raises(
+        MethodCatalogDiscoveryProvenanceError,
+        match="catalog_runtime_package_identity_missing:policy-engine",
+    ):
+        build_method_catalog_runtime_identity(snapshot)
+
+
 def test_method_catalog_snapshot_contains_stable_entries() -> None:
     ensure_all_methods_registered()
     registered_fqns = tuple(
-        sorted(
-            entry.fqn
-            for entry in MethodRegistry.get_instance().snapshot().entries()
-        )
+        sorted(entry.fqn for entry in MethodRegistry.get_instance().snapshot().entries())
     )
     first = build_method_catalog_snapshot(run_id="R_catalog")
     second = build_method_catalog_snapshot(run_id="R_catalog")
@@ -77,20 +364,20 @@ def test_value_projection_and_joint_simulation_output_axes_compose() -> None:
         registry.register(_ComposedOutputMethod)
         snapshot = build_method_catalog_snapshot(registry=registry)
         entry = next(
-            item
-            for item in snapshot.entries
-            if item.fqn == _ComposedOutputMethod.signature.fqn
+            item for item in snapshot.entries if item.fqn == _ComposedOutputMethod.signature.fqn
         )
 
     assert entry.capability_matrix["value_projection_contracts"]
     assert "joint_simulation_output_shape" in entry.assumptions
     assert "joint_simulation_equilibrium_semantics" in entry.assumptions
-    assert _ComposedOutputMethod.metadata.assumptions[
-        "joint_simulation_output_shape"
-    ] == "time_series_trajectory"
-    assert _ComposedOutputMethod.metadata.assumptions[
-        "joint_simulation_equilibrium_semantics"
-    ] == "dynamic_SCM"
+    assert (
+        _ComposedOutputMethod.metadata.assumptions["joint_simulation_output_shape"]
+        == "time_series_trajectory"
+    )
+    assert (
+        _ComposedOutputMethod.metadata.assumptions["joint_simulation_equilibrium_semantics"]
+        == "dynamic_SCM"
+    )
 
 
 @pytest.mark.skipif(

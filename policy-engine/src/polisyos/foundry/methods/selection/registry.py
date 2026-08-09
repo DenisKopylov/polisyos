@@ -962,6 +962,18 @@ class MethodRegistry:
                 timestamp=self._last_modified,
             )
 
+    @contextmanager
+    def snapshot_scope(self) -> Generator[RegistrySnapshot]:
+        """Yield one registry snapshot while excluding concurrent mutations."""
+        with self._reg_lock:
+            yield RegistrySnapshot(
+                methods={
+                    fqn: RegistrySnapshotEntry.from_entry(entry)
+                    for fqn, entry in self._entries.items()
+                },
+                timestamp=self._last_modified,
+            )
+
     # ---------------------------------------------------------------------
     # Container Protocol
     # ---------------------------------------------------------------------

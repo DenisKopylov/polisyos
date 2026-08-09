@@ -658,27 +658,37 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     assert "frozen_positive_receipt" not in payload
     assert "frozen_value_receipts" not in payload
     assert "decisive_mutations" not in payload
-    assert {
-        row["mutation_id"] for row in payload["decisive_mutation_expectations"]
-    } == set(value_contract.EXPECTED_MUTATION_IDS)
+    assert {row["mutation_id"] for row in payload["decisive_mutation_expectations"]} == set(
+        value_contract.EXPECTED_MUTATION_IDS
+    )
     assert all(
-        row["expected_result"] == "RED"
-        and "observed_result" not in row
-        and "result" not in row
+        row["expected_result"] == "RED" and "observed_result" not in row and "result" not in row
         for row in payload["decisive_mutation_expectations"]
     )
     expected_denominators = value_contract._catalog_denominators()
     assert payload["denominators"] == expected_denominators
-    assert payload["denominators"]["registered_method_count"] == payload[
-        "denominators"
-    ]["catalog_entry_count"]
+    assert (
+        payload["denominators"]["registered_method_count"]
+        == payload["denominators"]["catalog_entry_count"]
+    )
     assert payload["denominators"]["value_capable_method_count"] == len(
         payload["denominators"]["value_capable_methods"]
     )
+    provenance = payload["denominators"]["catalog_provenance"]
+    assert provenance["governed_discovery"]["source_policy"] == {
+        "include_builtins": True,
+        "include_entry_points": False,
+        "include_dev_scan": False,
+    }
+    ambient_admission = provenance["ambient_discovery"]["admission"]
+    assert ambient_admission["status"] in {
+        "quarantined_unbound",
+        "declared_not_admitted",
+    }
+    assert ambient_admission["included_in_governed_denominator"] is False
+    assert ambient_admission["fail_closed_action"] == "quarantine"
     assert len(payload["native_projector_contract_proofs"]) == 6
-    assert {
-        proof["family"] for proof in payload["native_projector_contract_proofs"]
-    } == {
+    assert {proof["family"] for proof in payload["native_projector_contract_proofs"]} == {
         "posterior",
         "econometric",
         "forecasting",
@@ -696,32 +706,220 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     )
     production = payload["production_refusal"]
     assert production["status"] == "value_blocked"
-    assert production["authority_blockers"] == [
-        "acquire_data:value_panel_data_missing"
-    ]
+    assert production["authority_blockers"] == ["acquire_data:value_panel_data_missing"]
     assert production["selection_stage"] == "not_reached_owner_data_unavailable"
     assert production["selected_method_fqn"] is None
     assert production["method_selection_receipt"] is None
-    assert production["owner_availability"]["variable_id"] == (
-        "employment_retention"
-    )
+    assert production["owner_availability"]["variable_id"] == ("employment_retention")
     assert production["value_receipt"] is None
     route = payload["acquisition_routing"]
     assert route["terminal_kind"] == "acquisition_required"
     assert route["simulated_reentry"] is False
     assert route["acquisition_receipt"] is None
-    assert route["requirement_gap"]["metadata"]["source"] == (
-        "l1_dcat_variable_availability"
-    )
+    assert route["requirement_gap"]["metadata"]["source"] == ("l1_dcat_variable_availability")
     assert route["planner_report"]["status"] == "pass"
-    assert route["planner_report"]["acquisition_records"][0][
-        "recommended_strategy"
-    ] == "production_snapshot_build"
+    assert (
+        route["planner_report"]["acquisition_records"][0]["recommended_strategy"]
+        == "production_snapshot_build"
+    )
     education = payload["education_refusal"]
     assert education["status"] == "value_blocked"
     assert education["authority_blockers"] == ["method_estimand_binding_mismatch"]
     assert education["method_selection_receipt"] is not None
     assert education["value_receipt"] is None
+
+
+def _catalog_provenance_comparison_fixture() -> dict[str, Any]:
+    return {
+        "schema_version": "policyos.method_catalog_provenance_manifest.v1",
+        "provenance_id": "method_catalog_provenance_fixture",
+        "governed_discovery": {
+            "source_policy": {
+                "include_builtins": True,
+                "include_entry_points": False,
+                "include_dev_scan": False,
+            },
+            "manifest_id": "component_discovery_manifest_builtin",
+            "component_count": 389,
+            "component_set_sha256": _hash("1"),
+            "registry_fqn_set_sha256": _hash("2"),
+            "registry_binding_sha256": _hash("8"),
+            "unbound_inputs": [],
+        },
+        "ambient_discovery": {
+            "source_policy": {
+                "include_builtins": False,
+                "include_entry_points": True,
+                "include_dev_scan": True,
+            },
+            "manifest_id": "component_discovery_manifest_ambient",
+            "entry_points": [
+                {
+                    "group": "polisyos.foundry_methods",
+                    "name": "example.weighted_average",
+                    "value": "example:factory",
+                    "distribution_name": "example",
+                    "distribution_version": "1.0.0",
+                    "entry_points_sha256": _hash("3"),
+                    "direct_url_sha256": _hash("4"),
+                    "editable_install": True,
+                    "source_byte_closure": "not_established",
+                }
+            ],
+            "dev_scan_roots": [],
+            "dev_scan_files": [],
+            "component_count": 1,
+            "component_set_sha256": _hash("5"),
+            "added_component_ids": ["example.weighted_average@1.0.0"],
+            "overlap_component_count": 0,
+            "overlap_component_set_sha256": _hash("6"),
+            "unbound_inputs": ["entry_point_source_byte_closure_not_established"],
+            "admission": {
+                "status": "quarantined_unbound",
+                "included_in_governed_denominator": False,
+                "fail_closed_action": "quarantine",
+            },
+        },
+        "runtime_backend_identity": {
+            "identity_id": "method_catalog_runtime_identity_fixture",
+            "runtime_packages": [
+                {"name": "policy-engine", "version": "0.1.0"},
+                {"name": "python", "version": "3.14.0"},
+            ],
+            "backend_fingerprints": [{"backend": "numpy", "fingerprint": "fingerprint-a"}],
+            "entry_runtime_binding_count": 389,
+            "entry_runtime_bindings_sha256": _hash("7"),
+        },
+        "predicate_provenance": [
+            {
+                "predicate": "governed.source_policy",
+                "classification": "recomputed",
+                "decisive": True,
+                "fail_closed_action": "reject",
+            },
+            {
+                "predicate": "ambient.entry_point_source_byte_closure",
+                "classification": "not_established",
+                "decisive": False,
+                "fail_closed_action": "quarantine",
+            },
+        ],
+        "predicate_bindings": {},
+        "predicate_admission_policy": [
+            {
+                "classification": "recomputed",
+                "admitted": True,
+                "fail_closed_action": None,
+            },
+            {
+                "classification": "independently_reconciled",
+                "admitted": True,
+                "fail_closed_action": None,
+            },
+            *[
+                {
+                    "classification": classification,
+                    "admitted": False,
+                    "fail_closed_action": "reject_or_quarantine",
+                }
+                for classification in (
+                    "consumer_asserted",
+                    "institutionally_supplied",
+                    "not_established",
+                )
+            ],
+        ],
+    }
+
+
+def test_n8_catalog_provenance_names_environment_before_count_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected_denominators = value_contract._catalog_denominators()
+    recorded_denominators = copy.deepcopy(expected_denominators)
+    entry_points = recorded_denominators["catalog_provenance"]["ambient_discovery"][
+        "entry_points"
+    ]
+    if entry_points:
+        entry_points[0]["distribution_name"] = "different-environment"
+    else:
+        entry_points.append(
+            {
+                "group": "polisyos.foundry_methods",
+                "name": "different-environment",
+                "value": "different_environment:factory",
+                "distribution_name": "different-environment",
+                "distribution_version": "0",
+                "entry_points_sha256": _hash("9"),
+                "direct_url_sha256": None,
+                "editable_install": None,
+                "source_byte_closure": "not_established",
+            }
+        )
+    recorded_denominators["registered_method_count"] += 1
+    monkeypatch.setattr(
+        value_contract,
+        "_catalog_denominators_cached",
+        lambda: expected_denominators,
+    )
+    payload = {
+        "schema_version": value_contract.SCHEMA_VERSION,
+        "rule_version": value_contract.VALUE_GATE_RULE_VERSION,
+        "denominators": recorded_denominators,
+    }
+
+    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+
+    assert "catalog_entry_point_distribution_manifest_mismatch" in codes
+    assert "catalog_method_denominator_drift" not in codes
+
+
+def test_n8_catalog_predicate_bindings_cover_every_denominator_field() -> None:
+    denominators = value_contract._catalog_denominators()
+    provenance = denominators["catalog_provenance"]
+    bindings = provenance["predicate_bindings"]
+    predicate_names = {
+        row["predicate"] for row in provenance["predicate_provenance"]
+    }
+
+    assert set(bindings) == set(denominators) - {"catalog_provenance"}
+    assert all(references for references in bindings.values())
+    assert all(
+        reference in predicate_names
+        for references in bindings.values()
+        for reference in references
+    )
+    corrupt = copy.deepcopy(provenance)
+    corrupt["predicate_bindings"].pop("registered_method_count")
+
+    codes = {
+        issue["code"]
+        for issue in value_contract._catalog_provenance_issues(
+            corrupt,
+            provenance,
+            denominator_fields=frozenset(denominators) - {"catalog_provenance"},
+        )
+    }
+
+    assert "catalog_predicate_binding_coverage_mismatch" in codes
+
+
+@pytest.mark.parametrize(
+    "classification",
+    ["consumer_asserted", "institutionally_supplied", "not_established"],
+)
+def test_n8_catalog_provenance_fails_decisive_untrusted_predicates_closed(
+    classification: str,
+) -> None:
+    expected = _catalog_provenance_comparison_fixture()
+    recorded = copy.deepcopy(expected)
+    recorded["predicate_provenance"][0]["classification"] = classification
+
+    codes = {
+        issue["code"] for issue in value_contract._catalog_provenance_issues(recorded, expected)
+    }
+
+    assert "catalog_predicate_provenance_not_admissible" in codes
 
 
 def test_n8_transport_component_proofs_are_live_and_data_derived() -> None:

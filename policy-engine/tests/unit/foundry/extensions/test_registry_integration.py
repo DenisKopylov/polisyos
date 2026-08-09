@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
+
+import pytest
 
 from polisyos.core.components import DuplicateComponentIdPolicy
 from polisyos.foundry.extensions import (
+    UnboundFoundryDiscoveryInputError,
     bootstrap_builtin_foundry_method_family,
     bootstrap_foundry_method_registry,
     build_foundry_method_components_index,
@@ -22,6 +27,19 @@ from polisyos.foundry.methods import (
     Unit,
 )
 from polisyos.foundry.methods.registry import registry_scope
+
+
+@dataclass(frozen=True)
+class _UnboundEntryPoint:
+    name: str
+    value: str
+    component: object
+    module: str = "unbound_plugin"
+    attr: str = "plugin"
+    dist: None = None
+
+    def load(self) -> object:
+        return self.component
 
 
 def test_builtin_loader_exposes_methods_as_components() -> None:
@@ -109,3 +127,77 @@ def test_component_for_method_is_external_author_contract() -> None:
     assert registered == "external.method.demo@1.0.0"
     assert str(plugin.metadata.component_id) == registered
     assert plugin.metadata.abi_targets == {"foundry_methods_api": ">=3.5.0,<4.0.0"}
+
+
+def test_foundry_bootstrap_fails_closed_before_registering_unbound_entry_point(
+    monkeypatch,
+) -> None:
+    unit = Unit("dimensionless", "1")
+
+    class UnboundMethod:
+        signature = MethodSignature(
+            name="unbound",
+            namespace="external.method",
+            version="1.0.0",
+            input_slots=frozenset({SlotSpec("x", SlotType.SCALAR, unit)}),
+            output_slots=frozenset({SlotSpec("y", SlotType.SCALAR, unit)}),
+            parameters=(),
+            fidelity=FidelityLevel.LOW,
+            complexity=ComplexityClass.O_1,
+            backend=ComputeBackend.NUMPY,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
+        )
+        metadata = MethodMetadata(description="Unbound entry-point method")
+
+        @staticmethod
+        def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> Mapping[str, Any]:
+            del params
+            return {"y": state["x"]}
+
+    plugin = component_for_method(UnboundMethod, domains=["external"])
+    entry_point = _UnboundEntryPoint(
+        name="external.method.unbound",
+        value="unbound_plugin:plugin",
+        component=plugin,
+    )
+    monkeypatch.setattr(
+        "polisyos.core.components.discovery.list_entry_points",
+        lambda *, group: [entry_point],
+    )
+
+    with registry_scope() as registry:
+        with pytest.raises(
+            UnboundFoundryDiscoveryInputError,
+            match="entry_point_distribution_identity_not_established",
+        ):
+            bootstrap_foundry_method_registry(
+                registry,
+                include_builtins=False,
+                include_entry_points=True,
+                include_dev_scan=False,
+                require_bound_discovery_manifest=True,
+            )
+        assert registry.list_all() == []
+
+
+def test_foundry_bootstrap_fails_closed_on_declared_missing_dev_root(
+    tmp_path: Path,
+) -> None:
+    missing_root = tmp_path / "declared-missing-pack-root"
+
+    with registry_scope() as registry:
+        with pytest.raises(
+            UnboundFoundryDiscoveryInputError,
+            match="dev_scan_root_not_found",
+        ):
+            bootstrap_foundry_method_registry(
+                registry,
+                include_builtins=False,
+                include_entry_points=False,
+                include_dev_scan=True,
+                dev_scan_paths=[missing_root],
+                require_bound_discovery_manifest=True,
+            )
+        assert registry.list_all() == []

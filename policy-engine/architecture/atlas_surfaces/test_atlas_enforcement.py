@@ -61,6 +61,44 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
 
+    def test_limited_semantic_id_cannot_upgrade_strength(self) -> None:
+        registry = checker._load_authority_semantic_copy_registry()
+        registry["copies"][0]["strength"] = "publishable"
+
+        self.assertIn(
+            "authority_semantic_copy_registry_schema_invalid",
+            checker._authority_semantic_copy_errors(registry),
+        )
+
+    def test_may_not_use_for_cannot_become_optional_recommendation(self) -> None:
+        registry = checker._load_authority_semantic_copy_registry()
+        registry["copies"][0]["source_token"] = "optional_recommendation"
+
+        self.assertIn(
+            "authority_semantic_copy_closed_source_token_drift",
+            checker._authority_semantic_copy_errors(registry),
+        )
+
+    def test_authority_copy_requires_branded_semantic_receipt(self) -> None:
+        registry = checker._load_authority_semantic_copy_registry()
+        registry["copies"][0]["review"]["status"] = "accepted"
+
+        self.assertIn(
+            "authority_semantic_copy_accepted_receipt_missing",
+            checker._authority_semantic_copy_errors(registry),
+        )
+
+    def test_semantic_id_has_one_active_copy_per_locale_and_scope(self) -> None:
+        registry = checker._load_authority_semantic_copy_registry()
+        duplicate = copy.deepcopy(registry["copies"][0])
+        duplicate["reviewed_output"] = "Another limited harm-risk authority"
+        registry["copies"].append(duplicate)
+
+        self.assertIn(
+            "authority_semantic_copy_active_duplicate:phase34.harm.risk.limited:en:governed_projection.rights_bar",
+            checker._authority_semantic_copy_errors(registry),
+        )
+
     def _validate(
         self,
         package_source: str,

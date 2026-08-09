@@ -1,0 +1,24 @@
+{
+  "$schema": "./authority-semantic-copy-registry.schema.json",
+  "schema_version": "1.0",
+  "registry_id": "atlas-authority-semantic-copy",
+  "copies": [
+    {
+      "semantic_id": "phase34.harm.risk.limited",
+      "source_token": "harm_risk",
+      "strength": "limited",
+      "authority_class": "harm_risk",
+      "locale": "en",
+      "scope": "governed_projection.rights_bar",
+      "reviewed_output": "Limited harm-risk authority",
+      "content_sha256": "sha256:28fb42a4a99f4293d47318a3cb821e26c3f83482583bbba7f12459d32db23a07",
+      "active": true,
+      "review": {
+        "status": "verification_missing",
+        "reviewer_identity": "external-reviewer:unreceived",
+        "reviewer_version": "unreceived",
+        "reviewer_scope": "authority-copy.en.governed_projection.rights_bar"
+      }
+    }
+  ]
+}

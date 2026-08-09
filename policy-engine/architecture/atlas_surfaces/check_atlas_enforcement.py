@@ -20,6 +20,14 @@ from typing import Any, Literal, NamedTuple
 ATLAS_DIR = Path(__file__).resolve().parent
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
+AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH = ATLAS_DIR / "authority-semantic-copy-registry.json"
+AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH = ATLAS_DIR / "authority-semantic-copy-registry.schema.json"
+AUTHORITY_SEMANTIC_COPY_ISSUER_PATH = (
+    "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
+)
+AUTHORITY_SEMANTIC_COPY_CONSUMER_PATH = (
+    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+)
 
 _SPEC = importlib.util.spec_from_file_location("status_retirement_checker", STATUS_CHECKER_PATH)
 if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import guard
@@ -667,6 +675,76 @@ def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"sha256:[a-f0-9]{64}", value) is not None
 
 
+def _load_authority_semantic_copy_registry() -> dict[str, Any]:
+    """Load the local semantic-copy registry without inventing owner vocabulary."""
+    return status_checker._load_json(AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH)
+
+
+def _authority_semantic_copy_errors(registry: Mapping[str, Any]) -> list[str]:
+    """Validate local registry/issuer construction and identity uniqueness only."""
+    errors = [
+        "authority_semantic_copy_registry_schema_invalid"
+        for _ in status_checker._schema_errors(
+            registry,
+            AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH,
+            "authority-semantic-copy-registry",
+        )
+    ]
+    copies = registry.get("copies")
+    if not isinstance(copies, list):
+        return sorted(set(errors + ["authority_semantic_copy_registry_copies_invalid"]))
+
+    active: set[tuple[str, str, str]] = set()
+    for row in copies:
+        if not isinstance(row, Mapping):
+            continue
+        semantic_id = row.get("semantic_id")
+        locale = row.get("locale")
+        scope = row.get("scope")
+        if row.get("active") is True and all(
+            isinstance(value, str) for value in (semantic_id, locale, scope)
+        ):
+            identity = (semantic_id, locale, scope)
+            if identity in active:
+                errors.append("authority_semantic_copy_active_duplicate:" + ":".join(identity))
+            active.add(identity)
+        if semantic_id == "phase34.harm.risk.limited":
+            if row.get("source_token") != "harm_risk":
+                errors.append("authority_semantic_copy_closed_source_token_drift")
+            if row.get("strength") != "limited":
+                errors.append("authority_semantic_copy_closed_strength_drift")
+            if row.get("authority_class") != "harm_risk":
+                errors.append("authority_semantic_copy_closed_authority_class_drift")
+        review = row.get("review")
+        if isinstance(review, Mapping) and review.get("status") == "accepted":
+            errors.append("authority_semantic_copy_accepted_receipt_missing")
+
+    issuer_path = status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_ISSUER_PATH
+    consumer_path = status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_CONSUMER_PATH
+    if not issuer_path.exists() or not consumer_path.exists():
+        return sorted(set(errors + ["authority_semantic_copy_issuer_or_consumer_missing"]))
+    issuer = issuer_path.read_text(encoding="utf-8")
+    consumer = consumer_path.read_text(encoding="utf-8")
+    issuer_facts = (
+        "const authoritySemanticCopyBrand: unique symbol",
+        "const authoritySemanticCopyIssuances = new WeakSet<object>()",
+        "return Object.freeze(issued)",
+        "function assertAuthoritySemanticCopy",
+        "function assertReceipt",
+    )
+    if any(fact not in issuer for fact in issuer_facts):
+        errors.append("authority_semantic_copy_private_issuer_drift")
+    if "export { authoritySemanticCopyBrand" in issuer or "export { issuePresentation" in issuer:
+        errors.append("authority_semantic_copy_private_issuer_exported")
+    if (
+        "<AuthoritySemanticCopyBadge" not in consumer
+        or "presentMayNotUseFor({" not in consumer
+        or "data-may-not-use-for" in consumer
+    ):
+        errors.append("authority_semantic_copy_consumer_binding_drift")
+    return sorted(set(errors))
+
+
 def _authority_issuer_errors(scan: Mapping[str, Any]) -> list[str]:
     """Validate branded issuer construction sites without modeling value flow."""
     errors: list[str] = []
@@ -1071,6 +1149,7 @@ def validate_enforcement(
         )
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
+        errors.extend(_authority_semantic_copy_errors(_load_authority_semantic_copy_registry()))
         errors.extend(status_checker.validate_inventory(inventory, debt, live_probes=True))
         disposition = disposition_checker._load_json(disposition_checker.REGISTER_PATH)
         errors.extend(

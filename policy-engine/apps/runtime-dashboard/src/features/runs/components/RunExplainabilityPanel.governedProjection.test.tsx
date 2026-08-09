@@ -171,6 +171,15 @@ describe("RunExplainabilityPanel governed projection", () => {
       "data-presentation-tone",
       "neutral",
     );
+    const limitedPurpose = within(projection).getByText("run_closeout");
+    expect(limitedPurpose).toHaveAttribute(
+      "data-semantic-id",
+      "generated:DepthNCycleBoardProjection.may_not_use_for:run_closeout",
+    );
+    expect(limitedPurpose).toHaveAttribute(
+      "data-authority-class",
+      "verification_missing",
+    );
   });
 
   it("marks typed artifact absence as fixture-only and blocks authority posture", () => {

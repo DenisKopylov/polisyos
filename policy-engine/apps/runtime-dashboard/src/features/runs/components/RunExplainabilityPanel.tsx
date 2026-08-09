@@ -40,6 +40,10 @@ import { WeakestLinkExplainer } from "@/shared/ui/compounds/WeakestLinkExplainer
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import {
+  AuthoritySemanticCopyBadge,
+  presentMayNotUseFor,
+} from "@/shared/ui/AuthoritySemanticCopy";
+import {
   AuthorityBadge,
   Badge,
   Card,
@@ -436,13 +440,13 @@ function GovernedDepthProjection({
           </p>
           <div className="flex flex-wrap gap-2">
             {packet.may_not_use_for.map((purpose) => (
-              <Badge
-                data-may-not-use-for={purpose}
-                kind="outline"
+              <AuthoritySemanticCopyBadge
+                presentation={presentMayNotUseFor({
+                  ownerToken: purpose,
+                  scope: "governed_projection.rights_bar",
+                })}
                 key={purpose}
-              >
-                {purpose}
-              </Badge>
+              />
             ))}
           </div>
         </div>

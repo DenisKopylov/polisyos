@@ -154,6 +154,10 @@ _CYCLE_SUBSTRATE_MUTATION_EXPECTED_CODES = {
     "lever_registry_binding_rewrite": "cycle_substrate_lever_registry_binding_mismatch",
     "alternate_valid_l2_repoint": ("cycle_substrate_registry_selected_entry_not_query_owner"),
 }
+_SMOKE_TERMINAL_MUTATION_EXPECTED_CODES = {
+    "terminal_execution_status": "smoke_terminal_not_honest",
+    "promotion_verification_boundary": "smoke_promotion_verification_boundary_invalid",
+}
 
 ARTIFACT_OUTPUTS = (
     CENSUS_OUTPUT,
@@ -573,10 +577,6 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "manifest_content_hash"
     )
     corrupted["pack"]["content_addressing"] = addressing
-    corrupted["cycle_trace"]["execution_status"] = "crashed"
-    corrupted["cycle_trace"]["generation_cycle_run"]["promotion_port"][
-        "reason"
-    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
     stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
     stage_generation = _mapping(stage_attempts.get("generation"))
     stage_generation["generation_channel"] = "grammar_fallback"
@@ -655,6 +655,21 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         elif expected_mutation_code not in mutation_codes:
             per_mutation_missing.add(f"{mutation_id}:{expected_mutation_code}")
         all_issues.extend(mutation_issues)
+    smoke_mutation_results: list[dict[str, Any]] = []
+    for mutation_id, mutation in _smoke_terminal_corruption_bundles(bundle):
+        mutation_issues = validate_bundle_payloads(mutation, root)
+        mutation_codes = sorted(
+            {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
+        )
+        smoke_mutation_results.append(
+            {"mutation_id": mutation_id, "detected_codes": mutation_codes}
+        )
+        expected_mutation_code = _SMOKE_TERMINAL_MUTATION_EXPECTED_CODES.get(mutation_id)
+        if expected_mutation_code is None:
+            per_mutation_missing.add(f"{mutation_id}:mutation_expectation_missing")
+        elif expected_mutation_code not in mutation_codes:
+            per_mutation_missing.add(f"{mutation_id}:{expected_mutation_code}")
+        all_issues.extend(mutation_issues)
     codes = sorted({str(issue.get("code")) for issue in all_issues if issue.get("code")})
     expected = {
         "pack_entry_not_owner_derived",
@@ -691,8 +706,48 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "status": "fail" if not missing else "pass",
         "issues": [{"code": "corrupt_field_drift_detected", "detected": codes}, *issues],
         "cycle_substrate_mutation_results": mutation_results,
+        "smoke_terminal_mutation_results": smoke_mutation_results,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
+
+
+def _smoke_terminal_corruption_bundles(
+    bundle: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    """Build one valid smoke world for each terminal-boundary mutation."""
+
+    terminal_status = copy.deepcopy(bundle)
+    terminal_status["cycle_trace"]["execution_status"] = "crashed"
+    _rehash_smoke_terminal_mutation(terminal_status)
+
+    promotion_boundary = copy.deepcopy(bundle)
+    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"][
+        "reason"
+    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    _rehash_smoke_terminal_mutation(promotion_boundary)
+
+    return [
+        ("terminal_execution_status", terminal_status),
+        ("promotion_verification_boundary", promotion_boundary),
+    ]
+
+
+def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
+    """Refresh the trace and pack identities downstream of a smoke mutation."""
+
+    bundle["cycle_trace"] = _with_content_hash(
+        bundle["cycle_trace"],
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"][
+        "trace_content_hash"
+    ]
+    bundle["pack"] = _with_content_hash(
+        bundle["pack"],
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
 
 
 def _cycle_substrate_corruption_bundles(

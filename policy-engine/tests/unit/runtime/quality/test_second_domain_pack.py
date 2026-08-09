@@ -1270,6 +1270,60 @@ def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
     assert "coordinated_query_rewrite:cycle_substrate_registry_query_census_mismatch" in missing
 
 
+def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Require the promotion mutation to reach its own real consumer."""
+
+    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    results = {
+        item["mutation_id"]: set(item["detected_codes"])
+        for item in report["smoke_terminal_mutation_results"]
+    }
+
+    assert report["status"] == "fail"
+    assert "smoke_terminal_not_honest" in results["terminal_execution_status"]
+    assert (
+        "smoke_promotion_verification_boundary_invalid"
+        in results["promotion_verification_boundary"]
+    )
+
+    real_mutations = second_domain_pack._smoke_terminal_corruption_bundles
+
+    def _remove_promotion_property_keep_markers(
+        bundle: dict[str, object],
+    ) -> list[tuple[str, dict[str, object]]]:
+        return [
+            (
+                mutation_id,
+                copy.deepcopy(bundle)
+                if mutation_id == "promotion_verification_boundary"
+                else payload,
+            )
+            for mutation_id, payload in real_mutations(bundle)
+        ]
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_smoke_terminal_corruption_bundles",
+        _remove_promotion_property_keep_markers,
+    )
+
+    removed = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    missing = {
+        item
+        for issue in removed["issues"]
+        if issue["code"] == "corrupt_field_drift_not_detected"
+        for item in issue["missing"]
+    }
+
+    assert removed["status"] == "pass"
+    assert (
+        "promotion_verification_boundary:"
+        "smoke_promotion_verification_boundary_invalid"
+    ) in missing
+
+
 def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head(
     live_bundle: dict[str, object],
 ) -> None:

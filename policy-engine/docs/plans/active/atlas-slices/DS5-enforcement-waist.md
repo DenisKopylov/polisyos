@@ -199,7 +199,7 @@ byte-unmodified. Any new identity is red.
 | governed projection audiences | entry 13 definitions: 5 EXPERT, 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 adds one source-bound EXPERT G4 definition, producing the C07 entry denominator 14 = 6 EXPERT + 8 MACHINE; C07 enforces all four classes without relabeling the 13 existing definitions |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
-| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-R1 governs semantic-copy issuance without claiming human review complete |
+| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 2 stores; queue has exactly 2 kinds | promotion approve/reject barred; composer drafts enveloped |
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
@@ -682,7 +682,7 @@ first continuously numbered `-R1` successor.
 | C03b | 12 | 13 | no-fit | C03b-R1 / 13 |
 | C04a | 10 | 11 | no-fit | C04a-R1 / 11 |
 | C05a | 10 | 11 | no-fit | C05a-R1 / 11 |
-| C05b | 11 | 12 | no-fit | C05b-R1 / 12 |
+| C05b | 6 | 7 | record-only | C05b-D2 / 7 |
 | C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
 | C07 | 26 | 25 | FIT | C07 / 26 (already fit) |
 | C08b | 10 | 11 | no-fit | C08b-R1 / 11 |
@@ -718,7 +718,7 @@ C13a retain their IDs and caps because their corrected sets already fit.
 | DS1 raw-transport historical receipt | C03a-R1 | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
 | hardcoded capability fallback / `cache-query-memory` | C04a-R1-C04b then C11a-C12b-R1 | fallback removed in C04a-R1 and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
 | `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
-| `authority-presentation-governed-projection-rights-bar` | C05b-R1 then C10-R1 | the C01a debt row drops `bridge_missing` and `semantic_test_missing` after the private semantic-ID issuer and strength-upgrade negatives land; it remains `rebind_pending/open_debt` with `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; deferred C10-R1 retains the supplemental owner integrate-contract rather than reopening raw copy |
+| `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C10-R1 | record-only DS5 debt for the private issuer/generated `may_not_use_for` guard → RunExplainabilityPanel branded consumer → direct-Badge census transition; it remains `rebind_pending/open_debt` with producer/bridge/consumer/verification/semantic-test debt while DS6 accepted human-review receipts remain 0 |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
 | audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
@@ -1140,6 +1140,22 @@ same-word/different-ID control passes. C05b-R1 claims the mechanical
 receipt/issuer gate, not completed human semantic review.
 
 **Expected commit:** `DS5-C05b-R1 anchor authority copy by semantic ID`.
+
+### DS5-C05b-D2 — record-only semantic-copy issuer/panel deferral
+
+**Status:** C05b implementation is **Not yet** and deferred. D2 records only the
+typed DS5 `producer_binding_debt`; it does not implement the private issuer,
+generated `AvailableGovernedProjectionPacket.may_not_use_for` declaration/runtime
+guard, RunExplainabilityPanel consumer, direct-Badge census transition, or DS6 review.
+
+**Measured set:** exactly 7 record paths: disposition checker/test, register/report,
+induced DS19 status-hash pin, this plan, and journal. No product, schema, panel,
+enforcement, scanner, catalog, DS6, or backend path is in scope.
+
+**Acceptance:** the descriptor-derived row remains `rebind_pending/open_debt` with
+the five named missing states; its simple two-test command is nonzero until both
+future issuer and panel/census tests execute and pass. Accepted DS6 review receipts
+remain 0. **Expected subject:** `DS5-C05b-D2 record semantic-copy deferral`.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
@@ -1869,6 +1885,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C04b-D1 | `DS5-C04b-D1 record capability discovery deferral` | 7 |
 | C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |
 | C05b-R1 | `DS5-C05b-R1 anchor authority copy by semantic ID` | 12 |
+| C05b-D2 | `DS5-C05b-D2 record semantic-copy deferral` | 7 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
 | C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |

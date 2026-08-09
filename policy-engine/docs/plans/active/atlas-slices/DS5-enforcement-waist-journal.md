@@ -1,5 +1,57 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C05b-D2 record-only deferral
+
+- C05b implementation is **Not yet**. This seven-path record adds no semantic-copy
+  issuer, generated packet guard, panel consumer, direct-Badge transition, scanner,
+  catalog, DS6 review, or backend work.
+- History retained: R1 checkpoint/revert `932d65c4→ba55b71`; R2
+  checkpoint/revert `ac24327c3→216ff491`; rejected D1 checkpoint/revert
+  `d31ae0e3→6893f91`. Three attempts/fix rounds stop at the architect's deferral
+  boundary; no third implementation repair is authorized.
+- Red first was
+  `test_semantic_copy_deferral_uses_simple_dual_test_closure_signal`: it was absent
+  with descriptor and row absent. The descriptor is now the sole producer of the
+  row and preserves the corrected direct-Badge census `42/2/2`, the one-plane
+  issuer → generated `AvailableGovernedProjectionPacket.may_not_use_for` guard →
+  real `RunExplainabilityPanel` branded consumer → frontend census transition.
+- Its closure is the corrected 42-row simple named-command+condition idiom: exactly
+  two future test IDs, no embedded command/helper/wrapper/loader/custom exit code.
+  The generic authority corruption battery remains separate. The stronger mechanism
+  is a separate cluster, not a new D2 obligation.
+- DS6 human semantic review remains untouched; accepted receipts are 0. The
+  checkpoint/revert history and live consumer/census are evidence of pending work,
+  never a claim that the missing producer, bridge, consumer, verification, or
+  semantic test exists.
+- Nonreceipt: the first chained focused-test/writer/hash/checker invocation was
+  terminated by coordinator safety control before any register, report, or inventory
+  write and without a terminal test receipt; it is excluded from the evidence set.
+- Nonreceipt: detached overlapping frontend-suite/checker/status-suite lanes were
+  self-started without terminal receipts and terminated before serialized rerun;
+  neither their partial output nor a wrapper completion is treated as a passing gate.
+
+| Worker | Tier | Bounded report cost | Payoff / result |
+| --- | --- | ---: | --- |
+| `ds5_c05b_d2_impl` | terra | record-only | Descriptor-derived D2 row and seven-path receipt. |
+
+- Orchestration receipt: native Terra resolved the swarm external-runner conflict;
+  0 Sol workers and 0 Sol temptations/escalations. Candidate is unstaged and
+  uncommitted for independent review.
+
+### Independent review and final post-review receipts
+
+- Independent review: GO `0/0/0` (Critical/Important/Minor) under the corrected
+  42-simple-sibling bar. It accepted the record-only descriptor, two future test IDs,
+  hash-only DS19 re-anchor, and separation of the stronger implementation cluster.
+- One serialized post-review wave, with no overlapping process and no writer rerun:
+  frontend disposition 47/47 in 59.616s; frontend checker/corruptions PASS in
+  78.26s; status retirement 38/38 in 94.971s; status checker/corruptions PASS in
+  31.55s. The prior writer-twice register/report idempotence receipt is reused;
+  current register/report hashes and the live DS19 pin are read back separately.
+- Final nonreceipts remain the coordinator-interrupted chained attempt and the
+  terminated detached overlapping lanes recorded above; neither is a green gate.
+  Final orchestration remains native Terra, 0 Sol workers and 0 Sol temptations.
+
 ## DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
 - Pattern pass: P05/P06/P10/P29/P31/P33. The prior shared `Locale` state

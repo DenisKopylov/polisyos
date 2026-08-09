@@ -827,6 +827,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "producer-binding-readiness-scientific-depth",
                 "raw-transport-denominator-drift",
                 "capability-discovery-construction-lint-debt",
+                "semantic-copy-issuer-panel-consumer-deferral",
             },
             set(descriptors),
         )
@@ -1675,6 +1676,26 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                     f"authority_presentation_debt_drift:{finding_id}:{field}",
                     errors,
                 )
+
+    def test_semantic_copy_deferral_uses_simple_dual_test_closure_signal(self) -> None:
+        finding_id = "semantic-copy-issuer-panel-consumer-deferral"
+        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
+        row = next(
+            item
+            for item in checker._supplemental_findings()
+            if item["finding_id"] == finding_id
+        )
+        assert row == {
+            "finding_id": finding_id,
+            **descriptor,
+            "decision_date": checker.DECISION_DATE,
+        }
+        closure = str(descriptor["closure_signal"])
+        test_ids = [part for part in closure.split() if ".test_" in part]
+        assert len(test_ids) == 2
+        assert "python3 -c" not in closure
+        assert "helper" not in closure
+        assert "exits 0 after both" in closure
 
     def test_authority_census_rejects_unclassified_and_reclassified_badges(
         self,

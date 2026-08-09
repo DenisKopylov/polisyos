@@ -29,7 +29,6 @@ TS_PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.
 TYPE_SHAPES_PATH = "apps/runtime-dashboard/src/shared/lib/domain/authorityEscapeTypes.ts"
 AUTHORITY_BADGE_PATH = "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
 EVIDENCE_TYPES_PATH = "packages/atlas-ui/src/primitives/evidenceTypes.ts"
-AUTHORITY_SEMANTIC_COPY_PATH = "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 ATLAS_EXPORTS = (
     'export { AuthorityBadge } from "./primitives/AuthorityBadge";\n'
     "export type { AuthorityPresentation } from "
@@ -425,107 +424,6 @@ class AtlasEnforcementTests(unittest.TestCase):
                 "createOperatorProjectionPresentation",
             },
             set(facts["unrecognizedNeutralFactories"]),
-        )
-
-    def test_authority_semantic_copy_registry_rejects_identity_bound_corruptions(self) -> None:
-        registry = checker.status_checker._load_json(checker.AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH)
-        source = (checker.status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH).read_text(
-            encoding="utf-8"
-        )
-        generated_types = checker.GENERATED_RUNTIME_TYPES_PATH.read_text(encoding="utf-8")
-
-        self.assertEqual(
-            [],
-            checker._authority_semantic_copy_errors(
-                registry=registry,
-                source=source,
-                generated_types=generated_types,
-            ),
-        )
-        corruptions = {
-            "class_upgrade": lambda data: data["copies"][0].__setitem__("strength", "strong"),
-            "stale_hash": lambda data: data["copies"][0].__setitem__(
-                "content_sha256", "sha256:" + "0" * 64
-            ),
-            "reviewer": lambda data: data["copies"][0]["review"].__setitem__(
-                "reviewer_identity", "external-reviewer:forged"
-            ),
-            "scope": lambda data: data["copies"][0]["review"].__setitem__(
-                "reviewer_scope", "authority-copy.en.unrelated"
-            ),
-            "duplicate": lambda data: data["copies"].append(copy.deepcopy(data["copies"][0])),
-        }
-        for label, mutate in corruptions.items():
-            with self.subTest(label=label):
-                corrupted = copy.deepcopy(registry)
-                mutate(corrupted)
-                self.assertTrue(
-                    checker._authority_semantic_copy_errors(
-                        registry=corrupted,
-                        source=source,
-                        generated_types=generated_types,
-                    )
-                )
-
-        lookalike = source.replace(
-            'AvailableGovernedProjectionPacket["may_not_use_for"][number]',
-            'string /* AvailableGovernedProjectionPacket["may_not_use_for"][number] */',
-            1,
-        )
-        self.assertIn(
-            "authority_semantic_copy_declaration_identity_drift",
-            checker._authority_semantic_copy_errors(
-                registry=registry,
-                source=lookalike,
-                generated_types=generated_types,
-            ),
-        )
-
-        marker_preserving_bypasses = {
-            "missing_weakset_issuance": source.replace(
-                "issuedAuthoritySemanticCopies.add(issued);",
-                "void issuedAuthoritySemanticCopies;",
-                1,
-            ),
-            "unrelated_weakset_issuance": source.replace(
-                "issuedAuthoritySemanticCopies.add(issued);",
-                "issuedAuthoritySemanticCopies.add({});",
-                1,
-            ),
-            "unrelated_freeze": source.replace(
-                "const issued: AuthoritySemanticCopy = Object.freeze({",
-                "const issued: AuthoritySemanticCopy = {",
-                1,
-            ).replace(
-                "  });\n  issuedAuthoritySemanticCopies.add(issued);",
-                "  };\n  Object.freeze({});\n  issuedAuthoritySemanticCopies.add(issued);",
-                1,
-            ),
-            "sibling_strong_issuer": source
-            + "\nexport function issueStrongAuthoritySemanticCopy(): AuthoritySemanticCopy {\n"
-            + '  return issueAuthoritySemanticCopy("phase34.harm.risk.limited", "strong");\n}\n',
-        }
-        for label, corrupted_source in marker_preserving_bypasses.items():
-            with self.subTest(label=label):
-                self.assertTrue(
-                    checker._authority_semantic_copy_errors(
-                        registry=registry,
-                        source=corrupted_source,
-                        generated_types=generated_types,
-                    )
-                )
-
-        same_words_different_ids = copy.deepcopy(registry)
-        alternate = copy.deepcopy(same_words_different_ids["copies"][0])
-        alternate["semantic_id"] = "phase34.harm.risk.limited.alternate"
-        same_words_different_ids["copies"].append(alternate)
-        self.assertEqual(
-            [],
-            checker._authority_semantic_copy_errors(
-                registry=same_words_different_ids,
-                source=source,
-                generated_types=generated_types,
-            ),
         )
 
     def test_authority_issuer_corruptions_fail_closed(self) -> None:

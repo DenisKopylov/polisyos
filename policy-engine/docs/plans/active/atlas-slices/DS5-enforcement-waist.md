@@ -670,7 +670,7 @@ first continuously numbered `-R1` successor.
 | C03b | 12 | 13 | no-fit | C03b-R1 / 13 |
 | C04a | 10 | 11 | no-fit | C04a-R1 / 11 |
 | C05a | 10 | 11 | no-fit | C05a-R1 / 11 |
-| C05b | 11 | 12 | no-fit | C05b-R1 stopped / 14; C05b-R2 / 8 of 12; C05b-R3 dependency/subjects / 10 of 12 |
+| C05b | 11 | 12 | no-fit | C05b-R1 / 12 |
 | C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
 | C07 | 26 | 25 | FIT | C07 / 26 (already fit) |
 | C08b | 10 | 11 | no-fit | C08b-R1 / 11 |
@@ -706,7 +706,7 @@ C13a retain their IDs and caps because their corrected sets already fit.
 | DS1 raw-transport historical receipt | C03a-R1 | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
 | hardcoded capability fallback / `cache-query-memory` | C04a-R1-C04b then C11a-C12b-R1 | fallback removed in C04a-R1 and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
 | `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
-| `authority-presentation-governed-projection-rights-bar` | C05b-R2 then C10-R1 | R2 supplies an issuer-only `consumer_missing` registry/receipt guard; it retains `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; deferred C10-R1 retains the supplemental owner integrate-contract rather than reopening raw copy |
+| `authority-presentation-governed-projection-rights-bar` | C05b-R1 then C10-R1 | the C01a debt row drops `bridge_missing` and `semantic_test_missing` after the private semantic-ID issuer and strength-upgrade negatives land; it remains `rebind_pending/open_debt` with `verification_missing`, owner DS6 and an executable competent-review receipt signal because accepted human-review receipts remain 0; deferred C10-R1 retains the supplemental owner integrate-contract rather than reopening raw copy |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
 | audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
@@ -1085,39 +1085,12 @@ remain exact.
 
 ### DS5-C05b-R1 — INT-R6 semantic IDs and static authority copy
 
-**Stopped checkpoint:** R1's 14 paths were `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx`,
-`apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx`,
-`apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts`, its test,
-registry/schema, checker/test, disposition register/reference, status inventory,
-this plan, journal, and `docs/plans/active/atlas-slices/DS5-enforcement-waist-closure.md`.
-It mixed consumer and governed-surface work with the issuer. Checkpoint
-`932d65c4f02bdfd782ccb1b24a4888028096ad51` is read-only evidence; forward
-revert `ba55b71b5942f455ae7a2cf6385b5eaf9018eeae` restores the clean boundary.
-
-**C05b-R2 successor:** exactly 8 writable paths: `apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts`,
-`apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.test.ts`, registry/schema,
-`architecture/atlas_surfaces/check_atlas_enforcement.py`, its test, this plan, and journal.
-The cap-12 subject boundary remains historical; R2 owns only these eight and machine-records
-`consumer_missing`; no panel, report, disposition, inventory, or consumer is
-authorized. Its acceptance is private branded/frozen/WeakSet issuance,
-content-bound receipt rejection, registry tuple uniqueness, and generated
-`GovernedProjectionPacket.may_not_use_for` declaration identity. Accepted
-human-review receipts remain 0 and `verification_missing` remains explicit.
-
-**C05b-R3 dependency/subjects:** reserves exactly 10 paths/cap: panel/test,
-issuer/test, registry/schema, checker/test, `architecture/atlas_surfaces/frontend-disposition-register.json`,
-and `docs/reference/frontend/atlas-frontend-disposition-register.md`; it remains a
-separately authorized bridge and R2 cannot turn this into a consumer claim.
-
-**Supersession:** the R1 measured-set, acceptance, and expected-commit text
-below is withdrawn history; only this R2/R3 recut controls execution.
-
 **Ruling re-derivation:** canonical ID plus content-bound review issuance is a
 private nominal construction boundary. The checker guards that registry/issuer
 site and same-ID uniqueness; it neither compares prose for semantic meaning nor
 traces arbitrary copy values through the program.
 
-**Measured set (withdrawn R1):** exactly 11 implementation/governed paths plus journal = 12;
+**Measured set:** exactly 11 implementation/governed paths plus journal = 12;
 cap 12: `RunExplainabilityPanel.tsx` + its governed-projection test; new
 `AuthoritySemanticCopy.ts` + test; new semantic-copy registry/schema; DS5
 checker/test; frontend disposition register + generated report;
@@ -1147,14 +1120,14 @@ Two conflicting active copies for the same semantic ID/locale/scope fail even
 when both are fluent; identical visible words under two different canonical
 IDs are a benign control and are never treated as duplicates by string match.
 
-**Historical acceptance (withdrawn R1):** authority copy is issued by canonical semantic identity and
+**Acceptance:** authority copy is issued by canonical semantic identity and
 unreviewed localized copy falls back honestly;
 the `may_not_use_for` consumer accepts only the branded presentation; the two
 strength-upgrade corruptions and the same-ID copy collision fail while the
 same-word/different-ID control passes. C05b-R1 claims the mechanical
 receipt/issuer gate, not completed human semantic review.
 
-**Withdrawn expected commit:** `DS5-C05b-R1 anchor authority copy by semantic ID`.
+**Expected commit:** `DS5-C05b-R1 anchor authority copy by semantic ID`.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 

@@ -826,7 +826,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "authority-issuer-parity-operand-binding",
                 "producer-binding-readiness-scientific-depth",
                 "raw-transport-denominator-drift",
-                "capability-discovery-construction-lint-debt",
                 "semantic-copy-issuer-panel-consumer-deferral",
                 "c06-cgf-public-vocabulary-producer-debt",
                 "c06-decision-grade-generated-contract-debt",
@@ -839,6 +838,18 @@ class ProducerBindingDebtTests(unittest.TestCase):
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
             | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
             checker.EXPECTED_FINDING_IDS,
+        )
+
+    def test_capability_discovery_debt_is_closed_when_direct_syntax_rule_is_live(self) -> None:
+        """A landed C04b mechanism must remove its deferred producer-binding row."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        self.assertNotIn(
+            "capability-discovery-construction-lint-debt",
+            {row["finding_id"] for row in data["supplemental_findings"]},
+        )
+        self.assertNotIn(
+            "capability-discovery-construction-lint-debt",
+            checker.PRODUCER_BINDING_DEBT_DESCRIPTORS,
         )
 
     def test_c06_waist_owner_debts_bind_three_independent_planes(self) -> None:
@@ -1391,83 +1402,6 @@ class RawTransportDriftTests(unittest.TestCase):
         # A named drift marker without running its failing method must stay red.
         self.assertEqual(1, closure(OwnerPass, owner_method, DriftFail, drift_method))
         self.assertEqual(0, closure(OwnerPass, owner_method, DriftPass, drift_method))
-
-    def test_capability_discovery_lint_debt_closure_requires_declaration_identity_witness(
-        self,
-    ) -> None:
-        """Require both future C04b construction witnesses to execute and pass."""
-
-        class OwnerPass(unittest.TestCase):
-            def test_authored_capability_discovery_construction_fails(self) -> None:
-                self.assertTrue(True)
-
-            def test_capability_discovery_owner_enclosure_resolves_declaration_identity(
-                self,
-            ) -> None:
-                self.assertTrue(True)
-
-        class ConstructionFail(OwnerPass):
-            def test_authored_capability_discovery_construction_fails(self) -> None:
-                self.fail("construction corruption")
-
-        class IdentityFail(OwnerPass):
-            def test_capability_discovery_owner_enclosure_resolves_declaration_identity(
-                self,
-            ) -> None:
-                self.fail("identity witness skipped")
-
-        closure = checker._capability_discovery_lint_debt_closure_exit_code
-        construction_method = "test_authored_capability_discovery_construction_fails"
-        identity_method = (
-            "test_capability_discovery_owner_enclosure_resolves_declaration_identity"
-        )
-
-        self.assertEqual(3, closure(None, construction_method, identity_method))
-        self.assertEqual(4, closure(OwnerPass, "missing_construction_method", identity_method))
-        self.assertEqual(5, closure(OwnerPass, construction_method, "missing_identity_method"))
-        self.assertEqual(1, closure(ConstructionFail, construction_method, identity_method))
-        # A named identity marker without running its failing declaration witness stays red.
-        self.assertEqual(1, closure(IdentityFail, construction_method, identity_method))
-        self.assertEqual(0, closure(OwnerPass, construction_method, identity_method))
-
-    def test_capability_discovery_lint_debt_closure_rejects_non_execution_outcomes(
-        self,
-    ) -> None:
-        """Reject marker-preserving skipped and expected-failure identity witnesses."""
-
-        class OwnerPass(unittest.TestCase):
-            def test_authored_capability_discovery_construction_fails(self) -> None:
-                self.assertTrue(True)
-
-            def test_capability_discovery_owner_enclosure_resolves_declaration_identity(
-                self,
-            ) -> None:
-                self.assertTrue(True)
-
-        class IdentitySkipped(OwnerPass):
-            @unittest.skip("identity witness not executed")
-            def test_capability_discovery_owner_enclosure_resolves_declaration_identity(
-                self,
-            ) -> None:
-                self.fail("skipped identity witness")
-
-        class IdentityExpectedFailure(OwnerPass):
-            @unittest.expectedFailure
-            def test_capability_discovery_owner_enclosure_resolves_declaration_identity(
-                self,
-            ) -> None:
-                self.fail("expected identity failure")
-
-        closure = checker._capability_discovery_lint_debt_closure_exit_code
-        construction_method = "test_authored_capability_discovery_construction_fails"
-        identity_method = (
-            "test_capability_discovery_owner_enclosure_resolves_declaration_identity"
-        )
-
-        self.assertEqual(1, closure(IdentitySkipped, construction_method, identity_method))
-        self.assertEqual(
-            1, closure(IdentityExpectedFailure, construction_method, identity_method)
-        )
 
     def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))

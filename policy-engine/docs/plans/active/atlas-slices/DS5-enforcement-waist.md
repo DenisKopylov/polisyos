@@ -1033,11 +1033,13 @@ feature. Consumer and disposition/report evidence land together.
 
 ### DS5-C04b — make capability discovery recurrent
 
-**Status:** implementation is **Not yet** and deferred after exactly two fixes;
-the rejected checkpoint was forward-reverted and no third fix is authorized.
+**Status:** C04b-R2 recovers the bounded direct-syntax mechanism from checkpoint
+`32598d1094c75391bfd02e719236de7398cb5de9` as a forward ten-path commit.
+The former D1 debt is removed in the same governed transition; its rejected
+checkpoint and forward revert remain history, not a verification bar.
 
-**Measured set:** exactly 3 implementation paths plus journal = 4; cap 4: the
-shared C01a scanner/checker/test and journal.
+**Measured set:** exactly 10 paths; cap 10: scanner/checker/test, disposition
+checker/test/register/report, DS19 pin, plan, and journal.
 
 **Red first:** `test_authored_capability_discovery_construction_fails`.
 An inline feature array, helper-authored `CapabilityFeatureInfo`, loading-as-
@@ -1047,20 +1049,17 @@ availability gates are benign.
 
 **Acceptance:** the AST rule guards only issuer construction and direct authored
 `CapabilityFeatureInfo` literals. It does not infer menu behavior or ban fixed
-chrome; C04a-R1's behavioral tests own the live consumer claim.
+chrome; C04a-R1's behavioral tests own the live consumer claim. Indirect
+enclosure identity, including nested same-name functions, is a stated residual
+outside this direct-syntax/construction-site rule; `tsc` owns authority slots.
 
-**Expected commit:** `DS5-C04b lint authored capability discovery`.
+**Expected commit:** `DS5-C04b-R2 lint authored capability discovery`.
 
 ### DS5-C04b-D1 — record-only deferral after the two-fix freeze
 
-**Status:** C04b remains **Not yet**. D1 records the typed
-`producer_binding_debt` and executable two-witness closure only; it does not
-claim the declaration-identity construction lint landed.
-
-**Measured set:** exactly 7 governance paths; cap 7. The closure is nonzero
-until both named `AtlasEnforcementTests` methods execute and pass.
-
-**Expected commit:** `DS5-C04b-D1 record capability discovery deferral`.
+**Status:** superseded by C04b-R2. The original record-only D1 closure used a
+stronger enclosure-identity claim than this plan's direct-syntax bar, so its
+row and helper are removed with the landed mechanism.
 
 ### DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
@@ -1975,7 +1974,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C03b-R2 | `DS5-C03b-R2 type raw authority transports` | 17 |
 | C03b-D1 | `DS5-C03b-D1 record raw-transport deferral` | 7 |
 | C04a-R1 | `DS5-C04a-R1 strangle capability fallback` | 11 |
-| C04b | `DS5-C04b lint authored capability discovery` | 4 |
+| C04b-R2 | `DS5-C04b-R2 lint authored capability discovery` | 10 |
 | C04b-D1 | `DS5-C04b-D1 record capability discovery deferral` | 7 |
 | C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |
 | C05b-R1 | `DS5-C05b-R1 anchor authority copy by semantic ID` | 12 |

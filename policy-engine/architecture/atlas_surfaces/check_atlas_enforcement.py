@@ -544,6 +544,8 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
     ),
 )
 AUTHORITY_PATH_EXPECTED_COUNT = 17
+CAPABILITY_DISCOVERY_OWNER_PATH = "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts"
+CAPABILITY_DISCOVERY_ISSUER_CALLS = 5
 AUTHORITY_GOVERNANCE_OBJECTS = (
     "EVIDENCE_FAMILIES",
     "EXPECTED_RUNTIME_EXPORTS",
@@ -795,6 +797,94 @@ def _issuer_set_drift(
 
 def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"sha256:[a-f0-9]{64}", value) is not None
+
+
+def _capability_discovery_errors(
+    scan: Mapping[str, Any],
+    *,
+    enforce_denominator: bool = False,
+) -> list[str]:
+    """Reject direct discovery construction without modeling value flow.
+
+    The scanner proves only direct canonical-issuer calls and object literals
+    contextually resolved to the generated capability-feature declaration.
+    """
+    facts = scan.get("capabilityDiscoveryFacts")
+    if not isinstance(facts, Mapping):
+        return ["capability_discovery_facts_missing"]
+    production_files = facts.get("productionFiles")
+    issuer_calls = facts.get("issuerCalls")
+    feature_literals = facts.get("featureLiterals")
+    errors: list[str] = []
+    if not isinstance(production_files, int) or production_files <= 0:
+        errors.append("capability_discovery_production_files_invalid")
+    if not isinstance(issuer_calls, list):
+        errors.append("capability_discovery_issuer_calls_invalid")
+        issuer_calls = []
+    if not isinstance(feature_literals, list):
+        errors.append("capability_discovery_feature_literals_invalid")
+        feature_literals = []
+    if enforce_denominator and len(issuer_calls) != CAPABILITY_DISCOVERY_ISSUER_CALLS:
+        errors.append(
+            "capability_discovery_issuer_denominator_drift:"
+            f"expected={CAPABILITY_DISCOVERY_ISSUER_CALLS}:actual={len(issuer_calls)}"
+        )
+
+    for call in issuer_calls:
+        if not isinstance(call, Mapping):
+            errors.append("capability_discovery_issuer_call_invalid")
+            continue
+        path = call.get("path")
+        line = call.get("line")
+        if not isinstance(path, str) or not isinstance(line, int) or line <= 0:
+            errors.append("capability_discovery_issuer_call_invalid")
+            continue
+        identity = f"{path}:{line}"
+        if path != CAPABILITY_DISCOVERY_OWNER_PATH:
+            errors.append(f"capability_discovery_issuer_unowned:{identity}")
+        if call.get("argumentKind") != "object_literal":
+            errors.append(f"capability_discovery_issuer_argument_invalid:{identity}")
+            continue
+        state = call.get("state")
+        reason = call.get("reason")
+        manifest = call.get("manifest")
+        if state == "unavailable":
+            if (
+                reason not in {"error", "loading", "missing_data", "offline"}
+                or manifest is not None
+            ):
+                errors.append(f"capability_discovery_unavailable_shape_invalid:{identity}")
+        elif state == "available":
+            if (
+                reason is not None
+                or not isinstance(manifest, Mapping)
+                or manifest.get("kind") != "expression"
+                or manifest.get("canonical") is not True
+                or manifest.get("directQueryData") is not True
+                or manifest.get("loadingGuarded") is not False
+            ):
+                errors.append(f"capability_discovery_available_manifest_invalid:{identity}")
+        else:
+            errors.append(f"capability_discovery_state_invalid:{identity}")
+
+    for literal in feature_literals:
+        if not isinstance(literal, Mapping):
+            errors.append("capability_discovery_feature_literal_invalid")
+            continue
+        path = literal.get("path")
+        line = literal.get("line")
+        properties = literal.get("properties")
+        if (
+            not isinstance(path, str)
+            or not isinstance(line, int)
+            or line <= 0
+            or not isinstance(properties, list)
+            or any(not isinstance(name, str) for name in properties)
+        ):
+            errors.append("capability_discovery_feature_literal_invalid")
+            continue
+        errors.append(f"capability_discovery_feature_literal_authored:{path}:{line}")
+    return sorted(set(errors))
 
 
 def _authority_issuer_errors(scan: Mapping[str, Any]) -> list[str]:
@@ -1361,6 +1451,12 @@ def validate_enforcement(
                 enforce_denominator=source_overrides is None,
             )
         )
+    errors.extend(
+        _capability_discovery_errors(
+            scan,
+            enforce_denominator=source_overrides is None,
+        )
+    )
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
         errors.extend(
@@ -1889,6 +1985,115 @@ def _corruption_probes(
         ).strip()
         + "\n"
     )
+    capability_owner_path = status_checker.REPO_ROOT / CAPABILITY_DISCOVERY_OWNER_PATH
+    capability_owner_source = capability_owner_path.read_text(encoding="utf-8")
+    exported_capability_owner = capability_owner_source.replace(
+        "function issueCapabilityDiscovery(", "export function issueCapabilityDiscovery(", 1
+    )
+    capability_probe_path = (
+        "apps/runtime-dashboard/src/shared/lib/domain/capabilityDiscoveryCorruptionProbe.ts"
+    )
+
+    _errors, scan = validate_enforcement(
+        source_overrides={
+            package_path: exports,
+            CAPABILITY_DISCOVERY_OWNER_PATH: exported_capability_owner,
+            capability_probe_path: dedent(
+                """
+                import { issueCapabilityDiscovery } from "@/api/hooks/useCapabilities";
+                export const discovery = issueCapabilityDiscovery({
+                  manifest: { features: [] },
+                  state: "available",
+                });
+                """
+            ).strip()
+            + "\n",
+        }
+    )
+    capability_errors = _capability_discovery_errors(scan)
+    if not any("issuer_unowned" in error for error in capability_errors) or not any(
+        "available_manifest_invalid" in error for error in capability_errors
+    ):
+        escaped.append("capability-discovery-external-issuer")
+
+    feature_probe_path = (
+        "apps/runtime-dashboard/src/shared/lib/domain/capabilityFeatureLiteralCorruptionProbe.ts"
+    )
+    _errors, scan = validate_enforcement(
+        source_overrides={
+            package_path: exports,
+            feature_probe_path: dedent(
+                """
+                import type { components as Components } from "@/api/types";
+                import type * as Api from "@/api/types";
+                type FeatureAlias = Components["schemas"]["CapabilityFeatureInfo"];
+                const alias: FeatureAlias = {
+                  stage: "active", label: "Alias", key: "alias", enabled: true,
+                  category: "test", description: "literal",
+                };
+                const namespaced: Api.components["schemas"]["CapabilityFeatureInfo"] = {
+                  key: "namespace", description: "literal", category: "test",
+                  enabled: false, label: "Namespace", stage: "planned",
+                };
+                void alias; void namespaced;
+                """
+            ).strip()
+            + "\n",
+        }
+    )
+    capability_errors = _capability_discovery_errors(scan)
+    if len(capability_errors) != 2 or not all(
+        "feature_literal_authored" in error for error in capability_errors
+    ):
+        escaped.append("capability-discovery-feature-literals")
+
+    loading_enabled_owner = capability_owner_source.replace(
+        "if (query.isLoading) {",
+        "if (Boolean(query.isLoading) && query.data) {\n"
+        '    return issueCapabilityDiscovery({ manifest: query.data, state: "available" });\n'
+        "  }\n  if (query.isLoading) {",
+        1,
+    )
+    _errors, scan = validate_enforcement(
+        source_overrides={
+            package_path: exports,
+            CAPABILITY_DISCOVERY_OWNER_PATH: loading_enabled_owner,
+        }
+    )
+    if scan.get("overrideDiagnostics") or not any(
+        "available_manifest_invalid" in error
+        for error in _capability_discovery_errors(scan)
+    ):
+        escaped.append("capability-discovery-loading-enabled")
+
+    errors, scan = validate_enforcement(
+        source_overrides={
+            package_path: exports,
+            capability_probe_path: dedent(
+                """
+                import type { CapabilityDiscovery } from "@/api/hooks/useCapabilities";
+                declare const runtimeManifest: { features?: unknown[] };
+                const fixedChrome = Array.from({ length: 43 }, (_, index) => ({
+                  key: `chrome-${index}`, label: "Fixed", enabled: true,
+                }));
+                const requiredCapabilities = Array.from(
+                  { length: 19 }, (_, index) => `gate-${index}`,
+                );
+                const analyticsFeature = { key: "analytics", label: "Analytics", enabled: true };
+                const runtimeFeatures = runtimeManifest.features;
+                const lookalike = { state: "available", manifest: { features: [] } };
+                const brandedConsumer: CapabilityDiscovery = lookalike;
+                void fixedChrome; void requiredCapabilities; void analyticsFeature;
+                void runtimeFeatures; void brandedConsumer;
+                """
+            ).strip()
+            + "\n",
+        }
+    )
+    if _capability_discovery_errors(scan) or [
+        item.get("code") for item in scan.get("overrideDiagnostics", [])
+    ] != [2322] or not any(error.endswith(":TS2322") for error in errors):
+        escaped.append("capability-discovery-benign-and-brand")
 
     errors, scan = validate_enforcement(
         source_overrides={
@@ -2252,6 +2457,19 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
         "authority_issuer_factories": len(issuer_facts.get("factories", [])),
         "authority_issuer_modules": len(issuer_facts.get("modules", [])),
         "authority_issuer_stores": len(issuer_facts.get("stores", [])),
+        "capability_discovery_residual": (
+            "indirect enclosure identity, including nested same-name functions, is outside "
+            "the direct-syntax/construction-site rule"
+        ),
+        "capability_discovery_production_sources": scan.get("capabilityDiscoveryFacts", {}).get(
+            "productionFiles"
+        ),
+        "capability_discovery_issuer_calls": len(
+            scan.get("capabilityDiscoveryFacts", {}).get("issuerCalls", [])
+        ),
+        "capability_discovery_feature_literals": len(
+            scan.get("capabilityDiscoveryFacts", {}).get("featureLiterals", [])
+        ),
         "current_authored_statuses": status_summary["current_authored"],
         "ds1_status_rows": status_summary["ds1_rows"],
         "semantic_retirement_debt": status_summary["semantic_retirement_debt"],

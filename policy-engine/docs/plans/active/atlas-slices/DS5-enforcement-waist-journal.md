@@ -1035,3 +1035,48 @@
   261-root / 55-finding / 23-negative / 8-census denominators. The final tree
   remains six paths under cap 7, with no uncommitted tail intended to cross the
   C02 boundary.
+
+## DS5-C04b-R2 — bounded capability-discovery recurrence recovery
+
+- Recovery starts from rejected checkpoint `32598d1094c75391bfd02e719236de7398cb5de9`
+  without rewriting history. The C05 semantic-copy additions were preserved in
+  a three-way semantic merge; the five locked C08b product paths were neither
+  read as C04 input nor modified.
+- Red first: `test_capability_discovery_direct_syntax_reports_enclosure_residual`
+  failed with missing `capability_discovery_residual`. The compact governed
+  debt-closure test then failed because the live C04b-D1 row remained present.
+  No scanner, checker, or register removal preceded those receipts.
+- Green: direct canonical `UseQueryResult` declaration identity, canonical
+  manifest aliases, unwrapped `query.data`, loading, external issuer, direct
+  alias/namespace/array literals, and local lookalikes are covered. The nested
+  same-name enclosure witness has no semantic diagnostic by design and reads
+  the explicit direct-syntax residual; no flow/enclosure analysis is claimed.
+- C04b-D1 is superseded: its embedded closure helper, descriptor, tests, live
+  register row, and report projection are removed surgically. The report writer
+  was run only after the row removal; DS19 is re-anchored to the resulting
+  register SHA. This is a debt reduction, not a new closure protocol.
+- Focused C04 tests passed 3/3 in 19.711 seconds; standalone enforcement
+  checker/corruption probes passed. Orchestration: one terra implementer, no
+  sol escalation; governed-register/report/DS19 writes stayed serialized.
+
+### C04b-R2 post-review final wave
+
+- The source-frozen C04 patch was installed into an isolated clone in 9.6
+  seconds; both `@polisyos` links resolved and the direct Badge census was 163.
+  The 360-second Atlas-suite bound was an underbound harness non-receipt; its
+  single 900-second rerun passed 26/26 in 374.843 seconds.
+- Final parseable receipts: Atlas checker/corruptions pass; frontend disposition
+  tests pass 48/48 in 58.487 seconds and its checker/corruptions pass; status
+  tests pass 38/38 in 153.283 seconds and its checker/corruptions pass.
+  `runtime-dashboard` production build passed in 17.86 seconds and
+  `lint:enforcement` passed. Dashboard typecheck and scoped lint retain their
+  pre-review PASS because C04 changes no dashboard source.
+- A broad dashboard ESLint launch was terminated as an unbounded harness
+  non-receipt; it is not a C04 gate. A detached clone writer/checker launch
+  likewise produced no parseable terminal output. The valid first isolated
+  writer regenerated the report and its immediate second invocation was
+  zero-output; the staged report is byte-equal to that isolated output.
+- Concurrent locked C08 edits change live global LOC counters, so live-report
+  comparison is a non-receipt. The registered C04-only clone output is the
+  commit truth; JSON parsing, DS19 pin equality, staged whitespace, Python
+  compilation, and Node syntax all pass.

@@ -11,6 +11,10 @@ const repoRoot = process.cwd();
 const require = createRequire(path.join(dashboardRoot, "package.json"));
 const ts = require("typescript");
 
+const CAPABILITY_DISCOVERY_OWNER_PATH =
+  "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts";
+const CAPABILITY_TYPES_PATH = "apps/runtime-dashboard/src/api/types.ts";
+
 function relativePath(fileName) {
   return path.relative(repoRoot, fileName).split(path.sep).join("/");
 }
@@ -118,6 +122,302 @@ function unwrapExpression(node) {
     current = current.expression;
   }
   return current;
+}
+
+function resolvedSymbol(checker, node) {
+  let symbol = checker.getSymbolAtLocation(node);
+  while (symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    const resolved = checker.getAliasedSymbol(symbol);
+    if (!resolved || resolved === symbol) break;
+    symbol = resolved;
+  }
+  return symbol;
+}
+
+function declarationIsNamedAtPath(node, name, expectedPath) {
+  return (
+    Boolean(node) &&
+    relativePath(node.getSourceFile().fileName) === expectedPath &&
+    ((node.name && propertyNameText(node.name) === name) ||
+      (ts.isPropertySignature(node) && propertyNameText(node.name) === name))
+  );
+}
+
+function symbolHasDeclaration(checker, symbol, predicate) {
+  if (!symbol) return false;
+  const candidates = [symbol];
+  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    candidates.push(checker.getAliasedSymbol(symbol));
+  }
+  return candidates.some((candidate) =>
+    (candidate?.declarations ?? []).some(predicate),
+  );
+}
+
+function typeHasDeclaration(checker, type, predicate) {
+  if (!type) return false;
+  const symbols = [type.getSymbol(), type.aliasSymbol];
+  return symbols.some((symbol) => symbolHasDeclaration(checker, symbol, predicate));
+}
+
+function typeHasCanonicalCapabilityFeature(checker, type) {
+  return typeHasDeclaration(checker, type, (declaration) => {
+    let current = declaration;
+    while (current) {
+      if (
+        declarationIsNamedAtPath(
+          current,
+          "CapabilityFeatureInfo",
+          CAPABILITY_TYPES_PATH,
+        )
+      ) {
+        return true;
+      }
+      current = current.parent;
+    }
+    return false;
+  });
+}
+
+function typeHasCanonicalCapabilityManifest(checker, type) {
+  const features = checker.getPropertyOfType(type, "features");
+  return symbolHasDeclaration(checker, features, (declaration) =>
+    declarationIsNamedAtPath(
+      declaration,
+      "features",
+      CAPABILITY_TYPES_PATH,
+    ) &&
+      declaration.parent &&
+      ts.isTypeLiteralNode(declaration.parent) &&
+      declaration.parent.parent &&
+      declarationIsNamedAtPath(
+        declaration.parent.parent,
+        "CapabilityManifestResponse",
+        CAPABILITY_TYPES_PATH,
+      ),
+  );
+}
+
+function objectProperty(node, name) {
+  if (!ts.isObjectLiteralExpression(node)) return null;
+  return (
+    node.properties.find(
+      (property) =>
+        ts.isPropertyAssignment(property) && propertyNameText(property.name) === name,
+    ) ?? null
+  );
+}
+
+function enclosingFunction(node) {
+  let current = node.parent;
+  while (current && !ts.isFunctionLike(current)) current = current.parent;
+  return current ?? null;
+}
+
+function directCanonicalCapabilityManifestArgument(checker, typeNode) {
+  if (!ts.isTypeReferenceNode(typeNode)) return false;
+  const symbol = resolvedSymbol(checker, typeNode.typeName);
+  return symbolHasDeclaration(checker, symbol, (declaration) =>
+    ts.isTypeAliasDeclaration(declaration) &&
+    declarationIsNamedAtPath(
+      declaration,
+      "CapabilityManifestResponse",
+      CAPABILITY_DISCOVERY_OWNER_PATH,
+    ) &&
+      ts.isIndexedAccessTypeNode(declaration.type) &&
+      typeHasCanonicalCapabilityManifest(
+        checker,
+        checker.getTypeFromTypeNode(declaration.type),
+      ),
+  );
+}
+
+function isReactQueryUseQueryResultDeclaration(declaration) {
+  const normalized = declaration
+    .getSourceFile()
+    .fileName.split(path.sep)
+    .join("/");
+  return (
+    (ts.isTypeAliasDeclaration(declaration) ||
+      ts.isInterfaceDeclaration(declaration)) &&
+    propertyNameText(declaration.name) === "UseQueryResult" &&
+    /(?:^|\/)node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?@tanstack\/react-query\//u.test(
+      normalized,
+    )
+  );
+}
+
+function directCapabilityQueryParameter(checker, functionNode) {
+  if (
+    !functionNode ||
+    !functionNode.name ||
+    propertyNameText(functionNode.name) !== "discoverCapabilities"
+  ) {
+    return null;
+  }
+  for (const parameter of functionNode.parameters) {
+    if (!ts.isIdentifier(parameter.name) || !parameter.type) continue;
+    if (!ts.isTypeReferenceNode(parameter.type)) continue;
+    const queryResult = resolvedSymbol(checker, parameter.type.typeName);
+    const manifestArgument = parameter.type.typeArguments?.[0];
+    if (
+      symbolHasDeclaration(
+        checker,
+        queryResult,
+        isReactQueryUseQueryResultDeclaration,
+      ) &&
+      manifestArgument &&
+      directCanonicalCapabilityManifestArgument(checker, manifestArgument)
+    ) {
+      return parameter;
+    }
+  }
+  return null;
+}
+
+function directCapabilityQueryData(checker, expression, functionNode) {
+  if (!ts.isPropertyAccessExpression(expression) || expression.name.text !== "data") {
+    return false;
+  }
+  if (!ts.isIdentifier(expression.expression)) return false;
+  const parameter = directCapabilityQueryParameter(checker, functionNode);
+  return (
+    parameter !== null &&
+    resolvedSymbol(checker, expression.expression) ===
+      resolvedSymbol(checker, parameter.name)
+  );
+}
+
+function conditionTouchesCapabilityLoading(node, checker, parameter) {
+  let touches = false;
+  const parameterSymbol = resolvedSymbol(checker, parameter.name);
+  const visit = (current) => {
+    if (current !== node && ts.isFunctionLike(current)) return;
+    if (
+      ts.isPropertyAccessExpression(current) &&
+      ts.isIdentifier(current.expression) &&
+      resolvedSymbol(checker, current.expression) === parameterSymbol &&
+      ["data", "isError", "isLoading", "isPaused", "isPending"].includes(
+        current.name.text,
+      )
+    ) {
+      touches = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return touches;
+}
+
+function availableCapabilityCallIsLoadingGuarded(checker, call, functionNode) {
+  const parameter = directCapabilityQueryParameter(checker, functionNode);
+  if (!parameter) return false;
+  let current = call;
+  while (current.parent && current.parent !== functionNode) {
+    const parent = current.parent;
+    if (
+      ts.isIfStatement(parent) &&
+      parent.thenStatement === current &&
+      conditionTouchesCapabilityLoading(parent.expression, checker, parameter)
+    ) {
+      return true;
+    }
+    if (
+      ts.isConditionalExpression(parent) &&
+      parent.whenTrue === current &&
+      conditionTouchesCapabilityLoading(parent.condition, checker, parameter)
+    ) {
+      return true;
+    }
+    current = parent;
+  }
+  return false;
+}
+
+function stringLiteralValue(node) {
+  const current = unwrapExpression(node);
+  return ts.isStringLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)
+    ? current.text
+    : null;
+}
+
+function collectCapabilityDiscoveryFacts(sourceFiles, checker, pathOf) {
+  const issuerCalls = [];
+  const featureLiterals = [];
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isCallExpression(node)) {
+        const issuer = resolvedSymbol(checker, node.expression);
+        const isIssuer = symbolHasDeclaration(checker, issuer, (declaration) =>
+          declarationIsNamedAtPath(
+            declaration,
+            "issueCapabilityDiscovery",
+            CAPABILITY_DISCOVERY_OWNER_PATH,
+          ),
+        );
+        if (isIssuer) {
+          const argument = node.arguments.length === 1 ? unwrapExpression(node.arguments[0]) : null;
+          const state = argument ? objectProperty(argument, "state") : null;
+          const reason = argument ? objectProperty(argument, "reason") : null;
+          const manifest = argument ? objectProperty(argument, "manifest") : null;
+          const functionNode = enclosingFunction(node);
+          issuerCalls.push({
+            path: pathOf(sourceFile),
+            line: lineOf(sourceFile, node),
+            argumentKind: argument && ts.isObjectLiteralExpression(argument) ? "object_literal" : "other",
+            state: state && ts.isPropertyAssignment(state) ? stringLiteralValue(state.initializer) : null,
+            reason: reason && ts.isPropertyAssignment(reason) ? stringLiteralValue(reason.initializer) : null,
+            manifest: manifest && ts.isPropertyAssignment(manifest)
+              ? {
+                  kind: ts.isObjectLiteralExpression(unwrapExpression(manifest.initializer))
+                    ? "object_literal"
+                    : "expression",
+                  canonical: typeHasCanonicalCapabilityManifest(
+                    checker,
+                    checker.getTypeAtLocation(manifest.initializer),
+                  ),
+                  directQueryData: directCapabilityQueryData(
+                    checker,
+                    manifest.initializer,
+                    functionNode,
+                  ),
+                  loadingGuarded: availableCapabilityCallIsLoadingGuarded(
+                    checker,
+                    node,
+                    functionNode,
+                  ),
+                }
+              : null,
+          });
+        }
+      }
+      if (ts.isObjectLiteralExpression(node)) {
+        const contextual = checker.getContextualType(node);
+        if (typeHasCanonicalCapabilityFeature(checker, contextual)) {
+          featureLiterals.push({
+            path: pathOf(sourceFile),
+            line: lineOf(sourceFile, node),
+            properties: node.properties
+              .filter(ts.isPropertyAssignment)
+              .map((property) => propertyNameText(property.name))
+              .filter((name) => name !== null)
+              .sort(),
+          });
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  const sortRows = (left, right) =>
+    `${left.path}:${String(left.line).padStart(8, "0")}`.localeCompare(
+      `${right.path}:${String(right.line).padStart(8, "0")}`,
+    );
+  return {
+    issuerCalls: issuerCalls.sort(sortRows),
+    featureLiterals: featureLiterals.sort(sortRows),
+  };
 }
 
 function constAssertionOperand(node, sourceFile) {
@@ -4489,6 +4789,14 @@ function collectProgramFacts(
     generatedDefinitionPaths,
     authorityGovernanceObjects,
   );
+  const capabilityDiscoveryFacts = {
+    productionFiles: statusInventorySources.length,
+    ...collectCapabilityDiscoveryFacts(
+      statusInventorySources,
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+    ),
+  };
   return {
     authorityCandidates,
     definitions,
@@ -4520,6 +4828,7 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
       authorityPropDescriptors,
     ),
+    capabilityDiscoveryFacts,
     ...authorityEscapeFacts,
   };
 }
@@ -4669,6 +4978,11 @@ function collectOverrideFacts(
     authorityPathFiles: [],
     authorityEscapeSites: [],
     authorityIssuerFacts: emptyAuthorityIssuerFacts(),
+    capabilityDiscoveryFacts: {
+      productionFiles: 0,
+      issuerCalls: [],
+      featureLiterals: [],
+    },
   };
   const program = createOverrideProgram(overrides);
   if (validateOverrideDiagnostics) {
@@ -4824,6 +5138,12 @@ function collectOverrideFacts(
   facts.authorityPathFiles.push(...authorityEscapeFacts.authorityPathFiles);
   facts.authorityEscapeSites.push(...authorityEscapeFacts.authorityEscapeSites);
   facts.authorityIssuerFacts = authorityEscapeFacts.authorityIssuerFacts;
+  facts.capabilityDiscoveryFacts = {
+    productionFiles: sourceFiles.length,
+    ...collectCapabilityDiscoveryFacts(sourceFiles, checker, (sourceFile) =>
+      relativePath(sourceFile.fileName),
+    ),
+  };
   return facts;
 }
 

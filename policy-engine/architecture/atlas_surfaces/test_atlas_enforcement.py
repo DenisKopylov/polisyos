@@ -27,6 +27,7 @@ PACKAGE_PATH = "packages/atlas-ui/src/index.ts"
 PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.tsx"
 TS_PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.ts"
 TYPE_SHAPES_PATH = "apps/runtime-dashboard/src/shared/lib/domain/authorityEscapeTypes.ts"
+CAPABILITIES_PATH = "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts"
 AUTHORITY_BADGE_PATH = "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
 EVIDENCE_TYPES_PATH = "packages/atlas-ui/src/primitives/evidenceTypes.ts"
 ATLAS_EXPORTS = (
@@ -79,6 +80,282 @@ class AtlasEnforcementTests(unittest.TestCase):
             source_overrides=sources,
             enforce_authority_escapes=enforce_authority_escapes,
         )
+
+    def test_capability_discovery_reviewer_syntax_witnesses_fail(self) -> None:
+        """Reject only direct owner-query manifest syntax for available issuance."""
+        capability_source = (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH).read_text(
+            encoding="utf-8"
+        )
+        witnesses = {
+            "local_query_result_lookalike": capability_source.replace(
+                "  type UseQueryResult,\n",
+                "",
+                1,
+            ).replace(
+                "function discoverCapabilities(",
+                "type UseQueryResult<T> = {\n"
+                "  data?: T;\n  isError: boolean;\n  isLoading: boolean;\n  isPaused: boolean;\n"
+                "};\n\n"
+                "function discoverCapabilities(",
+                1,
+            ),
+            "local_manifest_lookalike": capability_source.replace(
+                "function discoverCapabilities(",
+                "namespace Local {\n"
+                "  export type CapabilityManifestResponse =\n"
+                "    components[\"schemas\"][\"CapabilityManifestResponse\"] & {};\n"
+                "}\n\n"
+                "function discoverCapabilities(",
+                1,
+            ).replace(
+                "query: UseQueryResult<CapabilityManifestResponse>,",
+                "query: UseQueryResult<Local.CapabilityManifestResponse>,",
+                1,
+            ),
+            "local_parameter": capability_source.replace(
+                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                "function issueLocalManifest(\n"
+                "  local: CapabilityManifestResponse,\n"
+                "): CapabilityDiscovery {\n"
+                "  return issueCapabilityDiscovery({\n"
+                "    manifest: local, state: \"available\",\n"
+                "  });\n"
+                "}\n\n"
+                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                1,
+            ),
+            "helper_wrapped_query": capability_source.replace(
+                "function discoverCapabilities(",
+                "function wrapManifest(\n"
+                "  manifest: CapabilityManifestResponse,\n"
+                "): CapabilityManifestResponse {\n"
+                "  return manifest;\n"
+                "}\n\n"
+                "function discoverCapabilities(",
+                1,
+            ).replace(
+                'return issueCapabilityDiscovery({ manifest: query.data, state: "available" });',
+                "return issueCapabilityDiscovery({\n"
+                "  manifest: wrapManifest(query.data),\n"
+                '  state: "available",\n'
+                "});",
+                1,
+            ),
+            "loading_available": capability_source.replace(
+                "if (query.isLoading) {",
+                "if (Boolean(query.isLoading) && query.data) {\n"
+                "    return issueCapabilityDiscovery({\n"
+                "      manifest: query.data, state: \"available\",\n"
+                "    });\n"
+                "  }\n  if (query.isLoading) {",
+                1,
+            ),
+            "wrapped_query_data": capability_source.replace(
+                'return issueCapabilityDiscovery({ manifest: query.data, state: "available" });',
+                'return issueCapabilityDiscovery({\n'
+                '    manifest: (query.data! as CapabilityManifestResponse),\n'
+                '    state: "available",\n'
+                "  });",
+                1,
+            ),
+        }
+
+        for label, source in witnesses.items():
+            with self.subTest(label=label):
+                _errors, scan = self._validate(
+                    ATLAS_EXPORTS,
+                    ts_source("export {}"),
+                    extra_sources={CAPABILITIES_PATH: source},
+                )
+                self.assertEqual([], scan["overrideDiagnostics"])
+                self.assertTrue(
+                    any(
+                        "available_manifest_invalid" in error
+                        for error in checker._capability_discovery_errors(scan)
+                    ),
+                    scan,
+                )
+
+        valid_packet = {
+            "capabilityDiscoveryFacts": {
+                "productionFiles": 588,
+                "issuerCalls": [
+                    {
+                        "path": checker.CAPABILITY_DISCOVERY_OWNER_PATH,
+                        "line": line,
+                        "argumentKind": "object_literal",
+                        "state": "unavailable",
+                        "reason": "loading",
+                        "manifest": None,
+                    }
+                    for line in range(1, 6)
+                ],
+                "featureLiterals": [],
+            }
+        }
+        self.assertEqual(
+            [],
+            checker._capability_discovery_errors(valid_packet, enforce_denominator=True),
+        )
+
+    def test_authored_capability_discovery_construction_fails(self) -> None:
+        """Reject direct issuer/literal syntax while retaining bounded controls."""
+        capability_source = (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH).read_text(
+            encoding="utf-8"
+        ).replace("function issueCapabilityDiscovery(", "export function issueCapabilityDiscovery(")
+        external_issuer_probe = ts_source(
+            """
+            import { issueCapabilityDiscovery } from "@/api/hooks/useCapabilities";
+            export const discovery = issueCapabilityDiscovery({
+              manifest: { features: [] },
+              state: "available",
+            });
+            """
+        )
+        _errors, scan = self._validate(
+            ATLAS_EXPORTS,
+            external_issuer_probe,
+            extra_sources={CAPABILITIES_PATH: capability_source},
+        )
+        self.assertTrue(
+            any(
+                error.startswith("capability_discovery_")
+                for error in checker._capability_discovery_errors(scan)
+            ),
+            scan,
+        )
+
+        feature_probe = ts_source(
+            """
+            import type { components as Components } from "@/api/types";
+            import type * as Api from "@/api/types";
+            type FeatureAlias = Components["schemas"]["CapabilityFeatureInfo"];
+            const fromAlias: FeatureAlias = {
+              stage: "active", label: "Alias", key: "alias", enabled: true,
+              category: "test", description: "alias literal",
+            };
+            const fromNamespace: Api.components["schemas"]["CapabilityFeatureInfo"] = {
+              key: "namespace", description: "namespace literal", category: "test",
+              enabled: false, label: "Namespace", stage: "planned",
+            };
+            const featureArray: Components["schemas"]["CapabilityManifestResponse"]["features"] = [
+              {
+                description: "inline feature", category: "test", stage: "deferred",
+                enabled: false, key: "inline", label: "Inline",
+              },
+            ];
+            void fromAlias; void fromNamespace; void featureArray;
+            """
+        )
+        _errors, scan = self._validate(ATLAS_EXPORTS, feature_probe)
+        feature_errors = checker._capability_discovery_errors(scan)
+        self.assertEqual(
+            3,
+            len(scan["capabilityDiscoveryFacts"]["featureLiterals"]),
+        )
+        self.assertEqual(3, len(feature_errors), feature_errors)
+        self.assertTrue(
+            all(
+                error.startswith("capability_discovery_feature_literal_authored:")
+                for error in feature_errors
+            ),
+            feature_errors,
+        )
+
+        loading_enabled = capability_source.replace(
+            "if (query.isLoading) {",
+            "if (Boolean(query.isLoading) && query.data) {\n"
+            '    return issueCapabilityDiscovery({ manifest: query.data, state: "available" });\n'
+            "  }\n  if (query.isLoading) {",
+            1,
+        )
+        _errors, scan = self._validate(
+            ATLAS_EXPORTS,
+            ts_source("export {}"),
+            extra_sources={CAPABILITIES_PATH: loading_enabled},
+        )
+        self.assertEqual([], scan["overrideDiagnostics"])
+        self.assertTrue(
+            any(
+                "available_manifest_invalid" in error
+                for error in checker._capability_discovery_errors(scan)
+            ),
+            scan,
+        )
+
+        missing_manifest = capability_source.replace(
+            'return issueCapabilityDiscovery({ manifest: query.data, state: "available" });',
+            'return issueCapabilityDiscovery({ state: "available" /* manifest marker */ });',
+            1,
+        )
+        _errors, scan = self._validate(
+            ATLAS_EXPORTS,
+            ts_source("export {}"),
+            extra_sources={CAPABILITIES_PATH: missing_manifest},
+        )
+        self.assertTrue(
+            any(
+                "available_manifest_invalid" in error
+                for error in checker._capability_discovery_errors(scan)
+            ),
+            scan,
+        )
+
+        benign_probe = ts_source(
+            """
+            import type { CapabilityDiscovery } from "@/api/hooks/useCapabilities";
+            declare const runtimeManifest: { features?: unknown[] };
+            const fixedChrome = Array.from({ length: 43 }, (_, index) => ({
+              key: `chrome-${index}`, label: "Fixed", enabled: true,
+            }));
+            const requiredCapabilities = Array.from({ length: 19 }, (_, index) => `gate-${index}`);
+            const analyticsFeature = { key: "analytics", label: "Analytics", enabled: true };
+            const runtimeFeatures = runtimeManifest.features;
+            const localLookalike = { state: "available", manifest: { features: [] } };
+            const brandedConsumer: CapabilityDiscovery = localLookalike;
+            void fixedChrome; void requiredCapabilities; void analyticsFeature;
+            void runtimeFeatures;
+            void brandedConsumer;
+            """
+        )
+        errors, scan = self._validate(ATLAS_EXPORTS, benign_probe)
+        self.assertEqual([], checker._capability_discovery_errors(scan))
+        self.assertEqual([2322], [item["code"] for item in scan["overrideDiagnostics"]])
+        self.assertTrue(any(error.endswith(":TS2322") for error in errors), errors)
+
+        valid_packet = {
+            "capabilityDiscoveryFacts": {
+                "productionFiles": 1,
+                "issuerCalls": [],
+                "featureLiterals": [],
+            }
+        }
+        malformed_packets = (
+            {},
+            {"capabilityDiscoveryFacts": {}},
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "productionFiles": 0,
+                }
+            },
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "issuerCalls": {},
+                }
+            },
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "featureLiterals": {},
+                }
+            },
+        )
+        self.assertEqual([], checker._capability_discovery_errors(valid_packet))
+        for packet in malformed_packets:
+            with self.subTest(packet=packet):
+                self.assertTrue(checker._capability_discovery_errors(packet))
 
     def test_real_illegal_edges_fail_custom_and_dependency_engines(self) -> None:
         errors, receipt = checker._architecture_recurrence_errors()

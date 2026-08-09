@@ -14,7 +14,6 @@ import hashlib
 import importlib.util
 import io
 import json
-import os
 import posixpath
 import re
 import subprocess
@@ -1000,41 +999,6 @@ CAPABILITY_DISCOVERY_CLOSURE_SIGNAL = (
     "3 means class absent, 4 construction method absent, 5 identity method absent, and "
     "1 means either test failed; all are exit nonzero."
 )
-SEMANTIC_COPY_DEFERRAL_FINDING_ID = "semantic-copy-issuer-panel-consumer-deferral"
-SEMANTIC_COPY_DEFERRAL_DECISION_DATE = "2026-08-09"
-SEMANTIC_COPY_ISSUER_TEST_ABSENT_EXIT = 3
-SEMANTIC_COPY_PANEL_TEST_ABSENT_EXIT = 4
-SEMANTIC_COPY_ISSUER_MODULE_NAME = "architecture.atlas_surfaces.test_atlas_enforcement"
-SEMANTIC_COPY_PANEL_MODULE_NAME = "architecture.atlas_surfaces.test_frontend_disposition_register"
-SEMANTIC_COPY_ISSUER_TEST_CLASS = "AtlasEnforcementTests"
-SEMANTIC_COPY_PANEL_TEST_CLASS = "AuthorityPresentationCensusTests"
-SEMANTIC_COPY_ISSUER_TEST_PATH = ATLAS_DIR / "test_atlas_enforcement.py"
-SEMANTIC_COPY_PANEL_TEST_PATH = ATLAS_DIR / "test_frontend_disposition_register.py"
-SEMANTIC_COPY_ISSUER_TEST_METHOD = (
-    "test_authority_semantic_copy_registry_rejects_identity_bound_corruptions"
-)
-SEMANTIC_COPY_PANEL_TEST_METHOD = (
-    "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition"
-)
-SEMANTIC_COPY_C05B_FREEZE_REF = (
-    "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md"
-    "#ds5-c05b-r2-freeze-and-c05b-d1-deferral-checkpoints-932d65c4f02bdfd782ccb1b24a4888028096ad51"
-)
-SEMANTIC_COPY_CLOSURE_SIGNAL = (
-    "python3 -c 'import importlib; from architecture.atlas_surfaces import "
-    "check_frontend_disposition_register as checker; issuer_module=importlib.import_module("
-    "\"architecture.atlas_surfaces.test_atlas_enforcement\"); panel_module=importlib.import_module("
-    "\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit("
-    "checker._semantic_copy_deferral_closure_exit_code(getattr(issuer_module, "
-    "\"AtlasEnforcementTests\", None), "
-    "\"test_authority_semantic_copy_registry_rejects_identity_bound_corruptions\", "
-    "getattr(panel_module, \"AuthorityPresentationCensusTests\", None), "
-    "\"test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition\"))' "
-    "# exits 0 only when the exact issuer registry/declaration/runtime and panel "
-    "consumer/direct-Badge census tests execute and pass; 3 means issuer absent, 4 "
-    "means panel/census absent, and 1 means failures, errors, skips, expected failures, "
-    "or unexpected successes; all are exit nonzero."
-)
 
 _DIRECT_TRANSPORT_CENSUS_SCRIPT = r"""
 import ts from "typescript";
@@ -1172,115 +1136,6 @@ def _capability_discovery_lint_debt_closure_exit_code(
     return 0 if result.wasSuccessful() else 1
 
 
-_SEMANTIC_COPY_CLOSURE_RUNNER = r"""
-import importlib.util
-import inspect
-import io
-import json
-import sys
-import unittest
-from pathlib import Path
-
-root = Path(sys.argv[1]).resolve()
-cases = (
-    (
-        "architecture.atlas_surfaces.test_atlas_enforcement",
-        root / "architecture/atlas_surfaces/test_atlas_enforcement.py",
-        "AtlasEnforcementTests",
-        "test_authority_semantic_copy_registry_rejects_identity_bound_corruptions",
-        3,
-    ),
-    (
-        "architecture.atlas_surfaces.test_frontend_disposition_register",
-        root / "architecture/atlas_surfaces/test_frontend_disposition_register.py",
-        "AuthorityPresentationCensusTests",
-        "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition",
-        4,
-    ),
-)
-
-def emit(code):
-    print(json.dumps({"exit_code": code}, sort_keys=True))
-    raise SystemExit(0)
-
-def resolve(module_name, source_path, class_name, method_name, absent_code):
-    source_path = source_path.resolve()
-    if not source_path.is_file():
-        emit(absent_code)
-    spec = importlib.util.spec_from_file_location(module_name, source_path)
-    if spec is None or spec.loader is None:
-        emit(absent_code)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    try:
-        spec.loader.exec_module(module)
-    except Exception:
-        emit(absent_code)
-    test_class = getattr(module, class_name, None)
-    if (
-        not isinstance(test_class, type)
-        or not issubclass(test_class, unittest.TestCase)
-        or test_class.__name__ != class_name
-        or test_class.__module__ != module_name
-        or module.__dict__.get(class_name) is not test_class
-        or not callable(test_class.__dict__.get(method_name))
-    ):
-        emit(absent_code)
-    try:
-        class_path = inspect.getsourcefile(test_class)
-    except TypeError:
-        emit(absent_code)
-    if not isinstance(class_path, str) or Path(class_path).resolve() != source_path:
-        emit(absent_code)
-    return test_class
-
-issuer = resolve(*cases[0])
-panel = resolve(*cases[1])
-suite = unittest.TestSuite((issuer(cases[0][3]), panel(cases[1][3])))
-result = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0).run(suite)
-if (
-    result.testsRun != 2
-    or result.errors
-    or result.failures
-    or result.skipped
-    or result.expectedFailures
-    or result.unexpectedSuccesses
-    or not result.wasSuccessful()
-):
-    emit(1)
-emit(0)
-"""
-
-
-def _semantic_copy_deferral_runner_exit_code(root: Path) -> int:
-    """Run fixed C05b file-bound witnesses in a fresh, sanitized interpreter."""
-    environment = dict(os.environ)
-    environment.pop("PYTHONPATH", None)
-    environment.pop("PYTHONHOME", None)
-    environment["PYTHONNOUSERSITE"] = "1"
-    completed = subprocess.run(
-        [sys.executable, "-c", _SEMANTIC_COPY_CLOSURE_RUNNER, str(root.resolve())],
-        cwd=root.resolve(),
-        env=environment,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    try:
-        payload = json.loads(completed.stdout)
-        exit_code = payload["exit_code"]
-    except (TypeError, ValueError, KeyError):
-        return 1
-    if completed.returncode != 0 or exit_code not in {0, 1, 3, 4}:
-        return 1
-    return int(exit_code)
-
-
-def _semantic_copy_deferral_closure_exit_code() -> int:
-    """Run C05b closure tests from canonical files without parent interpreter state."""
-    return _semantic_copy_deferral_runner_exit_code(REPO_ROOT)
-
-
 def _capability_discovery_lint_debt_descriptor() -> dict[str, Any]:
     """Return the deferred C04b declaration-identity construction finding."""
     return {
@@ -1352,43 +1207,6 @@ def _raw_transport_drift_descriptor() -> dict[str, Any]:
             "`raw_transport_live_direct_constructor_census_drift` is deferred."
         ),
         "closure_signal": RAW_TRANSPORT_CLOSURE_SIGNAL,
-    }
-
-
-def _semantic_copy_deferral_descriptor() -> dict[str, Any]:
-    """Return the record-only C05b issuer-to-panel consumer deferral."""
-    return {
-        "finding_id": SEMANTIC_COPY_DEFERRAL_FINDING_ID,
-        "finding_kind": "producer_binding_debt",
-        "disposition": "rebind_pending",
-        "status": "open_debt",
-        "owner_slice": "DS5",
-        "decision_date": SEMANTIC_COPY_DEFERRAL_DECISION_DATE,
-        "capability_states": [
-            "producer_missing",
-            "bridge_missing",
-            "consumer_missing",
-            "verification_missing",
-            "semantic_test_missing",
-        ],
-        "evidence_refs": [
-            SEMANTIC_COPY_C05B_FREEZE_REF,
-            "architecture/atlas_surfaces/check_atlas_enforcement.py",
-            "architecture/atlas_surfaces/check_status_retirement_inventory.py",
-            "architecture/atlas_surfaces/status_retirement_scan.mjs",
-        ],
-        "rationale": (
-            "C05b-R1 and C05b-R2 each exhausted the two-fix review cap: "
-            "932d65c4f02bdfd782ccb1b24a4888028096ad51 was forward-reverted by "
-            "ba55b71b5942f455ae7a2cf6385b5eaf9018eeae, and "
-            "ac24327c3ce02066682953a1b9a00431bf780476 was forward-reverted by "
-            "216ff491bb550f178a7dd2e81ff4888066f0b218. The exact review stop and "
-            "live direct-Badge census leave the mechanical registry/private issuer/"
-            "generated declaration/runtime guard-to-real panel branded consumer "
-            "transition unproved. Accepted semantic-review receipts remain 0; DS6 "
-            "human semantic review is untouched and not claimed."
-        ),
-        "closure_signal": SEMANTIC_COPY_CLOSURE_SIGNAL,
     }
 
 
@@ -2003,7 +1821,6 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
     },
     RAW_TRANSPORT_DRIFT_FINDING_ID: _raw_transport_drift_descriptor(),
     CAPABILITY_DISCOVERY_LINT_DEBT_FINDING_ID: _capability_discovery_lint_debt_descriptor(),
-    SEMANTIC_COPY_DEFERRAL_FINDING_ID: _semantic_copy_deferral_descriptor(),
 }
 
 INTEGRATE_DEBT_DESCRIPTORS = {

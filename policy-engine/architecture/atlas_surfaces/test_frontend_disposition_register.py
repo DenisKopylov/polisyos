@@ -6,9 +6,6 @@ import copy
 import importlib.util
 import json
 import subprocess
-import sys
-import tempfile
-import types
 import unittest
 from pathlib import Path
 from typing import ClassVar
@@ -830,7 +827,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "producer-binding-readiness-scientific-depth",
                 "raw-transport-denominator-drift",
                 "capability-discovery-construction-lint-debt",
-                "semantic-copy-issuer-panel-consumer-deferral",
             },
             set(descriptors),
         )
@@ -1396,127 +1392,6 @@ class RawTransportDriftTests(unittest.TestCase):
         self.assertEqual(
             1, closure(IdentityExpectedFailure, construction_method, identity_method)
         )
-
-    def test_semantic_copy_deferral_closure_requires_issuer_and_live_panel_consumer_census(
-        self,
-    ) -> None:
-        """Require fresh, file-bound C05b witnesses independent of parent modules."""
-
-        issuer_module_name = "architecture.atlas_surfaces.test_atlas_enforcement"
-        panel_module_name = "architecture.atlas_surfaces.test_frontend_disposition_register"
-        issuer_class_name = "AtlasEnforcementTests"
-        panel_class_name = "AuthorityPresentationCensusTests"
-        issuer_method = "test_authority_semantic_copy_registry_rejects_identity_bound_corruptions"
-        panel_method = "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition"
-        closure = checker._semantic_copy_deferral_closure_exit_code
-
-        def forged_module(
-            module_name: str, source_path: Path, class_name: str, method_name: str
-        ) -> types.ModuleType:
-            module = types.ModuleType(module_name)
-            module.__file__ = str(source_path)
-            module.__dict__["unittest"] = unittest
-            exec(
-                (
-                    f"class {class_name}(unittest.TestCase):\n"
-                    f"    def {method_name}(self):\n"
-                    "        self.assertTrue(True)\n"
-                ),
-                module.__dict__,
-            )
-            return module
-
-        forged_issuer = forged_module(
-            issuer_module_name,
-            checker.ATLAS_DIR / "test_atlas_enforcement.py",
-            issuer_class_name,
-            issuer_method,
-        )
-        forged_panel = forged_module(
-            panel_module_name,
-            checker.ATLAS_DIR / "test_frontend_disposition_register.py",
-            panel_class_name,
-            panel_method,
-        )
-        with mock.patch.dict(
-            sys.modules,
-            {issuer_module_name: forged_issuer, panel_module_name: forged_panel},
-        ):
-            self.assertEqual(3, closure())
-
-        def write_witness(
-            root: Path,
-            relative_path: str,
-            class_name: str,
-            method_name: str,
-            body: str = "self.assertTrue(True)",
-            decorator: str = "",
-        ) -> None:
-            path = root / relative_path
-            path.parent.mkdir(parents=True, exist_ok=True)
-            source = (
-                "import unittest\n\n"
-                f"class {class_name}(unittest.TestCase):\n"
-                f"    {decorator}\n"
-                f"    def {method_name}(self):\n"
-                f"        {body}\n"
-            )
-            path.write_text(source, encoding="utf-8")
-
-        def runner(root: Path) -> int:
-            return checker._semantic_copy_deferral_runner_exit_code(root)
-
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            root = Path(temporary_directory)
-            issuer_relative = "architecture/atlas_surfaces/test_atlas_enforcement.py"
-            panel_relative = "architecture/atlas_surfaces/test_frontend_disposition_register.py"
-            write_witness(root, issuer_relative, issuer_class_name, issuer_method)
-            write_witness(root, panel_relative, panel_class_name, panel_method)
-            self.assertEqual(0, runner(root))
-
-            (root / issuer_relative).unlink()
-            self.assertEqual(3, runner(root))
-            write_witness(root, issuer_relative, issuer_class_name, "issuer_marker")
-            self.assertEqual(3, runner(root))
-            write_witness(root, issuer_relative, issuer_class_name, issuer_method)
-
-            (root / panel_relative).unlink()
-            self.assertEqual(4, runner(root))
-            write_witness(root, panel_relative, panel_class_name, "panel_marker")
-            self.assertEqual(4, runner(root))
-            write_witness(root, panel_relative, panel_class_name, panel_method, 'self.fail("panel")')
-            self.assertEqual(1, runner(root))
-            write_witness(
-                root, panel_relative, panel_class_name, panel_method, "raise RuntimeError()"
-            )
-            self.assertEqual(1, runner(root))
-            write_witness(
-                root,
-                panel_relative,
-                panel_class_name,
-                panel_method,
-                'self.fail("skipped")',
-                '@unittest.skip("not executed")',
-            )
-            self.assertEqual(1, runner(root))
-            write_witness(
-                root,
-                panel_relative,
-                panel_class_name,
-                panel_method,
-                'self.fail("expected")',
-                "@unittest.expectedFailure",
-            )
-            self.assertEqual(1, runner(root))
-            write_witness(
-                root,
-                panel_relative,
-                panel_class_name,
-                panel_method,
-                "self.assertTrue(True)",
-                "@unittest.expectedFailure",
-            )
-            self.assertEqual(1, runner(root))
 
     def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))

@@ -151,35 +151,6 @@
   listed workers used terra; no C04b implementation, scanner repair, or cache
   policy transition is claimed.
 
-## DS5-C05b-R2 freeze and C05b-D1 deferral — checkpoints `932d65c4f02bdfd782ccb1b24a4888028096ad51` / `ac24327c3ce02066682953a1b9a00431bf780476`
-
-- C05b exhausted its two-fix breaker. The stopped checkpoints were forward-reverted by
-  `ba55b71b5942f455ae7a2cf6385b5eaf9018eeae` and
-  `216ff491bb550f178a7dd2e81ff4888066f0b218`; implementation is **Not yet** and
-  D1 is record-only. The exact review stop retained the registry/issuer and real
-  panel/direct-Badge census gap; no R2/R3 executable claim survives.
-- D1 red first: `test_semantic_copy_deferral_closure_requires_issuer_and_live_panel_consumer_census`
-  failed with the closure helper absent (1 test, 0.001 seconds). Its green helper
-  witness passed 1/1 in 0.001 seconds; the current registered closure intentionally
-  exits 3 because the stopped issuer witness is absent.
-- The trusted in-process helper resolves only the two fixed future test identities;
-  it never evaluates register shell text. It rejects absent/wrong identities (3 issuer,
-  4 panel/census), failures/errors/skips/expected failures/unexpected successes (1),
-  and returns 0 only for two executed ordinary passes. Accepted semantic-review receipts
-  remain 0; DS6 human semantic review is untouched and not claimed.
-- Review/nonreceipt ledger: Terra-only record work; 0 Sol agents and 0 Sol temptations
-  or escalations. The stopped implementation checkpoints and their reviews are evidence
-  of the deferral, not a delivery receipt; no third repair was attempted.
-- Review fix 1 (Important): the initial helper accepted same-name classes from an
-  arbitrary module and returned 0. Red probes demonstrated that bypass, then cover
-  same-name/wrong-class and same-name/wrong-module variants for both issuer and panel.
-  The closure now ignores legacy caller objects, imports canonical modules itself, and
-  requires canonical module/class membership plus resolved declaration source paths.
-- Review fix 2 (Important): forged canonical-name/path module objects inserted into the
-  parent `sys.modules` still produced 0. The fresh-interpreter runner now has fixed argv,
-  sanitized Python environment, canonical cwd, and checker-owned exact file/class/method
-  identities; it loads files by location and returns only 0/1/3/4 structured outcomes.
-
 ## DS5-C03b-R2 freeze and C03b-D1 deferral — checkpoint `54fec7ae9a7282f414da8dc727fa5aa01a17b232`, forward revert `1d0ff1f539790294d508f97b3e4e4bfe3139f594`
 
 - C03b-R1 was undermeasured; its R2 recut was cap 17. R2 exhausted exactly two

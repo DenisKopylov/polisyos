@@ -828,9 +828,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "raw-transport-denominator-drift",
                 "capability-discovery-construction-lint-debt",
                 "semantic-copy-issuer-panel-consumer-deferral",
-                "c06-cgf-public-vocabulary-producer-debt",
-                "c06-decision-grade-generated-contract-debt",
-                "c06-queryobserver-cache-posture-artifact-debt",
             },
             set(descriptors),
         )
@@ -840,62 +837,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
             | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
             checker.EXPECTED_FINDING_IDS,
         )
-
-    def test_c06_waist_owner_debts_bind_three_independent_planes(self) -> None:
-        """Keep the three absent C06 producers independently descriptor-bound."""
-        expected = {
-            "c06-cgf-public-vocabulary-producer-debt": "runtime-quality/GY-DEF4",
-            "c06-decision-grade-generated-contract-debt": "C14",
-            "c06-queryobserver-cache-posture-artifact-debt": "C11a/C11b",
-        }
-        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        descriptors = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
-        rows = {
-            str(row["finding_id"]): row for row in data["supplemental_findings"]
-        }
-        benign = descriptors["run-lifecycle-terminal-fact"]
-        self.assertEqual("DS3", benign["owner_slice"])
-        for finding_id, successor in expected.items():
-            with self.subTest(finding_id=finding_id):
-                descriptor = descriptors[finding_id]
-                self.assertIn(successor, str(descriptor["rationale"]))
-                self.assertEqual(
-                    {
-                        "finding_id": finding_id,
-                        **descriptor,
-                        "decision_date": checker.DECISION_DATE,
-                    },
-                    rows[finding_id],
-                )
-                for field, replacement in (
-                    ("finding_kind", "baseline_test_debt"),
-                    ("owner_slice", "DS4"),
-                    ("capability_states", ["surface_missing"]),
-                ):
-                    mutation = copy.deepcopy(data)
-                    target = next(
-                        row
-                        for row in mutation["supplemental_findings"]
-                        if row["finding_id"] == finding_id
-                    )
-                    target[field] = replacement
-                    errors = checker.validate_register(
-                        mutation, live_probes=False, report_parity=False
-                    )
-                    self.assertIn(
-                        f"producer_binding_debt_drift:{finding_id}:{field}", errors
-                    )
-                mutation = copy.deepcopy(data)
-                target = next(
-                    row
-                    for row in mutation["supplemental_findings"]
-                    if row["finding_id"] == finding_id
-                )
-                target.pop("closure_signal")
-                errors = checker.validate_register(
-                    mutation, live_probes=False, report_parity=False
-                )
-                self.assertTrue(errors)
 
         generated = {
             row["finding_id"]: row for row in checker._supplemental_findings()

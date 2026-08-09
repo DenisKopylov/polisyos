@@ -1202,33 +1202,6 @@ be entered; `debt-only` may only register typed debt.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
-**C06-D1 disposition: debt-only, seven paths.** The entry audit proved there
-is no executable generated-waist remainder: CGF public vocabulary is owned by
-runtime-quality/GY-DEF4; `DecisionGrade` is assigned to C14 in the DS4 waist
-register; and client cache posture belongs to C11a/C11b QueryObserver lifecycle,
-not source-observation `ProjectionFreshness`. C06-D1 adds three independent
-descriptor-derived producer debts, their report, the induced DS19 hash-only
-re-anchor, compact corruption witnesses, this section, and the journal. It
-does not regenerate, edit an adapter, publish G4, or transition the existing
-DS4 bridge/surface rows.
-
-**Red first:** `ProducerBindingDebtTests.test_c06_waist_owner_debts_bind_three_independent_planes`
-fails while each descriptor row is absent, then proves corrupt, remove, and
-reclassify mutations fail independently while an existing descriptor remains
-benign. Each successor uses the established named-unittest-plus-condition
-closure idiom and is nonzero until its absent future test exists.
-
-**Acceptance:** exactly three supplemental producer debts:
-`c06-cgf-public-vocabulary-producer-debt` (runtime-quality/GY-DEF4),
-`c06-decision-grade-generated-contract-debt` (C14), and
-`c06-queryobserver-cache-posture-artifact-debt` (C11a/C11b). Their capability
-states and successor contracts state the missing plane without claiming that
-the DS4 rows, G4 projection, runtime contract, generated client, or cache
-artifact exists. The current measured 24-path implementation narrative below
-is superseded historical planning, not C06-D1 scope.
-
-**Expected forward commit:** `DS5-C06-D1 record waist producer debts`.
-
 **Measured set:** exactly 23 implementation/governed paths plus journal = 24;
 cap 26:
 `services/governed_projections.py` and

@@ -1104,3 +1104,51 @@
 - Orchestration: one terra implementer, zero sol escalation. Product/test work
   stayed on five paths; plan and journal make the exact seven-path atom. No
   register, generated report, status inventory, backend, or query key changed.
+
+## DS5-C11a — QueryObserver cache-posture observation
+
+- Pattern pass: P01/P04/P05/P08/P29/P31/P37. The canonical client boundary now
+  issues a nominal `CacheObservation` only from TanStack QueryObserver lifecycle
+  state plus the supplied owner `as_of`; source freshness, source timestamps,
+  and the advancing wall clock cannot manufacture cache-copy posture. This is
+  the producer and hook bridge only: no visible C11b surface is claimed.
+- Red first: the focused suite failed because `cacheDiscipline` did not exist,
+  and the real hook had no `cacheObservation` output (2 files failed; one
+  assertion failed and three existing assertions passed; Vitest 8.78s, wall
+  10.46s). The new red tests name structural construction, novel lifecycle or
+  missing owner time, timestamp/wall-clock invariance, retained stale data, and
+  a current owner packet.
+- Green receipt: focused Vitest passed 2/2 files and 9/9 tests in 7.91s
+  (wall 9.99s). The compile-time witness uses the sole test-only
+  `@ts-expect-error`; runtime witnesses keep malformed owner `as_of`, novel
+  `fetchStatus`, and absent data explicit `unrecognized`.
+- Serialized receipts: dashboard typecheck exited 0 in 120.04s; scoped ESLint
+  exited 0 in 86.84s; one bounded production build exited 0 in 173.05s,
+  transforming 3,885 modules and producing the 108-entry PWA precache. The
+  build emitted the inherited Rollup oversized-chunk advisory but no failure.
+- Nonreceipts: two earlier non-PTY typecheck launches detached under the terminal
+  wrapper and were terminated by exact PID before completion; neither partial
+  output is counted. C11a changes exactly five paths and is unstaged and
+  uncommitted for review.
+
+### Review fix round 1
+
+- Red first: the new rollover control made `2026-02-30T10:00:00Z` fail as
+  required: `Date.parse` accepted its normalized value and the observer issued
+  `cached` rather than `unrecognized` (1 failed, 5 passed; Vitest 0.903s,
+  wall 1.636s). The direct `undefined` and `null` data witness was green on the
+  existing `data == null` fail-closed branch, so it closes a coverage gap rather
+  than inventing a second behavioral red.
+- Owner time is now syntax- and calendar-validated before issuance, including
+  leap-year/month-day and timezone-field bounds; it neither compares time to
+  the current clock nor derives posture from the owner timestamp. Canonical UTC
+  and a valid offset control remain accepted unchanged.
+- Delta receipts: focused Vitest passed 2/2 files and 11/11 tests in 2.56s
+  (wall 3.388s); dashboard typecheck exited 0 in 30.001s; scoped ESLint exited
+  0 in 12.705s. The production build was deliberately not rerun pending delta
+  reviewer GO.
+- Terminal build receipt after reviewer GO: the one explicitly 240-second-bounded
+  production build exited 0 in 29.812s, transformed 3,885 modules, completed
+  postbuild security and the Atlas UI Tailwind-source check, and generated the
+  108-entry PWA precache. The inherited oversized-chunk advisory remained
+  non-failing.

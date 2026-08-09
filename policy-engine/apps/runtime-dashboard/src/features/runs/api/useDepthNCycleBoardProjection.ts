@@ -6,6 +6,7 @@ import {
 } from "@polisyos/runtime-api-client";
 
 import { queryKeys } from "@/api/queryKeys";
+import { observeCachePosture } from "@/api/cacheDiscipline";
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
@@ -115,6 +116,13 @@ export function depthNCycleBoardProjectionQueryOptions(
 }
 
 /** Read the global Cycle Board projection without correlating it to a route. */
-export function useDepthNCycleBoardProjection() {
-  return useQuery(depthNCycleBoardProjectionQueryOptions());
+export function useDepthNCycleBoardProjection(
+  client: GovernedProjectionClient = governedProjectionClient,
+) {
+  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));
+
+  return {
+    ...query,
+    cacheObservation: observeCachePosture(query, query.data?.packet.as_of),
+  };
 }

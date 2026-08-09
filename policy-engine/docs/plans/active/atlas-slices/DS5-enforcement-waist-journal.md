@@ -1,5 +1,14 @@
 # DS5 Enforcement Waist Journal
 
+## DS5 review-bar and dependency binding
+
+- Native Terra only: the C06 governed-register tail was serialized while C08b
+  product work ran in parallel. Checkpoint assessment was 3/3 useful; C06
+  review needed one valid evidence fix.
+- Index isolation produced nonreceipts; no partial result was promoted. The
+  external repo-swarm runner was not used because it conflicts with the tier
+  fence. Zero Sol workers and zero Sol escalations.
+
 ## DS5 producer-existence entry audit
 
 - Root adjudication: DS5 was sequenced as if enforcement could precede

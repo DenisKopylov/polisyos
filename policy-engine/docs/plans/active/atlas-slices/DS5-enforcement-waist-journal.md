@@ -1,5 +1,26 @@
 # DS5 Enforcement Waist Journal
 
+## DS5 producer-existence entry audit
+
+- Root adjudication: DS5 was sequenced as if enforcement could precede
+  producers. Landed `a` clusters largely had owner emissions; `b` clusters and
+  C06 exposed their absence. The binding plan table enumerates all 24 C07-C20
+  headings (with mixed planes split) before entry: blocked rows may not be
+  entered and debt-only rows may only register typed debt.
+- Native Terra completed three productive evidence ranges: runtime audience/
+  permission owners (`src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`,
+  `routes/auth.py:59-82`, `permissions.py:16-51,211-216`); dashboard state/
+  cache/persistence/flag owners (`apps/runtime-dashboard/src/{api/hooks/useAuthMe.ts,features/runs/api/useDepthNCycleBoardProjection.ts,features/runs/domain/operatorCraft.ts,shared/lib/featureFlags.ts,app/providers/FeatureFlagProvider.tsx}`); and complete absence/register checks (`PersistedEnvelope|authorityLocalState` = 0, G4 register row).
+- Orchestration receipt: the repo-swarm external runner conflicted with the tier
+  fence, so native Terra was used. All three ranges were productive; zero quota
+  use, zero Sol workers, and zero Sol temptations/escalations.
+- C06 STOP evidence: its planned complete G4 packet has no routed producer;
+  `g4-complete-audience-projection-contract` remains `team-runtime-quality`
+  `open_debt` and says the owner publishes only reduced reference projections
+  (`docs/reference/frontend/atlas-frontend-disposition-register.md:221`). Next
+  step: wait for that owner-plan producer/bridge closure, then re-run the C06
+  entry audit; do not enter C06 from generated-contract shape alone.
+
 ## DS5-C05b-D2 record-only deferral
 
 - C05b implementation is **Not yet**. This seven-path record adds no semantic-copy

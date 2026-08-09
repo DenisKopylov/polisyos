@@ -140,8 +140,8 @@ evidence and must be discarded.
 
 Three conditions still stop the slice at a clean, committed boundary:
 
-- a canonical vocabulary symbol or governed field changes while C06 only
-  expects uniform generated offset/hash drift;
+- a canonical vocabulary symbol or governed field changes while C06 expects
+  only accounted per-symbol/per-field generated line drift;
 - a new owner gap requires code outside `runtime/http` or attempts to close an
   opaque terminal/evidence extension;
 - a boundary remeasurement exceeds the recorded cap. The response is a
@@ -188,7 +188,7 @@ byte-unmodified. Any new identity is red.
 | DS4 status estate | 47 rows; 15 current authored; 0 retirement debt | C01a retains exact generated provenance and the status-inventory bridge; it does not claim whole-program value analysis |
 | architecture | 1,019 modules / 4,150 dependencies / 0 violations | C02 injects real violations into both engines |
 | DS4 waist debts | exactly 3 | one C06 regeneration and three singular swap modules |
-| generated governed receipts | 15 anchored rows / 10 distinct export symbols / 13 fields | C06 requires symbol count 1, unchanged fields, uniform offset, two refreshed hashes |
+| generated governed receipts | 15 anchored rows / 10 distinct export symbols / 13 fields | C06 requires each symbol/field tuple to occur once, remain unchanged, and have an accounted baseline-to-generated line delta; two client hashes refresh |
 | CGF owner disposition | 70 owner rows; 3 values (`USE_AS_IS`, `REWORK_TO_FIT`, `DELETE`); 0 production consumers of its current adapter | keep owner values closed but presentation neutral |
 | decision grade | 4 owner values; adapter has 10 call sites in 8 production consumer files | swap only the adapter, not the consumers |
 | cache-age adapter | one adapter; one `TimeSemanticsLabel`; 2 live render sites | source freshness remains orthogonal |
@@ -1157,6 +1157,49 @@ the five named missing states; its simple two-test command is nonzero until both
 future issuer and panel/census tests execute and pass. Accepted DS6 review receipts
 remain 0. **Expected subject:** `DS5-C05b-D2 record semantic-copy deferral`.
 
+### DS5 producer-existence entry audit — root finding
+
+DS5 was sequenced as though enforcement could precede its producers. The landed
+`a` clusters largely have owner emissions, while `b` clusters and C06 expose
+missing producers. This entry audit is the P31 structural repair: enumerate the
+whole producer set once before admitting a cluster, rather than stopping one
+cluster at a time. P35 applies to every absence/count: it is supported by a
+complete command, not a sampled file. A `blocked-on-another-*` verdict may not
+be entered; `debt-only` may only register typed debt.
+
+| Cluster | Deliverable | Producer today | Evidence | Verdict |
+| --- | --- | --- | --- | --- |
+| C07 | audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners | `src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `src/polisyos/runtime/http/permissions.py:16-51,211-216`; `schemas/runtime_api_v1.openapi.json:/api/v1/auth/me` | executable |
+| C08a | test-only identity fixture | verified `/auth/me` producer exists; only test fallback import must be isolated | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/test/render.tsx:7,28` | executable |
+| C08b-R1 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | executable |
+| C08b-R1 | auth-session revision partition | no relevant identity revision producer in OpenAPI/apps/packages/runtime HTTP | complete absence: `rg -n -i -e 'auth_session_revision' -e 'auth.*session.*revision' -e 'session.*revision.*auth' -e 'identity.*revision' -e 'revision.*identity' schemas/runtime_api_v1.openapi.json apps/runtime-dashboard packages/runtime-api-client src/polisyos/runtime/http --glob '*.{json,ts,tsx,py}'` (0) | debt-only |
+| C09a-R1 | chrome default deny | requires C08b verified Authz decision; current defaults still allow | `apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx:48-75`; `apps/runtime-dashboard/src/app/layout/Sidebar.tsx:39-46`; `apps/runtime-dashboard/src/app/layout/Header.tsx:1-8`; C08b-R1 table row | blocked-on-another-cluster |
+| C09b-R1 | mode/run default deny | requires C08b verified Authz decision; current defaults still allow | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx:43-99`; `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx:834`; C08b-R1 table row | blocked-on-another-cluster |
+| C10-R1 | weakest-boundary presentation | no routed complete G4 producer; C05b implementation debt also remains | `docs/reference/frontend/atlas-frontend-disposition-register.md:221`; C05b-D2 above | blocked-on-another-plan |
+| C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | executable |
+| C11b-R1 | visible cache posture | depends on C11a typed `CachePosture` artifact | C11a table row; `DS5-C11b-R1` acceptance | blocked-on-another-cluster |
+| C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | executable |
+| C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster |
+| C13a | delete authority replay | queue writer/replay emits authority mutations today and is deletable | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:39-61`; `apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx:158-246` | executable |
+| C13b-R1 | SW sync/flush authority bridge | worker and provider bridge exist today | `apps/runtime-dashboard/src/sw.ts:13-45`; `apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx:114-153` | executable |
+| C13b-R1 | composer-only typed closure | composer closure needs C14a envelope | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:39-61`; C14a table row | blocked-on-another-cluster |
+| C14a | nominal envelope owner | no `PersistedEnvelope<StoreClass>` or `authorityLocalState` producer exists | complete absence: `rg -n -e 'PersistedEnvelope' -e 'authorityLocalState' apps/runtime-dashboard packages architecture --glob '*.{ts,tsx,json,toml}'` (0) | debt-only |
+| C14b-R1 | scoped composer consumer | raw composer record has neither scope nor TTL and needs C14a | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:80-85`; C14a table row | blocked-on-another-cluster |
+| C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable |
+| C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan |
+| C15a | identity hydration API | requires verified identity and envelope ownership | C08b-R1 and C14a table rows | blocked-on-another-cluster |
+| C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster |
+| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | executable |
+| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | executable |
+| C17a-R1 | storage-family partition | four typed raw-local-storage families emit today | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444-490,504-570,647-657,735-816` | executable |
+| C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan |
+| C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable |
+| C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable |
+| C18b-R1 | contextual flag source binding | provider emits merged flags and cached manifest today | `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-55,68-131` | executable |
+| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable |
+| C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable |
+| C20 | final ledger/corruption/architect receipt | requires closure of executable/debt clusters first | `DS5-C20` acceptance; all preceding blocked/debt rows | blocked-on-another-cluster |
+
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
 **Measured set:** exactly 23 implementation/governed paths plus journal = 24;
@@ -1201,10 +1244,11 @@ constants. The G4 packet is validated by the existing isolated owner-validation
 worker, content-bound to the canonical artifact, and carries the complete
 owner-composed weakest-boundary/veto result; the browser receives no rank or
 meet function. Type erasure is not presented as runtime validation. Terminal kinds
-and evidence classes remain opaque. Every governed `export_symbol` still
-occurs once, all 13 fields are unchanged, one uniform offset explains anchor
-movement, two client hashes refresh, surgical JSON diffs preserve unrelated
-bytes, and both corruption batteries pass.
+and evidence classes remain opaque. Every governed `export_symbol` still occurs
+once and every symbol/field tuple is unchanged. Generated aliases sort
+alphabetically, so each tuple requires its own accounted baseline-to-generated
+line delta; any unaccounted drift stops the cluster. Two client hashes refresh,
+surgical JSON diffs preserve unrelated bytes, and both corruption batteries pass.
 The definition census is re-derived from `_DEFINITIONS` and must be exactly
 14/6/8 after the addition; a different audience or a second unmeasured
 definition is red.
@@ -1273,7 +1317,8 @@ a route requires its exact declared permission, never merely any permission
 eligible for an audience; mapping coverage is generic over all 33 enum members;
 projection producer audiences are not relabeled; all six source-derived
 high-stakes permissions exclude MACHINE; generated symbols/fields are
-re-anchored under the same unchanged-field/uniform-offset rule; the UI is not
+re-anchored under the same unchanged tuple/per-symbol-per-field line-delta
+rule, with any unaccounted drift a STOP; the UI is not
 part of the allow decision. Regeneration repeats the same registered exporter
 and generated-output commands as C06; no generated-client package file is
 hand-edited.

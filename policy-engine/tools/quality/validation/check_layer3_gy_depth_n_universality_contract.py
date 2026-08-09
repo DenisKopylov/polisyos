@@ -4965,9 +4965,17 @@ async def _domain_run_and_normalized_recording(
             + ",".join(replayed_authority_issues)
         )
     if prior_admission:
-        if _without_authority_source_migration_receipt(recording) != (
-            normalized_recording
+        expected_recording = _without_authority_source_migration_receipt(
+            recording
+        )
+        if expected_recording.get("recording_content_hash") == (
+            normalized_recording.get("recording_content_hash")
         ):
+            _preserve_operational_values(
+                expected_recording,
+                normalized_recording,
+            )
+        if expected_recording != normalized_recording:
             raise UniversalityContractError(
                 "authority_source_controlled_replay_recording_drift"
             )

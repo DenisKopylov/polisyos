@@ -2481,6 +2481,15 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
             {
                 "node_ref": "design://controlled",
                 "cycle_run": {
+                    "cycles": [
+                        {
+                            "acquisition_routing_report": {
+                                "generated_at": "2026-08-09T10:33:22Z"
+                            },
+                            "value_port": {"wall_time_ms": 1.0},
+                        }
+                    ],
+                    "value_port": {"wall_time_ms": 1.0},
                     "promotion_port": {
                         "status": "not_promoted",
                         "reason": "verification_n9_sequence_non_consumer",
@@ -2495,8 +2504,22 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
                         ],
                     }
                 },
+                "terminal": {
+                    "costed_plan": {
+                        "canonical_planner_report": {
+                            "generated_at": "2026-08-09T10:33:22Z"
+                        }
+                    }
+                },
             }
         ],
+        "terminal": {
+            "costed_plan": {
+                "canonical_planner_report": {
+                    "generated_at": "2026-08-09T10:33:22Z"
+                }
+            }
+        },
     }
     live_payload = {
         "content_hash": live_hash,
@@ -2578,24 +2601,26 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         "recursive_run": recursive_payload,
     }
     captured_payload["content_hash"] = gy_content_hash(captured_payload)
+
+    def _validate_compiled(payload: dict[str, Any]) -> object:
+        if payload.get("schema_version") != "policyos.test.compiled.v1":
+            return live_compiled
+        raise ValidationError.from_exception_data(
+            "CompiledRecursiveGenerationCycleRun",
+            [
+                {
+                    "type": "value_error",
+                    "loc": ("recursive_run",),
+                    "input": payload.get("recursive_run"),
+                    "ctx": {"error": ValueError(validation_reason)},
+                }
+            ],
+        )
+
     monkeypatch.setattr(
         compiled_type,
         "model_validate",
-        staticmethod(
-            lambda payload: (_ for _ in ()).throw(
-                ValidationError.from_exception_data(
-                    "CompiledRecursiveGenerationCycleRun",
-                    [
-                        {
-                            "type": "value_error",
-                            "loc": ("recursive_run",),
-                            "input": payload.get("recursive_run"),
-                            "ctx": {"error": ValueError(validation_reason)},
-                        }
-                    ],
-                )
-            )
-        ),
+        staticmethod(_validate_compiled),
     )
     monkeypatch.setattr(
         control,
@@ -2673,6 +2698,43 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         normalized,
         replayed_domain_run=domain_run,
     )
+
+    live_cycle = live_payload["recursive_run"]["nodes"][0]["cycle_run"]
+    live_cycle["cycles"][0]["acquisition_routing_report"]["generated_at"] = (
+        "2026-08-09T10:49:01Z"
+    )
+    live_cycle["cycles"][0]["value_port"]["wall_time_ms"] = 99.0
+    live_cycle["value_port"]["wall_time_ms"] = 99.0
+    live_payload["recursive_run"]["nodes"][0]["terminal"]["costed_plan"][
+        "canonical_planner_report"
+    ]["generated_at"] = "2026-08-09T10:49:01Z"
+    live_payload["recursive_run"]["terminal"]["costed_plan"][
+        "canonical_planner_report"
+    ]["generated_at"] = "2026-08-09T10:49:01Z"
+
+    replayed_domain_run, replayed_recording = (
+        await validator._domain_run_and_normalized_recording(
+            tmp_path,
+            role="education",
+            recording=normalized,
+            historical_domain_run=domain_run,
+        )
+    )
+
+    assert replayed_recording == normalized
+    assert replayed_domain_run == domain_run
+
+    live_payload["recursive_run"]["semantic_marker"] = "changed"
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="authority_source_controlled_replay_recording_drift",
+    ):
+        await validator._domain_run_and_normalized_recording(
+            tmp_path,
+            role="education",
+            recording=normalized,
+            historical_domain_run=domain_run,
+        )
 
 
 def test_historical_compiled_envelope_rejects_tampered_recursive_payload() -> None:

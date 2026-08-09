@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.quality import grounding_relation as _cg1
 from polisyos.runtime.quality.grounding_relation import (
     CRITICAL_AXES,
@@ -138,7 +138,7 @@ class CalibrationStratumRecord(_StrictModel):
     def _content_hash_matches_payload(self) -> CalibrationStratumRecord:
         if self.content_hash is None:
             return self
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = gy_artifact_self_identity_projection(self)
         expected = gy_content_hash(payload)
         if self.content_hash != expected:
             raise ValueError("calibration_stratum_content_hash_mismatch")
@@ -147,7 +147,7 @@ class CalibrationStratumRecord(_StrictModel):
     def with_content_hash(self) -> CalibrationStratumRecord:
         """Return this record with its deterministic content hash populated."""
 
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = gy_artifact_self_identity_projection(self)
         return self.model_copy(update={"content_hash": gy_content_hash(payload)})
 
 
@@ -1355,11 +1355,11 @@ def recompute_grounding_decision_content_hash(
     """Recompute CG2's content hash from the certificate body."""
 
     if isinstance(certificate_or_payload, Mapping):
-        payload = json.loads(json.dumps(certificate_or_payload, sort_keys=True))
+        normalized = json.loads(json.dumps(certificate_or_payload, sort_keys=True))
     else:
-        payload = certificate_or_payload.model_dump(mode="json")
+        normalized = certificate_or_payload
+    payload = gy_artifact_self_identity_projection(normalized)
     payload.pop("certificate_id", None)
-    payload.pop("content_hash", None)
     return gy_content_hash(payload)
 
 

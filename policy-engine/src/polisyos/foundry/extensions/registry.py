@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import io
 import json
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -123,6 +125,33 @@ def bootstrap_foundry_method_registry(
     )
 
 
+@contextmanager
+def controlled_builtin_foundry_method_registry_scope() -> (
+    Iterator[tuple[MethodRegistry, FoundryExtensionRegistryReport]]
+):
+    """Yield a fresh registry whose governed basis is bound builtins only.
+
+    Raises:
+        UnboundFoundryDiscoveryInputError: If the controlled discovery basis is
+            unbound or its component bridge cannot be admitted completely.
+    """
+
+    with registry_scope() as registry:
+        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            report = bootstrap_foundry_method_registry(
+                registry,
+                include_builtins=True,
+                include_entry_points=False,
+                include_dev_scan=False,
+                require_bound_discovery_manifest=True,
+            )
+        if not report.success:
+            raise UnboundFoundryDiscoveryInputError(
+                "controlled_foundry_registry_bootstrap_failed"
+            )
+        yield registry, report
+
+
 def _method_registry_snapshot_binding_sha256(snapshot: RegistrySnapshot) -> str:
     """Content-bind one already-frozen registry snapshot."""
     rows = [
@@ -224,6 +253,7 @@ __all__ = sorted(
         "UnboundFoundryDiscoveryInputError",
         "bootstrap_builtin_foundry_method_family",
         "bootstrap_foundry_method_registry",
+        "controlled_builtin_foundry_method_registry_scope",
         "get_registry",
         "get_registry_audit_log",
         "register_foundry_method_plugin",

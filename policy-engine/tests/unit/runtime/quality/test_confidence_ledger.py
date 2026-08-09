@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import inspect
 import json
 import os
@@ -971,32 +972,188 @@ raise SystemExit(3)
     assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
 
 
-def test_deployment_identity_binds_preimport_rebound_authority_callable() -> None:
+def test_rebound_authority_callable_fails_closed_for_every_session_mode(
+    tmp_path: Path,
+) -> None:
     script = """
+import json
 import sys
+import tempfile
+from functools import lru_cache
 from pathlib import Path
 
-import polisyos.fabric.io.atomic as atomic
+import polisyos.core.cache.lru as cache_lru
+import polisyos.core.security.authz as authz
+import polisyos.core.security.db_backend as db_backend
+import polisyos.core.security.settings as security_settings
+from polisyos.core.artifacts import FileSystemCAS
 
-marker = sys.argv[1]
-def bind(value):
+mutation = sys.argv[1]
+if mutation == "foreign":
     def replacement(*args, **kwargs):
-        return value
-    return replacement
-atomic.atomic_write_json = bind(marker)
+        return "foreign-rebound"
+    authz._default_metrics = replacement
+elif mutation == "local_swap":
+    authz._default_metrics = authz.AuthzInput.for_http_request.__func__
+elif mutation == "deleted":
+    del authz._default_metrics
+elif mutation == "class_swap":
+    authz.AuthzInput.for_http_request = classmethod(
+        authz.AuthzInput.for_cas_artifact.__func__
+    )
+elif mutation == "class_deleted":
+    del authz.AuthzInput.for_http_request
+elif mutation == "class_descriptor_swap":
+    original = vars(authz.AuthzInput)["for_http_request"]
+    authz.AuthzInput.for_http_request = staticmethod(original.__func__)
+elif mutation == "decorated_swap":
+    db_backend.DatabaseBackend.transaction = vars(db_backend.DatabaseBackend)["tenant_scope"]
+elif mutation == "decorated_unwrapped":
+    original = vars(db_backend.DatabaseBackend)["transaction"]
+    db_backend.DatabaseBackend.transaction = original.__wrapped__
+elif mutation == "decorated_deleted":
+    del db_backend.DatabaseBackend.transaction
+elif mutation == "property_roles_swapped":
+    original = vars(cache_lru.LRUCache)["max_size"]
+    cache_lru.LRUCache.max_size = property(
+        fget=original.fset,
+        fset=original.fget,
+    )
+elif mutation == "lru_policy_rewritten":
+    original = security_settings.get_security_settings
+    security_settings.get_security_settings = lru_cache(maxsize=8, typed=True)(
+        original.__wrapped__
+    )
+else:
+    raise AssertionError(mutation)
 
 from polisyos.runtime.quality import confidence_ledger as ledger
 
-assert ledger.atomic_write_json(None) == marker
-print(ledger._policy_engine_deployment_identity(Path.cwd()))
+repo_root = Path.cwd()
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:rebound-admission",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+
+results = []
+with tempfile.TemporaryDirectory() as temporary:
+    temporary_root = Path(temporary)
+    for session_mode in ("verification", "authority"):
+        if session_mode == "verification":
+            open_session = lambda: ledger.ConfidenceLedgerSession._for_verification(
+                repo_root,
+                risk_scope=scope,
+                artifact_store=FileSystemCAS(temporary_root / "cas"),
+                state_root=temporary_root / "state",
+            )
+        else:
+            open_session = lambda: ledger.ConfidenceLedgerSession.from_repo(
+                repo_root,
+                risk_scope=scope,
+            )
+        try:
+            open_session()
+        except ledger.ConfidenceLedgerError as exc:
+            results.append(exc.code)
+        else:
+            results.append("admitted")
+print(json.dumps(results))
+"""
+
+    for mutation in (
+        "foreign",
+        "local_swap",
+        "deleted",
+        "class_swap",
+        "class_deleted",
+        "class_descriptor_swap",
+        "decorated_swap",
+        "decorated_unwrapped",
+        "decorated_deleted",
+        "property_roles_swapped",
+        "lru_policy_rewritten",
+    ):
+        checkout = tmp_path / mutation / "policy-engine"
+        shutil.copytree(REPO_ROOT / "src", checkout / "src")
+        for relative in (Path("pyproject.toml"), Path("uv.lock")):
+            target = checkout / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((REPO_ROOT / relative).read_bytes())
+        (checkout / "architecture").symlink_to(
+            REPO_ROOT / "architecture",
+            target_is_directory=True,
+        )
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(checkout / "src")
+        completed = subprocess.run(
+            [sys.executable, "-c", script, mutation],
+            cwd=checkout,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stdout + completed.stderr
+        assert json.loads(completed.stdout.strip().splitlines()[-1]) == [
+            "canonical_loaded_runtime_mismatch",
+            "canonical_loaded_runtime_mismatch",
+        ]
+
+
+def test_deployment_identity_manifest_is_complete_and_import_order_independent() -> None:
+    """The declared authority closure, not import chronology, owns E12 identity."""
+
+    script = """
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+if sys.argv[1] == "depth_first":
+    import tools.quality.validation.check_layer3_gy_depth_n_universality_contract
+
+from polisyos.runtime.quality import confidence_ledger as ledger
+from polisyos.core.artifacts import FileSystemCAS
+
+manifest = json.loads(ledger._IMPORT_TIME_LOADED_CODE_MANIFEST)
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:import-order-verification",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    session = ledger.ConfidenceLedgerSession._for_verification(
+        Path.cwd(),
+        risk_scope=scope,
+        artifact_store=FileSystemCAS(root / "cas"),
+        state_root=root / "state",
+    )
+print(json.dumps({
+    "closure": [name for name, _path in ledger._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE],
+    "identity": ledger._policy_engine_deployment_identity(Path.cwd()),
+    "manifest_keys": sorted(manifest),
+    "verification_identity": session._deployment_identity,
+}, sort_keys=True))
 """
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_ROOT / "src")
 
-    identities = []
-    for marker in ("A", "B"):
+    payloads = []
+    for mode in ("confidence_first", "depth_first"):
         completed = subprocess.run(
-            [sys.executable, "-c", script, marker],
+            [sys.executable, "-c", script, mode],
             cwd=REPO_ROOT,
             env=env,
             capture_output=True,
@@ -1004,9 +1161,32 @@ print(ledger._policy_engine_deployment_identity(Path.cwd()))
             check=False,
         )
         assert completed.returncode == 0, completed.stdout + completed.stderr
-        identities.append(completed.stdout.strip())
+        payloads.append(json.loads(completed.stdout))
 
-    assert identities[0] != identities[1]
+    for payload in payloads:
+        assert payload["manifest_keys"] == payload["closure"]
+        assert payload["verification_identity"] == payload["identity"]
+    assert payloads[0]["identity"] == payloads[1]["identity"]
+
+
+def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A declared closure member cannot disappear behind a partial manifest."""
+
+    module_name = "polisyos.core.security.authz"
+    relative_path = dict(ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)[module_name]
+    importlib.import_module(module_name)
+    monkeypatch.delitem(sys.modules, module_name)
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match="canonical_loaded_runtime_mismatch",
+    ):
+        ledger_module._loaded_code_manifest(
+            REPO_ROOT,
+            ((module_name, relative_path),),
+        )
 
 
 def test_mid_operation_deployment_drift_poison_is_irreversible(

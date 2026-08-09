@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.substrate_registry import (
@@ -103,6 +104,34 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+
+
+def test_n10a_recomputation_never_opens_the_authority_ledger(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N10a must exercise N9 through isolated, non-authorizing state."""
+
+    def reject_authority_state(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise AssertionError("n10a opened ConfidenceLedgerSession.from_repo")
+
+    monkeypatch.setattr(ConfidenceLedgerSession, "from_repo", reject_authority_state)
+    second_domain_pack._CYCLE_TRACE_CACHE.clear()
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    trace = second_domain_pack._build_cycle_trace(
+        REPO_ROOT,
+        frozen["smoke_problem"],
+    )
+    promotion = trace["generation_cycle_run"]["promotion_port"]
+
+    assert promotion["status"] == "not_promoted"
+    assert promotion["reason"] == "verification_n9_sequence_non_consumer"
+    assert promotion["receipts"]
+    assert {
+        receipt["confidence_ledger_projection"]["authority_provenance"]
+        for receipt in promotion["receipts"]
+    } == {"verification"}
+    assert all(receipt["consumer_promotable"] is False for receipt in promotion["receipts"])
 
 
 def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
@@ -496,6 +525,94 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
         ]["generated_at"]
         == "2026-07-15T00:00:00Z"
     )
+
+
+def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compare the same byte projection that the canonical writer would emit."""
+
+    frozen = {
+        "census": {
+            "census_content_hash": "sha256:" + "a" * 64,
+            "content_hash_excluded_fields": ["runtime_metrics"],
+            "runtime_metrics": {"wall_time_seconds": 1.0},
+        },
+        "pack": {},
+        "smoke_problem": {},
+        "cycle_trace": {
+            "trace_content_hash": "sha256:" + "b" * 64,
+            "content_hash_excluded_fields": ["runtime_metrics"],
+            "runtime_metrics": {"wall_time_seconds": 1.0},
+            "generation_cycle_run": {
+                "cycles": [
+                    {
+                        "cycle_index": 0,
+                        "acquisition_routing_report": {
+                            "status": "pass",
+                            "generated_at": "2026-07-14T00:00:00Z",
+                        },
+                    }
+                ]
+            },
+        },
+        "gaps": {},
+    }
+    by_path = {
+        second_domain_pack.CENSUS_OUTPUT: frozen["census"],
+        second_domain_pack.PACK_OUTPUT: frozen["pack"],
+        second_domain_pack.SMOKE_PROBLEM_OUTPUT: frozen["smoke_problem"],
+        second_domain_pack.CYCLE_TRACE_OUTPUT: frozen["cycle_trace"],
+        second_domain_pack.GAP_REPORT_OUTPUT: frozen["gaps"],
+    }
+    for relative_path, payload in by_path.items():
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+
+    live = copy.deepcopy(frozen)
+    live["census"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
+    live["cycle_trace"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
+    live["cycle_trace"]["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "validate_bundle_payloads",
+        lambda _bundle, _root: [],
+    )
+
+    report = second_domain_pack.rederive_audit(tmp_path)
+
+    assert report["status"] == "pass"
+    assert report["issues"] == []
+
+
+def test_routing_time_preservation_does_not_manufacture_missing_runtime_property() -> None:
+    """A frozen timestamp cannot replace a property absent from the live producer."""
+
+    frozen = {
+        "generation_cycle_run": {
+            "cycles": [
+                {
+                    "cycle_index": 0,
+                    "acquisition_routing_report": {
+                        "status": "pass",
+                        "generated_at": "2026-07-14T00:00:00Z",
+                    },
+                }
+            ]
+        }
+    }
+    live = copy.deepcopy(frozen)
+    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ]
+
+    with pytest.raises(ValueError, match="gy_operational_reconciliation_shape_mismatch"):
+        second_domain_pack.reconcile_gy_operational_leaves(frozen, live)
 
 
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
@@ -1112,9 +1229,15 @@ def test_corrupt_drift_covers_cycle_registry_and_historical_identity() -> None:
 
 def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
     monkeypatch: pytest.MonkeyPatch,
+    live_bundle: dict[str, object],
 ) -> None:
     """Do not let alternate-L2 collateral mask a broken query-rewrite probe."""
 
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_load_frozen_bundle",
+        lambda _root: copy.deepcopy(live_bundle),
+    )
     real_mutations = second_domain_pack._cycle_substrate_corruption_bundles
 
     def _drop_query_witness(
@@ -1145,6 +1268,66 @@ def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
 
     assert report["status"] == "pass"
     assert "coordinated_query_rewrite:cycle_substrate_registry_query_census_mismatch" in missing
+
+
+def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
+    monkeypatch: pytest.MonkeyPatch,
+    live_bundle: dict[str, object],
+) -> None:
+    """Require the promotion mutation to reach its own real consumer."""
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_load_frozen_bundle",
+        lambda _root: copy.deepcopy(live_bundle),
+    )
+    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    results = {
+        item["mutation_id"]: set(item["detected_codes"])
+        for item in report["smoke_terminal_mutation_results"]
+    }
+
+    assert report["status"] == "fail"
+    assert "smoke_terminal_not_honest" in results["terminal_execution_status"]
+    assert (
+        "smoke_promotion_verification_boundary_invalid"
+        in results["promotion_verification_boundary"]
+    )
+
+    real_mutations = second_domain_pack._smoke_terminal_corruption_bundles
+
+    def _remove_promotion_property_keep_markers(
+        bundle: dict[str, object],
+    ) -> list[tuple[str, dict[str, object]]]:
+        return [
+            (
+                mutation_id,
+                copy.deepcopy(bundle)
+                if mutation_id == "promotion_verification_boundary"
+                else payload,
+            )
+            for mutation_id, payload in real_mutations(bundle)
+        ]
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_smoke_terminal_corruption_bundles",
+        _remove_promotion_property_keep_markers,
+    )
+
+    removed = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    missing = {
+        item
+        for issue in removed["issues"]
+        if issue["code"] == "corrupt_field_drift_not_detected"
+        for item in issue["missing"]
+    }
+
+    assert removed["status"] == "pass"
+    assert (
+        "promotion_verification_boundary:"
+        "smoke_promotion_verification_boundary_invalid"
+    ) in missing
 
 
 def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head(
@@ -1641,6 +1824,25 @@ def test_crash_or_mismatch_trace_cannot_be_labeled_honest(
     }
 
     assert "smoke_terminal_not_honest" in codes
+
+
+def test_smoke_trace_requires_isolated_verification_promotion(
+    live_bundle: dict[str, object],
+) -> None:
+    """A typed terminal cannot retain an ambient authority-state result."""
+
+    corrupted = copy.deepcopy(live_bundle)
+    promotion = corrupted["cycle_trace"]["generation_cycle_run"][
+        "promotion_port"
+    ]
+    promotion["reason"] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "smoke_promotion_verification_boundary_invalid" in codes
 
 
 def test_smoke_trace_must_bind_the_frozen_design_problem(

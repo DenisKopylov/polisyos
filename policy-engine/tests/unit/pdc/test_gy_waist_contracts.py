@@ -27,7 +27,9 @@ from polisyos.pdc import (
     VOISelectionAudit,
     WorkspaceContract,
     assert_ring2_verifier_provenance,
+    gy_artifact_self_identity_projection,
     gy_content_hash,
+    reconcile_gy_operational_leaves,
 )
 from polisyos.pdc._impl.gy_waist import (
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
@@ -89,6 +91,45 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
         uri="cas://artifact-hash",
         version="v1",
     ).content_hash == first
+
+
+def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:
+    draft = {"value": 3, "created_at": "2026-06-15T10:00:00Z"}
+    artifact = {**draft, "content_hash": "sha256:self"}
+
+    assert gy_artifact_self_identity_projection(draft) == {"value": 3}
+    assert gy_artifact_self_identity_projection(artifact) == {"value": 3}
+
+    with pytest.raises(ValueError, match="artifact_self_identity_ambiguous"):
+        gy_artifact_self_identity_projection({**artifact, "record_hash": "sha256:other"})
+
+
+def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() -> None:
+    previous = {
+        "content_hash": "sha256:one",
+        "value": {"score": 1, "generated_at": "old"},
+        "elapsed_ms": 10,
+    }
+    current = {
+        "content_hash": "sha256:one",
+        "value": {"score": 1, "generated_at": "new"},
+        "elapsed_ms": 20,
+    }
+
+    assert reconcile_gy_operational_leaves(previous, current) == previous
+
+    with pytest.raises(ValueError, match="semantic_projection_mismatch"):
+        reconcile_gy_operational_leaves(previous, {**current, "value": {"score": 2, "generated_at": "new"}})
+    with pytest.raises(ValueError, match="shape_mismatch"):
+        reconcile_gy_operational_leaves(
+            previous,
+            {"content_hash": "sha256:one", "value": {"score": 1}, "elapsed_ms": 20},
+        )
+    with pytest.raises(ValueError, match="shape_mismatch"):
+        reconcile_gy_operational_leaves(
+            previous,
+            {**current, "added_at": "new"},
+        )
 
 
 def test_non_verifier_writer_cannot_set_ring2_field() -> None:

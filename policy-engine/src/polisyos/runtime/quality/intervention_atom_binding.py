@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
+from polisyos.common import serialization
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.interventions import (
@@ -556,20 +557,22 @@ def persist_intervention_atom_binding(
 
 
 def _content_payload_from_atom(atom: InterventionAtomBinding) -> dict[str, Any]:
-    payload = atom.model_dump(
-        mode="json",
-        exclude={"atom_id", "content_hash", "producer_ref", "provenance_refs", "status"},
-    )
+    payload = serialization.artifact_self_identity_projection(atom)
+    for field in ("atom_id", "producer_ref", "provenance_refs", "status"):
+        payload.pop(field, None)
     if payload.get("normalized_from") is None:
         payload.pop("normalized_from", None)
     return payload
 
 
 def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
+    payload = serialization.artifact_self_identity_projection(
+        {**fields, "content_hash": "pending"}
+    )
     return {
         key: _json_ready(value)
-        for key, value in fields.items()
-        if key not in {"atom_id", "content_hash", "producer_ref", "provenance_refs", "status"}
+        for key, value in payload.items()
+        if key not in {"atom_id", "producer_ref", "provenance_refs", "status"}
         and not (key == "normalized_from" and value is None)
     }
 

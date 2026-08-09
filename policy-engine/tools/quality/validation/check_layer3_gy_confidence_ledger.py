@@ -44,6 +44,7 @@ from pydantic import (
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.pdc import PromotionObligationClass, gy_content_hash
+from polisyos.runtime.quality.authority import SealedConsumedInputSet  # noqa: TC001
 from polisyos.runtime.quality.confidence_ledger import (
     CONDITIONAL_VALIDITY_CLAUSE,
     CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION,
@@ -521,6 +522,7 @@ class OwnerBundleProjection(_StrictModel):
     projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     n10: N10OwnerProjection
     n13b: N13bOwnerProjection
+    consumed_inputs: SealedConsumedInputSet
 
 
 class ProjectionEdge(_StrictModel):
@@ -1448,6 +1450,7 @@ def build_live_contract(
         projection_sha256=owner_bundle.projection_sha256,
         n10=owner_bundle.n10,
         n13b=owner_bundle.n13b,
+        consumed_inputs=owner_bundle.consumed_inputs,
     )
     accounted_run = _accounted_run_projection(
         {
@@ -1684,7 +1687,11 @@ def _validate_owner_bundle_projection(
         issues.append({"code": "n13b_passport_denominator_drift"})
     if n13b.response_admitted_count != n13b.passport_count:
         issues.append({"code": "n13b_admission_passport_drift"})
-    bundle_values = {"n10": asdict(n10), "n13b": asdict(n13b)}
+    bundle_values = {
+        "n10": asdict(n10),
+        "n13b": asdict(n13b),
+        "consumed_inputs": projection.consumed_inputs.model_dump(mode="json"),
+    }
     if projection.projection_sha256 != content_sha256(bundle_values):
         issues.append({"code": "owner_bundle_projection_hash_drift"})
     return issues
@@ -3371,10 +3378,10 @@ def _run_flip_probe(
             ),
             cwd=repo_root,
             env={
-                **os.environ,
                 "JAX_PLATFORMS": "cpu",
                 "PYTHONDONTWRITEBYTECODE": "1",
                 "PYTHONPYCACHEPREFIX": cache_root,
+                "PYTHONUTF8": "1",
                 "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
             },
             capture_output=True,
@@ -3466,7 +3473,7 @@ def _effective_closeout_config(
         "l5_sha256": _file_digest(l5_path),
         "output_path": output.as_posix(),
         "cache_mode": ("cold_clear_then_hit" if cold else "worker_warmup_then_two_cache_hits"),
-        "jax_platforms": os.environ.get("JAX_PLATFORMS", "unset"),
+        "jax_platforms": "cpu",
         "runtime_schema_version": CONFIDENCE_LEDGER_SCHEMA_VERSION,
         "registry_schema_version": CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION,
         "artifact_schema_version": SCHEMA_VERSION,
@@ -3622,6 +3629,7 @@ def _closeout_worker_main(
     """Run both contract builds in one killable process with one shared cache."""
 
     del profile_path
+    os.environ["JAX_PLATFORMS"] = "cpu"
     ordinal = 0
 
     def send(message: dict[str, Any]) -> None:

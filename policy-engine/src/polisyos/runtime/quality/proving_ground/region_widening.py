@@ -16,7 +16,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import read_layer3_gx_pinned_case_id
 from polisyos.runtime.quality.nl_replay_orchestration import (
     build_nl_replay_orchestration_continuity,
     validate_nl_replay_orchestration_continuity,
@@ -27,6 +26,9 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_s12_resource_projection_consumer_contract,
     verify_s13_post_deploy_accountability_projection_consumer_contract,
     verify_s14_universality_projection_consumer_contract,
+)
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    read_layer3_gx_pinned_case_id,
 )
 from polisyos.runtime.quality.replay import build_replay_manifest
 
@@ -4438,7 +4440,9 @@ def _validated_g5_conversion_record(
 def _build_g7_governed_promotion_join(
     conversion_input: Layer3G7RegionCaseConversionInput,
 ) -> Layer3G7GovernedPromotionJoin:
-    from polisyos.runtime.quality.proving_ground.governed_promotion_gate import Layer3G4PromotionRecord
+    from polisyos.runtime.quality.proving_ground.governed_promotion_gate import (
+        Layer3G4PromotionRecord,
+    )
 
     raw_record = _as_mapping(conversion_input.g4_promotion_record)
     if conversion_input.governed_promotion_status != "pass":
@@ -4659,7 +4663,7 @@ def _synthetic_g4_promotion_record(
 def _read_json(path: Path) -> object | None:
     if not path.exists():
         return None
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _as_mapping(value: object) -> Mapping[str, object]:

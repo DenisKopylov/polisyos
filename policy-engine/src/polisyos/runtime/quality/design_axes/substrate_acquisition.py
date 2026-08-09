@@ -37,7 +37,9 @@ from polisyos.runtime.quality.capability_resolver import (
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import read_layer3_gx_pinned_case_id
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    read_layer3_gx_pinned_case_id,
+)
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.capability_authority import CapabilityBindingResult
@@ -668,7 +670,7 @@ class SubstrateAcquisitionLoop:
 
     def _fixture_payload(self) -> dict[str, Any]:
         path = self._fixture_path()
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
 
     def _fixture_path(self) -> Path:
         path = Path(self._source_fixture)
@@ -777,7 +779,9 @@ def _mapping(value: object) -> Mapping[str, Any]:
 
 def _frozen_facet_primitives(repo_root: Path | None = None) -> list[str]:
     root = repo_root or _repo_root()
-    return list(json.loads((root / _SEED).read_text())["facet_primitives"])
+    return list(
+        json.loads((root / _SEED).read_text(encoding="utf-8"))["facet_primitives"]
+    )
 
 
 def _repo_root() -> Path:

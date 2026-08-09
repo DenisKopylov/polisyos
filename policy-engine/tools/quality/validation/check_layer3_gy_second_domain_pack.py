@@ -32,6 +32,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import duckdb
@@ -47,7 +48,11 @@ from polisyos.data_requirement import (
     DataRequirementScope,
     DataRequirementSpec,
 )
-from polisyos.pdc import SearchTerminalKind, gy_content_hash
+from polisyos.pdc import (
+    SearchTerminalKind,
+    gy_content_hash,
+    reconcile_gy_operational_leaves,
+)
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionReceipt,
     AcquisitionWorldSnapshot,
@@ -139,6 +144,16 @@ _N4_LIVE_CAPTURE_ENV = {
     "POLISYOS_LLM_CACHE_TTL_S": "300",
     "POLISYOS_LLM_CACHE_MAXSIZE": "128",
     "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+    "POLISYOS_GY_N4_LEVER_SLICE_TOP_K": "20",
+    "POLISYOS_GY_N4_LEVER_SLICE_MAX_CHARS": "3000",
+}
+_CONTROLLED_N7_ENV = {
+    "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": "true",
+    "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": "true",
+}
+_CONTROLLED_N7_PROJECTION_ENV = {
+    "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": "<default:true>",
+    "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": "<default:true>",
 }
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
@@ -152,6 +167,10 @@ _CYCLE_SUBSTRATE_MUTATION_EXPECTED_CODES = {
     "registry_version_rewrite": "cycle_substrate_registry_version_id_mismatch",
     "lever_registry_binding_rewrite": "cycle_substrate_lever_registry_binding_mismatch",
     "alternate_valid_l2_repoint": ("cycle_substrate_registry_selected_entry_not_query_owner"),
+}
+_SMOKE_TERMINAL_MUTATION_EXPECTED_CODES = {
+    "terminal_execution_status": "smoke_terminal_not_honest",
+    "promotion_verification_boundary": "smoke_promotion_verification_boundary_invalid",
 }
 
 ARTIFACT_OUTPUTS = (
@@ -364,6 +383,22 @@ def build_live_bundle(
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
 ) -> dict[str, Any]:
+    """Re-derive the pack under one declared retrieval environment."""
+
+    with _temporary_environment(_CONTROLLED_N7_ENV):
+        return _build_live_bundle(
+            repo_root,
+            allow_live_n4_capture=allow_live_n4_capture,
+            n4_capture_journal=n4_capture_journal,
+        )
+
+
+def _build_live_bundle(
+    repo_root: Path,
+    *,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
     """Re-derive the complete pack from DCAT, SKG, S0/L6, and N6 owners."""
 
     started = time.monotonic()
@@ -496,6 +531,7 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
     issues = validate_bundle_payloads(live, root)
+    _preserve_frozen_operational_metrics(live, root)
     for name in ("census", "pack", "smoke_problem", "cycle_trace", "gaps"):
         if _content_bound_canonical_json(live[name]) != _content_bound_canonical_json(frozen[name]):
             issues.append({"code": "owner_rederive_drift", "artifact": name})
@@ -571,7 +607,6 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "manifest_content_hash"
     )
     corrupted["pack"]["content_addressing"] = addressing
-    corrupted["cycle_trace"]["execution_status"] = "crashed"
     stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
     stage_generation = _mapping(stage_attempts.get("generation"))
     stage_generation["generation_channel"] = "grammar_fallback"
@@ -650,6 +685,21 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         elif expected_mutation_code not in mutation_codes:
             per_mutation_missing.add(f"{mutation_id}:{expected_mutation_code}")
         all_issues.extend(mutation_issues)
+    smoke_mutation_results: list[dict[str, Any]] = []
+    for mutation_id, mutation in _smoke_terminal_corruption_bundles(bundle):
+        mutation_issues = validate_bundle_payloads(mutation, root)
+        mutation_codes = sorted(
+            {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
+        )
+        smoke_mutation_results.append(
+            {"mutation_id": mutation_id, "detected_codes": mutation_codes}
+        )
+        expected_mutation_code = _SMOKE_TERMINAL_MUTATION_EXPECTED_CODES.get(mutation_id)
+        if expected_mutation_code is None:
+            per_mutation_missing.add(f"{mutation_id}:mutation_expectation_missing")
+        elif expected_mutation_code not in mutation_codes:
+            per_mutation_missing.add(f"{mutation_id}:{expected_mutation_code}")
+        all_issues.extend(mutation_issues)
     codes = sorted({str(issue.get("code")) for issue in all_issues if issue.get("code")})
     expected = {
         "pack_entry_not_owner_derived",
@@ -658,6 +708,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "distinctness_outcome_overlap",
         "transport_context_denominator_invalid",
         "smoke_terminal_not_honest",
+        "smoke_promotion_verification_boundary_invalid",
         "historical_receipt_rebased_to_moving_head",
         "free_grow_violated_by_code_change",
         "free_grow_violated_by_scope_change",
@@ -685,8 +736,48 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "status": "fail" if not missing else "pass",
         "issues": [{"code": "corrupt_field_drift_detected", "detected": codes}, *issues],
         "cycle_substrate_mutation_results": mutation_results,
+        "smoke_terminal_mutation_results": smoke_mutation_results,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
+
+
+def _smoke_terminal_corruption_bundles(
+    bundle: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    """Build one valid smoke world for each terminal-boundary mutation."""
+
+    terminal_status = copy.deepcopy(bundle)
+    terminal_status["cycle_trace"]["execution_status"] = "crashed"
+    _rehash_smoke_terminal_mutation(terminal_status)
+
+    promotion_boundary = copy.deepcopy(bundle)
+    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"][
+        "reason"
+    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    _rehash_smoke_terminal_mutation(promotion_boundary)
+
+    return [
+        ("terminal_execution_status", terminal_status),
+        ("promotion_verification_boundary", promotion_boundary),
+    ]
+
+
+def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
+    """Refresh the trace and pack identities downstream of a smoke mutation."""
+
+    bundle["cycle_trace"] = _with_content_hash(
+        bundle["cycle_trace"],
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"][
+        "trace_content_hash"
+    ]
+    bundle["pack"] = _with_content_hash(
+        bundle["pack"],
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
 
 
 def _cycle_substrate_corruption_bundles(
@@ -1904,16 +1995,7 @@ def _n7_effective_owner_config() -> dict[str, Any]:
             "time_budget_ms": limits.time_budget_ms,
             "cost_budget_usd": limits.cost_budget_usd,
         },
-        "feature_flag_environment": {
-            "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": os.environ.get(
-                "POLISYOS_RETRIEVAL_FASTLANE_ENABLED",
-                "<default:true>",
-            ),
-            "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": os.environ.get(
-                "POLISYOS_RETRIEVAL_EXPLORE_ENABLED",
-                "<default:true>",
-            ),
-        },
+        "feature_flag_environment": dict(_CONTROLLED_N7_PROJECTION_ENV),
     }
 
 
@@ -2431,19 +2513,42 @@ def _build_cycle_trace(
             capture=active_capture,
             cached_organ_run=captured_organ_run,
         )
-        controller = GenerationCycleController(
-            generation_port=generation_port,
-            repo_root=root,
-            cycle_substrate_context=cycle_substrate_context,
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.runtime.quality.confidence_ledger import (
+            ConfidenceLedgerSession,
         )
-        run_result = await controller.run(
-            problem,
-            budget_state=BudgetState(
-                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-            ),
-            min_cycles=2,
-            max_cycles=1,
+        from polisyos.runtime.quality.promotion_sequence import (
+            CanonicalN9PromotionPort,
+            N9DesignProblemBinding,
+            confidence_risk_scope_for_problem,
         )
+
+        binding = N9DesignProblemBinding.from_problem(problem)
+        with TemporaryDirectory(prefix="gy-n10a-n9-verification-") as temp_dir:
+            state_root = Path(temp_dir)
+            session = ConfidenceLedgerSession._for_verification(
+                root,
+                risk_scope=confidence_risk_scope_for_problem(binding),
+                artifact_store=FileSystemCAS(state_root / "cas"),
+                state_root=state_root / "state",
+            )
+            controller = GenerationCycleController(
+                generation_port=generation_port,
+                promotion_port=CanonicalN9PromotionPort._for_verification(
+                    repo_root=root,
+                    confidence_ledger_session=session,
+                ),
+                repo_root=root,
+                cycle_substrate_context=cycle_substrate_context,
+            )
+            run_result = await controller.run(
+                problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                ),
+                min_cycles=2,
+                max_cycles=1,
+            )
         if generation_port.last_organ_run is None:
             raise ValueError("education_n4_owner_replay_not_attempted")
         replay_projection = _n4_owner_result_projection(generation_port.last_organ_run)
@@ -5413,6 +5518,22 @@ def _validate_smoke_terminal(
                 "unexpected_n6_issues": unexpected_n6_issues,
             }
         )
+    promotion = run.promotion_port
+    promotion_receipts = tuple(promotion.receipts)
+    if (
+        promotion.status != "not_promoted"
+        or promotion.reason != "verification_n9_sequence_non_consumer"
+        or not promotion_receipts
+        or any(
+            _mapping(_mapping(receipt).get("confidence_ledger_projection")).get(
+                "authority_provenance"
+            )
+            != "verification"
+            or _mapping(receipt).get("consumer_promotable") is not False
+            for receipt in promotion_receipts
+        )
+    ):
+        issues.append({"code": "smoke_promotion_verification_boundary_invalid"})
     has_known_gap = any(
         str(item.get("code")) == "positive_cycle_denominator_missing" for item in actual_n6_issues
     )
@@ -6301,7 +6422,7 @@ def _content_bound_canonical_json(payload: Mapping[str, Any]) -> str:
 
 
 def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> None:
-    """Preserve nondeterministic operational metrics when content is unchanged."""
+    """Reconcile through the artifact-owned projection when content is unchanged."""
 
     artifacts = (
         ("census", CENSUS_OUTPUT, "census_content_hash"),
@@ -6315,53 +6436,10 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
         artifact = _mapping(bundle.get(bundle_key))
         if frozen.get(hash_field) != artifact.get(hash_field):
             continue
-        frozen_metrics = _mapping(frozen.get("runtime_metrics"))
-        if frozen_metrics:
-            artifact["runtime_metrics"] = frozen_metrics
-        if bundle_key == "cycle_trace":
-            artifact = _preserve_cycle_routing_generated_at(
-                artifact,
-                frozen=frozen,
-            )
-        bundle[bundle_key] = artifact
-
-
-def _preserve_cycle_routing_generated_at(
-    artifact: Mapping[str, Any],
-    *,
-    frozen: Mapping[str, Any],
-) -> dict[str, Any]:
-    """Keep routing telemetry stable only across the same semantic cycle rows."""
-
-    result = copy.deepcopy(dict(artifact))
-    live_run = _mapping(result.get("generation_cycle_run"))
-    frozen_run = _mapping(frozen.get("generation_cycle_run"))
-    live_cycles = _list_of_mappings(live_run.get("cycles"))
-    frozen_cycles = {
-        int(cycle.get("cycle_index")): cycle
-        for cycle in _list_of_mappings(frozen_run.get("cycles"))
-        if isinstance(cycle.get("cycle_index"), int)
-    }
-    for live_cycle in live_cycles:
-        cycle_index = live_cycle.get("cycle_index")
-        if not isinstance(cycle_index, int) or cycle_index not in frozen_cycles:
-            continue
-        live_report = _mapping(live_cycle.get("acquisition_routing_report"))
-        frozen_report = _mapping(frozen_cycles[cycle_index].get("acquisition_routing_report"))
-        if not live_report or not frozen_report:
-            continue
-        live_semantic = {key: value for key, value in live_report.items() if key != "generated_at"}
-        frozen_semantic = {
-            key: value for key, value in frozen_report.items() if key != "generated_at"
-        }
-        frozen_generated_at = frozen_report.get("generated_at")
-        if live_semantic != frozen_semantic or not isinstance(frozen_generated_at, str):
-            continue
-        live_report["generated_at"] = frozen_generated_at
-        live_cycle["acquisition_routing_report"] = live_report
-    live_run["cycles"] = live_cycles
-    result["generation_cycle_run"] = live_run
-    return result
+        reconciled = reconcile_gy_operational_leaves(frozen, artifact)
+        if not isinstance(reconciled, dict):  # pragma: no cover - artifacts are mappings
+            raise ValueError("gy_operational_reconciliation_mapping_required")
+        bundle[bundle_key] = reconciled
 
 
 def _hash(value: Any) -> str:

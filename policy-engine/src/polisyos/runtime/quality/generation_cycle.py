@@ -46,6 +46,7 @@ from polisyos.pdc import (
     SearchTerminalState,
     TypedDiagnosticRecord,
     ValueOfInformationEstimate,
+    gy_artifact_self_identity_projection,
     gy_content_hash,
 )
 from polisyos.pdc._impl.layer2_design_search import SearchIteration
@@ -363,7 +364,7 @@ class ValueDataProfile(_StrictModel):
         rows_payload = tuple(row.model_dump(mode="json") for row in self.rows)
         if self.owner_rows_content_hash != gy_content_hash(rows_payload):
             raise ValueError("value_data_profile_owner_rows_hash_mismatch")
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = gy_artifact_self_identity_projection(self)
         if self.content_hash != gy_content_hash(payload):
             raise ValueError("value_data_profile_content_hash_mismatch")
         return self

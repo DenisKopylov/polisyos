@@ -40,6 +40,10 @@ class UnsupportedSerializationError(SerializationError):
     """Raised when unsupported objects are rejected by policy."""
 
 
+class ArtifactIdentityProjectionError(SerializationError):
+    """Raised when an artifact does not declare one unambiguous self-identity field."""
+
+
 @dataclass(frozen=True)
 class SerializationPolicy:
     """Bounded conversion policy shared by fast JSON and metadata serialization."""
@@ -56,6 +60,7 @@ class SerializationPolicy:
 
 
 _SCALAR_TYPES = (str, int, float, bool, type(None))
+_ARTIFACT_SELF_IDENTITY_FIELDS = frozenset({"content_hash", "record_hash"})
 
 
 def _as_model_dump(value: Any) -> Any | None:
@@ -63,6 +68,28 @@ def _as_model_dump(value: Any) -> Any | None:
     if callable(model_dump):
         return model_dump(mode="python", by_alias=True, exclude_none=False)
     return None
+
+
+def artifact_self_identity_projection(value: Any) -> dict[str, Any]:
+    """Return an artifact payload without exactly one declared self-identity field.
+
+    The root projection is deliberately narrow: only ``content_hash`` and
+    ``record_hash`` may be a self-identity field. A missing declaration or two
+    declarations is ambiguous and therefore rejected rather than guessed.
+    """
+
+    model_dump = getattr(value, "model_dump", None)
+    payload = model_dump(mode="json") if callable(model_dump) else value
+    if not isinstance(payload, Mapping):
+        raise ArtifactIdentityProjectionError("artifact_identity_payload_mapping_required")
+    normalized = {str(key): item for key, item in payload.items()}
+    identity_fields = _ARTIFACT_SELF_IDENTITY_FIELDS.intersection(normalized)
+    if not identity_fields:
+        raise ArtifactIdentityProjectionError("artifact_self_identity_missing")
+    if len(identity_fields) != 1:
+        raise ArtifactIdentityProjectionError("artifact_self_identity_ambiguous")
+    identity_field = next(iter(identity_fields))
+    return {key: item for key, item in normalized.items() if key != identity_field}
 
 
 def _try_tolist(value: Any) -> Any | None:

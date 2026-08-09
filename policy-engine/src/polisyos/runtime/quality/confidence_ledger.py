@@ -12,7 +12,9 @@ verifier fail closed.
 from __future__ import annotations
 
 import ast
+import functools
 import hashlib
+import importlib
 import importlib.util
 import json
 import os
@@ -23,6 +25,7 @@ import tomllib
 import types
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
+from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
 from pathlib import Path
@@ -30,6 +33,7 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.core import artifacts, canon
 from polisyos.fabric import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
@@ -85,6 +89,28 @@ type CertificateRole = Literal[
 type SessionAuthorityProvenance = Literal["canonical_repo", "verification"]
 type _DeploymentFileFence = tuple[str, int, int, int, int, int]
 type _DeploymentQuickFence = tuple[tuple[_DeploymentFileFence, ...], str]
+_LRU_CACHE_WRAPPER_TYPE = type(functools.lru_cache(maxsize=1)(lambda: None))
+
+
+@dataclass(frozen=True)
+class _LoaderOwnedCallableSlot:
+    """One source-declared callable binding owned by a module or local class."""
+
+    owner_path: tuple[str, ...]
+    binding_name: str
+    descriptor_kind: str
+    property_accessors: tuple[str, ...]
+    decorators: tuple[str, ...]
+    source_firstlinenos: tuple[tuple[str, int], ...]
+    lru_cache_parameters: tuple[tuple[str, int, int | None, bool], ...]
+
+    @property
+    def qualname(self) -> str:
+        """Return the loader qualname for the declared binding."""
+
+        return ".".join((*self.owner_path, self.binding_name))
+
+
 type ExecutionStatus = Literal["prepared", "started", "executed", "refused", "unexecuted"]
 type CompletionOutcome = Literal[
     "prepared",
@@ -1013,6 +1039,8 @@ class ConfidenceLedgerSession:
         certificate_resolver: CertificateResolver | None,
         certificate_verifier: CertificateVerifier | None,
     ) -> None:
+        loaded_root = _loaded_policy_engine_root()
+        _baseline, _quick_fence, deployment_identity = _admit_loaded_runtime(loaded_root)
         self._initialize(
             registry=registry,
             risk_scope=risk_scope,
@@ -1023,7 +1051,7 @@ class ConfidenceLedgerSession:
             certificate_verifier=certificate_verifier,
             authority_provenance="verification",
             authority_repo_root=None,
-            deployment_identity=_policy_engine_deployment_identity(_loaded_policy_engine_root()),
+            deployment_identity=deployment_identity,
             deployment_quick_fence=None,
         )
 
@@ -1083,12 +1111,13 @@ class ConfidenceLedgerSession:
         loaded_root = _loaded_policy_engine_root()
         if root != loaded_root:
             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
-        deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(root)
-        _assert_loaded_runtime_matches_import_baseline(
+        (
+            _deployment_baseline_value,
+            deployment_quick_fence,
+            deployment_identity,
+        ) = _admit_loaded_runtime(
             root,
-            deployment_baseline=deployment_baseline,
         )
-        deployment_identity = _deployment_identity_from_baseline(deployment_baseline)
         registry = load_confidence_ledger_registry(root / DEFAULT_REGISTRY_RELATIVE_PATH)
         session = object.__new__(cls)
         session._initialize(
@@ -1122,6 +1151,8 @@ class ConfidenceLedgerSession:
         """Open an isolated non-authority session for tests and frozen recomputation."""
 
         root = Path(repo_root).resolve()
+        if root != _loaded_policy_engine_root():
+            raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
         source = (
             root / DEFAULT_REGISTRY_RELATIVE_PATH if registry_source is None else registry_source
         )
@@ -4065,7 +4096,7 @@ def _scope_journal_genesis_hash(scope_id: str) -> str:
 
 
 def _scope_journal_record_hash(record: _ScopeJournalRecord) -> str:
-    return _content_hash(record.model_dump(mode="json", exclude={"record_hash"}))
+    return _content_hash(serialization.artifact_self_identity_projection(record))
 
 
 def _fsync_directory(path: Path) -> None:
@@ -4148,6 +4179,23 @@ def _assert_loaded_runtime_matches_import_baseline(
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
 
 
+def _admit_loaded_runtime(
+    repo_root: Path,
+) -> tuple[str, _DeploymentQuickFence, str]:
+    """Freeze and admit one complete runtime deployment identity."""
+
+    deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(repo_root)
+    _assert_loaded_runtime_matches_import_baseline(
+        repo_root,
+        deployment_baseline=deployment_baseline,
+    )
+    return (
+        deployment_baseline,
+        deployment_quick_fence,
+        _deployment_identity_from_baseline(deployment_baseline),
+    )
+
+
 def _deployment_baseline(repo_root: Path) -> str:
     """Return a path-normalized full source, lock, project, and ABI baseline."""
 
@@ -4223,18 +4271,37 @@ def _deployment_relative_paths(repo_root: Path) -> tuple[Path, ...]:
 
 def _resolve_authority_import_closure(
     repo_root: Path,
-    entry_module: str,
+    entry_module: str | Iterable[str],
+    *,
+    include_tools: bool = False,
 ) -> tuple[tuple[str, str], ...]:
-    """Resolve the entry module's repository-local static import closure."""
+    """Resolve one complete repository-local declared import closure.
+
+    Static imports, literal dynamic imports, and repository owner references
+    declared as strings all enter the closure. Tool modules remain excluded
+    from the runtime-only E12 closure unless a governed tool owner explicitly
+    requests them.
+    """
 
     resolved: dict[str, Path] = {}
-    pending = {entry_module}
+    pending = {entry_module} if isinstance(entry_module, str) else set(entry_module)
+    allowed_roots = {"polisyos", *(("tools",) if include_tools else ())}
+    directory_entries: dict[Path, frozenset[str]] = {}
+
+    @functools.cache
+    def resolve_source(module_name: str) -> Path | None:
+        return _repository_module_source(
+            repo_root,
+            module_name,
+            directory_entries=directory_entries,
+        )
+
     while pending:
         module_name = min(pending)
         pending.remove(module_name)
         if module_name in resolved:
             continue
-        relative = _repository_module_source(repo_root, module_name)
+        relative = resolve_source(module_name)
         if relative is None:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -4250,11 +4317,12 @@ def _resolve_authority_import_closure(
                 relative.as_posix(),
             ) from exc
         discovered: set[str] = set()
-        for node in ast.walk(tree):
+        nodes = _runtime_ast_nodes(tree) if include_tools else ast.walk(tree)
+        for node in nodes:
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.name == "polisyos" or alias.name.startswith("polisyos."):
-                        if _repository_module_source(repo_root, alias.name) is None:
+                    if _repository_module_root(alias.name) in allowed_roots:
+                        if resolve_source(alias.name) is None:
                             raise ConfidenceLedgerError(
                                 "canonical_loaded_runtime_mismatch",
                                 f"unresolved repository import: {alias.name}",
@@ -4262,9 +4330,9 @@ def _resolve_authority_import_closure(
                         discovered.add(alias.name)
             elif isinstance(node, ast.ImportFrom):
                 base = _resolve_import_from_base(node, package)
-                if base is None or not (base == "polisyos" or base.startswith("polisyos.")):
+                if base is None or _repository_module_root(base) not in allowed_roots:
                     continue
-                if _repository_module_source(repo_root, base) is None:
+                if resolve_source(base) is None:
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
                         f"unresolved repository import: {base}",
@@ -4274,18 +4342,104 @@ def _resolve_authority_import_closure(
                     if alias.name == "*":
                         continue
                     candidate = f"{base}.{alias.name}"
-                    if _repository_module_source(repo_root, candidate) is not None:
+                    if resolve_source(candidate) is not None:
                         discovered.add(candidate)
+            elif isinstance(node, ast.Call):
+                dynamic_ref = _literal_dynamic_import_ref(node)
+                if (
+                    include_tools
+                    and dynamic_ref is not None
+                    and _repository_module_root(dynamic_ref) in allowed_roots
+                ):
+                    if resolve_source(dynamic_ref) is None:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unresolved repository import: {dynamic_ref}",
+                        )
+                    discovered.add(dynamic_ref)
         for discovered_module in tuple(discovered):
             parts = discovered_module.split(".")
             for length in range(1, len(parts)):
                 parent = ".".join(parts[:length])
-                if _repository_module_source(repo_root, parent) is not None:
+                if resolve_source(parent) is not None:
                     discovered.add(parent)
         pending.update(discovered - resolved.keys())
     return tuple(
         (module_name, resolved[module_name].as_posix()) for module_name in sorted(resolved)
     )
+
+
+def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
+    """Walk declarations that can execute, excluding typing-only import arms."""
+
+    yield node
+    if isinstance(node, ast.If) and _is_type_checking_test(node.test):
+        for child in node.orelse:
+            yield from _runtime_ast_nodes(child)
+        return
+    for child in ast.iter_child_nodes(node):
+        yield from _runtime_ast_nodes(child)
+
+
+def _is_type_checking_test(node: ast.expr) -> bool:
+    """Return whether an ``if`` test is the conventional TYPE_CHECKING guard."""
+
+    return bool(
+        (isinstance(node, ast.Name) and node.id == "TYPE_CHECKING")
+        or (
+            isinstance(node, ast.Attribute)
+            and node.attr == "TYPE_CHECKING"
+            and isinstance(node.value, ast.Name)
+            and node.value.id in {"typing", "typing_extensions"}
+        )
+    )
+
+
+def _repository_module_root(module_name: str) -> str:
+    """Return the leading module component for one dotted import name."""
+
+    return module_name.partition(".")[0]
+
+
+def _literal_dynamic_import_ref(node: ast.Call) -> str | None:
+    """Return a literal ``import_module``/``__import__`` target when declared."""
+
+    target = node.func
+    is_import_module = bool(
+        isinstance(target, ast.Attribute)
+        and target.attr == "import_module"
+        and isinstance(target.value, ast.Name)
+        and target.value.id == "importlib"
+    )
+    is_dunder_import = isinstance(target, ast.Name) and target.id == "__import__"
+    if not (is_import_module or is_dunder_import) or not node.args:
+        return None
+    value = node.args[0]
+    return (
+        value.value
+        if isinstance(value, ast.Constant) and isinstance(value.value, str)
+        else None
+    )
+
+
+def _import_authority_closure_modules(
+    closure: tuple[tuple[str, str], ...],
+) -> None:
+    """Load every declared authority module before live-code capture."""
+
+    for module_name, _relative_path in closure:
+        try:
+            module = importlib.import_module(module_name)
+        except Exception as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure import failed: {module_name}",
+            ) from exc
+        if sys.modules.get(module_name) is not module:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure module not loaded: {module_name}",
+            )
 
 
 def _resolve_import_from_base(node: ast.ImportFrom, package: str) -> str | None:
@@ -4303,37 +4457,491 @@ def _resolve_import_from_base(node: ast.ImportFrom, package: str) -> str | None:
         ) from exc
 
 
-def _repository_module_source(repo_root: Path, module_name: str) -> Path | None:
+def _repository_module_source(
+    repo_root: Path,
+    module_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]] | None = None,
+) -> Path | None:
     """Resolve one repository Python module without importing it."""
 
-    if module_name != "polisyos" and not module_name.startswith("polisyos."):
+    module_root = _repository_module_root(module_name)
+    if module_root not in {"polisyos", "tools"}:
         return None
     module_parts = module_name.split(".")
-    package_path = Path("src", *module_parts, "__init__.py")
-    module_path = Path("src", *module_parts).with_suffix(".py")
-    matches = [
-        relative for relative in (package_path, module_path) if (repo_root / relative).is_file()
-    ]
-    if len(matches) > 1:
+    base = Path("src") if module_root == "polisyos" else Path()
+    package_path = base.joinpath(*module_parts, "__init__.py")
+    module_path = base.joinpath(*module_parts).with_suffix(".py")
+    # FileFinder resolves a package directory before a same-named module file.
+    # Mirror that rule so the declared closure binds the source Python loads.
+    if _repository_file_exists_exactly(
+        repo_root,
+        package_path,
+        directory_entries=directory_entries,
+    ):
+        return package_path
+    return (
+        module_path
+        if _repository_file_exists_exactly(
+            repo_root,
+            module_path,
+            directory_entries=directory_entries,
+        )
+        else None
+    )
+
+
+def _repository_file_exists_exactly(
+    repo_root: Path,
+    relative: Path,
+    *,
+    directory_entries: dict[Path, frozenset[str]] | None = None,
+) -> bool:
+    """Resolve repository paths without case-folding filesystem aliases."""
+
+    current = repo_root
+    try:
+        for part in relative.parts:
+            if directory_entries is None:
+                names = frozenset(entry.name for entry in current.iterdir())
+            else:
+                names = directory_entries.get(current)
+                if names is None:
+                    names = frozenset(entry.name for entry in current.iterdir())
+                    directory_entries[current] = names
+            if part not in names:
+                return False
+            current /= part
+    except OSError:
+        return False
+    return current.is_file()
+
+
+def _decorator_expression_name(node: ast.expr) -> str:
+    """Return one stable source-level decorator name."""
+
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return f"{_decorator_expression_name(node.value)}.{node.attr}"
+    if isinstance(node, ast.Call):
+        return f"{_decorator_expression_name(node.func)}()"
+    return type(node).__name__
+
+
+def _literal_lru_cache_parameters(
+    node: ast.expr,
+    *,
+    source_path: Path,
+) -> tuple[int | None, bool] | None:
+    """Return one source-declared ``lru_cache`` policy or fail closed."""
+
+    target = node.func if isinstance(node, ast.Call) else node
+    decorator_name = _decorator_expression_name(target)
+    if decorator_name != "lru_cache" and not decorator_name.endswith(".lru_cache"):
+        return None
+    maxsize: object = 128
+    typed: object = False
+    assigned: set[str] = set()
+    if isinstance(node, ast.Call):
+        if len(node.args) > 2:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority lru_cache policy invalid: {source_path.name}",
+            )
+        for index, argument in enumerate(node.args):
+            name = ("maxsize", "typed")[index]
+            try:
+                value = ast.literal_eval(argument)
+            except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy not literal: {source_path.name}",
+                ) from exc
+            if name == "maxsize":
+                maxsize = value
+            else:
+                typed = value
+            assigned.add(name)
+        for keyword in node.keywords:
+            if keyword.arg not in {"maxsize", "typed"} or keyword.arg in assigned:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy invalid: {source_path.name}",
+                )
+            try:
+                value = ast.literal_eval(keyword.value)
+            except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy not literal: {source_path.name}",
+                ) from exc
+            if keyword.arg == "maxsize":
+                maxsize = value
+            else:
+                typed = value
+            assigned.add(keyword.arg)
+    if not ((maxsize is None or (type(maxsize) is int and maxsize >= 0)) and type(typed) is bool):
         raise ConfidenceLedgerError(
             "canonical_loaded_runtime_mismatch",
-            f"ambiguous repository module: {module_name}",
+            f"authority lru_cache policy invalid: {source_path.name}",
         )
-    return matches[0] if matches else None
+    return maxsize, typed
+
+
+def _loader_owned_callable_slots(source_path: Path) -> tuple[_LoaderOwnedCallableSlot, ...]:
+    """Enumerate direct module and loader-local class callable slots."""
+
+    try:
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    except (OSError, SyntaxError, UnicodeError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"authority module source invalid: {source_path.name}",
+        ) from exc
+    declarations: dict[tuple[tuple[str, ...], str], _LoaderOwnedCallableSlot] = {}
+
+    def add_function(
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+        owner_path: tuple[str, ...],
+    ) -> None:
+        key = (owner_path, node.name)
+        decorators = tuple(_decorator_expression_name(item) for item in node.decorator_list)
+        firstlineno = min((node.lineno, *(item.lineno for item in node.decorator_list)))
+        accessor_roles: set[str] = set()
+        for decorator in decorators:
+            if decorator.endswith(".setter"):
+                accessor_roles.add("fset")
+            elif decorator.endswith(".deleter"):
+                accessor_roles.add("fdel")
+            elif (
+                decorator.endswith(".getter")
+                or decorator == "property"
+                or decorator.startswith("computed_field")
+            ):
+                accessor_roles.add("fget")
+        if len(accessor_roles) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority property declaration ambiguous: {source_path.name}:{node.lineno}",
+            )
+        role = next(iter(accessor_roles), "function")
+        lru_cache_parameters = tuple(
+            parameters
+            for decorator in node.decorator_list
+            if (
+                parameters := _literal_lru_cache_parameters(
+                    decorator,
+                    source_path=source_path,
+                )
+            )
+            is not None
+        )
+        if len(lru_cache_parameters) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority lru_cache declaration ambiguous: {source_path.name}:{node.lineno}",
+            )
+        previous = declarations.get(key)
+        extends_property = role in {"fset", "fdel"} and previous is not None
+        source_firstlinenos = dict(previous.source_firstlinenos) if extends_property else {}
+        source_firstlinenos[role] = firstlineno
+        cache_policies = {
+            item_role: (item_line, maxsize, typed)
+            for item_role, item_line, maxsize, typed in (
+                previous.lru_cache_parameters if extends_property else ()
+            )
+        }
+        if lru_cache_parameters:
+            maxsize, typed = lru_cache_parameters[0]
+            cache_policies[role] = (firstlineno, maxsize, typed)
+        else:
+            cache_policies.pop(role, None)
+        merged_decorators = (
+            {*previous.decorators, *decorators} if extends_property else set(decorators)
+        )
+        property_accessors = tuple(
+            sorted(item_role for item_role in source_firstlinenos if item_role != "function")
+        )
+        if property_accessors:
+            descriptor_kind = "property"
+        elif owner_path and node.name == "__new__":
+            descriptor_kind = "staticmethod"
+        elif (owner_path and node.name in {"__class_getitem__", "__init_subclass__"}) or any(
+            item == "classmethod" or item.endswith(".classmethod") for item in decorators
+        ):
+            descriptor_kind = "classmethod"
+        elif any(item == "staticmethod" or item.endswith(".staticmethod") for item in decorators):
+            descriptor_kind = "staticmethod"
+        elif lru_cache_parameters:
+            descriptor_kind = "lru_cache"
+        else:
+            descriptor_kind = "function"
+        declarations[key] = _LoaderOwnedCallableSlot(
+            owner_path=owner_path,
+            binding_name=node.name,
+            descriptor_kind=(
+                previous.descriptor_kind
+                if extends_property and previous is not None
+                else descriptor_kind
+            ),
+            property_accessors=property_accessors,
+            decorators=tuple(sorted(merged_decorators)),
+            source_firstlinenos=tuple(sorted(source_firstlinenos.items())),
+            lru_cache_parameters=tuple(
+                sorted(
+                    (item_role, item_line, maxsize, typed)
+                    for item_role, (item_line, maxsize, typed) in cache_policies.items()
+                )
+            ),
+        )
+
+    def add_class(node: ast.ClassDef, owner_path: tuple[str, ...]) -> None:
+        class_path = (*owner_path, node.name)
+        for child in node.body:
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                add_function(child, class_path)
+            elif isinstance(child, ast.ClassDef):
+                add_class(child, class_path)
+
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            add_function(node, ())
+        elif isinstance(node, ast.ClassDef):
+            add_class(node, ())
+    return tuple(declarations[key] for key in sorted(declarations))
+
+
+def _loader_owned_slot_owner(
+    module: object,
+    module_name: str,
+    owner_path: tuple[str, ...],
+) -> object | None:
+    """Resolve an exact loader-local class path without inherited lookup."""
+
+    owner = module
+    for index, name in enumerate(owner_path):
+        namespace = getattr(owner, "__dict__", {})
+        if not isinstance(namespace, Mapping):
+            return None
+        owner = namespace.get(name)
+        expected_qualname = ".".join(owner_path[: index + 1])
+        if not (
+            isinstance(owner, type)
+            and owner.__module__ == module_name
+            and owner.__qualname__ == expected_qualname
+        ):
+            return None
+    return owner
+
+
+def _unwrapped_function_chain(
+    function: types.FunctionType,
+) -> tuple[types.FunctionType, tuple[types.FunctionType, ...]]:
+    """Return one function's terminal ``__wrapped__`` target and outer chain."""
+
+    chain: list[types.FunctionType] = []
+    seen: set[int] = set()
+    current = function
+    while id(current) not in seen:
+        seen.add(id(current))
+        chain.append(current)
+        wrapped = getattr(current, "__wrapped__", None)
+        if not isinstance(wrapped, types.FunctionType):
+            break
+        current = wrapped
+    return chain[-1], tuple(chain)
+
+
+def _loader_owned_slot_function_matches(
+    function: types.FunctionType,
+    *,
+    slot: _LoaderOwnedCallableSlot,
+    module_name: str,
+    source_path: Path,
+    expected_hashes: tuple[str, ...],
+    expected_firstlinenos: tuple[int, ...],
+) -> tuple[dict[str, object], bool]:
+    """Reconcile one live function or declared wrapper to its loader slot."""
+
+    terminal, chain = _unwrapped_function_chain(function)
+    terminal_hash = _content_hash(_normalize_code_object(terminal.__code__))
+    terminal_matches = bool(
+        expected_hashes
+        and terminal.__code__.co_firstlineno in expected_firstlinenos
+        and terminal.__module__ == module_name
+        and terminal.__qualname__ == slot.qualname
+        and Path(terminal.__code__.co_filename).resolve() == source_path
+        and terminal_hash in expected_hashes
+    )
+    expects_contextmanager = "contextmanager" in slot.decorators
+    wrapper_matches = len(chain) == 1 and not expects_contextmanager
+    if len(chain) > 1 and expects_contextmanager:
+        expected_wrapper = contextmanager(terminal)
+        wrapper_matches = _content_hash(_normalize_function_binding(function)) == _content_hash(
+            _normalize_function_binding(expected_wrapper)
+        )
+    return (
+        {
+            "chain_normalized_code_hashes": [
+                _content_hash(_normalize_code_object(item.__code__)) for item in chain
+            ],
+            "terminal_declared_module": terminal.__module__,
+            "terminal_firstlineno": terminal.__code__.co_firstlineno,
+            "terminal_qualname": terminal.__qualname__,
+            "terminal_source": Path(terminal.__code__.co_filename).resolve().as_posix(),
+            "expected_firstlinenos": list(expected_firstlinenos),
+            "wrapper_matches_declared_decorator": wrapper_matches,
+        },
+        terminal_matches and wrapper_matches,
+    )
+
+
+def _loader_owned_slot_binding(
+    module: object,
+    module_name: str,
+    source_path: Path,
+    slot: _LoaderOwnedCallableSlot,
+    expected_hashes: tuple[str, ...],
+) -> tuple[dict[str, object], bool]:
+    """Resolve and reconcile one exact source-declared callable binding."""
+
+    owner = _loader_owned_slot_owner(module, module_name, slot.owner_path)
+    namespace = getattr(owner, "__dict__", {}) if owner is not None else {}
+    raw = namespace.get(slot.binding_name) if isinstance(namespace, Mapping) else None
+    functions: list[tuple[str, types.FunctionType]] = []
+    source_firstlinenos = dict(slot.source_firstlinenos)
+    expected_cache_policies = {
+        role: {"maxsize": maxsize, "typed": typed}
+        for role, _firstlineno, maxsize, typed in slot.lru_cache_parameters
+    }
+    cache_policy_rows: list[dict[str, object]] = []
+    wrapper_shape_matches = True
+
+    def append_function(role: str, value: object) -> None:
+        nonlocal wrapper_shape_matches
+        expected_policy = expected_cache_policies.get(role)
+        if isinstance(value, _LRU_CACHE_WRAPPER_TYPE):
+            actual_policy = value.cache_parameters()
+            cache_policy_matches = bool(
+                expected_policy is not None
+                and type(actual_policy) is dict
+                and set(actual_policy) == {"maxsize", "typed"}
+                and (
+                    actual_policy["maxsize"] is None
+                    or (type(actual_policy["maxsize"]) is int and actual_policy["maxsize"] >= 0)
+                )
+                and type(actual_policy["typed"]) is bool
+                and actual_policy == expected_policy
+            )
+            cache_policy_rows.append(
+                {
+                    "role": role,
+                    "actual": actual_policy,
+                    "expected": expected_policy,
+                    "matches_declared_policy": cache_policy_matches,
+                }
+            )
+            wrapped = getattr(value, "__wrapped__", None)
+            if cache_policy_matches and isinstance(wrapped, types.FunctionType):
+                functions.append((role, wrapped))
+            else:
+                wrapper_shape_matches = False
+            return
+        if expected_policy is not None:
+            cache_policy_rows.append(
+                {
+                    "role": role,
+                    "actual": None,
+                    "expected": expected_policy,
+                    "matches_declared_policy": False,
+                }
+            )
+            wrapper_shape_matches = False
+        if isinstance(value, types.FunctionType):
+            functions.append((role, value))
+        else:
+            wrapper_shape_matches = False
+
+    if isinstance(raw, property):
+        descriptor_kind = "property"
+    elif isinstance(raw, classmethod):
+        descriptor_kind = "classmethod"
+    elif isinstance(raw, staticmethod):
+        descriptor_kind = "staticmethod"
+    elif isinstance(raw, _LRU_CACHE_WRAPPER_TYPE):
+        descriptor_kind = "lru_cache"
+    elif isinstance(raw, types.FunctionType):
+        descriptor_kind = "function"
+    else:
+        descriptor_kind = f"{type(raw).__module__}.{type(raw).__qualname__}"
+    descriptor_kind_matches = descriptor_kind == slot.descriptor_kind
+    if isinstance(raw, property):
+        actual_accessors = tuple(
+            accessor for accessor in ("fget", "fset", "fdel") if getattr(raw, accessor) is not None
+        )
+        wrapper_shape_matches = actual_accessors == slot.property_accessors
+        for accessor in slot.property_accessors:
+            append_function(accessor, getattr(raw, accessor))
+    elif isinstance(raw, (classmethod, staticmethod)):
+        append_function("function", raw.__func__)
+    elif isinstance(raw, (_LRU_CACHE_WRAPPER_TYPE, types.FunctionType)):
+        append_function("function", raw)
+    else:
+        wrapper_shape_matches = False
+    function_rows: list[dict[str, object]] = []
+    functions_match = bool(functions)
+    for accessor, function in functions:
+        expected_firstlinenos = (
+            (source_firstlinenos[accessor],) if accessor in source_firstlinenos else ()
+        )
+        row, matches = _loader_owned_slot_function_matches(
+            function,
+            slot=slot,
+            module_name=module_name,
+            source_path=source_path,
+            expected_hashes=expected_hashes,
+            expected_firstlinenos=expected_firstlinenos,
+        )
+        function_rows.append({"accessor": accessor, **row, "matches_loader_slot": matches})
+        functions_match = functions_match and matches
+    matches_slot = bool(
+        owner is not None and descriptor_kind_matches and wrapper_shape_matches and functions_match
+    )
+    return (
+        {
+            "binding_type": f"{type(raw).__module__}.{type(raw).__qualname__}",
+            "cache_policies": cache_policy_rows,
+            "decorators": list(slot.decorators),
+            "descriptor_kind": descriptor_kind,
+            "descriptor_kind_matches": descriptor_kind_matches,
+            "expected_descriptor_kind": slot.descriptor_kind,
+            "expected_property_accessors": list(slot.property_accessors),
+            "expected_source_firstlinenos": [list(item) for item in slot.source_firstlinenos],
+            "functions": function_rows,
+            "loader_normalized_code_hashes": list(expected_hashes),
+            "matches_loader_slot": matches_slot,
+            "owner_path": list(slot.owner_path),
+        },
+        matches_slot,
+    )
 
 
 def _loaded_code_manifest(
     repo_root: Path,
     closure: tuple[tuple[str, str], ...],
 ) -> tuple[str, bool]:
-    """Capture normalized code objects for closure modules already loaded."""
+    """Capture normalized code objects for the complete declared closure."""
 
     manifest: dict[str, object] = {}
     all_consistent = True
     for module_name, relative_path in closure:
         module = sys.modules.get(module_name)
         if module is None:
-            continue
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure module not loaded: {module_name}",
+            )
         spec = getattr(module, "__spec__", None)
         loader = getattr(spec, "loader", None)
         get_code = getattr(loader, "get_code", None)
@@ -4356,10 +4964,11 @@ def _loaded_code_manifest(
                 "canonical_loaded_runtime_mismatch",
                 f"loaded repository module provenance invalid: {module_name}",
             )
+        source_path = (repo_root / relative_path).resolve()
         live_defined_code = _live_defined_code_manifest(
             module,
             module_name,
-            source_path=(repo_root / relative_path).resolve(),
+            source_path=source_path,
         )
         loader_code_hashes = _loader_code_hashes_by_qualname(code)
         live_loader_bindings: dict[str, object] = {}
@@ -4377,6 +4986,18 @@ def _loaded_code_manifest(
                 "loader_normalized_code_hashes": list(loader_hashes),
                 "matches_loader": matches_loader,
             }
+        loader_owned_slots: dict[str, object] = {}
+        for slot in _loader_owned_callable_slots(source_path):
+            expected_hashes = loader_code_hashes.get(slot.qualname, ())
+            row, matches_slot = _loader_owned_slot_binding(
+                module,
+                module_name,
+                source_path,
+                slot,
+                expected_hashes,
+            )
+            module_consistent = module_consistent and matches_slot
+            loader_owned_slots[slot.qualname] = row
         all_consistent = all_consistent and module_consistent
         try:
             source_hash = _bytes_hash((repo_root / relative_path).read_bytes())
@@ -4390,6 +5011,7 @@ def _loaded_code_manifest(
             "source_hash": source_hash,
             "loader_module_code_hash": _content_hash(_normalize_code_object(code)),
             "live_defined_code": live_loader_bindings,
+            "loader_owned_callable_slots": loader_owned_slots,
             "live_loader_consistent": module_consistent,
         }
     return _canonical_json(manifest), all_consistent
@@ -4771,6 +5393,7 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
     _IMPORT_TIME_DEPLOYMENT_BASELINE,
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
 ) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+_import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
 (
     _IMPORT_TIME_LOADED_CODE_MANIFEST,
     _IMPORT_TIME_LOADED_CODE_CONSISTENT,

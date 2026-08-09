@@ -14,6 +14,7 @@ from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
+    gy_artifact_self_identity_projection,
     gy_content_hash,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -261,10 +262,8 @@ class RecursiveGenerationCycleRun(_StrictModel):
                 expected_terminal = node.terminal
             if node.terminal != expected_terminal:
                 raise ValueError("recursive_run_parent_terminal_not_owner_derived")
-        payload = self.model_dump(
-            mode="json",
-            exclude={"content_hash", "leaf_nodes"},
-        )
+        payload = gy_artifact_self_identity_projection(self)
+        payload.pop("leaf_nodes", None)
         if self.content_hash != gy_content_hash(payload):
             raise ValueError("recursive_generation_cycle_content_hash_mismatch")
         return self

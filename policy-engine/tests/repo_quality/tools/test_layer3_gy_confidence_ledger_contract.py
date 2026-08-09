@@ -102,6 +102,18 @@ def test_real_owner_bundle_projects_narrow_n10_and_n13b_evidence_once(
     capstone = json.loads(capstone_path.read_text(encoding="utf-8"))
     n13b = N13bAcquisitionExecutorContract.model_validate_json(n13b_path.read_bytes())
     calls = {"n10": 0, "n13b": 0}
+    first_inputs = _sealed_owner_inputs("sha256:" + "1" * 64)
+    changed_inputs = _sealed_owner_inputs("sha256:" + "2" * 64)
+    consumed_input_derivations = iter(
+        (
+            first_inputs,
+            first_inputs,
+            first_inputs,
+            first_inputs,
+            changed_inputs,
+            changed_inputs,
+        )
+    )
 
     def recompute_n10(_: Path) -> dict[str, object]:
         calls["n10"] += 1
@@ -120,6 +132,11 @@ def test_real_owner_bundle_projects_narrow_n10_and_n13b_evidence_once(
 
     monkeypatch.setattr(adapter, "_recompute_n10_capstone", recompute_n10)
     monkeypatch.setattr(adapter, "_recompute_n13b_contract", recompute_n13b)
+    monkeypatch.setattr(
+        adapter,
+        "_owner_consumed_input_set",
+        lambda *_args, **_kwargs: next(consumed_input_derivations),
+    )
 
     first = adapter.load_owner_bundle(
         POLICY_ENGINE_ROOT,
@@ -131,9 +148,17 @@ def test_real_owner_bundle_projects_narrow_n10_and_n13b_evidence_once(
         catalog_path=CATALOG_PATH,
         l5_path=L5_PATH,
     )
+    changed = adapter.load_owner_bundle(
+        POLICY_ENGINE_ROOT,
+        catalog_path=CATALOG_PATH,
+        l5_path=L5_PATH,
+    )
 
     assert first is second
-    assert calls == {"n10": 1, "n13b": 1}
+    assert changed is not first
+    assert calls == {"n10": 2, "n13b": 2}
+    assert first.consumed_inputs == first_inputs
+    assert changed.consumed_inputs == changed_inputs
     assert first.n10.route_count == 3
     assert tuple(row.witness_kind for row in first.n10.routes) == (
         "estimand_binding_refusal",
@@ -170,8 +195,25 @@ def test_owner_bundle_rejects_source_change_during_derivation(
     l5 = tmp_path / "l5.json"
     catalog.write_bytes(b"catalog")
     l5.write_bytes(b"l5")
-    fences = iter(("sha256:" + "1" * 64, "sha256:" + "2" * 64))
-    monkeypatch.setattr(adapter, "_owner_cache_fence", lambda *_args, **_kwargs: next(fences))
+    inputs = iter(
+        (
+            _sealed_owner_inputs(
+                "sha256:" + "1" * 64,
+                member_id="owner-source",
+                member_kind="source",
+            ),
+            _sealed_owner_inputs(
+                "sha256:" + "2" * 64,
+                member_id="owner-source",
+                member_kind="source",
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        adapter,
+        "_owner_consumed_input_set",
+        lambda *_args, **_kwargs: next(inputs),
+    )
     monkeypatch.setattr(adapter, "_load_owner_bundle_cached", lambda *_args: object())
 
     with pytest.raises(adapter.OwnerProjectionError) as exc_info:
@@ -181,7 +223,76 @@ def test_owner_bundle_rejects_source_change_during_derivation(
             l5_path=l5,
         )
 
-    assert exc_info.value.code == "owner_cache_fence_changed_during_derivation"
+    assert exc_info.value.code == "consumed_input_member_substituted"
+    assert "source:owner-source" in exc_info.value.detail
+
+
+def _sealed_owner_inputs(
+    identity: str,
+    *,
+    member_id: str = "outside-old-context-key",
+    member_kind: str = "environment",
+) -> object:
+    from polisyos.runtime.quality.authority import (
+        ConsumedInputMember,
+        SameInputClosure,
+        seal_consumed_input_set,
+    )
+
+    closure = SameInputClosure(
+        closure_id="gy-n11-owner-inputs",
+        status="closed",
+        run_id="gy-n11",
+        job_id="owner-bundle",
+        tenant_id="policy-engine",
+        closure_sha256="sha256:" + "1" * 64,
+    )
+    return seal_consumed_input_set(
+        closure=closure,
+        members=(
+            ConsumedInputMember(
+                member_id=member_id,
+                member_kind=member_kind,
+                declared_identity=identity,
+                resolved_identity=identity,
+                predicate_class="recomputed",
+            ),
+        ),
+    )
+
+
+def test_owner_bundle_rejects_consumed_input_change_during_derivation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Changing a declared member is a named input mismatch, not value drift."""
+
+    catalog = tmp_path / "catalog.duckdb"
+    l5 = tmp_path / "l5.json"
+    catalog.write_bytes(b"catalog")
+    l5.write_bytes(b"l5")
+    inputs = iter(
+        (
+            _sealed_owner_inputs("sha256:" + "1" * 64),
+            _sealed_owner_inputs("sha256:" + "2" * 64),
+        )
+    )
+    monkeypatch.setattr(
+        adapter,
+        "_owner_consumed_input_set",
+        lambda *_args, **_kwargs: next(inputs),
+    )
+    monkeypatch.setattr(adapter, "_load_owner_bundle_cached", lambda *_args: object())
+
+    with pytest.raises(adapter.OwnerProjectionError) as exc_info:
+        adapter.load_owner_bundle(
+            tmp_path,
+            catalog_path=catalog,
+            l5_path=l5,
+        )
+
+    assert exc_info.value.code == "consumed_input_member_substituted"
+    assert "environment:outside-old-context-key" in exc_info.value.detail
 
 
 def test_n10_cache_fence_generically_binds_every_declared_source_ref(tmp_path: Path) -> None:
@@ -562,10 +673,11 @@ def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
         bundle,
         n10=unicode_n10,
         projection_sha256=content_sha256(
-            {
-                "n10": asdict(unicode_n10),
-                "n13b": asdict(bundle.n13b),
-            }
+                {
+                    "n10": asdict(unicode_n10),
+                    "n13b": asdict(bundle.n13b),
+                    "consumed_inputs": bundle.consumed_inputs.model_dump(mode="json"),
+                }
         ),
     )
     monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: unicode_bundle)
@@ -1741,8 +1853,8 @@ def test_objectively_progressing_cold_worker_may_exceed_two_x_without_terminatio
     monkeypatch.setattr(adapter, "_report_owner_progress", slow_real_owner_progress)
     monkeypatch.setattr(
         adapter,
-        "_owner_cache_fence",
-        lambda *_args, **_kwargs: "sha256:" + "1" * 64,
+        "_owner_consumed_input_set",
+        lambda *_args, **_kwargs: contract.owner_bundle_projection.consumed_inputs,
     )
     stats = iter(
         (

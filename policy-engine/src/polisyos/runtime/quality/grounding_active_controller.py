@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     AdmissibleCompletion,
@@ -1118,7 +1119,7 @@ def recompute_grounding_action_ticket_hash(
 
     payload = _payload_without_identity(
         ticket_or_payload,
-        id_fields=("ticket_id", "content_hash"),
+        id_field="ticket_id",
     )
     return gy_content_hash(payload)
 
@@ -1514,11 +1515,10 @@ def _literal_values(alias: object) -> tuple[str, ...]:
 def _payload_without_identity(
     value: BaseModel | Mapping[str, Any],
     *,
-    id_fields: tuple[str, str] = ("certificate_id", "content_hash"),
+    id_field: str = "certificate_id",
 ) -> dict[str, Any]:
-    payload = value.model_dump(mode="json") if isinstance(value, BaseModel) else dict(value)
-    for field in id_fields:
-        payload.pop(field, None)
+    payload = serialization.artifact_self_identity_projection(value)
+    payload.pop(id_field, None)
     return _json_ready(payload)
 
 

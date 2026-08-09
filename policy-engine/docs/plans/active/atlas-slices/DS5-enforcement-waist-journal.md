@@ -19,6 +19,40 @@
 
 - Orchestration receipt: 0 sol agents; 0 sol temptations or escalations. The C04a capability is consumer-wired and semantically tested; no C04b future-issuer construction guard, cache-policy transition, DS6, or DS8 work is claimed.
 
+## DS5-C04b freeze and C04b-D1 deferral — checkpoint `32598d1094c75391bfd02e719236de7398cb5de9`, forward revert `80c5cc4a8474774969186cae56432b6fb0f9c14b`
+
+- C04b exhausted exactly two fixes; review stopped the work and the rejected
+  checkpoint was forward-reverted. Implementation is **Not yet**; D1 is
+  record-only and does not authorize a third fix.
+- Final Critical: canonical `discoverCapabilities` enclosure was recognized by
+  text name and a nested same-name function with canonical types bypassed.
+  The two declaration-identity witnesses are consequently the required future
+  closure, not a textual marker.
+- D1 red first: `test_capability_discovery_lint_debt_closure_requires_declaration_identity_witness`
+  failed with the helper absent (1 test, 0.001 seconds). Its green retry passed
+  1/1 in 0.001 seconds. The closure is intentionally nonzero until both owner
+  witnesses exist and pass; the helper never executes register-provided shell.
+- Review NO-GO Critical / fix 1: `wasSuccessful()` admitted a skipped or
+  expected-failure declaration-identity witness. The focused marker-preserving
+  probes were red (skipped returned 0); the closure now accepts 0 only after
+  two executed, ordinary passing tests and rejects skipped, expected-failure,
+  unexpected-success, error, and failure outcomes.
+- Post-fix reviewer delta: GO 0/0/0. Focused closure witnesses and frontend
+  corruption checks remained green; final status suite passed 38/38 in 51.292
+  seconds and status checker/corruptions passed in 18.016 seconds. Register and
+  report bytes did not drift, so the writer was intentionally not rerun.
+
+| Worker | Tier | Bounded report cost | Payoff / result |
+| --- | --- | ---: | --- |
+| `ds5_c04b_impl` | terra | rejected | Two fixes reached the stop checkpoint. |
+| `ds5_c04b_review` | terra | review | Retained the nested same-name declaration-identity failure. |
+| `ds5_c04b_defer_first` | terra | non-receipt | Usage-limit non-receipt; no completion claim. |
+| `ds5_c04b_defer_retry` | terra | record-only | Typed D1 closure and generated register/report receipts. |
+
+- Orchestration receipt: 0 sol agents; 0 sol temptations or escalations. All
+  listed workers used terra; no C04b implementation, scanner repair, or cache
+  policy transition is claimed.
+
 ## DS5-C03b-R2 freeze and C03b-D1 deferral — checkpoint `54fec7ae9a7282f414da8dc727fa5aa01a17b232`, forward revert `1d0ff1f539790294d508f97b3e4e4bfe3139f594`
 
 - C03b-R1 was undermeasured; its R2 recut was cap 17. R2 exhausted exactly two

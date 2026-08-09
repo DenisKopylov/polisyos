@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:1081cfc88f9e9dd9b28f5b59d9130156a3b6674055f500f022eeac9aabd3d1c8"
+      "sha256": "sha256:c0e2e585f10c3ff8d339c21f35f23f27d4761f56d646b61896a022072f998485"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",

@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **19345**
-- Application lines deleted: **18227**
-- Net application LOC reduction: **-1118**
+- Application lines added: **19408**
+- Application lines deleted: **18239**
+- Net application LOC reduction: **-1169**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -261,6 +261,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `authority-issuer-generated-semantic-id-coverage` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_exported_vocabulary_covers_all_consumed_owner_unions exits 0 after runtime_authority and fixture_only export corruptions fail while the unrelated-constant witness remains green | `open_debt` — C01c review proved the scanner protects projection-state IDs but does not yet derive runtime-authority and fixture IDs from every closed generated union consumed by the issuer family. |
 | `authority-issuer-parity-operand-binding` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_authority_issuer_parity_operands_are_exact_generated_pairs exits 0 after state and authority self-comparison corruptions fail | `open_debt` — C01c review proved the equality predicate and never branches are bound, but a generated Operator/Run operand can still be replaced by a self-comparison without invalidating the fact packet. |
 | `raw-transport-denominator-drift` | `producer_binding_debt` | `rebind_pending` | `DS5` | `contract_only`, `consumer_missing`, `semantic_test_missing` | python3 -c 'import importlib; from architecture.atlas_surfaces import check_frontend_disposition_register as checker; owner_module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); drift_module=importlib.import_module("architecture.atlas_surfaces.test_frontend_disposition_register"); raise SystemExit(checker._raw_transport_debt_closure_exit_code(getattr(owner_module, "AtlasEnforcementTests", None), "test_direct_authority_transport_requires_typed_purpose_factory", getattr(drift_module, "RawTransportDriftTests", None), "test_raw_transport_drift_row_binds_historical_and_live_census"))' # exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; 3 means owner test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero. | `open_debt` — The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator. C03b-R2 exhausted its two-fix-round cap at 54fec7ae9a7282f414da8dc727fa5aa01a17b232 and was forward-reverted by 1d0ff1f539790294d508f97b3e4e4bfe3139f594; the remaining corruption `raw_transport_live_direct_constructor_census_drift` is deferred. |
+| `capability-discovery-construction-lint-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `verification_missing`, `semantic_test_missing` | python3 -c 'import importlib; from architecture.atlas_surfaces import check_frontend_disposition_register as checker; owner_module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); raise SystemExit(checker._capability_discovery_lint_debt_closure_exit_code(getattr(owner_module, "AtlasEnforcementTests", None), "test_authored_capability_discovery_construction_fails", "test_capability_discovery_owner_enclosure_resolves_declaration_identity"))' # exits 0 only when both exact C04b declaration-identity tests execute and pass; 3 means class absent, 4 construction method absent, 5 identity method absent, and 1 means either test failed; all are exit nonzero. | `open_debt` — Critical: canonical `discoverCapabilities` enclosure was recognized by text name and a nested same-name function with canonical types bypassed. C04b exhausted its two fixes at 32598d1094c75391bfd02e719236de7398cb5de9 and was forward-reverted by 80c5cc4a8474774969186cae56432b6fb0f9c14b; implementation remains deferred. |
 
 ### Seeded-negative lifecycle
 
@@ -559,6 +560,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `80c5cc4a8 Revert "DS5-C04b blocked checkpoint after two fix rounds"`
+- `32598d109 DS5-C04b blocked checkpoint after two fix rounds`
+- `cef274940 DS5-C04a-R1 strangle capability fallback`
 - `09d4c1a45 DS5-C03b-D1 defer direct authority transport lint`
 - `1d0ff1f53 Revert "DS5-C03b-R2 blocked checkpoint after two fix rounds"`
 - `54fec7ae9 DS5-C03b-R2 blocked checkpoint after two fix rounds`

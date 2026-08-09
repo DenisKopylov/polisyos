@@ -1014,6 +1014,9 @@ feature. Consumer and disposition/report evidence land together.
 
 ### DS5-C04b — make capability discovery recurrent
 
+**Status:** implementation is **Not yet** and deferred after exactly two fixes;
+the rejected checkpoint was forward-reverted and no third fix is authorized.
+
 **Measured set:** exactly 3 implementation paths plus journal = 4; cap 4: the
 shared C01a scanner/checker/test and journal.
 
@@ -1028,6 +1031,17 @@ availability gates are benign.
 chrome; C04a-R1's behavioral tests own the live consumer claim.
 
 **Expected commit:** `DS5-C04b lint authored capability discovery`.
+
+### DS5-C04b-D1 — record-only deferral after the two-fix freeze
+
+**Status:** C04b remains **Not yet**. D1 records the typed
+`producer_binding_debt` and executable two-witness closure only; it does not
+claim the declaration-identity construction lint landed.
+
+**Measured set:** exactly 7 governance paths; cap 7. The closure is nonzero
+until both named `AtlasEnforcementTests` methods execute and pass.
+
+**Expected commit:** `DS5-C04b-D1 record capability discovery deferral`.
 
 ### DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
@@ -1840,6 +1854,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C03b-D1 | `DS5-C03b-D1 record raw-transport deferral` | 7 |
 | C04a-R1 | `DS5-C04a-R1 strangle capability fallback` | 11 |
 | C04b | `DS5-C04b lint authored capability discovery` | 4 |
+| C04b-D1 | `DS5-C04b-D1 record capability discovery deferral` | 7 |
 | C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |
 | C05b-R1 | `DS5-C05b-R1 anchor authority copy by semantic ID` | 12 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |

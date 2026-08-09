@@ -7276,6 +7276,24 @@
       },
       "rationale": "The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator. C03b-R2 exhausted its two-fix-round cap at 54fec7ae9a7282f414da8dc727fa5aa01a17b232 and was forward-reverted by 1d0ff1f539790294d508f97b3e4e4bfe3139f594; the remaining corruption `raw_transport_live_direct_constructor_census_drift` is deferred.",
       "closure_signal": "python3 -c 'import importlib; from architecture.atlas_surfaces import check_frontend_disposition_register as checker; owner_module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); drift_module=importlib.import_module(\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit(checker._raw_transport_debt_closure_exit_code(getattr(owner_module, \"AtlasEnforcementTests\", None), \"test_direct_authority_transport_requires_typed_purpose_factory\", getattr(drift_module, \"RawTransportDriftTests\", None), \"test_raw_transport_drift_row_binds_historical_and_live_census\"))' # exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; 3 means owner test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero."
+    },
+    {
+      "finding_id": "capability-discovery-construction-lint-debt",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "decision_date": "2026-08-09",
+      "capability_states": [
+        "producer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c04b-freeze-and-d1-deferral-checkpoint-32598d1094c75391bfd02e719236de7398cb5de9-forward-revert-80c5cc4a8474774969186cae56432b6fb0f9c14b"
+      ],
+      "rationale": "Critical: canonical `discoverCapabilities` enclosure was recognized by text name and a nested same-name function with canonical types bypassed. C04b exhausted its two fixes at 32598d1094c75391bfd02e719236de7398cb5de9 and was forward-reverted by 80c5cc4a8474774969186cae56432b6fb0f9c14b; implementation remains deferred.",
+      "closure_signal": "python3 -c 'import importlib; from architecture.atlas_surfaces import check_frontend_disposition_register as checker; owner_module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); raise SystemExit(checker._capability_discovery_lint_debt_closure_exit_code(getattr(owner_module, \"AtlasEnforcementTests\", None), \"test_authored_capability_discovery_construction_fails\", \"test_capability_discovery_owner_enclosure_resolves_declaration_identity\"))' # exits 0 only when both exact C04b declaration-identity tests execute and pass; 3 means class absent, 4 construction method absent, 5 identity method absent, and 1 means either test failed; all are exit nonzero."
     }
   ],
   "seeded_negative_lifecycle": [

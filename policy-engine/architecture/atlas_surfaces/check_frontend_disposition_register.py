@@ -970,6 +970,35 @@ RAW_TRANSPORT_DS19_DELETION_REF = (
     "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md"
     "#2026-07-17---collaboration-cluster-verification"
 )
+CAPABILITY_DISCOVERY_LINT_DEBT_FINDING_ID = "capability-discovery-construction-lint-debt"
+CAPABILITY_DISCOVERY_LINT_DEBT_DECISION_DATE = "2026-08-09"
+CAPABILITY_DISCOVERY_OWNER_TEST_ABSENT_EXIT = 3
+CAPABILITY_DISCOVERY_CONSTRUCTION_TEST_ABSENT_EXIT = 4
+CAPABILITY_DISCOVERY_IDENTITY_TEST_ABSENT_EXIT = 5
+CAPABILITY_DISCOVERY_CONSTRUCTION_TEST_METHOD = (
+    "test_authored_capability_discovery_construction_fails"
+)
+CAPABILITY_DISCOVERY_IDENTITY_TEST_METHOD = (
+    "test_capability_discovery_owner_enclosure_resolves_declaration_identity"
+)
+CAPABILITY_DISCOVERY_REJECTED_CHECKPOINT = "32598d1094c75391bfd02e719236de7398cb5de9"
+CAPABILITY_DISCOVERY_FORWARD_REVERT = "80c5cc4a8474774969186cae56432b6fb0f9c14b"
+CAPABILITY_DISCOVERY_C04B_FREEZE_REF = (
+    "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md"
+    "#ds5-c04b-freeze-and-d1-deferral-checkpoint-32598d1094c75391bfd02e719236de7398cb5de9-forward-revert-80c5cc4a8474774969186cae56432b6fb0f9c14b"
+)
+CAPABILITY_DISCOVERY_CLOSURE_SIGNAL = (
+    "python3 -c 'import importlib; from architecture.atlas_surfaces import "
+    "check_frontend_disposition_register as checker; owner_module=importlib.import_module("
+    "\"architecture.atlas_surfaces.test_atlas_enforcement\"); raise SystemExit("
+    "checker._capability_discovery_lint_debt_closure_exit_code(getattr(owner_module, "
+    "\"AtlasEnforcementTests\", None), "
+    "\"test_authored_capability_discovery_construction_fails\", "
+    "\"test_capability_discovery_owner_enclosure_resolves_declaration_identity\"))' "
+    "# exits 0 only when both exact C04b declaration-identity tests execute and pass; "
+    "3 means class absent, 4 construction method absent, 5 identity method absent, and "
+    "1 means either test failed; all are exit nonzero."
+)
 
 _DIRECT_TRANSPORT_CENSUS_SCRIPT = r"""
 import ts from "typescript";
@@ -1073,6 +1102,66 @@ def _raw_transport_debt_closure_exit_code(
     )
     runner = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0)
     return 0 if runner.run(suite).wasSuccessful() else 1
+
+
+def _capability_discovery_lint_debt_closure_exit_code(
+    owner_test_class: type[unittest.TestCase] | None,
+    construction_test_method: str,
+    identity_test_method: str,
+) -> int:
+    """Run both C04b declaration-identity witnesses without executing register text."""
+    if owner_test_class is None:
+        return CAPABILITY_DISCOVERY_OWNER_TEST_ABSENT_EXIT
+    if not callable(getattr(owner_test_class, construction_test_method, None)):
+        return CAPABILITY_DISCOVERY_CONSTRUCTION_TEST_ABSENT_EXIT
+    if not callable(getattr(owner_test_class, identity_test_method, None)):
+        return CAPABILITY_DISCOVERY_IDENTITY_TEST_ABSENT_EXIT
+    suite = unittest.TestSuite(
+        (
+            owner_test_class(construction_test_method),
+            owner_test_class(identity_test_method),
+        )
+    )
+    runner = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0)
+    result = runner.run(suite)
+    if (
+        result.testsRun != 2
+        or result.errors
+        or result.failures
+        or result.skipped
+        or result.expectedFailures
+        or result.unexpectedSuccesses
+    ):
+        return 1
+    return 0 if result.wasSuccessful() else 1
+
+
+def _capability_discovery_lint_debt_descriptor() -> dict[str, Any]:
+    """Return the deferred C04b declaration-identity construction finding."""
+    return {
+        "finding_id": CAPABILITY_DISCOVERY_LINT_DEBT_FINDING_ID,
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "decision_date": CAPABILITY_DISCOVERY_LINT_DEBT_DECISION_DATE,
+        "capability_states": [
+            "producer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            CAPABILITY_DISCOVERY_C04B_FREEZE_REF,
+        ],
+        "rationale": (
+            "Critical: canonical `discoverCapabilities` enclosure was recognized by text "
+            "name and a nested same-name function with canonical types bypassed. C04b "
+            "exhausted its two fixes at "
+            f"{CAPABILITY_DISCOVERY_REJECTED_CHECKPOINT} and was forward-reverted by "
+            f"{CAPABILITY_DISCOVERY_FORWARD_REVERT}; implementation remains deferred."
+        ),
+        "closure_signal": CAPABILITY_DISCOVERY_CLOSURE_SIGNAL,
+    }
 
 
 def _raw_transport_drift_descriptor() -> dict[str, Any]:
@@ -1731,6 +1820,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         ),
     },
     RAW_TRANSPORT_DRIFT_FINDING_ID: _raw_transport_drift_descriptor(),
+    CAPABILITY_DISCOVERY_LINT_DEBT_FINDING_ID: _capability_discovery_lint_debt_descriptor(),
 }
 
 INTEGRATE_DEBT_DESCRIPTORS = {

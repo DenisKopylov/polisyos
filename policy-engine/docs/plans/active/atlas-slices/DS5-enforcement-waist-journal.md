@@ -1,5 +1,53 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C03b-R2 freeze and C03b-D1 deferral — checkpoint `54fec7ae9a7282f414da8dc727fa5aa01a17b232`, forward revert `1d0ff1f539790294d508f97b3e4e4bfe3139f594`
+
+- C03b-R1 was undermeasured; its R2 recut was cap 17. R2 exhausted exactly two
+  fix rounds, was not granted a third, and its rejected snapshot was
+  forward-reverted. C03b implementation is **Not yet**; C03b-D1 is record-only.
+- Final remaining R2 failure: frontend disposition
+  `RawTransportDriftTests.test_raw_transport_drift_row_binds_historical_and_live_census`:
+  the removed-constructor corruption expected
+  `raw_transport_live_direct_constructor_census_drift` but received `[]`.
+  It was one failed targeted test; the rejected checkpoint retains no parseable
+  elapsed-time receipt, so D1 does not invent one.
+- Reviewer delta receipts for fix rounds 1 and 2 were GO only for their addressed
+  deltas; neither supersedes the remaining corruption or turns the blocked R2
+  snapshot into a landed capability. The freeze is the authoritative closeout.
+- D1 red first: `test_raw_transport_debt_closure_requires_lint_and_drift_corruption`
+  failed with missing `_raw_transport_debt_closure_exit_code` (1 test, 0.001
+  seconds; wall 1.7 seconds). The old owner-only signal was then demonstrated
+  green (exit 0) while the drift test was absent; this is the P29/P33 witness.
+- D1 green receipt: `RawTransportDriftTests` 6/6 passed in 28.237 seconds.
+- Independent review: GO 0/0/0; the exact seven-path source set was frozen
+  before this final wave. Final frontend disposition suite: 44/44 green in
+  62.997 seconds (64.333 seconds measured); checker/corruptions PASS in 96.730
+  seconds (261 roots / 56 findings / 23 negatives / 8 censuses).
+- Final status-retirement suite: 38/38 green in 154.028 seconds (155.733
+  seconds measured); checker/corruptions PASS in 36.721 seconds (47 DS1 rows,
+  15 current authored, 55 semantic exemptions, 3 waist debts).
+- Final writer/report idempotence, register semantic delta, Python compilation,
+  JSON parse, scoped E/F/I/B/N Ruff zero-new, and `git diff --check` passed.
+  The current closure intentionally exited 3 because the owner test is absent;
+  it was not converted to a green implementation claim.
+- D1 records the existing `producer_binding_debt` / `rebind_pending` /
+  `open_debt` row only. Its closure now resolves and executes both named tests:
+  owner absent/method absent => 3, drift absent/method absent => 4, either
+  failure => 1, both pass => 0; a marker-preserving skipped drift execution is
+  red. It does not execute register-provided shell text.
+
+| Worker | Tier | Bounded report cost | Payoff / result |
+| --- | --- | ---: | --- |
+| `ds5_c03b_impl` | terra | ~45 lines | R2 implementation checkpoint; rejected and forward-reverted. |
+| `ds5_c03b_preflight` | terra | ~20 lines | Counted the cap-17 set and preflighted the bounded transport receipt. |
+| `ds5_c03b_review` | terra | ~25 lines | Two fix-round deltas; final remaining corruption retained for freeze. |
+| `ds5_c03b_debug` | terra | ~20 lines | Isolated the removed-constructor corruption that returned no errors. |
+| `ds5_c03b_defer` | terra | ~16 lines | D1 closure bookkeeping; no transport implementation. |
+| `ds5_c03b_defer_review` | terra | ~16 lines | Independent GO and bounded final-wave receipt review. |
+
+- Orchestration receipt: 0 sol agents; 0 sol temptations or escalations. All
+  bounded reports used the terra tier. No C03b implementation is claimed landed.
+
 ## DS5-C03a-R1 — raw transport denominator drift
 
 - Red first: `test_raw_transport_drift_row_binds_historical_and_live_census`

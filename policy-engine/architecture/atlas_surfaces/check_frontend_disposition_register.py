@@ -12,11 +12,13 @@ import argparse
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 import posixpath
 import re
 import subprocess
 import sys
+import unittest
 from collections import Counter, defaultdict
 from functools import lru_cache
 from pathlib import Path
@@ -932,24 +934,38 @@ def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
 RAW_TRANSPORT_SCAN_ROOTS = ("apps/runtime-dashboard/src",)
 RAW_TRANSPORT_DRIFT_FINDING_ID = "raw-transport-denominator-drift"
 RAW_TRANSPORT_DRIFT_DECISION_DATE = "2026-08-08"
+RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT = 3
+RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT = 4
+RAW_TRANSPORT_OWNER_TEST_METHOD = (
+    "test_direct_authority_transport_requires_typed_purpose_factory"
+)
+RAW_TRANSPORT_DRIFT_TEST_METHOD = (
+    "test_raw_transport_drift_row_binds_historical_and_live_census"
+)
 RAW_TRANSPORT_CLOSURE_SIGNAL = (
-    "python3 -c 'import importlib,sys,unittest; "
-    'module=importlib.import_module("architecture.atlas_surfaces.test_atlas_enforcement"); '
-    'test_class=getattr(module,"AtlasEnforcementTests",None); '
-    'test_name="test_direct_authority_transport_requires_typed_purpose_factory"; '
-    'test_method=getattr(test_class,test_name,None) if test_class is not None else None; '
-    'absent=not callable(test_method); '
-    'absent and sys.stderr.write("C03B_R1_TEST_ABSENT"); '
-    "sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run("
-    "test_class(test_name)).wasSuccessful() else 1)' "
-    "# exits 0 only when exact live 7/5 typed-owner agreement holds "
-    "(fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, "
-    "removed, or reclassified direct constructors."
+    "python3 -c 'import importlib; from architecture.atlas_surfaces import "
+    "check_frontend_disposition_register as checker; owner_module=importlib.import_module("
+    "\"architecture.atlas_surfaces.test_atlas_enforcement\"); drift_module=importlib.import_module("
+    "\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit("
+    "checker._raw_transport_debt_closure_exit_code(getattr(owner_module, "
+    "\"AtlasEnforcementTests\", None), "
+    "\"test_direct_authority_transport_requires_typed_purpose_factory\", "
+    "getattr(drift_module, \"RawTransportDriftTests\", None), "
+    "\"test_raw_transport_drift_row_binds_historical_and_live_census\"))' "
+    "# exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; "
+    "3 means owner "
+    "test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero."
 )
 RAW_TRANSPORT_HISTORICAL_AUDIT_REF = (
     "docs/reference/frontend/atlas-live-application-audit.md"
     "#hand-written-fetches-audited-9-of-9-production-calls"
 )
+RAW_TRANSPORT_C03B_FREEZE_REF = (
+    "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md"
+    "#ds5-c03b-r2-freeze-and-c03b-d1-deferral-checkpoint-54fec7ae9a7282f414da8dc727fa5aa01a17b232-forward-revert-1d0ff1f539790294d508f97b3e4e4bfe3139f594"
+)
+RAW_TRANSPORT_C03B_REJECTED_CHECKPOINT = "54fec7ae9a7282f414da8dc727fa5aa01a17b232"
+RAW_TRANSPORT_C03B_FORWARD_REVERT = "1d0ff1f539790294d508f97b3e4e4bfe3139f594"
 RAW_TRANSPORT_DS19_DELETION_REF = (
     "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md"
     "#2026-07-17---collaboration-cluster-verification"
@@ -1034,6 +1050,31 @@ def _direct_transport_census(
     return _direct_transport_census_from_sources(sources)
 
 
+def _raw_transport_debt_closure_exit_code(
+    owner_test_class: type[unittest.TestCase] | None,
+    owner_test_method: str,
+    drift_test_class: type[unittest.TestCase] | None,
+    drift_test_method: str,
+) -> int:
+    """Run the two resolved C03b closure tests without evaluating register text."""
+    if owner_test_class is None or not callable(
+        getattr(owner_test_class, owner_test_method, None)
+    ):
+        return RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT
+    if drift_test_class is None or not callable(
+        getattr(drift_test_class, drift_test_method, None)
+    ):
+        return RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT
+    suite = unittest.TestSuite(
+        (
+            owner_test_class(owner_test_method),
+            drift_test_class(drift_test_method),
+        )
+    )
+    runner = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0)
+    return 0 if runner.run(suite).wasSuccessful() else 1
+
+
 def _raw_transport_drift_descriptor() -> dict[str, Any]:
     """Return the typed historical/live denominator distinction for C03b-R1."""
     return {
@@ -1051,6 +1092,7 @@ def _raw_transport_drift_descriptor() -> dict[str, Any]:
         "evidence_refs": [
             RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
             RAW_TRANSPORT_DS19_DELETION_REF,
+            RAW_TRANSPORT_C03B_FREEZE_REF,
         ],
         "raw_transport_receipt": {
             "historical_ds1": {
@@ -1070,7 +1112,10 @@ def _raw_transport_drift_descriptor() -> dict[str, Any]:
         "rationale": (
             "The DS1 audit recorded four collaboration fetches that DS19 later "
             "deleted; historical audit coverage is evidence, not the live C03b "
-            "direct-call denominator."
+            "direct-call denominator. C03b-R2 exhausted its two-fix-round cap at "
+            f"{RAW_TRANSPORT_C03B_REJECTED_CHECKPOINT} and was forward-reverted by "
+            f"{RAW_TRANSPORT_C03B_FORWARD_REVERT}; the remaining corruption "
+            "`raw_transport_live_direct_constructor_census_drift` is deferred."
         ),
         "closure_signal": RAW_TRANSPORT_CLOSURE_SIGNAL,
     }

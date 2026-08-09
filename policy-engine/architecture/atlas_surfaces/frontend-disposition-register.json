@@ -7252,7 +7252,8 @@
       ],
       "evidence_refs": [
         "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls",
-        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c03b-r2-freeze-and-c03b-d1-deferral-checkpoint-54fec7ae9a7282f414da8dc727fa5aa01a17b232-forward-revert-1d0ff1f539790294d508f97b3e4e4bfe3139f594"
       ],
       "raw_transport_receipt": {
         "historical_ds1": {
@@ -7273,8 +7274,8 @@
         },
         "ds19_collaboration_deletion_evidence_ref": "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
       },
-      "rationale": "The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator.",
-      "closure_signal": "python3 -c 'import importlib,sys,unittest; module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); test_class=getattr(module,\"AtlasEnforcementTests\",None); test_name=\"test_direct_authority_transport_requires_typed_purpose_factory\"; test_method=getattr(test_class,test_name,None) if test_class is not None else None; absent=not callable(test_method); absent and sys.stderr.write(\"C03B_R1_TEST_ABSENT\"); sys.exit(3 if absent else 0 if unittest.TextTestRunner(verbosity=0).run(test_class(test_name)).wasSuccessful() else 1)' # exits 0 only when exact live 7/5 typed-owner agreement holds (fetch=5, EventSource=1, WebSocket=1), and exit nonzero after added, removed, or reclassified direct constructors."
+      "rationale": "The DS1 audit recorded four collaboration fetches that DS19 later deleted; historical audit coverage is evidence, not the live C03b direct-call denominator. C03b-R2 exhausted its two-fix-round cap at 54fec7ae9a7282f414da8dc727fa5aa01a17b232 and was forward-reverted by 1d0ff1f539790294d508f97b3e4e4bfe3139f594; the remaining corruption `raw_transport_live_direct_constructor_census_drift` is deferred.",
+      "closure_signal": "python3 -c 'import importlib; from architecture.atlas_surfaces import check_frontend_disposition_register as checker; owner_module=importlib.import_module(\"architecture.atlas_surfaces.test_atlas_enforcement\"); drift_module=importlib.import_module(\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit(checker._raw_transport_debt_closure_exit_code(getattr(owner_module, \"AtlasEnforcementTests\", None), \"test_direct_authority_transport_requires_typed_purpose_factory\", getattr(drift_module, \"RawTransportDriftTests\", None), \"test_raw_transport_drift_row_binds_historical_and_live_census\"))' # exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; 3 means owner test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero."
     }
   ],
   "seeded_negative_lifecycle": [

@@ -1280,8 +1280,40 @@ class RawTransportDriftTests(unittest.TestCase):
             text=True,
         )
         self.assertEqual(3, result.returncode, result.stderr)
-        self.assertEqual("C03B_R1_TEST_ABSENT", result.stderr)
+        self.assertEqual("", result.stderr)
         self.assertNotIn("AttributeError", result.stderr)
+
+    def test_raw_transport_debt_closure_requires_lint_and_drift_corruption(self) -> None:
+        """Require both named C03b test identities to execute and pass."""
+
+        class OwnerPass(unittest.TestCase):
+            def test_direct_authority_transport_requires_typed_purpose_factory(self) -> None:
+                self.assertTrue(True)
+
+        class OwnerFail(unittest.TestCase):
+            def test_direct_authority_transport_requires_typed_purpose_factory(self) -> None:
+                self.fail("owner corruption")
+
+        class DriftPass(unittest.TestCase):
+            def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
+                self.assertTrue(True)
+
+        class DriftFail(unittest.TestCase):
+            def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
+                self.fail("drift corruption")
+
+        closure = checker._raw_transport_debt_closure_exit_code
+        owner_method = "test_direct_authority_transport_requires_typed_purpose_factory"
+        drift_method = "test_raw_transport_drift_row_binds_historical_and_live_census"
+
+        self.assertEqual(3, closure(None, owner_method, DriftPass, drift_method))
+        self.assertEqual(3, closure(OwnerPass, "missing_owner_method", DriftPass, drift_method))
+        self.assertEqual(4, closure(OwnerPass, owner_method, None, drift_method))
+        self.assertEqual(4, closure(OwnerPass, owner_method, DriftPass, "missing_drift_method"))
+        self.assertEqual(1, closure(OwnerFail, owner_method, DriftPass, drift_method))
+        # A named drift marker without running its failing method must stay red.
+        self.assertEqual(1, closure(OwnerPass, owner_method, DriftFail, drift_method))
+        self.assertEqual(0, closure(OwnerPass, owner_method, DriftPass, drift_method))
 
     def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))

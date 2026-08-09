@@ -32,6 +32,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import duckdb
@@ -573,6 +574,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     )
     corrupted["pack"]["content_addressing"] = addressing
     corrupted["cycle_trace"]["execution_status"] = "crashed"
+    corrupted["cycle_trace"]["generation_cycle_run"]["promotion_port"][
+        "reason"
+    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
     stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
     stage_generation = _mapping(stage_attempts.get("generation"))
     stage_generation["generation_channel"] = "grammar_fallback"
@@ -659,6 +663,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "distinctness_outcome_overlap",
         "transport_context_denominator_invalid",
         "smoke_terminal_not_honest",
+        "smoke_promotion_verification_boundary_invalid",
         "historical_receipt_rebased_to_moving_head",
         "free_grow_violated_by_code_change",
         "free_grow_violated_by_scope_change",
@@ -2432,19 +2437,42 @@ def _build_cycle_trace(
             capture=active_capture,
             cached_organ_run=captured_organ_run,
         )
-        controller = GenerationCycleController(
-            generation_port=generation_port,
-            repo_root=root,
-            cycle_substrate_context=cycle_substrate_context,
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.runtime.quality.confidence_ledger import (
+            ConfidenceLedgerSession,
         )
-        run_result = await controller.run(
-            problem,
-            budget_state=BudgetState(
-                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-            ),
-            min_cycles=2,
-            max_cycles=1,
+        from polisyos.runtime.quality.promotion_sequence import (
+            CanonicalN9PromotionPort,
+            N9DesignProblemBinding,
+            confidence_risk_scope_for_problem,
         )
+
+        binding = N9DesignProblemBinding.from_problem(problem)
+        with TemporaryDirectory(prefix="gy-n10a-n9-verification-") as temp_dir:
+            state_root = Path(temp_dir)
+            session = ConfidenceLedgerSession._for_verification(
+                root,
+                risk_scope=confidence_risk_scope_for_problem(binding),
+                artifact_store=FileSystemCAS(state_root / "cas"),
+                state_root=state_root / "state",
+            )
+            controller = GenerationCycleController(
+                generation_port=generation_port,
+                promotion_port=CanonicalN9PromotionPort._for_verification(
+                    repo_root=root,
+                    confidence_ledger_session=session,
+                ),
+                repo_root=root,
+                cycle_substrate_context=cycle_substrate_context,
+            )
+            run_result = await controller.run(
+                problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                ),
+                min_cycles=2,
+                max_cycles=1,
+            )
         if generation_port.last_organ_run is None:
             raise ValueError("education_n4_owner_replay_not_attempted")
         replay_projection = _n4_owner_result_projection(generation_port.last_organ_run)
@@ -5414,6 +5442,22 @@ def _validate_smoke_terminal(
                 "unexpected_n6_issues": unexpected_n6_issues,
             }
         )
+    promotion = run.promotion_port
+    promotion_receipts = tuple(promotion.receipts)
+    if (
+        promotion.status != "not_promoted"
+        or promotion.reason != "verification_n9_sequence_non_consumer"
+        or not promotion_receipts
+        or any(
+            _mapping(_mapping(receipt).get("confidence_ledger_projection")).get(
+                "authority_provenance"
+            )
+            != "verification"
+            or _mapping(receipt).get("consumer_promotable") is not False
+            for receipt in promotion_receipts
+        )
+    ):
+        issues.append({"code": "smoke_promotion_verification_boundary_invalid"})
     has_known_gap = any(
         str(item.get("code")) == "positive_cycle_denominator_missing" for item in actual_n6_issues
     )

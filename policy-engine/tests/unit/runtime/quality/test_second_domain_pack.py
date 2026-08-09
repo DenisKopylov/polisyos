@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.substrate_registry import (
@@ -103,6 +104,34 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+
+
+def test_n10a_recomputation_never_opens_the_authority_ledger(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N10a must exercise N9 through isolated, non-authorizing state."""
+
+    def reject_authority_state(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise AssertionError("n10a opened ConfidenceLedgerSession.from_repo")
+
+    monkeypatch.setattr(ConfidenceLedgerSession, "from_repo", reject_authority_state)
+    second_domain_pack._CYCLE_TRACE_CACHE.clear()
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    trace = second_domain_pack._build_cycle_trace(
+        REPO_ROOT,
+        frozen["smoke_problem"],
+    )
+    promotion = trace["generation_cycle_run"]["promotion_port"]
+
+    assert promotion["status"] == "not_promoted"
+    assert promotion["reason"] == "verification_n9_sequence_non_consumer"
+    assert promotion["receipts"]
+    assert {
+        receipt["confidence_ledger_projection"]["authority_provenance"]
+        for receipt in promotion["receipts"]
+    } == {"verification"}
+    assert all(receipt["consumer_promotable"] is False for receipt in promotion["receipts"])
 
 
 def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
@@ -1735,6 +1764,25 @@ def test_crash_or_mismatch_trace_cannot_be_labeled_honest(
     }
 
     assert "smoke_terminal_not_honest" in codes
+
+
+def test_smoke_trace_requires_isolated_verification_promotion(
+    live_bundle: dict[str, object],
+) -> None:
+    """A typed terminal cannot retain an ambient authority-state result."""
+
+    corrupted = copy.deepcopy(live_bundle)
+    promotion = corrupted["cycle_trace"]["generation_cycle_run"][
+        "promotion_port"
+    ]
+    promotion["reason"] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "smoke_promotion_verification_boundary_invalid" in codes
 
 
 def test_smoke_trace_must_bind_the_frozen_design_problem(

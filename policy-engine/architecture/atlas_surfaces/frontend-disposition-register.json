@@ -4635,7 +4635,7 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "DS1 does not record this narrow unit as implemented; C04a-R1 removes the local capability fallback and query placeholder from its CommandPalette discovery consumer, while cache-policy transition remains owned by C11/C12 without creating a parallel owner."
     },
     {
       "unit_id": "cache-local-storage-state",

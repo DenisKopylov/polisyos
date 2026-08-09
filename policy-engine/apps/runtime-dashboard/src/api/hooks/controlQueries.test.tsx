@@ -1,10 +1,14 @@
+import { onlineManager } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   capabilitiesQueryOptions,
   fetchCapabilities,
+  isDiscoveryCapabilityEnabled,
+  isIssuedCapabilityDiscovery,
   useCapabilities,
+  useCapabilityDiscovery,
 } from "@/api/hooks/useCapabilities";
 import {
   connectorsQueryOptions,
@@ -28,17 +32,53 @@ import {
   useSourceProfiles,
 } from "@/api/hooks/useSourceProfiles";
 import { queryKeys } from "@/api/queryKeys";
-import { HEALTH_REFETCH_MS, RUNS_SAMPLE_STALE_MS } from "@/shared/lib/constants";
-import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
-import { createQueryHookWrapper } from "@/test/queryHook";
+import {
+  HEALTH_REFETCH_MS,
+  RUNS_SAMPLE_STALE_MS,
+} from "@/shared/lib/constants";
+import {
+  createQueryHookHarness,
+  createQueryHookWrapper,
+} from "@/test/queryHook";
 import {
   mockRuntimeGetFailure,
   mockRuntimeGetSuccess,
 } from "@/test/runtimeApi";
 
 const capabilitiesPayload = {
-  ...FALLBACK_CAPABILITY_MANIFEST,
+  meta: {
+    request_id: "owner-capability-manifest",
+    generated_at: "2026-08-09T00:00:00Z",
+    source_kinds: ["core_run"],
+  },
   runtime_api_version: "2.0.0",
+  shell_flavor: "atlas",
+  default_execution_profile: "dev",
+  default_locale: "en",
+  supported_execution_profiles: ["dev"],
+  supported_locales: ["en"],
+  state_store_backend: "sqlite",
+  worker_backend: "embedded",
+  workspaces: [],
+  features: [
+    {
+      key: "evaluator_reports",
+      label: "Evaluator reports",
+      description: "Owner-issued enabled capability.",
+      category: "governance",
+      enabled: true,
+      stage: "active",
+    },
+    {
+      key: "promotion_lane",
+      label: "Promotion lane",
+      description: "Owner-issued disabled capability.",
+      category: "evidence",
+      enabled: false,
+      stage: "deferred",
+    },
+  ],
+  constraints: {},
 };
 
 const healthPayload = {
@@ -101,10 +141,11 @@ const promotionCandidatesPayload = {
 
 describe("control-plane query hooks", () => {
   afterEach(() => {
+    onlineManager.setOnline(true);
     vi.restoreAllMocks();
   });
 
-  it("loads the capability manifest with stable placeholder defaults", async () => {
+  it("loads the owner capability manifest without a placeholder", async () => {
     const getSpy = mockRuntimeGetSuccess(capabilitiesPayload);
     const { result } = renderHook(() => useCapabilities(), {
       wrapper: createQueryHookWrapper(),
@@ -114,18 +155,113 @@ describe("control-plane query hooks", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.features).toEqual(
-      FALLBACK_CAPABILITY_MANIFEST.features,
-    );
+    expect(result.current.data?.features).toEqual(capabilitiesPayload.features);
     expect(getSpy).toHaveBeenCalledWith("/api/v1/control/capabilities", {
       parseAs: "json",
     });
 
     const options = capabilitiesQueryOptions();
     expect(options.queryKey).toEqual(queryKeys.capabilities());
-    expect(options.placeholderData).toEqual(FALLBACK_CAPABILITY_MANIFEST);
+    expect(options.placeholderData).toBeUndefined();
     expect(options.retry).toBe(1);
     expect(options.staleTime).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it("issues unavailable discovery during loading and runtime failures", async () => {
+    mockRuntimeGetFailure(500, {
+      code: "capabilities_unavailable",
+      detail: "Capability manifest is unavailable",
+      status: 500,
+    });
+    const { result } = renderHook(() => useCapabilityDiscovery(), {
+      wrapper: createQueryHookWrapper(),
+    });
+
+    expect(result.current).toMatchObject({
+      reason: "loading",
+      state: "unavailable",
+    });
+    expect(isIssuedCapabilityDiscovery(result.current)).toBe(true);
+    expect(
+      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
+    ).toBe(false);
+
+    await waitFor(
+      () => {
+        expect(result.current).toMatchObject({
+          reason: "error",
+          state: "unavailable",
+        });
+      },
+      { timeout: 3_000 },
+    );
+  });
+
+  it("issues offline discovery while the capability query is paused", () => {
+    onlineManager.setOnline(false);
+    const { result } = renderHook(() => useCapabilityDiscovery(), {
+      wrapper: createQueryHookWrapper(),
+    });
+
+    expect(result.current).toMatchObject({
+      reason: "offline",
+      state: "unavailable",
+    });
+    expect(
+      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
+    ).toBe(false);
+  });
+
+  it("issues missing-data discovery when a settled query has no owner response", async () => {
+    mockRuntimeGetSuccess(capabilitiesPayload);
+    const { queryClient, wrapper } = createQueryHookHarness();
+    const { result } = renderHook(() => useCapabilityDiscovery(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({ state: "available" });
+    });
+
+    const capabilityQuery = queryClient
+      .getQueryCache()
+      .find({ queryKey: queryKeys.capabilities() });
+    if (!capabilityQuery) {
+      throw new Error("Capability query was not created");
+    }
+    capabilityQuery.setState({
+      ...capabilityQuery.state,
+      data: undefined,
+      fetchStatus: "idle",
+      status: "success",
+    });
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        reason: "missing_data",
+        state: "unavailable",
+      });
+    });
+    expect(
+      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
+    ).toBe(false);
+  });
+
+  it("issues owner capability discovery only after an owner response", async () => {
+    mockRuntimeGetSuccess(capabilitiesPayload);
+    const { result } = renderHook(() => useCapabilityDiscovery(), {
+      wrapper: createQueryHookWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({ state: "available" });
+    });
+
+    expect(isIssuedCapabilityDiscovery(result.current)).toBe(true);
+    expect(
+      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
+    ).toBe(true);
+    expect(isDiscoveryCapabilityEnabled(result.current, "promotion_lane")).toBe(
+      false,
+    );
   });
 
   it("surfaces capability manifest failures as runtime API errors", async () => {

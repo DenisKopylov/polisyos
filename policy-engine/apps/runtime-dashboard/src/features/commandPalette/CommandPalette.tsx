@@ -20,7 +20,10 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
+import {
+  isDiscoveryCapabilityEnabled,
+  useCapabilityDiscovery,
+} from "@/api/hooks/useCapabilities";
 import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
@@ -41,7 +44,6 @@ import {
   type SurfaceId,
 } from "@/app/surfaces/surfaceRegistry";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { useGlobalShortcut } from "@/shared/lib/hooks";
 import { WORKSPACES, type WorkspaceKey } from "@/app/workspaces";
 
@@ -106,7 +108,7 @@ export function CommandPalette() {
   const location = useLocation();
   const navigate = useNavigate();
   const authz = useMaybeAuthz();
-  const capabilitiesQuery = useCapabilities();
+  const capabilityDiscovery = useCapabilityDiscovery();
   const { flags } = useFeatureFlags();
   const { t } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
@@ -147,9 +149,7 @@ export function CommandPalette() {
         canAccessPermission: (permission) =>
           authz ? authz.can(permission) : true,
         hasCapability: (capability) =>
-          capabilitiesQuery.isLoading
-            ? true
-            : isCapabilityEnabled(capabilitiesQuery.data, capability),
+          isDiscoveryCapabilityEnabled(capabilityDiscovery, capability),
         isWorkspaceAllowed: (workspaceKey) =>
           authz ? authz.isWorkspaceAllowed(workspaceKey) : true,
         isWorkspaceEnabled: (workspaceKey: WorkspaceKey) => {
@@ -158,13 +158,7 @@ export function CommandPalette() {
         },
         runId: currentRunId,
       }),
-    [
-      authz,
-      capabilitiesQuery.data,
-      capabilitiesQuery.isLoading,
-      currentRunId,
-      flags,
-    ],
+    [authz, capabilityDiscovery, currentRunId, flags],
   );
   const navigationItems = surfaceEntries.filter(
     (surface) => surface.command.group === "navigation",

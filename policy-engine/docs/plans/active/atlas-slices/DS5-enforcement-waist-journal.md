@@ -1,5 +1,24 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C04a-R1 — capability discovery fallback removal
+
+- Fence: exactly 11 paths. Red first: `test_capability_discovery_accepts_only_issued_owner_manifest` failed because `isIssuedCapabilityDiscovery` was absent (1 failed / 2 passed; 2.07s). The issued discovery is now frozen and privately branded; raw manifests are rejected, and loading/offline/error/missing data are unavailable with no capability.
+- Focused dashboard receipt: 41/41 green in 10.23s; control hooks 9/9 in 9.94s. The suite keeps fixed chrome visible, hides typed capability gates while unavailable, and enables only owner-issued enabled keys. Scoped ESLint passed; production typecheck/build passed (3,885 modules; 108 precache entries).
+- Governed receipt: disposition suite 44/44 in 103.178s; bounded checker/corruptions PASS in 148.215s (261 roots / 56 findings / 23 negatives / 8 censuses). Status suite 38/38 in 159.543s; checker/corruptions PASS in 55.445s (47 rows / 15 authored / 55 exemptions / 3 waist rows). A prior unbounded checker and a 180.024s timeout are non-receipts; the final 360s-bounded run left no child process.
+- `cache-query-memory` remains `team-architecture` / `DS5` / `rebind_pending` / `pending`; this slice attaches only discovery-consumer evidence and does not claim a cache-policy rebound (C11/C12 own that transition). DS19 pin: `sha256:1081cfc88f9e9dd9b28f5b59d9130156a3b6674055f500f022eeac9aabd3d1c8`.
+- Final preservation receipt: the registered report writer passed twice under explicit 180-second bounds (52.754s, 57.158s). Both passes preserved the identical register/report/status hash triplet; writer validation retained report parity. The live register SHA equals the DS19 pin, and the status inventory differs from base only at that pin.
+- Scoped Ruff receipt: zero-new is N/A-by-empty-Python-diff (`git diff 09d4c1a... -- '*.py'` returned 0 paths), so no inherited Python file was linted. Semantic delta passed: only `cache-query-memory` rationale/evidence changed; its owner/slice/disposition/strangle and all other entries, findings, negatives, and censuses are unchanged. `git diff --check`, JSON parsing, and exact 11-path fence passed.
+- Review receipt: initial review returned NO-GO 0/1/0 because the palette test mocked a raw unavailable discovery while separately allowing its predicate. Fix round 1 removed those mocks and exercises the real QueryClient-backed `useCapabilityDiscovery` and WeakSet guard: loading hides gates while fixed chrome remains; the schema-valid owner response enables `evaluator_reports` and keeps disabled `promotion_lane` hidden. Delta review returned GO 0/0/0.
+- Post-review dashboard wave: the four affected files ran 41/41 in 8.67s; typecheck, scoped ESLint, and production build passed (3,885 modules / 108 precache). The source probe returns zero fallback-manifest references and zero CommandPalette loading-as-allow branches; unrelated placeholderData uses are not capability fallbacks. No C04b issuer-construction or C11/C12 cache-policy transition is claimed.
+
+| Worker | Tier | Bounded report cost | Payoff / result |
+| --- | --- | ---: | --- |
+| `ds5_c04a_preflight` | terra | ~20 lines | Bounded C04a cap and live fallback census preflight. |
+| `ds5_c04a_impl` | terra | ~45 lines | Owner-issued fail-closed discovery consumer and governed receipts. |
+| `ds5_c04a_review` | terra | ~20 lines | Found and closed the impossible palette mock; final delta GO. |
+
+- Orchestration receipt: 0 sol agents; 0 sol temptations or escalations. The C04a capability is consumer-wired and semantically tested; no C04b future-issuer construction guard, cache-policy transition, DS6, or DS8 work is claimed.
+
 ## DS5-C03b-R2 freeze and C03b-D1 deferral — checkpoint `54fec7ae9a7282f414da8dc727fa5aa01a17b232`, forward revert `1d0ff1f539790294d508f97b3e4e4bfe3139f594`
 
 - C03b-R1 was undermeasured; its R2 recut was cap 17. R2 exhausted exactly two

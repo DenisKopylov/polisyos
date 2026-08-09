@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **18988**
-- Application lines deleted: **18015**
-- Net application LOC reduction: **-973**
+- Application lines added: **19345**
+- Application lines deleted: **18227**
+- Net application LOC reduction: **-1118**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -559,6 +559,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `09d4c1a45 DS5-C03b-D1 defer direct authority transport lint`
 - `1d0ff1f53 Revert "DS5-C03b-R2 blocked checkpoint after two fix rounds"`
 - `54fec7ae9 DS5-C03b-R2 blocked checkpoint after two fix rounds`
 - `6c6c31299 DS5-C03a-R1 record raw transport drift`

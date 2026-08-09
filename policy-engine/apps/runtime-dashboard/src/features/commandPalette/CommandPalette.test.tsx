@@ -1,23 +1,22 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { mockRuntimeGetFailure, mockRuntimeGetSuccess } from "@/test/runtimeApi";
+
 const {
   cycleDensityMock,
-  isCapabilityEnabledMock,
   locationPathnameMock,
   navigateMock,
   toggleThemeMock,
-  useCapabilitiesMock,
   useFeatureFlagsMock,
   useGlobalShortcutMock,
   useMaybeAuthzMock,
 } = vi.hoisted(() => ({
   cycleDensityMock: vi.fn(),
-  isCapabilityEnabledMock: vi.fn(),
   locationPathnameMock: vi.fn(),
   navigateMock: vi.fn(),
   toggleThemeMock: vi.fn(),
-  useCapabilitiesMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
   useGlobalShortcutMock: vi.fn(),
   useMaybeAuthzMock: vi.fn(),
@@ -40,10 +39,6 @@ vi.mock("react-router-dom", async () => {
     useNavigate: () => navigateMock,
   };
 });
-
-vi.mock("@/api/hooks/useCapabilities", () => ({
-  useCapabilities: () => useCapabilitiesMock(),
-}));
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
   useMaybeAuthz: () => useMaybeAuthzMock(),
@@ -112,26 +107,74 @@ vi.mock("@/shared/lib/hooks", () => ({
   useGlobalShortcut: (...args: unknown[]) => useGlobalShortcutMock(...args),
 }));
 
-vi.mock("@/shared/lib/capabilities", () => ({
-  isCapabilityEnabled: (...args: unknown[]) => isCapabilityEnabledMock(...args),
-}));
-
 import { CommandPalette } from "./CommandPalette";
+
+const ownerCapabilityManifest = {
+  meta: {
+    generated_at: "2026-08-09T00:00:00Z",
+    request_id: "command-palette-owner-manifest",
+    source_kinds: ["core_run"],
+  },
+  runtime_api_version: "2.0.0",
+  shell_flavor: "atlas",
+  default_execution_profile: "dev",
+  default_locale: "en",
+  supported_execution_profiles: ["dev"],
+  supported_locales: ["en"],
+  state_store_backend: "sqlite",
+  worker_backend: "embedded",
+  workspaces: [],
+  features: [
+    {
+      key: "evaluator_reports",
+      label: "Evaluator reports",
+      description: "Owner-issued enabled capability.",
+      category: "governance",
+      enabled: true,
+      stage: "active",
+    },
+    {
+      key: "promotion_lane",
+      label: "Promotion lane",
+      description: "Owner-issued disabled capability.",
+      category: "evidence",
+      enabled: false,
+      stage: "deferred",
+    },
+    {
+      key: "source_profiles",
+      label: "Source profiles",
+      description: "Owner-issued enabled capability.",
+      category: "evidence",
+      enabled: true,
+      stage: "active",
+    },
+  ],
+  constraints: {},
+};
+
+function renderCommandPalette() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <CommandPalette />
+    </QueryClientProvider>,
+  );
+}
 
 describe("CommandPalette", () => {
   beforeEach(() => {
     cycleDensityMock.mockReset();
-    isCapabilityEnabledMock.mockReset();
     locationPathnameMock.mockReset();
     navigateMock.mockReset();
     toggleThemeMock.mockReset();
-    useCapabilitiesMock.mockReset();
     useFeatureFlagsMock.mockReset();
     useGlobalShortcutMock.mockReset();
     useMaybeAuthzMock.mockReset();
-    isCapabilityEnabledMock.mockReturnValue(true);
     locationPathnameMock.mockReturnValue("/runs/run-1/overview");
-    useCapabilitiesMock.mockReturnValue({ data: undefined, isLoading: false });
+    mockRuntimeGetSuccess(ownerCapabilityManifest);
     useFeatureFlagsMock.mockReturnValue({
       flags: {
         enableLexKnowledge: true,
@@ -146,9 +189,13 @@ describe("CommandPalette", () => {
     });
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("routes theme toggles through the theme provider", async () => {
     const user = userEvent.setup();
-    render(<CommandPalette />);
+    renderCommandPalette();
 
     await user.click(
       screen.getByRole("button", { name: /commandPalette\.toggleTheme/i }),
@@ -159,7 +206,7 @@ describe("CommandPalette", () => {
 
   it("routes density cycling through the density provider", async () => {
     const user = userEvent.setup();
-    render(<CommandPalette />);
+    renderCommandPalette();
 
     await user.click(
       screen.getByRole("button", { name: /commandPalette\.cycleDensity/i }),
@@ -170,7 +217,7 @@ describe("CommandPalette", () => {
 
   it("opens contextual run surfaces from the surface registry", async () => {
     const user = userEvent.setup();
-    render(<CommandPalette />);
+    renderCommandPalette();
 
     await user.click(
       screen.getByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
@@ -181,10 +228,10 @@ describe("CommandPalette", () => {
 
   it("opens nested workspace surfaces from the surface registry", async () => {
     const user = userEvent.setup();
-    render(<CommandPalette />);
+    renderCommandPalette();
 
     await user.click(
-      screen.getByRole("button", {
+      await screen.findByRole("button", {
         name: /surfaceRegistry\.panels\.freshnessBraid\.label/i,
       }),
     );
@@ -194,11 +241,11 @@ describe("CommandPalette", () => {
     );
   });
 
-  it("makes registered aliases searchable in command values", () => {
-    render(<CommandPalette />);
+  it("makes registered aliases searchable in command values", async () => {
+    renderCommandPalette();
 
     expect(
-      screen.getByRole("button", {
+      await screen.findByRole("button", {
         name: /surfaceRegistry\.panels\.freshnessBraid\.label/i,
       }),
     ).toHaveAttribute("data-value", expect.stringContaining("source lag"));
@@ -207,10 +254,40 @@ describe("CommandPalette", () => {
   it("hides contextual run surfaces outside a run route", () => {
     locationPathnameMock.mockReturnValue("/runs");
 
-    render(<CommandPalette />);
+    renderCommandPalette();
 
     expect(
       screen.queryByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps fixed surfaces visible while loading capability discovery hides gates", () => {
+    mockRuntimeGetFailure(500, {
+      code: "capabilities_unavailable",
+      detail: "Capability manifest is unavailable",
+      status: 500,
+    });
+
+    renderCommandPalette();
+
+    expect(
+      screen.getByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /pages\.runs\.tabs\.governance/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows only capability-required entries enabled by owner discovery", async () => {
+    renderCommandPalette();
+
+    expect(
+      await screen.findByRole("button", {
+        name: /pages\.runs\.tabs\.governance/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /pages\.runs\.tabs\.evidence/i }),
     ).not.toBeInTheDocument();
   });
 });

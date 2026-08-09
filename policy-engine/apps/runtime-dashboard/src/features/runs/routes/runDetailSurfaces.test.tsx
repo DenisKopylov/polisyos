@@ -4,9 +4,18 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+
+const ownerCapabilityManifest = {
+  features: [
+    { key: "evaluator_reports", enabled: true },
+    { key: "promotion_lane", enabled: true },
+    { key: "unified_dag", enabled: true },
+    { key: "natural_language_runs", enabled: true },
+    { key: "source_profiles", enabled: true },
+  ],
+};
 
 const {
   renderArtifactViewerMock,
@@ -552,7 +561,7 @@ describe("run detail surfaces", () => {
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
-      data: FALLBACK_CAPABILITY_MANIFEST,
+      data: ownerCapabilityManifest,
     });
     useCompareCandidatesMock.mockReturnValue({
       data: { candidates: [] },

@@ -1777,35 +1777,29 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         "status": "open_debt",
         "owner_slice": "DS5",
         "capability_states": [
-            "producer_missing",
             "bridge_missing",
             "consumer_missing",
             "verification_missing",
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c05b-d2",
-            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c05b-d2-record-only-deferral",
+            "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts",
+            "architecture/atlas_surfaces/authority-semantic-copy-registry.json",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c05b-r3",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c05b-r3",
         ],
         "rationale": (
-            "C05b implementation is Not yet: R1 checkpoint/revert "
-            "932d65c4→ba55b71, R2 checkpoint/revert ac24327c3→216ff491, and "
-            "rejected D1 checkpoint/revert d31ae0e3→6893f91 leave the corrected "
-            "42/2/2 direct-Badge census, private branded issuer, generated "
-            "AvailableGovernedProjectionPacket.may_not_use_for guard, and live "
-            "RunExplainabilityPanel consumer as future work; DS6 accepted human "
-            "semantic-review receipts remain 0. This signal conforms to the 42-row "
-            "simple named-command+condition norm; stronger closure is a separate cluster."
+            "C05b-R3 landed the private semantic-copy issuer and generated "
+            "AvailableGovernedProjectionPacket.may_not_use_for guard. The live "
+            "RunExplainabilityPanel/direct-Badge census transition remains panel-only "
+            "debt, and DS6 accepted human semantic-review receipts remain 0."
         ),
         "closure_signal": (
-            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
-            "AtlasEnforcementTests.test_authority_semantic_copy_registry_rejects_"
-            "identity_bound_corruptions architecture.atlas_surfaces."
+            "python3 -m unittest architecture.atlas_surfaces."
             "test_frontend_disposition_register.AuthorityPresentationCensusTests."
             "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition "
-            "exits 0 after both the private branded issuer declaration/runtime guard "
-            "and the live RunExplainabilityPanel consumer rebind the direct-Badge "
-            "census transition"
+            "exits 0 after the live RunExplainabilityPanel consumer rebinds the "
+            "direct-Badge census transition"
         ),
     },
     "c06-cgf-public-vocabulary-producer-debt": {

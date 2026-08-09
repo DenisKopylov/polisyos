@@ -113,6 +113,42 @@
   terminated detached overlapping lanes recorded above; neither is a green gate.
   Final orchestration remains native Terra, 0 Sol workers and 0 Sol temptations.
 
+## DS5-C05b-R3 — issuer-only checkpoint recovery
+
+- Restored the reviewed `ac24327c3` issuer, semantic-copy registry and bounded
+  corruption mechanism. The prior R2 breaker was a receipt shorthand naming a
+  nonexistent closure path, not a mechanism defect.
+- Red first: `ProducerBindingDebtTests.test_semantic_copy_debt_narrows_after_issuer_lands`
+  failed because the descriptor still declared `producer_missing`. After the
+  issuer gate landed it removes only that state; panel/direct-Badge bridge,
+  consumer, verification, semantic test, and DS6 human-review receipts (0) remain open.
+- The future closure is the single panel-only direct-Badge census command; the
+  implementation receipt is the existing issuer identity/corruption test. No
+  consumer claim is made.
+- Focused receipts: issuer Vitest 7/7; exact identity/corruption witness 1/1;
+  descriptor transition/closure tests 2/2; dashboard typecheck and scoped ESLint
+  pass. The serialized frontend checker and corruption battery pass at 261 roots,
+  61 supplemental findings, 23 negatives and 8 censuses.
+- The supplemental writer is byte-idempotent: register `2093c2aa…` and report
+  `34f5a7ce…` before and after the second write. The DS19 pin is the surgical
+  matching register hash. Live status/enforcement suites are nonreceipts for C05:
+  they correctly observe the five locked C08b `status-inline-authz-provider` drifts.
+- Independent review is GO `0/0/0`. Final-wave nonreceipt: two archive/copy
+  snapshots omitted Git worktree semantics; the corrected shared-clone snapshot
+  retained 588 tracked TSX paths and excluded C08b, but its TypeScript scanner
+  returned 2 rather than the source worktree's 163 Badge sites (27/23 Atlas
+  failures in 289.144s). This harness mismatch is not promoted to a C05 product red.
+- Final-gate fix round 1: scoped Ruff measured `166→182` diagnostics, with 16
+  new E501 lines in the embedded declaration probe. Parenthesized implicit-literal
+  wrapping preserves the extracted probe exactly (`6109` bytes,
+  `f92f50be…aeb2c3`); `ast.parse`, `py_compile`, and the exact issuer corruption
+  test pass. The repeat HEAD-versus-staged Ruff census is `166→166`, zero new.
+- Post-fix GO wave: valid clone-local Atlas unittest passes 23/23 in 181.877s;
+  Atlas checker/corruptions and package `lint:enforcement` pass with 163 Badge
+  sites, 45 authority escape sites, 19 prop groups, and zero live architecture
+  violations. The exact issuer witness passes 1/1 in 9.240s; no frontend/status
+  source or probe bytes changed, so their prior valid clone-local receipts stand.
+
 ## DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
 - Pattern pass: P05/P06/P10/P29/P31/P33. The prior shared `Locale` state

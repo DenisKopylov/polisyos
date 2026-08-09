@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import importlib.util
 import json
 import re
@@ -20,6 +21,135 @@ from typing import Any, Literal, NamedTuple
 ATLAS_DIR = Path(__file__).resolve().parent
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
+AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH = ATLAS_DIR / "authority-semantic-copy-registry.json"
+AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH = ATLAS_DIR / "authority-semantic-copy-registry.schema.json"
+AUTHORITY_SEMANTIC_COPY_PATH = (
+    "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
+)
+GENERATED_RUNTIME_TYPES_PATH = ATLAS_DIR.parents[1] / "packages/runtime-api-client/types.ts"
+
+_SEMANTIC_COPY_DECLARATION_PROBE = (
+    r"""
+const fs = require("fs");
+const ts = require("typescript");
+const request = JSON.parse(fs.readFileSync(0, "utf8"));
+const options = { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler, skipLibCheck: true, noEmit: true };
+const overrides = new Map(Object.entries(request.overrides));
+const host = ts.createCompilerHost(options, true);
+const readFile = host.readFile.bind(host);
+const fileExists = host.fileExists.bind(host);
+host.readFile = path => overrides.get(path) ?? readFile(path);
+host.fileExists = path => overrides.has(path) || fileExists(path);
+const program = ts.createProgram([request.issuerPath], options, host);
+const checker = program.getTypeChecker();
+const issuer = program.getSourceFile(request.issuerPath);
+const file = node => node.getSourceFile().fileName;
+const sameFile = (node, path) => Boolean(node) && file(node) === path;
+""" "const statement = (name, guard) => issuer.statements.find("
+"node => guard(node) && node.name?.text === name);" """
+const typeAlias = name => statement(name, ts.isTypeAliasDeclaration);
+const functionDecl = name => statement(name, ts.isFunctionDeclaration);
+const variableDecl = name => {
+  for (const statement of issuer.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (ts.isIdentifier(declaration.name) && declaration.name.text === name) return declaration;
+    }
+  }
+};
+const moduleSymbol = checker.getSymbolAtLocation(issuer);
+""" "const exports = moduleSymbol ? checker.getExportsOfModule(moduleSymbol)"
+".map(symbol => symbol.getName()).sort() : [];" """
+const brand = variableDecl("authoritySemanticCopyBrand");
+const store = variableDecl("issuedAuthoritySemanticCopies");
+const issuerFactory = functionDecl("issueAuthoritySemanticCopy");
+const factory = functionDecl("presentMayNotUseFor");
+const closedFactory = functionDecl("presentSemanticCopy");
+const tokenAlias = typeAlias("MayNotUseForOwnerToken");
+const returnSymbol = factory?.type && ts.isTypeReferenceNode(factory.type)
+  ? checker.getSymbolAtLocation(factory.type.typeName) : undefined;
+""" "const parameterSymbol = factory?.parameters[0]?.type && "
+"ts.isTypeReferenceNode(factory.parameters[0].type)" """
+  ? checker.getSymbolAtLocation(factory.parameters[0].type.typeName) : undefined;
+const tokenObject = tokenAlias?.type && ts.isIndexedAccessTypeNode(tokenAlias.type)
+""" "  && ts.isIndexedAccessTypeNode(tokenAlias.type.objectType) ? "
+"tokenAlias.type.objectType.objectType : undefined;" """
+let generatedSymbol = tokenObject && ts.isTypeReferenceNode(tokenObject)
+  ? checker.getSymbolAtLocation(tokenObject.typeName) : undefined;
+""" "if (generatedSymbol && generatedSymbol.flags & ts.SymbolFlags.Alias) "
+"generatedSymbol = checker.getAliasedSymbol(generatedSymbol);" """
+const generatedType = tokenObject ? checker.getTypeAtLocation(tokenObject) : undefined;
+""" "const field = generatedType ? checker.getPropertyOfType(generatedType, "
+"\"may_not_use_for\") : undefined;" """
+const storeSymbol = store ? checker.getSymbolAtLocation(store.name) : undefined;
+const localDeclaration = (functionNode, name) => {
+  let found;
+  function visit(node) {
+""" "    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && "
+"node.name.text === name) found = node;" """
+    ts.forEachChild(node, visit);
+  }
+  if (functionNode) ts.forEachChild(functionNode.body, visit);
+  return found;
+};
+const issued = localDeclaration(issuerFactory, "issued");
+const issuedSymbol = issued ? checker.getSymbolAtLocation(issued.name) : undefined;
+""" "const sameIssued = node => Boolean(ts.isIdentifier(node) && "
+"checker.getSymbolAtLocation(node) === issuedSymbol);" """
+const standardMember = (call, expectedName) => {
+  if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression)) return false;
+  const member = checker.getSymbolAtLocation(call.expression.name);
+""" "  return Boolean(member?.getName() === expectedName && "
+"member.valueDeclaration && file(member.valueDeclaration).includes("
+"\"/typescript/lib/\"));" """
+};
+const initializedFrozen = Boolean(issued && standardMember(issued.initializer, "freeze"));
+let addedIssued = false;
+let returnedIssued = false;
+let reassignedIssued = false;
+let returnCount = 0;
+function inspectConstruction(node) {
+  if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+    const receiver = checker.getSymbolAtLocation(node.expression.expression);
+""" "    if (receiver === storeSymbol && standardMember(node, \"add\") && "
+"sameIssued(node.arguments[0])) addedIssued = true;" """
+  }
+  if (ts.isReturnStatement(node)) {
+    returnCount += 1;
+    if (sameIssued(node.expression)) returnedIssued = true;
+  }
+""" "  if (ts.isBinaryExpression(node) && node.operatorToken.kind === "
+"ts.SyntaxKind.EqualsToken && sameIssued(node.left)) reassignedIssued = true;" """
+  ts.forEachChild(node, inspectConstruction);
+}
+if (issuerFactory) inspectConstruction(issuerFactory.body);
+""" "const canonicalConstruction = initializedFrozen && addedIssued && "
+"returnedIssued && returnCount === 1 && !reassignedIssued;" """
+""" "const aliasDeclarations = symbol => symbol ? symbol.declarations.map("
+"declaration => file(declaration)).sort() : [];" """
+process.stdout.write(JSON.stringify({
+""" "  compilerDiagnostics: ts.getPreEmitDiagnostics(program).filter("
+"diagnostic => diagnostic.file?.fileName === request.issuerPath)"
+".map(diagnostic => diagnostic.code)," """
+  exports,
+""" "  brandPrivateUnique: Boolean(brand && brand.type && "
+"ts.isTypeOperatorNode(brand.type) && brand.type.operator === "
+"ts.SyntaxKind.UniqueKeyword && !issuer.statements.some(node => node === "
+"brand.parent?.parent && ts.getCombinedModifierFlags(node) & "
+"ts.ModifierFlags.Export))," """
+  brandPath: brand ? file(brand) : null,
+""" "  storePrivate: Boolean(store && !issuer.statements.some(node => "
+"node === store.parent?.parent && ts.getCombinedModifierFlags(node) & "
+"ts.ModifierFlags.Export))," """
+  canonicalConstruction,
+  factoryReturnDeclarations: aliasDeclarations(returnSymbol),
+  factoryParameterDeclarations: aliasDeclarations(parameterSymbol),
+  generatedDeclarations: aliasDeclarations(generatedSymbol),
+  generatedFieldDeclarations: aliasDeclarations(field),
+}));
+"""
+)
 
 _SPEC = importlib.util.spec_from_file_location("status_retirement_checker", STATUS_CHECKER_PATH)
 if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import guard
@@ -1043,6 +1173,168 @@ def _authority_escape_errors(
     return sorted(set(errors))
 
 
+def _semantic_copy_declaration_facts(
+    *, source: str, generated_types: str
+) -> tuple[list[str], Mapping[str, Any]]:
+    """Run a bounded TypeScript declaration proof over the exact issuer and DTO."""
+    issuer_path = status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH
+    try:
+        completed = subprocess.run(
+            ["node", "-e", _SEMANTIC_COPY_DECLARATION_PROBE],
+            cwd=status_checker.REPO_ROOT / "apps/runtime-dashboard",
+            input=json.dumps(
+                {
+                    "issuerPath": str(issuer_path),
+                    "overrides": {
+                        str(issuer_path): source,
+                        str(GENERATED_RUNTIME_TYPES_PATH): generated_types,
+                    },
+                }
+            ),
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=30,
+        )
+        facts = json.loads(completed.stdout)
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as error:
+        return [f"authority_semantic_copy_declaration_probe_failed:{error}"], {}
+    if completed.returncode != 0 or not isinstance(facts, Mapping):
+        return ["authority_semantic_copy_declaration_probe_invalid"], {}
+    return [], facts
+
+
+def _authority_semantic_copy_errors(
+    *,
+    registry: Mapping[str, Any],
+    source: str,
+    generated_types: str,
+) -> list[str]:
+    """Validate registry integrity and declaration identities, never copy wording."""
+    errors = status_checker._schema_errors(
+        registry,
+        AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH,
+        "authority-semantic-copy-registry",
+    )
+    declaration_errors, facts = _semantic_copy_declaration_facts(
+        source=source, generated_types=generated_types
+    )
+    errors.extend(declaration_errors)
+    expected_exports = {
+        "AuthoritySemanticCopy",
+        "AuthoritySemanticReviewReceipt",
+        "ReviewReceiptInput",
+        "admitAuthoritySemanticReviewReceipt",
+        "assertIssuedAuthoritySemanticCopy",
+        "presentMayNotUseFor",
+        "presentSemanticCopy",
+    }
+    issuer_path = str(status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH)
+    generated_alias_path = str(
+        status_checker.REPO_ROOT / "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+    )
+    generated_field_path = str(GENERATED_RUNTIME_TYPES_PATH)
+    if (
+        facts.get("compilerDiagnostics")
+        or set(facts.get("exports", [])) != expected_exports
+        or facts.get("brandPrivateUnique") is not True
+        or facts.get("brandPath") != issuer_path
+        or facts.get("storePrivate") is not True
+        or facts.get("factoryReturnDeclarations") != [issuer_path]
+        or facts.get("factoryParameterDeclarations") != [issuer_path]
+        or facts.get("generatedDeclarations") != [generated_alias_path]
+        or facts.get("generatedFieldDeclarations") != [generated_field_path]
+    ):
+        errors.append("authority_semantic_copy_declaration_identity_drift")
+    if facts.get("canonicalConstruction") is not True:
+        errors.append("authority_semantic_copy_issuance_construction_drift")
+
+    copies = registry.get("copies")
+    if not isinstance(copies, list):
+        return sorted(set([*errors, "authority_semantic_copy_rows_invalid"]))
+    if registry.get("capability_state") != "consumer_missing":
+        errors.append("authority_semantic_copy_capability_state_drift")
+
+    active_keys: set[tuple[str, str, str]] = set()
+    accepted_receipts = 0
+    for copy_row in copies:
+        if not isinstance(copy_row, Mapping):
+            errors.append("authority_semantic_copy_row_invalid")
+            continue
+        review = copy_row.get("review")
+        source_declaration = copy_row.get("source_declaration")
+        if not isinstance(review, Mapping) or not isinstance(source_declaration, Mapping):
+            errors.append("authority_semantic_copy_receipt_invalid")
+            continue
+        if source_declaration != {
+            "contract_module": "@polisyos/runtime-api-client",
+            "schema": "AvailableGovernedProjectionPacket",
+            "field": "may_not_use_for",
+        }:
+            errors.append("authority_semantic_copy_source_declaration_drift")
+        if copy_row.get("semantic_class") != "rights_bar":
+            errors.append("authority_semantic_copy_class_drift")
+        if copy_row.get("strength") != "limited":
+            errors.append("authority_semantic_copy_strength_upgrade")
+        output = copy_row.get("reviewed_output")
+        content_hash = copy_row.get("content_sha256")
+        if not isinstance(output, str) or content_hash != "sha256:" + hashlib.sha256(
+            output.encode("utf-8")
+        ).hexdigest():
+            errors.append("authority_semantic_copy_content_hash_drift")
+        if copy_row.get("active") is True:
+            key = (
+                str(copy_row.get("semantic_id")),
+                str(copy_row.get("locale")),
+                str(copy_row.get("scope")),
+            )
+            if key in active_keys:
+                errors.append("authority_semantic_copy_duplicate_active_tuple")
+            active_keys.add(key)
+        if review.get("status") == "accepted":
+            accepted_receipts += 1
+        elif review.get("status") == "verification_missing":
+            expected_scope = "authority-copy." + str(copy_row.get("locale")) + "." + str(
+                copy_row.get("scope")
+            )
+            if (
+                review.get("reviewer_identity") != "external-reviewer:unreceived"
+                or review.get("reviewer_version") != "unreceived"
+                or review.get("reviewer_scope") != expected_scope
+            ):
+                errors.append("authority_semantic_copy_unreceived_reviewer_drift")
+    if accepted_receipts != 0:
+        errors.append("authority_semantic_copy_accepted_receipt_count_drift")
+    return sorted(set(errors))
+
+
+def _authority_semantic_copy_runtime_errors() -> list[str]:
+    """Execute the issuer's real runtime witnesses without modeling value flow."""
+    try:
+        completed = subprocess.run(
+            [
+                "corepack",
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "src/shared/ui/AuthoritySemanticCopy.test.ts",
+                "--maxWorkers=1",
+                "--reporter=default",
+            ],
+            cwd=status_checker.REPO_ROOT / "apps/runtime-dashboard",
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=45,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return [f"authority_semantic_copy_runtime_harness_failed:{error}"]
+    if completed.returncode != 0:
+        return ["authority_semantic_copy_runtime_harness_failed"]
+    return []
+
+
 def validate_enforcement(
     *,
     source_overrides: Mapping[str, str] | None = None,
@@ -1071,6 +1363,15 @@ def validate_enforcement(
         )
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
+        errors.extend(
+            _authority_semantic_copy_errors(
+                registry=status_checker._load_json(AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH),
+                source=(status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH).read_text(
+                    encoding="utf-8"
+                ),
+                generated_types=GENERATED_RUNTIME_TYPES_PATH.read_text(encoding="utf-8"),
+            )
+        )
         errors.extend(status_checker.validate_inventory(inventory, debt, live_probes=True))
         disposition = disposition_checker._load_json(disposition_checker.REGISTER_PATH)
         errors.extend(
@@ -1854,6 +2155,75 @@ def _corruption_probes(
         not in issuer_fact_errors
     ):
         escaped.append("authority-issuer-construction-sites")
+
+    semantic_registry = status_checker._load_json(AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH)
+    semantic_source = (status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH).read_text(
+        encoding="utf-8"
+    )
+    semantic_generated_types = GENERATED_RUNTIME_TYPES_PATH.read_text(encoding="utf-8")
+    semantic_corruptions: dict[str, Mapping[str, Any]] = {}
+    class_upgrade = copy.deepcopy(semantic_registry)
+    class_upgrade["copies"][0]["strength"] = "strong"
+    semantic_corruptions["class-upgrade"] = class_upgrade
+    stale_hash = copy.deepcopy(semantic_registry)
+    stale_hash["copies"][0]["content_sha256"] = "sha256:" + "0" * 64
+    semantic_corruptions["stale-hash"] = stale_hash
+    reviewer = copy.deepcopy(semantic_registry)
+    reviewer["copies"][0]["review"]["reviewer_identity"] = "external-reviewer:forged"
+    semantic_corruptions["reviewer"] = reviewer
+    scope = copy.deepcopy(semantic_registry)
+    scope["copies"][0]["review"]["reviewer_scope"] = "authority-copy.en.unrelated"
+    semantic_corruptions["scope"] = scope
+    duplicate = copy.deepcopy(semantic_registry)
+    duplicate["copies"].append(copy.deepcopy(duplicate["copies"][0]))
+    semantic_corruptions["duplicate"] = duplicate
+    semantic_source_corruptions = (
+        semantic_source.replace(
+            'AvailableGovernedProjectionPacket["may_not_use_for"][number]',
+            'string /* AvailableGovernedProjectionPacket["may_not_use_for"][number] */',
+            1,
+        ),
+        semantic_source.replace(
+            "issuedAuthoritySemanticCopies.add(issued);",
+            "void issuedAuthoritySemanticCopies;",
+            1,
+        ),
+        semantic_source.replace(
+            "issuedAuthoritySemanticCopies.add(issued);",
+            "issuedAuthoritySemanticCopies.add({});",
+            1,
+        ),
+        semantic_source.replace(
+            "const issued: AuthoritySemanticCopy = Object.freeze({",
+            "const issued: AuthoritySemanticCopy = {",
+            1,
+        ).replace(
+            "  });\n  issuedAuthoritySemanticCopies.add(issued);",
+            "  };\n  Object.freeze({});\n  issuedAuthoritySemanticCopies.add(issued);",
+            1,
+        ),
+        semantic_source
+        + "\nexport function issueStrongAuthoritySemanticCopy(): AuthoritySemanticCopy {\n"
+        + '  return issueAuthoritySemanticCopy("phase34.harm.risk.limited", "strong");\n}\n',
+    )
+    if any(
+        not _authority_semantic_copy_errors(
+            registry=corruption,
+            source=semantic_source,
+            generated_types=semantic_generated_types,
+        )
+        for corruption in semantic_corruptions.values()
+    ) or any(
+        not _authority_semantic_copy_errors(
+            registry=semantic_registry,
+            source=corruption,
+            generated_types=semantic_generated_types,
+        )
+        for corruption in semantic_source_corruptions
+    ):
+        escaped.append("authority-semantic-copy-registry")
+    if _authority_semantic_copy_runtime_errors():
+        escaped.append("authority-semantic-copy-runtime")
     if architecture_errors is None or architecture_receipt is None:
         architecture_errors, architecture_receipt = _architecture_recurrence_errors()
     if architecture_errors:

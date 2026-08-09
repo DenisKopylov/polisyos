@@ -725,7 +725,7 @@ C13a retain their IDs and caps because their corrected sets already fit.
 | DS1 raw-transport historical receipt | C03a-R1 | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
 | hardcoded capability fallback / `cache-query-memory` | C04a-R1-C04b then C11a-C12b-R1 | fallback removed in C04a-R1 and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
 | `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
-| `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C10-R1 | record-only DS5 debt for the private issuer/generated `may_not_use_for` guard → RunExplainabilityPanel branded consumer → direct-Badge census transition; it remains `rebind_pending/open_debt` with producer/bridge/consumer/verification/semantic-test debt while DS6 accepted human-review receipts remain 0 |
+| `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C05b-R3 | C05b-R3 lands only the private issuer/generated `may_not_use_for` guard; it remains `rebind_pending/open_debt` for the panel/direct-Badge bridge, consumer, verification and semantic test while DS6 accepted human-review receipts remain 0 |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
 | audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
@@ -1163,6 +1163,20 @@ enforcement, scanner, catalog, DS6, or backend path is in scope.
 the five named missing states; its simple two-test command is nonzero until both
 future issuer and panel/census tests execute and pass. Accepted DS6 review receipts
 remain 0. **Expected subject:** `DS5-C05b-D2 record semantic-copy deferral`.
+
+### DS5-C05b-R3 — issuer-only recovery from the R2 checkpoint
+
+**Status:** recover the reviewed `ac24327c3` issuer/semantic-ID mechanism as a
+forward 13-path cluster. Its earlier breaker was a receipt shorthand naming a
+nonexistent closure path, not a mechanism finding. This is established-mechanism
+linear sizing, not a bespoke-mechanism cap issue.
+
+**Acceptance:** `AtlasEnforcementTests.test_authority_semantic_copy_registry_rejects_identity_bound_corruptions`
+proves the private branded issuer and generated `may_not_use_for` declaration/runtime
+guard. The supplemental finding removes only `producer_missing`; it retains
+bridge/consumer/verification/semantic-test debt, closes by the future panel-only
+direct-Badge census test, and claims neither a panel consumer nor DS6 human review
+(accepted receipts remain 0). **Expected subject:** `DS5-C05b-R3 recover semantic-copy issuer guard`.
 
 ### DS5 producer-existence entry audit — root finding
 
@@ -1966,6 +1980,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C05a-R1 | `DS5-C05a-R1 separate product and frozen locales` | 11 |
 | C05b-R1 | `DS5-C05b-R1 anchor authority copy by semantic ID` | 12 |
 | C05b-D2 | `DS5-C05b-D2 record semantic-copy deferral` | 7 |
+| C05b-R3 | `DS5-C05b-R3 recover semantic-copy issuer guard` | 13 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
 | C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |

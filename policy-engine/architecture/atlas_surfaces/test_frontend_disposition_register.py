@@ -907,6 +907,22 @@ class ProducerBindingDebtTests(unittest.TestCase):
             descriptors[self.finding_id],
         )
 
+    def test_semantic_copy_debt_narrows_after_issuer_lands(self) -> None:
+        """An issuer landing clears only the producer half of this debt."""
+        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[
+            "semantic-copy-issuer-panel-consumer-deferral"
+        ]
+        self.assertNotIn("producer_missing", descriptor["capability_states"])
+        self.assertEqual(
+            [
+                "bridge_missing",
+                "consumer_missing",
+                "verification_missing",
+                "semantic_test_missing",
+            ],
+            descriptor["capability_states"],
+        )
+
     def test_readiness_scientific_debt_is_derived_from_one_descriptor(self) -> None:
         finding_id = "producer-binding-readiness-scientific-depth"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
@@ -1736,7 +1752,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                     errors,
                 )
 
-    def test_semantic_copy_deferral_uses_simple_dual_test_closure_signal(self) -> None:
+    def test_semantic_copy_debt_uses_simple_panel_only_closure_signal(self) -> None:
         finding_id = "semantic-copy-issuer-panel-consumer-deferral"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
         row = next(
@@ -1751,10 +1767,11 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         }
         closure = str(descriptor["closure_signal"])
         test_ids = [part for part in closure.split() if ".test_" in part]
-        assert len(test_ids) == 2
+        assert len(test_ids) == 1
         assert "python3 -c" not in closure
         assert "helper" not in closure
-        assert "exits 0 after both" in closure
+        assert "RunExplainabilityPanel" in closure
+        assert "issuer declaration" not in closure
 
     def test_authority_census_rejects_unclassified_and_reclassified_badges(
         self,

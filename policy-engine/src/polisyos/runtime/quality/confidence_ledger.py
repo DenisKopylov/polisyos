@@ -12,6 +12,7 @@ verifier fail closed.
 from __future__ import annotations
 
 import ast
+import functools
 import hashlib
 import importlib
 import importlib.util
@@ -24,6 +25,7 @@ import tomllib
 import types
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
+from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
 from pathlib import Path
@@ -86,6 +88,28 @@ type CertificateRole = Literal[
 type SessionAuthorityProvenance = Literal["canonical_repo", "verification"]
 type _DeploymentFileFence = tuple[str, int, int, int, int, int]
 type _DeploymentQuickFence = tuple[tuple[_DeploymentFileFence, ...], str]
+_LRU_CACHE_WRAPPER_TYPE = type(functools.lru_cache(maxsize=1)(lambda: None))
+
+
+@dataclass(frozen=True)
+class _LoaderOwnedCallableSlot:
+    """One source-declared callable binding owned by a module or local class."""
+
+    owner_path: tuple[str, ...]
+    binding_name: str
+    descriptor_kind: str
+    property_accessors: tuple[str, ...]
+    decorators: tuple[str, ...]
+    source_firstlinenos: tuple[tuple[str, int], ...]
+    lru_cache_parameters: tuple[tuple[str, int, int | None, bool], ...]
+
+    @property
+    def qualname(self) -> str:
+        """Return the loader qualname for the declared binding."""
+
+        return ".".join((*self.owner_path, self.binding_name))
+
+
 type ExecutionStatus = Literal["prepared", "started", "executed", "refused", "unexecuted"]
 type CompletionOutcome = Literal[
     "prepared",
@@ -1014,6 +1038,8 @@ class ConfidenceLedgerSession:
         certificate_resolver: CertificateResolver | None,
         certificate_verifier: CertificateVerifier | None,
     ) -> None:
+        loaded_root = _loaded_policy_engine_root()
+        _baseline, _quick_fence, deployment_identity = _admit_loaded_runtime(loaded_root)
         self._initialize(
             registry=registry,
             risk_scope=risk_scope,
@@ -1024,7 +1050,7 @@ class ConfidenceLedgerSession:
             certificate_verifier=certificate_verifier,
             authority_provenance="verification",
             authority_repo_root=None,
-            deployment_identity=_policy_engine_deployment_identity(_loaded_policy_engine_root()),
+            deployment_identity=deployment_identity,
             deployment_quick_fence=None,
         )
 
@@ -1084,12 +1110,13 @@ class ConfidenceLedgerSession:
         loaded_root = _loaded_policy_engine_root()
         if root != loaded_root:
             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
-        deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(root)
-        _assert_loaded_runtime_matches_import_baseline(
+        (
+            _deployment_baseline_value,
+            deployment_quick_fence,
+            deployment_identity,
+        ) = _admit_loaded_runtime(
             root,
-            deployment_baseline=deployment_baseline,
         )
-        deployment_identity = _deployment_identity_from_baseline(deployment_baseline)
         registry = load_confidence_ledger_registry(root / DEFAULT_REGISTRY_RELATIVE_PATH)
         session = object.__new__(cls)
         session._initialize(
@@ -1123,6 +1150,8 @@ class ConfidenceLedgerSession:
         """Open an isolated non-authority session for tests and frozen recomputation."""
 
         root = Path(repo_root).resolve()
+        if root != _loaded_policy_engine_root():
+            raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
         source = (
             root / DEFAULT_REGISTRY_RELATIVE_PATH if registry_source is None else registry_source
         )
@@ -4149,6 +4178,23 @@ def _assert_loaded_runtime_matches_import_baseline(
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
 
 
+def _admit_loaded_runtime(
+    repo_root: Path,
+) -> tuple[str, _DeploymentQuickFence, str]:
+    """Freeze and admit one complete runtime deployment identity."""
+
+    deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(repo_root)
+    _assert_loaded_runtime_matches_import_baseline(
+        repo_root,
+        deployment_baseline=deployment_baseline,
+    )
+    return (
+        deployment_baseline,
+        deployment_quick_fence,
+        _deployment_identity_from_baseline(deployment_baseline),
+    )
+
+
 def _deployment_baseline(repo_root: Path) -> str:
     """Return a path-normalized full source, lock, project, and ABI baseline."""
 
@@ -4343,6 +4389,423 @@ def _repository_module_source(repo_root: Path, module_name: str) -> Path | None:
     return matches[0] if matches else None
 
 
+def _decorator_expression_name(node: ast.expr) -> str:
+    """Return one stable source-level decorator name."""
+
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return f"{_decorator_expression_name(node.value)}.{node.attr}"
+    if isinstance(node, ast.Call):
+        return f"{_decorator_expression_name(node.func)}()"
+    return type(node).__name__
+
+
+def _literal_lru_cache_parameters(
+    node: ast.expr,
+    *,
+    source_path: Path,
+) -> tuple[int | None, bool] | None:
+    """Return one source-declared ``lru_cache`` policy or fail closed."""
+
+    target = node.func if isinstance(node, ast.Call) else node
+    decorator_name = _decorator_expression_name(target)
+    if decorator_name != "lru_cache" and not decorator_name.endswith(".lru_cache"):
+        return None
+    maxsize: object = 128
+    typed: object = False
+    assigned: set[str] = set()
+    if isinstance(node, ast.Call):
+        if len(node.args) > 2:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority lru_cache policy invalid: {source_path.name}",
+            )
+        for index, argument in enumerate(node.args):
+            name = ("maxsize", "typed")[index]
+            try:
+                value = ast.literal_eval(argument)
+            except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy not literal: {source_path.name}",
+                ) from exc
+            if name == "maxsize":
+                maxsize = value
+            else:
+                typed = value
+            assigned.add(name)
+        for keyword in node.keywords:
+            if keyword.arg not in {"maxsize", "typed"} or keyword.arg in assigned:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy invalid: {source_path.name}",
+                )
+            try:
+                value = ast.literal_eval(keyword.value)
+            except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"authority lru_cache policy not literal: {source_path.name}",
+                ) from exc
+            if keyword.arg == "maxsize":
+                maxsize = value
+            else:
+                typed = value
+            assigned.add(keyword.arg)
+    if not ((maxsize is None or (type(maxsize) is int and maxsize >= 0)) and type(typed) is bool):
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"authority lru_cache policy invalid: {source_path.name}",
+        )
+    return maxsize, typed
+
+
+def _loader_owned_callable_slots(source_path: Path) -> tuple[_LoaderOwnedCallableSlot, ...]:
+    """Enumerate direct module and loader-local class callable slots."""
+
+    try:
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    except (OSError, SyntaxError, UnicodeError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"authority module source invalid: {source_path.name}",
+        ) from exc
+    declarations: dict[tuple[tuple[str, ...], str], _LoaderOwnedCallableSlot] = {}
+
+    def add_function(
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+        owner_path: tuple[str, ...],
+    ) -> None:
+        key = (owner_path, node.name)
+        decorators = tuple(_decorator_expression_name(item) for item in node.decorator_list)
+        firstlineno = min(
+            (node.lineno, *(item.lineno for item in node.decorator_list)),
+        )
+        accessor_roles: set[str] = set()
+        for decorator in decorators:
+            if decorator.endswith(".setter"):
+                accessor_roles.add("fset")
+            elif decorator.endswith(".deleter"):
+                accessor_roles.add("fdel")
+            elif (
+                decorator.endswith(".getter")
+                or decorator == "property"
+                or decorator.startswith("computed_field")
+            ):
+                accessor_roles.add("fget")
+        if len(accessor_roles) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority property declaration ambiguous: {source_path.name}:{node.lineno}",
+            )
+        role = next(iter(accessor_roles), "function")
+        lru_cache_parameters = tuple(
+            parameters
+            for decorator in node.decorator_list
+            if (
+                parameters := _literal_lru_cache_parameters(
+                    decorator,
+                    source_path=source_path,
+                )
+            )
+            is not None
+        )
+        if len(lru_cache_parameters) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority lru_cache declaration ambiguous: {source_path.name}:{node.lineno}",
+            )
+        previous = declarations.get(key)
+        extends_property = role in {"fset", "fdel"} and previous is not None
+        source_firstlinenos = dict(previous.source_firstlinenos) if extends_property else {}
+        source_firstlinenos[role] = firstlineno
+        cache_policies = {
+            item_role: (item_line, maxsize, typed)
+            for item_role, item_line, maxsize, typed in (
+                previous.lru_cache_parameters if extends_property else ()
+            )
+        }
+        if lru_cache_parameters:
+            maxsize, typed = lru_cache_parameters[0]
+            cache_policies[role] = (firstlineno, maxsize, typed)
+        else:
+            cache_policies.pop(role, None)
+        merged_decorators = (
+            {*previous.decorators, *decorators} if extends_property else set(decorators)
+        )
+        property_accessors = tuple(
+            sorted(item_role for item_role in source_firstlinenos if item_role != "function")
+        )
+        if property_accessors:
+            descriptor_kind = "property"
+        elif owner_path and node.name == "__new__":
+            descriptor_kind = "staticmethod"
+        elif (owner_path and node.name in {"__class_getitem__", "__init_subclass__"}) or any(
+            item == "classmethod" or item.endswith(".classmethod") for item in decorators
+        ):
+            descriptor_kind = "classmethod"
+        elif any(item == "staticmethod" or item.endswith(".staticmethod") for item in decorators):
+            descriptor_kind = "staticmethod"
+        elif lru_cache_parameters:
+            descriptor_kind = "lru_cache"
+        else:
+            descriptor_kind = "function"
+        declarations[key] = _LoaderOwnedCallableSlot(
+            owner_path=owner_path,
+            binding_name=node.name,
+            descriptor_kind=(
+                previous.descriptor_kind
+                if extends_property and previous is not None
+                else descriptor_kind
+            ),
+            property_accessors=property_accessors,
+            decorators=tuple(sorted(merged_decorators)),
+            source_firstlinenos=tuple(sorted(source_firstlinenos.items())),
+            lru_cache_parameters=tuple(
+                sorted(
+                    (
+                        item_role,
+                        item_line,
+                        maxsize,
+                        typed,
+                    )
+                    for item_role, (item_line, maxsize, typed) in cache_policies.items()
+                )
+            ),
+        )
+
+    def add_class(node: ast.ClassDef, owner_path: tuple[str, ...]) -> None:
+        class_path = (*owner_path, node.name)
+        for child in node.body:
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                add_function(child, class_path)
+            elif isinstance(child, ast.ClassDef):
+                add_class(child, class_path)
+
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            add_function(node, ())
+        elif isinstance(node, ast.ClassDef):
+            add_class(node, ())
+    return tuple(declarations[key] for key in sorted(declarations))
+
+
+def _loader_owned_slot_owner(
+    module: object,
+    module_name: str,
+    owner_path: tuple[str, ...],
+) -> object | None:
+    """Resolve an exact loader-local class path without inherited lookup."""
+
+    owner = module
+    for index, name in enumerate(owner_path):
+        namespace = getattr(owner, "__dict__", {})
+        if not isinstance(namespace, Mapping):
+            return None
+        owner = namespace.get(name)
+        expected_qualname = ".".join(owner_path[: index + 1])
+        if not (
+            isinstance(owner, type)
+            and owner.__module__ == module_name
+            and owner.__qualname__ == expected_qualname
+        ):
+            return None
+    return owner
+
+
+def _unwrapped_function_chain(
+    function: types.FunctionType,
+) -> tuple[types.FunctionType, tuple[types.FunctionType, ...]]:
+    """Return one function's terminal ``__wrapped__`` target and outer chain."""
+
+    chain: list[types.FunctionType] = []
+    seen: set[int] = set()
+    current = function
+    while id(current) not in seen:
+        seen.add(id(current))
+        chain.append(current)
+        wrapped = getattr(current, "__wrapped__", None)
+        if not isinstance(wrapped, types.FunctionType):
+            break
+        current = wrapped
+    return chain[-1], tuple(chain)
+
+
+def _loader_owned_slot_function_matches(
+    function: types.FunctionType,
+    *,
+    slot: _LoaderOwnedCallableSlot,
+    module_name: str,
+    source_path: Path,
+    expected_hashes: tuple[str, ...],
+    expected_firstlinenos: tuple[int, ...],
+) -> tuple[dict[str, object], bool]:
+    """Reconcile one live function or declared wrapper to its loader slot."""
+
+    terminal, chain = _unwrapped_function_chain(function)
+    terminal_hash = _content_hash(_normalize_code_object(terminal.__code__))
+    terminal_matches = bool(
+        expected_hashes
+        and terminal.__code__.co_firstlineno in expected_firstlinenos
+        and terminal.__module__ == module_name
+        and terminal.__qualname__ == slot.qualname
+        and Path(terminal.__code__.co_filename).resolve() == source_path
+        and terminal_hash in expected_hashes
+    )
+    expects_contextmanager = "contextmanager" in slot.decorators
+    wrapper_matches = len(chain) == 1 and not expects_contextmanager
+    if len(chain) > 1 and expects_contextmanager:
+        expected_wrapper = contextmanager(terminal)
+        wrapper_matches = _content_hash(_normalize_function_binding(function)) == _content_hash(
+            _normalize_function_binding(expected_wrapper)
+        )
+    return (
+        {
+            "chain_normalized_code_hashes": [
+                _content_hash(_normalize_code_object(item.__code__)) for item in chain
+            ],
+            "terminal_declared_module": terminal.__module__,
+            "terminal_firstlineno": terminal.__code__.co_firstlineno,
+            "terminal_qualname": terminal.__qualname__,
+            "terminal_source": Path(terminal.__code__.co_filename).resolve().as_posix(),
+            "expected_firstlinenos": list(expected_firstlinenos),
+            "wrapper_matches_declared_decorator": wrapper_matches,
+        },
+        terminal_matches and wrapper_matches,
+    )
+
+
+def _loader_owned_slot_binding(
+    module: object,
+    module_name: str,
+    source_path: Path,
+    slot: _LoaderOwnedCallableSlot,
+    expected_hashes: tuple[str, ...],
+) -> tuple[dict[str, object], bool]:
+    """Resolve and reconcile one exact source-declared callable binding."""
+
+    owner = _loader_owned_slot_owner(module, module_name, slot.owner_path)
+    namespace = getattr(owner, "__dict__", {}) if owner is not None else {}
+    raw = namespace.get(slot.binding_name) if isinstance(namespace, Mapping) else None
+    functions: list[tuple[str, types.FunctionType]] = []
+    source_firstlinenos = dict(slot.source_firstlinenos)
+    expected_cache_policies = {
+        role: {"maxsize": maxsize, "typed": typed}
+        for role, _firstlineno, maxsize, typed in slot.lru_cache_parameters
+    }
+    cache_policy_rows: list[dict[str, object]] = []
+    wrapper_shape_matches = True
+
+    def append_function(role: str, value: object) -> None:
+        nonlocal wrapper_shape_matches
+        expected_policy = expected_cache_policies.get(role)
+        if isinstance(value, _LRU_CACHE_WRAPPER_TYPE):
+            actual_policy = value.cache_parameters()
+            cache_policy_matches = bool(
+                expected_policy is not None
+                and type(actual_policy) is dict
+                and set(actual_policy) == {"maxsize", "typed"}
+                and (
+                    actual_policy["maxsize"] is None
+                    or (type(actual_policy["maxsize"]) is int and actual_policy["maxsize"] >= 0)
+                )
+                and type(actual_policy["typed"]) is bool
+                and actual_policy == expected_policy
+            )
+            cache_policy_rows.append(
+                {
+                    "role": role,
+                    "actual": actual_policy,
+                    "expected": expected_policy,
+                    "matches_declared_policy": cache_policy_matches,
+                }
+            )
+            wrapped = getattr(value, "__wrapped__", None)
+            if cache_policy_matches and isinstance(wrapped, types.FunctionType):
+                functions.append((role, wrapped))
+            else:
+                wrapper_shape_matches = False
+            return
+        if expected_policy is not None:
+            cache_policy_rows.append(
+                {
+                    "role": role,
+                    "actual": None,
+                    "expected": expected_policy,
+                    "matches_declared_policy": False,
+                }
+            )
+            wrapper_shape_matches = False
+        if isinstance(value, types.FunctionType):
+            functions.append((role, value))
+        else:
+            wrapper_shape_matches = False
+
+    if isinstance(raw, property):
+        descriptor_kind = "property"
+    elif isinstance(raw, classmethod):
+        descriptor_kind = "classmethod"
+    elif isinstance(raw, staticmethod):
+        descriptor_kind = "staticmethod"
+    elif isinstance(raw, _LRU_CACHE_WRAPPER_TYPE):
+        descriptor_kind = "lru_cache"
+    elif isinstance(raw, types.FunctionType):
+        descriptor_kind = "function"
+    else:
+        descriptor_kind = f"{type(raw).__module__}.{type(raw).__qualname__}"
+    descriptor_kind_matches = descriptor_kind == slot.descriptor_kind
+    if isinstance(raw, property):
+        actual_accessors = tuple(
+            accessor for accessor in ("fget", "fset", "fdel") if getattr(raw, accessor) is not None
+        )
+        wrapper_shape_matches = actual_accessors == slot.property_accessors
+        for accessor in slot.property_accessors:
+            append_function(accessor, getattr(raw, accessor))
+    elif isinstance(raw, (classmethod, staticmethod)):
+        append_function("function", raw.__func__)
+    elif isinstance(raw, (_LRU_CACHE_WRAPPER_TYPE, types.FunctionType)):
+        append_function("function", raw)
+    else:
+        wrapper_shape_matches = False
+    function_rows: list[dict[str, object]] = []
+    functions_match = bool(functions)
+    for accessor, function in functions:
+        expected_firstlinenos = (
+            (source_firstlinenos[accessor],) if accessor in source_firstlinenos else ()
+        )
+        row, matches = _loader_owned_slot_function_matches(
+            function,
+            slot=slot,
+            module_name=module_name,
+            source_path=source_path,
+            expected_hashes=expected_hashes,
+            expected_firstlinenos=expected_firstlinenos,
+        )
+        function_rows.append({"accessor": accessor, **row, "matches_loader_slot": matches})
+        functions_match = functions_match and matches
+    matches_slot = bool(
+        owner is not None and descriptor_kind_matches and wrapper_shape_matches and functions_match
+    )
+    return (
+        {
+            "binding_type": f"{type(raw).__module__}.{type(raw).__qualname__}",
+            "cache_policies": cache_policy_rows,
+            "decorators": list(slot.decorators),
+            "descriptor_kind": descriptor_kind,
+            "descriptor_kind_matches": descriptor_kind_matches,
+            "expected_descriptor_kind": slot.descriptor_kind,
+            "expected_property_accessors": list(slot.property_accessors),
+            "expected_source_firstlinenos": [list(item) for item in slot.source_firstlinenos],
+            "functions": function_rows,
+            "loader_normalized_code_hashes": list(expected_hashes),
+            "matches_loader_slot": matches_slot,
+            "owner_path": list(slot.owner_path),
+        },
+        matches_slot,
+    )
+
+
 def _loaded_code_manifest(
     repo_root: Path,
     closure: tuple[tuple[str, str], ...],
@@ -4380,10 +4843,11 @@ def _loaded_code_manifest(
                 "canonical_loaded_runtime_mismatch",
                 f"loaded repository module provenance invalid: {module_name}",
             )
+        source_path = (repo_root / relative_path).resolve()
         live_defined_code = _live_defined_code_manifest(
             module,
             module_name,
-            source_path=(repo_root / relative_path).resolve(),
+            source_path=source_path,
         )
         loader_code_hashes = _loader_code_hashes_by_qualname(code)
         live_loader_bindings: dict[str, object] = {}
@@ -4401,6 +4865,18 @@ def _loaded_code_manifest(
                 "loader_normalized_code_hashes": list(loader_hashes),
                 "matches_loader": matches_loader,
             }
+        loader_owned_slots: dict[str, object] = {}
+        for slot in _loader_owned_callable_slots(source_path):
+            expected_hashes = loader_code_hashes.get(slot.qualname, ())
+            row, matches_slot = _loader_owned_slot_binding(
+                module,
+                module_name,
+                source_path,
+                slot,
+                expected_hashes,
+            )
+            module_consistent = module_consistent and matches_slot
+            loader_owned_slots[slot.qualname] = row
         all_consistent = all_consistent and module_consistent
         try:
             source_hash = _bytes_hash((repo_root / relative_path).read_bytes())
@@ -4414,6 +4890,7 @@ def _loaded_code_manifest(
             "source_hash": source_hash,
             "loader_module_code_hash": _content_hash(_normalize_code_object(code)),
             "live_defined_code": live_loader_bindings,
+            "loader_owned_callable_slots": loader_owned_slots,
             "live_loader_consistent": module_consistent,
         }
     return _canonical_json(manifest), all_consistent

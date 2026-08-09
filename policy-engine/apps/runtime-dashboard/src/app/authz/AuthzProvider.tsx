@@ -5,7 +5,7 @@ import {
   useMemo,
 } from "react";
 
-import { FALLBACK_AUTH_ME, useAuthMe } from "@/api/hooks/useAuthMe";
+import { useAuthMe } from "@/api/hooks/useAuthMe";
 import {
   type PermissionKey,
   WORKSPACE_PERMISSIONS,
@@ -26,31 +26,37 @@ const AuthzContext = createContext<AuthzContextValue | null>(null);
 
 export function AuthzProvider({ children }: PropsWithChildren) {
   const authMeQuery = useAuthMe();
-  const user = authMeQuery.data ?? FALLBACK_AUTH_ME;
+  const identityReady =
+    authMeQuery.isSuccess && !authMeQuery.isFetching && !!authMeQuery.data;
+  const identityStatus: AuthzContextValue["status"] = authMeQuery.isError
+    ? "error"
+    : identityReady
+      ? "ready"
+      : "loading";
+  const user = identityReady ? authMeQuery.data : undefined;
   const permissions = useMemo(
-    () => new Set(user.permissions ?? []),
-    [user.permissions],
+    () => new Set(user?.permissions ?? []),
+    [user?.permissions],
   );
-  const roles = useMemo(() => new Set(user.roles ?? []), [user.roles]);
+  const roles = useMemo(() => new Set(user?.roles ?? []), [user?.roles]);
 
   const value = useMemo<AuthzContextValue>(
     () => ({
       can: (permission) => permissions.has(permission),
       hasRole: (role) => roles.has(role),
       isWorkspaceAllowed: (workspaceKey) => {
+        if (identityStatus !== "ready") {
+          return false;
+        }
         const permission = WORKSPACE_PERMISSIONS[workspaceKey];
         return permission ? permissions.has(permission) : true;
       },
       permissions,
       roles,
-      status: authMeQuery.isError
-        ? "error"
-        : authMeQuery.isLoading
-          ? "loading"
-          : "ready",
+      status: identityStatus,
       user,
     }),
-    [authMeQuery.isError, authMeQuery.isLoading, permissions, roles, user],
+    [identityStatus, permissions, roles, user],
   );
 
   return (
@@ -77,5 +83,8 @@ export function usePermission(permission: PermissionKey) {
 
 export function useReviewCollaborationEnabled() {
   const authz = useAuthz();
-  return authz.user?.feature_overrides?.enableReviewCollaboration === true;
+  return (
+    authz.status === "ready" &&
+    authz.user?.feature_overrides?.enableReviewCollaboration === true
+  );
 }

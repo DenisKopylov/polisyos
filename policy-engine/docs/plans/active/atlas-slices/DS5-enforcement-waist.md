@@ -1389,26 +1389,30 @@ that would otherwise force C08b-R1 over its cap.
 
 **Expected commit:** `DS5-C08a isolate auth test identity fixtures`.
 
-### DS5-C08b-R1 — N010 fail-closed client identity
+### DS5-C08b-R2 — N010 fail-closed client identity
 
-**Measured set:** exactly 10 implementation/governed paths plus journal = 11;
-cap 11: `api/queryKeys.ts`, `useAuthMe.ts` + test, `AuthzProvider.tsx` + new
-test, `app/authz/permissions.ts` + new test, frontend disposition register +
-generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
-and journal. Six downstream production consumers contain 11 default-allow
-expressions and remain the separately sized C09a-R1/C09b-R1 boundary.
+**Measured set:** five product/test paths plus this section and journal = 7;
+cap 7: `useAuthMe.ts` + test, `AuthzProvider.tsx` + new test,
+`app/authz/permissions.ts`, plan, and journal. This is the executable client
+consumption half only. No `auth_session_revision` producer exists, so this
+cluster makes no query-key partition claim; C08b-D1 records that separate
+producer-side contract. C09a-R1/C09b-R1 retain the six downstream consumers.
 
 **Red first:**
 `test_authz_provider_denies_loading_error_malformed_401_prior_user_and_tenant_switch_identity`.
 It asserts no permission, MFA, collaboration pseudo-flag, or high-stakes CTA.
 
-**Acceptance:** no production `FALLBACK_AUTH_ME`, no infinite-stale identity,
-no placeholder grant; query identity partitions by verified auth-session
-revision; unknown identity is explicit and empty; dashboard permissions import
-the generated 33-value type and the three collaboration literals disappear.
-DS20 server identity is consumed, not reimplemented.
+**Acceptance:** production authorization never consumes `FALLBACK_AUTH_ME`, an
+infinite-stale identity, or placeholder authority. Only a settled successful
+non-fetching response exposes identity; loading, error, malformed, 401, and
+cached prior-user/prior-tenant refetch states expose empty authority. The DS4-
+owned `error | loading | ready` status remains unchanged: a proposed local
+`unknown` member is rejected, and all non-error non-ready states stay
+`loading`. Dashboard permissions import the generated 33-value type and the
+three collaboration literals disappear. DS20 server identity is consumed,
+not reimplemented.
 
-**Expected commit:** `DS5-C08b-R1 fail closed on unknown identity`.
+**Expected commit:** `DS5-C08b-R2 fail closed on unsettled identity`.
 
 ### DS5-C09a-R1 — N010 default deny in application chrome
 
@@ -1983,7 +1987,8 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
 | C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |
-| C08b-R1 | `DS5-C08b-R1 fail closed on unknown identity` | 11 |
+| C08b-R2 | `DS5-C08b-R2 fail closed on unsettled identity` | 7 |
+| C08b-D1 | `DS5-C08b-D1 record auth-session revision producer debt` | 7 |
 | C09a-R1 | `DS5-C09a-R1 default deny application chrome` | 11 |
 | C09b-R1 | `DS5-C09b-R1 default deny modes and run surfaces` | 8 |
 | C10-R1 | `DS5-C10-R1 present owner-composed weakest boundary` (DEFERRED) | 8 |

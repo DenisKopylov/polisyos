@@ -69,9 +69,9 @@ export function authMeQueryOptions() {
   return queryOptions({
     queryKey: queryKeys.authMe(),
     queryFn: fetchAuthMe,
-    staleTime: Number.POSITIVE_INFINITY,
-    retry: 1,
-    placeholderData: FALLBACK_AUTH_ME,
+    staleTime: 0,
+    retry: false,
+    refetchOnMount: "always",
   });
 }
 

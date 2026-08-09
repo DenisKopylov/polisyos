@@ -1080,3 +1080,27 @@
   comparison is a non-receipt. The registered C04-only clone output is the
   commit truth; JSON parsing, DS19 pin equality, staged whitespace, Python
   compilation, and Node syntax all pass.
+
+## DS5-C08b-R2 — fail-closed client identity
+
+- Entry probe confirmed the live `/auth/me` client path and generated
+  33-member `RuntimePermission` type. The complete producer census still finds
+  no `auth_session_revision`; this cluster closes only the client consumption
+  half, while C08b-D1 owns that producer-side contract and no query-key claim
+  is made here.
+- Red first:
+  `test_authz_provider_denies_loading_error_malformed_401_prior_user_and_tenant_switch_identity`
+  failed because cached fallback identity granted authority. The first green
+  draft added a local `unknown` load state; the DS4 status binding rejected
+  that fourth member, so it was removed. `error | loading | ready` is unchanged,
+  and every non-error non-ready response now presents empty `loading` authority.
+- Focused Authz/query tests pass 8/8. The status-retirement checker with
+  corruption probes passes; direct three-project typecheck and five-path ESLint
+  pass. Build session `38447` is an honest non-receipt: the parent poll returned
+  `Unknown process id` after its output was interrupted.
+- The clean bounded rerun passed in approximately 94 seconds under the explicit
+  180-second limit: typecheck, 3,884 transformed modules, 108 PWA precache
+  entries, postbuild security, and Atlas UI Tailwind-source checks all passed.
+- Orchestration: one terra implementer, zero sol escalation. Product/test work
+  stayed on five paths; plan and journal make the exact seven-path atom. No
+  register, generated report, status inventory, backend, or query key changed.

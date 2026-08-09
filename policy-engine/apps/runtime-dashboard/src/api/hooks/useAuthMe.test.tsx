@@ -64,12 +64,14 @@ describe("useAuthMe", () => {
     authAwareRuntimeFetchMock.mockReset();
   });
 
-  it("exposes stable query options with fixture placeholder data", () => {
+  it("exposes a refetched identity query without a placeholder grant", () => {
     const options = authMeQueryOptions();
 
     expect(options.queryKey).toEqual(queryKeys.authMe());
-    expect(options.placeholderData).toEqual(FALLBACK_AUTH_ME);
-    expect(options.retry).toBe(1);
+    expect(options.placeholderData).toBeUndefined();
+    expect(options.retry).toBe(false);
+    expect(options.staleTime).toBe(0);
+    expect(options.refetchOnMount).toBe("always");
   });
 
   it("loads the auth principal through the query function and regular hook", async () => {
@@ -117,5 +119,29 @@ describe("useAuthMe", () => {
     await expect(queryFn!({} as never)).rejects.toThrow(
       "Failed to load auth principal",
     );
+  });
+
+  it("rejects a 401 identity response", async () => {
+    authAwareRuntimeFetchMock.mockResolvedValue(
+      jsonResponse({ detail: "unauthorized" }, { status: 401 }),
+    );
+
+    const queryFn = authMeQueryOptions().queryFn;
+    expect(queryFn).toBeDefined();
+    await expect(queryFn!({} as never)).rejects.toThrow("status=401");
+  });
+
+  it("rejects malformed identity JSON before it can become authority", async () => {
+    authAwareRuntimeFetchMock.mockResolvedValue(
+      jsonResponse({
+        meta: FALLBACK_AUTH_ME.meta,
+        user_id: 42,
+        tenant_id: "tenant-a",
+      }),
+    );
+
+    const queryFn = authMeQueryOptions().queryFn;
+    expect(queryFn).toBeDefined();
+    await expect(queryFn!({} as never)).rejects.toThrow();
   });
 });

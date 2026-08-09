@@ -2,7 +2,17 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
 
 import { LocaleProvider, useI18n } from "@/shared/i18n/LocaleProvider";
-import { LOCALE_STORAGE_KEY } from "@/shared/i18n/locale";
+import { formatNumber } from "@/shared/i18n/formatters/number";
+import { formatIcuMessage } from "@/shared/i18n/messages/icu-messages";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_STORAGE_KEY,
+  SUPPORTED_LOCALES,
+  persistLocale,
+  readStoredLocale,
+  resolveLocale,
+  toIntlLocale,
+} from "@/shared/i18n/locale";
 
 function Wrapper({ children }: PropsWithChildren) {
   return <LocaleProvider>{children}</LocaleProvider>;
@@ -78,18 +88,96 @@ describe("LocaleProvider", () => {
     );
   });
 
-  it("resolves Russian locale from navigator preferences", async () => {
+  it("test_ru_cannot_reenter_active_product_locale", async () => {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, "ru");
     Object.defineProperty(window.navigator, "language", {
       configurable: true,
       value: "ru-RU",
     });
 
+    expect(readStoredLocale()).toBeNull();
+    expect(resolveLocale("ru")).toBe("uk");
+
     const { result } = renderHook(() => useI18n(), { wrapper: Wrapper });
 
-    await waitFor(() => expect(result.current.locale).toBe("ru"));
-    expect(document.documentElement.lang).toBe("ru");
+    await waitFor(() => expect(result.current.locale).toBe("uk"));
+    expect(document.documentElement.lang).toBe("uk");
     expect(result.current.t("shell.header.runsInReview", { count: 2 })).toBe(
-      "2 runs in review",
+      "2 запуски у review",
     );
+
+    act(() => {
+      result.current.setLocale("ru" as never);
+      persistLocale("ru" as never);
+    });
+
+    expect(result.current.locale).toBe("uk");
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("uk");
+  });
+
+  it("test_uk_is_primary_and_en_is_fallback", () => {
+    expect(SUPPORTED_LOCALES).toEqual(["uk", "en"]);
+    expect(DEFAULT_LOCALE).toBe("uk");
+    expect(resolveLocale("en")).toBe("en");
+    expect(resolveLocale("unsupported")).toBe("uk");
+  });
+
+  it("fails closed for non-product locale values at resolution, storage, and provider boundaries", async () => {
+    const invalidValues = [
+      "ru-RU",
+      "RU",
+      "Ru-rU",
+      " ru ",
+      " unknown ",
+      "uk-UA-extra",
+      "en_US",
+      "unknown",
+    ];
+
+    for (const value of invalidValues) {
+      expect(resolveLocale(value)).toBe("uk");
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, value);
+      expect(readStoredLocale()).toBeNull();
+    }
+
+    const { result } = renderHook(() => useI18n(), { wrapper: Wrapper });
+    await waitFor(() => expect(result.current.locale).toBe("uk"));
+
+    act(() => {
+      result.current.setLocale("ru-RU" as never);
+      result.current.setLocale("Ru-rU" as never);
+      persistLocale("ru-RU" as never);
+    });
+
+    expect(result.current.locale).toBe("uk");
+    expect(document.documentElement.lang).toBe("uk");
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("uk");
+    expect(result.current.t("shell.header.runsInReview", { count: 2 })).toBe(
+      "2 запуски у review",
+    );
+  });
+
+  it("accepts product locale tags during resolution but persists canonical product state", async () => {
+    expect(resolveLocale("UK-ua")).toBe("uk");
+    expect(resolveLocale("EN-us")).toBe("en");
+
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, "EN-us");
+    expect(readStoredLocale()).toBe("en");
+
+    const { result } = renderHook(() => useI18n(), { wrapper: Wrapper });
+    await waitFor(() => expect(result.current.locale).toBe("en"));
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("en");
+    expect(document.documentElement.lang).toBe("en");
+  });
+
+  it("test_frozen_ru_formatters_require_explicit_legacy_locale_and_never_become_product_state", () => {
+    expect(toIntlLocale(resolveLocale())).toBe("uk-UA");
+    expect(formatNumber(1234.5)).toBe(
+      new Intl.NumberFormat("uk-UA").format(1234.5),
+    );
+    expect(formatIcuMessage("{count, plural, one {# item} other {# items}}", "ru", { count: 2 })).toBe(
+      "2 items",
+    );
+    expect(toIntlLocale("ru")).toBe("ru-RU");
   });
 });

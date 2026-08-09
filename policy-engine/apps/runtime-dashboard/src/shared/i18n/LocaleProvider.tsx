@@ -2,6 +2,7 @@ import {
   createContext,
   type PropsWithChildren,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,10 +15,9 @@ import {
   formatIcuRichMessage,
   type MessageValues,
 } from "./messages/icu-messages";
-import type { Locale } from "./locale";
-import { persistLocale, resolveLocale } from "./locale";
+import type { ProductLocale } from "./locale";
+import { isProductLocale, persistLocale, resolveLocale } from "./locale";
 import en from "./locales/en.json";
-import ru from "./locales/ru.json";
 import uk from "./locales/uk.json";
 import {
   applyLocaleTypography,
@@ -25,13 +25,13 @@ import {
   type LocaleTypographyOptions,
 } from "./typography/typography";
 
-const catalogs = { en, uk, ru } as const;
+const catalogs = { en, uk } as const;
 
 type LabelMapName = keyof typeof en.labels;
 
 type I18nContextValue = {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
+  locale: ProductLocale;
+  setLocale: (locale: ProductLocale) => void;
   t: (
     path: string,
     vars?: MessageValues,
@@ -72,8 +72,8 @@ function readPathValue(source: unknown, path: string): string | null {
 }
 
 function createI18nContextValue(
-  locale: Locale,
-  setLocale: (locale: Locale) => void,
+  locale: ProductLocale,
+  setLocale: (locale: ProductLocale) => void,
 ): I18nContextValue {
   const catalog = catalogs[locale];
 
@@ -118,7 +118,13 @@ function createI18nContextValue(
 }
 
 export function LocaleProvider({ children }: PropsWithChildren) {
-  const [locale, setLocaleState] = useState<Locale>(() => resolveLocale());
+  const [locale, setLocaleState] = useState<ProductLocale>(() => resolveLocale());
+
+  const setLocale = useCallback((nextLocale: ProductLocale) => {
+    if (isProductLocale(nextLocale)) {
+      setLocaleState(nextLocale);
+    }
+  }, []);
 
   useEffect(() => {
     persistLocale(locale);
@@ -126,8 +132,8 @@ export function LocaleProvider({ children }: PropsWithChildren) {
   }, [locale]);
 
   const value = useMemo<I18nContextValue>(
-    () => createI18nContextValue(locale, setLocaleState),
-    [locale],
+    () => createI18nContextValue(locale, setLocale),
+    [locale, setLocale],
   );
 
   return (
@@ -137,7 +143,7 @@ export function LocaleProvider({ children }: PropsWithChildren) {
         transform={(node, presentationLocale, options) =>
           applyTypographyToReactNode(
             node,
-            presentationLocale as Locale,
+            presentationLocale as ProductLocale,
             options,
           )
         }

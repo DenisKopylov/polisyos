@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:c0e2e585f10c3ff8d339c21f35f23f27d4761f56d646b61896a022072f998485"
+      "sha256": "sha256:643dee953ca1964fecdceaa6664c5125e374eb8bf7e80da6aff90aa1bc9c4a76"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -3389,8 +3389,8 @@
         "end_line": 1,
         "declaration_name": "SUPPORTED_LOCALES"
       },
-      "literal_members": ["en", "ru", "uk"],
-      "type_expression": "[\"en\", \"uk\", \"ru\"] as const",
+      "literal_members": ["en", "uk"],
+      "type_expression": "[\"uk\", \"en\"] as const",
       "disposition": "non_status_taxonomy",
       "target_cluster": "C14",
       "rationale": "SUPPORTED_LOCALES is a locale-selection taxonomy, not evidence support or authority posture; the as-const definition remains explicitly outside the authority lattice.",

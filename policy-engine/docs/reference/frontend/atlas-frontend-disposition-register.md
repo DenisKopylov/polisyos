@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **19408**
-- Application lines deleted: **18239**
-- Net application LOC reduction: **-1169**
+- Application lines added: **19562**
+- Application lines deleted: **18275**
+- Net application LOC reduction: **-1287**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -204,7 +204,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | ID | Kind | Disposition | Owner slice/team | Capability states | Closure signal | State/reason |
 | --- | --- | --- | --- | --- | --- | --- |
 | `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | — | — | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
-| `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | — | — | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
+| `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | — | — | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. C05a-R1 proves product resolution, storage, provider state, and catalog selection admit only uk/en while explicit ru formatting remains frozen continuity. |
 | `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions. |
 | `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `open_debt` — The active manifest retains exactly three count-sensitive locale parity identities owned by DS6. |
 | `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression. |
@@ -560,6 +560,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `153d0a3c0 DS5-C04b-D1 defer capability construction lint`
 - `80c5cc4a8 Revert "DS5-C04b blocked checkpoint after two fix rounds"`
 - `32598d109 DS5-C04b blocked checkpoint after two fix rounds`
 - `cef274940 DS5-C04a-R1 strangle capability fallback`

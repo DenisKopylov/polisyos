@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-22T19:05:33+03:00",
+  "as_of": "2026-08-09T11:35:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -5025,7 +5025,7 @@
       "owner": "team-design",
       "owner_slice": "DS0",
       "decision_date": "2026-07-16",
-      "rationale": "Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim."
+      "rationale": "Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. C05a-R1 proves product resolution, storage, provider state, and catalog selection admit only uk/en while explicit ru formatting remains frozen continuity."
     }
   ],
   "supplemental_findings": [

@@ -1,5 +1,103 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
+
+- Pattern pass: P05/P06/P10/P29/P31/P33. The prior shared `Locale` state
+  admitted `ru` through storage, navigator resolution, provider state, and
+  catalog selection, laundering the D4 frozen-continuity classification into
+  active product exposure. The repaired canonical owner separates
+  `ProductLocale = uk | en` from the compatibility-only `Locale` union;
+  `LegacyContinuityLocale = ru` remains available only to explicit formatter,
+  ICU, and typography calls.
+- Red first: `test_ru_cannot_reenter_active_product_locale` failed because
+  provider hydration accepted `ru`; `test_uk_is_primary_and_en_is_fallback`
+  failed because active locales were `en/uk/ru`; and
+  `test_frozen_ru_formatters_require_explicit_legacy_locale_and_never_become_product_state`
+  failed because omitted formatting resolved to `en-US` (3 failures, 1.07s).
+- Green receipt: the focused provider, typography, and formatter controls are
+  67/67 green in 2.40s; dashboard typecheck passed in 16.79s and scoped ESLint
+  passed in 17.79s. The frozen catalog leaves and bytes remain unchanged:
+  en/uk/ru are 2,449 each; ru SHA-256 is
+  `578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+- Register receipt: `route-app-layout::ru-ui-catalog` remains DS0-owned
+  `frozen_legacy_continuity`; only its C05a enforcement rationale and `as_of`
+  changed. The report writer produced register/report/status hashes
+  `643dee95…`, `0f42b3f0…`, and `63451831…`; the status inventory reanchors
+  only the DS19 source hash. No DS6 `i18n-count-message-parity`, catalog,
+  parity, DS8, backend, or public-support claim changed.
+- Nonreceipts at handoff: production build and full disposition/status suites,
+  checkers, and corruption probes were intentionally stopped before completion
+  at coordinator direction; no pass is claimed for them. The candidate is
+  unstaged and uncommitted for review; 8 of the 11 permitted paths are changed.
+
+### Review fix round 1
+
+- Review returned NO-GO 0/0/1: the product boundary lacked adversarial runtime
+  witnesses for malformed, case-variant, regional, and storage/provider locale
+  inputs. The new matrix first ran 6 already-green fail-closed witnesses and
+  one true red: `EN-us` resolved to `uk` rather than the permitted explicit
+  English baseline (7 tests, 1 failed, 0.93s).
+- `normalizeProductLocale` now admits only case-insensitive `uk`/`en` language
+  tags with an optional two-letter region during explicit or stored resolution;
+  it neither trims nor admits `ru`. Invalid supplied explicit or stored values
+  return primary `uk` without falling through to navigator preferences.
+  Provider state and persistence continue to accept only canonical
+  `ProductLocale`, so cast `ru-RU`/`Ru-rU` inputs cannot persist or render.
+- A first normalization repair exposed four regressions: invalid values fell
+  through to navigator `en-US`. The terminal invalid-input fallback closed that
+  leak. Final focused provider suite is 7/7 green (0.93s); dashboard typecheck
+  and scoped ESLint are green. No register/report writer ran because this delta
+  leaves governed bytes unchanged; no DS6 parity/catalog work is claimed.
+
+### Final-wave status receipt — fix round 2
+
+- The status gate red was precise and non-product: its
+  `semantic-supported-locales` exemption still recorded the pre-C05a
+  `en/ru/uk` membership and expression. The checker emitted
+  `semantic_literal_members_drift` and `semantic_type_expression_drift`; no
+  product source or checker behavior changed in this repair.
+- The sole row repair preserves its `SUPPORTED_LOCALES` source anchor,
+  disposition, cluster, rationale, and DS19 pin. Its source-exact expression
+  is now `["uk", "en"] as const`, while scanner-canonical membership is
+  `["en", "uk"]`. This records `ProductLocale`'s two active members without
+  treating frozen `ru` compatibility as product state.
+- Status checker plus corruption probes pass at 47 DS1 rows, 15 authored, 55
+  semantic exemptions, zero retirement debt, and three waist rows. Direct
+  row corruptions all fail closed: literal reorder, added `ru`, expression
+  change, and supported source-symbol flip. Focused i18n controls are 69/69
+  green and dashboard typecheck is green.
+- Nonreceipts: the full status unittest and frontend report-parity command
+  were launched but the harness lost their terminal receipts after their child
+  processes ended; no pass is claimed from those invocations. The register,
+  generated report, and DS19 pin were not rewritten in this round; no DS6 or
+  catalog path changed. Candidate remains unstaged for delta review.
+
+### Final closeout receipts
+
+- The prior status-lane RED is closed by the sole
+  `semantic-supported-locales` inventory-row repair; the captured bounded
+  rerun is 38/38 green in 55.362s. Status checker plus corruption probes also
+  pass with 47 DS1 rows, 15 authored definitions, 55 semantic exemptions,
+  zero retirement debt, and three waist rows.
+- The formerly non-receipted frontend lane is now captured: 46/46 frontend
+  disposition tests pass in 76.518s, and the checker with baseline-byte
+  verification and corruption probes passes at 261 roots, 57 supplemental
+  findings, 23 seeded negatives, and eight censuses.
+- The registered report writer/check ran twice under 300-second bounds. Its
+  second run preserved report SHA-256
+  `c7a74606cbd5a58b9542966d59634f613600d263991f5486e0e10e6e40d5c7ec`,
+  proving byte idempotence and report parity without a report delta.
+- Semantic receipt: the live disposition-register SHA
+  `643dee953ca1964fecdceaa6664c5125e374eb8bf7e80da6aff90aa1bc9c4a76`
+  equals the DS19 pin. The inventory changes only its DS19 source pin and
+  `semantic-supported-locales`; the register has no entry delta. JSON parse,
+  checker-source Python compile, empty-Python-diff zero-new Ruff, diff check,
+  and exact-eight fence pass. en/uk/ru catalog leaves remain 2,449 each and
+  the ru catalog SHA-256 remains
+  `578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+- Final fix-round reviewer delta: GO 0/0/0. No DS6 parity/catalog, backend,
+  or public-support claim is added.
+
 ## DS5-C04a-R1 — capability discovery fallback removal
 
 - Fence: exactly 11 paths. Red first: `test_capability_discovery_accepts_only_issued_owner_manifest` failed because `isIssuedCapabilityDiscovery` was absent (1 failed / 2 passed; 2.07s). The issued discovery is now frozen and privately branded; raw manifests are rejected, and loading/offline/error/missing data are unavailable with no capability.

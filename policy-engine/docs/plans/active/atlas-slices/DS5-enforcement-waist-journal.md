@@ -1,5 +1,38 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C05b-R1 stop / C05b-R2 issuer-only successor
+
+- R1 exceeded its 12-path boundary by changing 14 paths and mixing the
+  semantic-copy issuer with the `RunExplainabilityPanel` consumer and governed
+  surfaces. Checkpoint `932d65c4f02bdfd782ccb1b24a4888028096ad51` remains
+  read-only evidence; forward revert `ba55b71b5942f455ae7a2cf6385b5eaf9018eeae`
+  is the clean R2 base.
+- R2 is limited to 8 writable paths within the recorded 12 subjects. It adds a
+  private branded/frozen/WeakSet issuer and declaration-bound registry/checker,
+  but no consumer bridge. The registry records `consumer_missing`; zero accepted
+  competent-review receipts leave `verification_missing` explicit.
+- Orchestration receipt: implementation is issuer-only; no panel/test,
+  disposition/report, status inventory, catalog/DS6, or backend worker was
+  authorized. R3 reserves 10/12 dependency subjects for later review.
+
+### Review fix round 1 — C2/I1
+
+- C2: a forged `"other" as never` scope reached the open-token issuer because
+  runtime scope was only a TypeScript promise. The issuer now rejects it before
+  issuance; closed copy, review scope, stale hash/reviewer, and forgery remain
+  executable fail-closed controls.
+- I1: marker text was replaced with a bounded installed-TypeScript Program proof
+  over the exact issuer and generated field declarations, plus the real Vitest
+  runtime harness. Corruptions retain markers while removing WeakSet issuance,
+  add a sibling strong issuer, or replace the generated identity with a comment.
+
+### Review fix round 2 — C1/I1 final
+
+- The private constructor now binds one local `issued` object by
+  `Object.freeze`, passes that same symbol to the private WeakSet, and returns
+  that same symbol. The AST proof rejects unrelated add/freeze, reassignment or
+  alternate return while retaining the generated-declaration and scope guards.
+
 ## DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
 - Pattern pass: P05/P06/P10/P29/P31/P33. The prior shared `Locale` state

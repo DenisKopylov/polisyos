@@ -659,7 +659,11 @@ optional tail or a later-cluster cost.
 
 A deferral or debt row's closure signal conforms to the register's established idiom—a named command plus a declared condition—and its verification bar is capped there. A review may not require a debt row to carry a stronger verification mechanism than the register schema and its existing rows carry. A stronger closure mechanism, if genuinely wanted, is its own cluster.
 
-**Measured receipt:** `closure_signal` is only `nonEmptyString`; the live register has 46 signals (44 command+condition, 2 prose-only), and rejected/reverted C05b-D1 cost +183 checker and +125 test lines.
+**Measured receipt (P35 correction):** complete enumeration of all 46 `closure_signal` values finds 42 simple `<command> exact ids exits 0 after condition` rows, 2 embedded `python3 -c ...` rows, and 2 prose-only rows; `closure_signal` remains only `nonEmptyString`.
+
+**Binding ratchet (P36 review-standard adjacency):** measure a deferral against the register's established 42-row simple idiom, never its predecessor. Predecessor adjacency raised checker/test deltas +58/+33, +90/+78, then +183/+125 until the deferral failed.
+
+**Desynchronization lesson:** a JSON command string plus a separately declared helper signature can drift silently; prefer a self-contained command that names the exact test IDs.
 
 **P37 rationale:** a debt row asserts absence and promotes/adopts nothing; a custody-grade closure predicate was not established.
 

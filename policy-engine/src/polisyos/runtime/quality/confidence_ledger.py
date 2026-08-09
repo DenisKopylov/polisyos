@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import importlib
 import importlib.util
 import json
 import os
@@ -4288,6 +4289,26 @@ def _resolve_authority_import_closure(
     )
 
 
+def _import_authority_closure_modules(
+    closure: tuple[tuple[str, str], ...],
+) -> None:
+    """Load every declared authority module before live-code capture."""
+
+    for module_name, _relative_path in closure:
+        try:
+            module = importlib.import_module(module_name)
+        except Exception as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure import failed: {module_name}",
+            ) from exc
+        if sys.modules.get(module_name) is not module:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure module not loaded: {module_name}",
+            )
+
+
 def _resolve_import_from_base(node: ast.ImportFrom, package: str) -> str | None:
     """Resolve one absolute or relative ``from`` import base."""
 
@@ -4326,14 +4347,17 @@ def _loaded_code_manifest(
     repo_root: Path,
     closure: tuple[tuple[str, str], ...],
 ) -> tuple[str, bool]:
-    """Capture normalized code objects for closure modules already loaded."""
+    """Capture normalized code objects for the complete declared closure."""
 
     manifest: dict[str, object] = {}
     all_consistent = True
     for module_name, relative_path in closure:
         module = sys.modules.get(module_name)
         if module is None:
-            continue
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"authority closure module not loaded: {module_name}",
+            )
         spec = getattr(module, "__spec__", None)
         loader = getattr(spec, "loader", None)
         get_code = getattr(loader, "get_code", None)
@@ -4771,6 +4795,7 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
     _IMPORT_TIME_DEPLOYMENT_BASELINE,
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
 ) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+_import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
 (
     _IMPORT_TIME_LOADED_CODE_MANIFEST,
     _IMPORT_TIME_LOADED_CODE_CONSISTENT,

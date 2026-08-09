@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import inspect
 import json
 import os
@@ -1007,6 +1008,89 @@ print(ledger._policy_engine_deployment_identity(Path.cwd()))
         identities.append(completed.stdout.strip())
 
     assert identities[0] != identities[1]
+
+
+def test_deployment_identity_manifest_is_complete_and_import_order_independent() -> None:
+    """The declared authority closure, not import chronology, owns E12 identity."""
+
+    script = """
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+if sys.argv[1] == "credal_first":
+    import polisyos.runtime.quality.credal_reference
+
+from polisyos.runtime.quality import confidence_ledger as ledger
+from polisyos.core.artifacts import FileSystemCAS
+
+manifest = json.loads(ledger._IMPORT_TIME_LOADED_CODE_MANIFEST)
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:import-order-verification",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    session = ledger.ConfidenceLedgerSession._for_verification(
+        Path.cwd(),
+        risk_scope=scope,
+        artifact_store=FileSystemCAS(root / "cas"),
+        state_root=root / "state",
+    )
+print(json.dumps({
+    "closure": [name for name, _path in ledger._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE],
+    "identity": ledger._policy_engine_deployment_identity(Path.cwd()),
+    "manifest_keys": sorted(manifest),
+    "verification_identity": session._deployment_identity,
+}, sort_keys=True))
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src")
+
+    payloads = []
+    for mode in ("confidence_first", "credal_first"):
+        completed = subprocess.run(
+            [sys.executable, "-c", script, mode],
+            cwd=REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stdout + completed.stderr
+        payloads.append(json.loads(completed.stdout))
+
+    for payload in payloads:
+        assert payload["manifest_keys"] == payload["closure"]
+        assert payload["verification_identity"] == payload["identity"]
+    assert payloads[0]["identity"] == payloads[1]["identity"]
+
+
+def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A declared closure member cannot disappear behind a partial manifest."""
+
+    module_name = "polisyos.core.security.authz"
+    relative_path = dict(ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)[module_name]
+    importlib.import_module(module_name)
+    monkeypatch.delitem(sys.modules, module_name)
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match="canonical_loaded_runtime_mismatch",
+    ):
+        ledger_module._loaded_code_manifest(
+            REPO_ROOT,
+            ((module_name, relative_path),),
+        )
 
 
 def test_mid_operation_deployment_drift_poison_is_irreversible(

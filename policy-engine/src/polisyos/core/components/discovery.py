@@ -1048,7 +1048,7 @@ def _build_discovery_manifest(
         "unbound_inputs": unbound_inputs,
         "predicate_provenance": [row.as_dict() for row in predicate_provenance],
     }
-    manifest_id = "component_discovery_manifest_" + _sha256_json(payload).removeprefix("sha256:")
+    manifest_id = _component_discovery_manifest_id(payload)
     return ComponentDiscoveryManifest(
         schema_version="policyos.component_discovery_manifest.v1",
         manifest_id=manifest_id,
@@ -1078,6 +1078,14 @@ def _sha256_json(value: object) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return _sha256_bytes(encoded)
+
+
+def _component_discovery_manifest_id(content_payload: object) -> str:
+    """Derive the canonical identity of full discovery-manifest content."""
+
+    return "component_discovery_manifest_" + _sha256_json(content_payload).removeprefix(
+        "sha256:"
+    )
 
 
 def _coerce_builtin_loader_spec(spec: BuiltinLoaderSpec) -> tuple[str, BuiltinComponentLoader]:

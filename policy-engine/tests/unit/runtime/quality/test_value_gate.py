@@ -1108,6 +1108,244 @@ def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identi
     assert "catalog_provenance_content_hash_mismatch" not in codes
 
 
+def test_n8_catalog_provenance_reissue_changes_only_the_member_and_witness() -> None:
+    from polisyos.core.components.discovery import _component_discovery_manifest_id
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    frozen_entry = {
+        "editable_install": True,
+        "direct_url_sha256": _hash("a"),
+        "source_byte_closure": "not_established",
+    }
+    historical_manifest_content = {
+        "entry_points": [frozen_entry],
+        "hidden_policy": "stable",
+    }
+    recorded_provenance = {
+        "ambient_discovery": {
+            "manifest_id": _component_discovery_manifest_id(
+                historical_manifest_content
+            ),
+            "entry_points": [frozen_entry],
+        },
+        "provenance_id": "method_catalog_provenance_recorded",
+    }
+    live_manifest_content = copy.deepcopy(historical_manifest_content)
+    live_manifest_content["entry_points"][0]["direct_url_sha256"] = None
+    live_provenance = copy.deepcopy(recorded_provenance)
+    live_provenance["ambient_discovery"]["manifest_id"] = (
+        _component_discovery_manifest_id(live_manifest_content)
+    )
+    live_provenance["ambient_discovery"]["entry_points"][0][
+        "direct_url_sha256"
+    ] = None
+    live_provenance["provenance_id"] = method_catalog_provenance_id(live_provenance)
+    historical_mutation_ids = [
+        mutation_id
+        for mutation_id in value_contract.SOURCE_FLIP_MUTATION_IDS
+        if mutation_id != value_contract.EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+    ]
+    recorded = {
+        "denominators": {
+            "registered_method_count": 389,
+            "catalog_entry_count": 389,
+            "catalog_provenance": recorded_provenance,
+        },
+        "contract_content_hash": "stale",
+        "source_flip_mutation_harness": {
+            "mutation_ids": historical_mutation_ids,
+        },
+        "unrelated_receipt": {"status": "frozen"},
+    }
+    live_denominators = {
+        "registered_method_count": 389,
+        "catalog_entry_count": 389,
+        "catalog_provenance": live_provenance,
+    }
+
+    reissued = value_contract._catalog_provenance_reissue_payload(
+        recorded,
+        live_denominators,
+        live_manifest_content,
+    )
+
+    assert reissued["denominators"]["catalog_provenance"] == live_provenance
+    assert reissued["unrelated_receipt"] == recorded["unrelated_receipt"]
+    assert reissued["source_flip_mutation_harness"]["mutation_ids"] == list(
+        value_contract.SOURCE_FLIP_MUTATION_IDS
+    )
+    assert reissued["contract_content_hash"] == value_contract._content_hash(reissued)
+    assert recorded["denominators"]["catalog_provenance"] == recorded_provenance
+
+
+def test_n8_catalog_provenance_reissue_refuses_sibling_denominator_drift() -> None:
+    recorded = {
+        "denominators": {
+            "registered_method_count": 389,
+            "catalog_provenance": {"provenance_id": "recorded"},
+        },
+        "contract_content_hash": "stale",
+        "source_flip_mutation_harness": {
+            "mutation_ids": [
+                mutation_id
+                for mutation_id in value_contract.SOURCE_FLIP_MUTATION_IDS
+                if mutation_id != value_contract.EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+            ],
+        },
+    }
+    live_denominators = {
+        "registered_method_count": 390,
+        "catalog_provenance": {"provenance_id": "live"},
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="catalog_provenance_reissue_denominator_drift",
+    ):
+        value_contract._catalog_provenance_reissue_payload(
+            recorded,
+            live_denominators,
+            {},
+        )
+
+
+def test_n8_catalog_provenance_reissue_refuses_unrelated_ambient_drift() -> None:
+    from polisyos.core.components.discovery import _component_discovery_manifest_id
+
+    recorded = _catalog_provenance_comparison_fixture()
+    live_manifest_content = {
+        "entry_points": copy.deepcopy(recorded["ambient_discovery"]["entry_points"]),
+        "hidden_policy": "stable",
+    }
+    recorded["ambient_discovery"]["manifest_id"] = _component_discovery_manifest_id(
+        live_manifest_content
+    )
+    live = copy.deepcopy(recorded)
+    live["ambient_discovery"]["component_count"] = 390
+    historical_mutation_ids = [
+        mutation_id
+        for mutation_id in value_contract.SOURCE_FLIP_MUTATION_IDS
+        if mutation_id != value_contract.EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="catalog_provenance_reissue_unrelated_ambient_drift",
+    ):
+        value_contract._catalog_provenance_reissue_payload(
+            {
+                "denominators": {
+                    "registered_method_count": 389,
+                    "catalog_provenance": recorded,
+                },
+                "source_flip_mutation_harness": {
+                    "mutation_ids": historical_mutation_ids,
+                },
+            },
+            {
+                "registered_method_count": 389,
+                "catalog_provenance": live,
+            },
+            live_manifest_content,
+        )
+
+
+def test_n8_catalog_provenance_reissue_refuses_unproven_manifest_id() -> None:
+    from polisyos.core.components.discovery import _component_discovery_manifest_id
+
+    frozen_entry = {
+        "editable_install": True,
+        "direct_url_sha256": _hash("a"),
+    }
+    historical_manifest_content = {
+        "entry_points": [frozen_entry],
+        "hidden_policy": "stable",
+    }
+    recorded = {
+        "ambient_discovery": {
+            "manifest_id": _component_discovery_manifest_id(
+                historical_manifest_content
+            ),
+            "entry_points": [frozen_entry],
+        },
+        "provenance_id": "recorded",
+    }
+    live_manifest_content = copy.deepcopy(historical_manifest_content)
+    live_manifest_content["entry_points"][0]["direct_url_sha256"] = None
+    live = copy.deepcopy(recorded)
+    live["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] = None
+    live["ambient_discovery"]["manifest_id"] = "component_discovery_manifest_unproven"
+    historical_mutation_ids = [
+        mutation_id
+        for mutation_id in value_contract.SOURCE_FLIP_MUTATION_IDS
+        if mutation_id != value_contract.EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="catalog_provenance_reissue_manifest_evidence_mismatch",
+    ):
+        value_contract._catalog_provenance_reissue_payload(
+            {
+                "denominators": {
+                    "registered_method_count": 389,
+                    "catalog_provenance": recorded,
+                },
+                "source_flip_mutation_harness": {
+                    "mutation_ids": historical_mutation_ids,
+                },
+            },
+            {
+                "registered_method_count": 389,
+                "catalog_provenance": live,
+            },
+            live_manifest_content,
+        )
+
+
+def test_n8_catalog_provenance_reissue_refuses_mutation_denominator_drift() -> None:
+    recorded = _catalog_provenance_comparison_fixture()
+
+    with pytest.raises(
+        ValueError,
+        match="catalog_provenance_reissue_source_flip_denominator_drift",
+    ):
+        value_contract._catalog_provenance_reissue_payload(
+            {
+                "denominators": {
+                    "registered_method_count": 389,
+                    "catalog_provenance": recorded,
+                },
+                "source_flip_mutation_harness": {
+                    "mutation_ids": list(reversed(value_contract.SOURCE_FLIP_MUTATION_IDS)),
+                },
+            },
+            {
+                "registered_method_count": 389,
+                "catalog_provenance": recorded,
+            },
+            {},
+        )
+
+
+def test_n8_catalog_provenance_check_uses_the_frozen_payload(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    artifact = tmp_path / "catalog-contract.json"
+    artifact.write_text('{"frozen": true}\n', encoding="utf-8")
+    observed: list[object] = []
+    monkeypatch.setattr(value_contract, "OUTPUT_PATH", artifact.name)
+    monkeypatch.setattr(
+        value_contract,
+        "validate_payload",
+        lambda payload: observed.append(payload) or (),
+    )
+
+    assert value_contract.check_catalog_provenance(tmp_path) == ()
+    assert observed == [{"frozen": True}]
+
+
 def test_n8_catalog_provenance_names_environment_before_count_drift(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

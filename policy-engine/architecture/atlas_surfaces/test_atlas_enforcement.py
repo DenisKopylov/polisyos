@@ -537,6 +537,538 @@ class AtlasEnforcementTests(unittest.TestCase):
         self.assertNotIn("unauthorizedStatusSinks", scan)
         self.assertIn("authoritySinkDeclarations", scan)
 
+    def test_query_construction_and_producer_censuses_are_source_complete(self) -> None:
+        """Reject source construction drift rather than inferring option-value flow."""
+        errors, scan = checker.validate_enforcement(enforce_authority_escapes=False)
+        self.assertEqual([], errors)
+        self.assertEqual(
+            [],
+            checker._query_cache_policy_errors(scan, enforce_denominator=True),
+        )
+        facts = scan["queryCachePolicyFacts"]
+        self.assertEqual(43, len(facts["queryKeyOwners"]))
+        self.assertEqual(66, len(facts["constructions"]))
+        self.assertEqual(42, len(facts["producers"]))
+
+        target_rows = [
+            row
+            for row in facts["constructions"]
+            if row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
+        ]
+        self.assertEqual(1, len(target_rows))
+        non_target_row = next(
+            row
+            for row in facts["constructions"]
+            if row["path"] != checker.QUERY_CACHE_POLICY_TARGET_PATH
+        )
+        target_identity_corruptions = {
+            "duplicate_target_path": lambda value: value["queryCachePolicyFacts"][
+                "constructions"
+            ].__setitem__(
+                facts["constructions"].index(non_target_row),
+                {
+                    **copy.deepcopy(non_target_row),
+                    "path": checker.QUERY_CACHE_POLICY_TARGET_PATH,
+                },
+            ),
+            "missing_target_identity": lambda value: value["queryCachePolicyFacts"][
+                "constructions"
+            ].__setitem__(
+                facts["constructions"].index(target_rows[0]),
+                {
+                    **copy.deepcopy(target_rows[0]),
+                    "path": non_target_row["path"],
+                },
+            ),
+            "wrong_target_declaration": lambda value: value["queryCachePolicyFacts"][
+                "constructions"
+            ].__setitem__(
+                facts["constructions"].index(target_rows[0]),
+                {
+                    **copy.deepcopy(target_rows[0]),
+                    "optionsDeclaration": {
+                        **target_rows[0]["optionsDeclaration"],
+                        "name": "wrongOptionsDeclaration",
+                    },
+                },
+            ),
+            "wrong_target_declaration_path": lambda value: value["queryCachePolicyFacts"][
+                "constructions"
+            ].__setitem__(
+                facts["constructions"].index(target_rows[0]),
+                {
+                    **copy.deepcopy(target_rows[0]),
+                    "optionsDeclaration": {
+                        **target_rows[0]["optionsDeclaration"],
+                        "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+                    },
+                },
+            ),
+        }
+        for label, corrupt in target_identity_corruptions.items():
+            with self.subTest(label=label):
+                mutated_scan = copy.deepcopy(scan)
+                corrupt(mutated_scan)
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        mutated_scan,
+                        enforce_denominator=True,
+                        registry=checker._query_cache_policy_register_from_scan(mutated_scan),
+                    )
+                )
+
+        target_producer_rows = [
+            row
+            for row in facts["producers"]
+            if row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
+        ]
+        self.assertEqual(1, len(target_producer_rows))
+        non_target_producer = next(
+            row
+            for row in facts["producers"]
+            if row["path"] != checker.QUERY_CACHE_POLICY_TARGET_PATH
+        )
+        target_producer_identity_corruptions = {
+            "duplicate_target_producer_path": lambda value: value[
+                "queryCachePolicyFacts"
+            ]["producers"].__setitem__(
+                facts["producers"].index(non_target_producer),
+                {
+                    **copy.deepcopy(non_target_producer),
+                    "path": checker.QUERY_CACHE_POLICY_TARGET_PATH,
+                },
+            ),
+            "missing_target_producer_identity": lambda value: value[
+                "queryCachePolicyFacts"
+            ]["producers"].__setitem__(
+                facts["producers"].index(target_producer_rows[0]),
+                {
+                    **copy.deepcopy(target_producer_rows[0]),
+                    "path": non_target_producer["path"],
+                },
+            ),
+            "wrong_target_producer_declaration": lambda value: value[
+                "queryCachePolicyFacts"
+            ]["producers"].__setitem__(
+                facts["producers"].index(target_producer_rows[0]),
+                {
+                    **copy.deepcopy(target_producer_rows[0]),
+                    "optionsDeclaration": {
+                        **target_producer_rows[0]["optionsDeclaration"],
+                        "name": "wrongOptionsDeclaration",
+                    },
+                },
+            ),
+        }
+        for label, corrupt in target_producer_identity_corruptions.items():
+            with self.subTest(label=label):
+                mutated_scan = copy.deepcopy(scan)
+                corrupt(mutated_scan)
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        mutated_scan,
+                        enforce_denominator=True,
+                        registry=checker._query_cache_policy_register_from_scan(mutated_scan),
+                    )
+                )
+
+        target_source = (
+            checker.status_checker.REPO_ROOT / checker.QUERY_CACHE_POLICY_TARGET_PATH
+        ).read_text(encoding="utf-8")
+
+        def merge_override(override_path: str, override_source: str) -> dict[str, Any]:
+            override_scan = checker._enforcement_scan(
+                {override_path: override_source},
+                inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+                validate_override_diagnostics=True,
+            )
+            override_facts = override_scan["queryCachePolicyFacts"]
+            self.assertTrue(
+                all(
+                    row["path"] == override_path
+                    for table in ("constructions", "producers")
+                    for row in override_facts[table]
+                )
+            )
+            merged = copy.deepcopy(scan)
+            merged_facts = merged["queryCachePolicyFacts"]
+            for table in ("constructions", "producers"):
+                merged_facts[table] = [
+                    row
+                    for row in merged_facts[table]
+                    if row["path"] != override_path
+                ] + copy.deepcopy(override_facts[table])
+            return merged
+
+        def merge_target_override(override_source: str) -> dict[str, Any]:
+            return merge_override(checker.QUERY_CACHE_POLICY_TARGET_PATH, override_source)
+
+        newline_scan = merge_target_override(
+            target_source.replace(
+                "export function depthNCycleBoardProjectionQueryOptions(",
+                "\nexport function depthNCycleBoardProjectionQueryOptions(",
+                1,
+            )
+        )
+        newline_register = checker._query_cache_policy_register_from_scan(newline_scan)
+        self.assertEqual(
+            [],
+            checker._query_cache_policy_errors(
+                newline_scan,
+                enforce_denominator=True,
+                registry=newline_register,
+            ),
+        )
+        self.assertEqual(
+            {"governed_wrapper": 1, "legacy_direct_debt": 65},
+            {
+                label: sum(
+                    row["classification"] == label
+                    for row in newline_register["constructions"]
+                )
+                for label in ("governed_wrapper", "legacy_direct_debt")
+            },
+        )
+
+        added_call_scan = merge_target_override(
+            target_source.replace(
+                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
+                "  const existingOptions = depthNCycleBoardProjectionQueryOptions(client);\n"
+                "  const extra = useQuery(existingOptions);\n"
+                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
+                "  void extra;",
+                1,
+            )
+        )
+        self.assertEqual(67, len(added_call_scan["queryCachePolicyFacts"]["constructions"]))
+        self.assertTrue(
+            any(
+                row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
+                and row["optionsResolution"] == "referenced"
+                for row in added_call_scan["queryCachePolicyFacts"]["constructions"]
+            )
+        )
+        self.assertTrue(checker._query_cache_policy_errors(added_call_scan, enforce_denominator=True))
+
+        target_factory_source_corruptions = {
+            "renamed": target_source.replace(
+                "depthNCycleBoardProjectionQueryOptions",
+                "renamedDepthNCycleBoardProjectionQueryOptions",
+            ),
+            "removed_replaced": target_source.replace(
+                "depthNCycleBoardProjectionQueryOptions",
+                "replacementDepthNCycleBoardProjectionQueryOptions",
+            ),
+            "duplicate": target_source.replace(
+                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
+                "  const duplicate = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
+                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
+                "  void duplicate;",
+                1,
+            ),
+        }
+        for label, source in target_factory_source_corruptions.items():
+            with self.subTest(label=label):
+                source_scan = merge_target_override(source)
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        source_scan,
+                        enforce_denominator=True,
+                        registry=checker._query_cache_policy_register_from_scan(source_scan),
+                    )
+                )
+
+        source_sha_flip_scan = merge_target_override(
+            target_source.replace(
+                "useQuery(depthNCycleBoardProjectionQueryOptions(client))",
+                "useQuery(depthNCycleBoardProjectionQueryOptions(client!))",
+                1,
+            )
+        )
+        self.assertTrue(
+            checker._query_cache_policy_errors(
+                source_sha_flip_scan,
+                enforce_denominator=True,
+            )
+        )
+
+        health_path = "apps/runtime-dashboard/src/api/hooks/useHealth.ts"
+        health_source = (checker.status_checker.REPO_ROOT / health_path).read_text(
+            encoding="utf-8"
+        )
+        inline_to_referenced = merge_override(
+            health_path,
+            health_source.replace(
+                "  return queryOptions({\n"
+                "    queryKey: queryKeys.health(),\n"
+                "    queryFn: fetchHealth,\n"
+                "    staleTime: HEALTH_REFETCH_MS,\n"
+                "    refetchInterval: HEALTH_REFETCH_MS,\n"
+                "  });",
+                "  const existingOptions = {\n"
+                "    queryKey: queryKeys.health(),\n"
+                "    queryFn: fetchHealth,\n"
+                "    staleTime: HEALTH_REFETCH_MS,\n"
+                "    refetchInterval: HEALTH_REFETCH_MS,\n"
+                "  };\n"
+                "  return queryOptions(existingOptions);",
+                1,
+            ),
+        )
+        referenced_to_inline = merge_override(
+            health_path,
+            health_source.replace(
+                "  return useQuery(healthQueryOptions());",
+                "  return useQuery({\n"
+                "    queryKey: queryKeys.health(),\n"
+                "    queryFn: fetchHealth,\n"
+                "    staleTime: HEALTH_REFETCH_MS,\n"
+                "    refetchInterval: HEALTH_REFETCH_MS,\n"
+                "  });",
+                1,
+            ),
+        )
+        for label, transition_scan, expected_resolution in (
+            ("inline_to_referenced", inline_to_referenced, "referenced"),
+            ("referenced_to_inline", referenced_to_inline, "inline"),
+        ):
+            with self.subTest(label=label):
+                health_rows = [
+                    row
+                    for row in transition_scan["queryCachePolicyFacts"]["constructions"]
+                    if row["path"] == health_path
+                ]
+                self.assertTrue(
+                    any(row["optionsResolution"] == expected_resolution for row in health_rows)
+                )
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        transition_scan,
+                        enforce_denominator=True,
+                    )
+                )
+
+        local_query_lookalike = ts_source(
+            """
+            function useQuery(options: { queryFn: () => void }) {
+              return options;
+            }
+            useQuery({ queryFn: () => undefined });
+            """
+        )
+        lookalike_scan = checker._enforcement_scan(
+            {PROBE_PATH: local_query_lookalike},
+            inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+            validate_override_diagnostics=True,
+        )
+        self.assertEqual([], lookalike_scan["queryCachePolicyFacts"]["constructions"])
+        self.assertEqual([], lookalike_scan["queryCachePolicyFacts"]["producers"])
+
+        benign_query_syntax = ts_source(
+            """
+            function useQuery(options: { queryFn: () => void }) {
+              return options;
+            }
+            function queryOptions(options: { queryFn: () => void }) {
+              return options;
+            }
+            function notAQuery(options: { queryFn: () => void }) {
+              return options;
+            }
+            const standalone = { queryFn: () => undefined };
+            useQuery({ queryFn: () => undefined });
+            queryOptions({ queryFn: () => undefined });
+            notAQuery({ queryFn: () => undefined });
+            void standalone;
+            """
+        )
+        benign_scan = checker._enforcement_scan(
+            {PROBE_PATH: benign_query_syntax},
+            inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+            validate_override_diagnostics=True,
+        )
+        self.assertEqual([], benign_scan["queryCachePolicyFacts"]["constructions"])
+        self.assertEqual([], benign_scan["queryCachePolicyFacts"]["producers"])
+
+        spread_bearing_query_syntax = ts_source(
+            """
+            import { useQuery } from "@tanstack/react-query";
+            import { queryKeys } from "@/api/queryKeys";
+            const inherited = { staleTime: 1 };
+            useQuery({
+              ...inherited,
+              queryKey: queryKeys.authMe(),
+              queryFn: async () => undefined,
+            });
+            export function returnedOptions() {
+              return {
+                ...inherited,
+                queryKey: queryKeys.health(),
+                queryFn: async () => undefined,
+              };
+            }
+            """
+        )
+        spread_scan = checker._enforcement_scan(
+            {PROBE_PATH: spread_bearing_query_syntax},
+            inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+            validate_override_diagnostics=True,
+        )
+        self.assertEqual(1, len(spread_scan["queryCachePolicyFacts"]["constructions"]))
+        self.assertEqual(
+            "referenced",
+            spread_scan["queryCachePolicyFacts"]["constructions"][0]["optionsResolution"],
+        )
+        self.assertEqual([], spread_scan["queryCachePolicyFacts"]["producers"])
+
+        spread_without_query_fn = ts_source(
+            """
+            import { useQuery } from "@tanstack/react-query";
+            import { queryKeys } from "@/api/queryKeys";
+            const inherited = { staleTime: 1 };
+            useQuery({
+              ...inherited,
+              queryKey: queryKeys.authMe(),
+            });
+            """
+        )
+        no_query_fn_spread_scan = checker._enforcement_scan(
+            {PROBE_PATH: spread_without_query_fn},
+            inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+            validate_override_diagnostics=True,
+        )
+        self.assertEqual(1, len(no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"]))
+        self.assertEqual(
+            "referenced",
+            no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"][0]["optionsResolution"],
+        )
+
+        generated_lookalike_path = "apps/runtime-dashboard/src/api/generated/query.ts"
+        generated_lookalike_scan = checker._enforcement_scan(
+            {
+                PROBE_PATH: ts_source(
+                    """
+                    import { queryOptions, useQuery } from "@/api/generated/query";
+                    useQuery({ queryFn: () => undefined });
+                    queryOptions({ queryFn: () => undefined });
+                    """
+                ),
+                generated_lookalike_path: ts_source(
+                    """
+                    export function useQuery(options: { queryFn: () => void }) {
+                      return options;
+                    }
+                    export function queryOptions(options: { queryFn: () => void }) {
+                      return options;
+                    }
+                    """
+                ),
+            },
+            inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+            validate_override_diagnostics=True,
+        )
+        self.assertEqual(
+            [],
+            generated_lookalike_scan["queryCachePolicyFacts"]["constructions"],
+        )
+        self.assertEqual([], generated_lookalike_scan["queryCachePolicyFacts"]["producers"])
+
+        register = checker.status_checker._load_json(checker.QUERY_CACHE_POLICY_REGISTER_PATH)
+        corruptions = {
+            "added_construction": lambda value: value["constructions"].append(
+                copy.deepcopy(value["constructions"][0])
+            ),
+            "reordered_construction": lambda value: value["constructions"].reverse(),
+            "retagged_construction": lambda value: value["constructions"][0].__setitem__(
+                "resolved_callee",
+                (
+                    "useQuery"
+                    if value["constructions"][0]["resolved_callee"] == "queryOptions"
+                    else "queryOptions"
+                ),
+            ),
+            "untyped_exemption": lambda value: value.__setitem__(
+                "exemptions", [{"reason": "trust me"}]
+            ),
+            "removed_producer": lambda value: value["producers"].pop(),
+        }
+        for label, corrupt in corruptions.items():
+            with self.subTest(label=label):
+                mutated = copy.deepcopy(register)
+                corrupt(mutated)
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        scan,
+                        enforce_denominator=True,
+                        registry=mutated,
+                    )
+                )
+
+    def test_query_construction_options_resolution_is_required_and_nonsemantic(self) -> None:
+        """Require every call census row to state only inline or referenced options."""
+        errors, scan = checker.validate_enforcement(enforce_authority_escapes=False)
+        self.assertEqual([], errors)
+        facts = scan["queryCachePolicyFacts"]
+        resolutions = [row["optionsResolution"] for row in facts["constructions"]]
+        self.assertEqual(66, len(resolutions))
+        self.assertEqual({"inline", "referenced"}, set(resolutions))
+
+        register = checker.status_checker._load_json(checker.QUERY_CACHE_POLICY_REGISTER_PATH)
+        for label, mutate in {
+            "absent": lambda value: value["constructions"][0].pop("options_resolution"),
+            "incorrect": lambda value: value["constructions"][0].__setitem__(
+                "options_resolution", "unknown"
+            ),
+        }.items():
+            with self.subTest(label=label):
+                corrupted = copy.deepcopy(register)
+                mutate(corrupted)
+                self.assertTrue(
+                    checker._query_cache_policy_errors(
+                        scan,
+                        enforce_denominator=True,
+                        registry=corrupted,
+                    )
+                )
+
+        referenced_call = copy.deepcopy(facts["constructions"][0])
+        referenced_call["optionsResolution"] = "referenced"
+        enlarged = copy.deepcopy(scan)
+        enlarged["queryCachePolicyFacts"]["constructions"].append(referenced_call)
+        self.assertTrue(
+            checker._query_cache_policy_errors(
+                enlarged,
+                enforce_denominator=True,
+                registry=checker._query_cache_policy_register_from_scan(enlarged),
+            )
+        )
+
+    def test_full_corruption_probes_exercise_removed_query_producer(self) -> None:
+        """Require the executable corruption battery to remove a real producer row."""
+        original = checker._query_cache_policy_errors
+        removed_producer_registries: list[dict[str, Any]] = []
+
+        def observe_removed_producer(
+            scan: dict[str, Any],
+            *,
+            enforce_denominator: bool = False,
+            registry: dict[str, Any] | None = None,
+        ) -> list[str]:
+            if registry is not None and len(registry.get("producers", [])) == 41:
+                removed_producer_registries.append(registry)
+            return original(
+                scan,
+                enforce_denominator=enforce_denominator,
+                registry=registry,
+            )
+
+        checker._query_cache_policy_errors = observe_removed_producer
+        try:
+            self.assertEqual([], checker._corruption_probes())
+        finally:
+            checker._query_cache_policy_errors = original
+        self.assertEqual(1, len(removed_producer_registries))
+
     def test_authority_sink_census_resolves_real_atlas_prop_declarations(
         self,
     ) -> None:

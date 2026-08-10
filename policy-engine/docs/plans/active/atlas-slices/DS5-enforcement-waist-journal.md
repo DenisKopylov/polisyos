@@ -1297,3 +1297,99 @@
   the 18 wrapper calls are explicitly retained under a differently ratified
   non-object/direct-options boundary. This exact seven-path atom remains
   unstaged and uncommitted for parent checkpoint and forward-revert.
+
+### Resumed architect ruling — call census with machine-visible option resolution
+
+- The committed ruling resumed C12a from checkpoint `22a8c2f32` by reversing
+  forward revert `77356ba98` with `git revert --no-commit`; the restored
+  six-path atom was then kept unstaged. The ruling retains 43 query-key owners,
+  66 declaration-resolved TanStack construction **calls**, and 42 independent
+  producer definitions. `options_resolution` is `inline` only for a direct
+  non-spread object literal, otherwise `referenced`; the complete live subset
+  is 38 inline and 28 referenced calls. Referenced option-value semantics are
+  explicitly unestablished and are neither exclusions, debt, nor exemptions.
+- Red/green: the new required-options-resolution test failed on the absent
+  scanner field after 66.643s (300-second bound); the restored executable
+  removed-producer probe red remained 85.174s (600-second bound). Focused
+  source-complete, options-resolution (absent/incorrect/67th referenced), and
+  full removed-producer probe tests passed 3/3 in 214.314s. Stable target
+  identity now uses resolved TanStack/options-factory declarations rather than
+  raw call bytes, lines, or fingerprints; the public row keeps only its
+  source receipt and classification fields.
+- Serialization: corruption completed before package lint. Both ran under
+  explicit 600-second subprocess bounds and produced parseable clean receipts
+  (corruption probes PASS; package writer/checker reports 43/66/42), but their
+  outer elapsed receipts were interrupted and are nonreceipts. Register writer
+  parity is byte-identical; Python/Node syntax, JSON, diff, and changed-line
+  Ruff passed (zero new findings; 143 inherited). Orchestration was native
+  Terra with zero Sol workers; the earlier Terra quota and unbounded-lint
+  attempts remain nonreceipts. This exact seven-path atom is unstaged and
+  uncommitted for fresh independent review.
+
+### Review fix round 1 — stable declaration identity and source-override merge
+
+- Red: after dropping declaration lines from the target constants, the first
+  bounded focused rerun failed in 62.314s because nested declaration equality
+  still compared the live receipt `{name,path,line}` to `{name,path}`. The
+  recursive matcher now treats a target mapping as its required stable-key
+  subset only; every target key remains required, so wrong declaration name or
+  path still fails. A second 71.587s red exposed that override scanner mode
+  scans only its supplied source, not the complete tree; it was a harness
+  finding, not a source claim.
+- The controlled harness now merges scanner-produced target override rows into
+  a deepcopy of the complete live scan after removing the live target rows;
+  it never hand-authors target facts and asserts the replacement rows originate
+  at the controlled target path. It proves a harmless declaration newline
+  retains 1/65 construction and 1/41 producer posture, while compiler-valid
+  67th referenced call, factory rename, replacement, duplicate usage, wrong
+  declaration name, and wrong declaration path each drift as required.
+- Focused source-complete green passed 1/1 in 94.065s; final corruption probes
+  passed in 87.520s and bounded package lint passed in 50.542s (both under
+  600 seconds). Byte-preserving writer parity, Python/Node syntax, JSON,
+  diff, and changed-line Ruff passed (zero new findings; 153 inherited).
+  This exact seven-path atom remains unstaged and uncommitted for delta review.
+
+### Review fix round 2 — source-scanned option-resolution transitions
+
+- The final-review coverage replaces the 67th-call fixture with a compiler-valid
+  source override that literally declares
+  `const existingOptions = depthNCycleBoardProjectionQueryOptions(client);` and
+  calls `useQuery(existingOptions)`. The scanner-produced override rows are
+  merged into the complete live scan: the result is 67 constructions, and the
+  added call is `referenced`, so the derived register gate drifts. Two further
+  compiler-valid source-scanned health-hook transitions prove that a direct
+  inline object changed to an identifier becomes `referenced`, and a referenced
+  call changed to a direct object becomes `inline`; each leaves the applicable
+  43/66/42 census basis intact and fails the register binding. The generated/
+  package lookalike remains benign under declaration resolution.
+- There was no new product RED in this final coverage round: the restored
+  architect-ruling classifier already implemented these source-level outcomes,
+  so the newly added focused witnesses were green rather than justify a further
+  mechanism change. Focused source-complete passed 1/1 in 58.924s (60.125s
+  outer receipt, 300-second bound). Final full corruption probes passed in
+  87.606s and bounded dashboard `lint:enforcement` passed in 50.143s, both
+  under explicit 600-second bounds.
+- The final writer/check/schema parity, Python compilation, Node syntax, JSON
+  parsing, and diff check passed. The complete register remains 43 owners, 66
+  construction calls, and 42 independent producers; options resolution is 38
+  inline / 28 referenced and posture is exactly construction `1/65` plus
+  producer `1/41`. Changed-line Ruff reported zero new findings (155 inherited
+  findings). The previous Terra quota interruption, unbounded lint attempt,
+  and interrupted outer receipts remain nonreceipts; serialization kept the
+  corruption and package gates sequential. Native Terra used zero Sol workers.
+  This final-review seven-path atom is unstaged and uncommitted for independent
+  review.
+
+### C12a breaker STOP — rejected final-review checkpoint
+
+- Both substantive review findings are addressed in the preserved atom. The
+  remaining Important finding is P29/P33 in `merge_override`: it requests
+  `validate_override_diagnostics=True` but does not assert that the returned
+  `overrideDiagnostics` list is empty. Reproducer: make any allegedly
+  compiler-valid override in the source-scanned 67th-call or option-resolution
+  transition fixture emit a TypeScript diagnostic; its scanner facts can still
+  be merged and satisfy the present test assertions. The fixture therefore does
+  not behaviorally prove compiler validity.
+- The two-fix breaker is binding: no third repair is authorized. C12b remains
+  blocked. This is checkpointed and forward-reverted append-only for a later
+  architect-directed repair; no C12a mechanism change was made for this STOP.

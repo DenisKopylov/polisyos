@@ -404,7 +404,7 @@ export type AttractorUncertaintySummary = {
   unresolved_items?: Array<string>;
 };
 
-export type AudienceClass = "REVIEWER" | "EXPERT" | "MACHINE";
+export type AudienceClass = "PUBLIC" | "REVIEWER" | "EXPERT" | "MACHINE";
 
 export type AuthMeResponse = {
   cell_id?: string | null;

@@ -1879,6 +1879,29 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "QueryObserver cache-posture artifact without reclassifying source freshness"
         ),
     },
+    "c07-runtime-api-client-generator-registry-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "verification_missing"],
+        "evidence_refs": [
+            "architecture/generated_artifacts.toml:722",
+            "packages/runtime-api-client/package.json:15",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07",
+        ],
+        "rationale": (
+            "team-polisyos owns the generated-artifact registry. The package generator emits "
+            "types.ts plus canonicalRuntimeApiClient.ts/js, but the registry declares only "
+            "runtimeApiClient.ts/js; production outputs exist and this records coverage debt."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register."
+            "ProducerBindingDebtTests.test_c07_generator_registry_debt_is_descriptor_bound "
+            "exits 0 after generated_artifacts.toml declares types.ts and canonicalRuntimeApiClient.ts/js "
+            "and the package generator output set equals the declared set"
+        ),
+    },
     "producer-binding-readiness-scientific-depth": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",

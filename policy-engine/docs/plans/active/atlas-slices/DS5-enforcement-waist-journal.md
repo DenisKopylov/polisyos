@@ -1,5 +1,28 @@
 # DS5 Enforcement Waist Journal
 
+## DS5-C07 — audience permission enforcement
+
+- Entry AST census after installed workspace proof: 13 emitted definitions = 5 EXPERT + 8 MACHINE; G4 remains the separate `g4-complete-audience-projection-contract` producer debt.
+- Red first: the two named C07 matrix tests failed with `ModuleNotFoundError` before the mapping existed. The immutable server mapping now covers all 33 permissions, derives its inverse (PUBLIC 0 / REVIEWER 20 / EXPERT 28 / MACHINE 22), and routes each emitted projection through its exact producer-derived permission.
+- Registered generation updated the OpenAPI schema, package client, and dashboard types; `types.ts` and the disposition register were re-anchored in the status inventory. The generated-artifact registry's incomplete package-output declaration is recorded as typed DS5 `bridge_missing` / `verification_missing` debt owned operationally by team-polisyos, not as a missing producer or artifact.
+- Orchestration: native Terra implementation only; no Sol worker, escalation, or external runner.
+- Nonreceipt: two locally-started combined HTTP invocations overlapped and lost terminal output. The younger duplicate was terminated; the older serial capture was left to the independent gate runner. No partial HTTP output is treated as green.
+- Fix round 1: the governed-projection service test had replaced the canonical module in `sys.modules` after application imports bound the original declaration identities. Its loader now restores the prior module after isolated execution; production enum guards remain strict. A stale literal descriptor-ID expectation then gained the C07 registry-debt ID.
+- Independent terminal receipts: HTTP 107 passed / 1 explicit skip; frontend disposition unit 51/51 outer and checker/corruptions PASS (261 roots, 63 findings, 23 negatives, 8 censuses); status 38/38 and checker/corruptions PASS (47 DS1 rows, 15 authored, 55 exemptions, 0 retirement debt, 3 waist rows). Earlier lost-output/duplicate invocations remain nonreceipts.
+
+### C07 binding generated-contract STOP
+
+- The OpenAPI semantic delta is limited to the `AudienceClass` description and
+  `PUBLIC` enum member (3 lines), but the dashboard generator emits
+  `apps/runtime-dashboard/src/api/types.ts` at `+1501/-11`: it changes existing
+  `AuthMeResponse` description and `permissions?: string[]` to
+  `RuntimePermission[]`, alongside many non-C07 schemas. This violates C07's
+  binding rule that existing generated symbol/field tuples remain unchanged.
+- No re-anchor, rebaseline, or generated-contract fix is authorized. The green
+  receipts above and the HTTP harness isolation fix are retained as evidence;
+  the runtime-client registry debt is a candidate only and is not landed. Native
+  Terra performed this work; no Sol worker or escalation was used.
+
 ## DS5 review-bar and dependency binding
 
 - Native Terra only: the C06 governed-register tail was serialized while C08b

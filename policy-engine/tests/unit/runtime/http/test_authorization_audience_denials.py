@@ -147,9 +147,7 @@ def test_unverified_permission_header_is_ignored(runtime_api_env) -> None:
         suffix="unverified-permission-header",
         roles=frozenset(),
     )
-    headers["X-PolicyOS-Permissions"] = (
-        RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value
-    )
+    headers["X-PolicyOS-Permissions"] = RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value
 
     response = client.post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
@@ -174,12 +172,25 @@ def test_coarse_opa_allow_without_exact_permission_is_denied(runtime_api_env) ->
     response = client.post(
         "/api/v1/control/runs",
         headers=headers,
-        json={
-            "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
-            }
-        },
+        json={"data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]}},
     )
 
     _assert_permission_denied(response, permission=RuntimePermission.RUNS_LAUNCH)
     assert opa.inputs == []
+
+
+def test_permissionless_or_wrong_role_cannot_fetch_governed_projection(runtime_api_env) -> None:
+    """A direct projection URL remains server-denied without its exact grant."""
+    client, opa, headers = _authenticated_client(
+        runtime_api_env,
+        suffix="governed-projection-wrong-grant",
+        roles=frozenset({PolicyOSRole.VIEWER}),
+    )
+
+    response = client.get(
+        "/api/v1/exports/governed-projections/engine-census",
+        headers={**headers, "X-PolicyOS-Permissions": "mode.analyst"},
+    )
+
+    _assert_permission_denied(response, permission=RuntimePermission.MODE_ANALYST)
+    assert len(opa.inputs) == 1

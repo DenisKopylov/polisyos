@@ -2209,8 +2209,9 @@
         "type": "object"
       },
       "AudienceClass": {
-        "description": "Declare the intended consumer class without enforcing it in DS3.",
+        "description": "Declare the intended consumer class for a governed projection.",
         "enum": [
+          "PUBLIC",
           "REVIEWER",
           "EXPERT",
           "MACHINE"

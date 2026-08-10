@@ -1337,9 +1337,12 @@ REVIEWER 20, EXPERT 28, MACHINE 22.
 | EXPERT | `mode.analyst`, `scenarios.create` |
 | PUBLIC | no privileged permission; this does not create an anonymous route |
 
-At C07 entry the audience census is 6 EXPERT projections, including G4, and 8
-MACHINE projections. C07 assigns exact `mode.analyst` to all 6 EXPERT
-definitions and exact `platform.view` to all 8 MACHINE definitions.
+At C07 entry the audience census is 13 emitted projections: 5 EXPERT and 8
+MACHINE. C07 assigns exact `mode.analyst` to all 5 current EXPERT definitions
+and exact `platform.view` to all 8 current MACHINE definitions. G4 remains the
+separate `g4-complete-audience-projection-contract` producer debt; its future
+closure must remeasure the producer census before any audience enforcement is
+extended to it.
 `AudienceClass` gains PUBLIC in this
 cluster. PUBLIC and REVIEWER construction and deny behavior are exercised
 through the same real dependency, but no current producer projection is

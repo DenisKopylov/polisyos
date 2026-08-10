@@ -34,8 +34,9 @@ _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
 
 
 class AudienceClass(StrEnum):
-    """Declare the intended consumer class without enforcing it in DS3."""
+    """Declare the intended consumer class for a governed projection."""
 
+    PUBLIC = "PUBLIC"
     REVIEWER = "REVIEWER"
     EXPERT = "EXPERT"
     MACHINE = "MACHINE"
@@ -797,6 +798,14 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
 
 _DEFINITION_BY_ID = {definition.projection_id: definition for definition in _DEFINITIONS}
 
+
+def projection_audience(projection_id: ProjectionId) -> AudienceClass:
+    """Return the producer-declared audience for an emitted projection."""
+    if not isinstance(projection_id, ProjectionId):
+        raise TypeError("projection_id must be a ProjectionId")
+    return _DEFINITION_BY_ID[projection_id].intended_audience
+
+
 _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
     ProjectionId.DEPTH_N_CYCLE_BOARD: DepthNCycleBoardPayload,
     ProjectionId.VALUE_GATE: ValueGatePayload,
@@ -857,9 +866,7 @@ def _owner_bridge_failure(
 ) -> ProjectionSourceValidation:
     dependency_bindings = _component_dependency_bindings(loaded)
     return ProjectionSourceValidation(
-        validator_id=(
-            "polisyos.runtime.http.services.governed_projection_validation_worker:main"
-        ),
+        validator_id=("polisyos.runtime.http.services.governed_projection_validation_worker:main"),
         validator_version="policyos.runtime.governed_projection.owner_validation.v2",
         status="failed",
         bound_artifact_content_hash=loaded.content_hash,
@@ -989,9 +996,7 @@ def _run_owner_validation(
             bound_dependency_aggregate_identity=result.dependency_aggregate_identity,
             bound_dependency_count=len(result.dependency_bindings),
             semantic_projection_hash=result.semantic_projection_hash,
-            semantic_projection_hash_rule_version=(
-                result.semantic_projection_hash_rule_version
-            ),
+            semantic_projection_hash_rule_version=(result.semantic_projection_hash_rule_version),
             issue_codes=result.issue_codes,
         )
         if validation.status == "passed":
@@ -1113,9 +1118,7 @@ class GovernedProjectionService:
                         authoritative_for=definition.authoritative_for,
                         may_not_use_for=definition.may_not_use_for,
                         source=source,
-                        source_dependency_hash=(
-                            validation.bound_dependency_aggregate_identity
-                        ),
+                        source_dependency_hash=(validation.bound_dependency_aggregate_identity),
                         source_schema_version=_source_schema_version(loaded.parsed),
                         source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
                         projection_hash=resolved_projection_hash,
@@ -1131,9 +1134,7 @@ class GovernedProjectionService:
                             resolved_id,
                             artifact_content_hash=source.artifact_content_hash,
                             projection_hash=resolved_projection_hash,
-                            source_dependency_hash=(
-                                validation.bound_dependency_aggregate_identity
-                            ),
+                            source_dependency_hash=(validation.bound_dependency_aggregate_identity),
                             source_as_of=as_of,
                         ),
                         payload=payload,
@@ -1887,4 +1888,5 @@ __all__ = [
     "ProjectionCatalogResponse",
     "ProjectionId",
     "ReplayPinMismatchError",
+    "projection_audience",
 ]

@@ -4974,18 +4974,43 @@ async def _domain_run_and_normalized_recording(
         if expected_recording.get("recording_content_hash") == (
             normalized_recording.get("recording_content_hash")
         ):
-            reconciled_recording = reconcile_gy_operational_leaves(
-                expected_recording,
-                normalized_recording,
-            )
+            try:
+                reconciled_recording = reconcile_gy_operational_leaves(
+                    expected_recording,
+                    normalized_recording,
+                    expected_operand_role="expected_frozen",
+                    observed_operand_role="live_replayed",
+                    recording_role=role,
+                    admission_arm=str(prior_admission.get("admission_kind") or ""),
+                )
+            except ValueError as exc:
+                raise UniversalityContractError(
+                    "authority_source_controlled_replay_recording_drift:"
+                    + str(exc)
+                ) from exc
             if not isinstance(reconciled_recording, dict):  # pragma: no cover
                 raise UniversalityContractError(
                     "authority_source_controlled_replay_projection_invalid"
                 )
             normalized_recording = reconciled_recording
         if expected_recording != normalized_recording:
+            try:
+                reconcile_gy_operational_leaves(
+                    expected_recording,
+                    normalized_recording,
+                    expected_operand_role="expected_frozen",
+                    observed_operand_role="live_replayed",
+                    recording_role=role,
+                    admission_arm=str(prior_admission.get("admission_kind") or ""),
+                    require_exact_match=True,
+                )
+            except ValueError as exc:
+                drift_detail = str(exc)
+            else:  # pragma: no cover - unequal operands force an owner report.
+                drift_detail = "gy_operational_reconciliation_exact_mismatch_unreported"
             raise UniversalityContractError(
-                "authority_source_controlled_replay_recording_drift"
+                "authority_source_controlled_replay_recording_drift:"
+                + drift_detail
             )
         if prior_authority_receipt:
             normalized_recording["authority_source_migration_receipt"] = (
@@ -7606,6 +7631,33 @@ def _n10_source_flip_cases() -> tuple[_N10SourceFlipCase, ...]:
             ),
             expected_red_signal=(
                 "test_historical_compiled_envelope_rejects_tampered_recursive_payload"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="controlled_replay_drift_reporting_removed",
+            relative_path=validator_path,
+            old_source="                drift_detail = str(exc)\n",
+            new_source=(
+                "                drift_detail = (\n"
+                "                    'gy_operational_reconciliation_reporting_removed:'\n"
+                "                    '{\"admission_arm\":\"admission_arm\",'\n"
+                "                    '\"changed_leaves\":[],'\n"
+                "                    '\"expected_frozen\":{'\n"
+                "                    '\"content_identity\":\"expected_content_identity\",'\n"
+                "                    '\"operand_role\":\"expected_frozen\"},'\n"
+                "                    '\"live_replayed\":{'\n"
+                "                    '\"content_identity\":\"observed_content_identity\",'\n"
+                "                    '\"operand_role\":\"live_replayed\"},'\n"
+                "                    '\"recording_role\":\"recording_role\"}'\n"
+                "                )\n"
+            ),
+            probe_nodeid=(
+                test_path
+                + "test_domain_recording_rederives_downstream_owners_from_recorded_n4"
+                "[recursive_generation_cycle_content_hash_mismatch-True]"
+            ),
+            expected_red_signal=(
+                "test_domain_recording_rederives_downstream_owners_from_recorded_n4"
             ),
         ),
         _N10SourceFlipCase(

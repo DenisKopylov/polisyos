@@ -227,6 +227,48 @@ def test_owner_bundle_rejects_source_change_during_derivation(
     assert "source:owner-source" in exc_info.value.detail
 
 
+def test_n10_recompute_bridge_preserves_only_self_describing_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N11 retains the safe replay diagnostic but still redacts arbitrary errors."""
+
+    from tools.quality.validation.check_layer3_gy_depth_n_universality_contract import (
+        UniversalityContractError,
+    )
+
+    stored = {"route": "stable"}
+    monkeypatch.setattr(adapter, "_read_json_mapping", lambda *args, **kwargs: stored)
+    monkeypatch.setattr(adapter, "_validate_n10_payload", lambda payload: None)
+    monkeypatch.setattr(adapter, "_extract_n10_route_projection", lambda payload: payload)
+    safe_detail = (
+        "authority_source_controlled_replay_recording_drift:"
+        "gy_operational_reconciliation_semantic_projection_mismatch:"
+        '{"admission_arm":"migrated","changed_leaves":[],'
+        '"expected_frozen":{"operand_role":"expected_frozen"},'
+        '"live_replayed":{"operand_role":"live_replayed"}}'
+    )
+
+    def _raise_safe_drift(_: Path) -> dict[str, object]:
+        raise UniversalityContractError(safe_detail)
+
+    monkeypatch.setattr(adapter, "_build_n10_cached_payload", _raise_safe_drift)
+    with pytest.raises(adapter.OwnerProjectionError) as exc_info:
+        adapter._recompute_n10_capstone(POLICY_ENGINE_ROOT)
+
+    assert exc_info.value.code == "n10_capstone_recompute_failed"
+    assert exc_info.value.detail == safe_detail
+
+    def _raise_arbitrary(_: Path) -> dict[str, object]:
+        raise RuntimeError("sk-arbitrary-secret")
+
+    monkeypatch.setattr(adapter, "_build_n10_cached_payload", _raise_arbitrary)
+    with pytest.raises(adapter.OwnerProjectionError) as arbitrary_exc:
+        adapter._recompute_n10_capstone(POLICY_ENGINE_ROOT)
+
+    assert arbitrary_exc.value.detail == "RuntimeError"
+    assert "sk-arbitrary-secret" not in str(arbitrary_exc.value)
+
+
 def _sealed_owner_inputs(
     identity: str,
     *,

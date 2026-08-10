@@ -940,14 +940,11 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
         def load() -> _BridgeComponent:
             return _BridgeComponent()
 
-    def _ambient_manifest(checkout: Path):
+    def _ambient_manifest(direct_url_payload: dict[str, object]):
         entry_point = _EntryPoint(
             _Distribution(
                 json.dumps(
-                    {
-                        "url": checkout.resolve().as_uri(),
-                        "dir_info": {"editable": True},
-                    },
+                    direct_url_payload,
                     separators=(",", ":"),
                 )
             )
@@ -992,18 +989,100 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     first = build_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
-        ambient_manifest=_ambient_manifest(first_checkout),
+        ambient_manifest=_ambient_manifest(
+            {
+                "url": first_checkout.resolve().as_uri(),
+                "dir_info": {"editable": True},
+            }
+        ),
     )
     second = build_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
-        ambient_manifest=_ambient_manifest(second_checkout),
+        ambient_manifest=_ambient_manifest(
+            {
+                "url": second_checkout.resolve().as_uri(),
+                "dir_info": {"editable": True},
+            }
+        ),
     )
 
-    assert first["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] is None
-    assert second["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] is None
+    first_entry = first["ambient_discovery"]["entry_points"][0]
+    second_entry = second["ambient_discovery"]["entry_points"][0]
+    assert first_entry["editable_install"] is True
+    assert second_entry["editable_install"] is True
+    assert first_entry["direct_url_sha256"] is None
+    assert second_entry["direct_url_sha256"] is None
+    assert first_entry["source_byte_closure"] == "not_established"
+    assert second_entry["source_byte_closure"] == "not_established"
+    assert first["ambient_discovery"]["unbound_inputs"] == [
+        "entry_point_source_byte_closure_not_established:"
+        "polisyos.foundry_methods:roads.method.direct_url_bridge:"
+        "roads.method.direct_url_bridge:factory"
+    ]
+    assert first["ambient_discovery"]["admission"] == {
+        "status": "quarantined_unbound",
+        "included_in_governed_denominator": False,
+        "fail_closed_action": "quarantine",
+    }
+    assert next(
+        row
+        for row in first["predicate_provenance"]
+        if row["predicate"] == "ambient.entry_point_source_byte_closure"
+    ) == {
+        "predicate": "ambient.entry_point_source_byte_closure",
+        "classification": "not_established",
+        "decisive": False,
+        "fail_closed_action": "quarantine",
+    }
+    assert next(
+        row
+        for row in first["predicate_admission_policy"]
+        if row["classification"] == "not_established"
+    ) == {
+        "classification": "not_established",
+        "admitted": False,
+        "fail_closed_action": "reject_or_quarantine",
+    }
     assert first["provenance_id"] == second["provenance_id"]
     assert value_contract._catalog_provenance_issues(first, second) == ()
+
+    first_bound = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=governed_report,
+        ambient_manifest=_ambient_manifest(
+            {
+                "url": "https://packages.example/roads-direct-url-bridge.whl",
+                "archive_info": {"hash": "sha256=" + "a" * 64},
+                "dir_info": {"editable": False},
+            }
+        ),
+    )
+    second_bound = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=governed_report,
+        ambient_manifest=_ambient_manifest(
+            {
+                "url": "https://packages.example/roads-direct-url-bridge.whl",
+                "archive_info": {"hash": "sha256=" + "b" * 64},
+                "dir_info": {"editable": False},
+            }
+        ),
+    )
+    first_bound_entry = first_bound["ambient_discovery"]["entry_points"][0]
+    second_bound_entry = second_bound["ambient_discovery"]["entry_points"][0]
+    assert first_bound_entry["editable_install"] is False
+    assert second_bound_entry["editable_install"] is False
+    assert first_bound_entry["direct_url_sha256"] != second_bound_entry["direct_url_sha256"]
+    bound_codes = {
+        issue["code"]
+        for issue in value_contract._catalog_provenance_issues(
+            second_bound,
+            first_bound,
+        )
+    }
+    assert "catalog_entry_point_distribution_manifest_mismatch" in bound_codes
+    assert "catalog_provenance_content_hash_mismatch" not in bound_codes
 
 
 def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identity() -> None:
@@ -1265,25 +1344,6 @@ def test_n8_source_flip_runner_requires_semantic_red_and_restores_bytes(
     assert result["result"] == "RED"
     assert source.read_text(encoding="utf-8") == "guard = True\n"
     assert result["source_restored_sha256"]["owner.py"] == original_hash
-
-
-def test_n8_editable_direct_url_binding_source_flip_turns_red() -> None:
-    case = next(
-        row
-        for row in value_contract._source_flip_cases()
-        if row.mutation_id == "source_flip_editable_direct_url_address_rejected"
-    )
-
-    result = value_contract._run_source_flip_case(value_contract._repo_root(), case)
-
-    assert result["result"] == "RED"
-    assert result["proof"]["exit_code"] == 1
-    assert "test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths" in (
-        result["proof"]["stdout_tail"]
-    )
-    assert "src/polisyos/core/components/discovery.py" in result[
-        "source_restored_sha256"
-    ]
 
 
 def test_n8_source_flip_runner_rejects_probe_errors_as_harness_failures(

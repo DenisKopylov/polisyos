@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -871,6 +871,141 @@ def test_n8_catalog_provenance_records_editable_identity_as_quarantined() -> Non
     assert value_contract._catalog_provenance_issues(provenance, provenance) == ()
 
 
+def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import json
+
+    from polisyos.core.components import (
+        Capability,
+        ComponentId,
+        ComponentKind,
+        ComponentMetadata,
+    )
+    from polisyos.core.components.discovery import (
+        ENTRY_POINT_GROUP_FOUNDRY_METHODS,
+        discover_components,
+    )
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.catalog.snapshot import (
+        build_method_catalog_provenance_manifest,
+        build_method_catalog_snapshot,
+    )
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    class _BridgeComponent:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("roads.method.direct_url_bridge@1.0.0"),
+            kind=ComponentKind.FOUNDRY_METHOD,
+            abi_targets={"foundry_methods_api": ">=3.5.0,<4.0.0"},
+            domains=["roads"],
+            jurisdictions=[],
+            tags=[],
+            capabilities=Capability.FOUNDRY_METHOD,
+            deps=[],
+        )
+
+        def create(self) -> object:
+            return object()
+
+    class _Distribution:
+        metadata: ClassVar[dict[str, str]] = {"Name": "roads-direct-url-bridge"}
+        version: ClassVar[str] = "1.0.0"
+
+        def __init__(self, direct_url_text: str) -> None:
+            self._direct_url_text = direct_url_text
+
+        def read_text(self, filename: str) -> str | None:
+            if filename == "entry_points.txt":
+                return (
+                    "[polisyos.foundry_methods]\n"
+                    "roads.method.direct_url_bridge = roads.method.direct_url_bridge:factory\n"
+                )
+            if filename == "direct_url.json":
+                return self._direct_url_text
+            return None
+
+    class _EntryPoint:
+        group = ENTRY_POINT_GROUP_FOUNDRY_METHODS
+        name = "roads.method.direct_url_bridge"
+        value = "roads.method.direct_url_bridge:factory"
+        module = "roads.method.direct_url_bridge"
+        attr = "factory"
+
+        def __init__(self, distribution: _Distribution) -> None:
+            self.dist = distribution
+
+        @staticmethod
+        def load() -> _BridgeComponent:
+            return _BridgeComponent()
+
+    def _ambient_manifest(checkout: Path):
+        entry_point = _EntryPoint(
+            _Distribution(
+                json.dumps(
+                    {
+                        "url": checkout.resolve().as_uri(),
+                        "dir_info": {"editable": True},
+                    },
+                    separators=(",", ":"),
+                )
+            )
+        )
+        monkeypatch.setattr(
+            "polisyos.core.components.discovery.list_entry_points",
+            lambda *, group: [entry_point],
+        )
+        report = discover_components(
+            groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
+            include_dev_scan=True,
+            dev_scan_paths=[],
+        )
+        assert report.manifest is not None
+        return report.manifest
+
+    first_checkout = tmp_path / "checkout-a" / "policy-engine"
+    second_checkout = tmp_path / "checkout-b" / "policy-engine"
+    first_checkout.mkdir(parents=True)
+    second_checkout.mkdir(parents=True)
+    sentinel = b"same source bytes\n"
+    (first_checkout / "source.py").write_bytes(sentinel)
+    (second_checkout / "source.py").write_bytes(sentinel)
+    assert first_checkout.resolve() != second_checkout.resolve()
+    assert (first_checkout / "source.py").read_bytes() == (
+        second_checkout / "source.py"
+    ).read_bytes()
+
+    with registry_scope() as registry:
+        governed_report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=governed_report,
+            require_bound_discovery=True,
+        )
+    first = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=governed_report,
+        ambient_manifest=_ambient_manifest(first_checkout),
+    )
+    second = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=governed_report,
+        ambient_manifest=_ambient_manifest(second_checkout),
+    )
+
+    assert first["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] is None
+    assert second["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] is None
+    assert first["provenance_id"] == second["provenance_id"]
+    assert value_contract._catalog_provenance_issues(first, second) == ()
+
+
 def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identity() -> None:
     from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
 
@@ -1130,6 +1265,25 @@ def test_n8_source_flip_runner_requires_semantic_red_and_restores_bytes(
     assert result["result"] == "RED"
     assert source.read_text(encoding="utf-8") == "guard = True\n"
     assert result["source_restored_sha256"]["owner.py"] == original_hash
+
+
+def test_n8_editable_direct_url_binding_source_flip_turns_red() -> None:
+    case = next(
+        row
+        for row in value_contract._source_flip_cases()
+        if row.mutation_id == "source_flip_editable_direct_url_address_rejected"
+    )
+
+    result = value_contract._run_source_flip_case(value_contract._repo_root(), case)
+
+    assert result["result"] == "RED"
+    assert result["proof"]["exit_code"] == 1
+    assert "test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths" in (
+        result["proof"]["stdout_tail"]
+    )
+    assert "src/polisyos/core/components/discovery.py" in result[
+        "source_restored_sha256"
+    ]
 
 
 def test_n8_source_flip_runner_rejects_probe_errors_as_harness_failures(

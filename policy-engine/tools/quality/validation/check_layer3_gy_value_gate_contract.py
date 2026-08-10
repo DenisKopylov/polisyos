@@ -123,6 +123,7 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_forged_relation_certificate_rejected",
     "source_flip_value_projection_capability_contract_required",
     "source_flip_catalog_replay_rejected",
+    "source_flip_editable_direct_url_address_rejected",
     "source_flip_truthfulness_auto_pass_rejected",
     "source_flip_estimand_binding_required",
     "source_flip_value_input_acquisition_route_required",
@@ -2085,6 +2086,7 @@ def _validator_probe(*args: str) -> tuple[str, ...]:
 
 
 def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
+    discovery = "src/polisyos/core/components/discovery.py"
     generation_cycle = "src/polisyos/runtime/quality/generation_cycle.py"
     value_outer_set = "src/polisyos/core/contracts/value_outer_set.py"
     validator = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
@@ -2580,6 +2582,21 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             node_id=(
                 "tests/unit/foundry/methods/test_selection_advisor.py::"
                 "test_value_selection_receipt_rejects_replay_across_catalog_snapshots"
+            ),
+        ),
+        pytest_case(
+            mutation_id="source_flip_editable_direct_url_address_rejected",
+            guard="editable install addresses cannot become distribution identity",
+            replacements=(
+                _SourceFlipReplacement(
+                    discovery,
+                    "                if editable_install is not True:\n",
+                    "                if True:\n",
+                ),
+            ),
+            node_id=(
+                f"{test_value_gate}::"
+                "test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths"
             ),
         ),
         pytest_case(

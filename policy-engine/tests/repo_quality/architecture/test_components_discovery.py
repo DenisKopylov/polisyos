@@ -457,6 +457,7 @@ def test_discovery_manifest_keeps_noneditable_direct_url_content_bound(
     )
     first_direct_url = (
         '{"url":"https://example.invalid/roads.whl",'
+        '"dir_info":{"editable":false},'
         '"archive_info":{"hash":"sha256=aaaa"}}'
     )
     second_direct_url = first_direct_url.replace("sha256=aaaa", "sha256=bbbb")
@@ -480,13 +481,48 @@ def test_discovery_manifest_keeps_noneditable_direct_url_content_bound(
         ),
     )
 
-    assert first.entry_points[0].editable_install is None
+    assert first.entry_points[0].editable_install is False
     assert first.entry_points[0].direct_url_sha256 == (
         "sha256:" + hashlib.sha256(first_direct_url.encode("utf-8")).hexdigest()
     )
     assert second.entry_points[0].direct_url_sha256 == (
         "sha256:" + hashlib.sha256(second_direct_url.encode("utf-8")).hexdigest()
     )
+    assert first.entry_points[0].direct_url_sha256 != second.entry_points[0].direct_url_sha256
+    assert first.manifest_id != second.manifest_id
+
+
+def test_discovery_manifest_keeps_malformed_direct_url_bytes_bound(
+    monkeypatch,
+) -> None:
+    entry_points_text = (
+        "[polisyos.foundry_methods]\n"
+        "roads.method.direct_url = roads.method.direct_url:factory\n"
+    )
+    first_direct_url = '{"url":"file:///unknown-a",'
+    second_direct_url = '{"url":"file:///unknown-b",'
+
+    first = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=first_direct_url,
+        ),
+    )
+    second = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=second_direct_url,
+        ),
+    )
+
+    assert first.entry_points[0].editable_install is None
+    assert second.entry_points[0].editable_install is None
     assert first.entry_points[0].direct_url_sha256 != second.entry_points[0].direct_url_sha256
     assert first.manifest_id != second.manifest_id
 

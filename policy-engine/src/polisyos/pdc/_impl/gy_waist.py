@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
+
+from polisyos.common import serialization
 
 from .layer2_readiness import (
     ID_PATTERN,
@@ -99,6 +102,77 @@ def gy_content_hash(value: object) -> str:
         default=str,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
+    """Return the GY semantic payload for an artifact or its writer draft.
+
+    Artifact writers project the unhashed draft immediately before assigning its
+    self-identity.  Verifiers project the resulting self-identifying artifact.
+    Keeping both states on this owner makes those two comparisons the same call;
+    models and already-hashed mappings still require exactly one identity field.
+    """
+
+    if isinstance(value, Mapping) and not {"content_hash", "record_hash"}.intersection(value):
+        payload = {str(key): item for key, item in value.items()}
+    else:
+        payload = serialization.artifact_self_identity_projection(value)
+    projected = strip_gy_volatile_fields(payload)
+    if not isinstance(projected, dict):  # pragma: no cover - mapping input is normalized above
+        raise ValueError("gy_artifact_identity_projection_mapping_required")
+    return projected
+
+
+def reconcile_gy_operational_leaves(previous: object, current: object) -> object:
+    """Preserve shared operational leaves only after semantic and shape agreement.
+
+    The procedure is fail-closed: it rejects a semantic change or a shape drift,
+    and it only copies an operational leaf that both payloads already declare.
+    """
+
+    previous_semantic = strip_gy_volatile_fields(previous)
+    current_semantic = strip_gy_volatile_fields(current)
+    if previous_semantic != current_semantic:
+        raise ValueError("gy_operational_reconciliation_semantic_projection_mismatch")
+    if not _gy_payload_shape_matches(previous, current):
+        raise ValueError("gy_operational_reconciliation_shape_mismatch")
+    return _reconcile_gy_operational_leaves(previous, current)
+
+
+def _gy_payload_shape_matches(previous: object, current: object) -> bool:
+    if isinstance(previous, dict) and isinstance(current, dict):
+        return set(previous) == set(current) and all(
+            _gy_payload_shape_matches(previous[key], current[key]) for key in previous
+        )
+    if isinstance(previous, (list, tuple)) and isinstance(current, (list, tuple)):
+        return type(previous) is type(current) and len(previous) == len(current) and all(
+            _gy_payload_shape_matches(left, right)
+            for left, right in zip(previous, current, strict=True)
+        )
+    return type(previous) is type(current)
+
+
+def _reconcile_gy_operational_leaves(previous: object, current: object) -> object:
+    if isinstance(previous, dict) and isinstance(current, dict):
+        return {
+            key: (
+                previous[key]
+                if is_gy_content_hash_excluded_field(str(key)) and key in previous
+                else _reconcile_gy_operational_leaves(previous[key], value)
+            )
+            for key, value in current.items()
+        }
+    if isinstance(previous, list) and isinstance(current, list):
+        return [
+            _reconcile_gy_operational_leaves(left, right)
+            for left, right in zip(previous, current, strict=True)
+        ]
+    if isinstance(previous, tuple) and isinstance(current, tuple):
+        return tuple(
+            _reconcile_gy_operational_leaves(left, right)
+            for left, right in zip(previous, current, strict=True)
+        )
+    return current
 
 
 def assert_ring2_verifier_provenance(

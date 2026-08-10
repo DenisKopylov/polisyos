@@ -576,22 +576,19 @@ def _catalog_denominators_cached() -> dict[str, Any]:
     from polisyos.foundry.extensions.discovery import (
         discover_foundry_method_components,
     )
-    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
     from polisyos.foundry.methods.catalog.snapshot import (
         build_method_catalog_provenance_manifest,
         build_method_catalog_snapshot,
     )
     from polisyos.foundry.methods.selection import reachable_value_method_fqns
-    from polisyos.foundry.methods.selection.registry import registry_scope
 
-    with registry_scope() as registry:
-        registry_report = bootstrap_foundry_method_registry(
-            registry,
-            include_builtins=True,
-            include_entry_points=False,
-            include_dev_scan=False,
-            require_bound_discovery_manifest=True,
-        )
+    with controlled_builtin_foundry_method_registry_scope() as (
+        registry,
+        registry_report,
+    ):
         registered = registry_report.registry_fqns
         first = build_method_catalog_snapshot(
             registry=registry,
@@ -3406,9 +3403,24 @@ def _catalog_provenance_issues(
     *,
     denominator_fields: frozenset[str] | None = None,
 ) -> tuple[dict[str, Any], ...]:
+    from polisyos.foundry.methods.catalog.snapshot import (
+        method_catalog_provenance_id,
+    )
+
     issues: list[dict[str, Any]] = []
     if not isinstance(recorded, Mapping):
         return ({"code": "catalog_discovery_provenance_missing"},)
+
+    recorded_provenance_id = recorded.get("provenance_id")
+    try:
+        recomputed_provenance_id = method_catalog_provenance_id(recorded)
+    except (TypeError, ValueError):
+        recomputed_provenance_id = None
+    if (
+        not isinstance(recorded_provenance_id, str)
+        or recorded_provenance_id != recomputed_provenance_id
+    ):
+        issues.append({"code": "catalog_provenance_content_hash_mismatch"})
 
     recorded_governed = recorded.get("governed_discovery")
     expected_governed = expected.get("governed_discovery")
@@ -3462,6 +3474,8 @@ def _catalog_provenance_issues(
         if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
             issues.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
         admission = recorded_ambient.get("admission")
+        if admission != expected_ambient.get("admission"):
+            issues.append({"code": "catalog_ambient_admission_mismatch"})
         if not isinstance(admission, Mapping) or (
             admission.get("included_in_governed_denominator") is not False
             or admission.get("fail_closed_action") != "quarantine"
@@ -3474,6 +3488,8 @@ def _catalog_provenance_issues(
     if not isinstance(recorded_runtime, Mapping) or not isinstance(expected_runtime, Mapping):
         issues.append({"code": "catalog_runtime_backend_identity_missing"})
     else:
+        if recorded_runtime.get("schema_version") != expected_runtime.get("schema_version"):
+            issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("identity_id") != expected_runtime.get("identity_id"):
             issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("runtime_packages") != expected_runtime.get("runtime_packages"):

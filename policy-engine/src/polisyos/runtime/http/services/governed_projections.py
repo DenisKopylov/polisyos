@@ -17,6 +17,7 @@ from typing import Annotated, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
+from polisyos.common import serialization
 from polisyos.runtime.http.services.channel_contracts import (
     RUNS_CHANNEL_DATA_EVENT_CONTRACT,
     ReviewPresenceSnapshot,
@@ -1519,7 +1520,9 @@ def _project_acquisition_contract(source: dict[str, Any]) -> dict[str, Any]:
     )
     positive_receipt = narrowed.get("positive_receipt")
     if isinstance(positive_receipt, dict):
-        positive_receipt.pop("content_hash", None)
+        narrowed["positive_receipt"] = serialization.artifact_self_identity_projection(
+            positive_receipt
+        )
     return narrowed
 
 

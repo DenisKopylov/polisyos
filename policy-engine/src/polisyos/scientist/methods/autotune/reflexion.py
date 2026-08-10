@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common import serialization
 from polisyos.scientist.agent.failure_card import FailureCard, FailureSeverity, FailureSource
 
 from .models import (
@@ -203,10 +204,11 @@ class ReflexionReplayRecorder:
         self._records.append(
             {
                 "case_id": case_id,
-                "failure_card": card.model_dump(
-                    mode="json",
-                    exclude={"can_retry", "content_hash"},
-                ),
+                "failure_card": {
+                    key: value
+                    for key, value in serialization.artifact_self_identity_projection(card).items()
+                    if key != "can_retry"
+                },
                 "decision_outcomes": {
                     str(key): bool(value) for key, value in decision_outcomes.items()
                 },

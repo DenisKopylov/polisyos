@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.common import serialization
 from polisyos.core import artifacts, canon
 from polisyos.pdc import (
     SearchTerminalKind,
@@ -2637,8 +2638,7 @@ def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
 
 
 def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:
-    payload = receipt.model_dump(mode="json")
-    payload.pop("content_hash", None)
+    payload = serialization.artifact_self_identity_projection(receipt)
     stable_payload = strip_gy_volatile_fields(payload)
     if not isinstance(stable_payload, dict):
         raise TypeError("acquisition_receipt_semantic_projection_not_mapping")

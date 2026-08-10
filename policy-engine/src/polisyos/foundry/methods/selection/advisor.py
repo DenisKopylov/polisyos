@@ -13,6 +13,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.common.timestamps import utc_now
 from polisyos.core.contracts.execution_plan import (
     BudgetSpec,
@@ -460,7 +461,7 @@ class MethodSelectionReceipt(BaseModel):
             for row in self.ranked_alternatives
         ):
             raise ValueError("value_method_selection_trace_non_finite_score")
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = serialization.artifact_self_identity_projection(self)
         if self.content_hash != _method_selection_receipt_content_hash(payload):
             raise ValueError("value_method_selection_receipt_content_hash_mismatch")
         return self

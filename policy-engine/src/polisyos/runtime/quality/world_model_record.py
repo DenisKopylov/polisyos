@@ -33,7 +33,7 @@ from polisyos.core.contracts import (
     FoundryInputBindingsRef,
 )
 from polisyos.ir.kernel import SLOT_ID_PATTERN
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateLayer,
     SubstrateRegistry,
@@ -1179,29 +1179,21 @@ def _policy_slot_map(
 
 
 def _content_payload_from_record(record: WorldModelRecord) -> dict[str, Any]:
-    return _strip_non_content_locations(
-        record.model_dump(
-            mode="json",
-            exclude={
-                "world_model_record_id",
-                "content_hash",
-                "created_at",
-                "producer_ref",
-                "authority_status",
-            },
-        )
-    )
+    payload = gy_artifact_self_identity_projection(record)
+    for field in ("world_model_record_id", "created_at", "producer_ref", "authority_status"):
+        payload.pop(field, None)
+    return _strip_non_content_locations(payload)
 
 
 def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
+    payload = gy_artifact_self_identity_projection({**fields, "content_hash": "pending"})
     return _strip_non_content_locations(
         {
             key: _json_ready(value)
-            for key, value in fields.items()
+            for key, value in payload.items()
             if key
             not in {
                 "world_model_record_id",
-                "content_hash",
                 "created_at",
                 "producer_ref",
                 "authority_status",

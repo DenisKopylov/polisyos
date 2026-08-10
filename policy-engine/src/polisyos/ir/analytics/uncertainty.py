@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
@@ -111,7 +112,7 @@ class NativeValueEstimandBinding(BaseModel):
 
     @model_validator(mode="after")
     def _verify_content_hash(self) -> NativeValueEstimandBinding:
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = serialization.artifact_self_identity_projection(self)
         if self.content_hash != _native_value_estimand_binding_hash(payload):
             raise ValueError("native_value_estimand_binding_content_hash_mismatch")
         return self

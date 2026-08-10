@@ -1,10 +1,24 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 import pytest
 
+from polisyos.foundry.extensions import component_for_method
+from polisyos.foundry.methods import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodMetadata,
+    MethodSignature,
+    SlotSpec,
+    SlotType,
+    Unit,
+)
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.selection.registry import get_registry, registry_scope
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
@@ -44,6 +58,19 @@ L6_MECHANISM_IDS = {
 FREE_GROW_KNOB = "future_child_benefit_intensity"
 FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
+
+
+@dataclass(frozen=True)
+class _AmbientEntryPoint:
+    name: str
+    value: str
+    component: object
+    module: str = "ambient_route_plugin"
+    attr: str = "plugin"
+    dist: None = None
+
+    def load(self) -> object:
+        return self.component
 
 
 @lru_cache(maxsize=1)
@@ -375,6 +402,84 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
     with pytest.raises(InterventionSubstrateError) as unknown:
         route_observation_family_method(bundle, family="unknown_family")
     assert unknown.value.code == "family_route_unresolved"
+
+
+def test_default_method_route_excludes_changed_ambient_entry_points(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A governed route is byte-stable when ambient plugin membership changes."""
+
+    unit = Unit("dimensionless", "1")
+
+    class AmbientRouteMethod:
+        signature = MethodSignature(
+            name="ambient_route",
+            namespace="external.method",
+            version="1.0.0",
+            input_slots=frozenset({SlotSpec("x", SlotType.SCALAR, unit)}),
+            output_slots=frozenset({SlotSpec("y", SlotType.SCALAR, unit)}),
+            parameters=(),
+            fidelity=FidelityLevel.LOW,
+            complexity=ComplexityClass.O_1,
+            backend=ComputeBackend.NUMPY,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
+        )
+        metadata = MethodMetadata(description="Ambient route method")
+
+        @staticmethod
+        def pure_step(
+            state: Mapping[str, Any],
+            params: Mapping[str, Any],
+        ) -> Mapping[str, Any]:
+            del params
+            return {"y": state["x"]}
+
+    plugin = component_for_method(AmbientRouteMethod, domains=["external"])
+    entry_point = _AmbientEntryPoint(
+        name="external.method.ambient_route",
+        value="ambient_route_plugin:plugin",
+        component=plugin,
+    )
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+
+    monkeypatch.setattr(
+        "polisyos.core.components.discovery.list_entry_points",
+        lambda *, group: [],
+    )
+    with registry_scope():
+        baseline = route_observation_family_method(
+            bundle,
+            family="budget_flows",
+        )
+    assert capsys.readouterr() == ("", "")
+
+    monkeypatch.setattr(
+        "polisyos.core.components.discovery.list_entry_points",
+        lambda *, group: [entry_point],
+    )
+    with registry_scope() as explicit_registry:
+        ensure_all_methods_registered(explicit_registry)
+        capsys.readouterr()
+        changed_ambient = route_observation_family_method(
+            bundle,
+            family="budget_flows",
+        )
+        assert capsys.readouterr() == ("", "")
+        explicitly_extended = route_observation_family_method(
+            bundle,
+            family="budget_flows",
+            registry=explicit_registry,
+        )
+
+    assert baseline.registry_method_count > 0
+    assert changed_ambient == baseline
+    assert explicitly_extended.registry_method_count == (
+        baseline.registry_method_count + 1
+    )
+    assert explicitly_extended.content_hash != baseline.content_hash
 
 
 def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_branches() -> None:

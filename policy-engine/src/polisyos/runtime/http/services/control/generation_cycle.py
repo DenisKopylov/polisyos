@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.services.control.nl_pipeline import (
     build_design_problem_from_nl_request,
 )
@@ -67,13 +67,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             raise ValueError("compiled_recursive_design_problem_hash_mismatch")
         if self.recursive_run.root_design_problem_ref != self.design_problem_ref:
             raise ValueError("compiled_recursive_run_problem_binding_mismatch")
-        payload = self.model_dump(
-            mode="json",
-            exclude={
-                "content_hash": True,
-                "recursive_run": {"leaf_nodes": True},
-            },
-        )
+        payload = gy_artifact_self_identity_projection(self)
+        recursive_run = dict(payload["recursive_run"])
+        recursive_run.pop("leaf_nodes", None)
+        payload["recursive_run"] = recursive_run
         if self.content_hash != gy_content_hash(payload):
             raise ValueError("compiled_recursive_generation_cycle_hash_mismatch")
         return self

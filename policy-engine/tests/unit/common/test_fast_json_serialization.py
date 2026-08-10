@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.common import serialization
 from polisyos.core.canon import to_canonical_bytes
 
@@ -81,3 +82,16 @@ def test_fast_json_rejects_unsupported_objects_explicitly() -> None:
 
     with pytest.raises(serialization.UnsupportedSerializationError):
         serialization.fast_json_dumps({"value": NotJson()})
+
+
+def test_artifact_self_identity_projection_rejects_missing_or_ambiguous_identity() -> None:
+    assert serialization.artifact_self_identity_projection(
+        {"content_hash": "sha256:one", "value": 1}
+    ) == {"value": 1}
+
+    with pytest.raises(serialization.ArtifactIdentityProjectionError, match="missing"):
+        serialization.artifact_self_identity_projection({"value": 1})
+    with pytest.raises(serialization.ArtifactIdentityProjectionError, match="ambiguous"):
+        serialization.artifact_self_identity_projection(
+            {"content_hash": "sha256:one", "record_hash": "sha256:two", "value": 1}
+        )

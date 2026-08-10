@@ -18,6 +18,7 @@ from polisyos.foundry.methods.catalog.snapshot import (
     build_method_catalog_provenance_manifest,
     build_method_catalog_runtime_identity,
     build_method_catalog_snapshot,
+    method_catalog_provenance_id,
 )
 from polisyos.foundry.methods.selection import reachable_value_method_fqns
 from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
@@ -243,6 +244,7 @@ def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() ->
     assert provenance["governed_discovery"]["registry_binding_sha256"] == (
         report.registry_binding_sha256
     )
+    assert provenance["provenance_id"] == method_catalog_provenance_id(provenance)
 
 
 def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> None:

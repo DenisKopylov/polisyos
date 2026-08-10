@@ -15,6 +15,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessTier,
@@ -106,7 +107,7 @@ class MethodValueEvidence(_StrictModel):
             != binding.content_hash
         ):
             raise ValueError("method_value_evidence_projection_owner_mismatch")
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = serialization.artifact_self_identity_projection(self)
         if self.content_hash != _content_hash(payload):
             raise ValueError("method_value_evidence_content_hash_mismatch")
         return self

@@ -674,9 +674,7 @@ def build_method_catalog_provenance_manifest(
             },
         ],
     }
-    payload["provenance_id"] = "method_catalog_provenance_" + _sha256_payload(payload).removeprefix(
-        "sha256:"
-    )
+    payload["provenance_id"] = method_catalog_provenance_id(payload)
     return payload
 
 
@@ -742,6 +740,14 @@ def _sha256_payload(value: object) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def method_catalog_provenance_id(payload: Mapping[str, object]) -> str:
+    """Return the canonical content identity for a catalog provenance manifest."""
+
+    content = dict(payload)
+    content.pop("provenance_id", None)
+    return "method_catalog_provenance_" + _sha256_payload(content).removeprefix("sha256:")
 
 
 def persist_method_catalog_snapshot(
@@ -1143,5 +1149,6 @@ __all__ = [
     "build_method_catalog_provenance_manifest",
     "build_method_catalog_runtime_identity",
     "build_method_catalog_snapshot",
+    "method_catalog_provenance_id",
     "persist_method_catalog_snapshot",
 ]

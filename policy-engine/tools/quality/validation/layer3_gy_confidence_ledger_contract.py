@@ -12,12 +12,23 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Mapping
+import os
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+from polisyos.runtime.quality.authority import (
+    AuthorityEnvelopeError,
+    ConsumedInputMember,
+    SameInputClosure,
+    SealedConsumedInputSet,
+    assert_consumed_input_reuse,
+    seal_consumed_input_set,
+)
 
 DEFAULT_N10_CAPSTONE = Path(
     "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
@@ -36,6 +47,11 @@ DEFAULT_N13B_JOURNAL = Path(
 )
 DEFAULT_N13B_CAS = Path("architecture/policy_design_case/layer3_gy_acquisition_cas")
 DEFAULT_GENERATED_ARTIFACTS = Path("architecture/generated_artifacts.toml")
+_OWNER_INPUT_SCHEMA_VERSION = "policyos.layer3.gy.n11.consumed_inputs.v1"
+_OWNER_SOURCE_ENTRY_MODULES = (
+    "tools.quality.validation.check_layer3_gy_confidence_ledger",
+    "tools.quality.validation.layer3_gy_confidence_ledger_contract",
+)
 
 _OWNER_PROGRESS_CALLBACK: ContextVar[Callable[[str], None] | None] = ContextVar(
     "n11_owner_progress_callback",
@@ -179,6 +195,7 @@ class OwnerEvidenceBundle:
 
     n10: N10OwnerProjection
     n13b: N13bOwnerProjection
+    consumed_inputs: SealedConsumedInputSet
     projection_sha256: str
 
 
@@ -213,28 +230,42 @@ def load_owner_bundle(
     root = Path(repo_root).resolve()
     catalog = Path(catalog_path).resolve()
     l5 = Path(l5_path).resolve()
+    controlled_environment = _declared_owner_environment()
     token = _OWNER_PROGRESS_CALLBACK.set(objective_progress)
     try:
-        _report_owner_progress("owner_pre_derivation_fence_started")
-        cache_fence = _owner_cache_fence(root, catalog_path=catalog, l5_path=l5)
-        _report_owner_progress("owner_pre_derivation_fence_complete")
-        bundle = _load_owner_bundle_cached(
-            root.as_posix(),
-            catalog.as_posix(),
-            l5.as_posix(),
-            cache_fence,
-        )
-        _report_owner_progress("owner_post_derivation_fence_started")
-        post_derivation_fence = _owner_cache_fence(
-            root,
-            catalog_path=catalog,
-            l5_path=l5,
-        )
-        _report_owner_progress("owner_post_derivation_fence_complete")
-        if post_derivation_fence != cache_fence:
-            raise OwnerProjectionError("owner_cache_fence_changed_during_derivation")
-        _report_owner_progress("owner_bundle_fence_validated")
-        return bundle
+        with _temporary_owner_environment(controlled_environment):
+            _report_owner_progress("owner_pre_derivation_fence_started")
+            consumed_inputs = _owner_consumed_input_set(
+                root,
+                catalog_path=catalog,
+                l5_path=l5,
+            )
+            _report_owner_progress("owner_pre_derivation_fence_complete")
+            bundle = _load_owner_bundle_cached(
+                root.as_posix(),
+                catalog.as_posix(),
+                l5.as_posix(),
+                _consumed_input_cache_key(consumed_inputs),
+            )
+            _report_owner_progress("owner_post_derivation_fence_started")
+            post_derivation_inputs = _owner_consumed_input_set(
+                root,
+                catalog_path=catalog,
+                l5_path=l5,
+            )
+            _report_owner_progress("owner_post_derivation_fence_complete")
+            try:
+                assert_consumed_input_reuse(
+                    consumed_inputs,
+                    closure=post_derivation_inputs.same_input_closure,
+                    fresh_members=post_derivation_inputs.members,
+                )
+            except AuthorityEnvelopeError as exc:
+                raise OwnerProjectionError(exc.code, str(exc)) from exc
+            if bundle.consumed_inputs != consumed_inputs:
+                raise OwnerProjectionError("owner_cached_consumed_input_binding_mismatch")
+            _report_owner_progress("owner_bundle_fence_validated")
+            return bundle
     finally:
         _OWNER_PROGRESS_CALLBACK.reset(token)
 
@@ -262,7 +293,7 @@ def _load_owner_bundle_cached(
     repo_root: str,
     catalog_path: str,
     l5_path: str,
-    _cache_fence: str,
+    consumed_input_cache_key: str,
 ) -> OwnerEvidenceBundle:
     root = Path(repo_root)
     catalog = Path(catalog_path)
@@ -283,10 +314,21 @@ def _load_owner_bundle_cached(
         n10=n10,
     )
     _report_owner_progress("n13b_owner_projection_complete")
-    values = {"n10": asdict(n10), "n13b": asdict(n13b)}
+    try:
+        consumed_inputs = SealedConsumedInputSet.model_validate_json(
+            consumed_input_cache_key
+        )
+    except ValueError as exc:
+        raise OwnerProjectionError("owner_consumed_input_cache_key_invalid", str(exc)) from exc
+    values = {
+        "n10": asdict(n10),
+        "n13b": asdict(n13b),
+        "consumed_inputs": consumed_inputs.model_dump(mode="json"),
+    }
     return OwnerEvidenceBundle(
         n10=n10,
         n13b=n13b,
+        consumed_inputs=consumed_inputs,
         projection_sha256=_content_sha256(values),
     )
 
@@ -783,12 +825,326 @@ def _revalidate_passport_payload(
     )
 
 
-def _owner_cache_fence(
+def _declared_owner_environment() -> dict[str, str]:
+    """Return the one controlled process environment used by cold owner work."""
+
+    from tools.quality.validation import (
+        check_layer3_gy_depth_n_universality_contract as depth_n,
+    )
+    from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+
+    depth_environment = dict(depth_n._N4_CAPTURE_ENV)
+    n10a_environment = dict(n10a._N4_LIVE_CAPTURE_ENV)
+    if depth_environment != n10a_environment:
+        raise OwnerProjectionError("owner_n4_environment_declaration_drift")
+    controlled = {"JAX_PLATFORMS": "cpu", **depth_environment}
+    for name, value in n10a._CONTROLLED_N7_ENV.items():
+        if name in controlled and controlled[name] != value:
+            raise OwnerProjectionError(
+                "owner_environment_declaration_conflict",
+                name,
+            )
+        controlled[name] = value
+    if any(type(name) is not str or type(value) is not str for name, value in controlled.items()):
+        raise OwnerProjectionError("owner_environment_declaration_invalid")
+    return dict(sorted(controlled.items()))
+
+
+@contextmanager
+def _temporary_owner_environment(values: Mapping[str, str]) -> Iterator[None]:
+    """Apply and restore the declared environment for the whole owner derivation."""
+
+    missing = object()
+    previous: dict[str, str | object] = {
+        name: os.environ.get(name, missing) for name in values
+    }
+    os.environ.update(values)
+    try:
+        yield
+    finally:
+        for name, value in previous.items():
+            if value is missing:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = str(value)
+
+
+def _owner_same_input_closure() -> SameInputClosure:
+    """Return the stable closure declaration for one N11 owner derivation."""
+
+    closure_identity = _content_sha256(
+        {
+            "schema_version": _OWNER_INPUT_SCHEMA_VERSION,
+            "entry_modules": _OWNER_SOURCE_ENTRY_MODULES,
+            "authority_history_policy": "isolated_non_authorizing_verification",
+            "ambient_discovery_policy": "controlled_builtins_only",
+        }
+    )
+    return SameInputClosure(
+        closure_id="gy-n11-owner-inputs",
+        status="closed",
+        policy_intent_ref="gy-defc-1:cold-owner-derivation",
+        run_id="gy-n11",
+        job_id="owner-bundle",
+        tenant_id="policy-engine",
+        method_plan_ref=_OWNER_INPUT_SCHEMA_VERSION,
+        provider_mode_ref="controlled-owner-inputs",
+        effective_mode_ref="isolated-verification",
+        evidence_input_refs=_OWNER_SOURCE_ENTRY_MODULES,
+        closure_sha256=closure_identity,
+    )
+
+
+def _consumed_input_cache_key(inputs: SealedConsumedInputSet) -> str:
+    """Return the canonical full-set cache key consumed by the fast path."""
+
+    return json.dumps(
+        inputs.model_dump(mode="json"),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _owner_consumed_input_set(
     repo_root: Path,
     *,
     catalog_path: Path,
     l5_path: Path,
-) -> str:
+) -> SealedConsumedInputSet:
+    """Resolve and seal every input class consumed by the N11 owner graph."""
+
+    from polisyos.runtime.quality import confidence_ledger
+
+    closure = _owner_same_input_closure()
+    members: list[ConsumedInputMember] = []
+    for member_id, identity in _deduplicated_owner_fence_records(
+        _owner_cache_fence_records(
+            repo_root,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+        )
+    ):
+        members.append(
+            _resolved_consumed_member(
+                member_id=f"owner-record:{member_id}",
+                member_kind=_owner_record_member_kind(member_id),
+                identity=_content_sha256(
+                    {"member_id": member_id, "resolved_identity": identity}
+                ),
+            )
+        )
+    for module_name, relative_path in _owner_source_closure(repo_root):
+        members.append(
+            _resolved_consumed_member(
+                member_id=f"module:{module_name}",
+                member_kind="source",
+                identity=_file_sha256(repo_root / relative_path),
+            )
+        )
+    for name, declared_value in _declared_owner_environment().items():
+        actual_value = os.environ.get(name)
+        members.append(
+            ConsumedInputMember(
+                member_id=name,
+                member_kind="environment",
+                declared_identity=_content_sha256(
+                    {"name": name, "value": declared_value}
+                ),
+                resolved_identity=(
+                    _content_sha256({"name": name, "value": actual_value})
+                    if actual_value is not None
+                    else None
+                ),
+                predicate_class="recomputed",
+            )
+        )
+    runtime_manifest = confidence_ledger._python_runtime_manifest()
+    members.extend(
+        (
+            _resolved_consumed_member(
+                member_id="python-runtime-manifest",
+                member_kind="runtime_abi",
+                identity=_content_sha256(runtime_manifest),
+            ),
+            _resolved_consumed_member(
+                member_id="confidence-ledger-loaded-runtime",
+                member_kind="loader_binding",
+                identity=confidence_ledger._policy_engine_deployment_identity(repo_root),
+            ),
+            _resolved_consumed_member(
+                member_id="governed-promotion-history",
+                member_kind="authority_history",
+                identity=_content_sha256(
+                    {
+                        "source": "isolated_verification",
+                        "authorizing": False,
+                        "durable_repo_history_consumed": False,
+                    }
+                ),
+                predicate_class="independently_reconciled",
+            ),
+            _resolved_consumed_member(
+                member_id="foundry-discovery-basis",
+                member_kind="session",
+                identity=_content_sha256(
+                    {
+                        "basis": "builtins_only",
+                        "ambient_entry_points": "quarantined",
+                        "ambient_dev_scan": "quarantined",
+                    }
+                ),
+                predicate_class="independently_reconciled",
+            ),
+            _resolved_consumed_member(
+                member_id="repository-module-resolution",
+                member_kind="session",
+                identity=_content_sha256(
+                    {
+                        "resolution": "repo_relative_source_origin",
+                        "membership": "complete_sorted_declared_closure",
+                    }
+                ),
+                predicate_class="independently_reconciled",
+            ),
+            _resolved_consumed_member(
+                member_id="dynamic-producer-denominator",
+                member_kind="session",
+                identity=_content_sha256(_declared_dynamic_producer_refs()),
+            ),
+            _resolved_consumed_member(
+                member_id="filesystem-iteration",
+                member_kind="session",
+                identity=_content_sha256(
+                    {
+                        "ordering": "sorted",
+                        "files": "content_bound",
+                    }
+                ),
+                predicate_class="independently_reconciled",
+            ),
+        )
+    )
+    try:
+        return seal_consumed_input_set(closure=closure, members=members)
+    except AuthorityEnvelopeError as exc:
+        raise OwnerProjectionError(exc.code, str(exc)) from exc
+
+
+def _resolved_consumed_member(
+    *,
+    member_id: str,
+    member_kind: str,
+    identity: str,
+    predicate_class: str = "recomputed",
+) -> ConsumedInputMember:
+    """Build one exact resolved member for the generic sealing owner."""
+
+    return ConsumedInputMember.model_validate(
+        {
+            "member_id": member_id,
+            "member_kind": member_kind,
+            "declared_identity": identity,
+            "resolved_identity": identity,
+            "predicate_class": predicate_class,
+        }
+    )
+
+
+def _owner_source_closure(repo_root: Path) -> tuple[tuple[str, str], ...]:
+    """Resolve every static and declared dynamic producer in the owner graph."""
+
+    from polisyos.runtime.quality.confidence_ledger import (
+        _resolve_authority_import_closure,
+    )
+
+    resolved: dict[str, str] = {}
+    entry_modules = (
+        *_OWNER_SOURCE_ENTRY_MODULES,
+        *_declared_dynamic_producer_modules(repo_root),
+    )
+    for module_name, relative_path in _resolve_authority_import_closure(
+        repo_root,
+        entry_modules,
+        include_tools=True,
+    ):
+        previous = resolved.setdefault(module_name, relative_path)
+        if previous != relative_path:
+            raise OwnerProjectionError(
+                "owner_source_closure_member_substituted",
+                module_name,
+            )
+    return tuple(sorted(resolved.items()))
+
+
+def _declared_dynamic_producer_refs() -> tuple[str, ...]:
+    """Read the runtime-owned dynamic producer denominator generically."""
+
+    from polisyos.runtime.quality.design_generation import (
+        _SEARCH_SURROGATE_OWNERS,
+    )
+
+    refs = tuple(sorted(_SEARCH_SURROGATE_OWNERS))
+    if not refs or any(type(ref) is not str or "." not in ref for ref in refs):
+        raise OwnerProjectionError("owner_dynamic_producer_denominator_invalid")
+    return refs
+
+
+def _declared_dynamic_producer_modules(repo_root: Path) -> tuple[str, ...]:
+    """Resolve every runtime-declared producer ref to its source module."""
+
+    from polisyos.runtime.quality.confidence_ledger import (
+        _repository_module_source,
+    )
+
+    modules: set[str] = set()
+    for owner_ref in _declared_dynamic_producer_refs():
+        parts = owner_ref.split(".")
+        for length in range(len(parts), 0, -1):
+            module_name = ".".join(parts[:length])
+            if _repository_module_source(repo_root, module_name) is not None:
+                modules.add(module_name)
+                break
+        else:
+            raise OwnerProjectionError(
+                "owner_dynamic_producer_unresolved",
+                owner_ref,
+            )
+    return tuple(sorted(modules))
+
+
+def _deduplicated_owner_fence_records(
+    records: tuple[tuple[str, str], ...],
+) -> tuple[tuple[str, str], ...]:
+    """Reject conflicting duplicate record identities and return a sorted set."""
+
+    resolved: dict[str, str] = {}
+    for member_id, identity in records:
+        previous = resolved.setdefault(member_id, identity)
+        if previous != identity:
+            raise OwnerProjectionError(
+                "consumed_input_member_substituted",
+                f"member=artifact:{member_id}",
+            )
+    return tuple(sorted(resolved.items()))
+
+
+def _owner_record_member_kind(member_id: str) -> str:
+    """Classify one legacy content-fence row for typed consumed membership."""
+
+    if member_id.endswith(".py") or member_id.startswith("n10_source_ref:"):
+        return "source"
+    if "/layer3_gy_acquisition_cas/" in member_id:
+        return "filesystem"
+    return "artifact"
+
+
+def _owner_cache_fence_records(
+    repo_root: Path,
+    *,
+    catalog_path: Path,
+    l5_path: Path,
+) -> tuple[tuple[str, str], ...]:
     n10_path = repo_root / DEFAULT_N10_CAPSTONE
     n13b_path = repo_root / DEFAULT_N13B_CONTRACT
     n10_payload = _read_json_mapping(n10_path, owner="n10_capstone_cache_fence")
@@ -860,6 +1216,22 @@ def _owner_cache_fence(
     overlay_ref = _overlay_ref_from_reentry(repo_root)
     overlay_path = _resolve_repo_ref(repo_root, overlay_ref)
     records.append((overlay_ref, _file_sha256_or_missing(overlay_path)))
+    return tuple(records)
+
+
+def _owner_cache_fence(
+    repo_root: Path,
+    *,
+    catalog_path: Path,
+    l5_path: Path,
+) -> str:
+    """Return the legacy aggregate fence retained for diagnostic compatibility."""
+
+    records = _owner_cache_fence_records(
+        repo_root,
+        catalog_path=catalog_path,
+        l5_path=l5_path,
+    )
     payload = json.dumps(records, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     return f"sha256:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 

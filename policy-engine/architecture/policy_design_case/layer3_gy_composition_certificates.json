@@ -193,7 +193,7 @@
       "run_recursive_case"
     ],
     "production_default_routes": [
-      "src/polisyos/runtime/http/services/control/generation_cycle.py:126:call:build_default_recursive_generation_cycle_controller"
+      "src/polisyos/runtime/http/services/control/generation_cycle.py:123:call:build_default_recursive_generation_cycle_controller"
     ],
     "production_fixture_callers": [],
     "status": "strangled",

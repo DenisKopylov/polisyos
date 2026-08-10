@@ -11,14 +11,18 @@ from pydantic import ValidationError
 
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeError,
+    ConsumedInputMember,
     EvidenceAuthorityEnvelope,
     ProducerIdentity,
+    SameInputClosure,
     assert_authority_bearing,
+    assert_consumed_input_reuse,
     assert_runtime_emitted,
     assert_same_input_closure,
     authority_envelope_json_schema,
     classify_authority_role,
     deserialize_authority_envelope,
+    seal_consumed_input_set,
     serialize_authority_envelope,
 )
 
@@ -35,6 +39,157 @@ SCHEMA_PATH = (
 
 def _valid_payload() -> dict[str, object]:
     return deepcopy(json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))["payload"])
+
+
+def _closed_input_closure() -> SameInputClosure:
+    return SameInputClosure(
+        closure_id="authority-owner-inputs",
+        status="closed",
+        run_id="run-1",
+        job_id="job-1",
+        tenant_id="tenant-1",
+        closure_sha256="a" * 64,
+    )
+
+
+def _consumed_member(
+    member_id: str,
+    *,
+    kind: str = "source",
+    resolved_identity: str | None = None,
+    predicate_class: str = "recomputed",
+) -> ConsumedInputMember:
+    return ConsumedInputMember(
+        member_id=member_id,
+        member_kind=kind,
+        declared_identity=f"sha256:{member_id}",
+        resolved_identity=resolved_identity or f"sha256:{member_id}",
+        predicate_class=predicate_class,
+    )
+
+
+def test_consumed_input_set_seals_sorted_membership_and_closure_identity() -> None:
+    sealed = seal_consumed_input_set(
+        closure=_closed_input_closure(),
+        members=[_consumed_member("z"), _consumed_member("a", kind="environment")],
+    )
+
+    assert [member.member_id for member in sealed.members] == ["a", "z"]
+    assert sealed.same_input_closure == _closed_input_closure()
+    assert sealed.membership_sha256.startswith("sha256:")
+
+
+@pytest.mark.parametrize(
+    "predicate_class",
+    ["consumer_asserted", "institutionally_supplied", "not_established"],
+)
+def test_consumed_input_set_rejects_untrusted_decisive_predicate(
+    predicate_class: str,
+) -> None:
+    with pytest.raises(
+        AuthorityEnvelopeError,
+        match=r"consumed_input_decisive_predicate_untrusted.*member=environment:runtime",
+    ):
+        seal_consumed_input_set(
+            closure=_closed_input_closure(),
+            members=[
+                _consumed_member(
+                    "runtime",
+                    kind="environment",
+                    predicate_class=predicate_class,
+                )
+            ],
+        )
+
+
+def test_consumed_input_reuse_exercises_identity_not_seal_marker() -> None:
+    sealed = seal_consumed_input_set(
+        closure=_closed_input_closure(),
+        members=[_consumed_member("owner-source")],
+    )
+    substituted = _consumed_member(
+        "owner-source",
+        resolved_identity="sha256:substituted",
+    )
+
+    with pytest.raises(
+        AuthorityEnvelopeError,
+        match=r"consumed_input_member_substituted.*member=source:owner-source",
+    ):
+        assert_consumed_input_reuse(
+            sealed,
+            closure=_closed_input_closure(),
+            fresh_members=[substituted],
+        )
+
+
+def test_consumed_input_set_names_an_unresolved_member() -> None:
+    with pytest.raises(
+        AuthorityEnvelopeError,
+        match=r"consumed_input_member_unresolved.*member=artifact:ledger",
+    ):
+        seal_consumed_input_set(
+            closure=_closed_input_closure(),
+            members=[
+                ConsumedInputMember(
+                    member_id="ledger",
+                    member_kind="artifact",
+                    declared_identity="sha256:ledger",
+                    predicate_class="recomputed",
+                )
+            ],
+        )
+
+
+def test_consumed_input_reuse_rejects_duplicate_missing_and_extra_members() -> None:
+    sealed = seal_consumed_input_set(
+        closure=_closed_input_closure(),
+        members=[_consumed_member("source-a"), _consumed_member("source-b")],
+    )
+
+    with pytest.raises(AuthorityEnvelopeError, match="consumed_input_member_duplicate"):
+        assert_consumed_input_reuse(
+            sealed,
+            closure=_closed_input_closure(),
+            fresh_members=[_consumed_member("source-a"), _consumed_member("source-a")],
+        )
+    with pytest.raises(
+        AuthorityEnvelopeError,
+        match=r"consumed_input_member_missing.*member=source:source-b",
+    ):
+        assert_consumed_input_reuse(
+            sealed,
+            closure=_closed_input_closure(),
+            fresh_members=[_consumed_member("source-a")],
+        )
+    with pytest.raises(
+        AuthorityEnvelopeError,
+        match=r"consumed_input_member_extra.*member=source:source-c",
+    ):
+        assert_consumed_input_reuse(
+            sealed,
+            closure=_closed_input_closure(),
+            fresh_members=[
+                _consumed_member("source-a"),
+                _consumed_member("source-b"),
+                _consumed_member("source-c"),
+            ],
+        )
+
+
+def test_consumed_input_reuse_is_order_independent() -> None:
+    source = _consumed_member("source")
+    environment = _consumed_member("environment", kind="environment")
+    sealed = seal_consumed_input_set(
+        closure=_closed_input_closure(),
+        members=[source, environment],
+    )
+
+    assert assert_consumed_input_reuse(
+        sealed,
+        closure=_closed_input_closure(),
+        fresh_members=[environment, source],
+    ) == sealed
 
 
 def test_valid_runtime_emitted_envelope_round_trips_and_asserts_authority() -> None:

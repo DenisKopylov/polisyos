@@ -340,6 +340,10 @@ def _report_owner_progress(milestone: str) -> None:
 
 
 def _recompute_n10_capstone(repo_root: Path) -> dict[str, Any]:
+    from tools.quality.validation.check_layer3_gy_depth_n_universality_contract import (
+        UniversalityContractError,
+    )
+
     path = Path(repo_root) / DEFAULT_N10_CAPSTONE
     stored = _read_json_mapping(path, owner="n10_capstone")
     _validate_n10_payload(stored)
@@ -348,6 +352,14 @@ def _recompute_n10_capstone(repo_root: Path) -> dict[str, Any]:
         recomputed = _build_n10_cached_payload(Path(repo_root))
     except OwnerProjectionError:
         raise
+    except UniversalityContractError as exc:
+        safe_detail = exc.safe_replay_drift_detail
+        if safe_detail is not None:
+            raise OwnerProjectionError(
+                "n10_capstone_recompute_failed",
+                safe_detail,
+            ) from exc
+        raise OwnerProjectionError("n10_capstone_recompute_failed", type(exc).__name__) from exc
     except Exception as exc:  # noqa: BLE001 - fail-closed owner boundary
         raise OwnerProjectionError("n10_capstone_recompute_failed", type(exc).__name__) from exc
     _validate_n10_payload(recomputed)

@@ -6,6 +6,7 @@ import asyncio
 import copy
 import json
 import os
+import re
 import subprocess
 import sys
 from decimal import Decimal
@@ -2724,17 +2725,47 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     assert replayed_recording == normalized
     assert replayed_domain_run == domain_run
 
-    live_payload["recursive_run"]["semantic_marker"] = "changed"
-    with pytest.raises(
-        validator.UniversalityContractError,
-        match="authority_source_controlled_replay_recording_drift",
-    ):
+    live_payload["recursive_run"]["nodes"][0]["node_ref"] = "design://changed-secret"
+    with pytest.raises(validator.UniversalityContractError) as exc_info:
         await validator._domain_run_and_normalized_recording(
             tmp_path,
             role="education",
             recording=normalized,
             historical_domain_run=domain_run,
         )
+
+    message = str(exc_info.value)
+    assert message.startswith("authority_source_controlled_replay_recording_drift:")
+    report = json.loads(message[message.index("{") :])
+    assert report["admission_arm"] == "migrated"
+    assert report["recording_role"] == "education"
+    assert report["expected_frozen"]["operand_role"] == "expected_frozen"
+    assert report["live_replayed"]["operand_role"] == "live_replayed"
+    assert re.fullmatch(
+        r"sha256:[0-9a-f]{64}",
+        report["expected_frozen"]["content_identity"],
+    )
+    assert re.fullmatch(
+        r"sha256:[0-9a-f]{64}",
+        report["live_replayed"]["content_identity"],
+    )
+    assert (
+        report["expected_frozen"]["content_identity"]
+        != report["live_replayed"]["content_identity"]
+    )
+    leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
+    changed = leaves["/compiled_run/recursive_run/nodes/0/node_ref"]
+    assert changed["operational"] is False
+    assert re.fullmatch(
+        r"sha256:[0-9a-f]{64}",
+        changed["expected_frozen"]["content_identity"],
+    )
+    assert re.fullmatch(
+        r"sha256:[0-9a-f]{64}",
+        changed["live_replayed"]["content_identity"],
+    )
+    assert "design://controlled" not in message
+    assert "design://changed-secret" not in message
 
 
 def test_historical_compiled_envelope_rejects_tampered_recursive_payload() -> None:
@@ -4624,11 +4655,27 @@ def test_n10_source_flip_denominator_covers_every_local_decisive_property() -> N
         "live_advisor_denominator_verification_removed",
         "value_owner_candidate_binding_removed",
         "historical_receipt_verification_removed",
+        "controlled_replay_drift_reporting_removed",
         "operational_clock_preservation_removed",
         "unbound_estimand_authority_fence_removed",
         "n7_design_problem_authority_removed",
         "lex_reference_mount_path_independence_removed",
     ]
+
+
+def test_controlled_replay_drift_reporting_source_flip_turns_red() -> None:
+    """Deleting computed diagnostics while retaining markers fails behaviorally."""
+
+    validator = _universality_contract_validator()
+    case = next(
+        case
+        for case in validator._n10_source_flip_cases()
+        if case.mutation_id == "controlled_replay_drift_reporting_removed"
+    )
+
+    result = validator._run_n10_source_flip(REPO_ROOT, case)
+
+    assert result["result"] == "RED", result
 
 
 def test_n10_gap_reconciliation_closes_five_seams_and_retains_two_residuals() -> None:

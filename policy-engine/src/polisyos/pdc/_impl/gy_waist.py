@@ -66,6 +66,101 @@ _DECISION_GRADE_RANK: dict[str | None, int] = {
     "advisory_admissible": 2,
     "decision_admissible": 3,
 }
+_GY_DRIFT_MISSING = object()
+_GY_DIAGNOSTIC_IDENTITY_PATTERN = r"^(?:absent|sha256:[0-9a-f]{64})$"
+
+
+class _GyDriftOperandIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    content_identity: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    operand_role: Literal["expected_frozen", "live_replayed"]
+
+
+class _GyDriftLeafIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    content_identity: str = Field(pattern=_GY_DIAGNOSTIC_IDENTITY_PATTERN)
+    presence: Literal["present", "absent"]
+    value_type: str = Field(
+        min_length=1,
+        max_length=128,
+        pattern=r"^(?:absent|[A-Za-z_][A-Za-z0-9_.]*)$",
+    )
+
+    @model_validator(mode="after")
+    def _validate_absence_identity(self) -> _GyDriftLeafIdentity:
+        absent_fields = (
+            self.content_identity == "absent",
+            self.presence == "absent",
+            self.value_type == "absent",
+        )
+        if len(set(absent_fields)) != 1:
+            raise ValueError("gy_drift_leaf_absence_identity_inconsistent")
+        return self
+
+
+class _GyDriftChangedLeaf(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    expected_frozen: _GyDriftLeafIdentity
+    live_replayed: _GyDriftLeafIdentity
+    operational: bool
+    path: str = Field(min_length=1, max_length=4096, pattern=r"^/")
+
+
+class _GyOperationalDriftDiagnostic(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    admission_arm: Literal["controlled_at_capture", "migrated", "not_applicable"]
+    changed_leaves: tuple[_GyDriftChangedLeaf, ...] = Field(min_length=1)
+    expected_frozen: _GyDriftOperandIdentity
+    live_replayed: _GyDriftOperandIdentity
+    recording_role: Literal[
+        "first_vertical",
+        "education",
+        "unseen",
+        "not_applicable",
+    ]
+
+    @model_validator(mode="after")
+    def _validate_operand_roles(self) -> _GyOperationalDriftDiagnostic:
+        if self.expected_frozen.operand_role != "expected_frozen":
+            raise ValueError("gy_drift_expected_operand_role_invalid")
+        if self.live_replayed.operand_role != "live_replayed":
+            raise ValueError("gy_drift_observed_operand_role_invalid")
+        return self
+
+
+class GyOperationalReconciliationError(ValueError):
+    """A safe, typed description of one canonical GY comparison failure."""
+
+    def __init__(
+        self,
+        code: Literal[
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            "gy_operational_reconciliation_shape_mismatch",
+            "gy_operational_reconciliation_exact_mismatch",
+        ],
+        diagnostic: _GyOperationalDriftDiagnostic,
+    ) -> None:
+        self.code = code
+        self._diagnostic = diagnostic
+        super().__init__(code, diagnostic)
+
+    @property
+    def safe_detail(self) -> str:
+        """Return the canonical code plus identity-only diagnostic payload."""
+
+        return self.code + ":" + json.dumps(
+            self._diagnostic.model_dump(mode="json"),
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+
+    def __str__(self) -> str:
+        return self.safe_detail
 
 
 def is_gy_content_hash_excluded_field(key: str) -> bool:
@@ -123,20 +218,224 @@ def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     return projected
 
 
-def reconcile_gy_operational_leaves(previous: object, current: object) -> object:
+def reconcile_gy_operational_leaves(
+    previous: object,
+    current: object,
+    *,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
+    admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
+    require_exact_match: bool = False,
+) -> object:
     """Preserve shared operational leaves only after semantic and shape agreement.
 
     The procedure is fail-closed: it rejects a semantic change or a shape drift,
     and it only copies an operational leaf that both payloads already declare.
+    Mismatches report recursive paths and content identities, never raw values.
     """
 
     previous_semantic = strip_gy_volatile_fields(previous)
     current_semantic = strip_gy_volatile_fields(current)
     if previous_semantic != current_semantic:
-        raise ValueError("gy_operational_reconciliation_semantic_projection_mismatch")
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
     if not _gy_payload_shape_matches(previous, current):
-        raise ValueError("gy_operational_reconciliation_shape_mismatch")
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_shape_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    if require_exact_match and previous != current:
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_exact_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
     return _reconcile_gy_operational_leaves(previous, current)
+
+
+def _gy_operational_reconciliation_error(
+    code: Literal[
+        "gy_operational_reconciliation_semantic_projection_mismatch",
+        "gy_operational_reconciliation_shape_mismatch",
+        "gy_operational_reconciliation_exact_mismatch",
+    ],
+    expected: object,
+    observed: object,
+    *,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None,
+    admission_arm: Literal["controlled_at_capture", "migrated"] | None,
+) -> GyOperationalReconciliationError:
+    return GyOperationalReconciliationError(
+        code,
+        _GyOperationalDriftDiagnostic(
+            admission_arm=admission_arm or "not_applicable",
+            changed_leaves=tuple(_gy_changed_leaf_reports(expected, observed)),
+            expected_frozen=_GyDriftOperandIdentity(
+                content_identity=_gy_diagnostic_content_identity(expected),
+                operand_role="expected_frozen",
+            ),
+            live_replayed=_GyDriftOperandIdentity(
+                content_identity=_gy_diagnostic_content_identity(observed),
+                operand_role="live_replayed",
+            ),
+            recording_role=recording_role or "not_applicable",
+        ),
+    )
+
+
+def _gy_changed_leaf_reports(
+    expected: object,
+    observed: object,
+    *,
+    path: str = "",
+    field_name: str | None = None,
+) -> list[_GyDriftChangedLeaf]:
+    if expected is _GY_DRIFT_MISSING:
+        return _gy_missing_branch_leaf_reports(
+            observed,
+            missing_expected=True,
+            path=path,
+            field_name=field_name,
+        )
+    if observed is _GY_DRIFT_MISSING:
+        return _gy_missing_branch_leaf_reports(
+            expected,
+            missing_expected=False,
+            path=path,
+            field_name=field_name,
+        )
+    if type(expected) is not type(observed):
+        return [_gy_changed_leaf_report(expected, observed, path=path, field_name=field_name)]
+    if isinstance(expected, dict) and isinstance(observed, dict):
+        reports: list[dict[str, Any]] = []
+        keys = sorted(set(expected) | set(observed), key=lambda key: str(key))
+        for key in keys:
+            child_path = _gy_json_pointer(path, str(key))
+            reports.extend(
+                _gy_changed_leaf_reports(
+                    expected.get(key, _GY_DRIFT_MISSING),
+                    observed.get(key, _GY_DRIFT_MISSING),
+                    path=child_path,
+                    field_name=str(key),
+                )
+            )
+        return reports
+    if isinstance(expected, (list, tuple)) and isinstance(observed, (list, tuple)):
+        reports = []
+        shared_length = min(len(expected), len(observed))
+        for index in range(shared_length):
+            reports.extend(
+                _gy_changed_leaf_reports(
+                    expected[index],
+                    observed[index],
+                    path=_gy_json_pointer(path, str(index)),
+                    field_name=field_name,
+                )
+            )
+        for index in range(shared_length, max(len(expected), len(observed))):
+            reports.extend(
+                _gy_changed_leaf_reports(
+                    expected[index] if index < len(expected) else _GY_DRIFT_MISSING,
+                    observed[index] if index < len(observed) else _GY_DRIFT_MISSING,
+                    path=_gy_json_pointer(path, str(index)),
+                    field_name=field_name,
+                )
+            )
+        return reports
+    if expected == observed:
+        return []
+    return [_gy_changed_leaf_report(expected, observed, path=path, field_name=field_name)]
+
+
+def _gy_missing_branch_leaf_reports(
+    present: object,
+    *,
+    missing_expected: bool,
+    path: str,
+    field_name: str | None,
+) -> list[_GyDriftChangedLeaf]:
+    reports: list[_GyDriftChangedLeaf] = []
+    if isinstance(present, dict) and present:
+        for key in sorted(present, key=lambda key: str(key)):
+            reports.extend(
+                _gy_missing_branch_leaf_reports(
+                    present[key],
+                    missing_expected=missing_expected,
+                    path=_gy_json_pointer(path, str(key)),
+                    field_name=str(key),
+                )
+            )
+        return reports
+    if isinstance(present, (list, tuple)) and present:
+        for index, item in enumerate(present):
+            reports.extend(
+                _gy_missing_branch_leaf_reports(
+                    item,
+                    missing_expected=missing_expected,
+                    path=_gy_json_pointer(path, str(index)),
+                    field_name=field_name,
+                )
+            )
+        return reports
+    expected = _GY_DRIFT_MISSING if missing_expected else present
+    observed = present if missing_expected else _GY_DRIFT_MISSING
+    return [_gy_changed_leaf_report(expected, observed, path=path, field_name=field_name)]
+
+
+def _gy_changed_leaf_report(
+    expected: object,
+    observed: object,
+    *,
+    path: str,
+    field_name: str | None,
+) -> _GyDriftChangedLeaf:
+    return _GyDriftChangedLeaf(
+        expected_frozen=_gy_leaf_identity(expected),
+        live_replayed=_gy_leaf_identity(observed),
+        operational=bool(
+            field_name is not None and is_gy_content_hash_excluded_field(field_name)
+        ),
+        path=path or "/",
+    )
+
+
+def _gy_leaf_identity(value: object) -> _GyDriftLeafIdentity:
+    if value is _GY_DRIFT_MISSING:
+        return _GyDriftLeafIdentity(
+            content_identity="absent",
+            presence="absent",
+            value_type="absent",
+        )
+    return _GyDriftLeafIdentity(
+        content_identity=_gy_diagnostic_content_identity(value),
+        presence="present",
+        value_type=type(value).__name__,
+    )
+
+
+def _gy_diagnostic_content_identity(value: object) -> str:
+    payload = json.dumps(
+        {"type": type(value).__name__, "value": value},
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _gy_json_pointer(parent: str, segment: str) -> str:
+    escaped = segment.replace("~", "~0").replace("/", "~1")
+    return f"{parent}/{escaped}"
 
 
 def _gy_payload_shape_matches(previous: object, current: object) -> bool:

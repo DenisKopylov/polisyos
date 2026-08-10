@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import re
+
 import pytest
 from pydantic import ValidationError
 
@@ -34,6 +37,7 @@ from polisyos.pdc import (
 from polisyos.pdc._impl.gy_waist import (
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     ArtifactEnvelopeVerification,
+    GyOperationalReconciliationError,
 )
 
 
@@ -130,6 +134,119 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
             previous,
             {**current, "added_at": "new"},
         )
+
+
+def test_reconcile_gy_operational_leaves_reports_recursive_drift_without_values() -> None:
+    """A recursive mismatch names safe leaf identities and operand roles."""
+
+    expected = {
+        "compiled_run": {
+            "recursive_run": {
+                "generated_at": "frozen-operational-secret",
+                "nodes": [
+                    {
+                        "cycle_run": {
+                            "semantic_marker": "frozen-semantic-secret",
+                        }
+                    }
+                ],
+            }
+        }
+    }
+    replayed = {
+        "compiled_run": {
+            "recursive_run": {
+                "generated_at": "replayed-operational-secret",
+                "nodes": [
+                    {
+                        "cycle_run": {
+                            "semantic_marker": "replayed-semantic-secret",
+                        }
+                    }
+                ],
+            }
+        }
+    }
+
+    with pytest.raises(ValueError) as exc_info:
+        reconcile_gy_operational_leaves(
+            expected,
+            replayed,
+            recording_role="education",
+            admission_arm="migrated",
+            require_exact_match=True,
+        )
+
+    assert isinstance(exc_info.value, GyOperationalReconciliationError)
+    message = str(exc_info.value)
+    error_code, separator, serialized = message.partition(":")
+    assert separator == ":"
+    assert error_code == "gy_operational_reconciliation_semantic_projection_mismatch"
+    report = json.loads(serialized)
+    assert report["admission_arm"] == "migrated"
+    assert report["recording_role"] == "education"
+    assert report["expected_frozen"]["operand_role"] == "expected_frozen"
+    assert report["live_replayed"]["operand_role"] == "live_replayed"
+
+    leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
+    semantic = leaves[
+        "/compiled_run/recursive_run/nodes/0/cycle_run/semantic_marker"
+    ]
+    operational = leaves["/compiled_run/recursive_run/generated_at"]
+    assert semantic["operational"] is False
+    assert operational["operational"] is True
+    for leaf in (semantic, operational):
+        expected_identity = leaf["expected_frozen"]["content_identity"]
+        replayed_identity = leaf["live_replayed"]["content_identity"]
+        assert re.fullmatch(r"sha256:[0-9a-f]{64}", expected_identity)
+        assert re.fullmatch(r"sha256:[0-9a-f]{64}", replayed_identity)
+        assert expected_identity != replayed_identity
+
+    for secret in (
+        "frozen-operational-secret",
+        "replayed-operational-secret",
+        "frozen-semantic-secret",
+        "replayed-semantic-secret",
+    ):
+        assert secret not in message
+
+
+def test_reconcile_gy_operational_leaves_descends_into_added_branch() -> None:
+    """A missing nested branch reports its changed leaf, not only its container."""
+
+    expected = {"compiled_run": {"nodes": []}}
+    replayed = {
+        "compiled_run": {
+            "nodes": [
+                {
+                    "payload": {
+                        "metric/score": "nested-secret",
+                    }
+                }
+            ]
+        }
+    }
+
+    with pytest.raises(ValueError) as exc_info:
+        reconcile_gy_operational_leaves(
+            expected,
+            replayed,
+            require_exact_match=True,
+        )
+
+    report = json.loads(str(exc_info.value).partition(":")[2])
+    leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
+    changed = leaves["/compiled_run/nodes/0/payload/metric~1score"]
+    assert changed["expected_frozen"] == {
+        "content_identity": "absent",
+        "presence": "absent",
+        "value_type": "absent",
+    }
+    assert re.fullmatch(
+        r"sha256:[0-9a-f]{64}",
+        changed["live_replayed"]["content_identity"],
+    )
+    assert "nested-secret" not in str(exc_info.value)
 
 
 def test_non_verifier_writer_cannot_set_ring2_field() -> None:

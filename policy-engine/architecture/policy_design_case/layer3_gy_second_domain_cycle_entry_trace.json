@@ -51,13 +51,13 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n8_transport_tuple_hardcode",
-      "receipt_ref": "sha256:833c44c8e6b0ef37562ef7b452a534e846b6e61a1b1a6346ad41f0ff34b5a571",
+      "receipt_ref": "sha256:b0c6bf2b9e3f664fba02e5c1713d419e5894dba0bc8b3bafd8eb58db67953c5f",
       "status": "closed"
     },
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n6_single_terminal_validation_gap",
-      "receipt_ref": "sha256:01c5f67e3cc2049a33662cc461fa7e32a08d4a09dcacef93fcd7c69ed1796743",
+      "receipt_ref": "sha256:31a63da98459462f4a748806d24ca6d4e8498bd9e6baa2d7ccdc8566ed7aa449",
       "status": "closed"
     }
   ],
@@ -455,7 +455,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-08-02T11:16:54Z",
+          "generated_at": "2026-08-09T21:03:40Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -1430,8 +1430,2135 @@
     },
     "promotion_port": {
       "certified_candidate_ids": [],
-      "reason": "confidence_ledger_refused:ledger_scope_binding_mismatch",
-      "receipts": [],
+      "reason": "verification_n9_sequence_non_consumer",
+      "receipts": [
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "gy_n4.blended_learning_expansion",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.gy.n4.blended.learning.expansion.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "confidence_ledger_head_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+          "confidence_ledger_head_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:3cbc30b94a019adea731797f618549ce84a9f9eaf311cda0efe064ec0590354e",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+            "head_event_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+            "ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+            "ledger_receipt_ref": "sha256:714e1777774216db3279bd8bdd6aa340704242b2406b0ff50aecbe66e9575422",
+            "ledger_root_id": "confidence-ledger-root:sha256:70f57335660023e96890164fa8e10d299ee3625419f1ce9654a6d6e1ae7dae52",
+            "ledger_root_ref": "sha256:2b342644d27796e3cd21abbf8fb106316c6502099fcc55e5937c3988f8b99f2a",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:0362b6b99e7e3a4db58edaeb8cea8d1747e141d5ef89915214cc1135a32a3a29",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:1e81e6058325ec129341b4117b89ed5114a77392e76bc07a3623f8e6387965e3",
+                "claim_execution_binding_hash": "sha256:9a9e19150fe293169ebcd6788ae4ad35e75798449a243ecf517da64c73ec8818",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:941ebc7f36c49e3707bfda491409e1ebbe11351db4fb9d696db65f24f30c4845",
+                "claim_execution_binding_hash": "sha256:11976747c757799e8c8b7006d0cbfe9383fa93e515e691c09a8969c542f799c3",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6cf16ae82cd6a72b11191424afa2c91514bae4118f5f5335ab4d5512e887f721",
+                "claim_execution_binding_hash": "sha256:668bba0a30adb8056494e58368ea1fd26a501d09e100aa93c6607ab0a95fdff4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:ff8dc858ca2b3fbe98330c8443c99d1a901c7f69c60a530a06d91741667765e3",
+                "claim_execution_binding_hash": "sha256:01c4db6cb855382aa65bbceb4473f0b6cf964df0af3ee3d7bb0500757eab7ae4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:154126ac333fb48c29bf936e69a8ba8abd683e845992c9d17a9d870a03a6f8ed",
+                "claim_execution_binding_hash": "sha256:3e561dbd0f8b9269e6b82292f53928cd53adfe320997d1a46390df87ff9c24f1",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d102cad10fb9026878844a905a1d642a7792b69f5cb5ed08fc6323b8a9e53022",
+                "claim_execution_binding_hash": "sha256:b46e41e248e4886e8202eb392550160d976eaa7e515bed83ddead1f701af03fb",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:bf745c3a8fb92642b98936773d0d40f24e5b3c6db6dce776732389493e988763",
+                "claim_execution_binding_hash": "sha256:9f13f27f6d1bf348b951e2f21eb88badbc203a670c7d537920e251897009506d",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:980ac60f2eba6606c162d9c697dc259812c04a8022b5e0be3475e6ab4455b3e2",
+                "claim_execution_binding_hash": "sha256:dbd32a431376422d0c8235699e5d0aaa308e3f5a12c35d372a8a558f383a52ba",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "owner_scope_key": "design-problem:education_second_domain_smoke",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:145ce4eb45b85767f0744ed4673f5a24109b8c07a916ab93267bf8e7242e7acb",
+            "scope_id": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:c94ddd28b712c90250473ffc67aeabc19c3663c64ebe0bcf7efafa5266d46530",
+          "non_promotable_reason": "verification_only_replay",
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_failed).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "gy_n4.blended_learning_expansion",
+              "certified_by_n9": false,
+              "content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+              "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "unknown_blocked",
+              "grounding_score": 0.0,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounding_failed",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.0,
+              "quarantine_action": "none",
+              "value_blockers": [
+                "method_estimand_binding_mismatch"
+              ],
+              "value_decision_grade": "blocked",
+              "value_ref": null,
+              "value_status": "value_blocked",
+              "voi_estimate": 0.0
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "education_second_domain_smoke",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.education_second_domain_smoke.gy_n4.blended_learning_expansion",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:8bb07b9ce19f76b2e67640afc1c40910f66f206fcd9d034239b5998985d6f419",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:1e81e6058325ec129341b4117b89ed5114a77392e76bc07a3623f8e6387965e3",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:941ebc7f36c49e3707bfda491409e1ebbe11351db4fb9d696db65f24f30c4845",
+                "obligation_class": "data"
+              }
+            ],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        },
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "gy_n4.pedagogical_reform_initiative",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.gy.n4.pedagogical.reform.initiative.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "confidence_ledger_head_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+          "confidence_ledger_head_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:3cbc30b94a019adea731797f618549ce84a9f9eaf311cda0efe064ec0590354e",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+            "head_event_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+            "ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+            "ledger_receipt_ref": "sha256:714e1777774216db3279bd8bdd6aa340704242b2406b0ff50aecbe66e9575422",
+            "ledger_root_id": "confidence-ledger-root:sha256:70f57335660023e96890164fa8e10d299ee3625419f1ce9654a6d6e1ae7dae52",
+            "ledger_root_ref": "sha256:2b342644d27796e3cd21abbf8fb106316c6502099fcc55e5937c3988f8b99f2a",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:0362b6b99e7e3a4db58edaeb8cea8d1747e141d5ef89915214cc1135a32a3a29",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:1e81e6058325ec129341b4117b89ed5114a77392e76bc07a3623f8e6387965e3",
+                "claim_execution_binding_hash": "sha256:9a9e19150fe293169ebcd6788ae4ad35e75798449a243ecf517da64c73ec8818",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:941ebc7f36c49e3707bfda491409e1ebbe11351db4fb9d696db65f24f30c4845",
+                "claim_execution_binding_hash": "sha256:11976747c757799e8c8b7006d0cbfe9383fa93e515e691c09a8969c542f799c3",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6cf16ae82cd6a72b11191424afa2c91514bae4118f5f5335ab4d5512e887f721",
+                "claim_execution_binding_hash": "sha256:668bba0a30adb8056494e58368ea1fd26a501d09e100aa93c6607ab0a95fdff4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:ff8dc858ca2b3fbe98330c8443c99d1a901c7f69c60a530a06d91741667765e3",
+                "claim_execution_binding_hash": "sha256:01c4db6cb855382aa65bbceb4473f0b6cf964df0af3ee3d7bb0500757eab7ae4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:154126ac333fb48c29bf936e69a8ba8abd683e845992c9d17a9d870a03a6f8ed",
+                "claim_execution_binding_hash": "sha256:3e561dbd0f8b9269e6b82292f53928cd53adfe320997d1a46390df87ff9c24f1",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d102cad10fb9026878844a905a1d642a7792b69f5cb5ed08fc6323b8a9e53022",
+                "claim_execution_binding_hash": "sha256:b46e41e248e4886e8202eb392550160d976eaa7e515bed83ddead1f701af03fb",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:bf745c3a8fb92642b98936773d0d40f24e5b3c6db6dce776732389493e988763",
+                "claim_execution_binding_hash": "sha256:9f13f27f6d1bf348b951e2f21eb88badbc203a670c7d537920e251897009506d",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:980ac60f2eba6606c162d9c697dc259812c04a8022b5e0be3475e6ab4455b3e2",
+                "claim_execution_binding_hash": "sha256:dbd32a431376422d0c8235699e5d0aaa308e3f5a12c35d372a8a558f383a52ba",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "owner_scope_key": "design-problem:education_second_domain_smoke",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:145ce4eb45b85767f0744ed4673f5a24109b8c07a916ab93267bf8e7242e7acb",
+            "scope_id": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:c94ddd28b712c90250473ffc67aeabc19c3663c64ebe0bcf7efafa5266d46530",
+          "non_promotable_reason": "verification_only_replay",
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_failed).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "gy_n4.pedagogical_reform_initiative",
+              "certified_by_n9": false,
+              "content_hash": "sha256:a497da576c82e70b8ea3be96b96d1d2e8222407fcd3e74ef44fa8874ba03c357",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "unknown_blocked",
+              "grounding_score": 0.0,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounding_failed",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.0,
+              "quarantine_action": "none",
+              "value_blockers": [],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.0
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "education_second_domain_smoke",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.education_second_domain_smoke.gy_n4.pedagogical_reform_initiative",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:080136127a88d170b73531d70f3bf1be511499092fe4eadc07c5a0ebae0e08ee",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:bf745c3a8fb92642b98936773d0d40f24e5b3c6db6dce776732389493e988763",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:980ac60f2eba6606c162d9c697dc259812c04a8022b5e0be3475e6ab4455b3e2",
+                "obligation_class": "data"
+              }
+            ],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        },
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "gy_n4.enhanced_stem_curriculum_access",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.gy.n4.enhanced.stem.curriculum.access.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "confidence_ledger_head_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+          "confidence_ledger_head_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:3cbc30b94a019adea731797f618549ce84a9f9eaf311cda0efe064ec0590354e",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+            "head_event_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+            "ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+            "ledger_receipt_ref": "sha256:714e1777774216db3279bd8bdd6aa340704242b2406b0ff50aecbe66e9575422",
+            "ledger_root_id": "confidence-ledger-root:sha256:70f57335660023e96890164fa8e10d299ee3625419f1ce9654a6d6e1ae7dae52",
+            "ledger_root_ref": "sha256:2b342644d27796e3cd21abbf8fb106316c6502099fcc55e5937c3988f8b99f2a",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:0362b6b99e7e3a4db58edaeb8cea8d1747e141d5ef89915214cc1135a32a3a29",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:1e81e6058325ec129341b4117b89ed5114a77392e76bc07a3623f8e6387965e3",
+                "claim_execution_binding_hash": "sha256:9a9e19150fe293169ebcd6788ae4ad35e75798449a243ecf517da64c73ec8818",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:941ebc7f36c49e3707bfda491409e1ebbe11351db4fb9d696db65f24f30c4845",
+                "claim_execution_binding_hash": "sha256:11976747c757799e8c8b7006d0cbfe9383fa93e515e691c09a8969c542f799c3",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6cf16ae82cd6a72b11191424afa2c91514bae4118f5f5335ab4d5512e887f721",
+                "claim_execution_binding_hash": "sha256:668bba0a30adb8056494e58368ea1fd26a501d09e100aa93c6607ab0a95fdff4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:ff8dc858ca2b3fbe98330c8443c99d1a901c7f69c60a530a06d91741667765e3",
+                "claim_execution_binding_hash": "sha256:01c4db6cb855382aa65bbceb4473f0b6cf964df0af3ee3d7bb0500757eab7ae4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:154126ac333fb48c29bf936e69a8ba8abd683e845992c9d17a9d870a03a6f8ed",
+                "claim_execution_binding_hash": "sha256:3e561dbd0f8b9269e6b82292f53928cd53adfe320997d1a46390df87ff9c24f1",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d102cad10fb9026878844a905a1d642a7792b69f5cb5ed08fc6323b8a9e53022",
+                "claim_execution_binding_hash": "sha256:b46e41e248e4886e8202eb392550160d976eaa7e515bed83ddead1f701af03fb",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:bf745c3a8fb92642b98936773d0d40f24e5b3c6db6dce776732389493e988763",
+                "claim_execution_binding_hash": "sha256:9f13f27f6d1bf348b951e2f21eb88badbc203a670c7d537920e251897009506d",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:980ac60f2eba6606c162d9c697dc259812c04a8022b5e0be3475e6ab4455b3e2",
+                "claim_execution_binding_hash": "sha256:dbd32a431376422d0c8235699e5d0aaa308e3f5a12c35d372a8a558f383a52ba",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "owner_scope_key": "design-problem:education_second_domain_smoke",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:145ce4eb45b85767f0744ed4673f5a24109b8c07a916ab93267bf8e7242e7acb",
+            "scope_id": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:c94ddd28b712c90250473ffc67aeabc19c3663c64ebe0bcf7efafa5266d46530",
+          "non_promotable_reason": "verification_only_replay",
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_failed).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "gy_n4.enhanced_stem_curriculum_access",
+              "certified_by_n9": false,
+              "content_hash": "sha256:056c330458df8218d2153c0683088d2bfa44929487656fa2e7502b12368a7b2b",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "unknown_blocked",
+              "grounding_score": 0.0,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounding_failed",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.0,
+              "quarantine_action": "none",
+              "value_blockers": [],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.0
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "education_second_domain_smoke",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.education_second_domain_smoke.gy_n4.enhanced_stem_curriculum_access",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:afc1be021c055f4fe48c2cf3aba02697ed2e86474eeda5eafa7bde5c32a042dd",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:154126ac333fb48c29bf936e69a8ba8abd683e845992c9d17a9d870a03a6f8ed",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:d102cad10fb9026878844a905a1d642a7792b69f5cb5ed08fc6323b8a9e53022",
+                "obligation_class": "data"
+              }
+            ],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        },
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "gy_n4.early_dialogic_reading_program",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.gy.n4.early.dialogic.reading.program.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "confidence_ledger_head_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+          "confidence_ledger_head_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:3cbc30b94a019adea731797f618549ce84a9f9eaf311cda0efe064ec0590354e",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:d16336a3a76d84bf64e8e4e4d1b63d106dfd262031bd55cdd8e8a4cd893324ae",
+            "head_event_ref": "sha256:0a7e3dce9e0e613c0fa2b7719722153c4fb18d31b742b9fe07d71ce4a90fea53",
+            "ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+            "ledger_receipt_ref": "sha256:714e1777774216db3279bd8bdd6aa340704242b2406b0ff50aecbe66e9575422",
+            "ledger_root_id": "confidence-ledger-root:sha256:70f57335660023e96890164fa8e10d299ee3625419f1ce9654a6d6e1ae7dae52",
+            "ledger_root_ref": "sha256:2b342644d27796e3cd21abbf8fb106316c6502099fcc55e5937c3988f8b99f2a",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:0362b6b99e7e3a4db58edaeb8cea8d1747e141d5ef89915214cc1135a32a3a29",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:1e81e6058325ec129341b4117b89ed5114a77392e76bc07a3623f8e6387965e3",
+                "claim_execution_binding_hash": "sha256:9a9e19150fe293169ebcd6788ae4ad35e75798449a243ecf517da64c73ec8818",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.blended_learning_expansion",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:941ebc7f36c49e3707bfda491409e1ebbe11351db4fb9d696db65f24f30c4845",
+                "claim_execution_binding_hash": "sha256:11976747c757799e8c8b7006d0cbfe9383fa93e515e691c09a8969c542f799c3",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6cf16ae82cd6a72b11191424afa2c91514bae4118f5f5335ab4d5512e887f721",
+                "claim_execution_binding_hash": "sha256:668bba0a30adb8056494e58368ea1fd26a501d09e100aa93c6607ab0a95fdff4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:ff8dc858ca2b3fbe98330c8443c99d1a901c7f69c60a530a06d91741667765e3",
+                "claim_execution_binding_hash": "sha256:01c4db6cb855382aa65bbceb4473f0b6cf964df0af3ee3d7bb0500757eab7ae4",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:154126ac333fb48c29bf936e69a8ba8abd683e845992c9d17a9d870a03a6f8ed",
+                "claim_execution_binding_hash": "sha256:3e561dbd0f8b9269e6b82292f53928cd53adfe320997d1a46390df87ff9c24f1",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.enhanced_stem_curriculum_access",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:d102cad10fb9026878844a905a1d642a7792b69f5cb5ed08fc6323b8a9e53022",
+                "claim_execution_binding_hash": "sha256:b46e41e248e4886e8202eb392550160d976eaa7e515bed83ddead1f701af03fb",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:bf745c3a8fb92642b98936773d0d40f24e5b3c6db6dce776732389493e988763",
+                "claim_execution_binding_hash": "sha256:9f13f27f6d1bf348b951e2f21eb88badbc203a670c7d537920e251897009506d",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/gy_n4.pedagogical_reform_initiative",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:980ac60f2eba6606c162d9c697dc259812c04a8022b5e0be3475e6ab4455b3e2",
+                "claim_execution_binding_hash": "sha256:dbd32a431376422d0c8235699e5d0aaa308e3f5a12c35d372a8a558f383a52ba",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "owner_scope_key": "design-problem:education_second_domain_smoke",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:145ce4eb45b85767f0744ed4673f5a24109b8c07a916ab93267bf8e7242e7acb",
+            "scope_id": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:075086ff875242ce515478113d30cc18de24bf576282b910e9135840fdb149e4",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:03726e3012847519f595b6f2a08c92aba85647fe4691302994d25e1d9156d197",
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:c94ddd28b712c90250473ffc67aeabc19c3663c64ebe0bcf7efafa5266d46530",
+          "non_promotable_reason": "verification_only_replay",
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_failed).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "gy_n4.early_dialogic_reading_program",
+              "certified_by_n9": false,
+              "content_hash": "sha256:f75217457a0b95c1a5af1dd4aa15c39218ca5a56dc3eca01a19f278cc9f652d3",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "unknown_blocked",
+              "grounding_score": 0.0,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounding_failed",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.0,
+              "quarantine_action": "none",
+              "value_blockers": [],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.0
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "education_second_domain_smoke",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:43561e7acdefbfdfa6917b127e1c1a4429d83ac5095e1d881f8a3aae3d41ff10",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.education_second_domain_smoke.gy_n4.early_dialogic_reading_program",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:8b6f9b07c4f6c29b6dbe3044c9415e876abd164a0457161b1e0acad39bfbc0f1",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:6cf16ae82cd6a72b11191424afa2c91514bae4118f5f5335ab4d5512e887f721",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/gy_n4.early_dialogic_reading_program",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:ff8dc858ca2b3fbe98330c8443c99d1a901c7f69c60a530a06d91741667765e3",
+                "obligation_class": "data"
+              }
+            ],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        }
+      ],
       "status": "not_promoted",
       "strangle_receipt": {
         "allowed_legacy_helpers": [
@@ -3355,11 +5482,11 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 6244.1840000101365,
+    "aggregate_value_port_wall_time_ms": 11184.112207964063,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 6244.1840000101365
+        "value_port_wall_time_ms": 11184.112207964063
       }
     ]
   },
@@ -3438,6 +5565,6 @@
     }
   },
   "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-  "trace_content_hash": "sha256:cf81652391dd553b52f2d217dfa8bee8159c4cac71ec95c7612c4b2bb25db1e7",
+  "trace_content_hash": "sha256:f9be282f0b16720d38440572aeecfc9c47f2566407fa5a68a8402796ef250430",
   "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
 }

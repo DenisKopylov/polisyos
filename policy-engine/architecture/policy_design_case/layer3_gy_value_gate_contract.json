@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:71e763bba4f9d30239d19bafc19fb6148839f0e67d58172915a8d8f3d01132a0",
+  "contract_content_hash": "sha256:578db97cb5a700f8d069dfe82a8c8d1d81c4a244d9d9cecd1b43a197e8e4727d",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -489,6 +489,642 @@
   "denominators": {
     "catalog_entry_count": 389,
     "catalog_matches_registry": true,
+    "catalog_provenance": {
+      "ambient_discovery": {
+        "added_component_ids": [],
+        "admission": {
+          "fail_closed_action": "quarantine",
+          "included_in_governed_denominator": false,
+          "status": "quarantined_unbound"
+        },
+        "component_count": 389,
+        "component_set_sha256": "sha256:2f10e6fd2144a926f7172633c6d2b401f4bd6599ea598caba70dd6018518e391",
+        "dev_scan_files": [],
+        "dev_scan_roots": [],
+        "entry_points": [
+          {
+            "direct_url_sha256": "sha256:2676574ff163805d4d6721cb7fb4b11bea4bb63fd7e9a96fd44e273dcd61d8b0",
+            "distribution_name": "polisyos-foundry-method-example",
+            "distribution_version": "0.1.0",
+            "editable_install": true,
+            "entry_points_sha256": "sha256:2d5f6e43e1da4b2a46afb9acc44b131d15639769da35053a41762af1990584af",
+            "group": "polisyos.foundry_methods",
+            "name": "example.weighted_average",
+            "source_byte_closure": "not_established",
+            "value": "polisyos_foundry_method_example:weighted_average_plugin"
+          },
+          {
+            "direct_url_sha256": "sha256:b8bd61452925df72f15ac88dac58f4723c965ef93faee5b3c34c2921c1f762ec",
+            "distribution_name": "policy-engine",
+            "distribution_version": "0.1.0",
+            "editable_install": true,
+            "entry_points_sha256": "sha256:5f20db3b671ecaf3524bb04316bdbe585529c00bf9b9ed3f8a04157c58517134",
+            "group": "polisyos.foundry_methods",
+            "name": "polisyos.foundry.builtin_catalog",
+            "source_byte_closure": "not_established",
+            "value": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+          }
+        ],
+        "manifest_id": "component_discovery_manifest_72b51734dfac8504c4b46260043f90e0bde9fe95788175c4bf938c8e49e802aa",
+        "overlap_component_count": 389,
+        "overlap_component_set_sha256": "sha256:2f10e6fd2144a926f7172633c6d2b401f4bd6599ea598caba70dd6018518e391",
+        "source_policy": {
+          "include_builtins": false,
+          "include_dev_scan": true,
+          "include_entry_points": true
+        },
+        "unbound_inputs": [
+          "discovery_error:entry_point:example.weighted_average:ModuleNotFoundError",
+          "entry_point_source_byte_closure_not_established:polisyos.foundry_methods:example.weighted_average:polisyos_foundry_method_example:weighted_average_plugin",
+          "entry_point_source_byte_closure_not_established:polisyos.foundry_methods:polisyos.foundry.builtin_catalog:polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+        ]
+      },
+      "governed_discovery": {
+        "component_count": 389,
+        "component_set_sha256": "sha256:2f10e6fd2144a926f7172633c6d2b401f4bd6599ea598caba70dd6018518e391",
+        "manifest_id": "component_discovery_manifest_7a76ae7925edd61a93603e095055c54100bb437b128dd9a320ba9e66991931b4",
+        "registry_binding_sha256": "sha256:721666874c38de564d2817baff3ab8a9e1d8029061261be2deaa0c4353b52c31",
+        "registry_fqn_set_sha256": "sha256:2f10e6fd2144a926f7172633c6d2b401f4bd6599ea598caba70dd6018518e391",
+        "source_policy": {
+          "include_builtins": true,
+          "include_dev_scan": false,
+          "include_entry_points": false
+        },
+        "unbound_inputs": []
+      },
+      "predicate_admission_policy": [
+        {
+          "admitted": true,
+          "classification": "recomputed",
+          "fail_closed_action": null
+        },
+        {
+          "admitted": true,
+          "classification": "independently_reconciled",
+          "fail_closed_action": null
+        },
+        {
+          "admitted": false,
+          "classification": "consumer_asserted",
+          "fail_closed_action": "reject_or_quarantine"
+        },
+        {
+          "admitted": false,
+          "classification": "institutionally_supplied",
+          "fail_closed_action": "reject_or_quarantine"
+        },
+        {
+          "admitted": false,
+          "classification": "not_established",
+          "fail_closed_action": "reject_or_quarantine"
+        }
+      ],
+      "predicate_bindings": {
+        "catalog_entry_count": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "catalog_registry_denominator_equality"
+        ],
+        "catalog_matches_registry": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "catalog_registry_denominator_equality"
+        ],
+        "catalog_snapshot_id": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "catalog_snapshot_content_identity"
+        ],
+        "catalog_snapshot_stable": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "catalog_snapshot_repeatability"
+        ],
+        "evaluation_modes": [
+          "evaluation_mode_taxonomy_derivation"
+        ],
+        "identification_statuses": [
+          "identification_status_taxonomy_derivation"
+        ],
+        "native_contract_families": [
+          "native_contract_family_taxonomy_derivation"
+        ],
+        "registered_method_count": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "catalog_registry_denominator_equality"
+        ],
+        "value_capable_fqn_set_hash": [
+          "value_capability_owner_reconciliation",
+          "value_capability_set_hash_derivation"
+        ],
+        "value_capable_method_count": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "value_capability_owner_reconciliation"
+        ],
+        "value_capable_methods": [
+          "governed_discovery_policy",
+          "governed_registry_content_binding",
+          "ambient_discovery_exclusion_policy",
+          "registry_matches_governed_manifest",
+          "value_capability_owner_reconciliation"
+        ]
+      },
+      "predicate_provenance": [
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed_discovery_policy"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.source_policy"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.entry_point_group_enumeration"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.entry_point_distribution_identity"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.entry_point_source_byte_closure"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.development_scan_root_membership"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.development_scan_contributed_bytes"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.development_scan_import_closure"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.duplicate_precedence"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed.discovered_component_membership"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "registry_matches_governed_manifest"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "governed_registry_content_binding"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "ambient_discovery_exclusion_policy"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.source_policy"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.entry_point_group_enumeration"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.entry_point_distribution_identity"
+        },
+        {
+          "classification": "not_established",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.entry_point_source_byte_closure"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.development_scan_root_membership"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.development_scan_contributed_bytes"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.development_scan_import_closure"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.duplicate_precedence"
+        },
+        {
+          "classification": "not_established",
+          "decisive": false,
+          "fail_closed_action": "quarantine",
+          "predicate": "ambient.discovered_component_membership"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "runtime_backend_package_identity"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "recorded_live_provenance_equality"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "catalog_registry_denominator_equality"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "catalog_snapshot_content_identity"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "catalog_snapshot_repeatability"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "value_capability_owner_reconciliation"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "value_capability_set_hash_derivation"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "evaluation_mode_taxonomy_derivation"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "identification_status_taxonomy_derivation"
+        },
+        {
+          "classification": "recomputed",
+          "decisive": true,
+          "fail_closed_action": "reject",
+          "predicate": "native_contract_family_taxonomy_derivation"
+        }
+      ],
+      "provenance_id": "method_catalog_provenance_3ad5679c2a2c8d0c3653d87785eccb4ae64a191d1ad3ad8873cc0236821ad4a1",
+      "runtime_backend_identity": {
+        "backend_fingerprints": [
+          {
+            "backend": "bayesian",
+            "fingerprint": "38d668152783415c"
+          },
+          {
+            "backend": "bayesian",
+            "fingerprint": "9817b025cae898c4"
+          },
+          {
+            "backend": "bayesian",
+            "fingerprint": "d5ab2ac141fffb9a"
+          },
+          {
+            "backend": "bayesian",
+            "fingerprint": "e37fc6a0d38454f8"
+          },
+          {
+            "backend": "jax",
+            "fingerprint": "02ac6ad81c76da9c"
+          },
+          {
+            "backend": "jax",
+            "fingerprint": "a7625d6256015bb8"
+          },
+          {
+            "backend": "jax",
+            "fingerprint": "aa6310f7579f4816"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "0612d549434cc31d"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "1cb9518b328daa11"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "2497d70fef07b3eb"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "254b4fbb1431f809"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "2a7ced0475882a2e"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "2ade774a523297c2"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "2f5ca2f0d6f66174"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "336c4c7f1c056e0c"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "391f2fa9ec30f2db"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "4a50329a6dbca1e3"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "5371166bee74f05f"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "5614df39e9d95047"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "5e1ac5d632d4970a"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "6924904cb4f95e12"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "80849ce9db4ca06c"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "82ddcd436473efe1"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "884137be4a12bd06"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "a056344bf5d6f827"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "a4755aff6787613e"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "af19ad6556d87efd"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "c6f60c3b54046b14"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "e0b326b86f065446"
+          },
+          {
+            "backend": "numpy",
+            "fingerprint": "fadaceebc0ba957a"
+          },
+          {
+            "backend": "solver",
+            "fingerprint": "1109f950801e3b21"
+          },
+          {
+            "backend": "solver",
+            "fingerprint": "3a11ca0092c5cdf8"
+          },
+          {
+            "backend": "solver",
+            "fingerprint": "6d93bc6fd314f240"
+          },
+          {
+            "backend": "solver",
+            "fingerprint": "b9ac0088b6ba1939"
+          },
+          {
+            "backend": "solver",
+            "fingerprint": "d2979696b13d68f9"
+          }
+        ],
+        "entry_runtime_binding_count": 389,
+        "entry_runtime_bindings_sha256": "sha256:f15a4d3af58e97a66ca5df381daebab2e53f966d7c47cb125a00bc460af984c5",
+        "identity_id": "method_catalog_runtime_identity_fdb6979b33aa9c5a18c6d6034cb7cda9390f8e89b7fe5dea3a7f350311b439be",
+        "runtime_packages": [
+          {
+            "name": "policy-engine",
+            "version": "0.1.0"
+          },
+          {
+            "implementation": "CPython",
+            "name": "python",
+            "version": "3.14.0"
+          },
+          {
+            "name": "arch",
+            "versions": [
+              "8.0.0"
+            ]
+          },
+          {
+            "name": "arviz",
+            "versions": [
+              "1.0.0"
+            ]
+          },
+          {
+            "name": "cvxpy",
+            "versions": [
+              "1.8.2"
+            ]
+          },
+          {
+            "name": "equinox",
+            "versions": [
+              "0.13.2"
+            ]
+          },
+          {
+            "name": "jax",
+            "versions": [
+              "0.8.2"
+            ]
+          },
+          {
+            "name": "jaxlib",
+            "versions": [
+              "0.8.2"
+            ]
+          },
+          {
+            "name": "lifelines",
+            "versions": [
+              "0.30.3"
+            ]
+          },
+          {
+            "name": "linearmodels",
+            "versions": [
+              "7.0"
+            ]
+          },
+          {
+            "name": "numpy",
+            "versions": [
+              "2.3.5"
+            ]
+          },
+          {
+            "name": "numpyro",
+            "versions": [
+              "0.20.1"
+            ]
+          },
+          {
+            "name": "optax",
+            "versions": [
+              "0.2.6"
+            ]
+          },
+          {
+            "name": "ortools",
+            "versions": [
+              "9.15.6755"
+            ]
+          },
+          {
+            "name": "pandas",
+            "versions": [
+              "2.3.3"
+            ]
+          },
+          {
+            "name": "pulp",
+            "versions": [
+              "3.3.0"
+            ]
+          },
+          {
+            "name": "pydantic",
+            "versions": [
+              "2.12.5"
+            ]
+          },
+          {
+            "name": "pymoo",
+            "versions": [
+              "0.6.1.6"
+            ]
+          },
+          {
+            "name": "ruptures",
+            "versions": [
+              "1.1.10"
+            ]
+          },
+          {
+            "name": "scikit-learn",
+            "versions": [
+              "1.8.0"
+            ]
+          },
+          {
+            "name": "scipy",
+            "versions": [
+              "1.16.3"
+            ]
+          },
+          {
+            "name": "statsmodels",
+            "versions": [
+              "0.14.6"
+            ]
+          },
+          {
+            "name": "xarray",
+            "versions": [
+              "2026.2.0"
+            ]
+          }
+        ],
+        "schema_version": "policyos.method_catalog_runtime_identity.v1"
+      },
+      "schema_version": "policyos.method_catalog_provenance_manifest.v1"
+    },
     "catalog_snapshot_id": "method_catalog_9483326427331f16",
     "catalog_snapshot_stable": true,
     "evaluation_modes": [
@@ -1646,7 +2282,7 @@
     }
   ],
   "pattern_pass": {
-    "acceptance_signal": "real advisor selections end in typed honest refusals; six native families project contract-only uncertainty; no value_ready is fabricated",
+    "acceptance_signal": "real advisor selections end in typed honest refusals; six native families project contract-only uncertainty; catalog provenance drift fails with a named dimension; no value_ready is fabricated",
     "capability_labels": [
       "producer_missing:owner_rollout_assignment",
       "bridge_missing:certified_skg_identity_bridge"
@@ -1657,10 +2293,12 @@
       "P14",
       "P27",
       "P29",
+      "P30",
       "P31",
-      "P32"
+      "P32",
+      "P37"
     ],
-    "target_correct_pattern": "owner-resolved world knowledge gates production value; native method contracts prove only nonproduction projection capability"
+    "target_correct_pattern": "owner-resolved world knowledge gates production value; the method denominator is builtins-only with canonical discovery and runtime provenance, while ambient inputs are separately bound and quarantined"
   },
   "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
   "production_refusal": {

@@ -37,6 +37,7 @@ from polisyos.pdc import (
 from polisyos.pdc._impl.gy_waist import (
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     ArtifactEnvelopeVerification,
+    GyOperationalReconciliationError,
 )
 
 
@@ -171,13 +172,12 @@ def test_reconcile_gy_operational_leaves_reports_recursive_drift_without_values(
         reconcile_gy_operational_leaves(
             expected,
             replayed,
-            expected_operand_role="expected_frozen",
-            observed_operand_role="live_replayed",
             recording_role="education",
             admission_arm="migrated",
             require_exact_match=True,
         )
 
+    assert isinstance(exc_info.value, GyOperationalReconciliationError)
     message = str(exc_info.value)
     error_code, separator, serialized = message.partition(":")
     assert separator == ":"

@@ -61,6 +61,9 @@ from polisyos.pdc import (  # noqa: E402
     is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
 )
+from polisyos.pdc._impl.gy_waist import (  # noqa: E402
+    GyOperationalReconciliationError,
+)
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n10.depth_n_universality.v1"
 RULE_VERSION = "policyos.layer3.gy.n10.depth_n_universality.v1"
@@ -270,6 +273,33 @@ _UPSTREAM_PATHS = (
 )
 class UniversalityContractError(RuntimeError):
     """Raised when a capstone payload cannot be derived honestly."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        replay_drift: GyOperationalReconciliationError | None = None,
+    ) -> None:
+        if (
+            replay_drift is not None
+            and type(replay_drift) is not GyOperationalReconciliationError
+        ):
+            raise TypeError("universality_replay_drift_provenance_invalid")
+        self._replay_drift = replay_drift
+        super().__init__(message)
+
+    @property
+    def safe_replay_drift_detail(self) -> str | None:
+        """Return only an owner-created, identity-only replay diagnostic."""
+
+        if self._replay_drift is None:
+            return None
+        if type(self._replay_drift) is not GyOperationalReconciliationError:
+            return None
+        return (
+            "authority_source_controlled_replay_recording_drift:"
+            + self._replay_drift.safe_detail
+        )
 
 
 class _RecordingGateway:
@@ -4978,15 +5008,14 @@ async def _domain_run_and_normalized_recording(
                 reconciled_recording = reconcile_gy_operational_leaves(
                     expected_recording,
                     normalized_recording,
-                    expected_operand_role="expected_frozen",
-                    observed_operand_role="live_replayed",
                     recording_role=role,
                     admission_arm=str(prior_admission.get("admission_kind") or ""),
                 )
-            except ValueError as exc:
+            except GyOperationalReconciliationError as exc:
                 raise UniversalityContractError(
                     "authority_source_controlled_replay_recording_drift:"
-                    + str(exc)
+                    + str(exc),
+                    replay_drift=exc,
                 ) from exc
             if not isinstance(reconciled_recording, dict):  # pragma: no cover
                 raise UniversalityContractError(
@@ -4994,24 +5023,25 @@ async def _domain_run_and_normalized_recording(
                 )
             normalized_recording = reconciled_recording
         if expected_recording != normalized_recording:
+            drift_error: GyOperationalReconciliationError | None = None
             try:
                 reconcile_gy_operational_leaves(
                     expected_recording,
                     normalized_recording,
-                    expected_operand_role="expected_frozen",
-                    observed_operand_role="live_replayed",
                     recording_role=role,
                     admission_arm=str(prior_admission.get("admission_kind") or ""),
                     require_exact_match=True,
                 )
-            except ValueError as exc:
+            except GyOperationalReconciliationError as exc:
                 drift_detail = str(exc)
+                drift_error = exc
             else:  # pragma: no cover - unequal operands force an owner report.
                 drift_detail = "gy_operational_reconciliation_exact_mismatch_unreported"
             raise UniversalityContractError(
                 "authority_source_controlled_replay_recording_drift:"
-                + drift_detail
-            )
+                + drift_detail,
+                replay_drift=drift_error,
+            ) from drift_error
         if prior_authority_receipt:
             normalized_recording["authority_source_migration_receipt"] = (
                 copy.deepcopy(prior_authority_receipt)

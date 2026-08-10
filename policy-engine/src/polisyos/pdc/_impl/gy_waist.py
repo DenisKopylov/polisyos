@@ -67,6 +67,100 @@ _DECISION_GRADE_RANK: dict[str | None, int] = {
     "decision_admissible": 3,
 }
 _GY_DRIFT_MISSING = object()
+_GY_DIAGNOSTIC_IDENTITY_PATTERN = r"^(?:absent|sha256:[0-9a-f]{64})$"
+
+
+class _GyDriftOperandIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    content_identity: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    operand_role: Literal["expected_frozen", "live_replayed"]
+
+
+class _GyDriftLeafIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    content_identity: str = Field(pattern=_GY_DIAGNOSTIC_IDENTITY_PATTERN)
+    presence: Literal["present", "absent"]
+    value_type: str = Field(
+        min_length=1,
+        max_length=128,
+        pattern=r"^(?:absent|[A-Za-z_][A-Za-z0-9_.]*)$",
+    )
+
+    @model_validator(mode="after")
+    def _validate_absence_identity(self) -> _GyDriftLeafIdentity:
+        absent_fields = (
+            self.content_identity == "absent",
+            self.presence == "absent",
+            self.value_type == "absent",
+        )
+        if len(set(absent_fields)) != 1:
+            raise ValueError("gy_drift_leaf_absence_identity_inconsistent")
+        return self
+
+
+class _GyDriftChangedLeaf(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    expected_frozen: _GyDriftLeafIdentity
+    live_replayed: _GyDriftLeafIdentity
+    operational: bool
+    path: str = Field(min_length=1, max_length=4096, pattern=r"^/")
+
+
+class _GyOperationalDriftDiagnostic(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    admission_arm: Literal["controlled_at_capture", "migrated", "not_applicable"]
+    changed_leaves: tuple[_GyDriftChangedLeaf, ...] = Field(min_length=1)
+    expected_frozen: _GyDriftOperandIdentity
+    live_replayed: _GyDriftOperandIdentity
+    recording_role: Literal[
+        "first_vertical",
+        "education",
+        "unseen",
+        "not_applicable",
+    ]
+
+    @model_validator(mode="after")
+    def _validate_operand_roles(self) -> _GyOperationalDriftDiagnostic:
+        if self.expected_frozen.operand_role != "expected_frozen":
+            raise ValueError("gy_drift_expected_operand_role_invalid")
+        if self.live_replayed.operand_role != "live_replayed":
+            raise ValueError("gy_drift_observed_operand_role_invalid")
+        return self
+
+
+class GyOperationalReconciliationError(ValueError):
+    """A safe, typed description of one canonical GY comparison failure."""
+
+    def __init__(
+        self,
+        code: Literal[
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            "gy_operational_reconciliation_shape_mismatch",
+            "gy_operational_reconciliation_exact_mismatch",
+        ],
+        diagnostic: _GyOperationalDriftDiagnostic,
+    ) -> None:
+        self.code = code
+        self._diagnostic = diagnostic
+        super().__init__(code, diagnostic)
+
+    @property
+    def safe_detail(self) -> str:
+        """Return the canonical code plus identity-only diagnostic payload."""
+
+        return self.code + ":" + json.dumps(
+            self._diagnostic.model_dump(mode="json"),
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+
+    def __str__(self) -> str:
+        return self.safe_detail
 
 
 def is_gy_content_hash_excluded_field(key: str) -> bool:
@@ -128,9 +222,7 @@ def reconcile_gy_operational_leaves(
     previous: object,
     current: object,
     *,
-    expected_operand_role: str = "expected_frozen",
-    observed_operand_role: str = "live_replayed",
-    recording_role: str | None = None,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
     admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
     require_exact_match: bool = False,
 ) -> object:
@@ -148,8 +240,6 @@ def reconcile_gy_operational_leaves(
             "gy_operational_reconciliation_semantic_projection_mismatch",
             previous,
             current,
-            expected_operand_role=expected_operand_role,
-            observed_operand_role=observed_operand_role,
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
@@ -158,8 +248,6 @@ def reconcile_gy_operational_leaves(
             "gy_operational_reconciliation_shape_mismatch",
             previous,
             current,
-            expected_operand_role=expected_operand_role,
-            observed_operand_role=observed_operand_role,
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
@@ -168,8 +256,6 @@ def reconcile_gy_operational_leaves(
             "gy_operational_reconciliation_exact_mismatch",
             previous,
             current,
-            expected_operand_role=expected_operand_role,
-            observed_operand_role=observed_operand_role,
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
@@ -177,37 +263,32 @@ def reconcile_gy_operational_leaves(
 
 
 def _gy_operational_reconciliation_error(
-    code: str,
+    code: Literal[
+        "gy_operational_reconciliation_semantic_projection_mismatch",
+        "gy_operational_reconciliation_shape_mismatch",
+        "gy_operational_reconciliation_exact_mismatch",
+    ],
     expected: object,
     observed: object,
     *,
-    expected_operand_role: str,
-    observed_operand_role: str,
-    recording_role: str | None,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None,
     admission_arm: Literal["controlled_at_capture", "migrated"] | None,
-) -> ValueError:
-    report = {
-        "admission_arm": admission_arm or "not_applicable",
-        "changed_leaves": _gy_changed_leaf_reports(expected, observed),
-        "expected_frozen": {
-            "content_identity": _gy_diagnostic_content_identity(expected),
-            "operand_role": expected_operand_role,
-        },
-        "live_replayed": {
-            "content_identity": _gy_diagnostic_content_identity(observed),
-            "operand_role": observed_operand_role,
-        },
-        "recording_role": recording_role or "not_applicable",
-    }
-    return ValueError(
-        code
-        + ":"
-        + json.dumps(
-            report,
-            ensure_ascii=True,
-            separators=(",", ":"),
-            sort_keys=True,
-        )
+) -> GyOperationalReconciliationError:
+    return GyOperationalReconciliationError(
+        code,
+        _GyOperationalDriftDiagnostic(
+            admission_arm=admission_arm or "not_applicable",
+            changed_leaves=tuple(_gy_changed_leaf_reports(expected, observed)),
+            expected_frozen=_GyDriftOperandIdentity(
+                content_identity=_gy_diagnostic_content_identity(expected),
+                operand_role="expected_frozen",
+            ),
+            live_replayed=_GyDriftOperandIdentity(
+                content_identity=_gy_diagnostic_content_identity(observed),
+                operand_role="live_replayed",
+            ),
+            recording_role=recording_role or "not_applicable",
+        ),
     )
 
 
@@ -217,7 +298,7 @@ def _gy_changed_leaf_reports(
     *,
     path: str = "",
     field_name: str | None = None,
-) -> list[dict[str, Any]]:
+) -> list[_GyDriftChangedLeaf]:
     if expected is _GY_DRIFT_MISSING:
         return _gy_missing_branch_leaf_reports(
             observed,
@@ -281,8 +362,8 @@ def _gy_missing_branch_leaf_reports(
     missing_expected: bool,
     path: str,
     field_name: str | None,
-) -> list[dict[str, Any]]:
-    reports: list[dict[str, Any]] = []
+) -> list[_GyDriftChangedLeaf]:
+    reports: list[_GyDriftChangedLeaf] = []
     if isinstance(present, dict) and present:
         for key in sorted(present, key=lambda key: str(key)):
             reports.extend(
@@ -316,29 +397,29 @@ def _gy_changed_leaf_report(
     *,
     path: str,
     field_name: str | None,
-) -> dict[str, Any]:
-    return {
-        "expected_frozen": _gy_leaf_identity(expected),
-        "live_replayed": _gy_leaf_identity(observed),
-        "operational": bool(
+) -> _GyDriftChangedLeaf:
+    return _GyDriftChangedLeaf(
+        expected_frozen=_gy_leaf_identity(expected),
+        live_replayed=_gy_leaf_identity(observed),
+        operational=bool(
             field_name is not None and is_gy_content_hash_excluded_field(field_name)
         ),
-        "path": path or "/",
-    }
+        path=path or "/",
+    )
 
 
-def _gy_leaf_identity(value: object) -> dict[str, str]:
+def _gy_leaf_identity(value: object) -> _GyDriftLeafIdentity:
     if value is _GY_DRIFT_MISSING:
-        return {
-            "content_identity": "absent",
-            "presence": "absent",
-            "value_type": "absent",
-        }
-    return {
-        "content_identity": _gy_diagnostic_content_identity(value),
-        "presence": "present",
-        "value_type": type(value).__name__,
-    }
+        return _GyDriftLeafIdentity(
+            content_identity="absent",
+            presence="absent",
+            value_type="absent",
+        )
+    return _GyDriftLeafIdentity(
+        content_identity=_gy_diagnostic_content_identity(value),
+        presence="present",
+        value_type=type(value).__name__,
+    )
 
 
 def _gy_diagnostic_content_identity(value: object) -> str:

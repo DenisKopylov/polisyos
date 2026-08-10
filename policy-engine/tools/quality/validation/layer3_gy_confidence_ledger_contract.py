@@ -353,9 +353,12 @@ def _recompute_n10_capstone(repo_root: Path) -> dict[str, Any]:
     except OwnerProjectionError:
         raise
     except UniversalityContractError as exc:
-        detail = str(exc)
-        if detail.startswith("authority_source_controlled_replay_recording_drift:"):
-            raise OwnerProjectionError("n10_capstone_recompute_failed", detail) from exc
+        safe_detail = exc.safe_replay_drift_detail
+        if safe_detail is not None:
+            raise OwnerProjectionError(
+                "n10_capstone_recompute_failed",
+                safe_detail,
+            ) from exc
         raise OwnerProjectionError("n10_capstone_recompute_failed", type(exc).__name__) from exc
     except Exception as exc:  # noqa: BLE001 - fail-closed owner boundary
         raise OwnerProjectionError("n10_capstone_recompute_failed", type(exc).__name__) from exc

@@ -11,21 +11,38 @@
 
 ## Duplication findings
 
-- The architect ruling's historical 77/27 input was a raw-string count:
-  canonical 77 includes 75 imports plus two non-import contract strings; local
-  27 is retained only as mixed raw-string/non-test history. The compiler-resolved
-  dashboard AST census is 75 canonical imports, 27 non-test local imports across
-  27 files, and 28 local imports across all TS/TSX; `validators.test.ts` is the
-  extra complete-set importer. The old relative-only scanner omitted four
-  `@/api/types` aliases: `optimistic.ts`, the authMe fixture,
-  ControlFailurePanel, and DataIntelligencePanel. The concrete divergence is
-  `AuthMeResponse.permissions`: canonical `RuntimePermission[]` versus local
-  `string[]`.
-- Migration is roughly three quarters complete. No gate compares the two
-  artifacts. Report only: C07b is `blocked-on-another-plan` on the single-owner
-  frontend generated-artifact strangle; its closure reaches zero compiler-resolved
-  local imports across all TS/TSX and repoints every importer. A comparison gate
-  is temporary mitigation and cannot close the row.
+- The historical raw-string census was 77/27: canonical 77 includes 75 imports
+  plus two non-import contract strings, while local 27 is retained only as mixed
+  raw-string/non-test history. The relative-only AST pass missed four
+  `@/api/types` aliases (`optimistic.ts`, the authMe fixture,
+  ControlFailurePanel, and DataIntelligencePanel); the string-classified
+  `noResolve` pass then overstated compiler resolution. The final
+  `ts.resolveModuleName` pass with the dashboard tsconfig established 75
+  canonical import declarations, 27 non-test local imports, and 28 local imports
+  including tests; `validators.test.ts` is the extra complete-set importer.
+- Clean-main confirmation ran in a detached clean worktree at current `main`
+  `8f7a39194d320b32c5073449663f73e66e9645c7` after a frozen offline install.
+  From `apps/runtime-dashboard`, the exact family command
+  `corepack pnpm run generate:api && git diff --exit-code -- src/api/types.ts`
+  exited 1 and changed `src/api/types.ts` by 1501 additions and 11 deletions.
+  This generated-family drift is pre-existing, not caused by C07a.
+- C07a still cannot land because it changes the same family's declared
+  `source_of_truth = schemas/runtime_api_v1.openapi.json`; ordinary
+  zero-intersection exclusion is therefore unavailable. C07a waits on the
+  C07b-recorded single-owner strangle. Each generated client is separately gated
+  against the schema; the dashboard family has `drift_gate = automated` and
+  `stale_output_behavior = fail`. The corrected finding is detected-but-unresolved
+  drift, not undetected drift.
+- The concrete divergence remains `AuthMeResponse.permissions`: canonical
+  `RuntimePermission[]` versus local `string[]`. C07b is
+  `blocked-on-another-plan` on the single-owner frontend generated-artifact
+  strangle; its acceptance is deletion of the dashboard family/local artifact
+  and repointing every importer, not synchronized regeneration or a new
+  cross-copy comparator.
+- Duplication duty for this pass looked for another duplicate in the C07/C13
+  touched scope and found none beyond the already registered two generated
+  clients. The clean-main probe used no Sol, its temporary worktree was removed,
+  and this documentation-only correction touches no governed artifact.
 
 ## DS5-C07b-D1 generated-client single-owner debt
 
@@ -38,6 +55,9 @@
 - Complete census: no new duplicate was found beyond the canonical package and
   local generated artifact. The register/report writer is idempotent; DS19 was
   re-anchored only to the refreshed register hash.
+- Drift-attribution correction: the clean-main dashboard generation witness is
+  pre-existing generated-family drift; it does not authorize C07a to overlap the
+  same declared schema-owned family before the C07b single-owner strangle.
 - Orchestration: native Terra only; no Sol worker, escalation, or external runner.
 - Nonreceipts: the future manifest/reference/package cleanup, local artifact
   deletion, and importer rebind are deliberately not executed by this debt-only row.

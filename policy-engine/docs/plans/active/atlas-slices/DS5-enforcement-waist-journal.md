@@ -1152,3 +1152,44 @@
   postbuild security and the Atlas UI Tailwind-source check, and generated the
   108-entry PWA precache. The inherited oversized-chunk advisory remained
   non-failing.
+
+## DS5-C08b-D1 — auth-session revision producer debt
+
+- Pattern pass: P01/P02/P05/P10/P12/P31/P32/P37. The complete bounded census
+  found `auth_session_revision` absent from runtime `AuthMeResponse`, OpenAPI,
+  generated client, `useAuthMe`, and `queryKeys`; DS5 records that missing
+  client-bound producer contract and does not claim server-identity ownership.
+- Red first: `ProducerBindingDebtTests.test_auth_session_revision_debt_binds_generated_auth_me_contract`
+  failed because the governed descriptor row was absent. The generic surgical
+  writer then added exactly one descriptor-derived supplemental row; its second
+  serialized run was idempotent (register SHA-256
+  `60f4d7fcbf64260b7074c88f34bdb72333e65cdcdd1fcf0de047d529f83f757e`).
+- The DS19 status-inventory pin was re-anchored to that exact register hash;
+  `status-auth-session` remains C18 and DS1-N010 remains `still_required`.
+  The focused debt test passed 1/1 in 21.642s; full frontend checker tests
+  passed 49/49 in 77.482s (78.776s wall) under the explicit 300-second bound.
+- C08b-R2 isolation at `edb8e045f` reproduced the exact mechanical tail:
+  `status-inline-authz-provider` preserved line 21 and `error | loading |
+  ready`, but its inventory receipt omitted three scanner consumers. D1 updates
+  only those consumer receipts and the DS19 hash. Final frontend/status checker
+  corruption batteries passed in 103.523s and 30.949s; full status tests passed
+  38/38 in 97.672s (99.930s wall), each within an explicit 300-second bound.
+
+### Fix round 1 — behavioral producer-debt proof
+
+- Review correctly found P29/P32: the original current debt test only compared
+  descriptor/register text, so its declared closure command was green while all
+  five cited sources still lacked the field. A controlled runtime-source
+  mutation confirmed that the old test ignored the claimed producer evidence.
+- The current test now parses the exact runtime `AuthMeResponse`, OpenAPI
+  `AuthMeResponse`, generated client declaration, `fetchAuthMe`/options, and
+  exact `queryKeys.authMe` declaration. It accepts a synthetic generated
+  lookalike and rejects one targeted corruption per cited source. The current
+  test proves only the open debt; the closure names two future absent tests and
+  intentionally exits nonzero today.
+- First writer refreshed the row and correctly stopped on stale report parity;
+  report regeneration plus the second writer passed. Final register/pin SHA-256
+  is `3848929723f612d19b41db6e7a6cce7b384d09ebc91ebada15330f26c8c18743`.
+  Focused test passed in 48.726s; frontend/status modules passed 49/49 in
+  120.878s and 38/38 in 164.227s; frontend/status corruption batteries passed
+  in 180.976s and 62.907s, each under an explicit 300-second bound.

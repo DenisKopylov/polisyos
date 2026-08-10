@@ -1712,6 +1712,41 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "direct-Badge census transition"
         ),
     },
+    "c08b-auth-session-revision-producer-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "src/polisyos/runtime/http/routes/auth.py:36",
+            "schemas/runtime_api_v1.openapi.json:2221",
+            "packages/runtime-api-client/types.ts:2411",
+            "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42",
+            "apps/runtime-dashboard/src/api/queryKeys.ts:11",
+        ],
+        "rationale": (
+            "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
+            "useAuthMe, and queryKeys all lack auth_session_revision. This is the "
+            "missing client-bound producer contract, not ownership of server identity."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_auth_me_query_key_partitions_tenant_user_and_revision "
+            "tests.unit.runtime.http.test_auth_api.AuthApiTests."
+            "test_auth_me_publishes_auth_session_revision "
+            "exits 0 after /auth/me and generated AuthMeResponse publish a "
+            "server-issued auth_session_revision and queryKeys binds it; "
+            "tenant/user-switch corruption fails"
+        ),
+    },
     "c06-cgf-public-vocabulary-producer-debt": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",

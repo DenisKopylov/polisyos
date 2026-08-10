@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -830,6 +831,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "c06-cgf-public-vocabulary-producer-debt",
                 "c06-decision-grade-generated-contract-debt",
                 "c06-queryobserver-cache-posture-artifact-debt",
+                "c08b-auth-session-revision-producer-debt",
             },
             set(descriptors),
         )
@@ -916,6 +918,222 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(
             {key: expected[key] for key in descriptors[self.finding_id]},
             descriptors[self.finding_id],
+        )
+
+    def test_auth_session_revision_debt_binds_generated_auth_me_contract(self) -> None:
+        """The missing identity revision stays a producer contract debt."""
+        finding_id = "c08b-auth-session-revision-producer-debt"
+        expected = {
+            "finding_kind": "producer_binding_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "owner_slice": "DS5",
+            "capability_states": [
+                "producer_missing",
+                "artifact_missing",
+                "bridge_missing",
+                "verification_missing",
+                "semantic_test_missing",
+            ],
+            "evidence_refs": [
+                "src/polisyos/runtime/http/routes/auth.py:36",
+                "schemas/runtime_api_v1.openapi.json:2221",
+                "packages/runtime-api-client/types.ts:2411",
+                "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42",
+                "apps/runtime-dashboard/src/api/queryKeys.ts:11",
+            ],
+            "rationale": (
+                "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
+                "useAuthMe, and queryKeys all lack auth_session_revision. This is the "
+                "missing client-bound producer contract, not ownership of server identity."
+            ),
+            "closure_signal": (
+                "python3 -m unittest architecture.atlas_surfaces."
+                "test_atlas_enforcement.AtlasEnforcementTests."
+                "test_auth_me_query_key_partitions_tenant_user_and_revision "
+                "tests.unit.runtime.http.test_auth_api.AuthApiTests."
+                "test_auth_me_publishes_auth_session_revision "
+                "exits 0 after /auth/me and generated AuthMeResponse publish a "
+                "server-issued auth_session_revision and queryKeys binds it; "
+                "tenant/user-switch corruption fails"
+            ),
+        }
+
+        source_paths = {
+            "runtime": "src/polisyos/runtime/http/routes/auth.py",
+            "openapi": "schemas/runtime_api_v1.openapi.json",
+            "generated": "packages/runtime-api-client/types.ts",
+            "hook": "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts",
+            "query_key": "apps/runtime-dashboard/src/api/queryKeys.ts",
+        }
+        sources = {
+            source_id: (checker.REPO_ROOT / path).read_text(encoding="utf-8")
+            for source_id, path in source_paths.items()
+        }
+
+        def brace_block(source: str, declaration: str) -> str:
+            declaration_start = source.index(declaration)
+            block_start = source.index("{", declaration_start)
+            depth = 0
+            for index in range(block_start, len(source)):
+                if source[index] == "{":
+                    depth += 1
+                elif source[index] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        return source[block_start : index + 1]
+            raise AssertionError(f"unterminated declaration: {declaration}")
+
+        def absence_errors(candidate: dict[str, str]) -> set[str]:
+            errors: set[str] = set()
+            runtime_match = re.search(
+                r"class AuthMeResponse\(BaseModel\):(?P<body>.*?)(?=\n\s*def _sorted_roles)",
+                candidate["runtime"],
+                re.DOTALL,
+            )
+            if runtime_match is None:
+                errors.add("runtime_auth_me_response_missing")
+            elif "auth_session_revision" in runtime_match.group("body"):
+                errors.add("runtime_auth_me_revision_present")
+            auth_me_route = (
+                '@router.get("/me", response_model=AuthMeResponse, operation_id="get_auth_me")'
+            )
+            if auth_me_route not in candidate["runtime"]:
+                errors.add("runtime_auth_me_route_missing")
+
+            openapi = json.loads(candidate["openapi"])
+            auth_schema = openapi["components"]["schemas"].get("AuthMeResponse", {})
+            if "auth_session_revision" in auth_schema.get("properties", {}):
+                errors.add("openapi_auth_me_revision_present")
+            if openapi["paths"]["/api/v1/auth/me"]["get"].get("operationId") != "get_auth_me":
+                errors.add("openapi_auth_me_operation_missing")
+
+            generated_body = brace_block(candidate["generated"], "AuthMeResponse:")
+            if "auth_session_revision" in generated_body:
+                errors.add("generated_auth_me_revision_present")
+
+            fetch_body = brace_block(candidate["hook"], "async function fetchAuthMe")
+            options_body = brace_block(
+                candidate["hook"], "export function authMeQueryOptions"
+            )
+            if 'buildRuntimeApiUrl("/api/v1/auth/me")' not in fetch_body:
+                errors.add("auth_me_hook_route_missing")
+            if "authMeSchema.parse(payload)" not in fetch_body:
+                errors.add("auth_me_hook_generated_parse_missing")
+            if "queryKey: queryKeys.authMe()" not in options_body:
+                errors.add("auth_me_hook_query_key_missing")
+            if "auth_session_revision" in fetch_body or "auth_session_revision" in options_body:
+                errors.add("auth_me_hook_revision_present")
+
+            query_key_match = re.search(
+                r"authMe:\s*\(\)\s*=>\s*(?P<key>\[[^\n]+\])\s+as const",
+                candidate["query_key"],
+            )
+            if query_key_match is None:
+                errors.add("auth_me_query_key_declaration_missing")
+            elif query_key_match.group("key") != '["auth", "me"]':
+                errors.add("auth_me_query_key_not_unpartitioned")
+            return errors
+
+        self.assertEqual([], sorted(absence_errors(sources)))  # noqa: PT009
+        generated_lookalike = dict(sources)
+        generated_lookalike["generated"] += (
+            '\nexport type SyntheticAuthMeResponse = { auth_session_revision: string };\n'
+        )
+        self.assertEqual([], sorted(absence_errors(generated_lookalike)))  # noqa: PT009
+
+        openapi_corruption = json.loads(sources["openapi"])
+        openapi_corruption["components"]["schemas"]["AuthMeResponse"]["properties"][
+            "auth_session_revision"
+        ] = {"type": "string"}
+        corruptions = {
+            "runtime_auth_me_revision_present": {
+                **sources,
+                "runtime": sources["runtime"].replace(
+                    "    meta: ApiMeta", "    auth_session_revision: str\\n    meta: ApiMeta"
+                ),
+            },
+            "openapi_auth_me_revision_present": {
+                **sources,
+                "openapi": json.dumps(openapi_corruption),
+            },
+            "generated_auth_me_revision_present": {
+                **sources,
+                "generated": sources["generated"].replace(
+                    "AuthMeResponse: {",
+                    "AuthMeResponse: {\\n            auth_session_revision: string;",
+                ),
+            },
+            "auth_me_hook_revision_present": {
+                **sources,
+                "hook": sources["hook"].replace(
+                    "queryKey: queryKeys.authMe(),",
+                    "queryKey: queryKeys.authMe(auth_session_revision),",
+                ),
+            },
+            "auth_me_query_key_not_unpartitioned": {
+                **sources,
+                "query_key": sources["query_key"].replace(
+                    'authMe: () => ["auth", "me"] as const,',
+                    (
+                        'authMe: () => ["auth", "me", '
+                        '{ auth_session_revision: "synthetic" }] as const,'
+                    ),
+                ),
+            },
+        }
+        for expected_error, corruption in corruptions.items():
+            with self.subTest(corruption=expected_error):
+                self.assertIn(expected_error, absence_errors(corruption))  # noqa: PT009
+
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        rows = {item["finding_id"]: item for item in data["supplemental_findings"]}
+        self.assertIn(finding_id, rows)  # noqa: PT009
+        row = rows[finding_id]
+        self.assertEqual(  # noqa: PT009
+            {"finding_id": finding_id, **expected, "decision_date": checker.DECISION_DATE}, row
+        )
+        self.assertEqual(expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id])  # noqa: PT009
+
+        removed = copy.deepcopy(data)
+        removed["supplemental_findings"] = [
+            item for item in removed["supplemental_findings"] if item["finding_id"] != finding_id
+        ]
+        self.assertIn(  # noqa: PT009
+            f"producer_binding_debt_drift:{finding_id}:finding_id",
+            checker.validate_register(removed, live_probes=False, report_parity=False),
+        )
+
+        mutated = copy.deepcopy(data)
+        target = next(
+            item
+            for item in mutated["supplemental_findings"]
+            if item["finding_id"] == finding_id
+        )
+        target["capability_states"] = ["surface_missing"]
+        errors = checker.validate_register(mutated, live_probes=False, report_parity=False)
+        self.assertIn(  # noqa: PT009
+            f"producer_binding_debt_drift:{finding_id}:capability_states", errors
+        )
+        self.assertEqual(  # noqa: PT009
+            {
+                "finding_id": "c06-decision-grade-generated-contract-debt",
+                **checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[
+                    "c06-decision-grade-generated-contract-debt"
+                ],
+                "decision_date": checker.DECISION_DATE,
+            },
+            rows["c06-decision-grade-generated-contract-debt"],
+        )
+        closure_command = expected["closure_signal"].split(" exits 0", 1)[0]
+        self.assertNotEqual(  # noqa: PT009
+            0,
+            subprocess.run(
+                closure_command,
+                cwd=checker.REPO_ROOT,
+                shell=True,
+                check=False,
+            ).returncode,
         )
 
     def test_semantic_copy_debt_narrows_after_issuer_lands(self) -> None:

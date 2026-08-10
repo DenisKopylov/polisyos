@@ -1414,6 +1414,27 @@ not reimplemented.
 
 **Expected commit:** `DS5-C08b-R2 fail closed on unsettled identity`.
 
+### DS5-C08b-D1 — auth-session revision producer debt
+
+**Measured set:** exactly 7 governed paths: frontend disposition checker + test,
+register + generated report, DS19 status-retirement hash pin, this section, and
+journal. The surgical writer adds one `producer_binding_debt` row only.
+
+**Pattern pass:** P01/P02/P05/P10/P12/P31/P32/P37: record the absent
+client-bound producer contract without minting server identity or a client-side
+partition. The capability is `producer_missing`, `artifact_missing`,
+`bridge_missing`, `verification_missing`, and `semantic_test_missing`; the
+correct repair starts with server-issued `auth_session_revision` on `/auth/me`,
+then its OpenAPI/generated-client and query-key binding.
+
+**Acceptance:** evidence names its absence from runtime HTTP `AuthMeResponse`,
+OpenAPI, generated client, `useAuthMe`, and `queryKeys`; the descriptor and its
+single supplemental row are byte-bound and generic corruption probes reject
+removal/mutation. DS4's `status-auth-session` remains targeted at C18 and
+DS1-N010 remains `still_required` because C09 consumers remain.
+
+**Expected commit:** `DS5-C08b-D1 record auth-session revision producer debt`.
+
 ### DS5-C09a-R1 — N010 default deny in application chrome
 
 **Measured set:** exactly 10 implementation/governed paths plus journal = 11;

@@ -7371,6 +7371,30 @@
       "rationale": "QueryObserver emits lifecycle signals today, but no typed CachePosture artifact exists. ProjectionFreshness records source observation and is orthogonal to cached-copy posture; C11a/C11b own the client artifact, bridge, and surface.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_freshness_orthogonal exits 0 after C11a/C11b publish the typed QueryObserver cache-posture artifact without reclassifying source freshness",
       "decision_date": "2026-07-17"
+    },
+    {
+      "finding_id": "c08b-auth-session-revision-producer-debt",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "capability_states": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "src/polisyos/runtime/http/routes/auth.py:36",
+        "schemas/runtime_api_v1.openapi.json:2221",
+        "packages/runtime-api-client/types.ts:2411",
+        "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42",
+        "apps/runtime-dashboard/src/api/queryKeys.ts:11"
+      ],
+      "rationale": "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity.",
+      "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails",
+      "decision_date": "2026-07-17"
     }
   ],
   "seeded_negative_lifecycle": [

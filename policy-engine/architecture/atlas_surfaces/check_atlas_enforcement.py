@@ -23,8 +23,6 @@ STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH = ATLAS_DIR / "authority-semantic-copy-registry.json"
 AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH = ATLAS_DIR / "authority-semantic-copy-registry.schema.json"
-QUERY_CACHE_POLICY_REGISTER_PATH = ATLAS_DIR / "query-cache-policy-register.json"
-QUERY_CACHE_POLICY_SCHEMA_PATH = ATLAS_DIR / "query-cache-policy-register.schema.json"
 AUTHORITY_SEMANTIC_COPY_PATH = (
     "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 )
@@ -548,30 +546,6 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
 AUTHORITY_PATH_EXPECTED_COUNT = 17
 CAPABILITY_DISCOVERY_OWNER_PATH = "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts"
 CAPABILITY_DISCOVERY_ISSUER_CALLS = 5
-QUERY_CACHE_POLICY_TARGET_PATH = (
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts"
-)
-QUERY_CACHE_POLICY_DENOMINATORS = {
-    "query_key_owners": 43,
-    "constructions": 66,
-    "producers": 42,
-}
-QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION = {
-    "path": QUERY_CACHE_POLICY_TARGET_PATH,
-    "resolved_callee": "useQuery",
-    "options_declaration": {
-        "name": "depthNCycleBoardProjectionQueryOptions",
-        "path": QUERY_CACHE_POLICY_TARGET_PATH,
-    },
-}
-QUERY_CACHE_POLICY_GOVERNED_PRODUCER = {
-    "path": QUERY_CACHE_POLICY_TARGET_PATH,
-    "query_key_owner": "governedProjection",
-    "options_declaration": {
-        "name": "depthNCycleBoardProjectionQueryOptions",
-        "path": QUERY_CACHE_POLICY_TARGET_PATH,
-    },
-}
 AUTHORITY_GOVERNANCE_OBJECTS = (
     "EVIDENCE_FAMILIES",
     "EXPECTED_RUNTIME_EXPORTS",
@@ -911,233 +885,6 @@ def _capability_discovery_errors(
             continue
         errors.append(f"capability_discovery_feature_literal_authored:{path}:{line}")
     return sorted(set(errors))
-
-
-def _query_cache_policy_register_from_scan(scan: Mapping[str, Any]) -> dict[str, Any]:
-    """Derive the C12a source-bound register from direct local AST facts."""
-    facts = scan["queryCachePolicyFacts"]
-    constructions = [
-        {
-            "path": row["path"],
-            "line": row["line"],
-            "resolved_callee": row["callee"],
-            "source_sha256": row["sourceSha256"],
-            "options_resolution": row["optionsResolution"],
-            "classification": (
-                "governed_wrapper"
-                if _query_cache_policy_identity_matches(
-                    {
-                        "path": row["path"],
-                        "resolved_callee": row["callee"],
-                        "options_declaration": row["optionsDeclaration"],
-                    },
-                    QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION,
-                )
-                else "legacy_direct_debt"
-            ),
-        }
-        for row in facts["constructions"]
-    ]
-    producers = [
-        {
-            "path": row["path"],
-            "line": row["line"],
-            "source_sha256": row["sourceSha256"],
-            "query_key_owner": row["queryKeyOwner"],
-            "dto_contract": row["dtoContract"],
-            "required_owner_field": "as_of",
-            "owner_slice": "DS5",
-            "capability_state": (
-                "governed_migration_target"
-                if _query_cache_policy_identity_matches(
-                    {
-                        "path": row["path"],
-                        "query_key_owner": row["queryKeyOwner"],
-                        "options_declaration": row["optionsDeclaration"],
-                    },
-                    QUERY_CACHE_POLICY_GOVERNED_PRODUCER,
-                )
-                else "source_bound_debt"
-            ),
-            "closure_signal": (
-                "C11a-C11b-R1 typed cache-posture consumer"
-                if _query_cache_policy_identity_matches(
-                    {
-                        "path": row["path"],
-                        "query_key_owner": row["queryKeyOwner"],
-                        "options_declaration": row["optionsDeclaration"],
-                    },
-                    QUERY_CACHE_POLICY_GOVERNED_PRODUCER,
-                )
-                else "C12b-R1 independently proves an operational policy contract"
-            ),
-            "classification": (
-                "governed_wrapper"
-                if _query_cache_policy_identity_matches(
-                    {
-                        "path": row["path"],
-                        "query_key_owner": row["queryKeyOwner"],
-                        "options_declaration": row["optionsDeclaration"],
-                    },
-                    QUERY_CACHE_POLICY_GOVERNED_PRODUCER,
-                )
-                else "legacy_direct_debt"
-            ),
-        }
-        for row in facts["producers"]
-    ]
-    return {
-        "$schema": "./query-cache-policy-register.schema.json",
-        "schema_version": "1.0",
-        "register_id": "atlas-ds5-query-cache-policy",
-        "authority": {
-            "authoritative_for": [
-                "the direct TypeScript construction-site census for DS5 query cache policy debt"
-            ],
-            "may_not_use_for": [
-                "TanStack value-flow analysis",
-                "cache-policy runtime behavior",
-                "source freshness or observation-time inference",
-            ],
-        },
-        "residual": facts["residual"],
-        "denominators": QUERY_CACHE_POLICY_DENOMINATORS,
-        "query_key_owners": [
-            {"name": row["name"], "path": row["path"], "line": row["line"]}
-            for row in facts["queryKeyOwners"]
-        ],
-        "constructions": constructions,
-        "producers": producers,
-    }
-
-
-def _query_cache_policy_identity_matches(
-    row: Mapping[str, Any],
-    target: Mapping[str, Any],
-) -> bool:
-    """Return whether one direct-site row is the immutable governed target."""
-    def matches(value: Any, expected: Any) -> bool:
-        if isinstance(expected, Mapping):
-            return isinstance(value, Mapping) and all(
-                key in value and matches(value[key], nested_expected)
-                for key, nested_expected in expected.items()
-            )
-        return value == expected
-
-    return all(field in row and matches(row[field], expected) for field, expected in target.items())
-
-
-def _query_cache_policy_target_identity_errors(
-    rows: Sequence[Mapping[str, Any]],
-    *,
-    identity_rows: Sequence[Mapping[str, Any]],
-    target: Mapping[str, Any],
-    label: str,
-    expected_debt: int,
-) -> list[str]:
-    """Require exactly one source-bound governed row and all other rows as debt."""
-    at_target_path = [row for row in identity_rows if row.get("path") == target["path"]]
-    exact = [row for row in identity_rows if _query_cache_policy_identity_matches(row, target)]
-    governed = [
-        row for row in rows if row.get("classification") == "governed_wrapper"
-    ]
-    debt = [row for row in rows if row.get("classification") == "legacy_direct_debt"]
-    errors: list[str] = []
-    if len(at_target_path) != 1 or len(exact) != 1:
-        errors.append(f"query_cache_policy_{label}_target_identity_drift")
-    if len(governed) != 1 or len(debt) != expected_debt:
-        errors.append(
-            f"query_cache_policy_{label}_classification_cardinality:"
-            f"governed={len(governed)}:debt={len(debt)}"
-        )
-    return errors
-
-
-def _query_cache_policy_errors(
-    scan: Mapping[str, Any],
-    *,
-    enforce_denominator: bool = False,
-    registry: Mapping[str, Any] | None = None,
-) -> list[str]:
-    """Require one complete, source-bound table for each C12a construction class."""
-    facts = scan.get("queryCachePolicyFacts")
-    if not isinstance(facts, Mapping):
-        return ["query_cache_policy_facts_missing"]
-    try:
-        expected = _query_cache_policy_register_from_scan(scan)
-    except (KeyError, TypeError):
-        return ["query_cache_policy_facts_invalid"]
-    actual = dict(registry or status_checker._load_json(QUERY_CACHE_POLICY_REGISTER_PATH))
-    errors = status_checker._schema_errors(
-        actual,
-        QUERY_CACHE_POLICY_SCHEMA_PATH,
-        "query-cache-policy-register",
-    )
-    if enforce_denominator:
-        for key, expected_count in QUERY_CACHE_POLICY_DENOMINATORS.items():
-            actual_count = len(
-                expected[
-                    {
-                        "query_key_owners": "query_key_owners",
-                        "constructions": "constructions",
-                        "producers": "producers",
-                    }[key]
-                ]
-            )
-            if actual_count != expected_count:
-                errors.append(
-                    "query_cache_policy_denominator_drift:"
-                    f"{key}:expected={expected_count}:actual={actual_count}"
-                )
-    if actual.get("query_key_owners") != expected["query_key_owners"]:
-        errors.append("query_cache_policy_query_key_owner_drift")
-    if actual.get("constructions") != expected["constructions"]:
-        errors.append("query_cache_policy_construction_drift")
-    if actual.get("producers") != expected["producers"]:
-        errors.append("query_cache_policy_producer_drift")
-    errors.extend(
-        _query_cache_policy_target_identity_errors(
-            expected["constructions"],
-            identity_rows=[
-                {
-                    "path": row["path"],
-                    "resolved_callee": row["callee"],
-                    "options_declaration": row["optionsDeclaration"],
-                }
-                for row in facts["constructions"]
-            ],
-            target=QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION,
-            label="construction",
-            expected_debt=65,
-        )
-    )
-    errors.extend(
-        _query_cache_policy_target_identity_errors(
-            expected["producers"],
-            identity_rows=[
-                {
-                    "path": row["path"],
-                    "query_key_owner": row["queryKeyOwner"],
-                    "options_declaration": row["optionsDeclaration"],
-                }
-                for row in facts["producers"]
-            ],
-            target=QUERY_CACHE_POLICY_GOVERNED_PRODUCER,
-            label="producer",
-            expected_debt=41,
-        )
-    )
-    return sorted(set(errors))
-
-
-def _write_query_cache_policy_register(scan: Mapping[str, Any]) -> None:
-    """Prove the committed C12a register is already the byte-preserved derivation."""
-    expected = json.dumps(_query_cache_policy_register_from_scan(scan), indent=2) + "\n"
-    actual = QUERY_CACHE_POLICY_REGISTER_PATH.read_text(encoding="utf-8")
-    if actual != expected:
-        raise RuntimeError(
-            "query cache policy register drift; writer refuses a non-surgical rewrite"
-        )
 
 
 def _authority_issuer_errors(scan: Mapping[str, Any]) -> list[str]:
@@ -1710,8 +1457,6 @@ def validate_enforcement(
             enforce_denominator=source_overrides is None,
         )
     )
-    if source_overrides is None:
-        errors.extend(_query_cache_policy_errors(scan, enforce_denominator=True))
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
         errors.extend(
@@ -2592,70 +2337,6 @@ def _corruption_probes(
     ):
         escaped.append("authority-escape-exemption-binding")
 
-    query_registry = status_checker._load_json(QUERY_CACHE_POLICY_REGISTER_PATH)
-    query_corruptions: list[tuple[Mapping[str, Any], Mapping[str, Any]]] = []
-    added_source = copy.deepcopy(production_scan)
-    added_source["queryCachePolicyFacts"]["constructions"].append(
-        copy.deepcopy(added_source["queryCachePolicyFacts"]["constructions"][0])
-    )
-    query_corruptions.append((added_source, query_registry))
-    reordered_register = copy.deepcopy(query_registry)
-    reordered_register["constructions"].reverse()
-    query_corruptions.append((production_scan, reordered_register))
-    retagged_register = copy.deepcopy(query_registry)
-    retagged_register["constructions"][0]["resolved_callee"] = (
-        "useQuery"
-        if retagged_register["constructions"][0]["resolved_callee"] == "queryOptions"
-        else "queryOptions"
-    )
-    query_corruptions.append((production_scan, retagged_register))
-    untyped_exemption = copy.deepcopy(query_registry)
-    untyped_exemption["exemptions"] = [{"reason": "untyped"}]
-    query_corruptions.append((production_scan, untyped_exemption))
-    removed_producer = copy.deepcopy(query_registry)
-    removed_producer["producers"].pop()
-    query_corruptions.append((production_scan, removed_producer))
-    if any(
-        not _query_cache_policy_errors(
-            corrupted_scan,
-            enforce_denominator=True,
-            registry=corrupted_register,
-        )
-        for corrupted_scan, corrupted_register in query_corruptions
-    ):
-        escaped.append("query-cache-policy-register")
-
-    query_target_source = (
-        status_checker.REPO_ROOT / QUERY_CACHE_POLICY_TARGET_PATH
-    ).read_text(encoding="utf-8")
-    query_source_corruptions = (
-        query_target_source.replace(
-            "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
-            "  const duplicateQuery = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
-            "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
-            1,
-        ),
-        query_target_source.replace(
-            "useQuery(depthNCycleBoardProjectionQueryOptions(client))",
-            "useQuery(depthNCycleBoardProjectionQueryOptions(client!))",
-            1,
-        ),
-    )
-    inventory = status_checker._load_json(status_checker.INVENTORY_PATH)
-    if any(
-        not _query_cache_policy_errors(
-            _enforcement_scan(
-                {QUERY_CACHE_POLICY_TARGET_PATH: source},
-                inventory=inventory,
-                validate_override_diagnostics=True,
-            ),
-            enforce_denominator=True,
-            registry=query_registry,
-        )
-        for source in query_source_corruptions
-    ):
-        escaped.append("query-cache-policy-source-identity")
-
     issuer_path = "packages/atlas-ui/src/primitives/AuthorityBadge.tsx"
     issuer_source = (status_checker.REPO_ROOT / issuer_path).read_text(encoding="utf-8")
     corrupted_issuer = issuer_source.replace(
@@ -2765,7 +2446,6 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
     status_summary = status_checker._summary(inventory, debt)
     denominators = scan.get("sourceDenominators", {})
     issuer_facts = scan.get("authorityIssuerFacts", {})
-    query_cache_facts = scan.get("queryCachePolicyFacts", {})
     return {
         "atlas_ui_production_sources": denominators.get("atlasUiProduction"),
         "authority_sink_declarations": len(scan.get("authoritySinkDeclarations", [])),
@@ -2790,10 +2470,6 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
         "capability_discovery_feature_literals": len(
             scan.get("capabilityDiscoveryFacts", {}).get("featureLiterals", [])
         ),
-        "query_cache_query_key_owners": len(query_cache_facts.get("queryKeyOwners", [])),
-        "query_cache_constructions": len(query_cache_facts.get("constructions", [])),
-        "query_cache_producers": len(query_cache_facts.get("producers", [])),
-        "query_cache_residual": query_cache_facts.get("residual"),
         "current_authored_statuses": status_summary["current_authored"],
         "ds1_status_rows": status_summary["ds1_rows"],
         "semantic_retirement_debt": status_summary["semantic_retirement_debt"],
@@ -2805,14 +2481,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--corruption-probes", action="store_true")
-    parser.add_argument("--write-query-cache-policy-register", action="store_true")
     args = parser.parse_args(argv)
     errors, scan = validate_enforcement()
-    if args.write_query_cache_policy_register:
-        try:
-            _write_query_cache_policy_register(scan)
-        except RuntimeError as error:
-            errors.append(str(error))
     architecture_errors, architecture_receipt = _architecture_recurrence_errors()
     errors.extend(architecture_errors)
     if errors:

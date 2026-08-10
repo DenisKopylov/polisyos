@@ -478,13 +478,28 @@ C17_RATIONALE = (
 )
 
 _TS_MODULE_FACTS_SCRIPT = r"""
+import path from "node:path";
 import ts from "typescript";
 
 let raw = "";
 for await (const chunk of process.stdin) raw += chunk;
 const sources = JSON.parse(raw);
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
 const facts = [];
 const compilerOptions = {
+  ...parsedConfig.options,
   jsx: ts.JsxEmit.Preserve,
   module: ts.ModuleKind.ESNext,
   noLib: true,
@@ -517,6 +532,18 @@ const program = ts.createProgram({
   host,
 });
 const checker = program.getTypeChecker();
+
+function resolvedModulePath(relativePath, specifier) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, relativePath),
+    compilerOptions,
+    host,
+  ).resolvedModule?.resolvedFileName;
+  return resolved
+    ? path.relative(repoRoot, path.resolve(resolved)).split(path.sep).join("/")
+    : null;
+}
 
 for (const [path] of Object.entries(sources)) {
   const file = program.getSourceFile(path);
@@ -792,6 +819,17 @@ for (const [path] of Object.entries(sources)) {
     }
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       const clause = node.importClause;
+      facts.push({
+        path,
+        kind: "import_declaration",
+        module: node.moduleSpecifier.text,
+        resolved_module: resolvedModulePath(path, node.moduleSpecifier.text),
+        names: [],
+        exported_names: [],
+        namespace_usages: [],
+        value_binding_used: false,
+        line: line(node),
+      });
       if (clause && !clause.isTypeOnly) {
         const names = [];
         const usedNames = [];
@@ -1710,6 +1748,38 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition "
             "exits 0 after the live RunExplainabilityPanel consumer rebinds the "
             "direct-Badge census transition"
+        ),
+    },
+    "c07b-dashboard-generated-client-single-owner-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "packages/runtime-api-client/types.ts:2430",
+            "apps/runtime-dashboard/src/api/types.ts:2323",
+            "architecture/generated_artifacts.toml:764",
+            "docs/reference/frontend/workspace-contract.md:37",
+            "apps/runtime-dashboard/package.json:166",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
+        ],
+        "rationale": (
+            "Canonical package client exists, but the dashboard keeps a divergent local "
+            "generated artifact; this row records the single-owner strangle without a "
+            "comparator or dashboard change."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register."
+            "ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_"
+            "canonical_owner exits 0 after manifest/reference/package cleanup, deletion of "
+            "apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard "
+            "imports directly use @polisyos/runtime-api-client."
         ),
     },
     "c14a-local-state-envelope-owner-debt": {

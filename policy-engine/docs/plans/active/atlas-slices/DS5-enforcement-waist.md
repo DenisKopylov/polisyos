@@ -735,7 +735,7 @@ single-owner frontend generated-artifact strangle.
 | `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C05b-R3 | C05b-R3 lands only the private issuer/generated `may_not_use_for` guard; it remains `rebind_pending/open_debt` for the panel/direct-Badge bridge, consumer, verification and semantic test while DS6 accepted human-review receipts remain 0 |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
 | audience enforcement supplemental/readiness evidence | C07a | four-class server deny matrix over all 33 enum-owned permission values and the accepted 13-definition/5-EXPERT/8-MACHINE census; exact `mode.analyst` applies to all five emitted EXPERT definitions; G4 remains typed producer debt and waits on its owner plan; restores the already-green backend candidate without regenerating the dashboard local client |
-| dashboard generated-client consumption | C07b | blocked-on-another-plan pending the single-owner frontend generated-artifact strangle; the ruling's historical 77/27 raw-string input is superseded operationally by the base AST census (75 canonical imports, 24 local imports): the sole closure deletes `apps/runtime-dashboard/src/api/types.ts`, repoints all 24 live imports to `@polisyos/runtime-api-client`, removes the local artifact from `architecture/generated_artifacts.toml` and `docs/reference/frontend/workspace-contract.md`, and removes dashboard `openapi-typescript`; a comparison gate is temporary mitigation only and cannot close this row |
+| dashboard generated-client consumption | C07b | blocked-on-another-plan pending the single-owner frontend generated-artifact strangle; the historical 77/27 raw-string input is superseded by compiler-resolved dashboard AST facts: 75 canonical imports, 27 non-test local imports, and 28 local imports across all TS/TSX including `validators.test.ts`; the relative-only scan omitted the `@/api/types` aliases in `optimistic.ts`, the authMe fixture, ControlFailurePanel, and DataIntelligencePanel. The sole closure deletes `apps/runtime-dashboard/src/api/types.ts`, repoints every local importer to `@polisyos/runtime-api-client`, removes the local artifact from `architecture/generated_artifacts.toml` and `docs/reference/frontend/workspace-contract.md`, and removes dashboard `openapi-typescript`; a comparison gate is temporary mitigation only and cannot close this row |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
 | composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 retains `g4-complete-audience-projection-contract` as typed producer debt; deferred C10-R1 waits on that owner plan before any nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
 | `cache-query-memory` | C12a-C12b-R1 | rebound only for the governed builder, one C11a-C11b-R1 consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
@@ -1389,13 +1389,15 @@ fix it in DS5.
 
 **Measured duplication and single closure:** the architect ruling supplied
 historical raw-string counts of 77 canonical and 27 local references. The
-complete TypeScript AST census at base `b0d7dcaa6` supersedes those operational
-denominators: `packages/runtime-api-client/types.ts` is 18,733 lines with 75
-canonical imports across 75 files, while
-`apps/runtime-dashboard/src/api/types.ts` is 17,648 lines with 24 local imports
-across 24 files. Delete `apps/runtime-dashboard/src/api/types.ts`; repoint all
-24 live imports to `@polisyos/runtime-api-client`; remove the local artifact from
-`architecture/generated_artifacts.toml` and
+compiler-resolved dashboard AST census supersedes that incomplete relative-only
+scan: there are 75 canonical imports, 27 non-test local imports across 27 files,
+and 28 local imports across all TS/TSX (the extra is `validators.test.ts`). The
+old scanner omitted the `@/api/types` aliases in `optimistic.ts`, the authMe
+fixture, ControlFailurePanel, and DataIntelligencePanel. The live divergence is
+`AuthMeResponse.permissions`: canonical `RuntimePermission[]` versus local
+`string[]`. Delete `apps/runtime-dashboard/src/api/types.ts`; repoint every
+compiler-resolved local import to `@polisyos/runtime-api-client`; remove the
+local artifact from `architecture/generated_artifacts.toml` and
 `docs/reference/frontend/workspace-contract.md`; and remove dashboard
 `openapi-typescript`. A comparison gate is only temporary mitigation and cannot
 close this row.

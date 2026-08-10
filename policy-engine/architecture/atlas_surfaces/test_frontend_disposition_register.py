@@ -832,6 +832,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "c06-decision-grade-generated-contract-debt",
                 "c06-queryobserver-cache-posture-artifact-debt",
                 "c08b-auth-session-revision-producer-debt",
+                "c07b-dashboard-generated-client-single-owner-debt",
                 "c14a-local-state-envelope-owner-debt",
             },
             set(descriptors),
@@ -841,6 +842,124 @@ class ProducerBindingDebtTests(unittest.TestCase):
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
             | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
             checker.EXPECTED_FINDING_IDS,
+        )
+
+    def test_c07b_dashboard_generated_client_debt_binds_single_owner_strangle(self) -> None:
+        """Bind C07b to compiler-resolved imports and the live permission drift."""
+        source_root = "apps/runtime-dashboard/src"
+        sources = {
+            path.relative_to(checker.REPO_ROOT).as_posix(): path.read_text(encoding="utf-8")
+            for path in checker._iter_scan_files([source_root])
+            if path.suffix in {".ts", ".tsx", ".mts", ".cts"}
+        }
+        import_facts = [
+            fact
+            for fact in checker._typescript_module_facts(sources)
+            if fact["kind"] == "import_declaration"
+        ]
+        local_types = (checker.REPO_ROOT / "apps/runtime-dashboard/src/api/types.ts").resolve()
+        local_imports = [
+            fact
+            for fact in import_facts
+            if fact["resolved_module"] == "apps/runtime-dashboard/src/api/types.ts"
+        ]
+        canonical_imports = [
+            fact
+            for fact in import_facts
+            if fact["resolved_module"]
+            == "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+        ]
+        non_test_local_imports = [
+            fact for fact in local_imports if not str(fact["path"]).endswith("validators.test.ts")
+        ]
+        local_receipts = {
+            f"{fact['path']}:{fact['line']}" for fact in local_imports
+        }
+        non_test_local_receipts = {
+            f"{fact['path']}:{fact['line']}" for fact in non_test_local_imports
+        }
+        self.assertEqual(75, len(canonical_imports))  # noqa: PT009
+        self.assertEqual(75, len({fact["path"] for fact in canonical_imports}))  # noqa: PT009
+        self.assertEqual(27, len(non_test_local_imports))  # noqa: PT009
+        self.assertEqual(27, len({fact["path"] for fact in non_test_local_imports}))  # noqa: PT009
+        self.assertEqual(28, len(local_imports))  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            {"apps/runtime-dashboard/src/api/validators.test.ts:4"},
+            local_receipts - non_test_local_receipts,
+        )
+        canonical_source = (checker.REPO_ROOT / "packages/runtime-api-client/types.ts").read_text(
+            encoding="utf-8"
+        )
+        local_source = local_types.read_text(encoding="utf-8")
+        self.assertEqual(3, canonical_source.count("RuntimePermission"))  # noqa: PT009
+        self.assertEqual(0, local_source.count("RuntimePermission"))  # noqa: PT009
+        canonical_permissions = 'permissions?: components["schemas"]["RuntimePermission"][]'
+        self.assertIn(canonical_permissions, canonical_source)  # noqa: PT009
+        self.assertIn("permissions?: string[]", local_source)  # noqa: PT009
+
+        finding_id = "c07b-dashboard-generated-client-single-owner-debt"
+        expected = {
+            "finding_kind": "producer_binding_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "owner_slice": "DS5",
+            "capability_states": [
+                "bridge_missing",
+                "consumer_missing",
+                "verification_missing",
+                "semantic_test_missing",
+            ],
+            "evidence_refs": [
+                "packages/runtime-api-client/types.ts:2430",
+                "apps/runtime-dashboard/src/api/types.ts:2323",
+                "architecture/generated_artifacts.toml:764",
+                "docs/reference/frontend/workspace-contract.md:37",
+                "apps/runtime-dashboard/package.json:166",
+                "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
+            ],
+            "rationale": (
+                "Canonical package client exists, but the dashboard keeps a divergent local "
+                "generated artifact; this row records the single-owner strangle without a "
+                "comparator or dashboard change."
+            ),
+            "closure_signal": (
+                "python3 -m unittest architecture.atlas_surfaces."
+                "test_frontend_disposition_register.ProducerBindingDebtTests."
+                "test_c07b_dashboard_generated_client_has_one_"
+                "canonical_owner exits 0 after manifest/reference/package cleanup, deletion of "
+                "apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard "
+                "imports directly use @polisyos/runtime-api-client."
+            ),
+        }
+        self.assertEqual(  # noqa: PT009
+            expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.get(finding_id)
+        )
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        rows = {str(row["finding_id"]): row for row in data["supplemental_findings"]}
+        self.assertEqual(  # noqa: PT009
+            {"finding_id": finding_id, **expected, "decision_date": checker.DECISION_DATE},
+            rows.get(finding_id),
+        )
+
+    def test_c07b_import_facts_resolve_dashboard_config_aliases(self) -> None:
+        """Resolve both dashboard aliases through tsconfig instead of classifying strings."""
+        facts = checker._typescript_module_facts(
+            {
+                "apps/runtime-dashboard/src/features/c07bAliasProbe.ts": (
+                    'import type { components } from "@/api/types";\n'
+                    'import type { RuntimePermission } from "@polisyos/runtime-api-client";\n'
+                )
+            }
+        )
+        imports = [fact for fact in facts if fact["kind"] == "import_declaration"]
+        resolved = {fact["module"]: fact.get("resolved_module") for fact in imports}
+
+        self.assertEqual(  # noqa: PT009
+            "apps/runtime-dashboard/src/api/types.ts", resolved["@/api/types"]
+        )
+        self.assertEqual(  # noqa: PT009
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+            resolved["@polisyos/runtime-api-client"],
         )
 
     def test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract(self) -> None:

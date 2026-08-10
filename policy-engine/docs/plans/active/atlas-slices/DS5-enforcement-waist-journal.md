@@ -13,18 +13,39 @@
 
 - The architect ruling's historical 77/27 input was a raw-string count:
   canonical 77 includes 75 imports plus two non-import contract strings; local
-  27 has no reproducible three identities. The complete TypeScript AST census at
-  base `b0d7dcaa6` supersedes the operational denominator: canonical
-  `packages/runtime-api-client/types.ts` is 18,733 lines with 75 imports across
-  75 files and `RuntimePermission` present; independently maintained duplicate
-  `apps/runtime-dashboard/src/api/types.ts` is 17,648 lines with 24 imports
-  across 24 files and zero `RuntimePermission` references. The concrete
-  divergence is `AuthMeResponse.permissions`: canonical `RuntimePermission[]`
-  versus local `string[]`.
+  27 is retained only as mixed raw-string/non-test history. The compiler-resolved
+  dashboard AST census is 75 canonical imports, 27 non-test local imports across
+  27 files, and 28 local imports across all TS/TSX; `validators.test.ts` is the
+  extra complete-set importer. The old relative-only scanner omitted four
+  `@/api/types` aliases: `optimistic.ts`, the authMe fixture,
+  ControlFailurePanel, and DataIntelligencePanel. The concrete divergence is
+  `AuthMeResponse.permissions`: canonical `RuntimePermission[]` versus local
+  `string[]`.
 - Migration is roughly three quarters complete. No gate compares the two
   artifacts. Report only: C07b is `blocked-on-another-plan` on the single-owner
-  frontend generated-artifact strangle; its closure repoints all 24 live local
-  imports. A comparison gate is temporary mitigation and cannot close the row.
+  frontend generated-artifact strangle; its closure reaches zero compiler-resolved
+  local imports across all TS/TSX and repoints every importer. A comparison gate
+  is temporary mitigation and cannot close the row.
+
+## DS5-C07b-D1 generated-client single-owner debt
+
+- Red first: the compact compiler-AST C07b test passed its complete import and
+  `AuthMeResponse.permissions` census, then failed only because the descriptor
+  and derived supplemental row were absent.
+- Green: the descriptor-derived row records `bridge_missing`, `consumer_missing`,
+  `verification_missing`, and `semantic_test_missing`; the future closure is the
+  single-owner strangle, not a comparator gate or dashboard implementation.
+- Complete census: no new duplicate was found beyond the canonical package and
+  local generated artifact. The register/report writer is idempotent; DS19 was
+  re-anchored only to the refreshed register hash.
+- Orchestration: native Terra only; no Sol worker, escalation, or external runner.
+- Nonreceipts: the future manifest/reference/package cleanup, local artifact
+  deletion, and importer rebind are deliberately not executed by this debt-only row.
+- Fix round 1 (review C1): Red proved the former import fact carried only the
+  literal specifier, so `@/api/types` had no resolved target. Green makes the
+  existing TypeScript-facts producer call `resolveModuleName` with dashboard
+  `tsconfig.app.json` options for every import declaration; both `@/*` and
+  `@polisyos/runtime-api-client` resolve before the C07b census classifies them.
 - Architect ruling: reopen C12a and re-cut C07 into C07a HTTP/backend recovery
   and C07b dashboard consumption. C07a restores the already-green backend
   candidate without regenerating the dashboard local client. All workers remain

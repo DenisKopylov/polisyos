@@ -7421,6 +7421,30 @@
       "rationale": "The live composer, causal, dispute, and operator-craft writers have no module-private branded PersistedEnvelope issuer, per-family concrete codec, or physical-key/frozen-envelope binding of family, tenant, user, and expiry. The future team-architecture owner must inject a clock for writer TTL and fail closed on absent identity, malformed or expired envelopes, legacy bytes, and runtime-novel families; this records neither C14b nor client identity.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, injected-clock TTL, and fail-closed negatives are implemented",
       "decision_date": "2026-07-17"
+    },
+    {
+      "finding_id": "c07b-dashboard-generated-client-single-owner-debt",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS5",
+      "capability_states": [
+        "bridge_missing",
+        "consumer_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "evidence_refs": [
+        "packages/runtime-api-client/types.ts:2430",
+        "apps/runtime-dashboard/src/api/types.ts:2323",
+        "architecture/generated_artifacts.toml:764",
+        "docs/reference/frontend/workspace-contract.md:37",
+        "apps/runtime-dashboard/package.json:166",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b"
+      ],
+      "rationale": "Canonical package client exists, but the dashboard keeps a divergent local generated artifact; this row records the single-owner strangle without a comparator or dashboard change.",
+      "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_canonical_owner exits 0 after manifest/reference/package cleanup, deletion of apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard imports directly use @polisyos/runtime-api-client.",
+      "decision_date": "2026-07-17"
     }
   ],
   "seeded_negative_lifecycle": [

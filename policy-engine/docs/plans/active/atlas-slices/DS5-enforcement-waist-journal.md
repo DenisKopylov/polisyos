@@ -1324,3 +1324,25 @@
 - Orchestration was native Terra only: no Sol worker was spawned or escalated.
   There were no network, product-path, schema, or bespoke-boundary receipts.
   This exact seven-path atom is unstaged and uncommitted for independent review.
+
+## DS5-C08a — isolate auth test identity fixtures
+
+- Pattern pass: P05/P10/P29/P31/P33. Test and Storybook support now seed an
+  explicit test-only identity fixture; production `/auth/me` behavior remains
+  outside this atom and `useAuthMe.ts` remains byte-identical
+  (`4b59e1fbb409ad323ea0ce07fa6b96a329f2c542`).
+- Red first: `test_support_never_imports_production_fallback_identity` failed
+  against the three baseline support imports. A real temporary corruption that
+  reintroduced the render-helper fallback import failed the same named test;
+  the fixture is the benign control used by hook tests, shared render, and the
+  Platform Health story. The fixture is checked against generated
+  `AuthMeResponse` and the existing runtime validator shape.
+- Receipts: focused auth-hook tests passed 7/7; Platform Health unit tests 2/2;
+  the focused Storybook story passed 1/1; dashboard typecheck and scoped ESLint
+  passed. The syntactic test/story import census found 0 production fallback
+  imports, and `git diff --check` passed.
+- Build nonreceipt: the production build was launched under an explicit
+  60-second bound, but no terminal exit receipt was captured; it is not claimed
+  as a passing gate and C08a does not require a rerun. Orchestration was native
+  Terra only, with no Sol worker or escalation. This exact five-path atom is
+  unstaged and uncommitted for independent review.

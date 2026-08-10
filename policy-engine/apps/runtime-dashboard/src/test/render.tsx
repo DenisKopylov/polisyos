@@ -3,7 +3,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import { FALLBACK_AUTH_ME } from "@/api/hooks/useAuthMe";
 import { queryKeys } from "@/api/queryKeys";
 import { AuthSessionProvider } from "@/app/auth/AuthSessionProvider";
 import { AuthzProvider } from "@/app/authz/AuthzProvider";
@@ -24,10 +23,11 @@ import {
 } from "@/shared/a11y";
 import { AuthorshipProvider } from "@/shared/ui/authored-text";
 import { createTestQueryClient } from "@/test/queryClient";
+import { TEST_AUTH_ME } from "@/test/fixtures/authMe";
 
 export function createAppRenderHarness() {
   const queryClient = createTestQueryClient();
-  queryClient.setQueryData(queryKeys.authMe(), FALLBACK_AUTH_ME);
+  queryClient.setQueryData(queryKeys.authMe(), TEST_AUTH_ME);
 
   function BaseProviders({ children }: PropsWithChildren) {
     return (

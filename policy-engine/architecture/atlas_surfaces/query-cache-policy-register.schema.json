@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "query-cache-policy-register.schema.json",
+  "title": "Atlas DS5 source-bound query cache policy register",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "register_id", "authority", "residual", "denominators", "query_key_owners", "constructions", "producers"],
+  "properties": {
+    "$schema": {"const": "./query-cache-policy-register.schema.json"},
+    "schema_version": {"const": "1.0"},
+    "register_id": {"const": "atlas-ds5-query-cache-policy"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "residual": {"type": "string", "minLength": 1},
+    "denominators": {"$ref": "#/$defs/denominators"},
+    "query_key_owners": {"type": "array", "minItems": 43, "maxItems": 43, "items": {"$ref": "#/$defs/queryKeyOwner"}},
+    "constructions": {"type": "array", "minItems": 66, "maxItems": 66, "items": {"$ref": "#/$defs/construction"}},
+    "producers": {"type": "array", "minItems": 42, "maxItems": 42, "items": {"$ref": "#/$defs/producer"}}
+  },
+  "$defs": {
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*\\.\\./).+$"},
+    "sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "authority": {"type": "object", "additionalProperties": false, "required": ["authoritative_for", "may_not_use_for"], "properties": {"authoritative_for": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}}, "may_not_use_for": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}}}},
+    "denominators": {"type": "object", "additionalProperties": false, "required": ["query_key_owners", "constructions", "producers"], "properties": {"query_key_owners": {"const": 43}, "constructions": {"const": 66}, "producers": {"const": 42}}},
+    "queryKeyOwner": {"type": "object", "additionalProperties": false, "required": ["name", "path", "line"], "properties": {"name": {"$ref": "#/$defs/nonEmpty"}, "path": {"const": "apps/runtime-dashboard/src/api/queryKeys.ts"}, "line": {"type": "integer", "minimum": 1}}},
+    "construction": {"type": "object", "additionalProperties": false, "required": ["path", "line", "resolved_callee", "source_sha256", "options_declaration", "classification"], "properties": {"path": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}, "resolved_callee": {"enum": ["useQuery", "queryOptions"]}, "source_sha256": {"$ref": "#/$defs/sha256"}, "query_key_owner": {"type": ["string", "null"]}, "options_declaration": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/declaration"}]}, "classification": {"enum": ["governed_wrapper", "legacy_direct_debt"]}}},
+    "declaration": {"type": "object", "additionalProperties": false, "required": ["name", "path", "line"], "properties": {"name": {"$ref": "#/$defs/nonEmpty"}, "path": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}}},
+    "producer": {"type": "object", "additionalProperties": false, "required": ["path", "line", "source_sha256", "query_key_owner", "dto_contract", "required_owner_field", "owner_slice", "capability_state", "closure_signal", "classification"], "properties": {"path": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}, "source_sha256": {"$ref": "#/$defs/sha256"}, "query_key_owner": {"type": ["string", "null"]}, "dto_contract": {"$ref": "#/$defs/nonEmpty"}, "required_owner_field": {"const": "as_of"}, "owner_slice": {"const": "DS5"}, "capability_state": {"enum": ["source_bound_debt", "governed_migration_target"]}, "closure_signal": {"$ref": "#/$defs/nonEmpty"}, "classification": {"enum": ["governed_wrapper", "legacy_direct_debt"]}}}
+  }
+}

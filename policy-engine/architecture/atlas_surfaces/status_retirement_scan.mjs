@@ -14,6 +14,9 @@ const ts = require("typescript");
 const CAPABILITY_DISCOVERY_OWNER_PATH =
   "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts";
 const CAPABILITY_TYPES_PATH = "apps/runtime-dashboard/src/api/types.ts";
+const QUERY_KEYS_OWNER_PATH = "apps/runtime-dashboard/src/api/queryKeys.ts";
+const DASHBOARD_SOURCE_PREFIX = "apps/runtime-dashboard/src/";
+const TANSTACK_QUERY_CALLEES = new Set(["useQuery", "queryOptions"]);
 
 function relativePath(fileName) {
   return path.relative(repoRoot, fileName).split(path.sep).join("/");
@@ -417,6 +420,177 @@ function collectCapabilityDiscoveryFacts(sourceFiles, checker, pathOf) {
   return {
     issuerCalls: issuerCalls.sort(sortRows),
     featureLiterals: featureLiterals.sort(sortRows),
+  };
+}
+
+function sourceSha256(sourceFile, node) {
+  return textSha256(node.getText(sourceFile));
+}
+
+function tanstackQueryCallee(checker, expression) {
+  const symbol = resolvedSymbol(checker, expression);
+  if (!symbol || !TANSTACK_QUERY_CALLEES.has(symbol.getName())) return null;
+  const declaredByTanstack = (symbol.declarations ?? []).some((declaration) =>
+    /(?:^|\/)node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?@tanstack\/react-query\//u.test(
+      declaration.getSourceFile().fileName.split(path.sep).join("/"),
+    ),
+  );
+  return declaredByTanstack ? symbol.getName() : null;
+}
+
+function queryKeyOwners(sourceFiles, checker) {
+  const owners = new Map();
+  for (const sourceFile of sourceFiles) {
+    if (relativePath(sourceFile.fileName) !== QUERY_KEYS_OWNER_PATH) continue;
+    const visit = (node) => {
+      if (
+        (ts.isMethodDeclaration(node) || ts.isPropertyAssignment(node)) &&
+        node.parent &&
+        ts.isObjectLiteralExpression(node.parent) &&
+        node.parent.parent &&
+        ts.isVariableDeclaration(node.parent.parent) &&
+        node.parent.parent.name.getText(sourceFile) === "queryKeys"
+      ) {
+        const name = propertyNameText(node.name);
+        const symbol = resolvedSymbol(checker, node.name);
+        if (name && symbol) {
+          owners.set(symbol, { name, path: QUERY_KEYS_OWNER_PATH, line: lineOf(sourceFile, node) });
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return owners;
+}
+
+function directQueryKeyOwner(checker, initializer, owners) {
+  const current = unwrapExpression(initializer);
+  if (!ts.isCallExpression(current)) return null;
+  const symbol = resolvedSymbol(checker, current.expression);
+  if (symbol && owners.has(symbol)) return owners.get(symbol);
+  if (!ts.isPropertyAccessExpression(current.expression)) return null;
+  const ownerSymbol = resolvedSymbol(checker, current.expression.expression);
+  const isCanonicalOwner = symbolHasDeclaration(checker, ownerSymbol, (declaration) =>
+    ts.isVariableDeclaration(declaration) &&
+    propertyNameText(declaration.name) === "queryKeys" &&
+    relativePath(declaration.getSourceFile().fileName) === QUERY_KEYS_OWNER_PATH,
+  );
+  if (!isCanonicalOwner) return null;
+  return [...owners.values()].find(
+    (owner) => owner.name === current.expression.name.text,
+  ) ?? null;
+}
+
+function queryKeyOwnerForObject(checker, object, owners) {
+  const property = objectProperty(object, "queryKey");
+  return property && ts.isPropertyAssignment(property)
+    ? directQueryKeyOwner(checker, property.initializer, owners)
+    : null;
+}
+
+function objectContainsSpreadAssignment(object) {
+  return object.properties.some((property) => ts.isSpreadAssignment(property));
+}
+
+function optionsDeclarationFact(checker, options) {
+  const current = unwrapExpression(options);
+  if (!ts.isCallExpression(current)) return null;
+  const symbol = resolvedSymbol(checker, current.expression);
+  const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
+  if (!symbol || !declaration) return null;
+  return {
+    name: symbol.getName(),
+    path: relativePath(declaration.getSourceFile().fileName),
+    line: lineOf(declaration.getSourceFile(), declaration),
+  };
+}
+
+function isDirectTanstackQueryOptionsObject(checker, object) {
+  const parent = object.parent;
+  return (
+    ts.isCallExpression(parent) &&
+    parent.arguments.some((argument) => unwrapExpression(argument) === object) &&
+    tanstackQueryCallee(checker, parent.expression) !== null
+  );
+}
+
+function queryContract(checker, node) {
+  return checker.typeToString(
+    checker.getTypeAtLocation(node),
+    node,
+    ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseFullyQualifiedType,
+  );
+}
+
+function collectQueryCachePolicyFacts(sourceFiles, checker, pathOf) {
+  const dashboardSources = sourceFiles.filter(
+    (sourceFile) =>
+      pathOf(sourceFile).startsWith(DASHBOARD_SOURCE_PREFIX) &&
+      isDefinitionSource(sourceFile.fileName),
+  );
+  const owners = queryKeyOwners(sourceFiles, checker);
+  const queryKeyOwnersRows = [...owners.values()]
+    .map((owner) => ({ ...owner }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const constructions = [];
+  const producers = [];
+  for (const sourceFile of dashboardSources) {
+    const visit = (node) => {
+      if (ts.isCallExpression(node)) {
+        const callee = tanstackQueryCallee(checker, node.expression);
+        if (callee) {
+          const options = node.arguments.length === 1 ? unwrapExpression(node.arguments[0]) : null;
+          const excludesDirectQueryObject = options && ts.isObjectLiteralExpression(options)
+            ? objectContainsSpreadAssignment(options) &&
+              objectProperty(options, "queryFn") !== null
+            : false;
+          const owner = options && ts.isObjectLiteralExpression(options)
+            ? queryKeyOwnerForObject(checker, options, owners)
+            : null;
+          if (!excludesDirectQueryObject) {
+            constructions.push({
+              callee,
+              path: pathOf(sourceFile),
+              line: lineOf(sourceFile, node),
+              sourceSha256: sourceSha256(sourceFile, node),
+              queryKeyOwner: owner?.name ?? null,
+              optionsDeclaration: options ? optionsDeclarationFact(checker, options) : null,
+            });
+          }
+        }
+      }
+      if (
+        ts.isPropertyAssignment(node) &&
+        propertyNameText(node.name) === "queryFn" &&
+        ts.isObjectLiteralExpression(node.parent) &&
+        !objectContainsSpreadAssignment(node.parent) &&
+        (isDirectTanstackQueryOptionsObject(checker, node.parent) ||
+          (ts.isReturnStatement(node.parent.parent) &&
+            queryKeyOwnerForObject(checker, node.parent, owners) !== null))
+      ) {
+        const owner = queryKeyOwnerForObject(checker, node.parent, owners);
+        producers.push({
+          path: pathOf(sourceFile),
+          line: lineOf(sourceFile, node),
+          sourceSha256: sourceSha256(sourceFile, node),
+          queryKeyOwner: owner?.name ?? null,
+          dtoContract: queryContract(checker, node.initializer),
+        });
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  const sortRows = (left, right) =>
+    `${left.path}:${String(left.line).padStart(8, "0")}`.localeCompare(
+      `${right.path}:${String(right.line).padStart(8, "0")}`,
+    );
+  return {
+    residual: "direct construction-site declaration identity only; aliases, wrappers, and option-value flow are outside this census; spread-bearing direct queryKey/queryFn objects are excluded",
+    queryKeyOwners: queryKeyOwnersRows,
+    constructions: constructions.sort(sortRows),
+    producers: producers.sort(sortRows),
   };
 }
 
@@ -4829,6 +5003,11 @@ function collectProgramFacts(
       authorityPropDescriptors,
     ),
     capabilityDiscoveryFacts,
+    queryCachePolicyFacts: collectQueryCachePolicyFacts(
+      program.getSourceFiles(),
+      checker,
+      (sourceFile) => relativePath(sourceFile.fileName),
+    ),
     ...authorityEscapeFacts,
   };
 }
@@ -5144,6 +5323,11 @@ function collectOverrideFacts(
       relativePath(sourceFile.fileName),
     ),
   };
+  facts.queryCachePolicyFacts = collectQueryCachePolicyFacts(
+    [...program.getSourceFiles()],
+    checker,
+    (sourceFile) => relativePath(sourceFile.fileName),
+  );
   return facts;
 }
 

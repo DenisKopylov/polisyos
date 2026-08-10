@@ -1,0 +1,1380 @@
+{
+  "$schema": "./query-cache-policy-register.schema.json",
+  "schema_version": "1.0",
+  "register_id": "atlas-ds5-query-cache-policy",
+  "authority": {
+    "authoritative_for": [
+      "the direct TypeScript construction-site census for DS5 query cache policy debt"
+    ],
+    "may_not_use_for": [
+      "TanStack value-flow analysis",
+      "cache-policy runtime behavior",
+      "source freshness or observation-time inference"
+    ]
+  },
+  "residual": "direct construction-site declaration identity only; aliases, wrappers, and option-value flow are outside this census; spread-bearing direct queryKey/queryFn objects are excluded",
+  "denominators": {
+    "query_key_owners": 43,
+    "constructions": 66,
+    "producers": 42
+  },
+  "query_key_owners": [
+    {
+      "name": "artifactContent",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 147
+    },
+    {
+      "name": "artifactLineage",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 151
+    },
+    {
+      "name": "artifactManifest",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 145
+    },
+    {
+      "name": "artifactSchema",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 149
+    },
+    {
+      "name": "authMe",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 12
+    },
+    {
+      "name": "bureaucraticRender",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 153
+    },
+    {
+      "name": "cacheStatus",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 206
+    },
+    {
+      "name": "capabilities",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 14
+    },
+    {
+      "name": "connectors",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 205
+    },
+    {
+      "name": "controlJobStatus",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 203
+    },
+    {
+      "name": "counterfactualMetrics",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 119
+    },
+    {
+      "name": "dataCatalogSearch",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 212
+    },
+    {
+      "name": "dataIndexStats",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 209
+    },
+    {
+      "name": "dataPromotionCandidates",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 210
+    },
+    {
+      "name": "governedProjection",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 15
+    },
+    {
+      "name": "health",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 13
+    },
+    {
+      "name": "lexGraphStats",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 228
+    },
+    {
+      "name": "lexPipelineStatus",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 226
+    },
+    {
+      "name": "lineage",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 170
+    },
+    {
+      "name": "lineageBatch",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 177
+    },
+    {
+      "name": "lineageExport",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 188
+    },
+    {
+      "name": "llmProfiles",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 208
+    },
+    {
+      "name": "run",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 22
+    },
+    {
+      "name": "runAgents",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 136
+    },
+    {
+      "name": "runCompare",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 65
+    },
+    {
+      "name": "runCompareCandidates",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 77
+    },
+    {
+      "name": "runErrors",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 143
+    },
+    {
+      "name": "runEvidenceContext",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 134
+    },
+    {
+      "name": "runFabricDecisionData",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 54
+    },
+    {
+      "name": "runGovernanceDebug",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 139
+    },
+    {
+      "name": "runLineage",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 38
+    },
+    {
+      "name": "runNodeDebug",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 141
+    },
+    {
+      "name": "runNodes",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 37
+    },
+    {
+      "name": "runQuantities",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 46
+    },
+    {
+      "name": "runs",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 20
+    },
+    {
+      "name": "runScenarios",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 85
+    },
+    {
+      "name": "runsRoot",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 19
+    },
+    {
+      "name": "runTimeline",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 29
+    },
+    {
+      "name": "runWorkflow",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 137
+    },
+    {
+      "name": "scenarioCapabilities",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 108
+    },
+    {
+      "name": "scenarioManifest",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 98
+    },
+    {
+      "name": "sourceProfiles",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 207
+    },
+    {
+      "name": "temporalCapabilities",
+      "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+      "line": 17
+    }
+  ],
+  "constructions": [
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactContent.ts",
+      "line": 50,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:452544c08e7dea7e79748cd57cfc8f1ef4f56f7c6788e360363022911ecf25ff",
+      "query_key_owner": "artifactContent",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactContent.ts",
+      "line": 60,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:186871805afda5ba99496ac508725051916a502e8a818aab5f87040af74caae8",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactLineage.ts",
+      "line": 46,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:0aae7a910fcf824825109226126b8b5faa251b16bb4f950ec65791108d79bf32",
+      "query_key_owner": "artifactLineage",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactManifest.ts",
+      "line": 32,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:a8e31abbac08208fbd3d341d4f70f232397cdbc3b7b52e67e8f27fe246521bd1",
+      "query_key_owner": "artifactManifest",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactSchema.ts",
+      "line": 35,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:65087e8b936d3b1ff10c7878d91def730abc67ba2ba532400f7aa0ad715bbe70",
+      "query_key_owner": "artifactSchema",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts",
+      "line": 69,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:c7dae86e862b430a949c38e811e652fb3502cfadd9e566c5dbb3282c9b5ac175",
+      "query_key_owner": "authMe",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts",
+      "line": 79,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:b3464e0e8052b8c3dfdfde1b10cb83784138deae5bedf0aa3ef281eb4463a117",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "authMeQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts",
+        "line": 68
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useBureaucraticRender.ts",
+      "line": 62,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:812c2ae0353462da593289deac9dda29d8780b2e61b8fc1e5f2f40e7b242e942",
+      "query_key_owner": "bureaucraticRender",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useBureaucraticRender.ts",
+      "line": 73,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:50013729c78ce80a7d4680bd6f26641284c71fe5d21e448601e59948a84fbeb0",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCacheStatus.ts",
+      "line": 21,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:e9d779931de3874a4ca77aa95fe44b3e65a04659b1a0dcafc41cde71ed44a153",
+      "query_key_owner": "cacheStatus",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+      "line": 108,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:9fc5c1ac244d072de27063f241dcf798c040528e36d327dfa988e36f1d107e91",
+      "query_key_owner": "capabilities",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+      "line": 117,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:ddb269f56b244f184368ef91247b8f7671def079cdd1ab8a42faf5ffa95e6b63",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "capabilitiesQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+        "line": 107
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCompareRuns.ts",
+      "line": 96,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:ccb51c858223949232b93318f35952c7f2f4a684661b6483cdac04d2f2ee8125",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCompareRuns.ts",
+      "line": 113,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:741f2f28e7c5327ce9dfbb23eebc66af9f1c207625a044561a4070de8aa9e8bd",
+      "query_key_owner": "runCompareCandidates",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useConnectors.ts",
+      "line": 22,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:d0d5a858a986a123d5382719d26bea4295e568305b2534801da991fb79854cb4",
+      "query_key_owner": "connectors",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useConnectors.ts",
+      "line": 29,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:25aaa5cdac4b2282196f1440fd8e7f171248751eb7f1ee1f5b061edf069359e1",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "connectorsQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useConnectors.ts",
+        "line": 21
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useControlJobStatus.ts",
+      "line": 29,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:d72bf00a0274ac905023a17fbcc70465f1e180bde420e38a745ae8379b3a3e52",
+      "query_key_owner": "controlJobStatus",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCounterfactualMetrics.ts",
+      "line": 85,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:1cafb819e600d4054f5dced1026a598dfd3e5a3fe6123d4476c885e04ed26830",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
+      "line": 52,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:eae90f9f26fcda01d5fea6cde97c75312d708593dbddef6ffb46f4cc53340a2d",
+      "query_key_owner": "dataCatalogSearch",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataIndexStats.ts",
+      "line": 30,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:b21b82bd7c264c347034e7989471b099dded0f58ff601975ac269cb52bae8c00",
+      "query_key_owner": "dataIndexStats",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataIndexStats.ts",
+      "line": 38,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:fb87d3842e86a05263b57257d7c69c3ced3b10a5883ce69d5be0a5343ec031c0",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "dataIndexStatsQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useDataIndexStats.ts",
+        "line": 29
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataPromotionCandidates.ts",
+      "line": 32,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:77f370fc0d8a9742d8440b1c91e84da863e30e1d757612a798974109d191389c",
+      "query_key_owner": "dataPromotionCandidates",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataPromotionCandidates.ts",
+      "line": 40,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:394c22143bfdfd15352234901f9c700d24c3f54634a059e79fb1c3a6af5876b4",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "dataPromotionCandidatesQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useDataPromotionCandidates.ts",
+        "line": 31
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useGovernanceDebug.ts",
+      "line": 46,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:793e5a9a9a9c974d85285fafcb96a06c7ae8c5770b016f21db33c7fd0c226c45",
+      "query_key_owner": "runGovernanceDebug",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useGovernanceDebug.ts",
+      "line": 53,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:2e3bdcafaeaee96f724321a14333d0ecef39bd5a3c5d3456a4fa41b4fc60d5f5",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+      "line": 27,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:131b19de7a4c85a2e032a194401d5e071b59321ce679b900832d901a04497ee6",
+      "query_key_owner": "health",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+      "line": 36,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:a8f6947031b9622211ae5367f2a98bd40a7f36ecdea832c9f46845a9f73cfda6",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "healthQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+        "line": 26
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLexGraphStats.ts",
+      "line": 33,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:57d8c31b15fa53fc2758c2f702edb04ce311d385bccd54a63620807d104d8f30",
+      "query_key_owner": "lexGraphStats",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLexGraphStats.ts",
+      "line": 40,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:4cca608ca0a09be92c7c6fd5bc1eb1bd83f8804c1c2573162c491f4eed2eb097",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLexPipelineStatus.ts",
+      "line": 29,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:05cd9c2f56b4512e1085c6db7d20f35e35fb76fb297c30572e7c1f8935095f89",
+      "query_key_owner": "lexPipelineStatus",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLlmProfiles.ts",
+      "line": 23,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:9d10f1a7b291133b169a597f61065fee7830bd155aa7d018f3ed27fbdc079fee",
+      "query_key_owner": "llmProfiles",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLlmProfiles.ts",
+      "line": 30,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:23ebe0a4eb855d2ee45493babd4e633dbe4c4256558a359eaf4a31fb34b36d28",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "llmProfilesQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useLlmProfiles.ts",
+        "line": 22
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useNodeDebug.ts",
+      "line": 48,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:cf46b105789855eed35daff7a40cdb4c98c8a809ca0a01373f639fd05f288e43",
+      "query_key_owner": "runNodeDebug",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunAgents.ts",
+      "line": 43,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:7b77d21947d833909a93a8d4ced3c504df0fa3f2e028775d97b501470c0964da",
+      "query_key_owner": "runAgents",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunAgents.ts",
+      "line": 50,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:cad9eecaf242eb29fef3903fbe85a7bb47e9b24c3b5e7ab2d63f8c55f4af5481",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunDetails.ts",
+      "line": 92,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:912a090775c7734fe56a18cf4e71dcd0f99e04735a346c033b4bc4f8d3470d01",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunErrors.ts",
+      "line": 40,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:03535b75570ccdc4883ed2e08bbc38aeaa2ef5827bedccdcff333e883bb77b84",
+      "query_key_owner": "runErrors",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunErrors.ts",
+      "line": 47,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:0fdeca1ee2bb424f89275302f7adeee2f185857ab55dc23ba2a9a388afbd11e3",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunEvidenceContext.ts",
+      "line": 47,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:900f121aa15c69284bc16356aa452440d5a4a8b5535556432a54c016b8be9cb8",
+      "query_key_owner": "runEvidenceContext",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunEvidenceContext.ts",
+      "line": 57,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:f9c7e85c321e2f9ee95b3c4501fdff8fb4f72f943e0c1d4259429e01386d548c",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+      "line": 55,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:96098e3308bd1a6b179f64d97290b5cde4af50f0f2aa9130876995b604ca2036",
+      "query_key_owner": "runFabricDecisionData",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+      "line": 67,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:c349585ad26ea536789a0aa5de3ba75938a833cb4008dcf181a326beee4d7c4f",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "line": 59,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:83e8543a359752dbd2d91734080f97032c7bb549e40c6bc6adaa4d1c5b443ab8",
+      "query_key_owner": "runLineage",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "line": 68,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:2f3692cbf04f2d17798e2001fa7cce4927af4611f03bf7f677de8498d64c5188",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunNodes.ts",
+      "line": 40,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:bc7ca91f923df5989aa0269865bfa1aa6c7b39d2e6a2540ebef4a6b5fd106428",
+      "query_key_owner": "runNodes",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunNodes.ts",
+      "line": 47,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:a704c3bf4fc88261f52c8e7555786b367818e66709b8d450c619a97befc63a8f",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunQuantities.ts",
+      "line": 53,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:23af97cd610e8610091174c35a76b54ba92d9a26f9174fe68c21566ed77b0c2f",
+      "query_key_owner": "runQuantities",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunQuantities.ts",
+      "line": 62,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:76268adb0926e9285d8351a5da5c3bf38ae5599c6af7a0b87822d81b67d4cb46",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRuns.ts",
+      "line": 59,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:af04e0ce7ea40d07f15cbe087045e98dea9751b6df1e3731eb02006de96a2042",
+      "query_key_owner": "runs",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRuns.ts",
+      "line": 67,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:3fea96d9340baebf0668ce9b2c404625a87fc80b03304cf89765ee2d16771a13",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "runsQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useRuns.ts",
+        "line": 50
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunTimeline.ts",
+      "line": 56,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:749ef276d6db1041ebe9acc53ff68749734d144b56b2fdd53559208c27b6804b",
+      "query_key_owner": "runTimeline",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunTimeline.ts",
+      "line": 65,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:3ddf8cdf3101d76e9d6258a75afbee7f406e24f0b7c01f4339310e5911b89bcb",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunWorkflow.ts",
+      "line": 45,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:137226053c22a4d50d773d9775e256d0cf2a5c497972217f23f9dc4ba7ba18bf",
+      "query_key_owner": "runWorkflow",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunWorkflow.ts",
+      "line": 52,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:70413c2ef495760fff3e6d8368d09df11e856fcaab69c13baade0122e254c2dd",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioCapabilities.ts",
+      "line": 93,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:31e85e5dee436f9f461c8e721ba370c2ed609456195a2a70ddd576c2169c5893",
+      "query_key_owner": "runScenarios",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioCapabilities.ts",
+      "line": 115,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:b7825c68229cd63b13b4553d8ad9feac5152b80f00006de81f507db0657082e8",
+      "query_key_owner": "scenarioCapabilities",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioManifest.ts",
+      "line": 55,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:5ba43626e532efc1475559ecf93922aaa8f266879d882b091a7ebdee10e25bb8",
+      "query_key_owner": "scenarioManifest",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useSourceProfiles.ts",
+      "line": 27,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:c099b84f73e7d1557ba0b33f87d6592b5b5ad15dda1cc72dd9b45e807a21763a",
+      "query_key_owner": "sourceProfiles",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useSourceProfiles.ts",
+      "line": 34,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:df50fc599a7ba8dc3c7cf5b0e4ec42244a5e293445fa57e4d798ac89c9cc3790",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "sourceProfilesQueryOptions",
+        "path": "apps/runtime-dashboard/src/api/hooks/useSourceProfiles.ts",
+        "line": 26
+      },
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useTemporalQuery.ts",
+      "line": 24,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:e0e3642012cdb4437a47435e96c1810026901f3d31d7e629cdc7b73e9428cbf9",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useTemporalRange.ts",
+      "line": 60,
+      "resolved_callee": "queryOptions",
+      "source_sha256": "sha256:50bae121b154a39fae668f41d755d1b0a91a2626f0685034844a2b3d7f138de8",
+      "query_key_owner": "temporalCapabilities",
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useTemporalRange.ts",
+      "line": 70,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:f85987912ccb458b379c392b8e63eb1471b568c855edefe0a28ad32fb6e224bf",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+      "line": 122,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:d0d392c952106e1ae0f1670bddb8c68b6b7eaad04c90b0e40bdc08035402af4d",
+      "query_key_owner": null,
+      "options_declaration": {
+        "name": "depthNCycleBoardProjectionQueryOptions",
+        "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+        "line": 104
+      },
+      "classification": "governed_wrapper"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+      "line": 15,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:d8cd31a147c9b7c00c411e08457f94ff6c779564276e6df9b0d17cefdcd58179",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+      "line": 32,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:427feabb9088bf04564df117e20fa28c3c175c0f3bdc84327ef47d67e2371e4d",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+      "line": 26,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:0b5a6c3440f54fa54d0523bd7a4a7b3ee1f33bd632269ac1f43211a3bf9f37da",
+      "query_key_owner": null,
+      "options_declaration": null,
+      "classification": "legacy_direct_debt"
+    }
+  ],
+  "producers": [
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactContent.ts",
+      "line": 52,
+      "source_sha256": "sha256:47d9f9aca4ff568596d1197b1642014e0914fe68debc1aff2a8743af0a563d61",
+      "query_key_owner": "artifactContent",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; artifact: { artifact_id: string; kind: string; media_type: string; mode: \"text\" | \"json\" | \"binary\"; size_bytes: number; max_bytes: number; truncated: boolean; preview?: unknown; decision_packet_preview?: { [x: string]: unknown; document_outline?: { section_id: string; title: string; section_type?: string | null | undefined; }[] | undefined; metric_significance_by_metric?: Record<string, { baseline_model_id?: string | null | undefined; candidate_model_id?: string | null | undefined; metric_direction?: string | null | undefined; baseline_value?: number | null | undefined; candidate_value?: number | null | undefined; delta_value?: number | null | undefined; test_id?: string | null | undefined; test_label?: string | null | undefined; p_value?: number | null | undefined; p_adj?: number | null | undefined; alpha?: number | null | undefined; significant?: boolean | null | undefined; effect_size?: { point?: number | null | undefined; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | null | undefined; identifiability?: \"identified\" | \"estimated\" | \"assumed\" | null | undefined; disputed?: boolean | null | undefined; method?: string | null | undefined; } | null | undefined; assumption_warnings?: string[] | undefined; calibration_warnings?: string[] | undefined; }> | undefined; metric_validation_comparison_rows?: { metric_id: string; metric_direction?: string | null | undefined; baseline_model_id?: string | null | undefined; candidate_model_id?: string | null | undefined; baseline_value?: number | null | undefined; candidate_value?: number | null | undefined; delta_value?: number | null | undefined; family_id?: string | null | undefined; family_scope?: string | null | undefined; sample_size_effective?: number | null | undefined; resampling_method?: string | null | undefined; test_id?: string | null | undefined; test_label?: string | null | undefined; statistic?: number | null | undefined; effect_size?: { point?: number | null | undefined; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | null | undefined; identifiability?: \"identified\" | \"estimated\" | \"assumed\" | null | undefined; disputed?: boolean | null | undefined; method?: string | null | undefined; } | null | undefined; p_value?: number | null | undefined; p_adj?: number | null | undefined; alpha?: number | null | undefined; significant?: boolean | null | undefined; assumption_warnings?: string[] | undefined; calibration_warnings?: string[] | undefined; }[] | undefined; blocks?: { content: string; id?: string | null | undefined; author?: \"citation\" | \"human\" | \"drafter\" | \"formalizer\" | \"critic\" | null | undefined; author_agent_version?: string | null | undefined; sources?: { kind: string; ref: string; }[] | undefined; timestamp?: string | null | undefined; confidence?: number | null | undefined; reviewed_by_human?: boolean | null | undefined; }[] | undefined; narrative_blocks?: { content: string; id?: string | null | undefined; author?: \"citation\" | \"human\" | \"drafter\" | \"formalizer\" | \"critic\" | null | undefined; author_agent_version?: string | null | undefined; sources?: { kind: string; ref: string; }[] | undefined; timestamp?: string | null | undefined; confidence?: number | null | undefined; reviewed_by_human?: boolean | null | undefined; }[] | undefined; evidence_summary_blocks?: { content: string; id?: string | null | undefined; author?: \"citation\" | \"human\" | \"drafter\" | \"formalizer\" | \"critic\" | null | undefined; author_agent_version?: string | null | undefined; sources?: { kind: string; ref: string; }[] | undefined; timestamp?: string | null | undefined; confidence?: number | null | undefined; reviewed_by_human?: boolean | null | undefined; }[] | undefined; } | null | undefined; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactLineage.ts",
+      "line": 48,
+      "source_sha256": "sha256:5f10fcc0f7af8aad237f98ad654074c0f1036224607348fdbc87f69feb1300a0",
+      "query_key_owner": "artifactLineage",
+      "dto_contract": "() => Promise<{ lineage: { nodes: { artifact_id: string; status: string; byte_size: number; depth: number; role?: string | null | undefined; kind?: string | null | undefined; }[]; edges: { parent_artifact_id: string; child_artifact_id: string; role: string; }[]; root_artifact_ids: string[]; missing_artifact_ids: string[]; corrupted_artifact_ids: string[]; total_nodes: number; total_edges: number; total_size_bytes: number; is_complete: boolean; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactManifest.ts",
+      "line": 34,
+      "source_sha256": "sha256:252618fd268bf67f0eab594040f417b6db37fd2c95a647d9d7b6e3334da8df29",
+      "query_key_owner": "artifactManifest",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; artifact: { artifact_id: string; kind: string; media_type: string; byte_size: number; created_at: string; integrity_sha256: string; schema_name?: string | null | undefined; schema_version?: string | null | undefined; producer_component?: string | null | undefined; producer_version?: string | null | undefined; inputs?: { artifact_id: string; role: string; }[] | undefined; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useArtifactSchema.ts",
+      "line": 37,
+      "source_sha256": "sha256:e57c8df4fd1ce88c46408249ed271d99aa2930e291646d34b9d31f2e24759a4d",
+      "query_key_owner": "artifactSchema",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; schema: { artifact_id: string; kind: string; media_type: string; schema_name?: string | null | undefined; schema_version?: string | null | undefined; top_level_keys?: string[] | undefined; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts",
+      "line": 71,
+      "source_sha256": "sha256:40f0ae61ae07a090882a060e5a136f143359681ebd97704bc75fd9e5ef3e7f1a",
+      "query_key_owner": "authMe",
+      "dto_contract": "() => Promise<AuthMePayload>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useBureaucraticRender.ts",
+      "line": 64,
+      "source_sha256": "sha256:adb6daf4d8145d28170e551ef8467c9207ae24c14629a09084418ec1af49629a",
+      "query_key_owner": "bureaucraticRender",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; document: { id: string; packet_id: string; genre: \"postanova_kmu\" | \"zakonoproekt\" | \"expert_vysnovok\" | \"analitichna_zapyska\"; jurisdiction: string; template: { id: string; version: string; genre: \"postanova_kmu\" | \"zakonoproekt\" | \"expert_vysnovok\" | \"analitichna_zapyska\"; jurisdiction: string; locale: string; legal_review_status: \"approved\" | \"rejected\" | \"pending_external_review\"; }; status: \"draft\" | \"signed_external\" | \"archived\"; title: string; language: string; watermark: string; render_timestamp: string; packet_hash: string; trust_view: boolean; blocks: unknown[]; annexes: unknown[]; epistemic_summary: { evidence_filled: number; model_generated: number; operator_filled: number; imported: number; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; metadata?: Record<string, unknown> | undefined; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCacheStatus.ts",
+      "line": 23,
+      "source_sha256": "sha256:6157989afec3011165371056f989ddacca14177e3cc2f4809e2958a37be8cbe7",
+      "query_key_owner": "cacheStatus",
+      "dto_contract": "() => Promise<CacheStatusResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+      "line": 110,
+      "source_sha256": "sha256:7c49a5a6351498cafe1a24e26b8410332b1da60b1b26c68a75d6692d191fdfdf",
+      "query_key_owner": "capabilities",
+      "dto_contract": "() => Promise<CapabilityManifestResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCompareRuns.ts",
+      "line": 83,
+      "source_sha256": "sha256:2445f3c26fd157ad30cd1d54f94ec41a1aff49a60b19c2e54047936d990ebde2",
+      "query_key_owner": "runCompare",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; status: \"computed\" | \"client_computable\"; comparison_frame: { run_a: string; run_b: string; unit_policy: \"source\" | \"mixed\" | \"canonical\"; metric_set?: string[] | undefined; population?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; scenario_scope?: Record<string, unknown> | undefined; assumption_set?: string[] | undefined; }; comparability: { status: \"warning\" | \"blocked\" | \"compatible\"; warnings?: string[] | undefined; blocked_reasons?: string[] | undefined; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; deltas?: { metric_id: string; label: string; significance: \"improved\" | \"worsened\" | \"mixed\" | \"uncertain\" | \"not_comparable\"; dominance: \"a\" | \"b\" | \"unknown\" | \"none\" | \"mixed\"; decision_salience: number; lineage_delta: { source_changed: boolean; model_changed: boolean; hash_changed: boolean; freshness_changed: boolean; verification_changed?: string | null | undefined; notes?: string[] | undefined; }; a?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; b?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; delta_absolute?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; delta_relative?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; delta_distribution?: { quantiles?: Record<string, number> | undefined; mean_shift?: number | null | undefined; median_shift?: number | null | undefined; ci_overlap?: boolean | null | undefined; } | undefined; }[] | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCompareRuns.ts",
+      "line": 115,
+      "source_sha256": "sha256:7404373a2655e7dcab3242fed99ce9ab153324c420b35fd6fb3f4440ca9fb827",
+      "query_key_owner": "runCompareCandidates",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; candidates?: { run_id: string; relation: \"baseline\" | \"previous\" | \"selected\" | \"recommended\"; comparability: { status: \"warning\" | \"blocked\" | \"compatible\"; warnings?: string[] | undefined; blocked_reasons?: string[] | undefined; }; label?: string | null | undefined; status?: string | null | undefined; started_at?: string | null | undefined; finished_at?: string | null | undefined; }[] | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useConnectors.ts",
+      "line": 24,
+      "source_sha256": "sha256:dc1368024619174e96194cfbcc0ca459e603341c8f737cbf05f851d0cae61289",
+      "query_key_owner": "connectors",
+      "dto_contract": "() => Promise<ConnectorsListResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useControlJobStatus.ts",
+      "line": 31,
+      "source_sha256": "sha256:57a9e0adf3fa73f031fa4ce4d705465682d055927406c734b5be9e15a3958b67",
+      "query_key_owner": "controlJobStatus",
+      "dto_contract": "() => Promise<{ approval_projection?: components[\"schemas\"][\"ControlApprovalProjection\"]; authoritative_scorecard_ref?: string | null; blocking_quality_failures?: components[\"schemas\"][\"ControlQualityFailure\"][]; capability_manifest_ref?: components[\"schemas\"][\"ArtifactRef-Output\"] | null; effective_execution_profile: \"dev\" | \"research\" | \"governed\" | \"production\"; error_message?: string | null; execution_status?: string | null; failure?: components[\"schemas\"][\"ControlFailureEnvelope\"] | null; finished_at?: string | null; job_id: string; kind: \"workflow_run\" | \"natural_language_run\" | \"lex_pipeline\"; meta: components[\"schemas\"][\"ApiMeta\"]; next_diagnostic_commands?: string[]; operator_diagnostic?: components[\"schemas\"][\"OperatorDiagnostic\"] | null; pipeline_id?: string | null; policy_design_case_projection?: components[\"schemas\"][\"PolicyDesignCaseProjection\"] | null; progress?: { [key: string]: unknown; }; projection_source?: components[\"schemas\"][\"ControlProjectionSource\"]; quality_evidence_bundle_path?: string | null; quality_gates?: components[\"schemas\"][\"ControlQualityGate\"][]; quality_scorecard_ref?: string | null; quality_status?: string | null; requested_execution_profile?: (\"dev\" | \"research\" | \"governed\" | \"production\") | null; run_id?: string | null; runtime_state?: string | null; started_at?: string | null; state: \"pending\" | \"running\" | \"completed\" | \"failed\"; submitted_at?: string | null; unresolved_authority_gaps?: components[\"schemas\"][\"ControlAuthorityGap\"][]; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useCounterfactualMetrics.ts",
+      "line": 66,
+      "source_sha256": "sha256:2cf3e2354e493453ff17e451cbd6b5cc6ce9d247cb73d46916767690f8bc63c7",
+      "query_key_owner": "counterfactualMetrics",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; scenario: { id: string; baseline_run_id: string; status: \"draft\" | \"stale\" | \"failed\" | \"computed\"; policy_question: string; author: string; model_family: string; model_lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; interventions: { field: string; operator: \"set\" | \"add\" | \"multiply\" | \"remove\"; value: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; baseline_value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; constraint_ids?: string[] | undefined; }[]; assumptions: { id: string; label: string; status: \"disputed\" | \"operator_assumption\" | \"model_assumption\" | \"observed_evidence\"; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; description?: string | null | undefined; }[]; lifecycle_status?: \"draft\" | \"generated\" | \"saved\" | \"promoted\" | undefined; revision?: number | undefined; manifest_hash?: string | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; affected_population?: string | null | undefined; temporal_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; model_version?: string | null | undefined; baseline_lineage?: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; } | null | undefined; baseline_hash?: string | null | undefined; computed_at?: string | null | undefined; saved_at?: string | null | undefined; promoted_at?: string | null | undefined; validity_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; known_limitations?: string[] | undefined; stale_reasons?: string[] | undefined; constraints?: { id: string; label: string; severity: \"warning\" | \"error\"; field?: string | null | undefined; operator?: string | null | undefined; value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; message?: string | null | undefined; }[] | undefined; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; metrics?: Record<string, { metric_id: string; label: string; actual: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; counterfactual: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; delta: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; scenario_ref: { id: string; status: \"draft\" | \"stale\" | \"failed\" | \"computed\"; baseline_run_id: string; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; assumption_ids: string[]; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; manifest_hash?: string | null | undefined; }; assumption_ids: string[]; }> | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
+      "line": 54,
+      "source_sha256": "sha256:1e63a4f05357c29c03e1356b250fdf855a3dd4c72bbc752b4e1b6305b268356b",
+      "query_key_owner": "dataCatalogSearch",
+      "dto_contract": "() => Promise<{ matches?: components[\"schemas\"][\"MetricCandidate\"][]; meta: components[\"schemas\"][\"ApiMeta\"]; query: string; total_matches: number; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataIndexStats.ts",
+      "line": 32,
+      "source_sha256": "sha256:a7351c9e7b85d860b5f071aa712e8ed7c7dab0a3632b256205110e08d01eacc5",
+      "query_key_owner": "dataIndexStats",
+      "dto_contract": "() => Promise<IndexStatsResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useDataPromotionCandidates.ts",
+      "line": 34,
+      "source_sha256": "sha256:88d21b7a93a27d8fde01e0dfa435cabe0a1c977dc1297292dad83fe22a2ade24",
+      "query_key_owner": "dataPromotionCandidates",
+      "dto_contract": "() => Promise<PromotionCandidatesResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useGovernanceDebug.ts",
+      "line": 48,
+      "source_sha256": "sha256:46f4a72ce3626c2125986d42cc5606210bdeb380100e9f3fb2d7cdb9e2969d05",
+      "query_key_owner": "runGovernanceDebug",
+      "dto_contract": "() => Promise<{ debug: { issues: (Record<string, unknown> & { code?: string | undefined; severity?: string | undefined; message?: string | undefined; pass_id?: string | undefined; })[]; notes: string[]; fallback_from_decision_packet: boolean; run_id: string; source_kind: \"core_run\"; verdict?: string | null | undefined; issue_summary?: Record<string, number> | null | undefined; report_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; report_kind?: string | null | undefined; report_schema_version?: string | null | undefined; links?: Record<string, { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null> | null | undefined; legal_executed?: boolean | null | undefined; transport_summary?: Record<string, unknown> | null | undefined; validation_trace?: Record<string, unknown> | null | undefined; contract_warnings?: string[] | undefined; decision_validity?: Record<string, unknown> | null | undefined; normative_summary?: Record<string, unknown> | null | undefined; normative_arbitration_result_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+      "line": 29,
+      "source_sha256": "sha256:46d08f1fd4f6e336eaf743fb9df5aa5993f8e398715a6f6706b124697a9e2625",
+      "query_key_owner": "health",
+      "dto_contract": "() => Promise<{ [x: string]: string | number | boolean | Record<string, unknown> | unknown[] | null; meta?: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; } | null | undefined; status?: string | undefined; service?: string | undefined; ts?: string | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLexGraphStats.ts",
+      "line": 35,
+      "source_sha256": "sha256:8d5020d6dfe8ce343c87bb45d5a2f9223b31cbdc4bdfc70b18c800d7262f475d",
+      "query_key_owner": "lexGraphStats",
+      "dto_contract": "() => Promise<{ db_exists: boolean; meta: components[\"schemas\"][\"ApiMeta\"]; top_entity_types?: { [key: string]: unknown; }[]; top_predicates?: { [key: string]: unknown; }[]; total_entities: number; total_facts: number; total_provisions: number; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLexPipelineStatus.ts",
+      "line": 31,
+      "source_sha256": "sha256:9212e61f0d55d80691ab4b5199db590ba85cce1696ebb7566e2f6165416abae9",
+      "query_key_owner": "lexPipelineStatus",
+      "dto_contract": "() => Promise<{ error_message?: string | null; meta: components[\"schemas\"][\"ApiMeta\"]; pipeline_id: string; progress_summary?: { [key: string]: number; }; state: \"pending\" | \"running\" | \"completed\" | \"failed\"; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useLlmProfiles.ts",
+      "line": 25,
+      "source_sha256": "sha256:b449f76380e924c3a0ff771ee9f145639fd829d9e9a3284a60ca192cae5161cd",
+      "query_key_owner": "llmProfiles",
+      "dto_contract": "() => Promise<ModelProfilesListResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useNodeDebug.ts",
+      "line": 50,
+      "source_sha256": "sha256:6f0dc8ca98b1391645f37a4032a43cfc028842c21a40cab3271c8613b8ee9379",
+      "query_key_owner": "runNodeDebug",
+      "dto_contract": "() => Promise<{ debug: { timeline_events: { index: number; timestamp: string; phase: string; event: string; span_id?: string | null | undefined; parent_span_id?: string | null | undefined; input_artifact_ids?: string[] | undefined; output_artifact_ids?: string[] | undefined; metrics?: Record<string, number> | undefined; warning_count?: number | undefined; error_count?: number | undefined; }[]; notes: string[]; cache_hits: number; cache_stores: number; cache_bypasses: number; run_id: string; source_kind: \"core_run\"; alias: string; record: { alias: string; status: \"unknown\" | \"ok\" | \"fail\" | \"skip\"; duration_ms: number; node_id?: string | null | undefined; error_code?: string | null | undefined; error_message?: string | null | undefined; error_details?: Record<string, unknown> | undefined; skip_reason?: string | null | undefined; artifact_ids?: string[] | undefined; input_artifact_ids?: string[] | undefined; output_artifact_ids?: string[] | undefined; }; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunAgents.ts",
+      "line": 45,
+      "source_sha256": "sha256:652b5445584945895d409a1ab8b5571e6d60dd4b1f4e46430f1fd3f2e87fd08f",
+      "query_key_owner": "runAgents",
+      "dto_contract": "() => Promise<{ pipeline: { attempts: { attempt: number; status: string; verdict?: string | null | undefined; started_at?: string | null | undefined; finished_at?: string | null | undefined; duration_ms?: number | null | undefined; steps?: { attempt: number; agent: string; action: string; status: \"info\" | \"warn\" | \"ok\" | \"fail\"; timestamp?: string | null | undefined; summary?: string | null | undefined; details?: Record<string, unknown> | undefined; prompt?: string | null | undefined; response?: string | null | undefined; model?: string | null | undefined; provider?: string | null | undefined; model_variant_id?: string | null | undefined; latency_ms?: number | null | undefined; cost_usd?: number | null | undefined; token_usage?: Record<string, number> | undefined; }[] | undefined; notes?: string[] | undefined; }[]; run_id: string; source_kind: \"core_run\"; total_attempts: number; latest_verdict?: string | null | undefined; decision_packet_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; reflexion_terminal_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; retrieval?: { mode?: string | undefined; lane_used?: string | undefined; metadata_docs_fetched?: number | undefined; local_index_size_bytes?: number | undefined; local_index_docs_total?: number | undefined; candidates_filtered?: number | undefined; candidates_promoted?: number | undefined; phases?: { phase: string; lane?: string | null | undefined; duration_ms?: number | undefined; candidates_total?: number | undefined; candidates_selected?: number | undefined; docs_fetched?: number | undefined; }[] | undefined; notes?: string[] | undefined; } | null | undefined; execution_plan_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; method_catalog_snapshot_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; preflight?: { ready_to_run?: boolean | undefined; diagnostics?: { code: string; message: string; severity?: string | undefined; path?: string[] | undefined; replanning_hints?: string[] | undefined; data?: Record<string, unknown> | undefined; }[] | undefined; notes?: string[] | undefined; report_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; } | null | undefined; evaluator?: { verdict?: string | null | undefined; scores?: { kpi_score?: number | undefined; uncertainty_score?: number | undefined; constraints_score?: number | undefined; data_quality_score?: number | undefined; budget_score?: number | undefined; total_score?: number | undefined; } | undefined; reasons?: string[] | undefined; replanning_hints?: string[] | undefined; diagnostics?: { code: string; message: string; severity?: string | undefined; path?: string[] | undefined; replanning_hints?: string[] | undefined; data?: Record<string, unknown> | undefined; }[] | undefined; notes?: string[] | undefined; report_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; } | null | undefined; iteration_lifecycle?: { iteration?: number | undefined; state?: string | undefined; stop_reason?: string | null | undefined; last_verdict?: string | null | undefined; state_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; notes?: string[] | undefined; } | null | undefined; reproducibility?: { seed?: number | undefined; seed_source?: string | null | undefined; determinism_tier?: string | null | undefined; plan_hash?: string | null | undefined; registry_hash?: string | null | undefined; method_catalog_hash?: string | null | undefined; data_snapshot_hash?: string | null | undefined; input_bindings_hash?: string | null | undefined; readiness?: string | null | undefined; why_partial?: string[] | undefined; missing_refs?: string[] | undefined; suggested_next_step?: string | null | undefined; manifest_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; notes?: string[] | undefined; } | null | undefined; performance_summary?: { [x: string]: unknown; budget_summary?: Record<string, unknown> | undefined; llm?: Record<string, unknown> | undefined; phase_budgets?: { phase: string; budget_ms?: number | null | undefined; category?: string | undefined; duration_ms?: number | undefined; over_by_ms?: number | undefined; status?: string | undefined; }[] | undefined; retrieval_phase_durations?: Record<string, unknown> | undefined; schema_version?: string | undefined; steps_by_action?: Record<string, unknown> | undefined; variant_rows?: Record<string, unknown>[] | undefined; variants?: Record<string, unknown> | undefined; } | null | undefined; source?: string | null | undefined; notes?: string[] | undefined; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunDetails.ts",
+      "line": 55,
+      "source_sha256": "sha256:c0bc78c52a87f4cea945396cd90f0e1e09e7c683e71aad9da776b170dc7e77eb",
+      "query_key_owner": "run",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run: { run_id: string; source_kind: \"core_run\"; status: string; started_at?: string | null | undefined; finished_at?: string | null | undefined; duration_ms?: number | null | undefined; tenant_id?: string | null | undefined; cell_id?: string | null | undefined; decision_validity_status?: \"warning\" | \"stale\" | \"active\" | \"review_required\" | \"superseded\" | \"reissued\" | \"withdrawn\" | \"revoked\" | \"requires_human_review\" | null | undefined; has_trace?: boolean | undefined; has_workflow_report?: boolean | undefined; manifest_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; operator_diagnostic?: { authoritative_runtime_state: string; projection_source: string; owner: string; phase: string; first_blocking_cause: string; downstream_impact: string; blocker_overridable: boolean; next_diagnostic_command: string; upstream_missing_input?: string | null | undefined; authority_refs?: Record<string, string> | undefined; evidence_refs?: string[] | undefined; projection_labels?: { authority: \"runtime_authority\" | \"projection_only\"; label: string; state: \"projection_only\" | \"draft\" | \"redacted\" | \"stale\" | \"contested\" | \"projected\" | \"blocked\" | \"readiness_closed\" | \"approved\" | \"rejected\" | \"published_blocked\" | \"publishable\"; }[] | undefined; } | null | undefined; policy_design_case_projection?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed\").GeneratedProjectionAuthority | null | undefined; trace_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; workflow_report_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; root_artifacts?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; }[] | undefined; warnings?: string[] | undefined; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunErrors.ts",
+      "line": 42,
+      "source_sha256": "sha256:cc484dc3f3533411d135276dcecb9512640259637c9e9794ee981ea6fa3035f4",
+      "query_key_owner": "runErrors",
+      "dto_contract": "() => Promise<{ errors: { source: \"manifest\" | \"workflow_report\" | \"trace\" | \"runtime\"; code: string; message: string; node_alias?: string | null | undefined; timestamp?: string | null | undefined; details?: Record<string, unknown> | undefined; }[]; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunEvidenceContext.ts",
+      "line": 49,
+      "source_sha256": "sha256:8e19ac11237a18cf53f2a649b3f88ee37ec3ffc308317a7423cbcf5b89dd65ba",
+      "query_key_owner": "runEvidenceContext",
+      "dto_contract": "() => Promise<{ context: { related_artifacts: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; }[]; data_needs: { need_id: string; metric: string; geography?: string | null | undefined; time_start?: string | null | undefined; time_end?: string | null | undefined; granularity?: string | undefined; quality_min?: number | undefined; purpose?: string | undefined; matched_plan_ids?: string[] | undefined; notes?: string[] | undefined; }[]; fetch_plans: { plan_id: string; metric_id: string; connector_id: string; dataset_id: string; profile_id?: string | null | undefined; source_lane?: string | undefined; quality_min?: number | undefined; filters?: Record<string, string[]> | undefined; date_start?: string | null | undefined; date_end?: string | null | undefined; granularity?: string | null | undefined; fallback_count?: number | undefined; matched_need_ids?: string[] | undefined; notes?: string[] | undefined; }[]; promotion_candidates: { promotion_id: string; metric_id: string; connector_id: string; dataset_id: string; profile_id?: string | null | undefined; source_lane?: string | undefined; confidence?: number | undefined; status?: string | undefined; created_at?: string | null | undefined; signals?: string[] | undefined; matched_plan_id?: string | null | undefined; metadata?: Record<string, unknown> | undefined; }[]; warnings: string[]; run_id: string; source_kind: \"core_run\"; execution_plan_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; evidence_bundle_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; data_snapshot_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; input_bindings_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+      "line": 57,
+      "source_sha256": "sha256:5960b4f4df9692d77d183ba0a4f7f54717dbbda877cd01797904594d54ceab4a",
+      "query_key_owner": "runFabricDecisionData",
+      "dto_contract": "() => Promise<{ decision_data: { id: string; kind: \"event\" | \"quantity\" | \"authored_text\" | \"fact\" | \"claim\"; value: Record<string, unknown>; source_contract: { id: string; version: string; }; quality: { status: \"warning\" | \"unknown_quality\" | \"passed\" | \"failed\"; score?: number | null | undefined; report_ref?: string | null | undefined; reason_code?: string | null | undefined; quality_surface?: string | null | undefined; remediation_link?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; hash?: string | null | undefined; compact_summary_ref?: string | null | undefined; full_graph_ref?: string | null | undefined; raw_evidence_refs?: string[] | undefined; export_links?: Record<string, string> | undefined; reason_code?: string | null | undefined; owner?: string | null | undefined; tracking_issue?: string | null | undefined; }; access: { classification: string; pii_tier: string; tenant_scope: string; redaction: \"redacted\" | \"none\" | \"masked\" | \"aggregate_only\" | \"denied\"; policy_ref?: string | null | undefined; }; time: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; }; replay: { status: \"unknown\" | \"non_replayable\" | \"replayable\"; manifest_ref?: string | null | undefined; reason_code?: string | null | undefined; source_reason?: string | null | undefined; retention_alternative?: string | null | undefined; }; gaps?: { status: \"untraced\" | \"unknown_quality\" | \"restricted\" | \"non_replayable\" | \"unsupported_temporal_scope\"; reason_code?: string | null | undefined; owner?: string | null | undefined; quality_surface?: string | null | undefined; remediation_link?: string | null | undefined; access_policy?: string | null | undefined; redaction_behavior?: string | null | undefined; source_reason?: string | null | undefined; retention_alternative?: string | null | undefined; capability_endpoint?: string | null | undefined; }[] | undefined; metadata?: Record<string, unknown> | undefined; }[]; quantities: { label?: string | null; lineage: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"polisyos__core__contracts__runtime__LineageRef-Output\"]; metric_id?: string | null; point?: number | null; quantity_class: \"decision\" | \"telemetry\" | \"layout\" | \"debug\"; time?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"polisyos__core__contracts__runtime__TemporalRef\"] | null; uncertainty?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"QuantityUncertainty\"] | null; unit: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"polisyos__core__contracts__runtime__UnitRef\"]; }[]; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; source_kind: \"core_run\"; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; coverage?: { total: number; decision: number; telemetry: number; layout: number; debug: number; traced: number; untraced: number; naked_decision_values: number; transitional_waivers: number; } | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "line": 61,
+      "source_sha256": "sha256:1a066173d30018cce19e7d723c1f5f905274f68cf3eb0c82f5b8fe7d78eba092",
+      "query_key_owner": "runLineage",
+      "dto_contract": "() => Promise<{ lineage: { nodes: { artifact_id: string; status: string; byte_size: number; depth: number; role?: string | null | undefined; kind?: string | null | undefined; }[]; edges: { parent_artifact_id: string; child_artifact_id: string; role: string; }[]; root_artifact_ids: string[]; missing_artifact_ids: string[]; corrupted_artifact_ids: string[]; total_nodes: number; total_edges: number; total_size_bytes: number; is_complete: boolean; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunNodes.ts",
+      "line": 42,
+      "source_sha256": "sha256:dd808850114184bc0798c8b721e980133a135c5edcaae8ba63d468d4803cc56c",
+      "query_key_owner": "runNodes",
+      "dto_contract": "() => Promise<{ nodes: { alias: string; status: \"unknown\" | \"ok\" | \"fail\" | \"skip\"; duration_ms: number; node_id?: string | null | undefined; error_code?: string | null | undefined; error_message?: string | null | undefined; error_details?: Record<string, unknown> | undefined; skip_reason?: string | null | undefined; artifact_ids?: string[] | undefined; input_artifact_ids?: string[] | undefined; output_artifact_ids?: string[] | undefined; }[]; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; source_kind: \"core_run\"; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunQuantities.ts",
+      "line": 55,
+      "source_sha256": "sha256:6394f991cce33b3924c19036b2dbdfe3d43c2cea70b3d865727452908a4af4ca",
+      "query_key_owner": "runQuantities",
+      "dto_contract": "() => Promise<{ entries: Record<string, unknown>[]; quantities: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }[]; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; source_kind: \"core_run\"; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; coverage?: { total: number; decision: number; telemetry: number; layout: number; debug: number; traced: number; untraced: number; } | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRuns.ts",
+      "line": 61,
+      "source_sha256": "sha256:41478ecb964caef84e47252f67e605411e49ee3c5e0eaab5cc1b8dce3dfb90a4",
+      "query_key_owner": "runs",
+      "dto_contract": "() => Promise<{ runs: { run_id: string; source_kind: \"core_run\"; status: string; decision_review_required?: boolean | undefined; started_at?: string | null | undefined; finished_at?: string | null | undefined; duration_ms?: number | null | undefined; tenant_id?: string | null | undefined; has_trace?: boolean | undefined; root_artifact_count?: number | undefined; has_workflow_report?: boolean | undefined; warnings?: string[] | undefined; }[]; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; page: { limit: number; count: number; cursor?: string | null | undefined; next_cursor?: string | null | undefined; total?: number | null | undefined; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunTimeline.ts",
+      "line": 58,
+      "source_sha256": "sha256:7042df198cfc3302d040d89dc4a301aa6f34200f9ec2745dc5f8689f9ef2efc4",
+      "query_key_owner": "runTimeline",
+      "dto_contract": "() => Promise<{ timeline: { events: { index: number; timestamp: string; phase: string; event: string; span_id?: string | null | undefined; parent_span_id?: string | null | undefined; input_artifact_ids?: string[] | undefined; output_artifact_ids?: string[] | undefined; metrics?: Record<string, number> | undefined; warning_count?: number | undefined; error_count?: number | undefined; }[]; notes: string[]; run_id: string; source_kind: \"core_run\"; summary: { run_id: string; total_events: number; duration_ms?: number | null | undefined; node_status_counts?: Record<string, number> | undefined; phase_counts?: Record<string, number> | undefined; cache_hits?: number | undefined; cache_stores?: number | undefined; cache_bypasses?: number | undefined; }; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useRunWorkflow.ts",
+      "line": 47,
+      "source_sha256": "sha256:b51495d01825fee2ea955f59c95b79506809a6f3460dd7035480c2c28d3c4876",
+      "query_key_owner": "runWorkflow",
+      "dto_contract": "() => Promise<{ workflow: { nodes: { alias: string; depth: number; status: \"unknown\" | \"ok\" | \"fail\" | \"skip\"; duration_ms: number; node_id?: string | null | undefined; depends_on?: string[] | undefined; error_code?: string | null | undefined; error_message?: string | null | undefined; artifact_ids?: string[] | undefined; input_artifact_ids?: string[] | undefined; output_artifact_ids?: string[] | undefined; heat?: number | undefined; }[]; edges: { from_alias: string; to_alias: string; }[]; notes: string[]; run_id: string; source_kind: \"core_run\"; summary: { node_count: number; edge_count: number; ok_count: number; skip_count: number; fail_count: number; max_depth: number; workflow_id?: string | null | undefined; error_policy?: string | null | undefined; status?: string | null | undefined; critical_path_duration_ms?: number | null | undefined; }; workflow_spec_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; workflow_report_ref?: { artifact_id: string; kind?: string | undefined; media_type?: string | undefined; } | null | undefined; }; meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioCapabilities.ts",
+      "line": 99,
+      "source_sha256": "sha256:0f2ee245649b7e449aba049505a76718041acfea74ec43df57e4eb0736191e21",
+      "query_key_owner": "runScenarios",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id: string; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; scenarios?: { id: string; baseline_run_id: string; status: \"draft\" | \"stale\" | \"failed\" | \"computed\"; policy_question: string; author: string; model_family: string; model_lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; interventions: { field: string; operator: \"set\" | \"add\" | \"multiply\" | \"remove\"; value: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; baseline_value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; constraint_ids?: string[] | undefined; }[]; assumptions: { id: string; label: string; status: \"disputed\" | \"operator_assumption\" | \"model_assumption\" | \"observed_evidence\"; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; description?: string | null | undefined; }[]; lifecycle_status?: \"draft\" | \"generated\" | \"saved\" | \"promoted\" | undefined; revision?: number | undefined; manifest_hash?: string | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; affected_population?: string | null | undefined; temporal_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; model_version?: string | null | undefined; baseline_lineage?: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; } | null | undefined; baseline_hash?: string | null | undefined; computed_at?: string | null | undefined; saved_at?: string | null | undefined; promoted_at?: string | null | undefined; validity_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; known_limitations?: string[] | undefined; stale_reasons?: string[] | undefined; constraints?: { id: string; label: string; severity: \"warning\" | \"error\"; field?: string | null | undefined; operator?: string | null | undefined; value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; message?: string | null | undefined; }[] | undefined; }[] | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioCapabilities.ts",
+      "line": 120,
+      "source_sha256": "sha256:0962568700e2897b0380ce18add34a2194e66c3cee58a01ebf015502b92d11d4",
+      "query_key_owner": "scenarioCapabilities",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; run_id?: string | null | undefined; scenario_id?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; capabilities?: { surface: string; supported: boolean; reason_code?: string | null | undefined; metric_id?: string | null | undefined; supported_modes?: (\"actual\" | \"actual_vs_scenario\" | \"scenario_only\")[] | undefined; limitations?: string[] | undefined; }[] | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useScenarioManifest.ts",
+      "line": 60,
+      "source_sha256": "sha256:45ed7150e89613d850406ebd9875beb65ccce49dfcf1fb621978784fb24e3c01",
+      "query_key_owner": "scenarioManifest",
+      "dto_contract": "() => Promise<{ meta: { request_id: string; generated_at: string; source_kinds: \"core_run\"[]; }; scenario: { id: string; baseline_run_id: string; status: \"draft\" | \"stale\" | \"failed\" | \"computed\"; policy_question: string; author: string; model_family: string; model_lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; interventions: { field: string; operator: \"set\" | \"add\" | \"multiply\" | \"remove\"; value: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; }; baseline_value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; constraint_ids?: string[] | undefined; }[]; assumptions: { id: string; label: string; status: \"disputed\" | \"operator_assumption\" | \"model_assumption\" | \"observed_evidence\"; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; description?: string | null | undefined; }[]; lifecycle_status?: \"draft\" | \"generated\" | \"saved\" | \"promoted\" | undefined; revision?: number | undefined; manifest_hash?: string | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; affected_population?: string | null | undefined; temporal_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; model_version?: string | null | undefined; baseline_lineage?: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; } | null | undefined; baseline_hash?: string | null | undefined; computed_at?: string | null | undefined; saved_at?: string | null | undefined; promoted_at?: string | null | undefined; validity_window?: { earliest?: string | null | undefined; latest?: string | null | undefined; } | null | undefined; known_limitations?: string[] | undefined; stale_reasons?: string[] | undefined; constraints?: { id: string; label: string; severity: \"warning\" | \"error\"; field?: string | null | undefined; operator?: string | null | undefined; value?: { unit: { code: string; system: string; display?: string | null | undefined; }; lineage: { id: string; status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; hash?: string | null | undefined; summary?: Record<string, string> | undefined; compact_summary?: { kind: \"method\" | \"source\" | \"unknown\" | \"transform\" | \"agent\" | \"model\" | \"result\" | \"artifact\" | \"dataset\"; label: string; id?: string | null | undefined; }[] | undefined; reason_code?: string | null | undefined; tracking_issue?: string | null | undefined; trust_metadata?: { verification_status: \"verified\" | \"pending\" | \"disputed\" | \"untraced\"; freshness: \"unknown\" | \"stale\" | \"current\"; dispute_status: \"disputed\" | \"none\" | \"under_review\" | \"resolved\"; hash?: string | null | undefined; verified_by?: string | null | undefined; verified_at?: string | null | undefined; verification_method?: string | null | undefined; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; } | null | undefined; }; quantity_class: \"debug\" | \"decision\" | \"telemetry\" | \"layout\"; point?: number | null | undefined; metric_id?: string | null | undefined; uncertainty?: { identifiability: \"unknown\" | \"identified\" | \"estimated\" | \"assumed\"; disputed: boolean; ci_80?: [number, number] | null | undefined; ci_95?: [number, number] | null | undefined; quantiles?: Record<string, number> | undefined; method?: string | null | undefined; } | null | undefined; time?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; label?: string | null | undefined; } | null | undefined; message?: string | null | undefined; }[] | undefined; }; temporal_scope?: { valid_at?: string | null | undefined; tx_at?: string | null | undefined; branch?: string | null | undefined; snapshot_id?: string | null | undefined; scenario_id?: string | null | undefined; } | null | undefined; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useSourceProfiles.ts",
+      "line": 29,
+      "source_sha256": "sha256:6c22c91a17e1ae0d0930ea47b76d29940e5cf1a8d0a61feef6de799784423bb2",
+      "query_key_owner": "sourceProfiles",
+      "dto_contract": "() => Promise<SourceProfilesListResponse>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/api/hooks/useTemporalRange.ts",
+      "line": 62,
+      "source_sha256": "sha256:ced7ae7a2b29c89cd97bebc80869fd53d57ca2811fca0ea9a74f716ee4b37d10",
+      "query_key_owner": "temporalCapabilities",
+      "dto_contract": "() => Promise<TemporalCapabilities>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+      "line": 109,
+      "source_sha256": "sha256:fc3ab0c06011ff9dcc571a547c8cac85ad8515f30b4bf8fa2e19ab07e82fedfa",
+      "query_key_owner": "governedProjection",
+      "dto_contract": "() => Promise<Readonly<{ packet: GovernedProjectionPacket; payload: DepthNCycleBoardPayload | null; }>>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "governed_migration_target",
+      "closure_signal": "C11a-C11b-R1 typed cache-posture consumer",
+      "classification": "governed_wrapper"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+      "line": 17,
+      "source_sha256": "sha256:a1ff6931ce52833283c55e11109c57c59b8c263efc05fbc8a971e6a5ed7c0e35",
+      "query_key_owner": null,
+      "dto_contract": "() => Promise<{ lineage: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"LineageGraphView\"]; meta: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"ApiMeta\"]; temporal_scope?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"TemporalScope\"] | null; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+      "line": 39,
+      "source_sha256": "sha256:18b639cbaf82c503aa9eac9ca7a23d15a815b2e45774aa165a0d4461e8d2cd40",
+      "query_key_owner": null,
+      "dto_contract": "() => Promise<{ format: \"openlineage\" | \"prov\"; lineage_id: string; meta: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"ApiMeta\"]; payload: { [key: string]: unknown; }; temporal_scope?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"TemporalScope\"] | null; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+      "line": 28,
+      "source_sha256": "sha256:a6626eea809100e4cd3d6d3dec76d2362fe41dc73b5b7f5531b3dfb87426fb29",
+      "query_key_owner": null,
+      "dto_contract": "() => Promise<{ lineages?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"LineageGraphView\"][]; meta: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"ApiMeta\"]; temporal_scope?: import(\"/Users/deniskopylov/polisyos/.worktrees/atlas-ds5/policy-engine/packages/runtime-api-client/types\").components[\"schemas\"][\"TemporalScope\"] | null; }>",
+      "required_owner_field": "as_of",
+      "owner_slice": "DS5",
+      "capability_state": "source_bound_debt",
+      "closure_signal": "C12b-R1 independently proves an operational policy contract",
+      "classification": "legacy_direct_debt"
+    }
+  ]
+}

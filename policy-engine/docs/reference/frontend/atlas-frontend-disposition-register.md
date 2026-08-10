@@ -266,6 +266,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `c06-decision-grade-generated-contract-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_generated_decision_grade_union_tracks_pdc_owner exits 0 after C14 publishes the generated DecisionGrade contract from the PDC owner | `open_debt` — DecisionGrade has a PDC owner but no OpenAPI or generated-client export; the DS4 waist row assigns its singular swap point to C14. C06 records the missing generated producer contract and does not pre-empt C14. |
 | `c06-queryobserver-cache-posture-artifact-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_freshness_orthogonal exits 0 after C11a/C11b publish the typed QueryObserver cache-posture artifact without reclassifying source freshness | `open_debt` — QueryObserver emits lifecycle signals today, but no typed CachePosture artifact exists. ProjectionFreshness records source observation and is orthogonal to cached-copy posture; C11a/C11b own the client artifact, bridge, and surface. |
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
+| `c14a-local-state-envelope-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, injected-clock TTL, and fail-closed negatives are implemented | `open_debt` — The live composer, causal, dispute, and operator-craft writers have no module-private branded PersistedEnvelope issuer, per-family concrete codec, or physical-key/frozen-envelope binding of family, tenant, user, and expiry. The future team-architecture owner must inject a clock for writer TTL and fail closed on absent identity, malformed or expired envelopes, legacy bytes, and runtime-novel families; this records neither C14b nor client identity. |
 
 ### Seeded-negative lifecycle
 
@@ -564,6 +565,13 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `5acbde148 Revert "checkpoint: preserve rejected DS5-C12a query census"`
+- `6e6422540 checkpoint: preserve rejected DS5-C12a query census`
+- `4a4fadd47 docs: bind DS5 construction residual`
+- `77356ba98 Revert "DS5-C12a checkpoint query cache policy conflict"`
+- `22a8c2f32 DS5-C12a checkpoint query cache policy conflict`
+- `f37c3fe9e docs: record DS5 C12a enforcement conflict`
+- `0b811e884 DS5-C08b-D1 record auth-session revision debt`
 - `c8c7a291c DS5-C11a derive cache observation posture`
 - `edb8e045f DS5-C08b-R2 fail closed on unsettled identity`
 - `5e93edf88 DS5-C04b-R2 restore capability construction lint`

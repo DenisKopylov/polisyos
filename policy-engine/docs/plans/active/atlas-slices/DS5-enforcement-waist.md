@@ -1723,23 +1723,31 @@ disposition and generated report land together.
 
 ### DS5-C14a — nominal local-state envelope owner
 
-**Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
-`app/offline/authorityLocalState.ts` + test and journal.
+**Measured set:** exactly 7 governed paths: frontend disposition checker + test,
+register + generated report, DS19 status-retirement hash pin, this section, and
+journal. The surgical writer adds one `producer_binding_debt` row only; no
+product path, schema, or local-state boundary is implemented.
 
-**Red first:** `test_raw_local_state_envelope_cannot_be_issued_or_written`.
-Structural lookalikes, absent identity, malformed scope and expired envelopes
-fail; a same-scope interaction payload is the benign control.
+**Pattern pass:** P01/P02/P05/P10/P12/P29/P31/P32/P37. Record the absent
+nominal issuer/codec contract without inventing a wrapper or claiming C14b,
+composer completion, or client identity. The capability remains
+`producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`,
+`verification_missing`, and `semantic_test_missing`.
+
+**Red first:** `test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract`.
+It proves the descriptor-derived row records the absent producer against the
+live raw writers and fails on missing or corrupted row contract; the generic
+descriptor corruption battery covers every field mutation/removal.
 
 **Acceptance:** physical key and strict envelope both content-bind family,
 tenant and user; writer-owned TTL is checked against an injected clock; absent
 identity fails closed; no legacy byte is silently migrated into authority.
-`authorityLocalState.ts` owns a module-private symbol and issuer for frozen
-`PersistedEnvelope<StoreClass>` values; callers cannot write raw structural
-envelopes. Each registered family supplies a concrete typed encode/decode codec,
-not a generic `unknown`/`JsonValue` serializer. This makes the registered write
-boundary nominal while leaving semantic classification to source-bound rows.
+The debt scope requires a module-private branded issuer, per-family concrete
+codecs, and frozen envelope binding for family/tenant/user/expiry; malformed,
+expired, and runtime-novel families fail closed. Its future owner test remains
+nonzero until that boundary exists; it claims no C14b/composer/client identity.
 
-**Expected commit:** `DS5-C14a own nominal local state envelope`.
+**Expected commit:** `DS5-C14a-D1 record local-state envelope owner debt`.
 
 ### DS5-C14b-R1 — bind the composer consumer
 

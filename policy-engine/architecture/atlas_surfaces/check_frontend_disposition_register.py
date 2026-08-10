@@ -1712,6 +1712,42 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "direct-Badge census transition"
         ),
     },
+    "c14a-local-state-envelope-owner-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15",
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:80",
+            "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301",
+            "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109",
+            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c14a",
+        ],
+        "rationale": (
+            "The live composer, causal, dispute, and operator-craft writers have no "
+            "module-private branded PersistedEnvelope issuer, per-family concrete codec, "
+            "or physical-key/frozen-envelope binding of family, tenant, user, and expiry. "
+            "The future team-architecture owner must inject a clock for writer TTL and "
+            "fail closed on absent identity, malformed or expired envelopes, legacy bytes, "
+            "and runtime-novel families; this records neither C14b nor client identity."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written "
+            "exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, "
+            "injected-clock TTL, and fail-closed negatives are implemented"
+        ),
+    },
     "c08b-auth-session-revision-producer-debt": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",

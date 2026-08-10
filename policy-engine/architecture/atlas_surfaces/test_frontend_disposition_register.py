@@ -832,6 +832,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "c06-decision-grade-generated-contract-debt",
                 "c06-queryobserver-cache-posture-artifact-debt",
                 "c08b-auth-session-revision-producer-debt",
+                "c14a-local-state-envelope-owner-debt",
             },
             set(descriptors),
         )
@@ -840,6 +841,103 @@ class ProducerBindingDebtTests(unittest.TestCase):
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
             | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
             checker.EXPECTED_FINDING_IDS,
+        )
+
+    def test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract(self) -> None:
+        """Record only the absent C14a issuer/codec boundary, not its consumers."""
+        finding_id = "c14a-local-state-envelope-owner-debt"
+        expected = {
+            "finding_kind": "producer_binding_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "owner_slice": "DS5",
+            "capability_states": [
+                "producer_missing",
+                "artifact_missing",
+                "bridge_missing",
+                "consumer_missing",
+                "verification_missing",
+                "semantic_test_missing",
+            ],
+            "evidence_refs": [
+                "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15",
+                "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:80",
+                "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301",
+                "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109",
+                "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444",
+                "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c14a",
+            ],
+            "rationale": (
+                "The live composer, causal, dispute, and operator-craft writers have no "
+                "module-private branded PersistedEnvelope issuer, per-family concrete codec, "
+                "or physical-key/frozen-envelope binding of family, tenant, user, and expiry. "
+                "The future team-architecture owner must inject a clock for writer TTL and "
+                "fail closed on absent identity, malformed or expired envelopes, legacy bytes, "
+                "and runtime-novel families; this records neither C14b nor client identity."
+            ),
+            "closure_signal": (
+                "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+                "AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written "
+                "exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, "
+                "injected-clock TTL, and fail-closed negatives are implemented"
+            ),
+        }
+        writer_paths = {
+            "composer": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+            "queue": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+            "causal": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+            "disputes": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+            "operator_craft": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        }
+        writer_sources = {
+            name: (checker.REPO_ROOT / path).read_text(encoding="utf-8")
+            for name, path in writer_paths.items()
+        }
+        self.assertTrue(
+            all(
+                "PersistedEnvelope" not in source and "authorityLocalState" not in source
+                for source in writer_sources.values()
+            )
+        )
+        self.assertEqual(expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.get(finding_id))
+
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        rows = {str(row["finding_id"]): row for row in data["supplemental_findings"]}
+        self.assertEqual(
+            {"finding_id": finding_id, **expected, "decision_date": checker.DECISION_DATE},
+            rows.get(finding_id),
+        )
+
+        missing = copy.deepcopy(data)
+        missing["supplemental_findings"] = [
+            row for row in missing["supplemental_findings"] if row["finding_id"] != finding_id
+        ]
+        self.assertIn(
+            f"producer_binding_debt_drift:{finding_id}:finding_id",
+            checker.validate_register(missing, live_probes=False, report_parity=False),
+        )
+
+        corrupted = copy.deepcopy(data)
+        row = next(
+            item
+            for item in corrupted["supplemental_findings"]
+            if item["finding_id"] == finding_id
+        )
+        row["capability_states"] = ["surface_missing"]
+        self.assertIn(
+            f"producer_binding_debt_drift:{finding_id}:capability_states",
+            checker.validate_register(corrupted, live_probes=False, report_parity=False),
+        )
+
+        closure_command = expected["closure_signal"].split(" exits 0", 1)[0]
+        self.assertNotEqual(
+            0,
+            subprocess.run(
+                closure_command,
+                cwd=checker.REPO_ROOT,
+                shell=True,
+                check=False,
+            ).returncode,
         )
 
     def test_capability_discovery_debt_is_closed_when_direct_syntax_rule_is_live(self) -> None:

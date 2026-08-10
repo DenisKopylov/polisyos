@@ -1297,3 +1297,30 @@
   the 18 wrapper calls are explicitly retained under a differently ratified
   non-object/direct-options boundary. This exact seven-path atom remains
   unstaged and uncommitted for parent checkpoint and forward-revert.
+
+## DS5-C14a-D1 — local-state envelope owner debt
+
+- Pattern pass: P01/P02/P05/P10/P12/P29/P31/P32/P37. The entry probe remains
+  GO: the five live raw writer families have no `PersistedEnvelope` or
+  `authorityLocalState` owner. This atom records that absence as one
+  descriptor-derived `producer_binding_debt`; it does not implement an issuer,
+  codec, composer consumer, or client-identity partition.
+- Red first: `ProducerBindingDebtTests.test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract`
+  failed only because `c14a-local-state-envelope-owner-debt` was absent from
+  `PRODUCER_BINDING_DEBT_DESCRIPTORS`. Green proves the exact six missing
+  states, descriptor-derived row, missing-row and state-corruption rejection,
+  and current writer-source absence. The generic descriptor corruption battery
+  remains the complete field mutation/removal witness.
+- The surgical supplemental writer ran twice; the second pass preserved the
+  derived register. Report regeneration produced the matching projection, and
+  DS19's status-retirement inventory pin now binds register SHA-256
+  `90caef6f8c840973b9d58b1a094ad8d1dedacd5d1dcf68e08370f0c3be680f7a`.
+- Receipts: focused C14a producer-debt tests, the full frontend disposition
+  register suite, frontend checker plus corruption probes, full status-retirement
+  suite, and status checker plus corruption probes exited 0. The declared
+  `test_raw_local_state_envelope_cannot_be_issued_or_written` closure command
+  exited nonzero because the future owner test is absent, as this open debt
+  requires.
+- Orchestration was native Terra only: no Sol worker was spawned or escalated.
+  There were no network, product-path, schema, or bespoke-boundary receipts.
+  This exact seven-path atom is unstaged and uncommitted for independent review.

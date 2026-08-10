@@ -831,7 +831,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "c06-cgf-public-vocabulary-producer-debt",
                 "c06-decision-grade-generated-contract-debt",
                 "c06-queryobserver-cache-posture-artifact-debt",
-                "c07-runtime-api-client-generator-registry-debt",
                 "c08b-auth-session-revision-producer-debt",
                 "c14a-local-state-envelope-owner-debt",
             },
@@ -1017,19 +1016,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(
             {key: expected[key] for key in descriptors[self.finding_id]},
             descriptors[self.finding_id],
-        )
-
-    def test_c07_generator_registry_debt_is_descriptor_bound(self) -> None:
-        """Keep the package generator registry omission as a typed DS5 debt."""
-        finding_id = "c07-runtime-api-client-generator-registry-debt"
-        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
-        row = next(row for row in data["supplemental_findings"] if row["finding_id"] == finding_id)
-
-        self.assertEqual(["bridge_missing", "verification_missing"], descriptor["capability_states"])
-        self.assertIn("team-polisyos", descriptor["rationale"])
-        self.assertEqual(
-            {"finding_id": finding_id, **descriptor, "decision_date": checker.DECISION_DATE}, row
         )
 
     def test_auth_session_revision_debt_binds_generated_auth_me_contract(self) -> None:

@@ -2403,10 +2403,10 @@ export interface components {
         };
         /**
          * AudienceClass
-         * @description Declare the intended consumer class for a governed projection.
+         * @description Declare the intended consumer class without enforcing it in DS3.
          * @enum {string}
          */
-        AudienceClass: "PUBLIC" | "REVIEWER" | "EXPERT" | "MACHINE";
+        AudienceClass: "REVIEWER" | "EXPERT" | "MACHINE";
         /**
          * AuthMeResponse
          * @description Runtime principal payload with permissions bound to the server vocabulary.

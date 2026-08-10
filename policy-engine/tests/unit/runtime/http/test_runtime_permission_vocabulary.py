@@ -11,7 +11,6 @@ from polisyos.runtime.http.permissions import (
     permissions_for_roles,
 )
 from polisyos.runtime.http.routes.auth import AuthMeResponse as HttpAuthMeResponse
-from polisyos.runtime.http.services.governed_projections import AudienceClass, ProjectionId
 
 _EXPECTED_RUNTIME_PERMISSION_VALUES = (
     "analysis.execute",
@@ -92,46 +91,6 @@ def test_runtime_permission_values_are_unique_and_stable() -> None:
     assert values == _EXPECTED_RUNTIME_PERMISSION_VALUES
     assert len(values) == len(set(values))
     assert len(RuntimePermission.__members__) == len(values)
-
-
-def test_each_nonpublic_projection_requirement_denies_all_other_32_permissions() -> None:
-    """Each emitted projection needs its own exact server permission."""
-    from polisyos.runtime.http.audience_permissions import (
-        AUDIENCE_PERMISSIONS,
-        PERMISSION_AUDIENCES,
-        permission_for_projection,
-        projection_permission_allows,
-    )
-    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
-
-    assert set(PERMISSION_AUDIENCES) == set(RuntimePermission)
-    assert {
-        audience: len(permissions) for audience, permissions in AUDIENCE_PERMISSIONS.items()
-    } == {
-        AudienceClass.PUBLIC: 0,
-        AudienceClass.REVIEWER: 20,
-        AudienceClass.EXPERT: 28,
-        AudienceClass.MACHINE: 22,
-    }
-    assert all(
-        AudienceClass.MACHINE not in PERMISSION_AUDIENCES[permission]
-        for permission in HIGH_STAKES_PERMISSION_CLASSES
-    )
-    for projection_id in ProjectionId:
-        admitted = {
-            candidate
-            for candidate in RuntimePermission
-            if projection_permission_allows(projection_id, candidate)
-        }
-        assert admitted == {permission_for_projection(projection_id)}
-
-
-def test_public_audience_denies_all_33_privileged_permissions() -> None:
-    """PUBLIC remains outside the privileged permission vocabulary."""
-    from polisyos.runtime.http.audience_permissions import permissions_for_audience
-
-    assert permissions_for_audience(AudienceClass.PUBLIC) == frozenset()
-    assert len(RuntimePermission) == 33
 
 
 def test_role_grants_only_contain_runtime_permission_members() -> None:

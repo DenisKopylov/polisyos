@@ -19,15 +19,8 @@ MODULE_SPEC = spec_from_file_location(MODULE_NAME, MODULE_PATH)
 if MODULE_SPEC is None or MODULE_SPEC.loader is None:
     raise RuntimeError(f"Unable to load {MODULE_PATH}")
 MODULE = module_from_spec(MODULE_SPEC)
-_previous_module = sys.modules.get(MODULE_NAME)
-try:
-    sys.modules[MODULE_NAME] = MODULE
-    MODULE_SPEC.loader.exec_module(MODULE)
-finally:
-    if _previous_module is None:
-        sys.modules.pop(MODULE_NAME, None)
-    else:
-        sys.modules[MODULE_NAME] = _previous_module
+sys.modules[MODULE_NAME] = MODULE
+MODULE_SPEC.loader.exec_module(MODULE)
 
 CHANNEL_REGISTRY = MODULE.CHANNEL_REGISTRY
 AudienceClass = MODULE.AudienceClass

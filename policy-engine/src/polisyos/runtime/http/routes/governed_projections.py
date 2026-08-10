@@ -8,16 +8,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any, cast
 
-from polisyos.runtime.http.audience_permissions import permission_for_projection
-from polisyos.runtime.http.authorization import (
-    ResourceBindingSource,
-    ResourceBindingSpec,
-    authorize_exact_permission,
-    require_action_permission,
-)
 from polisyos.runtime.http.dependencies import set_authz_resource
 from polisyos.runtime.http.errors import conflict
-from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.governed_projections import (
     CHANNEL_REGISTRY,
     ChannelRegistryResponse,
@@ -29,13 +21,12 @@ from polisyos.runtime.http.services.governed_projections import (
 )
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter, Depends, Query, Request
+    from fastapi import APIRouter, Query, Request
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Depends, Query, Request
+        from fastapi import APIRouter, Query, Request
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
-        Depends = cast("Any", None)
         Query = cast("Any", None)
         Request = cast("Any", Any)
 
@@ -47,29 +38,6 @@ def _build_router() -> APIRouter | None:
 
 
 router = _build_router()
-_GOVERNED_PROJECTION_CATALOG_AUTHZ = require_action_permission(
-    RuntimePermission.PLATFORM_VIEW,
-    ResourceBindingSpec(
-        source=ResourceBindingSource.TENANT_COLLECTION,
-        resource_kind="runtime.governed_projection_catalog",
-    ),
-)
-_GOVERNED_PROJECTION_RESOURCE = ResourceBindingSpec(
-    source=ResourceBindingSource.TENANT_COLLECTION,
-    resource_kind="runtime.governed_projection",
-)
-
-
-def _require_governed_projection_permission(
-    projection_id: ProjectionId,
-    request: Request,
-) -> object:
-    """Admit a projection only through its producer-derived exact permission."""
-    return authorize_exact_permission(
-        request,
-        permission_for_projection(projection_id),
-        _GOVERNED_PROJECTION_RESOURCE,
-    )
 
 
 @lru_cache(maxsize=1)
@@ -88,7 +56,6 @@ if router is not None:
         response_model=ProjectionCatalogResponse,
         operation_id="list_governed_projections",
         summary="List governed artifact projection contracts",
-        dependencies=[Depends(_GOVERNED_PROJECTION_CATALOG_AUTHZ)],
     )
     def list_governed_projections(request: Request) -> ProjectionCatalogResponse:
         set_authz_resource(
@@ -103,7 +70,6 @@ if router is not None:
         response_model=GovernedProjectionPacket,
         operation_id="get_governed_projection",
         summary="Get a replayable governed artifact projection",
-        dependencies=[Depends(_require_governed_projection_permission)],
     )
     def get_governed_projection(
         projection_id: ProjectionId,

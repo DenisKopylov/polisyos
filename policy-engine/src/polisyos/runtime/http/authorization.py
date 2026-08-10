@@ -90,7 +90,9 @@ class DeploymentPrincipalGrantResolver:
 
     def __init__(
         self,
-        bindings: Iterable[tuple[_DeploymentPrincipalKey, Iterable[RuntimePermission]]],
+        bindings: Iterable[
+            tuple[_DeploymentPrincipalKey, Iterable[RuntimePermission]]
+        ],
     ) -> None:
         permissions_by_identity: dict[
             _DeploymentPrincipalKey,
@@ -101,7 +103,9 @@ class DeploymentPrincipalGrantResolver:
                 not isinstance(identity_key, tuple)
                 or len(identity_key) != 5
                 or any(
-                    not isinstance(value, str) or not value or value != value.strip()
+                    not isinstance(value, str)
+                    or not value
+                    or value != value.strip()
                     for value in identity_key
                 )
                 or identity_key[0] != identity_key[0].rstrip("/")
@@ -112,9 +116,12 @@ class DeploymentPrincipalGrantResolver:
                 )
             permissions = frozenset(raw_permissions)
             if not permissions or any(
-                not isinstance(permission, RuntimePermission) for permission in permissions
+                not isinstance(permission, RuntimePermission)
+                for permission in permissions
             ):
-                raise TypeError("deployment principal grants must contain RuntimePermission values")
+                raise TypeError(
+                    "deployment principal grants must contain RuntimePermission values"
+                )
             if identity_key in permissions_by_identity:
                 raise ValueError("duplicate exact deployment principal binding")
             permissions_by_identity[identity_key] = permissions
@@ -269,7 +276,9 @@ class ResourceBindingSpec:
         if not isinstance(self.required_selector_fields, tuple):
             raise TypeError("required_selector_fields must be an immutable tuple")
         if not isinstance(self.required_selector_alternatives, tuple):
-            raise TypeError("required_selector_alternatives must be an immutable tuple")
+            raise TypeError(
+                "required_selector_alternatives must be an immutable tuple"
+            )
         if not isinstance(self.parent_required, bool):
             raise TypeError("parent_required must be a bool")
         if not isinstance(self.allow_empty_body, bool):
@@ -283,7 +292,9 @@ class ResourceBindingSpec:
             )
         for alternative in self.required_selector_alternatives:
             if not isinstance(alternative, tuple) or not alternative:
-                raise TypeError("required_selector_alternatives entries must be non-empty tuples")
+                raise TypeError(
+                    "required_selector_alternatives entries must be non-empty tuples"
+                )
             for selector in alternative:
                 _validate_binding_token(
                     selector,
@@ -298,7 +309,9 @@ class ResourceBindingSpec:
         if len(set(self.required_selector_fields)) != len(self.required_selector_fields):
             raise ValueError("required_selector_fields must not contain duplicates")
         if not set(self.required_selector_fields).issubset(self.selector_fields):
-            raise ValueError("required_selector_fields must be a subset of selector_fields")
+            raise ValueError(
+                "required_selector_fields must be a subset of selector_fields"
+            )
         if len(set(self.required_selector_alternatives)) != len(
             self.required_selector_alternatives
         ):
@@ -307,7 +320,9 @@ class ResourceBindingSpec:
             not set(alternative).issubset(self.selector_fields)
             for alternative in self.required_selector_alternatives
         ):
-            raise ValueError("required_selector_alternatives must be subsets of selector_fields")
+            raise ValueError(
+                "required_selector_alternatives must be subsets of selector_fields"
+            )
 
         self._validate_source_fields()
 
@@ -588,7 +603,8 @@ class ActionPermissionDependency:
                 if (
                     frozen_resource is not existing.bound_resource
                     or not getattr(state, "authz_resource_frozen", False)
-                    or getattr(frozen_resource, "requirement", None) is not self.requirement
+                    or getattr(frozen_resource, "requirement", None)
+                    is not self.requirement
                 ):
                     raise forbidden(
                         "The action-permission proof is not bound to the frozen resource",
@@ -611,7 +627,8 @@ class ActionPermissionDependency:
                 if (
                     frozen_resource is None
                     or frozen_resource is not sealed_resource
-                    or getattr(frozen_resource, "requirement", None) is not self.requirement
+                    or getattr(frozen_resource, "requirement", None)
+                    is not self.requirement
                 ):
                     raise forbidden(
                         "The action-permission proof cannot consume the frozen resource",
@@ -648,15 +665,6 @@ def require_action_permission(
             resource_binding=resource_binding,
         )
     )
-
-
-def authorize_exact_permission(
-    request: Request,
-    permission: RuntimePermission,
-    resource_binding: ResourceBindingSpec,
-) -> ActionPermissionVerification | BoundActionPermissionVerification:
-    """Execute one exact permission requirement from a parameterized read route."""
-    return require_action_permission(permission, resource_binding)(request)
 
 
 def iter_route_dependency_calls(route: _Route) -> Iterator[object]:
@@ -800,7 +808,11 @@ def install_route_authorization_openapi_contract(app: object) -> None:
                     else {}
                 ),
                 **(
-                    {"required_selector_fields": list(binding.required_selector_fields)}
+                    {
+                        "required_selector_fields": list(
+                            binding.required_selector_fields
+                        )
+                    }
                     if binding.required_selector_fields
                     else {}
                 ),
@@ -839,7 +851,6 @@ __all__ = [
     "ResourceBindingSpec",
     "RouteAuthorizationRequirement",
     "assert_mutating_route_authorization_contract",
-    "authorize_exact_permission",
     "get_route_action_permission_dependency",
     "get_route_authorization_requirement",
     "install_route_authorization_openapi_contract",

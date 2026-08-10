@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **21948**
-- Application lines deleted: **18322**
-- Net application LOC reduction: **-3626**
+- Application lines added: **20366**
+- Application lines deleted: **18298**
+- Net application LOC reduction: **-2068**
 - Application files deleted: **85**
 
 ## Wave-end full verification
@@ -267,7 +267,6 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `c06-queryobserver-cache-posture-artifact-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_freshness_orthogonal exits 0 after C11a/C11b publish the typed QueryObserver cache-posture artifact without reclassifying source freshness | `open_debt` — QueryObserver emits lifecycle signals today, but no typed CachePosture artifact exists. ProjectionFreshness records source observation and is orthogonal to cached-copy posture; C11a/C11b own the client artifact, bridge, and surface. |
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
 | `c14a-local-state-envelope-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, injected-clock TTL, and fail-closed negatives are implemented | `open_debt` — The live composer, causal, dispute, and operator-craft writers have no module-private branded PersistedEnvelope issuer, per-family concrete codec, or physical-key/frozen-envelope binding of family, tenant, user, and expiry. The future team-architecture owner must inject a clock for writer TTL and fail closed on absent identity, malformed or expired envelopes, legacy bytes, and runtime-novel families; this records neither C14b nor client identity. |
-| `c07-runtime-api-client-generator-registry-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `verification_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07_generator_registry_debt_is_descriptor_bound exits 0 after generated_artifacts.toml declares types.ts and canonicalRuntimeApiClient.ts/js and the package generator output set equals the declared set | `open_debt` — team-polisyos owns the generated-artifact registry. The package generator emits types.ts plus canonicalRuntimeApiClient.ts/js, but the registry declares only runtimeApiClient.ts/js; production outputs exist and this records coverage debt. |
 
 ### Seeded-negative lifecycle
 
@@ -566,8 +565,6 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
-- `40fc512ae DS5-C08a isolate auth test fixtures`
-- `7fbf1823c DS5-C14a record local-state envelope debt`
 - `5acbde148 Revert "checkpoint: preserve rejected DS5-C12a query census"`
 - `6e6422540 checkpoint: preserve rejected DS5-C12a query census`
 - `4a4fadd47 docs: bind DS5 construction residual`

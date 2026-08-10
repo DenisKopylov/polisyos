@@ -549,7 +549,7 @@ AUTHORITY_PATH_EXPECTED_COUNT = 17
 CAPABILITY_DISCOVERY_OWNER_PATH = "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts"
 CAPABILITY_DISCOVERY_ISSUER_CALLS = 5
 QUERY_CACHE_POLICY_TARGET_PATH = (
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts"
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts"
 )
 QUERY_CACHE_POLICY_DENOMINATORS = {
     "query_key_owners": 43,
@@ -559,17 +559,15 @@ QUERY_CACHE_POLICY_DENOMINATORS = {
 QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION = {
     "path": QUERY_CACHE_POLICY_TARGET_PATH,
     "resolved_callee": "useQuery",
-    "options_declaration": {
-        "name": "depthNCycleBoardProjectionQueryOptions",
-        "path": QUERY_CACHE_POLICY_TARGET_PATH,
-    },
+    "options_declaration": None,
+    "options_resolution": "referenced",
 }
 QUERY_CACHE_POLICY_GOVERNED_PRODUCER = {
-    "path": QUERY_CACHE_POLICY_TARGET_PATH,
+    "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     "query_key_owner": "governedProjection",
     "options_declaration": {
         "name": "depthNCycleBoardProjectionQueryOptions",
-        "path": QUERY_CACHE_POLICY_TARGET_PATH,
+        "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     },
 }
 AUTHORITY_GOVERNANCE_OBJECTS = (
@@ -930,6 +928,7 @@ def _query_cache_policy_register_from_scan(scan: Mapping[str, Any]) -> dict[str,
                         "path": row["path"],
                         "resolved_callee": row["callee"],
                         "options_declaration": row["optionsDeclaration"],
+                        "options_resolution": row["optionsResolution"],
                     },
                     QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION,
                 )
@@ -1103,6 +1102,7 @@ def _query_cache_policy_errors(
                     "path": row["path"],
                     "resolved_callee": row["callee"],
                     "options_declaration": row["optionsDeclaration"],
+                    "options_resolution": row["optionsResolution"],
                 }
                 for row in facts["constructions"]
             ],
@@ -2630,14 +2630,14 @@ def _corruption_probes(
     ).read_text(encoding="utf-8")
     query_source_corruptions = (
         query_target_source.replace(
-            "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
-            "  const duplicateQuery = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
-            "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
+            "  const query = useQuery(options);",
+            "  const duplicateQuery = useQuery(options);\n"
+            "  const query = useQuery(options);",
             1,
         ),
         query_target_source.replace(
-            "useQuery(depthNCycleBoardProjectionQueryOptions(client))",
-            "useQuery(depthNCycleBoardProjectionQueryOptions(client!))",
+            "useQuery(options)",
+            "useQuery({ queryKey: options.queryKey, queryFn: options.queryFn })",
             1,
         ),
     )

@@ -1385,3 +1385,63 @@
   diagnostic, rather than trusting a source-form marker or the derived register;
   the scoped mechanism-byte comparison to the restored checkpoint is required
   at closeout.
+
+## DS5-C12b-R1 — governed query policy atom
+
+- Pattern pass: P05/P08/P29/P31/P33/P35/P37. One wrapper is the raw TanStack
+  construction chokepoint; the feature factory remains the only governed
+  producer. Explicit `packet.as_of` is the sole owner-time input: request,
+  generated, source, and freshness-observation time are not substitutes.
+- Red first: `test_governed_query_wrapper_forbids_retained_authority_without_owner_as_of`
+  first failed because `governedQueryPolicy` did not exist; the feature witness
+  then failed because `depthNCycleBoardProjectionQueryPolicy` was absent. The
+  Atlas split witness failed against the old feature-bound construction target.
+- Green: the real QueryClient witness rejects absent/invalid owner time and
+  retained fields, erases never-cache authority data on paused or failed
+  refetch, and retains the operational control. Focused Vitest is 6/6;
+  dashboard typecheck, lint, and build pass. The C12b construction is the
+  wrapper's referenced `useQuery(options)` with no local options declaration;
+  the producer remains the feature `queryFn`. The 43/66/42 and 1/65, 1/41
+  checker/test and corruption gates pass.
+- The policy register changes only the governed construction identity, path,
+  line, and hash; two serialized validation passes preserved its exact bytes.
+  The wrapper/feature duplication search found no second production raw-query
+  consumer; tests are excluded from that source claim.
+- Nonreceipts: the initial missing-module Vitest transform and the first build
+  lost terminal receipts; the compact build rerun is green. Native Terra only:
+  no Sol worker or escalation. `cache-query-memory` remains
+  `rebind_pending/pending`; C11b owns the visible consumer/root transition.
+
+### Review fix round 1 — private governed options and direct packet binding
+
+- Review reproduced three authority-boundary defects: a caller-selected owner
+  timestamp, structural raw options entering the hook, and an offset calendar
+  parser duplicated from the cache observer. The red witnesses retained data
+  from `meta.generated_at`, left `@ts-expect-error` unused for a raw
+  never-cache object, and admitted `+99:99`.
+- The repair removes `ownerAsOf`, privately brands factory-issued options, and
+  constrains owner data to direct `packet.as_of`. Never-cache input excludes
+  caller retention fields and the factory sets both times to zero. The wrapper
+  reuses exported `cacheDiscipline.hasOwnerAsOf`, including offset bounds.
+- Focused typecheck and Vitest are green (6/6). The ten-path cap adds only
+  `cacheDiscipline.ts`; scanner/schema and protected frontend/status surfaces
+  remain untouched. Native Terra only; final Atlas/build receipts remain pending.
+
+- Final post-fix receipts: typecheck 16.24s, focused Vitest 6/6 in 2.99s,
+  scoped lint 6.10s, and production build 21.06s. Two serialized query-register
+  validation runs preserved exact bytes; Python compile, JSON parse, and diff
+  check passed. The Vite chunk-size advisory is inherited build output, not a
+  failing gate. Candidate remains unstaged and uncommitted.
+
+### Review fix round 2 — test-only cross-file override merge
+
+- Free test-only repair: source-complete moved-producer RED was classified as
+  cross-file facts from the wrapper imported into a feature-file override. The
+  merger now filters each fact table to `override_path` before replacement and
+  requires at least one relevant override fact; no mechanism/product path
+  changed (hashes verified unchanged).
+- Receipts: affected Atlas split/source census, checker/corruption, and two
+  serialized register-writer validations passed (43 owners, 66 constructions,
+  42 producers). Typecheck, focused Vitest 6/6, scoped lint, and production
+  build passed; Python compile, Node JSON parse, Ruff zero-new, and diff check
+  passed. Candidate remains unstaged and uncommitted.

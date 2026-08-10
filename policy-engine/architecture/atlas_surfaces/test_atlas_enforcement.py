@@ -63,6 +63,24 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
 
+    def test_query_policy_splits_wrapper_construction_from_feature_producer(self) -> None:
+        """Bind C12b construction to the wrapper while retaining the feature producer."""
+        self.assertEqual(  # noqa: PT009 - unittest keeps the expected identity visible.
+            "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+            checker.QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION["path"],
+        )
+        self.assertEqual(  # noqa: PT009 - unittest keeps the expected identity visible.
+            "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+            checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"],
+        )
+        self.assertIsNone(  # noqa: PT009 - unittest keeps the absence explicit.
+            checker.QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION["options_declaration"]
+        )
+        self.assertEqual(  # noqa: PT009 - unittest keeps the syntax class explicit.
+            "referenced",
+            checker.QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION["options_resolution"],
+        )
+
     def _validate(
         self,
         package_source: str,
@@ -228,7 +246,7 @@ class AtlasEnforcementTests(unittest.TestCase):
             external_issuer,
             extra_sources={CAPABILITIES_PATH: capability_source},
         )
-        self.assertTrue(
+        self.assertTrue(  # noqa: PT009 - unittest reports the corrupt source payload.
             any(
                 error.startswith("capability_discovery_")
                 for error in checker._capability_discovery_errors(scan)
@@ -587,8 +605,9 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     **copy.deepcopy(target_rows[0]),
                     "optionsDeclaration": {
-                        **target_rows[0]["optionsDeclaration"],
                         "name": "wrongOptionsDeclaration",
+                        "path": "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+                        "line": 1,
                     },
                 },
             ),
@@ -599,8 +618,9 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     **copy.deepcopy(target_rows[0]),
                     "optionsDeclaration": {
-                        **target_rows[0]["optionsDeclaration"],
+                        "name": "options",
                         "path": "apps/runtime-dashboard/src/api/hooks/useHealth.ts",
+                        "line": 1,
                     },
                 },
             ),
@@ -620,13 +640,13 @@ class AtlasEnforcementTests(unittest.TestCase):
         target_producer_rows = [
             row
             for row in facts["producers"]
-            if row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
+            if row["path"] == checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
         ]
         self.assertEqual(1, len(target_producer_rows))
         non_target_producer = next(
             row
             for row in facts["producers"]
-            if row["path"] != checker.QUERY_CACHE_POLICY_TARGET_PATH
+            if row["path"] != checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
         )
         target_producer_identity_corruptions = {
             "duplicate_target_producer_path": lambda value: value[
@@ -635,7 +655,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 facts["producers"].index(non_target_producer),
                 {
                     **copy.deepcopy(non_target_producer),
-                    "path": checker.QUERY_CACHE_POLICY_TARGET_PATH,
+                    "path": checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"],
                 },
             ),
             "missing_target_producer_identity": lambda value: value[
@@ -686,21 +706,24 @@ class AtlasEnforcementTests(unittest.TestCase):
                 [], override_scan["overrideDiagnostics"], override_scan
             )
             override_facts = override_scan["queryCachePolicyFacts"]
-            self.assertTrue(
-                all(
-                    row["path"] == override_path
-                    for table in ("constructions", "producers")
-                    for row in override_facts[table]
-                )
-            )
+            relevant_override_rows = [
+                row
+                for table in ("constructions", "producers")
+                for row in override_facts[table]
+                if row["path"] == override_path
+            ]
+            self.assertTrue(relevant_override_rows)  # noqa: PT009 - unittest keeps diagnostics.
             merged = copy.deepcopy(scan)
             merged_facts = merged["queryCachePolicyFacts"]
             for table in ("constructions", "producers"):
+                override_rows = [
+                    row for row in override_facts[table] if row["path"] == override_path
+                ]
                 merged_facts[table] = [
                     row
                     for row in merged_facts[table]
                     if row["path"] != override_path
-                ] + copy.deepcopy(override_facts[table])
+                ] + copy.deepcopy(override_rows)
             return merged
 
         def merge_target_override(override_source: str) -> dict[str, Any]:
@@ -708,8 +731,8 @@ class AtlasEnforcementTests(unittest.TestCase):
 
         newline_scan = merge_target_override(
             target_source.replace(
-                "export function depthNCycleBoardProjectionQueryOptions(",
-                "\nexport function depthNCycleBoardProjectionQueryOptions(",
+                "export function useGovernedQuery<",
+                "\nexport function useGovernedQuery<",
                 1,
             )
         )
@@ -735,10 +758,9 @@ class AtlasEnforcementTests(unittest.TestCase):
 
         added_call_scan = merge_target_override(
             target_source.replace(
-                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
-                "  const existingOptions = depthNCycleBoardProjectionQueryOptions(client);\n"
-                "  const extra = useQuery(existingOptions);\n"
-                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
+                "  const query = useQuery(options);",
+                "  const extra = useQuery(options);\n"
+                "  const query = useQuery(options);\n"
                 "  void extra;",
                 1,
             )
@@ -754,18 +776,15 @@ class AtlasEnforcementTests(unittest.TestCase):
         self.assertTrue(checker._query_cache_policy_errors(added_call_scan, enforce_denominator=True))
 
         target_factory_source_corruptions = {
-            "renamed": target_source.replace(
-                "depthNCycleBoardProjectionQueryOptions",
-                "renamedDepthNCycleBoardProjectionQueryOptions",
-            ),
-            "removed_replaced": target_source.replace(
-                "depthNCycleBoardProjectionQueryOptions",
-                "replacementDepthNCycleBoardProjectionQueryOptions",
+            "moved": target_source.replace(
+                "useQuery(options)",
+                "useQuery({ queryKey: options.queryKey, queryFn: options.queryFn })",
+                1,
             ),
             "duplicate": target_source.replace(
-                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));",
-                "  const duplicate = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
-                "  const query = useQuery(depthNCycleBoardProjectionQueryOptions(client));\n"
+                "  const query = useQuery(options);",
+                "  const duplicate = useQuery(options);\n"
+                "  const query = useQuery(options);\n"
                 "  void duplicate;",
                 1,
             ),
@@ -781,10 +800,29 @@ class AtlasEnforcementTests(unittest.TestCase):
                     )
                 )
 
+        producer_path = checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
+        producer_source = (checker.status_checker.REPO_ROOT / producer_path).read_text(
+            encoding="utf-8"
+        )
+        moved_producer_scan = merge_override(
+            producer_path,
+            producer_source.replace(
+                "depthNCycleBoardProjectionQueryOptions",
+                "movedDepthNCycleBoardProjectionQueryOptions",
+            ),
+        )
+        self.assertTrue(  # noqa: PT009 - unittest reports the corrupt source payload.
+            checker._query_cache_policy_errors(
+                moved_producer_scan,
+                enforce_denominator=True,
+                registry=checker._query_cache_policy_register_from_scan(moved_producer_scan),
+            )
+        )
+
         source_sha_flip_scan = merge_target_override(
             target_source.replace(
-                "useQuery(depthNCycleBoardProjectionQueryOptions(client))",
-                "useQuery(depthNCycleBoardProjectionQueryOptions(client!))",
+                "useQuery(options)",
+                "useQuery(options!)",
                 1,
             )
         )

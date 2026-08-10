@@ -1670,12 +1670,17 @@ claim and edits none of the 40 call-site files.
 
 ### DS5-C12b-R1 — make the governed query path unrepresentable
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: new `governedQueryPolicy.ts` + test,
-`useDepthNCycleBoardProjection.ts` + test, the shared DS5 enforcement test
-established in C01a,
-query-cache policy register, frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+**Measured set:** exactly eight implementation/governed paths plus journal and
+plan = ten; cap ten: `governedQueryPolicy.ts` + test, `cacheDiscipline.ts`,
+`useDepthNCycleBoardProjection.ts` + test, the shared DS5 checker + test, and
+the query-cache policy register. Scanner/schema, frontend disposition
+register/report, and status-retirement inventory are byte-unmodified.
+
+**Pattern pass:** P05/P08 keep authority and owner time separate; P29/P31/P33
+exercise the real QueryClient wrapper and source-derived singleton identity;
+P35/P37 preserve the 43/66/42 denominators and fail closed on a declared
+construction/producer identity drift. `cache-query-memory` remains
+`rebind_pending/pending`; C11b owns its visible consumer/root transition.
 
 **Red first:** `test_governed_query_wrapper_forbids_retained_authority_without_owner_as_of`.
 Builder corruptions derive posture from request time or pin authority data with

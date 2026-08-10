@@ -24,7 +24,8 @@ type QueryObserverLifecycle = Readonly<{
 
 const OWNER_AS_OF_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/u;
 
-function hasOwnerAsOf(value: unknown): value is string {
+/** Return whether a supplied owner `as_of` has valid calendar and offset fields. */
+export function hasOwnerAsOf(value: unknown): value is string {
   if (typeof value !== "string") {
     return false;
   }

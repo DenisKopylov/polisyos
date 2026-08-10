@@ -208,4 +208,28 @@ describe("depth-N Cycle Board governed projection adapter", () => {
       });
     });
   });
+
+  it("retains only packets carrying an explicit owner as_of", async () => {
+    const packet = availablePacket();
+    const getGovernedProjection = vi.fn().mockResolvedValue({
+      ...packet,
+      as_of: undefined,
+      freshness: { ...packet.freshness, observed_at: "2026-08-10T10:00:00Z" },
+      source: { ...packet.source, generated_at: "2026-08-10T10:00:00Z" },
+    } as unknown as AvailableGovernedProjectionPacket);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { gcTime: Infinity, retry: false } },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => useDepthNCycleBoardProjection({ getGovernedProjection }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+  });
 });

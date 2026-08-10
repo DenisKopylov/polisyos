@@ -237,6 +237,14 @@
   ],
   "constructions": [
     {
+      "path": "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+      "line": 175,
+      "resolved_callee": "useQuery",
+      "source_sha256": "sha256:2ed5a121777255b47bf60cc8eefd4e14bf5193651567fa82530e9deddc2d6915",
+      "options_resolution": "referenced",
+      "classification": "governed_wrapper"
+    },
+    {
       "path": "apps/runtime-dashboard/src/api/hooks/useArtifactContent.ts",
       "line": 50,
       "resolved_callee": "queryOptions",
@@ -731,14 +739,6 @@
       "source_sha256": "sha256:f85987912ccb458b379c392b8e63eb1471b568c855edefe0a28ad32fb6e224bf",
       "options_resolution": "referenced",
       "classification": "legacy_direct_debt"
-    },
-    {
-      "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
-      "line": 122,
-      "resolved_callee": "useQuery",
-      "source_sha256": "sha256:d0d392c952106e1ae0f1670bddb8c68b6b7eaad04c90b0e40bdc08035402af4d",
-      "options_resolution": "referenced",
-      "classification": "governed_wrapper"
     },
     {
       "path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",

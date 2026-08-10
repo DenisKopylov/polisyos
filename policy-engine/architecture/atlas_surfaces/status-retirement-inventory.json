@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:db40dfab09a23e25baf0f4b6fc639920bd45d758aacea46d67c9b0e8752abcad"
+      "sha256": "sha256:13d8ca6657dadb87152f31f916ab677aff8ef050f4f9e34e1f8e8633ab6397f3"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -35,10 +35,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 9,
-    "current_inline": 10,
-    "current_total": 19,
-    "retired_definitions": 27,
+    "current_named": 10,
+    "current_inline": 11,
+    "current_total": 21,
+    "retired_definitions": 25,
     "already_deleted": 1
   },
   "entries": [
@@ -84,7 +84,7 @@
     {
       "unit_id": "status-offline-queue-item",
       "definition_kind": "named",
-      "current_definition_state": "retired",
+      "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
         "start_line": 8,
@@ -108,7 +108,7 @@
       "classification": "interaction_state",
       "replacement": "OfflineQueueDeliveryState",
       "authority_purpose": "transport",
-      "target_cluster": "C13",
+      "target_cluster": "C18",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
@@ -1159,7 +1159,7 @@
     {
       "unit_id": "status-inline-queued-promotion",
       "definition_kind": "inline",
-      "current_definition_state": "retired",
+      "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/evidence/hooks/useQueuedPromotionDecision.ts",
         "start_line": 16,
@@ -1183,7 +1183,7 @@
       "classification": "interaction_state",
       "replacement": "OfflineQueueDeliveryState",
       "authority_purpose": "transport",
-      "target_cluster": "C13",
+      "target_cluster": "C18",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"

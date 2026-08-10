@@ -1367,3 +1367,21 @@
   as a passing gate and C08a does not require a rerun. Orchestration was native
   Terra only, with no Sol worker or escalation. This exact five-path atom is
   unstaged and uncommitted for independent review.
+
+## DS5-C12a — reopen: reject diagnostics from nested census overrides
+
+- Reopened the rejected `6e6422540` C12a checkpoint under the architect ruling:
+  all six non-journal C12a paths were restored byte-for-byte before the repair;
+  the live journal was preserved.
+- Red witness: inserting `const diagnosticWitness: string = 42;` into the
+  governed target override produced `TS2322`, while the pre-fix derived C12a
+  register and `_query_cache_policy_errors(..., enforce_denominator=True)` were
+  both green. The nested merger had requested override diagnostics and then
+  discarded them before reading the override facts.
+- Repair: the merger now asserts that `overrideDiagnostics` is empty directly
+  after `_enforcement_scan(...)` returns. This closes the test-consumer gap
+  without changing the scanner/checker mechanism or census contract.
+- Pattern pass: P29/P32/P33/P37. The assertion consumes the actual compiler
+  diagnostic, rather than trusting a source-form marker or the derived register;
+  the scoped mechanism-byte comparison to the restored checkpoint is required
+  at closeout.

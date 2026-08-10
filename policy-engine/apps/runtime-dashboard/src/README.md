@@ -28,7 +28,7 @@
 - React Query хранит только server-derived cache и optimistic server updates; layout preferences, draft inputs, selection и scroll-local UI state идут через Zustand stores в `src/app/state/*` и `src/features/*/state/*`.
 - Virtual scrolling для больших tables/lists строится через shared primitives `VirtualTable` и `VirtualList`, но не меняет URL/cursor pagination contract сам по себе.
 - Web Vitals и route transition telemetry публикуются из `TelemetryProvider`; CWV остаются initial/hard-navigation сигналом, а SPA route latency измеряется событиями `route.transition.*` и custom metrics `time_to_decision_ms` / `time_to_insight_ms`.
-- Offline-first v1 ограничен static asset caching через service worker, IndexedDB drafts и queue-aware promotion decisions; authenticated API GET cache не считается offline contract.
+- Offline-first v1 ограничен static asset caching через service worker и IndexedDB drafts; authenticated API GET cache не считается offline contract.
 - Ошибки API нормализуются в `src/api/http.ts` и рендерятся через `src/shared/ui`.
 - Structured logging идёт через `src/shared/telemetry/logger.ts`; dev пишет в console, prod отправляет envelope в telemetry sink и Sentry breadcrumbs/exceptions.
 - Shared слой не импортирует `features` или `app`; `src/shared/lib` не тянет UI.
@@ -36,13 +36,13 @@
 
 ## App-level Providers
 
-- `AppProviders` собирает `QueryClientProvider`, `LocaleProvider`, `TelemetryProvider`, `AuthSessionProvider`, `NetworkStatusProvider`, `OfflineQueueProvider`, `FeatureFlagProvider`, `ThemeProvider`.
+- `AppProviders` собирает `QueryClientProvider`, `LocaleProvider`, `TelemetryProvider`, `AuthSessionProvider`, `NetworkStatusProvider`, `FeatureFlagProvider`, `ThemeProvider`.
 - `RuntimeApiProvider` и `RunsLiveProvider` поднимаются на route shell уровне, чтобы chromeless/login surface не тащил лишние workspace зависимости.
 - `ThemeProvider` хранит `light | dark | system` preference и пишет `data-theme` на `documentElement`.
 - `TelemetryProvider` публикует `useTelemetry`, `markUiMilestone`, `measureUiLatency`, route-context enrichment и Web Vitals events (`INP/LCP/CLS/TTFB`, optional legacy `FID` when available).
 - `AuthSessionProvider` даёт `useAuthSession`; transport слой живёт в `src/app/auth/authSession.ts` и отвечает за single-flight refresh/replay.
 - `FeatureFlagProvider` определяет UI/workspace availability без изменения feature code.
-- `NetworkStatusProvider` централизует online/offline и connection-quality signals для prefetch gating и offline queue flush.
+- `NetworkStatusProvider` централизует online/offline и connection-quality signals для prefetch gating.
 - `src/app/state/*` остаётся persistence-only слоем для app-wide Zustand stores; `src/app/providers/*` владеет React context, runtime effects и composition. Providers могут читать stores, но stores не импортируют providers.
 
 ## Build и CI артефакты

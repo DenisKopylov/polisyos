@@ -9,6 +9,27 @@
   external repo-swarm runner was not used because it conflicts with the tier
   fence. Zero Sol workers and zero Sol escalations.
 
+## Duplication findings
+
+- The architect ruling's historical 77/27 input was a raw-string count:
+  canonical 77 includes 75 imports plus two non-import contract strings; local
+  27 has no reproducible three identities. The complete TypeScript AST census at
+  base `b0d7dcaa6` supersedes the operational denominator: canonical
+  `packages/runtime-api-client/types.ts` is 18,733 lines with 75 imports across
+  75 files and `RuntimePermission` present; independently maintained duplicate
+  `apps/runtime-dashboard/src/api/types.ts` is 17,648 lines with 24 imports
+  across 24 files and zero `RuntimePermission` references. The concrete
+  divergence is `AuthMeResponse.permissions`: canonical `RuntimePermission[]`
+  versus local `string[]`.
+- Migration is roughly three quarters complete. No gate compares the two
+  artifacts. Report only: C07b is `blocked-on-another-plan` on the single-owner
+  frontend generated-artifact strangle; its closure repoints all 24 live local
+  imports. A comparison gate is temporary mitigation and cannot close the row.
+- Architect ruling: reopen C12a and re-cut C07 into C07a HTTP/backend recovery
+  and C07b dashboard consumption. C07a restores the already-green backend
+  candidate without regenerating the dashboard local client. All workers remain
+  Terra/Luna; zero Sol escalation.
+
 ## DS5 producer-existence entry audit
 
 - Root adjudication: DS5 was sequenced as if enforcement could precede

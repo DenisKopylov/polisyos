@@ -196,7 +196,7 @@ byte-unmodified. Any new identity is red.
 | all raw transport constructors | 7 calls / 5 production files | adds one `EventSource` and one `WebSocket` |
 | flags | 12 keys; 8 consumed; 4 `consumer_missing` | wire 3, retire collaboration; auth pseudo-flag is separate |
 | permissions | 33/33 unique server/OpenAPI values | dashboard local list has 15: 12 overlap, 3 unsupported collaboration strings, 21 omitted |
-| governed projection audiences | entry 13 definitions: 5 EXPERT, 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 adds one source-bound EXPERT G4 definition, producing the C07 entry denominator 14 = 6 EXPERT + 8 MACHINE; C07 enforces all four classes without relabeling the 13 existing definitions |
+| governed projection audiences | accepted live denominator: 13 definitions, 5 EXPERT and 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 did not add G4; `g4-complete-audience-projection-contract` remains typed producer debt. C07a enforces all four classes without relabeling the 13 emitted definitions; G4 waits on its owner plan |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
 | locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
@@ -233,7 +233,7 @@ commands and their receipts are in the baseline table above.
 | 5 `fetch` / 3 files; 7 raw transports / 5 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' '\\bfetch\\s*\\(' apps/runtime-dashboard/src`; repeat with `\\b(fetch\\s*\\(\|new EventSource\\s*\\(\|new WebSocket\\s*\\()'` and use `rg -l` for file counts |
 | 12 flag keys / 8 referenced outside owner / four named missing consumers | literal `flag_consumer_census` command and per-key output below |
 | 33 server and generated permission values | literal `authority_and_store_census` command below; recorded `server=33`, `generated=33`, `equal=True` |
-| entry 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'`; C06 must re-run it and record 14/6/8 |
+| accepted live 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'`; C07a records 13/5/8; C06 leaves G4 as typed producer debt |
 | G4 owner shape: 8 fields; owner projection refs: PUBLIC/REVIEWER/EXPERT/MACHINE | `jq -c '{fields:(keys\|sort)}' architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json` returns `blocker_refs, issue_codes, limitation_refs, produced_by, promotion_scope, promotion_state, status, weakest_boundary_reason`; `jq -c '{audiences,EXPERT:(.EXPERT\|keys\|sort),MACHINE:(.MACHINE\|keys\|sort),PUBLIC:(.PUBLIC\|keys\|sort),REVIEWER:(.REVIEWER\|keys\|sort)}' architecture/policy_design_case/layer3_g4_public_export_projection_refs.json` records all four source-owned audience projections and their distinct field classes |
 | 11 N010 expressions / 6 production consumers | literal `authority_and_store_census` command below; its per-path output is 1/2/1/1/2/4 |
 | 14 fallback capability records | `sed -n '/features: \\[/,/^  \\],/p' apps/runtime-dashboard/src/shared/lib/capabilities.ts \| rg -c '^      key:'`; `rg -n 'FALLBACK_CAPABILITY_MANIFEST\|capabilitiesQuery.isLoading'` locates the two production bypass consumers |
@@ -670,10 +670,12 @@ A deferral or debt row's closure signal conforms to the register's established i
 ### Binding review bars
 
 - **Closure signals:** the governing bar is the schema's `nonEmptyString` plus the register's simple sibling rows, never a prior deferral.
+- **Mechanism-round breaker:** a fix round that changes zero bytes in mechanism paths (production source plus the checker or scanner implementing the mechanism) does not consume the two-fix breaker. Test-only and receipt/documentation-only rounds are free; prove the classification with a scoped `git diff` over mechanism paths.
 - **AST rules:** the governing bar is direct syntax or construction sites; their output states the indirect-flow residual rather than claiming to close it. `tsc` is the authority-slot enforcement engine.
 - **Sizing:** stop for a new bespoke mechanism at any line count. N instances of an established mechanism scale linearly and are measured per mechanism, not rejected by their aggregate line count.
 - **Implementation boundaries:** the plan states the boundary; every review finding or implementation constraint cites its governing artifact; an invented boundary is refused.
 - **C12a fourth ratchet instance:** closure sibling norm, direct-syntax residual, per-mechanism size, then a boundary invented against the denominator definition.
+- **Duplication reporting:** whenever two independently maintained artifacts or implementations derive from one source or own one concept, record both paths, complete counts on both sides, canonical authority, migration progress, one concrete divergence, and whether any gate compares them. Report, never fix, unless the cluster explicitly owns the strangle.
 - Every review finding cites the schema, plan, or landed sibling that sets its bar. If a plan law conflicts with architect guidance, stop and ask; do not select the more restrictive reading.
 
 ### Sizing-law re-cuts after the architecture ruling
@@ -693,7 +695,7 @@ first continuously numbered `-R1` successor.
 | C05a | 10 | 11 | no-fit | C05a-R1 / 11 |
 | C05b | 6 | 7 | record-only | C05b-D2 / 7 |
 | C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
-| C07 | 26 | 25 | FIT | C07 / 26 (already fit) |
+| C07 | 26 | 25 | re-cut | C07a HTTP/backend / C07b dashboard consumption |
 | C08b | 10 | 11 | no-fit | C08b-R1 / 11 |
 | C09a | 10 | 11 | no-fit | C09a-R1 / 11 |
 | C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
@@ -712,8 +714,11 @@ first continuously numbered `-R1` successor.
 | C19 | 13 | 14 | no-fit | C19-R1 / 14 |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
-C01b/C01c are the separately authorized `636645bec` re-cut. C06, C07 and
-C13a retain their IDs and caps because their corrected sets already fit.
+C01b/C01c are the separately authorized `636645bec` re-cut. C06 and C13a
+retain their IDs and caps because their corrected sets already fit. C07 is
+re-cut: C07a restores the already-green HTTP/backend candidate without
+regenerating the dashboard local client; C07b is separately blocked on the
+single-owner frontend generated-artifact strangle.
 
 ### Register transition map
 
@@ -729,9 +734,10 @@ C13a retain their IDs and caps because their corrected sets already fit.
 | `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
 | `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C05b-R3 | C05b-R3 lands only the private issuer/generated `may_not_use_for` guard; it remains `rebind_pending/open_debt` for the panel/direct-Badge bridge, consumer, verification and semantic test while DS6 accepted human-review receipts remain 0 |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
-| audience enforcement supplemental/readiness evidence | C07 | four-class deny matrix over all 33 enum-owned permission values and the 14-definition/6-EXPERT/8-MACHINE post-C06 census; G4 is EXPERT with exact `mode.analyst`; no client substitute |
+| audience enforcement supplemental/readiness evidence | C07a | four-class server deny matrix over all 33 enum-owned permission values and the accepted 13-definition/5-EXPERT/8-MACHINE census; exact `mode.analyst` applies to all five emitted EXPERT definitions; G4 remains typed producer debt and waits on its owner plan; restores the already-green backend candidate without regenerating the dashboard local client |
+| dashboard generated-client consumption | C07b | blocked-on-another-plan pending the single-owner frontend generated-artifact strangle; the ruling's historical 77/27 raw-string input is superseded operationally by the base AST census (75 canonical imports, 24 local imports): the sole closure deletes `apps/runtime-dashboard/src/api/types.ts`, repoints all 24 live imports to `@polisyos/runtime-api-client`, removes the local artifact from `architecture/generated_artifacts.toml` and `docs/reference/frontend/workspace-contract.md`, and removes dashboard `openapi-typescript`; a comparison gate is temporary mitigation only and cannot close this row |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
-| composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 projects the existing G4 owner artifact as a complete generated packet; deferred C10-R1 retains its nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
+| composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 retains `g4-complete-audience-projection-contract` as typed producer debt; deferred C10-R1 waits on that owner plan before any nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
 | `cache-query-memory` | C12a-C12b-R1 | rebound only for the governed builder, one C11a-C11b-R1 consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
 | `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b-R1 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
 | `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R1 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
@@ -1192,7 +1198,8 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 
 | Cluster | Deliverable | Producer today | Evidence | Verdict | Waits on |
 | --- | --- | --- | --- | --- | --- |
-| C07 | audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners | `src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `src/polisyos/runtime/http/permissions.py:16-51,211-216`; `schemas/runtime_api_v1.openapi.json:/api/v1/auth/me` | executable | none |
+| C07a | HTTP/backend audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners | `src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `src/polisyos/runtime/http/permissions.py:16-51,211-216`; `schemas/runtime_api_v1.openapi.json:/api/v1/auth/me` | executable; restore already-green backend candidate without regenerating dashboard local client | none |
+| C07b | dashboard generated-client consumption | canonical `packages/runtime-api-client/types.ts` exists, but dashboard retains a separately maintained local generated client | `packages/runtime-api-client/types.ts`; `apps/runtime-dashboard/src/api/types.ts`; Duplication findings below | blocked-on-another-plan | single-owner frontend generated-artifact strangle |
 | C08a | test-only identity fixture | verified `/auth/me` producer exists; only test fallback import must be isolated | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/test/render.tsx:7,28` | executable | none |
 | C08b-R1 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | executable | none |
 | C08b-R1 | auth-session revision partition | no relevant identity revision producer in OpenAPI/apps/packages/runtime HTTP | complete absence: `rg -n -i -e 'auth_session_revision' -e 'auth.*session.*revision' -e 'session.*revision.*auth' -e 'identity.*revision' -e 'revision.*identity' schemas/runtime_api_v1.openapi.json apps/runtime-dashboard packages/runtime-api-client src/polisyos/runtime/http --glob '*.{json,ts,tsx,py}'` (0) | debt-only | none |
@@ -1265,17 +1272,16 @@ generated report. The generic disposition checker/probes and the package's
 hand-authored type test are reused byte-unmodified. Alongside the three waist unions, this cluster projects
 the existing canonical
 `architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json`
-owner artifact as one typed governed-projection packet. No owner computation,
-waist schema copy or decision-grade consumer is edited.
+owner artifact as one typed governed-projection packet. That historical C06
+candidate is not restored: no routed G4 producer exists, so C06 retains typed
+producer debt and does not emit a packet. No owner computation, waist schema
+copy or decision-grade consumer is edited.
 
-The new complete G4 packet is explicitly `EXPERT`. Its owner public-export
-reference admits rich internal references for EXPERT and MACHINE, while its
-PUBLIC/REVIEWER projections are reduced; the complete artifact carries
-`produced_by` input hashes/reducer provenance and `promotion_scope` that C06
-must not silently strip or expose as a reduced projection. The first consumer
-is the human expert run surface, so MACHINE is not selected by default. This
-source/use-bound choice changes the post-C06 definition census to
-14 = 6 EXPERT + 8 MACHINE, with 0 PUBLIC and 0 REVIEWER definitions.
+The planned complete G4 packet is not emitted: its owner public-export remains
+reference-only, and `g4-complete-audience-projection-contract` is typed
+producer debt. C06 does not synthesize or classify G4. The accepted live
+definition census remains 13 = 5 EXPERT + 8 MACHINE, with 0 PUBLIC and 0
+REVIEWER definitions.
 
 **Red first:**
 
@@ -1290,17 +1296,16 @@ source/use-bound choice changes the post-C06 definition census to
 **Acceptance:** the owner contracts produce closed unions through OpenAPI and
 the generated client; adapters use exhaustive generated-type-bound switches
 and return explicit `unrecognized` for runtime novel labels without exporting
-constants. The G4 packet is validated by the existing isolated owner-validation
-worker, content-bound to the canonical artifact, and carries the complete
-owner-composed weakest-boundary/veto result; the browser receives no rank or
-meet function. Type erasure is not presented as runtime validation. Terminal kinds
+constants. G4 remains typed producer debt pending its owner plan; the browser
+receives no G4 packet, rank, or meet function. Type erasure is not presented as
+runtime validation. Terminal kinds
 and evidence classes remain opaque. Every governed `export_symbol` still occurs
 once and every symbol/field tuple is unchanged. Generated aliases sort
 alphabetically, so each tuple requires its own accounted baseline-to-generated
 line delta; any unaccounted drift stops the cluster. Two client hashes refresh,
 surgical JSON diffs preserve unrelated bytes, and both corruption batteries pass.
-The definition census is re-derived from `_DEFINITIONS` and must be exactly
-14/6/8 after the addition; a different audience or a second unmeasured
+The definition census is re-derived from `_DEFINITIONS` and must remain exactly
+13/5/8; a synthesized G4, a different audience, or a second unmeasured
 definition is red.
 
 The snapshot is produced only by the registered `runtime-openapi-snapshot`
@@ -1311,19 +1316,18 @@ hand-edited.
 
 **Expected commit:** `DS5-C06 bridge the three canonical waist unions`.
 
-### DS5-C07 — one server audience-permission mapping
+### DS5-C07a — restore the server audience-permission mapping
 
-**Measured set:** exactly 24 implementation/governed paths plus journal = 25;
-cap 26: four HTTP source files (new
+**Status:** restore the already-green HTTP/backend candidate. C07a does not
+regenerate, compare, or otherwise change the dashboard local client; that
+consumer/strangle is C07b.
+
+**Measured set:** the HTTP/backend candidate: four HTTP source files (new
 `audience_permissions.py`, `authorization.py`, governed service and route);
 the five fence-listed HTTP/contract tests; generated OpenAPI snapshot; package
 `types.ts`, `runtimeApiClient.{ts,js}` and
-`canonicalRuntimeApiClient.{ts,js}` plus dashboard `src/api/types.ts`; and eight
-governed receipt/re-anchor files
-(waist register; status inventory/checker/test; disposition
-register/checker/test plus its generated report). Audience schema, generated client, mapping, route
-enforcement, consumer contract and re-anchors land together; no contract-only
-cluster boundary is allowed. The single authored direction is
+`canonicalRuntimeApiClient.{ts,js}`; it explicitly excludes dashboard
+`src/api/types.ts`. The single authored direction is
 `RuntimePermission -> frozenset[AudienceClass]`; the inverse is derived. Every
 one of the 33 values appears exactly once. Current inverse counts are PUBLIC 0,
 REVIEWER 20, EXPERT 28, MACHINE 22.
@@ -1337,9 +1341,11 @@ REVIEWER 20, EXPERT 28, MACHINE 22.
 | EXPERT | `mode.analyst`, `scenarios.create` |
 | PUBLIC | no privileged permission; this does not create an anonymous route |
 
-At C07 entry the audience census is 6 EXPERT projections, including G4, and 8
-MACHINE projections. C07 assigns exact `mode.analyst` to all 6 EXPERT
-definitions and exact `platform.view` to all 8 MACHINE definitions.
+At C07a entry the accepted live audience census is 5 EXPERT projections and 8
+MACHINE projections. C07a assigns exact `mode.analyst` to all 5 emitted EXPERT
+definitions and exact `platform.view` to all 8 MACHINE definitions. G4 is not
+synthesized here: `g4-complete-audience-projection-contract` remains typed
+producer debt and waits on the `team-runtime-quality` G4 projection owner plan.
 `AudienceClass` gains PUBLIC in this
 cluster. PUBLIC and REVIEWER construction and deny behavior are exercised
 through the same real dependency, but no current producer projection is
@@ -1356,9 +1362,8 @@ DS5 does not invent an anonymous positive route to make the matrix look full.
 A permissionless principal cannot fetch any current privileged projection.
 Direct URL, coarse role, client header and UI-hidden variants exercise the
 server path. A source-derived corruption witness rejects any DS20 high-stakes
-permission classified for MACHINE. The G4 case explicitly denies
-`platform.view`, `runs.view`, `artifacts.render`, and every other grant without
-`mode.analyst`, and permits only the exact expert requirement.
+permission classified for MACHINE. G4 has no emitted route case in C07a; it
+remains typed producer debt rather than a synthesized expert requirement.
 
 **Acceptance:** one immutable mapping is imported by one real route dependency;
 REVIEWER, EXPERT and MACHINE have exact-grant allow and wrong-grant deny
@@ -1369,11 +1374,31 @@ projection producer audiences are not relabeled; all six source-derived
 high-stakes permissions exclude MACHINE; generated symbols/fields are
 re-anchored under the same unchanged tuple/per-symbol-per-field line-delta
 rule, with any unaccounted drift a STOP; the UI is not
-part of the allow decision. Regeneration repeats the same registered exporter
-and generated-output commands as C06; no generated-client package file is
-hand-edited.
+part of the allow decision. Run the registered OpenAPI exporter and
+package-client generation needed for the backend contract; do not run
+`runtime-dashboard generate:api` and do not modify
+`apps/runtime-dashboard/src/api/types.ts`.
 
-**Expected commit:** `DS5-C07 enforce audience permission boundaries`.
+**Expected commit:** `DS5-C07a restore server audience permission boundaries`.
+
+### DS5-C07b — dashboard generated-client consumption
+
+**Status:** `blocked-on-another-plan`. This row waits on the single-owner
+frontend generated-artifact strangle and may report the duplication but may not
+fix it in DS5.
+
+**Measured duplication and single closure:** the architect ruling supplied
+historical raw-string counts of 77 canonical and 27 local references. The
+complete TypeScript AST census at base `b0d7dcaa6` supersedes those operational
+denominators: `packages/runtime-api-client/types.ts` is 18,733 lines with 75
+canonical imports across 75 files, while
+`apps/runtime-dashboard/src/api/types.ts` is 17,648 lines with 24 local imports
+across 24 files. Delete `apps/runtime-dashboard/src/api/types.ts`; repoint all
+24 live imports to `@polisyos/runtime-api-client`; remove the local artifact from
+`architecture/generated_artifacts.toml` and
+`docs/reference/frontend/workspace-contract.md`; and remove dashboard
+`openapi-typescript`. A comparison gate is only temporary mitigation and cannot
+close this row.
 
 ### DS5-C08a — sever test support from production fallback identity
 
@@ -1512,8 +1537,8 @@ runtime-novel owner status remains explicit
 cap 8: new `G4WeakestBoundaryPresentation.tsx` + test; `OverviewTab.tsx` + the
 existing `runDetailSurfaces.test.tsx`; frontend disposition register + generated
 report; `architecture/atlas_surfaces/status-retirement-inventory.json`; and
-journal. C06 supplies the generated G4 DTO. The C01b checker already
-derives branded issuer modules from the governed census; the new row brings this
+journal. C10-R1 waits on the owner-generated G4 DTO; C06 supplies none. The
+C01b checker already derives branded issuer modules from the governed census; the new row brings this
 module under that gate without editing the checker. The module deliberately has no TanStack
 `useQuery`, `queryOptions`, `queryFn`, query key, local store or persistent
 cache, so it does not change the 42-producer C11a-C12b-R1 denominator.
@@ -2025,7 +2050,8 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C05b-D2 | `DS5-C05b-D2 record semantic-copy deferral` | 7 |
 | C05b-R3 | `DS5-C05b-R3 recover semantic-copy issuer guard` | 13 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
-| C07 | `DS5-C07 enforce audience permission boundaries` | 26 |
+| C07a | `DS5-C07a restore server audience permission boundaries` | HTTP/backend candidate |
+| C07b | `DS5-C07b dashboard generated-client consumption` (blocked-on-another-plan) | single-owner frontend generated-artifact strangle |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |
 | C08b-R2 | `DS5-C08b-R2 fail closed on unsettled identity` | 7 |
 | C08b-D1 | `DS5-C08b-D1 record auth-session revision producer debt` | 7 |

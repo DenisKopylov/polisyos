@@ -1193,3 +1193,107 @@
   Focused test passed in 48.726s; frontend/status modules passed 49/49 in
   120.878s and 38/38 in 164.227s; frontend/status corruption batteries passed
   in 180.976s and 62.907s, each under an explicit 300-second bound.
+
+## DS5-C12a — source-bind query constructions and producers
+
+- Pattern pass: P01/P04/P05/P08/P29/P31-P37. The new register is a governed
+  construction-site census, not a cache-policy flow analysis or an authority/
+  source-time claim. Its explicit residual excludes aliases, wrappers, spreads,
+  and option-value flow; TypeScript remains the assignability authority.
+- Red first:
+  `AtlasEnforcementTests.test_query_construction_and_producer_censuses_are_source_complete`
+  initially failed because `_query_cache_policy_errors` and its source facts did
+  not exist. The green test rederives 43 canonical `queryKeys` owners, 66
+  declaration-resolved TanStack `useQuery`/`queryOptions` constructions across
+  40 files, and 42 `queryFn` producers across 39 files.
+- The two source-bound tables distinguish the C11 migration target from
+  `legacy_direct_debt`; every producer carries its local query-key owner (or an
+  explicit unresolved direct-site value), exact TypeScript DTO contract,
+  required `as_of` owner field, DS5 owner slice, capability state, and executable
+  closure signal. No call-site file changed.
+- P29/P33 witnesses reject an added construction, reordered or retagged
+  construction, untyped exemption, and removed producer. The first retag probe
+  was a nonreceipt because its replacement preserved the existing first callee;
+  it was corrected to flip the resolved TanStack declaration before the passing
+  final corruption run.
+- Receipts: focused named test passed 1/1 in 69.100s; direct writer/checker
+  idempotence, `py_compile`, Node syntax check, JSON parsing, and diff check
+  passed; `corepack pnpm run lint:enforcement` passed with 43/66/42; final
+  `check_atlas_enforcement.py --check --corruption-probes` passed. The package
+  lint runs the byte-preserving writer assertion, never a formatter/rewrite.
+- Nonreceipt: the prior Terra quota interruption had no terminal gate receipt
+  and is excluded. Orchestration was native Terra with zero Sol workers or
+  escalations. This exact seven-path C12a atom is unstaged and uncommitted for
+  independent review.
+
+### Review fix round 1 — direct-site benign control
+
+- The local `useQuery` lookalike with a standalone `queryFn` initially produced
+  one false producer (focused red, 84.962s). A first parent-only correction
+  exposed the real denominator gap (38 rather than 42): four source-bound
+  factory return objects are canonical query-key construction sites. The final
+  discriminator admits only a declaration-resolved TanStack direct input, or a
+  returned object with a directly resolved canonical query-key owner; it does
+  not follow aliases, wrappers, spreads, or option values.
+- The focused source-complete/benign test is green 1/1 in 170.623s. Final
+  corruption probes passed (exit 0), including added, reordered, retagged,
+  untyped-exemption, and removed-producer witnesses. The earlier unbounded
+  package-lint pass is a nonreceipt; the one bounded rerun passed in 123.352s
+  under 600 seconds, with byte-preserving register proof and 43/66/42.
+- Python and Node syntax, JSON parsing, diff check, and changed-line Ruff all
+  passed (zero new Ruff findings; 122 inherited repository findings remain).
+  The exact seven-path C12a atom remains unstaged and uncommitted for review.
+
+### Review fix round 2 — immutable governed identity and spread boundary
+
+- Review found the governed posture was path-only: moving a second construction
+  or producer onto the target path let a regenerated register classify two
+  governed rows without error. The scanner also admitted a direct
+  `useQuery({ ...inherited, queryKey, queryFn })` object despite the declared
+  spread residual. The first focused red failed 4 assertions in 113.651s;
+  the expanded red failed all three construction and all three producer
+  duplicate/missing/source-hash identity controls plus the real spread form in
+  145.925s (each under the 300-second bound).
+- The governed construction now binds its resolved TanStack declaration, exact
+  local options-factory declaration, source hash, line, and null direct key;
+  the producer binds exact source hash, line, canonical `governedProjection`
+  key owner, and DTO contract. The checker requires exactly one target-path
+  identity and exactly `1/65` construction plus `1/41` producer posture rows.
+  Spread-bearing direct query-key/queryFn objects are excluded; retained
+  wrapper-call rows do not interpret spread content or follow value flow.
+- The focused suite passed 1/1 in 46.545s. The full corruption battery passed
+  in 87.774s, including real target source-add and source-hash-flip probes;
+  bounded package lint passed in 50.460s under 600 seconds and proved the
+  regenerated register byte-preserved. Syntax/JSON/diff and changed-line Ruff
+  passed (zero new Ruff findings; 131 inherited findings remain). The prior
+  Terra interruption and unbounded lint attempt remain nonreceipts. This exact
+  seven-path atom remains unstaged and uncommitted for independent review.
+
+### FINAL review STOP — all-spread census conflict; architect ruling required
+
+- I1 remains addressed by the immutable source/declaration identity and exact
+  `1/65` plus `1/41` cardinalities from review fix round 2. I2 cannot close
+  honestly under the current C12a denominator: the requested unconditional
+  `SpreadAssignment` exclusion measures 43 query-key owners, **48**
+  constructions, and 42 producers, rather than the pinned 43/66/42. The
+  complete 18-site construction delta is `useArtifactContent:60`,
+  `useBureaucraticRender:73`, `useCompareRuns:113`, `useCounterfactualMetrics:85`,
+  `useGovernanceDebug:53`, `useLexGraphStats:40`, `useRunAgents:50`,
+  `useRunDetails:92`, `useRunErrors:47`, `useRunEvidenceContext:57`,
+  `useRunFabricDecisionData:67`, `useRunLineage:68`, `useRunNodes:47`,
+  `useRunQuantities:62`, `useRunTimeline:65`, `useRunWorkflow:52`,
+  `useTemporalQuery:24`, and `useTemporalRange:70` (all dashboard hooks).
+- The exact no-`queryFn` direct-key spread witness is red as required (exit 1,
+  48.021s under 300 seconds). I3's full executable corruption-probe red also
+  completed (exit 1, 85.174s under 600 seconds): it observed no removed
+  producer row in the actual probe path. The generated/package lookalike and
+  final green are nonreceipts because the focused test stopped at the I2 red;
+  no removed-producer probe, all-spread predicate, register refresh, schema
+  change, package lint, or final corruption run was wired after this STOP.
+- Two C12a fix rounds are exhausted. No weakened predicate was applied to
+  preserve a stale denominator, and no third fix is authorized. The prior
+  Terra-quota and unbounded-lint nonreceipts remain. An architect must rule
+  whether the canonical C12a construction denominator becomes 48 or whether
+  the 18 wrapper calls are explicitly retained under a differently ratified
+  non-object/direct-options boundary. This exact seven-path atom remains
+  unstaged and uncommitted for parent checkpoint and forward-revert.

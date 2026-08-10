@@ -672,6 +672,8 @@ A deferral or debt row's closure signal conforms to the register's established i
 - **Closure signals:** the governing bar is the schema's `nonEmptyString` plus the register's simple sibling rows, never a prior deferral.
 - **AST rules:** the governing bar is direct syntax or construction sites; their output states the indirect-flow residual rather than claiming to close it. `tsc` is the authority-slot enforcement engine.
 - **Sizing:** stop for a new bespoke mechanism at any line count. N instances of an established mechanism scale linearly and are measured per mechanism, not rejected by their aggregate line count.
+- **Implementation boundaries:** the plan states the boundary; every review finding or implementation constraint cites its governing artifact; an invented boundary is refused.
+- **C12a fourth ratchet instance:** closure sibling norm, direct-syntax residual, per-mechanism size, then a boundary invented against the denominator definition.
 - Every review finding cites the schema, plan, or landed sibling that sets its bar. If a plan law conflicts with architect guidance, stop and ask; do not select the more restrictive reading.
 
 ### Sizing-law re-cuts after the architecture ruling
@@ -1606,7 +1608,8 @@ cap 7: `status_retirement_scan.mjs`, the C01a DS5 checker/test,
 `query-cache-policy-register.json` + schema, dashboard `package.json`, and
 journal. Current denominators are 43 canonical query-key constructors, 66
 direct `useQuery`/`queryOptions` construction calls / 40 files, and 42
-`queryFn` producers / 39 files.
+`queryFn` producers / 39 files. This preceding architect-ruling docs commit is
+not part of the code atom; the expected C12a cap remains 7.
 
 **Red first:**
 `test_query_construction_and_producer_censuses_are_source_complete`.
@@ -1617,13 +1620,21 @@ producer contract/owner field/owner slice/closure signal. A local function named
 controls.
 
 The register holds two independent source-bound tables—66 construction calls
-and 42 producer definitions—rather than pretending to infer which arbitrary
-options value reaches which call. Construction rows carry resolved callee,
-path/fingerprint and `governed_wrapper | legacy_direct_debt`; producer rows
-add query-key owner, exact DTO contract, required owner `as_of`, owner slice,
-capability states and executable closure. One C11a construction/producer is the
-migration target; 65 calls and 41 producers remain fingerprint-bound debt unless
-independent contract evidence proves an operational class.
+and 42 producer definitions. The construction table counts every direct
+declaration-resolved TanStack call, including `useQuery(existingOptions)` and
+spread-bearing option arguments; it never follows or infers option-value
+semantics. Each construction row carries resolved callee, path, fingerprint,
+classification (`governed_wrapper | legacy_direct_debt`) and typed
+`options_resolution: inline | referenced`: `inline` only for a direct object
+literal with fully local options and no spread; `referenced` for
+identifiers/calls/wrappers or object literals containing spread. `referenced`
+is machine-visible residual, not debt/exemption and is not excluded; no numeric
+inline/referenced subset claim is made until implementation measures it.
+Producer rows remain independently 42 and add query-key owner, exact DTO
+contract, required owner `as_of`, owner slice, capability states and executable
+closure. One C11a construction/producer is the migration target; 65 calls and
+41 producers remain fingerprint-bound debt unless independent contract evidence
+proves an operational class.
 
 **Acceptance:** omissions, new/moved/changed calls or producers, stale
 fingerprints and unbuildable integrate-contracts fail. Existing legacy rows are

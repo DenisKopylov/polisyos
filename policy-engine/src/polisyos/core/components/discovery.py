@@ -853,7 +853,6 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
             except (OSError, UnicodeError):
                 direct_url_text = None
             if direct_url_text is not None:
-                direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
                 try:
                     direct_url_payload = json.loads(str(direct_url_text))
                 except (json.JSONDecodeError, TypeError, ValueError):
@@ -862,6 +861,10 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
                     dir_info = direct_url_payload.get("dir_info")
                     if isinstance(dir_info, dict) and isinstance(dir_info.get("editable"), bool):
                         editable_install = bool(dir_info["editable"])
+                # An editable direct URL is an installer-chosen address, not content identity.
+                # Record the editable posture while leaving its source-byte closure unestablished.
+                if editable_install is not True:
+                    direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
     return DiscoveryEntryPointIdentity(
         group=group,
         name=str(getattr(ep, "name", "")),

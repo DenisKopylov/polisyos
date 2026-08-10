@@ -761,7 +761,7 @@ def _catalog_provenance_comparison_fixture() -> dict[str, Any]:
                     "distribution_name": "example",
                     "distribution_version": "1.0.0",
                     "entry_points_sha256": _hash("3"),
-                    "direct_url_sha256": _hash("4"),
+                    "direct_url_sha256": None,
                     "editable_install": True,
                     "source_byte_closure": "not_established",
                 }
@@ -830,6 +830,68 @@ def _catalog_provenance_comparison_fixture() -> dict[str, Any]:
             ],
         ],
     }
+
+
+def test_n8_catalog_provenance_records_editable_identity_as_quarantined() -> None:
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    provenance = _catalog_provenance_comparison_fixture()
+    provenance["provenance_id"] = method_catalog_provenance_id(provenance)
+
+    entry = provenance["ambient_discovery"]["entry_points"][0]
+    assert entry["editable_install"] is True
+    assert entry["direct_url_sha256"] is None
+    assert entry["source_byte_closure"] == "not_established"
+    assert provenance["ambient_discovery"]["admission"] == {
+        "status": "quarantined_unbound",
+        "included_in_governed_denominator": False,
+        "fail_closed_action": "quarantine",
+    }
+    predicate = next(
+        row
+        for row in provenance["predicate_provenance"]
+        if row["predicate"] == "ambient.entry_point_source_byte_closure"
+    )
+    assert predicate == {
+        "predicate": "ambient.entry_point_source_byte_closure",
+        "classification": "not_established",
+        "decisive": False,
+        "fail_closed_action": "quarantine",
+    }
+    admission = next(
+        row
+        for row in provenance["predicate_admission_policy"]
+        if row["classification"] == "not_established"
+    )
+    assert admission == {
+        "classification": "not_established",
+        "admitted": False,
+        "fail_closed_action": "reject_or_quarantine",
+    }
+    assert value_contract._catalog_provenance_issues(provenance, provenance) == ()
+
+
+def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identity() -> None:
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    expected = _catalog_provenance_comparison_fixture()
+    expected_entry = expected["ambient_discovery"]["entry_points"][0]
+    expected_entry["editable_install"] = False
+    expected_entry["direct_url_sha256"] = _hash("bound-wheel-a")
+    expected["provenance_id"] = method_catalog_provenance_id(expected)
+    recorded = copy.deepcopy(expected)
+    recorded["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] = _hash(
+        "bound-wheel-b"
+    )
+    recorded["provenance_id"] = method_catalog_provenance_id(recorded)
+
+    codes = {
+        issue["code"]
+        for issue in value_contract._catalog_provenance_issues(recorded, expected)
+    }
+
+    assert "catalog_entry_point_distribution_manifest_mismatch" in codes
+    assert "catalog_provenance_content_hash_mismatch" not in codes
 
 
 def test_n8_catalog_provenance_names_environment_before_count_drift(

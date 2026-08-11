@@ -809,3 +809,39 @@ after the relevant assertions had passed it was interrupted at the unbudgeted ex
 and exited `2`. The focused strict-projection receipt remains green. `[P37: recomputed for the
 frozen row denominator, current failure, focused receipts, and interrupt result; independently_reconciled
 for non-intersection with row production; not_established for the uncompleted broad suite]`
+
+### Source-bound census at the corrected freeze
+
+The replacement census resolved clean `HEAD`
+`e2f23c6eb4b72ac6541661dd61b278552c05947c` internally. It bound the loaded PDC owner, runtime N9
+owner, and all five validator bridges to their committed blobs, recorded the CPython executable and
+a sorted SHA-256 manifest for every input, parsed exactly `353/353`
+`architecture/policy_design_case/*.json` files (`json=353`), and found no owner-admitted candidate in
+an unbridged sixth artifact. Every one of the five existing full identities recomputed to its stored
+value. `[P37: recomputed]`
+
+Fail-closed admission corrects the earlier trial a second time. The current frozen set has `23`
+already content-bound blocks and `3,721` scalar leaves: confidence `4/1,023`, Depth-N `10/1,564`,
+generation `2/212`, promotion `3/210`, and N10a trace `4/712`. The nine legacy list-shaped Depth-N
+summaries do not yet carry the new owner scope/hash and therefore remain governing; a list literal
+does not admit itself. The canonical Depth summary owner deterministically adds exactly two fields
+(`projection_scope`, `projection_hash`) to each of those nine blocks. The source-bound migration
+projection therefore predicts the post-Depth-writer set as `32` blocks / `3,799` leaves, with
+Depth-N `19/1,642` and comparison identity
+`sha256:8c0274f08473c298828ba548b02977133821689256ac6708258397b109822494`.
+This is B1: the difference from both `3,721` and the unsafe `3,781` trial is fully explained by the
+§2 producer-admission contract, so the batch proceeds. `[P37: recomputed]`
+
+The ignored bound receipts are `tmp/gy-defc-4/post-repair-census/census_bound.py` SHA-256
+`196bfba96e0b32b8d89ed2269ddc338d711d35e3c94a846df0c0b0a734f44783`,
+`summary-bound.json` SHA-256
+`a80677a7c6cf028ae592c5104eaf8f38ac7e29458c0fd41045744418a397a43a`,
+`input-manifest.jsonl` SHA-256
+`39877a0338652bf98535acb992049c67fe797f0c9fea41e9c08b26b7a0a0bd36`,
+`artifacts-bound.jsonl` SHA-256
+`f6cfff8c5872ebf38c51e4b2e031c0d193a26eef6fd235069ba33305694e28d1`, and
+`removed-leaves-bound.jsonl` SHA-256
+`0b5ef1e188a41ba44116c8e97b951a1f38e295206ade40a00722fb0264a06ec6`.
+The summary's canonical receipt hash is
+`sha256:274de2fb40fc7dc5e81a08752e93c3e792114c1ae0911209621a25b5bfc4e644`.
+`[P37: recomputed]`

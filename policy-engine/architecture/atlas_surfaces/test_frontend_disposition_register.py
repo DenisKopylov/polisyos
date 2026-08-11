@@ -726,13 +726,22 @@ class ProducerBindingDebtTests(unittest.TestCase):
         "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
     ]
     _c21b_identity_by_hint: ClassVar[dict[str, str] | None] = None
+    _c21c_identity_by_hint: ClassVar[dict[str, str] | None] = None
 
     @classmethod
     def _migrated_descriptor_refs(cls, references: list[str]) -> list[str]:
-        """Project legacy test fixtures through the independently derived C21b map."""
+        """Project legacy fixtures through independently derived identity maps."""
         if cls._c21b_identity_by_hint is None:
             cls._c21b_identity_by_hint = checker._c21b_descriptor_identity_literals()
-        return [cls._c21b_identity_by_hint.get(reference, reference) for reference in references]
+        if cls._c21c_identity_by_hint is None:
+            cls._c21c_identity_by_hint = checker._c21c_structured_identity_literals()
+        return [
+            cls._c21c_identity_by_hint.get(
+                reference,
+                cls._c21b_identity_by_hint.get(reference, reference),
+            )
+            for reference in references
+        ]
 
     @classmethod
     def _producer_row(cls) -> dict[str, object]:
@@ -2997,6 +3006,331 @@ it("second", () => {
         )
 
 
+class StructuredReferenceIdentityTests(unittest.TestCase):
+    """Exercise JSON/TOML selector identities without binding source addresses."""
+
+    _JSON_PATH = "architecture/example/structured-reference.json"
+    _TOML_PATH = "architecture/example/structured-reference.toml"
+
+    def test_json_format_key_order_and_row_move_preserve_identity(self) -> None:
+        original = """{
+  "entries": [
+    {"debt_id": "target", "value": {"alpha": 1, "beta": 2}},
+    {"debt_id": "other", "value": {"alpha": 3}}
+  ]
+}
+"""
+        moved = """{"entries":[
+  {"value":{"alpha":3},"debt_id":"other"},
+  {"value":{"beta":2,"alpha":1},"debt_id":"target"}
+]}
+"""
+
+        first = checker._structured_reference_identity(
+            {self._JSON_PATH: original},
+            source_path=self._JSON_PATH,
+            format_adapter="json",
+            selector="/entries[debt_id=target]",
+        )
+        second = checker._structured_reference_identity(
+            {self._JSON_PATH: moved},
+            source_path=self._JSON_PATH,
+            format_adapter="json",
+            selector="/entries[debt_id=target]",
+        )
+
+        self.assertEqual(first, second)
+        self.assertEqual(
+            [],
+            checker._validate_structured_reference_identity(
+                first, {self._JSON_PATH: moved}
+            ),
+        )
+
+    def test_toml_format_and_table_move_preserve_identity(self) -> None:
+        original = """[[family]]
+id = "target"
+outputs = ["dist/client.ts"]
+
+[[family]]
+id = "other"
+outputs = ["dist/other.ts"]
+"""
+        moved = """[[family]]
+outputs=["dist/other.ts"]
+id="other"
+
+[[family]]
+outputs = [ "dist/client.ts" ]
+id = "target"
+"""
+
+        first = checker._structured_reference_identity(
+            {self._TOML_PATH: original},
+            source_path=self._TOML_PATH,
+            format_adapter="toml",
+            selector="/family[id=target]/outputs",
+        )
+        second = checker._structured_reference_identity(
+            {self._TOML_PATH: moved},
+            source_path=self._TOML_PATH,
+            format_adapter="toml",
+            selector="/family[id=target]/outputs",
+        )
+
+        self.assertEqual(first, second)
+        self.assertEqual(
+            [],
+            checker._validate_structured_reference_identity(
+                first, {self._TOML_PATH: moved}
+            ),
+        )
+
+    def test_selector_missing_duplicate_content_drift_and_benign_sibling(self) -> None:
+        original = (
+            '{"entries":['
+            '{"debt_id":"target","value":"kept"},'
+            '{"debt_id":"other","value":"control"}'
+            "]}"
+        )
+        reference = checker._structured_reference_identity(
+            {self._JSON_PATH: original},
+            source_path=self._JSON_PATH,
+            format_adapter="json",
+            selector="/entries[debt_id=target]",
+        )
+
+        cases = {
+            "missing": (
+                original.replace('"target"', '"renamed"', 1),
+                "structured_reference_selector_missing_or_renamed",
+            ),
+            "duplicate": (
+                original.replace(
+                    "]}",
+                    ',{"debt_id":"target","value":"kept"}]}',
+                    1,
+                ),
+                "structured_reference_selector_ambiguous",
+            ),
+            "content": (
+                original.replace('"kept"', '"rewritten"', 1),
+                "structured_reference_content_drift",
+            ),
+            "non-string-discriminator": (
+                original.replace('"target"', "1", 1),
+                "structured_reference_selector_missing_or_renamed",
+            ),
+            "duplicate-object-key": (
+                original.replace(
+                    '"value":"kept"',
+                    '"value":"kept","value":"forged"',
+                    1,
+                ),
+                "structured_reference_source_invalid",
+            ),
+        }
+        for name, (source, code) in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(
+                    [code],
+                    checker._validate_structured_reference_identity(
+                        reference, {self._JSON_PATH: source}
+                    ),
+                )
+
+        benign_sibling_change = original.replace('"control"', '"changed"', 1)
+        self.assertEqual(
+            [],
+            checker._validate_structured_reference_identity(
+                reference, {self._JSON_PATH: benign_sibling_change}
+            ),
+        )
+
+    def test_unsupported_adapter_and_malformed_payload_fail_closed(self) -> None:
+        source = '{"target":{"value":1}}\n'
+        reference = checker._structured_reference_identity(
+            {self._JSON_PATH: source},
+            source_path=self._JSON_PATH,
+            format_adapter="json",
+            selector="/target",
+        )
+        path, _separator, payload_text = reference["encoded_identity"].partition(
+            "#structured-identity="
+        )
+        payload = json.loads(
+            base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
+        )
+        payload["format_adapter"] = "yaml"
+        def encoded(
+            value: dict[str, object], *, prefix: str = path
+        ) -> dict[str, str]:
+            return {
+                "encoded_identity": prefix
+                + "#structured-identity="
+                + base64.urlsafe_b64encode(
+                    json.dumps(
+                        value, sort_keys=True, separators=(",", ":")
+                    ).encode("utf-8")
+                )
+                .decode("ascii")
+                .rstrip("=")
+            }
+
+        unsupported = encoded(payload)
+
+        self.assertEqual(
+            ["structured_reference_format_unsupported"],
+            checker._validate_structured_reference_identity(
+                unsupported, {self._JSON_PATH: source}
+            ),
+        )
+
+        payload["format_adapter"] = "json"
+        version = dict(payload, version=2)
+        unknown_key = dict(payload, authorial_line=12)
+        path_mismatch = dict(payload, source_path=self._TOML_PATH)
+        malformed_cases = (
+            encoded(version),
+            encoded(unknown_key),
+            encoded(payload, prefix=self._TOML_PATH),
+        )
+        for malformed in malformed_cases:
+            with self.subTest(malformed=malformed):
+                self.assertEqual(
+                    ["structured_reference_identity_invalid"],
+                    checker._validate_structured_reference_identity(
+                        malformed, {self._JSON_PATH: source}
+                    ),
+                )
+        self.assertEqual(
+            ["structured_reference_format_path_mismatch"],
+            checker._validate_structured_reference_identity(
+                encoded(path_mismatch, prefix=self._TOML_PATH),
+                {self._TOML_PATH: source},
+            ),
+        )
+        self.assertEqual(
+            ["structured_reference_identity_invalid"],
+            checker._validate_structured_reference_identity(
+                {"encoded_identity": path + "#structured-identity=%%%"},
+                {self._JSON_PATH: source},
+            ),
+        )
+
+        duplicated_payload = (
+            '{"format_adapter":"json","format_adapter":"toml",'
+            '"normalized_value_sha256":"'
+            + payload["normalized_value_sha256"]
+            + '","selector":"/target","source_path":"'
+            + self._JSON_PATH
+            + '","version":1}'
+        )
+        self.assertEqual(
+            ["structured_reference_identity_invalid"],
+            checker._validate_structured_reference_identity(
+                {
+                    "encoded_identity": path
+                    + "#structured-identity="
+                    + base64.urlsafe_b64encode(
+                        duplicated_payload.encode("utf-8")
+                    )
+                    .decode("ascii")
+                    .rstrip("=")
+                },
+                {self._JSON_PATH: source},
+            ),
+        )
+
+        invalid_source_paths = (
+            checker.REGISTER_PATH.resolve().as_posix(),
+            "architecture/../schemas/runtime_api_v1.openapi.json",
+            "architecture//atlas_surfaces/frontend-disposition-register.json",
+        )
+        for invalid_source_path in invalid_source_paths:
+            invalid_payload = dict(payload, source_path=invalid_source_path)
+            invalid_reference = encoded(
+                invalid_payload,
+                prefix=invalid_source_path,
+            )
+            with self.subTest(invalid_source_path=invalid_source_path):
+                self.assertEqual(
+                    ["structured_reference_source_path_invalid"],
+                    checker._validate_structured_reference_identity(
+                        invalid_reference,
+                        {invalid_source_path: source},
+                    ),
+                )
+                encoded_identity = invalid_reference["encoded_identity"]
+                self.assertEqual(
+                    [
+                        "structured_reference_source_path_invalid:"
+                        + encoded_identity
+                    ],
+                    checker._structured_identity_reference_errors(
+                        [encoded_identity]
+                    ),
+                )
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "structured_reference_source_path_invalid",
+                ):
+                    checker._structured_reference_identity(
+                        {invalid_source_path: source},
+                        source_path=invalid_source_path,
+                        format_adapter="json",
+                        selector="/target",
+                    )
+
+    def test_live_c21c_selector_hashes_are_complete_and_frozen(self) -> None:
+        expected_hashes = {
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
+                "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613"
+            ),
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
+                "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe"
+            ),
+            "architecture/atlas_surfaces/ds4-waist-debt-register.json:57": (
+                "a5c57117f529287416ffd2acd55848298955a6c2f13c3ef43f332f2ed1927c4b"
+            ),
+            "schemas/runtime_api_v1.openapi.json:2221": (
+                "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f"
+            ),
+            "architecture/generated_artifacts.toml:764": (
+                "39d976d308c9d0ddd92032f6fafb308091469c06adc631e380e5f08606bc07fa"
+            ),
+            "apps/runtime-dashboard/package.json:166": (
+                "1a900c57304920020c1211fba15c4ad49d05cecc62e94b5e13ca67d9e79c7b56"
+            ),
+        }
+
+        identities = checker._c21c_structured_identity_literals()
+        self.assertEqual(set(expected_hashes), set(identities))
+        for legacy_reference, encoded_identity in identities.items():
+            _path, payload_text = encoded_identity.split("#structured-identity=", 1)
+            payload = json.loads(
+                base64.urlsafe_b64decode(
+                    payload_text + "=" * (-len(payload_text) % 4)
+                )
+            )
+            self.assertEqual(
+                expected_hashes[legacy_reference],
+                payload["normalized_value_sha256"],
+                legacy_reference,
+            )
+        descriptor_references = [
+            reference
+            for descriptor in checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.values()
+            for reference in descriptor["evidence_refs"]
+            if "#structured-identity=" in reference
+        ]
+        self.assertEqual(
+            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
+            set(descriptor_references),
+        )
+        self.assertEqual(6, len(descriptor_references))
+
+
 class DS5LineAddressCensusTests(unittest.TestCase):
     """Derive DS5-LINE-ADDRESS-01 denominators from the live register owners."""
 
@@ -3039,14 +3373,14 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             )
 
         self.assertEqual(270, len(references), "ds5_line_address_total_reference_drift")
-        self.assertEqual(21, len(line_references), "ds5_line_address_line_reference_drift")
+        self.assertEqual(15, len(line_references), "ds5_line_address_line_reference_drift")
         self.assertEqual(
-            15,
+            11,
             len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
             "ds5_line_address_line_file_drift",
         )
         self.assertEqual(
-            {"TSX": (0, 0), "TS": (6, 4), "PY": (6, 5), "JSON": (5, 3), "MD": (3, 2), "TOML": (1, 1)},
+            {"TSX": (0, 0), "TS": (6, 4), "PY": (6, 5), "JSON": (0, 0), "MD": (3, 2), "TOML": (0, 0)},
             extension_counts,
             "ds5_line_address_extension_partition_drift",
         )
@@ -3063,9 +3397,8 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         ]
         c21c_structured_references = [
             reference
-            for reference in line_references
-            if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix
-            in {".json", ".toml"}
+            for reference in references
+            if "#structured-identity=" in reference
         ]
         self.assertEqual(
             15,
@@ -3081,7 +3414,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             4,
             len(
                 {
-                    self._LINE_REFERENCE_RE.match(reference).group(1)
+                    reference.split("#structured-identity=", 1)[0]
                     for reference in c21c_structured_references
                 }
             ),
@@ -3116,7 +3449,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             "ds5_line_address_authority_evidence_line_drift",
         )
         self.assertEqual(
-            21,
+            15,
             len(descriptor_evidence_line_references),
             "ds5_line_address_descriptor_evidence_line_drift",
         )
@@ -3166,6 +3499,23 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         self.assertEqual(28, len(observed_identities), "ds5_c21b_observed_identity_drift")
         self.assertEqual(118, len(authority_identities), "ds5_c21b_authority_identity_drift")
         self.assertEqual(15, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
+        structured_descriptor_identities = [
+            reference
+            for finding in data["supplemental_findings"]
+            if "authority_sink" not in finding
+            for reference in finding["evidence_refs"]
+            if "#structured-identity=" in reference
+        ]
+        self.assertEqual(
+            6,
+            len(structured_descriptor_identities),
+            "ds5_c21c_descriptor_identity_drift",
+        )
+        self.assertEqual(
+            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
+            set(structured_descriptor_identities),
+            "ds5_c21c_descriptor_identity_set_drift",
+        )
 
         authority_slots = list(checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS)
         for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values():
@@ -3334,6 +3684,122 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 + stored_reference
             ],
             validate_with_source(renamed),
+        )
+
+    def test_c21c_surgical_writer_is_idempotent_with_navigation_residual(self) -> None:
+        """The governed writer leaves only the 15 declared navigation lines."""
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        once = checker._c21c_surgical_identity_text(original)
+        twice = checker._c21c_surgical_identity_text(once)
+        self.assertEqual(original, once)
+        self.assertEqual(once, twice)
+        data = json.loads(once)
+        references = self._live_references(data)
+        structured = [
+            reference
+            for reference in references
+            if "#structured-identity=" in reference
+        ]
+        remaining_lines = [
+            reference
+            for reference in references
+            if self._LINE_REFERENCE_RE.match(reference)
+        ]
+        self.assertEqual(
+            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
+            set(structured),
+        )
+        self.assertEqual(6, len(structured))
+        self.assertEqual(15, len(remaining_lines))
+
+    def test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content(
+        self,
+    ) -> None:
+        """The full governed validator turns on selector/value identity, not line."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        source_path = "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+        stored_references = [
+            reference
+            for reference in self._live_references(data)
+            if reference.startswith(f"{source_path}#structured-identity=")
+        ]
+        self.assertEqual(3, len(stored_references))
+        selected_reference = next(
+            reference
+            for reference in stored_references
+            if "ds4-waist-cgf-disposition"
+            in json.loads(
+                base64.urlsafe_b64decode(
+                    reference.split("#structured-identity=", 1)[1]
+                    + "="
+                    * (
+                        -len(reference.split("#structured-identity=", 1)[1])
+                        % 4
+                    )
+                )
+            )["selector"]
+        )
+        target_path = checker.REPO_ROOT / source_path
+        original = json.loads(target_path.read_text(encoding="utf-8"))
+        moved_data = copy.deepcopy(original)
+        moved_data["entries"] = list(reversed(moved_data["entries"]))
+        moved = json.dumps(
+            moved_data, sort_keys=True, indent=4, ensure_ascii=False
+        ) + "\n"
+        renamed_data = copy.deepcopy(moved_data)
+        renamed_row = next(
+            row
+            for row in renamed_data["entries"]
+            if row["debt_id"] == "ds4-waist-cgf-disposition"
+        )
+        renamed_row["debt_id"] = "renamed-cgf-disposition"
+        renamed = json.dumps(
+            renamed_data, sort_keys=True, indent=4, ensure_ascii=False
+        ) + "\n"
+        changed_data = copy.deepcopy(moved_data)
+        changed_row = next(
+            row
+            for row in changed_data["entries"]
+            if row["debt_id"] == "ds4-waist-cgf-disposition"
+        )
+        changed_row["closure_truth"] += " Rewritten."
+        changed = json.dumps(
+            changed_data, sort_keys=True, indent=4, ensure_ascii=False
+        ) + "\n"
+        original_read_text = Path.read_text
+
+        def validate_with_source(source: str) -> list[str]:
+            def read_text_override(
+                path: Path, *args: object, **kwargs: object
+            ) -> str:
+                if path == target_path:
+                    return source
+                return original_read_text(path, *args, **kwargs)
+
+            with mock.patch.object(Path, "read_text", new=read_text_override):
+                return checker.validate_register(
+                    data, live_probes=False, report_parity=False
+                )
+
+        self.assertEqual([], validate_with_source(moved))
+        self.assertEqual(
+            [
+                "structured_reference_selector_missing_or_renamed:"
+                + selected_reference
+            ],
+            [
+                error
+                for error in validate_with_source(renamed)
+                if error.startswith("structured_reference_")
+            ],
+        )
+        self.assertEqual(
+            ["structured_reference_content_drift:" + selected_reference],
+            [
+                error
+                for error in validate_with_source(changed)
+                if error.startswith("structured_reference_")
+            ],
         )
 
 

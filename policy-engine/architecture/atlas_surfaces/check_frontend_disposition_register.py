@@ -20,10 +20,11 @@ import posixpath
 import re
 import subprocess
 import sys
+import tomllib
 import unittest
 from collections import Counter, defaultdict
 from functools import lru_cache
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 
 try:
@@ -1669,6 +1670,324 @@ def _validate_typescript_reference_identity(
     return []
 
 
+_STRUCTURED_REFERENCE_FORMATS = frozenset({"json", "toml"})
+_STRUCTURED_KEYED_SELECTOR_RE = re.compile(
+    r"^(?P<collection>[^\[\]]+)\[(?P<key>[^=\[\]]+)=(?P<value>[^\[\]]+)\]$"
+)
+
+
+class _StructuredSelectorMissing(ValueError):
+    """The stable selector did not resolve in the structured document."""
+
+
+class _StructuredSelectorAmbiguous(ValueError):
+    """A keyed selector resolved more than one structured document member."""
+
+
+class _StructuredDuplicateKey(ValueError):
+    """A JSON object repeated a key and therefore has no unique binding."""
+
+
+def _reject_duplicate_json_keys(
+    pairs: Sequence[tuple[str, object]],
+) -> dict[str, object]:
+    """Build a JSON object while rejecting Python's last-key-wins behavior."""
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise _StructuredDuplicateKey(key)
+        result[key] = value
+    return result
+
+
+def _structured_source_value(source: str, format_adapter: str) -> object:
+    """Parse a governed JSON or TOML document through its declared adapter."""
+    if format_adapter == "json":
+        return json.loads(source, object_pairs_hook=_reject_duplicate_json_keys)
+    if format_adapter == "toml":
+        return tomllib.loads(source)
+    raise ValueError("structured_reference_format_unsupported")
+
+
+def _structured_selector_value(document: object, selector: str) -> object:
+    """Resolve a JSON-Pointer-like selector with optional keyed-list segments."""
+    if not isinstance(selector, str) or not selector.startswith("/") or selector == "/":
+        raise ValueError("structured_reference_selector_invalid")
+    current = document
+    for raw_segment in selector.removeprefix("/").split("/"):
+        if not raw_segment:
+            raise ValueError("structured_reference_selector_invalid")
+        segment = raw_segment.replace("~1", "/").replace("~0", "~")
+        keyed = _STRUCTURED_KEYED_SELECTOR_RE.fullmatch(segment)
+        if keyed is not None:
+            if not isinstance(current, Mapping):
+                raise _StructuredSelectorMissing
+            collection = current.get(keyed.group("collection"))
+            if not isinstance(collection, list):
+                raise _StructuredSelectorMissing
+            key = keyed.group("key")
+            expected = keyed.group("value")
+            matches = [
+                item
+                for item in collection
+                if isinstance(item, Mapping)
+                and key in item
+                and isinstance(item[key], str)
+                and item[key] == expected
+            ]
+            if not matches:
+                raise _StructuredSelectorMissing
+            if len(matches) > 1:
+                raise _StructuredSelectorAmbiguous
+            current = matches[0]
+            continue
+        if "[" in segment or "]" in segment:
+            raise ValueError("structured_reference_selector_invalid")
+        if not isinstance(current, Mapping) or segment not in current:
+            raise _StructuredSelectorMissing
+        current = current[segment]
+    return current
+
+
+def _normalized_structured_value_sha256(value: object) -> str:
+    """Hash semantic structured content independently of source formatting/order."""
+    canonical = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _is_canonical_repo_relative_source_path(source_path: str) -> bool:
+    """Reject address payloads that can resolve outside the governed checkout."""
+    if not source_path or "\\" in source_path:
+        return False
+    candidate = PurePosixPath(source_path)
+    if (
+        candidate.is_absolute()
+        or candidate.as_posix() != source_path
+        or any(part in {"", ".", ".."} for part in candidate.parts)
+    ):
+        return False
+    try:
+        (REPO_ROOT / source_path).resolve().relative_to(REPO_ROOT.resolve())
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _encoded_structured_reference_identity(
+    *,
+    source_path: str,
+    format_adapter: str,
+    selector: str,
+    normalized_value_sha256: str,
+) -> str:
+    """Encode an already content-bound structured selector payload."""
+    if not _is_canonical_repo_relative_source_path(source_path):
+        raise ValueError("structured_reference_source_path_invalid")
+    payload = {
+        "version": 1,
+        "source_path": source_path,
+        "format_adapter": format_adapter,
+        "selector": selector,
+        "normalized_value_sha256": normalized_value_sha256,
+    }
+    encoded_payload = json.dumps(
+        payload, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return (
+        source_path
+        + "#structured-identity="
+        + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("=")
+    )
+
+
+def _structured_adapter_matches_path(source_path: str, format_adapter: str) -> bool:
+    """Bind each structured adapter to the source format it actually parses."""
+    return (format_adapter, Path(source_path).suffix.lower()) in {
+        ("json", ".json"),
+        ("toml", ".toml"),
+    }
+
+
+def _structured_reference_identity(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    format_adapter: str,
+    selector: str,
+) -> dict[str, str]:
+    """Encode a stable structured selector plus its normalized selected value."""
+    if not _is_canonical_repo_relative_source_path(source_path):
+        raise ValueError("structured_reference_source_path_invalid")
+    if format_adapter not in _STRUCTURED_REFERENCE_FORMATS:
+        raise ValueError("structured_reference_format_unsupported")
+    if not _structured_adapter_matches_path(source_path, format_adapter):
+        raise ValueError("structured_reference_format_path_mismatch")
+    if source_path not in sources:
+        raise ValueError("structured_reference_source_missing")
+    try:
+        document = _structured_source_value(sources[source_path], format_adapter)
+        selected = _structured_selector_value(document, selector)
+        value_sha256 = _normalized_structured_value_sha256(selected)
+    except _StructuredSelectorMissing as exc:
+        raise ValueError("structured_reference_selector_missing_or_renamed") from exc
+    except _StructuredSelectorAmbiguous as exc:
+        raise ValueError("structured_reference_selector_ambiguous") from exc
+    except (
+        json.JSONDecodeError,
+        tomllib.TOMLDecodeError,
+        _StructuredDuplicateKey,
+        TypeError,
+    ) as exc:
+        raise ValueError("structured_reference_source_invalid") from exc
+    encoded_identity = _encoded_structured_reference_identity(
+        source_path=source_path,
+        format_adapter=format_adapter,
+        selector=selector,
+        normalized_value_sha256=value_sha256,
+    )
+    return {
+        "source_path": source_path,
+        "format_adapter": format_adapter,
+        "selector": selector,
+        "normalized_value_sha256": value_sha256,
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _validate_structured_reference_identity(
+    reference: Mapping[str, str], sources: Mapping[str, str]
+) -> list[str]:
+    """Fail closed on malformed, missing, ambiguous, or stale structured bindings."""
+    try:
+        encoded_identity = reference["encoded_identity"]
+        if not isinstance(encoded_identity, str):
+            raise ValueError
+        path_prefix, fragment, encoded_payload = encoded_identity.partition(
+            "#structured-identity="
+        )
+        if not fragment or not path_prefix or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            ),
+            object_pairs_hook=_reject_duplicate_json_keys,
+        )
+        version = payload["version"]
+        source_path = payload["source_path"]
+        format_adapter = payload["format_adapter"]
+        selector = payload["selector"]
+        expected_value_sha256 = payload["normalized_value_sha256"]
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ):
+        return ["structured_reference_identity_invalid"]
+    if (
+        not isinstance(payload, dict)
+        or set(payload)
+        != {
+            "version",
+            "source_path",
+            "format_adapter",
+            "selector",
+            "normalized_value_sha256",
+        }
+        or version != 1
+        or not isinstance(source_path, str)
+        or not isinstance(format_adapter, str)
+        or not isinstance(selector, str)
+        or not isinstance(expected_value_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected_value_sha256) is None
+        or path_prefix != source_path
+    ):
+        return ["structured_reference_identity_invalid"]
+    if format_adapter not in _STRUCTURED_REFERENCE_FORMATS:
+        return ["structured_reference_format_unsupported"]
+    if not _is_canonical_repo_relative_source_path(source_path):
+        return ["structured_reference_source_path_invalid"]
+    if not _structured_adapter_matches_path(source_path, format_adapter):
+        return ["structured_reference_format_path_mismatch"]
+    source = sources.get(source_path)
+    if source is None:
+        return ["structured_reference_source_missing"]
+    try:
+        document = _structured_source_value(source, format_adapter)
+        selected = _structured_selector_value(document, selector)
+        live_value_sha256 = _normalized_structured_value_sha256(selected)
+    except _StructuredSelectorMissing:
+        return ["structured_reference_selector_missing_or_renamed"]
+    except _StructuredSelectorAmbiguous:
+        return ["structured_reference_selector_ambiguous"]
+    except ValueError as exc:
+        if str(exc) == "structured_reference_selector_invalid":
+            return ["structured_reference_selector_invalid"]
+        return ["structured_reference_source_invalid"]
+    except (json.JSONDecodeError, tomllib.TOMLDecodeError, TypeError):
+        return ["structured_reference_source_invalid"]
+    if live_value_sha256 != expected_value_sha256:
+        return ["structured_reference_content_drift"]
+    return []
+
+
+_C21C_STRUCTURED_HINTS = {
+    "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
+        "json",
+        "/entries[debt_id=ds4-waist-cgf-disposition]",
+        "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613",
+    ),
+    "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
+        "json",
+        "/entries[debt_id=ds4-waist-decision-grade]",
+        "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe",
+    ),
+    "architecture/atlas_surfaces/ds4-waist-debt-register.json:57": (
+        "json",
+        "/entries[debt_id=ds4-waist-cache-age]",
+        "a5c57117f529287416ffd2acd55848298955a6c2f13c3ef43f332f2ed1927c4b",
+    ),
+    "schemas/runtime_api_v1.openapi.json:2221": (
+        "json",
+        "/components/schemas/AuthMeResponse",
+        "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f",
+    ),
+    "architecture/generated_artifacts.toml:764": (
+        "toml",
+        "/family[id=runtime-dashboard-api-types]/outputs",
+        "39d976d308c9d0ddd92032f6fafb308091469c06adc631e380e5f08606bc07fa",
+    ),
+    "apps/runtime-dashboard/package.json:166": (
+        "json",
+        "/devDependencies/openapi-typescript",
+        "1a900c57304920020c1211fba15c4ad49d05cecc62e94b5e13ca67d9e79c7b56",
+    ),
+}
+
+_C21C_FROZEN_STRUCTURED_IDENTITIES = {
+    reference: _encoded_structured_reference_identity(
+        source_path=reference.rsplit(":", 1)[0],
+        format_adapter=format_adapter,
+        selector=selector,
+        normalized_value_sha256=value_sha256,
+    )
+    for reference, (
+        format_adapter,
+        selector,
+        value_sha256,
+    ) in _C21C_STRUCTURED_HINTS.items()
+}
+
+
 def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
     """Load TypeScript production modules while excluding tests, stories, and output."""
     sources: dict[str, str] = {}
@@ -2507,9 +2826,13 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "l0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzciLCJUeXBlTGl0ZXJh"
                 "bDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            "architecture/generated_artifacts.toml:764",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/generated_artifacts.toml:764"
+            ],
             "docs/reference/frontend/workspace-contract.md:37",
-            "apps/runtime-dashboard/package.json:166",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "apps/runtime-dashboard/package.json:166"
+            ],
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
         ],
         "rationale": (
@@ -2647,7 +2970,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         ],
         "evidence_refs": [
             "src/polisyos/runtime/http/routes/auth.py:36",
-            "schemas/runtime_api_v1.openapi.json:2221",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "schemas/runtime_api_v1.openapi.json:2221"
+            ],
             (
                 "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
                 "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV"
@@ -2721,7 +3046,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            "architecture/atlas_surfaces/ds4-waist-debt-register.json:16",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json:16"
+            ],
             "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py:34",
             "src/polisyos/runtime/http/services/governed_projections.py:200",
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
@@ -2754,7 +3081,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            "architecture/atlas_surfaces/ds4-waist-debt-register.json:37",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json:37"
+            ],
             "src/polisyos/pdc/_impl/layer2_readiness.py:39",
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
         ],
@@ -2803,7 +3132,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "Byb2plY3Rpb24udHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9u"
                 "IjoxfQ"
             ),
-            "architecture/atlas_surfaces/ds4-waist-debt-register.json:57",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json:57"
+            ],
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c11a",
         ],
         "rationale": (
@@ -5706,6 +6037,31 @@ def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str
     return errors
 
 
+def _structured_identity_reference_errors(references: Sequence[str]) -> list[str]:
+    """Validate every stored C21c selector identity against its live document."""
+    errors: list[str] = []
+    for reference in references:
+        if "#structured-identity=" not in reference:
+            continue
+        path_prefix = reference.split("#structured-identity=", 1)[0]
+        if not _is_canonical_repo_relative_source_path(path_prefix):
+            errors.append(f"structured_reference_source_path_invalid:{reference}")
+            continue
+        path = REPO_ROOT / path_prefix
+        sources = (
+            {path_prefix: path.read_text(encoding="utf-8")}
+            if path.is_file()
+            else {}
+        )
+        errors.extend(
+            f"{error}:{reference}"
+            for error in _validate_structured_reference_identity(
+                {"encoded_identity": reference}, sources
+            )
+        )
+    return errors
+
+
 _C21B_DESCRIPTOR_HINTS = {
     "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865": ("exported_declaration", "RunSummary"),
     "packages/runtime-api-client/types.ts:9240": ("type_property", "components.RunSummary"),
@@ -5723,6 +6079,28 @@ _C21B_DESCRIPTOR_HINTS = {
     "packages/runtime-api-client/types.ts:2430": ("type_property", "components.permissions"),
     "apps/runtime-dashboard/src/api/types.ts:2323": ("type_property", "components.permissions"),
 }
+
+
+def _c21c_structured_identity_literals() -> dict[str, str]:
+    """Return the six C21c identities; line hints are migration-only."""
+    identities: dict[str, str] = {}
+    for reference, (
+        format_adapter,
+        selector,
+        _value_sha256,
+    ) in _C21C_STRUCTURED_HINTS.items():
+        source_path, _line = reference.rsplit(":", 1)
+        source = (REPO_ROOT / source_path).read_text(encoding="utf-8")
+        identity = _structured_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            format_adapter=format_adapter,
+            selector=selector,
+        )
+        if identity["encoded_identity"] != _C21C_FROZEN_STRUCTURED_IDENTITIES[reference]:
+            raise ValueError(f"c21c_structured_source_drift:{reference}")
+        identities[reference] = identity["encoded_identity"]
+    return identities
 
 
 def _c21b_descriptor_identity_literals() -> dict[str, str]:
@@ -5844,6 +6222,54 @@ def _c21b_surgical_identity_text(text: str) -> str:
     ]
     if (len(observed), len(authority), len(descriptors)) != (28, 118, 15):
         raise ValueError("c21b_identity_partition_drift")
+    return migrated
+
+
+def _c21c_surgical_identity_text(text: str) -> str:
+    """Refresh only governed descriptors and prove the C21c residual partition."""
+    if _c21c_structured_identity_literals() != _C21C_FROZEN_STRUCTURED_IDENTITIES:
+        raise ValueError("c21c_frozen_structured_identity_drift")
+    migrated = _refresh_supplemental_findings_text(text)
+    data = json.loads(migrated)
+    references = [
+        reference
+        for finding in data["supplemental_findings"]
+        for reference in finding["evidence_refs"]
+    ]
+    references.extend(
+        reference
+        for census in data["reference_censuses"]
+        for probe in census["probes"]
+        for reference in probe["observed_refs"]
+    )
+    structured = [
+        reference
+        for reference in references
+        if "#structured-identity=" in reference
+    ]
+    if len(structured) != 6 or set(structured) != set(
+        _C21C_FROZEN_STRUCTURED_IDENTITIES.values()
+    ):
+        raise ValueError("c21c_structured_identity_partition_drift")
+    if any(reference in references for reference in _C21C_STRUCTURED_HINTS):
+        raise ValueError("c21c_legacy_structured_line_reference")
+    line_reference_re = re.compile(r"^(.*?):\d+(?::\d+)?$")
+    line_references = [
+        reference for reference in references if line_reference_re.match(reference)
+    ]
+    if len(line_references) != 15 or len(
+        {
+            line_reference_re.match(reference).group(1)
+            for reference in line_references
+        }
+    ) != 11:
+        raise ValueError("c21c_navigation_residual_drift")
+    if any(
+        Path(line_reference_re.match(reference).group(1)).suffix
+        in {".json", ".toml"}
+        for reference in line_references
+    ):
+        raise ValueError("c21c_structured_line_reference_residual")
     return migrated
 
 
@@ -8168,6 +8594,7 @@ def validate_register(
         if issue:
             errors.append(issue)
     errors.extend(_typescript_identity_reference_errors(references))
+    errors.extend(_structured_identity_reference_errors(references))
     if report_parity:
         errors.extend(_report_projection_errors(data))
     return errors
@@ -9162,6 +9589,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="surgically migrate gated TypeScript reference strings to C21a identities",
     )
     parser.add_argument(
+        "--migrate-c21c",
+        action="store_true",
+        help="surgically migrate gated JSON/TOML lines to selector identities",
+    )
+    parser.add_argument(
         "--print-c21b-authority-partition-hashes",
         action="store_true",
         help="print live C21b authority partition-hash derivations without writing",
@@ -9250,6 +9682,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         register_text = _c21b_surgical_identity_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
         print("migrated gated TypeScript references to C21a identities")
+    if args.migrate_c21c:
+        register_text = _c21c_surgical_identity_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print("migrated gated JSON/TOML references to C21c identities")
     data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")

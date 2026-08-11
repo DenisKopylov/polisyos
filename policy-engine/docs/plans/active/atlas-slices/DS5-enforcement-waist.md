@@ -594,7 +594,7 @@ teaching, dishonest exclusion).
 
 ### Post-C13a-R2 line-address audit — class repair first
 
-**DS5-LINE-ADDRESS-01 — registered, not implemented** (`semantic_test_missing`):
+**DS5-LINE-ADDRESS-01 — closed by C21a/C21b-R1/C21c**:
 the complete observed/evidence partition is 270 refs: 182 line refs across 73 files
 (TSX 138/45, TS 29/17, PY 6/5, JSON 5/3, MD 3/2, TOML 1/1). The 173 TS/TSX/PY
 refs span 67 files; the prior 178/70 “code-only” statement incorrectly included
@@ -652,6 +652,32 @@ and six structured JSON/TOML bindings owned by C21c). A real governed-validator
 replay moves `deleteComposerDraftRecord` without a register edit and stays
 green; renaming the same construct is binding-missing red. C08 whole-file
 baseline bytes remain unchanged.
+
+### DS5-C21c — bind gated JSON and TOML references
+
+**Pattern pass:** P29/P31/P32/P33/P35/P37. Six descriptor bindings over four
+files migrate as one structured mechanism: a versioned repo-relative path,
+suffix-bound `json | toml` adapter, stable selector, and SHA-256 of the
+canonical selected value. JSON object keys must be unique; keyed-list selectors
+require one exact string discriminator. Formatting, object-key order, and
+keyed-row/table movement are green. Malformed or unknown payload fields,
+adapter/path mismatch, missing or duplicate selectors, and selected-value drift
+fail closed with named codes.
+
+**Measured migration:** five JSON refs / three files and one TOML ref / one
+file become six `#structured-identity=` bindings. The post-C21c line-address
+residual is exactly 15 navigation-only refs / 11 files: six TypeScript / four
+files, six Python descriptor prose / five files, and three Markdown refs / two
+files. A real full-validator witness moves and reformats the selected DS4 debt
+row without a register edit and stays green; selector rename and selected-row
+content rewrite are red. C21c changes evidence binding only and edits no
+product, package, schema, baseline, finding content, or disposition.
+
+**Sequencing receipt:** C21b-R1 migrated 10 of the 13 collision pairs. The
+three `sw.ts` Workbox pairs are among the six explicitly navigation-only
+TypeScript refs, so no gate turns on them. C21c closes the remaining structured
+binding class; C13b-R1, C16a-R1, C16b-R1, C17a-R1, and C19-R1 are therefore
+unblocked on the line-address axis (their other audit waits still govern).
 
 ### DS-INFRA-2 — Atlas timing evidence debt
 

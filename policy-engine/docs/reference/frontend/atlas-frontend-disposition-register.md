@@ -566,6 +566,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `ceccb0746 DS5-C21b-R1 close TypeScript line-address migration`
+- `055345536 Reapply "checkpoint: preserve stopped DS5-C21b identity migration"`
+- `f0e138d6b Revert "checkpoint: preserve stopped DS5-C21b identity migration"`
+- `3b0b721a4 checkpoint: preserve stopped DS5-C21b identity migration`
 - `015fb8f08 DS5-C21a establish TypeScript reference identity`
 - `60a06701c docs: register DS5 line-address binding defect`
 - `653f12d08 DS5-C13a-R3 delete authority mutation replay`

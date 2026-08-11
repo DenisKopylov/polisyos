@@ -1792,3 +1792,75 @@
   21/15 residual is complete. No additional unjustified duplication was found.
   Native inherited-tier workers were used, with no Sol override or quota
   failure; governed writers and scanner-heavy gates remained serialized.
+
+## 2026-08-11 — DS5-C21c structured reference identity
+
+- Red first: the five focused `StructuredReferenceIdentityTests` all failed in
+  0.002 s on the absent `_structured_reference_identity` /
+  `_c21c_structured_identity_literals` owner functions. The first mechanism
+  green passed 5/5 in 0.021 s; the expanded adversarial set passed 5/5 in
+  0.024 s. These are lightweight parser tests, not a governed-writer or full
+  scanner receipt.
+- The one mechanism binds repo-relative path, suffix-checked `json | toml`
+  adapter, stable selector, and normalized selected-value SHA-256. JSON object
+  keys are globally unique (no `json.loads` last-key-wins); keyed selectors
+  require exactly one mapping whose discriminator is an exact string. Payloads
+  reject unknown fields, unknown versions, path mismatch, unsupported adapters,
+  malformed bytes, and adapter/suffix mismatch.
+- Frozen live bindings are exactly six / four files: the three DS4 debt rows
+  (`d333a5ad…`, `37ae8c93…`, `a5c57117…`), OpenAPI `AuthMeResponse`
+  (`7983a50e…`), generated-family outputs (`39d976d3…`), and dashboard
+  `openapi-typescript` dependency (`1a900c57…`). Formatting/key order and keyed
+  row/table movement are green; selector missing/rename, duplicate keyed row,
+  duplicate JSON object key, and selected-value rewrite have named reds; a
+  changed non-selected sibling remains benign.
+- The P35 post-state is six `#structured-identity=` refs and 15 navigation-only
+  `:line` refs / 11 files: TypeScript 6/4, Python prose 6/5, Markdown 3/2,
+  JSON 0 and TOML 0. The real governed witness uses `validate_register` on the
+  selected DS4 row: move/reformat with unchanged register is green, while
+  selector rename and selected content rewrite emit their exact structured
+  errors. Root owns the serialized register/report/status writer and the
+  scanner-heavy execution receipt.
+- Duplication duty: the six checker-owned descriptor bindings and six register
+  projections are the already-known compared pair, migrated together through
+  the canonical descriptor writer. The C21c fence revealed no second
+  independently maintained same-source/same-concept pair. No product source or
+  DS6 i18n path was touched; no run was killed or lost, so this implementation
+  phase added no non-receipt.
+- Serialized owner receipts: migration/report passed in 41.175 s / 400 s. A
+  second run was byte-idempotent in 40.835 s: register
+  `sha256:32bda9fe410ebef7c1aab50ea9ca8986cf7af9e1ce864915db08edaba120a04a`
+  and report `sha256:2d06950ab8da96275d8b9e7b9e1d7343cc053546eb0d4014fcbcf3f1c9e2a3b2`.
+  The status inventory pins that exact register hash. The first post-write
+  focused receipt passed 8/8 in 23.250 s.
+- Review round 1 was NO-GO 0/1/1: suffix-only validation allowed an absolute or
+  traversal payload to bind outside the governed checkout, and four new
+  `ANN401` findings made the scoped Ruff delta nonzero. Producer, validator,
+  and end-to-end reference loading now share a canonical repo-relative and
+  resolved-contained path predicate; absolute, traversal, double-slash,
+  backslash, and resolved-outside paths fail before source read. Structured
+  values use bounded `object` annotations. Post-fix focused receipt passed 8/8
+  in 52.309 s (66.874 s bounded wall / 400 s), scoped Ruff returned C21b-R1 5
+  to final 5, and delta review returned GO 0/0/0.
+- Governed final wave: the pre-fix disposition corruption receipt passed in
+  215.105 s / 400 s; the required post-fix run passed in 150.545 s / 400 s with
+  261 roots, 63 supplemental findings, and 9 censuses. The first full frontend
+  module was a real 86/88 RED: only C08b/C07b test fixtures retained their
+  legacy structured lines. The test owner now projects both C21b and C21c maps
+  independently; focused C06/C08b/C07b passed 3/3 in 42.746 s and the full
+  module passed 88/88 in 224.996 s / 400 s. Status passed 38/38 in 66.582 s and
+  its corruption checker passed in 21.801 s / 400 s. The single root-owned full
+  Atlas module passed 32/32 in 730.935 s (744.806 s bounded wall / supplied
+  1,800 s). Python compilation, JSON parse, diff check, report parity, and the
+  exact seven-path fence pass.
+- Collision closeout: C21b-R1 migrated 10/13 pairs and the remaining three
+  `sw.ts` Workbox pairs are navigation-only, so all 13 are dead as line-binding
+  collisions. C21c closes the six structured bindings. C13b-R1, C16a-R1,
+  C16b-R1, C17a-R1, and C19-R1 are unblocked on this axis; unrelated audit waits
+  remain authoritative.
+- Orchestration: implementation and pre-review continuations each hit the
+  workspace quota only after delivering their substantive packets; both are
+  recorded as quota non-receipts. The single retry produced the final review
+  GO. Native inherited-tier workers were used with no Sol override. Every
+  governed write and scanner-heavy gate was root-owned, serialized, bounded,
+  and captured; no process was killed and no partial stream became evidence.

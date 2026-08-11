@@ -67,7 +67,9 @@ _DECISION_GRADE_RANK: dict[str | None, int] = {
     "decision_admissible": 3,
 }
 _GY_DRIFT_MISSING = object()
+_GY_CONTENT_HASH_VALUE_MISSING = object()
 _GY_DIAGNOSTIC_IDENTITY_PATTERN = r"^(?:absent|sha256:[0-9a-f]{64})$"
+_GY_NON_AUTHORITY_PROVENANCE = frozenset({"verification"})
 
 
 class _GyDriftOperandIdentity(BaseModel):
@@ -152,38 +154,86 @@ class GyOperationalReconciliationError(ValueError):
     def safe_detail(self) -> str:
         """Return the canonical code plus identity-only diagnostic payload."""
 
-        return self.code + ":" + json.dumps(
-            self._diagnostic.model_dump(mode="json"),
-            ensure_ascii=True,
-            separators=(",", ":"),
-            sort_keys=True,
+        return (
+            self.code
+            + ":"
+            + json.dumps(
+                self._diagnostic.model_dump(mode="json"),
+                ensure_ascii=True,
+                separators=(",", ":"),
+                sort_keys=True,
+            )
         )
 
     def __str__(self) -> str:
         return self.safe_detail
 
 
-def is_gy_content_hash_excluded_field(key: str) -> bool:
-    """Return whether ``key`` is excluded by the canonical GY hash owner."""
+def is_gy_content_hash_excluded_field(
+    key: str,
+    value: object = _GY_CONTENT_HASH_VALUE_MISSING,
+) -> bool:
+    """Return whether a field is excluded by the canonical GY hash owner.
+
+    Operational fields are classified by their canonical names. A mapping-valued
+    field is also excluded when its own direct ``authority_provenance`` declaration
+    is a non-empty scalar or list made entirely of recognized non-authority values.
+    Missing, malformed, empty, mixed-authority, and unrecognized declarations fail
+    closed and remain content-bearing.
+
+    Args:
+        key: Field name in the containing mapping.
+        value: Field value, when the caller has the containing payload context.
+
+    Returns:
+        Whether the field is absent from the compared content projection.
+    """
 
     normalized = key.lower()
-    return any(
+    operational = any(
         normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
         for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
+    )
+    return operational or (
+        value is not _GY_CONTENT_HASH_VALUE_MISSING and _is_gy_declared_non_authority_block(value)
+    )
+
+
+def _is_gy_declared_non_authority_block(value: object) -> bool:
+    if not isinstance(value, Mapping):
+        return False
+    declaration = value.get("authority_provenance", _GY_CONTENT_HASH_VALUE_MISSING)
+    if isinstance(declaration, str):
+        provenances = (declaration,)
+    elif isinstance(declaration, list) and all(isinstance(item, str) for item in declaration):
+        provenances = tuple(declaration)
+    else:
+        return False
+    return bool(provenances) and all(
+        provenance in _GY_NON_AUTHORITY_PROVENANCE for provenance in provenances
     )
 
 
 def strip_gy_volatile_fields(value: object) -> object:
-    """Return ``value`` with volatile timing fields removed recursively."""
+    """Return the canonical GY compared-content projection.
+
+    The source value is never mutated. Volatile fields and nested mappings that
+    recomputably declare themselves entirely non-authority are omitted only from
+    this projection; the full recorded evidence remains available to its artifact.
+    """
 
     if isinstance(value, dict):
         return {
             str(key): strip_gy_volatile_fields(item)
             for key, item in value.items()
-            if not is_gy_content_hash_excluded_field(str(key))
+            if not is_gy_content_hash_excluded_field(str(key), item)
         }
     if isinstance(value, (list, tuple)):
-        return [strip_gy_volatile_fields(item) for item in value]
+        return [
+            strip_gy_volatile_fields(item)
+            for item in value
+            if not _is_gy_declared_non_authority_block(item)
+        ]
     return value
 
 
@@ -401,9 +451,7 @@ def _gy_changed_leaf_report(
     return _GyDriftChangedLeaf(
         expected_frozen=_gy_leaf_identity(expected),
         live_replayed=_gy_leaf_identity(observed),
-        operational=bool(
-            field_name is not None and is_gy_content_hash_excluded_field(field_name)
-        ),
+        operational=bool(field_name is not None and is_gy_content_hash_excluded_field(field_name)),
         path=path or "/",
     )
 
@@ -439,19 +487,31 @@ def _gy_json_pointer(parent: str, segment: str) -> str:
 
 
 def _gy_payload_shape_matches(previous: object, current: object) -> bool:
+    if _is_gy_declared_non_authority_block(previous) and _is_gy_declared_non_authority_block(
+        current
+    ):
+        return True
     if isinstance(previous, dict) and isinstance(current, dict):
         return set(previous) == set(current) and all(
             _gy_payload_shape_matches(previous[key], current[key]) for key in previous
         )
     if isinstance(previous, (list, tuple)) and isinstance(current, (list, tuple)):
-        return type(previous) is type(current) and len(previous) == len(current) and all(
-            _gy_payload_shape_matches(left, right)
-            for left, right in zip(previous, current, strict=True)
+        return (
+            type(previous) is type(current)
+            and len(previous) == len(current)
+            and all(
+                _gy_payload_shape_matches(left, right)
+                for left, right in zip(previous, current, strict=True)
+            )
         )
     return type(previous) is type(current)
 
 
 def _reconcile_gy_operational_leaves(previous: object, current: object) -> object:
+    if _is_gy_declared_non_authority_block(previous) and _is_gy_declared_non_authority_block(
+        current
+    ):
+        return current
     if isinstance(previous, dict) and isinstance(current, dict):
         return {
             key: (
@@ -729,11 +789,15 @@ class PromotionObligationRecord(GyWaistModel):
 
     @model_validator(mode="after")
     def _fail_closed_reason_matches_status(self) -> PromotionObligationRecord:
-        if self.status in {
-            PromotionObligationStatus.FAILED,
-            PromotionObligationStatus.UNKNOWN,
-            PromotionObligationStatus.SCOPE_INSUFFICIENT,
-        } and self.reason is None:
+        if (
+            self.status
+            in {
+                PromotionObligationStatus.FAILED,
+                PromotionObligationStatus.UNKNOWN,
+                PromotionObligationStatus.SCOPE_INSUFFICIENT,
+            }
+            and self.reason is None
+        ):
             raise ValueError("unsatisfied_promotion_obligation_requires_reason")
         if (
             self.status == PromotionObligationStatus.SATISFIED
@@ -834,9 +898,7 @@ class ArtifactEnvelope(GyWaistModel):
     certified_operation_envelope: CertifiedOperationEnvelope | None = None
     authority_boundary: AuthorityBoundary | None = None
     obligations: list[str] = Field(default_factory=list)
-    verification: ArtifactEnvelopeVerification = Field(
-        default_factory=ArtifactEnvelopeVerification
-    )
+    verification: ArtifactEnvelopeVerification = Field(default_factory=ArtifactEnvelopeVerification)
 
 
 class PortSpec(GyWaistModel):
@@ -1047,8 +1109,7 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
                 missing.append("risk_spend_total")
             if missing:
                 raise ValueError(
-                    "promotion_trace_confidence_ledger_binding_missing:"
-                    + ",".join(sorted(missing))
+                    "promotion_trace_confidence_ledger_binding_missing:" + ",".join(sorted(missing))
                 )
             if (
                 self.risk_budget_delta is not None
@@ -1059,18 +1120,15 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
         requested_grade = self.declared_authority_transform.get("requested_decision_grade")
         if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:
             raise ValueError("authority_transform hints cannot self-promote")
-        kind_self_promotes = (
-            isinstance(requested_kind, str)
-            and not _computed_evidence_covers_request(
-                computed=self.computed_evidence_kind,
-                requested=requested_kind,
-            )
+        kind_self_promotes = isinstance(
+            requested_kind, str
+        ) and not _computed_evidence_covers_request(
+            computed=self.computed_evidence_kind,
+            requested=requested_kind,
         )
-        grade_self_promotes = (
-            isinstance(requested_grade, str)
-            and _DECISION_GRADE_RANK.get(requested_grade, 0)
-            > _DECISION_GRADE_RANK.get(self.computed_decision_grade, 0)
-        )
+        grade_self_promotes = isinstance(requested_grade, str) and _DECISION_GRADE_RANK.get(
+            requested_grade, 0
+        ) > _DECISION_GRADE_RANK.get(self.computed_decision_grade, 0)
         if self.transform_mismatch_disposition == "matched" and (
             kind_self_promotes or grade_self_promotes
         ):
@@ -1199,16 +1257,17 @@ class SearchBlockerRecord(GyWaistModel):
     frontier_snapshot_ref: str | None = None
     applicability_result_ref: str | None = None
     repair_options: list[dict[str, Any]] = Field(default_factory=list)
-    producer_missing_label: Literal[
-        "producer_missing",
-        "bridge_missing",
-        "artifact_missing",
-        "verification_missing",
-        "semantic_test_missing",
-    ] | None = None
-    severity: Literal["repair_required", "blocks_authority", "blocks_execution"] = (
-        "repair_required"
-    )
+    producer_missing_label: (
+        Literal[
+            "producer_missing",
+            "bridge_missing",
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ]
+        | None
+    ) = None
+    severity: Literal["repair_required", "blocks_authority", "blocks_execution"] = "repair_required"
 
 
 class AgentDecisionRecord(GyWaistModel):
@@ -1321,8 +1380,7 @@ class SearchExitContract(GyWaistModel):
         for field, expected in derived.items():
             if field in payload and payload[field] != expected:
                 raise ValueError(
-                    f"{field} must be derived from authority_boundary; "
-                    f"expected {expected!r}"
+                    f"{field} must be derived from authority_boundary; expected {expected!r}"
                 )
             payload[field] = expected
         return payload

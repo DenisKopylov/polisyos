@@ -527,6 +527,79 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
+def test_n6_normalization_retains_but_does_not_bind_verification_projection() -> None:
+    """Fresh verification lineage stays readable without deciding trace identity."""
+
+    first = {
+        "cycles": [
+            {
+                "value_port": {"wall_time_ms": 12.5},
+                "promotion_port": {
+                    "receipts": [
+                        {
+                            "confidence_ledger_projection": {
+                                "authority_provenance": "verification",
+                                "deployment_identity": "deployment-a",
+                                "checks": [{"check_id": "check-a", "status": "refused"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ],
+        "value_port": {"wall_time_ms": 20.0},
+    }
+    second = copy.deepcopy(first)
+    second["cycles"][0]["value_port"]["wall_time_ms"] = 99.0
+    projection = second["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    projection["authority_provenance"] = ["verification"]
+    projection["deployment_identity"] = "deployment-b"
+    projection["checks"][0]["check_id"] = "check-b"
+
+    first_normalized, first_metrics = second_domain_pack._normalize_n6_run_payload(first)
+    second_normalized, second_metrics = second_domain_pack._normalize_n6_run_payload(second)
+
+    assert second_domain_pack._hash(first_normalized) == second_domain_pack._hash(second_normalized)
+    assert (
+        second_domain_pack.reconcile_gy_operational_leaves(
+            first_normalized,
+            second_normalized,
+        )
+        == second_normalized
+    )
+    assert first_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 12.5}
+    ]
+    assert second_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 99.0}
+    ]
+    assert (
+        first_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-a"
+    )
+    assert (
+        second_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-b"
+    )
+
+    governing = copy.deepcopy(second_normalized)
+    governing_projection = governing["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    governing_projection["authority_provenance"] = ["verification", "canonical_repo"]
+    governing_shift = copy.deepcopy(governing)
+    governing_shift["cycles"][0]["promotion_port"]["receipts"][0]["confidence_ledger_projection"][
+        "deployment_identity"
+    ] = "deployment-c"
+    assert second_domain_pack._hash(governing) != second_domain_pack._hash(governing_shift)
+
+
 def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -574,9 +647,9 @@ def test_rederive_audit_applies_writer_operational_normalization_before_comparis
     live = copy.deepcopy(frozen)
     live["census"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
     live["cycle_trace"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    live["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ] = "2026-07-15T00:00:00Z"
     monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
     monkeypatch.setattr(
         second_domain_pack,
@@ -607,9 +680,7 @@ def test_routing_time_preservation_does_not_manufacture_missing_runtime_property
         }
     }
     live = copy.deepcopy(frozen)
-    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-        "generated_at"
-    ]
+    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"]["generated_at"]
 
     with pytest.raises(ValueError, match="gy_operational_reconciliation_shape_mismatch"):
         second_domain_pack.reconcile_gy_operational_leaves(frozen, live)
@@ -1325,8 +1396,7 @@ def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
 
     assert removed["status"] == "pass"
     assert (
-        "promotion_verification_boundary:"
-        "smoke_promotion_verification_boundary_invalid"
+        "promotion_verification_boundary:smoke_promotion_verification_boundary_invalid"
     ) in missing
 
 
@@ -1832,9 +1902,7 @@ def test_smoke_trace_requires_isolated_verification_promotion(
     """A typed terminal cannot retain an ambient authority-state result."""
 
     corrupted = copy.deepcopy(live_bundle)
-    promotion = corrupted["cycle_trace"]["generation_cycle_run"][
-        "promotion_port"
-    ]
+    promotion = corrupted["cycle_trace"]["generation_cycle_run"]["promotion_port"]
     promotion["reason"] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
 
     codes = {

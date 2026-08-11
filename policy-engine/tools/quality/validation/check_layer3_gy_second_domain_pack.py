@@ -51,6 +51,7 @@ from polisyos.data_requirement import (
 from polisyos.pdc import (
     SearchTerminalKind,
     gy_content_hash,
+    is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -751,9 +752,9 @@ def _smoke_terminal_corruption_bundles(
     _rehash_smoke_terminal_mutation(terminal_status)
 
     promotion_boundary = copy.deepcopy(bundle)
-    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"][
-        "reason"
-    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"]["reason"] = (
+        "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    )
     _rehash_smoke_terminal_mutation(promotion_boundary)
 
     return [
@@ -770,9 +771,7 @@ def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"][
-        "trace_content_hash"
-    ]
+    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"]["trace_content_hash"]
     bundle["pack"] = _with_content_hash(
         bundle["pack"],
         "manifest_content_hash",
@@ -4124,14 +4123,17 @@ def _n6_single_terminal_gap_closure(
 
 
 def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Separate nondeterministic N6 elapsed time from the replay-visible trace."""
+    """Separate N6 operational fields through the canonical GY hash owner."""
 
     normalized = copy.deepcopy(dict(payload))
     cycle_metrics: list[dict[str, Any]] = []
     cycles = _list_of_mappings(normalized.get("cycles"))
     for index, cycle in enumerate(cycles):
         value_port = _mapping(cycle.get("value_port"))
-        if "wall_time_ms" in value_port:
+        if "wall_time_ms" in value_port and is_gy_content_hash_excluded_field(
+            "wall_time_ms",
+            value_port["wall_time_ms"],
+        ):
             cycle_metrics.append(
                 {"cycle_index": index, "value_port_wall_time_ms": value_port["wall_time_ms"]}
             )
@@ -4140,7 +4142,10 @@ def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any
     normalized["cycles"] = cycles
     top_level_value_port = _mapping(normalized.get("value_port"))
     top_level_metric = top_level_value_port.get("wall_time_ms")
-    if "wall_time_ms" in top_level_value_port:
+    if "wall_time_ms" in top_level_value_port and is_gy_content_hash_excluded_field(
+        "wall_time_ms",
+        top_level_value_port["wall_time_ms"],
+    ):
         top_level_value_port["wall_time_ms"] = 0.0
         normalized["value_port"] = top_level_value_port
     return normalized, {
@@ -6464,7 +6469,7 @@ def _json_value(value: Any) -> Any:
     if hasattr(value, "item") and not isinstance(value, str):
         try:
             return _json_value(value.item())
-        except (AttributeError, ValueError):
+        except AttributeError, ValueError:
             pass
     return value
 

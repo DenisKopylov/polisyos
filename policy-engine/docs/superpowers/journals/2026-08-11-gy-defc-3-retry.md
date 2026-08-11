@@ -676,3 +676,65 @@ five artifact identities. Empty and unrecognized list declarations remain outsid
 This correction is accepted only after a fresh complete post-repair census reproduces it per
 artifact. `[P37: independently_reconciled for the prediction; not_established for the post-repair
 result]`
+
+### Red-first source batch and post-repair census
+
+Before source changed, the new predicate/bridge witness selection returned `15` failures: the owner
+accepted no payload context, scalar/list verification projections produced distinct hashes, list
+members remained present in the comparison projection, and the N10a trace hash bound the fresh
+lineage. That is the intended red receipt. After the source batch, the same `15` cases passed; the
+expanded owner/N10a selection passed `22/22`, and Ruff plus `git diff --check` were green.
+`[P37: recomputed]`
+
+The source batch is deliberately four tracked paths:
+
+1. `src/polisyos/pdc/_impl/gy_waist.py` extends the existing canonical predicate with the containing
+   value, admits only a non-empty scalar/list made entirely of the closed `verification` set, drops
+   qualifying nested mappings from the compared projection, and lets reconciliation retain the live
+   full block after the recomputed projections and non-authority shapes agree;
+2. `tools/quality/validation/check_layer3_gy_second_domain_pack.py` delegates its N6 wall-time
+   decision to that owner rather than treating the local literal as authority;
+3. `tests/unit/pdc/test_gy_waist_contracts.py` carries the scalar/list, fail-closed, mixed-authority,
+   unrecognized, governing-drift, and full-record witnesses; and
+4. `tests/unit/runtime/quality/test_second_domain_pack.py` proves that N10a retains two different
+   complete verification projections and metrics while deriving one comparison identity, with a
+   mixed authority projection remaining decisive.
+
+No other validator needed a second predicate: their producer and verifier paths already consume
+`gy_content_hash`, so the single owner change is their shared bridge. The full blocks remain in the
+input/output mappings; only the recursively derived projection omits them. `[P37: independently_reconciled
+for the owner/consumer map; recomputed for the executed witnesses and tracked path set]`
+
+The post-repair walk parsed the complete `architecture/policy_design_case/*.json` denominator:
+`353/353`, file-type denominator `json=353`. It independently reimplemented the old field-only
+projection and compared that with the repaired owner. All five old producer self-identities reproduced
+their committed values, no unregistered sixth artifact moved, and the exact repaired set was:
+
+- confidence ledger: `4` blocks / `1,023` scalar leaves;
+- Depth-N: `19` blocks / `1,624` scalar leaves;
+- generation cycle: `2` blocks / `212` scalar leaves;
+- promotion: `3` blocks / `210` scalar leaves; and
+- N10a cycle trace: `4` blocks / `712` scalar leaves.
+
+Total: five artifacts, `32` blocks and `3,781` scalar leaves. This closes B1 as an explained correction
+to the scalar-only `3,721` input and leaves B2 inactive. The new Depth-N comparison identity predicted
+by the repaired projection is
+`sha256:8c0274f08473c298828ba548b02977133821689256ac6708258397b109822494`;
+the other four predictions equal the earlier scalar trial because their declaration shapes were
+already scalar. `[P37: recomputed]`
+
+The ignored census receipts live at `tmp/gy-defc-4/post-repair-census/`: script SHA-256
+`82b30901fc141ea64f8f74876b3ca81f9b59faaaa28dad265c7e459a0c1fdf45`, summary
+`a99df3c7e2de685ee7ab0ace8283d45216b3635ef4ef9b0b386ae67c6ea4f553`, `353`-row artifact log
+`8332d095927258e805baad314712076e8e80e22a7cd849926edb6da316ff29d7`, and `3,781`-row removed-leaf
+log `42c4ed73793c828267e41cdf7ae40ac8d60af116800d1475cf1c261d48b5a1dd`.
+`[P37: recomputed]`
+
+The complete two-file owner/N10a unit invocation reached a terminal exit `1` with four failures after
+the focused green. Two were the expected pre-reissue `trace_content_hash` drift on the still-frozen
+N10a artifact. The other two asked the ordinary unit-test interpreter to validate the frozen N8
+catalog posture; a direct diagnostic returned the ten known `catalog_*_mismatch` codes because this
+was intentionally not the receipt-equivalent interpreter. Those four failures are pre-reissue/setup
+non-receipts, not predicate counterexamples; no test was rewritten around them. `[P37: recomputed for
+the failure codes and current source/artifact mismatch; independently_reconciled for the known ambient
+posture class]`

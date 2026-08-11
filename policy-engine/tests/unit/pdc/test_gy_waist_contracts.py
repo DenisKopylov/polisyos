@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import re
 
@@ -32,7 +33,9 @@ from polisyos.pdc import (
     assert_ring2_verifier_provenance,
     gy_artifact_self_identity_projection,
     gy_content_hash,
+    is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
+    strip_gy_volatile_fields,
 )
 from polisyos.pdc._impl.gy_waist import (
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
@@ -87,14 +90,135 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
 
     assert first == second
     assert first.startswith("sha256:")
-    assert ArtifactRef.from_payload(
-        artifact_id="artifact-hash",
-        artifact_type="BaseDataset",
-        payload=payload,
-        schema_ref="policyos.gy.fixture.v1",
-        uri="cas://artifact-hash",
-        version="v1",
-    ).content_hash == first
+    assert (
+        ArtifactRef.from_payload(
+            artifact_id="artifact-hash",
+            artifact_type="BaseDataset",
+            payload=payload,
+            schema_ref="policyos.gy.fixture.v1",
+            uri="cas://artifact-hash",
+            version="v1",
+        ).content_hash
+        == first
+    )
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        pytest.param("verification", id="scalar"),
+        pytest.param(["verification"], id="list"),
+        pytest.param(["verification", "verification"], id="repeated-list"),
+    ],
+)
+def test_gy_hash_excludes_only_blocks_declared_entirely_non_authority(
+    declaration: object,
+) -> None:
+    block = {
+        "authority_provenance": declaration,
+        "deployment_identity": "run-specific",
+    }
+
+    assert is_gy_content_hash_excluded_field("confidence_ledger_projection", block)
+
+
+@pytest.mark.parametrize(
+    "block",
+    [
+        pytest.param({}, id="absent"),
+        pytest.param({"authority_provenance": None}, id="null"),
+        pytest.param({"authority_provenance": ""}, id="empty-scalar"),
+        pytest.param({"authority_provenance": []}, id="empty-list"),
+        pytest.param({"authority_provenance": {}}, id="mapping"),
+        pytest.param({"authority_provenance": 42}, id="number"),
+        pytest.param({"authority_provenance": [42]}, id="number-list"),
+        pytest.param(
+            {"authority_provenance": ["not_established"]},
+            id="unrecognized",
+        ),
+        pytest.param(
+            {"authority_provenance": ["verification", "canonical_repo"]},
+            id="mixed-authority",
+        ),
+    ],
+)
+def test_gy_hash_keeps_absent_malformed_unrecognized_or_authority_blocks_governing(
+    block: dict[str, object],
+) -> None:
+    assert not is_gy_content_hash_excluded_field("confidence_ledger_projection", block)
+
+
+def test_gy_hash_omits_non_authority_block_only_from_comparison_projection() -> None:
+    recorded = {
+        "governing_input": {"node_ref": "node-a"},
+        "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "deployment_identity": "deployment-a",
+            "checks": [{"check_id": "check-a", "status": "refused"}],
+        },
+    }
+    replayed = {
+        "governing_input": {"node_ref": "node-a"},
+        "confidence_ledger_projection": {
+            "authority_provenance": ["verification"],
+            "deployment_identity": "deployment-b",
+            "checks": [{"check_id": "check-b", "status": "refused"}],
+        },
+    }
+
+    assert gy_content_hash(recorded) == gy_content_hash(replayed)
+    assert reconcile_gy_operational_leaves(recorded, replayed) == replayed
+    assert strip_gy_volatile_fields(recorded) == {"governing_input": {"node_ref": "node-a"}}
+    assert recorded["confidence_ledger_projection"]["checks"] == [
+        {"check_id": "check-a", "status": "refused"}
+    ]
+
+    governing_replay = {
+        **replayed,
+        "governing_input": {"node_ref": "node-b"},
+    }
+    assert gy_content_hash(recorded) != gy_content_hash(governing_replay)
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        reconcile_gy_operational_leaves(recorded, governing_replay)
+
+    mixed_authority = copy.deepcopy(recorded)
+    mixed_authority["confidence_ledger_projection"]["authority_provenance"] = [
+        "verification",
+        "canonical_repo",
+    ]
+    mixed_shift = copy.deepcopy(mixed_authority)
+    mixed_shift["confidence_ledger_projection"]["deployment_identity"] = "deployment-b"
+    assert gy_content_hash(mixed_authority) != gy_content_hash(mixed_shift)
+
+
+def test_gy_hash_excludes_non_authority_blocks_nested_in_lists() -> None:
+    payload = {
+        "receipts": [
+            {
+                "authority_provenance": ["verification"],
+                "receipt_id": "run-specific",
+            },
+            {
+                "authority_provenance": ["not_established"],
+                "receipt_id": "governing",
+            },
+        ]
+    }
+
+    assert strip_gy_volatile_fields(payload) == {
+        "receipts": [
+            {
+                "authority_provenance": ["not_established"],
+                "receipt_id": "governing",
+            }
+        ]
+    }
+    shifted = copy.deepcopy(payload)
+    shifted["receipts"][1]["receipt_id"] = "governing-shifted"
+    assert gy_content_hash(payload) != gy_content_hash(shifted)
 
 
 def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:
@@ -123,7 +247,9 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
     assert reconcile_gy_operational_leaves(previous, current) == previous
 
     with pytest.raises(ValueError, match="semantic_projection_mismatch"):
-        reconcile_gy_operational_leaves(previous, {**current, "value": {"score": 2, "generated_at": "new"}})
+        reconcile_gy_operational_leaves(
+            previous, {**current, "value": {"score": 2, "generated_at": "new"}}
+        )
     with pytest.raises(ValueError, match="shape_mismatch"):
         reconcile_gy_operational_leaves(
             previous,
@@ -189,9 +315,7 @@ def test_reconcile_gy_operational_leaves_reports_recursive_drift_without_values(
     assert report["live_replayed"]["operand_role"] == "live_replayed"
 
     leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
-    semantic = leaves[
-        "/compiled_run/recursive_run/nodes/0/cycle_run/semantic_marker"
-    ]
+    semantic = leaves["/compiled_run/recursive_run/nodes/0/cycle_run/semantic_marker"]
     operational = leaves["/compiled_run/recursive_run/generated_at"]
     assert semantic["operational"] is False
     assert operational["operational"] is True
@@ -363,7 +487,9 @@ def test_ring1_contracts_are_constructible_without_ring2_authority() -> None:
         produces=[port.model_copy(update={"direction": "produces"})],
         formal_preconditions=[],
         allowed_internal_execution=["tool_call"],
-        implementation_refs=[{"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}],
+        implementation_refs=[
+            {"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}
+        ],
         cost_model={"compute": {"max_operation_invocations": 1}},
         authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
         failure_modes=[],
@@ -711,8 +837,7 @@ def _promotion_trace_payload() -> dict[str, object]:
         "resulting_authority_boundary_ref": "n9://boundary/current",
         "transform_mismatch_disposition": "matched",
         "promotion_sequence_ref": (
-            "polisyos.runtime.quality.promotion_sequence."
-            "run_canonical_promotion_sequence"
+            "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
         ),
         "gate_outcome_hash": "sha256:" + "3" * 64,
         "confidence_ledger_scope_ref": "confidence-scope://n9/design-problem",

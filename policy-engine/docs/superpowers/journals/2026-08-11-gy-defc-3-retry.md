@@ -994,3 +994,60 @@ or persist. The capture variants are modifiers of the same measurement action, s
 capture and a supplied capture journal can obtain the exact candidate manifest their corresponding
 writer must present. Focused witnesses cover dirty-source refusal and both public measurement routes.
 `[P37: recomputed]`
+
+### Final reviewed freeze and source-bound census
+
+The final source freeze is `708d18d6b3bc4bc2380ff896c503ecdd2d4cdaf6`. Three independent
+Terra review tracks covered the producer predicate/typed partition, P35/P37 and timing boundary, and
+the writer/wave boundary. Their final delta passes reported no Critical or Important findings. No
+governed artifact was changed during the source-review chain. `[P37: independently_reconciled for
+the review verdicts; recomputed for the frozen head and current governed-artifact diff]`
+
+The clean, source-bound census parsed the complete
+`architecture/policy_design_case/*.json` set: path denominator `353`, file-type denominator
+`json=353`, parse denominator `353/353`. It reproduced all five stored legacy identities and bound
+the committed/live bytes for the PDC owner, confidence-ledger runtime owner and validator, promotion
+owner, and the four reissue producers. Confidence has no comparison plan and remains the
+B3/governing artifact. The structural batch is exactly four artifacts and `28` plan entries:
+
+- promotion: `3` entries / `93` changed comparison leaves;
+- generation cycle: `2` / `70`;
+- N10a cycle trace: `4` / `204`; and
+- Depth-N: `19` / `522`.
+
+Total: `889` actually removed or changed scalar comparison leaves. This supersedes the rejected
+`2,758` full-block forecast. The correction is explained by the §2 mechanism: complete typed
+receipts stay recorded, while the owner projection retains governing semantics and removes only
+session lineage; the nine independently reconciled Depth summaries are the only full-block
+exclusions. It is B1, not the unexplained-movement stop. Live verification-session admission is
+still `not_established` until each writer produces its ephemeral plan. `[P37: recomputed for the
+353-byte denominator and legacy identities; independently_reconciled for the structural paths and
+889-leaf projection; not_established for live writer admission; institutionally_supplied for B3]`
+
+The ignored census receipt is under `tmp/gy-defc-4/post-repair-census/final-708d18d6b/`.
+Its canonical receipt identity is
+`sha256:0ab017748415bdb72071f8f9f056219fd609c4d6e8b09398d740e229e017c94f`;
+the script SHA-256 is `bc24c0707c3268f42b0bcc6b14c1ba507b32cc3618628172e5085aa87661bbf7`,
+artifact rows `3530fe25769ed0629f03b2dd1ecc97f4874af5010dec580f4be7ca908f17b47a`,
+comparison leaves `0580de1574bdd12ccf3424e8ef48c1112db715aff629439826070923cfba7106`,
+and the complete input manifest
+`39877a0338652bf98535acb992049c67fe797f0c9fea41e9c08b26b7a0a0bd36`.
+`[P37: recomputed]`
+
+The frozen-source witnesses then passed `53/53` under the ordinary interpreter in `102.815026` s
+and `2/2` Depth summary/parent negatives under the pre-existing required path-witness interpreter in
+`14.685505` s, both with current-source `PYTHONPATH` precedence, exit `0`, no timeout and empty
+stderr. Their stdout SHA-256 values are respectively
+`3bf5ea7c2adce2a8def4d6995c21f699dd10c4eed53d65d3beca9cf0b2731e93` and
+`99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87`.
+The separate interpreter is demanded by the Depth preflight; the earlier ordinary-interpreter
+collection error remains a setup non-receipt, and no environment was rebuilt. `[P37: recomputed]`
+
+The final timing report read `121` complete local records. Governing caps remain: promotion
+write/check `32,437.008/33,650.354` ms; generation write/check/rederive
+`56,250.878/85,542.132/50,721.146` ms; N10a write/check/rederive
+`852,699.146/74,272.168/726,805.376` ms; Depth write/check/rederive
+`4,942,540.412/319,661.388/1,695,177.568` ms; and posture
+`227,856.150` ms. The corrupt lanes retain declared hang fences of `300` s for promotion,
+generation and N10a and `600` s for Depth; those are not catalog budgets. `[P37: recomputed for the
+timing-log/catalog projection; institutionally_supplied for the declared corrupt ceilings]`

@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:578db97cb5a700f8d069dfe82a8c8d1d81c4a244d9d9cecd1b43a197e8e4727d",
+  "contract_content_hash": "sha256:ad12c4fd20ceee364b1ad4e8a87db877926f8b5a77a7b161745677fa4adb3779",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -503,7 +503,7 @@
         "dev_scan_roots": [],
         "entry_points": [
           {
-            "direct_url_sha256": "sha256:2676574ff163805d4d6721cb7fb4b11bea4bb63fd7e9a96fd44e273dcd61d8b0",
+            "direct_url_sha256": null,
             "distribution_name": "polisyos-foundry-method-example",
             "distribution_version": "0.1.0",
             "editable_install": true,
@@ -514,7 +514,7 @@
             "value": "polisyos_foundry_method_example:weighted_average_plugin"
           },
           {
-            "direct_url_sha256": "sha256:b8bd61452925df72f15ac88dac58f4723c965ef93faee5b3c34c2921c1f762ec",
+            "direct_url_sha256": null,
             "distribution_name": "policy-engine",
             "distribution_version": "0.1.0",
             "editable_install": true,
@@ -525,7 +525,7 @@
             "value": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
           }
         ],
-        "manifest_id": "component_discovery_manifest_72b51734dfac8504c4b46260043f90e0bde9fe95788175c4bf938c8e49e802aa",
+        "manifest_id": "component_discovery_manifest_2b8eea44cd138069e8fb6ec8b3f435a9a677dbc1b1d53d0c4d22fb740b48f70a",
         "overlap_component_count": 389,
         "overlap_component_set_sha256": "sha256:2f10e6fd2144a926f7172633c6d2b401f4bd6599ea598caba70dd6018518e391",
         "source_policy": {
@@ -837,7 +837,7 @@
           "predicate": "native_contract_family_taxonomy_derivation"
         }
       ],
-      "provenance_id": "method_catalog_provenance_3ad5679c2a2c8d0c3653d87785eccb4ae64a191d1ad3ad8873cc0236821ad4a1",
+      "provenance_id": "method_catalog_provenance_8b24b2b394460ef1537ce385a2eff920484a390118a8cda2b4f2a5666f7e7597",
       "runtime_backend_identity": {
         "backend_fingerprints": [
           {
@@ -2423,6 +2423,7 @@
       "source_flip_forged_relation_certificate_rejected",
       "source_flip_value_projection_capability_contract_required",
       "source_flip_catalog_replay_rejected",
+      "source_flip_editable_direct_url_address_rejected",
       "source_flip_truthfulness_auto_pass_rejected",
       "source_flip_estimand_binding_required",
       "source_flip_value_input_acquisition_route_required",

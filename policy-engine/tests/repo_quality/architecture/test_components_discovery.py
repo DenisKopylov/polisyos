@@ -9,6 +9,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.components.discovery import (
     ENTRY_POINT_GROUP_FOUNDRY_METHODS,
     ENTRY_POINT_GROUP_IR_FRAGMENTS,
+    ComponentDiscoveryManifest,
     discover_components,
 )
 
@@ -22,14 +23,24 @@ class _TestComponent:
 
 
 class _FakeDistribution:
-    def __init__(self, *, name: str, version: str, entry_points_text: str) -> None:
+    def __init__(
+        self,
+        *,
+        name: str,
+        version: str,
+        entry_points_text: str,
+        direct_url_text: str | None = None,
+    ) -> None:
         self.metadata = {"Name": name}
         self.version = version
         self._entry_points_text = entry_points_text
+        self._direct_url_text = direct_url_text
 
     def read_text(self, filename: str) -> str | None:
         if filename == "entry_points.txt":
             return self._entry_points_text
+        if filename == "direct_url.json":
+            return self._direct_url_text
         return None
 
 
@@ -53,6 +64,40 @@ class _FakeEntryPoints:
 
     def select(self, *, group: str):
         return list(self._by_group.get(group, []))
+
+
+def _discover_manifest_for_distribution(
+    monkeypatch,
+    distribution: _FakeDistribution,
+) -> ComponentDiscoveryManifest:
+    component = _TestComponent(
+        metadata=ComponentMetadata(
+            component_id=ComponentId.parse("roads.method.direct_url@1.0.0"),
+            kind=ComponentKind.FOUNDRY_METHOD,
+            abi_targets={"foundry_methods_api": ">=3.5.0,<4.0.0"},
+            domains=["roads"],
+            jurisdictions=[],
+            tags=[],
+            capabilities=Capability.FOUNDRY_METHOD,
+            deps=[],
+        )
+    )
+    entry_point = _FakeEntryPoint(
+        group=ENTRY_POINT_GROUP_FOUNDRY_METHODS,
+        name="roads.method.direct_url",
+        loader=lambda: component,
+        dist=distribution,
+    )
+    monkeypatch.setattr(
+        "polisyos.core.components.discovery.list_entry_points",
+        lambda *, group: [entry_point],
+    )
+    report = discover_components(
+        groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
+        include_dev_scan=False,
+    )
+    assert report.manifest is not None
+    return report.manifest
 
 
 def test_discovery_entry_points_loads_components(monkeypatch) -> None:
@@ -263,6 +308,223 @@ def test_discovery_manifest_binds_entry_point_distribution_identity(monkeypatch)
     }
     assert predicate_rows["entry_point_distribution_identity"] == "recomputed"
     assert predicate_rows["entry_point_source_byte_closure"] == "not_established"
+
+
+def test_discovery_manifest_ignores_editable_checkout_address(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    first_checkout = tmp_path / "checkout-a" / "policy-engine"
+    second_checkout = tmp_path / "checkout-b" / "policy-engine"
+    first_checkout.mkdir(parents=True)
+    second_checkout.mkdir(parents=True)
+    source_bytes = b"same source bytes\n"
+    (first_checkout / "source.py").write_bytes(source_bytes)
+    (second_checkout / "source.py").write_bytes(source_bytes)
+    assert first_checkout.resolve() != second_checkout.resolve()
+    assert hashlib.sha256((first_checkout / "source.py").read_bytes()).digest() == hashlib.sha256(
+        (second_checkout / "source.py").read_bytes()
+    ).digest()
+    entry_points_text = (
+        "[polisyos.foundry_methods]\n"
+        "roads.method.direct_url = roads.method.direct_url:factory\n"
+    )
+
+    first = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=json.dumps(
+                {
+                    "url": first_checkout.resolve().as_uri(),
+                    "dir_info": {"editable": True},
+                },
+                separators=(",", ":"),
+            ),
+        ),
+    )
+    second = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=json.dumps(
+                {
+                    "url": second_checkout.resolve().as_uri(),
+                    "dir_info": {"editable": True},
+                },
+                separators=(",", ":"),
+            ),
+        ),
+    )
+
+    assert first.entry_points[0].direct_url_sha256 is None
+    assert second.entry_points[0].direct_url_sha256 is None
+    assert first.content_payload() == second.content_payload()
+    assert first.manifest_id == second.manifest_id
+
+
+def test_discovery_manifest_ignores_editable_direct_url_serialization(
+    monkeypatch,
+) -> None:
+    entry_points_text = (
+        "[polisyos.foundry_methods]\n"
+        "roads.method.direct_url = roads.method.direct_url:factory\n"
+    )
+    compact = (
+        '{"url":"file:///same/checkout/policy-engine",'
+        '"dir_info":{"editable":true}}'
+    )
+    reordered = (
+        "{\n"
+        '  "dir_info": {\n'
+        '    "editable": true\n'
+        "  },\n"
+        '  "url": "file:///same/checkout/policy-engine"\n'
+        "}\n"
+    )
+
+    first = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=compact,
+        ),
+    )
+    second = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=reordered,
+        ),
+    )
+
+    assert first.entry_points[0].direct_url_sha256 is None
+    assert second.entry_points[0].direct_url_sha256 is None
+    assert first.content_payload() == second.content_payload()
+    assert first.manifest_id == second.manifest_id
+
+
+def test_discovery_manifest_records_editable_identity_as_not_established(
+    monkeypatch,
+) -> None:
+    manifest = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=(
+                "[polisyos.foundry_methods]\n"
+                "roads.method.direct_url = roads.method.direct_url:factory\n"
+            ),
+            direct_url_text=(
+                '{"url":"file:///checkout/policy-engine",'
+                '"dir_info":{"editable":true}}'
+            ),
+        ),
+    )
+
+    assert len(manifest.entry_points) == 1
+    identity = manifest.entry_points[0]
+    assert identity.editable_install is True
+    assert identity.direct_url_sha256 is None
+    assert identity.source_byte_closure == "not_established"
+    assert manifest.unbound_inputs == (
+        "entry_point_source_byte_closure_not_established:"
+        "polisyos.foundry_methods:roads.method.direct_url:"
+        "roads.method.direct_url:factory",
+    )
+    predicate_rows = {
+        row.predicate: row.classification for row in manifest.predicate_provenance
+    }
+    assert predicate_rows["entry_point_distribution_identity"] == "recomputed"
+    assert predicate_rows["entry_point_source_byte_closure"] == "not_established"
+
+
+def test_discovery_manifest_keeps_noneditable_direct_url_content_bound(
+    monkeypatch,
+) -> None:
+    entry_points_text = (
+        "[polisyos.foundry_methods]\n"
+        "roads.method.direct_url = roads.method.direct_url:factory\n"
+    )
+    first_direct_url = (
+        '{"url":"https://example.invalid/roads.whl",'
+        '"dir_info":{"editable":false},'
+        '"archive_info":{"hash":"sha256=aaaa"}}'
+    )
+    second_direct_url = first_direct_url.replace("sha256=aaaa", "sha256=bbbb")
+
+    first = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=first_direct_url,
+        ),
+    )
+    second = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=second_direct_url,
+        ),
+    )
+
+    assert first.entry_points[0].editable_install is False
+    assert first.entry_points[0].direct_url_sha256 == (
+        "sha256:" + hashlib.sha256(first_direct_url.encode("utf-8")).hexdigest()
+    )
+    assert second.entry_points[0].direct_url_sha256 == (
+        "sha256:" + hashlib.sha256(second_direct_url.encode("utf-8")).hexdigest()
+    )
+    assert first.entry_points[0].direct_url_sha256 != second.entry_points[0].direct_url_sha256
+    assert first.manifest_id != second.manifest_id
+
+
+def test_discovery_manifest_keeps_malformed_direct_url_bytes_bound(
+    monkeypatch,
+) -> None:
+    entry_points_text = (
+        "[polisyos.foundry_methods]\n"
+        "roads.method.direct_url = roads.method.direct_url:factory\n"
+    )
+    first_direct_url = '{"url":"file:///unknown-a",'
+    second_direct_url = '{"url":"file:///unknown-b",'
+
+    first = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=first_direct_url,
+        ),
+    )
+    second = _discover_manifest_for_distribution(
+        monkeypatch,
+        _FakeDistribution(
+            name="roads-direct-url",
+            version="1.0.0",
+            entry_points_text=entry_points_text,
+            direct_url_text=second_direct_url,
+        ),
+    )
+
+    assert first.entry_points[0].editable_install is None
+    assert second.entry_points[0].editable_install is None
+    assert first.entry_points[0].direct_url_sha256 != second.entry_points[0].direct_url_sha256
+    assert first.manifest_id != second.manifest_id
 
 
 def test_discovery_manifest_orders_duplicate_entry_points_by_distribution(

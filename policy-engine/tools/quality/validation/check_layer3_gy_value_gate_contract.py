@@ -96,6 +96,7 @@ EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "value_input_acquisition_route_required",
     "contract_projection_nonproduction",
 )
+EDITABLE_DIRECT_URL_SOURCE_FLIP_ID = "source_flip_editable_direct_url_address_rejected"
 SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_value_input_read_from_runtime_hint",
     "source_flip_empty_hints_production_owner_access",
@@ -123,6 +124,7 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_forged_relation_certificate_rejected",
     "source_flip_value_projection_capability_contract_required",
     "source_flip_catalog_replay_rejected",
+    EDITABLE_DIRECT_URL_SOURCE_FLIP_ID,
     "source_flip_truthfulness_auto_pass_rejected",
     "source_flip_estimand_binding_required",
     "source_flip_value_input_acquisition_route_required",
@@ -572,7 +574,7 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
 
 
 @cache
-def _catalog_denominators_cached() -> dict[str, Any]:
+def _catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, object]]:
     from polisyos.foundry.extensions.discovery import (
         discover_foundry_method_components,
     )
@@ -704,7 +706,15 @@ def _catalog_denominators_cached() -> dict[str, Any]:
         additional_predicate_provenance=additional_predicates,
         predicate_bindings=predicate_bindings,
     )
-    return {**denominator_values, "catalog_provenance": catalog_provenance}
+    return (
+        {**denominator_values, "catalog_provenance": catalog_provenance},
+        ambient_report.manifest.content_payload(),
+    )
+
+
+@cache
+def _catalog_denominators_cached() -> dict[str, Any]:
+    return _catalog_denominator_evidence_cached()[0]
 
 
 def _catalog_denominators() -> dict[str, Any]:
@@ -2085,6 +2095,7 @@ def _validator_probe(*args: str) -> tuple[str, ...]:
 
 
 def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
+    discovery = "src/polisyos/core/components/discovery.py"
     generation_cycle = "src/polisyos/runtime/quality/generation_cycle.py"
     value_outer_set = "src/polisyos/core/contracts/value_outer_set.py"
     validator = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
@@ -2580,6 +2591,21 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             node_id=(
                 "tests/unit/foundry/methods/test_selection_advisor.py::"
                 "test_value_selection_receipt_rejects_replay_across_catalog_snapshots"
+            ),
+        ),
+        pytest_case(
+            mutation_id="source_flip_editable_direct_url_address_rejected",
+            guard="editable install addresses cannot become distribution identity",
+            replacements=(
+                _SourceFlipReplacement(
+                    discovery,
+                    "                if editable_install is not True:\n",
+                    "                if True:\n",
+                ),
+            ),
+            node_id=(
+                f"{test_value_gate}::"
+                "test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths"
             ),
         ),
         pytest_case(
@@ -4239,6 +4265,133 @@ def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _catalog_provenance_reissue_payload(
+    recorded: Mapping[str, Any],
+    live_denominators: Mapping[str, Any],
+    live_ambient_manifest_content: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Reissue catalog provenance and its P29 witness after sibling equality."""
+
+    payload = json.loads(json.dumps(recorded))
+    recorded_denominators = payload.get("denominators")
+    if not isinstance(recorded_denominators, dict):
+        raise ValueError("catalog_provenance_reissue_denominators_missing")
+    live_copy = json.loads(json.dumps(live_denominators))
+    live_provenance = live_copy.get("catalog_provenance")
+    if not isinstance(live_provenance, dict):
+        raise ValueError("catalog_provenance_reissue_live_member_missing")
+    recorded_provenance = recorded_denominators.get("catalog_provenance")
+    if not isinstance(recorded_provenance, dict):
+        raise ValueError("catalog_provenance_reissue_recorded_member_missing")
+    recorded_siblings = {
+        key: value
+        for key, value in recorded_denominators.items()
+        if key != "catalog_provenance"
+    }
+    live_siblings = {
+        key: value for key, value in live_copy.items() if key != "catalog_provenance"
+    }
+    if recorded_siblings != live_siblings:
+        changed_fields = sorted(
+            key
+            for key in set(recorded_siblings) | set(live_siblings)
+            if recorded_siblings.get(key) != live_siblings.get(key)
+        )
+        raise ValueError(
+            "catalog_provenance_reissue_denominator_drift:"
+            + "|".join(changed_fields)
+        )
+    source_flip_harness = payload.get("source_flip_mutation_harness")
+    if not isinstance(source_flip_harness, dict):
+        raise ValueError("catalog_provenance_reissue_source_flip_harness_missing")
+    recorded_mutation_ids = tuple(source_flip_harness.get("mutation_ids") or ())
+    historical_mutation_ids = tuple(
+        mutation_id
+        for mutation_id in SOURCE_FLIP_MUTATION_IDS
+        if mutation_id != EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+    )
+    if recorded_mutation_ids not in {
+        historical_mutation_ids,
+        SOURCE_FLIP_MUTATION_IDS,
+    }:
+        raise ValueError("catalog_provenance_reissue_source_flip_denominator_drift")
+
+    expected_provenance = json.loads(json.dumps(recorded_provenance))
+    recorded_ambient = expected_provenance.get("ambient_discovery")
+    live_ambient = live_provenance.get("ambient_discovery")
+    if not isinstance(recorded_ambient, dict) or not isinstance(live_ambient, dict):
+        raise ValueError("catalog_provenance_reissue_ambient_manifest_missing")
+    recorded_entries = recorded_ambient.get("entry_points")
+    live_entries = live_ambient.get("entry_points")
+    if not isinstance(recorded_entries, list) or not isinstance(live_entries, list):
+        raise ValueError("catalog_provenance_reissue_entry_points_missing")
+    if len(recorded_entries) != len(live_entries):
+        raise ValueError("catalog_provenance_reissue_unrelated_ambient_drift")
+    frozen_entries = json.loads(json.dumps(recorded_entries))
+    from polisyos.core.components.discovery import (
+        _component_discovery_manifest_id,
+    )
+
+    live_manifest_content = json.loads(json.dumps(live_ambient_manifest_content))
+    live_manifest_entries = live_manifest_content.get("entry_points")
+    if live_manifest_entries != live_entries:
+        raise ValueError("catalog_provenance_reissue_manifest_evidence_mismatch")
+    live_manifest_id = _component_discovery_manifest_id(live_manifest_content)
+    if live_manifest_id != live_ambient.get("manifest_id"):
+        raise ValueError("catalog_provenance_reissue_manifest_evidence_mismatch")
+    historical_manifest_content = json.loads(json.dumps(live_manifest_content))
+    historical_manifest_entries = historical_manifest_content["entry_points"]
+    for recorded_entry, live_entry in zip(recorded_entries, live_entries, strict=True):
+        if not isinstance(recorded_entry, dict) or not isinstance(live_entry, dict):
+            raise ValueError("catalog_provenance_reissue_entry_point_invalid")
+        if recorded_entry.get("editable_install") is True:
+            if (
+                live_entry.get("editable_install") is not True
+                or live_entry.get("direct_url_sha256") is not None
+            ):
+                raise ValueError("catalog_provenance_reissue_editable_identity_drift")
+            recorded_entry["direct_url_sha256"] = None
+    for historical_entry, frozen_entry in zip(
+        historical_manifest_entries,
+        frozen_entries,
+        strict=True,
+    ):
+        if not isinstance(historical_entry, dict) or not isinstance(frozen_entry, dict):
+            raise ValueError("catalog_provenance_reissue_entry_point_invalid")
+        if frozen_entry.get("editable_install") is True:
+            historical_entry["direct_url_sha256"] = frozen_entry.get(
+                "direct_url_sha256"
+            )
+    if _component_discovery_manifest_id(historical_manifest_content) != recorded_ambient.get(
+        "manifest_id"
+    ):
+        raise ValueError("catalog_provenance_reissue_unrelated_ambient_drift")
+    recorded_ambient["manifest_id"] = live_manifest_id
+    from polisyos.foundry.methods.catalog.snapshot import (
+        method_catalog_provenance_id,
+    )
+
+    expected_provenance["provenance_id"] = method_catalog_provenance_id(
+        expected_provenance
+    )
+    if expected_provenance != live_provenance:
+        raise ValueError("catalog_provenance_reissue_unrelated_ambient_drift")
+
+    recorded_denominators["catalog_provenance"] = expected_provenance
+    source_flip_harness["mutation_ids"] = list(SOURCE_FLIP_MUTATION_IDS)
+    payload["contract_content_hash"] = _content_hash(payload)
+    return payload
+
+
+def check_catalog_provenance(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Validate the frozen payload against live canonical catalog provenance."""
+
+    path = repo_root / OUTPUT_PATH
+    if not path.exists():
+        return ({"code": "artifact_missing", "path": OUTPUT_PATH},)
+    return validate_payload(_load_json(path))
+
+
 def check(repo_root: Path) -> tuple[dict[str, Any], ...]:
     path = repo_root / OUTPUT_PATH
     if not path.exists():
@@ -4345,7 +4498,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--check", action="store_true")
+    modes.add_argument("--check-catalog-provenance", action="store_true")
     modes.add_argument("--write", action="store_true")
+    modes.add_argument("--reissue-catalog-provenance", action="store_true")
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
@@ -4366,6 +4521,60 @@ def main(argv: list[str] | None = None) -> int:
         failures = tuple(row for row in results if row.get("result") != "RED")
         print(json.dumps({"results": list(results)}, sort_keys=True))
         return 1 if failures else 0
+    if args.check_catalog_provenance:
+        issues = check_catalog_provenance(repo_root)
+        if issues:
+            print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
+            return 1
+        print(
+            json.dumps(
+                {"status": "pass", "path": OUTPUT_PATH, "scope": "catalog_provenance"},
+                sort_keys=True,
+            )
+        )
+        return 0
+    if args.reissue_catalog_provenance:
+        path = repo_root / OUTPUT_PATH
+        if not path.exists():
+            print(json.dumps({"status": "fail", "code": "artifact_missing"}, sort_keys=True))
+            return 1
+        recorded = _load_json(path)
+        if recorded.get("contract_content_hash") != _content_hash(recorded):
+            print(
+                json.dumps(
+                    {"status": "fail", "code": "contract_content_hash_mismatch"},
+                    sort_keys=True,
+                )
+            )
+            return 1
+        try:
+            live_denominators, live_ambient_manifest_content = (
+                _catalog_denominator_evidence_cached()
+            )
+            payload = _catalog_provenance_reissue_payload(
+                recorded,
+                json.loads(json.dumps(live_denominators, sort_keys=True)),
+                live_ambient_manifest_content,
+            )
+        except ValueError as exc:
+            print(json.dumps({"status": "fail", "code": str(exc)}, sort_keys=True))
+            return 1
+        issues = validate_payload(payload)
+        if issues:
+            print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
+            return 1
+        _write_json(path, payload)
+        print(
+            json.dumps(
+                {
+                    "status": "written",
+                    "path": OUTPUT_PATH,
+                    "scope": "catalog_provenance_and_source_flip_witness",
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
     if args.write:
         payload = build_payload(repo_root)
         issues = validate_payload(payload)

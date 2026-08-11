@@ -853,7 +853,6 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
             except (OSError, UnicodeError):
                 direct_url_text = None
             if direct_url_text is not None:
-                direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
                 try:
                     direct_url_payload = json.loads(str(direct_url_text))
                 except (json.JSONDecodeError, TypeError, ValueError):
@@ -862,6 +861,10 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
                     dir_info = direct_url_payload.get("dir_info")
                     if isinstance(dir_info, dict) and isinstance(dir_info.get("editable"), bool):
                         editable_install = bool(dir_info["editable"])
+                # An editable direct URL is an installer-chosen address, not content identity.
+                # Record the editable posture while leaving its source-byte closure unestablished.
+                if editable_install is not True:
+                    direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
     return DiscoveryEntryPointIdentity(
         group=group,
         name=str(getattr(ep, "name", "")),
@@ -1045,7 +1048,7 @@ def _build_discovery_manifest(
         "unbound_inputs": unbound_inputs,
         "predicate_provenance": [row.as_dict() for row in predicate_provenance],
     }
-    manifest_id = "component_discovery_manifest_" + _sha256_json(payload).removeprefix("sha256:")
+    manifest_id = _component_discovery_manifest_id(payload)
     return ComponentDiscoveryManifest(
         schema_version="policyos.component_discovery_manifest.v1",
         manifest_id=manifest_id,
@@ -1075,6 +1078,14 @@ def _sha256_json(value: object) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return _sha256_bytes(encoded)
+
+
+def _component_discovery_manifest_id(content_payload: object) -> str:
+    """Derive the canonical identity of full discovery-manifest content."""
+
+    return "component_discovery_manifest_" + _sha256_json(content_payload).removeprefix(
+        "sha256:"
+    )
 
 
 def _coerce_builtin_loader_spec(spec: BuiltinLoaderSpec) -> tuple[str, BuiltinComponentLoader]:

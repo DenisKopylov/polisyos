@@ -1715,10 +1715,30 @@ def test_promotion_writer_reconciles_live_lineage_but_retains_full_frozen_receip
         assert gy_recorded_content_hash(
             frozen_receipt.model_dump(mode="json")
         ) != gy_recorded_content_hash(live_receipt.model_dump(mode="json"))
-        assert validator.canonical_promotion_receipt_semantic_projection(
-            frozen_receipt.model_dump(mode="json")
-        ) == validator.canonical_promotion_receipt_semantic_projection(
-            live_receipt.model_dump(mode="json")
+        frozen_projection = (
+            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
+                frozen_receipt.model_dump(mode="json")
+            )
+        )
+        live_projection = (
+            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
+                live_receipt.model_dump(mode="json")
+            )
+        )
+        assert frozen_projection == live_projection
+        assert set(live_projection) == (
+            set(CanonicalPromotionReceipt.model_fields)
+            - promotion_sequence_module._PROMOTION_RECEIPT_LINEAGE_FIELDS
+        )
+        assert set(live_projection["owner_projection"]) == (
+            set(promotion_sequence_module.CanonicalPromotionOwnerProjection.model_fields)
+            - promotion_sequence_module._PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS
+        )
+        assert set(live_projection["confidence_ledger_projection"]) == (
+            set(
+                promotion_sequence_module.N9PromotionCertificateProjection.model_fields
+            )
+            - promotion_sequence_module._PROMOTION_CERTIFICATE_LINEAGE_FIELDS
         )
 
     live.pop("capture_wall_time_seconds", None)

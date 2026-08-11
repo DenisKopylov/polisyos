@@ -19,6 +19,7 @@ from polisyos.pdc import (
     EvidenceBasis,
     EvidenceKind,
     GyComparisonAdmission,
+    GyComparisonOwnerRule,
     OperationClass,
     OperationContract,
     OperationInvocationRecord,
@@ -177,6 +178,13 @@ def _verification_admission(
     )
 
 
+_VERIFICATION_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_verification_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
 def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_record() -> None:
     recorded = {
         "governing_input": {"node_ref": "node-a"},
@@ -326,7 +334,7 @@ def test_gy_comparison_manifest_is_integrity_only_and_cannot_choose_a_new_path()
     reconstructed = build_gy_comparison_projection_plan_from_manifest(
         payload,
         manifest=plan.manifest,
-        projector_registry={"test.verification_receipt.v1": _verification_semantic_projection},
+        owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
     )
     assert reconstructed.project(payload) == plan.project(payload)
 
@@ -336,10 +344,21 @@ def test_gy_comparison_manifest_is_integrity_only_and_cannot_choose_a_new_path()
         build_gy_comparison_projection_plan_from_manifest(
             payload,
             manifest=forged_manifest,
-            projector_registry={
-                "test.verification_receipt.v1": _verification_semantic_projection
-            },
+            owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
         )
+
+    for field, forged_value in (
+        ("action", "exclude"),
+        ("predicate_provenance", "independently_reconciled"),
+    ):
+        forged_policy = copy.deepcopy(plan.manifest)
+        forged_policy[0][field] = forged_value
+        with pytest.raises(ValueError, match="manifest_owner_policy_mismatch"):
+            build_gy_comparison_projection_plan_from_manifest(
+                payload,
+                manifest=forged_policy,
+                owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
+            )
 
 
 def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:

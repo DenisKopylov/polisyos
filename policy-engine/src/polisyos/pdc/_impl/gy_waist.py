@@ -80,6 +80,22 @@ _GY_NON_AUTHORITY_PROVENANCE = frozenset({"verification"})
 _GY_COMPARISON_BLOCK_EXCLUDED = object()
 type _GyComparisonPathSegment = str | int
 type _GyComparisonPath = tuple[_GyComparisonPathSegment, ...]
+type GyComparisonPredicateProvenance = Literal["recomputed", "independently_reconciled"]
+
+
+@dataclass(frozen=True)
+class GyComparisonOwnerRule:
+    """Producer-owned policy for reconstructing one comparison-plan entry.
+
+    A persisted manifest is an integrity recipe, never an authority source.  The
+    live owner registry fixes the only action and P37 predicate provenance that
+    one rule may claim, so artifact bytes cannot widen ``project`` into
+    ``exclude`` or upgrade the predicate's evidence class.
+    """
+
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"]
+    predicate_provenance: GyComparisonPredicateProvenance
 
 
 @dataclass(frozen=True)
@@ -97,6 +113,7 @@ class GyComparisonAdmission:
     source_content_hash: str
     projector: Callable[[Mapping[str, object]], object]
     action: Literal["exclude", "project"] = "project"
+    predicate_provenance: GyComparisonPredicateProvenance = "recomputed"
 
 
 @dataclass(frozen=True)
@@ -105,6 +122,7 @@ class _GyComparisonPlanEntry:
     owner_rule: str
     projector: Callable[[Mapping[str, object]], object]
     action: Literal["exclude", "project"]
+    predicate_provenance: GyComparisonPredicateProvenance
 
 
 @dataclass(frozen=True)
@@ -127,6 +145,7 @@ class GyComparisonProjectionPlan:
                 "action": entry.action,
                 "json_pointer": _gy_comparison_json_pointer(entry.path),
                 "owner_rule": entry.owner_rule,
+                "predicate_provenance": entry.predicate_provenance,
             }
             for entry in self.entries
         ]
@@ -183,6 +202,7 @@ class GyComparisonProjectionPlan:
                 owner_rule=entry.owner_rule,
                 projector=entry.projector,
                 action=entry.action,
+                predicate_provenance=entry.predicate_provenance,
             )
             for entry in self.entries
             if entry.path[: len(prefix)] == prefix
@@ -451,6 +471,7 @@ def build_gy_comparison_projection_plan(
                         owner_rule=admission.owner_rule,
                         projector=admission.projector,
                         action=admission.action,
+                        predicate_provenance=admission.predicate_provenance,
                     )
                 )
                 return
@@ -470,7 +491,7 @@ def build_gy_comparison_projection_plan_from_manifest(
     value: object,
     *,
     manifest: object,
-    projector_registry: Mapping[str, Callable[[Mapping[str, object]], object]],
+    owner_rule_registry: Mapping[str, GyComparisonOwnerRule],
 ) -> GyComparisonProjectionPlan:
     """Reconstruct a projection recipe for non-authoritative integrity checks.
 
@@ -488,20 +509,27 @@ def build_gy_comparison_projection_plan_from_manifest(
         pointer = row.get("json_pointer")
         owner_rule = row.get("owner_rule")
         action = row.get("action")
+        predicate_provenance = row.get("predicate_provenance")
         if (
             not isinstance(pointer, str)
             or not isinstance(owner_rule, str)
-            or action not in {"exclude", "project"}
-            or owner_rule not in projector_registry
+            or owner_rule not in owner_rule_registry
         ):
             raise ValueError("gy_comparison_admission_manifest_invalid")
+        registered = owner_rule_registry[owner_rule]
+        if (
+            action != registered.action
+            or predicate_provenance != registered.predicate_provenance
+        ):
+            raise ValueError("gy_comparison_admission_manifest_owner_policy_mismatch")
         path = _gy_comparison_path_from_pointer(value, pointer)
         entries.append(
             _GyComparisonPlanEntry(
                 path=path,
                 owner_rule=owner_rule,
-                projector=projector_registry[owner_rule],
-                action=action,
+                projector=registered.projector,
+                action=registered.action,
+                predicate_provenance=registered.predicate_provenance,
             )
         )
     plan = GyComparisonProjectionPlan(entries=tuple(entries))

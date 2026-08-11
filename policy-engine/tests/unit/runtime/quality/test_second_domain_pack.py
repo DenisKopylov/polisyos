@@ -527,6 +527,76 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
+def test_writer_accounts_for_all_five_legacy_outputs_before_write(tmp_path: Path) -> None:
+    """No member of the N10a output group can bypass legacy hash/delta accounting."""
+
+    live: dict[str, object] = {}
+    for relative_path, bundle_key, hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        allowed_exclusions = (
+            ["runtime_metrics"]
+            if hash_field
+            in {"census_content_hash", "manifest_content_hash", "trace_content_hash"}
+            else []
+        )
+        payload = second_domain_pack._with_content_hash(
+            {
+                "artifact": bundle_key,
+                "content_hash_excluded_fields": allowed_exclusions,
+                "value": "frozen",
+            },
+            hash_field,
+            excluded_fields=allowed_exclusions,
+        )
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        live[bundle_key] = copy.deepcopy(payload)
+
+    for bundle_key, hash_field in (
+        ("pack", "manifest_content_hash"),
+        ("cycle_trace", "trace_content_hash"),
+        ("gaps", "gap_report_content_hash"),
+    ):
+        candidate = copy.deepcopy(live[bundle_key])
+        candidate["value"] = "live"
+        live[bundle_key] = second_domain_pack._with_content_hash(
+            candidate,
+            hash_field,
+            excluded_fields=("runtime_metrics",)
+            if hash_field in {"manifest_content_hash", "trace_content_hash"}
+            else (),
+        )
+
+    receipts = second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+    assert tuple(receipt["output"] for receipt in receipts) == (
+        second_domain_pack.ARTIFACT_OUTPUTS
+    )
+    assert {receipt["mode"] for receipt in receipts} == {
+        "declared_live_rederived",
+        "exact_or_operational_reconciled",
+        "producer_comparison_reconciled",
+    }
+    assert {
+        receipt["output"]
+        for receipt in receipts
+        if receipt["changed_leaf_count"] > 0
+    } == {
+        second_domain_pack.PACK_OUTPUT,
+        second_domain_pack.CYCLE_TRACE_OUTPUT,
+        second_domain_pack.GAP_REPORT_OUTPUT,
+    }
+
+    census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
+    corrupt = json.loads(census_path.read_text(encoding="utf-8"))
+    corrupt["value"] = "corrupt-with-stale-hash"
+    census_path.write_text(json.dumps(corrupt), encoding="utf-8")
+    with pytest.raises(ValueError, match="n10a_frozen_artifact_integrity_failed"):
+        second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+
 def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:
     """A bare provenance declaration remains governing at the N10a bridge."""
 

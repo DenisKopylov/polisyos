@@ -61,6 +61,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalN9PromotionPort,
     CanonicalPromotionReceipt,
@@ -1166,9 +1167,9 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
         plan = build_gy_comparison_projection_plan_from_manifest(
             payload,
             manifest=manifest,
-            projector_registry={
+            owner_rule_registry={
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                    canonical_promotion_receipt_semantic_projection
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
                 )
             },
         )

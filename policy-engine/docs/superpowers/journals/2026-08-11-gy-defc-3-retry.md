@@ -917,3 +917,50 @@ wrote no governed artifact, and the current changed-path set has no architecture
 confidence frozen-payload diagnostics both returned the same B3 schema failure above and are not
 writer receipts. `[P37: recomputed for the terminal codes and present changed-path intersection;
 not_established for unretained launch timing/details]`
+
+### Frozen-review correction — owner policy and the five-output boundary
+
+The `207069dae` freeze is also rejected as an implementation receipt. Independent frozen review
+found that its persisted comparison manifest could change an owner-admitted receipt from `project`
+to `exclude`: frozen verification reconstructed the caller-supplied action instead of checking it
+against the producer's rule. The same manifest omitted the P37 class that had admitted the predicate.
+Changing `action` and recomputing the artifact identities could therefore hide governing semantic
+content without a new live owner admission. This is a P32/P37 authority leak, not an artifact-delta
+question, and it was found before any posture gate, governed writer, accepted reissue, or cold N11
+launch under that freeze. `[P37: independently_reconciled for the authority finding; recomputed for
+the current zero governed-artifact diff; not_established for historical non-invocation except where
+retained launch receipts exist]`
+
+The correction makes a comparison owner rule a three-part runtime policy: typed projector, sole
+allowed action, and frozen predicate-provenance class. The canonical full-promotion-receipt rule is
+`project` / `recomputed`; the Depth summary rule is `exclude` /
+`independently_reconciled`. A persisted row must equal that registered policy exactly. The negative
+witness changes a legitimate manifest first to `exclude` and then to a stronger provenance class;
+both fail with `gy_comparison_admission_manifest_owner_policy_mismatch`. The artifact remains an
+integrity recipe and cannot choose its authority effect. `[P37: recomputed]`
+
+The promotion owner projection is now schema-bound rather than an unguarded series of dictionary
+edits. It starts from each complete strict typed model and removes only an explicit lineage partition
+whose fields must belong to that model; every field outside the partition is retained, so a newly
+added field is governing by default. The same rule is applied to the full receipt, owner projection,
+N9 certificate, every N9 row, every N11 risk-spend record, and the authority trace. Strict extra-field
+validation plus the retained-field-set witness closes the structural default. `[P37: recomputed]`
+
+Frozen review also found that N10a's canonical write call serialized five files while only the cycle
+trace had a legacy transition owner. The corrected write boundary validates the old and live
+self-identities of all five paths before the first write, requires census and smoke-problem semantic
+identity to remain equal, names the cycle trace as producer-comparison-reconciled, names pack and
+gaps explicitly as live rederived dependents, and returns the complete changed-scalar pointer set for
+every member. The five-path denominator and stale-old-hash rejection are behavioral tests. Pack and
+gaps are not silently called reconciled: their returned leaf sets remain subject to the journal's
+predeclared-delta equality gate and exact-byte restore on any rejection. `[P37: recomputed for the
+implemented pre-write accounting; not_established for candidate/accepted output until the reviewed
+wave]`
+
+The first `57`-test green receipt predates commit `207069dae` and its metadata did not bind either a
+Git head or source-byte manifest. It is retained only as an iteration witness and is not evidence for
+any frozen source. The ordinary-interpreter Depth collection still fails its repository-interpreter
+preflight; rerunning the new parent-summary negative witness with the pre-existing required
+path-witness interpreter and current `PYTHONPATH` precedence passed `1/1`. No environment was rebuilt.
+`[P37: recomputed for the retained timestamps/preflight code and focused terminal; not_established
+for a source-bound full focused suite until the next clean committed run]`

@@ -63,6 +63,7 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionInput,
     CanonicalPromotionReceipt,
@@ -70,7 +71,6 @@ from polisyos.runtime.quality.promotion_sequence import (
     N9DesignProblemBinding,
     _run_canonical_promotion_sequence_for_verification,
     admit_canonical_promotion_receipt_for_comparison,
-    canonical_promotion_receipt_semantic_projection,
     confidence_risk_scope_for_problem,
 )
 from tools.lib.timing import run_timed_entrypoint
@@ -847,9 +847,9 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
         plan = build_gy_comparison_projection_plan_from_manifest(
             payload,
             manifest=manifest,
-            projector_registry={
+            owner_rule_registry={
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                    canonical_promotion_receipt_semantic_projection
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
                 )
             },
         )

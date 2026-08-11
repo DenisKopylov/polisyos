@@ -5042,6 +5042,99 @@ def test_depth_n_verification_summary_shape_fails_closed() -> None:
     assert not validator._depth_verification_summary_shape_valid(absent)
 
 
+def test_depth_n_summary_admission_requires_parent_projection_and_receipt_denominator() -> None:
+    """A summary cannot self-attest past its validated full-receipt parents."""
+
+    validator = _universality_contract_validator()
+    payload: dict[str, object] = {"domain_runs": {}, "proof_recordings": {}}
+    counts: dict[str, int] = {}
+    for index, role in enumerate(validator.PLAIN_LANGUAGE_PROOF_REQUESTS):
+        node_ref = f"node://{role}/{index}"
+        compiled_run = {
+            "recursive_run": {
+                "authority_scope": "contract_testing",
+                "nodes": [
+                    {
+                        "node_ref": node_ref,
+                        "cycle_run": {
+                            "promotion_port": {
+                                "status": "not_promoted",
+                                "reason": "verification_n9_sequence_non_consumer",
+                                "receipts": [
+                                    {
+                                        "consumer_promotable": False,
+                                        "confidence_ledger_projection": {
+                                            "authority_provenance": "verification"
+                                        },
+                                    }
+                                ],
+                                "certified_candidate_ids": [],
+                            }
+                        },
+                    }
+                ],
+            }
+        }
+        compiled_projection = validator._compiled_authority_source_projection(compiled_run)
+        stage_summary = {
+            "all_receipts_non_consumer": True,
+            "attempted": True,
+            "authority_provenance": ["verification"],
+            "authority_scope": "contract_testing",
+            "certified_candidate_ids": [],
+            "owner": "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+            "reason": "verification_n9_sequence_non_consumer",
+            "receipt_count": 1,
+            "status": "not_promoted",
+        }
+        payload["proof_recordings"][role] = {
+            "compiled_run": compiled_run,
+            "authority_source_admission": {
+                "authority_projection": copy.deepcopy(compiled_projection)
+            },
+            "authority_source_migration_receipt": {
+                "replayed_authority_projection": copy.deepcopy(compiled_projection)
+            },
+        }
+        payload["domain_runs"][role] = {"stage_trace": {"promotion": stage_summary}}
+        counts[role] = 1
+
+    admissions = validator._depth_summary_comparison_admissions(
+        payload,
+        receipt_counts_by_role=counts,
+    )
+    assert len(admissions) == 3 * len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert all(admission.action == "exclude" for admission in admissions)
+    assert all(
+        admission.predicate_provenance == "independently_reconciled"
+        for admission in admissions
+    )
+
+    first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
+    parent_shift = copy.deepcopy(payload)
+    parent_shift["proof_recordings"][first_role]["authority_source_admission"][
+        "authority_projection"
+    ]["promotions"][0]["receipt_count"] = 2
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="depth_summary_parent_receipt_binding_invalid",
+    ):
+        validator._depth_summary_comparison_admissions(
+            parent_shift,
+            receipt_counts_by_role=counts,
+        )
+
+    wrong_counts = {**counts, first_role: 2}
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="depth_summary_receipt_denominator_mismatch",
+    ):
+        validator._depth_summary_comparison_admissions(
+            payload,
+            receipt_counts_by_role=wrong_counts,
+        )
+
+
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
     """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""
 

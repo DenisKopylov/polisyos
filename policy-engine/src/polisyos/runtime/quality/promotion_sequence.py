@@ -28,6 +28,7 @@ from polisyos.pdc import (
     AuthorityDerivationTrace,
     EvidenceBasis,
     GyComparisonAdmission,
+    GyComparisonOwnerRule,
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
@@ -58,6 +59,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
     N9PromotionCertificateProjection,
+    N9PromotionLedgerRow,
     PredictableClaimSpec,
     PromotionCertificateOffer,
     load_confidence_ledger_registry,
@@ -327,6 +329,69 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
     "canonical_promotion_receipt_verification_projection.v1"
 )
 
+_PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
+_PROMOTION_RECEIPT_LINEAGE_FIELDS = frozenset(
+    {
+        "confidence_ledger_scope_ref",
+        "confidence_ledger_head_id",
+        "confidence_ledger_head_ref",
+        "confidence_ledger_receipt_id",
+        "gate_outcome_hash",
+        "trace_content_hash",
+    }
+)
+_PROMOTION_CERTIFICATE_LINEAGE_FIELDS = frozenset(
+    {
+        "deployment_identity",
+        "scope_id",
+        "scope_anchor_ref",
+        "ledger_root_id",
+        "ledger_root_ref",
+        "head_event_id",
+        "head_event_ref",
+        "ledger_receipt_id",
+        "ledger_receipt_ref",
+        "projection_hash",
+    }
+)
+_PROMOTION_LEDGER_ROW_LINEAGE_FIELDS = frozenset(
+    {
+        "check_id",
+        "execution_ordinal",
+        "execution_id",
+        "claim_execution_binding_hash",
+    }
+)
+_PROMOTION_RISK_SPEND_LINEAGE_FIELDS = frozenset({"n11_confidence_ledger_ref"})
+_PROMOTION_TRACE_LINEAGE_FIELDS = frozenset(
+    {
+        "applicability_result_ref",
+        "gate_outcome_hash",
+        "confidence_ledger_scope_ref",
+        "confidence_ledger_head_id",
+        "confidence_ledger_receipt_id",
+        "confidence_ledger_projection_hash",
+        "trace_content_hash",
+    }
+)
+
+
+def _project_typed_fields(
+    payload: Mapping[str, Any],
+    *,
+    model_type: type[BaseModel],
+    lineage_fields: frozenset[str],
+    context: str,
+) -> dict[str, Any]:
+    """Remove a typed lineage partition while every new field stays governing."""
+
+    model_fields = frozenset(model_type.model_fields)
+    if not lineage_fields <= model_fields:
+        raise RuntimeError(f"{context}_lineage_partition_schema_drift")
+    if frozenset(payload) != model_fields:
+        raise ValueError(f"{context}_typed_payload_shape_drift")
+    return {str(key): item for key, item in payload.items() if key not in lineage_fields}
+
 
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
@@ -345,62 +410,85 @@ def canonical_promotion_receipt_semantic_projection(
         receipt.confidence_ledger_projection.model_dump(mode="json")
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
-    projected = receipt.model_dump(mode="json")
-    projected["owner_projection"].pop("projection_hash")
-    certificate = projected["confidence_ledger_projection"]
-    for key in (
-        "deployment_identity",
-        "scope_id",
-        "scope_anchor_ref",
-        "ledger_root_id",
-        "ledger_root_ref",
-        "head_event_id",
-        "head_event_ref",
-        "ledger_receipt_id",
-        "ledger_receipt_ref",
-        "projection_hash",
-    ):
-        certificate.pop(key)
-    for row in certificate["promotion_rows"]:
-        row.pop("check_id")
-        row.pop("execution_ordinal")
-        row.pop("execution_id")
-        row.pop("claim_execution_binding_hash")
-    projected.pop("confidence_ledger_scope_ref")
-    projected.pop("confidence_ledger_head_id")
-    projected.pop("confidence_ledger_head_ref")
-    projected.pop("confidence_ledger_receipt_id")
-    projected.pop("gate_outcome_hash")
-    projected.pop("trace_content_hash")
+    full_payload = receipt.model_dump(mode="json")
+    projected = _project_typed_fields(
+        full_payload,
+        model_type=CanonicalPromotionReceipt,
+        lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+        context="promotion_receipt",
+    )
+    projected["owner_projection"] = _project_typed_fields(
+        full_payload["owner_projection"],
+        model_type=CanonicalPromotionOwnerProjection,
+        lineage_fields=_PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS,
+        context="promotion_owner_projection",
+    )
+    full_certificate = full_payload["confidence_ledger_projection"]
+    certificate = _project_typed_fields(
+        full_certificate,
+        model_type=N9PromotionCertificateProjection,
+        lineage_fields=_PROMOTION_CERTIFICATE_LINEAGE_FIELDS,
+        context="promotion_certificate_projection",
+    )
+    certificate["promotion_rows"] = [
+        _project_typed_fields(
+            row,
+            model_type=N9PromotionLedgerRow,
+            lineage_fields=_PROMOTION_LEDGER_ROW_LINEAGE_FIELDS,
+            context="promotion_ledger_row",
+        )
+        for row in full_certificate["promotion_rows"]
+    ]
+    projected["confidence_ledger_projection"] = certificate
 
     for obligation in projected["obligations"]:
         risk_spend = obligation.get("risk_spend")
         if not isinstance(risk_spend, dict):
             continue
-        ledger_ref = risk_spend.pop("n11_confidence_ledger_ref", None)
+        obligation["risk_spend"] = _project_typed_fields(
+            risk_spend,
+            model_type=PromotionRiskSpendRecord,
+            lineage_fields=_PROMOTION_RISK_SPEND_LINEAGE_FIELDS,
+            context="promotion_obligation_risk_spend",
+        )
+        ledger_ref = risk_spend.get("n11_confidence_ledger_ref")
         if isinstance(ledger_ref, str):
             obligation["evidence_refs"] = [
                 ref for ref in obligation["evidence_refs"] if ref != ledger_ref
             ]
 
-    for spend_record in projected["risk_spend"]["spend_records"]:
-        spend_record.pop("n11_confidence_ledger_ref")
+    projected["risk_spend"]["spend_records"] = [
+        _project_typed_fields(
+            spend_record,
+            model_type=PromotionRiskSpendRecord,
+            lineage_fields=_PROMOTION_RISK_SPEND_LINEAGE_FIELDS,
+            context="promotion_risk_spend_record",
+        )
+        for spend_record in full_payload["risk_spend"]["spend_records"]
+    ]
 
-    trace = projected.get("authority_derivation_trace")
-    if isinstance(trace, dict):
-        trace.pop("applicability_result_ref")
-        trace.pop("gate_outcome_hash")
-        trace.pop("confidence_ledger_scope_ref")
-        trace.pop("confidence_ledger_head_id")
-        trace.pop("confidence_ledger_receipt_id")
-        trace.pop("confidence_ledger_projection_hash")
-        trace.pop("trace_content_hash")
+    full_trace = full_payload.get("authority_derivation_trace")
+    if isinstance(full_trace, dict):
+        trace = _project_typed_fields(
+            full_trace,
+            model_type=AuthorityDerivationTrace,
+            lineage_fields=_PROMOTION_TRACE_LINEAGE_FIELDS,
+            context="promotion_authority_trace",
+        )
         trace["calibration_refs"] = [
             ref
-            for ref in trace.get("calibration_refs", [])
+            for ref in full_trace.get("calibration_refs", [])
             if not str(ref).startswith("confidence-check:")
         ]
+        projected["authority_derivation_trace"] = trace
     return projected
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
+    projector=canonical_promotion_receipt_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
 
 
 class LegacyPromotionStrangleReceipt(_StrictModel):
@@ -1563,6 +1651,10 @@ def admit_canonical_promotion_receipt_for_comparison(
         owner_rule=CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
         source_content_hash=gy_recorded_content_hash(payload),
         projector=canonical_promotion_receipt_semantic_projection,
+        action=CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.action,
+        predicate_provenance=(
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.predicate_provenance
+        ),
     )
 
 

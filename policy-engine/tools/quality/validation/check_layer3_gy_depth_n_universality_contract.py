@@ -60,6 +60,7 @@ from polisyos.pdc import (  # noqa: E402
     GY_CONTENT_HASH_EXCLUDED_FIELDS,
     GY_VERIFICATION_COMPARISON_RULE_VERSION,
     GyComparisonAdmission,
+    GyComparisonOwnerRule,
     GyComparisonProjectionPlan,
     build_gy_comparison_projection_plan,
     build_gy_comparison_projection_plan_from_manifest,
@@ -74,10 +75,10 @@ from polisyos.pdc._impl.gy_waist import (  # noqa: E402
     GyOperationalReconciliationError,
 )
 from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionReceipt,
     admit_canonical_promotion_receipt_for_comparison,
-    canonical_promotion_receipt_semantic_projection,
 )
 
 if TYPE_CHECKING:
@@ -4316,6 +4317,13 @@ def _depth_summary_integrity_projection(value: Mapping[str, object]) -> dict[str
     return {str(key): item for key, item in value.items()}
 
 
+_DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_depth_summary_integrity_projection,
+    action="exclude",
+    predicate_provenance="independently_reconciled",
+)
+
+
 def _depth_summary_comparison_admissions(
     payload: Mapping[str, Any],
     *,
@@ -4368,7 +4376,10 @@ def _depth_summary_comparison_admissions(
                     owner_rule=_DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE,
                     source_content_hash=gy_recorded_content_hash(summary),
                     projector=_depth_summary_integrity_projection,
-                    action="exclude",
+                    action=_DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.action,
+                    predicate_provenance=(
+                        _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.predicate_provenance
+                    ),
                 )
             )
     return tuple(admissions)
@@ -8203,11 +8214,13 @@ def _depth_plan_from_manifest(
     return build_gy_comparison_projection_plan_from_manifest(
         payload,
         manifest=manifest,
-        projector_registry={
+        owner_rule_registry={
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                canonical_promotion_receipt_semantic_projection
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
             ),
-            _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE: (_depth_summary_integrity_projection),
+            _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE: (
+                _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE
+            ),
         },
     )
 

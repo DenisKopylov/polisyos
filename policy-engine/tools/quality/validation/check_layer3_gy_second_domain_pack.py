@@ -111,8 +111,8 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_intervention_lever,
 )
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
-    canonical_promotion_receipt_semantic_projection,
 )
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
@@ -191,6 +191,24 @@ ARTIFACT_OUTPUTS = (
     SMOKE_PROBLEM_OUTPUT,
     CYCLE_TRACE_OUTPUT,
     GAP_REPORT_OUTPUT,
+)
+
+_ARTIFACT_WRITE_SPECS = (
+    (CENSUS_OUTPUT, "census", "census_content_hash", "exact_or_operational_reconciled"),
+    (PACK_OUTPUT, "pack", "manifest_content_hash", "declared_live_rederived"),
+    (
+        SMOKE_PROBLEM_OUTPUT,
+        "smoke_problem",
+        "smoke_problem_content_hash",
+        "exact_or_operational_reconciled",
+    ),
+    (
+        CYCLE_TRACE_OUTPUT,
+        "cycle_trace",
+        "trace_content_hash",
+        "producer_comparison_reconciled",
+    ),
+    (GAP_REPORT_OUTPUT, "gaps", "gap_report_content_hash", "declared_live_rederived"),
 )
 
 _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
@@ -1022,6 +1040,7 @@ def write(
             ),
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
+    artifact_transitions = _prepare_artifact_write_transitions(bundle, root)
     by_path = {
         CENSUS_OUTPUT: bundle["census"],
         PACK_OUTPUT: bundle["pack"],
@@ -1037,6 +1056,7 @@ def write(
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
+        "artifact_transitions": artifact_transitions,
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -6444,6 +6464,118 @@ def _load_frozen_bundle(root: Path) -> dict[str, Any]:
     }
 
 
+def _prepare_artifact_write_transitions(
+    bundle: Mapping[str, Any],
+    root: Path,
+) -> list[dict[str, Any]]:
+    """Validate and account for the complete five-output legacy transition.
+
+    Every existing artifact must first prove its old self-identity. Census and
+    the smoke problem admit only an equal semantic identity (ordinary volatile
+    leaves may already have been reconciled). The cycle trace is reconciled by
+    its producer-bound comparison plan. Pack and gap records are declared-live
+    derivatives whose complete leaf deltas are returned for the caller's
+    predeclared-delta gate; they are never silently treated as reconciled.
+    """
+
+    receipts: list[dict[str, Any]] = []
+    for relative_path, bundle_key, hash_field, mode in _ARTIFACT_WRITE_SPECS:
+        path = root / relative_path
+        if not path.is_file():
+            raise ValueError(f"n10a_frozen_artifact_missing:{relative_path}")
+        frozen = _read_json(path)
+        live = _mapping(bundle.get(bundle_key))
+        frozen_issues: list[dict[str, Any]] = []
+        _validate_artifact_hash(frozen, hash_field, frozen_issues)
+        if frozen_issues:
+            raise ValueError(
+                "n10a_frozen_artifact_integrity_failed:"
+                + relative_path
+                + ":"
+                + ",".join(sorted(str(issue.get("code")) for issue in frozen_issues))
+            )
+        live_issues: list[dict[str, Any]] = []
+        _validate_artifact_hash(live, hash_field, live_issues)
+        if live_issues:
+            raise ValueError(
+                "n10a_live_artifact_integrity_failed:"
+                + relative_path
+                + ":"
+                + ",".join(sorted(str(issue.get("code")) for issue in live_issues))
+            )
+        if mode == "exact_or_operational_reconciled" and (
+            frozen.get(hash_field) != live.get(hash_field)
+        ):
+            raise ValueError(f"n10a_fixed_member_semantic_drift:{relative_path}")
+        changed_leaves = _changed_leaf_pointers(frozen, live)
+        receipts.append(
+            {
+                "changed_leaf_count": len(changed_leaves),
+                "changed_leaves": changed_leaves,
+                "legacy_content_hash": frozen.get(hash_field),
+                "live_content_hash": live.get(hash_field),
+                "mode": mode,
+                "output": relative_path,
+            }
+        )
+    if tuple(receipt["output"] for receipt in receipts) != ARTIFACT_OUTPUTS:
+        raise ValueError("n10a_artifact_transition_denominator_drift")
+    return receipts
+
+
+def _changed_leaf_pointers(previous: object, current: object) -> list[str]:
+    """Return every changed scalar/empty-container leaf as a canonical pointer."""
+
+    missing = object()
+    changed: list[str] = []
+
+    def pointer(path: tuple[str | int, ...]) -> str:
+        if not path:
+            return "/"
+        return "/" + "/".join(
+            str(part).replace("~", "~0").replace("/", "~1") for part in path
+        )
+
+    def leaves(value: object, path: tuple[str | int, ...]) -> None:
+        if isinstance(value, Mapping) and value:
+            for key in sorted(value, key=str):
+                leaves(value[key], (*path, str(key)))
+            return
+        if isinstance(value, (list, tuple)) and value:
+            for index, item in enumerate(value):
+                leaves(item, (*path, index))
+            return
+        changed.append(pointer(path))
+
+    def walk(left: object, right: object, path: tuple[str | int, ...]) -> None:
+        if isinstance(left, Mapping) and isinstance(right, Mapping):
+            for key in sorted(set(left) | set(right), key=str):
+                left_value = left.get(key, missing)
+                right_value = right.get(key, missing)
+                child_path = (*path, str(key))
+                if left_value is missing:
+                    leaves(right_value, child_path)
+                elif right_value is missing:
+                    leaves(left_value, child_path)
+                else:
+                    walk(left_value, right_value, child_path)
+            return
+        if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+            for index in range(max(len(left), len(right))):
+                if index >= len(left):
+                    leaves(right[index], (*path, index))
+                elif index >= len(right):
+                    leaves(left[index], (*path, index))
+                else:
+                    walk(left[index], right[index], (*path, index))
+            return
+        if left != right:
+            changed.append(pointer(path))
+
+    walk(previous, current, ())
+    return sorted(set(changed))
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -6570,9 +6702,9 @@ def _cycle_trace_plan_from_manifest(
     return build_gy_comparison_projection_plan_from_manifest(
         payload,
         manifest=payload.get("comparison_admission_manifest"),
-        projector_registry={
+        owner_rule_registry={
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                canonical_promotion_receipt_semantic_projection
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
             )
         },
     )

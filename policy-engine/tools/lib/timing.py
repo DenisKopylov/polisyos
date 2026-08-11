@@ -35,6 +35,7 @@ _DIRECT_ACTION_OPTION_PREFIXES = (
     "corrupt",
     "execute",
     "rederive",
+    "reissue",
     "source-flip",
     "warm",
     "write",
@@ -85,11 +86,12 @@ class TimingBudgetLane:
     timing_key: str
     tool: str
     mode: str
-    command: str
+    command: str | None
     samples_ms: tuple[float, ...]
     measured_p95_ms: float | None
     recommended_timeout_ms: float | None
     source_refs: tuple[str, ...]
+    sample_source: str = "repository_catalog"
 
 
 @dataclass(frozen=True)
@@ -99,10 +101,12 @@ class TimingBudgetLaneSummary:
     timing_key: str
     tool: str
     mode: str
-    command: str
+    command: str | None
     measured_p95_ms: float | None
     recommended_timeout_ms: float | None
     source_refs: tuple[str, ...]
+    sample_count: int
+    sample_source: str
     state: str
     local_runs: int
     local_failures: int
@@ -159,20 +163,51 @@ def _retention_limit() -> int:
     return max(parsed, 1)
 
 
+def _record_string(
+    payload: dict[str, object],
+    field: str,
+    *,
+    default: str | None = None,
+) -> str:
+    value = payload.get(field, default)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"timing record requires a non-empty {field}")
+    return value
+
+
 def _coerce_record(payload: dict[str, object]) -> ToolRunRecord:
-    tool = str(payload.get("tool") or "")
-    category = str(payload.get("category") or tool.split(".", 1)[0] or "unknown")
-    output_format = str(payload.get("output_format") or "text")
+    tool = _record_string(payload, "tool")
+    category = _record_string(
+        payload,
+        "category",
+        default=tool.split(".", 1)[0] or "unknown",
+    )
+    duration = payload.get("duration_ms")
+    if (
+        isinstance(duration, bool)
+        or not isinstance(duration, int | float)
+        or not math.isfinite(duration)
+        or duration < 0
+    ):
+        raise ValueError("timing record requires a finite non-negative duration_ms")
+    exit_code = payload.get("exit_code")
+    if isinstance(exit_code, bool) or not isinstance(exit_code, int):
+        raise ValueError("timing record requires an integer exit_code")
+    started_at = _record_string(payload, "started_at")
+    try:
+        datetime.fromisoformat(started_at)
+    except ValueError as exc:
+        raise ValueError("timing record requires an ISO-8601 started_at") from exc
     return ToolRunRecord(
         tool=tool,
         category=category,
-        output_format=output_format,
-        status=str(payload.get("status") or "unknown"),
-        preflight_status=str(payload.get("preflight_status") or "ok"),
-        started_at=str(payload.get("started_at") or ""),
-        duration_ms=float(payload.get("duration_ms") or 0.0),
-        exit_code=int(payload.get("exit_code") or 0),
-        mode=str(payload.get("mode") or "default"),
+        output_format=_record_string(payload, "output_format", default="text"),
+        status=_record_string(payload, "status"),
+        preflight_status=_record_string(payload, "preflight_status", default="ok"),
+        started_at=started_at,
+        duration_ms=float(duration),
+        exit_code=exit_code,
+        mode=_record_string(payload, "mode", default="default"),
     )
 
 
@@ -316,6 +351,102 @@ def load_timing_budget_catalog(
     return load_timing_budget_catalog_data(payload)
 
 
+def _timing_key(record: ToolRunRecord) -> str:
+    """Return the exact tool-and-mode identity for one timing record."""
+
+    return f"{record.tool}:{record.mode}"
+
+
+def _is_successful_timing_sample(record: ToolRunRecord) -> bool:
+    """Return whether a record may contribute to a measured timing budget."""
+
+    return (
+        record.status == "ok"
+        and record.exit_code == 0
+        and math.isfinite(record.duration_ms)
+        and record.duration_ms >= 0
+    )
+
+
+def observed_timing_keys(records: list[ToolRunRecord]) -> tuple[str, ...]:
+    """Return every non-empty exact lane identity observed in timing records."""
+
+    return tuple(sorted({_timing_key(record) for record in records if record.tool}))
+
+
+def derive_timing_budget_catalog(
+    records: list[ToolRunRecord],
+    repository_catalog: list[TimingBudgetLane],
+    *,
+    sample_source: str,
+) -> list[TimingBudgetLane]:
+    """Derive successful observed lanes and retain repository lanes as fallbacks.
+
+    Recorded successful samples replace repository literals for the same exact lane. Failed,
+    skipped, killed, malformed, and otherwise nonzero records remain operational observations but
+    never become duration samples.
+    """
+
+    if not sample_source.strip():
+        raise ValueError("derived timing budget catalog requires a non-empty sample_source")
+
+    samples_by_key: dict[str, list[tuple[str, float]]] = {}
+    identity_by_key: dict[str, tuple[str, str]] = {}
+    for record in records:
+        if not record.tool or not _is_successful_timing_sample(record):
+            continue
+        timing_key = _timing_key(record)
+        identity_by_key[timing_key] = (record.tool, record.mode)
+        samples_by_key.setdefault(timing_key, []).append(
+            (record.started_at, record.duration_ms)
+        )
+
+    effective = {lane.timing_key: lane for lane in repository_catalog}
+    for timing_key, recorded_samples in samples_by_key.items():
+        tool, mode = identity_by_key[timing_key]
+        samples_ms = tuple(
+            duration_ms
+            for _started_at, duration_ms in sorted(
+                recorded_samples,
+                key=lambda sample: (sample[0], sample[1]),
+            )
+        )
+        measured_p95_ms = round(percentile_ms(list(samples_ms), 0.95), 3)
+        fallback = effective.get(timing_key)
+        effective[timing_key] = TimingBudgetLane(
+            timing_key=timing_key,
+            tool=tool,
+            mode=mode,
+            command=fallback.command if fallback is not None else None,
+            samples_ms=samples_ms,
+            measured_p95_ms=measured_p95_ms,
+            recommended_timeout_ms=measured_p95_ms * 2,
+            source_refs=(sample_source,),
+            sample_source=sample_source,
+        )
+    return sorted(effective.values(), key=lambda lane: lane.timing_key)
+
+
+def uncatalogued_timing_keys(
+    records: list[ToolRunRecord],
+    catalog: list[TimingBudgetLane],
+) -> tuple[str, ...]:
+    """Return observed lane identities that have no accepted budget sample or fallback."""
+
+    catalogued = {
+        lane.timing_key
+        for lane in catalog
+        if lane.samples_ms
+        and lane.measured_p95_ms is not None
+        and math.isfinite(lane.measured_p95_ms)
+        and lane.measured_p95_ms >= 0
+        and lane.recommended_timeout_ms is not None
+        and math.isfinite(lane.recommended_timeout_ms)
+        and lane.recommended_timeout_ms == lane.measured_p95_ms * 2
+    }
+    return tuple(key for key in observed_timing_keys(records) if key not in catalogued)
+
+
 def summarize_timing_budget_lanes(
     records: list[ToolRunRecord],
     catalog: list[TimingBudgetLane],
@@ -353,6 +484,8 @@ def summarize_timing_budget_lanes(
                 measured_p95_ms=lane.measured_p95_ms,
                 recommended_timeout_ms=lane.recommended_timeout_ms,
                 source_refs=lane.source_refs,
+                sample_count=len(lane.samples_ms),
+                sample_source=lane.sample_source,
                 state=state,
                 local_runs=len(local_records),
                 local_failures=sum(record.status == "failed" for record in local_records),

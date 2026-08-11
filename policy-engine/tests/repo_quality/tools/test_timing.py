@@ -19,12 +19,14 @@ from tools.lib.timing import (
     ToolRunRecord,
     _mode_and_output_format_from_argv,
     append_timing_record,
+    derive_timing_budget_catalog,
     load_timing_budget_catalog,
     load_timing_budget_catalog_data,
     percentile_ms,
     read_timing_records,
     summarize_timing_budget_lanes,
     summarize_timing_records,
+    uncatalogued_timing_keys,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -878,6 +880,42 @@ def test_timing_retention_one_keeps_only_the_latest_record(
     assert [record.tool for record in records] == ["tests.retention.2"]
 
 
+def test_read_timing_records_rejects_incomplete_or_nonfinite_receipts(tmp_path: Path) -> None:
+    """Catch malformed raw telemetry acquiring the defaults needed to mint a budget."""
+
+    timing_log = tmp_path / "timing.jsonl"
+    valid = {
+        "tool": "tests.valid",
+        "category": "tests",
+        "output_format": "text",
+        "status": "ok",
+        "preflight_status": "ok",
+        "started_at": "2026-08-11T00:00:00+00:00",
+        "duration_ms": 100.0,
+        "exit_code": 0,
+        "mode": "write",
+    }
+    malformed = [
+        {key: value for key, value in valid.items() if key != "exit_code"},
+        {key: value for key, value in valid.items() if key != "duration_ms"},
+        {**valid, "tool": ""},
+        {**valid, "mode": ""},
+        {**valid, "started_at": ""},
+        {**valid, "duration_ms": float("nan")},
+        {**valid, "duration_ms": float("inf")},
+        {**valid, "duration_ms": -1.0},
+        {**valid, "exit_code": True},
+    ]
+    timing_log.write_text(
+        "".join(json.dumps(payload) + "\n" for payload in [*malformed, valid]),
+        encoding="utf-8",
+    )
+
+    records = read_timing_records(timing_log)
+
+    assert [record.tool for record in records] == ["tests.valid"]
+
+
 def test_timing_budget_catalog_rejects_p95_drift_from_literal_samples(tmp_path: Path) -> None:
     """Catch a catalog that asserts a p95 rather than deriving it from its samples."""
 
@@ -904,6 +942,215 @@ def test_timing_budget_catalog_rejects_p95_drift_from_literal_samples(tmp_path: 
 
     with pytest.raises(ValueError, match="measured_p95_ms"):
         load_timing_budget_catalog(catalog_path)
+
+
+def test_timing_budget_catalog_derives_every_successful_observed_lane() -> None:
+    """Catch an effective catalog whose lane set still comes from a requested list."""
+
+    records = [
+        ToolRunRecord(
+            tool="tests.alpha",
+            category="tests",
+            output_format="text",
+            status="ok",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:00+00:00",
+            duration_ms=100.0,
+            exit_code=0,
+            mode="check",
+        ),
+        ToolRunRecord(
+            tool="tests.beta",
+            category="tests",
+            output_format="text",
+            status="ok",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:01+00:00",
+            duration_ms=250.0,
+            exit_code=0,
+            mode="write",
+        ),
+    ]
+
+    lanes = derive_timing_budget_catalog(
+        records,
+        [],
+        sample_source="timing_log:/tmp/tests.jsonl",
+    )
+
+    assert [lane.timing_key for lane in lanes] == ["tests.alpha:check", "tests.beta:write"]
+    assert lanes[0].samples_ms == (100.0,)
+    assert lanes[0].measured_p95_ms == 100.0
+    assert lanes[0].recommended_timeout_ms == 200.0
+    assert lanes[0].sample_source == "timing_log:/tmp/tests.jsonl"
+    assert lanes[0].source_refs == ("timing_log:/tmp/tests.jsonl",)
+
+
+def test_timing_budget_catalog_excludes_nonzero_and_failed_records_from_samples() -> None:
+    """Catch a killed or failed run becoming a duration sample for an observed lane."""
+
+    records = [
+        ToolRunRecord(
+            tool="tests.example",
+            category="tests",
+            output_format="text",
+            status="ok",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:00+00:00",
+            duration_ms=100.0,
+            exit_code=0,
+            mode="write",
+        ),
+        ToolRunRecord(
+            tool="tests.example",
+            category="tests",
+            output_format="text",
+            status="failed",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:01+00:00",
+            duration_ms=900.0,
+            exit_code=124,
+            mode="write",
+        ),
+        ToolRunRecord(
+            tool="tests.example",
+            category="tests",
+            output_format="text",
+            status="failed",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:02+00:00",
+            duration_ms=800.0,
+            exit_code=0,
+            mode="write",
+        ),
+    ]
+
+    lanes = derive_timing_budget_catalog(
+        records,
+        [],
+        sample_source="timing_log:/tmp/tests.jsonl",
+    )
+
+    assert len(lanes) == 1
+    assert lanes[0].samples_ms == (100.0,)
+    assert lanes[0].measured_p95_ms == 100.0
+    assert lanes[0].recommended_timeout_ms == 200.0
+
+
+def test_timing_budget_catalog_prefers_fresh_log_samples_over_repository_fallback() -> None:
+    """Catch a recorded lane retaining a stale literal fallback budget."""
+
+    fallback = load_timing_budget_catalog_data(
+        {
+            "lanes": [
+                {
+                    "timing_key": "tests.example:write",
+                    "tool": "tests.example",
+                    "mode": "write",
+                    "command": "pytest tests/example.py --write",
+                    "samples_ms": [50.0],
+                    "measured_p95_ms": 50.0,
+                    "recommended_timeout_ms": 100.0,
+                    "source_refs": ["docs/receipt.md:1"],
+                }
+            ]
+        }
+    )
+    records = [
+        ToolRunRecord(
+            tool="tests.example",
+            category="tests",
+            output_format="text",
+            status="ok",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:00+00:00",
+            duration_ms=200.0,
+            exit_code=0,
+            mode="write",
+        )
+    ]
+
+    lanes = derive_timing_budget_catalog(
+        records,
+        fallback,
+        sample_source="timing_log:/tmp/tests.jsonl",
+    )
+
+    assert len(lanes) == 1
+    assert lanes[0].samples_ms == (200.0,)
+    assert lanes[0].measured_p95_ms == 200.0
+    assert lanes[0].recommended_timeout_ms == 400.0
+    assert lanes[0].sample_source == "timing_log:/tmp/tests.jsonl"
+
+
+def test_uncatalogued_timing_keys_name_failure_only_observed_lanes() -> None:
+    """Catch report-time visibility disappearing for a lane with no accepted sample."""
+
+    records = [
+        ToolRunRecord(
+            tool="tests.failed",
+            category="tests",
+            output_format="text",
+            status="failed",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:00+00:00",
+            duration_ms=700.0,
+            exit_code=1,
+            mode="corrupt-field-drift-check",
+        )
+    ]
+
+    effective_catalog = derive_timing_budget_catalog(
+        records,
+        [],
+        sample_source="timing_log:/tmp/tests.jsonl",
+    )
+
+    assert effective_catalog == []
+    assert uncatalogued_timing_keys(records, effective_catalog) == (
+        "tests.failed:corrupt-field-drift-check",
+    )
+
+
+def test_uncatalogued_timing_keys_include_unmeasured_repository_fallback() -> None:
+    """Catch key presence hiding an observed lane that still has no executable budget."""
+
+    fallback = load_timing_budget_catalog_data(
+        {
+            "lanes": [
+                {
+                    "timing_key": "tests.failed:check",
+                    "tool": "tests.failed",
+                    "mode": "check",
+                    "command": "pytest tests/failed.py --check",
+                    "samples_ms": [],
+                    "measured_p95_ms": None,
+                    "recommended_timeout_ms": None,
+                    "source_refs": ["docs/receipt.md:1"],
+                }
+            ]
+        }
+    )
+    records = [
+        ToolRunRecord(
+            tool="tests.failed",
+            category="tests",
+            output_format="text",
+            status="failed",
+            preflight_status="ok",
+            started_at="2026-08-11T00:00:00+00:00",
+            duration_ms=700.0,
+            exit_code=1,
+            mode="check",
+        )
+    ]
+    effective_catalog = derive_timing_budget_catalog(
+        records,
+        fallback,
+        sample_source="timing_log:/tmp/tests.jsonl",
+    )
+
+    assert uncatalogued_timing_keys(records, effective_catalog) == ("tests.failed:check",)
 
 
 def test_committed_timing_budget_samples_are_bound_to_cited_excerpts() -> None:

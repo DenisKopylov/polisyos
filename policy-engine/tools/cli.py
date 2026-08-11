@@ -23,13 +23,16 @@ from tools.lib.preflight import PreflightStatus, run_preflight
 from tools.lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
 from tools.lib.timing import (
     append_timing_record,
+    derive_timing_budget_catalog,
     load_timing_budget_catalog,
     make_timing_record,
+    observed_timing_keys,
     read_timing_records,
     summarize_timing_budget_lanes,
     summarize_timing_records,
     timed_tool_run,
     timing_log_from_env,
+    uncatalogued_timing_keys,
 )
 from tools.registry import (
     categories,
@@ -41,7 +44,7 @@ from tools.registry import (
 )
 
 EX_CONFIG = 78
-TIMING_BUDGET_CATALOG_SCOPE = "requested_expensive_lanes_only"
+TIMING_BUDGET_CATALOG_SCOPE = "recorded_successful_lanes_plus_repository_fallbacks"
 
 
 def _write_result(result: ToolResult, output_format: OutputFormat, *, stderr: bool = False) -> None:
@@ -94,7 +97,21 @@ def _summary_payload(
 ) -> dict[str, object]:
     records = read_timing_records(timing_log)
     summaries = summarize_timing_records(records)
-    lane_summaries = summarize_timing_budget_lanes(records, load_timing_budget_catalog())
+    repository_catalog = load_timing_budget_catalog()
+    sample_source = f"timing_log:{timing_log.resolve()}"
+    successful_observed_catalog = derive_timing_budget_catalog(
+        records,
+        [],
+        sample_source=sample_source,
+    )
+    effective_catalog = derive_timing_budget_catalog(
+        records,
+        repository_catalog,
+        sample_source=sample_source,
+    )
+    lane_summaries = summarize_timing_budget_lanes(records, effective_catalog)
+    observed_lanes = observed_timing_keys(records)
+    uncatalogued_lanes = uncatalogued_timing_keys(records, effective_catalog)
     top_summaries = sorted(
         summaries,
         key=lambda summary: (-summary.average_duration_ms, summary.tool),
@@ -104,7 +121,12 @@ def _summary_payload(
         "record_count": len(records),
         "tool_count": len(summaries),
         "timing_budget_catalog_scope": TIMING_BUDGET_CATALOG_SCOPE,
-        "uncatalogued_lanes": "outside_requested_expensive_lane_scope",
+        "repository_catalog_lane_count": len(repository_catalog),
+        "effective_catalog_lane_count": len(effective_catalog),
+        "observed_lane_count": len(observed_lanes),
+        "successful_observed_lane_count": len(successful_observed_catalog),
+        "uncatalogued_lane_count": len(uncatalogued_lanes),
+        "uncatalogued_lanes": list(uncatalogued_lanes),
         "summaries": [
             {
                 "tool": summary.tool,
@@ -131,6 +153,8 @@ def _summary_payload(
                 "measured_p95_ms": summary.measured_p95_ms,
                 "recommended_timeout_ms": summary.recommended_timeout_ms,
                 "source_refs": list(summary.source_refs),
+                "sample_count": summary.sample_count,
+                "sample_source": summary.sample_source,
                 "state": summary.state,
                 "local_runs": summary.local_runs,
                 "local_failures": summary.local_failures,
@@ -148,7 +172,10 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         f"Timing log: {payload['timing_log']}",
         f"Recorded runs: {payload['record_count']} across {payload['tool_count']} tools",
         f"Budget catalog scope: {payload['timing_budget_catalog_scope']}",
-        f"Uncatalogued lanes: {payload['uncatalogued_lanes']}",
+        f"Effective budget lanes: {payload['effective_catalog_lane_count']}",
+        f"Observed lanes: {payload['observed_lane_count']}",
+        f"Successful observed lanes: {payload['successful_observed_lane_count']}",
+        f"Observed lanes without an accepted budget: {payload['uncatalogued_lane_count']}",
         "",
         "Slowest tools by average duration:",
     ]
@@ -176,6 +203,11 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         )
     lane_summaries = payload["lane_summaries"]
     assert isinstance(lane_summaries, list)
+    uncatalogued_lanes = payload["uncatalogued_lanes"]
+    assert isinstance(uncatalogued_lanes, list)
+    if uncatalogued_lanes:
+        lines.extend(["", "Observed lanes without an accepted budget:"])
+        lines.extend(f"- {timing_key}" for timing_key in uncatalogued_lanes)
     if lane_summaries:
         lines.extend(["", "Measured budget lanes:"])
         for item in lane_summaries:
@@ -185,6 +217,8 @@ def _render_timing_text(payload: dict[str, object]) -> str:
                 f"{item['timing_key']}: state={item['state']}, "
                 f"p95={item['measured_p95_ms']}, "
                 f"timeout={item['recommended_timeout_ms']}, "
+                f"samples={item['sample_count']}, "
+                f"sample_source={item['sample_source']}, "
                 f"local_runs={item['local_runs']}, "
                 f"over_budget={item['over_budget_runs']}"
             )
@@ -199,7 +233,10 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         f"- Recorded runs: {payload['record_count']}",
         f"- Distinct tools: {payload['tool_count']}",
         f"- Budget catalog scope: `{payload['timing_budget_catalog_scope']}`",
-        f"- Uncatalogued lanes: `{payload['uncatalogued_lanes']}`",
+        f"- Effective budget lanes: {payload['effective_catalog_lane_count']}",
+        f"- Observed lanes: {payload['observed_lane_count']}",
+        f"- Successful observed lanes: {payload['successful_observed_lane_count']}",
+        f"- Observed lanes without an accepted budget: {payload['uncatalogued_lane_count']}",
         "",
         "| Tool | Mode | Avg (ms) | P95 (ms) | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
         "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -217,14 +254,19 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         )
     lane_summaries = payload["lane_summaries"]
     assert isinstance(lane_summaries, list)
+    uncatalogued_lanes = payload["uncatalogued_lanes"]
+    assert isinstance(uncatalogued_lanes, list)
+    if uncatalogued_lanes:
+        lines.extend(["", "## Observed Lanes Without An Accepted Budget", ""])
+        lines.extend(f"- `{timing_key}`" for timing_key in uncatalogued_lanes)
     if lane_summaries:
         lines.extend(
             [
                 "",
                 "## Measured Budget Lanes",
                 "",
-                "| Lane | State | P95 (ms) | Recommended timeout (ms) | Local runs | Over budget |",
-                "| --- | --- | ---: | ---: | ---: | ---: |",
+                "| Lane | State | P95 (ms) | Recommended timeout (ms) | Samples | Source | Local runs | Over budget |",
+                "| --- | --- | ---: | ---: | ---: | --- | ---: | ---: |",
             ]
         )
         for item in lane_summaries:
@@ -233,6 +275,7 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
                 f"| `{item['timing_key']}` | {item['state']} | "
                 f"{item['measured_p95_ms'] if item['measured_p95_ms'] is not None else '-'} | "
                 f"{item['recommended_timeout_ms'] if item['recommended_timeout_ms'] is not None else '-'} | "
+                f"{item['sample_count']} | {item['sample_source']} | "
                 f"{item['local_runs']} | {item['over_budget_runs']} |"
             )
     lines.append("")

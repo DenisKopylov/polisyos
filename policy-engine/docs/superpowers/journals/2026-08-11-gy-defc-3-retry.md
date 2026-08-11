@@ -1094,3 +1094,46 @@ no issues in `27.356987` s. The corrupt-field lane completed in `11.810165` s un
 `corrupt_field_drift_detected` present. This validator does not emit a `missing` member; its green
 predicate is the detected corruption plus exit `1`, not an invented empty field. All four stderr
 streams are empty. The accepted promotion reissue is therefore closed. `[P37: recomputed]`
+
+### Generation cycle — declared accepted delta (written before the accepted writer)
+
+The generation-cycle measurement completed in `39.353171` s under its `56.250878` s cap, exit
+`0`, with empty stderr. The exact preimage was restored and re-read at SHA-256
+`37abd82bb64926ca392734baf8bacec1a3c3fe559ff26bfd88f230148d4e8675`; the preserved candidate is
+SHA-256 `6538e879e5152b919190f31e4b973a035a2e95f575fa3e53f1b5b885c99cc344`. One first attempt to
+invoke the ignored leaf-diff helper omitted its required output-path argument and raised before
+diffing or restoring; the candidate had already been copied, the corrected invocation produced the
+receipt below, and the preimage was then restored byte-for-byte. That helper error is an operational
+non-receipt, not a writer result. `[P37: recomputed]`
+
+The accepted reissue is declared to move exactly these `12` scalar leaves and no others:
+
+- `$.comparison_admission_manifest[{0,1}].{action,json_pointer,owner_rule,predicate_provenance}`
+  (`8` leaves), where the pointers are respectively
+  `/generation_cycle_run/promotion_port/receipts/0` and `/generation_cycle_run/promotion_port/receipts/1`,
+  both actions are `project`, both predicate classes are `recomputed`, and both owner rules are
+  `polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1`;
+- `$.comparison_content_hash`, `$.comparison_projection_schema_version`, and
+  `$.comparison_rule_version` (`3` leaves); and
+- `$.contract_content_hash` (`1` dependent leaf).
+
+The complete recursive measurement contains exactly those `12` pointers. Both embedded receipts
+remain byte-retained and keep their `shadow`, not-promoted, grounded-abstention, unresolved and
+non-consumer-promotable semantics. The positive gate, denominators, fail-closed probes, strangle
+state, cycle/front disposition and all `12` behavioral mutation results are byte-identical; there is
+no diagnostic-precedence movement. The accept predicate is exact equality with the declared set.
+`[P37: recomputed for the measured bytes, exact pointer set and unchanged governing outcomes;
+independently_reconciled for the owner-admission classification; not_established for accepted
+persistence until the writer and verifications close]`
+
+The accepted generation writer persisted the byte-identical candidate at SHA-256
+`6538e879e5152b919190f31e4b973a035a2e95f575fa3e53f1b5b885c99cc344` in `39.428779` s,
+exit `0`, under the `56.250878` s cap. The recursive scalar delta is exactly the declared `12/12`
+pointers, with no missing or additional leaf. `--check` passed with no issues in `39.391251` s,
+and `--rederive-audit` passed with no issues in `39.264501` s. `[P37: recomputed]`
+
+The generation corrupt-field lane completed in `11.803721` s under its declared `300` s hang
+ceiling and exited `1`, its contract-defined healthy terminal. It reported
+`corrupt_field_drift_detected` and named the expected comparison/content and typed cycle-binding
+failures; no mutation survived. All four accepted-run stderr streams are empty. The generation-cycle
+reissue is therefore closed. `[P37: recomputed]`

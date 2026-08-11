@@ -92,13 +92,30 @@
       "status": "red"
     }
   ],
+  "comparison_admission_manifest": [
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/0",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/1",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    }
+  ],
+  "comparison_content_hash": "sha256:019490011ada930f30af66a36fa5922b11acd9df271f10f7eee98e4ba8edbe87",
+  "comparison_projection_schema_version": "policyos.gy.comparison_projection.v1",
+  "comparison_rule_version": "policyos.gy.non_authority_verification.v2",
   "compute_economics": {
     "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
     "lane": "Lane-0",
     "non_cached_run_visibility": "rederive_audit_only",
     "owner_io": "zero"
   },
-  "contract_content_hash": "sha256:90e0b024819495086752961c4d7ac80bb764586af8f89830504b8c0161c5912d",
+  "contract_content_hash": "sha256:98781d635a06d0fe8e41988d955b9480b2a025c5503422b610107f354b8c689b",
   "contract_id": "policyos.runtime.generation_cycle_controller",
   "denominators": {
     "counts": {

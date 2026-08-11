@@ -2,7 +2,7 @@
   "behavioral_mutations": [
     {
       "issue_codes": [
-        "confidence_ledger_projection_hash_drift"
+        "comparison_projection_rejected_mutation"
       ],
       "mutation_id": "ledger_projection_hand_edit",
       "status": "red"
@@ -16,15 +16,14 @@
     },
     {
       "issue_codes": [
-        "confidence_ledger_projection_hash_drift",
-        "fixed_time_calibration_not_fail_closed"
+        "comparison_projection_rejected_mutation"
       ],
       "mutation_id": "fixed_time_refusal_laundered",
       "status": "red"
     },
     {
       "issue_codes": [
-        "contract_lane_anytime_refusal_invalid"
+        "comparison_projection_rejected_mutation"
       ],
       "mutation_id": "vacuous_scope_pass",
       "status": "red"
@@ -38,7 +37,7 @@
     },
     {
       "issue_codes": [
-        "contract_lane_anytime_refusal_invalid"
+        "comparison_projection_rejected_mutation"
       ],
       "mutation_id": "conditionality_clause_deleted",
       "status": "red"
@@ -51,6 +50,29 @@
       "status": "red"
     }
   ],
+  "comparison_admission_manifest": [
+    {
+      "action": "project",
+      "json_pointer": "/contract_lane_anytime_refusal",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/production_honest_shadow",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/non_promotable_contract_stamp",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    }
+  ],
+  "comparison_content_hash": "sha256:667c41185b49146ee03aa3215279d9b3262429ee7138da4c6ae64f4a90ab30c8",
+  "comparison_projection_schema_version": "policyos.gy.comparison_projection.v1",
+  "comparison_rule_version": "policyos.gy.non_authority_verification.v2",
   "compute_economics": {
     "cold_rederive_lane": "--rederive-audit",
     "e1_cached_obligation_solves": true,
@@ -58,7 +80,7 @@
     "routine_check": "canonical_owner_recomputation_and_exact_byte_comparison",
     "wall_time_recorded_by_validator": true
   },
-  "contract_content_hash": "sha256:a808d43e2ced33efe4772aaacc5507e68e46dd91fcfd072d7a2b5c2f78c67b0a",
+  "contract_content_hash": "sha256:dd02631318bc3c3b0fdc813654f4962ce42e80ea14073f1896b2fa98d97dbcc6",
   "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
   "contract_lane_anytime_refusal": {
     "authority_derivation_trace": null,

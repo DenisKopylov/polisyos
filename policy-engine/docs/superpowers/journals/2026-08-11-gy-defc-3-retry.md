@@ -1051,3 +1051,46 @@ write/check `32,437.008/33,650.354` ms; generation write/check/rederive
 `227,856.150` ms. The corrupt lanes retain declared hang fences of `300` s for promotion,
 generation and N10a and `600` s for Depth; those are not catalog budgets. `[P37: recomputed for the
 timing-log/catalog projection; institutionally_supplied for the declared corrupt ceilings]`
+
+### Promotion — declared accepted delta (written before the accepted writer)
+
+The promotion measurement completed in `27.394866` s under its `32.437008` s cap, exit `0`, then
+the exact old bytes were restored and re-read at SHA-256
+`03479f68e1babc404f2ae8081ab780f1ca2c6c118dd9b11f61ee4be9310f51fe`. The preserved candidate
+is SHA-256 `89694280769f8917835c84d5624c2be4be976df066ee1f844ade7acdc402e01b`.
+The accepted reissue is declared to move exactly these `21` scalar leaves and no others:
+
+- `$.comparison_admission_manifest[{0,1,2}].{action,json_pointer,owner_rule,predicate_provenance}`
+  (`12` leaves);
+- `$.comparison_content_hash`, `$.comparison_projection_schema_version`,
+  `$.comparison_rule_version`, and `$.contract_content_hash` (`4` leaves); and
+- `$.behavioral_mutations[0].issue_codes[0]`,
+  `$.behavioral_mutations[2].issue_codes[0]`,
+  `$.behavioral_mutations[2].issue_codes[1]` (removed),
+  `$.behavioral_mutations[3].issue_codes[0]`, and
+  `$.behavioral_mutations[5].issue_codes[0]` (`5` leaves).
+
+The five diagnostic leaves are mechanically produced by the new owner comparison gate: mutations
+that invalidate an admitted full receipt now stop at `comparison_projection_rejected_mutation`
+instead of falling through to the older downstream code. Every mutation remains `red`; promotion,
+consumer-promotability, obligation, risk-budget, denominator, scope and admission outcomes are
+byte-identical. No proof input or transport field moves. The accept predicate is exact equality with
+the `21`-leaf set above. `[P37: recomputed for the measured bytes, leaf set and unchanged outcome
+counterfactuals; not_established for accepted persistence until the writer and verifications close]`
+
+The accepted writer then persisted the byte-identical candidate at SHA-256
+`89694280769f8917835c84d5624c2be4be976df066ee1f844ade7acdc402e01b` in `27.541650` s,
+exit `0`, under the `32.437008` s cap. Its recursive scalar delta is exactly the declared `21/21`
+leaves, with no missing or additional pointer. Independent review reconciled the five diagnostic
+movements against the mutation harness: all seven mutations remain red, while five now fail earlier
+at the owner comparison-admission boundary; all three canonical promotion receipts retain the same
+`shadow`/not-promoted outcome, obligations, refusal state and zero risk spend. `[P37: recomputed for
+the bytes and exact leaf equality; independently_reconciled for the diagnostic-precedence and
+unchanged-governed-outcome classification]`
+
+The canonical `--check` passed with no issues in `27.567455` s, and `--rederive-audit` passed with
+no issues in `27.356987` s. The corrupt-field lane completed in `11.810165` s under its declared
+`300` s hang ceiling and exited `1`, its contract-defined healthy terminal, with
+`corrupt_field_drift_detected` present. This validator does not emit a `missing` member; its green
+predicate is the detected corruption plus exit `1`, not an invented empty field. All four stderr
+streams are empty. The accepted promotion reissue is therefore closed. `[P37: recomputed]`

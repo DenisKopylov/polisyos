@@ -595,9 +595,13 @@ teaching, dishonest exclusion).
 ### Post-C13a-R2 line-address audit — class repair first
 
 **DS5-LINE-ADDRESS-01 — registered, not implemented** (`semantic_test_missing`):
-10 clusters / 40 slots (34 resolved, 6 unnamed), 178 code-only frontend-disposition
-refs / 70 files; 5 clusters / 11 files / 13 cluster-file-row pairs / 6 rows collide.
-Not broad 182/73; status sibling separately 178 / 62. Paths below are
+the complete observed/evidence partition is 270 refs: 182 line refs across 73 files
+(TSX 138/45, TS 29/17, PY 6/5, JSON 5/3, MD 3/2, TOML 1/1). The 173 TS/TSX/PY
+refs span 67 files; the prior 178/70 “code-only” statement incorrectly included
+the five JSON refs. Of the 182 line refs, 176 are gate-bearing (28 live observed,
+118 generated authority evidence, 30 descriptor-equal) and six are bounds-only
+navigation. Authority configuration separately binds 236 slots / 69 files; 39
+generated debt rows persist 130 nested address slots / 36 files. Paths below are
 `apps/runtime-dashboard/src/`-relative unless `architecture/`; `—` is no collision.
 
 | Cluster | Touched paths / roles (compact complete set) | Collision: exact files → register row IDs |
@@ -613,10 +617,29 @@ Not broad 182/73; status sibling separately 178 / 62. Paths below are
 | C19-R1 | `app/layout/AppShell.tsx`; `app/layout/layoutSurfaces.test.tsx`; `app/surfaces/surfaceRegistry.ts`; `features/runs/route.tsx`; `features/runs/routes/runDetailSurfaces.test.tsx`; `features/runs/routes/tabs/OverviewTab.tsx`; `features/commandPalette/CommandPalette.tsx`; `features/commandPalette/CommandPalette.test.tsx`; `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | yes: `features/runs/route.tsx` → `census-browser-signing-protected-live` `[18]:151`; `features/runs/routes/tabs/OverviewTab.tsx` → `authority-presentation-badge-governance-issue-severity` `[3]:185` |
 | C20 | `architecture/atlas_surfaces/test_atlas_enforcement.py` | no — |
 
-Five of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; no gate fails on move alone (`check_frontend_disposition_register.py:5321-5364`; `test_frontend_disposition_register.py:1420-1437`). Closure resolves symbol/export/construct-content identity: move-only
-green, symbol/content-change red; C08 hashes stay legitimate; P29/P31/P32/P33/P35/P37;
-no disposition row. External-current GY-DEF13 shares only address-vs-
-identity, not mechanism/closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
+Five of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; C21b's migration target is that no migrated gate fails on move alone. The stale C14a descriptor navigation at `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended C13a `deleteComposerDraftRecord` moved from line 90 at `653f12d08^` to line 13 at `653f12d08`. C21a closes only the reusable TypeScript mechanism: a pathRef-form encoded identity binds typed AST role/discriminator plus declaration/export chain and normalized tokens; creation may use a line hint, but validation never binds it. Move-only is green; missing/renamed, ambiguity, and content rewrite are red; C08 whole-file hashes remain independent. P29/P31/P32/P33/P35/P37 apply; no disposition row. GY-DEF13 is an address-versus-identity parallel only, not this mechanism or closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
+
+### DS5-C21a — TypeScript reference identity mechanism
+
+**Measured set:** exactly four tracked paths and cap 4: the frontend disposition
+checker, its focused test, this plan, and this journal. It adds no register,
+report, status, baseline, application, package, schema, or scanner migration.
+
+**Acceptance:** the installed TypeScript compiler parses in-memory overrides and
+emits a repo-relative `path#ts-identity=<versioned-payload>` reference. Canonical
+roles cover named/exported declarations, variables, type/object properties,
+imports, JSX openings/attributes, calls, and string literals. Binding chains and
+normalized syntax-token hashes are line-free; a navigation hint is creation-only.
+Validation fails closed on absent/renamed or ambiguous binding and on content drift.
+C08's existing whole-file content-binding probe remains red under controlled byte
+drift. C21a is direct-syntax-only (no flow, alias use, or semantic inference); `DS5LineAddressCensusTests.test_ds5_line_address_complete_partition_is_derived_from_live_register` is the complete live-register P35 receipt. C21a is `implemented_but_not_orchestrated`: C21b owns TS/TSX migration,
+C21c owns the gated JSON/TOML mechanism; Markdown remains navigation and Python refs remain descriptor navigation, not a Python identity claim.
+
+### DS-INFRA-2 — Atlas timing evidence debt
+
+| Debt | Evidence / capability state | Closure |
+| --- | --- | --- |
+| DS-INFRA-2 | Timing log has 117 valid records and zero Atlas lanes. Supplied full-Atlas evidence is 393.15s killed/nonreceipt and 754.20s terminal green; killed runs are never samples. `verification_missing` for durable lane timing. | Retain per-lane Atlas timing, use 2×p95 bounds, and name uncatalogued lanes at point of use. GY-INFRA-2 Part A/GY-DI2 governs the timing receipt; GY-DEF13 is only the address-versus-identity parallel. |
 
 The target correct pattern is:
 
@@ -2122,6 +2145,9 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C18b-R1 | `DS5-C18b-R1 bind flag sources to strict registry` | 6 |
 | C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
+| C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
+| C21b | `DS5-C21b migrate gated TypeScript references` | 7 |
+| C21c | `DS5-C21c bind gated JSON and TOML references` | 7 |
 
 ## Closure battery
 

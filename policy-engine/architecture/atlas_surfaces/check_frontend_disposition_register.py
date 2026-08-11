@@ -9,6 +9,8 @@ rebound claim.  Stored counts and empty arrays are never accepted as proof.
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import copy
 import hashlib
 import importlib.util
@@ -921,6 +923,368 @@ process.stdout.write(JSON.stringify(facts));
 
 _TS_MODULE_FACTS_CACHE: dict[str, list[dict[str, Any]]] = {}
 
+_TYPESCRIPT_REFERENCE_ROLES = frozenset(
+    {
+        "exported_declaration",
+        "named_declaration",
+        "variable_declaration",
+        "type_property",
+        "object_property",
+        "call_expression",
+        "string_literal",
+        "import_binding",
+        "jsx_opening",
+        "jsx_attribute",
+    }
+)
+
+_TS_REFERENCE_CONSTRUCT_SCRIPT = r"""
+import { createHash } from "node:crypto";
+import path from "node:path";
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const { sources, sourcePath: requestedSourcePath, role, discriminator } = JSON.parse(raw);
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+const sourcePath = path.resolve(repoRoot, requestedSourcePath);
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
+const compilerOptions = {
+  ...parsedConfig.options,
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(
+  Object.entries(sources).map(([relativePath, source]) => [path.resolve(repoRoot, relativePath), source]),
+);
+const host = ts.createCompilerHost(compilerOptions, true);
+const defaultFileExists = host.fileExists.bind(host);
+const defaultReadFile = host.readFile.bind(host);
+const defaultGetSourceFile = host.getSourceFile.bind(host);
+host.getCurrentDirectory = () => repoRoot;
+function virtualSource(fileName) {
+  return virtualSources.get(path.resolve(repoRoot, fileName));
+}
+host.fileExists = (fileName) => virtualSource(fileName) !== undefined || defaultFileExists(fileName);
+host.readFile = (fileName) => virtualSource(fileName) ?? defaultReadFile(fileName);
+host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+  const source = virtualSource(fileName);
+  if (source !== undefined) {
+    const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+  }
+  return defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
+};
+host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((specifier) => {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, containingFile),
+    compilerOptions,
+    host,
+  ).resolvedModule;
+  if (resolved) return resolved;
+  if (!specifier.startsWith(".")) return undefined;
+  const base = path.resolve(path.dirname(path.resolve(repoRoot, containingFile)), specifier);
+  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+    const candidate = base + extension;
+    if (virtualSource(candidate) !== undefined) {
+      return { resolvedFileName: candidate, extension: ts.Extension.Ts, isExternalLibraryImport: false };
+    }
+  }
+  return undefined;
+});
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+const checker = program.getTypeChecker();
+const sourceFile = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === sourcePath,
+);
+if (!sourceFile) {
+  process.stdout.write(JSON.stringify({ sourceMissing: true, matches: [] }));
+  process.exit(0);
+}
+
+function isExported(node) {
+  return Boolean(node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
+}
+
+function resolvedModulePath(specifier) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, sourcePath),
+    compilerOptions,
+    host,
+  ).resolvedModule?.resolvedFileName;
+  return resolved
+    ? path.relative(repoRoot, path.resolve(resolved)).split(path.sep).join("/")
+    : "unresolved";
+}
+
+function importedBinding(name) {
+  let result = null;
+  function scan(node) {
+    if (result) return;
+    if (ts.isImportDeclaration(node) && node.importClause && ts.isStringLiteral(node.moduleSpecifier)) {
+      const clause = node.importClause;
+      if (clause.name?.text === name) {
+        result = { module: node.moduleSpecifier.text, imported: "default" };
+        return;
+      }
+      const bindings = clause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          if (element.name.text === name) {
+            result = { module: node.moduleSpecifier.text, imported: (element.propertyName ?? element.name).text };
+            return;
+          }
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings) && bindings.name.text === name) {
+        result = { module: node.moduleSpecifier.text, imported: "*" };
+      }
+    }
+    ts.forEachChild(node, scan);
+  }
+  scan(sourceFile);
+  return result;
+}
+
+function declarationName(node) {
+  return node.name && ts.isIdentifier(node.name) ? node.name.text : null;
+}
+
+function nearest(node, predicate) {
+  let current = node.parent;
+  while (current) {
+    if (predicate(current)) return current;
+    current = current.parent;
+  }
+  return null;
+}
+
+function declarationChain(nameNode, prefix) {
+  const symbol = checker.getSymbolAtLocation(nameNode);
+  const resolved = symbol && (symbol.flags & ts.SymbolFlags.Alias)
+    ? checker.getAliasedSymbol(symbol)
+    : symbol;
+  const declaration = resolved?.declarations?.[0] ?? symbol?.declarations?.[0];
+  const declarationPath = declaration
+    ? path.relative(
+      repoRoot,
+      path.resolve(repoRoot, declaration.getSourceFile().fileName),
+    ).split(path.sep).join("/")
+    : null;
+  return [
+    prefix,
+    `symbol:${symbol?.getName() ?? "unresolved"}`,
+    `resolved:${resolved?.getName() ?? "unresolved"}`,
+    `declaration:${declarationPath ?? "unresolved"}:${declaration ? ts.SyntaxKind[declaration.kind] : "unresolved"}`,
+  ];
+}
+
+function namedEnclosingChain(node) {
+  const names = [];
+  let current = node.parent;
+  while (current && !ts.isSourceFile(current)) {
+    if (
+      (namedDeclarationKinds(current) || ts.isVariableDeclaration(current)) &&
+      current.name &&
+      ts.isIdentifier(current.name)
+    ) {
+      names.push(current.name.text);
+    }
+    current = current.parent;
+  }
+  return names.reverse();
+}
+
+function qualifiedPropertyName(node) {
+  return [...namedEnclosingChain(node), node.name.getText(sourceFile)].join(".");
+}
+
+function normalizedTokenSha256(node) {
+  function semanticValue(current) {
+    if (ts.isIdentifier(current)) return ["identifier", current.text];
+    if (ts.isStringLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)) {
+      return ["string", current.text];
+    }
+    if (ts.isNumericLiteral(current)) return ["number", Number(current.text)];
+    return null;
+  }
+  function fingerprint(current) {
+    const children = [];
+    ts.forEachChild(current, (child) => {
+      children.push(fingerprint(child));
+    });
+    return [ts.SyntaxKind[current.kind], semanticValue(current), children];
+  }
+  return createHash("sha256").update(JSON.stringify(fingerprint(node))).digest("hex");
+}
+
+function importBindingChain(node) {
+  const importDeclaration = nearest(node, ts.isImportDeclaration);
+  const module = importDeclaration && ts.isStringLiteral(importDeclaration.moduleSpecifier)
+    ? importDeclaration.moduleSpecifier.text
+    : "unresolved";
+  if (ts.isImportSpecifier(node)) {
+    const imported = (node.propertyName ?? node.name).text;
+    return declarationChain(
+      node.name,
+      `import:${module}:${resolvedModulePath(module)}:${imported}:${node.name.text}`,
+    );
+  }
+  return declarationChain(
+    node.name,
+    `import:${module}:${resolvedModulePath(module)}:default_or_namespace:${node.name.text}`,
+  );
+}
+
+function jsxOpeningChain(node) {
+  const tag = node.tagName.getText(sourceFile);
+  if (ts.isIdentifier(node.tagName)) {
+    const binding = importedBinding(tag);
+    const importPart = binding
+      ? `:import:${binding.module}:${resolvedModulePath(binding.module)}:${binding.imported}`
+      : "";
+    return declarationChain(node.tagName, `jsx_opening:${tag}${importPart}`);
+  }
+  return [`jsx_opening:${tag}`, `symbol:unresolved`, `resolved:unresolved`, `declaration:unresolved:unresolved`];
+}
+
+function jsxAttributeChain(node) {
+  const opening = nearest(
+    node,
+    (candidate) => ts.isJsxOpeningElement(candidate) || ts.isJsxSelfClosingElement(candidate),
+  );
+  const tag = opening ? opening.tagName.getText(sourceFile) : "unresolved";
+  return [`jsx_attribute:${tag}:${node.name.text}`, `symbol:${node.name.text}`, `resolved:${node.name.text}`, `declaration:${sourcePath}:JsxAttribute`];
+}
+
+function namedDeclarationKinds(node) {
+  return (
+    ts.isFunctionDeclaration(node) ||
+    ts.isClassDeclaration(node) ||
+    ts.isEnumDeclaration(node) ||
+    ts.isInterfaceDeclaration(node) ||
+    ts.isTypeAliasDeclaration(node)
+  );
+}
+
+function objectPropertyChain(node) {
+  return declarationChain(node.name, `object_property:${qualifiedPropertyName(node)}`);
+}
+
+function callExpressionChain(node) {
+  const callee = node.expression.getText(sourceFile);
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  if (ts.isIdentifier(node.expression)) {
+    return declarationChain(node.expression, `call:${callee}:enclosing:${enclosing}`);
+  }
+  return [`call:${callee}:enclosing:${enclosing}`, "symbol:unresolved", "resolved:unresolved", "declaration:unresolved:unresolved"];
+}
+
+function stringLiteralChain(node) {
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  return [`string_literal:${node.text}:enclosing:${enclosing}`, `symbol:${node.text}`, `resolved:${node.text}`, `declaration:${requestedSourcePath}:StringLiteral`];
+}
+
+const matches = [];
+function visit(node) {
+  if (
+    role === "exported_declaration" &&
+    isExported(node) &&
+    namedDeclarationKinds(node) &&
+    declarationName(node) === discriminator
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `export:${discriminator}`) });
+  } else if (
+    role === "named_declaration" &&
+    namedDeclarationKinds(node) &&
+    declarationName(node) === discriminator
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `declaration:${discriminator}`) });
+  } else if (
+    role === "variable_declaration" &&
+    ts.isVariableDeclaration(node) &&
+    ts.isIdentifier(node.name) &&
+    node.name.text === discriminator
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`) });
+  } else if (
+    role === "type_property" &&
+    ts.isPropertySignature(node) &&
+    qualifiedPropertyName(node) === discriminator
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `type_property:${discriminator}`) });
+  } else if (
+    role === "object_property" &&
+    ts.isPropertyAssignment(node) &&
+    qualifiedPropertyName(node) === discriminator
+  ) {
+    matches.push({ node, declarationChain: objectPropertyChain(node) });
+  } else if (
+    role === "call_expression" &&
+    ts.isCallExpression(node) &&
+    node.expression.getText(sourceFile) === discriminator
+  ) {
+    matches.push({ node, declarationChain: callExpressionChain(node) });
+  } else if (
+    role === "string_literal" &&
+    ts.isStringLiteral(node) &&
+    node.text === discriminator
+  ) {
+    matches.push({ node, declarationChain: stringLiteralChain(node) });
+  } else if (
+    role === "import_binding" &&
+    (ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) &&
+    node.name &&
+    node.name.text === discriminator
+  ) {
+    matches.push({ node, declarationChain: importBindingChain(node) });
+  } else if (
+    role === "jsx_opening" &&
+    (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+    node.tagName.getText(sourceFile) === discriminator
+  ) {
+    matches.push({ node, declarationChain: jsxOpeningChain(node) });
+  } else if (
+    role === "jsx_attribute" &&
+    ts.isJsxAttribute(node) &&
+    node.name.text === discriminator
+  ) {
+    matches.push({ node, declarationChain: jsxAttributeChain(node) });
+  }
+  ts.forEachChild(node, visit);
+}
+visit(sourceFile);
+process.stdout.write(JSON.stringify({
+  sourceMissing: false,
+  matches: matches.map((match) => ({
+    declarationChain: match.declarationChain,
+    normalizedTokensSha256: normalizedTokenSha256(match.node),
+    fullStartLine: sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
+    endLine: sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
+  })),
+}));
+"""
+
+_TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
+
 
 def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
     """Parse TypeScript modules with the installed compiler, never text markers."""
@@ -952,6 +1316,182 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
         raise RuntimeError("TypeScript consumer census returned a non-list payload")
     _TS_MODULE_FACTS_CACHE[cache_key] = parsed
     return parsed
+
+
+def _typescript_reference_construct_facts(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    role: str,
+    discriminator: str,
+) -> dict[str, Any]:
+    """Resolve one canonical TypeScript construct from in-memory source overrides."""
+    if role not in _TYPESCRIPT_REFERENCE_ROLES:
+        raise ValueError(f"typescript_reference_role_invalid:{role}")
+    cache_key = hashlib.sha256(
+        json.dumps(
+            {
+                "sources": sources,
+                "source_path": source_path,
+                "role": role,
+                "discriminator": discriminator,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_REFERENCE_CONSTRUCT_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _TS_REFERENCE_CONSTRUCT_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(
+            {
+                "sources": sources,
+                "sourcePath": source_path,
+                "role": role,
+                "discriminator": discriminator,
+            }
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript reference identity parser failed: " + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("matches"), list):
+        raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
+    _TS_REFERENCE_CONSTRUCT_CACHE[cache_key] = parsed
+    return parsed
+
+
+def _typescript_reference_identity(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    role: str,
+    discriminator: str,
+    navigation_hint: int | None = None,
+) -> dict[str, str]:
+    """Encode a stable TypeScript construct identity without source line navigation.
+
+    ``navigation_hint`` is creation-only migration assistance. It selects a current
+    AST candidate but is deliberately excluded from the encoded path reference.
+    """
+    facts = _typescript_reference_construct_facts(
+        sources,
+        source_path=source_path,
+        role=role,
+        discriminator=discriminator,
+    )
+    matches = facts["matches"]
+    if navigation_hint is not None:
+        matches = [
+            match
+            for match in matches
+            if match.get("fullStartLine", 0) <= navigation_hint <= match.get("endLine", -1)
+        ]
+    if facts.get("sourceMissing") or len(matches) == 0:
+        raise ValueError("typescript_reference_binding_missing_or_renamed")
+    if len(matches) > 1:
+        raise ValueError("typescript_reference_binding_ambiguous")
+    match = matches[0]
+    payload = {
+        "version": 1,
+        "source_path": source_path,
+        "role": role,
+        "discriminator": discriminator,
+        "declaration_chain": match["declarationChain"],
+        "normalized_tokens_sha256": match["normalizedTokensSha256"],
+    }
+    encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    encoded_identity = (
+        source_path
+        + "#ts-identity="
+        + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("=")
+    )
+    return {
+        "source_path": source_path,
+        "role": role,
+        "discriminator": discriminator,
+        "declaration_chain": json.dumps(match["declarationChain"], separators=(",", ":")),
+        "normalized_tokens_sha256": match["normalizedTokensSha256"],
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _validate_typescript_reference_identity(
+    reference: Mapping[str, str],
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Fail closed when a canonical construct binding is absent, ambiguous, or stale."""
+    try:
+        encoded_identity = reference["encoded_identity"]
+        if not isinstance(encoded_identity, str):
+            raise ValueError
+        path_prefix, fragment, encoded_payload = encoded_identity.partition("#ts-identity=")
+        if not fragment or not path_prefix or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+        )
+        version = payload["version"]
+        source_path = payload["source_path"]
+        role = payload["role"]
+        discriminator = payload["discriminator"]
+        expected_chain = payload["declaration_chain"]
+        expected_tokens_sha256 = payload["normalized_tokens_sha256"]
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ):
+        return ["typescript_reference_identity_invalid"]
+    if (
+        version != 1
+        or not isinstance(source_path, str)
+        or not isinstance(role, str)
+        or not isinstance(discriminator, str)
+        or not isinstance(expected_chain, list)
+        or not isinstance(expected_tokens_sha256, str)
+        or path_prefix != source_path
+        or role not in _TYPESCRIPT_REFERENCE_ROLES
+    ):
+        return ["typescript_reference_identity_invalid"]
+    facts = _typescript_reference_construct_facts(
+        sources,
+        source_path=source_path,
+        role=role,
+        discriminator=discriminator,
+    )
+    matches = facts["matches"]
+    if facts.get("sourceMissing"):
+        return ["typescript_reference_source_missing"]
+    if len(matches) == 0:
+        return ["typescript_reference_binding_missing_or_renamed"]
+    binding_matches = [
+        match for match in matches if match["declarationChain"] == expected_chain
+    ]
+    if len(binding_matches) == 0:
+        return ["typescript_reference_binding_missing_or_renamed"]
+    if len(binding_matches) > 1:
+        return ["typescript_reference_binding_ambiguous"]
+    content_matches = [
+        match
+        for match in binding_matches
+        if match["normalizedTokensSha256"] == expected_tokens_sha256
+    ]
+    if len(content_matches) == 0:
+        return ["typescript_reference_content_drift"]
+    return []
 
 
 def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:

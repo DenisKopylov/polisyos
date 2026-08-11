@@ -1523,8 +1523,9 @@
   uncommitted for independent review.
 - Governed STOP: the frontend disposition checker cannot certify this exact
   18-path atom. Its canonical descriptor still binds the C14a envelope-owner
-  debt to `offlineQueueRepository.ts:80`, while the surviving composer operation
-  moves to line 13, and the required panel/test edits invalidate two C08
+  debt to `offlineQueueRepository.ts:80` (the historical `loadComposerDraftRecord`
+  address), while the intended `deleteComposerDraftRecord` operation moves from
+  line 90 to line 13, and the required panel/test edits invalidate two C08
   baseline content hashes. The supplemental writer cannot update terminal
   census rows, descriptor source evidence, or baseline hashes. Two independent
   Terra audits agree that a truthful recut adds the canonical checker, its test,
@@ -1542,7 +1543,8 @@
   test, the C08 baseline manifest (two content bindings), and this plan: 22
   repository paths total.
 - Red/green owner evidence: the C14 descriptor/register test failed on stale
-  `offlineQueueRepository.ts:80` versus the live surviving operation at `:13`,
+  `offlineQueueRepository.ts:80` (historical load operation) versus the intended
+  delete operation's true `:90` to `:13` move,
   then passed after both canonical owner and exact test were rebased. The C08
   baseline test failed on exactly the panel and panel-test byte bindings, then
   passed with their recomputed SHA-256 values. The frontend disposition writer
@@ -1625,12 +1627,16 @@
   `653f12d08b0ed142f19bceac840b23acece81402`. History context only: C13a-R2
   checkpoint `95274a88c2eb6f5df9e7ce48e72be9e08958639e`, forward revert
   `f4f62ca58231d59a2fb65ae803562ef2ac6dbfc6`.
-- Read-only census: 10 executable clusters / 40 slots (34 resolved, 6 unnamed);
-  code-only frontend-disposition fields `observed_refs` + `evidence_refs` give
-  178 live refs / 70 files. Five clusters / 11 files / 13 cluster-file-row pairs
-  / 6 register rows collide; 182/73 is broad corpus, while status is separately
-  178 occurrences / 62 files. Five of ten is many: class repair first; C13b and
-  all later colliders wait, no later cluster entered.
+- Read-only census: 10 executable clusters / 40 slots (34 resolved, 6 unnamed).
+  The complete observed/evidence partition is 270 refs: 182 line refs / 73 files
+  (TSX 138/45, TS 29/17, PY 6/5, JSON 5/3, MD 3/2, TOML 1/1). TS/TSX/PY is
+  173/67; the superseded 178/70 “code-only” figure added five JSON refs. Of 182,
+  176 are gate-bearing (28 live observed, 118 generated authority evidence, 30
+  descriptor-equal) and six are bounds-only navigation. Authority configuration
+  separately binds 236 slots / 69 files; 39 generated debt rows persist 130
+  nested address slots / 36 files. Five clusters / 11 files / 13 cluster-file-row
+  pairs / 6 register rows collide. Five of ten is many: class repair first; C13b
+  and all later colliders wait, no later cluster entered.
 - **DS5-LINE-ADDRESS-01 — registered, not implemented** (`semantic_test_missing`):
   file:line is navigation, not binding; no gate may fail on a move alone. Future
   structural closure resolves symbol/export/construct-content identity with
@@ -1643,3 +1649,37 @@
 - Orchestration: Terra-only read-only audits; C13a governed writes serialized;
   zero Sol/quota/tier escalation. Lost/overlapped streams remain honest
   nonreceipts. This audit implements no class repair.
+
+## 2026-08-11 — DS5-C21a TypeScript reference identity mechanism
+
+- Red first: the focused `TypeScriptReferenceIdentityTests` failed because the
+  checker had no `_typescript_reference_identity`; later role additions first
+  failed with the named invalid-role receipt before implementation. The C13a
+  history probe corrects the stale descriptor navigation: line 80 at
+  `653f12d08^` is `loadComposerDraftRecord`; intended
+  `deleteComposerDraftRecord` is line 90 there and line 13 at `653f12d08`.
+- The checker now uses the installed compiler against in-memory source overrides;
+  `_typescript_reference_construct_facts` is the complete `ts.forEachChild`
+  direct-syntax walk (not flow/semantic inference), with
+  `python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.TypeScriptReferenceIdentityTests`
+  as its focused reproducible receipt.
+- P35 denominator receipt: `DS5LineAddressCensusTests.test_ds5_line_address_complete_partition_is_derived_from_live_register`
+  walks every live `reference_censuses[].probes[].observed_refs` and
+  `supplemental_findings[].evidence_refs`, then derives the authority
+  classifications and every nested `authority_sink` address slot from the same
+  checked-in register; it is not an ignored scratch artifact.
+  Its pathRef-compatible, versioned payload holds repo-relative path, typed role,
+  discriminator, declaration/export chain, and normalized-token SHA-256. A
+  creation-only span-containing navigation hint selects a duplicate current
+  construct; it is excluded from the identity, whose validation instead fails
+  closed on binding absence/rename, ambiguity, or content drift. C08 stays on its
+  existing real whole-file content-binding check, proven red by controlled bytes.
+- Scope is the four permitted tracked paths only. No register, report, status,
+  baseline, product, package, schema, or `status_retirement_scan.mjs` write was
+  made. One accidental live authority-scan print lost its terminal exit after
+  process exit; it supplied no counts, was not rerun, and is an honest nonreceipt
+  with no overlap. No scanner-heavy process ran during implementation.
+- Orchestration: three Terra step-zero workers, zero Sol workers, and no quota
+  failure. The initial non-executable SDD helper invocation was a tooling
+  nonreceipt; `bash` supplied the subsequent executable path. No existing
+  status-scan receipt is represented as carrying this new identity mechanism.

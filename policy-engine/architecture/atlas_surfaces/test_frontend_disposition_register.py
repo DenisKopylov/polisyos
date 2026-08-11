@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import copy
 import importlib.util
 import json
@@ -2308,6 +2309,526 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 schema=False,
                 report_parity=False,
             ),
+        )
+
+
+class TypeScriptReferenceIdentityTests(unittest.TestCase):
+    """Exercise stable TypeScript reference identities through the real parser."""
+
+    _SOURCE_PATH = "apps/runtime-dashboard/src/features/example/reference.ts"
+
+    def _identity(self, source: str) -> dict[str, str]:
+        return checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="exported_declaration",
+            discriminator="publishDecision",
+        )
+
+    def test_formatting_and_line_move_preserve_exact_encoded_identity(self) -> None:
+        original = """export async function publishDecision(input: string) {
+  const label = "decision";
+  return `${label}:${input.trim()}`;
+}
+"""
+        moved_and_reformatted = """
+
+// Navigation changed; the declaration did not.
+export async function publishDecision( input:string )
+{ const label = 'decision'
+  return `${label}:${input.trim()}` }
+"""
+
+        self.assertEqual(
+            self._identity(original)["encoded_identity"],
+            self._identity(moved_and_reformatted)["encoded_identity"],
+        )
+
+    def test_symbol_rename_emits_named_binding_missing_or_renamed_code(self) -> None:
+        reference = self._identity(
+            "export async function publishDecision(input: string) { return input; }\n"
+        )
+        renamed_source = "export async function publishRenamed(input: string) { return input; }\n"
+
+        self.assertIn(
+            "typescript_reference_binding_missing_or_renamed",
+            checker._validate_typescript_reference_identity(
+                reference,
+                {self._SOURCE_PATH: renamed_source},
+            ),
+        )
+
+    def test_construct_rewrite_emits_named_content_drift_code(self) -> None:
+        reference = self._identity(
+            "export async function publishDecision(input: string) { return input; }\n"
+        )
+        rewritten_source = (
+            "export async function publishDecision(input: string) { return input.toUpperCase(); }\n"
+        )
+
+        self.assertIn(
+            "typescript_reference_content_drift",
+            checker._validate_typescript_reference_identity(
+                reference,
+                {self._SOURCE_PATH: rewritten_source},
+            ),
+        )
+
+    def test_import_binding_uses_the_canonical_import_construct(self) -> None:
+        source = 'import { components } from "@/api/types";\nexport { components };\n'
+        reference = checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="import_binding",
+            discriminator="components",
+        )
+
+        self.assertEqual([], checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}))
+        self.assertTrue(
+            reference["encoded_identity"].startswith(self._SOURCE_PATH + "#ts-identity=")
+        )
+        _path, _separator, encoded_payload = reference["encoded_identity"].partition(
+            "#ts-identity="
+        )
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+        )
+        self.assertTrue(
+            any(
+                "apps/runtime-dashboard/src/api/types.ts" in chain_entry
+                for chain_entry in payload["declaration_chain"]
+            ),
+            payload,
+        )
+        self.assertIn("resolved:components", payload["declaration_chain"])
+        self.assertIn(
+            "declaration:apps/runtime-dashboard/src/api/types.ts:InterfaceDeclaration",
+            payload["declaration_chain"],
+        )
+
+    def test_import_binding_fails_closed_when_the_target_export_is_renamed(self) -> None:
+        source_path = "apps/runtime-dashboard/src/features/example/reference.ts"
+        target_path = "apps/runtime-dashboard/src/features/example/target.ts"
+        source = 'import { published } from "./target";\nexport { published };\n'
+        reference = checker._typescript_reference_identity(
+            {source_path: source, target_path: "export const published = 1;\n"},
+            source_path=source_path,
+            role="import_binding",
+            discriminator="published",
+        )
+
+        self.assertIn(
+            "typescript_reference_binding_missing_or_renamed",
+            checker._validate_typescript_reference_identity(
+                reference,
+                {source_path: source, target_path: "export const renamed = 1;\n"},
+            ),
+        )
+
+    def test_jsx_opening_and_attribute_selectors_preserve_role_specific_identity(self) -> None:
+        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
+        source = """export function Surface() {
+  return <Badge tone=\"warning\" label=\"Attention\" />;
+}
+"""
+        opening = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="jsx_opening",
+            discriminator="Badge",
+        )
+        attribute = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="jsx_attribute",
+            discriminator="tone",
+        )
+
+        self.assertEqual([], checker._validate_typescript_reference_identity(opening, {source_path: source}))
+        self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: source}))
+
+    def test_jsx_navigation_hint_selects_one_duplicate_without_becoming_the_binding(self) -> None:
+        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
+        source = """export function Surface() {
+  return <>
+    <Badge tone=\"neutral\" />
+    <Badge tone=\"warning\" />
+  </>;
+}
+"""
+        reference = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="jsx_opening",
+            discriminator="Badge",
+            navigation_hint=4,
+        )
+        moved = """\nexport function Surface() {
+  return <>
+    <Badge tone=\"warning\" />
+  </>;
+}
+"""
+
+        self.assertEqual([], checker._validate_typescript_reference_identity(reference, {source_path: moved}))
+        self.assertNotIn("navigation_hint", reference["encoded_identity"])
+
+    def test_duplicate_canonical_candidates_fail_closed_with_named_ambiguity_code(self) -> None:
+        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
+        one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
+        duplicated_badges = """export function Surface() {
+  return <><Badge tone=\"warning\" /><Badge tone=\"warning\" /></>;
+}
+"""
+        reference = checker._typescript_reference_identity(
+            {source_path: one_badge},
+            source_path=source_path,
+            role="jsx_opening",
+            discriminator="Badge",
+        )
+
+        self.assertIn(
+            "typescript_reference_binding_ambiguous",
+            checker._validate_typescript_reference_identity(reference, {source_path: duplicated_badges}),
+        )
+
+    def test_distinct_content_on_a_second_binding_match_is_ambiguous(self) -> None:
+        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
+        one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
+        second_distinct_badge = """export function Surface() {
+  return <><Badge tone=\"warning\" /><Badge tone=\"neutral\" /></>;
+}
+"""
+        reference = checker._typescript_reference_identity(
+            {source_path: one_badge},
+            source_path=source_path,
+            role="jsx_opening",
+            discriminator="Badge",
+        )
+
+        self.assertEqual(
+            ["typescript_reference_binding_ambiguous"],
+            checker._validate_typescript_reference_identity(
+                reference,
+                {source_path: second_distinct_badge},
+            ),
+        )
+
+    def test_unknown_identity_payload_version_fails_closed(self) -> None:
+        source = "export async function publishDecision(input: string) { return input; }\n"
+        reference = self._identity(source)
+        source_path, _, encoded_payload = reference["encoded_identity"].partition("#ts-identity=")
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+        )
+        payload["version"] = 2
+        reference["encoded_identity"] = (
+            source_path
+            + "#ts-identity="
+            + base64.urlsafe_b64encode(
+                json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            ).decode("ascii").rstrip("=")
+        )
+
+        self.assertEqual(
+            ["typescript_reference_identity_invalid"],
+            checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}),
+        )
+
+    def test_malformed_or_forged_identity_payload_fails_closed_without_raising(self) -> None:
+        source = "export async function publishDecision(input: string) { return input; }\n"
+        reference = self._identity(source)
+        path_prefix, _separator, encoded_payload = reference["encoded_identity"].partition(
+            "#ts-identity="
+        )
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+        )
+        forged_role = dict(payload)
+        forged_role["role"] = "forged_role"
+        forged_payload = base64.urlsafe_b64encode(
+            json.dumps(forged_role, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).decode("ascii").rstrip("=")
+
+        for encoded_identity in (
+            None,
+            path_prefix + "#ts-identity=%%%",
+            path_prefix + "#ts-identity=" + forged_payload,
+        ):
+            with self.subTest(encoded_identity=encoded_identity):
+                self.assertEqual(
+                    ["typescript_reference_identity_invalid"],
+                    checker._validate_typescript_reference_identity(
+                        {"encoded_identity": encoded_identity},
+                        {self._SOURCE_PATH: source},
+                    ),
+                )
+
+    def test_call_and_string_literal_roles_bind_enclosing_declarations(self) -> None:
+        source = """type RunSummary = {
+  /** Current governed status. */
+  status: string;
+};
+const routes = { decision: "/api/v1/decisions" };
+function publish(summary: RunSummary) {
+  return buildSignedPublicDecisionPacket(summary.status);
+}
+"""
+        call_reference = checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="call_expression",
+            discriminator="buildSignedPublicDecisionPacket",
+        )
+        literal_reference = checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="string_literal",
+            discriminator="/api/v1/decisions",
+        )
+        type_property_reference = checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="type_property",
+            discriminator="RunSummary.status",
+            navigation_hint=2,
+        )
+        object_property_reference = checker._typescript_reference_identity(
+            {self._SOURCE_PATH: source},
+            source_path=self._SOURCE_PATH,
+            role="object_property",
+            discriminator="routes.decision",
+        )
+
+        for reference in (
+            call_reference,
+            literal_reference,
+            type_property_reference,
+            object_property_reference,
+        ):
+            self.assertEqual(
+                [],
+                checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}),
+            )
+        self.assertNotIn("navigation_hint", type_property_reference["encoded_identity"])
+
+    def test_c13a_delete_composer_draft_identity_replays_across_line_move(self) -> None:
+        """Replay the intended C13a binding across its true line-90 to line-13 move."""
+        source_path = "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
+        historical = subprocess.run(
+            [
+                "git",
+                "show",
+                "653f12d08^:policy-engine/" + source_path,
+            ],
+            cwd=checker.REPO_ROOT.parent,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout
+        current = subprocess.run(
+            ["git", "show", "653f12d08:policy-engine/" + source_path],
+            cwd=checker.REPO_ROOT.parent,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout
+
+        historical_identity = checker._typescript_reference_identity(
+            {source_path: historical},
+            source_path=source_path,
+            role="exported_declaration",
+            discriminator="deleteComposerDraftRecord",
+        )
+        current_identity = checker._typescript_reference_identity(
+            {source_path: current},
+            source_path=source_path,
+            role="exported_declaration",
+            discriminator="deleteComposerDraftRecord",
+        )
+        historical_rendering = json.dumps(
+            {"observed_refs": [historical_identity["encoded_identity"]]},
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+        current_rendering = json.dumps(
+            {"observed_refs": [current_identity["encoded_identity"]]},
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+
+        self.assertEqual(historical_identity, current_identity)
+        self.assertEqual(historical_rendering, current_rendering)
+
+    def test_c08_content_baselines_remain_whole_file_hashes(self) -> None:
+        source = "export async function publishDecision(input: string) { return input; }\n"
+        baseline = json.loads(checker.BASELINE_PATH.read_text(encoding="utf-8"))
+        c08_binding = next(
+            binding
+            for binding in baseline["lint"]["resolution_content_bindings"]
+            if binding["cluster_id"] == "C08"
+        )
+
+        reference = self._identity(source)
+
+        self.assertNotIn("source_content_sha256", reference)
+        self.assertIn(
+            "lint_resolution_content_hash_drift:C08:" + c08_binding["path"],
+            checker._resolution_content_binding_errors(
+                baseline["lint"],
+                source_bytes_override={c08_binding["path"]: b"C08 whole-file drift"},
+            ),
+        )
+
+
+class DS5LineAddressCensusTests(unittest.TestCase):
+    """Derive DS5-LINE-ADDRESS-01 denominators from the live register owners."""
+
+    _LINE_REFERENCE_RE = re.compile(r"^(.*?):\d+(?::\d+)?$")
+    _BOUNDS_ONLY_REFS = {
+        "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
+        "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
+        "apps/runtime-dashboard/src/sw.ts:3",
+        "apps/runtime-dashboard/src/sw.ts:4",
+        "apps/runtime-dashboard/src/sw.ts:9",
+        "apps/runtime-dashboard/src/api/types.ts:7050",
+    }
+
+    @classmethod
+    def _live_references(cls, data: dict[str, object]) -> list[str]:
+        """Walk every observed and evidence reference in the live register."""
+        references: list[str] = []
+        for census in data["reference_censuses"]:
+            for probe in census["probes"]:
+                references.extend(probe["observed_refs"])
+        for finding in data["supplemental_findings"]:
+            references.extend(finding["evidence_refs"])
+        return references
+
+    def test_ds5_line_address_complete_partition_is_derived_from_live_register(self) -> None:
+        """Make every DS5 line-address denominator fail by its named audit key."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        references = self._live_references(data)
+        line_references = [reference for reference in references if self._LINE_REFERENCE_RE.match(reference)]
+        extension_counts: dict[str, tuple[int, int]] = {}
+        for extension in ("TSX", "TS", "PY", "JSON", "MD", "TOML"):
+            extension_references = [
+                reference
+                for reference in line_references
+                if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix == "." + extension.lower()
+            ]
+            extension_counts[extension] = (
+                len(extension_references),
+                len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in extension_references}),
+            )
+
+        self.assertEqual(270, len(references), "ds5_line_address_total_reference_drift")
+        self.assertEqual(182, len(line_references), "ds5_line_address_line_reference_drift")
+        self.assertEqual(
+            73,
+            len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
+            "ds5_line_address_line_file_drift",
+        )
+        self.assertEqual(
+            {"TSX": (138, 45), "TS": (29, 17), "PY": (6, 5), "JSON": (5, 3), "MD": (3, 2), "TOML": (1, 1)},
+            extension_counts,
+            "ds5_line_address_extension_partition_drift",
+        )
+        self.assertEqual(
+            self._BOUNDS_ONLY_REFS,
+            set(line_references) & self._BOUNDS_ONLY_REFS,
+            "ds5_line_address_bounds_navigation_drift",
+        )
+        gated_references = [
+            reference for reference in line_references if reference not in self._BOUNDS_ONLY_REFS
+        ]
+        self.assertEqual(176, len(gated_references), "ds5_line_address_gated_reference_drift")
+        self.assertEqual(
+            70,
+            len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in gated_references}),
+            "ds5_line_address_gated_file_drift",
+        )
+
+        observed_line_references = [
+            reference
+            for census in data["reference_censuses"]
+            for probe in census["probes"]
+            for reference in probe["observed_refs"]
+            if self._LINE_REFERENCE_RE.match(reference)
+        ]
+        authority_evidence_line_references = [
+            reference
+            for finding in data["supplemental_findings"]
+            if "authority_sink" in finding
+            for reference in finding["evidence_refs"]
+            if self._LINE_REFERENCE_RE.match(reference)
+        ]
+        descriptor_evidence_line_references = [
+            reference
+            for finding in data["supplemental_findings"]
+            if "authority_sink" not in finding
+            for reference in finding["evidence_refs"]
+            if self._LINE_REFERENCE_RE.match(reference) and reference not in self._BOUNDS_ONLY_REFS
+        ]
+        self.assertEqual(28, len(observed_line_references), "ds5_line_address_observed_line_drift")
+        self.assertEqual(
+            118,
+            len(authority_evidence_line_references),
+            "ds5_line_address_authority_evidence_line_drift",
+        )
+        self.assertEqual(
+            30,
+            len(descriptor_evidence_line_references),
+            "ds5_line_address_descriptor_evidence_line_drift",
+        )
+        self.assertCountEqual(
+            gated_references,
+            observed_line_references
+            + authority_evidence_line_references
+            + descriptor_evidence_line_references,
+            "ds5_line_address_gated_partition_drift",
+        )
+
+        authority_slots = list(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
+        for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values():
+            authority_slots.extend(
+                [
+                    (
+                        specification["component_declaration_path"],
+                        specification["component_declaration_line"],
+                    ),
+                    (
+                        specification["component_declaration_path"],
+                        specification["prop_declaration_line"],
+                    ),
+                    *specification["uses"],
+                ]
+            )
+        self.assertEqual(236, len(authority_slots), "ds5_line_address_authority_slot_drift")
+        self.assertEqual(
+            69,
+            len({path for path, _line in authority_slots}),
+            "ds5_line_address_authority_file_drift",
+        )
+
+        authority_rows = [
+            finding for finding in data["supplemental_findings"] if "authority_sink" in finding
+        ]
+        receipt_slots: list[tuple[str, int]] = []
+        for row in authority_rows:
+            sink = row["authority_sink"]
+            receipt_slots.append((sink["component_declaration"]["path"], sink["component_declaration"]["line"]))
+            if "prop_declaration" in sink:
+                receipt_slots.append((sink["prop_declaration"]["path"], sink["prop_declaration"]["line"]))
+            receipt_slots.extend((site["path"], site["line"]) for site in sink["consumer_sites"])
+        self.assertEqual(39, len(authority_rows), "ds5_line_address_authority_row_drift")
+        self.assertEqual(130, len(receipt_slots), "ds5_line_address_nested_slot_drift")
+        self.assertEqual(
+            36,
+            len({path for path, _line in receipt_slots}),
+            "ds5_line_address_nested_file_drift",
         )
 
 

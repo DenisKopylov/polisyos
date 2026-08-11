@@ -27,6 +27,7 @@ from polisyos.pdc import (
     AuthorityBoundary,
     AuthorityDerivationTrace,
     EvidenceBasis,
+    GyComparisonAdmission,
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
@@ -39,6 +40,8 @@ from polisyos.pdc import (
     evaluate_s7_mandate_delegation_promotion_gate,
     evaluate_s8_value_posture_promotion_gate,
     gy_content_hash,
+    gy_recorded_content_hash,
+    is_gy_declared_non_authority_block,
 )
 from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
     Layer2S6BlindSpotPostureInput,
@@ -317,6 +320,87 @@ class CanonicalPromotionReceipt(_StrictModel):
         ):
             raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
         return self
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v1"
+)
+
+
+def canonical_promotion_receipt_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project one typed verification receipt without session-local lineage.
+
+    The complete receipt remains the custody record.  This projection removes
+    only the isolated confidence-ledger namespace, direct locators into that
+    namespace, and hashes/references mechanically derived from those locators.
+    Governing owner inputs, obligation outcomes, budget outcomes, refusal
+    reasons, scope, and authority boundaries remain content-bearing.
+    """
+
+    receipt = CanonicalPromotionReceipt.model_validate(value)
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    projected = receipt.model_dump(mode="json")
+    projected["owner_projection"].pop("projection_hash")
+    certificate = projected["confidence_ledger_projection"]
+    for key in (
+        "deployment_identity",
+        "scope_id",
+        "scope_anchor_ref",
+        "ledger_root_id",
+        "ledger_root_ref",
+        "head_event_id",
+        "head_event_ref",
+        "ledger_receipt_id",
+        "ledger_receipt_ref",
+        "projection_hash",
+    ):
+        certificate.pop(key)
+    for row in certificate["promotion_rows"]:
+        row.pop("check_id")
+        row.pop("execution_ordinal")
+        row.pop("execution_id")
+        row.pop("claim_execution_binding_hash")
+    projected.pop("confidence_ledger_scope_ref")
+    projected.pop("confidence_ledger_head_id")
+    projected.pop("confidence_ledger_head_ref")
+    projected.pop("confidence_ledger_receipt_id")
+    projected.pop("gate_outcome_hash")
+    projected.pop("trace_content_hash")
+
+    for obligation in projected["obligations"]:
+        risk_spend = obligation.get("risk_spend")
+        if not isinstance(risk_spend, dict):
+            continue
+        ledger_ref = risk_spend.pop("n11_confidence_ledger_ref", None)
+        if isinstance(ledger_ref, str):
+            obligation["evidence_refs"] = [
+                ref for ref in obligation["evidence_refs"] if ref != ledger_ref
+            ]
+
+    for spend_record in projected["risk_spend"]["spend_records"]:
+        spend_record.pop("n11_confidence_ledger_ref")
+
+    trace = projected.get("authority_derivation_trace")
+    if isinstance(trace, dict):
+        trace.pop("applicability_result_ref")
+        trace.pop("gate_outcome_hash")
+        trace.pop("confidence_ledger_scope_ref")
+        trace.pop("confidence_ledger_head_id")
+        trace.pop("confidence_ledger_receipt_id")
+        trace.pop("confidence_ledger_projection_hash")
+        trace.pop("trace_content_hash")
+        trace["calibration_refs"] = [
+            ref
+            for ref in trace.get("calibration_refs", [])
+            if not str(ref).startswith("confidence-check:")
+        ]
+    return projected
 
 
 class LegacyPromotionStrangleReceipt(_StrictModel):
@@ -1434,6 +1518,51 @@ def _validate_canonical_promotion_receipt_for_verification(
         value_receipt=value_receipt,
         confidence_ledger_session=confidence_ledger_session,
         expected_authority_provenance="verification",
+    )
+
+
+def admit_canonical_promotion_receipt_for_comparison(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path,
+    confidence_ledger_session: ConfidenceLedgerSession,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
+) -> GyComparisonAdmission:
+    """Return a comparison admission after full verification-owner replay.
+
+    The returned value is ephemeral.  It binds one exact live receipt to the
+    typed structural projection owned here; it is never serialized into a
+    governed artifact and cannot be reconstructed from a provenance string or a
+    self-computed projection hash.
+    """
+
+    parsed = (
+        receipt
+        if isinstance(receipt, CanonicalPromotionReceipt)
+        else CanonicalPromotionReceipt.model_validate(receipt)
+    )
+    issues = _validate_canonical_promotion_receipt_for_verification(
+        parsed,
+        repo_root=repo_root,
+        confidence_ledger_session=confidence_ledger_session,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+    )
+    if issues:
+        raise ValueError(
+            "promotion_comparison_admission_failed:"
+            + json.dumps(issues, sort_keys=True, default=str)
+        )
+    payload = parsed.model_dump(mode="json")
+    # Exercise the projection while the validating session is still live.
+    canonical_promotion_receipt_semantic_projection(payload)
+    return GyComparisonAdmission(
+        owner_rule=CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+        source_content_hash=gy_recorded_content_hash(payload),
+        projector=canonical_promotion_receipt_semantic_projection,
     )
 
 

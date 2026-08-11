@@ -51,7 +51,11 @@ from polisyos.data_requirement import (
 from polisyos.pdc import (
     GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    GyComparisonAdmission,
+    GyComparisonProjectionPlan,
     SearchTerminalKind,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
     gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
@@ -63,9 +67,6 @@ from polisyos.runtime.quality.acquisition_planner import (
     RealAcquisitionOwnerGateway,
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
-)
-from polisyos.runtime.quality.confidence_ledger import (
-    n9_promotion_projection_comparison_eligible,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
@@ -108,6 +109,10 @@ from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     load_l6_intervention_substrate,
     resolve_intervention_lever,
+)
+from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+    canonical_promotion_receipt_semantic_projection,
 )
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
@@ -197,6 +202,7 @@ _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
 _COMPARISON_IDENTITY_FIELDS = frozenset(
     {
         "comparison_content_hash",
+        "comparison_admission_manifest",
         "comparison_projection_schema_version",
         "comparison_rule_version",
     }
@@ -674,7 +680,10 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     mutated_gaps["gaps"] = [_with_content_hash(gap, "gap_content_hash") for gap in gap_records]
     corrupted["gaps"] = _with_content_hash(mutated_gaps, "gap_report_content_hash")
     corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"]["gap_report_content_hash"]
-    _set_cycle_trace_comparison_identity(corrupted["cycle_trace"])
+    _set_cycle_trace_comparison_identity(
+        corrupted["cycle_trace"],
+        _cycle_trace_plan_from_manifest(corrupted["cycle_trace"]),
+    )
     corrupted["cycle_trace"] = _with_content_hash(
         corrupted["cycle_trace"],
         "trace_content_hash",
@@ -782,7 +791,10 @@ def _smoke_terminal_corruption_bundles(
 def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
     """Refresh the trace and pack identities downstream of a smoke mutation."""
 
-    _set_cycle_trace_comparison_identity(bundle["cycle_trace"])
+    _set_cycle_trace_comparison_identity(
+        bundle["cycle_trace"],
+        _cycle_trace_plan_from_manifest(bundle["cycle_trace"]),
+    )
     bundle["cycle_trace"] = _with_content_hash(
         bundle["cycle_trace"],
         "trace_content_hash",
@@ -2478,6 +2490,7 @@ def _build_cycle_trace(
         DesignGenerationOrganRun,
         dict[str, Any],
         dict[str, Any],
+        tuple[GyComparisonAdmission, ...],
     ]:
         capture_metrics: dict[str, Any] = {}
         captured_organ_run: DesignGenerationOrganRun | None = None
@@ -2535,7 +2548,9 @@ def _build_cycle_trace(
         )
         from polisyos.runtime.quality.promotion_sequence import (
             CanonicalN9PromotionPort,
+            CanonicalPromotionReceipt,
             N9DesignProblemBinding,
+            admit_canonical_promotion_receipt_for_comparison,
             confidence_risk_scope_for_problem,
         )
 
@@ -2565,6 +2580,25 @@ def _build_cycle_trace(
                 min_cycles=2,
                 max_cycles=1,
             )
+            summaries = {
+                summary.candidate_id: summary for summary in run_result.candidate_summaries
+            }
+            admissions: list[GyComparisonAdmission] = []
+            for receipt_payload in run_result.promotion_port.receipts:
+                receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+                summary = summaries.get(receipt.candidate_id)
+                if summary is None:
+                    raise ValueError("n10a_promotion_candidate_owner_binding_invalid")
+                admissions.append(
+                    admit_canonical_promotion_receipt_for_comparison(
+                        receipt,
+                        repo_root=root,
+                        confidence_ledger_session=session,
+                        candidate_summary=summary,
+                        design_problem=problem,
+                        value_receipt=summary.value_receipt,
+                    )
+                )
         if generation_port.last_organ_run is None:
             raise ValueError("education_n4_owner_replay_not_attempted")
         replay_projection = _n4_owner_result_projection(generation_port.last_organ_run)
@@ -2591,9 +2625,10 @@ def _build_cycle_trace(
             generation_port.last_organ_run,
             active_capture,
             capture_metrics,
+            tuple(admissions),
         )
 
-    run_result, organ_run, active_capture, capture_metrics = asyncio.run(run())
+    run_result, organ_run, active_capture, capture_metrics, admissions = asyncio.run(run())
     stage_attempts = _cycle_stage_attempts(
         run_result=run_result,
         organ_run=organ_run,
@@ -2612,10 +2647,14 @@ def _build_cycle_trace(
     )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
+    run_plan = build_gy_comparison_projection_plan(run_payload, admissions=admissions)
     runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
-    n6_validation_evidence = _n6_single_terminal_gap_closure(normalized_run)
+    n6_validation_evidence = _n6_single_terminal_gap_closure(
+        normalized_run,
+        comparison_plan=run_plan,
+    )
     trace_identity = {
         "substrate_input_content_hash": (cycle_substrate_context.substrate_input_content_hash),
         "world_model_record_content_hash": (
@@ -2666,13 +2705,14 @@ def _build_cycle_trace(
             ),
         },
     }
-    _set_cycle_trace_comparison_identity(payload)
+    plan = build_gy_comparison_projection_plan(payload, admissions=admissions)
+    _set_cycle_trace_comparison_identity(payload, plan)
     trace = _with_content_hash(
         payload,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    trace = _reconcile_frozen_cycle_trace(trace, root)
+    trace = _reconcile_frozen_cycle_trace(trace, root, plan)
     if not allow_live_n4_capture and n4_capture_journal is None:
         _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
     return trace
@@ -4115,15 +4155,20 @@ def _stage_1_gap_triage(
 
 def _n6_single_terminal_gap_closure(
     run: GenerationCycleRun,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
     """Prove N6 accepts one coherent terminal by invoking its live validator."""
 
     validation_issues = list(validate_generation_cycle_run(run))
     cycle_count = len(run.cycles)
     terminal_kind = run.cycles[0].terminal_kind if cycle_count == 1 else None
-    run_comparison_content_hash = _n6_comparison_content_hash(run.model_dump(mode="json"))
+    run_comparison_content_hash = _n6_comparison_content_hash(
+        run.model_dump(mode="json"),
+        comparison_plan,
+    )
     receipt_payload = {
-        "run_comparison_content_hash": run_comparison_content_hash,
+        "run_content_hash": run_comparison_content_hash,
         "cycle_count": cycle_count,
         "terminal_kind": terminal_kind,
         "validation_issues": validation_issues,
@@ -4299,7 +4344,10 @@ def _build_gap_report(
     }
     stage_attempts = _mapping(cycle_trace.get("stage_attempts"))
     n6_validation_evidence = _n6_single_terminal_gap_closure(
-        GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run")))
+        GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run"))),
+        comparison_plan=_cycle_trace_plan_from_manifest(cycle_trace).relative_to(
+            ("generation_cycle_run",)
+        ),
     )
     stage_receipts = {
         "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
@@ -5751,7 +5799,10 @@ def _validate_stage_1_cycle_receipts(
             issues.append({"code": "n8_transport_gap_receipt_drift"})
     try:
         n6_validation_evidence = _n6_single_terminal_gap_closure(
-            GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run")))
+            GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run"))),
+            comparison_plan=_cycle_trace_plan_from_manifest(cycle_trace).relative_to(
+                ("generation_cycle_run",)
+            ),
         )
     except (TypeError, ValueError) as exc:
         issues.append(
@@ -6424,53 +6475,70 @@ def _with_content_hash(
     return {**normalized, field: _hash(content_bound)}
 
 
-def _n6_comparison_content_hash(payload: Mapping[str, Any]) -> str:
+def _n6_comparison_content_hash(
+    payload: Mapping[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
     return gy_comparison_content_hash(
         _json_value(payload),
-        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+        comparison_plan=plan,
     )
 
-def _cycle_trace_comparison_content_hash(payload: Mapping[str, Any]) -> str:
+
+def _cycle_trace_comparison_content_hash(
+    payload: Mapping[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
     stable = {
         str(key): value
         for key, value in payload.items()
         if key != "trace_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
     }
-    return _n6_comparison_content_hash(stable)
+    return _n6_comparison_content_hash(stable, plan)
 
-def _set_cycle_trace_comparison_identity(payload: dict[str, Any]) -> None:
+
+def _set_cycle_trace_comparison_identity(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> None:
+    payload["comparison_admission_manifest"] = plan.manifest
     payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
     payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
-    payload["comparison_content_hash"] = _cycle_trace_comparison_content_hash(payload)
+    payload["comparison_content_hash"] = _cycle_trace_comparison_content_hash(payload, plan)
+
 
 def _reconcile_frozen_cycle_trace(
     live: Mapping[str, Any],
     repo_root: Path,
+    plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
     path = repo_root / CYCLE_TRACE_OUTPUT
     if not path.is_file():
         return dict(live)
     frozen = _read_json(path)
-    if not frozen.get("comparison_content_hash") or frozen.get(
-        "comparison_content_hash"
-    ) != live.get("comparison_content_hash"):
-        return dict(live)
+    if frozen.get("trace_content_hash") != _hash(
+        {
+            key: value
+            for key, value in frozen.items()
+            if key not in {"trace_content_hash", "runtime_metrics"}
+        }
+    ):
+        raise ValueError("gy_cycle_trace_legacy_content_hash_drift")
+    if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
+        raise ValueError("gy_cycle_trace_comparison_admission_manifest_drift")
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"trace_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
     live_body = {key: value for key, value in live.items() if key not in identity_fields}
-    reconciled = reconcile_gy_operational_leaves(
-        frozen_body,
-        live_body,
-        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
-    )
+    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
     if not isinstance(reconciled, dict):  # pragma: no cover - both inputs are mappings
         raise ValueError("gy_cycle_trace_comparison_projection_invalid")
-    _set_cycle_trace_comparison_identity(reconciled)
+    _set_cycle_trace_comparison_identity(reconciled, plan)
     return _with_content_hash(
         reconciled,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
+
 
 def _cycle_trace_comparison_identity_issues(
     payload: Mapping[str, Any],
@@ -6483,9 +6551,32 @@ def _cycle_trace_comparison_identity_issues(
         issues.append({"code": "comparison_projection_schema_version_invalid"})
     if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
         issues.append({"code": "comparison_rule_version_invalid"})
-    if payload.get("comparison_content_hash") != _cycle_trace_comparison_content_hash(payload):
-        issues.append({"code": "comparison_content_hash_drift"})
+    try:
+        plan = _cycle_trace_plan_from_manifest(payload)
+    except ValueError as exc:
+        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
+    else:
+        if payload.get("comparison_content_hash") != _cycle_trace_comparison_content_hash(
+            payload,
+            plan,
+        ):
+            issues.append({"code": "comparison_content_hash_drift"})
     return issues
+
+
+def _cycle_trace_plan_from_manifest(
+    payload: Mapping[str, Any],
+) -> GyComparisonProjectionPlan:
+    return build_gy_comparison_projection_plan_from_manifest(
+        payload,
+        manifest=payload.get("comparison_admission_manifest"),
+        projector_registry={
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+                canonical_promotion_receipt_semantic_projection
+            )
+        },
+    )
+
 
 def _content_bound_canonical_json(payload: Mapping[str, Any]) -> str:
     """Serialize an artifact excluding only its explicitly allowed volatile metadata."""

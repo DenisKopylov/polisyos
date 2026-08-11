@@ -845,3 +845,75 @@ The ignored bound receipts are `tmp/gy-defc-4/post-repair-census/census_bound.py
 The summary's canonical receipt hash is
 `sha256:274de2fb40fc7dc5e81a08752e93c3e792114c1ae0911209621a25b5bfc4e644`.
 `[P37: recomputed]`
+
+### Producer-bound freeze candidate — superseding the self-hash design
+
+The `e2f23c6e` census/design above is not the accepted admission design. A second frozen review
+showed that an N9 DTO's strict shape plus its own recomputed `projection_hash` remained
+self-attestation: an arbitrary coherent DTO could author both the values and the hash that made it
+non-decisive. The nine Depth summaries had the same defect because their proposed parent proof was
+only another self-computed summary hash. The `32/3,799` forecast is therefore retained as a rejected
+structural upper-bound, with its admission predicate `not_established`; it is not a reissue
+denominator. No governed writer ran under that design. `[P37: independently_reconciled for the P32
+finding; not_established for the rejected admission forecast; recomputed only for the present
+governed-artifact diff, which remains empty]`
+
+The corrected admission unit is the complete `CanonicalPromotionReceipt`, never its detached N9
+projection. While the isolated verification session is live, the N9 owner strict-parses the complete
+receipt and runs the existing receipt verifier against that exact session, registry, candidate,
+design problem and value receipt. Only that successful replay mints an ephemeral admission token,
+bound to the exact raw full-receipt content hash and to an owner-defined typed semantic projection.
+The plan binds each token to exactly one derived JSON path; copied bytes consume no second token,
+duplicate paths fail closed, and a persisted path manifest is explicitly an integrity recipe rather
+than authority. A manifest cannot mint an admission or select a new path because the registered
+typed projector must still parse the aligned complete receipt. `[P37: recomputed]`
+
+The owner-defined semantic projection removes only the verification session's ledger namespace and
+the hashes/references mechanically derived from it: deployment/scope/root/head/receipt locators,
+N9 row execution/check/binding identities, receipt/trace ledger locators, and the matching N11 risk
+references. It retains the complete owner projection semantics, candidate, obligation statuses and
+reasons, risk amounts and budget outcome, refusal reasons, promotion lane, consumer outcome,
+computed authority boundary, non-ledger derivation facts, value method, and sequence reference. The
+ordinary full receipt remains recorded byte-for-byte and its ordinary model/self-hash validators run
+before projection. Reconciliation preserves that complete frozen receipt only when the old and live
+typed semantic projections are exactly equal. Depth's nine list-shaped summaries are excluded only
+after every complete parent receipt was live-validated; their old and live complete summary values
+must also be equal before frozen bytes are retained. `[P37: recomputed]`
+
+This realizes the §2 declaration contract without trusting the declaration. Scalar and list forms
+are classified identically: every direct provenance must be the recognized non-authority value
+`verification`; absent, empty, malformed, unrecognized, or mixed authority stays governing. The
+classification alone never changes `gy_content_hash`. It only routes an already producer-validated
+full receipt or parent-bound summary into the opt-in comparison plan. The rule version is now
+`policyos.gy.non_authority_verification.v2`. `[P37: recomputed]`
+
+Confidence-ledger remains the B3-blocked fifth member and receives no exclusion plan. Its four narrow
+projections remain fully governing, and its writer emits no comparison metadata; the old frozen N11
+artifact currently also fails its newer schema on missing
+`owner_bundle_projection.consumed_inputs`, independently confirming that it has no clean baseline to
+reissue in this batch. The post-freeze census must therefore measure the four-member batch, not the
+earlier five-member trial. The structural forecast pending that source-bound walk is promotion
+`3/210`, generation cycle `2/212`, N10a `4/712`, and Depth `19/1,624`: four artifacts, `28` admitted
+blocks, `2,758` scalar leaves. The nine Depth summaries add `9/60` to its ten complete-receipt blocks;
+no synthetic `projection_scope` or `projection_hash` leaf is added. `[P37: independently_reconciled
+for the structural forecast; not_established until the clean committed census; institutionally_supplied
+for the B3 recut]`
+
+The focused pre-freeze invocation exercised `57` tests and exited `0` in `116.055869` s. It includes
+the scalar/list and fail-closed declaration matrix, exact-token/copy/manifest adversaries, full
+frozen/live receipt reconciliation, a coherent self-rehashed detached N9 rejection with
+`confidence_ledger_projection_drift`, a governing-denominator red witness, Depth operational and
+summary reconciliation, and the N10a bare-declaration bridge. Stdout SHA-256 is
+`5603b3bdbd979d86e8c62be43291039331c1f18d392c470cba56f4eba489b84d`; stderr is empty with SHA-256
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`. The retained metadata is
+`tmp/gy-defc-4/source-tests/pre-freeze.meta.json`. `[P37: recomputed]`
+
+Additional non-receipts are preserved. A direct promotion probe first used the receipt interpreter
+without current-source `PYTHONPATH` precedence and exited `1` on an import from the path-witness
+checkout; the corrected diagnostic was read-only. A broad N10a unit expansion built one complete
+live bundle and passed its first real-owner test, then remained CPU-heavy in the next test; it was
+interrupted with `SIGINT` and exited `2` rather than spending an unbudgeted full-module wave. It
+wrote no governed artifact, and the current changed-path set has no architecture JSON. Two direct
+confidence frozen-payload diagnostics both returned the same B3 schema failure above and are not
+writer receipts. `[P37: recomputed for the terminal codes and present changed-path intersection;
+not_established for unretained launch timing/details]`

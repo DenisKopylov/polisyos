@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
 from inspect import Parameter, signature
 from pathlib import Path
-from tempfile import mkdtemp
+from tempfile import TemporaryDirectory, mkdtemp
 from types import SimpleNamespace
 from typing import get_type_hints
 from uuid import uuid4
@@ -25,6 +26,7 @@ from polisyos.pdc import (
     PromotionRiskSpendRecord,
     SearchTerminalKind,
     gy_content_hash,
+    gy_recorded_content_hash,
 )
 from polisyos.pdc._impl.layer2_design_search import (
     Layer2S6BlindSpotPostureInput,
@@ -1695,6 +1697,76 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     } <= issue_codes
     assert summaries[0].front == "research"
     assert summaries[0].certified_by_n9 is False
+
+
+def test_promotion_writer_reconciles_live_lineage_but_retains_full_frozen_receipts() -> None:
+    from tools.quality.validation import check_layer3_gy_promotion_contract as validator
+
+    frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
+    live, plan = validator._build_payload_with_comparison_plan(REPO_ROOT)
+    receipt_keys = (
+        "contract_lane_anytime_refusal",
+        "production_honest_shadow",
+        "non_promotable_contract_stamp",
+    )
+    for key in receipt_keys:
+        frozen_receipt = CanonicalPromotionReceipt.model_validate(frozen[key])
+        live_receipt = CanonicalPromotionReceipt.model_validate(live[key])
+        assert gy_recorded_content_hash(
+            frozen_receipt.model_dump(mode="json")
+        ) != gy_recorded_content_hash(live_receipt.model_dump(mode="json"))
+        assert validator.canonical_promotion_receipt_semantic_projection(
+            frozen_receipt.model_dump(mode="json")
+        ) == validator.canonical_promotion_receipt_semantic_projection(
+            live_receipt.model_dump(mode="json")
+        )
+
+    live.pop("capture_wall_time_seconds", None)
+    validator._set_comparison_identity(live, plan)
+    live["contract_content_hash"] = validator._contract_content_hash(live)
+    reconciled = validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
+    for key in receipt_keys:
+        assert reconciled[key] == frozen[key]
+        assert reconciled[key]["confidence_ledger_projection"]
+    assert reconciled["comparison_admission_manifest"] == plan.manifest
+
+
+def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission() -> None:
+    promotion_input = _promotion_input()
+    risk_scope = promotion_sequence_module.confidence_risk_scope_for_problem(
+        promotion_input.design_problem_binding
+    )
+    with TemporaryDirectory(prefix="gy-n9-comparison-admission-") as temp_dir:
+        state_root = Path(temp_dir)
+        session = ConfidenceLedgerSession._for_verification(
+            REPO_ROOT,
+            risk_scope=risk_scope,
+            artifact_store=FileSystemCAS(state_root / "cas"),
+            state_root=state_root / "state",
+        )
+        receipt = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+            promotion_input,
+            confidence_ledger_session=session,
+        )
+        promotion_sequence_module.admit_canonical_promotion_receipt_for_comparison(
+            receipt,
+            repo_root=REPO_ROOT,
+            confidence_ledger_session=session,
+        )
+
+        forged_payload = receipt.model_dump(mode="json")
+        projection = forged_payload["confidence_ledger_projection"]
+        projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+        projection["projection_hash"] = gy_content_hash(
+            {key: value for key, value in projection.items() if key != "projection_hash"}
+        )
+        forged = CanonicalPromotionReceipt.model_validate(forged_payload)
+        with pytest.raises(ValueError, match="confidence_ledger_projection_drift"):
+            promotion_sequence_module.admit_canonical_promotion_receipt_for_comparison(
+                forged,
+                repo_root=REPO_ROOT,
+                confidence_ledger_session=session,
+            )
 
 
 def _ledger_session(

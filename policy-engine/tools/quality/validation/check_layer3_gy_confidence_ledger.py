@@ -44,10 +44,7 @@ from pydantic import (
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.pdc import (
-    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
-    GY_VERIFICATION_COMPARISON_RULE_VERSION,
     PromotionObligationClass,
-    gy_comparison_content_hash,
     gy_content_hash,
     reconcile_gy_operational_leaves,
 )
@@ -766,58 +763,21 @@ class FrozenConfidenceLedgerContract(_StrictModel):
     artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
-def _confidence_non_authority_comparison_eligible(value: Mapping[str, object]) -> bool:
-    model_by_scope = {
-        "n11_real_accounting_append_lineage": FrozenLedgerReceiptProjection,
-        "n11_conformance_append_lineage": FrozenLedgerReceiptProjection,
-        "n9_promotion_certificate": FrozenN9PromotionCertificateProjection,
-        "n12_epoch_reference": FrozenN12EpochReferenceProjection,
-    }
-    model = model_by_scope.get(str(value.get("projection_scope")))
-    if model is None:
-        return False
-    try:
-        projection = model.model_validate(value)
-    except ValidationError, ValueError, TypeError:
-        return False
-    if projection.authority_provenance != "verification":
-        return False
-    payload = projection.model_dump(mode="json", exclude={"projection_hash"})
-    return projection.projection_hash == _ledger_content_hash(payload)
-
-def _confidence_comparison_content_hash(payload: Mapping[str, Any]) -> str:
-    stable = {
-        str(key): value
-        for key, value in payload.items()
-        if key != "artifact_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
-    }
-    return gy_comparison_content_hash(
-        stable,
-        admit_non_authority_block=_confidence_non_authority_comparison_eligible,
-    )
-
 def _set_confidence_contract_identities(payload: dict[str, Any]) -> None:
-    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
-    payload["comparison_content_hash"] = _confidence_comparison_content_hash(payload)
+    for key in _COMPARISON_IDENTITY_FIELDS:
+        payload.pop(key, None)
     payload["artifact_content_hash"] = gy_content_hash(
         {key: value for key, value in payload.items() if key != "artifact_content_hash"}
     )
 
+
 def _confidence_comparison_identity_issues(
     payload: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
-    if (
-        payload.get("comparison_projection_schema_version")
-        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-    ):
-        issues.append({"code": "comparison_projection_schema_version_invalid"})
-    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
-        issues.append({"code": "comparison_rule_version_invalid"})
-    if payload.get("comparison_content_hash") != _confidence_comparison_content_hash(payload):
-        issues.append({"code": "comparison_content_hash_drift"})
-    return issues
+    if any(payload.get(key) is not None for key in _COMPARISON_IDENTITY_FIELDS):
+        return [{"code": "confidence_verification_projection_remains_governing"}]
+    return []
+
 
 def _reconcile_confidence_contracts(
     frozen: FrozenConfidenceLedgerContract,
@@ -828,26 +788,25 @@ def _reconcile_confidence_contracts(
         or frozen.comparison_content_hash != live.comparison_content_hash
     ):
         return live
-    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"artifact_content_hash"}
     frozen_body = {
         key: value
-        for key, value in frozen.model_dump(mode="json").items()
-        if key not in identity_fields
+        for key, value in frozen.model_dump(mode="json", exclude_none=True).items()
+        if key != "artifact_content_hash"
     }
     live_body = {
         key: value
-        for key, value in live.model_dump(mode="json").items()
-        if key not in identity_fields
+        for key, value in live.model_dump(mode="json", exclude_none=True).items()
+        if key != "artifact_content_hash"
     }
-    reconciled = reconcile_gy_operational_leaves(
-        frozen_body,
-        live_body,
-        admit_non_authority_block=_confidence_non_authority_comparison_eligible,
-    )
+    try:
+        reconciled = reconcile_gy_operational_leaves(frozen_body, live_body)
+    except ValueError:
+        return live
     if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
         raise ValueError("confidence_contract_comparison_projection_invalid")
     _set_confidence_contract_identities(reconciled)
     return FrozenConfidenceLedgerContract.model_validate(reconciled)
+
 
 def _rational(value: Fraction) -> RationalSpec:
     return RationalSpec(numerator=value.numerator, denominator=value.denominator)
@@ -1632,7 +1591,7 @@ def contract_bytes(contract: FrozenConfidenceLedgerContract) -> bytes:
 
     return (
         json.dumps(
-            contract.model_dump(mode="json"),
+            contract.model_dump(mode="json", exclude_none=True),
             ensure_ascii=False,
             indent=2,
             sort_keys=True,
@@ -2311,8 +2270,14 @@ def validate_payload(
         parsed = FrozenConfidenceLedgerContract.model_validate(payload)
     except ValidationError as exc:
         return {"status": "fail", "issues": [{"code": "schema_invalid", "error": str(exc)}]}
-    issues.extend(_confidence_comparison_identity_issues(parsed.model_dump(mode="json")))
-    source = parsed.model_dump(mode="json", exclude={"artifact_content_hash"})
+    issues.extend(
+        _confidence_comparison_identity_issues(parsed.model_dump(mode="json", exclude_none=True))
+    )
+    source = parsed.model_dump(
+        mode="json",
+        exclude={"artifact_content_hash"},
+        exclude_none=True,
+    )
     if parsed.artifact_content_hash != gy_content_hash(source):
         issues.append({"code": "artifact_content_hash_drift"})
     issues.extend(

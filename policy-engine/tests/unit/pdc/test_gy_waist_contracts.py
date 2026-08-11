@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import json
 import re
-from collections.abc import Mapping
 
 import pytest
 from pydantic import ValidationError
@@ -19,6 +18,7 @@ from polisyos.pdc import (
     DecisionGrade,
     EvidenceBasis,
     EvidenceKind,
+    GyComparisonAdmission,
     OperationClass,
     OperationContract,
     OperationInvocationRecord,
@@ -32,13 +32,15 @@ from polisyos.pdc import (
     VOISelectionAudit,
     WorkspaceContract,
     assert_ring2_verifier_provenance,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
     gy_artifact_self_identity_projection,
     gy_comparison_content_hash,
     gy_content_hash,
+    gy_recorded_content_hash,
     is_gy_content_hash_excluded_field,
     is_gy_declared_non_authority_block,
     reconcile_gy_operational_leaves,
-    strip_gy_comparison_fields,
     strip_gy_volatile_fields,
 )
 from polisyos.pdc._impl.gy_waist import (
@@ -107,14 +109,6 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
     )
 
 
-
-
-
-
-
-
-
-
 @pytest.mark.parametrize(
     "declaration",
     [
@@ -133,6 +127,7 @@ def test_gy_comparison_predicate_recognizes_only_entirely_non_authority_declarat
 
     assert is_gy_declared_non_authority_block(block)
     assert not is_gy_content_hash_excluded_field("confidence_ledger_projection")
+
 
 @pytest.mark.parametrize(
     "block",
@@ -159,63 +154,75 @@ def test_gy_comparison_predicate_keeps_malformed_or_authority_blocks_governing(
 ) -> None:
     assert not is_gy_declared_non_authority_block(block)
 
+
+def _verification_semantic_projection(block: dict[str, object]) -> dict[str, object]:
+    if not is_gy_declared_non_authority_block(block):
+        raise ValueError("verification_declaration_invalid")
+    return {
+        "authority_provenance": block["authority_provenance"],
+        "status": block["status"],
+    }
+
+
+def _verification_admission(
+    block: dict[str, object],
+    *,
+    action: str = "project",
+) -> GyComparisonAdmission:
+    return GyComparisonAdmission(
+        owner_rule="test.verification_receipt.v1",
+        source_content_hash=gy_recorded_content_hash(block),
+        projector=_verification_semantic_projection,
+        action=action,  # type: ignore[arg-type]
+    )
+
+
 def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_record() -> None:
     recorded = {
         "governing_input": {"node_ref": "node-a"},
         "confidence_ledger_projection": {
             "authority_provenance": "verification",
             "deployment_identity": "deployment-a",
-            "projection_hash": "sha256:validated",
-            "checks": [{"check_id": "check-a", "status": "refused"}],
+            "status": "refused",
         },
     }
     replayed = {
         "governing_input": {"node_ref": "node-a"},
         "confidence_ledger_projection": {
-            "authority_provenance": ["verification"],
+            "authority_provenance": "verification",
             "deployment_identity": "deployment-b",
-            "projection_hash": "sha256:validated",
-            "checks": [{"check_id": "check-b", "status": "refused"}],
+            "status": "refused",
         },
     }
 
-    def admit(block: Mapping[str, object]) -> bool:
-        return block.get("projection_hash") == "sha256:validated"
+    recorded_plan = build_gy_comparison_projection_plan(
+        recorded,
+        admissions=(_verification_admission(recorded["confidence_ledger_projection"]),),
+    )
+    replayed_plan = build_gy_comparison_projection_plan(
+        replayed,
+        admissions=(_verification_admission(replayed["confidence_ledger_projection"]),),
+    )
 
     assert gy_content_hash(recorded) != gy_content_hash(replayed)
     assert gy_comparison_content_hash(
         recorded,
-        admit_non_authority_block=admit,
+        comparison_plan=recorded_plan,
     ) == gy_comparison_content_hash(
         replayed,
-        admit_non_authority_block=admit,
+        comparison_plan=replayed_plan,
     )
-    assert (
-        reconcile_gy_operational_leaves(
-            recorded,
-            replayed,
-            admit_non_authority_block=admit,
-        )
-        == recorded
-    )
-    assert strip_gy_comparison_fields(
-        recorded,
-        admit_non_authority_block=admit,
-    ) == {"governing_input": {"node_ref": "node-a"}}
+    assert replayed_plan.preserve_admitted_blocks(recorded, replayed) == recorded
     assert strip_gy_volatile_fields(recorded) == recorded
-    assert recorded["confidence_ledger_projection"]["checks"] == [
-        {"check_id": "check-a", "status": "refused"}
-    ]
+    assert recorded["confidence_ledger_projection"]["deployment_identity"] == "deployment-a"
 
     unadmitted = copy.deepcopy(replayed)
-    unadmitted["confidence_ledger_projection"]["projection_hash"] = "sha256:unvalidated"
-    assert gy_comparison_content_hash(
-        recorded,
-        admit_non_authority_block=admit,
-    ) != gy_comparison_content_hash(
-        unadmitted,
-        admit_non_authority_block=admit,
-    )
+    unadmitted["confidence_ledger_projection"]["deployment_identity"] = "deployment-c"
+    with pytest.raises(ValueError, match="live_admission_unbound"):
+        build_gy_comparison_projection_plan(
+            unadmitted,
+            admissions=(_verification_admission(recorded["confidence_ledger_projection"]),),
+        )
 
     governing_replay = {
         **replayed,
@@ -223,20 +230,11 @@ def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_re
     }
     assert gy_comparison_content_hash(
         recorded,
-        admit_non_authority_block=admit,
+        comparison_plan=recorded_plan,
     ) != gy_comparison_content_hash(
         governing_replay,
-        admit_non_authority_block=admit,
+        comparison_plan=replayed_plan,
     )
-    with pytest.raises(
-        GyOperationalReconciliationError,
-        match="gy_operational_reconciliation_semantic_projection_mismatch",
-    ):
-        reconcile_gy_operational_leaves(
-            recorded,
-            governing_replay,
-            admit_non_authority_block=admit,
-        )
 
     mixed_authority = copy.deepcopy(recorded)
     mixed_authority["confidence_ledger_projection"]["authority_provenance"] = [
@@ -247,12 +245,13 @@ def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_re
     mixed_shift["confidence_ledger_projection"]["deployment_identity"] = "deployment-b"
     assert gy_content_hash(mixed_authority) != gy_content_hash(mixed_shift)
 
+
 def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_lists() -> None:
     payload = {
         "receipts": [
             {
                 "authority_provenance": ["verification"],
-                "projection_hash": "sha256:validated",
+                "status": "refused",
                 "receipt_id": "run-specific",
             },
             {
@@ -262,13 +261,11 @@ def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_list
         ]
     }
 
-    def admit(block: Mapping[str, object]) -> bool:
-        return block.get("projection_hash") == "sha256:validated"
-
-    assert strip_gy_comparison_fields(
+    plan = build_gy_comparison_projection_plan(
         payload,
-        admit_non_authority_block=admit,
-    ) == {
+        admissions=(_verification_admission(payload["receipts"][0], action="exclude"),),
+    )
+    assert plan.project(payload) == {
         "receipts": [
             {
                 "authority_provenance": ["not_established"],
@@ -281,11 +278,69 @@ def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_list
     shifted["receipts"][1]["receipt_id"] = "governing-shifted"
     assert gy_comparison_content_hash(
         payload,
-        admit_non_authority_block=admit,
+        comparison_plan=plan,
     ) != gy_comparison_content_hash(
         shifted,
-        admit_non_authority_block=admit,
+        comparison_plan=plan,
     )
+    semantic_shift = copy.deepcopy(payload)
+    semantic_shift["receipts"][0]["status"] = "promoted"
+    with pytest.raises(ValueError, match="admitted_block_semantic_mismatch"):
+        plan.preserve_admitted_blocks(payload, semantic_shift)
+
+
+def test_gy_comparison_admission_is_exact_and_does_not_cover_a_copied_block() -> None:
+    block = {
+        "authority_provenance": "verification",
+        "deployment_identity": "deployment-a",
+        "status": "refused",
+    }
+    payload = {"receipts": [copy.deepcopy(block), copy.deepcopy(block)]}
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(_verification_admission(block),),
+    )
+
+    shifted = copy.deepcopy(payload)
+    shifted["receipts"][1]["deployment_identity"] = "forged-copy"
+    assert gy_comparison_content_hash(
+        payload,
+        comparison_plan=plan,
+    ) != gy_comparison_content_hash(
+        shifted,
+        comparison_plan=plan,
+    )
+
+
+def test_gy_comparison_manifest_is_integrity_only_and_cannot_choose_a_new_path() -> None:
+    block = {
+        "authority_provenance": "verification",
+        "deployment_identity": "deployment-a",
+        "status": "refused",
+    }
+    payload = {"governing_input": {"node_ref": "node-a"}, "receipt": block}
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(_verification_admission(block),),
+    )
+    reconstructed = build_gy_comparison_projection_plan_from_manifest(
+        payload,
+        manifest=plan.manifest,
+        projector_registry={"test.verification_receipt.v1": _verification_semantic_projection},
+    )
+    assert reconstructed.project(payload) == plan.project(payload)
+
+    forged_manifest = copy.deepcopy(plan.manifest)
+    forged_manifest[0]["json_pointer"] = "/governing_input"
+    with pytest.raises(ValueError, match="verification_declaration_invalid"):
+        build_gy_comparison_projection_plan_from_manifest(
+            payload,
+            manifest=forged_manifest,
+            projector_registry={
+                "test.verification_receipt.v1": _verification_semantic_projection
+            },
+        )
+
 
 def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:
     draft = {"value": 3, "created_at": "2026-06-15T10:00:00Z"}

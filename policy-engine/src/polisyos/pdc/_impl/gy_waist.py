@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
 
@@ -28,7 +29,7 @@ GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9
 GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
 
 
-GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v1"
+GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v2"
 
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
@@ -76,6 +77,173 @@ _GY_DRIFT_MISSING = object()
 _GY_CONTENT_HASH_VALUE_MISSING = object()
 _GY_DIAGNOSTIC_IDENTITY_PATTERN = r"^(?:absent|sha256:[0-9a-f]{64})$"
 _GY_NON_AUTHORITY_PROVENANCE = frozenset({"verification"})
+_GY_COMPARISON_BLOCK_EXCLUDED = object()
+type _GyComparisonPathSegment = str | int
+type _GyComparisonPath = tuple[_GyComparisonPathSegment, ...]
+
+
+@dataclass(frozen=True)
+class GyComparisonAdmission:
+    """One ephemeral producer-owned admission into a comparison projection.
+
+    ``source_content_hash`` binds the admission to the exact live block that the
+    producer validated.  ``projector`` is owned by that producer and is applied
+    to the aligned frozen block only after the live path has been derived from
+    that exact binding.  A JSON declaration or a self-computed hash cannot mint
+    an admission.
+    """
+
+    owner_rule: str
+    source_content_hash: str
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"] = "project"
+
+
+@dataclass(frozen=True)
+class _GyComparisonPlanEntry:
+    path: _GyComparisonPath
+    owner_rule: str
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"]
+
+
+@dataclass(frozen=True)
+class GyComparisonProjectionPlan:
+    """Path-bound comparison plan derived from live producer admissions."""
+
+    entries: tuple[_GyComparisonPlanEntry, ...]
+
+    def __post_init__(self) -> None:
+        paths = tuple(entry.path for entry in self.entries)
+        if len(paths) != len(set(paths)):
+            raise ValueError("gy_comparison_admission_path_duplicate")
+
+    @property
+    def manifest(self) -> list[dict[str, str]]:
+        """Return the stable, persisted description of admitted live paths."""
+
+        return [
+            {
+                "action": entry.action,
+                "json_pointer": _gy_comparison_json_pointer(entry.path),
+                "owner_rule": entry.owner_rule,
+            }
+            for entry in self.entries
+        ]
+
+    def project(self, value: object) -> object:
+        """Project an aligned full record under this producer-bound plan."""
+
+        entries = {entry.path: entry for entry in self.entries}
+        applied: set[_GyComparisonPath] = set()
+
+        def walk(item: object, path: _GyComparisonPath) -> object:
+            entry = entries.get(path)
+            if entry is not None:
+                if not isinstance(item, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                applied.add(path)
+                if entry.action == "exclude":
+                    entry.projector(item)
+                    return _GY_COMPARISON_BLOCK_EXCLUDED
+                projected = entry.projector(item)
+                if projected is _GY_COMPARISON_BLOCK_EXCLUDED:
+                    raise ValueError("gy_comparison_projector_action_mismatch")
+                return strip_gy_volatile_fields(projected)
+            if isinstance(item, Mapping):
+                projected_mapping: dict[str, object] = {}
+                for key, child in item.items():
+                    normalized_key = str(key)
+                    if is_gy_content_hash_excluded_field(normalized_key):
+                        continue
+                    projected_child = walk(child, (*path, normalized_key))
+                    if projected_child is not _GY_COMPARISON_BLOCK_EXCLUDED:
+                        projected_mapping[normalized_key] = projected_child
+                return projected_mapping
+            if isinstance(item, (list, tuple)):
+                projected_items: list[object] = []
+                for index, child in enumerate(item):
+                    projected_child = walk(child, (*path, index))
+                    if projected_child is not _GY_COMPARISON_BLOCK_EXCLUDED:
+                        projected_items.append(projected_child)
+                return projected_items
+            return item
+
+        projected = walk(value, ())
+        if applied != set(entries):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return projected
+
+    def relative_to(self, prefix: _GyComparisonPath) -> GyComparisonProjectionPlan:
+        """Return the portion of this plan below one already-bound container."""
+
+        selected = tuple(
+            _GyComparisonPlanEntry(
+                path=entry.path[len(prefix) :],
+                owner_rule=entry.owner_rule,
+                projector=entry.projector,
+                action=entry.action,
+            )
+            for entry in self.entries
+            if entry.path[: len(prefix)] == prefix
+        )
+        if not selected:
+            raise ValueError("gy_comparison_relative_plan_empty")
+        return GyComparisonProjectionPlan(entries=selected)
+
+    def preserve_admitted_blocks(self, previous: object, current: object) -> object:
+        """Retain admitted evidence while taking unrelated live reissue deltas.
+
+        A projected admission is retained only when its complete typed semantic
+        projection is equal.  An excluded admission was already validated and
+        content-bound by its live producer token.  Fields outside admissions are
+        taken from the live record, except ordinary operational leaves.
+        """
+
+        entries = {entry.path: entry for entry in self.entries}
+        preserve_operational = self.project(previous) == self.project(current)
+        visited: set[_GyComparisonPath] = set()
+
+        def walk(left: object, right: object, path: _GyComparisonPath) -> object:
+            entry = entries.get(path)
+            if entry is not None:
+                if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                visited.add(path)
+                if entry.projector(left) != entry.projector(right):
+                    raise ValueError("gy_comparison_admitted_block_semantic_mismatch")
+                return left
+            if isinstance(left, Mapping) and isinstance(right, Mapping):
+                return {
+                    str(key): (
+                        left[key]
+                        if (
+                            preserve_operational
+                            and key in left
+                            and is_gy_content_hash_excluded_field(str(key))
+                        )
+                        else walk(left[key], child, (*path, str(key)))
+                        if key in left
+                        else child
+                    )
+                    for key, child in right.items()
+                }
+            if isinstance(left, list) and isinstance(right, list):
+                return [
+                    walk(left[index], child, (*path, index)) if index < len(left) else child
+                    for index, child in enumerate(right)
+                ]
+            if isinstance(left, tuple) and isinstance(right, tuple):
+                return tuple(
+                    walk(left[index], child, (*path, index)) if index < len(left) else child
+                    for index, child in enumerate(right)
+                )
+            return right
+
+        reconciled = walk(previous, current, ())
+        if visited != set(entries):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return reconciled
 
 
 class _GyDriftOperandIdentity(BaseModel):
@@ -185,8 +353,6 @@ def is_gy_content_hash_excluded_field(key: str) -> bool:
     )
 
 
-
-
 def is_gy_declared_non_authority_block(value: object) -> bool:
     """Return whether a block declares only recognized non-authority provenance.
 
@@ -208,6 +374,7 @@ def is_gy_declared_non_authority_block(value: object) -> bool:
         provenance in _GY_NON_AUTHORITY_PROVENANCE for provenance in provenances
     )
 
+
 def strip_gy_volatile_fields(value: object) -> object:
     """Return ``value`` with operational timing fields removed recursively."""
 
@@ -222,51 +389,6 @@ def strip_gy_volatile_fields(value: object) -> object:
     return value
 
 
-def strip_gy_comparison_fields(
-    value: object,
-    *,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool],
-) -> object:
-    """Return an owner-admitted GY comparison projection.
-
-    Operational fields are omitted by the existing canonical name rules. A
-    declaration-bearing mapping is omitted only when the caller's typed producer
-    admission callback independently validates that exact block. Missing,
-    malformed, unrecognized, mixed-authority, or unadmitted blocks remain
-    governing.
-    """
-
-    if isinstance(value, dict):
-        projected: dict[str, object] = {}
-        for key, item in value.items():
-            if is_gy_content_hash_excluded_field(str(key)):
-                continue
-            if (
-                is_gy_declared_non_authority_block(item)
-                and isinstance(item, Mapping)
-                and admit_non_authority_block(item)
-            ):
-                continue
-            projected[str(key)] = strip_gy_comparison_fields(
-                item,
-                admit_non_authority_block=admit_non_authority_block,
-            )
-        return projected
-    if isinstance(value, (list, tuple)):
-        return [
-            strip_gy_comparison_fields(
-                item,
-                admit_non_authority_block=admit_non_authority_block,
-            )
-            for item in value
-            if not (
-                is_gy_declared_non_authority_block(item)
-                and isinstance(item, Mapping)
-                and admit_non_authority_block(item)
-            )
-        ]
-    return value
-
 def gy_content_hash(value: object) -> str:
     """Return a GY evidence content hash over time-stripped canonical JSON."""
 
@@ -279,23 +401,132 @@ def gy_content_hash(value: object) -> str:
     return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 
-def gy_comparison_content_hash(
-    value: object,
-    *,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool],
-) -> str:
-    """Hash the owner-admitted comparison projection of a full GY record."""
+def gy_recorded_content_hash(value: object) -> str:
+    """Return an exact canonical-JSON hash without comparison exclusions."""
 
     payload = json.dumps(
-        strip_gy_comparison_fields(
-            value,
-            admit_non_authority_block=admit_non_authority_block,
-        ),
+        value,
         sort_keys=True,
         separators=(",", ":"),
         default=str,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def build_gy_comparison_projection_plan(
+    value: object,
+    *,
+    admissions: tuple[GyComparisonAdmission, ...],
+) -> GyComparisonProjectionPlan:
+    """Bind exact live producer admissions to their derived payload paths.
+
+    Admissions form a multiset.  Every supplied admission must match exactly one
+    live mapping, and an additional byte-identical copy receives no admission.
+    This prevents a caller-controlled declaration or duplicated block from
+    widening the comparison projection.
+    """
+
+    remaining = list(admissions)
+    entries: list[_GyComparisonPlanEntry] = []
+
+    def walk(item: object, path: _GyComparisonPath) -> None:
+        if isinstance(item, Mapping):
+            source_content_hash = gy_recorded_content_hash(item)
+            match_index = next(
+                (
+                    index
+                    for index, admission in enumerate(remaining)
+                    if admission.source_content_hash == source_content_hash
+                ),
+                None,
+            )
+            if match_index is not None:
+                admission = remaining.pop(match_index)
+                # Exercise the producer's typed projector at binding time.  A
+                # coincidental hash-shaped mapping cannot create a usable plan.
+                admission.projector(item)
+                entries.append(
+                    _GyComparisonPlanEntry(
+                        path=path,
+                        owner_rule=admission.owner_rule,
+                        projector=admission.projector,
+                        action=admission.action,
+                    )
+                )
+                return
+            for key, child in item.items():
+                walk(child, (*path, str(key)))
+        elif isinstance(item, (list, tuple)):
+            for index, child in enumerate(item):
+                walk(child, (*path, index))
+
+    walk(value, ())
+    if remaining:
+        raise ValueError("gy_comparison_live_admission_unbound")
+    return GyComparisonProjectionPlan(entries=tuple(entries))
+
+
+def build_gy_comparison_projection_plan_from_manifest(
+    value: object,
+    *,
+    manifest: object,
+    projector_registry: Mapping[str, Callable[[Mapping[str, object]], object]],
+) -> GyComparisonProjectionPlan:
+    """Reconstruct a projection recipe for non-authoritative integrity checks.
+
+    This function does not establish comparison admission.  Writers and exact
+    rederive checks must independently rebuild a plan from live producer
+    admissions and require its manifest to equal this recipe.
+    """
+
+    if not isinstance(manifest, list) or not manifest:
+        raise ValueError("gy_comparison_admission_manifest_invalid")
+    entries: list[_GyComparisonPlanEntry] = []
+    for row in manifest:
+        if not isinstance(row, Mapping):
+            raise ValueError("gy_comparison_admission_manifest_invalid")
+        pointer = row.get("json_pointer")
+        owner_rule = row.get("owner_rule")
+        action = row.get("action")
+        if (
+            not isinstance(pointer, str)
+            or not isinstance(owner_rule, str)
+            or action not in {"exclude", "project"}
+            or owner_rule not in projector_registry
+        ):
+            raise ValueError("gy_comparison_admission_manifest_invalid")
+        path = _gy_comparison_path_from_pointer(value, pointer)
+        entries.append(
+            _GyComparisonPlanEntry(
+                path=path,
+                owner_rule=owner_rule,
+                projector=projector_registry[owner_rule],
+                action=action,
+            )
+        )
+    plan = GyComparisonProjectionPlan(entries=tuple(entries))
+    if plan.manifest != manifest:
+        raise ValueError("gy_comparison_admission_manifest_not_canonical")
+    plan.project(value)
+    return plan
+
+
+def gy_comparison_content_hash(
+    value: object,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
+) -> str:
+    """Hash the owner-admitted comparison projection of a full GY record."""
+
+    projected = comparison_plan.project(value)
+    payload = json.dumps(
+        projected,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
 
 def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     """Return the GY semantic payload for an artifact or its writer draft.
@@ -323,7 +554,6 @@ def reconcile_gy_operational_leaves(
     recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
     admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
     require_exact_match: bool = False,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None = None,
 ) -> object:
     """Preserve shared operational leaves only after semantic and shape agreement.
 
@@ -332,16 +562,7 @@ def reconcile_gy_operational_leaves(
     Mismatches report recursive paths and content identities, never raw values.
     """
 
-    projector = (
-        (
-            lambda value: strip_gy_comparison_fields(
-                value,
-                admit_non_authority_block=admit_non_authority_block,
-            )
-        )
-        if admit_non_authority_block is not None
-        else strip_gy_volatile_fields
-    )
+    projector = strip_gy_volatile_fields
     previous_semantic = projector(previous)
     current_semantic = projector(current)
     if previous_semantic != current_semantic:
@@ -352,11 +573,7 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    if not _gy_payload_shape_matches(
-        previous,
-        current,
-        admit_non_authority_block=admit_non_authority_block,
-    ):
+    if not _gy_payload_shape_matches(previous, current):
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_shape_mismatch",
             previous,
@@ -372,11 +589,7 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    return _reconcile_gy_operational_leaves(
-        previous,
-        current,
-        admit_non_authority_block=admit_non_authority_block,
-    )
+    return _reconcile_gy_operational_leaves(previous, current)
 
 
 def _gy_operational_reconciliation_error(
@@ -553,100 +766,82 @@ def _gy_json_pointer(parent: str, segment: str) -> str:
     return f"{parent}/{escaped}"
 
 
+def _gy_comparison_json_pointer(path: _GyComparisonPath) -> str:
+    pointer = ""
+    for segment in path:
+        pointer = _gy_json_pointer(pointer, str(segment))
+    return pointer or "/"
+
+
+def _gy_comparison_path_from_pointer(value: object, pointer: str) -> _GyComparisonPath:
+    if pointer == "/":
+        return ()
+    if not pointer.startswith("/"):
+        raise ValueError("gy_comparison_admission_pointer_invalid")
+    current = value
+    path: list[_GyComparisonPathSegment] = []
+    for encoded in pointer[1:].split("/"):
+        segment = encoded.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, Mapping):
+            if segment not in current:
+                raise ValueError("gy_comparison_admission_path_missing")
+            path.append(segment)
+            current = current[segment]
+        elif isinstance(current, (list, tuple)):
+            try:
+                index = int(segment)
+            except ValueError as exc:
+                raise ValueError("gy_comparison_admission_pointer_invalid") from exc
+            if index < 0 or index >= len(current):
+                raise ValueError("gy_comparison_admission_path_missing")
+            path.append(index)
+            current = current[index]
+        else:
+            raise ValueError("gy_comparison_admission_path_missing")
+    return tuple(path)
+
+
 def _gy_payload_shape_matches(
     previous: object,
     current: object,
-    *,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
 ) -> bool:
-    if _gy_blocks_are_admitted_non_authority(
-        previous,
-        current,
-        admit_non_authority_block=admit_non_authority_block,
-    ):
-        return True
     if isinstance(previous, dict) and isinstance(current, dict):
         return set(previous) == set(current) and all(
-            _gy_payload_shape_matches(
-                previous[key],
-                current[key],
-                admit_non_authority_block=admit_non_authority_block,
-            )
-            for key in previous
+            _gy_payload_shape_matches(previous[key], current[key]) for key in previous
         )
     if isinstance(previous, (list, tuple)) and isinstance(current, (list, tuple)):
         return (
             type(previous) is type(current)
             and len(previous) == len(current)
             and all(
-                _gy_payload_shape_matches(
-                    left,
-                    right,
-                    admit_non_authority_block=admit_non_authority_block,
-                )
+                _gy_payload_shape_matches(left, right)
                 for left, right in zip(previous, current, strict=True)
             )
         )
     return type(previous) is type(current)
 
 
-def _gy_blocks_are_admitted_non_authority(
-    previous: object,
-    current: object,
-    *,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
-) -> bool:
-    return bool(
-        admit_non_authority_block is not None
-        and isinstance(previous, Mapping)
-        and isinstance(current, Mapping)
-        and is_gy_declared_non_authority_block(previous)
-        and is_gy_declared_non_authority_block(current)
-        and admit_non_authority_block(previous)
-        and admit_non_authority_block(current)
-    )
-
 def _reconcile_gy_operational_leaves(
     previous: object,
     current: object,
-    *,
-    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
 ) -> object:
-    if _gy_blocks_are_admitted_non_authority(
-        previous,
-        current,
-        admit_non_authority_block=admit_non_authority_block,
-    ):
-        return previous
     if isinstance(previous, dict) and isinstance(current, dict):
         return {
             key: (
                 previous[key]
                 if is_gy_content_hash_excluded_field(str(key)) and key in previous
-                else _reconcile_gy_operational_leaves(
-                    previous[key],
-                    value,
-                    admit_non_authority_block=admit_non_authority_block,
-                )
+                else _reconcile_gy_operational_leaves(previous[key], value)
             )
             for key, value in current.items()
         }
     if isinstance(previous, list) and isinstance(current, list):
         return [
-            _reconcile_gy_operational_leaves(
-                left,
-                right,
-                admit_non_authority_block=admit_non_authority_block,
-            )
+            _reconcile_gy_operational_leaves(left, right)
             for left, right in zip(previous, current, strict=True)
         ]
     if isinstance(previous, tuple) and isinstance(current, tuple):
         return tuple(
-            _reconcile_gy_operational_leaves(
-                left,
-                right,
-                admit_non_authority_block=admit_non_authority_block,
-            )
+            _reconcile_gy_operational_leaves(left, right)
             for left, right in zip(previous, current, strict=True)
         )
     return current

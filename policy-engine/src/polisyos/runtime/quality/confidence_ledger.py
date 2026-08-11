@@ -949,20 +949,6 @@ class N9PromotionCertificateProjection(_StrictModel):
         return self
 
 
-def n9_promotion_projection_comparison_eligible(value: object) -> bool:
-    """Return whether ``value`` is a content-bound verification N9 projection.
-
-    Strict DTO parsing and the projection's producer-owned self hash establish the
-    record before its verification provenance can route it into a non-governing
-    comparison projection. A bare provenance declaration is never sufficient.
-    """
-
-    try:
-        projection = N9PromotionCertificateProjection.model_validate(value)
-    except ValueError, TypeError:
-        return False
-    return projection.authority_provenance == "verification"
-
 class N12EpochReferenceProjection(_StrictModel):
     """Future N12 locator projection without implementing epochs."""
 

@@ -27,12 +27,12 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerError,
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
+    N9PromotionCertificateProjection,
     OwnerCertificateEvidence,
     OwnerCertificateVerification,
     PredictableClaimSpec,
     RationalSpec,
     load_confidence_ledger_registry,
-    n9_promotion_projection_comparison_eligible,
     project_confidence_ledger_semantic_receipt,
     project_n9_promotion_certificate,
     project_n12_epoch_reference,
@@ -3114,22 +3114,25 @@ def test_n9_projection_excludes_conformance_and_non_promotion_rows(
     assert n9.promotion_rows == ()
 
 
-def test_n9_verification_comparison_eligibility_requires_full_projection_integrity(
+def test_n9_projection_model_rejects_stale_self_hash_and_unknown_fields(
     sessions: _SessionFactory,
 ) -> None:
     session = sessions()
     projection = project_n9_promotion_certificate(session.receipt(), session=session)
     payload = projection.model_dump(mode="json")
 
-    assert n9_promotion_projection_comparison_eligible(payload)
+    assert N9PromotionCertificateProjection.model_validate(payload) == projection
 
     tampered = copy.deepcopy(payload)
     tampered["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
-    assert not n9_promotion_projection_comparison_eligible(tampered)
+    with pytest.raises(ValueError, match="projection_hash"):
+        N9PromotionCertificateProjection.model_validate(tampered)
 
     unrecognized = copy.deepcopy(payload)
     unrecognized["projection_scope"] = "untrusted_verification_extension"
-    assert not n9_promotion_projection_comparison_eligible(unrecognized)
+    with pytest.raises(ValueError, match="literal_error"):
+        N9PromotionCertificateProjection.model_validate(unrecognized)
+
 
 def test_n12_projection_carries_explicit_epoch_placeholders(
     sessions: _SessionFactory,

@@ -4887,8 +4887,8 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     prior = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4898,18 +4898,18 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
         },
         "runtime_metrics": {"lane": "cached", "elapsed_seconds": 2.0},
     }
+    validator._set_artifact_identities(prior, comparison_plan)
     current = copy.deepcopy(prior)
-    current["domain_runs"]["first_vertical"]["generated_at"] = (
-        "2026-07-15T01:00:00Z"
-    )
+    current["domain_runs"]["first_vertical"]["generated_at"] = "2026-07-15T01:00:00Z"
     current["domain_runs"]["first_vertical"]["wall_time_ms"] = 99.0
     current["runtime_metrics"]["elapsed_seconds"] = 100.0
+    validator._set_artifact_identities(current, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(current),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(current), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -4930,8 +4930,8 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     prior = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4939,8 +4939,8 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
             }
         },
     }
+    validator._set_artifact_identities(prior, comparison_plan)
     current = {
-        "contract_content_hash": "sha256:" + "2" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-16T00:00:00Z",
@@ -4948,12 +4948,13 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
             }
         },
     }
+    validator._set_artifact_identities(current, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(current),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(current), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -4964,9 +4965,7 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
     data = validator.write_payload(tmp_path, output)
     written = json.loads(data)
 
-    assert written["domain_runs"]["first_vertical"] == current["domain_runs"][
-        "first_vertical"
-    ]
+    assert written["domain_runs"]["first_vertical"] == current["domain_runs"]["first_vertical"]
 
 
 def test_rederive_audit_compares_semantics_without_clock_drift(
@@ -4977,8 +4976,8 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     committed = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4986,10 +4985,10 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
             }
         },
     }
+    validator._set_artifact_identities(committed, comparison_plan)
     live = copy.deepcopy(committed)
-    live["domain_runs"]["first_vertical"]["generated_at"] = (
-        "2026-07-15T01:00:00Z"
-    )
+    live["domain_runs"]["first_vertical"]["generated_at"] = "2026-07-15T01:00:00Z"
+    validator._set_artifact_identities(live, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(json.dumps(committed), encoding="utf-8")
     monkeypatch.setattr(
@@ -4999,8 +4998,8 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
     )
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(live),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(live), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -5014,25 +5013,8 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
     }
 
 
-def test_depth_n_comparison_identity_admits_only_bound_verification_projections() -> None:
+def test_depth_n_verification_summary_shape_fails_closed() -> None:
     validator = _universality_contract_validator()
-    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
-    shifted = copy.deepcopy(payload)
-    projection = shifted["proof_recordings"]["education"]["compiled_run"]["recursive_run"]["nodes"][
-        0
-    ]["cycle_run"]["promotion_port"]["receipts"][0]["confidence_ledger_projection"]
-    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
-    projection["projection_hash"] = gy_content_hash(
-        {key: value for key, value in projection.items() if key != "projection_hash"}
-    )
-    validator._set_artifact_identities(payload)
-    validator._set_artifact_identities(shifted)
-
-    assert validator._comparison_content_hash(payload) == validator._comparison_content_hash(
-        shifted
-    )
-    assert validator._contract_content_hash(payload) != validator._contract_content_hash(shifted)
-
     summary = validator._with_depth_promotion_summary_identity(
         {
             "node_ref": "node://verification",
@@ -5045,21 +5027,20 @@ def test_depth_n_comparison_identity_admits_only_bound_verification_projections(
         },
         projection_scope="depth_n_compiled_verification_promotion_summary",
     )
-    assert validator._depth_non_authority_comparison_eligible(summary)
+    assert validator._depth_verification_summary_shape_valid(summary)
 
     mixed = copy.deepcopy(summary)
     mixed["authority_provenance"] = ["verification", "canonical_repo"]
-    mixed["projection_hash"] = gy_content_hash(
-        {key: value for key, value in mixed.items() if key != "projection_hash"}
-    )
-    assert not validator._depth_non_authority_comparison_eligible(mixed)
+    assert not validator._depth_verification_summary_shape_valid(mixed)
 
     unrecognized = copy.deepcopy(summary)
-    unrecognized["projection_scope"] = "untrusted_verification_summary"
-    unrecognized["projection_hash"] = gy_content_hash(
-        {key: value for key, value in unrecognized.items() if key != "projection_hash"}
-    )
-    assert not validator._depth_non_authority_comparison_eligible(unrecognized)
+    unrecognized["authority_provenance"] = ["untrusted_verification_extension"]
+    assert not validator._depth_verification_summary_shape_valid(unrecognized)
+
+    absent = copy.deepcopy(summary)
+    absent.pop("authority_provenance")
+    assert not validator._depth_verification_summary_shape_valid(absent)
+
 
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
     """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""

@@ -391,3 +391,95 @@ posture, the five-output semantic discriminator, and the single-call N11 harness
 serialized posture/writer chain. After the delta failed, two agents independently reviewed the
 frozen dirty tree and both returned `REJECT/STOP`; no subagent ran or edited an owner. `[P37:
 independently_reconciled]`
+
+## Rev-37 source adjudication preflight — stopped before the source batch
+
+This continuation began attached to `codex/gy-defc-3-retry`, clean at
+`9a24a4eface06f55fab3a08570e825bd749aee38`. The protected
+`src/polisyos/data_forge/read_api/catalog.py` was absent from this worktree and no source, tool,
+test, or governed-artifact byte was changed during the adjudication. `[P37: recomputed]`
+
+The proposed verification-projection member of `GY-DEF14` is real. A verification confidence
+ledger projection is explicitly non-authority: `promotion_sequence.py:301-305` rejects any such
+receipt that becomes consumer-promotable, `_for_verification` at `:483-489` constructs a private
+port whose receipts cannot authorize N6, and `:1184-1186` forces the verification-only refusal.
+Nevertheless, `confidence_ledger.py:3397-3456` builds and content-hashes the N9 promotion-role,
+current-head certificate projection, including verification deployment, root, head, receipt and
+filtered promotion-check lineage. The prior complete leaf walk proved those fresh identities then
+entered the N10a trace's decisive identity. That complete N9 projection is real recorded evidence
+and must remain present and readable. The authority/status contract proves it cannot govern
+consumer promotion, but no current contract declares the exact stable comparison field/path set;
+defining that set is part of the repair rather than an inherited fact. `[P37:
+independently_reconciled for the non-authority projection and decisive binding; not_established for
+the exact comparison projection until its typed contract exists]`
+
+The proposed `GY-DEF10` member is false on this head: its registered missing owner was already
+closed by `431bcd798`. The canonical owner is
+`pdc/_impl/gy_waist.py:176-262`: `strip_gy_volatile_fields` owns the semantic projection and
+`reconcile_gy_operational_leaves` fails closed on semantic drift, shape drift and exact drift before
+preserving shared operational leaves. Depth-N imports that owner at
+`check_layer3_gy_depth_n_universality_contract.py:58-65` and uses it in controlled replay at
+`:5000-5043`, the writer at `:6965-6975`, and rederive at `:7915-7924`. N10a already imports the
+same owner at `check_layer3_gy_second_domain_pack.py:51-55` and applies it at `:6424-6442`.
+`[P37: independently_reconciled]`
+
+Five existing owner/N10a behavioral witnesses ran under the receipt CPython with the retry
+worktree first on `PYTHONPATH` and exited `0` (`5 passed`): the two PDC operational-reconciliation
+tests, N10a's same-semantic routing-time preservation test, its writer/rederive operational
+normalization test, and its missing-runtime-property negative test. They establish the owner-unit
+semantic/shape guards and typed recursive drift report, plus N10a's late reconciliation of declared
+operational leaves conditional on an already-equal trace hash; they also prove that normalization
+cannot invent an absent operational leaf. They do not execute two fresh N10a verification sessions
+or establish a stable trace identity for the full recorded projection. The deeper Depth-N witness at
+`tests/unit/runtime/quality/test_depth_n_universality.py:2458-2768` independently encodes the same
+owner property: generated-at and wall-time changes replay byte-identically, then a semantic
+`node_ref` change raises `authority_source_controlled_replay_recording_drift` with operand roles,
+identities and the named changed leaf. `[P37: recomputed for the five executed witness results;
+independently_reconciled for the inspected Depth-N witness; not_established for fresh-session N10a
+trace-identity equivalence]`
+
+The current failure precedes that operational owner. N10a serializes the raw
+`GenerationCycleRun` at `check_layer3_gy_second_domain_pack.py:2597`, embeds it verbatim as
+`generation_cycle_run` at `:2643`, and computes `trace_content_hash` at `:2653-2657` through the
+tool-local `_with_content_hash`/`_hash` path at `:6394-6406` and `:6445-6446`. The only allowed
+artifact-declared top-level trace exclusion is `runtime_metrics` (`:184-188`); the invoked
+`gy_content_hash` also recursively strips the generic volatile key-name classes declared in
+`pdc/_impl/gy_waist.py:29-45` and applied at `:166-199`. None projects away the path-specific
+verification lineage. The later reconciliation at `:6424-6442` runs only when the already-computed
+self-hash is equal, so it cannot absorb a fresh embedded verification lineage. `[P37:
+independently_reconciled]`
+
+Consequently, the requested runtime-quality-only fence cannot implement the correct `GY-DEF14`
+closure. A helper added only under `src/polisyos/runtime/quality/**` has no call site on the decisive
+N10a hash path and would be `contract_only`/`P01`; global exclusions, placeholders, and mutation of
+the full verification receipt would each violate the positive specification. The smallest correct
+closure is a runtime-quality-owned, typed/versioned comparison projection plus its recomputation
+validator, consumed by the single N10a assembly/validation bridge in
+`tools/quality/validation/check_layer3_gy_second_domain_pack.py`. That bridge must preserve and
+validate the full readable verification projection while hashing an explicit stable comparison
+projection in its place. No PDC or ledger-scope change is required. Two independent Terra source
+audits reached the same blocker and bridge boundary. `[P37: independently_reconciled]`
+
+Because `tools/**` is closed in this session and the architect explicitly required both premises to
+be verified before acting, no red test or source batch was written, no expected-delta declaration
+was minted for an unimplementable batch, and no posture gate, writer, N10a verification, or cold
+N11 process was launched. The accepted-reissue and one-cold-N11 allowances remain unused;
+`owner_bundle_loaded` remains `not_established`. `[P37: institutionally_supplied for the closed
+tool fence and stop instruction; recomputed for the absence of invocations; not_established for the
+objective]`
+
+One attempted collection of four deeper Depth-N tests used the preserved path-witness `.venv` and
+exited `4` before collecting any test: the repository's interpreter guard observed the witness
+prefix where it required an isolation-local retry-worktree `.venv`, which does not exist. It changed
+no bytes and is a setup non-receipt, not product evidence. The five lighter owner/N10a witnesses
+above were then run with the same receipt interpreter and current-worktree source precedence; they
+do not supersede the missing deep-test receipt. `[P37: recomputed]`
+
+The rejected step-two writer bytes and their complete `133`-leaf evidence remain preserved at the
+paths and hashes recorded above; this continuation did not alter them. `[P37: recomputed]`
+
+This continuation used exactly three fresh Terra agents and no Sol agent. Their read-only tracks
+adjudicated the verification projection, the already-closed operational owner, and the wave/hash
+boundary; root alone inspected the branch and ran the five lightweight tests. No agent edited a
+source, tool, test, or artifact. `[P37: recomputed for orchestration; independently_reconciled for
+the two-agent bridge verdict]`

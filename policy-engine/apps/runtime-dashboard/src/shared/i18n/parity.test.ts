@@ -61,7 +61,7 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
   ],
   [
     "panels.reviewCollaboration.reviewers",
-    "Its only tracked caller selects this key only when `participants.length > 1`; singular uses `panels.reviewCollaboration.solo`.",
+    "Declared, unenforced: the only tracked caller currently selects this key when `participants.length > 1`; singular uses `panels.reviewCollaboration.solo`, but no witness binds that caller guard.",
   ],
   [
     "panels.dataIntelligence.catalogMatches",

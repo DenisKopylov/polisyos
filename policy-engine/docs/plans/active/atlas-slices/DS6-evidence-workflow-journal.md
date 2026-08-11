@@ -900,3 +900,363 @@ focused C07 Vitest file 1/1 and 12/12 in 758 ms (15 ms test body) with
 `--maxWorkers=2`. The three allowed single-process Node design checks again
 exited 0 with their named pass messages. This refresh did not run or convert
 any deferred heavy lane into a receipt.
+
+## DS6-C09 — residual registration and owner discovery — 2026-08-11
+
+### Clean entry and residual census
+
+`git status -sb` at session entry reported a clean attached
+`codex/atlas-ds6-evidence-workflow` at
+`85a839f27d1471a348d2f644f24bf599e60b2c61`, five commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. No contended, DS5, GY,
+product-surface, or Russian-catalog path was present.
+
+A read-only Node traversal parsed all 2,449 string leaves in each of the exact
+active catalogs `locales/en.json` and `locales/uk.json`. It extracted every ICU
+or simple interpolation variable, excluded only the exact `count` identity,
+and enumerated 244 message identities / 488 locale strings carrying 149
+distinct non-count variables. The complete semantic partition is 96 identities
+without an adjacent word, 125 word-adjacent but non-agreeing identities, and 23
+agreement-bearing identities. The latter contain 36 path-variable pairs / 72
+locale path-variable instances.
+
+The complete agreement-bearing set is enumerated rather than sampled. Each
+entry names the exact message identity followed by every non-`count` variable
+whose numeric value selects an agreeing word:
+
+- `causal.pipeline.stageProgress`: `total`
+- `common.lineageGraph.threshold`: `nodes`
+- `pages.artifacts.trinity.bindingSummary`: `bindings`, `parameters`
+- `pages.dashboard.narrativeAttentionBody`: `blocked`
+- `pages.dashboard.narrativeEvidenceBody`: `docs`, `promotions`
+- `pages.dashboard.narrativeThroughputBody`: `success`, `total`
+- `pages.evidence.runContextSummary`: `needs`, `plans`, `promotions`, `artifacts`
+- `pages.runs.evidenceSummary`: `plans`, `promotions`
+- `panels.dataIntelligence.focusSummary`: `needs`, `plans`, `promotions`
+- `panels.dataIntelligence.lastDiscoverSummary`: `docs`, `candidates`
+- `panels.dataIntelligence.resolvedSummary`: `plans`, `candidates`
+- `phase32.choreography.artifacts`: `value`
+- `phase32.choreography.laneMeta`: `events`
+- `phase32.connectors.datasets`: `value`
+- `phase32.connectors.facts`: `value`
+- `phase32.connectors.profiles`: `value`
+- `phase32.freshness.derivedFacts`: `value`
+- `phase33.identifiability.impactMeta`: `quantities`, `policies`
+- `phase33.stress.summary`: `blocked`, `warned`
+- `phase34.approval.blocked`: `value`
+- `phase34.auditTrail`: `value`
+- `phase34.blockers.slowReview`: `target`
+- `shared.charts.quantileDotplot.tailSummary`: `bins`
+
+Those 23 identities are the complete positive classification; the other 221
+of the 244 traversed identities are the complete negative classification. The
+following exact read-only command, run from `policy-engine/`, reconstructs the
+244-identity universe from both catalogs, verifies that all 36 declared
+positive pairs exist in that universe, and freezes both sets. The semantic
+classification is intentionally visible as data in the command rather than
+hidden behind a lexical heuristic:
+
+```bash
+node <<'NODE'
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const root = 'apps/runtime-dashboard/src/shared/i18n/locales';
+const locales = Object.fromEntries(['en', 'uk'].map((locale) =>
+  [locale, JSON.parse(fs.readFileSync(`${root}/${locale}.json`, 'utf8'))]));
+const flatten = (value, prefix = '', out = new Map()) => {
+  for (const [key, child] of Object.entries(value)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (typeof child === 'string') out.set(path, child);
+    else flatten(child, path, out);
+  }
+  return out;
+};
+const catalogs = Object.fromEntries(Object.entries(locales).map(
+  ([locale, catalog]) => [locale, flatten(catalog)]));
+const pattern = /\{([A-Za-z_][A-Za-z0-9_]*)\s*(?=[,}])/g;
+const variables = (message) => [...message.matchAll(pattern)]
+  .map((match) => match[1]).filter((name) => name !== 'count');
+const rows = [...new Set([...catalogs.en.keys(), ...catalogs.uk.keys()])]
+  .sort().flatMap((path) => {
+    const names = [...new Set(['en', 'uk'].flatMap((locale) =>
+      variables(catalogs[locale].get(path) ?? '')))].sort();
+    return names.length ? [{path, variables: names}] : [];
+  });
+const agreement = {
+  'causal.pipeline.stageProgress': ['total'],
+  'common.lineageGraph.threshold': ['nodes'],
+  'pages.artifacts.trinity.bindingSummary': ['bindings', 'parameters'],
+  'pages.dashboard.narrativeAttentionBody': ['blocked'],
+  'pages.dashboard.narrativeEvidenceBody': ['docs', 'promotions'],
+  'pages.dashboard.narrativeThroughputBody': ['success', 'total'],
+  'pages.evidence.runContextSummary': ['needs', 'plans', 'promotions', 'artifacts'],
+  'pages.runs.evidenceSummary': ['plans', 'promotions'],
+  'panels.dataIntelligence.focusSummary': ['needs', 'plans', 'promotions'],
+  'panels.dataIntelligence.lastDiscoverSummary': ['docs', 'candidates'],
+  'panels.dataIntelligence.resolvedSummary': ['plans', 'candidates'],
+  'phase32.choreography.artifacts': ['value'],
+  'phase32.choreography.laneMeta': ['events'],
+  'phase32.connectors.datasets': ['value'],
+  'phase32.connectors.facts': ['value'],
+  'phase32.connectors.profiles': ['value'],
+  'phase32.freshness.derivedFacts': ['value'],
+  'phase33.identifiability.impactMeta': ['quantities', 'policies'],
+  'phase33.stress.summary': ['blocked', 'warned'],
+  'phase34.approval.blocked': ['value'],
+  'phase34.auditTrail': ['value'],
+  'phase34.blockers.slowReview': ['target'],
+  'shared.charts.quantileDotplot.tailSummary': ['bins'],
+};
+const pairs = Object.entries(agreement).sort(([a], [b]) => a.localeCompare(b))
+  .flatMap(([path, names]) => names.sort().map((name) => `${path}\t${name}`));
+for (const pair of pairs) {
+  const [path, name] = pair.split('\t');
+  if (!rows.find((row) => row.path === path)?.variables.includes(name))
+    throw new Error(`agreement pair absent from census: ${pair}`);
+}
+const sha = (values) => crypto.createHash('sha256')
+  .update(values.join('\n')).digest('hex');
+console.log({
+  leaves: Object.fromEntries(Object.entries(catalogs)
+    .map(([locale, catalog]) => [locale, catalog.size])),
+  identities: rows.length,
+  locale_strings: rows.length * 2,
+  variables: new Set(rows.flatMap((row) => row.variables)).size,
+  agreement_identities: Object.keys(agreement).length,
+  agreement_pairs: pairs.length,
+  agreement_locale_instances: pairs.length * 2,
+  all_sha256: sha(rows.map((row) => `${row.path}\t${row.variables.join(',')}`)),
+  agreement_sha256: sha(pairs),
+});
+NODE
+```
+
+The read-back output was `en=2449`, `uk=2449`, `identities=244`,
+`locale_strings=488`, `variables=149`, `agreement_identities=23`,
+`agreement_pairs=36`, and `agreement_locale_instances=72`. The complete
+identity-variable universe hash was
+`74413518b097e2fda58ed07a02409a41e2395d17d18c3e550115fbc21593a9e0`;
+the enumerated positive-pair hash was
+`10b722ba7f4776a504eba6b983deface1b607af76fa190f72ff177fe0fabff88`.
+
+`pages.dashboard.narrativeAttentionBody`'s `blocked` axis is one of those 23:
+two locale strings and six outer-count branches (two English, four Ukrainian).
+The landed formatter witness fixes `blocked` at `7`, so it never exercises the
+singular forms `1 blocked packet` / `1 заблокований packet`. The gate admits the
+whole message because it sees `{count}` and a valid outer ICU plural even though
+the independent numeric axis is not adjudicated. That is the registered P38
+property/marker mismatch.
+
+Measurement corrected one source citation without stopping execution: the
+pinned `GY-engine-subordination.md` contains build-discipline sections only
+through §3.5.13, not the task brief's named §3.5.14. This journal therefore
+records P38's wording as a task-brief input pending its upstream source
+artifact; the complete catalog census independently establishes the defect.
+DS6-C15 is registered at the next continuous number with an immutable cap of 5.
+It does not block C03: the governed `i18n-count-message-parity` debt is exactly
+the inherited three `overBudget` failures, while C15 covers a class the old rule
+never admitted.
+
+The complete caller search for
+`panels.reviewCollaboration.reviewers` found one product caller and one
+allowlist reason. The caller currently selects the key only for
+`participants.length > 1` and uses `solo` otherwise, but no behavioral witness
+binds that guard. The map reason now says `Declared, unenforced`; a brittle
+source-string witness was rejected under P29. A scoped diff changes only that
+reason string—no catalog, count collector, ICU validator, assertion, or caller
+byte—so this is a disclosure-only residual registration and not a third C01
+mechanism round.
+
+### C09 owner discovery and exact path declaration
+
+The Atlas surface constitution's component maturity bar is normative and its
+definition of done requires manual AT evidence for high-risk stable patterns.
+A complete 21/21 path census under `architecture/atlas_surfaces` found exactly
+two schemas referencing the shared `componentMaturity` vocabulary and only
+`adoption-ledger.schema.json` carrying a structural `stable` conditional. The
+actual adoption ledger has 233/233 maturity rows and zero stable; the live
+readiness ledger has 261/261 and zero stable; the disposition register has 261
+entries and zero maturity fields.
+
+The register is not the maturity owner and explicitly cannot upgrade DS1
+readiness. More importantly, it content-binds the adoption ledger SHA-256 and
+its contended checker fails on drift. Editing the actual ledger would therefore
+induce a forbidden contended re-anchor. C09 proceeds without any ledger,
+schema/example, readiness-ledger, or register write.
+
+The exact C09 candidate set is six paths against cap 10: the disclosure-only
+parity reason, new `atlasManualAtMaturity.ts` and its focused test, a new manual
+AT reference page, this plan, and this journal. The mechanism will import C07's
+receipt parser and resolved-payload binder, type only the rule-owned manual-AT
+details, separate protocol expiry from storage retention, and evaluate a narrow
+manual-AT prerequisite without minting maturity authority. Capability truth
+remains `contract_only`; C08 persistence and C10 reconciliation are absent.
+
+### C09 red/green mechanism receipt
+
+Red first, the focused command
+
+```bash
+corepack pnpm exec vitest run src/test/evidence/atlasManualAtMaturity.test.ts --maxWorkers=2 --reporter=default
+```
+
+failed 1/1 file before collection because the declared
+`./atlasManualAtMaturity` owner did not exist; zero tests ran in 1.92 seconds.
+The red therefore binds the missing C09 consumer rather than an inherited or
+browser failure.
+
+The minimal mechanism reuses C07's strict receipt parser and resolved-payload
+semantic binder. It adds only strict rule-owned manual-AT details and the
+manual-prerequisite evaluator. Its first focused green passed 1/1 file and 9/9
+tests in 1.79 seconds (30 ms test body) with two workers. The behavioral set
+proves current reconciled evidence can satisfy only the prerequisite; absent
+and expired carry different codes; widened human authority is rejected; a
+valid bundle for another subject is rejected; unknown, known zero, and missing
+remain distinct; institutionally supplied predicate provenance fails closed;
+and marker-preserving payload drift is rejected by the real C07 binder.
+
+The positive fixture still returns `grants_stable: false`. C07's receipt denial
+of `component_maturity` and `stable` is retained: the receipt records an
+observation, while this independent consumer applies one prerequisite. Because
+the fixture is in-memory and no Core CAS integrity call, persistence bridge, or
+real reviewer producer exists, the capability remains `contract_only` with the
+same missing links declared at entry.
+
+The scoped mechanism diff comprises the new C09 module and its focused test.
+The parity path changes only one exemption-reason string and the plan/journal
+record orchestration; those three paths do not implement the C09 mechanism.
+This is C09 mechanism round 0 (initial implementation), not a review fix round,
+and the C01 disclosure remains zero mechanism bytes.
+
+### C09 independent review and mechanism round 1
+
+Independent specification, quality, and owner reviews rejected the first
+green. The findings were batched before another expensive wave:
+
+1. The evaluator consumed an invented local maturity claim instead of the
+   adoption-ledger component row and its `evidence_refs`. The owner bar is the
+   row shape in `architecture/atlas_surfaces/adoption-ledger.schema.json`, the
+   shared vocabulary in `surface-readiness-ledger.schema.json`, and the
+   constitutional stable requirements in
+   `policyos-atlas-surface-constitution-and-frontend-vision.md:418-450`.
+2. A shaped in-memory bundle could return `satisfied` even though
+   `atlasEvidenceArtifact.ts` explicitly says its C07 binder proves semantic
+   equality after resolution, not CAS existence or integrity. That violated
+   P32's resolve-bind-verify bar in
+   `docs/reference/policy-design-case-failure-patterns.md`.
+3. Arbitrary nonempty task/AT strings formed a self-consistent basis. P29 and
+   P37 require the complete deciding basis to be independently established and
+   falsifiable, not self-declared by the evidence under review.
+4. Evaluation could precede `receipt.times.verified_at`, and an expiry could be
+   no later than verification. P08 requires those time roles to stay distinct.
+5. The residual census recorded only aggregates. P35 requires the complete set
+   and reproducible denominator; the exact 23-identity/36-pair enumeration and
+   read-only command above close that reviewability gap.
+6. The deferred full-Vitest arithmetic omitted C09. The governed transition
+   must include every landed focused file/test even though the heavy full run
+   remains a non-receipt.
+
+The revised 11-control test was written first against the unchanged round-0
+module. The same focused command collected all 11 tests and failed 11/11 in
+1.79 seconds: the old API rejected the actual owner-row input before it could
+exercise any new result. This is the red for C09 mechanism round 1.
+
+The repair now parses the actual adoption-ledger component-row fields, derives
+the expected component/state subject from that owner input, and requires the
+row to cite the exact `at_manual` receipt artifact identity. It adds an explicit
+versioned task/AT basis seam, compares the complete declared and observed task
+and capability sets, keeps receipt-predicate and basis-predicate provenance
+separate, rejects evaluation before verification, and requires expiry to
+follow verification. Because C08 has not resolved and integrity-verified the
+receipt and payload through Core CAS and C10 has not reconciled the basis, a
+perfectly shaped bundle now returns
+`manual_at_integrity_not_established`/`unverified`; there is no `satisfied`
+branch.
+
+The focused command then passed 1/1 file and 11/11 tests in 1.48 seconds (40 ms
+test body) with two workers. The new negatives are: actual owner-shaped stable
+without evidence; exact owner receipt-ref absence; perfectly shaped but
+unverified CAS evidence; unestablished basis; arbitrary `noop` task plus
+inadequate `none` AT capability; future verification; and expiry equal to
+verification. The original absent/expired distinction, authority bound,
+unrelated subject, unknown/zero/missing distinction, institutionally supplied
+predicate, and marker-preserving C07 payload drift remain covered. The earlier
+9/9 result is historical red/green evidence only and is superseded as a source
+receipt by this reviewed 11-test denominator.
+
+The scoped diff still has exactly two C09 mechanism paths:
+`atlasManualAtMaturity.ts` and its focused test. The reference page explains
+the contract; the plan/journal declare and record it; the parity line remains
+disclosure-only. Mechanism round 1 therefore changes the enforcement mechanism
+and its tests together. One review repair round remains under the declared
+breaker; it is not assumed free.
+
+The deferred resolved-Vitest expectation is now 265 files / 800 tests: baseline
+263/766, plus C01-R1's 11 additional parity cases, C07's +1 file/+12 tests, and
+C09's +1 file/+11 tests. This corrects the reviewers' provisional 265/798
+arithmetic, which was computed against the superseded 9-test C09 draft. The
+full suite was not run, so these are executable control totals, not a green
+receipt; measurement during C03 replaces them if it differs.
+
+### C09 mechanism round 2 — canonical P37 vocabulary
+
+The quality delta review found one Important duplication after round 1: C09
+copied the five P37 predicate-provenance labels already owned inside C07's
+`atlasEvidenceArtifact.ts`. That violates this plan's define-once/reference
+law and P27 even though both copies initially had the same values; no exact
+comparator could prevent their meanings from drifting later.
+
+Red first, `atlasEvidenceArtifact.test.ts` imported the proposed C07 owner
+constant, asserted the exact ordered five-value set, and iterated that owner in
+the existing admission witness. Before the owner existed, focused Vitest
+collected 12 tests and failed exactly that one witness (`undefined` versus the
+five expected values), with 11 passing, in 1.93 seconds (56 ms test body).
+
+The repair exports `ATLAS_PREDICATE_PROVENANCE_VALUES` and
+`atlasPredicateProvenanceSchema` from C07, makes the C07 receipt parser consume
+that schema, removes C09's local enum, and makes the C09 basis import the same
+owner. Focused C07+C09 Vitest then passed 2/2 files and 23/23 tests in 2.55
+seconds (91 ms test body) with two workers.
+
+This review fix changes both mechanism sources and the canonical-owner test, so
+it is C09 mechanism round 2 and consumes the second/final review-fix allowance.
+The source-aware measurement expands the C09 set from six to eight paths—the
+C07 owner source and its existing test are the two additions—still below the
+immutable cap of 10. No cap changed. The deferred test arithmetic is unchanged:
+the C07 file remains one existing 12-test file, while C09 remains one new
+11-test file.
+
+Duplication result: one semantic duplicate was found and consolidated into its
+C07 owner. The owner-discovery scans found no second receipt/payload/CAS,
+maturity-vocabulary, or manual-AT protocol owner in the C09 blast radius.
+
+### C09 source freeze, independent reviews, and final receipts
+
+After round 2, the exact measured set is eight paths against cap 10: the parity
+disclosure; C07 evidence source and existing test; C09 source and new test; the
+new reference page; this plan; and this journal. `git diff --check` is clean.
+The forbidden/contended set, all three locale catalogs, the adoption ledger and
+schema, and the readiness schema have empty scoped diffs. Russian value/key
+continuity is exercised again by the green parity test without touching its
+bytes.
+
+Three independent frozen-source delta reviews returned no Blocking or
+Important findings:
+
+- specification review: focused C07+C09 Vitest 2/2 files, 23/23 tests, 2.35
+  seconds total (53 ms + 44 ms test bodies); exact eight-path and boundary
+  audits clean
+- quality review: focused C07+C09 Vitest 2/2 files, 23/23 tests, 4.52 seconds
+  total (112 ms combined test body); canonical vocabulary and all prior
+  integrity/basis/time findings closed
+- owner/boundary review: focused C07+C09 Vitest 2/2 files, 23/23 tests, 2.58
+  seconds total (95 ms combined test body); exact eight-path, owner, and
+  forbidden-diff audits clean
+
+The final local blast-radius command ran parity+C07+C09 together with
+`--maxWorkers=2` and passed 3/3 files, 38/38 tests in 4.72 seconds (347 ms test
+body). The three allowed single-process design checks also exited zero with
+their named receipts: `Contrast checks passed.`, `Reduced-motion checks
+passed.`, and `Color-blind checks passed.` No browser, Storybook, full Vitest,
+full lint, full typecheck, full build, journey, visual, or dev-server lane ran;
+each remains a non-receipt under the unchanged heavy-lane boundary.

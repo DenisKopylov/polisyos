@@ -175,6 +175,7 @@ The governing register is
 | P34 | excluded heavy failure called green | every unrun gate is a named non-receipt with a waiting command |
 | P35/P36 | sampled denominator or authority by adjacency | enumerate the complete set and cite the controlling finding/ruling |
 | P37 | declared evidence predicate carries a gate | recompute or independently reconcile before authority-grade admission |
+| P38 | gate predicates on one marker while deciding a wider semantic property | enumerate every load-bearing variable and test the agreement property rather than the literal `{count}` spelling |
 
 At entry, the contrast class is `artifact_missing`, `verification_missing`,
 `surface_missing`, and `semantic_test_missing`; the i18n implementation is
@@ -420,9 +421,64 @@ expanding a product denominator. Manual AT remains separate.
 
 ### Task 9 — DS6-C09: wire manual AT evidence and maturity consumption
 
-**Declared path cap: 10.** Admit human evidence through a typed reviewer/AT
-protocol with bounded authority and expiry; wire the component maturity bar to
-the evidence store. `stable` without current required evidence fails closed.
+**Exact candidate paths declared before mechanism entry:**
+
+1. `apps/runtime-dashboard/src/shared/i18n/parity.test.ts` — residual disclosure
+   only; the existing `reviewers` exemption becomes explicitly
+   `declared, unenforced`, with no count-gate mechanism change
+2. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts` — C07's
+   canonical P37 vocabulary owner, exported for reuse
+3. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.test.ts` —
+   exact-set comparator for that canonical vocabulary
+4. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.ts`
+5. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.test.ts`
+6. `docs/reference/frontend/atlas-manual-at-maturity.md`
+7. this plan
+8. the DS6 journal
+
+**Declared path cap: 10; measured candidate set: 8.** The entry set was six;
+independent review found that the C09 basis had copied C07's load-bearing P37
+vocabulary, so the measured owner-aware set added the canonical C07 source and
+its existing focused test without enlarging the cap. Owner discovery walked
+all 21 tracked paths under `architecture/atlas_surfaces`: exactly two schemas
+mention the shared `componentMaturity` definition and only
+`adoption-ledger.schema.json` carries a `stable` conditional. The normative bar
+is the Atlas surface constitution; the adoption ledger carries DS2 maturity
+claims but is not production-readiness authority. Its 233/233 entries contain
+zero `stable` claims; the live-readiness ledger's 261/261 entries also contain
+zero, and the disposition register has no maturity field. The actual adoption
+ledger is byte-hash-bound into the contended register, so changing it would
+induce a forbidden re-anchor. C09 therefore changes none of those owners.
+
+Extend the C07 contract rather than minting another evidence shape: strict
+rule-owned `manual_at` payload details plus a maturity-prerequisite consumer
+that accepts the actual adoption-ledger component-row shape, requires its exact
+`at_manual` receipt reference, parses the C07 receipt, semantically binds its
+C07 verification payload, and matches the exact component/state subject. The
+human receipt retains C07's denial of `component_maturity` and `stable`; the
+independent consumer applies the bar and cannot itself grant overall maturity.
+Protocol expiry is a separate `expires_at` time evaluated against an injected
+`evaluated_at`; evaluation cannot precede C07 verification, expiry must follow
+verification, C07's 365-day storage retention is never reused as evidence
+validity, and no freshness duration is invented.
+
+For an authority-grade prerequisite, `consumer_asserted`,
+`institutionally_supplied`, and `not_established` predicate provenance fail
+closed under P37. The same classification applies separately to the complete
+task/AT basis: an arbitrary task or an inadequate AT capability set cannot
+substitute for an independently reconciled versioned profile. The evaluator
+preserves distinct named results for absent, expired, not-yet-valid,
+invalid-expiry, authority-bound excess, subject mismatch, unknown status,
+known zero, owner-reference absence, basis absence/mismatch, and missing CAS
+integrity.
+
+C09 has no `satisfied` path yet. C07's semantic binder expressly does not prove
+CAS existence or digest integrity, C08 persistence/integrity is absent, and C10
+has not resolved the basis or reconciled the full maturity bar. A perfectly
+shaped in-memory bundle therefore fails closed as
+`manual_at_integrity_not_established`. Capability truth is `contract_only`
+with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
+`verification_missing`, and `surface_missing`.
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
@@ -441,10 +497,23 @@ remain distinct.
 
 ### Task 12 — DS6-C12: seed the honesty-comprehension protocol
 
-**Declared path cap: 8.** Establish owner, cadence, tasks (“find the weakest
-link” and “find the active blockers”), sampling, storage, and low-authority
-interpretation. Preserve INT-R3's richer behavioral benchmark and thresholds
-as `not_established`; no invented threshold may enter `stable`.
+**Exact candidate paths declared before entry:**
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.test.ts`
+3. `docs/reference/frontend/atlas-honesty-comprehension-protocol.md`
+4. this plan
+5. the DS6 journal
+
+**Declared path cap: 8; measured candidate set: 5.** Establish owner, cadence,
+the two seed tasks (“find the weakest link” and “find the active blockers”),
+risk-stratified preregistered sampling, C07 CAS storage, and descriptive
+low-authority interpretation. The protocol uses a versioned instrument profile
+and generic task/metric arrays so INT-R3's later behavioral battery can replace
+the seed without changing the C07 envelope, storage convention, or authority
+boundary. Preserve the six richer metric identities, but every threshold stays
+`not_established` with no comparator, value, unit, or research source. No
+invented threshold may enter `stable`.
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
@@ -459,6 +528,43 @@ does not authorize a DS6 product repair.
 probes, readiness reconciliation, duplication census, and independent review;
 publish exact capability labels and nonreceipts. No missing link is called
 complete.
+
+### Task 15 — DS6-C15: close numeric-variable plural-safety gap
+
+**Registered adjacent debt; not entered in this session. Exact future candidate
+paths:**
+
+1. `apps/runtime-dashboard/src/shared/i18n/parity.test.ts`
+2. `apps/runtime-dashboard/src/shared/i18n/locales/en.json`
+3. `apps/runtime-dashboard/src/shared/i18n/locales/uk.json`
+4. this plan
+5. the DS6 journal
+
+**Declared path cap: 5.** This is the next continuous cluster after C14. A
+complete read-only walk of all 2,449 string leaves in each active catalog found
+244 message identities carrying a non-`{count}` interpolated variable: 488
+locale strings and 149 distinct variable names. The complete partition is 96
+identities with no adjacent word, 125 word-adjacent but non-agreeing identities,
+and 23 agreement-bearing identities comprising 36 path-variable pairs and 72
+locale path-variable instances. `pages.dashboard.narrativeAttentionBody`'s
+`{blocked}` is 1/244 of the wider identities and 1/23 of the agreement-bearing
+set; it occurs in two locale strings and six outer-count ICU branches. The
+current witness fixes `blocked` at `7`, so singular agreement is untested.
+
+The defect is P38: the gate decides whether the whole message is plural-safe
+but predicates admission on the literal `{count}` marker. At this pinned head,
+the named GY-plan source has sections only through §3.5.13, so the P38 label and
+definition are task-brief inputs pending their upstream artifact; the complete
+catalog census independently establishes the defect. C15 must repair the
+general numeric-variable property, not only `{blocked}`. If a sixth owner path
+is measured, the sizing law re-cuts to C16; this cap is not enlarged.
+
+This adjacent class does **not** block C03. The governed
+`baseline-test-i18n-count-debt` / `i18n-count-message-parity` row is exactly the
+three inherited `overBudget` failures; C15 covers numeric variables that rule
+never admitted. The `reviewers` exemption is separately marked
+`declared, unenforced` now and no caller-source marker is mistaken for a
+behavioral witness.
 
 ## Expected cluster commits
 
@@ -480,6 +586,7 @@ complete.
 | C12 | `DS6-C12 seed honesty comprehension protocol` | 8 |
 | C13 | `DS6-C13 verify adjacent print export` | 6 |
 | C14 | `DS6-C14 close evidence workflow` | 6 |
+| C15 | `DS6-C15 close numeric-variable plural safety` | 5 |
 
 ## Deferred execution package
 
@@ -494,8 +601,8 @@ hand edit:
 1. `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`:
    `vitest.disposition` `rebind_pending -> resolved`; `exit_code` `1 -> 0`;
    `test_files` `{total:263,passed:262,failed:1} ->
-   {total:264,passed:264,failed:0}`; `tests`
-   `{total:766,passed:763,failed:3} -> {total:789,passed:789,failed:0}`;
+   {total:265,passed:265,failed:0}`; `tests`
+   `{total:766,passed:763,failed:3} -> {total:800,passed:800,failed:0}`;
    `failure_set.sha256`
    `533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd
    -> 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`;
@@ -503,9 +610,13 @@ hand edit:
    `debt_classes=[]`. Preserve `parent_reproduction`; refresh command/timing
    fields only from the actual full run. If totals differ, stop and record the
    measured values rather than copying these expected totals. The expected
-   resolved arithmetic is +11 tests from C01-R1's 4 -> 15 parity file and +1
-   file/+12 tests from C07's new focused contract; the historical post-C01-only
-   expectation of 263 files/777 tests is superseded after C07.
+   resolved arithmetic is +11 tests from C01-R1's 4 -> 15 parity file, +1
+   file/+12 tests from C07's focused contract, and +1 file/+11 tests from
+   C09's reviewed contract. The historical post-C01-only expectation of 263
+   files/777 tests and post-C07 expectation of 264 files/789 tests are
+   superseded. These remain expected control totals until the deferred full run
+   measures them; a different measurement replaces them rather than being
+   forced to fit this arithmetic.
 2. `architecture/atlas_surfaces/frontend-baseline-debt.schema.json`: admit
    exactly two Vitest lifecycle shapes—the current exact open triple and the
    empty/resolved/exit-0 shape. Reject mixed disposition, nonzero exit, nonempty
@@ -528,6 +639,14 @@ hand edit:
 7. `architecture/atlas_surfaces/status-retirement-inventory.json`: regenerate
    the induced content-bound receipt/hash after the disposition register
    changes.
+
+**C09 maturity consequence.** C09 adds no governed-row transition. In
+particular, the contended `unit_id=evidence-manual-at` row retains its
+current value because there is still no C08 CAS persistence/integrity receipt,
+producer, or C10 reconciliation result. The only C09 delta to the executable
+C03 handoff is the expected full-Vitest control arithmetic above; upgrading a
+row from a contract-only schema would be a false capability claim under P01
+and P32.
 
 **Rendered contrast, DS6-C04/C06.** Extend the canonical supplemental-finding
 producer in `check_frontend_disposition_register.py`, exercise it in

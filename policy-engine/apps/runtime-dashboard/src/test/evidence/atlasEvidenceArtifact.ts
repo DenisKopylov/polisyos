@@ -20,6 +20,14 @@ export const ATLAS_EVIDENCE_DENIED_USES = [
   "stable",
 ] as const;
 
+export const ATLAS_PREDICATE_PROVENANCE_VALUES = [
+  "recomputed",
+  "independently_reconciled",
+  "consumer_asserted",
+  "institutionally_supplied",
+  "not_established",
+] as const;
+
 /**
  * Storage is delegated to the repository's existing ArtifactStore boundary.
  * C07 defines the receipt payload; C08 must persist and resolve it through CAS.
@@ -120,19 +128,17 @@ const verifierSchema = z
   })
   .strict();
 
+export const atlasPredicateProvenanceSchema = z.enum(
+  ATLAS_PREDICATE_PROVENANCE_VALUES,
+);
+
 const provenanceSchema = z
   .object({
     producer: producerSchema,
     verifier: verifierSchema,
     repository_revision: repositoryRevision,
     command_argv: z.array(nonEmptyString).min(1),
-    predicate_provenance: z.enum([
-      "recomputed",
-      "independently_reconciled",
-      "consumer_asserted",
-      "institutionally_supplied",
-      "not_established",
-    ]),
+    predicate_provenance: atlasPredicateProvenanceSchema,
   })
   .strict()
   .superRefine((provenance, context) => {

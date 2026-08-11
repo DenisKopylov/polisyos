@@ -5,6 +5,7 @@ import {
   ATLAS_EVIDENCE_PAYLOAD_SCHEMA,
   ATLAS_EVIDENCE_RECEIPT_SCHEMA,
   ATLAS_EVIDENCE_STORAGE_CONVENTION,
+  ATLAS_PREDICATE_PROVENANCE_VALUES,
   assertAtlasEvidencePayloadBinding,
   atlasEvidencePayloadSchema,
   atlasEvidenceReceiptSchema,
@@ -408,13 +409,15 @@ describe("Atlas evidence artifact contract", () => {
   });
 
   it("preserves all five P37 predicate-provenance labels without upgrading them", () => {
-    for (const predicateProvenance of [
+    expect(ATLAS_PREDICATE_PROVENANCE_VALUES).toEqual([
       "recomputed",
       "independently_reconciled",
       "consumer_asserted",
       "institutionally_supplied",
       "not_established",
-    ] as const) {
+    ]);
+
+    for (const predicateProvenance of ATLAS_PREDICATE_PROVENANCE_VALUES) {
       const receipt = validReceipt();
       const parsed = parseAtlasEvidenceReceipt({
         ...receipt,

@@ -599,7 +599,16 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
         lambda *_args, **_kwargs: copy.deepcopy(live),
     )
     monkeypatch.setattr(second_domain_pack, "validate_bundle_payloads", lambda *_args: [])
-    monkeypatch.setattr(second_domain_pack, "_git", lambda *_args: "a" * 40)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: "" if args[0] == "status" else "a" * 40,
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_n10a_source_scope_content_hash",
+        lambda _root: "sha256:" + "b" * 64,
+    )
     before = {
         relative_path: (tmp_path / relative_path).read_bytes()
         for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
@@ -642,12 +651,70 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
     assert accepted["status"] == "pass"
     assert accepted["write_performed"] is True
 
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: (
+            " M tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+            if args[0] == "status"
+            else "a" * 40
+        ),
+    )
+    with pytest.raises(ValueError, match="n10a_source_scope_not_clean"):
+        second_domain_pack.write(tmp_path, persist=False)
+
     census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
     corrupt = json.loads(census_path.read_text(encoding="utf-8"))
     corrupt["value"] = "corrupt-with-stale-hash"
     census_path.write_text(json.dumps(corrupt), encoding="utf-8")
     with pytest.raises(ValueError, match="n10a_frozen_artifact_integrity_failed"):
         second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("modifier", "expected"),
+    [
+        (
+            ["--capture-stage1-n4"],
+            {"allow_live_n4_capture": True, "n4_capture_journal": None},
+        ),
+        (
+            ["--accept-stage1-n4-journal", "capture.json"],
+            {
+                "allow_live_n4_capture": False,
+                "n4_capture_journal": Path("capture.json"),
+            },
+        ),
+    ],
+)
+def test_measure_transition_supports_each_capture_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    modifier: list[str],
+    expected: dict[str, object],
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    def fake_write(_root: Path, **kwargs: object) -> dict[str, object]:
+        calls.append(dict(kwargs))
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(second_domain_pack, "write", fake_write)
+
+    assert (
+        second_domain_pack.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--measure-write-transition",
+                *modifier,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
+    assert calls == [{**expected, "persist": False}]
 
 
 def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:

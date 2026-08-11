@@ -1026,6 +1026,7 @@ def write(
 
     started = time.monotonic()
     root = repo_root.resolve()
+    _require_n10a_source_scope_clean(root)
     bundle = build_live_bundle(
         root,
         allow_live_n4_capture=allow_live_n4_capture,
@@ -6542,9 +6543,11 @@ def _artifact_write_transition_manifest(
 ) -> dict[str, Any]:
     """Return the source-bound manifest that must be approved before writing."""
 
+    _require_n10a_source_scope_clean(root)
     payload: dict[str, Any] = {
         "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
         "source_head": _git(root, "rev-parse", "HEAD"),
+        "source_scope_content_hash": _n10a_source_scope_content_hash(root),
         "artifacts": [{str(key): value for key, value in row.items()} for row in transitions],
     }
     payload["manifest_content_hash"] = _hash(payload)
@@ -6559,14 +6562,18 @@ def _parse_artifact_write_transition_manifest(value: object) -> dict[str, Any]:
         "manifest_content_hash",
         "schema_version",
         "source_head",
+        "source_scope_content_hash",
     }:
         raise ValueError("n10a_expected_transition_manifest_invalid")
     source_head = value.get("source_head")
+    source_scope_content_hash = value.get("source_scope_content_hash")
     rows = value.get("artifacts")
     if (
         value.get("schema_version") != _WRITE_TRANSITION_SCHEMA_VERSION
         or not isinstance(source_head, str)
         or re.fullmatch(r"[0-9a-f]{40}", source_head) is None
+        or not isinstance(source_scope_content_hash, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", source_scope_content_hash) is None
         or not isinstance(rows, list)
         or len(rows) != len(_ARTIFACT_WRITE_SPECS)
     ):
@@ -6603,12 +6610,54 @@ def _parse_artifact_write_transition_manifest(value: object) -> dict[str, Any]:
     payload = {
         "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
         "source_head": source_head,
+        "source_scope_content_hash": source_scope_content_hash,
         "artifacts": parsed_rows,
     }
     expected_hash = _hash(payload)
     if value.get("manifest_content_hash") != expected_hash:
         raise ValueError("n10a_expected_transition_manifest_hash_drift")
     return {**payload, "manifest_content_hash": expected_hash}
+
+
+def _require_n10a_source_scope_clean(root: Path) -> None:
+    """Reject tracked or untracked source/tool drift before measuring or writing."""
+
+    drift = _git(
+        root,
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--",
+        "src/polisyos",
+        "tools",
+    )
+    if drift:
+        raise ValueError("n10a_source_scope_not_clean")
+
+
+def _n10a_source_scope_content_hash(root: Path) -> str:
+    """Bind all importable source/tool bytes, including an untracked shadow file."""
+
+    digest = hashlib.sha256()
+    file_count = 0
+    for source_root in (root / "src" / "polisyos", root / "tools"):
+        for path in sorted(source_root.rglob("*")):
+            if (
+                not path.is_file()
+                or "__pycache__" in path.parts
+                or path.suffix in {".pyc", ".pyo"}
+            ):
+                continue
+            relative = path.relative_to(root).as_posix().encode("utf-8")
+            content = path.read_bytes()
+            digest.update(len(relative).to_bytes(8, "big"))
+            digest.update(relative)
+            digest.update(len(content).to_bytes(8, "big"))
+            digest.update(content)
+            file_count += 1
+    if file_count == 0:
+        raise ValueError("n10a_source_scope_empty")
+    return "sha256:" + digest.hexdigest()
 
 
 def _changed_leaf_pointers(previous: object, current: object) -> list[str]:
@@ -6978,24 +7027,40 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
-    selected = sum(
+    capture_selected = sum(
         bool(value)
         for value in (
-            args.check,
-            args.write,
-            args.measure_write_transition,
             args.capture_stage1_n4,
             args.accept_stage1_n4_journal is not None,
-            args.rederive_audit,
-            args.corrupt_field_drift_check,
         )
     )
-    if selected != 1:
-        parser.error("select exactly one action")
+    if args.measure_write_transition:
+        incompatible = any(
+            (args.check, args.write, args.rederive_audit, args.corrupt_field_drift_check)
+        )
+        if incompatible or capture_selected > 1:
+            parser.error("select exactly one action")
+    else:
+        selected = sum(
+            bool(value)
+            for value in (
+                args.check,
+                args.write,
+                args.capture_stage1_n4,
+                args.accept_stage1_n4_journal is not None,
+                args.rederive_audit,
+                args.corrupt_field_drift_check,
+            )
+        )
+        if selected != 1:
+            parser.error("select exactly one action")
     writer_selected = bool(
-        args.write
-        or args.capture_stage1_n4
-        or args.accept_stage1_n4_journal is not None
+        not args.measure_write_transition
+        and (
+            args.write
+            or args.capture_stage1_n4
+            or args.accept_stage1_n4_journal is not None
+        )
     )
     if writer_selected != (args.expected_transition_manifest is not None):
         parser.error(
@@ -7008,7 +7073,14 @@ def main(argv: list[str] | None = None) -> int:
             if args.expected_transition_manifest is not None
             else None
         )
-        if args.accept_stage1_n4_journal is not None:
+        if args.measure_write_transition:
+            report = write(
+                root,
+                allow_live_n4_capture=args.capture_stage1_n4,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+                persist=False,
+            )
+        elif args.accept_stage1_n4_journal is not None:
             report = write(
                 root,
                 n4_capture_journal=args.accept_stage1_n4_journal,
@@ -7021,9 +7093,12 @@ def main(argv: list[str] | None = None) -> int:
                 expected_transition_manifest=expected_manifest,
             )
         elif args.write:
-            report = write(root, expected_transition_manifest=expected_manifest)
-        elif args.measure_write_transition:
-            report = write(root, persist=False)
+            report = write(
+                root,
+                allow_live_n4_capture=args.capture_stage1_n4,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+                expected_transition_manifest=expected_manifest,
+            )
         elif args.rederive_audit:
             report = rederive_audit(root)
         elif args.corrupt_field_drift_check:

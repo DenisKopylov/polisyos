@@ -984,3 +984,13 @@ ignored non-receipt, restores all five old byte strings, and rehashes the restor
 That recovery boundary is operational protection, not a substitute for the pre-write semantic gate.
 `[P37: recomputed for the current sequential writer implementation; not_established for recovery
 until exercised or the accepted write completes without needing it]`
+
+The second delta review tightened two protocol edges before the wave. Measurement and persistence
+now both reject any tracked or untracked change under `src/polisyos/**` or `tools/**`; the manifest
+also binds a canonical SHA-256 over every non-bytecode file in those two complete source scopes, in
+addition to `HEAD`. A journal-only expected-delta declaration may therefore remain uncommitted for
+the accepted write without weakening source binding, while a same-HEAD dirty source cannot measure
+or persist. The capture variants are modifiers of the same measurement action, so both live-N4
+capture and a supplied capture journal can obtain the exact candidate manifest their corresponding
+writer must present. Focused witnesses cover dirty-source refusal and both public measurement routes.
+`[P37: recomputed]`

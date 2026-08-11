@@ -356,3 +356,189 @@ full typecheck, full build, or other heavy lane ran; each remains the exact
 non-receipt in the consolidated deferred package. Plain-node design checks wait
 for the post-C02 blast-radius wave so they run once against frozen light-half
 source.
+
+## DS6-C02 — opaque-background rendered-contrast probe — 2026-08-11
+
+### Entry, authority, and red first
+
+C02 entered from clean committed C01 `82cb9ac57` on the attached DS6 branch.
+Its exact four-path set is the new typed registry/classifier, focused contract
+test, test-only Storybook browser fixture under `src/test/a11y/**`, and this
+journal. This equals, but does not exceed, the declared cap.
+
+The authoritative DS4/master denominator remains four owner clusters and seven
+source identities: C01 `Badge`; C06 `ProvenancePopover` and
+`ProvenanceMiniGraph`; C09 `TimeSemanticsLabel`; C14 `CandidateFrame`,
+`NegativeCertificateCard`, and `WeakestLinkExplainer`. The historic 85/85
+component and 21/21 browser receipts remain unedited and do not count any of
+these sources green. C02 declares a separate eventual 7/7 rendered-contrast
+denominator derived only from the frozen typed registry.
+
+Red-first command:
+
+```bash
+cd apps/runtime-dashboard
+corepack pnpm exec vitest run src/test/a11y/opaqueBackgroundContrast.test.ts --maxWorkers=2 --reporter=default
+```
+
+Receipt: expected RED before the classifier existed. Vite failed to resolve
+`./opaqueBackgroundContrast`; 1 suite failed, zero tests executed, duration
+934 ms. This is missing-implementation evidence, not a browser receipt.
+
+### Pure evidence classifier
+
+`opaqueBackgroundContrast.ts` owns the one typed seven-source registry and an
+atomic classifier. An admitted run requires exactly one observation for every
+declared source, an established opaque backdrop, zero violation and incomplete
+nodes, and at least one axe pass whose actual and required ratios are both
+finite numbers with actual >= required. The registry—not raw axe node count—
+owns the denominator.
+
+Any missing, duplicate, unknown, nonopaque, violating, inapplicable-only,
+nonnumeric, or below-required observation fails the entire run and emits zero
+receipts. In particular, an axe `incomplete` produces
+`axe_incomplete_unattributed`, whose type and runtime object have no `sourceId`.
+Zero violations alone can never manufacture `computed_pass`. This preserves
+the DS4 rule that an incomplete node is neither a violation nor a pass and
+cannot be attributed to a source identity.
+
+The pre-review focused contract exercised ten behaviors: 1/2/1/3 cluster
+mapping and seven unique sources; 7/7 numeric pass; unattributed incomplete;
+no-pass; missing; duplicate plus unknown; nonnumeric ratio; below-required
+ratio; declared nonopaque input; and non-browser import of the Storybook
+adapter. Review then strengthened this to twelve tests and an exact ordered
+registry assertion, as recorded below.
+
+### Real-browser fixture written, not executed
+
+`OpaqueBackgroundContrast.stories.tsx` renders the seven real component
+identities in the required states: neutral Badge; open untraced
+ProvenancePopover; populated ProvenanceMiniGraph; TimeSemanticsLabel;
+CandidateFrame with absent authority purpose and declared exclusions;
+NegativeCertificateCard with summary/definitions; and WeakestLinkExplainer
+with an empty producer list.
+
+The play adapter makes the iframe `html`, `body`, Storybook ancestors, fixture
+surface, each source wrapper, and portalled popover background explicit. It
+asserts an opaque computed background and `background-image: none` before axe.
+It then runs axe-core's real `color-contrast` rule separately over each exact
+selector, extracts axe's emitted `contrastRatio` and
+`expectedContrastRatio` data (parsing axe's `N:1` required form), and submits
+the observations to the pure classifier. It requires an atomic 7/7 receipt.
+
+No WCAG luminance or ratio implementation was added. Axe owns rendered
+contrast; `tools/design/_a11yColor.ts` remains the static token calculator and
+`shared/a11y/ContrastEnforcer.tsx` remains the runtime ancestor-blending
+consumer. The test-only fixture reuses product components but changes no
+product source or existing visual-baselined story.
+
+### Focused non-browser green receipt
+
+The same focused command passed after initial implementation: 1/1 file and
+10/10 tests, 17 ms classifier-only on the first green and 1.77 s total / 870 ms
+test body on the run that also imports the browser adapter without executing
+its play function. This is a non-browser contract and module-resolution receipt
+only. The post-review 12-test receipt is below.
+
+The serialized browser command remains exactly:
+
+```bash
+/usr/bin/time -p corepack pnpm exec vitest run --config vitest.storybook.config.ts src/test/a11y/OpaqueBackgroundContrast.stories.tsx
+```
+
+It was not run. Storybook/Chromium and its resulting 7/7 or honest RED are a
+`verification_missing` non-receipt under the GY host-contention boundary. The
+first authorized `real` value establishes the suite baseline; later controller
+timeouts use the plan's twice-baseline, next-30-second rule.
+
+### Governed surface, duplication, and orchestration
+
+The typed supplemental row remains `surface_missing` because all shared
+Atlas-surface writers are serialized with DS5-C21. Its exact ID, evidence refs,
+field values, generated-owner/report/status paths, open-to-repaired lifecycle,
+and browser prerequisite remain the single consolidated deferred block in the
+plan. C02 does not create a prose sibling, second register, or Vitest
+debt-class entry.
+
+The entry duplication census remains valid. C02 adds the first executable
+seven-source registry and uses the existing axe dependency; it does not copy
+either existing contrast calculator. The test-only story is intentionally
+separate from `EvidencePrimitives.stories.tsx`, whose visual baseline lacks two
+required states and is outside the C02 fence. No comparator currently equates
+token, runtime-enforcer, and axe results; their distinct consumers and this
+concrete divergence remain reported, not “fixed.”
+
+Implementation remained inside the four declared paths. No contended artifact,
+product component, catalog,
+historical a11y denominator, DS5 path, or GY path changed. No browser,
+Storybook, Playwright, dev server, whole-suite Vitest, full lint, full
+typecheck, full build, or Storybook build ran. Plain-node design checks run once
+in the post-C02 blast-radius wave after review/source freeze.
+
+### Independent review and first fix round
+
+Specification review returned one Important P29/P33/P37 finding: the initial
+unit test supplied `opaqueBackdrop: false` directly but did not exercise the
+same rendered-DOM predicate used by the browser adapter. Replacing the private
+story helper with `return true` would have left all ten tests green. The review
+also checked the C06 state split and confirmed that the open untraced Popover
+exercises the empty MiniGraph branch while the separate MiniGraph source
+exercises populated labels; no extra source or denominator change was needed.
+
+Code-quality review returned two Important findings:
+
+- `NaN`, negative, or fractional violation/incomplete counts were not `> 0`
+  and could falsely admit 7/7;
+- the registry test froze only length, uniqueness, and 1/2/1/3 cardinality, so
+  a component/selector substitution or reorder could stay green.
+
+All three findings are governed by Task 2's hard-failure contract and the
+failure register's P29/P33 behavioral-witness bar; malformed counts additionally
+exercise P32's present-but-fake evidence case. The batched fix is the first
+mechanism-changing review round: the DOM opacity recomputation moved into the
+canonical classifier module and is exercised with the source marker retained;
+counts must be finite non-negative integers; and the test binds the full ordered
+`sourceId/ownerCluster/component/selector` registry plus receipt order.
+
+Red-first review-fix receipt: 12 tests ran, with exactly two expected failures.
+The real opacity helper was absent (`hasOpaqueBackground is not a function`),
+and malformed counts still produced `status: pass`. After implementing those
+properties, 12/12 passed. A separate marker-preserving registry mutation changed
+only C01's component from `Badge` to `BadgeMutationWitness`; the exact registry
+test went RED 1/12 with the component diff while all other tests passed. The
+mutation was restored with `apply_patch`, and the final focused receipt passed
+1/1 file, 12/12 tests, 1.74 s total / 839 ms test body. No mutation byte remains.
+
+Delta-only specification and quality re-reviews both returned CLEAN. The spec
+review independently exercised the shared DOM opacity helper and confirmed the
+empty/populated MiniGraph state coverage. The quality review independently
+recomputed all six malformed-count negatives, the full ordered registry and
+receipt order, and a fresh 12/12 focused pass. No second mechanism fix round
+was required. This review receipt is documentation-only and free under the
+mechanism-round breaker.
+
+The browser lane remains a non-receipt; review of source compatibility is not
+rendered evidence.
+
+### Frozen-source allowed blast-radius wave
+
+After both reviews closed, the authorized focused pair ran together with at
+most two workers:
+
+```bash
+corepack pnpm exec vitest run src/shared/i18n/parity.test.ts src/test/a11y/opaqueBackgroundContrast.test.ts --maxWorkers=2 --reporter=default
+```
+
+Receipt: PASS, 2/2 files and 16/16 tests in 2.09 s; parity 4/4 (26 ms) and the
+opaque-background contract 12/12 (887 ms). The browser-adapter import test ran;
+its play function did not.
+
+All three permitted single-process design checks passed unchanged:
+
+- `corepack pnpm run a11y:contrast` — `Contrast checks passed.`
+- `corepack pnpm run a11y:motion` — `Reduced-motion checks passed.`
+- `corepack pnpm run a11y:color-blind` — `Color-blind checks passed.`
+
+These token/source checks do not close the rendered axe-incomplete class. They
+are separate positive receipts around the still-unrun Storybook/Chromium probe.
+No heavy or contended lane was started alongside them.

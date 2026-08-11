@@ -2691,23 +2691,23 @@ def _compiled_authority_source_projection(
         receipts = _mappings(promotion.get("receipts"))
         promotions.append(
             _with_depth_promotion_summary_identity(
-            {
-                "node_ref": node.get("node_ref"),
-                "status": promotion.get("status"),
-                "reason": promotion.get("reason"),
-                "receipt_count": len(receipts),
-                "authority_provenance": sorted(
-                    {
-                        str(
+                {
+                    "node_ref": node.get("node_ref"),
+                    "status": promotion.get("status"),
+                    "reason": promotion.get("reason"),
+                    "receipt_count": len(receipts),
+                    "authority_provenance": sorted(
+                        {
+                            str(
                                 _mapping(receipt.get("confidence_ledger_projection")).get(
                                     "authority_provenance"
                                 )
-                            or "not_established"
-                        )
-                        for receipt in receipts
-                    }
-                ),
-                "all_receipts_non_consumer": bool(receipts)
+                                or "not_established"
+                            )
+                            for receipt in receipts
+                        }
+                    ),
+                    "all_receipts_non_consumer": bool(receipts)
                     and all(receipt.get("consumer_promotable") is False for receipt in receipts),
                     "certified_candidate_ids": _strings(promotion.get("certified_candidate_ids")),
                 },
@@ -2729,6 +2729,7 @@ def _with_depth_promotion_summary_identity(
     values["projection_scope"] = projection_scope
     values["projection_hash"] = gy_content_hash(values)
     return values
+
 
 def _depth_non_authority_comparison_eligible(value: Mapping[str, object]) -> bool:
     if n9_promotion_projection_comparison_eligible(value):
@@ -2786,6 +2787,7 @@ def _depth_non_authority_comparison_eligible(value: Mapping[str, object]) -> boo
         and value.get("owner")
         == "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort"
     )
+
 
 def _controlled_authority_source_projection_issues(
     projection: Mapping[str, Any],
@@ -8099,6 +8101,7 @@ def _reconcile_artifact_records(
         raise UniversalityContractError("universality_contract_operational_projection_invalid")
     return reconciled
 
+
 def _comparison_content_hash(payload: Mapping[str, Any]) -> str:
     stable = {
         str(key): value
@@ -8110,11 +8113,13 @@ def _comparison_content_hash(payload: Mapping[str, Any]) -> str:
         admit_non_authority_block=_depth_non_authority_comparison_eligible,
     )
 
+
 def _set_artifact_identities(payload: dict[str, Any]) -> None:
     payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
     payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
     payload["comparison_content_hash"] = _comparison_content_hash(payload)
     payload["contract_content_hash"] = _contract_content_hash(payload)
+
 
 def _comparison_identity_issues(payload: Mapping[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
@@ -8128,6 +8133,7 @@ def _comparison_identity_issues(payload: Mapping[str, Any]) -> list[dict[str, An
     if payload.get("comparison_content_hash") != _comparison_content_hash(payload):
         issues.append({"code": "comparison_content_hash_drift"})
     return issues
+
 
 def _volatile_content_paths(value: object, path: str = "$") -> list[str]:
     paths: list[str] = []

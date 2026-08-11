@@ -28,6 +28,44 @@ the expensive wave stopped before the writer. No N10a output changed and the one
 remains unused. The cold objective is therefore `not_established`, not failed. `[P37:
 not_established]`
 
+## Step-two ruling — completion, GY-DI4, and the declared corrupt fence
+
+The architect's step-two ruling supersedes the checkpoint blocker above. Timing-sample admission is
+governed by **contract-declared completion**, not by the proxy `exit_code == 0`: the default healthy
+terminal set is `{0}`, while each of the four `corrupt-field-drift-check` lanes declares `{1}`.
+Harness/timeout termination, signal death, skips, malformed records, and terminals outside the
+lane's declared set remain inadmissible. `[P37: institutionally_supplied]`
+
+For N10a specifically, the canonical validator computes `missing`, returns report status `"fail"`
+when `missing` is empty, and maps that completed outcome to exit `1`; exit `2` means at least one
+expected mutation went undetected. Thus healthy exit `1` is grounded in the lane's own return
+mapping, not inferred from the timing log or widened globally. `[P37: recomputed]`
+
+The six lanes exposed as unbudgeted by the accepted GY-DI2 implementation split `2/4`: guardrails'
+real exit-1 failures and the UDF-performance skip are correctly excluded, while the four corrupt
+lanes are completed-work receipts that the proxy misclassifies. The report must remain unchanged in
+this session; this split is evidence for the registered substrate defect, not authority to patch it
+locally. `[P37: independently_reconciled]`
+
+`GY-DI4` is registered here and deliberately not implemented. The timing substrate currently derives
+lane health from `exit_code == 0`, although authority over a validator's healthy terminal lives in
+that validator's return mapping. The smallest correct closure is a per-lane healthy-terminal set at
+the tool-declaration layer, default `{0}`, consumed by sample admission; no declaration may admit a
+harness termination, signal death, or skip, and every catalog row must record the predicate that
+admitted its samples. Inferring the set from the log, letting the budget consumer select it, or
+widening exit `1` globally are forbidden closures. `[P37: institutionally_supplied]`
+
+For this wave only, N10a's corrupt verifier has a `300` s `declared_ceiling`: a hang fence about
+twelve times the maximum of its five healthy completed runs (`13.403`, `13.466`, `14.522`, `19.605`,
+and `24.675` s), not a measured budget and not a catalog value. Green is exit `1` with empty
+`missing`; exit `2` or exceeding the ceiling stops the task. `[P37: institutionally_supplied for the
+ceiling and admission; recomputed for the recorded durations]`
+
+`GY-DI3` is sharpened but remains out of scope: the receipt-equivalent interpreter and dependency
+posture also live under `/private/tmp`, so a reboot can erase both the measurement substrate and the
+ability to execute this chain. Durability remains `not_established`; no relocation or persistence
+repair is performed here. `[P37: not_established]`
+
 ## GY-DI2 catalog closure
 
 The complete `/tmp/polisyos-tools/timing.jsonl` input initially contained 109/109 parseable JSONL

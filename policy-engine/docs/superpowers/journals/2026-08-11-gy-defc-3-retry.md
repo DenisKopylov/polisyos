@@ -589,3 +589,90 @@ alone is reported to have run the read-only census and written only ignored meas
 this journal. Two agents independently confirmed the outside-four stop. `[P37: consumer_asserted for
 the dispatch set, model selection, and root-only execution; independently_reconciled for the stop;
 not_established for historical no-agent-write/no-agent-launch negatives]`
+
+## GY-DEFC-4 — predicate contract and pre-source gate
+
+This continuation started with `codex/gy-defc-3-retry` attached and clean at
+`a9d276177b5098febebff1ba031bcb298166bda3`, six commits ahead of `c1a89b6cf`. The unrelated
+main-worktree edit to `src/polisyos/data_forge/read_api/catalog.py` is not in this worktree's changed
+path set. `[P37: recomputed]`
+
+### Timing census and confidence-ledger probe
+
+The session-start timing report parsed `117` records. Its exact admitted-sample arithmetic retained
+these four measured writer ceilings: promotion `32,437.008` ms, generation cycle `56,250.878` ms,
+N10a `852,699.146` ms, and Depth-N `4,942,540.412` ms. The current log had no successful
+confidence-ledger writer sample; its repository fallback is not evidence that this tree's writer can
+reach its own terminal. Corrupt-field runs remain unbudgeted under the registered-but-unimplemented
+`GY-DI4` predicate, so the task's `300`/`600` second values remain declared hang fences rather than
+measured budgets. `[P37: recomputed for log arithmetic; institutionally_supplied for the declared
+hang fences; not_established for a confidence-ledger execution budget]`
+
+The first confidence-ledger launch was a setup non-receipt. It used the surviving CPython 3.14
+interpreter directly while this worktree had no ignored `.venv` link, so the validator's own
+`assert_repository_interpreter` gate stopped at `wrong_interpreter_resolved` before writer work:
+`byte_stable_passes=0`, `second_pass_started=false`, duration `20.862992` s, exit `1`. It wrote no
+artifact bytes. The governed confidence-ledger artifact remained exactly `108,740` bytes at SHA-256
+`a844a0c318a95e6f653dda34c3a7f6db6592070b8abe25b0b9e9b1bdc2824781`. The receipt is preserved
+under `tmp/gy-defc-4/confidence-probe/writer.{stdout,stderr,meta.json}`. `[P37: recomputed]`
+
+The missing ignored `.venv` link was then reconstructed to the same surviving receipt environment;
+its resolved prefix and `sys.prefix` both equal
+`/Users/deniskopylov/polisyos/.worktrees/gy-def13-path-witness/policy-engine/.venv`. With current
+worktree source first in `PYTHONPATH`, `JAX_PLATFORMS=cpu`, explicit catalog/L5 inputs, and a scratch
+`--output`, the substantive probe ran alone under the declared `1,800` s fence. It completed in
+`111.920627` s without timeout and exited `1`; no scratch artifact was produced, and the governed
+artifact remained byte-identical. The terminal report reached `confidence_registry_loaded`,
+`owner_pre_derivation_fence_started`, `owner_pre_derivation_fence_complete`, and
+`n10_owner_recomputation_started`, then raised `OwnerProjectionError` with the known chain
+`n10_capstone_provenance_unstable -> n10a_owner_validation_failed ->
+n8_transport_gap_receipt_drift`. It reported `process_group_clean=true`,
+`byte_stable_passes=0`, and `second_pass_started=false`. Receipt SHA-256s are stdout
+`4418953192944255118eb6eea263eed015a4d301383bb8d97ec997dd5f23d43b`, stderr
+`c8fa7c8dc6560ff0ee5ec2bb3714332a3e164387da6934b9dd424d4eda3bb91f`, and metadata
+`c8311a20264c35be1c8ecd071a2025e58f49c7a6600802b32b742c7f50327be3`.
+`[P37: recomputed]`
+
+That result selects pre-authorized branch B3: confidence-ledger is a blocked member because its
+canonical writer cannot produce a clean baseline before the antecedent N10a receipt is repaired.
+It is removed from this reissue batch, not repaired here; the remaining batch is promotion,
+generation cycle, N10a, and Depth-N. The probe failure is the already-known stale-content-identity
+class, not evidence against the `GY-DEF14` predicate. `[P37: institutionally_supplied for B3;
+recomputed for the exception class and absent output]`
+
+### Predicate contract — frozen before source work
+
+The comparison-exclusion decision is a recomputed predicate over a mapping's own direct
+`authority_provenance` declaration. A mapping is excluded from the compared identity if and only if
+all of the following hold:
+
+1. the declaration is present directly on that mapping;
+2. its serialized shape is either one string or a list of strings;
+3. normalizing the scalar to a one-member list yields a non-empty declaration; and
+4. every declared value belongs to the closed recognized non-authority set, currently exactly
+   `verification`.
+
+Thus scalar `"verification"` and list `["verification"]` are equivalent and non-governing. Any
+recognized authority element, including `canonical_repo`, keeps the whole mapping governing. An
+absent, empty, malformed, mixed, or unrecognized declaration also keeps the whole mapping governing;
+examples include `null`, `""`, `[]`, `{}`, `42`, `[42]`, `["verification", "canonical_repo"]`,
+and `["not_established"]`. The rule fails closed rather than inferring authority from the log, the
+path, a field-name allow-list, or the task that needs the hash. `[P37: institutionally_supplied for
+the contract; recomputed is the required implementation-time admission label]`
+
+Exclusion applies only to the comparison projection used by the decisive content identity. The
+source mapping and every nested verification receipt remain present, complete, byte-readable, and
+subject to their ordinary full-record validation. The projection is derived recursively from the
+payload declaration; it does not enumerate the observed blocks or their leaves, does not replace
+values with placeholders, does not widen operational normalization, and does not change ledger scope
+semantics. `_normalize_n6_run_payload` must delegate to this owner rather than maintain a second
+local exclusion rule. `[P37: institutionally_supplied for the positive/forbidden specification;
+not_established until behavioral witnesses and readback close]`
+
+The scalar-only blast-radius trial's `3,721` leaves is therefore not the repaired prediction. The
+nine Depth-N blocks declared as `["verification"]` contribute another predicted `60` scalar leaves,
+so the pre-source contract predicts `32` excluded blocks and `3,781` scalar leaves across the same
+five artifact identities. Empty and unrecognized list declarations remain outside that prediction.
+This correction is accepted only after a fresh complete post-repair census reproduces it per
+artifact. `[P37: independently_reconciled for the prediction; not_established for the post-repair
+result]`

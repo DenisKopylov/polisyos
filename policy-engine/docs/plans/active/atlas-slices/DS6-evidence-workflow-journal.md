@@ -1260,3 +1260,248 @@ their named receipts: `Contrast checks passed.`, `Reduced-motion checks
 passed.`, and `Color-blind checks passed.` No browser, Storybook, full Vitest,
 full lint, full typecheck, full build, journey, visual, or dev-server lane ran;
 each remains a non-receipt under the unchanged heavy-lane boundary.
+
+## DS6-C12 — seed honesty-comprehension protocol — 2026-08-11
+
+### Clean entry, owner discovery, and measured set
+
+C12 entered only after C09 landed and was read back clean at
+`122208801d644d6347ff34cb59f74fc2cca2c7c2`, six commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. `git status -sb` showed the
+attached branch with no changes. The exact declared/measured C12 set remains
+five paths against cap 8: new protocol source, focused test, and reference page,
+plus this plan and journal.
+
+The owner-first read established four separate roles:
+
+- the Atlas master DS6 deliverable and Rev-3.4 rider at
+  `POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1023-1043` make
+  DS6/`team-frontend` the instrument owner but reserve behavioral content and
+  thresholds to INT-R3
+- the exact INT-R3 research row at
+  `policy-operations-and-real-world-runtime-backlog.md:453-457` names behavior,
+  six metric identities, and operating conditions, while lines 251-255 say
+  execution still needs live operators and is only designed now
+- C07's `atlasEvidenceArtifact.ts` owns the storage convention and denied-use
+  boundary; its three closed evidence kinds do not include generic human
+  comprehension, so C12 must not mislabel it as assistive-technology
+  `manual_at`
+- ADR-0171 and `src/polisyos/runtime/quality/human_review.py` already own review
+  time, override, dissent, no-delta, and separation-of-duty effectiveness
+  telemetry; C12 must not build a second review-effectiveness family
+
+A complete tracked-file census walked 949 frontend TS/TSX files, 4,951 backend
+Python files, and 882 Markdown files. It found zero frontend and zero backend
+honesty-comprehension/`AuthorityUIComprehensionBenchmark` owners; the only
+three documentation hits were the master, this DS6 plan, and the research
+backlog. The exact seed wording had zero frontend/backend hits and only the
+master plus this plan in docs. A separate complete 136/136 tracked-file census
+under `docs/research/policy-operations` found three INT-R3 prose mentions and
+zero `docs/research/policy-operations/int-r3/**` artifact paths; no completion
+ledger row exists. INT-R3 content is therefore `not_established`, not merely
+unwired.
+
+The same census found one semantic collision rather than a duplicate owner:
+`false_pass` already names Policy Design Case adjudication outcomes in the
+backend. That token does not define the future operator-comprehension metric or
+its threshold. The existing backend review-effectiveness and C07 storage
+owners are reused/kept separate; no second C12 protocol, sampler, runner,
+receipt, CAS, or threshold owner exists.
+
+### C12 red/green mechanism receipt
+
+Red first, the focused command
+
+```bash
+corepack pnpm exec vitest run src/test/evidence/atlasHonestyComprehensionProtocol.test.ts --maxWorkers=2 --reporter=default
+```
+
+failed 1/1 file during import because the declared protocol owner did not
+exist. Zero tests collected; duration was 790 ms. The red binds the missing C12
+contract and not a browser, product, or inherited baseline failure.
+
+The implementation is strict rule-owned verification-payload `details`, not a
+new receipt envelope. It aliases C07's exact storage object and denial prefix,
+defines no evidence kind or writer, and reports `contract_only`. Its owners are
+DS6/`team-frontend` for the instrument, INT-R3 for research content and
+thresholds, DS6-C11 for future measurement, and Core `ArtifactStore` for
+storage mechanics.
+
+The cadence is quarterly plus two event triggers: before the first stable claim
+for an interactive authority surface and after an authority-surface semantic
+or profile change. It is explicitly collection scheduling, never validity,
+freshness, retention, or a threshold. The exact two tasks point to existing
+answer owners (`runtime_projection.weakest_links` and
+`closeout_truth.blockers`) and preserve external execution, evidence status,
+and PolicyOS reaction as separate planes.
+
+Sampling is preregistered and risk-stratified with frame freeze before
+observation. No sample size or completeness claim exists; completeness and its
+predicate provenance are `not_established`. A shaped frame/preregistration ref
+does not elevate the classifier, and a marker-preserving
+`declared_complete=true` field is strictly rejected.
+
+The versioned profile uses generic unique task/metric/condition arrays. The
+seed freezes the six INT-R3 metric IDs and four named operating conditions, but
+all six thresholds recursively require exact `not_established` status and null
+comparator, value, unit, and source. There is no current established branch. A
+version-bumped alternate task profile parses through the same schema while
+retaining all-null thresholds; that proves envelope replaceability only, not
+behavioral adequacy or research admission.
+
+The final focused green passed 1/1 file and 8/8 tests in 755 ms (13 ms test
+body) with two workers. The test loops over every metric and rejects each
+status/comparator/value/unit/source mutation; rejects missing, duplicate, and
+populated invented threshold rows; rejects duplicated task/metric identities;
+rejects authority widening and denial removal/reordering; proves shaped sample
+refs and asserted/supplied completeness remain non-stable; and keeps missing,
+unknown, known zero, incomparable, and recorded observations distinct. Even a
+populated observation returns `descriptive_only`, `benchmark_status` and
+`stable_bar_effect` `not_established`, `blocking_permitted=false`, and
+`grants_stable=false`.
+
+The scoped mechanism diff is exactly the new C12 module plus its test. The
+reference and slice records do not implement the mechanism. This is mechanism
+round 0 (initial implementation), leaving both review-fix rounds available if
+an independent review finds an Important/Critical defect.
+
+The deferred resolved-Vitest expectation advances from the post-C09 265/800 to
+266 files / 808 tests: C12 adds one file and eight tests. No full suite ran, so
+this is expected control arithmetic for C03, not a receipt. C12 adds no
+governed-row transition, no receipt kind, and no threshold/stable delta to the
+deferred package.
+
+### C12 review batch and mechanism round 1
+
+Three independent read-only reviews of the five-path entry delta found four
+Important gaps against the artifacts that set the bar:
+
+1. `atlasHonestyComprehensionProtocol.ts` accepted any nonempty sampling ref,
+   while C07's `atlasEvidenceArtifact.ts` already owns the exact
+   `sha256:<64-lowercase-hex>` identity. A malformed marker could therefore
+   pass as a shaped reference, contrary to P32 in
+   `policy-design-case-failure-patterns.md` and C07's resolve-bind-verify
+   boundary.
+2. `atlasHonestyInstrumentProfileSchema` checked uniqueness and internal
+   threshold equality but not the complete six-metric/four-condition set from
+   the master Rev-3.4 rider and INT-R3 row
+   (`policy-operations-and-real-world-runtime-backlog.md:453-457`). Removing a
+   metric with its threshold or removing a condition remained green, a
+   P29/P33 property gap.
+3. The parser allowed changed tasks under the unchanged seed ID/version,
+   violating the replay/version bar in P07 and the exact two-task C12 contract.
+4. The seed's answer-owner aliases did not bind the repository owners found by
+   census. The authoritative source paths are
+   `src/polisyos/runtime/http/services/governed_projections.py::_project_depth_n`
+   with `terminal.blocking_obligations->domain_runs.<domain>.weakest_links`,
+   and
+   `src/polisyos/runtime/quality/projection_semantics.py::_s9_closeout_truth`
+   with `PolicyDesignCaseProjection.closeout_truth.blockers`. Because C12 does
+   not behaviorally verify either producer, each binding must remain
+   `predicate_provenance=not_established` under P30/P36/P37.
+
+The four findings were batched into mechanism review-fix round 1. Red first,
+the same focused C12 command collected eight tests and failed four while four
+passed in 815 ms (18 ms test body): canonical answer bindings mismatched the
+alias-only implementation; a required metric plus matching threshold could be
+deleted; the generic replacement binding was rejected by the old alias shape;
+and malformed sampling refs were accepted. This was a scoped test change over
+the C12 mechanism, so it consumed one breaker round rather than claiming a
+test-only exemption.
+
+The repair exports `atlasArtifactIdSchema` from C07 and consumes it in C09 and
+C12; binds the exact seed identity/version to all seed content; requires every
+profile to retain all six metrics and four conditions while permitting
+all-null, `not_established` research extensions; and replaces owner aliases
+with exact producer/field declarations whose predicate provenance is frozen as
+`not_established`. The measured set therefore expands from five to seven paths
+against the unchanged cap of 8: C07's artifact source and C09's manual-maturity
+source are canonical-owner consolidation edits, not new mechanisms.
+
+After the repair, focused C12 passed 1/1 file and 8/8 tests in 799 ms (15 ms
+test body). The importer blast radius then passed C07+C09+C12, 3/3 files and
+31/31 tests, in 1.36 s (46 ms aggregate test body), with
+`--maxWorkers=2`. The generic deletion witness now loops over every one of the
+six required metrics and four required conditions; malformed, uppercase,
+short, and wrong-algorithm ArtifactIDs fail; a valid-looking pair remains
+descriptive and non-stable. This is mechanism round 1; one review-fix round
+remains.
+
+### C12 owner correction and mechanism round 2
+
+The research delta review found one further Important owner-binding error in
+round 1: `_s9_closeout_truth` is the S9 consumer adapter that normalizes an
+already-existing `projection.closeout_truth` at
+`projection_semantics.py:2418-2425,2526-2561`; it does not produce the general
+`PolicyDesignCaseProjection.closeout_truth.blockers` field. The complete call
+chain shows `build_policy_design_case_projection` calling `_closeout_truth` at
+lines 356-367, emitting its result at line 434, and `_closeout_truth` deriving
+the blocker rows at lines 2843-2889. The binding therefore belongs to
+`src/polisyos/runtime/quality/projection_semantics.py::_closeout_truth`.
+
+This finding entered the second and final mechanism review-fix round. Red first,
+changing only the expected producer in the focused witness produced 1/1 failed
+file, 1 failed and 7 passed tests, in 646 ms (20 ms test body); the diff showed
+the received stale `_s9_closeout_truth` against expected `_closeout_truth`.
+The source constant and reference were then corrected across the complete
+`_s9_closeout_truth` binding search. The answer remains a low-authority
+declaration with `predicate_provenance=not_established`; correcting the owner
+does not claim behavioral verification. Both mechanism review-fix rounds are
+now consumed.
+
+### C12 final reviews, duplication duty, and orchestration
+
+Two independent round-2 read-only reviews returned no Blocking or Important
+finding after the owner correction:
+
+- the specification reviewer traced
+  `build_policy_design_case_projection -> _closeout_truth -> closeout_truth`
+  at `projection_semantics.py:361-365,434,2843-2889`, confirmed the live
+  protocol/test/reference binding and `not_established` provenance, and passed
+  C07+C09+C12 3/3 files / 31/31 tests in 3.06 s with two workers
+- the research/owner reviewer repeated the call-chain and live-binding search,
+  confirmed no receipt kind, CAS/writer, or `manual_at` laundering, and passed
+  the same 31/31 denominator in 3.48 s; the seven reviewed file hashes were
+  unchanged across its review
+
+A requested third duplication delta re-review produced no receipt because its
+review workspace exhausted its execution credit. That non-receipt is not
+reported green. Its original Important finding is nevertheless closed by the
+generic test that deletes each of all six required metrics and each of all four
+required conditions under a non-seed profile, plus the two clean final reviews
+above.
+
+The standing duplication pass found one load-bearing duplicate in C12's entry
+draft: the `ArtifactID` regex was repeated instead of referenced. It is now
+defined once as C07's exported `atlasArtifactIdSchema` and consumed by C07,
+C09, and C12. The backend `false_pass` adjudication token is a documented
+semantic collision, not an INT-R3 metric owner. No second honesty protocol,
+sampler, threshold owner, evidence envelope, receipt kind, CAS, or writer was
+found or created.
+
+The final local allowed blast radius passed parity+C07+C09+C12, 4/4 files and
+46/46 tests, in 3.65 s (232 ms aggregate test body) with
+`--maxWorkers=2`. All three permitted single-process token checks exited zero
+with `Contrast checks passed.`, `Reduced-motion checks passed.`, and
+`Color-blind checks passed.` `git diff --check`, tracked/untracked whitespace,
+the seven-path measurement, and the forbidden/contended/`ru.json` scoped diff
+were clean; the Russian byte SHA-256 remained
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+
+No browser, Storybook, `test:a11y:pages`, journey, visual, dev-server, full
+Vitest, full lint, full typecheck, or full build command ran. They remain
+non-receipts, not green: the browser/full wave remains serialized behind the GY
+contention budget, and the deferred package contains the exact commands for a
+later authorized run. The expected 266-file/808-test full-Vitest transition is
+still control arithmetic and must be replaced by measurement when C03 runs.
+
+No later cluster was entered. C03 and C04 still require the contended register
+and baseline artifacts and wait for DS5-C21b/C21c plus explicit continuation.
+C05, C06, and C13 require the prohibited browser/heavy wave. C08 was not in the
+authorized C09-then-C12 sequence and still owns real persistence/integrity;
+C10 consequently lacks its required C08 receipt and was not entered. C11 owns
+future measurement and still lacks INT-R3 content, a generic reviewer producer,
+and actual observations; it was not entered. C15 remains a declared adjacent
+P38 debt at cap 5, not part of the repaired three-signature C03 transition.
+No contended artifact, product surface, DS5/GY path, or Russian catalog byte
+was written.

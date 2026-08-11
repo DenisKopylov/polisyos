@@ -4,6 +4,7 @@ import readinessSchema from "../../../../../architecture/atlas_surfaces/surface-
 import {
   ATLAS_EVIDENCE_DENIED_USES,
   assertAtlasEvidencePayloadBinding,
+  atlasArtifactIdSchema,
   atlasPredicateProvenanceSchema,
   parseAtlasEvidenceReceipt,
   type AtlasEvidencePayload,
@@ -26,7 +27,6 @@ const nonEmptyString = z
   .refine((value) => value.trim() === value, {
     message: "value must have no surrounding whitespace",
   });
-const sha256ArtifactId = z.string().regex(/^sha256:[0-9a-f]{64}$/);
 const utcTimestamp = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
@@ -82,7 +82,7 @@ function addUniqueIssue(
 
 const basisSchema = z
   .object({
-    profile_ref: sha256ArtifactId.nullable(),
+    profile_ref: atlasArtifactIdSchema.nullable(),
     predicate_provenance: atlasPredicateProvenanceSchema,
     required_task_ids: z.array(identity),
     required_at_capabilities: z.array(identity),
@@ -292,7 +292,7 @@ export function evaluateManualAtMaturityPrerequisite(
 
   let receiptArtifactId: string;
   try {
-    receiptArtifactId = sha256ArtifactId.parse(bundle.receipt_artifact_id);
+    receiptArtifactId = atlasArtifactIdSchema.parse(bundle.receipt_artifact_id);
   } catch {
     return blocked("manual_at_payload_unverified", "unverified");
   }

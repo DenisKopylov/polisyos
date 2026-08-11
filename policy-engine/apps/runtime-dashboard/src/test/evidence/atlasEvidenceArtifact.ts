@@ -62,7 +62,9 @@ const nonEmptyString = z
     message: "value must be non-empty and have no surrounding whitespace",
   });
 const identity = nonEmptyString.regex(/^[a-z0-9][a-z0-9._:@/-]*$/);
-const sha256ArtifactId = z.string().regex(/^sha256:[0-9a-f]{64}$/);
+export const atlasArtifactIdSchema = z
+  .string()
+  .regex(/^sha256:[0-9a-f]{64}$/);
 const repositoryRevision = z.string().regex(/^[0-9a-f]{40}$/);
 const evidenceKindSchema = z.enum([
   "automated_browser",
@@ -246,7 +248,7 @@ const resultSchema = z
 
 const evidencePayloadRefSchema = z
   .object({
-    artifact_id: sha256ArtifactId,
+    artifact_id: atlasArtifactIdSchema,
     kind: z.literal("atlas_evidence_verification_payload"),
     media_type: z.literal("application/json"),
     schema_id: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.id),
@@ -330,7 +332,7 @@ export type AtlasEvidenceReceipt = z.infer<typeof atlasEvidenceReceiptSchema>;
 
 const resolvedEvidencePayloadSchema = z
   .object({
-    artifact_id: sha256ArtifactId,
+    artifact_id: atlasArtifactIdSchema,
     payload: atlasEvidencePayloadSchema,
   })
   .strict();

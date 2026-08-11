@@ -372,7 +372,7 @@ status receipt, run corruption probes, and append the journal.
 
 ### Task 7 — DS6-C07: define the evidence artifact and storage convention
 
-**Exact candidate paths declared before entry:**
+**Exact path set after review measurement:**
 
 1. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts`
 2. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.test.ts`
@@ -499,21 +499,57 @@ remain distinct.
 
 **Exact candidate paths declared before entry:**
 
-1. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.ts`
-2. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.test.ts`
-3. `docs/reference/frontend/atlas-honesty-comprehension-protocol.md`
-4. this plan
-5. the DS6 journal
+1. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.ts`
+3. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.ts`
+4. `apps/runtime-dashboard/src/test/evidence/atlasHonestyComprehensionProtocol.test.ts`
+5. `docs/reference/frontend/atlas-honesty-comprehension-protocol.md`
+6. this plan
+7. the DS6 journal
 
-**Declared path cap: 8; measured candidate set: 5.** Establish owner, cadence,
-the two seed tasks (“find the weakest link” and “find the active blockers”),
-risk-stratified preregistered sampling, C07 CAS storage, and descriptive
-low-authority interpretation. The protocol uses a versioned instrument profile
-and generic task/metric arrays so INT-R3's later behavioral battery can replace
-the seed without changing the C07 envelope, storage convention, or authority
-boundary. Preserve the six richer metric identities, but every threshold stays
-`not_established` with no comparator, value, unit, or research source. No
-invented threshold may enter `stable`.
+**Declared path cap: 8; measured candidate set: 7.** The five-path entry set
+expanded during review without enlarging the cap: C07 now exports its canonical
+`ArtifactID` schema, and both C09 and C12 consume that one owner instead of
+redeclaring the load-bearing reference shape. Complete owner discovery
+found no protocol implementation across 949 tracked frontend TypeScript files
+or 4,951 tracked backend Python files. The research tree has 136 tracked
+policy-operations files, three INT-R3 prose mentions, and no INT-R3 artifact or
+completion row. The master and research backlog are therefore design inputs,
+not delivered benchmark content.
+
+Establish DS6/`team-frontend` as instrument owner, INT-R3 as research-content
+and threshold owner, DS6-C11 as future measurement owner, and Core
+`ArtifactStore` as persistence owner. The cadence is quarterly plus before the
+first interactive-authority stable claim and after an authority-surface
+semantic/profile change; cadence is collection scheduling, not TTL, validity,
+or a stable threshold. The two seed tasks are exactly “find the weakest link”
+and “find the active blockers”. Their expected-answer bindings name the exact
+existing producer and field, but remain `predicate_provenance=not_established`:
+C12 does not behaviorally verify either Python producer. Responses preserve external
+execution, evidence status, and PolicyOS reaction as three distinct planes.
+
+Sampling is preregistered and risk-stratified with a frame frozen before
+observation. Sample size, frame completeness, representativeness, and the
+completeness predicate remain `not_established`; even C07-valid
+`sha256:<64-lowercase-hex>` frame/preregistration identities cannot elevate
+them without resolve-bind-verify. The protocol aliases C07's exact storage convention
+and denied-use prefix but creates no receipt, evidence kind, CAS, or writer.
+C07's closed `manual_at` kind means assistive-technology evidence and must not
+be reused to mislabel a generic human comprehension session.
+
+The exact seed ID/version is content-bound to its two tasks, answer bindings,
+three response planes, six metrics, four conditions, and null threshold rows.
+Other independently versioned profiles remain generic so INT-R3's later
+behavioral battery can replace the seed without changing the outer envelope,
+but every profile must preserve the six named metric identities and four
+operating-condition identities; researched additions are allowed only while every threshold stays
+exactly `not_established` with null comparator, value, unit, and source. The
+current schema has no established-threshold branch. Missing, unknown, known
+zero, incomparable, and recorded observations remain distinct, but every
+interpretation is descriptive-only, nonblocking, and cannot grant stable.
+Capability truth is `contract_only` with `producer_missing`,
+`artifact_missing`, `bridge_missing`, `consumer_missing`, actual-evidence
+`verification_missing`, and `surface_missing`.
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
@@ -601,8 +637,8 @@ hand edit:
 1. `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`:
    `vitest.disposition` `rebind_pending -> resolved`; `exit_code` `1 -> 0`;
    `test_files` `{total:263,passed:262,failed:1} ->
-   {total:265,passed:265,failed:0}`; `tests`
-   `{total:766,passed:763,failed:3} -> {total:800,passed:800,failed:0}`;
+   {total:266,passed:266,failed:0}`; `tests`
+   `{total:766,passed:763,failed:3} -> {total:808,passed:808,failed:0}`;
    `failure_set.sha256`
    `533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd
    -> 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`;
@@ -611,12 +647,13 @@ hand edit:
    fields only from the actual full run. If totals differ, stop and record the
    measured values rather than copying these expected totals. The expected
    resolved arithmetic is +11 tests from C01-R1's 4 -> 15 parity file, +1
-   file/+12 tests from C07's focused contract, and +1 file/+11 tests from
-   C09's reviewed contract. The historical post-C01-only expectation of 263
-   files/777 tests and post-C07 expectation of 264 files/789 tests are
-   superseded. These remain expected control totals until the deferred full run
-   measures them; a different measurement replaces them rather than being
-   forced to fit this arithmetic.
+   file/+12 tests from C07's focused contract, +1 file/+11 tests from C09's
+   reviewed contract, and +1 file/+8 tests from C12's seed protocol. The
+   historical post-C01-only expectation of 263 files/777 tests, post-C07
+   expectation of 264 files/789 tests, and post-C09 expectation of 265
+   files/800 tests are superseded. These remain expected control totals until
+   the deferred full run measures them; a different measurement replaces them
+   rather than being forced to fit this arithmetic.
 2. `architecture/atlas_surfaces/frontend-baseline-debt.schema.json`: admit
    exactly two Vitest lifecycle shapes—the current exact open triple and the
    empty/resolved/exit-0 shape. Reject mixed disposition, nonzero exit, nonempty
@@ -644,9 +681,16 @@ hand edit:
 particular, the contended `unit_id=evidence-manual-at` row retains its
 current value because there is still no C08 CAS persistence/integrity receipt,
 producer, or C10 reconciliation result. The only C09 delta to the executable
-C03 handoff is the expected full-Vitest control arithmetic above; upgrading a
-row from a contract-only schema would be a false capability claim under P01
-and P32.
+C03 handoff is its share of the expected full-Vitest control arithmetic above;
+upgrading a row from a contract-only schema would be a false capability claim
+under P01 and P32.
+
+**C12 protocol consequence.** C12 likewise adds no governed-row transition and
+does not add a C07 receipt kind. INT-R3 content, a generic reviewer producer,
+persistence, measurement, and reconciliation are absent, so the protocol
+remains `contract_only`. Its only delta to the executable contended handoff is
+the +1 file/+8 test expected full-Vitest arithmetic above. No future threshold
+or stable-bar effect is included in the deferred write.
 
 **Rendered contrast, DS6-C04/C06.** Extend the canonical supplemental-finding
 producer in `check_frontend_disposition_register.py`, exercise it in
@@ -723,8 +767,10 @@ release, every command above is a non-receipt, never green.
   contended governed owner.
 - No browser, Storybook, full suite, full lint/typecheck/build, journey, visual,
   dev-server, or product-surface claim until the GY lane releases the heavy set.
-- No readiness-ledger CI validator, health-metric producer, manual AT maturity
-  bridge, honesty threshold, or adjacent-print verification in C00-C02.
+- No readiness-ledger CI validator, health-metric producer, persisted/manual-AT
+  maturity bridge, INT-R3 behavioral content or honesty threshold, or
+  adjacent-print verification. C09 and C12 are contract-only consumers/seams,
+  not evidence receipts or stable-bar closure.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the
   latter mechanic and the frozen catalog remains in-tree.
 - No claim that seven source identities pass until the real-browser receipt is

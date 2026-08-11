@@ -1683,3 +1683,52 @@
   failure. The initial non-executable SDD helper invocation was a tooling
   nonreceipt; `bash` supplied the subsequent executable path. No existing
   status-scan receipt is represented as carrying this new identity mechanism.
+
+## 2026-08-11 — DS5-C21b gated TypeScript migration
+
+- C21b replaces 161 gated TS/TSX line references with C21a identities: 28
+  protected-live, 118 authority evidence, and 15 explicit descriptors. The
+  entry receipt remains 270 refs / 182 lines / 73 files; the intended post-state
+  is 161 identities and 21 navigation lines (six TS, 15 non-TS). Static checker
+  entry debt is 36 path:line literals / 25 files, including 21 TS/TSX; authority
+  creation anchors are 236 slots / 69 files and 39 rows / 130 nested slots / 36
+  files. These are creation/navigation receipts, never identity payload fields.
+- The offlineQueue divergence is explicit: stale descriptor navigation
+  `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended
+  `deleteComposerDraftRecord` is historical line 90 and current line 13. The
+  migration uses the latter named direct binding. No flow-completeness claim is
+  made. Descriptor and authority/register bytes are checked byte-for-byte, while
+  nested authority navigation lines are semantically ignored but their content
+  and site hashes remain red on drift.
+- Terra-only orchestration. An early `--migrate-c21b` writer invocation was
+  interrupted before a register diff/captured exit and is an honest nonreceipt;
+  root owns the serialized migration and final gates.
+- RC1 root-owned migration/report reached schema validation and failed because
+  two distinct `publicationPacket.test.ts` protected calls (legacy lines 506
+  and 535) collapsed to one identity: both reset beneath same-named `signed`
+  variables. The register/report delta was reverted to the true prestate.
+  C21a now retains semantic child ordinals through variable declarations and
+  resets only at named declarations; the focused callback-sibling witness
+  proves distinct bindings while C13a named declaration moves remain stable.
+- Focused receipt after the repair: `TypeScriptReferenceIdentityTests` 22/22
+  PASS (31.870 s; wrapper 43.464 s). An earlier focused stream emitted dots but
+  lost its terminal result; it remains a nonreceipt, never a green claim.
+- RC2 root-owned migration/report passed schema uniqueness but failed the live
+  protected probe: `_recompute_probe` emitted its legitimate 28 navigation
+  refs and raw-compared them to committed C21a identities. The consumer now
+  recognizes stored identity mode, batch-projects every recomputed direct
+  TypeScript ref through its explicit C21b anchor, and fails closed on mixed,
+  unmappable, cardinality, or identity drift. Legacy probes retain raw mode.
+- The RC2 validator witness then passed 1/1 in 98.379 s (107.858 s bounded
+  wrapper). The serialized migration/report completed with exit 0 in 90.762 s,
+  preserving the exact 28/118/15 partition; the resulting register SHA-256 was
+  `3867089509573fab17253ff6f004fd08d64b489554cf4c3970b11af7bc813972`
+  and its DS19 pin matched.
+- **Two-fix breaker STOP.** The post-migration Ruff delta against C21a was
+  2 findings: `F841` on unused `live_identity_by_record` in the checker and
+  `E731` on its local digest lambda. Both repairs necessarily change the
+  checker mechanism path. RC1 and RC2 already changed that path, so the plan's
+  mechanism-round breaker permits no third repair; the smallness of either
+  edit is not an exception. No Ruff suppression, cleanup, further governed
+  gate, or product edit was attempted. The seven-path attempt is preserved as
+  a checkpoint and forward-reverted append-only for architect adjudication.

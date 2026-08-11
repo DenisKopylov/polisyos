@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import copy
 import importlib.util
 import json
@@ -282,10 +283,22 @@ class AtlasEnforcementTests(unittest.TestCase):
             for row in data["supplemental_findings"]
             if row["finding_id"] == "c14a-local-state-envelope-owner-debt"
         )
-        self.assertIn(
-            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13",
-            c14["evidence_refs"],
+        source_path = (
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
         )
+        identity_refs = [
+            reference
+            for reference in c14["evidence_refs"]
+            if reference.startswith(f"{source_path}#ts-identity=")
+        ]
+        self.assertEqual(1, len(identity_refs))
+        payload_text = identity_refs[0].split("#ts-identity=", 1)[1]
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                payload_text + "=" * (-len(payload_text) % 4)
+            )
+        )
+        self.assertEqual("deleteComposerDraftRecord", payload["discriminator"])
         self.assertEqual(
             [],
             frontend_disposition_checker.validate_register(

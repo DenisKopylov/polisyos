@@ -1732,3 +1732,63 @@
   edit is not an exception. No Ruff suppression, cleanup, further governed
   gate, or product edit was attempted. The seven-path attempt is preserved as
   a checkpoint and forward-reverted append-only for architect adjudication.
+- Architect ruling repaired the proxy rather than granting an exception. Commit
+  `055345536` reverts the forward revert and restores checkpoint `3b0b721a4`
+  byte-for-byte. `F841` was one dead store and zero loads inside
+  `_validate_typescript_reference_identity`; the operational same-named map is
+  separately populated and consumed by the authority-prop classifier. `E731`
+  was a capture-free SHA-256 lambda. The scoped repair is checker-only, two
+  hunks, `+3/-2`; it removes the dead initializer and spells the digest as a
+  nested `def`. Neither diagnostic exposed dropped behavior.
+- Static-only exemption proof: register/report/status blobs remain exactly
+  `9bca5f5d18f88d341332e4486c6f89bc4c8c7b2f`,
+  `3ecbf93bc1ee0f720c17521e4c1b21e5bc3fd8bf`, and
+  `a72c54d1ac71afba3d077e368eedbe8212f198dd`; identity tests reproduce 22/22
+  in 19.286 s; disposition checker/corruptions pass in 101 s under the supplied
+  400 s ceiling; Ruff is C21a `2` to repaired `2`, zero new/removed. Therefore
+  the cleanup changes mechanism bytes but supplies no wrong-mechanism evidence
+  and consumes no breaker round.
+- Decisive gate witness: the live registered `deleteComposerDraftRecord`
+  construct moves from line 13 to immediately after its import without any
+  register edit and the whole validator returns `[]`; renaming that same moved
+  declaration returns exactly `typescript_reference_binding_missing_or_renamed`.
+  The focused witness and complete residual census pass 2/2 in 23.853 s.
+- Residual P35 denominator is exactly 21 refs / 15 files: six TS navigation / 4,
+  six Python descriptor prose / 5, three Markdown navigation / 2, and six C21c
+  structured bindings / 4 (five JSON / 3 plus one TOML / 1). All 161 migrated
+  identities have non-empty discriminators; no migrated gate requires a line.
+- Duplication duty: the checker path held 36 line-ref literals over 25 files
+  while the governed register held 182 over 73 before migration. Checker-owned
+  descriptors/config are the canonical derivation authority and the register is
+  its governed projection; the validator compares them. Concrete divergence was
+  the checker's stale `offlineQueueRepository.ts:80` against register line 13.
+  C21b replaces the gated TS copies together; no second unjustified duplication
+  was found in the seven-path fence.
+- Final full-module ownership repair re-cut the atom as C21b-R1 / cap 8. The
+  81-test frontend module first failed six stale test-owner assumptions (four
+  legacy descriptor line fixtures, one prestate-writer fixture, and one
+  synthetic nonexistent Badge source); checker and governed artifacts were
+  unchanged. Focused repairs passed 6/6 in 63.162 s, independent delta review
+  returned GO 0/0/0, and the full module then passed 81/81 in 315.127 s under
+  400 s. The full Atlas module exposed the eighth path:
+  `test_atlas_enforcement.py` still asserted C14's removed line-form queue ref.
+  C21b-R1 now decodes the migrated identity and asserts its exact
+  `deleteComposerDraftRecord` discriminator; this is test-only ownership fallout,
+  not new mechanism behavior.
+- C21b-R1 terminal receipts: the affected Atlas test passed 1/1 in 36.274 s
+  (46.455 s bounded wall / 400 s), and the single root-owned full Atlas module
+  passed 32/32 in 422.146 s (431.362 s bounded wall / supplied 1,800 s). The
+  preceding full-module 31/32 result was a governed RED on that stale test-owner
+  assertion, not a killed run or inferred sample. The final disposition checker
+  and corruption battery passed in 249 s / 400 s; status retirement passed
+  38/38 in 73.237 s / 400 s and its corruption checker passed in 22 s / 400 s.
+  Scoped Ruff over the C21b checker/test paths (`E,F,I,ANN`, inherited
+  `E501,F841` excluded) is C21a 5 to final 5 with zero additions/removals; the
+  exact adjudicated `F841,E731` set is C21a 2, checkpoint 4, final 2. Python
+  compilation, JSON parse, artifact blob equality, and diff check pass.
+- Independent final delta review returned GO 0/0/0. It confirmed the decisive
+  witness exercises real `validate_register`, the Atlas owner test decodes and
+  verifies the binding rather than accepting an identity marker, and the
+  21/15 residual is complete. No additional unjustified duplication was found.
+  Native inherited-tier workers were used, with no Sol override or quota
+  failure; governed writers and scanner-heavy gates remained serialized.

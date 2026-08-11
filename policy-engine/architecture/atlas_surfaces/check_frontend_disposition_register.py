@@ -1600,7 +1600,6 @@ def _validate_typescript_reference_identity(
     sources: Mapping[str, str],
 ) -> list[str]:
     """Fail closed when a canonical construct binding is absent, ambiguous, or stale."""
-    live_identity_by_record: dict[tuple[str, str], list[str]] = defaultdict(list)
     try:
         encoded_identity = reference["encoded_identity"]
         if not isinstance(encoded_identity, str):
@@ -5339,7 +5338,9 @@ def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[
 
 def _authority_identity_digest_table() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
     """Project creation-only full identities to compact frozen authority keys."""
-    digest = lambda identity: hashlib.sha256(identity.encode("utf-8")).hexdigest()
+    def digest(identity: str) -> str:
+        return hashlib.sha256(identity.encode("utf-8")).hexdigest()
+
     badge = {
         digest(identity): classification
         for identity, classification in _CREATION_AUTHORITY_BADGE_CLASSIFICATIONS.items()

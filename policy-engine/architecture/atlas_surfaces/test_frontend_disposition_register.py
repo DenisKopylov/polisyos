@@ -9,7 +9,6 @@ import json
 import re
 import subprocess
 import unittest
-from collections import Counter
 from pathlib import Path
 from typing import ClassVar
 from unittest import mock
@@ -726,18 +725,26 @@ class ProducerBindingDebtTests(unittest.TestCase):
         "src/polisyos/runtime/http/routes/runs.py:179",
         "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
     ]
+    _c21b_identity_by_hint: ClassVar[dict[str, str] | None] = None
 
-    @staticmethod
-    def _producer_row() -> dict[str, object]:
+    @classmethod
+    def _migrated_descriptor_refs(cls, references: list[str]) -> list[str]:
+        """Project legacy test fixtures through the independently derived C21b map."""
+        if cls._c21b_identity_by_hint is None:
+            cls._c21b_identity_by_hint = checker._c21b_descriptor_identity_literals()
+        return [cls._c21b_identity_by_hint.get(reference, reference) for reference in references]
+
+    @classmethod
+    def _producer_row(cls) -> dict[str, object]:
         return {
-            "finding_id": ProducerBindingDebtTests.finding_id,
+            "finding_id": cls.finding_id,
             "finding_kind": "producer_binding_debt",
             "disposition": "rebind_pending",
             "status": "open_debt",
-            "evidence_refs": list(ProducerBindingDebtTests.evidence_refs),
+            "evidence_refs": cls._migrated_descriptor_refs(cls.evidence_refs),
             "owner_slice": "DS3",
             "decision_date": checker.DECISION_DATE,
-            "capability_states": list(ProducerBindingDebtTests.capability_states),
+            "capability_states": list(cls.capability_states),
             "rationale": (
                 "RunSummary exposes open status text and finished_at but no "
                 "producer-signed terminal fact; the runtime SSE sibling currently "
@@ -933,6 +940,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "imports directly use @polisyos/runtime-api-client."
             ),
         }
+        expected["evidence_refs"] = self._migrated_descriptor_refs(
+            expected["evidence_refs"]
+        )
         self.assertEqual(  # noqa: PT009
             expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.get(finding_id)
         )
@@ -1003,6 +1013,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "injected-clock TTL, and fail-closed negatives are implemented"
             ),
         }
+        expected["evidence_refs"] = self._migrated_descriptor_refs(
+            expected["evidence_refs"]
+        )
         writer_paths = {
             "composer": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
             "queue": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
@@ -1177,6 +1190,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "tenant/user-switch corruption fails"
             ),
         }
+        expected["evidence_refs"] = self._migrated_descriptor_refs(
+            expected["evidence_refs"]
+        )
 
         source_paths = {
             "runtime": "src/polisyos/runtime/http/routes/auth.py",
@@ -2261,16 +2277,26 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             "apps/runtime-dashboard/src/shared/lib/domain/"
             "unclassifiedAuthorityBadgeProbe.tsx"
         )
+        probe_source = (
+            'import { Badge } from "@polisyos/atlas-ui";\n'
+            'export const Probe = () => <Badge kind="ok">ready</Badge>;\n'
+        )
         scan = checker.status_checker._scan(
-            {
-                probe_path: (
-                    'import { Badge } from "@polisyos/atlas-ui";\n'
-                    'export const Probe = () => <Badge kind="ok">ready</Badge>;\n'
-                )
-            },
+            {probe_path: probe_source},
             authority_prop_descriptors=checker._authority_prop_descriptors(),
         )
-        errors = checker._badge_classification_errors(scan)
+        target_path = checker.REPO_ROOT / probe_path
+        original_read_text = Path.read_text
+
+        def read_text_override(
+            path: Path, *args: object, **kwargs: object
+        ) -> str:
+            if path == target_path:
+                return probe_source
+            return original_read_text(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "read_text", new=read_text_override):
+            errors = checker._badge_classification_errors(scan)
         self.assertTrue(
             any(
                 error.startswith(f"authority_badge_unclassified:{probe_path}:")
@@ -3029,14 +3055,37 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             set(line_references) & self._BOUNDS_ONLY_REFS,
             "ds5_line_address_bounds_navigation_drift",
         )
-        gated_references = [
-            reference for reference in line_references if reference not in self._BOUNDS_ONLY_REFS
+        navigation_references = [
+            reference
+            for reference in line_references
+            if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix
+            in {".ts", ".py", ".md"}
         ]
-        self.assertEqual(0, len(gated_references), "ds5_line_address_gated_reference_drift")
+        c21c_structured_references = [
+            reference
+            for reference in line_references
+            if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix
+            in {".json", ".toml"}
+        ]
         self.assertEqual(
-            0,
-            len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in gated_references}),
-            "ds5_line_address_gated_file_drift",
+            15,
+            len(navigation_references),
+            "ds5_line_address_navigation_reference_drift",
+        )
+        self.assertEqual(
+            6,
+            len(c21c_structured_references),
+            "ds5_line_address_c21c_structured_reference_drift",
+        )
+        self.assertEqual(
+            4,
+            len(
+                {
+                    self._LINE_REFERENCE_RE.match(reference).group(1)
+                    for reference in c21c_structured_references
+                }
+            ),
+            "ds5_line_address_c21c_structured_file_drift",
         )
 
         observed_line_references = [
@@ -3058,7 +3107,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for finding in data["supplemental_findings"]
             if "authority_sink" not in finding
             for reference in finding["evidence_refs"]
-            if self._LINE_REFERENCE_RE.match(reference) and reference not in self._BOUNDS_ONLY_REFS
+            if self._LINE_REFERENCE_RE.match(reference)
         ]
         self.assertEqual(0, len(observed_line_references), "ds5_line_address_observed_line_drift")
         self.assertEqual(
@@ -3067,12 +3116,32 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             "ds5_line_address_authority_evidence_line_drift",
         )
         self.assertEqual(
-            0,
+            21,
             len(descriptor_evidence_line_references),
             "ds5_line_address_descriptor_evidence_line_drift",
         )
         identity_references = [reference for reference in references if "#ts-identity=" in reference]
         self.assertEqual(161, len(identity_references), "ds5_c21b_identity_reference_drift")
+        identity_payloads = [
+            json.loads(
+                base64.urlsafe_b64decode(
+                    payload + "=" * (-len(payload) % 4)
+                )
+            )
+            for _path, payload in (
+                reference.split("#ts-identity=", 1)
+                for reference in identity_references
+            )
+        ]
+        self.assertEqual(
+            161,
+            sum(
+                isinstance(payload.get("discriminator"), str)
+                and bool(payload["discriminator"])
+                for payload in identity_payloads
+            ),
+            "ds5_c21b_identity_discriminator_drift",
+        )
         observed_identities = [
             reference
             for census in data["reference_censuses"]
@@ -3152,25 +3221,16 @@ class DS5LineAddressCensusTests(unittest.TestCase):
 
         self.assertEqual([], legacy_gated_ts, "ds5_c21b_legacy_gated_typescript_reference")
 
-    def test_c21b_surgical_writer_changes_only_the_prestate_reference_spans(self) -> None:
-        """The current register is the pre-migration fixture for the exact 161-span delta."""
+    def test_c21b_surgical_writer_is_idempotent_on_migrated_register(self) -> None:
+        """The surgical writer preserves the complete landed C21b post-state."""
         original = REGISTER_PATH.read_text(encoding="utf-8")
         baseline_before = checker.BASELINE_PATH.read_bytes()
         once = checker._c21b_surgical_identity_text(original)
         twice = checker._c21b_surgical_identity_text(once)
+        self.assertEqual(original, once)
         self.assertEqual(once, twice)
         self.assertEqual(baseline_before, checker.BASELINE_PATH.read_bytes())
-        data = json.loads(original)
         migrated = json.loads(once)
-        before_refs = self._live_references(data)
-        after_refs = self._live_references(migrated)
-        changed = [
-            (before, after)
-            for before, after in zip(before_refs, after_refs, strict=True)
-            if before != after
-        ]
-        self.assertEqual(161, len(changed))
-        self.assertTrue(all("#ts-identity=" in after for _before, after in changed))
         for census in migrated["reference_censuses"]:
             for probe in census["probes"]:
                 observed_refs = probe["observed_refs"]
@@ -3179,17 +3239,6 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                     len(set(observed_refs)),
                     f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
                 )
-        reverted = once
-        for (before, after), count in reversed(
-            sorted(
-                Counter(changed).items(),
-                key=lambda item: len(item[0][1]),
-            )
-        ):
-            reverted = reverted.replace(
-                json.dumps(after), json.dumps(before), count
-            )
-        self.assertEqual(original, reverted)
         self.assertEqual(
             (28, 118, 15),
             (
@@ -3214,14 +3263,6 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            (28, 118, 15),
-            (
-                sum("#ts-identity=" in ref for census in migrated["reference_censuses"] for probe in census["probes"] for ref in probe["observed_refs"]),
-                sum("#ts-identity=" in ref for finding in migrated["supplemental_findings"] if "authority_sink" in finding for ref in finding["evidence_refs"]),
-                sum("#ts-identity=" in ref for finding in migrated["supplemental_findings"] if "authority_sink" not in finding for ref in finding["evidence_refs"]),
-            ),
-        )
-        self.assertEqual(
             6,
             sum(
                 reference in self._BOUNDS_ONLY_REFS
@@ -3239,6 +3280,60 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         self.assertEqual(
             [],
             [error for error in errors if error.endswith(probe_suffix)],
+        )
+
+    def test_c21b_real_gate_ignores_moved_construct_and_rejects_rename(self) -> None:
+        """The governed gate binds the migrated construct identity, never its line."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        source_path = (
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
+        )
+        stored_references = [
+            reference
+            for reference in self._live_references(data)
+            if reference.startswith(f"{source_path}#ts-identity=")
+        ]
+        self.assertEqual(1, len(stored_references))
+        stored_reference = stored_references[0]
+
+        target_path = checker.REPO_ROOT / source_path
+        original = target_path.read_text(encoding="utf-8")
+        block = """export async function deleteComposerDraftRecord(key: string) {
+  const database = await openOfflineDb();
+  await database.delete(COMPOSER_DRAFTS_STORE, key);
+}
+"""
+        self.assertEqual(1, original.count(block))
+        without_block = original.replace(block, "", 1)
+        import_end = without_block.index("\n\n") + 2
+        moved = without_block[:import_end] + block + "\n" + without_block[import_end:]
+        renamed = moved.replace(
+            "deleteComposerDraftRecord", "removeComposerDraftRecord", 1
+        )
+        original_read_text = Path.read_text
+
+        def validate_with_source(source: str) -> list[str]:
+            def read_text_override(
+                path: Path, *args: object, **kwargs: object
+            ) -> str:
+                if path == target_path:
+                    return source
+                return original_read_text(path, *args, **kwargs)
+
+            with mock.patch.object(Path, "read_text", new=read_text_override):
+                return checker.validate_register(
+                    data,
+                    live_probes=False,
+                    report_parity=False,
+                )
+
+        self.assertEqual([], validate_with_source(moved))
+        self.assertEqual(
+            [
+                "typescript_reference_binding_missing_or_renamed:"
+                + stored_reference
+            ],
+            validate_with_source(renamed),
         )
 
 

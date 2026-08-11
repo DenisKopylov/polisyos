@@ -635,7 +635,7 @@ C08's existing whole-file content-binding probe remains red under controlled byt
 drift. C21a is direct-syntax-only (no flow, alias use, or semantic inference); `DS5LineAddressCensusTests.test_ds5_line_address_complete_partition_is_derived_from_live_register` is the complete live-register P35 receipt. C21a is `implemented_but_not_orchestrated`: C21b owns TS/TSX migration,
 C21c owns the gated JSON/TOML mechanism; Markdown remains navigation and Python refs remain descriptor navigation, not a Python identity claim.
 
-### DS5-C21b — migrate gated TypeScript references
+### DS5-C21b-R1 — migrate gated TypeScript references
 
 **Pattern pass:** P29/P31/P32/P33/P35/P37. The predecessor is a line-address
 gate, not a semantic binding; the correct pattern is one batch TypeScript
@@ -646,10 +646,12 @@ no flow-completeness claim.
 
 **Measured migration:** 161 C21a identities: 28 protected-live direct calls or
 route literals, 118 authority-presentation evidence slots, and 15 explicit
-producer/integrate descriptor slots. The only remaining line navigation is 21
-(six TS navigation plus 15 non-TS); it cannot gate a migrated TypeScript claim.
-Move-only source changes preserve the register/checker bytes; named content or
-binding changes are red. C08 whole-file baseline bytes remain unchanged.
+producer/integrate descriptor slots. The remaining line-address residual is 21
+(six TS navigation, six Python descriptor prose, three Markdown navigation,
+and six structured JSON/TOML bindings owned by C21c). A real governed-validator
+replay moves `deleteComposerDraftRecord` without a register edit and stays
+green; renaming the same construct is binding-missing red. C08 whole-file
+baseline bytes remain unchanged.
 
 ### DS-INFRA-2 — Atlas timing evidence debt
 
@@ -735,7 +737,7 @@ A deferral or debt row's closure signal conforms to the register's established i
 ### Binding review bars
 
 - **Closure signals:** the governing bar is the schema's `nonEmptyString` plus the register's simple sibling rows, never a prior deferral.
-- **Mechanism-round breaker:** a fix round that changes zero bytes in mechanism paths (production source plus the checker or scanner implementing the mechanism) does not consume the two-fix breaker. Test-only and receipt/documentation-only rounds are free; prove the classification with a scoped `git diff` over mechanism paths.
+- **Mechanism-round breaker:** the breaker detects evidence that the mechanism is wrong, not mechanism-byte churn as an end in itself. A fix round triggered by a failing behavioral test, governed RED, or independent review mechanism finding consumes it. Zero-mechanism-byte test/receipt/documentation rounds remain free. A static-only lint, format, or typing-hygiene repair may change mechanism bytes without consuming a round only when scoped diffs prove no test outcome or governed artifact byte changed; dead/dropped logic is behavioral and consumes a round.
 - **AST rules:** the governing bar is direct syntax or construction sites; their output states the indirect-flow residual rather than claiming to close it. `tsc` is the authority-slot enforcement engine.
 - **Sizing:** stop for a new bespoke mechanism at any line count. N instances of an established mechanism scale linearly and are measured per mechanism, not rejected by their aggregate line count.
 - **Implementation boundaries:** the plan states the boundary; every review finding or implementation constraint cites its governing artifact; an invented boundary is refused.
@@ -2162,7 +2164,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
-| C21b | `DS5-C21b migrate gated TypeScript references` | 7 |
+| C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |
 | C21c | `DS5-C21c bind gated JSON and TOML references` | 7 |
 
 ## Closure battery

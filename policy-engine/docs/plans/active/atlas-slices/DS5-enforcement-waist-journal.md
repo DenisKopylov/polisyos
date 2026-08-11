@@ -1486,3 +1486,88 @@
   42 producers). Typecheck, focused Vitest 6/6, scoped lint, and production
   build passed; Python compile, Node JSON parse, Ruff zero-new, and diff check
   passed. Candidate remains unstaged and uncommitted.
+
+## DS5-C13a — delete authority mutation replay
+
+- Pattern pass: P05/P08/P27-P35/P37. The authority boundary is structural:
+  composer drafts remain the sole IndexedDB records, while a promotion retry is
+  a new live request through the current server identity, permission, step-up,
+  tenant/resource, and producer-state enforcement. No client-side terminal
+  approval/rejection projection remains.
+- Red first: `test_offline_retryable_promotion_never_queues_terminalizes_or_replays`
+  failed against the old hook because an offline approval called
+  `enqueuePromotionDecision`. The Atlas source-complete test initially failed
+  because `_offline_queue_errors` did not exist. These are the precise queue
+  writer and missing structural-enforcement failures, not transform failures.
+- Green: the renamed live hook invokes only the raw approve/reject request
+  function and invalidates promotion queries after server success. Its 0/408/
+  429/5xx controls cover both decisions, retain denial, preserve cached pending
+  status, and expose no queued-state API. Focused hook/panel Vitest is 5/5;
+  dashboard typecheck passes.
+- The shared TypeScript scanner derives the complete current dashboard program
+  from `tsconfig.app.json`: C13a deletes one prior source path, so its current
+  denominator is 949 rather than the 950-file entry census. It rejects queue
+  action-kind declarations, non-composer object stores, provider/replay
+  declarations, authority imports of the composer DB, and external optimistic
+  promotion projections. A typed composer-draft adapter is the positive
+  persistence control. The named Atlas test passes 1/1 in 23.149s.
+- Governed transitions retire `status-offline-queue-item` and
+  `status-inline-queued-promotion` while preserving historical source identity;
+  the inventory denominator is 9 named / 10 inline / 19 current / 27 retired /
+  1 already deleted. The queue rows are terminal `deleted/strangled`; service
+  worker and offline-draft-composer rows remain open for C13b-R1. The status
+  checker corruption battery passes.
+- Native execution only; no Sol worker or escalation. The frontend disposition
+  report is regenerated once after the source/test freeze and remains subject to
+  its byte-stability check. This exact 18-path atom remains unstaged and
+  uncommitted for independent review.
+- Governed STOP: the frontend disposition checker cannot certify this exact
+  18-path atom. Its canonical descriptor still binds the C14a envelope-owner
+  debt to `offlineQueueRepository.ts:80`, while the surviving composer operation
+  moves to line 13, and the required panel/test edits invalidate two C08
+  baseline content hashes. The supplemental writer cannot update terminal
+  census rows, descriptor source evidence, or baseline hashes. Two independent
+  Terra audits agree that a truthful recut adds the canonical checker, its test,
+  and `frontend-baseline-debt-manifest.json`; recording that recut in the plan
+  makes 22 paths. Line padding, stale hashes, or behavior restoration would test
+  markers rather than the property and are rejected under P29/P33. The attempt
+  is preserved append-only and forward-reverted pending an architect ruling.
+
+## DS5-C13a-R2 — STOP after canonical C14/C08 repair
+
+- Restored the preserved C13a checkpoint `c2a03de41` into the attached
+  `codex/atlas-ds5-enforcement-waist` worktree without rewriting history. The
+  restored 18 repository paths were byte-identical to that checkpoint before
+  R2 paths were added. R2 adds only the canonical C14 descriptor and its owner
+  test, the C08 baseline manifest (two content bindings), and this plan: 22
+  repository paths total.
+- Red/green owner evidence: the C14 descriptor/register test failed on stale
+  `offlineQueueRepository.ts:80` versus the live surviving operation at `:13`,
+  then passed after both canonical owner and exact test were rebased. The C08
+  baseline test failed on exactly the panel and panel-test byte bindings, then
+  passed with their recomputed SHA-256 values. The frontend disposition writer
+  was run only after these governed inputs froze; its bounded check plus
+  corruption probes passed (261 roots, 63 supplemental findings).
+- The DS19 register hash changed after restore, so the in-fence
+  status-retirement inventory pin was re-anchored to
+  `sha256:94b90457b397f4c8c49f94f0ee83fe03cd8e8c208d2c2822b046012ac72cf500`.
+  The bounded status checker plus corruption probes passed: 15 lattice-derived,
+  24 interaction-state, 8 removed, 13 current-authored, 47 DS1 rows, 55
+  exemptions, and zero semantic-retirement debt.
+- STOP: the bounded full frontend disposition suite has a real failing
+  assertion in the in-fence owner test
+  `ProducerBindingDebtTests.test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set`
+  (`test_frontend_disposition_register.py:1438`): expected 15 derived
+  supplemental findings, actual 18. The full status suite also exposed
+  `StatusRetirementInventoryTests.test_shared_scan_adds_declaration_census_without_changing_ds4_estate`
+  (`test_status_retirement_inventory.py:69`): expected `current_authored=15`,
+  actual 13. Its test path is the sole additional owner candidate outside the
+  authorized 22 paths; the status inventory it governs is in-fence. Neither
+  assertion was relabeled as inherited or excluded, and no test/source change
+  followed the STOP.
+- The preserved dashboard product suite is green (2 files, 5 tests). The
+  focused Atlas C13a tests are green, but the earlier complete Atlas gate first
+  found the DS19 hash drift above; it was not rerun after the STOP. Earlier
+  overlapping/unbounded invocations are nonreceipts. No stage or commit was
+  created; the complete receipt and exact path readback are in the ignored
+  `c13a-r2-implementation-report.md` handoff.

@@ -14,6 +14,7 @@ from typing import Any
 
 ATLAS_DIR = Path(__file__).resolve().parent
 ENFORCEMENT_CHECKER_PATH = ATLAS_DIR / "check_atlas_enforcement.py"
+FRONTEND_DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 
 _SPEC = importlib.util.spec_from_file_location(
     "atlas_enforcement_checker", ENFORCEMENT_CHECKER_PATH
@@ -22,6 +23,17 @@ if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import guard
     raise RuntimeError(f"Unable to import enforcement checker from {ENFORCEMENT_CHECKER_PATH}")
 checker = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(checker)
+
+_FRONTEND_DISPOSITION_SPEC = importlib.util.spec_from_file_location(
+    "frontend_disposition_checker", FRONTEND_DISPOSITION_CHECKER_PATH
+)
+if _FRONTEND_DISPOSITION_SPEC is None or _FRONTEND_DISPOSITION_SPEC.loader is None:  # pragma: no cover
+    raise RuntimeError(
+        "Unable to import frontend disposition checker from "
+        f"{FRONTEND_DISPOSITION_CHECKER_PATH}"
+    )
+frontend_disposition_checker = importlib.util.module_from_spec(_FRONTEND_DISPOSITION_SPEC)
+_FRONTEND_DISPOSITION_SPEC.loader.exec_module(frontend_disposition_checker)
 
 PACKAGE_PATH = "packages/atlas-ui/src/index.ts"
 PROBE_PATH = "apps/runtime-dashboard/src/shared/lib/domain/packageOwnerProbe.tsx"
@@ -79,6 +91,207 @@ class AtlasEnforcementTests(unittest.TestCase):
         self.assertEqual(  # noqa: PT009 - unittest keeps the syntax class explicit.
             "referenced",
             checker.QUERY_CACHE_POLICY_GOVERNED_CONSTRUCTION["options_resolution"],
+        )
+
+    def test_offline_queue_type_rejects_authority_action_kind(self) -> None:
+        """Keep composer-only drafts from becoming a replayable authority channel."""
+        self.assertTrue(
+            checker._offline_queue_errors(
+                {
+                    "offlineQueueFacts": {
+                        "authorityActionKinds": [
+                            {
+                                "kind": "publication.reissue",
+                                "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+                            }
+                        ],
+                        "composerDbImports": [],
+                        "mutationStores": [],
+                        "optimisticAuthorityProjections": [],
+                        "productionFiles": 949,
+                        "replayDeclarations": [],
+                    }
+                },
+                enforce_denominator=True,
+            )
+        )
+        inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
+        scan = checker._enforcement_scan(
+            None,
+            inventory=inventory,
+            validate_override_diagnostics=False,
+        )
+        self.assertEqual(
+            [],
+            checker._offline_queue_errors(scan, enforce_denominator=True),
+        )
+
+        facts = scan["offlineQueueFacts"]
+        self.assertEqual(949, facts["productionFiles"])
+        self.assertEqual([], facts["authorityActionKinds"])
+        self.assertEqual([], facts["mutationStores"])
+        self.assertEqual([], facts["replayDeclarations"])
+        self.assertEqual([], facts["optimisticAuthorityProjections"])
+        self.assertEqual(
+            [
+                {
+                    "bindings": [
+                        "deleteComposerDraftRecord",
+                        "loadComposerDraftRecord",
+                        "saveComposerDraftRecord",
+                    ],
+                    "path": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+                    "targetPath": checker.COMPOSER_DRAFT_DB_PATH,
+                }
+            ],
+            facts["composerDbImports"],
+        )
+
+        def merge_overrides(overrides: dict[str, str]) -> dict[str, Any]:
+            override_scan = checker._enforcement_scan(
+                overrides,
+                inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
+                validate_override_diagnostics=True,
+            )
+            self.assertEqual([], override_scan["overrideDiagnostics"], override_scan)
+            merged = copy.deepcopy(scan)
+            for table in (
+                "authorityActionKinds",
+                "composerDbImports",
+                "mutationStores",
+                "optimisticAuthorityProjections",
+                "replayDeclarations",
+            ):
+                merged["offlineQueueFacts"][table] = [
+                    row
+                    for row in merged["offlineQueueFacts"][table]
+                    if row["path"] not in overrides
+                ] + copy.deepcopy(override_scan["offlineQueueFacts"][table])
+            return merged
+
+        composer_db_source = (
+            checker.status_checker.REPO_ROOT / checker.COMPOSER_DRAFT_DB_PATH
+        ).read_text(encoding="utf-8")
+        db_path = "apps/runtime-dashboard/src/app/offline/db.ts"
+        db_source = (checker.status_checker.REPO_ROOT / db_path).read_text(encoding="utf-8")
+        replay_path = "apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx"
+        authority_import_path = (
+            "apps/runtime-dashboard/src/features/evidence/hooks/authorityQueueProbe.ts"
+        )
+        optimistic_projection_path = (
+            "apps/runtime-dashboard/src/features/evidence/hooks/optimisticQueueProbe.ts"
+        )
+        corrupted_scan = merge_overrides(
+            {
+                checker.COMPOSER_DRAFT_DB_PATH: composer_db_source
+                + (
+                    "\nexport type OfflineAuthorityReplayKind = "
+                    '"publication.reissue" | "reissue.approval" | "approval.publish";\n'
+                ),
+                db_path: db_source
+                + (
+                    "\nexport function reopenAuthorityMutationStore(database: { "
+                    "createObjectStore: (name: string) => void }) {\n"
+                    '  database.createObjectStore("authority-mutations");\n'
+                    "}\n"
+                ),
+                replay_path: (
+                    "export function OfflineQueueProvider() { return null; }\n"
+                    "export async function replayQueuedAuthorityMutation() {}\n"
+                ),
+                authority_import_path: (
+                    'import { saveComposerDraftRecord } from "@/app/offline/offlineQueueRepository";\n'
+                    "export async function persistAuthorityDecision() {\n"
+                    '  await saveComposerDraftRecord({ key: "promotion.approve" });\n'
+                    "}\n"
+                ),
+                optimistic_projection_path: (
+                    'import type { QueryClient } from "@tanstack/react-query";\n'
+                    'import { applyOptimisticPromotionDecision } from "@/api/hooks/usePromotionDecision";\n'
+                    "export function projectQueuedApproval(client: QueryClient) {\n"
+                    '  applyOptimisticPromotionDecision(client, "promotion-1", "approved");\n'
+                    "}\n"
+                ),
+            }
+        )
+        corrupted_facts = corrupted_scan["offlineQueueFacts"]
+        self.assertEqual(
+            ["approval.publish | publication.reissue | reissue.approval"],
+            [row["kind"] for row in corrupted_facts["authorityActionKinds"]],
+        )
+        self.assertEqual(
+            [db_path],
+            [row["path"] for row in corrupted_facts["mutationStores"]],
+        )
+        self.assertEqual(
+            [checker.COMPOSER_DRAFT_ADAPTER_PATH, authority_import_path],
+            [row["path"] for row in corrupted_facts["composerDbImports"]],
+        )
+        self.assertEqual(
+            [optimistic_projection_path],
+            [row["path"] for row in corrupted_facts["optimisticAuthorityProjections"]],
+        )
+        self.assertEqual(
+            [checker.COMPOSER_DRAFT_DB_PATH, replay_path, replay_path],
+            [row["path"] for row in corrupted_facts["replayDeclarations"]],
+        )
+        self.assertTrue(
+            checker._offline_queue_errors(
+                corrupted_scan,
+                enforce_denominator=True,
+            )
+        )
+
+    def test_c13a_terminal_dispositions_have_live_census_and_composer_rebind(self) -> None:
+        """Require C13a terminal rows to carry a fresh zero-consumer receipt."""
+        data = frontend_disposition_checker._load_json(
+            frontend_disposition_checker.REGISTER_PATH
+        )
+        unit_ids = {
+            "status-offline-queue-item",
+            "status-inline-queued-promotion",
+            "offline-queue-promotion-decision",
+        }
+        rows = {
+            row["unit_id"]: row
+            for row in data["entries"]
+            if row["unit_id"] in unit_ids
+        }
+        self.assertEqual(unit_ids, set(rows))
+        self.assertTrue(
+            all(
+                row["disposition"] == "deleted"
+                and row["strangle_status"] == "strangled"
+                and row["reference_census_id"] == "census-c13a-authority-replay-delete"
+                for row in rows.values()
+            ),
+            rows,
+        )
+        census = next(
+            row
+            for row in data["reference_censuses"]
+            if row["census_id"] == "census-c13a-authority-replay-delete"
+        )
+        self.assertEqual("zero_consumers", census["result"])
+        self.assertEqual(unit_ids, set(census["covers_unit_ids"]))
+        for probe in census["probes"]:
+            self.assertEqual([], frontend_disposition_checker._recompute_probe(probe))
+
+        c14 = next(
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] == "c14a-local-state-envelope-owner-debt"
+        )
+        self.assertIn(
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13",
+            c14["evidence_refs"],
+        )
+        self.assertEqual(
+            [],
+            frontend_disposition_checker.validate_register(
+                data,
+                report_parity=False,
+            ),
         )
 
     def _validate(

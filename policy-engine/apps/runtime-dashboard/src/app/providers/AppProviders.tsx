@@ -7,7 +7,6 @@ import { AuthzProvider } from "../../app/authz/AuthzProvider";
 import { AlertDialogProvider } from "../../app/providers/AlertDialogProvider";
 import { FeatureFlagProvider } from "../../app/providers/FeatureFlagProvider";
 import { InterfaceModeProvider } from "../../app/providers/InterfaceModeProvider";
-import { OfflineQueueProvider } from "../../app/providers/OfflineQueueProvider";
 import { TelemetryProvider } from "../../app/providers/TelemetryProvider";
 import { CounterfactualProvider } from "../../app/providers/CounterfactualProvider";
 import { TemporalCursorProvider } from "../../app/providers/TemporalCursorProvider";
@@ -72,20 +71,18 @@ export function AppProviders({ children }: PropsWithChildren) {
                             <AuthSessionProvider>
                               <AuthzProvider>
                                 <NetworkStatusProvider>
-                                  <OfflineQueueProvider>
-                                    <FeatureFlagProvider>
-                                      <InterfaceModeProvider>
-                                        <DensityProvider>
-                                          <ThemeProvider>
-                                            <PersistentAuthorshipProvider>
-                                              {children}
-                                              <ContrastEnforcer />
-                                            </PersistentAuthorshipProvider>
-                                          </ThemeProvider>
-                                        </DensityProvider>
-                                      </InterfaceModeProvider>
-                                    </FeatureFlagProvider>
-                                  </OfflineQueueProvider>
+                                  <FeatureFlagProvider>
+                                    <InterfaceModeProvider>
+                                      <DensityProvider>
+                                        <ThemeProvider>
+                                          <PersistentAuthorshipProvider>
+                                            {children}
+                                            <ContrastEnforcer />
+                                          </PersistentAuthorshipProvider>
+                                        </ThemeProvider>
+                                      </DensityProvider>
+                                    </InterfaceModeProvider>
+                                  </FeatureFlagProvider>
                                 </NetworkStatusProvider>
                               </AuthzProvider>
                             </AuthSessionProvider>

@@ -1618,3 +1618,28 @@
   receipt above. Three native Terra lanes handled implementation, independent
   review, and verification; governed writes were isolated and serialized;
   there were no quota failures, Sol workers, or tier escalations.
+
+## 2026-08-11 — DS5 line-address collision / defect registration audit
+
+- Audit base: `dcd8b073bb24d429dad7cf591ff88d47e2d6a716`; C13a landing:
+  `653f12d08b0ed142f19bceac840b23acece81402`. History context only: C13a-R2
+  checkpoint `95274a88c2eb6f5df9e7ce48e72be9e08958639e`, forward revert
+  `f4f62ca58231d59a2fb65ae803562ef2ac6dbfc6`.
+- Read-only census: 10 executable clusters / 40 slots (34 resolved, 6 unnamed);
+  code-only frontend-disposition fields `observed_refs` + `evidence_refs` give
+  178 live refs / 70 files. Five clusters / 11 files / 13 cluster-file-row pairs
+  / 6 register rows collide; 182/73 is broad corpus, while status is separately
+  178 occurrences / 62 files. Five of ten is many: class repair first; C13b and
+  all later colliders wait, no later cluster entered.
+- **DS5-LINE-ADDRESS-01 — registered, not implemented** (`semantic_test_missing`):
+  file:line is navigation, not binding; no gate may fail on a move alone. Future
+  structural closure resolves symbol/export/construct-content identity with
+  move-only green and symbol/content-change red; C08 whole-content hashes stay
+  legitimate. P29/P31/P32/P33/P35/P37 apply; no frontend-disposition row added.
+- External-current GY-DEF13 is a narrow address-versus-identity parallel only;
+  its discovery/provenance mechanism and closure remain distinct. Duplication is
+  0 unjustified same-source/same-concept pairs across 34 resolved paths;
+  producer/adapter/consumer layers are distinct and six unnamed roles unevaluable.
+- Orchestration: Terra-only read-only audits; C13a governed writes serialized;
+  zero Sol/quota/tier escalation. Lost/overlapped streams remain honest
+  nonreceipts. This audit implements no class repair.

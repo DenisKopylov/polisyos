@@ -592,6 +592,32 @@ adequacy), P13 (governance gravity), P15 (speculation laundering), P25/P26
 (marker-only proof), and P31-P34 (instance patching, trust by form, probe
 teaching, dishonest exclusion).
 
+### Post-C13a-R2 line-address audit — class repair first
+
+**DS5-LINE-ADDRESS-01 — registered, not implemented** (`semantic_test_missing`):
+10 clusters / 40 slots (34 resolved, 6 unnamed), 178 code-only frontend-disposition
+refs / 70 files; 5 clusters / 11 files / 13 cluster-file-row pairs / 6 rows collide.
+Not broad 182/73; status sibling separately 178 / 62. Paths below are
+`apps/runtime-dashboard/src/`-relative unless `architecture/`; `—` is no collision.
+
+| Cluster | Touched paths / roles (compact complete set) | Collision: exact files → register row IDs |
+| --- | --- | --- |
+| C13b-R1 | `app/offline/offlineQueueRepository.ts`; new `app/offline/composerDraftDb.ts`; `features/composer/state/composerDraftRepository.ts`; `features/composer/state/composerDraftRepository.test.ts`; `sw.ts`; new `sw.test.ts` | yes: `app/offline/offlineQueueRepository.ts` → `c14a-local-state-envelope-owner-debt` `[1]:80`; `features/composer/state/composerDraftRepository.ts` → same `[0]:15`; `sw.ts` → `dependency-workbox-core:3`, `-precaching:4`, `-routing:9` |
+| C15a raw | `features/clerk/state/useChatStore.ts`; `features/clerk/state/useChatStore.test.ts` | no — |
+| C16a-R1 | `features/runs/routes/tabs/CausalTab.tsx`; `features/runs/routes/tabs/CausalTab.test.tsx` | yes: `features/runs/routes/tabs/CausalTab.tsx` → `c14a-local-state-envelope-owner-debt` `[2]:301` |
+| C16b-R1 | `features/runs/domain/disputes.ts`; `features/runs/domain/disputes.test.ts`; `features/runs/components/DisputeRegistryPanel.tsx`; `[new focused DisputeRegistryPanel test path not named]` | yes: `features/runs/domain/disputes.ts` → `c14a-local-state-envelope-owner-debt` `[3]:109` |
+| C17a-R1 | `features/runs/domain/operatorCraft.ts`; `features/runs/domain/operatorCraft.test.ts`; `features/runs/components/OperatorCraftPanel.tsx`; `features/runs/components/AmbientTelemetryHud.tsx`; `[new authorityLocalState owner path not named]`; `[new authorityLocalState test path not named]` | yes: `features/runs/domain/operatorCraft.ts` → `c14a-local-state-envelope-owner-debt:444`; `features/runs/domain/operatorCraft.test.ts` → `census-browser-signing-protected-live` `[10]:123`; `features/runs/components/OperatorCraftPanel.tsx` → same `[3]:85`; `features/runs/components/AmbientTelemetryHud.tsx` → same `[2]:42` |
+| C17b-R1 | `architecture/atlas_surfaces/check_frontend_disposition_register.py`; `architecture/atlas_surfaces/test_frontend_disposition_register.py`; `[new DS5 TypeScript AST scanner path not named]`; `[new DS5 TypeScript AST checker path not named]`; `[new DS5 TypeScript AST test path not named]` | no — |
+| C18a | `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | no — |
+| C18b-R1 | `app/providers/FeatureFlagProvider.tsx`; `app/providers/FeatureFlagProvider.test.tsx` | no — |
+| C19-R1 | `app/layout/AppShell.tsx`; `app/layout/layoutSurfaces.test.tsx`; `app/surfaces/surfaceRegistry.ts`; `features/runs/route.tsx`; `features/runs/routes/runDetailSurfaces.test.tsx`; `features/runs/routes/tabs/OverviewTab.tsx`; `features/commandPalette/CommandPalette.tsx`; `features/commandPalette/CommandPalette.test.tsx`; `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | yes: `features/runs/route.tsx` → `census-browser-signing-protected-live` `[18]:151`; `features/runs/routes/tabs/OverviewTab.tsx` → `authority-presentation-badge-governance-issue-severity` `[3]:185` |
+| C20 | `architecture/atlas_surfaces/test_atlas_enforcement.py` | no — |
+
+Five of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; no gate fails on move alone (`check_frontend_disposition_register.py:5321-5364`; `test_frontend_disposition_register.py:1420-1437`). Closure resolves symbol/export/construct-content identity: move-only
+green, symbol/content-change red; C08 hashes stay legitimate; P29/P31/P32/P33/P35/P37;
+no disposition row. External-current GY-DEF13 shares only address-vs-
+identity, not mechanism/closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
+
 The target correct pattern is:
 
 ```text
@@ -1214,23 +1240,23 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C11b-R1 | visible cache posture | depends on C11a typed `CachePosture` artifact | C11a table row; `DS5-C11b-R1` acceptance | blocked-on-another-cluster | C11a |
 | C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | executable | none |
 | C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster | C12a |
-| C13a | delete authority replay | queue writer/replay emits authority mutations today and is deletable | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:39-61`; `apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx:158-246` | executable | none |
-| C13b-R1 | SW sync/flush authority bridge | worker and provider bridge exist today | `apps/runtime-dashboard/src/sw.ts:13-45`; `apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx:114-153` | executable | none |
-| C13b-R1 | composer-only typed closure | composer closure needs C14a envelope | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:39-61`; C14a table row | blocked-on-another-cluster | C14a |
+| C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
+| C13b-R1 | SW sync/flush authority bridge | worker flush bridge remains; provider is gone | `apps/runtime-dashboard/src/sw.ts:13-45` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
+| C13b-R1 | composer-only typed closure | composer-only repository remains; C14a envelope producer is absent | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:1-37` | blocked-on-another-cluster | DS5-LINE-ADDRESS-01 structural class repair, then C14a |
 | C14a | nominal envelope owner | no `PersistedEnvelope<StoreClass>` or `authorityLocalState` producer exists | complete absence: `rg -n -e 'PersistedEnvelope' -e 'authorityLocalState' apps/runtime-dashboard packages architecture --glob '*.{ts,tsx,json,toml}'` (0) | debt-only | none |
 | C14b-R1 | scoped composer consumer | raw composer record has neither scope nor TTL and needs C14a | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13-16`; C14a table row | blocked-on-another-cluster | C14a |
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | requires verified identity and envelope ownership | C08b-R1 and C14a table rows | blocked-on-another-cluster | C08b-R1, C14a |
 | C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
-| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | executable | none |
-| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | executable | none |
-| C17a-R1 | storage-family partition | four typed raw-local-storage families emit today | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444-490,504-570,647-657,735-816` | executable | none |
+| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
+| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
+| C17a-R1 | storage-family partition | four typed raw-local-storage families emit today | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444-490,504-570,647-657,735-816` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
 | C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable | none |
 | C18b-R1 | contextual flag source binding | provider emits merged flags and cached manifest today | `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-55,68-131` | executable | none |
-| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable | none |
+| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
 | C20 | final ledger/corruption/architect receipt | requires closure of executable/debt clusters first | `DS5-C20` acceptance; all preceding blocked/debt rows | blocked-on-another-cluster | all preceding executable/debt clusters |
 

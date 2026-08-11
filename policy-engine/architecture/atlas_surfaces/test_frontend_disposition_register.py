@@ -9,7 +9,6 @@ import json
 import re
 import subprocess
 import unittest
-from collections import Counter
 from pathlib import Path
 from typing import ClassVar
 from unittest import mock
@@ -2113,20 +2112,6 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         )
         corruptions["authority_sink"] = moved
 
-        navigation_only_move = copy.deepcopy(data)
-        row = next(
-            item
-            for item in navigation_only_move["supplemental_findings"]
-            if item["finding_id"] == finding_id
-        )
-        row["authority_sink"]["consumer_sites"][0]["line"] += 1
-        self.assertEqual(
-            [],
-            checker._authority_presentation_errors(
-                navigation_only_move, live_probes=False
-            ),
-        )
-
         for field, mutation in corruptions.items():
             with self.subTest(field=field):
                 errors = checker._authority_presentation_errors(
@@ -2175,35 +2160,6 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             errors,
         )
 
-    def test_authority_configuration_keys_are_c21a_identities(self) -> None:
-        """Finite Badge/prop classification keys must not encode navigation lines."""
-        self.assertTrue(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
-        self.assertTrue(checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
-        for identity in [
-            *checker.AUTHORITY_BADGE_CLASSIFICATIONS,
-            *checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-        ]:
-            self.assertRegex(identity, r"^[a-f0-9]{64}$")
-
-    def test_authority_identity_denominators_preserve_shared_prop_declaration(self) -> None:
-        """P35: the one shared DecisionCard declaration is multiplicity, not overwrite."""
-        scan = checker._authority_presentation_scan()
-        badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
-        prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
-        prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(163, len(badge))
-        self.assertEqual(163, len(set(badge)))
-        self.assertEqual(73, len(prop_records))
-        self.assertEqual(72, len(prop))
-        shared = [records for records in prop.values() if len(records) == 2]
-        self.assertEqual(
-            [[
-                {"descriptor_id": "prop-decision-card-confidence", "classification": "debt", "role": "component_declaration"},
-                {"descriptor_id": "prop-decision-card-verdict", "classification": "debt", "role": "component_declaration"},
-            ]],
-            [sorted(records, key=lambda record: record["descriptor_id"]) for records in shared],
-        )
-
         classifications = copy.deepcopy(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
         classifications.pop(next(iter(classifications)))
         errors = checker._badge_classification_errors(scan, classifications)
@@ -2215,7 +2171,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         fingerprint_drift = copy.deepcopy(scan)
         benign_location = next(
             location
-            for location, classification in checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS.items()
+            for location, classification in checker.AUTHORITY_BADGE_CLASSIFICATIONS.items()
             if classification.startswith("benign:")
         )
         site = next(
@@ -2514,13 +2470,10 @@ export async function publishDecision( input:string )
 }
 """
 
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(reference, {source_path: moved}),
-        )
+        self.assertEqual([], checker._validate_typescript_reference_identity(reference, {source_path: moved}))
         self.assertNotIn("navigation_hint", reference["encoded_identity"])
 
-    def test_duplicate_canonical_candidates_replay_the_structurally_bound_sibling(self) -> None:
+    def test_duplicate_canonical_candidates_fail_closed_with_named_ambiguity_code(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
         one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
         duplicated_badges = """export function Surface() {
@@ -2534,13 +2487,12 @@ export async function publishDecision( input:string )
             discriminator="Badge",
         )
 
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
+        self.assertIn(
+            "typescript_reference_binding_ambiguous",
             checker._validate_typescript_reference_identity(reference, {source_path: duplicated_badges}),
         )
 
-
-    def test_distinct_content_on_a_second_sibling_does_not_replace_the_bound_sibling(self) -> None:
+    def test_distinct_content_on_a_second_binding_match_is_ambiguous(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
         one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
         second_distinct_badge = """export function Surface() {
@@ -2555,7 +2507,7 @@ export async function publishDecision( input:string )
         )
 
         self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
+            ["typescript_reference_binding_ambiguous"],
             checker._validate_typescript_reference_identity(
                 reference,
                 {source_path: second_distinct_badge},
@@ -2730,246 +2682,6 @@ function publish(summary: RunSummary) {
             ),
         )
 
-    def test_batch_resolver_builds_multiple_direct_bindings_from_one_snapshot(self) -> None:
-        """C21b sends many requests through the C21a batch parser API."""
-        source_path = self._SOURCE_PATH
-        source = "export const first = 1;\nexport const second = 2;\n"
-        facts = checker._typescript_reference_construct_facts_batch(
-            {source_path: source},
-            [
-                {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "first"},
-                {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "second"},
-            ],
-        )
-        self.assertEqual(["first", "second"], [row["matches"][0]["discriminator"] for row in facts])
-        self.assertEqual([1, 1], [row["programCreateCount"] for row in facts])
-
-    def test_batch_resolver_uses_one_typescript_program_for_many_requests(self) -> None:
-        """C21b cannot regress to one compiler process per identity request."""
-        source_path = "apps/runtime-dashboard/src/features/example/batch-reference.ts"
-        source = "export const first = 1;\nexport const second = 2;\n"
-        with mock.patch.object(checker.subprocess, "run", wraps=subprocess.run) as run:
-            checker._typescript_reference_construct_facts_batch(
-                {source_path: source},
-                [
-                    {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "first"},
-                    {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "second"},
-                ],
-            )
-        self.assertEqual(1, run.call_count)
-
-    def test_type_property_creation_anchor_uses_syntax_start_not_trivia_span(self) -> None:
-        """Adjacent inline prop trivia cannot make the line-3 `tone` anchor ambiguous."""
-        source_path = self._SOURCE_PATH
-        source = """function Atlas({ tone }: {
-  title: string;
-  tone?: \"accent\" | \"default\";
-  trailing?: string;
-}) { return tone; }
-"""
-        facts = checker._typescript_reference_construct_facts_batch(
-            {source_path: source},
-            [{"sourcePath": source_path, "role": "type_property", "discriminator": "__creation_anchor__"}],
-        )[0]
-        matches = checker._typescript_reference_anchor_matches(
-            facts, {"path": source_path, "line": 3, "role": "type_property"}
-        )
-        self.assertEqual(["Atlas.tone"], [match["discriminator"] for match in matches])
-
-    def test_type_property_and_jsx_attribute_identities_survive_a_line_move(self) -> None:
-        """Authority prop declaration and use gates bind syntax, not navigation."""
-        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
-        original = """type Props = { tone: \"accent\" | \"default\" };
-export function Badge({ tone }: Props) { return <span tone={tone} />; }
-"""
-        moved = """
-
-type Props = { tone: \"accent\" | \"default\" };
-export function Badge({ tone }: Props) { return <span tone={tone} />; }
-"""
-        prop = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="type_property", discriminator="Props.tone"
-        )
-        attribute = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="jsx_attribute", discriminator="tone"
-        )
-        self.assertEqual([], checker._validate_typescript_reference_identity(prop, {source_path: moved}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: moved}))
-
-    def test_protected_call_and_route_literals_replay_without_navigation_lines(self) -> None:
-        """The protected-live direct syntax classes survive a move and reject a rewrite."""
-        source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
-        original = """function buildSignedPublicDecisionPacket() { return 1; }
-const route = \"/public/decisions/:signedId\";
-const packet = buildSignedPublicDecisionPacket();
-"""
-        moved = """
-function buildSignedPublicDecisionPacket() { return 1; }
-const route = \"/public/decisions/:signedId\";
-const packet = buildSignedPublicDecisionPacket();
-"""
-        call = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket"
-        )
-        route = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="string_literal", discriminator="/public/decisions/:signedId"
-        )
-        self.assertEqual([], checker._validate_typescript_reference_identity(call, {source_path: moved}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(route, {source_path: moved}))
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                call,
-                {source_path: moved.replace("buildSignedPublicDecisionPacket", "renamedPacket")},
-            ),
-        )
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                route,
-                {source_path: moved.replace("public/decisions/:signedId", "public/decisions/:rewritten")},
-            ),
-        )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                call,
-                {source_path: moved.replace("buildSignedPublicDecisionPacket();", "buildSignedPublicDecisionPacket(2);")},
-            ),
-        )
-
-    def test_same_named_variable_calls_keep_distinct_structural_bindings(self) -> None:
-        """Sibling call sites cannot collapse merely because their local name repeats."""
-        source_path = self._SOURCE_PATH
-        source = """function buildSignedPublicDecisionPacket() { return 1; }
-declare function it(name: string, callback: () => void): void;
-it("first", () => {
-  const signed = buildSignedPublicDecisionPacket();
-  return signed;
-});
-it("second", () => {
-  const signed = buildSignedPublicDecisionPacket();
-  return signed;
-});
-"""
-        first = checker._typescript_reference_identity(
-            {source_path: source}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket", navigation_hint=4
-        )
-        second = checker._typescript_reference_identity(
-            {source_path: source}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket", navigation_hint=8
-        )
-        self.assertNotEqual(first["encoded_identity"], second["encoded_identity"])
-        self.assertEqual([], checker._validate_typescript_reference_identity(first, {source_path: source}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(second, {source_path: source}))
-
-    def test_real_badge_identity_moves_but_rejects_ambiguity_and_content(self) -> None:
-        """A configured Badge binds its enclosing construct rather than its line."""
-        location = next(
-            location
-            for location in sorted(checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS)
-            if (checker.REPO_ROOT / location[0]).read_text(encoding="utf-8").count(
-                "<Badge"
-            )
-            == 1
-        )
-        source_path, line = location
-        original = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
-        identity = checker._typescript_reference_identity(
-            {source_path: original},
-            source_path=source_path,
-            role="jsx_opening",
-            discriminator="Badge",
-            navigation_hint=line,
-        )
-        digest = checker.hashlib.sha256(
-            identity["encoded_identity"].encode("utf-8")
-        ).hexdigest()
-        self.assertIn(digest, checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
-        self.assertEqual(
-            [],
-            checker._validate_typescript_reference_identity(
-                identity, {source_path: "\n" + original}
-            ),
-        )
-        rewritten = original.replace(
-            "<Badge", '<Badge data-c21b-content="changed"', 1
-        )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                identity, {source_path: rewritten}
-            ),
-        )
-        self.assertEqual(
-            ["typescript_reference_binding_ambiguous"],
-            checker._validate_typescript_reference_identity(
-                identity, {source_path: original + "\n" + original}
-            ),
-        )
-
-    def test_real_prop_declaration_and_use_move_but_reject_rewrite(self) -> None:
-        """Configured prop declaration/use identities ignore navigation lines only."""
-        descriptor_id = "prop-segmented-control-tone"
-        specification = checker.AUTHORITY_PROP_CLASSIFICATIONS[descriptor_id]
-        declaration_path = specification["component_declaration_path"]
-        declaration_source = (checker.REPO_ROOT / declaration_path).read_text(
-            encoding="utf-8"
-        )
-        declaration = checker._typescript_reference_identity(
-            {declaration_path: declaration_source},
-            source_path=declaration_path,
-            role="type_property",
-            discriminator="SegmentedControlProps.tone",
-            navigation_hint=specification["prop_declaration_line"],
-        )
-        declaration_digest = checker.hashlib.sha256(
-            declaration["encoded_identity"].encode("utf-8")
-        ).hexdigest()
-        self.assertIn(
-            declaration_digest,
-            checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-        )
-        self.assertEqual(
-            [],
-            checker._validate_typescript_reference_identity(
-                declaration, {declaration_path: "\n" + declaration_source}
-            ),
-        )
-        rewritten = declaration_source.replace(
-            'tone?: "default" | "rail";',
-            'tone?: "default" | "rail" | "changed";',
-            1,
-        )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                declaration, {declaration_path: rewritten}
-            ),
-        )
-        renamed = declaration_source.replace("tone?:", "renamedTone?:", 1)
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                declaration, {declaration_path: renamed}
-            ),
-        )
-
-        use_path, use_line = specification["uses"][0]
-        use_source = (checker.REPO_ROOT / use_path).read_text(encoding="utf-8")
-        use = checker._typescript_reference_identity(
-            {use_path: use_source},
-            source_path=use_path,
-            role="jsx_attribute",
-            discriminator="tone",
-            navigation_hint=use_line,
-        )
-        self.assertEqual(
-            [],
-            checker._validate_typescript_reference_identity(
-                use, {use_path: "\n" + use_source}
-            ),
-        )
-
 
 class DS5LineAddressCensusTests(unittest.TestCase):
     """Derive DS5-LINE-ADDRESS-01 denominators from the live register owners."""
@@ -3013,14 +2725,14 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             )
 
         self.assertEqual(270, len(references), "ds5_line_address_total_reference_drift")
-        self.assertEqual(21, len(line_references), "ds5_line_address_line_reference_drift")
+        self.assertEqual(182, len(line_references), "ds5_line_address_line_reference_drift")
         self.assertEqual(
-            15,
+            73,
             len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
             "ds5_line_address_line_file_drift",
         )
         self.assertEqual(
-            {"TSX": (0, 0), "TS": (6, 4), "PY": (6, 5), "JSON": (5, 3), "MD": (3, 2), "TOML": (1, 1)},
+            {"TSX": (138, 45), "TS": (29, 17), "PY": (6, 5), "JSON": (5, 3), "MD": (3, 2), "TOML": (1, 1)},
             extension_counts,
             "ds5_line_address_extension_partition_drift",
         )
@@ -3032,9 +2744,9 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         gated_references = [
             reference for reference in line_references if reference not in self._BOUNDS_ONLY_REFS
         ]
-        self.assertEqual(0, len(gated_references), "ds5_line_address_gated_reference_drift")
+        self.assertEqual(176, len(gated_references), "ds5_line_address_gated_reference_drift")
         self.assertEqual(
-            0,
+            70,
             len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in gated_references}),
             "ds5_line_address_gated_file_drift",
         )
@@ -3060,45 +2772,26 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in finding["evidence_refs"]
             if self._LINE_REFERENCE_RE.match(reference) and reference not in self._BOUNDS_ONLY_REFS
         ]
-        self.assertEqual(0, len(observed_line_references), "ds5_line_address_observed_line_drift")
+        self.assertEqual(28, len(observed_line_references), "ds5_line_address_observed_line_drift")
         self.assertEqual(
-            0,
+            118,
             len(authority_evidence_line_references),
             "ds5_line_address_authority_evidence_line_drift",
         )
         self.assertEqual(
-            0,
+            30,
             len(descriptor_evidence_line_references),
             "ds5_line_address_descriptor_evidence_line_drift",
         )
-        identity_references = [reference for reference in references if "#ts-identity=" in reference]
-        self.assertEqual(161, len(identity_references), "ds5_c21b_identity_reference_drift")
-        observed_identities = [
-            reference
-            for census in data["reference_censuses"]
-            for probe in census["probes"]
-            for reference in probe["observed_refs"]
-            if "#ts-identity=" in reference
-        ]
-        authority_identities = [
-            reference
-            for finding in data["supplemental_findings"]
-            if "authority_sink" in finding
-            for reference in finding["evidence_refs"]
-            if "#ts-identity=" in reference
-        ]
-        descriptor_identities = [
-            reference
-            for finding in data["supplemental_findings"]
-            if "authority_sink" not in finding
-            for reference in finding["evidence_refs"]
-            if "#ts-identity=" in reference
-        ]
-        self.assertEqual(28, len(observed_identities), "ds5_c21b_observed_identity_drift")
-        self.assertEqual(118, len(authority_identities), "ds5_c21b_authority_identity_drift")
-        self.assertEqual(15, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
+        self.assertCountEqual(
+            gated_references,
+            observed_line_references
+            + authority_evidence_line_references
+            + descriptor_evidence_line_references,
+            "ds5_line_address_gated_partition_drift",
+        )
 
-        authority_slots = list(checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS)
+        authority_slots = list(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
         for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values():
             authority_slots.extend(
                 [
@@ -3136,109 +2829,6 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             36,
             len({path for path, _line in receipt_slots}),
             "ds5_line_address_nested_file_drift",
-        )
-
-    def test_c21b_migrates_every_gated_typescript_reference_to_identity(self) -> None:
-        """A line address may navigate TypeScript, but cannot gate its disposition."""
-        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        references = self._live_references(data)
-        legacy_gated_ts = [
-            reference
-            for reference in references
-            if self._LINE_REFERENCE_RE.match(reference)
-            and Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix in {".ts", ".tsx"}
-            and reference not in self._BOUNDS_ONLY_REFS
-        ]
-
-        self.assertEqual([], legacy_gated_ts, "ds5_c21b_legacy_gated_typescript_reference")
-
-    def test_c21b_surgical_writer_changes_only_the_prestate_reference_spans(self) -> None:
-        """The current register is the pre-migration fixture for the exact 161-span delta."""
-        original = REGISTER_PATH.read_text(encoding="utf-8")
-        baseline_before = checker.BASELINE_PATH.read_bytes()
-        once = checker._c21b_surgical_identity_text(original)
-        twice = checker._c21b_surgical_identity_text(once)
-        self.assertEqual(once, twice)
-        self.assertEqual(baseline_before, checker.BASELINE_PATH.read_bytes())
-        data = json.loads(original)
-        migrated = json.loads(once)
-        before_refs = self._live_references(data)
-        after_refs = self._live_references(migrated)
-        changed = [
-            (before, after)
-            for before, after in zip(before_refs, after_refs, strict=True)
-            if before != after
-        ]
-        self.assertEqual(161, len(changed))
-        self.assertTrue(all("#ts-identity=" in after for _before, after in changed))
-        for census in migrated["reference_censuses"]:
-            for probe in census["probes"]:
-                observed_refs = probe["observed_refs"]
-                self.assertEqual(
-                    len(observed_refs),
-                    len(set(observed_refs)),
-                    f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
-                )
-        reverted = once
-        for (before, after), count in reversed(
-            sorted(
-                Counter(changed).items(),
-                key=lambda item: len(item[0][1]),
-            )
-        ):
-            reverted = reverted.replace(
-                json.dumps(after), json.dumps(before), count
-            )
-        self.assertEqual(original, reverted)
-        self.assertEqual(
-            (28, 118, 15),
-            (
-                sum(
-                    "#ts-identity=" in reference
-                    for census in migrated["reference_censuses"]
-                    for probe in census["probes"]
-                    for reference in probe["observed_refs"]
-                ),
-                sum(
-                    "#ts-identity=" in reference
-                    for finding in migrated["supplemental_findings"]
-                    if "authority_sink" in finding
-                    for reference in finding["evidence_refs"]
-                ),
-                sum(
-                    "#ts-identity=" in reference
-                    for finding in migrated["supplemental_findings"]
-                    if "authority_sink" not in finding
-                    for reference in finding["evidence_refs"]
-                ),
-            ),
-        )
-        self.assertEqual(
-            (28, 118, 15),
-            (
-                sum("#ts-identity=" in ref for census in migrated["reference_censuses"] for probe in census["probes"] for ref in probe["observed_refs"]),
-                sum("#ts-identity=" in ref for finding in migrated["supplemental_findings"] if "authority_sink" in finding for ref in finding["evidence_refs"]),
-                sum("#ts-identity=" in ref for finding in migrated["supplemental_findings"] if "authority_sink" not in finding for ref in finding["evidence_refs"]),
-            ),
-        )
-        self.assertEqual(
-            6,
-            sum(
-                reference in self._BOUNDS_ONLY_REFS
-                for reference in self._live_references(migrated)
-            ),
-        )
-
-    def test_c21b_validator_replays_migrated_protected_probe_identities(self) -> None:
-        """The live probe consumer compares canonical C21a identities, not navigation lines."""
-        migrated = json.loads(
-            checker._c21b_surgical_identity_text(REGISTER_PATH.read_text(encoding="utf-8"))
-        )
-        errors = checker.validate_register(migrated, live_probes=True, report_parity=False)
-        probe_suffix = "census-browser-signing-protected-live:reference_count"
-        self.assertEqual(
-            [],
-            [error for error in errors if error.endswith(probe_suffix)],
         )
 
 

@@ -945,20 +945,10 @@ import ts from "typescript";
 
 let raw = "";
 for await (const chunk of process.stdin) raw += chunk;
-const input = JSON.parse(raw);
-const { sources } = input;
-const requests = input.requests ?? [{
-  sourcePath: input.sourcePath,
-  role: input.role,
-  discriminator: input.discriminator,
-}];
+const { sources, sourcePath: requestedSourcePath, role, discriminator } = JSON.parse(raw);
 const dashboardRoot = process.cwd();
 const repoRoot = path.resolve(dashboardRoot, "../..");
-let requestedSourcePath;
-let sourcePath;
-let role;
-let discriminator;
-let sourceFile;
+const sourcePath = path.resolve(repoRoot, requestedSourcePath);
 const config = ts.readConfigFile(
   path.join(dashboardRoot, "tsconfig.app.json"),
   ts.sys.readFile,
@@ -1016,14 +1006,20 @@ host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((spec
   }
   return undefined;
 });
-let programCreateCount = 0;
 const program = ts.createProgram({
   rootNames: [...virtualSources.keys()],
   options: compilerOptions,
   host,
 });
-programCreateCount += 1;
 const checker = program.getTypeChecker();
+const sourceFile = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === sourcePath,
+);
+if (!sourceFile) {
+  process.stdout.write(JSON.stringify({ sourceMissing: true, matches: [] }));
+  process.exit(0);
+}
+
 function isExported(node) {
   return Boolean(node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
 }
@@ -1160,13 +1156,12 @@ function importBindingChain(node) {
 
 function jsxOpeningChain(node) {
   const tag = node.tagName.getText(sourceFile);
-  const enclosing = namedEnclosingChain(node).join(".") || "module";
   if (ts.isIdentifier(node.tagName)) {
     const binding = importedBinding(tag);
     const importPart = binding
       ? `:import:${binding.module}:${resolvedModulePath(binding.module)}:${binding.imported}`
       : "";
-    return declarationChain(node.tagName, `jsx_opening:${tag}:enclosing:${enclosing}${importPart}`);
+    return declarationChain(node.tagName, `jsx_opening:${tag}${importPart}`);
   }
   return [`jsx_opening:${tag}`, `symbol:unresolved`, `resolved:unresolved`, `declaration:unresolved:unresolved`];
 }
@@ -1177,8 +1172,7 @@ function jsxAttributeChain(node) {
     (candidate) => ts.isJsxOpeningElement(candidate) || ts.isJsxSelfClosingElement(candidate),
   );
   const tag = opening ? opening.tagName.getText(sourceFile) : "unresolved";
-  const enclosing = namedEnclosingChain(node).join(".") || "module";
-  return [`jsx_attribute:${tag}:${node.name.text}:enclosing:${enclosing}`, `symbol:${node.name.text}`, `resolved:${node.name.text}`, `declaration:${requestedSourcePath}:JsxAttribute`];
+  return [`jsx_attribute:${tag}:${node.name.text}`, `symbol:${node.name.text}`, `resolved:${node.name.text}`, `declaration:${sourcePath}:JsxAttribute`];
 }
 
 function namedDeclarationKinds(node) {
@@ -1209,128 +1203,84 @@ function stringLiteralChain(node) {
   return [`string_literal:${node.text}:enclosing:${enclosing}`, `symbol:${node.text}`, `resolved:${node.text}`, `declaration:${requestedSourcePath}:StringLiteral`];
 }
 
-function nodeDiscriminator(node) {
-  if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if ((ts.isPropertySignature(node) || ts.isPropertyAssignment(node)) && node.name) return qualifiedPropertyName(node);
-  if (ts.isCallExpression(node)) return node.expression.getText(sourceFile);
-  if (ts.isStringLiteral(node)) return node.text;
-  if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) && node.name) return node.name.text;
-  if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) return node.tagName.getText(sourceFile);
-  if (ts.isJsxAttribute(node)) return node.name.text;
-  return "unresolved";
-}
-
-function matchesDiscriminator(node) {
-  return discriminator === "__creation_anchor__" || nodeDiscriminator(node) === discriminator;
-}
-
-let matches = [];
-function visit(node, structuralPath = []) {
+const matches = [];
+function visit(node) {
   if (
     role === "exported_declaration" &&
     isExported(node) &&
     namedDeclarationKinds(node) &&
-    matchesDiscriminator(node)
+    declarationName(node) === discriminator
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `export:${discriminator}`), structuralPath });
+    matches.push({ node, declarationChain: declarationChain(node.name, `export:${discriminator}`) });
   } else if (
     role === "named_declaration" &&
     namedDeclarationKinds(node) &&
-    matchesDiscriminator(node)
+    declarationName(node) === discriminator
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `declaration:${discriminator}`), structuralPath });
+    matches.push({ node, declarationChain: declarationChain(node.name, `declaration:${discriminator}`) });
   } else if (
     role === "variable_declaration" &&
     ts.isVariableDeclaration(node) &&
     ts.isIdentifier(node.name) &&
-    matchesDiscriminator(node)
+    node.name.text === discriminator
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`), structuralPath });
+    matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`) });
   } else if (
     role === "type_property" &&
     ts.isPropertySignature(node) &&
-    matchesDiscriminator(node)
+    qualifiedPropertyName(node) === discriminator
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `type_property:${discriminator}`), structuralPath });
+    matches.push({ node, declarationChain: declarationChain(node.name, `type_property:${discriminator}`) });
   } else if (
     role === "object_property" &&
     ts.isPropertyAssignment(node) &&
-    matchesDiscriminator(node)
+    qualifiedPropertyName(node) === discriminator
   ) {
-    matches.push({ node, declarationChain: objectPropertyChain(node), structuralPath });
+    matches.push({ node, declarationChain: objectPropertyChain(node) });
   } else if (
     role === "call_expression" &&
     ts.isCallExpression(node) &&
-    matchesDiscriminator(node)
+    node.expression.getText(sourceFile) === discriminator
   ) {
-    matches.push({ node, declarationChain: callExpressionChain(node), structuralPath });
+    matches.push({ node, declarationChain: callExpressionChain(node) });
   } else if (
     role === "string_literal" &&
     ts.isStringLiteral(node) &&
-    matchesDiscriminator(node)
+    node.text === discriminator
   ) {
-    matches.push({ node, declarationChain: stringLiteralChain(node), structuralPath });
+    matches.push({ node, declarationChain: stringLiteralChain(node) });
   } else if (
     role === "import_binding" &&
     (ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) &&
     node.name &&
-    matchesDiscriminator(node)
+    node.name.text === discriminator
   ) {
-    matches.push({ node, declarationChain: importBindingChain(node), structuralPath });
+    matches.push({ node, declarationChain: importBindingChain(node) });
   } else if (
     role === "jsx_opening" &&
     (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
-    matchesDiscriminator(node)
+    node.tagName.getText(sourceFile) === discriminator
   ) {
-    matches.push({ node, declarationChain: jsxOpeningChain(node), structuralPath });
+    matches.push({ node, declarationChain: jsxOpeningChain(node) });
   } else if (
     role === "jsx_attribute" &&
     ts.isJsxAttribute(node) &&
-    matchesDiscriminator(node)
+    node.name.text === discriminator
   ) {
-    matches.push({ node, declarationChain: jsxAttributeChain(node), structuralPath });
+    matches.push({ node, declarationChain: jsxAttributeChain(node) });
   }
-  const children = [];
-  ts.forEachChild(node, (child) => { children.push(child); });
-  children.forEach((child, ordinal) =>
-    visit(
-      child,
-      namedDeclarationKinds(child)
-        ? []
-        : [...structuralPath, `${ts.SyntaxKind[child.kind]}:${ordinal}`],
-    ),
-  );
+  ts.forEachChild(node, visit);
 }
-const results = [];
-for (const request of requests) {
-  requestedSourcePath = request.sourcePath;
-  sourcePath = path.resolve(repoRoot, requestedSourcePath);
-  role = request.role;
-  discriminator = request.discriminator;
-  sourceFile = program.getSourceFiles().find(
-    (file) => path.resolve(repoRoot, file.fileName) === sourcePath,
-  );
-  if (!sourceFile) {
-    results.push({ sourceMissing: true, matches: [] });
-    continue;
-  }
-  matches = [];
-  visit(sourceFile);
-  results.push({
-    sourceMissing: false,
-    matches: matches.map((match) => ({
-      discriminator: nodeDiscriminator(match.node),
-      structuralPath: match.structuralPath,
-      declarationChain: match.declarationChain,
-      normalizedTokensSha256: normalizedTokenSha256(match.node),
-      startLine: sourceFile.getLineAndCharacterOfPosition(match.node.getStart(sourceFile)).line + 1,
-      fullStartLine: sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
-      endLine: sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
-    })),
-  });
-}
-const countedResults = results.map((result) => ({ ...result, programCreateCount }));
-process.stdout.write(JSON.stringify(input.requests ? { results: countedResults } : countedResults[0]));
+visit(sourceFile);
+process.stdout.write(JSON.stringify({
+  sourceMissing: false,
+  matches: matches.map((match) => ({
+    declarationChain: match.declarationChain,
+    normalizedTokensSha256: normalizedTokenSha256(match.node),
+    fullStartLine: sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
+    endLine: sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
+  })),
+}));
 """
 
 _TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
@@ -1368,19 +1318,23 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
     return parsed
 
 
-def _typescript_reference_construct_facts_batch(
-    sources: Mapping[str, str], requests: Sequence[Mapping[str, str]]
-) -> list[dict[str, Any]]:
-    """Resolve many direct-syntax constructs through one TypeScript program."""
-    for request in requests:
-        role = request.get("role")
-        if role not in _TYPESCRIPT_REFERENCE_ROLES:
-            raise ValueError(f"typescript_reference_role_invalid:{role}")
+def _typescript_reference_construct_facts(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    role: str,
+    discriminator: str,
+) -> dict[str, Any]:
+    """Resolve one canonical TypeScript construct from in-memory source overrides."""
+    if role not in _TYPESCRIPT_REFERENCE_ROLES:
+        raise ValueError(f"typescript_reference_role_invalid:{role}")
     cache_key = hashlib.sha256(
         json.dumps(
             {
                 "sources": sources,
-                "requests": requests,
+                "source_path": source_path,
+                "role": role,
+                "discriminator": discriminator,
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -1389,14 +1343,16 @@ def _typescript_reference_construct_facts_batch(
     ).hexdigest()
     cached = _TS_REFERENCE_CONSTRUCT_CACHE.get(cache_key)
     if cached is not None:
-        return cached["results"]
+        return cached
     completed = subprocess.run(
         ["node", "--input-type=module", "-e", _TS_REFERENCE_CONSTRUCT_SCRIPT],
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(
             {
                 "sources": sources,
-                "requests": requests,
+                "sourcePath": source_path,
+                "role": role,
+                "discriminator": discriminator,
             }
         ),
         check=False,
@@ -1408,33 +1364,10 @@ def _typescript_reference_construct_facts_batch(
             "TypeScript reference identity parser failed: " + completed.stderr.strip()
         )
     parsed = json.loads(completed.stdout)
-    results = parsed.get("results") if isinstance(parsed, dict) else None
-    if not isinstance(results, list) or len(results) != len(requests):
+    if not isinstance(parsed, dict) or not isinstance(parsed.get("matches"), list):
         raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
-    if any(not isinstance(result, dict) or not isinstance(result.get("matches"), list) for result in results):
-        raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
-    _TS_REFERENCE_CONSTRUCT_CACHE[cache_key] = {"results": results}
-    return results
-
-
-def _typescript_reference_construct_facts(
-    sources: Mapping[str, str],
-    *,
-    source_path: str,
-    role: str,
-    discriminator: str,
-) -> dict[str, Any]:
-    """Resolve one canonical construct through the batch TypeScript program."""
-    return _typescript_reference_construct_facts_batch(
-        sources,
-        [
-            {
-                "sourcePath": source_path,
-                "role": role,
-                "discriminator": discriminator,
-            }
-        ],
-    )[0]
+    _TS_REFERENCE_CONSTRUCT_CACHE[cache_key] = parsed
+    return parsed
 
 
 def _typescript_reference_identity(
@@ -1474,7 +1407,6 @@ def _typescript_reference_identity(
         "role": role,
         "discriminator": discriminator,
         "declaration_chain": match["declarationChain"],
-        "structural_path": match["structuralPath"],
         "normalized_tokens_sha256": match["normalizedTokensSha256"],
     }
     encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1488,111 +1420,9 @@ def _typescript_reference_identity(
         "role": role,
         "discriminator": discriminator,
         "declaration_chain": json.dumps(match["declarationChain"], separators=(",", ":")),
-        "structural_path": json.dumps(match["structuralPath"], separators=(",", ":")),
         "normalized_tokens_sha256": match["normalizedTokensSha256"],
         "encoded_identity": encoded_identity,
     }
-
-
-def _typescript_reference_identities_from_anchors(
-    anchors: Sequence[Mapping[str, Any]],
-) -> list[dict[str, str]]:
-    """Create stable identities from explicit navigation-only migration anchors.
-
-    The anchor is deliberately a creation aid: the returned identity never encodes
-    its line and validation later resolves only the direct-syntax binding.
-    """
-    sources = {
-        str(anchor["path"]): (REPO_ROOT / str(anchor["path"])).read_text(encoding="utf-8")
-        for anchor in anchors
-    }
-    requests = [
-        {
-            "sourcePath": str(anchor["path"]),
-            "role": str(anchor["role"]),
-            "discriminator": str(anchor.get("discriminator", "__creation_anchor__")),
-        }
-        for anchor in anchors
-    ]
-    facts_by_anchor = _typescript_reference_construct_facts_batch(sources, requests)
-    anchor_errors: list[str] = []
-    for anchor, facts in zip(anchors, facts_by_anchor, strict=True):
-        matches = _typescript_reference_anchor_matches(facts, anchor)
-        diagnostic = (
-            f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
-            + str(anchor.get("descriptor_id", "unlabeled"))
-        )
-        if facts.get("sourceMissing") or not matches:
-            anchor_errors.append("typescript_reference_binding_missing_or_renamed:" + diagnostic)
-        elif len(matches) != 1:
-            anchor_errors.append("typescript_reference_binding_ambiguous:" + diagnostic)
-    if anchor_errors:
-        raise ValueError(";".join(anchor_errors))
-    identities: list[dict[str, str]] = []
-    for anchor, facts in zip(anchors, facts_by_anchor, strict=True):
-        matches = _typescript_reference_anchor_matches(facts, anchor)
-        if facts.get("sourceMissing") or not matches:
-            raise ValueError(
-                "typescript_reference_binding_missing_or_renamed:"
-                + f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
-                + str(anchor.get("descriptor_id", "unlabeled"))
-            )
-        if len(matches) != 1:
-            raise ValueError(
-                "typescript_reference_binding_ambiguous:"
-                + f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
-                + str(anchor.get("descriptor_id", "unlabeled"))
-            )
-        match = matches[0]
-        discriminator = str(match["discriminator"])
-        source_path = str(anchor["path"])
-        role = str(anchor["role"])
-        declaration_chain = [
-            str(part).replace("__creation_anchor__", discriminator)
-            for part in match["declarationChain"]
-        ]
-        payload = {
-            "version": 1,
-            "source_path": source_path,
-            "role": role,
-            "discriminator": discriminator,
-            "declaration_chain": declaration_chain,
-            "structural_path": match["structuralPath"],
-            "normalized_tokens_sha256": match["normalizedTokensSha256"],
-        }
-        encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        identities.append(
-            {
-                "source_path": source_path,
-                "role": role,
-                "discriminator": discriminator,
-                "declaration_chain": json.dumps(declaration_chain, separators=(",", ":")),
-                "structural_path": json.dumps(match["structuralPath"], separators=(",", ":")),
-                "normalized_tokens_sha256": match["normalizedTokensSha256"],
-                "encoded_identity": source_path
-                + "#ts-identity="
-                + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("="),
-            }
-        )
-    return identities
-
-
-def _typescript_reference_anchor_matches(
-    facts: Mapping[str, Any], anchor: Mapping[str, Any]
-) -> list[Mapping[str, Any]]:
-    """Select an AST construct by syntax start, then navigation-only containment."""
-    matches = facts["matches"]
-    exact_start_matches = [
-            match for match in facts["matches"] if int(match.get("startLine", 0)) == int(anchor["line"])
-        ]
-    matches = exact_start_matches or [
-            match
-            for match in facts["matches"]
-            if int(match.get("fullStartLine", 0)) <= int(anchor["line"]) <= int(match.get("endLine", -1))
-        ]
-    if not matches and anchor.get("discriminator"):
-        matches = facts["matches"]
-    return matches
 
 
 def _validate_typescript_reference_identity(
@@ -1600,7 +1430,6 @@ def _validate_typescript_reference_identity(
     sources: Mapping[str, str],
 ) -> list[str]:
     """Fail closed when a canonical construct binding is absent, ambiguous, or stale."""
-    live_identity_by_record: dict[tuple[str, str], list[str]] = defaultdict(list)
     try:
         encoded_identity = reference["encoded_identity"]
         if not isinstance(encoded_identity, str):
@@ -1616,7 +1445,6 @@ def _validate_typescript_reference_identity(
         role = payload["role"]
         discriminator = payload["discriminator"]
         expected_chain = payload["declaration_chain"]
-        expected_structural_path = payload["structural_path"]
         expected_tokens_sha256 = payload["normalized_tokens_sha256"]
     except (
         KeyError,
@@ -1633,7 +1461,6 @@ def _validate_typescript_reference_identity(
         or not isinstance(role, str)
         or not isinstance(discriminator, str)
         or not isinstance(expected_chain, list)
-        or not isinstance(expected_structural_path, list)
         or not isinstance(expected_tokens_sha256, str)
         or path_prefix != source_path
         or role not in _TYPESCRIPT_REFERENCE_ROLES
@@ -1651,10 +1478,7 @@ def _validate_typescript_reference_identity(
     if len(matches) == 0:
         return ["typescript_reference_binding_missing_or_renamed"]
     binding_matches = [
-        match
-        for match in matches
-        if match["declarationChain"] == expected_chain
-        and match["structuralPath"] == expected_structural_path
+        match for match in matches if match["declarationChain"] == expected_chain
     ]
     if len(binding_matches) == 0:
         return ["typescript_reference_binding_missing_or_renamed"]
@@ -2478,36 +2302,8 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMucGV"
-                "ybWlzc2lvbnMiLCJzeW1ib2w6cGVybWlzc2lvbnMiLCJyZXNvbHZlZDpwZ"
-                "XJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
-                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
-                "mltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5vcm1hbGl"
-                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjJiNGFhNzA4MzcyY2RkNmNjYWYzYTVhY"
-                "mI2ZjgwOTBiNTYxNTRjM2U0MmVkMmRjNGFkMWRhYjIwZTNlZGFkMzUiLCJ"
-                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
-                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
-                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
-                "iwiUHJvcGVydHlTaWduYXR1cmU6NDAiLCJUeXBlTGl0ZXJhbDoxIiwiUHJ"
-                "vcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/api/types.ts#ts-identity=eyJkZW"
-                "NsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMu"
-                "cGVybWlzc2lvbnMiLCJzeW1ib2w6cGVybWlzc2lvbnMiLCJyZXNvbHZlZD"
-                "pwZXJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNo"
-                "Ym9hcmQvc3JjL2FwaS90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLC"
-                "JkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5v"
-                "cm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjBjYWQ3NjY3ZjcyN2Q3MjE1ND"
-                "k2YmZmNGM0MGExNDc2NmZkZWZkZjA5ZWIxOTQzODhjMzU4ZDU1MzEzYTY3"
-                "OGMiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoiYX"
-                "Bwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3R5cGVzLnRzIiwic3Ry"
-                "dWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTG"
-                "l0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzciLCJUeXBlTGl0ZXJh"
-                "bDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
-            ),
+            "packages/runtime-api-client/types.ts:2430",
+            "apps/runtime-dashboard/src/api/types.ts:2323",
             "architecture/generated_artifacts.toml:764",
             "docs/reference/frontend/workspace-contract.md:37",
             "apps/runtime-dashboard/package.json:166",
@@ -2540,83 +2336,11 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            (
-                "apps/runtime-dashboard/src/features/composer/state/compose"
-                "rDraftRepository.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbi"
-                "I6WyJleHBvcnQ6Q29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpDb21w"
-                "b3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6Q29tcG9zZXJEcmFmdFJlY2"
-                "9yZCIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3Jj"
-                "L2ZlYXR1cmVzL2NvbXBvc2VyL3N0YXRlL2NvbXBvc2VyRHJhZnRSZXBvc2"
-                "l0b3J5LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
-                "b3IiOiJDb21wb3NlckRyYWZ0UmVjb3JkIiwibm9ybWFsaXplZF90b2tlbn"
-                "Nfc2hhMjU2IjoiOTc5YjU5MTliYTRlYTg5NmIxMjhlN2EyN2JjMjQwNGM5"
-                "MjNhZjM5NWRhYThmNTIxNzhjZWU5NWY2MTJhNGQ5ZCIsInJvbGUiOiJleH"
-                "BvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50"
-                "aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvY29tcG9zZXIvc3RhdGUvY2"
-                "9tcG9zZXJEcmFmdFJlcG9zaXRvcnkudHMiLCJzdHJ1Y3R1cmFsX3BhdGgi"
-                "OltdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/app/offline/offlineQueueReposit"
-                "ory.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ"
-                "6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpkZWxldGVDb"
-                "21wb3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6ZGVsZXRlQ29tcG9zZXJ"
-                "EcmFmdFJlY29yZCIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoY"
-                "m9hcmQvc3JjL2FwcC9vZmZsaW5lL29mZmxpbmVRdWV1ZVJlcG9zaXRvcnk"
-                "udHM6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiZ"
-                "GVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsIm5vcm1hbGl6ZWRfdG9rZW5"
-                "zX3NoYTI1NiI6ImFkMmYxOGM0OGRhM2FiM2ZlN2U2NzYxZmNlMmVmMTJmN"
-                "2E5NzUyODY4MmI3YmE5ZDQzZTRlY2M4ZmFlMWM5MzQiLCJyb2xlIjoiZXh"
-                "wb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVud"
-                "GltZS1kYXNoYm9hcmQvc3JjL2FwcC9vZmZsaW5lL29mZmxpbmVRdWV1ZVJ"
-                "lcG9zaXRvcnkudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uI"
-                "joxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/routes/tabs/Causa"
-                "lTab.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsY"
-                "XJhdGlvbjp3cml0ZVN0b3JlZENhdXNhbERyYWZ0Iiwic3ltYm9sOndyaXR"
-                "lU3RvcmVkQ2F1c2FsRHJhZnQiLCJyZXNvbHZlZDp3cml0ZVN0b3JlZENhd"
-                "XNhbERyYWZ0IiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2F"
-                "yZC9zcmMvZmVhdHVyZXMvcnVucy9yb3V0ZXMvdGFicy9DYXVzYWxUYWIud"
-                "HN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6Ind"
-                "yaXRlU3RvcmVkQ2F1c2FsRHJhZnQiLCJub3JtYWxpemVkX3Rva2Vuc19za"
-                "GEyNTYiOiI1ZDE2ZWFmNTA1NDkzOTVmZGMyZjU3NmEwMzI5OWZkNzRhYmQ"
-                "zMzU3MTczNzE1NDBlNTg4YmE5NTBmYmU2YjBlIiwicm9sZSI6Im5hbWVkX"
-                "2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGF"
-                "zaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL3JvdXRlcy90YWJzL0NhdXNhb"
-                "FRhYi50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/domain/disputes.t"
-                "s#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6d3Jp"
-                "dGVTdG9yZWREaXNwdXRlcyIsInN5bWJvbDp3cml0ZVN0b3JlZERpc3B1dG"
-                "VzIiwicmVzb2x2ZWQ6d3JpdGVTdG9yZWREaXNwdXRlcyIsImRlY2xhcmF0"
-                "aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bn"
-                "MvZG9tYWluL2Rpc3B1dGVzLnRzOkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwi"
-                "ZGlzY3JpbWluYXRvciI6IndyaXRlU3RvcmVkRGlzcHV0ZXMiLCJub3JtYW"
-                "xpemVkX3Rva2Vuc19zaGEyNTYiOiJkMGU0ZDBmMDM4MTkxNzQzOGZhNjNh"
-                "ODEwODZhYTRiOGExZmUwOWQzZjFiODA4OTZiMTQ2NmQ5ZTYwNmQ3YWQ1Ii"
-                "wicm9sZSI6ImV4cG9ydGVkX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgi"
-                "OiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2"
-                "RvbWFpbi9kaXNwdXRlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZl"
-                "cnNpb24iOjF9"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/domain/operatorCr"
-                "aft.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ"
-                "6c2V0UmV2aWV3ZXJUaHJlc2hvbGQiLCJzeW1ib2w6c2V0UmV2aWV3ZXJUa"
-                "HJlc2hvbGQiLCJyZXNvbHZlZDpzZXRSZXZpZXdlclRocmVzaG9sZCIsImR"
-                "lY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1c"
-                "mVzL3J1bnMvZG9tYWluL29wZXJhdG9yQ3JhZnQudHM6RnVuY3Rpb25EZWN"
-                "sYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoic2V0UmV2aWV3ZXJUaHJlc"
-                "2hvbGQiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJjN2MwMjk0ZDZ"
-                "hNTFjYTIxMmY2NmMzNzBiOWE1Njg2NDVlZjczM2I1OTNkNjQ3MzdlZDk5N"
-                "jQ5MWFlYzA5MDYzIiwicm9sZSI6ImV4cG9ydGVkX2RlY2xhcmF0aW9uIiw"
-                "ic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZ"
-                "WF0dXJlcy9ydW5zL2RvbWFpbi9vcGVyYXRvckNyYWZ0LnRzIiwic3RydWN"
-                "0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0"
-            ),
+            "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15",
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13",
+            "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301",
+            "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109",
+            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444",
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c14a",
         ],
         "rationale": (
@@ -2649,47 +2373,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         "evidence_refs": [
             "src/polisyos/runtime/http/routes/auth.py:36",
             "schemas/runtime_api_v1.openapi.json:2221",
-            (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV"
-                "0aE1lUmVzcG9uc2UiLCJzeW1ib2w6QXV0aE1lUmVzcG9uc2UiLCJyZXNvb"
-                "HZlZDpBdXRoTWVSZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J"
-                "1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZ"
-                "SJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5BdXRoTWVSZXNwb25"
-                "zZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE5MWQ2NGU4OTdlY"
-                "WYyMTQ0ZDI1MmZhMDA1NDI4YTFjOTU1ZTcxNjg5YzFhYjllMTMzMzY1YzY"
-                "wZGE1MmUwMmUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wY"
-                "XRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiw"
-                "ic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUe"
-                "XBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NDAiXSwidmVyc2l"
-                "vbiI6MX0"
-            ),
-            (
-                "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts#ts-ident"
-                "ity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpmZXRjaE"
-                "F1dGhNZSIsInN5bWJvbDpmZXRjaEF1dGhNZSIsInJlc29sdmVkOmZldGNo"
-                "QXV0aE1lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC"
-                "9zcmMvYXBpL2hvb2tzL3VzZUF1dGhNZS50czpGdW5jdGlvbkRlY2xhcmF0"
-                "aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJmZXRjaEF1dGhNZSIsIm5vcm1hbG"
-                "l6ZWRfdG9rZW5zX3NoYTI1NiI6IjZkMjU2OWQyZTNjMjA2NjAxODY4YzU5"
-                "ZWE3MGE1ZjAxMTMwNGNmMWJlNmEyNjdiYjU1MGJhNzk2ZDg5NTExYWQiLC"
-                "Jyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFw"
-                "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
-                "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJh"
-                "dGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlz"
-                "IiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRh"
-                "c2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0s"
-                "ImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEy"
-                "NTYiOiI3NmU4ZDRlOGQ1NzdkZGNhNGI2MDgzOTY2OWZlM2VjNmM0NGEwOGVmZTk0OWYw"
-                "YTllODVjZjhjZTFiNjA3NGQ5Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwi"
-                "c291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlL"
-                "ZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJp"
-                "YWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZl"
-                "cnNpb24iOjF9"
-            ),
+            "packages/runtime-api-client/types.ts:2411",
+            "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42",
+            "apps/runtime-dashboard/src/api/queryKeys.ts:11",
         ],
         "rationale": (
             "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
@@ -2786,24 +2472,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         ],
         "evidence_refs": [
             "src/polisyos/runtime/http/services/governed_projections.py:121",
-            (
-                "apps/runtime-dashboard/src/features/runs/api/useDepthNCycl"
-                "eBoardProjection.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbi"
-                "I6WyJleHBvcnQ6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdWVyeU9w"
-                "dGlvbnMiLCJzeW1ib2w6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdW"
-                "VyeU9wdGlvbnMiLCJyZXNvbHZlZDpkZXB0aE5DeWNsZUJvYXJkUHJvamVj"
-                "dGlvblF1ZXJ5T3B0aW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS"
-                "1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvYXBpL3VzZURlcHRoTkN5"
-                "Y2xlQm9hcmRQcm9qZWN0aW9uLnRzOkZ1bmN0aW9uRGVjbGFyYXRpb24iXS"
-                "wiZGlzY3JpbWluYXRvciI6ImRlcHRoTkN5Y2xlQm9hcmRQcm9qZWN0aW9u"
-                "UXVlcnlPcHRpb25zIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZT"
-                "ZkYWZmZjEwY2VhMGYwNDkzMTNhZmM5ZGMxMTNlNjQ2YzQwYTdkNzU1MmJj"
-                "Yzc4NmFkZGRlZGNhOTk4NWI4YiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYX"
-                "JhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2Fy"
-                "ZC9zcmMvZmVhdHVyZXMvcnVucy9hcGkvdXNlRGVwdGhOQ3ljbGVCb2FyZF"
-                "Byb2plY3Rpb24udHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9u"
-                "IjoxfQ"
-            ),
+            "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103",
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:57",
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c11a",
         ],
@@ -2847,64 +2516,10 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         "owner_slice": "DS3",
         "capability_states": ["producer_missing", "surface_missing"],
         "evidence_refs": [
-            (
-                "packages/runtime-api-client/canonicalRuntimeApiClient.ts#t"
-                "s-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UnVuU3V"
-                "tbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU3Vtb"
-                "WFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWV"
-                "udC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY"
-                "2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJSdW5TdW1tYXJ5Iiwibm9"
-                "ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZjZjZWUwZjdmMGY0ZDBkODI1N"
-                "jMyMDc3YWU1MDFhYTM1OWI4NjIxZWE0ZjExN2ZjMWRlOTcwNDMyYTQ5OTF"
-                "kOSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wY"
-                "XRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ"
-                "1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2Z"
-                "XJzaW9uIjoxfQ"
-            ),
-            (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuUnV"
-                "uU3VtbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU"
-                "3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
-                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmlta"
-                "W5hdG9yIjoiY29tcG9uZW50cy5SdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF9"
-                "0b2tlbnNfc2hhMjU2IjoiNzE0Zjk1ZTEyMWFmYzU1OGI5MjQ3NDFjMDk0O"
-                "DIyZjExMDA1NTEwY2Y4MjM4ZWI1ODBjZGIzNmFjZmMzYWZmYyIsInJvbGU"
-                "iOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9yd"
-                "W50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGg"
-                "iOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQc"
-                "m9wZXJ0eVNpZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
-            ),
-            (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZml"
-                "uaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpma"
-                "W5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
-                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
-                "mltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl"
-                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjY"
-                "jJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJ"
-                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
-                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
-                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
-                "iwiUHJvcGVydHlTaWduYXR1cmU6Mjk0IiwiVHlwZUxpdGVyYWw6MSIsIlB"
-                "yb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
-            ),
-            (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3R"
-                "hdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY"
-                "2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy5"
-                "0czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tc"
-                "G9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI"
-                "xN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiN"
-                "TE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJvcGVydHk"
-                "iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVud"
-                "C90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25"
-                "hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlO"
-                "jI5NCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNSJ"
-                "dLCJ2ZXJzaW9uIjoxfQ"
-            ),
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+            "packages/runtime-api-client/types.ts:9240",
+            "packages/runtime-api-client/types.ts:9258",
+            "packages/runtime-api-client/types.ts:9284",
             "src/polisyos/runtime/http/routes/runs.py:179",
             "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
         ],
@@ -3310,11 +2925,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "prop_declaration_line": 24,
         "uses": [("apps/runtime-dashboard/src/app/layout/Sidebar.tsx", 25)],
     },
-}
-
-_AUTHORITY_PROP_DISCRIMINATORS = {
-    descriptor_id: "__creation_anchor__"
-    for descriptor_id in AUTHORITY_PROP_CLASSIFICATIONS
 }
 
 
@@ -3797,19 +3407,19 @@ if set(BENIGN_BADGE_CLASS_SPECS) != set(BENIGN_BADGE_BASES):
 if len(_BENIGN_BADGE_KEYS) != len(BENIGN_BADGE_LOCATIONS):
     raise RuntimeError("benign Badge basename/line identity is not unique")
 
-_AUTHORITY_BADGE_CREATION_CLASSIFICATIONS = {
+AUTHORITY_BADGE_CLASSIFICATIONS = {
     location: (
         "benign:"
         + _BENIGN_BADGE_CLASS_BY_BASENAME_LINE[(Path(location[0]).name, location[1])]
     )
     for location in BENIGN_BADGE_LOCATIONS
 }
-_AUTHORITY_BADGE_CREATION_CLASSIFICATIONS.update(BRANDED_BADGE_LOCATIONS)
+AUTHORITY_BADGE_CLASSIFICATIONS.update(BRANDED_BADGE_LOCATIONS)
 for _group_id, _spec in AUTHORITY_BADGE_DEBT_SPECS.items():
     for _location in _spec["locations"]:
-        if _location in _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS:
+        if _location in AUTHORITY_BADGE_CLASSIFICATIONS:
             raise RuntimeError(f"duplicate authority Badge classification: {_location}")
-        _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS[_location] = f"debt:{_group_id}"
+        AUTHORITY_BADGE_CLASSIFICATIONS[_location] = f"debt:{_group_id}"
 
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
     "authority-presentation-" + descriptor_id: spec
@@ -3838,10 +3448,10 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:f528170f85af933dea11c0f65d8efa3d3f8e059b4b4e6b885d076a50c8eaf259"
+    "sha256:51c286af92a82979391f4d79dd9e922a8d2219340b37f5f944d25b39c5925fed"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:6788ea4c78fcd8a333a1fa2dfc801bf423591478bf44f7c73532f35755b8a13a"
+    "sha256:4688e64f684deec21b55bad09484ab4a3218e5309740cdb6db9dfea861bfc86a"
 )
 
 
@@ -3872,39 +3482,30 @@ def _site_location(site: Mapping[str, Any]) -> tuple[str, int]:
 
 def _badge_classification_errors(
     scan: Mapping[str, Any],
-    classifications: Mapping[str, str] | None = None,
+    classifications: Mapping[tuple[str, int], str] = AUTHORITY_BADGE_CLASSIFICATIONS,
 ) -> list[str]:
     """Validate the exact 163-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
         return ["authority_badge_census_invalid"]
-    frozen_badges, _frozen_props = _frozen_authority_identity_config()
-    classifications = classifications or frozen_badges
     live_locations = {
         _site_location(site)
         for site in sites
         if isinstance(site, Mapping)
     }
-    live_identity_by_location = _authority_badge_live_identity_by_location(sites)
-    live_identity_digests = {
-        location: hashlib.sha256(identity.encode("utf-8")).hexdigest()
-        for location, identity in live_identity_by_location.items()
-    }
-    live_identities = set(live_identity_digests.values())
-    configured_identities = set(classifications)
-    for path, line in sorted(live_locations):
-        if live_identity_digests[(path, line)] not in configured_identities:
-            errors.append(f"authority_badge_unclassified:{path}:{line}")
-    for identity in sorted(configured_identities - live_identities):
-        errors.append(f"authority_badge_stale_classification:{identity}")
-    for identity in sorted(configured_identities & set(frozen_badges)):
-        observed = classifications[identity]
-        expected = frozen_badges[identity]
+    configured_locations = set(classifications)
+    for path, line in sorted(live_locations - configured_locations):
+        errors.append(f"authority_badge_unclassified:{path}:{line}")
+    for path, line in sorted(configured_locations - live_locations):
+        errors.append(f"authority_badge_stale_classification:{path}:{line}")
+    for location in sorted(configured_locations & set(AUTHORITY_BADGE_CLASSIFICATIONS)):
+        observed = classifications[location]
+        expected = AUTHORITY_BADGE_CLASSIFICATIONS[location]
         if observed != expected:
             errors.append(
                 "authority_badge_reclassification:"
-                + f"{identity}:{expected}:{observed}"
+                + f"{location[0]}:{location[1]}:{expected}:{observed}"
             )
 
     categories = Counter(
@@ -3915,13 +3516,13 @@ def _badge_classification_errors(
         else "benign"
         if value.startswith("benign:")
         else "invalid"
-        for identity, value in classifications.items()
-        if identity in live_identities
+        for location, value in classifications.items()
+        if location in live_locations
     )
     exact_classifications = Counter(
         value
-        for identity, value in classifications.items()
-        if identity in live_identities
+        for location, value in classifications.items()
+        if location in live_locations
     )
     expected_counts = {
         "branded": AUTHORITY_PRESENTATION_COUNTS["badge_branded"],
@@ -3953,31 +3554,27 @@ def _badge_classification_errors(
                 + f"expected={expected_count}:actual={observed_count}"
             )
     for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
-        expected_locations = {
-            identity
-            for identity, classification in frozen_badges.items()
-            if classification == f"debt:{group_id}"
-        }
+        expected_locations = set(spec["locations"])
         observed_locations = {
-            identity
+            location
             for location, classification in classifications.items()
             if classification == f"debt:{group_id}"
-            for identity in [location]
         }
         if observed_locations != expected_locations:
             errors.append(f"authority_badge_group_drift:{group_id}")
-    if live_identities <= configured_identities:
+    if live_locations <= configured_locations:
         partition_rows = sorted(
             [
                 {
-                    "identity": live_identity_by_location[_site_location(site)],
+                    "path": str(site["path"]),
+                    "line": int(site["line"]),
                     "site_sha256": str(site.get("siteSha256", "")),
-                    "classification": classifications[live_identity_digests[_site_location(site)]],
+                    "classification": classifications[_site_location(site)],
                 }
                 for site in sites
                 if isinstance(site, Mapping)
             ],
-            key=lambda row: (row["identity"], row["site_sha256"]),
+            key=lambda row: (row["path"], row["line"], row["site_sha256"]),
         )
         partition_sha256 = "sha256:" + hashlib.sha256(
             json.dumps(
@@ -4007,55 +3604,6 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
         for fact in facts
         if isinstance(fact, Mapping)
     }
-    _frozen_badges, frozen_props = _frozen_authority_identity_config()
-    live_anchors: list[dict[str, Any]] = []
-    live_records: list[dict[str, str]] = []
-    live_identity_by_record: defaultdict[tuple[str, str], list[str]] = defaultdict(
-        list
-    )
-    live_identity_ready = False
-    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
-        fact = by_id.get(descriptor_id)
-        if not isinstance(fact, Mapping):
-            continue
-        live_anchors.extend(
-            [
-                {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"], "descriptor_id": descriptor_id},
-                {"path": fact["propDeclarationPath"], "line": fact["propDeclarationLine"], "role": "type_property", "descriptor_id": descriptor_id},
-            ]
-        )
-        live_records.extend(
-            [
-                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "component_declaration"},
-                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "prop_declaration"},
-            ]
-        )
-        for site in fact.get("consumerSites", []):
-            if not isinstance(site, Mapping):
-                continue
-            live_anchors.append({"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"], "descriptor_id": descriptor_id})
-            live_records.append({"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "consumer"})
-    try:
-        live_identities = _typescript_reference_identities_from_anchors(live_anchors)
-    except ValueError as exc:
-        errors.append(str(exc))
-    else:
-        live_identity_ready = True
-        live_props: dict[str, list[dict[str, str]]] = {}
-        for identity, record in zip(live_identities, live_records, strict=True):
-            live_identity_by_record[(record["descriptor_id"], record["role"])].append(
-                identity["encoded_identity"]
-            )
-            digest = hashlib.sha256(identity["encoded_identity"].encode("utf-8")).hexdigest()
-            live_props.setdefault(digest, []).append(record)
-        if {
-            digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
-            for digest, records in live_props.items()
-        } != {
-            digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
-            for digest, records in frozen_props.items()
-        }:
-            errors.append("authority_prop_frozen_identity_drift")
     if set(by_id) != set(AUTHORITY_PROP_CLASSIFICATIONS):
         errors.append(
             "authority_prop_descriptor_drift:missing="
@@ -4078,15 +3626,17 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
         expected_identity = {
             "component": spec["component"],
             "componentDeclarationPath": spec["component_declaration_path"],
+            "componentDeclarationLine": spec["component_declaration_line"],
             "prop": spec["prop"],
             "propDeclarationPath": spec["component_declaration_path"],
+            "propDeclarationLine": spec["prop_declaration_line"],
         }
         for field, expected_value in expected_identity.items():
             if fact.get(field) != expected_value:
                 errors.append(f"authority_prop_identity_drift:{descriptor_id}:{field}")
-        expected_uses = sorted(path for path, _line in spec["uses"])
+        expected_uses = sorted(spec["uses"])
         observed_uses = sorted(
-            str(site.get("path"))
+            _site_location(site)
             for site in consumer_sites
             if isinstance(site, Mapping)
         )
@@ -4127,7 +3677,7 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
         errors.append("authority_prop_total_count_drift")
     if sum(observed_use_counts.values()) != AUTHORITY_PRESENTATION_COUNTS["prop_use_total"]:
         errors.append("authority_prop_use_total_count_drift")
-    if live_identity_ready and set(by_id) == set(AUTHORITY_PROP_CLASSIFICATIONS):
+    if set(by_id) == set(AUTHORITY_PROP_CLASSIFICATIONS):
         partition_rows = []
         for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
             fact = by_id[descriptor_id]
@@ -4137,26 +3687,34 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
                     "descriptor_id": descriptor_id,
                     "classification": spec["classification"],
                     "component": fact.get("component"),
-                    "component_declaration_identity": live_identity_by_record[(descriptor_id, "component_declaration")][0],
+                    "component_declaration_path": fact.get(
+                        "componentDeclarationPath"
+                    ),
+                    "component_declaration_line": fact.get(
+                        "componentDeclarationLine"
+                    ),
                     "component_declaration_sha256": fact.get(
                         "componentDeclarationSha256"
                     ),
                     "prop": fact.get("prop"),
-                    "prop_declaration_identity": live_identity_by_record[(descriptor_id, "prop_declaration")][0],
+                    "prop_declaration_path": fact.get("propDeclarationPath"),
+                    "prop_declaration_line": fact.get("propDeclarationLine"),
                     "prop_declaration_sha256": fact.get(
                         "propDeclarationSha256"
                     ),
                     "consumer_sites": sorted(
                         [
                             {
-                                "identity": live_identity_by_record[(descriptor_id, "consumer")][index],
+                                "path": site.get("path"),
+                                "line": site.get("line"),
                                 "site_sha256": site.get("siteSha256"),
                             }
-                            for index, site in enumerate(consumer_sites)
+                            for site in consumer_sites
                             if isinstance(site, Mapping)
                         ],
                         key=lambda row: (
-                            str(row["identity"]),
+                            str(row["path"]),
+                            int(row["line"] or 0),
                             str(row["site_sha256"]),
                         ),
                     ),
@@ -4187,1189 +3745,6 @@ def _source_receipt(
     return receipt
 
 
-def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, int, str], str]:
-    """Create all authority evidence identities through one source snapshot/program."""
-    anchors: list[dict[str, Any]] = []
-    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
-        if spec["classification"] != "debt":
-            continue
-        fact = next(
-            item for item in scan["authorityPropCensus"] if item["descriptorId"] == descriptor_id
-        )
-        anchors.append(
-            {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"]}
-        )
-        anchors.extend(
-            {"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"]}
-            for site in fact["consumerSites"]
-        )
-    for group_id, spec in AUTHORITY_BADGE_DEBT_SPECS.items():
-        sites = [
-            site for site in scan["badgeSites"] if _site_location(site) in set(spec["locations"])
-        ]
-        first = sites[0]
-        anchors.append(
-            {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
-        )
-        anchors.extend(
-            {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
-            for site in sites
-        )
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {
-        (str(anchor["path"]), int(anchor["line"]), str(anchor["role"])): identity["encoded_identity"]
-        for anchor, identity in zip(anchors, identities, strict=True)
-    }
-
-
-@lru_cache(maxsize=1)
-def _authority_badge_creation_identities() -> dict[tuple[str, int], str]:
-    """Freeze finite Badge classifications by C21a identity, never navigation line."""
-    anchors = [
-        {"path": path, "line": line, "role": "jsx_opening", "discriminator": "Badge"}
-        for path, line in _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS
-    ]
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {
-        (str(anchor["path"]), int(anchor["line"])): identity["encoded_identity"]
-        for anchor, identity in zip(anchors, identities, strict=True)
-    }
-
-
-def _authority_badge_live_identity_by_location(
-    sites: Sequence[Mapping[str, Any]],
-) -> dict[tuple[str, int], str]:
-    """Resolve current direct Badge syntax to its stable classification identity."""
-    anchors = [
-        {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
-        for site in sites
-    ]
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {
-        _site_location(site): identity["encoded_identity"]
-        for site, identity in zip(sites, identities, strict=True)
-    }
-
-
-# C21B_FROZEN_AUTHORITY_IDENTITIES_BEGIN
-# Frozen from the root-owned no-write C21a identity-digest receipt:
-# sha256:bc8499f266e68d6e0c00ea4163846efb16588f6dde59265e98b2ba7c4df998b9.
-# Keys hash the complete line-free binding and normalized-content payload.
-# Creation anchors below are migration-only and may never become gate authority.
-FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
-    '0591fdc298c41f421a9112e516e05cb8a46ee8ea8a7df77b2575b23e8d0c30fc': (
-        'debt:badge-evidence-source-freshness'
-    ),
-    '05ab29cbdbb768d8fef433f3f933a764245c1f93e5e40cd95e5def62ec437cb6': (
-        'benign:interaction_or_editor_state'
-    ),
-    '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
-        'benign:transport_or_runtime_health'
-    ),
-    '092c823bd9e95193c7ab56fd86dae176fae8406850db8c5bef33097f64dd2808': (
-        'debt:badge-compound-decision-grade'
-    ),
-    '09371589204ee442eb88acec47e740b2fab65faacbe19e2372a6ddd0700764f5': (
-        'benign:layout_or_counts'
-    ),
-    '0a1680b86c1e2e19704e50549b4ecd8f11879c04f5f0bebccf6291ad286b21af': (
-        'benign:layout_or_counts'
-    ),
-    '0a8385f8b1fa797646cae6b2cb83a7a7286e8abfce36d71ec2df6617a5a489fd': (
-        'benign:layout_or_counts'
-    ),
-    '0a9f914727ff8b5976e56f4675ec5b2d34dcc477994a8a430efcc26d4dfed4e7': (
-        'benign:layout_or_counts'
-    ),
-    '0aa8907509078c4d0fc2bfe0ac85aed68e502aef61fe9b29f4e25ebbf433b955': (
-        'benign:layout_or_counts'
-    ),
-    '0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe': (
-        'benign:layout_or_counts'
-    ),
-    '0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e': (
-        'debt:badge-control-approval-quality'
-    ),
-    '0ddb359874f6a4d5fcd5e00360a22f27d7217303c7878a87f37a377bf05d1039': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '0ef26827e7122cfff8edb79967bce02979742d84ad52825be64b530b0853935e': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    '11233a8cdc422074ea2c6b86d82e7471cd17eb3a0850e5c097d3be913d7a30ac': (
-        'debt:badge-bureaucratic-legal-review'
-    ),
-    '12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264': (
-        'debt:badge-public-integrity-result'
-    ),
-    '14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f': (
-        'debt:badge-explainability-governance-counts'
-    ),
-    '188038e809c5f6b4bcfdc8744185e9b9ea4f5841e2f2aa45c057a5e86f064946': (
-        'benign:interaction_or_editor_state'
-    ),
-    '1882ec408c7d1086791d99e4a10c4e205dbb33538108fc0481e48cc2ca3c32ac': (
-        'debt:badge-evidence-source-freshness'
-    ),
-    '18a4d255932c3a48599b060a2d99bdf5fd8daf4b91ae066f74d69803473415b6': (
-        'debt:badge-governance-issue-severity'
-    ),
-    '195d743d6068ca2375a79e8aed3366836c9cddd64039b7d9d421fad9b03f6f33': (
-        'benign:transport_or_runtime_health'
-    ),
-    '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
-        'debt:badge-public-packet-authority-framing'
-    ),
-    '1e2f9c599cad98e01e1ba1effdf5bb533801478c725ec9c8fb1197a605496a14': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '1e5efb80b85a26f8549c7d5a8ca3052496ff1ed8767b8cb8d12485b4704aeb7b': (
-        'debt:badge-governed-projection-availability'
-    ),
-    '1fc3faffbbc04354a6bb3627ac70d4133896fa08e8bae81f4295c1aa7182e23c': (
-        'debt:badge-promotion-candidate-status'
-    ),
-    '1fc8147da08ef1a566e5d1ac7c48e6298b3cb9fd729204d0e3eea7551e4e03b2': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '20ccbe3cbcb4eec92a7850fc31478f673ad84724f396ca672da1936972aeaf47': (
-        'benign:layout_or_counts'
-    ),
-    '21432660cabdeff33e4050eb8fb5f195a8b858043d333fd8019ed7f467e289ce': (
-        'benign:layout_or_counts'
-    ),
-    '21e3b640a5a6432354974e9917ad0fac2a1419ae20a61ee09ecb28e2f4fd1130': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    '2295686924366044be3f7d09d14fc498551a498e1c7afb28453f8234b060b697': (
-        'benign:transport_or_runtime_health'
-    ),
-    '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    '2353ac212cdc4f28d6919059be719db9a21c2f357a9ff81637d034bde30e96d0': (
-        'debt:badge-public-packet-authority-framing'
-    ),
-    '241c46ec243e2f997d4eaf1c44cb4010479787f48c866313e19db47fdf630971': (
-        'debt:badge-control-approval-quality'
-    ),
-    '27727c420fdd590f8378222ba5546e163354b404602e7569e06944b9ba3d4f92': (
-        'branded:authority_presentation'
-    ),
-    '2814d02bc1f5f904ca468e8bb33ec1b81fec3f43a5eb021c1132546ea49aec40': (
-        'benign:transport_or_runtime_health'
-    ),
-    '28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe': (
-        'debt:badge-threshold-unavailable'
-    ),
-    '2af67d0d705cf88bcea7cefb365696c79dacfa2f79dc50cd4d49ec05c98ccff6': (
-        'debt:badge-candidate-refusal-markers'
-    ),
-    '3031da2354f2d3f4a75beb51a9ba2b52e54d47c153b14a8f0e17fd66c494a454': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '308738e867a4f2efa15dd7470c993124a6c238739016629296b0c383b93a6ed7': (
-        'debt:badge-compound-decision-grade'
-    ),
-    '36475692b9076f14ec0b98ec98322d400eafb7349a0db44aac7517782bef5843': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '37327401ea6b660d07a338a07ecc061b50df1e91abf5dde376a4f1f50ec66d50': (
-        'debt:badge-artifact-pipeline-decision-grade'
-    ),
-    '377c1bb5561cd4fef5e2d91c14a12376aac3958f9d8aedaabbacfd4ae8bfec94': (
-        'debt:badge-decision-confidence'
-    ),
-    '37b2a63a1d86f9ef88567f8d7a65a6a4e36f6553275835ebc956d9a9580a53f4': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c': (
-        'debt:badge-explainability-governance-counts'
-    ),
-    '398d814083df90feb41a0aaa98269eee3172db07890781ecc7f0c2a22864e5b9': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '3eb84ab83499b4d8e1405e781d3c1993a9c5fd41dec76127139cc05a22c19ac1': (
-        'benign:layout_or_counts'
-    ),
-    '3f4e54c07fe06c9b4057890eea2e3692330618fc50c3499e765d5dfbd181245a': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '3f700e5c1e3718dab62dfd3d8816e75c0aa60e491b436e4b9e1bd26a45a39fab': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '406d88d51302590ea467bc8a6f1d36422bb080b18c1cb794b88c2bbd3d17ba6d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '408eb3552eb34b2bf026878baecf255b99421ce05bb2c447552dbf30687fdf4a': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '47568f281c1e53f947a907729376aba8cc2cf39799fba2bd823f397bd0df11b8': (
-        'debt:badge-preflight-readiness'
-    ),
-    '489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69': (
-        'debt:badge-control-approval-quality'
-    ),
-    '4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151': (
-        'benign:layout_or_counts'
-    ),
-    '4d55355f88d53ec24efbbde9f4716e18592a9e1827eefebd86b95377006abd45': (
-        'debt:badge-compound-decision-grade'
-    ),
-    '4f03608b90dc626cd01b37790a8a5fc7c88f3a26ff108bae628d75e37797dfd0': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '4f26888f4621fa194034d2689542ac8564890df8f4c02d7cb0af7a286fe9d1e9': (
-        'benign:transport_or_runtime_health'
-    ),
-    'e980b8253921c0a8bbac4fd3690abfabd113ebf8dd4a37a2b42b499d1831be5f': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '55ebc3051f5fce5e4235a34f27a5c741679c877f1c90385bc3d11015604d27f0': (
-        'benign:layout_or_counts'
-    ),
-    '5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '5b93ed99a5a8ba5a56c35aa023658e51c1a485784b0aef93426fd02fb741dd64': (
-        'benign:interaction_or_editor_state'
-    ),
-    '5e3de1e7f6577af7c0b1bb0f81685527c0b54e36b07a218782bc0ee578108117': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '60864f31c5b682a642582fabcb894fad46ee02ed941d4f9d0358826f9fe07b80': (
-        'benign:transport_or_runtime_health'
-    ),
-    '614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb': (
-        'benign:layout_or_counts'
-    ),
-    '665b5cd65a86a0fd32ac5c66ba21ad8c4aa60221ccd54fa56f7f1fc52c390a0d': (
-        'debt:badge-preflight-readiness'
-    ),
-    '733a0be941f37521e2e274d3ae1002cdd671f1835b931f33f4f78d7e4d9a48b9': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '70f48d1042fea29c28f7b68a26ac62e8caff126964126c55a1bdb9e9bb79d0c0': (
-        'benign:interaction_or_editor_state'
-    ),
-    '71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28': (
-        'debt:badge-control-approval-quality'
-    ),
-    '736d1e5121e794abcc7761b1cefd8e8fd0b224eb8c97d5d3e57623553f3d1774': (
-        'debt:badge-projection-source-freshness'
-    ),
-    '745d19cf88cde678e2e59530a1040642a4571347148f252e31e997c8f2584c22': (
-        'benign:transport_or_runtime_health'
-    ),
-    '74f7f6866ff3f40c667982fffe7e8122631949f8c757954385c2b549f4cccae9': (
-        'debt:badge-preflight-readiness'
-    ),
-    '75159ba252ec1fb2b92a920765374699a1f5f862d939d2a9558479d92fc37ffa': (
-        'benign:transport_or_runtime_health'
-    ),
-    '76c452e585ecbaeb85fed964b9f5c86eed820746a9be074b3f4adb85cc20e8bc': (
-        'debt:badge-public-packet-authority-framing'
-    ),
-    '777fb68ab8a00f44501b0a7aa990f0f47542a54b18d153ecdd0522b1cfd63886': (
-        'benign:interaction_or_editor_state'
-    ),
-    '782d91933a21abe282a0b2eec316c9e5a01250ae6dd1be645f0564300544c721': (
-        'benign:transport_or_runtime_health'
-    ),
-    '7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '7c551931db65f2e221b4d3d0f2f7c1bef6ae5460b411a3c8be84332d548a7d41': (
-        'benign:interaction_or_editor_state'
-    ),
-    '7c69d00892b39fd2f6e379a574309e05cb4d6dde1ee224b8441d52a368f026cf': (
-        'benign:interaction_or_editor_state'
-    ),
-    '7d398016e3e4d61134ec115877baadbca9d72ef3329c2efea53148e567a19cee': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '7dc80a2bca0f52eabe4056572779e0d61350184ebb303f8635de3a9b462b3d6f': (
-        'debt:badge-candidate-refusal-markers'
-    ),
-    '7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '802750f5c2fd6fa9b942ff1b8430252d0e07b714edbb7e7598b43fa25024f305': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '82ed268cb1ba63c8045b701c6b14376a68ea5278494b1d82e1ba496fbaff1cbd': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '840f7cf36bfbe4c7e82907fbd0f62e2d622a19b2468f4006374e29367288fb09': (
-        'benign:transport_or_runtime_health'
-    ),
-    '85722f844fe96e753c1fea373bc9996944fc574b0ca74fc5ab9c8661b864978f': (
-        'benign:interaction_or_editor_state'
-    ),
-    '873089b1b1cd6def9e2dfdebedb89d9f8147e570b306f2a67cdf3ea4ecefbc9b': (
-        'debt:badge-operator-blocker-overridability'
-    ),
-    '8741661d6e1dd99962a695c40e285ccb9e4732a2d6b33bcdd89ce85543a54c35': (
-        'benign:layout_or_counts'
-    ),
-    '88bdb782f91f8c88d9ab9f963b850be95ed094ea8e332e59a750a40f021b0df5': (
-        'benign:interaction_or_editor_state'
-    ),
-    '8900054f1d76669254dd63dbaa5891e31a1f776712fa3463e17ee071fcebd711': (
-        'debt:badge-governance-issue-severity'
-    ),
-    '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
-        'debt:badge-control-approval-quality'
-    ),
-    '8aee94a1cb391e8d5d90b999cfe6c14f7e524aee4c92fc8b3be6e9e488e9be4f': (
-        'debt:badge-control-approval-quality'
-    ),
-    '8cb41cd36e24b70818f36d6f19392fd3c04f326382d61cbc631e03ff15a544dc': (
-        'debt:badge-governed-projection-availability'
-    ),
-    '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
-        'benign:layout_or_counts'
-    ),
-    '8e23eb6b4cf407944c7aa834540faae567624c8ab0e32254ccdea8b905218935': (
-        'benign:transport_or_runtime_health'
-    ),
-    '8f8b752e1d47c54f43f99264acda93a3f2c01b98ec4b7a149e7189f479c30ef3': (
-        'benign:transport_or_runtime_health'
-    ),
-    '8fd51b1ea8607f9afc26805fc637f17649986f1e52d3190579f24bcee12c6911': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '917a54b7c543b3f679e2811f66aeeffb60c121d871939711f8bc290b75cd459d': (
-        'benign:interaction_or_editor_state'
-    ),
-    '91a7b65f06bccb318d3ef55773a576677a107906b5087f01e956edcebc8fa4a5': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20': (
-        'benign:layout_or_counts'
-    ),
-    '963412ef9b5a521ff3951690e908d2b492df7c58bab373bee027403188e24646': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '96df76eb13faef6e5240420d759eb253742fcbcfa96c14c1c7858599e31c220c': (
-        'debt:badge-negative-certificate-blocker'
-    ),
-    '98ad471af90902ca518ef4035da2dbf5844750478f7f6c44b33ab4a27bd143af': (
-        'benign:transport_or_runtime_health'
-    ),
-    '9955da9cb82ba264b63dc0f360e8c0afe52d72ed3a2e58267ad4b25df80e55a7': (
-        'debt:badge-evidence-source-freshness'
-    ),
-    '9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413': (
-        'debt:badge-control-approval-quality'
-    ),
-    '9d19950bc131004ecc102cb6d6c4ee25ca596e2cdfc6f43e0cc28cbe63fab28f': (
-        'benign:transport_or_runtime_health'
-    ),
-    'a4be1d0d533f8f4040230424292afcfe7bf3d2879fa402122868a318ad3fdcbd': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2': (
-        'benign:layout_or_counts'
-    ),
-    'aa008fa891ae0cfe612a238d70de3e9978541182f547d83e2e4943a3704b8f67': (
-        'debt:badge-control-approval-quality'
-    ),
-    'aa0a6d7cad06cb9a9d596b19b349a628344b826dbbd6833a275c5014d324a19a': (
-        'benign:layout_or_counts'
-    ),
-    'afda3a56b1fe6a8fd54b96fc5ad773a28d3d4c50d390b7d01cd86276208f5f39': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'b02781d0afa37080ad24d8d0ae98ca2a2134b6ea219566e766030a5f0a31b482': (
-        'debt:badge-provenance-drift'
-    ),
-    'b1af74a7bd405c4ec52d91e4a60788c1b71ee96d3979a87b652942b578d6dba5': (
-        'debt:badge-public-integrity-result'
-    ),
-    'b1c7b485d32b68a83a5e870744db1784d631e39882ba8f61e1dc884dc0d3a2f2': (
-        'benign:interaction_or_editor_state'
-    ),
-    'b34f94152bdbcf9436caad5a2c1d26963a504b67a936306fc1f09190ec4acd38': (
-        'debt:badge-review-required-aggregate'
-    ),
-    'b43282820198399adafe543b18feab15911d14896bdbdeee94c53707b786a188': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'b46af64e0efc9a4b0a073427ddb55679a80ae5c005066e3a69a5b7226152637e': (
-        'benign:layout_or_counts'
-    ),
-    'b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6': (
-        'benign:transport_or_runtime_health'
-    ),
-    'b5302cf1c3b290fb3c9f74932fc4022a9d1709a57bfae5b9d133bbaa77425544': (
-        'debt:badge-governed-projection-rights-bar'
-    ),
-    'b5afe69c5cf7117574eb65c8cc5fa1051fbd071020db1ffe145fd6e8153f2512': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'b65ce47a1734e07f729480b0d08ff62f8e76d76b78d9cc141ad57e4c3bfc6567': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'b7e0b7b097daa2098c78ff5f1f4e03420e0207823181291613af448fa2417be9': (
-        'debt:badge-artifact-pipeline-decision-grade'
-    ),
-    'b7e80f7dcefa2e9bd22e2ba39e78d9b457f6222510031d439a15634f6526f6c3': (
-        'debt:badge-control-approval-quality'
-    ),
-    'b84b12f55cf379dcf164dbbee1c50651e2b1358c61b140930f20c7973185d96d': (
-        'branded:governed_authority_purpose'
-    ),
-    'b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca': (
-        'debt:badge-explainability-governance-counts'
-    ),
-    'ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41': (
-        'benign:layout_or_counts'
-    ),
-    'bbe18b9065b1461ba09fc256c685a1d39275d218bd159d664ad502be0c729809': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a': (
-        'debt:badge-public-anti-authority-role'
-    ),
-    'c0f90a6dd5f3278a2cd4ba7fc9e081688a8199e70a3add819ba8ea16f92f9faf': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'c16c87f6ded32d32e9ff0d7779c0155860851c95e30544e93e786c0e560a27bf': (
-        'debt:badge-projection-source-freshness'
-    ),
-    'c189d4abe2d873e07f6be8e26b018f8d6d89469e72303dfceb0257e6e81fbf1a': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    'c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b': (
-        'benign:transport_or_runtime_health'
-    ),
-    'c76685906a77b2706cb7d7f80cd772348f484dba86b948541e2d9977199bd3ba': (
-        'debt:badge-uncertainty-dispute'
-    ),
-    'c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'c83d34fe7093137541a133086f00f6ef64692b733f83b51a00625b71a08fb31b': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'c92af4118776313dd8ac2c0fbff36aa7f0a28f28a897f6b4be74b3f6cfd33449': (
-        'debt:badge-compound-decision-grade'
-    ),
-    'c94e4b85b63dc00a08735921cc7721c3978decff3aa630c5d387313cf6e83a40': (
-        'debt:badge-candidate-declared-authority-purpose'
-    ),
-    'cb6660b22750a29119c57ddd8424fe8969fdff554499acd589be9739d14aeb31': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'cb6bee44789c333922b929674cdbc104c7438d160de90bb8f5889e70bf17ee7d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8': (
-        'debt:badge-control-approval-quality'
-    ),
-    'cc2fe7d5dd5bd7c7e7c452c472944137392b6ebea7fd37a95bcafe06c7100248': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'cd1906fff055a17498a7b01c6c4216160b35ddc6db235de0593284fab4b6ca90': (
-        'debt:badge-public-integrity-result'
-    ),
-    'd3dca654b8691d00bc53ff481aa25904cb3d2a09161c3612ed89cbbb2b9aa206': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'd5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'd560495934d47a0798c5205664f271a853f4a28c15ae46ba761b1557c5693952': (
-        'benign:interaction_or_editor_state'
-    ),
-    'd5f60247e0a0aba92b4353873cb8dc6c591dd70dfa5ba349ed7dd0232b78b225': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'd943cd952108f75f81c3b5922012f1b55d672a3e732c97ae767d877834c7386c': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'daa5b0e08c79ce3d8a723c273663bee95293fbdc1d345070b06919afe1957db3': (
-        'benign:interaction_or_editor_state'
-    ),
-    'dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'dbf01f9208f0382c4d03826471a6c10349d4a041626d256983c5a6df76f93b80': (
-        'debt:badge-comparability'
-    ),
-    'dc8738296ee8fa951ad4fc193dcc6b9414ac61908560de03065ccffa1e7ab2f5': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a': (
-        'benign:layout_or_counts'
-    ),
-    'e4bd5884f5dbe9c7842cea868be351d7f556d84394906b1cbde4c6ebfe1fe110': (
-        'benign:layout_or_counts'
-    ),
-    'e6b9636f999f5ddff847a2169882600dcd386cab1bca11f54d67234a1f30ba37': (
-        'benign:transport_or_runtime_health'
-    ),
-    'e855284fbb11b535f098133da8d9ec76dca4a2b260b7164d39012006251a24b9': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'eeab67da3dac0589720725a171123edeb49c68d05982622c9c36c9b06cc7c4a7': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'efe268e73d41d08239beb4f4c762994db27e11b90d700605de9063c077634860': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f011e2c04a23cf82c10807b3a3d6c3e630b9f1eda2df9525c916e6d86b31bb35': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f0380f45dfd33d71b540b91ac94c7d4229b26f4814bb700502fce5bf39be7946': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'f0903ed8b2c84061a279b9d096e82fa945f14d003507121bb4e8722af31b67eb': (
-        'debt:badge-governed-source-validation'
-    ),
-    'f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'f7a0203c9ce249d0b77de667671226eaf5ca5dc74da8fc322d145a0bb9493ece': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'f83591094c3b0059152f1882dc77da6851a0463478b16aa4748d05face2ec690': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f9d04f876c4cf6d1a2b6abf79c59269bc50b5b7cef29f53423fc40e5ff9691e8': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'fadf2838d758fa3bbdebc11ca7b0231556ac540dfbe76b764328c13a982ccba3': (
-        'debt:badge-control-approval-quality'
-    ),
-}
-FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
-    str, list[dict[str, str]]
-] = {
-    '03088e861da70d67a7922ca76038e6ce436d2aa4cb7277f4cbeb2949c49ff121': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'consumer',
-        },
-    ],
-    '075884b26c1d4c69936874691f5dc2fca0a6235b5700ef347390eaf3255ed3dc': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'component_declaration',
-        },
-    ],
-    '0b0227e5eda519302d3c0c53664b050eb898172b70d74018b926101d4d687abb': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
-        },
-    ],
-    '0cf3089bc31a9bfc147e43a3909ce80af2b5e96354ff663e99f56642ebf1c3dd': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'consumer',
-        },
-    ],
-    '172a3f309e904a9f3605d2aad66b7b8ef8b6c073e5ffbec27ba424019899c684': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'prop_declaration',
-        },
-    ],
-    '271fa5c333ccff489e2a988b3f2645902d2ab23981a024e280b0372945c302a1': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'prop_declaration',
-        },
-    ],
-    '29d0fb4a9758c4cacc733fa47028dd641f098c1df02b1711b214edbc52912d05': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'consumer',
-        },
-    ],
-    '2cdf6cc6aa8f07ac87dbefa0476b1196a3be7fcdb1b58de0e831b3a987c19a38': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'component_declaration',
-        },
-    ],
-    '2f0e79a9516c9ba39b479a46fb44f1802c875e5e76d3364a49cfefe1ea2c117c': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'component_declaration',
-        },
-    ],
-    '2fe7686f28bcf65a8cce672daf4e52261c1e74c836a88a7e2a621b664c647b92': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
-        },
-    ],
-    '30f0c6d9ec76ee688dd31d0a9591a09b3e26ea3ef9abdb0566dc78b4f71cd62b': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '319e933f5ef56ed50ad3dc0706a028021735ceff808e6a769d565240898ce42e': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'component_declaration',
-        },
-    ],
-    '40c6bbd244419b4628918ef40338c82fc1b23ddad781c96b99d2db9669076850': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'prop_declaration',
-        },
-    ],
-    '4c007cc44162355ab8838fdeeaf4352edd047f9f2b6236ac571d7678f771702f': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
-        },
-    ],
-    '4c3a59fdea599485bce03d08c1f6b6eb2e8ebc97b67dfcae189b43d4559a1c5d': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '520731b63c34d1b5fa1a984979fdf19fa69a0652a8d3a926093a8dab5e04e6f0': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'consumer',
-        },
-    ],
-    '52ad00281a363bfa9c1bdb22a6803009500bf8ac2914d6b6ac5093addd58216c': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'prop_declaration',
-        },
-    ],
-    '5a564dd77cca9a37aefe75d634a593b0bb0c604bf64a609755bde38276a3b2a2': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '5ae681a17d2bf65c5c4bf7ff791aa0aedab7378111257eb571a509ae8c05a1db': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
-        },
-    ],
-    '5f683b7a79ba67fa07b4dcfdba5fd916a365247b1c2d660c84e14689608da39c': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'prop_declaration',
-        },
-    ],
-    '64494f5ca0bb56db3c183890d18ab97c841cddb3893db38c2fed6feca20009b0': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'prop_declaration',
-        },
-    ],
-    '23836a44349390b1f89ca30e19e25a47b86d96e5811ed767889594173951b337': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'consumer',
-        },
-    ],
-    '65ff7393c86ce7c57eb94dd827983884c2fda5ffc266f13b833872a6dc07967b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '6687157a0d05dd3924bc2551abef93ea7bee8617b6dd72f392ce1f6d7fd5f475': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'consumer',
-        },
-    ],
-    '669b3eef4f1e591390eb409754a4f0ea12507e6529df1f98a8540b0406e6914e': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'component_declaration',
-        },
-    ],
-    '712710c5c423a0ffc5e2f1567cf5332bb8fcae73a1e15f0495d3312d0a1eb5de': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '76a74cb838945515d42022bddecafeb70cc1adc5f2e9334adddb61eb208352ca': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '771ce0f548683589321c4256c3d8e20ae8a892235d619cded8a9a532b2d8c30f': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'consumer',
-        },
-    ],
-    '785fc2a4aeab96bd67704104f7dbc63d5693438f9d48a63afe9d1ba50477256d': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '7a655c25ca9b4ff83205d4fcd3b3f8ade39da89f762b98eadc7529bc3933f6a7': [
-        {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'consumer',
-        },
-    ],
-    '806903786674d3d712c7d5fc1a4e6e5f59b1caff89c92295c6060ae3aa9338fc': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '83314b02f2631ca48dbffe18d06bd139d78e4d01b2c1dfb482b07a877e90962d': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'component_declaration',
-        },
-    ],
-    '843fcea0d6242947634b81d0a5819247ce91948bd9853fc0bdb28b5b5d65b650': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '85805b28cbb06ac1f7529df6b5eb35b776493702e696e2419b025d1d103b5f75': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'consumer',
-        },
-    ],
-    '861535b0223fae1e82ec9c3ec5d60f03fd63eaf11c982a92b3d361cd16e6171d': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
-        },
-    ],
-    '8a2adc12305e2002a48fa489b58cad0d8bd2671f9ed392bf26c3feaea29484e0': [
-        {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '8d04d71444816f0fea45faca047900f9fa84244690b75f2fa760df834e648c07': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
-        },
-    ],
-    '90548db3f1bca4a561854e8ec937ba48efd235cf4e7adaaa4843df8e7607793f': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
-        },
-    ],
-    '91b8670efab393858b379edf24581718f878c52225b9cb6dc82bcf99485a9b14': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'component_declaration',
-        },
-    ],
-    '91df60760f5d0e9f1d161d670cd53b7cb326caeeb4b223e06778da34132cac00': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'prop_declaration',
-        },
-    ],
-    '92dbb1d4e78c61335b57f155c6b66b4a365f7379a9f85742ffcd70d8abd4a48e': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'prop_declaration',
-        },
-    ],
-    '98629faa6a7d511210958e9af6e18634db12a439d2eb19bf3fc6c6dda700eed1': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'component_declaration',
-        },
-    ],
-    '9f5d7e7c46db32f40cd134e8150f6cba2a6fea1db6ba2620e1476e9a9dc7fb2c': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'consumer',
-        },
-    ],
-    'a0f28b1b52ff75f30a27d6f75cfe34c2fc1d9ab9a4c0d0230d431aa73aa6fbe4': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'consumer',
-        },
-    ],
-    'a1546a50a9b8b8edad84944f9bc18af26293ebf222ce1422d23ba4967061293b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'component_declaration',
-        },
-    ],
-    'a2e2056e046593804fe2105fc81e859addf3ed7cd9fcf8e510aaa699e8be7ce3': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'prop_declaration',
-        },
-    ],
-    'a5db9f3db4610235fc7532b9ddab524a493d704ba6435c7a0b4b811fab777c95': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'component_declaration',
-        },
-    ],
-    'aa93c929eefa4b5c36a64a4186db218b4a544836d01a1eb18f0e73041924b2b0': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'component_declaration',
-        },
-    ],
-    'b0a1d5d8e78a9c293302669c8f885f0801d29ba290b9c412d06f2462c353e441': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'prop_declaration',
-        },
-    ],
-    'b7b31de2e1cae02214b759a148df24f4a5357909c096c7ee9dab89cd3cc31ec4': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
-        },
-    ],
-    'bbba02809125cc44d061c07208227cfd0a110963de7e507daeb434db0efa9644': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'consumer',
-        },
-    ],
-    'beb3a6c894d1dd06d6a523590148803dd095a3ebac8b0c69ded50545791e37d4': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
-        },
-    ],
-    'c483d8e6f14fca2505f4c991e898a96f3a94777d66b028e50e192ca96d27adfa': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'prop_declaration',
-        },
-    ],
-    'c52b33fe805fb3b722df78a0f64a9773af2d5d393f65cf5035ed03168a77460f': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
-        },
-    ],
-    'c7807493cefa1a2cb8f5577c6299c43fda5189a283d8ec54c38b81504c11b60b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'component_declaration',
-        },
-    ],
-    'c834f6a63eb763b9b3af8343c614b866cd3e704c4040582b83aafab9a2b7ae28': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    'c9a49a1238eeacca6e4a9271deb9bd70ca5eb3268e8853daff035c752ec9a3f4': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'prop_declaration',
-        },
-    ],
-    'cca58a6c9ad201bfac6b6a6367a56656d5f26cec872073594df0007d7172a76b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'consumer',
-        },
-    ],
-    'cf78131a3876b452090057af8bb2429ea342c753e601201483cafc7ba46ce56f': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'prop_declaration',
-        },
-    ],
-    'cfbb9b27a3358924a24b91935d21b1e7d5396acf22d131e98089f45a9e772071': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'consumer',
-        },
-    ],
-    'd350ecab570b9a8dc7c8d81438e351a2ce48407692829454a02dba799e165156': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'prop_declaration',
-        },
-    ],
-    'd9a61449049b9684f9ed5ebca0d8ff251fedcfe5b30182f015c0a9a1cb54a14f': [
-        {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'prop_declaration',
-        },
-    ],
-    'cb630b240b115556c78afcd82d1c638e81bdbe95db6e73a40d8672f30a0c6a9a': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'consumer',
-        },
-    ],
-    'def392de449f43b5571226d249a1b020f82d910a35abe14e049736147906354b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'prop_declaration',
-        },
-    ],
-    'e6c4abfe7351c360f6e2da6e332d95da8bb8966aaacc2ba36e653c6992190525': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'consumer',
-        },
-    ],
-    'efa9edf995fa97082f4f6035cc0731cfe514382669b413c13a165fac881900be': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'prop_declaration',
-        },
-    ],
-    'f076f5e2e1ea894fab0290df30db4c9ae2e5c416e3f9edc3488eab352bd52cf3': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'prop_declaration',
-        },
-    ],
-    'f1663c94e21b16352db7368cd12538ef545d06fbb71e6b717d9624cd8e36f163': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'consumer',
-        },
-    ],
-    'f8e598f43f1cc70d9a988087cbbaee635ea34ddf081fa5701cfbfc5e169a4878': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'consumer',
-        },
-    ],
-    'fcd07d96dc3888c929817936cc8b135616cffe2c7c244624f77c3caaeb2f9ae4': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'component_declaration',
-        },
-    ],
-    'fe5c1e593fa09b93ff37f01f2789d2197faa2f053ac2fc01b68493c20b29bd40': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'component_declaration',
-        },
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'component_declaration',
-        },
-    ],
-    'ff8dba03d2f8bd402f48557823f84c2abd879fd8bd336a1580bfa0e0b6c68c61': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'prop_declaration',
-        },
-    ],
-}
-# C21B_FROZEN_AUTHORITY_IDENTITIES_END
-
-_CREATION_AUTHORITY_BADGE_CLASSIFICATIONS = {
-    identity: _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS[location]
-    for location, identity in _authority_badge_creation_identities().items()
-}
-AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
-
-
-@lru_cache(maxsize=1)
-def _authority_prop_creation_identities() -> dict[tuple[str, str, int], str]:
-    """Freeze prop declaration/use classifications by C21a identity."""
-    anchors: list[dict[str, Any]] = []
-    keys: list[tuple[str, str, int]] = []
-    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
-        path = str(spec["component_declaration_path"])
-        anchors.extend(
-            [
-                {"path": path, "line": spec["component_declaration_line"], "role": "named_declaration", "discriminator": spec["component"], "descriptor_id": descriptor_id},
-                {"path": path, "line": spec["prop_declaration_line"], "role": "type_property", "descriptor_id": descriptor_id, "discriminator": _AUTHORITY_PROP_DISCRIMINATORS.get(descriptor_id, "__creation_anchor__")},
-            ]
-        )
-        keys.extend(
-            [(descriptor_id, "component_declaration", int(spec["component_declaration_line"])), (descriptor_id, "prop_declaration", int(spec["prop_declaration_line"]))]
-        )
-        for use_path, use_line in spec["uses"]:
-            anchors.append({"path": use_path, "line": use_line, "role": "jsx_attribute", "discriminator": spec["prop"], "descriptor_id": descriptor_id})
-            keys.append((descriptor_id, "consumer", int(use_line)))
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {key: identity["encoded_identity"] for key, identity in zip(keys, identities, strict=True)}
-
-
-_CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[str, list[dict[str, str]]] = {}
-for (_descriptor_id, _role, _line), _identity in _authority_prop_creation_identities().items():
-    _CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.setdefault(_identity, []).append(
-        {
-            "descriptor_id": _descriptor_id,
-            "classification": str(AUTHORITY_PROP_CLASSIFICATIONS[_descriptor_id]["classification"]),
-            "role": _role,
-        }
-    )
-
-
-def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
-    """Return the committed C21b authority keys; creation receipts cannot authorize."""
-    if not FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS or not FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS:
-        raise RuntimeError("c21b_frozen_authority_identity_literals_missing")
-    return (
-        FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
-        FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-    )
-
-
-def _authority_identity_digest_table() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
-    """Project creation-only full identities to compact frozen authority keys."""
-    digest = lambda identity: hashlib.sha256(identity.encode("utf-8")).hexdigest()
-    badge = {
-        digest(identity): classification
-        for identity, classification in _CREATION_AUTHORITY_BADGE_CLASSIFICATIONS.items()
-    }
-    prop = {
-        digest(identity): records
-        for identity, records in _CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.items()
-    }
-    if len(badge) != 163 or len(prop) != 72 or sum(map(len, prop.values())) != 73:
-        raise RuntimeError("c21b_authority_identity_digest_cardinality_drift")
-    return badge, prop
-
-
-AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
-
-
-def _authority_row_semantic_value(row: Mapping[str, Any]) -> dict[str, Any]:
-    """Compare authority rows without treating navigation-only nested lines as identity."""
-    value = copy.deepcopy(dict(row))
-    sink = value.get("authority_sink")
-    if isinstance(sink, dict):
-        for receipt in [sink.get("component_declaration"), sink.get("prop_declaration")]:
-            if isinstance(receipt, dict):
-                receipt.pop("line", None)
-        for receipt in sink.get("consumer_sites", []):
-            if isinstance(receipt, dict):
-                receipt.pop("line", None)
-    return value
-
-
 def _authority_presentation_rows(
     scan: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
@@ -5390,7 +3765,6 @@ def _authority_presentation_rows(
         _site_location(site): site for site in scan["badgeSites"]
     }
     rows: list[dict[str, Any]] = []
-    evidence_identities = _authority_evidence_identities(scan)
 
     for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
         if spec["classification"] != "debt":
@@ -5415,10 +3789,10 @@ def _authority_presentation_rows(
                 "status": "open_debt",
                 "evidence_refs": [
                     AUTHORITY_PRESENTATION_PLAN_REF,
-                    evidence_identities[(str(fact["componentDeclarationPath"]), int(fact["componentDeclarationLine"]), "named_declaration")],
+                    f"{fact['componentDeclarationPath']}:{fact['componentDeclarationLine']}",
                     *sorted(
                         {
-                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_attribute")]
+                            f"{site['path']}:{site['line']}"
                             for site in fact["consumerSites"]
                         }
                     ),
@@ -5494,10 +3868,10 @@ def _authority_presentation_rows(
                 "status": "open_debt",
                 "evidence_refs": [
                     AUTHORITY_PRESENTATION_PLAN_REF,
-                    evidence_identities[(str(first["componentDeclarationPath"]), int(first["componentDeclarationLine"]), "named_declaration")],
+                    f"{first['componentDeclarationPath']}:{first['componentDeclarationLine']}",
                     *sorted(
                         {
-                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_opening")]
+                            f"{site['path']}:{site['line']}"
                             for site in badge_sites
                         }
                     ),
@@ -5556,10 +3930,8 @@ def _authority_presentation_errors(
                 f"authority_presentation_debt_drift:{finding_id}:finding_id"
             )
             continue
-        expected_value = _authority_row_semantic_value(expected)
-        stored_value = _authority_row_semantic_value(row)
-        for field, field_value in expected_value.items():
-            if stored_value.get(field) != field_value:
+        for field, expected_value in expected.items():
+            if row.get(field) != expected_value:
                 errors.append(
                     f"authority_presentation_debt_drift:{finding_id}:{field}"
                 )
@@ -5644,228 +4016,6 @@ def _reference_resolution_error(value: str) -> str | None:
         if line_number < 1 or line_number > line_count:
             return f"reference_line_out_of_bounds:{value}:{line_count}"
     return None
-
-
-def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str]:
-    """Batch-validate every stored C21a identity against one source snapshot."""
-    parsed: list[tuple[str, dict[str, Any]]] = []
-    for reference in references:
-        if "#ts-identity=" not in reference:
-            continue
-        try:
-            path, payload_text = reference.split("#ts-identity=", 1)
-            payload = json.loads(
-                base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
-            )
-            if (
-                payload["version"] != 1
-                or payload["source_path"] != path
-                or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
-            ):
-                raise ValueError
-        except (KeyError, ValueError, UnicodeDecodeError, binascii.Error, json.JSONDecodeError):
-            return ["typescript_reference_identity_invalid"]
-        parsed.append((reference, payload))
-    if not parsed:
-        return []
-    sources = {
-        str(payload["source_path"]): (REPO_ROOT / str(payload["source_path"])).read_text(encoding="utf-8")
-        for _reference, payload in parsed
-    }
-    requests = [
-        {
-            "sourcePath": payload["source_path"],
-            "role": payload["role"],
-            "discriminator": payload["discriminator"],
-        }
-        for _reference, payload in parsed
-    ]
-    errors: list[str] = []
-    for reference, payload, facts in zip(
-        (reference for reference, _payload in parsed),
-        (payload for _reference, payload in parsed),
-        _typescript_reference_construct_facts_batch(sources, requests),
-        strict=True,
-    ):
-        matches = facts["matches"]
-        bound = [
-            match
-            for match in matches
-            if match["declarationChain"] == payload["declaration_chain"]
-            and match["structuralPath"] == payload.get("structural_path")
-        ]
-        if facts.get("sourceMissing"):
-            errors.append(f"typescript_reference_source_missing:{reference}")
-        elif not matches or not bound:
-            errors.append(f"typescript_reference_binding_missing_or_renamed:{reference}")
-        elif len(bound) > 1:
-            errors.append(f"typescript_reference_binding_ambiguous:{reference}")
-        elif bound[0]["normalizedTokensSha256"] != payload["normalized_tokens_sha256"]:
-            errors.append(f"typescript_reference_content_drift:{reference}")
-    return errors
-
-
-_C21B_DESCRIPTOR_HINTS = {
-    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865": ("exported_declaration", "RunSummary"),
-    "packages/runtime-api-client/types.ts:9240": ("type_property", "components.RunSummary"),
-    "packages/runtime-api-client/types.ts:9258": ("type_property", "components.finished_at"),
-    "packages/runtime-api-client/types.ts:9284": ("type_property", "components.status"),
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
-    "packages/runtime-api-client/types.ts:2411": ("type_property", "components.AuthMeResponse"),
-    "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
-    "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
-    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
-    "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13": ("exported_declaration", "deleteComposerDraftRecord"),
-    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
-    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
-    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),
-    "packages/runtime-api-client/types.ts:2430": ("type_property", "components.permissions"),
-    "apps/runtime-dashboard/src/api/types.ts:2323": ("type_property", "components.permissions"),
-}
-
-
-def _c21b_descriptor_identity_literals() -> dict[str, str]:
-    """Return the 15 static descriptor identities; line hints are creation-only."""
-    anchors = []
-    for reference, (role, discriminator) in _C21B_DESCRIPTOR_HINTS.items():
-        path, line = reference.rsplit(":", 1)
-        anchors.append({"path": path, "line": int(line), "role": role, "discriminator": discriminator})
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {reference: identity["encoded_identity"] for reference, identity in zip(_C21B_DESCRIPTOR_HINTS, identities, strict=True)}
-
-
-def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
-    """Return the explicit direct-syntax role for a gated TypeScript reference."""
-    if reference in _C21B_DESCRIPTOR_HINTS:
-        role, discriminator = _C21B_DESCRIPTOR_HINTS[reference]
-        path, line = reference.rsplit(":", 1)
-        return {"path": path, "line": int(line), "role": role, "discriminator": discriminator}
-    match = re.match(r"^(.*?):(\d+)$", reference)
-    if not match or Path(match.group(1)).suffix not in {".ts", ".tsx"}:
-        return None
-    source_line = (REPO_ROOT / match.group(1)).read_text(encoding="utf-8").splitlines()[
-        int(match.group(2)) - 1
-    ]
-    route_match = re.search(
-        r'["\'](/?public/decisions/:signedId)["\']', source_line
-    )
-    if route_match:
-        role, discriminator = "string_literal", route_match.group(1)
-    elif re.search(r"\bexport\s+(?:async\s+)?function\s+(?:build|verify)SignedPublicDecisionPacket\b", source_line):
-        role, discriminator = "exported_declaration", re.search(r"(?:build|verify)SignedPublicDecisionPacket", source_line).group(0)
-    elif "buildSignedPublicDecisionPacket" in source_line:
-        role, discriminator = "call_expression", "buildSignedPublicDecisionPacket"
-    elif "verifySignedPublicDecisionPacket" in source_line:
-        role, discriminator = "call_expression", "verifySignedPublicDecisionPacket"
-    else:
-        return None
-    return {"path": match.group(1), "line": int(match.group(2)), "role": role, "discriminator": discriminator}
-
-
-def _c21b_surgical_identity_text(text: str) -> str:
-    """Replace only gated observed/evidence reference string spans, backwards."""
-    data = json.loads(text)
-    anchors: list[dict[str, Any]] = []
-    references: list[str] = []
-    for census in data["reference_censuses"]:
-        for probe in census["probes"]:
-            for reference in probe["observed_refs"]:
-                anchor = _c21b_identity_anchor(reference)
-                if anchor:
-                    anchors.append(anchor)
-                    references.append(reference)
-    for finding in data["supplemental_findings"]:
-        if "authority_sink" in finding:
-            sink = finding["authority_sink"]
-            component = sink["component_declaration"]
-            authority_anchors = {
-                f"{component['path']}:{component['line']}": {
-                    "path": component["path"], "line": component["line"], "role": "named_declaration", "discriminator": sink["component"]
-                }
-            }
-            consumer_role = "jsx_attribute" if sink["sink_kind"] == "prop_boundary" else "jsx_opening"
-            for site in sink["consumer_sites"]:
-                authority_anchors[f"{site['path']}:{site['line']}"] = {
-                    "path": site["path"], "line": site["line"], "role": consumer_role,
-                    "discriminator": sink.get("prop", "Badge") if consumer_role == "jsx_attribute" else "Badge",
-                }
-            for reference in finding["evidence_refs"]:
-                anchor = authority_anchors.get(reference)
-                if anchor:
-                    anchors.append(anchor)
-                    references.append(reference)
-            continue
-        for reference in finding["evidence_refs"]:
-            anchor = _c21b_identity_anchor(reference)
-            if anchor:
-                anchors.append(anchor)
-                references.append(reference)
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    replacements = {
-        reference: identity["encoded_identity"]
-        for reference, identity in zip(references, identities, strict=True)
-    }
-    expected_occurrences = Counter(references)
-    replacements_at: list[tuple[int, int, str]] = []
-    for reference, identity in replacements.items():
-        needle = json.dumps(reference, ensure_ascii=False)
-        positions = [match.start() for match in re.finditer(re.escape(needle), text)]
-        if len(positions) != expected_occurrences[reference]:
-            raise ValueError(f"c21b_surgical_reference_span_ambiguous:{reference}")
-        replacements_at.extend(
-            (position, position + len(needle), json.dumps(identity, ensure_ascii=False))
-            for position in positions
-        )
-    migrated = text
-    for start, end, replacement in sorted(replacements_at, reverse=True):
-        migrated = migrated[:start] + replacement + migrated[end:]
-    migrated_data = json.loads(migrated)
-    observed = [
-        ref
-        for census in migrated_data["reference_censuses"]
-        for probe in census["probes"]
-        for ref in probe["observed_refs"]
-        if "#ts-identity=" in ref
-    ]
-    authority = [
-        ref
-        for finding in migrated_data["supplemental_findings"]
-        if "authority_sink" in finding
-        for ref in finding["evidence_refs"]
-        if "#ts-identity=" in ref
-    ]
-    descriptors = [
-        ref
-        for finding in migrated_data["supplemental_findings"]
-        if "authority_sink" not in finding
-        for ref in finding["evidence_refs"]
-        if "#ts-identity=" in ref
-    ]
-    if (len(observed), len(authority), len(descriptors)) != (28, 118, 15):
-        raise ValueError("c21b_identity_partition_drift")
-    return migrated
-
-
-def _probe_observation_for_stored_mode(
-    stored: Sequence[str], observed: Sequence[str]
-) -> tuple[list[str] | None, str | None]:
-    """Project a live probe into its committed legacy or C21a identity mode."""
-    identity_flags = ["#ts-identity=" in reference for reference in stored]
-    if not any(identity_flags):
-        return list(observed), None
-    if not all(identity_flags):
-        return None, "census_identity_mode_mixed"
-    anchors = []
-    for reference in observed:
-        anchor = _c21b_identity_anchor(reference)
-        if anchor is None:
-            return None, f"census_identity_observation_unmappable:{reference}"
-        anchors.append(anchor)
-    try:
-        identities = _typescript_reference_identities_from_anchors(anchors)
-    except ValueError as exc:
-        return None, str(exc)
-    return [identity["encoded_identity"] for identity in identities], None
 
 
 def _ds2_links(
@@ -8012,14 +6162,7 @@ def validate_register(
         for census in data["reference_censuses"]:
             for probe in census["probes"]:
                 observed = _recompute_probe(probe)
-                comparable, mode_error = _probe_observation_for_stored_mode(
-                    probe["observed_refs"], observed
-                )
-                if mode_error:
-                    errors.append(
-                        f"{mode_error}:{census['census_id']}:{probe['kind']}"
-                    )
-                elif comparable != probe["observed_refs"]:
+                if observed != probe["observed_refs"]:
                     errors.append(f"census_observation_drift:{census['census_id']}:{probe['kind']}")
                 if len(observed) != probe["expected_count"]:
                     errors.append(f"census_expected_count_drift:{census['census_id']}:{probe['kind']}")
@@ -8150,12 +6293,6 @@ def validate_register(
         for finding in data["supplemental_findings"]
         for ref in finding["evidence_refs"]
     )
-    references.extend(
-        ref
-        for census in data["reference_censuses"]
-        for probe in census["probes"]
-        for ref in probe["observed_refs"]
-    )
     references.extend(row["source_ref"] for row in data["seeded_negative_lifecycle"])
     references.extend(
         ref
@@ -8166,7 +6303,6 @@ def validate_register(
         issue = _reference_resolution_error(reference)
         if issue:
             errors.append(issue)
-    errors.extend(_typescript_identity_reference_errors(references))
     if report_parity:
         errors.extend(_report_projection_errors(data))
     return errors
@@ -9155,31 +7291,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="refresh only descriptor-derived supplemental findings in the evolved register",
     )
-    parser.add_argument(
-        "--migrate-c21b",
-        action="store_true",
-        help="surgically migrate gated TypeScript reference strings to C21a identities",
-    )
-    parser.add_argument(
-        "--print-c21b-authority-partition-hashes",
-        action="store_true",
-        help="print live C21b authority partition-hash derivations without writing",
-    )
-    parser.add_argument(
-        "--print-c21b-authority-identity-literals",
-        action="store_true",
-        help="print no-write C21b authority identity maps for static freezing",
-    )
-    parser.add_argument(
-        "--print-c21b-authority-identity-digests",
-        action="store_true",
-        help="print no-write compact authority classification keys for C21b freezing",
-    )
-    parser.add_argument(
-        "--print-c21b-descriptor-identities",
-        action="store_true",
-        help="print no-write full C21a literals for the 15 descriptor bindings",
-    )
     parser.add_argument("--write-report", action="store_true", help="regenerate the report projection")
     parser.add_argument("--corruption-probes", action="store_true", help="prove decisive mutations are rejected")
     parser.add_argument(
@@ -9204,29 +7315,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    if args.print_c21b_authority_partition_hashes:
-        scan = _authority_presentation_scan()
-        for error in [
-            *_badge_classification_errors(scan),
-            *_authority_prop_classification_errors(scan),
-        ]:
-            if "partition_hash_drift:" in error:
-                print(error)
-        return 0
-    if args.print_c21b_authority_identity_literals:
-        print(json.dumps({
-            "badge": AUTHORITY_BADGE_CLASSIFICATIONS,
-            "prop": AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-        }, indent=2, sort_keys=True))
-        return 0
-    if args.print_c21b_authority_identity_digests:
-        badge, prop = _authority_identity_digest_table()
-        print(json.dumps({"badge": badge, "prop": prop}, indent=2, sort_keys=True))
-        return 0
-    if args.print_c21b_descriptor_identities:
-        print(json.dumps(_c21b_descriptor_identity_literals(), indent=2, sort_keys=True))
-        return 0
-
     if args.write_seed:
         seed = build_seed_register()
         REGISTER_PATH.write_text(json.dumps(seed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -9244,11 +7332,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             + str(REGISTER_PATH.relative_to(REPO_ROOT))
             + " supplemental_findings"
         )
-    if args.migrate_c21b:
-        register_text = _refresh_supplemental_findings_text(register_text)
-        register_text = _c21b_surgical_identity_text(register_text)
-        REGISTER_PATH.write_text(register_text, encoding="utf-8")
-        print("migrated gated TypeScript references to C21a identities")
     data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")

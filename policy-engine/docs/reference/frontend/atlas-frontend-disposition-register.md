@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **21111**
+- Application lines added: **20926**
 - Application lines deleted: **19207**
-- Net application LOC reduction: **-1904**
+- Net application LOC reduction: **-1719**
 - Application files deleted: **88**
 
 ## Wave-end full verification
@@ -566,11 +566,6 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
-- `015fb8f08 DS5-C21a establish TypeScript reference identity`
-- `60a06701c docs: register DS5 line-address binding defect`
-- `653f12d08 DS5-C13a-R3 delete authority mutation replay`
-- `f4f62ca58 Revert "checkpoint: preserve stopped DS5-C13a-R2 governed receipts"`
-- `95274a88c checkpoint: preserve stopped DS5-C13a-R2 governed receipts`
 - `dcd8b073b Revert "checkpoint: preserve blocked DS5-C13a authority replay deletion"`
 - `c2a03de41 checkpoint: preserve blocked DS5-C13a authority replay deletion`
 - `8794d58c8 docs: correct DS5 C07 drift attribution`

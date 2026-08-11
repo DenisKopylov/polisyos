@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 import en from "./locales/en.json";
 import ru from "./locales/ru.json";
 import uk from "./locales/uk.json";
@@ -34,11 +36,18 @@ const COUNT_MESSAGE_ALLOWLIST = new Set([
   "panels.agentPipeline.diagnostics",
   "panels.agentPipeline.iteration",
   "panels.agentPipeline.variants",
+  "panels.agentPipeline.overBudget",
   "panels.errors.total",
   "panels.nodeDebug.timelineEvents",
   "shared.ui.quantity.miniGraph.hidden",
   "collaboration.toolbar.onlineCount",
+  "controlJob.scientistEvents",
+  "controlJob.humanReviewUnresolved",
 ]);
+
+const LEGACY_CONTINUITY_RU_KEY_COUNT = 2449;
+const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
+  "67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8";
 
 function collectCountMessages(
   value: unknown,
@@ -62,13 +71,16 @@ function collectCountMessages(
 }
 
 describe("locale catalogs", () => {
-  it("keep English, Ukrainian, and Russian message keys in sync", () => {
+  it("keeps the legacy-continuity Russian key set frozen", () => {
     const enKeys = collectPaths(en).sort();
     const ukKeys = collectPaths(uk).sort();
     const ruKeys = collectPaths(ru).sort();
 
     expect(ukKeys).toEqual(enKeys);
-    expect(ruKeys).toEqual(enKeys);
+    expect(
+      crypto.createHash("sha256").update(JSON.stringify(ruKeys)).digest("hex"),
+    ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
+    expect(ruKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
   });
 
   it.each([

@@ -240,3 +240,119 @@ C00 owns only the two plan paths. C01 and C02 will each be independently
 reviewed and committed. Then this worktree stops at the clean light-half
 boundary. DS6-C03 and later remain declared but unauthorized; no local pass or
 available idle capacity changes that gate.
+
+## DS6-C01 — count parity and frozen Russian continuity — 2026-08-11
+
+### Entry and red-first binding
+
+C01 entered from clean committed C00 `b28101e42` on the attached DS6 branch.
+The declared set is exactly
+`apps/runtime-dashboard/src/shared/i18n/parity.test.ts` plus this journal, at
+the two-path cap. The governing artifacts are the master DS6 inherited entry
+contract, D4 in `docs/brand/ATLAS_SOURCE_OF_TRUTH.md`, and the exact baseline
+class in
+`architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`.
+
+The C00 focused red remains the entry witness: one file / four tests, exactly
+three failures, `panels.agentPipeline.overBudget` for en/uk/ru at the registered
+anchor. The baseline comparator in
+`architecture/atlas_surfaces/check_frontend_disposition_register.py` accepts
+that exact triple and rejects any new identity or assertion-anchor drift.
+
+### Class repair and semantic separation
+
+The complete 2,449-leaf-per-catalog census found 84 count-sensitive messages
+per locale: 56 ICU plural messages and 28 invariant-form messages. The existing
+allowlist accounted for 25 invariant paths. Because the loop stopped at the
+first failed expectation per locale, `overBudget` masked two later paths:
+`controlJob.scientistEvents` and
+`controlJob.humanReviewUnresolved`. Adding only the registered path was
+red-first rejected in design because it would rotate each locale to a new
+baseline identity. C01 therefore adds all three complete-census paths to the
+existing `COUNT_MESSAGE_ALLOWLIST`; it adds no second scanner and changes no
+message or consumer.
+
+This closes the existing syntactic count-message contract; it does not claim a
+human-reviewed plural-grammar receipt. The current consumers pass preformatted
+strings, and changing them to numeric ICU inputs would cross this session's
+product-surface fence. That semantic copy remains `semantic_test_missing`, not
+silently closed by the allowlist.
+
+Separately, the old structural test no longer treats Russian as a third active
+locale. Active structural parity is exactly `ukKeys == enKeys`. The test named
+`keeps the legacy-continuity Russian key set frozen` carries D4's “frozen/not
+deleted” meaning with two assertions over the complete Russian set:
+
+- SHA-256 of `JSON.stringify(sortedRuKeys)` equals
+  `67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8`;
+- exact cardinality remains 2,449.
+
+Removal from active parity therefore does not convert `frozen` into `gone`.
+The catalog remains imported, present, content-bound, and byte-unchanged. D4's
+separate “not used” runtime mechanic is not claimed: DS5 still owns active
+locale exposure, and `SUPPORTED_LOCALES` remains outside C01.
+
+### Frozen-set deletion witness
+
+Pre-witness Russian catalog byte SHA-256:
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+Using `apply_patch`, the single
+`panels.agentPipeline.overBudget` Russian key was temporarily deleted. The
+focused file went RED at the named frozen-set test: expected the admitted
+`67b7a921...` fingerprint, received the 2,448-key
+`19468df1f7a734c7622510c4d387a9374c25a0f5a49317bdc86e9100b61edab9`.
+The other three count-rule cases remained green. This falsifies the frozen
+predicate while leaving its test identity/marker intact, satisfying P29/P33.
+
+The same line was restored with `apply_patch`; no checkout, reset, or stash was
+used. Post-restore SHA-256 is exactly
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`,
+and `git diff -- src/shared/i18n/locales/ru.json` is empty.
+
+### Focused green receipt
+
+Command:
+
+```bash
+cd apps/runtime-dashboard
+corepack pnpm exec vitest run src/shared/i18n/parity.test.ts --maxWorkers=2 --reporter=default
+```
+
+Receipt after restore: PASS, 1/1 file and 4/4 tests; Vitest duration 982 ms,
+test body 23 ms. The test denominator remains four. The three registered
+failures disappear and no replacement identity appears in this focused file.
+
+Capability truth: the local gate now has implementation plus focused positive
+and negative semantic verification. The governed baseline transition remains
+`surface_missing`, and whole-suite confirmation remains
+`verification_missing`, until the explicitly deferred DS6-C03/heavy wave.
+Nothing in C01 promotes the stale open-debt row.
+
+### Duplication, orchestration, and non-receipts
+
+The C00 complete census remains unchanged: one count-rule implementation
+(`parity.test.ts`) plus one governed failure receipt in the baseline manifest.
+C01 extends the former and defers transition of the latter; no duplicate
+scanner, key owner, status, or product locale registry is introduced.
+
+The implementation lane was bounded to the two declared paths; the controller
+completed the marker-preserving deletion witness and restoration. Independent
+specification and code-quality reviews returned CLEAN with no Blocking or
+Important finding. Both independently recomputed 2,449 keys and the admitted
+fingerprint; the spec review also recomputed 84 count-sensitive / 56 ICU / 28
+invariant messages per catalog, 29 unique allowlist entries, and the exact
+2,448-key deletion fingerprint. The quality review confirmed the existing
+dashboard test precedent for the Node crypto import and the exact two-path
+diff. Its residual is explicit and accepted: this assertion freezes the key
+set, not Russian message values, which is the D4/Task-1 structural-set bar and
+no stronger semantic-copy claim is made.
+
+The review round changed no implementation byte. This appended receipt is
+documentation-only and free under the mechanism-round breaker. A post-review,
+source-identical focused rerun passed 1/1 file and 4/4 tests in 978 ms (22 ms
+test body). No contended Atlas-surface artifact changed.
+No whole-suite Vitest, Storybook/browser, Playwright, dev server, full lint,
+full typecheck, full build, or other heavy lane ran; each remains the exact
+non-receipt in the consolidated deferred package. Plain-node design checks wait
+for the post-C02 blast-radius wave so they run once against frozen light-half
+source.

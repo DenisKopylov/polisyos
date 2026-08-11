@@ -497,7 +497,7 @@ remain distinct.
 
 ### Task 12 — DS6-C12: seed the honesty-comprehension protocol
 
-**Exact candidate paths declared before entry:**
+**Exact final path set after review measurement:**
 
 1. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts`
 2. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.ts`
@@ -525,15 +525,17 @@ semantic/profile change; cadence is collection scheduling, not TTL, validity,
 or a stable threshold. The two seed tasks are exactly “find the weakest link”
 and “find the active blockers”. Their expected-answer bindings name the exact
 existing producer and field, but remain `predicate_provenance=not_established`:
-C12 does not behaviorally verify either Python producer. Responses preserve external
-execution, evidence status, and PolicyOS reaction as three distinct planes.
+C12 does not behaviorally verify either Python producer. Responses preserve
+external execution, evidence status, and PolicyOS reaction as three distinct
+planes.
 
 Sampling is preregistered and risk-stratified with a frame frozen before
 observation. Sample size, frame completeness, representativeness, and the
 completeness predicate remain `not_established`; even C07-valid
 `sha256:<64-lowercase-hex>` frame/preregistration identities cannot elevate
-them without resolve-bind-verify. The protocol aliases C07's exact storage convention
-and denied-use prefix but creates no receipt, evidence kind, CAS, or writer.
+them without resolve-bind-verify. The protocol aliases C07's exact storage
+convention and denied-use prefix but creates no receipt, evidence kind, CAS, or
+writer.
 C07's closed `manual_at` kind means assistive-technology evidence and must not
 be reused to mislabel a generic human comprehension session.
 
@@ -542,8 +544,9 @@ three response planes, six metrics, four conditions, and null threshold rows.
 Other independently versioned profiles remain generic so INT-R3's later
 behavioral battery can replace the seed without changing the outer envelope,
 but every profile must preserve the six named metric identities and four
-operating-condition identities; researched additions are allowed only while every threshold stays
-exactly `not_established` with null comparator, value, unit, and source. The
+operating-condition identities; researched additions are allowed only while
+every threshold stays exactly `not_established` with null comparator, value,
+unit, and source. The
 current schema has no established-threshold branch. Missing, unknown, known
 zero, incomparable, and recorded observations remain distinct, but every
 interpretation is descriptive-only, nonblocking, and cannot grant stable.

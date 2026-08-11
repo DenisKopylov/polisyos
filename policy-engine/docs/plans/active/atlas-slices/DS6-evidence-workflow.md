@@ -57,9 +57,11 @@ JSON Schema, and repository architecture guardrails.
   `src/polisyos/data_forge/read_api/catalog.py` edit and every other uncommitted
   main-checkout byte are foreign to this worktree. Entry status and the scoped
   base diff are recorded in the journal.
-- This session may write only this plan/journal,
-  `apps/runtime-dashboard/src/shared/i18n/**`, and new probe paths under
-  `apps/runtime-dashboard/src/test/a11y/**`.
+- This continuation may write only this plan/journal,
+  `apps/runtime-dashboard/src/shared/i18n/**`, the already-landed probe paths
+  under `apps/runtime-dashboard/src/test/a11y/**`, and the exact five-path
+  DS6-C07 set declared under Task 7. No runtime-state registry or product
+  surface joins that set.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
   until it merges. Required deltas are specified there, not applied here.
@@ -369,11 +371,46 @@ status receipt, run corruption probes, and append the journal.
 
 ### Task 7 — DS6-C07: define the evidence artifact and storage convention
 
-**Declared path cap: 10.** Define strict typed receipt DTO/schema, authority
-purpose, provenance, rule/schema versions, audience, collection/observation/
-verification times, content binding, retention, and canonical storage path.
-No `stable` consumer closes here: `bridge_missing` and `consumer_missing`
-remain explicit.
+**Exact candidate paths declared before entry:**
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.test.ts`
+3. `docs/reference/frontend/atlas-evidence-artifact.md`
+4. this plan
+5. the DS6 journal
+
+**Declared path cap: 10; measured candidate set: 5.** Define one strict Zod
+runtime schema and inferred TypeScript DTO, bounded authority purpose/denials,
+source-specific producer and verifier provenance, rule/schema versions,
+the existing `PUBLIC`/`REVIEWER`/`EXPERT`/`MACHINE` audience vocabulary,
+separate collection/observation/verification times, P37 predicate provenance,
+outcome, a typed reference to the content-bound verification payload, and the
+inherited 365-day CAS retention rule. Freeze the storage
+convention on the existing `polisyos.core.artifacts.ArtifactStore.put_json`
+boundary: its returned `ArtifactRef`/`ArtifactID` is the receipt's immutable
+content address, and its default local implementation writes under the existing
+`.polisyos/cas` slot. C07 must not implement another writer/CAS, put a circular
+self-hash inside the receipt, or edit the already-complete runtime-state and
+generated-artifact registries.
+
+The strict parser rejects unknown fields, malformed or missing content refs,
+authority-denial drift, collapsed producer/verifier provenance, missing
+provenance/time roles, invalid time ordering, and retention drift. A companion
+strict verification-payload schema and resolver-side comparator bind evidence
+kind, subject, rule, producer/verifier, times, and result after real CAS
+resolution. The payload write uses the complete recorded Core CanonSpec with
+finite floats admitted and NaN/Infinity rejected; the receipt manifest must
+carry the payload through `ArtifactWriteOptions.inputs` role
+`verification_payload`.
+
+A shaped `sha256:` reference remains a declaration, not proof: no runner is
+wired, no CAS artifact is created, and no `stable` consumer closes here.
+`producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`,
+evidence `verification_missing`, and `surface_missing` remain explicit until
+C08/C09. Acceptance requires focused Vitest green, marker-preserving semantic
+negatives (including a valid-but-unrelated resolved payload), an unchanged
+five-path measurement, and independent specification and quality review with
+no open Important/Critical finding.
 
 ### Task 8 — DS6-C08: wire browser, keyboard, and automated evidence capture
 
@@ -457,15 +494,18 @@ hand edit:
 1. `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`:
    `vitest.disposition` `rebind_pending -> resolved`; `exit_code` `1 -> 0`;
    `test_files` `{total:263,passed:262,failed:1} ->
-   {total:263,passed:263,failed:0}`; `tests`
-   `{total:766,passed:763,failed:3} -> {total:777,passed:777,failed:0}`;
+   {total:264,passed:264,failed:0}`; `tests`
+   `{total:766,passed:763,failed:3} -> {total:789,passed:789,failed:0}`;
    `failure_set.sha256`
    `533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd
    -> 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`;
    remove the complete sole `i18n-count-message-parity` debt-class object so
    `debt_classes=[]`. Preserve `parent_reproduction`; refresh command/timing
    fields only from the actual full run. If totals differ, stop and record the
-   measured values rather than copying these expected totals.
+   measured values rather than copying these expected totals. The expected
+   resolved arithmetic is +11 tests from C01-R1's 4 -> 15 parity file and +1
+   file/+12 tests from C07's new focused contract; the historical post-C01-only
+   expectation of 263 files/777 tests is superseded after C07.
 2. `architecture/atlas_surfaces/frontend-baseline-debt.schema.json`: admit
    exactly two Vitest lifecycle shapes—the current exact open triple and the
    empty/resolved/exit-0 shape. Reject mixed disposition, nonzero exit, nonempty

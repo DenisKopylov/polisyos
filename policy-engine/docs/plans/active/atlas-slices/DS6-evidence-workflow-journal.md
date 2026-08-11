@@ -595,7 +595,7 @@ The exact five-path diff is:
 - `apps/runtime-dashboard/src/shared/i18n/locales/uk.json` — eight specified
   plural messages repaired with `one`/`few`/`many`/`other` forms.
 - `docs/plans/active/atlas-slices/DS6-evidence-workflow.md` — C01-R1
-  authorization, five-path cap, Russian ruling, and deferred 776/776/0
+  authorization, five-path cap, Russian ruling, and deferred 777/777/0
   expectation; actual whole-suite totals remain controlling and a mismatch must
   stop rather than be copied.
 - `docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md` — this
@@ -690,3 +690,213 @@ under the mechanism-round breaker: source remains at mechanism round 2/2, and
 any further mechanism-changing finding still trips the breaker. Commit and the
 final focused rerun remain pending; neither is claimed by this documentation
 receipt.
+
+## DS6-C07 — evidence artifact storage entry — 2026-08-11
+
+### Clean entry and predeclared path set
+
+`git status -sb` at entry reported the attached
+`codex/atlas-ds6-evidence-workflow` branch with no worktree changes at
+`b209516687e59a83ed730fc2cea1e95bfb928fa0`. C01-R1 was therefore a clean
+preceding commit before C07 entry. The exact C07 candidate set was declared in
+the plan before either new implementation path existed: two files under
+`apps/runtime-dashboard/src/test/evidence/**`, one frontend reference page,
+this plan, and this journal. The measured set is 5 paths against the immutable
+cap of 10.
+
+The storage owner is inherited, not invented. The active
+`architecture/runtime_state_layout.toml` registers `.polisyos/audits` as
+`local_audit_evidence`, ignored with manual-only cleanup, and its `audits`
+state slot admits JSON evidence leaves beneath `.polisyos/audits/<audit-id>/`.
+`architecture/local_runtime_state.toml` fixes that class at 365 days.
+`architecture/generated_artifacts.toml` already registers the whole ignored
+`.polisyos/` family. C07 therefore declares a deterministic Atlas subpath under
+that slot and changes none of those three complete owners. The same sources
+reserve `.polisyos/cas` and `src/polisyos/core/artifacts/**` for the canonical
+raw-blob CAS; C07 content-binds its JSON receipt but does not reimplement or
+claim to be that CAS.
+
+### Duplication and capability entry census
+
+A complete `git ls-files` walk covered 968/968 tracked `.ts`/`.tsx` paths under
+`apps/runtime-dashboard`. An exact receipt-name search found zero existing
+`EvidenceReceipt`/`evidence_receipt` owner. `EvidenceArtifactRef` occurs through
+six paths but resolves to one definition,
+`apps/runtime-dashboard/src/shared/lib/domain/evidence.ts`; it is the product
+run-artifact reference (`artifact_id`, optional kind/media type), not a
+verification receipt and lacks C07's authority, time, rule, retention, and
+verifier fields. Editing or overloading it would cross the product-surface
+fence. The new owner is therefore test-evidence-specific, while the existing
+Core CAS and runtime-state slots remain canonical for their distinct concepts.
+
+Capability truth at entry is `producer_missing`, `artifact_missing`,
+`bridge_missing`, `consumer_missing`, `verification_missing`, and
+`surface_missing`. C07 may close the typed contract and its focused semantic
+verification only. C08 owns evidence-specific production/persistence and runner
+bridges; C09/C10 own maturity/readiness consumers. The remaining missing labels
+must survive this cluster.
+
+### Canonical-owner correction before mechanism entry
+
+The first storage preflight above selected `.polisyos/audits` from its
+`local_audit_evidence` label. The complete owner comparison then found that this
+would still create a second content-addressed writer beside the canonical Core
+CAS. `docs/reference/operations/cas-storage.md` and
+`src/polisyos/core/artifacts/{protocol.py,store.py,manifest.py}` establish
+`ArtifactStore.put_json()`, `ArtifactID` (`sha256:<64hex>`), immutable manifest,
+integrity verification, and the default `.polisyos/cas` ABI. The runtime-state
+contract reserves `.polisyos/cas` for content-addressed artifacts and
+`.polisyos/audits` for audit-chain/projection evidence. P27/P31 therefore change
+the pre-implementation ruling: canonical receipt bytes go through Core CAS;
+`.polisyos/audits` may hold a later redacted index/projection, not C07's source
+artifact.
+
+No test or implementation path existed when this conflict was found; the
+scoped diff contained only this plan and journal. The exact five candidate
+paths and cap remain unchanged, while their contract now points to the existing
+CAS boundary rather than implementing filesystem persistence. This is a
+pre-entry source-owner correction, not a mechanism fix round.
+
+The resulting C07 capability target is deliberately `contract_only`. The Zod
+schema/parser can verify receipt semantics and preserve a typed content ref,
+but a shaped ref is not content evidence under P29/P32. C08 must use the real
+artifact store, resolve the referenced verification payload, verify its
+manifest/digest, and persist the receipt before `producer_missing`,
+`artifact_missing`, or `bridge_missing` can close. C09/C10 still own consumers.
+
+### Red first and minimal contract
+
+The first focused command was:
+
+```bash
+corepack pnpm exec vitest run src/test/evidence/atlasEvidenceArtifact.test.ts --maxWorkers=2 --reporter=default
+```
+
+It failed 1/1 test file before collection with the expected unresolved
+`./atlasEvidenceArtifact` import; zero tests ran in 771 ms. That red binds the
+new contract path rather than a pre-existing product failure.
+
+The minimal implementation then added one strict Zod owner and no filesystem
+writer. Its ten semantic tests freeze the existing Core CAS boundary; accept a
+complete bounded receipt; reject unknown fields, widened authority, a missing
+denial, absent/empty producer or verifier, malformed content refs, missing or
+misordered time roles, retention drift, result/finding contradictions, and
+duplicate/unordered/unknown audiences; and preserve all five P37 classifications
+without authority upgrade. The first green ran the same 1/1 focused file with
+10/10 tests passing in 699 ms (11 ms test body), at two workers.
+
+The content reference deliberately has only the Core `ArtifactRef` wire fields
+plus payload schema identity. The receipt's own `ArtifactID` is not embedded in
+its bytes: C08 receives it from the second real `ArtifactStore.put_json()` call.
+This avoids a circular self-hash and keeps shaped-reference resolution and
+integrity verification as an explicit missing bridge rather than a form-based
+C07 claim.
+
+### Measured blast radius and orchestration state
+
+The scoped working diff is exactly the five predeclared paths: the Zod contract,
+its focused Vitest file, `docs/reference/frontend/atlas-evidence-artifact.md`,
+this plan, and this journal. Measurement is 5 <= the immutable C07 cap of 10;
+no `-R1` re-cut is triggered. The implementation is the initial C07 mechanism,
+not a review fix round; the two-fix breaker remains unused for this cluster.
+
+No Core CAS implementation, product API/surface, runtime-state registry,
+generated-artifact registry, contended Atlas artifact, DS5 path, GY path, or
+Russian catalog changed. The six-path `EvidenceArtifactRef` frontend use set
+remains a separate product run-artifact reference with one owner, and the
+30/30 tracked Python implementation paths under `src/polisyos/core/artifacts`
+remain the sole CAS package examined; no concrete duplicate owner or divergent
+value was found.
+
+C03 and C04 were not entered because their baseline/disposition register writes
+remain contended with DS5-C21. C05 was not entered because it is the prohibited
+serialized browser/heavy wave. C06 depends on C04 plus C05's actual 7/7 browser
+receipt and is therefore both gated and unavailable. C08 and every later
+cluster were not entered because the user authorized only C07 after C01-R1.
+No browser, Storybook, Playwright, dev server, full lint, full typecheck, full
+build, whole-suite Vitest, Python CAS test, or contended writer ran; each is a
+non-receipt, never green. The consolidated deferred package remains the only
+execution handoff for the heavy/contended gates.
+
+The allowed plain-Node blast-radius wave ran once from
+`apps/runtime-dashboard`: `corepack pnpm run a11y:contrast`,
+`corepack pnpm run a11y:motion`, and
+`corepack pnpm run a11y:color-blind` each exited 0 with its named passed
+receipt. These checks read design tokens and do not turn any prohibited browser
+or whole-build gate green. Source is now frozen for independent C07 review.
+
+### Independent review and mechanism fix round 1
+
+The specification review found three Important issues against the Task 7 and
+P01/P32/P33 bars: a valid but unrelated CAS payload could satisfy the shaped
+reference; producer and verifier identities could collapse; and the reference
+page omitted `verification_missing`/`surface_missing` while the journal retained
+them. The quality review found one distinct Important issue against Core
+`canon_json.py` and P29/P33: default `put_json()` rejects the numeric floats in
+the named contrast evidence, so the C08 storage recipe was not executable. Its
+minor requested behavioral coverage of all three closed evidence kinds. No
+review reported a Blocking finding; both independently confirmed the five-path
+cap and no second CAS writer.
+
+The controller's source comparison also found a P30 vocabulary drift before
+the batch: C07 had used consumer-purpose labels as audiences even though
+`surface-readiness-ledger.schema.json` and the Atlas constitution already own
+`PUBLIC`, `REVIEWER`, `EXPERT`, `MACHINE`. That drift joined the same fix round.
+
+Red first, the expanded focused file ran 12 tests with the expected 6 failures
+and 6 passes in 877 ms. The failures covered the absent payload schema/binding
+function, missing complete CanonSpec/input role, old audience vocabulary, and
+the new collapsed-verifier/evidence-kind consequences. After the single batch,
+the same focused command passed 1/1 file and 12/12 tests in 751 ms (15 ms test
+body).
+
+The repair adds a strict, versioned verification-payload envelope; freezes its
+Core CanonSpec with finite floats admitted and NaN/Infinity rejected; constrains
+the content ref to that exact kind/schema; compares resolved artifact ID plus
+evidence kind, subject, rule, producer/verifier provenance, times, and result;
+requires distinct producer/verifier component identities; and mandates the
+receipt manifest's canonical `inputs` role `verification_payload`. The
+valid-but-unrelated witness retains a valid SHA-256 identity and schema markers
+while changing each bound semantic field in turn. Audiences now reuse the
+four-value Atlas owner, and the full missing-label set is consistent.
+
+This is C07's first mechanism-changing review fix round: the scoped mechanism
+diff changes `atlasEvidenceArtifact.ts` and its behavioral test, not only
+receipts/docs. It consumes round 1 of the two-fix breaker. Independent delta
+re-review and the final allowed verification wave remain pending; no commit is
+claimed here.
+
+### Delta re-review and induced deferred arithmetic
+
+The specification delta re-review is **CLOSED** with no remaining Blocking or
+Important finding. It independently confirmed the exact payload discriminator,
+resolved ID plus six semantic comparisons, canonical receipt-input role,
+distinct verifier, full missing-label set, controlled audience vocabulary,
+five-path cap, clean whitespace, and a 12/12 focused receipt. The quality delta
+re-review is also **CLOSED**: the complete float-admitting/non-finite-rejecting
+CanonSpec, all three evidence kinds plus unknown rejection, Zod-v4 binding
+helper, and 12/12 focused receipt have no remaining Blocking/Important issue.
+
+C07's new focused Vitest file induces one exact update to the consolidated C03
+handoff. The committed open baseline remains 263 files and 766/763/3 tests. The
+C01-R1-only historical expectation at this journal's line above was 263 files
+and 777/777/0 tests (+11). The current post-C07 expected resolved receipt is
+264 files and 789/789/0 tests (+1 file/+12 tests). The deferred plan now carries
+that exact arithmetic; the eventual authorized whole-suite run remains the
+authority, and any different measured total is a stop rather than a copied
+expectation.
+
+The frozen final allowed wave ran after both reviews and the record-only
+arithmetic correction. Focused C07 Vitest passed 1/1 file and 12/12 tests in
+749 ms (15 ms test body) with `--maxWorkers=2`. The three single-process Node
+checks again exited 0 with `Contrast checks passed`,
+`Reduced-motion checks passed`, and `Color-blind checks passed`. No prohibited
+gate joined that wave. The final specification record-only recheck found and
+closed the older `776` typo above; the journal now has one consistent
+C01-only 777 expectation and one current post-C07 789 expectation.
+
+A final pre-commit refresh after that record-only correction passed the same
+focused C07 Vitest file 1/1 and 12/12 in 758 ms (15 ms test body) with
+`--maxWorkers=2`. The three allowed single-process Node design checks again
+exited 0 with their named pass messages. This refresh did not run or convert
+any deferred heavy lane into a receipt.

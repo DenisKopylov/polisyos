@@ -542,3 +542,151 @@ All three permitted single-process design checks passed unchanged:
 These token/source checks do not close the rendered axe-incomplete class. They
 are separate positive receipts around the still-unrun Storybook/Chromium probe.
 No heavy or contended lane was started alongside them.
+
+## DS6-C01-R1 — count-message gate correction and active plural repair — 2026-08-11
+
+### Supersession, authority, and complete census
+
+This receipt supersedes C01's 28-entry `Set` and key-only Russian freeze claims.
+The complete pre-repair census is **28 = 19 + 4 + 5**: nineteen genuinely
+invariant active count-message identities, four mandatory Ukrainian-agreement
+defects, and five individually adjudicated English-technical cases. The five
+decisions are: pluralize `pages.composer.curatedConstraints` (no tracked caller,
+so a future singular caller must not be silently admitted); pluralize
+`pages.composer.capabilitiesVisible` (a live caller admits one capability);
+pluralize `pages.evidence.totalProfiles` (the card admits zero, one, and many);
+retain `panels.reviewCollaboration.reviewers` because its only tracked caller
+uses it only for `participants.length > 1` and uses `solo` for singular; and
+pluralize `panels.agentPipeline.variants` (its guard admits one). The active
+exemption map therefore contains exactly the nineteen invariant identities plus
+the retained caller-domain `reviewers` identity, each with a trimmed,
+path-specific reason.
+
+Russian is `legacy_continuity_frozen`, not an active count-rule locale. The gate
+preserves its 2,449 sorted-key SHA-256
+`67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8` and
+its sorted `[path,value]` leaf SHA-256
+`0426d4ce0397027d25f5a2053bce794b12e31fbe3757d3afefb24de6ba3f45eb`, using
+an explicit code-unit path comparator. The catalog byte SHA-256 remains
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+
+### Red/green receipt and exact diff
+
+TDD red ran before either active locale changed:
+
+```bash
+corepack pnpm exec vitest run src/shared/i18n/parity.test.ts --maxWorkers=2 --reporter=default
+```
+
+Receipt: 1/1 file, 14 tests, 11 expected failures. The new active-locale gate
+reported the eight unrepaired identities; eight table-driven formatter rows
+showed the literal singular/plural mismatch; the exact-exemption assertion also
+reported the unrepaired identities. The frozen Russian and both rejection
+witnesses passed. After only the specified `en`/`uk` repairs, the same command
+passed 1/1 file and 14/14 tests in 669 ms (32 ms test body).
+
+The exact five-path diff is:
+
+- `apps/runtime-dashboard/src/shared/i18n/parity.test.ts` — map-backed active
+  gate, complete-map assertion, real ICU helpers, Russian value fingerprint,
+  formatter rows, and two rejection witnesses.
+- `apps/runtime-dashboard/src/shared/i18n/locales/en.json` — eight specified
+  plural messages repaired.
+- `apps/runtime-dashboard/src/shared/i18n/locales/uk.json` — eight specified
+  plural messages repaired with `one`/`few`/`many`/`other` forms.
+- `docs/plans/active/atlas-slices/DS6-evidence-workflow.md` — C01-R1
+  authorization, five-path cap, Russian ruling, and deferred 776/776/0
+  expectation; actual whole-suite totals remain controlling and a mismatch must
+  stop rather than be copied.
+- `docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md` — this
+  correction/receipt section.
+
+This is the first mechanism-changing round for DS6-C01-R1: it changes the
+count-message gate from a key-presence check to a recomputed active-locale
+semantic rule and changes the eight active message semantics. It is not a
+receipt-only round. The `flatMap` callback-index defect found in the first
+post-repair run was corrected in the test helper invocation; the final receipt
+is green.
+
+### Duplication, review state, and non-receipts
+
+The canonical owner remains `parity.test.ts`; this repair extends that gate and
+the existing ICU formatter instead of adding a scanner or ICU recognizer. No
+product-surface registry, Russian locale, baseline manifest, a11y denominator,
+DS5 path, GY path, or contended artifact changed. Independent specification and
+quality reviews remain pending before the controller creates the single cluster
+commit.
+
+No whole-suite Vitest, Storybook/browser, Playwright, dev server, full lint,
+full typecheck, full build, or contended baseline lifecycle writer ran. Those
+heavy and contended actions remain non-receipts under the deferred package; C03
+through C06 and C13 remain behind their existing gates. Capability truth is a
+focused local gate with semantic and negative witnesses; the governed baseline
+transition remains `surface_missing` and `verification_missing` pending C03's
+authorized whole-suite evidence.
+
+## DS6-C01-R1 — fix round 1 / mechanism-changing round 2 — 2026-08-11
+
+The active plan binding calls the durable Russian assertion
+`keeps the legacy-continuity Russian key set frozen`; the test title is restored
+to that exact anchor while retaining the value-sensitive leaf fingerprint.
+
+The complete-census denominator is now recorded from the **read-only Node JSON
+walk** at pinned working base `2fc42db92c1bf2e40e77157ffb2528b83e717fe9`.
+It parsed 3/3 exact catalog JSON paths —
+`apps/runtime-dashboard/src/shared/i18n/locales/en.json`,
+`apps/runtime-dashboard/src/shared/i18n/locales/uk.json`, and
+`apps/runtime-dashboard/src/shared/i18n/locales/ru.json` — traversed 2,449
+leaves in each catalog, and enumerated 28 non-ICU `{count}` identities in each.
+That complete walk is the denominator receipt for the inherited
+**28 = 19 + 4 + 5** census; it is not inferred from a sample or search index.
+
+The real `Intl.NumberFormat("uk-UA").format(1001)` witness is literal
+`1 001` (U+00A0). `IntlMessageFormat` selects the Ukrainian `other` branch for
+that formatted value and for the nonnumeric unavailable value. The four
+agreement-sensitive `other` branches are therefore neutral label/value forms:
+`Активні запуски: {count}; …`,
+`Decision-bearing запуски, готові до відкриття з fleet: {count}.`,
+`Пов'язані needs: {count}`, and `Події: {count}`. One/few/many remain the
+specified agreement forms. The existing eight-row table now proves both literal
+grouped and unavailable values through the real formatter without adding
+per-path test identities.
+
+The count gate still uses the real `isPluralMessage` recognition helper, but
+now also constructs `IntlMessageFormat` with the formatter's dependency. A
+plural-marker string that fails that parser is a violation even when the map
+contains a non-empty reason. The same live helper proves this with
+`{count, plural,}`. This closes the prior regex-only/raw-template gap rather
+than checking source markers.
+
+Red first, before the four Ukrainian `other` branches and parser-backed gate:
+the focused command ran 1/1 file with 15 tests and 5 expected failures — four
+literal grouped-string semantic rows selected false singular/genitive forms,
+and malformed `{count, plural,}` was admitted by an exemption reason. After the
+minimal repair, the same command passed 1/1 file and 15/15 tests in 650 ms
+(36 ms test body). The focused denominator is 15; the deferred C03 expected
+green transition is `777/777/0`, while the committed open state remains
+`766/763/3` and the authorized whole-suite receipt still controls.
+
+This is DS6-C01-R1's **second and final mechanism-changing round**. Any further
+mechanism-changing finding trips the DS6 breaker; review remains pending, no
+commit occurred, and all heavy/contended lanes remain non-receipts.
+
+### Final independent review record — documentation-only closeout
+
+The initial specification review raised the P36 durable-anchor drift as
+Important and the P35 complete-census denominator gap as Minor. The initial
+quality review raised the formatted grouped-string agreement gap and malformed
+ICU admission as Important. Mechanism-changing round 2 closed all four
+findings.
+
+The scoped quality re-review is **APPROVED** with no new breakage. The
+specification review records its two initial findings as **ADDRESSED**. Its
+brief-conflict objections were re-verdict clean after the controller-approved
+ignored-brief amendment; there is no specification blocker.
+
+This append records review state only and changes no mechanism byte. It is free
+under the mechanism-round breaker: source remains at mechanism round 2/2, and
+any further mechanism-changing finding still trips the breaker. Commit and the
+final focused rerun remain pending; neither is claimed by this documentation
+receipt.

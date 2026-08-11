@@ -74,9 +74,9 @@ JSON Schema, and repository architecture guardrails.
   skip, quarantine, tolerance widening, CI edit, merge, push, rebase, force
   push, or stash-as-storage. One scoped commit follows independent review for
   each entered cluster.
-- Only DS6-C00 through DS6-C02 are authorized now. DS6-C03 and later are
-  declared so the full slice has caps, but remain stopped until their stated
-  gate and an explicit continuation authorization.
+- Only DS6-C01-R1 is authorized now, followed by DS6-C07 after its independent
+  source review. DS6-C03 through DS6-C06 and DS6-C13 remain stopped behind
+  their existing contended/heavy gates and explicit continuation authorization.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -135,10 +135,12 @@ product-surface change, or a gate would treat an incomplete/marker as evidence.
 1. `docs/brand/ATLAS_SOURCE_OF_TRUTH.md`, D4 at ratification commit
    `7b6933770`, controls locale meaning: `uk` is primary, `en` is
    baseline/fallback, and `ru` is `legacy_continuity_frozen`—not used and not
-   deleted. C01 replaces three-way active parity with active `uk`/`en` parity
-   and a content-bound frozen Russian key-set assertion. The frozen assertion,
-   not absence from active parity, carries “not deleted.” DS5 separately owns
-   removal of active `ru` exposure; DS6 does not claim that mechanic complete.
+   deleted. C01-R1 replaces three-way active parity with an active `uk`/`en`
+   count-message gate and freezes Russian continuity with exact cardinality,
+   sorted-key, and sorted `[path,value]` fingerprints. The frozen assertions,
+   not absence from active parity, carry “not deleted” and value continuity.
+   DS5 separately owns removal of active `ru` exposure; DS6 does not claim that
+   mechanic complete.
 2. The DS4 journal's four-cluster table is the contrast class authority until
    DS6 creates a typed row. Its 85/85 component and 21/21 browser receipts stay
    green around the class and never count `incomplete` green.
@@ -274,6 +276,30 @@ review is clean.
 
 **Expected commit:** `DS6-C01 close count parity and freeze Russian keys`.
 
+### Task 1R — DS6-C01-R1: justify count exemptions and repair active plurals
+
+**Paths:** `apps/runtime-dashboard/src/shared/i18n/parity.test.ts`,
+`apps/runtime-dashboard/src/shared/i18n/locales/en.json`,
+`apps/runtime-dashboard/src/shared/i18n/locales/uk.json`,
+`docs/plans/active/atlas-slices/DS6-evidence-workflow.md`, and
+`docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md`.
+**Declared path cap: 5.**
+
+Replace the key-only count allowlist with path-specific non-empty reasons;
+recompute active `en`/`uk` non-ICU count identities through the real ICU helper;
+reject missing, blank, stale, and newly introduced identities; and exercise the
+real formatter for the eight repaired messages. Parse plural syntax with the
+same `IntlMessageFormat` dependency as the formatter so malformed plural
+templates fail regardless of an exemption reason. Russian remains
+`legacy_continuity_frozen`, outside the active count rule, with the exact
+2,449-key, sorted-key, and value-sensitive leaf fingerprints preserved.
+
+Acceptance: the focused parity file has exactly 15 passing tests, including the
+three rejection witnesses and eight formatter rows; `ru.json` remains byte
+unchanged; independent source review precedes the cluster commit.
+
+**Expected commit:** `DS6-C01-R1 justify count exemptions and repair active plurals`.
+
 ### Task 2 — DS6-C02: add the opaque-background contrast probe
 
 **Paths:** the typed classifier/registry, its focused contract test, one
@@ -403,6 +429,7 @@ complete.
 | --- | --- | ---: |
 | C00 | `DS6-C00 open evidence workflow slice` | 2 |
 | C01 | `DS6-C01 close count parity and freeze Russian keys` | 2 |
+| C01-R1 | `DS6-C01-R1 justify count exemptions and repair active plurals` | 5 |
 | C02 | `DS6-C02 add opaque rendered-contrast probe` | 4 |
 | C03 | `DS6-C03 rebind i18n baseline lifecycle` | 9 |
 | C04 | `DS6-C04 admit rendered-contrast evidence debt` | 6 |
@@ -431,7 +458,7 @@ hand edit:
    `vitest.disposition` `rebind_pending -> resolved`; `exit_code` `1 -> 0`;
    `test_files` `{total:263,passed:262,failed:1} ->
    {total:263,passed:263,failed:0}`; `tests`
-   `{total:766,passed:763,failed:3} -> {total:766,passed:766,failed:0}`;
+   `{total:766,passed:763,failed:3} -> {total:777,passed:777,failed:0}`;
    `failure_set.sha256`
    `533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd
    -> 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`;

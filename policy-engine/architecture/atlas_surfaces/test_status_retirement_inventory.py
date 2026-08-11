@@ -68,7 +68,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         self.assertIsInstance(scan["authoritySinkDeclarations"], list)
         self.assertEqual(
             {
-                "current_authored": 15,
+                "current_authored": 13,
                 "ds1_rows": 47,
                 "semantic_retirement_debt": 0,
             },

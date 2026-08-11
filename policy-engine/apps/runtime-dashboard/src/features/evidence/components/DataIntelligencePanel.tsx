@@ -18,7 +18,7 @@ import {
 } from "@/app/realtime/ReviewCollaborationIndicators";
 import { buildPromotionReviewId } from "@/app/realtime/reviewIds";
 import { useReviewCollaborationSurface } from "@/app/realtime/useReviewCollaborationSurface";
-import { useQueuedPromotionDecision } from "@/features/evidence/hooks/useQueuedPromotionDecision";
+import { useLivePromotionDecision } from "@/features/evidence/hooks/useLivePromotionDecision";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import type {
   EvidenceArtifactRef,
@@ -186,10 +186,9 @@ export default function DataIntelligencePanel({
     approve,
     approveError,
     isDecisionPending,
-    queuedStateByPromotionId,
     reject,
     rejectError,
-  } = useQueuedPromotionDecision();
+  } = useLivePromotionDecision();
 
   useEffect(() => {
     if (!selectedNeed) {
@@ -295,16 +294,10 @@ export default function DataIntelligencePanel({
           matchedPlanId: null,
           metadata: candidate.metadata ?? {},
         }));
-  const promotionQueueWithOverrides = activePromotionQueue.map((candidate) => ({
-    ...candidate,
-    queuedState: queuedStateByPromotionId.get(candidate.promotionId) ?? null,
-    status:
-      queuedStateByPromotionId.get(candidate.promotionId)?.decision ??
-      candidate.status,
-  }));
+  const promotionQueue = activePromotionQueue;
   const activePromotionForReview =
     selectedPromotion ??
-    (mode === "context" ? (promotionQueueWithOverrides[0] ?? null) : null);
+    (mode === "context" ? (promotionQueue[0] ?? null) : null);
   const promotionCollaboration = useReviewCollaborationSurface({
     enabled:
       reviewCollaborationEnabled &&
@@ -329,35 +322,35 @@ export default function DataIntelligencePanel({
       {
         key: "metric",
         header: "metric",
-        exportValue: (row: (typeof promotionQueueWithOverrides)[number]) =>
+        exportValue: (row: (typeof promotionQueue)[number]) =>
           row.metricId,
       },
       {
         key: "connector",
         header: "connector",
-        exportValue: (row: (typeof promotionQueueWithOverrides)[number]) =>
+        exportValue: (row: (typeof promotionQueue)[number]) =>
           row.connectorId,
       },
       {
         key: "dataset",
         header: "dataset",
-        exportValue: (row: (typeof promotionQueueWithOverrides)[number]) =>
+        exportValue: (row: (typeof promotionQueue)[number]) =>
           row.datasetId,
       },
       {
         key: "status",
         header: "status",
-        exportValue: (row: (typeof promotionQueueWithOverrides)[number]) =>
+        exportValue: (row: (typeof promotionQueue)[number]) =>
           row.status,
       },
       {
         key: "confidence",
         header: "confidence",
-        exportValue: (row: (typeof promotionQueueWithOverrides)[number]) =>
+        exportValue: (row: (typeof promotionQueue)[number]) =>
           row.confidence,
       },
     ],
-    [promotionQueueWithOverrides],
+    [promotionQueue],
   );
   const unresolvedGapCount = Math.max(
     0,
@@ -373,11 +366,11 @@ export default function DataIntelligencePanel({
       ),
   );
   const averagePromotionConfidence =
-    promotionQueueWithOverrides.length > 0
-      ? promotionQueueWithOverrides.reduce(
+    promotionQueue.length > 0
+      ? promotionQueue.reduce(
           (sum, candidate) => sum + candidate.confidence,
           0,
-        ) / promotionQueueWithOverrides.length
+        ) / promotionQueue.length
       : 0;
 
   function renderSimpleList<
@@ -465,27 +458,11 @@ export default function DataIntelligencePanel({
 
     const mutation = decision === "approve" ? approve : reject;
 
-    mutation(
-      {
-        promotionId: candidate.promotionId,
-        reason: promotionReason.trim() || undefined,
-        ...(runId ? { runId } : {}),
-      },
-      {
-        onQueued: () => {
-          pushToast({
-            title:
-              decision === "approve"
-                ? t("panels.dataIntelligence.approveQueuedTitle")
-                : t("panels.dataIntelligence.rejectQueuedTitle"),
-            description: t(
-              "panels.dataIntelligence.promotionQueuedDescription",
-            ),
-            tone: "warning",
-          });
-        },
-      },
-    );
+    mutation({
+      promotionId: candidate.promotionId,
+      reason: promotionReason.trim() || undefined,
+      ...(runId ? { runId } : {}),
+    });
   }
 
   return (
@@ -1179,7 +1156,7 @@ export default function DataIntelligencePanel({
                 onClick={() =>
                   exportCsv(
                     "evidence-promotion-queue.csv",
-                    promotionQueueWithOverrides,
+                    promotionQueue,
                     promotionColumns,
                   )
                 }
@@ -1192,7 +1169,7 @@ export default function DataIntelligencePanel({
                 onClick={() =>
                   exportJson("evidence-promotion-queue.json", {
                     mode,
-                    promotions: promotionQueueWithOverrides,
+                    promotions: promotionQueue,
                     runId,
                   })
                 }
@@ -1206,6 +1183,29 @@ export default function DataIntelligencePanel({
           mode === "context" &&
           activePromotionForReview ? (
             <div className="mb-3 space-y-2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               <ReviewPresenceSummary
                 participants={promotionCollaboration.participants}
                 status={promotionCollaboration.status}
@@ -1245,13 +1245,13 @@ export default function DataIntelligencePanel({
               )}
             />
           </div>
-          {promotionQueueWithOverrides.length === 0 ? (
+          {promotionQueue.length === 0 ? (
             <p className="text-muted text-sm">
               {t("panels.dataIntelligence.noPromotionCandidates")}
             </p>
           ) : null}
           {renderSimpleList(
-            promotionQueueWithOverrides,
+            promotionQueue,
             (candidate) => (
               <div
                 key={candidate.promotionId}
@@ -1269,9 +1269,7 @@ export default function DataIntelligencePanel({
                 </p>
                 <p className="text-muted text-xs">
                   {t("panels.dataIntelligence.promotionCandidateMeta", {
-                    status: candidate.queuedState
-                      ? `${candidate.status} (${candidate.queuedState.queueStatus})`
-                      : candidate.status,
+                    status: candidate.status,
                     confidence: formatPercent(candidate.confidence),
                     createdAt: formatDate(candidate.createdAt),
                   })}

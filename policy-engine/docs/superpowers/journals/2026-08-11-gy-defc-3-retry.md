@@ -483,3 +483,109 @@ adjudicated the verification projection, the already-closed operational owner, a
 boundary; root alone inspected the branch and ran the five lightweight tests. No agent edited a
 source, tool, test, or artifact. `[P37: recomputed for orchestration; independently_reconciled for
 the two-agent bridge verdict]`
+
+## GY-DEF14 blast-radius gate — outside-four stop
+
+This continuation observed `codex/gy-defc-3-retry` attached and clean at
+`0ff4ed6814a6dd4c890df1f4c0a2b9b5b62842fe`, five commits ahead of `c1a89b6cf`.
+The committed `src/polisyos/data_forge/read_api/catalog.py` exists here, but the unrelated edit in
+the main worktree did not enter this retry worktree's tracked diff. The branch/head and current
+non-intersection are re-readable; no immutable start-status receipt was retained. `[P37: recomputed
+for current branch/head and changed-path non-intersection; not_established for historical start
+cleanliness]`
+
+`GY-DEF10` is dropped from this batch under the architect's ruling and the source adjudication
+recorded above. Transferable lesson: a measured claim in a plan expires when a commit lands against
+it, and an architect adjudication is a claim. `[P37: institutionally_supplied for the ruling;
+independently_reconciled for the stale-plan diagnosis]`
+
+### Complete counterfactual census
+
+The blocking walk enumerated the complete top-level JSON denominator
+`architecture/policy_design_case/*.json`: `353/353` paths, file-type denominator `json=353`, and
+`353/353` successfully parsed mappings. It did not substitute the recursive directory census, which
+is a different set. For every member it applied the current field-name predicate and the literal
+counterfactual from this task: a mapping is removed from the comparison projection only when its
+own direct `authority_provenance` value is exactly the string `verification`; absent or unrecognized
+declarations remain governing. `[P37: recomputed]`
+
+The walk found `23` exact verification-declared blocks across **five**, not four, stored artifact
+identities. It recomputed each affected producer's current self-identity using that producer's exact
+root exclusion and reproduced all five committed values before applying the counterfactual. The
+counterfactual removes `3,721` scalar leaves after the existing volatile-key projection:
+
+- `layer3_gy_confidence_ledger_contract.json`, `artifact_content_hash`, four blocks / `1,023`
+  leaves: `sha256:62df18eb9d78368cacc607790541d2237f66f9a7ab381ef83bf6116fdea4f225`
+  to `sha256:b07cad0ea16450bb17571c21f3a953a93da0c5d3434ca6265fce0eb3cab09314`;
+- `layer3_gy_depth_n_universality_contract.json`, `contract_content_hash`, ten blocks / `1,564`
+  leaves: `sha256:c50d0d70a89502a8a55111a87bf0b3fa549b20f83a7478a0683b8953c146212a`
+  to `sha256:5705126dbc5d3a564c7d7e9b90e378bd6cc500abb5f08f43cd087e2103fc94df`;
+- `layer3_gy_generation_cycle_contract.json`, `contract_content_hash`, two blocks / `212` leaves:
+  `sha256:90e0b024819495086752961c4d7ac80bb764586af8f89830504b8c0161c5912d`
+  to `sha256:fca36509a29d2890d6349dc9244b2907e3c18cf57a44bdb469a2018c9ffae686`;
+- `layer3_gy_promotion_contract.json`, `contract_content_hash`, three blocks / `210` leaves:
+  `sha256:a808d43e2ced33efe4772aaacc5507e68e46dd91fcfd072d7a2b5c2f78c67b0a`
+  to `sha256:6783a1560330e7f0649d4b09232896916bf2c7fe9458aeab149e4430f6edefbd`;
+- `layer3_gy_second_domain_cycle_entry_trace.json`, `trace_content_hash`, four blocks / `712`
+  leaves: `sha256:f9be282f0b16720d38440572aeecfc9c47f2566407fa5a68a8402796ef250430`
+  to `sha256:2902c76a66a70d4f8c29f60d2ed19a447301f8c6974f3e409dc116f7255ff509`.
+
+The block denominator is exact: confidence-ledger projections
+`/conformance_ledger_projection`, `/n12_epoch_reference_projection`,
+`/n9_promotion_projection`, `/real_ledger_projection`; Depth-N
+`/proof_recordings/{education,first_vertical,unseen}/compiled_run/recursive_run/nodes/0/cycle_run/`
+`promotion_port/receipts/{0..3,0..2,0..2}/confidence_ledger_projection`; generation-cycle
+`/generation_cycle_run/promotion_port/receipts/{0,1}/confidence_ledger_projection`; promotion
+`/{contract_lane_anytime_refusal,non_promotable_contract_stamp,production_honest_shadow}/`
+`confidence_ledger_projection`; and N10a trace
+`/generation_cycle_run/promotion_port/receipts/{0,1,2,3}/confidence_ledger_projection`.
+`[P37: recomputed]`
+
+The complete `353`-row artifact walk and every one of the `3,721` removed scalar leaf paths are
+preserved under `tmp/gy-defc-3-retry/def14-blast-radius/`:
+
+- `census.py` SHA-256
+  `014f7009072656ff65c8035068947a50409941f21acbbb17c6a32ae1dc9ec5f3`;
+- `summary.json` SHA-256
+  `e3819bdaafc83a658e83d029ee3f5ec3b2fc0102aee2f169e35f8c80de3c3d5e`;
+- `artifacts.jsonl` SHA-256
+  `f5c6316fb00dc4dddfd6a07e406359bac5b1e9ff1b1b1a1cc3874269faa0404e`;
+- `removed-leaves.jsonl` SHA-256
+  `0b5ef1e188a41ba44116c8e97b951a1f38e295206ade40a00722fb0264a06ec6`.
+
+Those ignored files are measurement evidence, not governed outputs. `[P37: recomputed]`
+
+Depth-N is the fifth identity and is outside the architect's named four. It contains the ten exact
+blocks above plus nine further mappings whose `authority_provenance` is the list
+`["verification"]`; the literal counterfactual treats those unrecognized declarations as governing,
+as required by the fail-closed rule. Their presence means the counterfactual census is a blast-radius
+witness only, not a typed repair projection or a writer allow-list. `[P37: recomputed for the
+serialized declarations and fifth identity; not_established for any repaired predicate]`
+
+### Branch and stop
+
+The task's third branch says anything outside the architect's four stops immediately. The fifth
+Depth-N identity therefore selects that branch. No unit test, source batch, posture gate,
+expected-delta declaration, N10a writer/check/rederive/corrupt lane, or cold N11 process was
+launched. No tracked product source, tracked tool, test, governed artifact, denominator,
+comparison/admission field, ledger scope, or ambient binding changed; the census wrote only the
+ignored measurement evidence named above. The accepted-reissue and single-cold-N11 allowances
+remain unused, and `owner_bundle_loaded` remains `not_established`. `[P37:
+institutionally_supplied for the branch rule and the allowances' opening state; recomputed for the
+current tracked product diff; not_established for the historical non-invocation negative and the
+objective]`
+
+Smallest next closure, described and not performed: the architect must first adjudicate the fifth
+Depth-N member and the nine unrecognized declaration shapes, then authorize a typed, versioned
+runtime-quality-owned N6/N9 comparison projection, its recomputation validator, the N10a validation
+bridge, and the complete batched reissue/verification set. A tool-local or PDC-local projection and
+a bare JSON declaration cannot themselves carry an authority-grade exclusion predicate. `[P37:
+not_established]`
+
+The three tracks newly dispatched for this gate were `def14_blast_radius_audit`,
+`def14_predicate_design_audit`, and `def14_wave_audit`, covering the `353`-artifact census, the
+predicate/ownership boundary, and the stopped wave. The dispatches selected Terra and no Sol. Root
+alone is reported to have run the read-only census and written only ignored measurement evidence plus
+this journal. Two agents independently confirmed the outside-four stop. `[P37: consumer_asserted for
+the dispatch set, model selection, and root-only execution; independently_reconciled for the stop;
+not_established for historical no-agent-write/no-agent-launch negatives]`

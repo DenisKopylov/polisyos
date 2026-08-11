@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
 
@@ -24,6 +24,12 @@ from .layer2_readiness import (
 
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
 GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+
+GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
+
+
+GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v1"
+
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
 GY_CONTENT_HASH_EXCLUDED_FIELDS = (
@@ -169,37 +175,26 @@ class GyOperationalReconciliationError(ValueError):
         return self.safe_detail
 
 
-def is_gy_content_hash_excluded_field(
-    key: str,
-    value: object = _GY_CONTENT_HASH_VALUE_MISSING,
-) -> bool:
-    """Return whether a field is excluded by the canonical GY hash owner.
-
-    Operational fields are classified by their canonical names. A mapping-valued
-    field is also excluded when its own direct ``authority_provenance`` declaration
-    is a non-empty scalar or list made entirely of recognized non-authority values.
-    Missing, malformed, empty, mixed-authority, and unrecognized declarations fail
-    closed and remain content-bearing.
-
-    Args:
-        key: Field name in the containing mapping.
-        value: Field value, when the caller has the containing payload context.
-
-    Returns:
-        Whether the field is absent from the compared content projection.
-    """
+def is_gy_content_hash_excluded_field(key: str) -> bool:
+    """Return whether ``key`` is an operational GY content-hash exclusion."""
 
     normalized = key.lower()
-    operational = any(
+    return any(
         normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
         for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
     )
-    return operational or (
-        value is not _GY_CONTENT_HASH_VALUE_MISSING and _is_gy_declared_non_authority_block(value)
-    )
 
 
-def _is_gy_declared_non_authority_block(value: object) -> bool:
+
+
+def is_gy_declared_non_authority_block(value: object) -> bool:
+    """Return whether a block declares only recognized non-authority provenance.
+
+    This function classifies the declaration only. It does not establish producer
+    provenance or content integrity and therefore never changes ``gy_content_hash``.
+    A comparison owner must separately admit the block through its typed producer.
+    """
+
     if not isinstance(value, Mapping):
         return False
     declaration = value.get("authority_provenance", _GY_CONTENT_HASH_VALUE_MISSING)
@@ -213,29 +208,64 @@ def _is_gy_declared_non_authority_block(value: object) -> bool:
         provenance in _GY_NON_AUTHORITY_PROVENANCE for provenance in provenances
     )
 
-
 def strip_gy_volatile_fields(value: object) -> object:
-    """Return the canonical GY compared-content projection.
-
-    The source value is never mutated. Volatile fields and nested mappings that
-    recomputably declare themselves entirely non-authority are omitted only from
-    this projection; the full recorded evidence remains available to its artifact.
-    """
+    """Return ``value`` with operational timing fields removed recursively."""
 
     if isinstance(value, dict):
         return {
             str(key): strip_gy_volatile_fields(item)
             for key, item in value.items()
-            if not is_gy_content_hash_excluded_field(str(key), item)
+            if not is_gy_content_hash_excluded_field(str(key))
         }
     if isinstance(value, (list, tuple)):
-        return [
-            strip_gy_volatile_fields(item)
-            for item in value
-            if not _is_gy_declared_non_authority_block(item)
-        ]
+        return [strip_gy_volatile_fields(item) for item in value]
     return value
 
+
+def strip_gy_comparison_fields(
+    value: object,
+    *,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool],
+) -> object:
+    """Return an owner-admitted GY comparison projection.
+
+    Operational fields are omitted by the existing canonical name rules. A
+    declaration-bearing mapping is omitted only when the caller's typed producer
+    admission callback independently validates that exact block. Missing,
+    malformed, unrecognized, mixed-authority, or unadmitted blocks remain
+    governing.
+    """
+
+    if isinstance(value, dict):
+        projected: dict[str, object] = {}
+        for key, item in value.items():
+            if is_gy_content_hash_excluded_field(str(key)):
+                continue
+            if (
+                is_gy_declared_non_authority_block(item)
+                and isinstance(item, Mapping)
+                and admit_non_authority_block(item)
+            ):
+                continue
+            projected[str(key)] = strip_gy_comparison_fields(
+                item,
+                admit_non_authority_block=admit_non_authority_block,
+            )
+        return projected
+    if isinstance(value, (list, tuple)):
+        return [
+            strip_gy_comparison_fields(
+                item,
+                admit_non_authority_block=admit_non_authority_block,
+            )
+            for item in value
+            if not (
+                is_gy_declared_non_authority_block(item)
+                and isinstance(item, Mapping)
+                and admit_non_authority_block(item)
+            )
+        ]
+    return value
 
 def gy_content_hash(value: object) -> str:
     """Return a GY evidence content hash over time-stripped canonical JSON."""
@@ -248,6 +278,24 @@ def gy_content_hash(value: object) -> str:
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(payload).hexdigest()
 
+
+def gy_comparison_content_hash(
+    value: object,
+    *,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool],
+) -> str:
+    """Hash the owner-admitted comparison projection of a full GY record."""
+
+    payload = json.dumps(
+        strip_gy_comparison_fields(
+            value,
+            admit_non_authority_block=admit_non_authority_block,
+        ),
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     """Return the GY semantic payload for an artifact or its writer draft.
@@ -275,6 +323,7 @@ def reconcile_gy_operational_leaves(
     recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
     admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
     require_exact_match: bool = False,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None = None,
 ) -> object:
     """Preserve shared operational leaves only after semantic and shape agreement.
 
@@ -283,8 +332,18 @@ def reconcile_gy_operational_leaves(
     Mismatches report recursive paths and content identities, never raw values.
     """
 
-    previous_semantic = strip_gy_volatile_fields(previous)
-    current_semantic = strip_gy_volatile_fields(current)
+    projector = (
+        (
+            lambda value: strip_gy_comparison_fields(
+                value,
+                admit_non_authority_block=admit_non_authority_block,
+            )
+        )
+        if admit_non_authority_block is not None
+        else strip_gy_volatile_fields
+    )
+    previous_semantic = projector(previous)
+    current_semantic = projector(current)
     if previous_semantic != current_semantic:
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
@@ -293,7 +352,11 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    if not _gy_payload_shape_matches(previous, current):
+    if not _gy_payload_shape_matches(
+        previous,
+        current,
+        admit_non_authority_block=admit_non_authority_block,
+    ):
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_shape_mismatch",
             previous,
@@ -309,7 +372,11 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    return _reconcile_gy_operational_leaves(previous, current)
+    return _reconcile_gy_operational_leaves(
+        previous,
+        current,
+        admit_non_authority_block=admit_non_authority_block,
+    )
 
 
 def _gy_operational_reconciliation_error(
@@ -486,49 +553,100 @@ def _gy_json_pointer(parent: str, segment: str) -> str:
     return f"{parent}/{escaped}"
 
 
-def _gy_payload_shape_matches(previous: object, current: object) -> bool:
-    if _is_gy_declared_non_authority_block(previous) and _is_gy_declared_non_authority_block(
-        current
+def _gy_payload_shape_matches(
+    previous: object,
+    current: object,
+    *,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
+) -> bool:
+    if _gy_blocks_are_admitted_non_authority(
+        previous,
+        current,
+        admit_non_authority_block=admit_non_authority_block,
     ):
         return True
     if isinstance(previous, dict) and isinstance(current, dict):
         return set(previous) == set(current) and all(
-            _gy_payload_shape_matches(previous[key], current[key]) for key in previous
+            _gy_payload_shape_matches(
+                previous[key],
+                current[key],
+                admit_non_authority_block=admit_non_authority_block,
+            )
+            for key in previous
         )
     if isinstance(previous, (list, tuple)) and isinstance(current, (list, tuple)):
         return (
             type(previous) is type(current)
             and len(previous) == len(current)
             and all(
-                _gy_payload_shape_matches(left, right)
+                _gy_payload_shape_matches(
+                    left,
+                    right,
+                    admit_non_authority_block=admit_non_authority_block,
+                )
                 for left, right in zip(previous, current, strict=True)
             )
         )
     return type(previous) is type(current)
 
 
-def _reconcile_gy_operational_leaves(previous: object, current: object) -> object:
-    if _is_gy_declared_non_authority_block(previous) and _is_gy_declared_non_authority_block(
-        current
+def _gy_blocks_are_admitted_non_authority(
+    previous: object,
+    current: object,
+    *,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
+) -> bool:
+    return bool(
+        admit_non_authority_block is not None
+        and isinstance(previous, Mapping)
+        and isinstance(current, Mapping)
+        and is_gy_declared_non_authority_block(previous)
+        and is_gy_declared_non_authority_block(current)
+        and admit_non_authority_block(previous)
+        and admit_non_authority_block(current)
+    )
+
+def _reconcile_gy_operational_leaves(
+    previous: object,
+    current: object,
+    *,
+    admit_non_authority_block: Callable[[Mapping[str, object]], bool] | None,
+) -> object:
+    if _gy_blocks_are_admitted_non_authority(
+        previous,
+        current,
+        admit_non_authority_block=admit_non_authority_block,
     ):
-        return current
+        return previous
     if isinstance(previous, dict) and isinstance(current, dict):
         return {
             key: (
                 previous[key]
                 if is_gy_content_hash_excluded_field(str(key)) and key in previous
-                else _reconcile_gy_operational_leaves(previous[key], value)
+                else _reconcile_gy_operational_leaves(
+                    previous[key],
+                    value,
+                    admit_non_authority_block=admit_non_authority_block,
+                )
             )
             for key, value in current.items()
         }
     if isinstance(previous, list) and isinstance(current, list):
         return [
-            _reconcile_gy_operational_leaves(left, right)
+            _reconcile_gy_operational_leaves(
+                left,
+                right,
+                admit_non_authority_block=admit_non_authority_block,
+            )
             for left, right in zip(previous, current, strict=True)
         ]
     if isinstance(previous, tuple) and isinstance(current, tuple):
         return tuple(
-            _reconcile_gy_operational_leaves(left, right)
+            _reconcile_gy_operational_leaves(
+                left,
+                right,
+                admit_non_authority_block=admit_non_authority_block,
+            )
             for left, right in zip(previous, current, strict=True)
         )
     return current

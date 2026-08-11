@@ -941,6 +941,27 @@ class N9PromotionCertificateProjection(_StrictModel):
     maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> N9PromotionCertificateProjection:
+        expected = _content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_promotion_projection_hash_drift")
+        return self
+
+
+def n9_promotion_projection_comparison_eligible(value: object) -> bool:
+    """Return whether ``value`` is a content-bound verification N9 projection.
+
+    Strict DTO parsing and the projection's producer-owned self hash establish the
+    record before its verification provenance can route it into a non-governing
+    comparison projection. A bare provenance declaration is never sufficient.
+    """
+
+    try:
+        projection = N9PromotionCertificateProjection.model_validate(value)
+    except ValueError, TypeError:
+        return False
+    return projection.authority_provenance == "verification"
 
 class N12EpochReferenceProjection(_StrictModel):
     """Future N12 locator projection without implementing epochs."""
@@ -5393,7 +5414,9 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
     _IMPORT_TIME_DEPLOYMENT_BASELINE,
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
 ) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+
 _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
+
 (
     _IMPORT_TIME_LOADED_CODE_MANIFEST,
     _IMPORT_TIME_LOADED_CODE_CONSISTENT,

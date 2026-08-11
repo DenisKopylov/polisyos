@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import faulthandler
 import json
 import os
@@ -783,6 +784,20 @@ def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
     report = checker.validate_payload(contract, expected=contract)
     assert report["status"] == "pass", report["issues"]
 
+
+def test_confidence_contract_separates_full_record_and_comparison_identity() -> None:
+    payload = json.loads((POLICY_ENGINE_ROOT / checker.OUTPUT_PATH).read_text(encoding="utf-8"))
+    shifted = copy.deepcopy(payload)
+    projection = shifted["real_ledger_projection"]
+    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    projection["projection_hash"] = checker._ledger_content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    checker._set_confidence_contract_identities(payload)
+    checker._set_confidence_contract_identities(shifted)
+
+    assert payload["comparison_content_hash"] == shifted["comparison_content_hash"]
+    assert payload["artifact_content_hash"] != shifted["artifact_content_hash"]
 
 @pytest.mark.parametrize(
     ("field", "forged_value"),

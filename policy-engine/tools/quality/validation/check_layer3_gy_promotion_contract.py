@@ -22,11 +22,15 @@ from typing import Any
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     AuthorityBoundary,
     PromotionObligationClass,
+    gy_comparison_content_hash,
     gy_content_hash,
+    reconcile_gy_operational_leaves,
 )
 from polisyos.pdc._impl.layer2_design_search import (
     Layer2S6BlindSpotPostureInput,
@@ -36,6 +40,7 @@ from polisyos.pdc._impl.layer2_design_search import (
 from polisyos.runtime.quality.confidence_ledger import (
     CONDITIONAL_VALIDITY_CLAUSE,
     ConfidenceLedgerSession,
+    n9_promotion_projection_comparison_eligible,
 )
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -68,6 +73,13 @@ from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
+
+_COMPARISON_IDENTITY_FIELDS = {
+    "comparison_content_hash",
+    "comparison_projection_schema_version",
+    "comparison_rule_version",
+}
+
 _SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_no_self_promotion_guard",
     "source_flip_non_anytime_preflight_guard",
@@ -228,6 +240,7 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
     }
     payload["behavioral_mutations"] = _behavioral_mutations(payload)
     payload["capture_wall_time_seconds"] = round(time.monotonic() - started, 6)
+    _set_comparison_identity(payload)
     payload["contract_content_hash"] = _contract_content_hash(payload)
     return payload
 
@@ -244,6 +257,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         issues.append({"code": "scope_insufficient_promotion_policy_drift"})
     if payload.get("delta_caveat") != CONDITIONAL_VALIDITY_CLAUSE:
         issues.append({"code": "conditionality_clause_drift"})
+    issues.extend(_comparison_identity_issues(payload))
     expected_hash = _contract_content_hash(payload)
     if payload.get("contract_content_hash") != expected_hash:
         issues.append(
@@ -419,7 +433,9 @@ def build_contract_json_for_write(repo_root: Path) -> str:
 
     payload = build_payload(repo_root)
     payload.pop("capture_wall_time_seconds", None)
+    _set_comparison_identity(payload)
     payload["contract_content_hash"] = _contract_content_hash(payload)
+    payload = _reconcile_frozen_contract(repo_root, payload)
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
@@ -614,6 +630,7 @@ def validate_payload_without_mutation_check(payload: dict[str, Any]) -> dict[str
     stripped["behavioral_mutations"] = [
         {"mutation_id": item, "status": "red"} for item in _BEHAVIORAL_MUTATION_IDS
     ]
+    _set_comparison_identity(stripped)
     stripped["contract_content_hash"] = _contract_content_hash(stripped)
     return validate_payload(stripped)
 
@@ -731,6 +748,61 @@ def _contract_content_hash(payload: dict[str, Any]) -> str:
     }
     return gy_content_hash(stable)
 
+
+def _comparison_content_hash(payload: dict[str, Any]) -> str:
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+
+def _reconcile_frozen_contract(
+    repo_root: Path,
+    live: dict[str, Any],
+) -> dict[str, Any]:
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        return live
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    if not frozen.get("comparison_content_hash") or frozen.get(
+        "comparison_content_hash"
+    ) != live.get("comparison_content_hash"):
+        return live
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = reconcile_gy_operational_leaves(
+        frozen_body,
+        live_body,
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("promotion_contract_comparison_projection_invalid")
+    _set_comparison_identity(reconciled)
+    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
+    return reconciled
+
+def _set_comparison_identity(payload: dict[str, Any]) -> None:
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload)
+
+def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    if payload.get("comparison_content_hash") != _comparison_content_hash(payload):
+        issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 def _obligation_detail(
     receipt: CanonicalPromotionReceipt,

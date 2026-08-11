@@ -80,6 +80,41 @@ def test_n9_contract_rejects_deleted_projection_conditionality() -> None:
     assert "contract_lane_anytime_refusal_invalid" in {item["code"] for item in report["issues"]}
 
 
+def test_n9_contract_separates_full_record_from_verified_comparison_identity() -> None:
+    payload = checker.build_payload(POLICY_ENGINE_ROOT)
+    projection = payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"]
+    shifted = copy.deepcopy(payload)
+    shifted_projection = shifted["contract_lane_anytime_refusal"]["confidence_ledger_projection"]
+    shifted_projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    shifted_projection["projection_hash"] = checker.gy_content_hash(
+        {key: value for key, value in shifted_projection.items() if key != "projection_hash"}
+    )
+    checker._set_comparison_identity(shifted)
+    shifted["contract_content_hash"] = checker._contract_content_hash(shifted)
+
+    assert projection == payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"]
+    assert checker._comparison_content_hash(payload) == checker._comparison_content_hash(shifted)
+    assert checker._contract_content_hash(payload) != checker._contract_content_hash(shifted)
+    assert checker.validate_payload(payload)["status"] == "pass"
+    assert checker.validate_payload(shifted)["status"] == "pass"
+
+    stale = copy.deepcopy(shifted)
+    stale["contract_content_hash"] = payload["contract_content_hash"]
+    report = checker.validate_payload(stale)
+    assert report["status"] == "fail"
+    assert "contract_content_hash_drift" in {item["code"] for item in report["issues"]}
+
+    governing = copy.deepcopy(payload)
+    governing["scope_insufficient_promotion_policy"]["production"] += " changed"
+    assert checker._comparison_content_hash(payload) != checker._comparison_content_hash(governing)
+    checker._set_comparison_identity(governing)
+    governing["contract_content_hash"] = checker._contract_content_hash(governing)
+    governing_report = checker.validate_payload(governing)
+    assert governing_report["status"] == "fail"
+    assert "scope_insufficient_promotion_policy_drift" in {
+        item["code"] for item in governing_report["issues"]
+    }
+
 def test_n9_source_flip_harness_targets_current_n11_guards_and_tests() -> None:
     cases = checker._source_flip_cases()
 

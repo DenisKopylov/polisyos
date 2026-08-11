@@ -56,7 +56,10 @@ import argparse  # noqa: E402
 from pydantic import ValidationError  # noqa: E402
 
 from polisyos.pdc import (  # noqa: E402
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_CONTENT_HASH_EXCLUDED_FIELDS,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
@@ -64,9 +67,21 @@ from polisyos.pdc import (  # noqa: E402
 from polisyos.pdc._impl.gy_waist import (  # noqa: E402
     GyOperationalReconciliationError,
 )
+from polisyos.runtime.quality.confidence_ledger import (  # noqa: E402
+    n9_promotion_projection_comparison_eligible,
+)
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n10.depth_n_universality.v1"
 RULE_VERSION = "policyos.layer3.gy.n10.depth_n_universality.v1"
+
+_COMPARISON_IDENTITY_FIELDS = frozenset(
+    {
+        "comparison_content_hash",
+        "comparison_projection_schema_version",
+        "comparison_rule_version",
+    }
+)
+
 PRODUCER = (
     "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
 )
@@ -2672,11 +2687,10 @@ def _compiled_authority_source_projection(
     recursive_run = _mapping(_mapping(compiled_run).get("recursive_run"))
     promotions: list[dict[str, Any]] = []
     for node in _mappings(recursive_run.get("nodes")):
-        promotion = _mapping(
-            _mapping(node.get("cycle_run")).get("promotion_port")
-        )
+        promotion = _mapping(_mapping(node.get("cycle_run")).get("promotion_port"))
         receipts = _mappings(promotion.get("receipts"))
         promotions.append(
+            _with_depth_promotion_summary_identity(
             {
                 "node_ref": node.get("node_ref"),
                 "status": promotion.get("status"),
@@ -2685,29 +2699,93 @@ def _compiled_authority_source_projection(
                 "authority_provenance": sorted(
                     {
                         str(
-                            _mapping(
-                                receipt.get("confidence_ledger_projection")
-                            ).get("authority_provenance")
+                                _mapping(receipt.get("confidence_ledger_projection")).get(
+                                    "authority_provenance"
+                                )
                             or "not_established"
                         )
                         for receipt in receipts
                     }
                 ),
                 "all_receipts_non_consumer": bool(receipts)
-                and all(
-                    receipt.get("consumer_promotable") is False
-                    for receipt in receipts
-                ),
-                "certified_candidate_ids": _strings(
-                    promotion.get("certified_candidate_ids")
-                ),
-            }
+                    and all(receipt.get("consumer_promotable") is False for receipt in receipts),
+                    "certified_candidate_ids": _strings(promotion.get("certified_candidate_ids")),
+                },
+                projection_scope="depth_n_compiled_verification_promotion_summary",
+            )
         )
     return {
         "authority_scope": recursive_run.get("authority_scope"),
         "promotions": promotions,
     }
 
+
+def _with_depth_promotion_summary_identity(
+    payload: Mapping[str, Any],
+    *,
+    projection_scope: str,
+) -> dict[str, Any]:
+    values = {str(key): copy.deepcopy(value) for key, value in payload.items()}
+    values["projection_scope"] = projection_scope
+    values["projection_hash"] = gy_content_hash(values)
+    return values
+
+def _depth_non_authority_comparison_eligible(value: Mapping[str, object]) -> bool:
+    if n9_promotion_projection_comparison_eligible(value):
+        return True
+    scope = value.get("projection_scope")
+    expected_keys = {
+        "depth_n_compiled_verification_promotion_summary": {
+            "all_receipts_non_consumer",
+            "authority_provenance",
+            "certified_candidate_ids",
+            "node_ref",
+            "projection_hash",
+            "projection_scope",
+            "reason",
+            "receipt_count",
+            "status",
+        },
+        "depth_n_stage_verification_promotion_summary": {
+            "all_receipts_non_consumer",
+            "attempted",
+            "authority_provenance",
+            "authority_scope",
+            "certified_candidate_ids",
+            "owner",
+            "projection_hash",
+            "projection_scope",
+            "reason",
+            "receipt_count",
+            "status",
+        },
+    }.get(str(scope))
+    if expected_keys is None or set(value) != expected_keys:
+        return False
+    projection_hash = value.get("projection_hash")
+    if projection_hash != gy_content_hash(
+        {key: item for key, item in value.items() if key != "projection_hash"}
+    ):
+        return False
+    receipt_count = value.get("receipt_count")
+    if (
+        value.get("authority_provenance") != ["verification"]
+        or value.get("status") != "not_promoted"
+        or value.get("reason") != "verification_n9_sequence_non_consumer"
+        or type(receipt_count) is not int
+        or receipt_count < 1
+        or value.get("all_receipts_non_consumer") is not True
+        or value.get("certified_candidate_ids") != []
+    ):
+        return False
+    if scope == "depth_n_compiled_verification_promotion_summary":
+        return bool(value.get("node_ref"))
+    return bool(
+        value.get("attempted") is True
+        and value.get("authority_scope") == "contract_testing"
+        and value.get("owner")
+        == "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort"
+    )
 
 def _controlled_authority_source_projection_issues(
     projection: Mapping[str, Any],
@@ -2723,6 +2801,8 @@ def _controlled_authority_source_projection_issues(
     for index, promotion in enumerate(promotions):
         prefix = f"authority_source_promotion_{index}"
         receipt_count = promotion.get("receipt_count")
+        if not _depth_non_authority_comparison_eligible(promotion):
+            issues.append(f"{prefix}_comparison_projection_invalid")
         if promotion.get("status") != "not_promoted":
             issues.append(f"{prefix}_status_invalid")
         if promotion.get("reason") != "verification_n9_sequence_non_consumer":
@@ -5271,9 +5351,7 @@ def _project_domain_run(
     promotion_authority_provenance = sorted(
         {
             str(
-                _mapping(receipt.get("confidence_ledger_projection")).get(
-                    "authority_provenance"
-                )
+                _mapping(receipt.get("confidence_ledger_projection")).get("authority_provenance")
                 or "not_established"
             )
             for receipt in promotion_receipts
@@ -5300,6 +5378,21 @@ def _project_domain_run(
     )
     evidence_kind = str(evidence_witness["kind"])
     decision_grade = str(evidence_witness["decision_grade"])
+    promotion_summary = _with_depth_promotion_summary_identity(
+        {
+            "attempted": True,
+            "owner": "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+            "authority_scope": recursive_run.authority_scope,
+            "authority_provenance": promotion_authority_provenance,
+            "status": promotion_payload.get("status"),
+            "reason": promotion_payload.get("reason"),
+            "receipt_count": len(promotion_receipts),
+            "all_receipts_non_consumer": bool(promotion_receipts)
+            and all(receipt.get("consumer_promotable") is False for receipt in promotion_receipts),
+            "certified_candidate_ids": _strings(promotion_payload.get("certified_candidate_ids")),
+        },
+        projection_scope="depth_n_stage_verification_promotion_summary",
+    )
     stage_trace: dict[str, Any] = {
         "generation": {
             "attempted": True,
@@ -5318,12 +5411,8 @@ def _project_domain_run(
             "prompt_slice_operator_kinds": _strings(
                 generation_projection.get("prompt_slice_operator_kinds")
             ),
-            "proposed_lever_ids": [
-                str(row.get("operator_kind") or "") for row in proposed
-            ],
-            "proposed_candidate_ids": [
-                str(row.get("proposal_id") or "") for row in proposed
-            ],
+            "proposed_lever_ids": [str(row.get("operator_kind") or "") for row in proposed],
+            "proposed_candidate_ids": [str(row.get("proposal_id") or "") for row in proposed],
             "proposed_raw_candidate_hashes": [
                 str(row.get("raw_candidate_hash") or "") for row in proposed
             ],
@@ -5350,9 +5439,7 @@ def _project_domain_run(
             ],
             "issue_codes": list(cycle.grounding.issue_codes),
             "owner_observation": grounding_observation,
-            "owner_observation_content_hash": gy_content_hash(
-                grounding_observation
-            ),
+            "owner_observation_content_hash": gy_content_hash(grounding_observation),
         },
         "simulation": {
             "attempted": True,
@@ -5375,9 +5462,7 @@ def _project_domain_run(
             "decision_grade": value.decision_grade,
             "selected_method_fqn": value.selected_method_fqn,
             "advisor_selection_receipt_content_hash": (
-                selection_receipt.content_hash
-                if selection_receipt is not None
-                else None
+                selection_receipt.content_hash if selection_receipt is not None else None
             ),
             "acquisition_requirement_id": (
                 value.acquisition_requirement.requirement_gap_id
@@ -5390,36 +5475,16 @@ def _project_domain_run(
         "acquisition": {
             "attempted": acquisition_report is not None,
             "owner": "polisyos.runtime.quality.acquisition_planner",
-            "route_kind": (
-                "n7_requirement_gap" if acquisition_report is not None else None
-            ),
+            "route_kind": ("n7_requirement_gap" if acquisition_report is not None else None),
             "planner_report_content_hash": (
                 gy_content_hash(
-                    acquisition_report.model_dump(
-                        mode="json", exclude={"generated_at"}
-                    )
+                    acquisition_report.model_dump(mode="json", exclude={"generated_at"})
                 )
                 if acquisition_report is not None
                 else None
             ),
         },
-        "promotion": {
-            "attempted": True,
-            "owner": "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
-            "authority_scope": recursive_run.authority_scope,
-            "authority_provenance": promotion_authority_provenance,
-            "status": promotion_payload.get("status"),
-            "reason": promotion_payload.get("reason"),
-            "receipt_count": len(promotion_receipts),
-            "all_receipts_non_consumer": bool(promotion_receipts)
-            and all(
-                receipt.get("consumer_promotable") is False
-                for receipt in promotion_receipts
-            ),
-            "certified_candidate_ids": _strings(
-                promotion_payload.get("certified_candidate_ids")
-            ),
-        },
+        "promotion": promotion_summary,
     }
     compiler_receipt = {
         "owner": (
@@ -5428,12 +5493,8 @@ def _project_domain_run(
         ),
         "tool_name": "emit_design_problem",
         "model_id": compiler_recording.get("model_id"),
-        "raw_request_content_hash": compiler_recording.get(
-            "raw_request_content_hash"
-        ),
-        "recording_content_hash": compiler_recording.get(
-            "recording_content_hash"
-        ),
+        "raw_request_content_hash": compiler_recording.get("raw_request_content_hash"),
+        "recording_content_hash": compiler_recording.get("recording_content_hash"),
         "design_problem_ref": compiled.design_problem_ref,
         "used_committed_fixture": False,
     }
@@ -5444,9 +5505,7 @@ def _project_domain_run(
         "compiler_receipt": compiler_receipt,
         "design_problem": compiled.design_problem.model_dump(mode="json"),
         "design_problem_ref": compiled.design_problem_ref,
-        "cycle_substrate_context_ref": getattr(
-            cycle_substrate_context, "content_hash", None
-        ),
+        "cycle_substrate_context_ref": getattr(cycle_substrate_context, "content_hash", None),
         "recursive_run_content_hash": recursive_run.content_hash,
         "generation_cycle_run_id": cycle_run.run_id,
         "stage_trace": stage_trace,
@@ -5464,9 +5523,7 @@ def _project_domain_run(
     if role == "education":
         baseline = _read_json(repo_root / N10A_TRACE_PATH)
         baseline_diff = _mapping(baseline.get("baseline_diff"))
-        baseline_terminal = str(
-            baseline_diff.get("baseline_terminal_kind") or ""
-        )
+        baseline_terminal = str(baseline_diff.get("baseline_terminal_kind") or "")
         run["baseline_diff"] = {
             "baseline_terminal": baseline_terminal,
             "current_terminal": recursive_run.terminal.kind.value,
@@ -5721,7 +5778,7 @@ async def _complete_payload_from_recordings(
             "runtime_metrics": {"lane": "cached"},
         }
     )
-    base["contract_content_hash"] = _contract_content_hash(base)
+    _set_artifact_identities(base)
     return base
 
 
@@ -6059,9 +6116,7 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
         "proof_status": "proof_runs_pending",
-        "universality_terminal_expectation": copy.deepcopy(
-            UNIVERSALITY_TERMINAL_EXPECTATION
-        ),
+        "universality_terminal_expectation": copy.deepcopy(UNIVERSALITY_TERMINAL_EXPECTATION),
         "capability_reality": {
             "producer": "producer_missing",
             "artifact": "artifact_missing",
@@ -6076,22 +6131,14 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
             "status": "acquisition_required",
             "native_contract_families": families,
             "supported_native_families": len(families),
-            "fork_a_candidate_count": len(
-                census.get("fork_a_evidence_candidate_refs") or []
-            ),
+            "fork_a_candidate_count": len(census.get("fork_a_evidence_candidate_refs") or []),
             "census_content_hash": census.get("content_hash"),
-            "raw_census_content_hash": census.get(
-                "raw_full_table_content_hash"
-            ),
+            "raw_census_content_hash": census.get("raw_full_table_content_hash"),
             "first_vertical_terminal": {
                 "status": production.get("status"),
-                "authority_blockers": list(
-                    production.get("authority_blockers") or []
-                ),
+                "authority_blockers": list(production.get("authority_blockers") or []),
                 "decision_grade": production.get("decision_grade"),
-                "acquisition_requirement": production.get(
-                    "acquisition_requirement"
-                ),
+                "acquisition_requirement": production.get("acquisition_requirement"),
                 "receipt_content_hash": production.get("content_hash"),
             },
         },
@@ -6111,9 +6158,7 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
             "observed_max_depth": recursive_run.get("observed_max_depth"),
             "recursive_run_content_hash": recursive_run.get("content_hash"),
             "recursive_graph_ref": recursive_run.get("recursive_graph_ref"),
-            "recursive_graph_content_hash": recursive_run.get(
-                "recursive_graph_content_hash"
-            ),
+            "recursive_graph_content_hash": recursive_run.get("recursive_graph_content_hash"),
             "joint_simulation_receipts": joint_receipts,
             "composition_receipts": [
                 {
@@ -6134,7 +6179,7 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
         },
         "runtime_metrics": {"lane": lane},
     }
-    payload["contract_content_hash"] = _contract_content_hash(payload)
+    _set_artifact_identities(payload)
     return payload
 
 
@@ -6153,10 +6198,9 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         issues.append({"code": "schema_version_mismatch"})
     if payload.get("rule_version") != RULE_VERSION:
         issues.append({"code": "rule_version_mismatch"})
-    if payload.get("content_hash_excluded_fields") != list(
-        GY_CONTENT_HASH_EXCLUDED_FIELDS
-    ):
+    if payload.get("content_hash_excluded_fields") != list(GY_CONTENT_HASH_EXCLUDED_FIELDS):
         issues.append({"code": "content_hash_exclusion_declaration_invalid"})
+    issues.extend(_comparison_identity_issues(payload))
     if payload.get("contract_content_hash") != _contract_content_hash(payload):
         issues.append({"code": "contract_content_hash_mismatch"})
 
@@ -6194,20 +6238,15 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     ):
         issues.append({"code": "fork_b_evidence_invalid"})
     education = _mapping(payload.get("education_refusal"))
-    if (
-        education.get("status") != "value_blocked"
-        or education.get("authority_blockers")
-        != ["method_estimand_binding_mismatch"]
-    ):
+    if education.get("status") != "value_blocked" or education.get("authority_blockers") != [
+        "method_estimand_binding_mismatch"
+    ]:
         issues.append({"code": "education_refusal_invalid"})
     depth = _mapping(payload.get("depth_evidence"))
     if int(depth.get("observed_max_depth") or 0) <= 2:
         issues.append({"code": "depth_n_evidence_missing"})
     strangle = _mapping(payload.get("gy_g_strangle_receipt"))
-    if (
-        strangle.get("status") != "strangled"
-        or strangle.get("production_fixture_callers") != []
-    ):
+    if strangle.get("status") != "strangled" or strangle.get("production_fixture_callers") != []:
         issues.append({"code": "gy_g_strangle_receipt_invalid"})
     volatile_paths = _volatile_content_paths(payload)
     if volatile_paths:
@@ -6719,9 +6758,7 @@ def _domain_terminal_honesty_issues(
     issues: list[dict[str, Any]] = []
     if dict(expectation) != UNIVERSALITY_TERMINAL_EXPECTATION:
         issues.append({"code": "domain_terminal_expectation_drift"})
-    required_roles = _strings(
-        UNIVERSALITY_TERMINAL_EXPECTATION["required_domain_roles"]
-    )
+    required_roles = _strings(UNIVERSALITY_TERMINAL_EXPECTATION["required_domain_roles"])
     if set(domain_runs) != set(required_roles):
         issues.append({"code": "domain_terminal_role_denominator_missing"})
 
@@ -6771,30 +6808,22 @@ def _domain_terminal_honesty_issues(
             grounding_observation = CandidateGroundingObservation.model_validate(
                 grounding_stage.get("owner_observation")
             )
-            value_observation = ValuePortObservation.model_validate(
-                value.get("owner_observation")
-            )
+            value_observation = ValuePortObservation.model_validate(value.get("owner_observation"))
             grounding_payload = grounding_observation.model_dump(mode="json")
-            value_payload = value_observation.model_dump(
-                mode="json", exclude={"wall_time_ms"}
-            )
-            selected_candidate_ref = str(
-                grounding_stage.get("selected_candidate_ref") or ""
-            )
+            value_payload = value_observation.model_dump(mode="json", exclude={"wall_time_ms"})
+            selected_candidate_ref = str(grounding_stage.get("selected_candidate_ref") or "")
             selection_receipt = value_observation.method_selection_receipt
             if (
                 selected_candidate_ref != grounding_observation.candidate_id
                 or grounding_stage.get("status") != grounding_observation.status
-                or grounding_stage.get("source")
-                != grounding_observation.grounding_source
+                or grounding_stage.get("source") != grounding_observation.grounding_source
                 or _strings(grounding_stage.get("issue_codes"))
                 != list(grounding_observation.issue_codes)
                 or value.get("status") != value_observation.status
                 or _strings(value.get("authority_blockers"))
                 != list(value_observation.authority_blockers)
                 or value.get("decision_grade") != value_observation.decision_grade
-                or value.get("selected_method_fqn")
-                != value_observation.selected_method_fqn
+                or value.get("selected_method_fqn") != value_observation.selected_method_fqn
                 or value.get("advisor_selection_receipt_content_hash")
                 != (selection_receipt.content_hash if selection_receipt else None)
                 or value.get("acquisition_requirement_id")
@@ -6804,23 +6833,15 @@ def _domain_terminal_honesty_issues(
                     else None
                 )
             ):
-                raise UniversalityContractError(
-                    "domain_owner_observation_projection_mismatch"
-                )
+                raise UniversalityContractError("domain_owner_observation_projection_mismatch")
             if grounding_stage.get("owner_observation_content_hash") != gy_content_hash(
                 grounding_payload
             ):
-                raise UniversalityContractError(
-                    "domain_grounding_observation_hash_mismatch"
-                )
-            if value.get("owner_observation_content_hash") != gy_content_hash(
-                value_payload
-            ):
+                raise UniversalityContractError("domain_grounding_observation_hash_mismatch")
+            if value.get("owner_observation_content_hash") != gy_content_hash(value_payload):
                 raise UniversalityContractError("domain_value_observation_hash_mismatch")
             planner_payload = _mapping(
-                _mapping(terminal.get("costed_plan")).get(
-                    "canonical_planner_report"
-                )
+                _mapping(terminal.get("costed_plan")).get("canonical_planner_report")
             )
             planner_report = (
                 AcquisitionPlannerReport.model_validate(planner_payload)
@@ -6863,10 +6884,15 @@ def _domain_terminal_honesty_issues(
                     "observed": distribution.get("evidence_kind"),
                 }
             )
-        if promotion.get("authority_scope") != "contract_testing":
+        if not _depth_non_authority_comparison_eligible(promotion):
             issues.append(
-                {"code": "domain_promotion_authority_scope_invalid", "role": role}
+                {
+                    "code": "domain_promotion_comparison_projection_invalid",
+                    "role": role,
+                }
             )
+        if promotion.get("authority_scope") != "contract_testing":
+            issues.append({"code": "domain_promotion_authority_scope_invalid", "role": role})
         if _strings(promotion.get("authority_provenance")) != ["verification"]:
             issues.append(
                 {
@@ -6875,13 +6901,10 @@ def _domain_terminal_honesty_issues(
                 }
             )
         if promotion.get("reason") != "verification_n9_sequence_non_consumer":
-            issues.append(
-                {"code": "domain_promotion_reason_invalid", "role": role}
-            )
+            issues.append({"code": "domain_promotion_reason_invalid", "role": role})
         receipt_count = promotion.get("receipt_count")
         if (
-            distribution.get("decision_grade")
-            != expected_witness["decision_grade"]
+            distribution.get("decision_grade") != expected_witness["decision_grade"]
             or run.get("promotion_reached") is not False
             or promotion.get("status") != "not_promoted"
             or type(receipt_count) is not int
@@ -6889,15 +6912,11 @@ def _domain_terminal_honesty_issues(
             or promotion.get("all_receipts_non_consumer") is not True
             or _strings(promotion.get("certified_candidate_ids"))
         ):
-            issues.append(
-                {"code": "domain_terminal_authority_incoherent", "role": role}
-            )
+            issues.append({"code": "domain_terminal_authority_incoherent", "role": role})
 
         if terminal_kind == "acquisition_required":
             costed_plan = _mapping(terminal.get("costed_plan"))
-            planner_report = _mapping(
-                costed_plan.get("canonical_planner_report")
-            )
+            planner_report = _mapping(costed_plan.get("canonical_planner_report"))
             route_verified = (
                 acquisition.get("attempted") is True
                 and acquisition.get("route_kind")
@@ -6907,25 +6926,14 @@ def _domain_terminal_honesty_issues(
                 == gy_content_hash(planner_report)
             )
             if not route_verified:
-                issues.append(
-                    {"code": "domain_acquisition_route_unverified", "role": role}
-                )
-        elif (
-            not str(terminal.get("reason") or "").strip()
-            or (
+                issues.append({"code": "domain_acquisition_route_unverified", "role": role})
+        elif not str(terminal.get("reason") or "").strip() or (
                 not _strings(terminal.get("blocking_obligations"))
                 and terminal.get("budget_kind") is None
-            )
         ):
-            issues.append(
-                {"code": "domain_typed_terminal_route_missing", "role": role}
-            )
+            issues.append({"code": "domain_typed_terminal_route_missing", "role": role})
 
-    minimum_classes = int(
-        UNIVERSALITY_TERMINAL_EXPECTATION[
-            "minimum_distinct_degradation_classes"
-        ]
-    )
+    minimum_classes = int(UNIVERSALITY_TERMINAL_EXPECTATION["minimum_distinct_degradation_classes"])
     if len(measured_classes) < minimum_classes:
         issues.append(
             {
@@ -6962,17 +6970,8 @@ def write_payload(repo_root: Path, output_path: Path) -> bytes:
             "universality_contract_write_invalid:"
             + ",".join(str(item.get("code")) for item in report["issues"])
         )
-    if (
-        previous is not None
-        and previous.get("contract_content_hash")
-        == payload.get("contract_content_hash")
-    ):
-        reconciled_payload = reconcile_gy_operational_leaves(previous, payload)
-        if not isinstance(reconciled_payload, dict):  # pragma: no cover
-            raise UniversalityContractError(
-                "universality_contract_operational_projection_invalid"
-            )
-        payload = reconciled_payload
+    if previous is not None:
+        payload = _reconcile_artifact_records(previous, payload)
     data = (_canonical_json(payload) + "\n").encode("utf-8")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(data)
@@ -7065,28 +7064,22 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     def _rehash_recording(payload: dict[str, Any], role: str) -> None:
         recording = payload["proof_recordings"][role]
         recording["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in recording.items()
-                if key != "recording_content_hash"
-            }
+            {key: value for key, value in recording.items() if key != "recording_content_hash"}
         )
-        payload["domain_runs"][role]["recording_content_hash"] = recording[
-            "recording_content_hash"
-        ]
+        payload["domain_runs"][role]["recording_content_hash"] = recording["recording_content_hash"]
         _rehash_run(payload, role)
 
     def _finish(payload: dict[str, Any]) -> dict[str, Any]:
-        payload["contract_content_hash"] = _contract_content_hash(payload)
+        _set_artifact_identities(payload)
         return payload
 
     def _stale_contract(payload: dict[str, Any]) -> None:
         payload["proof_status"] = "proof_runs_pending"
 
     def _relabel_evidence(payload: dict[str, Any]) -> None:
-        payload["domain_runs"]["education"]["terminal_distribution"][
-            "evidence_kind"
-        ] = "owner_acquisition_route"
+        payload["domain_runs"]["education"]["terminal_distribution"]["evidence_kind"] = (
+            "owner_acquisition_route"
+        )
         _rehash_run(payload, "education")
         _finish(payload)
 
@@ -7100,12 +7093,10 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         _finish(payload)
 
     def _mutate_route_report(payload: dict[str, Any]) -> None:
-        report = payload["domain_runs"]["first_vertical"]["terminal"][
-            "costed_plan"
-        ]["canonical_planner_report"]
-        report["acquisition_records"][0]["producer_output_ref"] = (
-            "sha256:" + "0" * 64
-        )
+        report = payload["domain_runs"]["first_vertical"]["terminal"]["costed_plan"][
+            "canonical_planner_report"
+        ]
+        report["acquisition_records"][0]["producer_output_ref"] = "sha256:" + "0" * 64
         _rehash_run(payload, "first_vertical")
         _finish(payload)
 
@@ -7117,30 +7108,28 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         _finish(payload)
 
     def _mutate_promotion_authority_scope(payload: dict[str, Any]) -> None:
-        payload["domain_runs"]["education"]["stage_trace"]["promotion"][
-            "authority_scope"
-        ] = "production"
+        payload["domain_runs"]["education"]["stage_trace"]["promotion"]["authority_scope"] = (
+            "production"
+        )
         _rehash_run(payload, "education")
         _finish(payload)
 
     def _mutate_promotion_reason(payload: dict[str, Any]) -> None:
-        payload["domain_runs"]["education"]["stage_trace"]["promotion"][
-            "reason"
-        ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+        payload["domain_runs"]["education"]["stage_trace"]["promotion"]["reason"] = (
+            "confidence_ledger_refused:ledger_scope_binding_mismatch"
+        )
         _rehash_run(payload, "education")
         _finish(payload)
 
     def _mutate_promotion_authority_provenance(payload: dict[str, Any]) -> None:
-        payload["domain_runs"]["education"]["stage_trace"]["promotion"][
-            "authority_provenance"
-        ] = ["not_established"]
+        payload["domain_runs"]["education"]["stage_trace"]["promotion"]["authority_provenance"] = [
+            "not_established"
+        ]
         _rehash_run(payload, "education")
         _finish(payload)
 
     def _mutate_promotion_receipt_count(payload: dict[str, Any]) -> None:
-        payload["domain_runs"]["education"]["stage_trace"]["promotion"][
-            "receipt_count"
-        ] = 999
+        payload["domain_runs"]["education"]["stage_trace"]["promotion"]["receipt_count"] = 999
         _rehash_run(payload, "education")
         _finish(payload)
 
@@ -7148,9 +7137,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         payload: dict[str, Any],
     ) -> None:
         role = "education"
-        payload["proof_recordings"][role].pop(
-            "authority_source_migration_receipt"
-        )
+        payload["proof_recordings"][role].pop("authority_source_migration_receipt")
         _rehash_recording(payload, role)
         _finish(payload)
 
@@ -7163,18 +7150,12 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         admission = recording["authority_source_admission"]
         admission["admission_kind"] = "controlled_at_capture"
         admission["migration_receipt_content_hash"] = None
-        admission["predicate_provenance"] = (
-            _authority_source_admission_predicate_provenance(
+        admission["predicate_provenance"] = _authority_source_admission_predicate_provenance(
                 "controlled_at_capture",
                 predecessor_required=True,
             )
-        )
         admission["admission_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in admission.items()
-                if key != "admission_content_hash"
-            }
+            {key: value for key, value in admission.items() if key != "admission_content_hash"}
         )
         _rehash_recording(payload, role)
         _finish(payload)
@@ -7191,21 +7172,15 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         admission["governed_role"] = "future_role"
         admission["migration_receipt_content_hash"] = None
         admission["required_predecessor_recording_content_hash"] = None
-        admission["predicate_provenance"] = (
-            _authority_source_admission_predicate_provenance(
+        admission["predicate_provenance"] = _authority_source_admission_predicate_provenance(
                 "controlled_at_capture",
                 predecessor_required=False,
             )
-        )
         admission["controlled_recording_base_content_hash"] = _semantic_hash(
             _authority_source_recording_base(recording)
         )
         admission["admission_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in admission.items()
-                if key != "admission_content_hash"
-            }
+            {key: value for key, value in admission.items() if key != "admission_content_hash"}
         )
         payload["domain_runs"][role]["domain_role"] = "future_role"
         _rehash_recording(payload, role)
@@ -7216,15 +7191,11 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         compiler = payload["proof_recordings"][role]["compiler_recording"]
         compiler["calls"][0]["response"]["finish_reason"] = "corrupt-static-audit"
         compiler["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in compiler.items()
-                if key != "recording_content_hash"
-            }
+            {key: value for key, value in compiler.items() if key != "recording_content_hash"}
         )
-        payload["domain_runs"][role]["compiler_receipt"][
+        payload["domain_runs"][role]["compiler_receipt"]["recording_content_hash"] = compiler[
             "recording_content_hash"
-        ] = compiler["recording_content_hash"]
+        ]
         _rehash_recording(payload, role)
         _finish(payload)
 
@@ -7236,11 +7207,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         if "raw_llm_response" in response:
             response["raw_llm_response"] = response["raw_response"]
         n4["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in n4.items()
-                if key != "recording_content_hash"
-            }
+            {key: value for key, value in n4.items() if key != "recording_content_hash"}
         )
         _rehash_recording(payload, role)
         _finish(payload)
@@ -7248,9 +7215,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     def _mutate_compiled_recursive(payload: dict[str, Any]) -> None:
         role = "first_vertical"
         compiled = payload["proof_recordings"][role]["compiled_run"]
-        compiled["recursive_run"]["nodes"][0]["cycle_run"]["cycles"][0][
-            "terminal_kind"
-        ] = "grounded_admissible"
+        compiled["recursive_run"]["nodes"][0]["cycle_run"]["cycles"][0]["terminal_kind"] = (
+            "grounded_admissible"
+        )
         _rehash_recording(payload, role)
         _finish(payload)
 
@@ -7273,12 +7240,10 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     def _fabricate_terminal(payload: dict[str, Any]) -> None:
         role = "first_vertical"
         payload["domain_runs"][role]["terminal"]["kind"] = "grounded_admissible"
-        payload["domain_runs"][role]["terminal_distribution"][
-            "terminal_kind"
-        ] = "grounded_admissible"
-        payload["terminal_distributions"][role][
-            "terminal_kind"
-        ] = "grounded_admissible"
+        payload["domain_runs"][role]["terminal_distribution"]["terminal_kind"] = (
+            "grounded_admissible"
+        )
+        payload["terminal_distributions"][role]["terminal_kind"] = "grounded_admissible"
         _rehash_run(payload, role)
         _finish(payload)
 
@@ -7912,14 +7877,10 @@ def _rederive_audit(repo_root: Path) -> dict[str, Any]:
     live = build_live_payload(repo_root, lane="cached")
     committed = _read_json(path)
     issues = list(validate_payload(committed)["issues"])
-    if committed.get("contract_content_hash") == live.get(
-        "contract_content_hash"
-    ):
-        reconciled_live = reconcile_gy_operational_leaves(committed, live)
-        if not isinstance(reconciled_live, dict):  # pragma: no cover
-            issues.append({"code": "universality_contract_operational_projection_invalid"})
-        else:
-            live = reconciled_live
+    try:
+        live = _reconcile_artifact_records(committed, live)
+    except UniversalityContractError as exc:
+        issues.append({"code": str(exc).partition(":")[0]})
     if committed != live:
         issues.append({"code": "universality_contract_rederive_drift"})
     return {"status": "pass" if not issues else "fail", "issues": issues}
@@ -8109,6 +8070,64 @@ def _contract_content_hash(payload: Mapping[str, Any]) -> str:
     stable.pop("contract_content_hash", None)
     return gy_content_hash(stable)
 
+
+def _reconcile_artifact_records(
+    frozen: Mapping[str, Any],
+    live: Mapping[str, Any],
+) -> dict[str, Any]:
+    frozen_comparison = frozen.get("comparison_content_hash")
+    live_comparison = live.get("comparison_content_hash")
+    if frozen_comparison and live_comparison:
+        if frozen_comparison != live_comparison:
+            return dict(live)
+        identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+        frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+        live_body = {key: value for key, value in live.items() if key not in identity_fields}
+        reconciled = reconcile_gy_operational_leaves(
+            frozen_body,
+            live_body,
+            admit_non_authority_block=_depth_non_authority_comparison_eligible,
+        )
+        if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+            raise UniversalityContractError("universality_contract_comparison_projection_invalid")
+        _set_artifact_identities(reconciled)
+        return reconciled
+    if frozen.get("contract_content_hash") != live.get("contract_content_hash"):
+        return dict(live)
+    reconciled = reconcile_gy_operational_leaves(frozen, live)
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise UniversalityContractError("universality_contract_operational_projection_invalid")
+    return reconciled
+
+def _comparison_content_hash(payload: Mapping[str, Any]) -> str:
+    stable = {
+        str(key): value
+        for key, value in payload.items()
+        if key != "contract_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        admit_non_authority_block=_depth_non_authority_comparison_eligible,
+    )
+
+def _set_artifact_identities(payload: dict[str, Any]) -> None:
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload)
+    payload["contract_content_hash"] = _contract_content_hash(payload)
+
+def _comparison_identity_issues(payload: Mapping[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    if payload.get("comparison_content_hash") != _comparison_content_hash(payload):
+        issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 def _volatile_content_paths(value: object, path: str = "$") -> list[str]:
     paths: list[str] = []

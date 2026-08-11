@@ -49,7 +49,10 @@ from polisyos.data_requirement import (
     DataRequirementSpec,
 )
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
     SearchTerminalKind,
+    gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
@@ -60,6 +63,9 @@ from polisyos.runtime.quality.acquisition_planner import (
     RealAcquisitionOwnerGateway,
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
+)
+from polisyos.runtime.quality.confidence_ledger import (
+    n9_promotion_projection_comparison_eligible,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
@@ -187,6 +193,14 @@ _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
     "manifest_content_hash": frozenset({"runtime_metrics"}),
     "trace_content_hash": frozenset({"runtime_metrics"}),
 }
+
+_COMPARISON_IDENTITY_FIELDS = frozenset(
+    {
+        "comparison_content_hash",
+        "comparison_projection_schema_version",
+        "comparison_rule_version",
+    }
+)
 
 _TASK_SCOPE_ALLOWED_EXACT = frozenset(
     {
@@ -470,6 +484,7 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
     _validate_artifact_hash(pack, "manifest_content_hash", issues)
     _validate_artifact_hash(smoke_problem, "smoke_problem_content_hash", issues)
     _validate_artifact_hash(cycle_trace, "trace_content_hash", issues)
+    issues.extend(_cycle_trace_comparison_identity_issues(cycle_trace))
     _validate_artifact_hash(gaps, "gap_report_content_hash", issues)
 
     if pack.get("census_content_hash") != census.get("census_content_hash"):
@@ -659,6 +674,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     mutated_gaps["gaps"] = [_with_content_hash(gap, "gap_content_hash") for gap in gap_records]
     corrupted["gaps"] = _with_content_hash(mutated_gaps, "gap_report_content_hash")
     corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"]["gap_report_content_hash"]
+    _set_cycle_trace_comparison_identity(corrupted["cycle_trace"])
     corrupted["cycle_trace"] = _with_content_hash(
         corrupted["cycle_trace"],
         "trace_content_hash",
@@ -766,6 +782,7 @@ def _smoke_terminal_corruption_bundles(
 def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
     """Refresh the trace and pack identities downstream of a smoke mutation."""
 
+    _set_cycle_trace_comparison_identity(bundle["cycle_trace"])
     bundle["cycle_trace"] = _with_content_hash(
         bundle["cycle_trace"],
         "trace_content_hash",
@@ -2649,11 +2666,13 @@ def _build_cycle_trace(
             ),
         },
     }
+    _set_cycle_trace_comparison_identity(payload)
     trace = _with_content_hash(
         payload,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
+    trace = _reconcile_frozen_cycle_trace(trace, root)
     if not allow_live_n4_capture and n4_capture_journal is None:
         _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
     return trace
@@ -4102,9 +4121,9 @@ def _n6_single_terminal_gap_closure(
     validation_issues = list(validate_generation_cycle_run(run))
     cycle_count = len(run.cycles)
     terminal_kind = run.cycles[0].terminal_kind if cycle_count == 1 else None
-    run_content_hash = _hash(run.model_dump(mode="json"))
+    run_comparison_content_hash = _n6_comparison_content_hash(run.model_dump(mode="json"))
     receipt_payload = {
-        "run_content_hash": run_content_hash,
+        "run_comparison_content_hash": run_comparison_content_hash,
         "cycle_count": cycle_count,
         "terminal_kind": terminal_kind,
         "validation_issues": validation_issues,
@@ -4130,10 +4149,7 @@ def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any
     cycles = _list_of_mappings(normalized.get("cycles"))
     for index, cycle in enumerate(cycles):
         value_port = _mapping(cycle.get("value_port"))
-        if "wall_time_ms" in value_port and is_gy_content_hash_excluded_field(
-            "wall_time_ms",
-            value_port["wall_time_ms"],
-        ):
+        if "wall_time_ms" in value_port and is_gy_content_hash_excluded_field("wall_time_ms"):
             cycle_metrics.append(
                 {"cycle_index": index, "value_port_wall_time_ms": value_port["wall_time_ms"]}
             )
@@ -4142,10 +4158,7 @@ def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any
     normalized["cycles"] = cycles
     top_level_value_port = _mapping(normalized.get("value_port"))
     top_level_metric = top_level_value_port.get("wall_time_ms")
-    if "wall_time_ms" in top_level_value_port and is_gy_content_hash_excluded_field(
-        "wall_time_ms",
-        top_level_value_port["wall_time_ms"],
-    ):
+    if "wall_time_ms" in top_level_value_port and is_gy_content_hash_excluded_field("wall_time_ms"):
         top_level_value_port["wall_time_ms"] = 0.0
         normalized["value_port"] = top_level_value_port
     return normalized, {
@@ -6410,6 +6423,69 @@ def _with_content_hash(
     }
     return {**normalized, field: _hash(content_bound)}
 
+
+def _n6_comparison_content_hash(payload: Mapping[str, Any]) -> str:
+    return gy_comparison_content_hash(
+        _json_value(payload),
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+
+def _cycle_trace_comparison_content_hash(payload: Mapping[str, Any]) -> str:
+    stable = {
+        str(key): value
+        for key, value in payload.items()
+        if key != "trace_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
+    }
+    return _n6_comparison_content_hash(stable)
+
+def _set_cycle_trace_comparison_identity(payload: dict[str, Any]) -> None:
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _cycle_trace_comparison_content_hash(payload)
+
+def _reconcile_frozen_cycle_trace(
+    live: Mapping[str, Any],
+    repo_root: Path,
+) -> dict[str, Any]:
+    path = repo_root / CYCLE_TRACE_OUTPUT
+    if not path.is_file():
+        return dict(live)
+    frozen = _read_json(path)
+    if not frozen.get("comparison_content_hash") or frozen.get(
+        "comparison_content_hash"
+    ) != live.get("comparison_content_hash"):
+        return dict(live)
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"trace_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = reconcile_gy_operational_leaves(
+        frozen_body,
+        live_body,
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+    if not isinstance(reconciled, dict):  # pragma: no cover - both inputs are mappings
+        raise ValueError("gy_cycle_trace_comparison_projection_invalid")
+    _set_cycle_trace_comparison_identity(reconciled)
+    return _with_content_hash(
+        reconciled,
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+
+def _cycle_trace_comparison_identity_issues(
+    payload: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    if payload.get("comparison_content_hash") != _cycle_trace_comparison_content_hash(payload):
+        issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 def _content_bound_canonical_json(payload: Mapping[str, Any]) -> str:
     """Serialize an artifact excluding only its explicitly allowed volatile metadata."""

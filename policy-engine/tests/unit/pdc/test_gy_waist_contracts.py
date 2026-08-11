@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+from collections.abc import Mapping
 
 import pytest
 from pydantic import ValidationError
@@ -32,9 +33,12 @@ from polisyos.pdc import (
     WorkspaceContract,
     assert_ring2_verifier_provenance,
     gy_artifact_self_identity_projection,
+    gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
+    is_gy_declared_non_authority_block,
     reconcile_gy_operational_leaves,
+    strip_gy_comparison_fields,
     strip_gy_volatile_fields,
 )
 from polisyos.pdc._impl.gy_waist import (
@@ -103,6 +107,14 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
     )
 
 
+
+
+
+
+
+
+
+
 @pytest.mark.parametrize(
     "declaration",
     [
@@ -111,7 +123,7 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
         pytest.param(["verification", "verification"], id="repeated-list"),
     ],
 )
-def test_gy_hash_excludes_only_blocks_declared_entirely_non_authority(
+def test_gy_comparison_predicate_recognizes_only_entirely_non_authority_declarations(
     declaration: object,
 ) -> None:
     block = {
@@ -119,8 +131,8 @@ def test_gy_hash_excludes_only_blocks_declared_entirely_non_authority(
         "deployment_identity": "run-specific",
     }
 
-    assert is_gy_content_hash_excluded_field("confidence_ledger_projection", block)
-
+    assert is_gy_declared_non_authority_block(block)
+    assert not is_gy_content_hash_excluded_field("confidence_ledger_projection")
 
 @pytest.mark.parametrize(
     "block",
@@ -142,18 +154,18 @@ def test_gy_hash_excludes_only_blocks_declared_entirely_non_authority(
         ),
     ],
 )
-def test_gy_hash_keeps_absent_malformed_unrecognized_or_authority_blocks_governing(
+def test_gy_comparison_predicate_keeps_malformed_or_authority_blocks_governing(
     block: dict[str, object],
 ) -> None:
-    assert not is_gy_content_hash_excluded_field("confidence_ledger_projection", block)
+    assert not is_gy_declared_non_authority_block(block)
 
-
-def test_gy_hash_omits_non_authority_block_only_from_comparison_projection() -> None:
+def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_record() -> None:
     recorded = {
         "governing_input": {"node_ref": "node-a"},
         "confidence_ledger_projection": {
             "authority_provenance": "verification",
             "deployment_identity": "deployment-a",
+            "projection_hash": "sha256:validated",
             "checks": [{"check_id": "check-a", "status": "refused"}],
         },
     }
@@ -162,27 +174,69 @@ def test_gy_hash_omits_non_authority_block_only_from_comparison_projection() -> 
         "confidence_ledger_projection": {
             "authority_provenance": ["verification"],
             "deployment_identity": "deployment-b",
+            "projection_hash": "sha256:validated",
             "checks": [{"check_id": "check-b", "status": "refused"}],
         },
     }
 
-    assert gy_content_hash(recorded) == gy_content_hash(replayed)
-    assert reconcile_gy_operational_leaves(recorded, replayed) == replayed
-    assert strip_gy_volatile_fields(recorded) == {"governing_input": {"node_ref": "node-a"}}
+    def admit(block: Mapping[str, object]) -> bool:
+        return block.get("projection_hash") == "sha256:validated"
+
+    assert gy_content_hash(recorded) != gy_content_hash(replayed)
+    assert gy_comparison_content_hash(
+        recorded,
+        admit_non_authority_block=admit,
+    ) == gy_comparison_content_hash(
+        replayed,
+        admit_non_authority_block=admit,
+    )
+    assert (
+        reconcile_gy_operational_leaves(
+            recorded,
+            replayed,
+            admit_non_authority_block=admit,
+        )
+        == recorded
+    )
+    assert strip_gy_comparison_fields(
+        recorded,
+        admit_non_authority_block=admit,
+    ) == {"governing_input": {"node_ref": "node-a"}}
+    assert strip_gy_volatile_fields(recorded) == recorded
     assert recorded["confidence_ledger_projection"]["checks"] == [
         {"check_id": "check-a", "status": "refused"}
     ]
+
+    unadmitted = copy.deepcopy(replayed)
+    unadmitted["confidence_ledger_projection"]["projection_hash"] = "sha256:unvalidated"
+    assert gy_comparison_content_hash(
+        recorded,
+        admit_non_authority_block=admit,
+    ) != gy_comparison_content_hash(
+        unadmitted,
+        admit_non_authority_block=admit,
+    )
 
     governing_replay = {
         **replayed,
         "governing_input": {"node_ref": "node-b"},
     }
-    assert gy_content_hash(recorded) != gy_content_hash(governing_replay)
+    assert gy_comparison_content_hash(
+        recorded,
+        admit_non_authority_block=admit,
+    ) != gy_comparison_content_hash(
+        governing_replay,
+        admit_non_authority_block=admit,
+    )
     with pytest.raises(
         GyOperationalReconciliationError,
         match="gy_operational_reconciliation_semantic_projection_mismatch",
     ):
-        reconcile_gy_operational_leaves(recorded, governing_replay)
+        reconcile_gy_operational_leaves(
+            recorded,
+            governing_replay,
+            admit_non_authority_block=admit,
+        )
 
     mixed_authority = copy.deepcopy(recorded)
     mixed_authority["confidence_ledger_projection"]["authority_provenance"] = [
@@ -193,12 +247,12 @@ def test_gy_hash_omits_non_authority_block_only_from_comparison_projection() -> 
     mixed_shift["confidence_ledger_projection"]["deployment_identity"] = "deployment-b"
     assert gy_content_hash(mixed_authority) != gy_content_hash(mixed_shift)
 
-
-def test_gy_hash_excludes_non_authority_blocks_nested_in_lists() -> None:
+def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_lists() -> None:
     payload = {
         "receipts": [
             {
                 "authority_provenance": ["verification"],
+                "projection_hash": "sha256:validated",
                 "receipt_id": "run-specific",
             },
             {
@@ -208,7 +262,13 @@ def test_gy_hash_excludes_non_authority_blocks_nested_in_lists() -> None:
         ]
     }
 
-    assert strip_gy_volatile_fields(payload) == {
+    def admit(block: Mapping[str, object]) -> bool:
+        return block.get("projection_hash") == "sha256:validated"
+
+    assert strip_gy_comparison_fields(
+        payload,
+        admit_non_authority_block=admit,
+    ) == {
         "receipts": [
             {
                 "authority_provenance": ["not_established"],
@@ -216,10 +276,16 @@ def test_gy_hash_excludes_non_authority_blocks_nested_in_lists() -> None:
             }
         ]
     }
+    assert strip_gy_volatile_fields(payload) == payload
     shifted = copy.deepcopy(payload)
     shifted["receipts"][1]["receipt_id"] = "governing-shifted"
-    assert gy_content_hash(payload) != gy_content_hash(shifted)
-
+    assert gy_comparison_content_hash(
+        payload,
+        admit_non_authority_block=admit,
+    ) != gy_comparison_content_hash(
+        shifted,
+        admit_non_authority_block=admit,
+    )
 
 def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:
     draft = {"value": 3, "created_at": "2026-06-15T10:00:00Z"}

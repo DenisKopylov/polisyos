@@ -5014,6 +5014,53 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
     }
 
 
+def test_depth_n_comparison_identity_admits_only_bound_verification_projections() -> None:
+    validator = _universality_contract_validator()
+    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
+    shifted = copy.deepcopy(payload)
+    projection = shifted["proof_recordings"]["education"]["compiled_run"]["recursive_run"]["nodes"][
+        0
+    ]["cycle_run"]["promotion_port"]["receipts"][0]["confidence_ledger_projection"]
+    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    projection["projection_hash"] = gy_content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    validator._set_artifact_identities(payload)
+    validator._set_artifact_identities(shifted)
+
+    assert validator._comparison_content_hash(payload) == validator._comparison_content_hash(
+        shifted
+    )
+    assert validator._contract_content_hash(payload) != validator._contract_content_hash(shifted)
+
+    summary = validator._with_depth_promotion_summary_identity(
+        {
+            "node_ref": "node://verification",
+            "status": "not_promoted",
+            "reason": "verification_n9_sequence_non_consumer",
+            "receipt_count": 1,
+            "authority_provenance": ["verification"],
+            "all_receipts_non_consumer": True,
+            "certified_candidate_ids": [],
+        },
+        projection_scope="depth_n_compiled_verification_promotion_summary",
+    )
+    assert validator._depth_non_authority_comparison_eligible(summary)
+
+    mixed = copy.deepcopy(summary)
+    mixed["authority_provenance"] = ["verification", "canonical_repo"]
+    mixed["projection_hash"] = gy_content_hash(
+        {key: value for key, value in mixed.items() if key != "projection_hash"}
+    )
+    assert not validator._depth_non_authority_comparison_eligible(mixed)
+
+    unrecognized = copy.deepcopy(summary)
+    unrecognized["projection_scope"] = "untrusted_verification_summary"
+    unrecognized["projection_hash"] = gy_content_hash(
+        {key: value for key, value in unrecognized.items() if key != "projection_hash"}
+    )
+    assert not validator._depth_non_authority_comparison_eligible(unrecognized)
+
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
     """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""
 

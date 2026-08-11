@@ -527,8 +527,10 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
-def test_n6_normalization_retains_but_does_not_bind_verification_projection() -> None:
-    """Fresh verification lineage stays readable without deciding trace identity."""
+
+
+def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:
+    """A bare provenance declaration remains governing at the N10a bridge."""
 
     first = {
         "cycles": [
@@ -561,14 +563,10 @@ def test_n6_normalization_retains_but_does_not_bind_verification_projection() ->
     first_normalized, first_metrics = second_domain_pack._normalize_n6_run_payload(first)
     second_normalized, second_metrics = second_domain_pack._normalize_n6_run_payload(second)
 
-    assert second_domain_pack._hash(first_normalized) == second_domain_pack._hash(second_normalized)
-    assert (
-        second_domain_pack.reconcile_gy_operational_leaves(
-            first_normalized,
-            second_normalized,
-        )
-        == second_normalized
-    )
+    assert second_domain_pack._hash(first_normalized) != second_domain_pack._hash(second_normalized)
+    assert second_domain_pack._n6_comparison_content_hash(
+        first_normalized
+    ) != second_domain_pack._n6_comparison_content_hash(second_normalized)
     assert first_metrics["cycle_value_port_wall_time_ms"] == [
         {"cycle_index": 0, "value_port_wall_time_ms": 12.5}
     ]
@@ -599,6 +597,47 @@ def test_n6_normalization_retains_but_does_not_bind_verification_projection() ->
     ] = "deployment-c"
     assert second_domain_pack._hash(governing) != second_domain_pack._hash(governing_shift)
 
+def test_n10a_trace_keeps_full_projection_bound_beside_stable_comparison_identity() -> None:
+    trace = json.loads(
+        (REPO_ROOT / second_domain_pack.CYCLE_TRACE_OUTPUT).read_text(encoding="utf-8")
+    )
+    first = copy.deepcopy(trace)
+    second = copy.deepcopy(trace)
+    projection = second["generation_cycle_run"]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    projection["projection_hash"] = second_domain_pack.gy_content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+
+    second_domain_pack._set_cycle_trace_comparison_identity(first)
+    second_domain_pack._set_cycle_trace_comparison_identity(second)
+    first = second_domain_pack._with_content_hash(
+        first,
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    second = second_domain_pack._with_content_hash(
+        second,
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+
+    assert first["comparison_content_hash"] == second["comparison_content_hash"]
+    assert first["trace_content_hash"] != second["trace_content_hash"]
+    assert (
+        projection
+        == second["generation_cycle_run"]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]
+    )
+
+    stale = copy.deepcopy(second)
+    stale["trace_content_hash"] = first["trace_content_hash"]
+    issues: list[dict[str, object]] = []
+    second_domain_pack._validate_artifact_hash(stale, "trace_content_hash", issues)
+    assert "artifact_content_hash_drift" in {item["code"] for item in issues}
 
 def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
     tmp_path: Path,

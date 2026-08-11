@@ -18,8 +18,10 @@ from ._impl.compiler import (
 )
 from ._impl.gy_waist import (
     GY_ARTIFACT_ID_PATTERN,
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_CONTENT_HASH_EXCLUDED_FIELDS,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
     GY_WAIST_SCHEMA_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     AgentDecisionRecord,
@@ -68,9 +70,12 @@ from ._impl.gy_waist import (
     WorkspaceContract,
     assert_ring2_verifier_provenance,
     gy_artifact_self_identity_projection,
+    gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
+    is_gy_declared_non_authority_block,
     reconcile_gy_operational_leaves,
+    strip_gy_comparison_fields,
     strip_gy_volatile_fields,
 )
 from ._impl.layer2_design_search import (
@@ -126,8 +131,10 @@ from ._impl.layer2_readiness import (
 
 __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
+    "GY_COMPARISON_PROJECTION_SCHEMA_VERSION",
     "GY_CONTENT_HASH_EXCLUDED_FIELDS",
     "GY_PROMOTION_SEQUENCE_SCHEMA_VERSION",
+    "GY_VERIFICATION_COMPARISON_RULE_VERSION",
     "GY_WAIST_SCHEMA_VERSION",
     "PROMOTION_RISK_CONDITIONALITY_CAVEAT",
     "RUNTIME_POLICY_DESIGN_CASE_SCHEMA_VERSION",
@@ -228,8 +235,10 @@ __all__ = [
     "evaluate_s7_mandate_delegation_promotion_gate",
     "evaluate_s8_value_posture_promotion_gate",
     "gy_artifact_self_identity_projection",
+    "gy_comparison_content_hash",
     "gy_content_hash",
     "is_gy_content_hash_excluded_field",
+    "is_gy_declared_non_authority_block",
     "load_s2_search_ledger",
     "persist_runtime_policy_design_case_graph",
     "persist_s2_design_search_run",
@@ -237,5 +246,6 @@ __all__ = [
     "reconcile_gy_operational_leaves",
     "run_s2_shadow_design_loop",
     "runtime_policy_design_case_projection_source",
+    "strip_gy_comparison_fields",
     "strip_gy_volatile_fields",
 ]

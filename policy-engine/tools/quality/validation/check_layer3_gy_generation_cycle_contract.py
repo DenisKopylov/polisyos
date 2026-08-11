@@ -23,8 +23,18 @@ from typing import Any, get_args
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import FileSystemCAS
-from polisyos.pdc import SearchTerminalKind, gy_content_hash
-from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
+from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    SearchTerminalKind,
+    gy_comparison_content_hash,
+    gy_content_hash,
+    reconcile_gy_operational_leaves,
+)
+from polisyos.runtime.quality.confidence_ledger import (
+    ConfidenceLedgerSession,
+    n9_promotion_projection_comparison_eligible,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -64,6 +74,13 @@ from tools.lib.timing import run_timed_entrypoint
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
 _FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "capture_wall_time_seconds"}
+
+_COMPARISON_IDENTITY_FIELDS = {
+    "comparison_content_hash",
+    "comparison_projection_schema_version",
+    "comparison_rule_version",
+}
+
 _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "revision_not_terminal_driven",
     "retry_without_new_grammar_admitted",
@@ -338,6 +355,7 @@ async def _build_live_payload_in_verification_namespace(
     payload["fail_closed_probes"] = _fail_closed_reports(payload)
     payload["behavioral_mutations"] = _mutation_reports(payload)
     payload["capture_wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
+    _set_comparison_identity(payload)
     payload["contract_content_hash"] = _contract_content_hash(payload)
     context = _VerificationReplayContext(
         session=session,
@@ -466,6 +484,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(probe, dict) or probe.get("status") != "fail_closed":
                 issues.append({"code": "fail_closed_probe_not_closed", "probe": probe})
     expected_hash = _contract_content_hash(payload)
+    issues.extend(_comparison_identity_issues(payload))
     if payload.get("contract_content_hash") != expected_hash:
         issues.append(
             {
@@ -569,15 +588,21 @@ def build_contract_json_for_write(repo_root: Path) -> str:
     """Return byte-stable JSON for the frozen N6 contract artifact."""
 
     payload = asyncio.run(build_live_payload(repo_root))
-    return _canonical_contract_json(payload)
+    return _canonical_contract_json(payload, repo_root=repo_root)
 
 
-def _canonical_contract_json(payload: dict[str, Any]) -> str:
+def _canonical_contract_json(
+    payload: dict[str, Any],
+    *,
+    repo_root: Path,
+) -> str:
     """Render the one canonical UTF-8 JSON representation used for byte checks."""
 
     normalized = copy.deepcopy(payload)
     normalized.pop("capture_wall_time_seconds", None)
+    _set_comparison_identity(normalized)
     normalized["contract_content_hash"] = _contract_content_hash(normalized)
+    normalized = _reconcile_frozen_contract(repo_root, normalized)
     return json.dumps(normalized, indent=2, sort_keys=True) + "\n"
 
 
@@ -607,7 +632,7 @@ def _validate_committed_contract_text(
         if isinstance(run_payload, dict):
             try:
                 committed_run = GenerationCycleRun.model_validate(run_payload)
-            except (ValidationError, ValueError):
+            except ValidationError, ValueError:
                 committed_run = None
             if committed_run is not None:
                 issues.extend(
@@ -617,7 +642,7 @@ def _validate_committed_contract_text(
                         repo_root=repo_root,
                     )
                 )
-        expected_text = _canonical_contract_json(expected_payload)
+        expected_text = _canonical_contract_json(expected_payload, repo_root=repo_root)
     if committed_text.encode("utf-8") != expected_text.encode("utf-8"):
         issues.append(
             {
@@ -721,6 +746,8 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     for mutation_id, mutator in mutations.items():
         mutated = copy.deepcopy(payload)
         mutator(mutated)
+        _set_comparison_identity(mutated)
+        mutated["contract_content_hash"] = _contract_content_hash(mutated)
         report = _validate_payload_core(mutated)
         reports.append(
             {
@@ -988,6 +1015,61 @@ def _contract_content_hash(payload: dict[str, Any]) -> str:
     }
     return gy_content_hash(stable)
 
+
+def _comparison_content_hash(payload: dict[str, Any]) -> str:
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+
+def _reconcile_frozen_contract(
+    repo_root: Path,
+    live: dict[str, Any],
+) -> dict[str, Any]:
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        return live
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    if not frozen.get("comparison_content_hash") or frozen.get(
+        "comparison_content_hash"
+    ) != live.get("comparison_content_hash"):
+        return live
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = reconcile_gy_operational_leaves(
+        frozen_body,
+        live_body,
+        admit_non_authority_block=n9_promotion_projection_comparison_eligible,
+    )
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("generation_cycle_contract_comparison_projection_invalid")
+    _set_comparison_identity(reconciled)
+    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
+    return reconciled
+
+def _set_comparison_identity(payload: dict[str, Any]) -> None:
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload)
+
+def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    if payload.get("comparison_content_hash") != _comparison_content_hash(payload):
+        issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entrypoint."""

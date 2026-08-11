@@ -20,7 +20,7 @@ import sys
 import tempfile
 import time
 import traceback
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from contextlib import suppress
 from dataclasses import asdict, dataclass
 from decimal import ROUND_FLOOR, Decimal, localcontext
@@ -43,7 +43,14 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts import FileSystemCAS
-from polisyos.pdc import PromotionObligationClass, gy_content_hash
+from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    PromotionObligationClass,
+    gy_comparison_content_hash,
+    gy_content_hash,
+    reconcile_gy_operational_leaves,
+)
 from polisyos.runtime.quality.authority import SealedConsumedInputSet  # noqa: TC001
 from polisyos.runtime.quality.confidence_ledger import (
     CONDITIONAL_VALIDITY_CLAUSE,
@@ -103,6 +110,15 @@ DEFAULT_L5_PATH = Path(
     "runtime_calibration_internals/calibration/d2/measurement_registry.json"
 )
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+
+_COMPARISON_IDENTITY_FIELDS = frozenset(
+    {
+        "comparison_content_hash",
+        "comparison_projection_schema_version",
+        "comparison_rule_version",
+    }
+)
+
 CONFIDENCE_LEDGER_SOURCE_PATH = Path("src/polisyos/runtime/quality/confidence_ledger.py")
 PROMOTION_SOURCE_PATH = Path("src/polisyos/runtime/quality/promotion_sequence.py")
 GENERATION_SOURCE_PATH = Path("src/polisyos/runtime/quality/generation_cycle.py")
@@ -741,8 +757,97 @@ class FrozenConfidenceLedgerContract(_StrictModel):
     conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
     maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     universality: UniversalityEvidence
+    comparison_projection_schema_version: str | None = None
+    comparison_rule_version: str | None = None
+    comparison_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
+
+def _confidence_non_authority_comparison_eligible(value: Mapping[str, object]) -> bool:
+    model_by_scope = {
+        "n11_real_accounting_append_lineage": FrozenLedgerReceiptProjection,
+        "n11_conformance_append_lineage": FrozenLedgerReceiptProjection,
+        "n9_promotion_certificate": FrozenN9PromotionCertificateProjection,
+        "n12_epoch_reference": FrozenN12EpochReferenceProjection,
+    }
+    model = model_by_scope.get(str(value.get("projection_scope")))
+    if model is None:
+        return False
+    try:
+        projection = model.model_validate(value)
+    except ValidationError, ValueError, TypeError:
+        return False
+    if projection.authority_provenance != "verification":
+        return False
+    payload = projection.model_dump(mode="json", exclude={"projection_hash"})
+    return projection.projection_hash == _ledger_content_hash(payload)
+
+def _confidence_comparison_content_hash(payload: Mapping[str, Any]) -> str:
+    stable = {
+        str(key): value
+        for key, value in payload.items()
+        if key != "artifact_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        admit_non_authority_block=_confidence_non_authority_comparison_eligible,
+    )
+
+def _set_confidence_contract_identities(payload: dict[str, Any]) -> None:
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _confidence_comparison_content_hash(payload)
+    payload["artifact_content_hash"] = gy_content_hash(
+        {key: value for key, value in payload.items() if key != "artifact_content_hash"}
+    )
+
+def _confidence_comparison_identity_issues(
+    payload: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    if payload.get("comparison_content_hash") != _confidence_comparison_content_hash(payload):
+        issues.append({"code": "comparison_content_hash_drift"})
+    return issues
+
+def _reconcile_confidence_contracts(
+    frozen: FrozenConfidenceLedgerContract,
+    live: FrozenConfidenceLedgerContract,
+) -> FrozenConfidenceLedgerContract:
+    if (
+        not frozen.comparison_content_hash
+        or frozen.comparison_content_hash != live.comparison_content_hash
+    ):
+        return live
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"artifact_content_hash"}
+    frozen_body = {
+        key: value
+        for key, value in frozen.model_dump(mode="json").items()
+        if key not in identity_fields
+    }
+    live_body = {
+        key: value
+        for key, value in live.model_dump(mode="json").items()
+        if key not in identity_fields
+    }
+    reconciled = reconcile_gy_operational_leaves(
+        frozen_body,
+        live_body,
+        admit_non_authority_block=_confidence_non_authority_comparison_eligible,
+    )
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("confidence_contract_comparison_projection_invalid")
+    _set_confidence_contract_identities(reconciled)
+    return FrozenConfidenceLedgerContract.model_validate(reconciled)
 
 def _rational(value: Fraction) -> RationalSpec:
     return RationalSpec(numerator=value.numerator, denominator=value.denominator)
@@ -1170,9 +1275,7 @@ def build_live_contract(
     owner_routes = _bind_code_owned_owner_certificate_routes(registry)
     for route in owner_bundle.n10.routes:
         if route.witness_kind not in owner_routes:
-            raise ValueError(
-                f"owner_certificate_contract_missing:{route.witness_kind}"
-            )
+            raise ValueError(f"owner_certificate_contract_missing:{route.witness_kind}")
     evidence_by_ref: dict[str, dict[str, Any]] = {}
 
     def resolve(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
@@ -1518,11 +1621,10 @@ def build_live_contract(
         **payload,
         artifact_content_hash="sha256:" + "0" * 64,
     )
-    artifact_hash = gy_content_hash(
-        contract.model_dump(mode="json", exclude={"artifact_content_hash"})
-    )
+    contract_payload = contract.model_dump(mode="json")
+    _set_confidence_contract_identities(contract_payload)
     report("frozen_contract_derived")
-    return contract.model_copy(update={"artifact_content_hash": artifact_hash})
+    return FrozenConfidenceLedgerContract.model_validate(contract_payload)
 
 
 def contract_bytes(contract: FrozenConfidenceLedgerContract) -> bytes:
@@ -2209,6 +2311,7 @@ def validate_payload(
         parsed = FrozenConfidenceLedgerContract.model_validate(payload)
     except ValidationError as exc:
         return {"status": "fail", "issues": [{"code": "schema_invalid", "error": str(exc)}]}
+    issues.extend(_confidence_comparison_identity_issues(parsed.model_dump(mode="json")))
     source = parsed.model_dump(mode="json", exclude={"artifact_content_hash"})
     if parsed.artifact_content_hash != gy_content_hash(source):
         issues.append({"code": "artifact_content_hash_drift"})
@@ -4296,9 +4399,12 @@ def _derive_byte_stable_contract(
     second_bytes = worker["second_bytes"]
     if first_bytes is None or second_bytes is None:
         raise RuntimeError("monitored_derivation_incomplete")
+    first = FrozenConfidenceLedgerContract.model_validate_json(first_bytes)
+    second = FrozenConfidenceLedgerContract.model_validate_json(second_bytes)
+    second = _reconcile_confidence_contracts(first, second)
+    second_bytes = contract_bytes(second)
     if first_bytes != second_bytes:
         raise RuntimeError("writer_not_byte_stable")
-    first = FrozenConfidenceLedgerContract.model_validate_json(first_bytes)
     return first, first_bytes
 
 
@@ -4373,9 +4479,7 @@ def _run_one_process_closeout(
                 _HISTORICAL_STAGE_SECONDS["cold_owner_derivation"] if cold else None
             ),
             "cold_closeout_budget_exceeded": False,
-            "cold_closeout_budget_disposition": (
-                "incomplete" if cold else "not_applicable"
-            ),
+            "cold_closeout_budget_disposition": ("incomplete" if cold else "not_applicable"),
         }
     first = FrozenConfidenceLedgerContract.model_validate_json(first_bytes)
     second = (
@@ -4383,6 +4487,9 @@ def _run_one_process_closeout(
         if second_bytes is not None
         else None
     )
+    if second is not None:
+        second = _reconcile_confidence_contracts(first, second)
+        second_bytes = contract_bytes(second)
     if write_output:
         if second is None or first_bytes != second_bytes:
             issues.append({"code": "writer_not_byte_stable"})

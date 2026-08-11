@@ -738,3 +738,74 @@ was intentionally not the receipt-equivalent interpreter. Those four failures ar
 non-receipts, not predicate counterexamples; no test was rewritten around them. `[P37: recomputed for
 the failure codes and current source/artifact mismatch; independently_reconciled for the known ambient
 posture class]`
+
+### Frozen-review rejection and authority-bound correction
+
+The first frozen source commit, `d03f0c6e6`, is rejected as an implementation receipt. Its generic
+recursive projector trusted any mapping whose own bare `authority_provenance` field said
+`verification`; a coherently self-labelled arbitrary mapping could therefore make retained bytes
+disappear from `gy_content_hash` without a producer proof. That is `P32` trust-by-form and gives a
+candidate-grade declaration authority over a custody identity. The frozen review caught it before
+any governed writer, accepted reissue, posture gate, or cold N11 launch. The source commit remains in
+append-only history, but no governed artifact was minted under it and the subsequent source batch
+supersedes it. `[P37: independently_reconciled for the authority leak; recomputed for the current
+governed-artifact diff; not_established for historical process non-invocation beyond the retained
+launch receipts]`
+
+The earlier post-repair census receipt also cannot attest `d03f0c6e6`: its script accepted a
+caller-supplied `--git-head` and recorded the parent `7041a433e` while importing the dirty live
+source. Its `353/353`, five-artifact, `32`-block and `3,781`-leaf arithmetic was independently
+reproduced on the then-current tree, but its source-binding predicate is only
+`consumer_asserted`. It is preserved as a non-receipt. A replacement census must resolve `HEAD`
+internally, require a clean tree, bind the imported owner bytes to the committed blob, record a
+complete sorted input manifest, and self-hash its receipt. `[P37: independently_reconciled for the
+counts; consumer_asserted for the rejected receipt's source identity; not_established for the final
+post-repair denominator until the source-bound rerun]`
+
+The corrected contract separates two identities instead of weakening one:
+
+1. `gy_content_hash` retains its pre-DEF14 meaning: it excludes only canonically named operational
+   fields and continues to bind every retained verification block in full.
+2. A versioned `comparison_content_hash` is opt-in. The scalar/list declaration only classifies a
+   candidate block; exclusion additionally requires a caller-provided canonical owner to parse the
+   exact typed projection and recompute its producer-owned `projection_hash`.
+3. The runtime N9 owner admits only a strict, content-bound
+   `N9PromotionCertificateProjection` whose authority provenance is `verification`. Depth-N's
+   list-shaped summaries receive an exact owner scope and their own full projection hash; absent,
+   empty, malformed, mixed-authority, unknown-scope, extra-field, or stale-hash summaries remain
+   governing.
+4. Reconciliation compares the versioned comparison identity, then preserves the already-frozen
+   full verification block and recomputes the ordinary full artifact identity. The full block stays
+   present, readable, and mutation-visible; the comparison identity never replaces the custody
+   identity.
+
+The protocol versions are `policyos.gy.comparison_projection.v1` and
+`policyos.gy.non_authority_verification.v1`. This is the same §2 mechanism with its gate predicate
+upgraded from declaration-supplied to producer-recomputed; it does not change promotion semantics,
+ledger scope, a denominator, or an admission outcome. `[P37: recomputed for the implemented
+owner-validation paths and full-hash counterfactuals; not_established for governed writer output
+until the reviewed wave]`
+
+The red-first sequence is retained: public comparison helpers were initially absent; strict N9
+projection admission then failed until its self-hash validator existed; N10a failed on the old
+two-argument field predicate and missing comparison bridge; Depth-N failed before its bound summary
+owner existed. After correction, the focused receipts are green: the PDC/N9 selection passed
+`15/15`; promotion plus generation comparison witnesses passed `2/2`; N10a plus Depth-N comparison
+witnesses passed `2/2`; and the expanded generation/N10a/Depth reconciliation selection passed
+`4/4`. Promotion and generation each validate two complete artifacts that differ only in a valid,
+fresh verification projection and wall-clock-normalized content: their comparison hashes are equal,
+their full hashes differ, and both validators pass. A coherently rehashed governing promotion-policy
+mutation still fails with `scope_insufficient_promotion_policy_drift`. The N10a readback witness
+keeps the full projection present and detects a stale full trace hash as
+`artifact_content_hash_drift`; bare and unrecognized declarations remain comparison-bearing.
+`[P37: recomputed]`
+
+Two test expansions are non-receipts. The promotion module's historical assertion expects one
+promotion row, while both the committed frozen artifact and a fresh current build contain two; the
+repair changes projection validation, not row production, so the failing `1 == 2` expectation is
+pre-existing test drift and is not rewritten here. A deliberately broader confidence-ledger unit
+sweep later idled in the existing fork-based recovery test under a multithreaded pytest process;
+after the relevant assertions had passed it was interrupted at the unbudgeted expansion boundary
+and exited `2`. The focused strict-projection receipt remains green. `[P37: recomputed for the
+frozen row denominator, current failure, focused receipts, and interrupt result; independently_reconciled
+for non-intersection with row production; not_established for the uncompleted broad suite]`

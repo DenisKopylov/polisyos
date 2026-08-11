@@ -2671,6 +2671,21 @@ def test_generation_cycle_contract_write_payload_is_byte_stable() -> None:
 
     assert first == second
     assert "capture_wall_time_seconds" not in first
+    payload = json.loads(first)
+    shifted = copy.deepcopy(payload)
+    projection = shifted["generation_cycle_run"]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    projection["projection_hash"] = gy_content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    contract._set_comparison_identity(shifted)
+    shifted["contract_content_hash"] = contract._contract_content_hash(shifted)
+    assert contract._comparison_content_hash(payload) == contract._comparison_content_hash(shifted)
+    assert contract._contract_content_hash(payload) != contract._contract_content_hash(shifted)
+    assert contract.validate_payload(payload)["status"] == "pass"
+    assert contract.validate_payload(shifted)["status"] == "pass"
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:

@@ -1137,3 +1137,84 @@ ceiling and exited `1`, its contract-defined healthy terminal. It reported
 `corrupt_field_drift_detected` and named the expected comparison/content and typed cycle-binding
 failures; no mutation survived. All four accepted-run stderr streams are empty. The generation-cycle
 reissue is therefore closed. `[P37: recomputed]`
+
+### N10a five-output transition — declared accepted delta (written before the accepted writer)
+
+The non-persisting `--measure-write-transition` action completed with exit `0` in `361.136236` s
+under the `852.699146` s cap; its validator wall time was `348.636292` s, its issue set is empty,
+and `write_performed` is false. All five canonical output SHA-256 values and the external N8 value
+gate contract SHA-256 remained byte-identical to the preimage. The raw stdout includes ordinary
+method-registration logging before the final JSON; both the raw stream and the extracted final JSON
+are retained. `[P37: recomputed]`
+
+The strict transition manifest is bound to source head
+`482c204d957b9537b0db9869faebd2d49dd64a7c`, source/tool-scope identity
+`sha256:c3baaf297d763e951f7c7bf6eb44b785c8bff46ba5164d6fb7dd7f4f45a92c35`, and manifest identity
+`sha256:7bacae62f93c61f300782249c31187e1fca9dcc7637f19408ecc25a42d1cf4b3`. The accepted writer is
+declared to move exactly the following `36` scalar leaves, partitioned over the complete five-output
+denominator, and no others:
+
+- `layer3_gy_second_domain_census.json`: `0` leaves; legacy/live content identity is exactly
+  `sha256:fb98cc5070e919a140d544c75a640a809d3bcc0bbdc1808b6129ffc8de0cfd0d`.
+- `layer3_gy_second_domain_pack.json`: `/cycle_trace_content_hash`,
+  `/gap_report_content_hash`, and `/manifest_content_hash` (`3` dependent leaves); legacy/live
+  identities are respectively `sha256:2dce1555a6d1eab8e3303f1c86ac6ef3509da9199a308abe230ec1b5fc6251c7`
+  and `sha256:a1953ae6a034666600c8f3f3722138fd1348f1133850867615f2c92a2c8e0466`.
+- `layer3_gy_second_domain_smoke_design_problem.json`: `0` leaves; legacy/live identity is exactly
+  `sha256:d40e3fe557d6d287e549e3a7f0373e2052fd137ae9ce56ba75e9c29c73f770e5`.
+- `layer3_gy_second_domain_cycle_entry_trace.json`: the `16` leaves
+  `/comparison_admission_manifest/{0,1,2,3}/{action,json_pointer,owner_rule,predicate_provenance}`;
+  `/comparison_content_hash`; `/comparison_projection_schema_version`; `/comparison_rule_version`;
+  `/gap_triage/5/receipt_ref`; `/gap_triage/6/receipt_ref`;
+  `/generation_cycle_run/cycles/0/acquisition_routing_report/generated_at`;
+  `/runtime_metrics/aggregate_value_port_wall_time_ms`;
+  `/runtime_metrics/cycle_value_port_wall_time_ms/0/value_port_wall_time_ms`; and
+  `/trace_content_hash` (`25` leaves total). Its legacy/live identities are respectively
+  `sha256:f9be282f0b16720d38440572aeecfc9c47f2566407fa5a68a8402796ef250430` and
+  `sha256:83134ef46ed29411bbb4dfa776506f9eec8929a74e3db60810175eabb2dfe2b3`.
+- `layer3_gy_second_domain_free_grow_gaps.json`: `/gap_report_content_hash`;
+  `/gaps/5/gap_content_hash`;
+  `/gaps/5/owner_evidence/stage_2_behavioral_receipt/receipt_ref`;
+  `/gaps/5/owner_evidence/stage_2_behavioral_receipt/value_contract_content_hash`;
+  `/gaps/6/gap_content_hash`;
+  `/gaps/6/owner_evidence/stage_3_behavioral_receipt/receipt_ref`;
+  `/gaps/6/owner_evidence/stage_3_behavioral_receipt/run_content_hash`; and
+  `/gaps/6/owner_evidence/trace_content_hash` (`8` leaves). Its legacy/live identities are
+  respectively `sha256:fe1607f0c29460200df8fa236445d274e4c218683cfe3c50806e8328c5fd0c85`
+  and `sha256:34ad1cbf926434a8ab7d91a6b6029304013aeb05377024e0e21dc122aa260e92`.
+
+The N8 content-identity cascade and the four producer-bound comparison admissions explain the
+semantic movement. The three clock/runtime leaves remain recorded but are excluded operational
+values; the dependent hashes and receipt refs close over those two sources. The complete manifest
+names no governed denominator, comparison/admission outcome, transport covariate, N8 proof hash, or
+`ambient_discovery.manifest_id`/`provenance_id`, and the census/smoke identities are exact. The
+accept predicate is byte-for-byte equality with this source-bound manifest; any different pointer,
+count, identity, mode or manifest hash blocks before the first write. `[P37: recomputed for the
+source-bound manifest, unchanged preimage denominator and negative changed-path intersection;
+independently_reconciled for the N8/comparison-owner causal classification; not_established for
+accepted persistence until the gated writer and verifications close]`
+
+The gated accepted writer completed with exit `0` in `352.215048` s under the `852.699146` s cap;
+its validator wall time was `338.964431` s and its issue set is empty. The writer returned the exact
+measured manifest identity, source head and source-scope identity, with `write_performed: true`.
+Independent recursive readback reproduced the declared `0/3/0/25/8` leaf partition exactly, with no
+missing or additional pointer. The two zero-delta files remain byte-identical; the accepted byte
+SHA-256 values are census `ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c`,
+pack `9b67629da3d141aaae3e9cd3ae0b392b227f8680c5699bd6295fe44412965441`, smoke
+`688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d`, cycle trace
+`47a656292885dccddcdea850686ebcfa7d035df3a4d71dc66880a282f22e09f4`, and gaps
+`496944b5443784e1cc43cec3d54c02e561d52970650703f18873f0d12fd74941`. The external N8 artifact
+remains byte-identical at `c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303`.
+The accept decision is **accept**. `[P37: recomputed]`
+
+The canonical `--check` passed with no issues in `23.402522` s under its `74.272168` s cap. The live
+`--rederive-audit` passed with no issues in `358.791583` s under its `726.805376` s cap and reproduced
+the frozen N7 capture metadata. The writer and rederive stderr each contain only the two expected
+database-connection log lines; check and corrupt stderr are empty. `[P37: recomputed]`
+
+The corrupt-field lane completed in `28.531551` s under its declared `300` s hang ceiling and exited
+`1`, its contract-defined healthy terminal. Its first issue is `corrupt_field_drift_detected`; all
+five cycle-substrate mutations and both smoke-terminal mutations have nonempty detected-code sets.
+This validator emits no `missing` member, so the read result is `missing=null` rather than an
+invented empty list; the complete enumerated mutation denominator is detected. The N10a reissue and
+its three verification receipts are therefore closed. `[P37: recomputed]`

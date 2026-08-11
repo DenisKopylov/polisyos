@@ -12,6 +12,35 @@
       "world_model_received_content_bound_context": true
     }
   },
+  "comparison_admission_manifest": [
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/0",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/1",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/2",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/3",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v1",
+      "predicate_provenance": "recomputed"
+    }
+  ],
+  "comparison_content_hash": "sha256:2f2213d74b226c58da8bd658da025f4e52437492c9f3a8112a0aa6a3798fb3b5",
+  "comparison_projection_schema_version": "policyos.gy.comparison_projection.v1",
+  "comparison_rule_version": "policyos.gy.non_authority_verification.v2",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -51,13 +80,13 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n8_transport_tuple_hardcode",
-      "receipt_ref": "sha256:b0c6bf2b9e3f664fba02e5c1713d419e5894dba0bc8b3bafd8eb58db67953c5f",
+      "receipt_ref": "sha256:750d304c17659f01e19d14c7dd1846927f638ac31addd441296995d3530d9ea1",
       "status": "closed"
     },
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n6_single_terminal_validation_gap",
-      "receipt_ref": "sha256:31a63da98459462f4a748806d24ca6d4e8498bd9e6baa2d7ccdc8566ed7aa449",
+      "receipt_ref": "sha256:6049b84d08e96b3bc64078a6ea7290d63762a5da3f576a226f055b15a32b8036",
       "status": "closed"
     }
   ],
@@ -455,7 +484,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-08-09T21:03:40Z",
+          "generated_at": "2026-08-11T21:39:02Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -5482,11 +5511,11 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 11184.112207964063,
+    "aggregate_value_port_wall_time_ms": 11415.137041010894,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 11184.112207964063
+        "value_port_wall_time_ms": 11415.137041010894
       }
     ]
   },
@@ -5565,6 +5594,6 @@
     }
   },
   "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-  "trace_content_hash": "sha256:f9be282f0b16720d38440572aeecfc9c47f2566407fa5a68a8402796ef250430",
+  "trace_content_hash": "sha256:83134ef46ed29411bbb4dfa776506f9eec8929a74e3db60810175eabb2dfe2b3",
   "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
 }

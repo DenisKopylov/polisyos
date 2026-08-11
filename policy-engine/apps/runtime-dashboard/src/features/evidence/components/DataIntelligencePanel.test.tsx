@@ -23,7 +23,7 @@ const {
   useDataPromotionCandidatesMock,
   useDiscoverDataSourcesMock,
   usePreviewFetchPlanMock,
-  useLivePromotionDecisionMock,
+  useQueuedPromotionDecisionMock,
   useResolveDataNeedsMock,
 } = vi.hoisted(() => ({
   approveMock: vi.fn(),
@@ -39,7 +39,7 @@ const {
   useDataPromotionCandidatesMock: vi.fn(),
   useDiscoverDataSourcesMock: vi.fn(),
   usePreviewFetchPlanMock: vi.fn(),
-  useLivePromotionDecisionMock: vi.fn(),
+  useQueuedPromotionDecisionMock: vi.fn(),
   useResolveDataNeedsMock: vi.fn(),
 }));
 
@@ -70,9 +70,9 @@ vi.mock("@/api/hooks/useResolveDataNeeds", () => ({
   useResolveDataNeeds: (...args: unknown[]) => useResolveDataNeedsMock(...args),
 }));
 
-vi.mock("@/features/evidence/hooks/useLivePromotionDecision", () => ({
-  useLivePromotionDecision: (...args: unknown[]) =>
-    useLivePromotionDecisionMock(...args),
+vi.mock("@/features/evidence/hooks/useQueuedPromotionDecision", () => ({
+  useQueuedPromotionDecision: (...args: unknown[]) =>
+    useQueuedPromotionDecisionMock(...args),
 }));
 
 vi.mock("@/app/authz/AuthzProvider", async () => {
@@ -127,7 +127,7 @@ describe("DataIntelligencePanel", () => {
     useDataPromotionCandidatesMock.mockReset();
     useDiscoverDataSourcesMock.mockReset();
     usePreviewFetchPlanMock.mockReset();
-    useLivePromotionDecisionMock.mockReset();
+    useQueuedPromotionDecisionMock.mockReset();
     useResolveDataNeedsMock.mockReset();
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
@@ -240,10 +240,11 @@ describe("DataIntelligencePanel", () => {
       isPending: false,
       mutate: previewMutateMock,
     });
-    useLivePromotionDecisionMock.mockReturnValue({
+    useQueuedPromotionDecisionMock.mockReturnValue({
       approve: approveMock,
       approveError: null,
       isDecisionPending: () => false,
+      queuedStateByPromotionId: new Map(),
       reject: rejectMock,
       rejectError: null,
     });
@@ -359,12 +360,14 @@ describe("DataIntelligencePanel", () => {
         promotionId: "promotion-1",
         reason: "Promote the strongest evidence",
       },
+      expect.any(Object),
     );
     expect(rejectMock).toHaveBeenCalledWith(
       {
         promotionId: "promotion-1",
         reason: "Promote the strongest evidence",
       },
+      expect.any(Object),
     );
     expect(screen.getByText("Review source freshness")).toBeInTheDocument();
     expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);

@@ -17,12 +17,6 @@ const CAPABILITY_TYPES_PATH = "apps/runtime-dashboard/src/api/types.ts";
 const QUERY_KEYS_OWNER_PATH = "apps/runtime-dashboard/src/api/queryKeys.ts";
 const DASHBOARD_SOURCE_PREFIX = "apps/runtime-dashboard/src/";
 const TANSTACK_QUERY_CALLEES = new Set(["useQuery", "queryOptions"]);
-const COMPOSER_DRAFT_DB_PATH =
-  "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts";
-const COMPOSER_DRAFT_STORE = "composer-drafts";
-const OPTIMISTIC_PROMOTION_OWNER_PATH =
-  "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts";
-const OFFLINE_SERVICE_WORKER_PATH = "apps/runtime-dashboard/src/sw.ts";
 
 function relativePath(fileName) {
   return path.relative(repoRoot, fileName).split(path.sep).join("/");
@@ -80,142 +74,6 @@ function stringUnionMembers(typeNode) {
   }
   const unique = [...new Set(members)].sort();
   return unique.length > 0 ? unique : null;
-}
-
-function stringLiteralTypeMembers(typeNode) {
-  if (ts.isLiteralTypeNode(typeNode) && ts.isStringLiteral(typeNode.literal)) {
-    return [typeNode.literal.text];
-  }
-  return stringUnionMembers(typeNode);
-}
-
-function importBindings(importDeclaration) {
-  const bindings = [];
-  const clause = importDeclaration.importClause;
-  if (!clause) return bindings;
-  if (clause.name) bindings.push(clause.name.text);
-  if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
-    for (const element of clause.namedBindings.elements) {
-      bindings.push(element.name.text);
-    }
-  }
-  return bindings.sort();
-}
-
-function declarationName(node) {
-  if (
-    (ts.isFunctionDeclaration(node) ||
-      ts.isClassDeclaration(node) ||
-      ts.isInterfaceDeclaration(node) ||
-      ts.isTypeAliasDeclaration(node) ||
-      ts.isEnumDeclaration(node)) &&
-    node.name
-  ) {
-    return node.name.text;
-  }
-  return null;
-}
-
-function callName(node) {
-  if (ts.isIdentifier(node)) return node.text;
-  if (ts.isPropertyAccessExpression(node)) return node.name.text;
-  return null;
-}
-
-function collectOfflineQueueFacts(sourceFiles, pathOf) {
-  const facts = {
-    authorityActionKinds: [],
-    composerDbImports: [],
-    mutationStores: [],
-    optimisticAuthorityProjections: [],
-    productionFiles: sourceFiles.length,
-    replayDeclarations: [],
-  };
-  const queueDeclaration = /(queue|replay|offline.*mutation)/i;
-  const authorityDeclaration = /(authority|promotion|mutation|offline)/i;
-
-  for (const sourceFile of sourceFiles) {
-    const relative = pathOf(sourceFile);
-    const stringBindings = new Map();
-    const collectStringBindings = (node) => {
-      if (
-        ts.isVariableDeclaration(node) &&
-        ts.isIdentifier(node.name) &&
-        node.initializer &&
-        ts.isStringLiteral(node.initializer)
-      ) {
-        stringBindings.set(node.name.text, node.initializer.text);
-      }
-      ts.forEachChild(node, collectStringBindings);
-    };
-    collectStringBindings(sourceFile);
-    const visit = (node) => {
-      if (
-        ts.isImportDeclaration(node) &&
-        ts.isStringLiteral(node.moduleSpecifier) &&
-        node.moduleSpecifier.text.endsWith("app/offline/offlineQueueRepository")
-      ) {
-        facts.composerDbImports.push({
-          bindings: importBindings(node),
-          path: relative,
-          targetPath: COMPOSER_DRAFT_DB_PATH,
-        });
-      }
-
-      if (ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)) {
-        const name = declarationName(node);
-        const members = ts.isTypeAliasDeclaration(node)
-          ? stringLiteralTypeMembers(node.type)
-          : enumMembers(node);
-        if (name && members && queueDeclaration.test(name)) {
-          facts.authorityActionKinds.push({
-            kind: members.join(" | "),
-            name,
-            path: relative,
-          });
-        }
-      }
-
-      if (ts.isCallExpression(node)) {
-        if (callName(node.expression) === "createObjectStore") {
-          const store = node.arguments[0];
-          const storeName =
-            store && ts.isStringLiteral(store)
-              ? store.text
-              : store && ts.isIdentifier(store)
-                ? (stringBindings.get(store.text) ?? "<dynamic-store>")
-                : "<dynamic-store>";
-          if (storeName !== COMPOSER_DRAFT_STORE) {
-            facts.mutationStores.push({ path: relative, storeName });
-          }
-        }
-        if (
-          callName(node.expression) === "applyOptimisticPromotionDecision" &&
-          relative !== OPTIMISTIC_PROMOTION_OWNER_PATH
-        ) {
-          facts.optimisticAuthorityProjections.push({ path: relative });
-        }
-      }
-
-      const name = declarationName(node);
-      if (
-        name &&
-        queueDeclaration.test(name) &&
-        authorityDeclaration.test(name) &&
-        relative !== OFFLINE_SERVICE_WORKER_PATH
-      ) {
-        facts.replayDeclarations.push({ name, path: relative });
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(sourceFile);
-  }
-
-  const compare = (left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right));
-  for (const table of Object.values(facts)) {
-    if (Array.isArray(table)) table.sort(compare);
-  }
-  return facts;
 }
 
 function enumMembers(node) {
@@ -4899,9 +4757,6 @@ function collectProgramFacts(
   const definitionSources = program
     .getSourceFiles()
     .filter((sourceFile) => isDefinitionSource(sourceFile.fileName));
-  const dashboardProgramSources = program.getRootFileNames().filter((fileName) =>
-    relativePath(fileName).startsWith(DASHBOARD_SOURCE_PREFIX),
-  );
   const statusInventorySources = definitionSources.filter((sourceFile) =>
     relativePath(sourceFile.fileName).startsWith("apps/runtime-dashboard/src/"),
   );
@@ -5131,11 +4986,6 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
     ),
   };
-  const offlineQueueFacts = collectOfflineQueueFacts(
-    statusInventorySources,
-    (sourceFile) => relativePath(sourceFile.fileName),
-  );
-  offlineQueueFacts.productionFiles = dashboardProgramSources.length;
   return {
     authorityCandidates,
     definitions,
@@ -5168,7 +5018,6 @@ function collectProgramFacts(
       authorityPropDescriptors,
     ),
     capabilityDiscoveryFacts,
-    offlineQueueFacts,
     queryCachePolicyFacts: collectQueryCachePolicyFacts(
       program.getSourceFiles(),
       checker,
@@ -5489,9 +5338,6 @@ function collectOverrideFacts(
       relativePath(sourceFile.fileName),
     ),
   };
-  facts.offlineQueueFacts = collectOfflineQueueFacts(sourceFiles, (sourceFile) =>
-    relativePath(sourceFile.fileName),
-  );
   facts.queryCachePolicyFacts = collectQueryCachePolicyFacts(
     [...program.getSourceFiles()],
     checker,

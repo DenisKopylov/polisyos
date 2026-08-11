@@ -702,8 +702,7 @@ first continuously numbered `-R1` successor.
 | C10 | 7 | 8 | no-fit | C10-R1 / 8 (DEFERRED) |
 | C11b | 9 | 10 | no-fit | C11b-R1 / 10 |
 | C12b | 9 | 10 | no-fit | C12b-R1 / 10 |
-| C13a | 18 | 18 | stopped predecessor | C13a-R2 / 22 |
-| C13a-R2 | 22 | 22 | FIT | C13a-R2 / 22 (already fit) |
+| C13a | 18 | 18 | FIT | C13a / 18 (already fit) |
 | C13b | 9 | 10 | no-fit | C13b-R1 / 10 |
 | C14b | 7 | 8 | no-fit | C14b-R1 / 8 |
 | C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
@@ -715,9 +714,8 @@ first continuously numbered `-R1` successor.
 | C19 | 13 | 14 | no-fit | C19-R1 / 14 |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
-C01b/C01c are the separately authorized `636645bec` re-cut. C06 retains its
-ID and cap because its corrected set already fits. C13a is the stopped 18-path
-predecessor; C13a-R2 is its next continuous 22-path successor. C07 is
+C01b/C01c are the separately authorized `636645bec` re-cut. C06 and C13a
+retain their IDs and caps because their corrected sets already fit. C07 is
 re-cut: C07a restores the already-green HTTP/backend candidate without
 regenerating the dashboard local client; C07b is separately blocked on the
 single-owner frontend generated-artifact strangle.
@@ -1216,7 +1214,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C13b-R1 | SW sync/flush authority bridge | worker and provider bridge exist today | `apps/runtime-dashboard/src/sw.ts:13-45`; `apps/runtime-dashboard/src/app/providers/OfflineQueueProvider.tsx:114-153` | executable | none |
 | C13b-R1 | composer-only typed closure | composer closure needs C14a envelope | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:39-61`; C14a table row | blocked-on-another-cluster | C14a |
 | C14a | nominal envelope owner | no `PersistedEnvelope<StoreClass>` or `authorityLocalState` producer exists | complete absence: `rg -n -e 'PersistedEnvelope' -e 'authorityLocalState' apps/runtime-dashboard packages architecture --glob '*.{ts,tsx,json,toml}'` (0) | debt-only | none |
-| C14b-R1 | scoped composer consumer | raw composer record has neither scope nor TTL and needs C14a | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13-16`; C14a table row | blocked-on-another-cluster | C14a |
+| C14b-R1 | scoped composer consumer | raw composer record has neither scope nor TTL and needs C14a | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:80-85`; C14a table row | blocked-on-another-cluster | C14a |
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | requires verified identity and envelope ownership | C08b-R1 and C14a table rows | blocked-on-another-cluster | C08b-R1, C14a |
@@ -1703,20 +1701,15 @@ were migrated or semantically inferred.
 
 **Expected commit:** `DS5-C12b-R1 enforce governed query policy`.
 
-### DS5-C13a-R2 — delete authority mutation replay
+### DS5-C13a — delete authority mutation replay
 
-**Measured set:** stopped C13a is exactly 17 implementation/governed path names
-plus journal = 18. C13a-R2 adds the canonical C14 descriptor and owner test,
-the two C08 resolution-content bindings, and this plan = 22; cap 22:
-`app/offline/db.ts`, `offlineQueueRepository.ts`, deleted
+**Measured set:** exactly 17 implementation/governed path names plus journal =
+18; cap 18: `app/offline/db.ts`, `offlineQueueRepository.ts`, deleted
 `OfflineQueueProvider.tsx`, `AppProviders.tsx`;
 `useQueuedPromotionDecision.ts` renamed to `useLivePromotionDecision.ts` and
 its test renamed likewise; `DataIntelligencePanel.tsx` + test; shared DS5 AST
 scanner/checker/test; status inventory; dashboard `src/README.md`; frontend
-disposition register + generated report; journal; canonical
-`check_frontend_disposition_register.py` +
-`test_frontend_disposition_register.py`; and
-`frontend-baseline-debt-manifest.json`. C13a-R2 leaves the now composer-only repository at
+disposition register + generated report; and journal. C13a leaves the now composer-only repository at
 its old filename so its importer/test stay green inside the cap. The only entry
 queue kinds are `promotion.approve` and `promotion.reject`.
 
@@ -1736,7 +1729,7 @@ disposition/report transitions; composer persistence remains. C13b-R1 owns SW
 proof and naming cleanup. The README removes the deleted provider/mount claim in
 this commit, so no stale reference crosses the boundary.
 
-**Expected commit:** `DS5-C13a-R2 delete authority mutation replay`.
+**Expected commit:** `DS5-C13a delete authority mutation replay`.
 
 ### DS5-C13b-R1 — prove service-worker and composer-only closure
 
@@ -2076,8 +2069,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C11b-R1 | `DS5-C11b-R1 render governed cache posture` | 10 |
 | C12a | `DS5-C12a register query construction debt` | 7 |
 | C12b-R1 | `DS5-C12b-R1 enforce governed query policy` | 10 |
-| C13a | stopped predecessor: `DS5-C13a delete authority mutation replay` | 18 |
-| C13a-R2 | `DS5-C13a-R2 delete authority mutation replay` | 22 |
+| C13a | `DS5-C13a delete authority mutation replay` | 18 |
 | C13b-R1 | `DS5-C13b-R1 close service worker and composer DB` | 10 |
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
 | C14b-R1 | `DS5-C14b-R1 bind composer local state` | 8 |

@@ -570,16 +570,6 @@ QUERY_CACHE_POLICY_GOVERNED_PRODUCER = {
         "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     },
 }
-COMPOSER_DRAFT_DB_PATH = "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
-COMPOSER_DRAFT_ADAPTER_PATH = (
-    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts"
-)
-OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT = 949
-COMPOSER_DRAFT_DB_BINDINGS = [
-    "deleteComposerDraftRecord",
-    "loadComposerDraftRecord",
-    "saveComposerDraftRecord",
-]
 AUTHORITY_GOVERNANCE_OBJECTS = (
     "EVIDENCE_FAMILIES",
     "EXPECTED_RUNTIME_EXPORTS",
@@ -1140,48 +1130,6 @@ def _query_cache_policy_errors(
     return sorted(set(errors))
 
 
-def _offline_queue_errors(
-    scan: Mapping[str, Any], *, enforce_denominator: bool
-) -> list[str]:
-    """Reject any durable authority-action replay while retaining composer drafts."""
-    facts = scan.get("offlineQueueFacts")
-    if not isinstance(facts, Mapping):
-        return ["offline_queue_facts_missing"]
-    required_tables = (
-        "authorityActionKinds",
-        "composerDbImports",
-        "mutationStores",
-        "optimisticAuthorityProjections",
-        "replayDeclarations",
-    )
-    if any(not isinstance(facts.get(table), list) for table in required_tables):
-        return ["offline_queue_facts_invalid"]
-
-    errors: list[str] = []
-    if enforce_denominator and facts.get("productionFiles") != OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT:
-        errors.append("offline_queue_production_source_denominator_drift")
-    for table, prefix in (
-        ("authorityActionKinds", "offline_queue_authority_action_kind"),
-        ("mutationStores", "offline_queue_mutation_store"),
-        ("optimisticAuthorityProjections", "offline_queue_optimistic_projection"),
-        ("replayDeclarations", "offline_queue_replay_declaration"),
-    ):
-        for row in facts[table]:
-            if not isinstance(row, Mapping) or not isinstance(row.get("path"), str):
-                errors.append(f"{prefix}_fact_invalid")
-                continue
-            errors.append(f"{prefix}:{row['path']}")
-
-    expected_composer_import = {
-        "bindings": COMPOSER_DRAFT_DB_BINDINGS,
-        "path": COMPOSER_DRAFT_ADAPTER_PATH,
-        "targetPath": COMPOSER_DRAFT_DB_PATH,
-    }
-    if facts["composerDbImports"] != [expected_composer_import]:
-        errors.append("composer_draft_db_import_boundary_drift")
-    return sorted(set(errors))
-
-
 def _write_query_cache_policy_register(scan: Mapping[str, Any]) -> None:
     """Prove the committed C12a register is already the byte-preserved derivation."""
     expected = json.dumps(_query_cache_policy_register_from_scan(scan), indent=2) + "\n"
@@ -1463,8 +1411,6 @@ def _enforcement_scan(
             raise RuntimeError(f"status TypeScript scan returned invalid {key}")
     if not isinstance(scan.get("authorityIssuerFacts"), Mapping):
         raise RuntimeError("status TypeScript scan returned invalid authorityIssuerFacts")
-    if not isinstance(scan.get("offlineQueueFacts"), Mapping):
-        raise RuntimeError("status TypeScript scan returned invalid offlineQueueFacts")
     return scan
 
 
@@ -1766,7 +1712,6 @@ def validate_enforcement(
     )
     if source_overrides is None:
         errors.extend(_query_cache_policy_errors(scan, enforce_denominator=True))
-        errors.extend(_offline_queue_errors(scan, enforce_denominator=True))
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
         errors.extend(
@@ -2821,7 +2766,6 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
     denominators = scan.get("sourceDenominators", {})
     issuer_facts = scan.get("authorityIssuerFacts", {})
     query_cache_facts = scan.get("queryCachePolicyFacts", {})
-    offline_queue_facts = scan.get("offlineQueueFacts", {})
     return {
         "atlas_ui_production_sources": denominators.get("atlasUiProduction"),
         "authority_sink_declarations": len(scan.get("authoritySinkDeclarations", [])),
@@ -2850,14 +2794,6 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
         "query_cache_constructions": len(query_cache_facts.get("constructions", [])),
         "query_cache_producers": len(query_cache_facts.get("producers", [])),
         "query_cache_residual": query_cache_facts.get("residual"),
-        "offline_queue_production_sources": offline_queue_facts.get("productionFiles"),
-        "offline_queue_authority_action_kinds": len(
-            offline_queue_facts.get("authorityActionKinds", [])
-        ),
-        "offline_queue_mutation_stores": len(offline_queue_facts.get("mutationStores", [])),
-        "offline_queue_replay_declarations": len(
-            offline_queue_facts.get("replayDeclarations", [])
-        ),
         "current_authored_statuses": status_summary["current_authored"],
         "ds1_status_rows": status_summary["ds1_rows"],
         "semantic_retirement_debt": status_summary["semantic_retirement_debt"],

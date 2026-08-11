@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **20926**
-- Application lines deleted: **19207**
-- Net application LOC reduction: **-1719**
-- Application files deleted: **88**
+- Application lines added: **20880**
+- Application lines deleted: **18311**
+- Net application LOC reduction: **-2569**
+- Application files deleted: **85**
 
 ## Wave-end full verification
 
@@ -99,8 +99,8 @@ No merge or push is performed.
 
 | Disposition | Root units |
 | --- | ---: |
-| `deleted` | 18 |
-| `rebind_pending` | 197 |
+| `deleted` | 15 |
+| `rebind_pending` | 200 |
 | `retire_disposition` | 25 |
 | `use_as_is` | 5 |
 | `wire_disposition` | 16 |
@@ -465,7 +465,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `raw-fetch-collab-resolve` | `raw-fetch-collab-resolve` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `raw-fetch-telemetry` | `raw-fetch-telemetry` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `status-auth-session` | `status-auth-session` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-offline-queue-item` | `status-offline-queue-item` | 0 | `deleted` | `strangled` | `DS1` | `census-c13a-authority-replay-delete` |
+| `status-offline-queue-item` | `status-offline-queue-item` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-feature-flag` | `status-feature-flag` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-runs-live` | `status-runs-live` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-draft-identification-display` |
@@ -488,7 +488,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-dispute-quantity` | `status-dispute-quantity` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-dispute-status` |
 | `status-dispute-trust-view` | `status-dispute-trust-view` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-promotion-decision` | `status-inline-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-queued-promotion` | `status-inline-queued-promotion` | 0 | `deleted` | `strangled` | `DS1` | `census-c13a-authority-replay-delete` |
+| `status-inline-queued-promotion` | `status-inline-queued-promotion` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-authz-provider` | `status-inline-authz-provider` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-visual-fixture` | `status-inline-visual-fixture` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-fixture-timeline-playback-state` |
 | `status-inline-review-indicators` | `status-inline-review-indicators` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -535,7 +535,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `worker-dag-layout` | `worker-dag-layout` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `worker-json-parse` | `worker-json-parse` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `cache-service-worker-static` | `cache-service-worker-static` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `deleted` | `strangled` | `DS5` | `census-c13a-authority-replay-delete` |
+| `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `offline-draft-composer` | `offline-draft-composer` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-local-storage-state` | `cache-local-storage-state` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
@@ -566,10 +566,6 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
-- `dcd8b073b Revert "checkpoint: preserve blocked DS5-C13a authority replay deletion"`
-- `c2a03de41 checkpoint: preserve blocked DS5-C13a authority replay deletion`
-- `8794d58c8 docs: correct DS5 C07 drift attribution`
-- `06f24a40c DS5-C07b-D1 record generated-client single-owner debt`
 - `53fe8a84c DS5-C12b-R1 enforce governed query policy`
 - `15c89d241 DS5-C12a register query construction debt`
 - `125b6d604 docs: bind DS5 mechanism rounds and duplication duty`

@@ -210,6 +210,7 @@ _ARTIFACT_WRITE_SPECS = (
     ),
     (GAP_REPORT_OUTPUT, "gaps", "gap_report_content_hash", "declared_live_rederived"),
 )
+_WRITE_TRANSITION_SCHEMA_VERSION = "policyos.gy.n10a.write_transition.v1"
 
 _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
     "census_content_hash": frozenset({"runtime_metrics"}),
@@ -1018,6 +1019,8 @@ def write(
     *,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
+    expected_transition_manifest: Mapping[str, Any] | None = None,
+    persist: bool = True,
 ) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
@@ -1041,6 +1044,13 @@ def write(
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
     artifact_transitions = _prepare_artifact_write_transitions(bundle, root)
+    transition_manifest = _artifact_write_transition_manifest(root, artifact_transitions)
+    if persist:
+        if expected_transition_manifest is None:
+            raise ValueError("n10a_expected_transition_manifest_required")
+        expected = _parse_artifact_write_transition_manifest(expected_transition_manifest)
+        if expected != transition_manifest:
+            raise ValueError("n10a_expected_transition_manifest_mismatch")
     by_path = {
         CENSUS_OUTPUT: bundle["census"],
         PACK_OUTPUT: bundle["pack"],
@@ -1048,15 +1058,18 @@ def write(
         CYCLE_TRACE_OUTPUT: bundle["cycle_trace"],
         GAP_REPORT_OUTPUT: bundle["gaps"],
     }
-    for relative_path, payload in by_path.items():
-        path = root / relative_path
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
+    if persist:
+        for relative_path, payload in by_path.items():
+            path = root / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
         "artifact_transitions": artifact_transitions,
+        "transition_manifest": transition_manifest,
+        "write_performed": persist,
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -6523,6 +6536,81 @@ def _prepare_artifact_write_transitions(
     return receipts
 
 
+def _artifact_write_transition_manifest(
+    root: Path,
+    transitions: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Return the source-bound manifest that must be approved before writing."""
+
+    payload: dict[str, Any] = {
+        "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
+        "source_head": _git(root, "rev-parse", "HEAD"),
+        "artifacts": [{str(key): value for key, value in row.items()} for row in transitions],
+    }
+    payload["manifest_content_hash"] = _hash(payload)
+    return _parse_artifact_write_transition_manifest(payload)
+
+
+def _parse_artifact_write_transition_manifest(value: object) -> dict[str, Any]:
+    """Strictly parse one complete, source-bound five-output expectation."""
+
+    if not isinstance(value, Mapping) or set(value) != {
+        "artifacts",
+        "manifest_content_hash",
+        "schema_version",
+        "source_head",
+    }:
+        raise ValueError("n10a_expected_transition_manifest_invalid")
+    source_head = value.get("source_head")
+    rows = value.get("artifacts")
+    if (
+        value.get("schema_version") != _WRITE_TRANSITION_SCHEMA_VERSION
+        or not isinstance(source_head, str)
+        or re.fullmatch(r"[0-9a-f]{40}", source_head) is None
+        or not isinstance(rows, list)
+        or len(rows) != len(_ARTIFACT_WRITE_SPECS)
+    ):
+        raise ValueError("n10a_expected_transition_manifest_invalid")
+    parsed_rows: list[dict[str, Any]] = []
+    for row, spec in zip(rows, _ARTIFACT_WRITE_SPECS, strict=True):
+        if not isinstance(row, Mapping) or set(row) != {
+            "changed_leaf_count",
+            "changed_leaves",
+            "legacy_content_hash",
+            "live_content_hash",
+            "mode",
+            "output",
+        }:
+            raise ValueError("n10a_expected_transition_manifest_invalid")
+        leaves = row.get("changed_leaves")
+        legacy_hash = row.get("legacy_content_hash")
+        live_hash = row.get("live_content_hash")
+        if (
+            row.get("output") != spec[0]
+            or row.get("mode") != spec[3]
+            or not isinstance(leaves, list)
+            or any(not isinstance(leaf, str) or not leaf.startswith("/") for leaf in leaves)
+            or leaves != sorted(set(leaves))
+            or type(row.get("changed_leaf_count")) is not int
+            or row.get("changed_leaf_count") != len(leaves)
+            or not isinstance(legacy_hash, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", legacy_hash) is None
+            or not isinstance(live_hash, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", live_hash) is None
+        ):
+            raise ValueError("n10a_expected_transition_manifest_invalid")
+        parsed_rows.append({str(key): item for key, item in row.items()})
+    payload = {
+        "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
+        "source_head": source_head,
+        "artifacts": parsed_rows,
+    }
+    expected_hash = _hash(payload)
+    if value.get("manifest_content_hash") != expected_hash:
+        raise ValueError("n10a_expected_transition_manifest_hash_drift")
+    return {**payload, "manifest_content_hash": expected_hash}
+
+
 def _changed_leaf_pointers(previous: object, current: object) -> list[str]:
     """Return every changed scalar/empty-container leaf as a canonical pointer."""
 
@@ -6882,6 +6970,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--measure-write-transition", action="store_true")
+    parser.add_argument("--expected-transition-manifest", type=Path)
     parser.add_argument("--capture-stage1-n4", action="store_true")
     parser.add_argument("--accept-stage1-n4-journal", type=Path)
     parser.add_argument("--rederive-audit", action="store_true")
@@ -6893,6 +6983,7 @@ def main(argv: list[str] | None = None) -> int:
         for value in (
             args.check,
             args.write,
+            args.measure_write_transition,
             args.capture_stage1_n4,
             args.accept_stage1_n4_journal is not None,
             args.rederive_audit,
@@ -6901,17 +6992,38 @@ def main(argv: list[str] | None = None) -> int:
     )
     if selected != 1:
         parser.error("select exactly one action")
+    writer_selected = bool(
+        args.write
+        or args.capture_stage1_n4
+        or args.accept_stage1_n4_journal is not None
+    )
+    if writer_selected != (args.expected_transition_manifest is not None):
+        parser.error(
+            "writer actions require --expected-transition-manifest; measurement forbids it"
+        )
     root = args.repo_root.resolve()
     try:
+        expected_manifest = (
+            _read_json(args.expected_transition_manifest.resolve())
+            if args.expected_transition_manifest is not None
+            else None
+        )
         if args.accept_stage1_n4_journal is not None:
             report = write(
                 root,
                 n4_capture_journal=args.accept_stage1_n4_journal,
+                expected_transition_manifest=expected_manifest,
             )
         elif args.capture_stage1_n4:
-            report = write(root, allow_live_n4_capture=True)
+            report = write(
+                root,
+                allow_live_n4_capture=True,
+                expected_transition_manifest=expected_manifest,
+            )
         elif args.write:
-            report = write(root)
+            report = write(root, expected_transition_manifest=expected_manifest)
+        elif args.measure_write_transition:
+            report = write(root, persist=False)
         elif args.rederive_audit:
             report = rederive_audit(root)
         elif args.corrupt_field_drift_check:

@@ -964,3 +964,23 @@ preflight; rerunning the new parent-summary negative witness with the pre-existi
 path-witness interpreter and current `PYTHONPATH` precedence passed `1/1`. No environment was rebuilt.
 `[P37: recomputed for the retained timestamps/preflight code and focused terminal; not_established
 for a source-bound full focused suite until the next clean committed run]`
+
+The first correction freeze, `ae3d713d4`, closed old/live self-hash accounting for all five N10a
+outputs but still only *described* the Pack and gap deltas: the returned transition list was not an
+input to `write()`. Frozen review correctly rejected that label-only boundary before a governed
+writer. The canonical N10a bridge now has a two-step protocol. `--measure-write-transition` builds
+and validates the complete candidate without writing, returning a strict five-row manifest bound to
+the source head, old/new identities, mode, and every sorted changed scalar pointer. A writer action
+requires that exact self-hashed manifest; any path, mode, source head, identity, leaf, count, ordering,
+or manifest-hash mismatch raises before the first output write. The behavioral witness proves that a
+forged Pack leaf blocks the actual writer and leaves all five prior bytes unchanged, then proves the
+exact measured manifest admits the same candidate. `[P37: recomputed for the executable pre-write
+gate and witness; not_established for the real candidate manifest until the reviewed measurement]`
+
+The five-file write loop is still not transactionally atomic across filesystem replacements. The
+wave therefore retains the external exact-byte snapshot/restore group: a nonzero exit, missing
+receipt, unexpected post-write diff, or failed verification preserves the candidate bytes as an
+ignored non-receipt, restores all five old byte strings, and rehashes the restored denominator.
+That recovery boundary is operational protection, not a substitute for the pre-write semantic gate.
+`[P37: recomputed for the current sequential writer implementation; not_established for recovery
+until exercised or the accepted write completes without needing it]`

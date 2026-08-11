@@ -527,7 +527,10 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
-def test_writer_accounts_for_all_five_legacy_outputs_before_write(tmp_path: Path) -> None:
+def test_writer_accounts_for_all_five_legacy_outputs_before_write(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """No member of the N10a output group can bypass legacy hash/delta accounting."""
 
     live: dict[str, object] = {}
@@ -588,6 +591,56 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(tmp_path: Path
         second_domain_pack.CYCLE_TRACE_OUTPUT,
         second_domain_pack.GAP_REPORT_OUTPUT,
     }
+
+    live["runtime_metrics"] = {"query_timings_seconds": {}}
+    monkeypatch.setattr(
+        second_domain_pack,
+        "build_live_bundle",
+        lambda *_args, **_kwargs: copy.deepcopy(live),
+    )
+    monkeypatch.setattr(second_domain_pack, "validate_bundle_payloads", lambda *_args: [])
+    monkeypatch.setattr(second_domain_pack, "_git", lambda *_args: "a" * 40)
+    before = {
+        relative_path: (tmp_path / relative_path).read_bytes()
+        for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
+    }
+    measurement = second_domain_pack.write(tmp_path, persist=False)
+    assert measurement["status"] == "pass"
+    assert measurement["write_performed"] is False
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    forged = copy.deepcopy(measurement["transition_manifest"])
+    pack_row = forged["artifacts"][1]
+    pack_row["changed_leaves"] = sorted(
+        [*pack_row["changed_leaves"], "/not-produced-by-measurement"]
+    )
+    pack_row["changed_leaf_count"] = len(pack_row["changed_leaves"])
+    forged["manifest_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in forged.items()
+            if key != "manifest_content_hash"
+        }
+    )
+    with pytest.raises(ValueError, match="n10a_expected_transition_manifest_mismatch"):
+        second_domain_pack.write(
+            tmp_path,
+            expected_transition_manifest=forged,
+        )
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    accepted = second_domain_pack.write(
+        tmp_path,
+        expected_transition_manifest=measurement["transition_manifest"],
+    )
+    assert accepted["status"] == "pass"
+    assert accepted["write_performed"] is True
 
     census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
     corrupt = json.loads(census_path.read_text(encoding="utf-8"))

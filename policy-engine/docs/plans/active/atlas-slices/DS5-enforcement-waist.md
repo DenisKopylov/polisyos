@@ -635,6 +635,22 @@ C08's existing whole-file content-binding probe remains red under controlled byt
 drift. C21a is direct-syntax-only (no flow, alias use, or semantic inference); `DS5LineAddressCensusTests.test_ds5_line_address_complete_partition_is_derived_from_live_register` is the complete live-register P35 receipt. C21a is `implemented_but_not_orchestrated`: C21b owns TS/TSX migration,
 C21c owns the gated JSON/TOML mechanism; Markdown remains navigation and Python refs remain descriptor navigation, not a Python identity claim.
 
+### DS5-C21b — migrate gated TypeScript references
+
+**Pattern pass:** P29/P31/P32/P33/P35/P37. The predecessor is a line-address
+gate, not a semantic binding; the correct pattern is one batch TypeScript
+program over explicit role/discriminator creation anchors, then identity-only
+gates. `contract_only` is not accepted: the register, authority projection,
+checker, report, and DS19 hash pin move together. Direct syntax only—this makes
+no flow-completeness claim.
+
+**Measured migration:** 161 C21a identities: 28 protected-live direct calls or
+route literals, 118 authority-presentation evidence slots, and 15 explicit
+producer/integrate descriptor slots. The only remaining line navigation is 21
+(six TS navigation plus 15 non-TS); it cannot gate a migrated TypeScript claim.
+Move-only source changes preserve the register/checker bytes; named content or
+binding changes are red. C08 whole-file baseline bytes remain unchanged.
+
 ### DS-INFRA-2 — Atlas timing evidence debt
 
 | Debt | Evidence / capability state | Closure |

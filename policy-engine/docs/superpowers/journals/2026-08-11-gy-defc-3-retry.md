@@ -1688,3 +1688,37 @@ denominator, comparison/admission outcome, transport covariate, N8 proof, ledger
 identity moves. The accept predicate is exact equality with this `604`-leaf set and candidate byte
 identity. `[P37: recomputed for the complete measured set, raw-byte preservation and negative
 protected-leaf intersection; not_established for accepted persistence and verifications]`
+
+### GY-DEFC-5 promotion v2 — accepted reissue and verification closure
+
+The canonical accepted writer ran alone from clean head `fef63760d`, exited `0` in
+`28.123877` s under the recomputed `52.439504` s cap, did not time out, and emitted empty stderr.
+The resulting artifact SHA-256 is `68e05dc3…9577`, byte-identical to the measured candidate.
+Its recursive delta has exactly the same `604` changed paths as the predeclared measurement and no
+additional or missing path. The accepted write therefore satisfies the exact-set acceptance
+predicate; the sole accepted promotion reissue is consumed. The write meta/stdout identities are
+`403cebc9…c729` and `7b4f81a1…c714`. `[P37: recomputed]`
+
+The canonical `--check` exited `0` in `28.138446` s under its `52.486368` s cap with
+`status: pass`, `issues: []`, validator wall time `16.287970` s, no timeout and empty stderr. The
+meta/stdout identities are `193d69a0…058` and `ba9b3bb9…e45f`. The canonical rederive audit exited
+`0` in `28.880129` s under its `52.080878` s cap with `status: pass`, `issues: []`, validator wall
+time `16.125426` s, no timeout and empty stderr; its meta/stdout identities are
+`6aa73ae4…693b` and `64aac030…8ed7`. `[P37: recomputed]`
+
+The corrupt-field lane completed in `11.877764` s under the declared `300` s hang fence, did not
+time out, and exited `1`. Its actual validator contract does not emit a `missing` collection: green
+is `status: fail` with the leading named issue `corrupt_field_drift_detected`, followed by the
+specific missing `conditionality_clause` validation and dependent contract-hash drift. This is the
+completed-work terminal proving the mutation was detected, not a failed detection (which the tool
+would report as `status: pass` / `corrupt_field_drift_not_detected`). The prompt's generic “empty
+missing” wording is therefore corrected to the producer's measured lane contract rather than
+inventing an absent field. Meta/stdout identities are `4dbbeb80…3d95` and `e846d442…8354`; stderr
+is empty. `[P37: recomputed for the producer return mapping and observed terminal;
+institutionally_supplied for the declared hang fence]`
+
+Read-back after all three verifications still gives the accepted `149,504`-byte artifact at
+`68e05dc3…9577`; no other governed path is dirty. Promotion's custody bytes retain the full raw N9
+receipts, while its opt-in v2 comparison identity now binds the producer-verified semantic event
+chain. No denominator, admission/comparison outcome, transport covariate, N8 proof, ledger scope or
+ambient discovery identity moved. `[P37: recomputed]`

@@ -1865,3 +1865,181 @@ journey, visual, full lint, full typecheck, full build, or build-Storybook lane
 ran. Each remains a nonreceipt under the unchanged heavy boundary. No
 contended artifact, readiness ledger, checker-family file, generated report,
 DS5/GY path, product surface, Russian catalog, or denominator was written.
+
+## DS6-C05 — serialized heavy evidence wave — 2026-08-12
+
+### Entry, serialization, and declared ceilings
+
+`git status -sb` at entry reported a clean attached
+`codex/atlas-ds6-evidence-workflow` at
+`4748b921113b884a3fe17593bc50c1af300e97f2`, 12 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. C05 owns this journal only and
+therefore enters at its declared path cap of one. The GY/host serialization
+gate is released, but the DS5-governed register family remains contended; lane
+execution is authorized and governed receipt consumption is not.
+
+The deferred commands run one heavy parent at a time. The following controller
+ceilings are supplied at entry, not measured Atlas budget-owner values; each
+actual wall time is recorded below and no ceiling is enlarged mid-run:
+
+| Lane | Declared ceiling (s) | Basis |
+| --- | ---: | --- |
+| whole-suite Vitest | 1,800 | supplied |
+| opaque-background Storybook browser Vitest | 1,800 | supplied |
+| component Vitest | 1,800 | supplied |
+| component a11y Vitest | 1,800 | supplied |
+| Playwright a11y pages | 1,800 | supplied |
+| Playwright journeys | 2,400 | supplied |
+| Playwright visual | 2,400 | supplied |
+| full lint | 1,800 | supplied |
+| full typecheck | 600 | supplied |
+| production build | 300 | measured ceiling supplied by the wave brief |
+| Storybook build | 1,800 | supplied |
+
+A command killed by its controller is recorded as a nonreceipt, never a
+sample or RED. A completed nonzero process is RED at the exact assertion or
+tool failure it reports. A completed zero process is a receipt only for that
+entire command; partial output is never rounded to a pass.
+
+### Terminal receipt matrix
+
+Every heavy parent ran serially and terminated below its declared ceiling:
+
+| Lane | Result | Wall (s) | Exact terminal evidence |
+| --- | --- | ---: | --- |
+| whole-suite Vitest | RED | 410.97 | 315/316 files and 965/966 tests passed; one `LineageGraph.test.tsx` assertion failed |
+| opaque-background Storybook browser Vitest | RED, 0/7 | 20.14 | opaque-ancestor precondition failed before any source classification |
+| component Vitest | RED | 351.13 | independently reproduced the same 315/316-file, 965/966-test failure |
+| component a11y Vitest | GREEN | 87.66 | 84/84 files and 85/85 tests passed |
+| Playwright a11y pages | GREEN | 160.94 | 21/21 tests passed |
+| Playwright journeys | RED | 17.02 | collection failed before any test: `en.json` lacked the Node JSON import attribute |
+| Playwright visual, admitted rerun | RED | 131.47 | 14/18 tests passed; four baselines failed |
+| full lint | RED | 1,182.94 | 11 errors, zero warnings |
+| full typecheck | RED | 17.41 | four TypeScript errors |
+| production build | RED | 16.11 | stopped at the same typecheck errors; Vite/post-build did not run |
+| Storybook build | GREEN | 19.25 | 3,809 modules transformed and static Storybook emitted |
+
+The first whole-suite execution lost its terminal after writing a complete
+JSON report. It is a nonreceipt, never a timing sample or RED; the admitted
+rerun above persisted stdout, stderr, and process status in ignored scratch.
+The first visual execution is a separate setup RED: it completed nonzero in
+122.05 s, before any test, with `Timed out waiting 120000ms from
+config.webServer` because the inherited runtime web server spent its startup
+window creating a worktree `.venv`. That command-created directory was moved
+immediately and intact to the authorized ignored
+`_build/apps/runtime-dashboard/.venv-online`; no `.venv` remains at worktree
+root and no tracked path changed. The admitted visual rerun bound that
+environment with `UV_NO_SYNC=1` and the worktree `src` on `PYTHONPATH`.
+
+The attempted offline scratch bootstrap is a setup nonreceipt: it terminated
+in 0.16 s because `jaxlib==0.8.2` was absent from the local cache. Page a11y
+and journeys therefore used the existing main-checkout environment read-only
+with `UV_NO_SYNC=1` while importing all PolicyOS code from this worktree via
+`PYTHONPATH`. No dependency sync or source write occurred there.
+
+### Whole-suite authority and C03 consequence
+
+The admitted whole-suite JSON receipt is the authority; none of the retired
+263/766, 264/789, 265/800, or 266/808 projections is a comparator. Its exact
+fields are:
+
+```json
+{
+  "revision": "4748b921113b884a3fe17593bc50c1af300e97f2",
+  "command": "/usr/bin/time -p corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds6-c03-vitest-run2.json",
+  "wall_duration_seconds": 410.97,
+  "vitest_duration_seconds": 409.6055888671875,
+  "exit_code": 1,
+  "test_files": {"total": 316, "passed": 315, "failed": 1},
+  "tests": {"total": 966, "passed": 965, "failed": 1},
+  "pending_tests": 0,
+  "todo_tests": 0,
+  "raw_json_sha256": "0988d754c551b92fe2d782da7875d1c594e42028aa853bb7c0324683f3880d64"
+}
+```
+
+The exact failure identity is
+`apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx` / `LineageGraph
+> renders the threshold fallback when the graph exceeds the configured size`,
+at assertion line 28. The assertion expects `Graph has 3 nodes, which is above
+render threshold (2).`; the rendered catalog value is `Graph nodes: 3; render
+threshold: 2.`. C15-R1 changed that copy while preserving the earlier focused
+gate, so this is a measured importer-test RED, not one of the repaired
+`i18n-count-message-parity` identities.
+
+Measurement changes the deferred delta: there is **no admissible C03 resolved
+transition** from this receipt. Its numeric holes are filled above, but
+`exit_code=1`, a nonempty failure set, and the new identity forbid
+`disposition: resolved`, empty failures, or removal of the governed count-debt
+class. The content-bound `failure_set.sha256` remains for the then-current
+contended producer/checker to derive from the exact identity; DS6 does not
+invent that governed value in prose. C03 now still has both independent gates:
+the DS5 register-family release and a future authorized **green** whole-suite
+receipt. This RED discharges measurement uncertainty, not the green gate.
+
+### Browser contrast, other REDs, and visual evidence
+
+The opaque-background story returned 0/7, exactly: its single story failed at
+`OpaqueBackgroundContrast.stories.tsx:213` because
+`hasOpaqueBackground(element)` was false while checking the controlled
+harness, before the source-classification loop could emit any of seven atomic
+receipts. It is not 5/7, 6/7, or a partial pass. C06 remains gated on both the
+contended C04 row and a future 7/7 browser receipt.
+
+The full visual lane failed four exact identities: `evidence promotion focus`
+(2,685 pixels reported before timeout), `dark evidence fabric` (532 pixels),
+`mobile command center` (369x3,700 expected versus 369x3,680 actual; 28,414
+pixels), and DS8-owned `run detail A4 print` (724x2,113 expected versus
+770x13,229 actual; 691,799 pixels). The print artifacts read back as:
+
+- expected SHA-256
+  `a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`;
+- actual SHA-256
+  `fa6a35be9c9893f1ed856f2a320293b4f71440caf497cffefcb3c29b5af7f8c5`;
+- diff SHA-256
+  `e48184223d3fcd0bd24b7c8fa6b1243b760d5e42966b86b5c4e021ab4851e50a`.
+
+C13 still owns the independent filtered DS8 verdict and runs after C08; this
+full-wave result is enabling evidence, not a substitute for that cluster.
+
+Full lint reported nine errors in `shared/i18n/parity.test.ts` (one
+`consistent-generic-constructors`, six `no-unsafe-enum-comparison`, and two
+`vitest/no-conditional-expect`) plus two deprecated `passthrough()` uses in
+`atlasManualAtMaturity.ts`. Full typecheck reported two invalid
+`ds6-browser-fixture` author literals in the opaque story and two possibly
+undefined `badgeEntry` accesses in `atlasManualAtMaturity.test.ts`. Production
+build inherited the same typecheck RED and made no downstream build claim.
+Journeys failed at module collection, so no journey test is counted green.
+
+### Blocked list, duplication duty, and nonreceipts
+
+- C03 waits for both a green replacement receipt and the DS5-owned governed
+  register/manifest family. No transition text can honestly claim resolved.
+- C04 waits for the same DS5 release; its exact row remains declared.
+- C06 waits for C04 and a future 7/7 browser receipt; the measured result is
+  0/7.
+- C10 waits for C08 persistence, integrity verification, and reconciliation.
+- C11 waits for INT-R3 content, a producer, real observations, and researched
+  thresholds; none is invented.
+
+The complete deferred-command census enumerated all 11 timed lane commands.
+Two of 11—whole-suite JSON Vitest and `test:components`—deliberately execute
+the same 316-file default `vitest.config.ts` population with different
+receipt/reporting settings. `apps/runtime-dashboard/vitest.config.ts` is the
+single canonical population owner; both package commands already point there,
+so migration state is `shared_owner`, not `duplicate_implementation`.
+Concrete divergence is only receipt shape and worker/report options: JSON plus
+unbounded workers for C03 versus default reporter plus two workers for the
+component receipt. Comparator status is measured equal: both returned the same
+315/316-file, 965/966-test `LineageGraph` failure. Component a11y is a distinct
+84-file population owned by `vitest.a11y.config.ts`. The execution overlap is
+therefore outside the plan's two-implementation/artifact duplication class;
+no second gate, scanner, configuration owner, or strangle target was found.
+
+All listed lanes reached a terminal state; there is no killed-ceiling
+nonreceipt. The lost first whole-suite terminal and failed offline environment
+bootstrap remain explicit nonreceipts. A dev server and interactive Storybook
+were not run independently; only command-managed servers ran. No governed
+artifact, contended register-family path, readiness ledger, checker, generated
+report, `src/polisyos/**`, Russian catalog, product surface, DS5/GY path, or
+denominator was edited.

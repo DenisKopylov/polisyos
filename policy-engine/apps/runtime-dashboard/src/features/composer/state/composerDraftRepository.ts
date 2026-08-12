@@ -6,7 +6,7 @@ import {
   deleteComposerDraftRecord,
   loadComposerDraftRecord,
   saveComposerDraftRecord,
-} from "@/app/offline/composerDraftDb";
+} from "@/app/offline/offlineQueueRepository";
 
 export type ComposerDraftMode = "nl" | "workflow";
 export type ComposerDraftValues =

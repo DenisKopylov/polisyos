@@ -570,7 +570,7 @@ QUERY_CACHE_POLICY_GOVERNED_PRODUCER = {
         "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     },
 }
-COMPOSER_DRAFT_DB_PATH = "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts"
+COMPOSER_DRAFT_DB_PATH = "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
 COMPOSER_DRAFT_ADAPTER_PATH = (
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts"
 )

@@ -103,7 +103,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                         "authorityActionKinds": [
                             {
                                 "kind": "publication.reissue",
-                                "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+                                "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
                             }
                         ],
                         "composerDbImports": [],
@@ -201,7 +201,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                     "export async function replayQueuedAuthorityMutation() {}\n"
                 ),
                 authority_import_path: (
-                    'import { saveComposerDraftRecord } from "@/app/offline/composerDraftDb";\n'
+                    'import { saveComposerDraftRecord } from "@/app/offline/offlineQueueRepository";\n'
                     "export async function persistAuthorityDecision() {\n"
                     '  await saveComposerDraftRecord({ key: "promotion.approve" });\n'
                     "}\n"
@@ -284,7 +284,7 @@ class AtlasEnforcementTests(unittest.TestCase):
             if row["finding_id"] == "c14a-local-state-envelope-owner-debt"
         )
         source_path = (
-            "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts"
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
         )
         identity_refs = [
             reference

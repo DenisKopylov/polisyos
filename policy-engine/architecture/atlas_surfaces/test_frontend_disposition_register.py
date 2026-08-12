@@ -1001,7 +1001,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             ],
             "evidence_refs": [
                 "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15",
-                "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13",
+                "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13",
                 "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301",
                 "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109",
                 "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444",
@@ -1025,15 +1025,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
         expected["evidence_refs"] = self._migrated_descriptor_refs(
             expected["evidence_refs"]
         )
-        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
-        self.assertEqual(
-            expected["evidence_refs"][:2],
-            descriptor["evidence_refs"][:2],
-            "c14a_descriptor_current_c21_identity_drift",
-        )
         writer_paths = {
             "composer": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
-            "queue": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+            "queue": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
             "causal": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
             "disputes": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
             "operator_craft": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
@@ -1048,23 +1042,16 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 for source in writer_sources.values()
             )
         )
-        self.assertEqual(expected, descriptor)
+        self.assertEqual(expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.get(finding_id))
 
-        refreshed = json.loads(
-            checker._refresh_supplemental_findings_text(
-                REGISTER_PATH.read_text(encoding="utf-8")
-            )
-        )
-        rows = {
-            str(row["finding_id"]): row
-            for row in refreshed["supplemental_findings"]
-        }
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        rows = {str(row["finding_id"]): row for row in data["supplemental_findings"]}
         self.assertEqual(
             {"finding_id": finding_id, **expected, "decision_date": checker.DECISION_DATE},
             rows.get(finding_id),
         )
 
-        missing = copy.deepcopy(refreshed)
+        missing = copy.deepcopy(data)
         missing["supplemental_findings"] = [
             row for row in missing["supplemental_findings"] if row["finding_id"] != finding_id
         ]
@@ -1073,7 +1060,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             checker.validate_register(missing, live_probes=False, report_parity=False),
         )
 
-        corrupted = copy.deepcopy(refreshed)
+        corrupted = copy.deepcopy(data)
         row = next(
             item
             for item in corrupted["supplemental_findings"]
@@ -3649,7 +3636,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         """The governed gate binds the migrated construct identity, never its line."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         source_path = (
-            "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts"
+            "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
         )
         stored_references = [
             reference

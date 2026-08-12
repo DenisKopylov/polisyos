@@ -2879,16 +2879,20 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "OltdLCJ2ZXJzaW9uIjoxfQ"
             ),
             (
-                "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts#ts-identity=eyJkZWNsYX"
-                "JhdGlvbl9jaGFpbiI6WyJleHBvcnQ6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpkZW"
-                "xldGVDb21wb3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZC"
-                "IsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwcC9vZmZsaW5lL2NvbXBvc2"
-                "VyRHJhZnREYi50czpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJkZWxldGVDb2"
-                "1wb3NlckRyYWZ0UmVjb3JkIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWQyZjE4YzQ4ZGEzYW"
-                "IzZmU3ZTY3NjFmY2UyZWYxMmY3YTk3NTI4NjgyYjdiYTlkNDNlNGVjYzhmYWUxYzkzNCIsInJvbGUiOi"
-                "JleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC"
-                "9zcmMvYXBwL29mZmxpbmUvY29tcG9zZXJEcmFmdERiLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidm"
-                "Vyc2lvbiI6MX0"
+                "apps/runtime-dashboard/src/app/offline/offlineQueueReposit"
+                "ory.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ"
+                "6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpkZWxldGVDb"
+                "21wb3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6ZGVsZXRlQ29tcG9zZXJ"
+                "EcmFmdFJlY29yZCIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoY"
+                "m9hcmQvc3JjL2FwcC9vZmZsaW5lL29mZmxpbmVRdWV1ZVJlcG9zaXRvcnk"
+                "udHM6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiZ"
+                "GVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsIm5vcm1hbGl6ZWRfdG9rZW5"
+                "zX3NoYTI1NiI6ImFkMmYxOGM0OGRhM2FiM2ZlN2U2NzYxZmNlMmVmMTJmN"
+                "2E5NzUyODY4MmI3YmE5ZDQzZTRlY2M4ZmFlMWM5MzQiLCJyb2xlIjoiZXh"
+                "wb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVud"
+                "GltZS1kYXNoYm9hcmQvc3JjL2FwcC9vZmZsaW5lL29mZmxpbmVRdWV1ZVJ"
+                "lcG9zaXRvcnkudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uI"
+                "joxfQ"
             ),
             (
                 "apps/runtime-dashboard/src/features/runs/routes/tabs/Causa"
@@ -6068,7 +6072,7 @@ _C21B_DESCRIPTOR_HINTS = {
     "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
     "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
-    "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13": ("exported_declaration", "deleteComposerDraftRecord"),
+    "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13": ("exported_declaration", "deleteComposerDraftRecord"),
     "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
     "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
     "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),

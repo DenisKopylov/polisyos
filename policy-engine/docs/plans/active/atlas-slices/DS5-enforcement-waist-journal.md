@@ -1864,3 +1864,82 @@
   GO. Native inherited-tier workers were used with no Sol override. Every
   governed write and scanner-heavy gate was root-owned, serialized, bounded,
   and captured; no process was killed and no partial stream became evidence.
+
+## 2026-08-12 — DS5-C13b-R2 pre-writer rename invariant
+
+- Binding declaration before any governed writer: the pure
+  `offlineQueueRepository.ts` → `composerDraftDb.ts` rename preserves the
+  reference corpus at `270 / 161 TypeScript / 6 structured / 15 navigation`
+  over exactly 11 navigation files; disposition at `261 roots / 63
+  supplemental / 9 censuses`; and status at `13 current-authored / 47 DS1 / 0
+  retirement debt`. No finding identity, finding kind, disposition,
+  status/label, capability-state set, root identity, strangle status, or census
+  denominator may change. Only module-path leaves, C21 payload path components,
+  the composer adapter token hash caused by its import-specifier rename, and
+  cryptographic source hashes depending on those leaves may change. The
+  historical C13a replay in
+  `test_frontend_disposition_register.py::test_c13a_delete_composer_draft_identity_replays_across_line_move`
+  continues to name `offlineQueueRepository.ts`.
+- Clean-base artifact SHA-256: register
+  `32bda9fe410ebef7c1aab50ea9ca8986cf7af9e1ce864915db08edaba120a04a`;
+  report `2d06950ab8da96275d8b9e7b9e1d7343cc053546eb0d4014fcbcf3f1c9e2a3b2`;
+  status inventory
+  `ae1de35d72e8b2bfdba4e8a82aff88aca71ad82e4aa8d6760a39a792a6f3222f`;
+  readiness ledger
+  `11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812`.
+- Clean-base semantic projection SHA-256: roots
+  identity/disposition/strangle/census
+  `25e319c5367d3960de0341c5eed60b862b995e437f9d194f5200dd7d95759007`;
+  supplemental identity/kind/disposition/status/capability states
+  `9d67b3e26a99cc54e2f0e3f541d2107db926b783100e4eead7dcb5c0d3987124`;
+  reference-census denominators
+  `96868e47b4366528cb6d42c680941ecb476dbf77d3a768e6fbe88145482fd698`.
+- Any semantic leaf beyond this declaration is `BLOCKED`, not cleanup. Root
+  owns the serialized readiness-ledger, register/report, and status-inventory
+  writes plus their complete semantic comparison.
+
+## 2026-08-12 — DS5-C13b-R2 descriptor-refresh repair
+
+- Root's first serialized C21 writer RED (`exit 1`, `37.337 s / 400 s`) found
+  a missed current governed owner: `_refresh_supplemental_findings_text` emits
+  `PRODUCER_BINDING_DEBT_DESCRIPTORS` directly, so changing the C21 descriptor
+  hint alone left the C14a `deleteComposerDraftRecord` identity bound to the
+  deleted `offlineQueueRepository.ts` and raised `FileNotFoundError`.
+- The C14 descriptor's second frozen identity is now re-derived from the
+  current `composerDraftDb.ts:13` source: its source path and declaration-chain
+  component change, while its normalized declaration-token SHA-256 remains
+  `ad2f18c48da3ab3fe7e6761fce2ef12f7a97528682b7ba9d43e4ecc8fae1c934`.
+  The first `ComposerDraftRecord` identity is intentionally byte-identical:
+  its canonical type-alias construct excludes the renamed import.
+- Focused test now derives both C14 current C21 descriptor values from live
+  source before testing the in-memory descriptor refresh. The stale frozen
+  payload was a direct RED; the historical C13a replay remains old-path-only.
+
+## 2026-08-12 — DS5-C13b-R2 invariant STOP
+
+- The repaired root-owned writer completed `exit 0` in `55.684 s / 400 s`.
+  The four governed JSON artifacts changed at exactly the eight declared
+  leaves: two readiness evidence paths; register DS1 hash plus the C14
+  `deleteComposerDraftRecord` C21 path/declaration-chain components; and status
+  DS1/DS19 hashes plus two retired-status paths. Counts remained `270 / 161 / 6
+  / 15` over 11 navigation files, `261 / 63 / 9`, and `13 / 47 / 0`; no
+  identity, disposition, label, capability-state, or denominator moved.
+- The canonical report nevertheless changed outside the binding pre-writer
+  invariant: HEAD-derived LOC receipts moved from `21111 / 19207 / -1904 / 88`
+  to `21113 / 19225 / -1888 / 89`, and the commit list added
+  `db6c4c350 DS5-C21c bind structured evidence identities`. This is pre-existing
+  post-C21c report drift, not an R2 semantic delta, but causation does not admit
+  it into R2's declared set. Retaining the old report bytes would make the
+  generated artifact noncanonical; accepting the new bytes would violate the
+  declared invariant. Two independent read-only reviews therefore returned
+  STOP.
+- The first writer attempt is a governed RED, `exit 1` in `37.337 s / 400 s`,
+  for the stale hard-coded C14 descriptor identity. The initial invariant script
+  `KeyError: probe_id` and missing scoped ESLint command are harness/tooling
+  non-receipts. No killed run or partial stream is evidence. C13b-R3 and C15a
+  were not entered.
+- GREEN: the no-write current-identity witness confirmed both descriptor values
+  and the in-memory refresh bind the live composer type alias and
+  `composerDraftDb.ts` deletion declaration. The paired C21 move/rename witness
+  was also rerun; `git diff --check` is green. No writer or scanner was run by
+  this repair lane.

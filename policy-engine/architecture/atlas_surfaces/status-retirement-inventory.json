@@ -17,12 +17,12 @@
     "ds1": {
       "path": "architecture/atlas_surfaces/live-application-readiness-ledger.json",
       "ledger_id": "atlas-live-application-readiness",
-      "sha256": "sha256:11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812"
+      "sha256": "sha256:4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13"
     },
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:32bda9fe410ebef7c1aab50ea9ca8986cf7af9e1ce864915db08edaba120a04a"
+      "sha256": "sha256:c4f095dc86d9dbabcbb33a0c3a9a67409fb4ca219eb0b02de8d9ae307182077e"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -86,7 +86,7 @@
       "definition_kind": "named",
       "current_definition_state": "retired",
       "source_span": {
-        "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+        "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
         "start_line": 8,
         "end_line": 8,
         "declaration_name": "OfflineQueueItemStatus"
@@ -95,7 +95,7 @@
       "type_expression": "\"failed\" | \"queued\" | \"retrying\"",
       "consumers": [
         {
-          "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+          "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
           "line": 23,
           "kind": "prop"
         }

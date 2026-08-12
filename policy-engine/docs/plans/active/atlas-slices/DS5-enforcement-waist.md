@@ -1857,6 +1857,20 @@ disposition and generated report land together.
 
 **Expected commit:** `DS5-C13b-R1 close service worker and composer DB`.
 
+### DS5-C13b-R2 — pure composer DB re-anchor
+
+**Pattern pass:** P27/P28/P29/P31/P33/P35/P37. The one surviving composer
+IndexedDB owner is renamed by function, its predecessor is deleted with no
+forwarding shim, and every current governed consumer is re-anchored together.
+This is a path-only correction: it adds no local-state envelope, identity, TTL,
+migration, status, queue, replay, or service-worker behavior. The historical
+C13a replay remains bound to `offlineQueueRepository.ts` at its historical
+commit; it is not a current owner.
+
+| documentation-only debt | P35 full-set receipt / both sides | current divergence risk and closure |
+| --- | --- | --- |
+| composer DB module-path fan-out | At clean base `db6c4c35058fe5f886d5fe6c62c1e22088bc71f1`, one canonical product module path is replicated as 16 literals across 8 governed owners and 35 occurrences across 15 tracked files total. The canonical authority is the composer DB module path; the other side is the Atlas constant, status scanner constant/import matcher, C21 descriptor hint, generated projections, readiness/status path leaves, and their owner fixtures. | No one owner updates all eight copies: descriptor/register parity, scanner/checker facts, and status reconciliation each compare only subsets, so a future rename can leave a green partial rebind. Closure is one module-path owner consumed by all eight, with P29 behavioral `rename-after-one-owner-update` green and genuinely different-module named-code red witnesses. |
+
 ### DS5-C14a — nominal local-state envelope owner
 
 **Measured set:** exactly 7 governed paths: frontend disposition checker + test,

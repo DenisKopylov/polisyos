@@ -1921,3 +1921,18 @@ manifest and no changed governed byte, so it is a contention non-receipt; it con
 fresh measurement nor the accepted N10a reissue. A new quiet interval is required before the next
 launch. `[P37: recomputed for the byte/head/status boundary; institutionally_supplied for the
 completion/allowance rule]`
+
+The next launch followed a new `30` s quiet interval at clean attached head `c6a26e6fb`, but a
+second external scanner sequence again started only after N10a was live. Process-tree read-back
+identified Python parent PID `20393` and child `20404` running
+`python -m unittest architecture.atlas_surfaces.test_frontend_disposition_register`, with rotating
+TypeScript scanner children (one observed at PID `20688`, approximately `127%` CPU and `355,328`
+KiB RSS). N10a was therefore terminated deliberately after `55.648199` s rather than allowed to
+contend. The wrapper again records `timed_out: false`, terminal `-15`, attached branch/head and an
+empty tracked status before/after; all five governed pins are identical. Stdout is empty; stderr is
+only the two database-connection information lines emitted before termination. Meta/stdout/stderr
+identities are `dbf9d5a4…733a`, `e3b0c442…b855`, and `e93a3ada…32cd`. This is a second
+serialized-host non-receipt with no accepted manifest or reissue. The next quiet gate is tied to the
+scanner's orchestration parent exiting, not merely to a rotating child disappearing.
+`[P37: recomputed for process lineage, terminals and byte boundary; institutionally_supplied for
+the completion/allowance rule]`

@@ -16,7 +16,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
-from weakref import WeakSet
+from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -495,23 +495,22 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
 class _CanonicalPromotionComparisonProof:
     """Opaque capability issued only after the live promotion owner validates."""
 
-    __slots__ = ("__weakref__", "_admission")
+    __slots__ = ("__weakref__",)
 
     def __init__(self) -> None:
         raise TypeError("canonical_promotion_comparison_proof_owner_required")
 
 
-_ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS: WeakSet[
-    _CanonicalPromotionComparisonProof
-] = WeakSet()
+_ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS: WeakKeyDictionary[
+    _CanonicalPromotionComparisonProof, GyComparisonAdmission
+] = WeakKeyDictionary()
 
 
 def _issue_canonical_promotion_comparison_proof(
     admission: GyComparisonAdmission,
 ) -> _CanonicalPromotionComparisonProof:
     proof = object.__new__(_CanonicalPromotionComparisonProof)
-    proof._admission = admission
-    _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS.add(proof)
+    _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS[proof] = admission
     return proof
 
 
@@ -1714,12 +1713,12 @@ def canonical_promotion_comparison_admission_from_proof(
 ) -> GyComparisonAdmission:
     """Resolve one owner-issued proof to its exact comparison admission."""
 
-    if (
-        type(proof) is not _CanonicalPromotionComparisonProof
-        or proof not in _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS
-    ):
+    if type(proof) is not _CanonicalPromotionComparisonProof:
         raise ValueError("canonical_promotion_comparison_proof_invalid")
-    return proof._admission
+    admission = _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS.get(proof)
+    if admission is None:
+        raise ValueError("canonical_promotion_comparison_proof_invalid")
+    return admission
 
 
 def _require_canonical_verification_registry(

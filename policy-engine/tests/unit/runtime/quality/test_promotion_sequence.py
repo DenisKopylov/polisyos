@@ -1789,6 +1789,14 @@ def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission()
             action=admission.action,
             predicate_provenance=admission.predicate_provenance,
         )
+        with pytest.raises(AttributeError):
+            proof._admission = forged_public_token
+        assert (
+            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+                proof
+            )
+            is admission
+        )
         with pytest.raises(
             ValueError,
             match="canonical_promotion_comparison_proof_invalid",

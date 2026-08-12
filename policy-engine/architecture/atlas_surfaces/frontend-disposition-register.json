@@ -4633,13 +4633,13 @@
         "ds1_entry_id": "cache-service-worker-static",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c13b_service_worker_static_no_authority_bridge",
-      "rationale": "C13b's real-worker behavioral proof retains versioned static-manifest precache and the navigation shell, denies /api/**, /health, and /ready, and proves no app-authored authority sync, message, client-postMessage, visibility, or online bridge remains."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "offline-queue-promotion-decision",

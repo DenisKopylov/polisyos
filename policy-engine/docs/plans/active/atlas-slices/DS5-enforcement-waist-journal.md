@@ -1943,3 +1943,119 @@
   `composerDraftDb.ts` deletion declaration. The paired C21 move/rename witness
   was also rerun; `git diff --check` is green. No writer or scanner was run by
   this repair lane.
+
+## 2026-08-12 — DS5-C13b-R2 corrected pre-writer invariant
+
+- The preceding STOP remains the correct enforcement of the invariant that was
+  declared then; its report-byte clause was wrong, not the writer result. The
+  generated report declares that its HEAD-derived sections lag the commit that
+  generates them. Before the restored candidate's one serialized writer run,
+  accept those sections only when two independent checks explain them: (1) the
+  report's added commit lines equal `git log <last-report-regeneration>..HEAD
+  --oneline` over the report-covered history, and (2) its LOC receipt equals an
+  independent `git diff --numstat REPAIR_COMMIT --
+  policy-engine/apps/runtime-dashboard`. The receipt records separately the
+  accumulated history since the last report generation and this R2 module
+  rename's own contribution; any remaining line, commit, or LOC delta is
+  `BLOCKED`.
+- All non-report bindings remain unchanged: `270 / 161 TypeScript / 6
+  structured / 15 navigation` references across 11 navigation files;
+  `261 roots / 63 supplemental / 9 censuses`; and `13 current-authored / 47
+  DS1 / 0 retirement debt`. The governed JSON comparison permits exactly the
+  previously declared eight leaves. No finding identity, disposition, label,
+  or denominator may move, and the C13a historical replay remains explicitly
+  old-path-only at `offlineQueueRepository.ts`.
+- Orchestration non-receipts: the root helper's first `sdd-workspace` launch
+  was permission-denied and its second was invoked from the wrong cwd; neither
+  supplies a workspace or gate result. The C13b implementation continuation's
+  quota interruption likewise supplies no receipt. The reviewed helper run and
+  every governed writer/scanner receipt remain separately captured; no killed
+  or partial process is evidence.
+
+## 2026-08-12 — DS5-C13b-R2 post-writer reconciliation
+
+- The restored candidate's one root-owned canonical writer run,
+  `--migrate-c21b --write-report`, completed GREEN (`exit 0`, `79.099 s /
+  400 s`). The recursive governed-JSON comparison against `db6c4c350` is the
+  declared exact eight-leaf set: readiness-ledger entries 164 and 234
+  `evidence_refs[0].path`; register `sources.ds1.sha256` and supplemental
+  finding 61 `evidence_refs[1]` C21 identity; and status entry 1 consumer and
+  `source_span.path` plus `sources.ds1`/`sources.ds19` hashes. The reference
+  and disposition denominators remain `270 = 161 TypeScript + 6 structured +
+  15 navigation` across 11 navigation files and `261 / 63 / 9`; status remains
+  `13 / 47 / 0` pending the full governed gates. No finding identity,
+  disposition, label, or denominator moved.
+- The C13a historical replay is preserved: among mechanism and test files,
+  `offlineQueueRepository.ts` remains only at
+  `test_frontend_disposition_register.py:2713`, its intentional historical
+  assertion.
+- The report's new HEAD-derived sections reconcile completely. Its commit
+  lines are exactly `git log db6c4c350..HEAD --format='%h %s'`: restore
+  `cf80700bb`, forward revert `f4990b6f5`, checkpoint `56eeef256`, followed by
+  the already-recorded `db6c4c350` boundary. Its LOC receipt is independently
+  equal to `git diff --numstat d01eaa572 --
+  policy-engine/apps/runtime-dashboard`: `21129` added, `19225` deleted, net
+  `-1904`, `89` deleted files. From `db6c4c350`, accumulated history is
+  `0 / 0 / 0 / 0`; R2's endpoint change is a 100% rename (`0 / 0`) plus two
+  importers (`+3 / -3`). Under the repair-baseline command, the old path is
+  `+1 / -78` at `db6c4c350` and `+0 / -93` at HEAD, while the new 16-line path
+  is `+16 / -0`; the path split is therefore `+15 / -15`. Together with the
+  importers, the receipt is `+18 / -18`, net zero and one deleted path. There
+  is no unexplained residual.
+- This supersedes only the stopped pre-commit report receipt, whose LOC values
+  came from generation-time dirty-worktree context. It does not revise the
+  preserved STOP or add a new non-receipt.
+
+## 2026-08-12 — DS5-C13b-R2 final verification receipt
+
+- Serialized root-owned writer: `--migrate-c21b --write-report` GREEN, `exit
+  0`, `79.099 s / 400 s`.
+- Dashboard proof: focused composer Vitest GREEN (`2 / 2`, `exit 0`, `1.430 s
+  / 120 s`); TypeScript compilation GREEN (`exit 0`, `9.737 s / 120 s`); and
+  production build GREEN (`exit 0`, `19.132 s / 300 s`). The build emitted only
+  its inherited chunk-size advisory.
+- Serialized governed lanes: frontend disposition module GREEN (`88 / 88`,
+  `exit 0`, `144.945 s / 400 s`), including the expected nested
+  absent-future-child errors asserted by the outer GREEN; disposition-checker
+  corruption battery GREEN (`exit 0`, `100.790 s / 400 s`) with `261 / 63 / 9`
+  and corruption PASS; status module GREEN (`38 / 38`, `exit 0`, `52.616 s /
+  400 s`); status-checker corruption battery GREEN (`exit 0`, `19.656 s / 400
+  s`) with `13 current-authored / 47 DS1 / 0 retirement debt`; and full Atlas
+  module GREEN (`32 / 32`, `exit 0`, `395.511 s / 1800 s`).
+- No process was killed or yielded a partial result in this verification wave.
+  The earlier explicitly named tooling/harness non-receipts remain historical;
+  this receipt neither converts them into evidence nor adds a new one.
+
+## 2026-08-12 — DS5-C13b-R2 static-hygiene rerun receipt
+
+- Fresh static hygiene first found new `E501` and `PT009`; its first repair
+  exposed `S101` and was superseded. That plain-assert result is an internal
+  static RED, not a product or harness non-receipt. The final repair only
+  rewraps source and narrows `# noqa: PT009`; it introduces no dead or dropped
+  logic.
+- Exact baseline comparison across the four Python paths is delta-clean with
+  zero additions: `check_atlas_enforcement.py` `12 -> 12`,
+  `test_atlas_enforcement.py` `170 -> 168`,
+  `check_frontend_disposition_register.py` `269 -> 268`, and
+  `test_frontend_disposition_register.py` `302 -> 302`. The governed artifact
+  hashes stayed byte-identical: register `c4f095...`, report `ce5005...`,
+  status `36b96f...`, readiness `4b64f0...`.
+- Post-static affected gates reproduce GREEN: frontend disposition `88 / 88`,
+  `exit 0`, `151.664 s / 400 s`; disposition checker plus corruption battery
+  `exit 0`, `114.172 s / 400 s`, `261 / 63 / 9`. This is a static-only
+  mechanism-byte round and does not consume the breaker: governed artifact
+  bytes and test outcomes are proven unchanged. No process was killed or
+  partial; earlier non-receipts remain historical.
+
+## 2026-08-12 — DS5-C13b-R2 review C1: LOC decomposition correction
+
+- Review C1 is valid against the prose decomposition only. The moved module is
+  16 lines, not 15. `git diff --no-renames db6c4c350..HEAD` reports `+19 / -19`,
+  but that is an endpoint diagnostic rather than the report contract: its extra
+  insertion is exactly the pre-existing `+1` already carried by the old path's
+  repair-baseline diff. The binding-command decomposition is `+15 / -15` for
+  the path split (`16 - 1`, `93 - 78`) plus importer `+3 / -3`, yielding the
+  recorded `+18 / -18`, net zero, and one deleted path. The fresh report receipt
+  `21129 / 19225 / -1904 / 89` and accumulated unrelated app history `0 / 0 /
+  0 / 0` remain correct. This is a documentation correction: no artifact,
+  scanner, writer, or test was run.

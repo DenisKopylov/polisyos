@@ -6068,7 +6068,10 @@ _C21B_DESCRIPTOR_HINTS = {
     "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
     "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
-    "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13": ("exported_declaration", "deleteComposerDraftRecord"),
+    "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13": (
+        "exported_declaration",
+        "deleteComposerDraftRecord",
+    ),
     "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
     "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
     "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),

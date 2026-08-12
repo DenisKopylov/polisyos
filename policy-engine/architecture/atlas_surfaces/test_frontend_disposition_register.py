@@ -1026,7 +1026,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             expected["evidence_refs"]
         )
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
-        self.assertEqual(
+        self.assertEqual(  # noqa: PT009
             expected["evidence_refs"][:2],
             descriptor["evidence_refs"][:2],
             "c14a_descriptor_current_c21_identity_drift",

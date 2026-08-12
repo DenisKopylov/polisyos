@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **21113**
+- Application lines added: **21129**
 - Application lines deleted: **19225**
-- Net application LOC reduction: **-1888**
+- Net application LOC reduction: **-1904**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -566,6 +566,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `cf80700bb Reapply "checkpoint: preserve stopped DS5-C13b-R2 rename"`
+- `f4990b6f5 Revert "checkpoint: preserve stopped DS5-C13b-R2 rename"`
+- `56eeef256 checkpoint: preserve stopped DS5-C13b-R2 rename`
 - `db6c4c350 DS5-C21c bind structured evidence identities`
 - `ceccb0746 DS5-C21b-R1 close TypeScript line-address migration`
 - `055345536 Reapply "checkpoint: preserve stopped DS5-C21b identity migration"`

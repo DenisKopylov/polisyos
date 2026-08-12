@@ -1722,3 +1722,19 @@ Read-back after all three verifications still gives the accepted `149,504`-byte 
 receipts, while its opt-in v2 comparison identity now binds the producer-verified semantic event
 chain. No denominator, admission/comparison outcome, transport covariate, N8 proof, ledger scope or
 ambient discovery identity moved. `[P37: recomputed]`
+
+### Generation v2 measurement — contended cap non-receipt
+
+The first generation-cycle measurement at head `0a288717d` was terminated by the wrapper after
+`76.242653` s at the recomputed `76.199994` s cap (`timed_out: true`, child exit `-15`, wrapper
+exit `124`). It emitted no stdout or stderr and never wrote the canonical output: the before/after
+pins are byte-identical at `107,712` bytes and SHA-256 `6538e879…344`. The meta identity is
+`a6c91028…97a4`. This is a killed cap observation with zero output, not a completed lane decision
+and not a duration sample. `[P37: recomputed]`
+
+The process census immediately after termination showed a concurrent Atlas DS6 Vitest parent and
+eight rotating Node worker processes; the observed workers consumed roughly `27–60%` CPU each and
+about `0.13–0.21` GiB RSS each. Their parent elapsed time aligned with the full generation interval.
+That is direct contention evidence under B4, so exactly one remeasurement is authorized after the
+external lane exits; the cap is not raised. `[P37: recomputed for the observed process census;
+institutionally_supplied for B4 and the one-rerun allowance]`

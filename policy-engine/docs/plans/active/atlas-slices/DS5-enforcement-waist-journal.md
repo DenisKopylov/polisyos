@@ -2059,3 +2059,85 @@
   `21129 / 19225 / -1904 / 89` and accumulated unrelated app history `0 / 0 /
   0 / 0` remain correct. This is a documentation correction: no artifact,
   scanner, writer, or test was run.
+
+## 2026-08-12 — DS5-C13b-R3 service-worker sync/flush strangle
+
+- RED first: the real-module Vitest witness
+  `test_service_worker_has_no_authority_sync_or_authenticated_api_cache` failed
+  `exit 1` in `1.51 s / 120 s` because the imported worker registered exactly
+  `activate` and `sync`. The same witness exercised the actual `NavigationRoute`:
+  `/workspace` matched while `/api/runs`, `/health`, and `/ready` did not.
+- GREEN deletes only the queue sync tag, flush notifier, and authored
+  activate/sync listeners from `src/sw.ts`. The worker retains `skipWaiting`,
+  Workbox claim/cleanup/versioned precache, and the existing navigation-shell
+  denylist. The focused witness passed `1 / 1`, `exit 0`, in `2.05 s / 120 s`;
+  it proves the injected versioned manifest reaches precache, no worker event
+  graph remains, and authenticated navigation paths are not routed to the app
+  shell.
+- Verification: dashboard typecheck GREEN `15.43 s`; scoped ESLint GREEN
+  `6.39 s`; production build GREEN `20.60 s / 300 s` (only the inherited
+  chunk-size advisory); corrected static absence check GREEN `0.01 s`; complete
+  dashboard persistence duplication scan GREEN `0.03 s`; and tracked plus new
+  file diff check GREEN `0.02 s`. The initial two static scan invocations used
+  the worktree root instead of the dashboard directory, found no `src` path,
+  and are non-receipts (each `0.00 s`); only the corrected scans support this
+  entry.
+- P27/P28 close the one surviving app-authored service-worker authority bridge
+  by deletion, not a parallel gate or default-off path. P29/P31/P33 are covered
+  by importing and exercising the worker graph and actual Workbox route rather
+  than grepping source; normal navigation plus all three denylist classes are
+  the sibling probes. The static duplication census finds one current `openDB`
+  owner, `src/app/offline/db.ts:1`; no duplicate composer persistence owner or
+  residual queue sync/flush token was found.
+- Root must now make the serialized governed writer transition only
+  `cache-service-worker-static` to its truthful landed posture and regenerate
+  the frontend disposition report/status inventory. `offline-draft-composer`
+  remains `rebind_pending/pending` with exactly `producer_missing`,
+  `artifact_missing`, `bridge_missing`, `consumer_missing`,
+  `verification_missing`, and `semantic_test_missing`; DS18 epoch/rule
+  revalidation remains an integrate-contract. This repair does not claim those
+  missing capabilities, run governed writers/scanners, stage, or commit.
+
+## 2026-08-12 — DS5-C13b-R3 root-owned governed writer receipt
+
+- Pre-writer semantic RED: the root's first `apply_patch` matched
+  `route-welcome` rather than the explicit service-worker unit. The semantic
+  selector immediately failed with `changed_roots ['route-welcome']`; root
+  restored that row exactly before any writer. This is not a governed-writer
+  result.
+- The corrected explicit-unit patch changed only the four
+  `cache-service-worker-static` leaves: disposition `use_as_is`, strangle
+  `not_applicable`, its seed rule, and its rationale. `offline-draft-composer`
+  is byte-identical. The new `sw.test.ts` was staged before report generation,
+  so its LOC is included in the canonical report receipt.
+- Root's canonical `--write-report` completed GREEN, `exit 0`, in `41.451 s /
+  400 s`: `261` roots, `63` supplemental findings, and `9` censuses. The
+  disposition distribution is `rebind_pending=196`, `use_as_is=6`,
+  `deleted=18`, `retire=25`, and `wire=16`. Register SHA-256 is
+  `9d804579...a3416e9d`; the status pin surgically matches, with only its
+  intended status leaf changed.
+- The canonical report records `21206 / 19248 / -1958 / 89`, representing the
+  R3 `+77` test and `-23` worker delta relative to R2. The exact dirty set is
+  the six requested paths. This implementation lane did not rerun a
+  test/writer/scanner after root's receipt, and did not stage or commit.
+
+## 2026-08-12 — DS5-C13b-R3 STOP receipt
+
+- Governed greens: frontend disposition module `88 / 88`, `216.195 s`
+  (`222.238 s / 400 s` wall); disposition corruption PASS `136.973 s / 400 s`
+  with `261 / 63 / 9`; status module `38 / 38`, `67.178 s`
+  (`67.994 s / 400 s` wall); and status corruption PASS `26.591 s / 400 s`
+  with `13 / 47 / 0`.
+- Full Atlas is terminal RED: `32` tests, `465.906 s` (`480.034 s / 1800 s`
+  wall), with seven failures all
+  `offline_queue_production_source_denominator_drift`. The new required
+  colocated `src/sw.test.ts` is included by `tsconfig.app`, moving the exact
+  program-root denominator `949 -> 950`. The truthful canonical owners are the
+  out-of-cap `check_atlas` constant and `test_atlas` assertions: this is an
+  unpredicted cap expansion and explicit user STOP, not a reason to patch the
+  product/test/governed artifacts here.
+- Independent review is NO-GO `0C / 1I / 1M`: the worker test lacks named
+  `clients.matchAll`/client `postMessage` and registered-handler behavior; its
+  duplication census must state the complete `950` TS/TSX denominator
+  (`360 .ts + 590 .tsx`). C14a remains typed-open unchanged; candidate is to be
+  checkpointed then forward-reverted, and C15a is not entered.

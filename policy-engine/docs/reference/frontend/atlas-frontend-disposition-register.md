@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **21129**
-- Application lines deleted: **19225**
-- Net application LOC reduction: **-1904**
+- Application lines added: **21206**
+- Application lines deleted: **19248**
+- Net application LOC reduction: **-1958**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -100,9 +100,9 @@ No merge or push is performed.
 | Disposition | Root units |
 | --- | ---: |
 | `deleted` | 18 |
-| `rebind_pending` | 197 |
+| `rebind_pending` | 196 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 5 |
+| `use_as_is` | 6 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -534,7 +534,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `worker-data-transform` | `worker-data-transform` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `worker-dag-layout` | `worker-dag-layout` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `worker-json-parse` | `worker-json-parse` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
-| `cache-service-worker-static` | `cache-service-worker-static` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `cache-service-worker-static` | `cache-service-worker-static` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `deleted` | `strangled` | `DS5` | `census-c13a-authority-replay-delete` |
 | `offline-draft-composer` | `offline-draft-composer` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
@@ -566,6 +566,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `2e144c048 DS5-C13b-R2 re-anchor composer DB module`
 - `cf80700bb Reapply "checkpoint: preserve stopped DS5-C13b-R2 rename"`
 - `f4990b6f5 Revert "checkpoint: preserve stopped DS5-C13b-R2 rename"`
 - `56eeef256 checkpoint: preserve stopped DS5-C13b-R2 rename`

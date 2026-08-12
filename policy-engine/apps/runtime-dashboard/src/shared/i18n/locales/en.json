@@ -56,7 +56,7 @@
     "exportJson": "Export JSON",
     "lineageGraph": {
       "empty": "Lineage graph is empty.",
-      "threshold": "{nodes, plural, one {Graph has {nodes} node, which is above render threshold ({maxNodes}).} other {Graph nodes: {nodes}; render threshold: {maxNodes}.}}",
+      "threshold": "Graph has {nodes} nodes, which is above render threshold ({maxNodes}).",
       "thresholdHint": "Narrow the lineage scope (`max_depth`/`max_nodes`) for interactive rendering.",
       "ariaLabel": "Artifact lineage graph",
       "unknownKind": "Unknown kind"
@@ -175,10 +175,10 @@
       "narrativeThroughput": "Throughput",
       "narrativeQueue": "Queue posture",
       "narrativeEvidence": "Evidence concentration",
-      "narrativeAttentionBody": "{count, plural, one {{count} active run needs immediate review posture; blocked packets: {blocked}.} other {{count} active runs need immediate review posture; blocked packets: {blocked}.}}",
-      "narrativeThroughputBody": "Current sample · successful outcomes: {success} · total runs: {total}",
+      "narrativeAttentionBody": "{count, plural, one {{count} active run and {blocked} blocked packets need immediate review posture.} other {{count} active runs and {blocked} blocked packets need immediate review posture.}}",
+      "narrativeThroughputBody": "Current sample shows {success} successful outcomes across {total} total runs.",
       "narrativeQueueBody": "{count, plural, one {{count} decision-bearing run is ready to open from the fleet.} other {{count} decision-bearing runs are ready to open from the fleet.}}",
-      "narrativeEvidenceBody": "Last run · docs added: {docs} · promotion candidates remaining in lane: {promotions}",
+      "narrativeEvidenceBody": "{docs} docs were added last run and {promotions} promotion candidates remain in lane.",
       "runCardMeta": "duration {duration} · artifacts {artifacts}",
       "activeRunsHint": "runs still executing in the current sample",
       "blockedRunsHint": "runs blocked by governance, failures, or preflight",
@@ -719,7 +719,7 @@
       "noArtifactKind": "artifact",
       "governance": "Governance",
       "evidence": "Evidence",
-      "evidenceSummary": "Plans: {plans} · Promotions: {promotions}",
+      "evidenceSummary": "{plans} plans · {promotions} promotions",
       "artifactSummary": "{count, plural, one {# linked artifact} other {# linked artifacts}}",
       "workflowEmptyTitle": "No workflow payload",
       "workflowEmptyBody": "The runtime did not return a workflow graph for this run.",
@@ -849,7 +849,7 @@
       "contextTitle": "Evidence context for run {runId}",
       "subtitle": "Resolve, discover, preview, and promote evidence with or without a bound run context.",
       "runContextActive": "Run context is active for {runId}.",
-      "runContextSummary": "Needs: {needs} · Plans: {plans} · Promotions: {promotions} · Artifact refs: {artifacts}",
+      "runContextSummary": "{needs} needs · {plans} plans · {promotions} promotions · {artifacts} artifact refs",
       "backToRun": "Back to run",
       "clearContext": "Clear context",
       "sourceProfiles": "Source profiles",
@@ -1152,7 +1152,7 @@
         "kpis": "KPIs",
         "successCriteria": "Success criteria",
         "policySpec": "PolicySpec (What)",
-        "bindingSummary": "Bindings: {bindings} · Parameters: {parameters}",
+        "bindingSummary": "{bindings} bindings · {parameters} parameters",
         "noInterventions": "No interventions.",
         "notes": "Notes: {value}",
         "modelSpec": "ModelSpec (How)",
@@ -1304,7 +1304,7 @@
       "workspaceMode": "Workspace mode",
       "contextMode": "Context mode",
       "boundRun": "Bound run {runId}",
-      "focusSummary": "{focus} · Needs: {needs} · Plans: {plans} · Promotions: {promotions}",
+      "focusSummary": "{focus} · {needs} needs · {plans} plans · {promotions} promotions",
       "clearRunContext": "Reset to overview",
       "dataNeed": "Data need",
       "fetchPlan": "Fetch plan",
@@ -1344,12 +1344,12 @@
       "indexSize": "Index size",
       "indexedSources": "Indexed sources",
       "docsAddedLastRun": "Docs added last run",
-      "lastDiscoverSummary": "Last discover · metadata docs fetched: {docs} · candidates returned: {candidates}",
+      "lastDiscoverSummary": "Last discover fetched {docs} metadata docs and returned {candidates} candidates.",
       "resolveResults": "Catalog Search and Resolve Results",
       "catalogLoading": "Searching catalog...",
       "catalogMatches": "Catalog matches: {count} for query `{query}`",
       "catalogCandidateMeta": "confidence {confidence} · lane {lane}",
-      "resolvedSummary": "Resolved · plans: {plans} · candidates: {candidates}",
+      "resolvedSummary": "Resolved {plans} plans from {candidates} candidates.",
       "resolvePlanMeta": "lane={lane} quality_min={quality} fallbacks={fallbacks}",
       "previewMeta": "status={status}, rows={rows}, completeness={completeness}, coverage_ok={coverage}",
       "discoverCandidates": "Explore candidates ({count})",
@@ -1846,7 +1846,7 @@
         "noSamples": "No sampled outcomes available.",
         "quantileDots": "quantile dots",
         "p50Label": "p50",
-        "tailSummary": "p10 {p10} · p90 {p90} · {bins, plural, one {{bins} equal-probability dot.} other {Equal-probability dots: {bins}.}}"
+        "tailSummary": "p10 {p10} · p90 {p90} · {bins} equal-probability dots."
       }
     }
   },
@@ -2210,7 +2210,7 @@
       "governingLag": "governing lag {lag}",
       "governing": "governing",
       "volume": "{value} volume",
-      "derivedFacts": "Derived facts: {value}",
+      "derivedFacts": "{value} derived facts",
       "joinNodes": "Join nodes"
     },
     "connectors": {
@@ -2227,9 +2227,9 @@
       "cost": "Cost",
       "retry": "Retry",
       "errorBudget": "Error budget burn",
-      "datasets": "Datasets: {value}",
-      "profiles": "Profiles: {value}",
-      "facts": "Connector facts: {value}",
+      "datasets": "{value} datasets",
+      "profiles": "{value} profiles",
+      "facts": "{value} facts through connector",
       "lastGreen": "Last green: {date}"
     },
     "choreography": {
@@ -2243,9 +2243,9 @@
       "retries": "Retries",
       "retry": "retry",
       "branch": "branch",
-      "artifacts": "Artifacts: {value}",
+      "artifacts": "{value} artifacts",
       "criticalPath": "Critical path",
-      "laneMeta": "Events: {events} · {duration}",
+      "laneMeta": "{events} events · {duration}",
       "noLaneEvents": "No timeline events were projected into this lane."
     },
     "telemetry": {
@@ -2306,7 +2306,7 @@
       "remedy": "Identification remedy",
       "remedyMeta": "{kind} / {effort} effort / {ref}",
       "impact": "Decision impact",
-      "impactMeta": "Quantities: {quantities} / Policy recommendations: {policies}",
+      "impactMeta": "{quantities} quantities / {policies} policy recommendations",
       "wizardTitle": "What would identify this?",
       "wizardOption": "{kind} / {effort} effort / {ref}",
       "empty": "No decision metrics are available for identifiability analysis.",
@@ -2392,7 +2392,7 @@
     "stress": {
       "eyebrow": "A5 / Stress scenes",
       "title": "Stress-test theatre",
-      "summary": "Blocks: {blocked} / Warnings: {warned}",
+      "summary": "{blocked} block / {warned} warn",
       "citedScene": "Decision packet cites {ref}",
       "act": "Act {act} - {title}",
       "ref": "{ref}",
@@ -2434,10 +2434,10 @@
     "eyebrow": "Phase 3.4 / Public-sector readiness",
     "title": "Governance readiness gate",
     "body": "Approval can be blocked by fairness, harm, objection, embargo, slow review, or revocation, and every block carries an audit ref.",
-    "auditTrail": "Audit events recorded: {value}",
+    "auditTrail": "{value} audit events recorded",
     "approval": {
       "ready": "approval ready",
-      "blocked": "Approval blocks: {value}",
+      "blocked": "{value} approval blocks",
       "block": "block",
       "action": "Approve decision"
     },
@@ -2457,7 +2457,7 @@
       "harm": "Critical harm controls for {target} risk are incomplete.",
       "objection": "Unresolved objection {target} blocks approval.",
       "embargo": "Active embargo {target} blocks approval and public export.",
-      "slowReview": "{target, plural, one {Review attention is incomplete: {target} section is done.} other {Review attention is incomplete; sections done: {target}.}}",
+      "slowReview": "Review attention is incomplete: {target} sections done.",
       "revocation": "Policy lifecycle state {target} blocks approval."
     },
     "status": {
@@ -2877,7 +2877,7 @@
     "pipeline": {
       "title": "Pipeline Progress",
       "failedCount": "{count, plural, one {# failed} other {# failed}}",
-      "stageProgress": "Completed stages: {completed} · total stages: {total}",
+      "stageProgress": "{completed}/{total} stages",
       "flowHint": "Stages flow left to right by dependency order"
     },
     "transportOverlay": {

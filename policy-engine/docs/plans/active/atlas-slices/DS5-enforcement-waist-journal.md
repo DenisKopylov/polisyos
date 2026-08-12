@@ -1504,10 +1504,10 @@
   429/5xx controls cover both decisions, retain denial, preserve cached pending
   status, and expose no queued-state API. Focused hook/panel Vitest is 5/5;
   dashboard typecheck passes.
-- The shared TypeScript scanner derives the complete current dashboard program
-  from `tsconfig.app.json`: C13a deletes one prior source path, so its current
-  denominator is 949 rather than the 950-file entry census. It rejects queue
-  action-kind declarations, non-composer object stores, provider/replay
+- The shared TypeScript scanner then derived the complete dashboard program
+  from `tsconfig.app.json`: C13a deleted one prior source path, so the
+  pre-R3 root denominator was 949 rather than the 950-file entry census. It
+  rejected queue action-kind declarations, non-composer object stores, provider/replay
   declarations, authority imports of the composer DB, and external optimistic
   promotion projections. A typed composer-draft adapter is the positive
   persistence control. The named Atlas test passes 1/1 in 23.149s.
@@ -2059,3 +2059,91 @@
   `21129 / 19225 / -1904 / 89` and accumulated unrelated app history `0 / 0 /
   0 / 0` remain correct. This is a documentation correction: no artifact,
   scanner, writer, or test was run.
+
+## 2026-08-12 — DS5-C13b-R4 source-complete offline-queue denominator
+
+- **Declared before any governed writer:** this is an exact five-path, cap-five
+  repair: `status_retirement_scan.mjs`, `check_atlas_enforcement.py`,
+  `test_atlas_enforcement.py`, the DS5 plan, and this journal. Expected
+  register, report, status-inventory, and readiness-ledger delta is **none**.
+  The only live summary change is `offlineQueueFacts.productionFiles` from the
+  pre-R3 tsconfig-root count `949` to the gate-specific scanned dashboard
+  TypeScript count `587`. The broad shared `statusInventorySources` set remains
+  `590`, including exactly three locale JSON files (`en`, `uk`, `ru`). If a
+  governed writer induces any artifact delta or a sixth path, stop for an owner
+  ruling rather than absorbing it as denominator cleanup.
+- RED cause: the old scanner gave `collectOfflineQueueFacts` the broad
+  590-source `statusInventorySources` set, then replaced that fact's denominator
+  with `program.getRootFileNames()` for the dashboard. C13b-R3 exposed the
+  mismatch when its colocated test made that root count `949 -> 950`; R3 is
+  reverted at this base, so `949` is the historical pre-R3 root count and `950`
+  is not a current-estate claim.
+- Required behavioral witness: opt-in `includeDashboardProgramRoots` must union
+  parsed `tsconfig.app` roots with virtual override keys while preserving the
+  default fast override mode. Its live base derives `590` broad sources, the
+  exact three locale JSON leaves, and `587` selected queue TypeScript sources.
+  Adding a direct `QueueActionKind` declaration as `*.test.ts` retains `587`,
+  leaves every queue fact table unchanged, and keeps full queue enforcement
+  green; renaming those same bytes to `*.ts` yields `588`, emits the named
+  action-kind fact, and `_offline_queue_errors(..., enforce_denominator=True)`
+  returns both that precise semantic error and the denominator drift. All other
+  scanner censuses and all governed artifacts remain invariant.
+- Pattern pass: P29 requires the denominator to be recomputed from the source
+  set actually traversed, P33 supplies the test-vs-production sibling witness,
+  P35 names the complete source-set denominator, and P37 labels it
+  `recomputed` only when its producer and predicate are the same set. This is
+  P38's sixth cross-program instance: a fact table produced from one program
+  source set was reporting a denominator from another. No scanner-heavy gate,
+  governed writer, staging, or commit is authorized in this implementation
+  lane.
+- RED receipt: the preserved C13b-R3 full-Atlas failure was seven instances of
+  `offline_queue_production_source_denominator_drift` after a colocated test
+  moved the unrelated root count `949 -> 950`. The first fast override witness
+  is superseded: it scanned virtual files alone, so it could not prove that the
+  selected source was added to the live scanner program or that a queue fact was
+  semantically emitted. That is a P29 gap, not a green receipt.
+- The final bounded witness must run the live base and two opt-in full-root
+  override programs. It must derive the `590 / 587 / three locale JSON` split,
+  prove the `QueueActionKind` test-suffix source leaves every queue table and
+  full queue error set unchanged, then prove the same declaration as a
+  production suffix produces both `588` and its named semantic fact. The root
+  owns that scanner-heavy receipt. This implementation lane started that run,
+  then interrupted it during its live base scan before output; it is a
+  nonreceipt and is not rerun here. Node syntax, Python compilation, and
+  `git diff --check` remain the lane's static receipts. No governed writer,
+  report/register/status/readiness mutation, staging, or commit occurs here.
+- Root-owned focused receipt: `test_offline_queue_denominator_tracks_scanned_production_sources`
+  passed `1 / 1`, exit 0, in `105.429 s` (`171.226 s / 400 s` wall) under full
+  dashboard-program mode. It reproduced live `587`, broad `590`, and the exact
+  `en`/`ru`/`uk` JSON exclusion; the test root retained `587`, unchanged fact
+  tables, and a green full queue gate; the same bytes as a production root
+  yielded `588` plus the exact semantic and denominator errors. No governed
+  artifact or writer changed.
+- Final governed wave: Atlas checker plus corruption probes PASS in `147.946 s /
+  400 s`, retaining `949` program roots, `587` offline production sources,
+  capability/broad `590`, query `43 / 66 / 42`, and status `13 / 47 / 0`.
+  The full Atlas module passed `33 / 33` in `604.905 s` (`625.988 s / 1800 s`
+  wall); the status module passed `38 / 38` in `102.348 s` (`103.659 s / 400 s`
+  wall), and status corruption PASS in `35.276 s / 400 s` retained `13 / 47 /
+  0`.
+- Frontend module passed `88 / 88` in `282.268 s` (`290.621 s / 400 s` wall).
+  Disposition corruption PASS in `195.987 s / 400 s` retained `261 / 63 / 9`
+  and the reverted-C13b-R3 base distribution: `deleted=18`,
+  `rebind_pending=197`, `retire=25`, `use_as_is=5`, and `wire=16`. No writer or
+  governed artifact mutation occurred in this wave.
+- Independent review returned GO `0C / 0I / 0M`. The exact tracked atom remains
+  the declared five paths. The diagnostic `definitionFiles` and
+  `nonTypeScriptDefinitionFiles` fields make the P35 `590 = 587 TypeScript +
+  3 JSON` partition inspectable without changing the checker summary or any
+  governed artifact.
+- Root readback confirms governed artifacts byte-identical to `b9fc`: register
+  `c4f095dc...`, report `ce50053f...`, status `36b96f5f...`, readiness
+  `4b64f092...`, and baseline `215b1882...`. References remain
+  `270 = 161 TypeScript + 6 structured + 15 navigation` across 11 files;
+  entries/supplemental findings/censuses remain `261 / 63 / 9`.
+- Static hygiene PASS: Python compilation, Node syntax, JSON parsing, and
+  `git diff --check`. Ruff candidate/base counts are identical at
+  checker `14 / 14` and test `170 / 170`, zero delta. The carried composer
+  module-path debt remains `16 / 8` governed and `35 / 15` tracked; no new
+  same-source duplication was introduced by R4. No further tests or writers
+  were run.

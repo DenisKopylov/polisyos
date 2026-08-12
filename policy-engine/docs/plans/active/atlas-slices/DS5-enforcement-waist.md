@@ -1871,6 +1871,45 @@ commit; it is not a current owner.
 | --- | --- | --- |
 | composer DB module-path fan-out | At clean base `db6c4c35058fe5f886d5fe6c62c1e22088bc71f1`, one canonical product module path is replicated as 16 literals across 8 governed owners and 35 occurrences across 15 tracked files total. The canonical authority is the composer DB module path; the other side is the Atlas constant, status scanner constant/import matcher, C21 descriptor hint, generated projections, readiness/status path leaves, and their owner fixtures. | No one owner updates all eight copies: descriptor/register parity, scanner/checker facts, and status reconciliation each compare only subsets, so a future rename can leave a green partial rebind. Closure is one module-path owner consumed by all eight, with P29 behavioral `rename-after-one-owner-update` green and genuinely different-module named-code red witnesses. |
 
+### DS5-C13b-R4 — source-complete offline-queue denominator
+
+**Measured set:** exactly five paths, cap 5: `status_retirement_scan.mjs`,
+`check_atlas_enforcement.py`, `test_atlas_enforcement.py`, this plan, and the
+DS5 journal. Before any writer, declare **no** frontend disposition register,
+generated report, status-inventory, or readiness-ledger delta. If a writer
+would induce one of those artifacts or any sixth path, stop and obtain an owner
+ruling; this repairs the scanner/checker receipt only.
+
+**Pattern pass:** P29/P33/P35/P37/P38. `offlineQueueFacts` must report the
+same dashboard production **TypeScript** source set that
+`collectOfflineQueueFacts` traverses, not the broader `tsconfig.app` root set
+or the shared 590-source status set. The latter retains three locale JSON
+sources (`en`, `uk`, `ru`) for its own consumers; this gate excludes them.
+This is P38's sixth cross-program instance: a fact table computed from one
+source set reported the denominator of another. The denominator predicate is
+`recomputed` only when its producer and predicate use that same filtered set; a
+declared root count cannot carry the gate.
+
+**Red first:** opt-in `includeDashboardProgramRoots` unions parsed
+`tsconfig.app` roots with virtual overrides without changing the default fast
+override mode. The live scan derives `590` broad status sources and its exact
+three JSON leaves; the queue gate derives `587` TypeScript files from that set.
+Adding one direct `QueueActionKind` declaration as `*.test.ts` leaves `587`,
+leaves every queue fact table unchanged, and keeps the full queue enforcement
+error set empty. Renaming those same bytes to `*.ts` makes the denominator
+`588`, emits the named authority-action fact, and
+`_offline_queue_errors(..., enforce_denominator=True)` returns both the precise
+semantic error and `offline_queue_production_source_denominator_drift`. The
+historical C13b-R3 test root changed `949 -> 950`, but R3 is reverted at this
+base: `949` is the pre-R3 root receipt and `950` must not be claimed as current.
+
+**Acceptance:** live `offlineQueueFacts.productionFiles` is `587`; the broad
+shared status source set remains `590`; all other offline-queue fact tables and
+all other scanner censuses are invariant. The checker fails closed on a new
+scanned TypeScript production file while ignoring a test root and the three
+locale JSON sources. Root alone runs the scanner-heavy/full gates and confirms
+the declared zero artifact delta.
+
 ### DS5-C14a — nominal local-state envelope owner
 
 **Measured set:** exactly 7 governed paths: frontend disposition checker + test,
@@ -2191,6 +2230,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C13a-R2 | stopped historical: `DS5-C13a-R2 delete authority mutation replay` | 22 |
 | C13a-R3 | `DS5-C13a-R3 delete authority mutation replay` | 23 |
 | C13b-R1 | `DS5-C13b-R1 close service worker and composer DB` | 10 |
+| C13b-R4 | `DS5-C13b-R4 source-complete offline-queue denominator` | 5 |
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
 | C14b-R1 | `DS5-C14b-R1 bind composer local state` | 8 |
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |

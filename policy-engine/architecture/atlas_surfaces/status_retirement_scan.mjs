@@ -44,6 +44,22 @@ function isDefinitionSource(fileName) {
   );
 }
 
+function isOfflineQueueProductionSource(fileName) {
+  const relative = relativePath(fileName);
+  return (
+    relative.startsWith(DASHBOARD_SOURCE_PREFIX) &&
+    /\.tsx?$/.test(relative) &&
+    isDefinitionSource(fileName)
+  );
+}
+
+function isDashboardStatusInventorySource(fileName) {
+  return (
+    relativePath(fileName).startsWith(DASHBOARD_SOURCE_PREFIX) &&
+    isDefinitionSource(fileName)
+  );
+}
+
 function lineOf(sourceFile, node) {
   return (
     sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1
@@ -4899,11 +4915,8 @@ function collectProgramFacts(
   const definitionSources = program
     .getSourceFiles()
     .filter((sourceFile) => isDefinitionSource(sourceFile.fileName));
-  const dashboardProgramSources = program.getRootFileNames().filter((fileName) =>
-    relativePath(fileName).startsWith(DASHBOARD_SOURCE_PREFIX),
-  );
   const statusInventorySources = definitionSources.filter((sourceFile) =>
-    relativePath(sourceFile.fileName).startsWith("apps/runtime-dashboard/src/"),
+    isDashboardStatusInventorySource(sourceFile.fileName),
   );
 
   for (const sourceFile of statusInventorySources) {
@@ -5131,11 +5144,18 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
     ),
   };
+  const offlineQueueProductionSources = statusInventorySources.filter((sourceFile) =>
+    isOfflineQueueProductionSource(sourceFile.fileName),
+  );
   const offlineQueueFacts = collectOfflineQueueFacts(
-    statusInventorySources,
+    offlineQueueProductionSources,
     (sourceFile) => relativePath(sourceFile.fileName),
   );
-  offlineQueueFacts.productionFiles = dashboardProgramSources.length;
+  offlineQueueFacts.definitionFiles = statusInventorySources.length;
+  offlineQueueFacts.nonTypeScriptDefinitionFiles = statusInventorySources
+    .filter((sourceFile) => !/\.tsx?$/.test(relativePath(sourceFile.fileName)))
+    .map((sourceFile) => relativePath(sourceFile.fileName))
+    .sort();
   return {
     authorityCandidates,
     definitions,
@@ -5245,7 +5265,7 @@ function overrideInteractionIdentities(sourceFile, relative) {
   };
 }
 
-function createOverrideProgram(overrides) {
+function createOverrideProgram(overrides, includeDashboardProgramRoots = false) {
   const sources = new Map(
     Object.entries(overrides).map(([relative, source]) => [
       path.resolve(repoRoot, relative),
@@ -5299,7 +5319,9 @@ function createOverrideProgram(overrides) {
   return ts.createProgram({
     host,
     options,
-    rootNames: [...sources.keys()],
+    rootNames: includeDashboardProgramRoots
+      ? [...new Set([...parsed.fileNames, ...sources.keys()])]
+      : [...sources.keys()],
   });
 }
 
@@ -5311,6 +5333,7 @@ function collectOverrideFacts(
   authorityPropDescriptors = [],
   authorityPathDescriptors = [],
   authorityGovernanceObjects = [],
+  includeDashboardProgramRoots = false,
 ) {
   const facts = {
     authorityCandidates: [],
@@ -5329,7 +5352,7 @@ function collectOverrideFacts(
       featureLiterals: [],
     },
   };
-  const program = createOverrideProgram(overrides);
+  const program = createOverrideProgram(overrides, includeDashboardProgramRoots);
   if (validateOverrideDiagnostics) {
     const overridePaths = new Set(
       Object.keys(overrides).map((relative) =>
@@ -5489,9 +5512,24 @@ function collectOverrideFacts(
       relativePath(sourceFile.fileName),
     ),
   };
-  facts.offlineQueueFacts = collectOfflineQueueFacts(sourceFiles, (sourceFile) =>
-    relativePath(sourceFile.fileName),
+  const offlineQueueDefinitionSources = includeDashboardProgramRoots
+    ? program
+        .getSourceFiles()
+        .filter((sourceFile) => isDashboardStatusInventorySource(sourceFile.fileName))
+    : sourceFiles.filter((sourceFile) =>
+        isDashboardStatusInventorySource(sourceFile.fileName),
+      );
+  facts.offlineQueueFacts = collectOfflineQueueFacts(
+    offlineQueueDefinitionSources.filter((sourceFile) =>
+      isOfflineQueueProductionSource(sourceFile.fileName),
+    ),
+    (sourceFile) => relativePath(sourceFile.fileName),
   );
+  facts.offlineQueueFacts.definitionFiles = offlineQueueDefinitionSources.length;
+  facts.offlineQueueFacts.nonTypeScriptDefinitionFiles = offlineQueueDefinitionSources
+    .filter((sourceFile) => !/\.tsx?$/.test(relativePath(sourceFile.fileName)))
+    .map((sourceFile) => relativePath(sourceFile.fileName))
+    .sort();
   facts.queryCachePolicyFacts = collectQueryCachePolicyFacts(
     [...program.getSourceFiles()],
     checker,
@@ -5525,6 +5563,7 @@ if (request.sourceOverrides) {
         request.authorityPropDescriptors,
         request.authorityPathDescriptors,
         request.authorityGovernanceObjects,
+        request.includeDashboardProgramRoots === true,
       ),
     ),
   );

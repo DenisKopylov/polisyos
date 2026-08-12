@@ -109,7 +109,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                         "composerDbImports": [],
                         "mutationStores": [],
                         "optimisticAuthorityProjections": [],
-                        "productionFiles": 949,
+                        "productionFiles": 587,
                         "replayDeclarations": [],
                     }
                 },
@@ -128,7 +128,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
 
         facts = scan["offlineQueueFacts"]
-        self.assertEqual(949, facts["productionFiles"])
+        self.assertEqual(587, facts["productionFiles"])
         self.assertEqual([], facts["authorityActionKinds"])
         self.assertEqual([], facts["mutationStores"])
         self.assertEqual([], facts["replayDeclarations"])
@@ -241,6 +241,85 @@ class AtlasEnforcementTests(unittest.TestCase):
                 corrupted_scan,
                 enforce_denominator=True,
             )
+        )
+
+    def test_offline_queue_denominator_tracks_scanned_production_sources(self) -> None:
+        """Bind the queue facts and denominator to one live TypeScript source set."""
+        inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
+        live_scan = checker._enforcement_scan(
+            None,
+            inventory=inventory,
+            validate_override_diagnostics=False,
+        )
+        test_path = (
+            "apps/runtime-dashboard/src/shared/lib/domain/"
+            "offlineQueueDenominator.test.ts"
+        )
+        production_path = test_path.replace(".test.ts", ".ts")
+        queue_declaration = 'export type QueueActionKind = "publication.reissue";\n'
+        test_source_scan = checker._enforcement_scan(
+            {test_path: queue_declaration},
+            inventory=inventory,
+            validate_override_diagnostics=False,
+            include_dashboard_program_roots=True,
+        )
+        locale_json_paths = (
+            "apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+            "apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+            "apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        )
+        production_source_scan = checker._enforcement_scan(
+            {production_path: queue_declaration},
+            inventory=inventory,
+            validate_override_diagnostics=False,
+            include_dashboard_program_roots=True,
+        )
+
+        live_facts = live_scan["offlineQueueFacts"]
+        test_source_delta = test_source_scan["offlineQueueFacts"]["productionFiles"]
+        production_source_delta = production_source_scan["offlineQueueFacts"]["productionFiles"]
+        self.assertEqual(587, live_facts["productionFiles"])  # noqa: PT009 - live receipt.
+        self.assertEqual(590, live_facts["definitionFiles"])  # noqa: PT009 - broad receipt.
+        self.assertEqual(  # noqa: PT009 - the three exclusions are source-derived.
+            list(locale_json_paths), live_facts["nonTypeScriptDefinitionFiles"]
+        )
+        self.assertEqual(587, test_source_delta)  # noqa: PT009 - test roots are excluded.
+        self.assertEqual(588, production_source_delta)  # noqa: PT009 - production is selected.
+        self.assertEqual(  # noqa: PT009 - the virtual test retains the live denominator.
+            checker.OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT,
+            test_source_delta,
+        )
+        test_facts = test_source_scan["offlineQueueFacts"]
+        for table in (
+            "authorityActionKinds",
+            "composerDbImports",
+            "mutationStores",
+            "optimisticAuthorityProjections",
+            "replayDeclarations",
+        ):
+            with self.subTest(table=table):
+                self.assertEqual(  # noqa: PT009 - test roots must leave each fact table unchanged.
+                    live_facts[table], test_facts[table]
+                )
+        self.assertEqual(  # noqa: PT009 - test roots leave the queue gate green.
+            [], checker._offline_queue_errors(test_source_scan, enforce_denominator=True)
+        )
+        self.assertEqual(  # noqa: PT009 - the selected production file emits the fact.
+            [
+                {
+                    "kind": "publication.reissue",
+                    "name": "QueueActionKind",
+                    "path": production_path,
+                }
+            ],
+            production_source_scan["offlineQueueFacts"]["authorityActionKinds"],
+        )
+        self.assertEqual(  # noqa: PT009 - the production source must name its drift.
+            [
+                "offline_queue_authority_action_kind:" + production_path,
+                "offline_queue_production_source_denominator_drift",
+            ],
+            checker._offline_queue_errors(production_source_scan, enforce_denominator=True),
         )
 
     def test_c13a_terminal_dispositions_have_live_census_and_composer_rebind(self) -> None:

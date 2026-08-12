@@ -574,7 +574,7 @@ COMPOSER_DRAFT_DB_PATH = "apps/runtime-dashboard/src/app/offline/composerDraftDb
 COMPOSER_DRAFT_ADAPTER_PATH = (
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts"
 )
-OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT = 949
+OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT = 587
 COMPOSER_DRAFT_DB_BINDINGS = [
     "deleteComposerDraftRecord",
     "loadComposerDraftRecord",
@@ -1440,11 +1440,14 @@ def _enforcement_scan(
     *,
     inventory: Mapping[str, Any],
     validate_override_diagnostics: bool,
+    include_dashboard_program_roots: bool = False,
 ) -> dict[str, Any]:
     """Run the shared scanner with the bounded C01a/C01b descriptors."""
     request: dict[str, Any] = {}
     if source_overrides is not None:
         request["sourceOverrides"] = dict(sorted(source_overrides.items()))
+        if include_dashboard_program_roots:
+            request["includeDashboardProgramRoots"] = True
         if validate_override_diagnostics:
             request["validateOverrideDiagnostics"] = True
     request["authorityPathDescriptors"] = _authority_path_descriptors()

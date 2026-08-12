@@ -1745,8 +1745,10 @@ The B4 remeasurement at head `64dbb87cb` reached the generator's own completed-w
 its isolated timing record says `status: ok`, exit `0`, duration `70.278092` s, and stdout says
 `status: pass`, `issues: []`. It wrote the sole declared output at candidate SHA-256
 `7b80bf43…8e30`. The outer wrapper nevertheless killed the still-live process during shutdown at
-`76.281514` s against the `76.199994` s cap (child `-15`, wrapper `124`); an Atlas DS6 Vitest lane
-had restarted during the final seconds. Because a harness kill is never an admissible sample, this
+`76.281514` s against the `76.199994` s cap (child `-15`, wrapper `124`); an Atlas DS6 Vitest
+`run2` parent had started at essentially the same time and remained live throughout, although its
+rotating workers made the first post-run census look like a final-seconds restart. Because a
+harness kill is never an admissible sample, this
 invocation remains a measurement/non-receipt and the accepted generation allowance remains unused.
 The candidate was preserved before the committed artifact was restored and re-read exactly at
 `107,712` bytes / `6538e879…344`. Meta, stdout, isolated timing and candidate identities are

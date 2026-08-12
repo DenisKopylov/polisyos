@@ -616,6 +616,77 @@ round is permitted inside C15. A future continuation must explicitly re-cut
 and authorize the mechanism rather than treating the reverted 30-test draft as
 landed evidence.
 
+### Task 15-R1 — DS6-C15-R1: gate quantitative-use declarations
+
+**Status: entered by explicit continuation on 2026-08-12. Declared path cap:
+5.** The exact path set remains the parity owner, `locales/en.json`,
+`locales/uk.json`, this plan, and the DS6 journal. A helper module would be a
+sixth path and therefore forces another re-cut; C15-R1 does not create one.
+
+C15-R1 carries forward the checkpoint's complete adjudication rather than
+repeating it: 71 reasoned quantitative variable names and 183 exact point-use
+declarations. The latter comprise the original 23-path/36-pair review cohort
+(33 `invariant`, three `pluralized`) plus 147 other reasoned `invariant` uses,
+for 180 invariant and three pluralized declarations in total. The active copy
+partition remains 20 label-form messages plus three genuine ICU-plural
+messages, with no split, exemption, or forbidden 4x4 nested plural. Label form
+is guidance for reviewers and copy authors; it is not an admission predicate.
+
+The gate proves the bounded, decidable property **declaration complete for the
+declared 71-name quantitative population**. For each active locale separately,
+it recomputes every point-use identity, subtracts the 183-key declaration set
+in both directions, and fails on an undeclared use or stale declaration. Every
+declaration is exactly `pluralized` or `invariant` and carries a non-empty
+reason. A `pluralized` declaration additionally parses the real ICU message
+and proves that a cardinal plural owned by that same variable protects every
+raw occurrence through every select/plural/tag branch. An `invariant`
+declaration is admitted by exact membership plus its reason only; the gate does
+not inspect punctuation, adjacency, separators, labels, or surrounding words.
+The numeric-looking-name scan remains a point-of-use adjudicator worklist for a
+name outside the 71-name census and never decides grammatical safety.
+
+Predicate provenance is explicit under P37: active point-use membership and
+same-variable cardinal-plural ownership are `recomputed`. The rule-owned
+quantitative-name and invariant declarations are `consumer_asserted` and
+fingerprinted at admission; their independent semantic adequacy is
+`not_established`. Neither supplied predicate carries the bounded positive
+gate, so this gate is not described as an automated plural-safety proof. Its
+claim is that every in-scope use was declared and that every declaration marked
+`pluralized` actually has the stated structure.
+
+**Refused mechanism — do not re-attempt.** A text-shape predicate cannot decide
+whether a following word declines. The stopped C15 supplied three independent
+members of that one mechanism class: punctuation admitted
+`Processed ({events}) events`; narrowing the boundary still admitted
+`Events: {events} (events)`; and every retained separator (`;`, `.`, `·`, `/`)
+admitted `Events: {events}<separator> events`. Conversely, forbidding a word
+after a variable rejects legitimate invariant copy such as
+`{completed}/{total} stages` and `{count} online`. These findings set P29/P31/
+P33's bar: no text-shape predicate, narrowed separator set, or morphological
+guess may participate in this gate's admission decision.
+
+Red-first acceptance requires three named failures: a `pluralized` declaration
+with any occurrence outside its same-variable plural returns
+`plural_ownership_missing`; an `invariant` declaration with a missing or blank
+reason returns `reason_missing`; and a real newly-added active-catalog use of a
+known quantitative variable absent from the exact declaration set returns
+`declaration_missing`. The Russian catalog remains outside active enforcement
+and must retain its 2,449-key cardinality, key-set fingerprint, leaf-value
+fingerprint, and raw bytes. A fourth distinct finding class against this
+declaration mechanism stops the cluster; another separator variant belongs to
+the already-refused text-shape class and cannot reopen that mechanism.
+
+Initial independent review found and the first batched repair closed three
+distinct declaration-mechanism classes: omitted reasons threw instead of
+returning `reason_missing`; a same-variable `select`/`selectordinal` could
+launder a cardinal plural nested in one branch; and brace-regex discovery
+disagreed with the runtime ICU AST for quoted arguments. Point-use membership
+is now AST-derived with malformed templates failing closed, every same-variable
+non-cardinal selector is an occurrence requiring cardinal ownership, and
+missing/non-string reasons return the named code. Those three classes consume
+the allowance: any new distinct mechanism class in delta review is the fourth
+and stops C15-R1.
+
 This adjacent class does **not** block C03. The governed
 `baseline-test-i18n-count-debt` / `i18n-count-message-parity` row is exactly the
 three inherited `overBudget` failures; C15 covers numeric variables that rule
@@ -644,6 +715,7 @@ behavioral witness.
 | C13 | `DS6-C13 verify adjacent print export` | 6 |
 | C14 | `DS6-C14 close evidence workflow` | 6 |
 | C15 | `DS6-C15 close numeric-variable plural safety` | 5 |
+| C15-R1 | `DS6-C15-R1 gate quantitative-use declarations` | 5 |
 
 ## Deferred execution package
 

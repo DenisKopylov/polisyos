@@ -1669,3 +1669,199 @@ stop-record reviewer supplied the completed independent receipt above. The
 final documentation-only file set is exactly this journal and
 `DS6-evidence-workflow.md`. No heavy command listed in the deferred package
 ran, and C15 remains stopped and open.
+
+## DS6-C15-R1 — declaration-completeness mechanism — 2026-08-12
+
+### Entry, cut, and carried adjudication
+
+`git status -sb` at entry reported a clean attached
+`codex/atlas-ds6-evidence-workflow` at
+`769c08b35f1e386bd05a873ff0ce61ce9285230f`, 11 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. The exact declared set is five
+paths: `parity.test.ts`, active `en.json`, active `uk.json`, the DS6 plan, and
+this journal. That equals cap 5; no helper path was created.
+
+Read-only extraction from checkpoint `8fd8f9e5d` independently reproduced the
+mechanism-independent population before any carry-forward edit: 2,449 leaves
+per active catalog; 244 non-`count` interpolation identities and 149 variable
+names; 71 reasoned quantitative names; and 183 exact quantitative point uses.
+The declarations partition without overlap into the 23-path/36-pair review
+cohort plus 147 other invariant uses. The cohort remains 33 invariant pairs
+over 20 label-form copy paths plus three pluralized pairs/paths; the complete
+declaration set is therefore 180 invariant plus three pluralized. Recomputed
+key hashes matched the checkpoint: quantitative names
+`c60120b6795593d5f5b84b83353e2c1d02c7ea568e8e48e146942aadbfdf3517`,
+review cohort
+`10b722ba7f4776a504eba6b983deface1b607af76fa190f72ff177fe0fabff88`,
+other invariant uses
+`2e3c9c18f5980770733df476a5d1427c42208c67f745cd50a408bfa43a6d9cae`,
+and their 183-key union
+`4bc1fc6d6b2600cfbebd509630f3f5ad82276c47e88b38834ce6fa3d526ee858`.
+
+The 23 repaired English and Ukrainian catalog paths were carried verbatim from
+the checkpoint. No leaf was added or removed; 20 messages retain label-form
+copy and three retain genuine ICU cardinal plurals. There is no nested 4x4
+plural. Label form remains adjudication/copy guidance only and is not read by
+the gate.
+
+### Red first and mechanism replacement
+
+The restored entry baseline passed 1/1 parity file and 15/15 tests in 1.25 s
+(54 ms test body) with `--maxWorkers=2`. Replaying the preserved checkpoint
+implementation/copy first reproduced its covered 30/30 denominator; that was
+not treated as a C15-R1 receipt because the stopped text-shape mechanism was
+still present.
+
+Before replacing that mechanism, the C15-R1 witnesses ran red with 5 failed and
+25 passed tests in 788 ms (78 ms test body). The failures were the intended
+contract differences:
+
+- real active English clone plus
+  `pages.dashboard.c15R1NewQuantitativeUse = "Events: {events}; events"`
+  lacked the named `declaration_missing` result;
+- an outer `count` plural and a partially protected sibling branch lacked the
+  named `plural_ownership_missing` result;
+- blank invariant reasons lacked the named `reason_missing` result; and
+- the old text-shape gate rejected legitimate invariant
+  `{events} online · {duration}` copy.
+
+The replacement uses one exact 183-key declaration owner. Each value is only
+`{classification: "pluralized" | "invariant", reason}`. Per active locale, the
+gate recomputes the 71-name point-use set and subtracts declarations in both
+directions. Invariant admission reads exact identity and non-empty reason only.
+Pluralized admission parses the real ICU AST and requires at least one
+same-variable **cardinal** plural selector with every raw occurrence beneath
+such a selector through plural/select/tag branches. The numeric-name heuristic
+is retained solely as a `numeric-variable-uncovered` worklist; it does not
+admit or reject grammatical copy.
+
+After the minimal replacement, focused parity passed 1/1 file and 30/30 tests
+in 719 ms (68 ms test body) with two workers. The real-new-string witness also
+proves the rejection clears only after the exact point-use declaration with a
+non-empty invariant reason is added. This is C15-R1's initial declaration-
+mechanism implementation, with zero distinct review finding classes consumed.
+A fourth distinct class against this mechanism stops the cluster; punctuation
+variants cannot revive the explicitly refused text-shape mechanism.
+
+### Authority boundary, refused mechanism, and current nonreceipts
+
+The positive claim is bounded. Active point-use membership, exact-set
+subtraction, and pluralized structural ownership are `recomputed`. The
+rule-owned 71-name quantitative census and invariant judgments are
+`consumer_asserted` and fingerprinted at admission; their independent semantic
+adequacy is `not_established`. Those supplied predicates do not carry the
+bounded positive gate. Thus the receipt proves declaration completeness and
+the structure of entries marked pluralized; it does not claim automated
+grammatical or morphological truth.
+
+Text shape is a refused admission mechanism. The evidence is the stopped C15
+sequence: punctuation admitted `Processed ({events}) events`; a narrowed
+boundary admitted `Events: {events} (events)`; and each retained separator
+(`;`, `.`, `·`, `/`) admitted a following agreeing noun. The inverse rule also
+rejects legitimate invariant words after a variable. No punctuation, colon,
+separator, adjacency, label, or surrounding-word predicate remains in the
+gate.
+
+No full/whole-suite Vitest, browser, Storybook, Playwright, dev server,
+journey, visual, full lint, full typecheck, full build, or build-Storybook lane
+has run. Each remains a nonreceipt under the unchanged heavy boundary. No
+contended artifact, readiness ledger, checker-family file, generated report,
+DS5/GY path, product surface, Russian catalog, or denominator was written.
+Independent reviews and the final allowed verification wave remain pending at
+this point in the journal.
+
+### Initial review batch and three-class repair
+
+Three independent frozen-source reviews reproduced the five-path cap, all
+71/183/36/147/23 measurements and four hashes, the 20+3 copy partition, Russian
+freeze, exact per-locale subtraction, and absence of a text-shape admission
+predicate. Focused review receipts passed 32/32. They found three distinct
+declaration-mechanism classes plus one documentation-label correction:
+
+1. a truly omitted `reason` reached `.trim()` and threw rather than returning
+   `reason_missing`; the prior witness covered only empty and whitespace text;
+2. a same-variable type-5 `select` or non-cardinal type-6 `selectordinal` was
+   not counted as an occurrence, so a cardinal plural nested in one sibling
+   branch could launder the outer selector; and
+3. point-use membership came from a brace regex, so ICU-quoted
+   `Events: '{events}'` kept a marker while the runtime AST contained no
+   `events` use and the declaration failed to become stale.
+
+The documentation correction assigns canonical P37 labels above. Red first
+for the batched mechanism repair ran 34 tests with four expected failures and
+30 passes in 827 ms (81 ms test body): the quoted-marker deletion stayed green,
+both same-variable selector variants stayed green, an omitted reason threw,
+and malformed ICU returned the structural code instead of the new explicit
+parse-failure code.
+
+The repair makes the ICU AST the point-use authority. It skips strings with no
+opening brace, parses every candidate with `IntlMessageFormat`, recursively
+collects argument/select/plural variables, and returns
+`message_parse_failed` when a candidate cannot be parsed. This avoids the
+pre-existing non-ICU `<runId>` literal while failing closed on malformed
+templates that could contain a use. Same-variable select and ordinal selectors
+are now recorded as occurrences outside cardinal ownership; a nested cardinal
+plural cannot erase them. Missing or non-string reasons now return
+`reason_missing`.
+
+After the batched repair, focused parity passed 1/1 file and 34/34 tests in
+947 ms (114 ms test body) with two workers. These three distinct classes are
+now consumed. Under the user-set breaker, any new distinct declaration-
+mechanism class in delta review is the fourth and stops C15-R1; a recurrence of
+one of these classes is adjudicated against the existing repair rather than
+miscounted as a new class.
+
+The complete 951-file duplication census (360 tracked `.ts`, 591 tracked
+`.tsx` under `apps/runtime-dashboard/src`) still finds one declaration/gate
+owner in `shared/i18n/parity.test.ts`, one runtime ICU formatter owner in
+`shared/i18n/messages/icu-messages.ts`, and no sibling catalog gate/scanner.
+It also finds an adjacent English-only `pluralize()` helper in
+`features/artifacts/reading-view/MonographLayout.tsx`. That product-surface
+manual-morphology residual neither reads the catalogs nor duplicates this gate
+and is outside the C15-R1 fence; it is recorded, not edited or called closed.
+Final delta re-review and the final allowed wave remain pending here.
+
+### Delta review, final permitted wave, and freeze
+
+All three delta reviewers returned clean. None found a recurrence or a fourth
+declaration-mechanism class:
+
+- the specification reviewer independently passed 1/1 focused file and 34/34
+  tests in 857 ms (124 ms test body), and confirmed the true omitted-reason,
+  AST-membership, and same-variable selector witnesses;
+- the quality reviewer independently passed 34/34 and recomputed 71 names and
+  183 uses in each active locale, with zero candidate parse failures and the
+  same `4bc1fc6d...` declaration-set hash; and
+- the boundary reviewer independently passed 1/1 file and 34/34 tests in
+  746 ms (113 ms test body), reproduced all four declaration hashes, and
+  confirmed exactly five changed paths, 2,449 leaves per active catalog,
+  exactly 23 changed catalog leaves, and no fence violation.
+
+After those reviews, the one final allowed wave ran from
+`apps/runtime-dashboard`:
+
+- `corepack pnpm exec vitest run src/shared/i18n/parity.test.ts
+  --maxWorkers=2 --reporter=default` exited zero: 1/1 file and 34/34 tests,
+  903 ms Vitest duration and 109 ms test body;
+- `corepack pnpm run a11y:contrast` exited zero with `Contrast checks
+  passed.`;
+- `corepack pnpm run a11y:motion` exited zero with `Reduced-motion checks
+  passed.`; and
+- `corepack pnpm run a11y:color-blind` exited zero with `Color-blind checks
+  passed.`
+
+The final Russian readback remains 135,673 bytes with raw SHA-256
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`,
+2,449 keys/leaves, key-set SHA-256
+`67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8`,
+and sorted path/value SHA-256
+`0426d4ce0397027d25f5a2053bce794b12e31fbe3757d3afefb24de6ba3f45eb`.
+It has no diff. The final source set is exactly the declared five paths:
+`parity.test.ts`, `locales/en.json`, `locales/uk.json`, the DS6 plan, and this
+journal. The active catalogs are byte-identical to checkpoint `8fd8f9e5d`.
+
+No full or whole-suite Vitest, browser, Storybook, Playwright, dev server,
+journey, visual, full lint, full typecheck, full build, or build-Storybook lane
+ran. Each remains a nonreceipt under the unchanged heavy boundary. No
+contended artifact, readiness ledger, checker-family file, generated report,
+DS5/GY path, product surface, Russian catalog, or denominator was written.

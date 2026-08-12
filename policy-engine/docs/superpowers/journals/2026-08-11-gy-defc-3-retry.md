@@ -1631,3 +1631,60 @@ recomputed two-times-p95 caps are promotion write/check/rederive
 `4,942.540412`/`319.661388`/`1,695.177568` s. The four corrupt lanes remain under declared hang
 fences `300`/`300`/`300`/`600` s because GY-DI4 is registered and unimplemented. The report
 meta/output hashes are `2d487f36…5f4bf` and `5659b525…0583`. `[P37: recomputed]`
+
+### GY-DEFC-5 promotion v2 — declared accepted delta
+
+The promotion measurement ran alone from clean head `a64391514`, completed with exit `0` in
+`38.846821` s under the recomputed `52.439504` s cap, and emitted empty stderr. The sole canonical
+output was copied after the run, then restored byte-for-byte and re-read at preimage SHA-256
+`89694280…e01b`; the candidate SHA-256 is `68e05dc3…9577`. The measurement meta, stdout, delta,
+summary and complete path-list identities are respectively `2a9b7be9…8f36`,
+`7b4f81a1…c714`, `b9f802f8…905ae`, `4a81b595…dbf6e`, and
+`2afa02b5…3444`. This invocation is a measurement/non-receipt and consumes no accepted promotion
+reissue. `[P37: recomputed for the terminal, cap and exact restore; institutionally_supplied for
+the allowance semantics]`
+
+The accepted writer is declared to move exactly `604` scalar leaves, with this complete structural
+set and no others:
+
+1. Add `199` scalar leaves below each of the three exact receipt roots
+   `$.{contract_lane_anytime_refusal,non_promotable_contract_stamp,production_honest_shadow}.
+   confidence_ledger_semantic_projection` (`597` leaves total). Each root has the same complete
+   relative leaf set:
+   - the `19` direct leaves
+     `{authority_provenance,budget_delta_decimal,conditionality_clause,good_event_clause,
+     head_event_projection_hash,maintained_assumptions[0],maintained_assumptions[1],projection_hash,
+     projection_rule_version,projection_scope,registry_content_hash,root_projection_hash,
+     schedule_profile_hash,schedule_profile_id,schedule_projection_hash,schema_version,scope_id,
+     total_spend_decimal,within_budget}`;
+   - `budget_delta.{denominator,numerator}`, `total_spend.{denominator,numerator}`, and
+     `risk_scope.{authority_purpose,epoch_ref,model_ref,owner_projection_hash,owner_scope_key,
+     rule_ref,schema_ref,scope_owner_ref}` (`12` leaves);
+   - for each `checks[{0,1}]`, the exact `40` leaves
+     `{anytime_valid,certificate_class,certificate_ref,certificate_role,certificate_route_hash,
+     check_projection_hash,claim_execution_projection_hash,claim_polarity,claim_ref,
+     claim_scope_ref,data_window_ref,deterministic_proof,eligible_for_promotion,execution_id,
+     execution_ordinal,execution_status,filtration_projection_hash,good_event_id,
+     instrument_definition_hash,instrument_family,instrument_id,null_ref,obligation_class,outcome,
+     owner_binding,owner_invocation_claim_projection_hash,proof_detail,proof_profile_hash,
+     proof_profile_id,refusal_code,registry_content_hash,request_fingerprint,request_key,
+     schedule_query_index,schema_version,scope_id,spend.denominator,spend.numerator,spend_decimal,
+     supports_obligation}` (`80` leaves); and
+   - for each `events[{0,1}]`, `check` has that same exact `40`-leaf set and the event has
+     `{event_projection_hash,event_type,parent_event_projection_hash,revision}` (`88` leaves).
+2. Move the three existing leaves
+   `$.comparison_admission_manifest[{0,1,2}].owner_rule` from the v1 to the v2 canonical promotion
+   owner rule.
+3. Move the four dependent leaves `$.comparison_content_hash`,
+   `$.comparison_projection_schema_version`, `$.comparison_rule_version`, and
+   `$.contract_content_hash`.
+
+Arithmetic is `3 × 199 + 3 + 4 = 604`. The machine-readable list contains all `604` concrete JSON
+paths and is content-bound by the `expected-leaf-paths.txt` identity above. Removing only the newly
+added semantic projection from each candidate receipt reproduces its complete frozen receipt
+exactly. No pre-existing `status`, `promoted`, `consumer_promotable`, eligibility,
+supports-obligation, budget, terminal, reason, receipt-count or certified-candidate leaf moves; no
+denominator, comparison/admission outcome, transport covariate, N8 proof, ledger scope or ambient
+identity moves. The accept predicate is exact equality with this `604`-leaf set and candidate byte
+identity. `[P37: recomputed for the complete measured set, raw-byte preservation and negative
+protected-leaf intersection; not_established for accepted persistence and verifications]`

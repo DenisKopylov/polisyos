@@ -49,7 +49,9 @@ from polisyos.data_requirement import (
     DataRequirementSpec,
 )
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
     GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
     GY_VERIFICATION_COMPARISON_RULE_VERSION,
     GyComparisonAdmission,
     GyComparisonProjectionPlan,
@@ -111,6 +113,8 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_intervention_lever,
 )
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
 )
@@ -6793,7 +6797,7 @@ def _reconcile_frozen_cycle_trace(
         }
     ):
         raise ValueError("gy_cycle_trace_legacy_content_hash_drift")
-    if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
+    if not _frozen_cycle_trace_comparison_identity_admissible(frozen, plan):
         raise ValueError("gy_cycle_trace_comparison_admission_manifest_drift")
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"trace_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
@@ -6806,6 +6810,39 @@ def _reconcile_frozen_cycle_trace(
         reconciled,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
+    )
+
+
+def _frozen_cycle_trace_comparison_identity_admissible(
+    frozen: Mapping[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 trace custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == (
+        _cycle_trace_comparison_content_hash(frozen, legacy_plan)
     )
 
 

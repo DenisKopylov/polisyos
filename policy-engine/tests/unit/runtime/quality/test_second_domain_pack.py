@@ -798,7 +798,15 @@ def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity
     assert trace["comparison_admission_manifest"]
     frozen_receipts = frozen["generation_cycle_run"]["promotion_port"]["receipts"]
     live_receipts = trace["generation_cycle_run"]["promotion_port"]["receipts"]
-    assert live_receipts == frozen_receipts
+    for frozen_receipt, live_receipt in zip(
+        frozen_receipts,
+        live_receipts,
+        strict=True,
+    ):
+        migrated = copy.deepcopy(live_receipt)
+        semantic = migrated.pop("confidence_ledger_semantic_projection")
+        assert migrated == frozen_receipt
+        assert semantic["projection_scope"] == "n9_promotion_semantic_receipt"
     assert all(receipt["confidence_ledger_projection"] for receipt in live_receipts)
 
     plan = second_domain_pack._cycle_trace_plan_from_manifest(trace)

@@ -26,10 +26,14 @@ from .layer2_readiness import (
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
 GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
 
-GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
+GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
+GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v2"
 
 
-GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v2"
+GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION = (
+    "policyos.gy.non_authority_verification.v2"
+)
+GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v3"
 
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
@@ -81,6 +85,10 @@ _GY_COMPARISON_BLOCK_EXCLUDED = object()
 type _GyComparisonPathSegment = str | int
 type _GyComparisonPath = tuple[_GyComparisonPathSegment, ...]
 type GyComparisonPredicateProvenance = Literal["recomputed", "independently_reconciled"]
+type GyComparisonLegacyMigrator = Callable[
+    [Mapping[str, object], Mapping[str, object]],
+    Mapping[str, object],
+]
 
 
 @dataclass(frozen=True)
@@ -114,6 +122,7 @@ class GyComparisonAdmission:
     projector: Callable[[Mapping[str, object]], object]
     action: Literal["exclude", "project"] = "project"
     predicate_provenance: GyComparisonPredicateProvenance = "recomputed"
+    legacy_migrator: GyComparisonLegacyMigrator | None = None
 
 
 @dataclass(frozen=True)
@@ -123,6 +132,7 @@ class _GyComparisonPlanEntry:
     projector: Callable[[Mapping[str, object]], object]
     action: Literal["exclude", "project"]
     predicate_provenance: GyComparisonPredicateProvenance
+    legacy_migrator: GyComparisonLegacyMigrator | None = None
 
 
 @dataclass(frozen=True)
@@ -203,6 +213,7 @@ class GyComparisonProjectionPlan:
                 projector=entry.projector,
                 action=entry.action,
                 predicate_provenance=entry.predicate_provenance,
+                legacy_migrator=entry.legacy_migrator,
             )
             for entry in self.entries
             if entry.path[: len(prefix)] == prefix
@@ -210,6 +221,67 @@ class GyComparisonProjectionPlan:
         if not selected:
             raise ValueError("gy_comparison_relative_plan_empty")
         return GyComparisonProjectionPlan(entries=selected)
+
+    def migrate_admitted_blocks(self, previous: object, current: object) -> object:
+        """Apply live-owner legacy migrations only at their admitted paths.
+
+        A migration callback is ephemeral: it exists only on a plan built from
+        live producer admissions and is never serialized in the manifest.
+        Every non-admitted byte remains the previous custody value here; the
+        ordinary reconciliation step decides unrelated live changes later.
+        """
+
+        migrations = {
+            entry.path: entry
+            for entry in self.entries
+            if entry.legacy_migrator is not None
+        }
+        if not migrations:
+            return previous
+        visited: set[_GyComparisonPath] = set()
+
+        def walk(left: object, right: object, path: _GyComparisonPath) -> object:
+            entry = migrations.get(path)
+            if entry is not None:
+                if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                migrator = entry.legacy_migrator
+                if migrator is None:  # pragma: no cover - selected above.
+                    raise ValueError("gy_comparison_legacy_migrator_missing")
+                migrated = migrator(left, right)
+                if not isinstance(migrated, Mapping):
+                    raise ValueError("gy_comparison_legacy_migration_shape_invalid")
+                visited.add(path)
+                return {str(key): item for key, item in migrated.items()}
+            if isinstance(left, Mapping) and isinstance(right, Mapping):
+                return {
+                    str(key): (
+                        walk(child, right[key], (*path, str(key)))
+                        if key in right
+                        else child
+                    )
+                    for key, child in left.items()
+                }
+            if isinstance(left, list) and isinstance(right, list):
+                return [
+                    walk(child, right[index], (*path, index))
+                    if index < len(right)
+                    else child
+                    for index, child in enumerate(left)
+                ]
+            if isinstance(left, tuple) and isinstance(right, tuple):
+                return tuple(
+                    walk(child, right[index], (*path, index))
+                    if index < len(right)
+                    else child
+                    for index, child in enumerate(left)
+                )
+            return left
+
+        migrated = walk(previous, current, ())
+        if visited != set(migrations):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return migrated
 
     def preserve_admitted_blocks(self, previous: object, current: object) -> object:
         """Retain admitted evidence while taking unrelated live reissue deltas.
@@ -221,7 +293,8 @@ class GyComparisonProjectionPlan:
         """
 
         entries = {entry.path: entry for entry in self.entries}
-        preserve_operational = self.project(previous) == self.project(current)
+        aligned_previous = self.migrate_admitted_blocks(previous, current)
+        preserve_operational = self.project(aligned_previous) == self.project(current)
         visited: set[_GyComparisonPath] = set()
 
         def walk(left: object, right: object, path: _GyComparisonPath) -> object:
@@ -260,7 +333,7 @@ class GyComparisonProjectionPlan:
                 )
             return right
 
-        reconciled = walk(previous, current, ())
+        reconciled = walk(aligned_previous, current, ())
         if visited != set(entries):
             raise ValueError("gy_comparison_admission_path_missing")
         return reconciled
@@ -472,6 +545,7 @@ def build_gy_comparison_projection_plan(
                         projector=admission.projector,
                         action=admission.action,
                         predicate_provenance=admission.predicate_provenance,
+                        legacy_migrator=admission.legacy_migrator,
                     )
                 )
                 return
@@ -530,6 +604,7 @@ def build_gy_comparison_projection_plan_from_manifest(
                 projector=registered.projector,
                 action=registered.action,
                 predicate_provenance=registered.predicate_provenance,
+                legacy_migrator=None,
             )
         )
     plan = GyComparisonProjectionPlan(entries=tuple(entries))

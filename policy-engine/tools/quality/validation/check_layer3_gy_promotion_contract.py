@@ -22,8 +22,10 @@ from typing import Any
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
     GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
     GY_VERIFICATION_COMPARISON_RULE_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     AuthorityBoundary,
@@ -63,6 +65,8 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionInput,
@@ -810,7 +814,7 @@ def _reconcile_frozen_contract(
     frozen = json.loads(path.read_text(encoding="utf-8"))
     if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
         raise ValueError("promotion_legacy_contract_content_hash_drift")
-    if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
+    if not _frozen_comparison_identity_admissible(frozen, plan):
         raise ValueError("promotion_comparison_admission_manifest_drift")
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
@@ -821,6 +825,40 @@ def _reconcile_frozen_contract(
     _set_comparison_identity(reconciled, plan)
     reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
     return reconciled
+
+
+def _frozen_comparison_identity_admissible(
+    frozen: dict[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 comparison custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == _comparison_content_hash(
+        frozen,
+        legacy_plan,
+    )
 
 
 def _set_comparison_identity(

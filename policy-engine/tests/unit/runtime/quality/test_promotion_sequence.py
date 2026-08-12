@@ -13,6 +13,7 @@ from uuid import uuid4
 
 import pytest
 
+import polisyos.runtime.quality.confidence_ledger as confidence_ledger_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
@@ -26,6 +27,7 @@ from polisyos.pdc import (
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
     SearchTerminalKind,
+    build_gy_comparison_projection_plan,
     gy_content_hash,
     gy_recorded_content_hash,
 )
@@ -1700,7 +1702,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_writer_reconciles_live_lineage_but_retains_full_frozen_receipts() -> None:
+def test_promotion_writer_migrates_semantics_and_retains_every_frozen_raw_leaf() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -1716,17 +1718,29 @@ def test_promotion_writer_reconciles_live_lineage_but_retains_full_frozen_receip
         assert gy_recorded_content_hash(
             frozen_receipt.model_dump(mode="json")
         ) != gy_recorded_content_hash(live_receipt.model_dump(mode="json"))
-        frozen_projection = (
+        with pytest.raises(
+            ValueError,
+            match="promotion_comparison_semantic_ledger_missing",
+        ):
             promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
                 frozen_receipt.model_dump(mode="json")
             )
+        frozen_legacy_projection = (
+            promotion_sequence_module._canonical_promotion_receipt_legacy_semantic_projection(
+                frozen_receipt.model_dump(mode="json")
+            )
         )
+        live_legacy_projection = (
+            promotion_sequence_module._canonical_promotion_receipt_legacy_semantic_projection(
+                live_receipt.model_dump(mode="json")
+            )
+        )
+        assert frozen_legacy_projection == live_legacy_projection
         live_projection = (
             promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
                 live_receipt.model_dump(mode="json")
             )
         )
-        assert frozen_projection == live_projection
         assert set(live_projection) == (
             set(CanonicalPromotionReceipt.model_fields)
             - promotion_sequence_module._PROMOTION_RECEIPT_LINEAGE_FIELDS
@@ -1747,7 +1761,19 @@ def test_promotion_writer_reconciles_live_lineage_but_retains_full_frozen_receip
     live["contract_content_hash"] = validator._contract_content_hash(live)
     reconciled = validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
     for key in receipt_keys:
-        assert reconciled[key] == frozen[key]
+        frozen_raw = deepcopy(frozen[key])
+        migrated = deepcopy(reconciled[key])
+        semantic = migrated.pop("confidence_ledger_semantic_projection")
+        assert migrated == frozen_raw
+        assert semantic == live[key]["confidence_ledger_semantic_projection"]
+        assert (
+            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
+                reconciled[key]
+            )
+            == promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
+                live[key]
+            )
+        )
         assert reconciled[key]["confidence_ledger_projection"]
     assert reconciled["comparison_admission_manifest"] == plan.manifest
 
@@ -1818,6 +1844,191 @@ def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission()
                 repo_root=REPO_ROOT,
                 confidence_ledger_session=session,
             )
+
+
+def test_n9_semantic_ledger_changes_with_governing_owner_input() -> None:
+    """The verification projection retains claim and filtration semantics."""
+
+    baseline_input = _promotion_input()
+    changed_input = baseline_input.model_copy(
+        update={
+            "candidate_summary": baseline_input.candidate_summary.model_copy(
+                update={"content_hash": _hash("9")}
+            )
+        }
+    )
+    receipts: list[CanonicalPromotionReceipt] = []
+    sessions: list[ConfidenceLedgerSession] = []
+    for promotion_input in (baseline_input, changed_input):
+        session = _verification_ledger_session(
+            binding=promotion_input.design_problem_binding
+        )
+        sessions.append(session)
+        receipts.append(
+            promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+                promotion_input,
+                confidence_ledger_session=session,
+            )
+        )
+
+    baseline_semantic = receipts[0].confidence_ledger_semantic_projection
+    changed_semantic = receipts[1].confidence_ledger_semantic_projection
+    assert baseline_semantic is not None
+    assert changed_semantic is not None
+    baseline_rows = {
+        (row.obligation_class, row.certificate_ref): row for row in baseline_semantic.checks
+    }
+    changed_rows = {
+        (row.obligation_class, row.certificate_ref): row for row in changed_semantic.checks
+    }
+    assert set(baseline_rows) == set(changed_rows)
+    assert all(
+        baseline_rows[key].claim_execution_projection_hash
+        != changed_rows[key].claim_execution_projection_hash
+        for key in baseline_rows
+    )
+
+    changed_proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
+        receipts[1],
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=sessions[1],
+    )
+    changed_admission = (
+        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+            changed_proof
+        )
+    )
+    changed_payload = receipts[1].model_dump(mode="json")
+    changed_plan = build_gy_comparison_projection_plan(
+        changed_payload,
+        admissions=(changed_admission,),
+    )
+    with pytest.raises(ValueError, match="gy_comparison_admitted_block_semantic_mismatch"):
+        changed_plan.preserve_admitted_blocks(
+            receipts[0].model_dump(mode="json"),
+            changed_payload,
+        )
+
+
+def test_n9_semantic_claim_binding_ignores_physical_deployment_lineage(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Two fully verified deployments retain one governing claim identity."""
+
+    promotion_input = _promotion_input()
+    baseline_session = _verification_ledger_session(
+        binding=promotion_input.design_problem_binding
+    )
+    baseline = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+        promotion_input,
+        confidence_ledger_session=baseline_session,
+    )
+
+    admit_loaded_runtime = confidence_ledger_module._admit_loaded_runtime
+
+    def _admit_alternate_deployment(repo_root: Path) -> tuple[object, object, str]:
+        baseline_value, quick_fence, _ = admit_loaded_runtime(repo_root)
+        return (
+            baseline_value,
+            quick_fence,
+            "policy-engine-deployment:sha256:" + "9" * 64,
+        )
+
+    monkeypatch.setattr(
+        confidence_ledger_module,
+        "_admit_loaded_runtime",
+        _admit_alternate_deployment,
+    )
+    alternate_session = _verification_ledger_session(
+        binding=promotion_input.design_problem_binding
+    )
+    alternate = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+        promotion_input,
+        confidence_ledger_session=alternate_session,
+    )
+
+    baseline_rows = baseline.confidence_ledger_projection.promotion_rows
+    alternate_rows = alternate.confidence_ledger_projection.promotion_rows
+    assert baseline.confidence_ledger_projection.deployment_identity != (
+        alternate.confidence_ledger_projection.deployment_identity
+    )
+    assert [row.claim_execution_binding_hash for row in baseline_rows] != [
+        row.claim_execution_binding_hash for row in alternate_rows
+    ]
+    assert baseline.confidence_ledger_semantic_projection is not None
+    assert alternate.confidence_ledger_semantic_projection is not None
+    assert baseline.confidence_ledger_semantic_projection == (
+        alternate.confidence_ledger_semantic_projection
+    )
+    baseline_proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
+        baseline,
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=baseline_session,
+    )
+    alternate_proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
+        alternate,
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=alternate_session,
+    )
+    baseline_admission = (
+        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+            baseline_proof
+        )
+    )
+    alternate_admission = (
+        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+            alternate_proof
+        )
+    )
+    baseline_projection = (
+        baseline_admission.projector(baseline.model_dump(mode="json"))
+    )
+    alternate_projection = (
+        alternate_admission.projector(alternate.model_dump(mode="json"))
+    )
+    assert baseline_projection == alternate_projection
+
+
+def test_promotion_comparison_migrates_legacy_only_through_live_owner_proof() -> None:
+    """Legacy custody gains semantic lineage only from the canonical live owner."""
+
+    promotion_input = _promotion_input()
+    session = _verification_ledger_session(
+        binding=promotion_input.design_problem_binding
+    )
+    receipt = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+        promotion_input,
+        confidence_ledger_session=session,
+    )
+    proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
+        receipt,
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=session,
+    )
+    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+        proof
+    )
+    current = {"receipt": receipt.model_dump(mode="json")}
+    legacy = deepcopy(current)
+    legacy_receipt = legacy["receipt"]
+    semantic = legacy_receipt.pop("confidence_ledger_semantic_projection")
+    raw_rows = deepcopy(legacy_receipt["confidence_ledger_projection"]["promotion_rows"])
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    with pytest.raises(ValueError, match="promotion_comparison_semantic_ledger_missing"):
+        plan.project(legacy)
+    migrated = plan.preserve_admitted_blocks(legacy, current)
+
+    assert migrated["receipt"]["confidence_ledger_projection"]["promotion_rows"] == raw_rows
+    assert migrated["receipt"]["confidence_ledger_semantic_projection"] == semantic
+    assert plan.project(migrated) == plan.project(current)
+
+    forged_legacy = deepcopy(legacy)
+    forged_legacy["receipt"]["owner_projection"]["candidate_summary"][
+        "content_hash"
+    ] = _hash("f")
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
+        plan.preserve_admitted_blocks(forged_legacy, current)
 
 
 def _ledger_session(

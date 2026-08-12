@@ -255,6 +255,78 @@ def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_re
     assert gy_content_hash(mixed_authority) != gy_content_hash(mixed_shift)
 
 
+def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
+    """A live owner may augment legacy custody without changing an old raw leaf."""
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {
+            "governing_input": value["governing_input"],
+            "semantic_projection": semantic,
+        }
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        if previous.get("governing_input") != current.get("governing_input"):
+            raise ValueError("legacy_governing_input_mismatch")
+        migrated = copy.deepcopy(previous)
+        migrated["semantic_projection"] = copy.deepcopy(current["semantic_projection"])
+        return migrated
+
+    previous = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "frozen",
+        }
+    }
+    current = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        }
+    }
+    admission = GyComparisonAdmission(
+        owner_rule="test.verification_receipt.v2",
+        source_content_hash=gy_recorded_content_hash(current["receipt"]),
+        projector=_project_v2,
+        legacy_migrator=_migrate_legacy,
+    )
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    with pytest.raises(ValueError, match="semantic_projection_missing"):
+        plan.project(previous)
+    reconciled = plan.preserve_admitted_blocks(previous, current)
+
+    assert reconciled["receipt"]["raw_session_identity"] == "frozen"
+    assert reconciled["receipt"]["semantic_projection"] == {
+        "semantic_hash": "sha256:semantic"
+    }
+    assert plan.project(reconciled) == plan.project(current)
+
+    reconstructed = build_gy_comparison_projection_plan_from_manifest(
+        reconciled,
+        manifest=plan.manifest,
+        owner_rule_registry={
+            "test.verification_receipt.v2": GyComparisonOwnerRule(
+                projector=_project_v2,
+                action="project",
+                predicate_provenance="recomputed",
+            )
+        },
+    )
+    assert reconstructed.project(reconciled) == plan.project(current)
+    with pytest.raises(ValueError, match="legacy_governing_input_mismatch"):
+        plan.preserve_admitted_blocks(
+            {"receipt": {**previous["receipt"], "governing_input": "changed"}},
+            current,
+        )
+
+
 def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_lists() -> None:
     payload = {
         "receipts": [

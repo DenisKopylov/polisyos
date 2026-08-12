@@ -1329,6 +1329,22 @@ def _recording_receipts(recording: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def _fixture_receipt_semantic_projection(receipt: dict[str, Any]) -> dict[str, Any]:
+    """Project either side of the governed v1-to-v2 fixture transition.
+
+    The production owner never admits v1 without a live migrator. These
+    structural recording tests deliberately isolate the root walker from that
+    separately exercised promotion-owner seam while the frozen artifact is v1.
+    """
+
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    if receipt.get("confidence_ledger_semantic_projection") is None:
+        return promotion._canonical_promotion_receipt_legacy_semantic_projection(
+            receipt
+        )
+    return promotion.canonical_promotion_receipt_semantic_projection(receipt)
+
+
 def _manual_receipt_comparison_admissions(
     recording: dict[str, Any],
 ) -> tuple[GyComparisonAdmission, ...]:
@@ -1340,7 +1356,7 @@ def _manual_receipt_comparison_admissions(
         GyComparisonAdmission(
             owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
             source_content_hash=gy_recorded_content_hash(receipt),
-            projector=promotion.canonical_promotion_receipt_semantic_projection,
+            projector=_fixture_receipt_semantic_projection,
             action=owner.action,
             predicate_provenance=owner.predicate_provenance,
         )
@@ -1363,6 +1379,11 @@ def _allow_manual_receipt_proofs_for_projection_test(
         validator,
         "canonical_promotion_comparison_admission_from_proof",
         _unwrap,
+    )
+    monkeypatch.setattr(
+        validator,
+        "canonical_promotion_receipt_semantic_projection",
+        _fixture_receipt_semantic_projection,
     )
 
 
@@ -1417,9 +1438,7 @@ def _verification_lineage_variant(recording: dict[str, Any]) -> dict[str, Any]:
     changed = copy.deepcopy(recording)
     promotion = import_module("polisyos.runtime.quality.promotion_sequence")
     for index, receipt in enumerate(_recording_receipts(changed), start=1):
-        expected_projection = (
-            promotion.canonical_promotion_receipt_semantic_projection(receipt)
-        )
+        expected_projection = _fixture_receipt_semantic_projection(receipt)
         certificate = receipt["confidence_ledger_projection"]
         certificate["deployment_identity"] = (
             "policy-engine-deployment:sha256:" + str(index) * 64
@@ -1435,7 +1454,7 @@ def _verification_lineage_variant(recording: dict[str, Any]) -> dict[str, Any]:
         if receipt["trace_content_hash"] is not None:
             receipt["trace_content_hash"] = "sha256:" + str(index + 2) * 64
         assert (
-            promotion.canonical_promotion_receipt_semantic_projection(receipt)
+            _fixture_receipt_semantic_projection(receipt)
             == expected_projection
         )
     _change_all_operational_clocks(changed)

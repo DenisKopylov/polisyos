@@ -3324,6 +3324,101 @@ def _attach_authority_source_migration_receipt(
     return normalized
 
 
+def _reissue_authority_source_envelopes_after_comparison_migration(
+    recording: Mapping[str, Any],
+    *,
+    prior_admission: Mapping[str, Any],
+    prior_migration_receipt: Mapping[str, Any],
+    replayed_domain_run: Mapping[str, Any],
+    expected_role: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Rebind derived authority envelopes after a semantic-lineage addition.
+
+    Historical evidence and every pre-existing raw promotion row are retained.
+    Only the current recording/compiled/route identities and their enclosing
+    admission hashes are reissued.
+    """
+
+    if recording.get("historical_context_rebind_receipt"):
+        raise UniversalityContractError(
+            "comparison_migration_context_rebind_requires_owner"
+        )
+    normalized = copy.deepcopy(dict(recording))
+    route = copy.deepcopy(dict(replayed_domain_run))
+    admission_kind = str(prior_admission.get("admission_kind") or "")
+    if admission_kind == "migrated":
+        if not prior_migration_receipt:
+            raise UniversalityContractError(
+                "comparison_migration_prior_authority_receipt_missing"
+            )
+        receipt = copy.deepcopy(dict(prior_migration_receipt))
+        current_base = _authority_source_recording_base(normalized)
+        current_base.pop("historical_context_rebind_receipt", None)
+        current_base["recording_content_hash"] = _semantic_hash(current_base)
+        receipt["replayed_recording_content_hash_before_receipt"] = current_base[
+            "recording_content_hash"
+        ]
+        receipt["replayed_compiled_run_content_hash"] = normalized.get(
+            "compiled_run_content_hash"
+        )
+        receipt["replayed_authority_projection"] = (
+            _compiled_authority_source_projection(normalized.get("compiled_run"))
+        )
+        historical_route = _mapping(receipt.get("historical_route_projection"))
+        receipt["changed_paths"] = list(
+            _projection_diff_paths(historical_route, route)
+        )
+        receipt["replayed_route_projection_content_hash"] = _semantic_hash(
+            _authority_source_stable_projection(route)
+        )
+        receipt["receipt_content_hash"] = _semantic_hash(
+            {key: item for key, item in receipt.items() if key != "receipt_content_hash"}
+        )
+        normalized["authority_source_migration_receipt"] = receipt
+    elif admission_kind != "controlled_at_capture":
+        raise UniversalityContractError(
+            "comparison_migration_prior_admission_kind_invalid"
+        )
+    normalized["authority_source_admission"] = _build_authority_source_admission(
+        normalized,
+        admission_kind=admission_kind,
+        expected_role=expected_role,
+    )
+    normalized["recording_content_hash"] = _semantic_hash(
+        {key: item for key, item in normalized.items() if key != "recording_content_hash"}
+    )
+    route["recording_content_hash"] = normalized["recording_content_hash"]
+    route["content_hash"] = _semantic_hash(
+        {key: item for key, item in route.items() if key != "content_hash"}
+    )
+    if admission_kind == "migrated":
+        receipt = _mapping(normalized.get("authority_source_migration_receipt"))
+        historical_route = _mapping(receipt.get("historical_route_projection"))
+        receipt["changed_paths"] = list(
+            _projection_diff_paths(historical_route, route)
+        )
+        receipt["replayed_route_projection_content_hash"] = _semantic_hash(
+            _authority_source_stable_projection(route)
+        )
+        receipt["receipt_content_hash"] = _semantic_hash(
+            {key: item for key, item in receipt.items() if key != "receipt_content_hash"}
+        )
+        normalized["authority_source_migration_receipt"] = receipt
+        normalized["authority_source_admission"] = _build_authority_source_admission(
+            normalized,
+            admission_kind=admission_kind,
+            expected_role=expected_role,
+        )
+        normalized["recording_content_hash"] = _semantic_hash(
+            {key: item for key, item in normalized.items() if key != "recording_content_hash"}
+        )
+        route["recording_content_hash"] = normalized["recording_content_hash"]
+        route["content_hash"] = _semantic_hash(
+            {key: item for key, item in route.items() if key != "content_hash"}
+        )
+    return normalized, route
+
+
 def _authority_source_migration_receipt_issues(
     recording: Mapping[str, Any],
     *,
@@ -4556,6 +4651,32 @@ def _controlled_recording_verification_semantic_projection(
     return projected
 
 
+def _rehash_controlled_recording_after_comparison_migration(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Rebind enclosing custody identities after adding semantic receipt lineage."""
+
+    from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
+
+    payload = copy.deepcopy(dict(value))
+    compiled = _mapping(payload.get("compiled_run"))
+    recursive = _mapping(compiled.get("recursive_run"))
+    recursive["content_hash"] = gy_content_hash(
+        gy_artifact_self_identity_projection(recursive)
+    )
+    compiled["recursive_run"] = recursive
+    compiled["content_hash"] = gy_content_hash(
+        gy_artifact_self_identity_projection(compiled)
+    )
+    payload["compiled_run"] = compiled
+    payload["compiled_run_content_hash"] = compiled["content_hash"]
+    payload["recording_content_hash"] = _semantic_hash(
+        {key: item for key, item in payload.items() if key != "recording_content_hash"}
+    )
+    _validated_controlled_recording_payload(payload)
+    return payload
+
+
 _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
     projector=_controlled_recording_verification_semantic_projection,
     action="project",
@@ -4631,6 +4752,17 @@ def _admit_controlled_recording_for_comparison(
             raise ValueError(
                 "controlled_recording_receipt_path_denominator_invalid"
             )
+        migrated_compiled = receipt_plan.migrate_admitted_blocks(
+            aligned_payload["compiled_run"],
+            source_payload["compiled_run"],
+        )
+        if not isinstance(migrated_compiled, Mapping):
+            raise ValueError("controlled_recording_compiled_migration_invalid")
+        if migrated_compiled != aligned_payload["compiled_run"]:
+            aligned_payload["compiled_run"] = copy.deepcopy(dict(migrated_compiled))
+            aligned_payload = _rehash_controlled_recording_after_comparison_migration(
+                aligned_payload
+            )
         aligned_projection = _controlled_recording_verification_semantic_projection(
             _without_authority_source_migration_receipt(aligned_payload)
         )
@@ -4640,6 +4772,40 @@ def _admit_controlled_recording_for_comparison(
     # A full aligned target may retain separately validated authority envelopes;
     # those remain governing in the outer artifact projection.
     _controlled_recording_verification_semantic_projection(aligned_payload)
+
+    def migrate_legacy_recording(
+        previous: Mapping[str, object],
+        current: Mapping[str, object],
+    ) -> Mapping[str, object]:
+        """Upgrade nested receipts through their owner proofs and rebind custody."""
+
+        try:
+            previous_payload, _ = _validated_controlled_recording_payload(
+                previous,
+                role=role,
+            )
+            current_payload, _ = _validated_controlled_recording_payload(
+                current,
+                role=role,
+            )
+            migrated_compiled = receipt_plan.migrate_admitted_blocks(
+                previous_payload["compiled_run"],
+                current_payload["compiled_run"],
+            )
+            if not isinstance(migrated_compiled, Mapping):
+                raise ValueError("controlled_recording_compiled_migration_invalid")
+            migrated = copy.deepcopy(previous_payload)
+            migrated["compiled_run"] = copy.deepcopy(dict(migrated_compiled))
+            migrated = _rehash_controlled_recording_after_comparison_migration(migrated)
+            if (
+                _controlled_recording_verification_semantic_projection(migrated)
+                != _controlled_recording_verification_semantic_projection(current_payload)
+            ):
+                raise ValueError("controlled_recording_migrated_projection_drift")
+            return migrated
+        except (TypeError, ValueError) as exc:
+            raise ValueError("controlled_recording_legacy_comparison_semantic_mismatch") from exc
+
     return GyComparisonAdmission(
         owner_rule=_DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE,
         source_content_hash=gy_recorded_content_hash(aligned_payload),
@@ -4648,6 +4814,7 @@ def _admit_controlled_recording_for_comparison(
         predicate_provenance=(
             _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE.predicate_provenance
         ),
+        legacy_migrator=migrate_legacy_recording,
     )
 
 
@@ -5534,6 +5701,7 @@ async def _domain_run_and_normalized_recording(
                 compiled=compiled,
             )
     requires_authority_source_migration = False
+    comparison_lineage_migrated = False
     replayed_authority_projection = _compiled_authority_source_projection(
         normalized_recording.get("compiled_run")
     )
@@ -5556,6 +5724,10 @@ async def _domain_run_and_normalized_recording(
             normalized_recording,
             admissions=(live_recording_admission,),
         )
+        migrated_expected_recording = live_recording_plan.migrate_admitted_blocks(
+            expected_recording,
+            normalized_recording,
+        )
         normalized_recording = _reconcile_controlled_recording(
             expected_recording,
             normalized_recording,
@@ -5563,22 +5735,11 @@ async def _domain_run_and_normalized_recording(
             role=role,
             admission_arm=str(prior_admission.get("admission_kind") or ""),
         )
-        if expected_recording != normalized_recording:
+        if migrated_expected_recording != normalized_recording:
             raise UniversalityContractError(
                 "authority_source_controlled_replay_recording_exact_mismatch"
             )
-        if prior_authority_receipt:
-            normalized_recording["authority_source_migration_receipt"] = copy.deepcopy(
-                prior_authority_receipt
-            )
-        normalized_recording["authority_source_admission"] = copy.deepcopy(prior_admission)
-        normalized_recording["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in normalized_recording.items()
-                if key != "recording_content_hash"
-            }
-        )
+        comparison_lineage_migrated = migrated_expected_recording != expected_recording
     elif recording_schema == _LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
         if context_rebind_required:
             raise UniversalityContractError("authority_source_migration_context_rebind_conflict")
@@ -5593,6 +5754,35 @@ async def _domain_run_and_normalized_recording(
         cycle_substrate_context=context,
         recording_content_hash=str(normalized_recording.get("recording_content_hash") or ""),
     )
+    if prior_admission and comparison_lineage_migrated:
+        normalized_recording, domain_run = (
+            _reissue_authority_source_envelopes_after_comparison_migration(
+                normalized_recording,
+                prior_admission=prior_admission,
+                prior_migration_receipt=prior_authority_receipt,
+                replayed_domain_run=domain_run,
+                expected_role=role,
+            )
+        )
+    elif prior_admission:
+        if prior_authority_receipt:
+            normalized_recording["authority_source_migration_receipt"] = copy.deepcopy(
+                prior_authority_receipt
+            )
+        normalized_recording["authority_source_admission"] = copy.deepcopy(prior_admission)
+        normalized_recording["recording_content_hash"] = _semantic_hash(
+            {
+                key: value
+                for key, value in normalized_recording.items()
+                if key != "recording_content_hash"
+            }
+        )
+        domain_run["recording_content_hash"] = normalized_recording[
+            "recording_content_hash"
+        ]
+        domain_run["content_hash"] = _semantic_hash(
+            {key: value for key, value in domain_run.items() if key != "content_hash"}
+        )
     if requires_authority_source_migration:
         if historical_domain_run is None:
             raise UniversalityContractError("authority_source_migration_historical_route_missing")

@@ -1414,3 +1414,111 @@ the comparison, then discarded by the clock-only generic reconciler. These prefl
 the three post-freeze independent reviews required by E11. `[P37: recomputed for the observed process
 census/termination and current tracked delta; consumer_asserted for dispatch identity;
 independently_reconciled for the completed source trace]`
+
+### Late frozen review — the artifact owner also needs a v2 semantic lineage
+
+The post-freeze review found one load-bearing defect in the already-landed artifact comparison
+owner before any replacement Depth writer was launched. Its v1 projector removes
+`N9PromotionLedgerRow.claim_execution_binding_hash` as though that digest were wholly physical.
+The confidence-ledger producer actually binds claim/null/scope/window inputs, the pre-check
+filtration/history, schedule position, risk spend, registry, instrument and proof identities into
+that digest. Claim/window inputs are independently retained in the canonical promotion owner
+projection, but the filtration/history preimage is absent from the narrow N9 receipt once the raw
+digest is removed. A new hash over the remaining receipt fields would add no information and cannot
+be labelled recomputed. The initial attempted row-field sketch and its two red tests remain a design
+measurement only; no such schema change or source byte was committed. `[P37: independently_reconciled
+for the producer-field trace; recomputed for the current uncommitted/test-only boundary;
+not_established for filtration after the v1 projection]`
+
+A complete walk of `architecture/policy_design_case/*.json` parsed `353/353` JSON artifacts. Raw
+`claim_execution_binding_hash` occurs in exactly four governed roots and `114` scalar leaves:
+promotion `6`, generation cycle `8`, N10a cycle-entry trace `32`, and Depth-N `68`. The transitive
+writer family is six files because N10a pack and free-grow gaps bind the cycle-trace identity;
+N10a census and smoke have no such dependency and must remain byte-identical. This is the same
+already-authorized artifact comparison family, so B2 extends the batch rather than creating a third
+mechanism. No writer-class process has been launched after this census. `[P37: recomputed for the
+353-file/114-leaf denominator and dependency graph; institutionally_supplied for B2; not_established
+for post-repair movement]`
+
+The corrected artifact-owner contract is versioned and fail-closed:
+
+1. The confidence-ledger producer emits a stable N9 semantic ledger projection from the complete,
+   live-session-validated event chain. It carries the claim/window/owner/verifier bindings, semantic
+   filtration chain, execution order, spend and outcomes, while the raw receipt continues to retain
+   every physical ledger identity and byte.
+2. A canonical promotion receipt records that semantic projection beside—not instead of—its raw N9
+   projection. The v2 comparison owner removes physical session locators only after the complete
+   semantic projection is present and valid. Missing, malformed or self-authored semantic evidence
+   is non-comparable and fails closed.
+3. Legacy frozen receipts may cross the migration seam only through an ephemeral canonical live
+   proof. The owner requires the complete legacy governing projection and frozen owner inputs to
+   equal the live replay, then attaches the live producer-derived semantic projection while leaving
+   every pre-existing raw frozen leaf unchanged. A manifest, provenance string, detached token or
+   recomputed self-hash cannot invoke that migration.
+4. Once reissued, persisted validators reconstruct only the stateless v2 projector; the ephemeral
+   legacy seam is neither serialized nor available to a check-only caller. The owner-rule and
+   comparison-rule versions change, so v1 bytes cannot silently acquire v2 meaning.
+
+This closes the information-loss predicate without rebaselining old raw evidence or trusting an
+unresolvable CAS ref: custody identity still binds the raw bytes, while the decisive comparison
+identity is produced from a new canonical replay of the frozen owner inputs. It is a correction to
+the existing artifact-layer mechanism, not a governed denominator/admission change and not a third
+bespoke mechanism. `[P37: independently_reconciled for the structural closure; recomputed is the
+required admission label once live replay and comparison complete; not_established until RED→GREEN,
+source freeze, reviews and reissue census]`
+
+### GY-DEFC-5 v2 artifact owner — source batch prepared for freeze
+
+Red-first execution established three precise absences before implementation: the two fresh
+verification-session receipts had no `confidence_ledger_semantic_projection`, the v2 projector
+could not be invoked, and a legacy receipt had no owner-bound migration seam. All three failed on
+that missing producer field rather than on setup or a timeout. The generic PDC witness separately
+failed because `GyComparisonAdmission` did not yet accept an ephemeral legacy migrator. No governed
+artifact was written by these red invocations. `[P37: recomputed]`
+
+The source batch now gives the full confidence-ledger event chain a stable N9 projection. The
+projection is emitted only after `validate_confidence_ledger_receipt(..., session=...)`, includes
+the complete semantic check/filtration event lineage and current-head denominator, validates every
+root/check/event/head/spend hash on parse, and omits only deployment/CAS locators. A canonical
+promotion receipt records it beside the untouched raw N9 projection. The comparison owner is
+versioned from receipt rule `v1` to `v2`, comparison projection `v1` to `v2`, and verification rule
+`v2` to `v3`. Missing or forged semantic lineage fails closed. `[P37: recomputed for the current
+source and behavioral tests; not_established for governed reissue bytes]`
+
+The legacy bridge is deliberately ephemeral. A live owner admission first replays and verifies the
+complete current receipt, then its closure may add exactly that producer-derived semantic
+projection to a legacy frozen receipt only when the complete v1 governing projection matches. All
+pre-existing raw receipt leaves remain frozen. The generic comparison plan carries this closure in
+memory but omits it from the persisted manifest; a check-only manifest reconstruction therefore
+cannot mint a migration. Promotion, generation-cycle and N10a accept an old manifest only after its
+stored v1 schema/rule/owner action and comparison hash reproduce exactly; they always emit v2/v3.
+Depth composes the same receipt migration inside its one admitted recording root and recomputes the
+recursive-run, compiled-run, recording, route and authority-envelope custody identities derived
+from the newly added semantic field. `[P37: independently_reconciled for the structural boundary;
+recomputed for the focused source witnesses; not_established for the full Depth replay]`
+
+Focused source feedback before freeze:
+
+- the complete promotion-sequence test module passed after the v2 implementation, including two
+  fresh sessions with different physical deployment identities and equal semantic projections, a
+  governing owner-input change with the named semantic mismatch, forged/detached proof rejection,
+  legacy migration, and byte-complete raw-row preservation;
+- the generic PDC migration tests, confidence-ledger semantic-lineage tests, and six controlled
+  recording authority/fail-closed tests passed;
+- generation-cycle's governing mutation remained red, but the prior test expected the generic
+  revalidation code while the repaired owner now reports the narrower
+  `embedded_promotion_receipt_semantic_projection_drift`; the assertion was corrected to the
+  observed owner code;
+- a combined downstream test invocation reached a pre-existing N10a historical-N4 assertion which
+  expected the refreshed owner projection to differ from the frozen projection. They are now equal,
+  so that invocation stopped red after the expensive fixture build. This is a stale test premise,
+  not evidence of owner drift, and it is excluded from the final source receipt; the governed
+  artifacts remained byte-identical. `[P37: recomputed]`
+
+The expanded same-mechanism family remains the `353/353` JSON census's four raw roots and six
+dependent outputs: promotion, generation cycle, N10a trace/pack/gaps, and Depth. The N10a census and
+smoke output remain outside the dependency. B2 authorizes this pre-enumerated batch even though the
+earlier artifact-layer reissues have already landed; the replacement reissues are required because
+their v1 owner discarded a governing filtration predicate. Confidence remains the separate B3
+blocked member. `[P37: recomputed for the denominator/dependency; institutionally_supplied for B2
+and B3; not_established for post-freeze deltas and accepted reissues]`

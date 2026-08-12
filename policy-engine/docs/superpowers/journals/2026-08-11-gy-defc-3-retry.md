@@ -1738,3 +1738,54 @@ about `0.13–0.21` GiB RSS each. Their parent elapsed time aligned with the ful
 That is direct contention evidence under B4, so exactly one remeasurement is authorized after the
 external lane exits; the cap is not raised. `[P37: recomputed for the observed process census;
 institutionally_supplied for B4 and the one-rerun allowance]`
+
+### GY-DEFC-5 generation v2 — serialized candidate and declared accepted delta
+
+The B4 remeasurement at head `64dbb87cb` reached the generator's own completed-work terminal:
+its isolated timing record says `status: ok`, exit `0`, duration `70.278092` s, and stdout says
+`status: pass`, `issues: []`. It wrote the sole declared output at candidate SHA-256
+`7b80bf43…8e30`. The outer wrapper nevertheless killed the still-live process during shutdown at
+`76.281514` s against the `76.199994` s cap (child `-15`, wrapper `124`); an Atlas DS6 Vitest lane
+had restarted during the final seconds. Because a harness kill is never an admissible sample, this
+invocation remains a measurement/non-receipt and the accepted generation allowance remains unused.
+The candidate was preserved before the committed artifact was restored and re-read exactly at
+`107,712` bytes / `6538e879…344`. Meta, stdout, isolated timing and candidate identities are
+`4a1a589f…e743`, `5ddbb5f2…96b6`, `3ecd7cac…e2e5`, and `7b80bf43…8e30`.
+`[P37: recomputed for the producer terminal, wrapper kill, candidate and exact restore;
+institutionally_supplied for the non-receipt/allowance rule]`
+
+The accepted generation writer is declared to move exactly `740` scalar leaves, with this complete
+structural set and no others:
+
+1. Add `367` scalar leaves below each of the two exact receipt roots
+   `$.generation_cycle_run.promotion_port.receipts[{0,1}].
+   confidence_ledger_semantic_projection` (`734` leaves total). Each root has the same complete
+   relative leaf set:
+   - the `19` direct leaves
+     `{authority_provenance,budget_delta_decimal,conditionality_clause,good_event_clause,
+     head_event_projection_hash,maintained_assumptions[0],maintained_assumptions[1],projection_hash,
+     projection_rule_version,projection_scope,registry_content_hash,root_projection_hash,
+     schedule_profile_hash,schedule_profile_id,schedule_projection_hash,schema_version,scope_id,
+     total_spend_decimal,within_budget}`;
+   - `budget_delta.{denominator,numerator}`, `total_spend.{denominator,numerator}`, and
+     `risk_scope.{authority_purpose,epoch_ref,model_ref,owner_projection_hash,owner_scope_key,
+     rule_ref,schema_ref,scope_owner_ref}` (`12` leaves);
+   - for each `checks[{0,1,2,3}]`, the exact `40` leaves already enumerated in the promotion
+     declaration (`160` leaves); and
+   - for each `events[{0,1,2,3}]`, `check` has that same exact `40`-leaf set and the event has
+     `{event_projection_hash,event_type,parent_event_projection_hash,revision}` (`176` leaves).
+2. Move the two existing leaves `$.comparison_admission_manifest[{0,1}].owner_rule` from the v1 to
+   the v2 canonical promotion owner rule.
+3. Move the four dependent leaves `$.comparison_content_hash`,
+   `$.comparison_projection_schema_version`, `$.comparison_rule_version`, and
+   `$.contract_content_hash`.
+
+Arithmetic is `2 × 367 + 2 + 4 = 740`. The complete machine-readable path list is content-bound by
+SHA-256 `d7a46aa8…42184`; the delta and summary identities are `535733d4…54c01` and
+`f159bf1b…9af1f`. Removing only the newly added semantic projection from each candidate receipt
+reproduces both complete frozen receipts exactly. No other old leaf changes, so the protected set
+has empty intersection: no governed denominator, admission/comparison outcome, transport
+covariate, N8 proof, ledger scope, ambient discovery identity, or unrelated receipt moves. Accept
+only if a fresh canonical writer produces the same candidate byte identity and the identical
+`740`-path set. `[P37: recomputed for the complete set, raw preservation and protected-field
+intersection; not_established for accepted persistence and verifications]`

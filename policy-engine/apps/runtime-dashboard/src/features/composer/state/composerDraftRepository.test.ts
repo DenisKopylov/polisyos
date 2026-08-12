@@ -8,7 +8,7 @@ const {
   saveComposerDraftRecordMock: vi.fn(),
 }));
 
-vi.mock("@/app/offline/offlineQueueRepository", () => ({
+vi.mock("@/app/offline/composerDraftDb", () => ({
   deleteComposerDraftRecord: (...args: unknown[]) =>
     deleteComposerDraftRecordMock(...args),
   loadComposerDraftRecord: (...args: unknown[]) =>
@@ -37,7 +37,7 @@ describe("composerDraftRepository", () => {
     expect(buildComposerDraftKey("nl", "run-7")).toBe("nl:run-7");
   });
 
-  it("loads, saves, and deletes draft records through the offline repository", async () => {
+  it("loads, saves, and deletes draft records through the composer database", async () => {
     const draft: ComposerDraftRecord = {
       fromRunId: "run-7",
       key: "workflow:run-7",

@@ -18,7 +18,7 @@ const QUERY_KEYS_OWNER_PATH = "apps/runtime-dashboard/src/api/queryKeys.ts";
 const DASHBOARD_SOURCE_PREFIX = "apps/runtime-dashboard/src/";
 const TANSTACK_QUERY_CALLEES = new Set(["useQuery", "queryOptions"]);
 const COMPOSER_DRAFT_DB_PATH =
-  "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts";
+  "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts";
 const COMPOSER_DRAFT_STORE = "composer-drafts";
 const OPTIMISTIC_PROMOTION_OWNER_PATH =
   "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts";
@@ -153,7 +153,7 @@ function collectOfflineQueueFacts(sourceFiles, pathOf) {
       if (
         ts.isImportDeclaration(node) &&
         ts.isStringLiteral(node.moduleSpecifier) &&
-        node.moduleSpecifier.text.endsWith("app/offline/offlineQueueRepository")
+        node.moduleSpecifier.text.endsWith("app/offline/composerDraftDb")
       ) {
         facts.composerDbImports.push({
           bindings: importBindings(node),

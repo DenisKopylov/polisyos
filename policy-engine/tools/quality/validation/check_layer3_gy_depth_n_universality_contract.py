@@ -4337,6 +4337,21 @@ _CONTROLLED_RECORDING_OPTIONAL_FIELDS = frozenset(
         "historical_context_rebind_receipt",
     }
 )
+_CONTROLLED_RECORDING_ADMISSION_COMPARISON_IDENTITIES = frozenset(
+    {
+        "admission_content_hash",
+        "compiled_run_content_hash",
+        "controlled_recording_base_content_hash",
+        "migration_receipt_content_hash",
+    }
+)
+_CONTROLLED_RECORDING_MIGRATION_COMPARISON_IDENTITIES = frozenset(
+    {
+        "receipt_content_hash",
+        "replayed_compiled_run_content_hash",
+        "replayed_recording_content_hash_before_receipt",
+    }
+)
 
 
 def _validated_controlled_recording_payload(
@@ -4431,12 +4446,88 @@ def _controlled_recording_receipt_blocks(
     return tuple(blocks)
 
 
+def _validated_controlled_recording_summary_projections(
+    payload: Mapping[str, object],
+    *,
+    receipt_count: int,
+    require_admission: bool = False,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Bind embedded verification summaries to their complete receipt parent."""
+
+    compiled_projection = _compiled_authority_source_projection(
+        payload.get("compiled_run")
+    )
+    controlled_issues = _controlled_authority_source_projection_issues(
+        compiled_projection
+    )
+    compiled_summaries = _mappings(compiled_projection.get("promotions"))
+    if controlled_issues or sum(
+        int(summary.get("receipt_count") or 0) for summary in compiled_summaries
+    ) != receipt_count:
+        raise ValueError("controlled_recording_summary_receipt_binding_invalid")
+
+    admission = _mapping(payload.get("authority_source_admission"))
+    if not admission:
+        if require_admission:
+            raise ValueError("controlled_recording_summary_admission_missing")
+        return None, None
+    admission_projection = _mapping(admission.get("authority_projection"))
+    if admission_projection != compiled_projection:
+        raise ValueError("controlled_recording_summary_admission_binding_invalid")
+
+    migration = _mapping(payload.get("authority_source_migration_receipt"))
+    replayed_projection: dict[str, Any] | None = None
+    if migration:
+        replayed_projection = _mapping(
+            migration.get("replayed_authority_projection")
+        )
+        if replayed_projection != compiled_projection:
+            raise ValueError("controlled_recording_summary_migration_binding_invalid")
+    return admission_projection, replayed_projection
+
+
+def _project_controlled_recording_authority_envelopes(
+    payload: dict[str, Any],
+    *,
+    receipt_count: int,
+) -> None:
+    """Remove only receipt-bound non-authority summaries and dependent identities."""
+
+    admission_projection, replayed_projection = (
+        _validated_controlled_recording_summary_projections(
+            payload,
+            receipt_count=receipt_count,
+        )
+    )
+    if admission_projection is None:
+        return
+    admission = _mapping(payload.get("authority_source_admission"))
+    admission_projection.pop("promotions", None)
+    admission["authority_projection"] = admission_projection
+    for field in _CONTROLLED_RECORDING_ADMISSION_COMPARISON_IDENTITIES:
+        admission.pop(field, None)
+    payload["authority_source_admission"] = admission
+
+    migration = _mapping(payload.get("authority_source_migration_receipt"))
+    if migration and replayed_projection is not None:
+        replayed_projection.pop("promotions", None)
+        migration["replayed_authority_projection"] = replayed_projection
+        for field in _CONTROLLED_RECORDING_MIGRATION_COMPARISON_IDENTITIES:
+            migration.pop(field, None)
+        payload["authority_source_migration_receipt"] = migration
+
+
 def _controlled_recording_verification_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
     """Project a typed recording while retaining every governing owner field."""
 
     payload, _ = _validated_controlled_recording_payload(value)
+    receipt_count = len(_controlled_recording_receipt_blocks(payload))
+    _project_controlled_recording_authority_envelopes(
+        payload,
+        receipt_count=receipt_count,
+    )
     compiled_payload = _mapping(payload["compiled_run"])
     recursive_payload = _mapping(compiled_payload["recursive_run"])
     nodes = _mappings(recursive_payload["nodes"])
@@ -4489,6 +4580,10 @@ def _admit_controlled_recording_for_comparison(
         source_payload,
         role=role,
     )
+    _validated_controlled_recording_summary_projections(
+        source_payload,
+        receipt_count=len(source_blocks),
+    )
     receipt_admissions = tuple(
         canonical_promotion_comparison_admission_from_proof(proof)
         for proof in receipt_proofs
@@ -4525,6 +4620,10 @@ def _admit_controlled_recording_for_comparison(
         aligned_blocks = _controlled_recording_receipt_blocks(
             aligned_payload,
             role=role,
+        )
+        _validated_controlled_recording_summary_projections(
+            aligned_payload,
+            receipt_count=len(aligned_blocks),
         )
         if tuple(pointer for pointer, _ in aligned_blocks) != tuple(
             pointer for pointer, _ in source_blocks
@@ -4602,7 +4701,7 @@ def _depth_summary_comparison_admissions(
     *,
     receipt_counts_by_role: Mapping[str, int],
 ) -> tuple[GyComparisonAdmission, ...]:
-    """Bind scalar/list summary shapes to revalidated parent receipt sets."""
+    """Bind stage summaries after each recording root owns its embedded copies."""
 
     admissions: list[GyComparisonAdmission] = []
     domain_runs = _mapping(payload.get("domain_runs"))
@@ -4610,24 +4709,29 @@ def _depth_summary_comparison_admissions(
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
         receipt_count = receipt_counts_by_role.get(role, 0)
         recording = _mapping(recordings.get(role))
-        compiled_projection = _compiled_authority_source_projection(recording.get("compiled_run"))
-        admission_projection = _mapping(
-            _mapping(recording.get("authority_source_admission")).get("authority_projection")
-        )
-        migration_projection = _mapping(
-            _mapping(recording.get("authority_source_migration_receipt")).get(
-                "replayed_authority_projection"
+        try:
+            compiled_projection = _compiled_authority_source_projection(
+                recording.get("compiled_run")
             )
-        )
-        if (
-            receipt_count < 1
-            or admission_projection != compiled_projection
-            or migration_projection != compiled_projection
-        ):
-            raise UniversalityContractError("depth_summary_parent_receipt_binding_invalid")
-        compiled_summaries = _mappings(compiled_projection.get("promotions"))
-        admission_summaries = _mappings(admission_projection.get("promotions"))
-        migration_summaries = _mappings(migration_projection.get("promotions"))
+            compiled_summaries = _mappings(compiled_projection.get("promotions"))
+            if sum(
+                int(summary.get("receipt_count") or 0)
+                for summary in compiled_summaries
+            ) != receipt_count:
+                raise UniversalityContractError(
+                    "depth_summary_receipt_denominator_mismatch"
+                )
+            _validated_controlled_recording_summary_projections(
+                recording,
+                receipt_count=receipt_count,
+                require_admission=True,
+            )
+        except UniversalityContractError:
+            raise
+        except ValueError as exc:
+            raise UniversalityContractError(
+                "depth_summary_parent_receipt_binding_invalid"
+            ) from exc
         stage_summary = _mapping(
             _mapping(_mapping(domain_runs.get(role)).get("stage_trace")).get("promotion")
         )
@@ -4636,25 +4740,19 @@ def _depth_summary_comparison_admissions(
             or int(stage_summary.get("receipt_count") or 0) != receipt_count
         ):
             raise UniversalityContractError("depth_summary_receipt_denominator_mismatch")
-        summaries = (
-            *admission_summaries,
-            *migration_summaries,
-            stage_summary,
-        )
-        for summary in summaries:
-            if not _depth_verification_summary_shape_valid(summary):
-                raise UniversalityContractError("depth_verification_summary_shape_invalid")
-            admissions.append(
-                GyComparisonAdmission(
-                    owner_rule=_DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE,
-                    source_content_hash=gy_recorded_content_hash(summary),
-                    projector=_depth_summary_integrity_projection,
-                    action=_DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.action,
-                    predicate_provenance=(
-                        _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.predicate_provenance
-                    ),
-                )
+        if not _depth_verification_summary_shape_valid(stage_summary):
+            raise UniversalityContractError("depth_verification_summary_shape_invalid")
+        admissions.append(
+            GyComparisonAdmission(
+                owner_rule=_DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE,
+                source_content_hash=gy_recorded_content_hash(stage_summary),
+                projector=_depth_summary_integrity_projection,
+                action=_DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.action,
+                predicate_provenance=(
+                    _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE.predicate_provenance
+                ),
             )
+        )
     return tuple(admissions)
 
 

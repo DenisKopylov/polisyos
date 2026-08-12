@@ -5505,7 +5505,7 @@ def test_depth_n_summary_admission_requires_parent_projection_and_receipt_denomi
         payload,
         receipt_counts_by_role=counts,
     )
-    assert len(admissions) == 3 * len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert len(admissions) == len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
     assert all(admission.action == "exclude" for admission in admissions)
     assert all(
         admission.predicate_provenance == "independently_reconciled"
@@ -5534,6 +5534,84 @@ def test_depth_n_summary_admission_requires_parent_projection_and_receipt_denomi
         validator._depth_summary_comparison_admissions(
             payload,
             receipt_counts_by_role=wrong_counts,
+        )
+
+
+def test_depth_outer_plan_composes_recording_roots_with_stage_summaries_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Root admission owns embedded summaries; only stage summaries remain siblings."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    recording_admissions = []
+    receipt_counts: dict[str, int] = {}
+    for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS:
+        recording = payload["proof_recordings"][role]
+        receipt_counts[role] = len(_recording_receipts(recording))
+        recording_admissions.append(
+            validator._admit_controlled_recording_for_comparison(
+                recording,
+                role=role,
+                receipt_proofs=_manual_receipt_comparison_admissions(recording),
+            )
+        )
+    summary_admissions = validator._depth_summary_comparison_admissions(
+        payload,
+        receipt_counts_by_role=receipt_counts,
+    )
+
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=tuple(recording_admissions) + summary_admissions,
+    )
+    projected = plan.project(payload)
+
+    assert len(plan.manifest) == 2 * len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert all(
+        "promotions"
+        not in projected["proof_recordings"][role]["authority_source_admission"][
+            "authority_projection"
+        ]
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        "promotions"
+        not in projected["proof_recordings"][role][
+            "authority_source_migration_receipt"
+        ]["replayed_authority_projection"]
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        not validator._CONTROLLED_RECORDING_ADMISSION_COMPARISON_IDENTITIES
+        & set(projected["proof_recordings"][role]["authority_source_admission"])
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        not validator._CONTROLLED_RECORDING_MIGRATION_COMPARISON_IDENTITIES
+        & set(
+            projected["proof_recordings"][role][
+                "authority_source_migration_receipt"
+            ]
+        )
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert plan.preserve_admitted_blocks(payload, payload) == payload
+
+    first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
+    tampered = copy.deepcopy(payload["proof_recordings"][first_role])
+    tampered["authority_source_admission"]["authority_projection"]["promotions"][
+        0
+    ]["receipt_count"] += 1
+    _refresh_recording_hashes(tampered)
+    with pytest.raises(
+        ValueError,
+        match="controlled_recording_summary_admission_binding_invalid",
+    ):
+        validator._admit_controlled_recording_for_comparison(
+            tampered,
+            role=first_role,
+            receipt_proofs=_manual_receipt_comparison_admissions(tampered),
         )
 
 

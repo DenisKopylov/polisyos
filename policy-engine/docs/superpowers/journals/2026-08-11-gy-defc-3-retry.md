@@ -1791,3 +1791,15 @@ covariate, N8 proof, ledger scope, ambient discovery identity, or unrelated rece
 only if a fresh canonical writer produces the same candidate byte identity and the identical
 `740`-path set. `[P37: recomputed for the complete set, raw preservation and protected-field
 intersection; not_established for accepted persistence and verifications]`
+
+The first post-declaration accepted-writer attempt at clean head `38f11fe00` was killed at the
+outer cap after `76.314662` s (child `-15`, wrapper `124`). It emitted neither stdout, stderr nor
+an isolated timing record and changed zero artifact leaves; before/after remained the exact
+`107,712`-byte `6538e879…344` preimage. Meta and zero-delta identities are
+`39630faa…f911` and `c5f05b8d…8a64`. Process-tree reconstruction showed an Atlas DS6 component
+suite orchestration parent launched about eight seconds after this writer and kept a Vitest parent
+plus workers live for the remaining interval. This is a contention non-receipt, not an accepted
+generation reissue; its allowance remains unused. The next launch waits for the orchestration
+parent itself to exit and for a quiet process interval, not merely for a child PID to rotate.
+`[P37: recomputed for the terminal, zero-byte boundary and process-tree overlap;
+institutionally_supplied for the allowance rule]`

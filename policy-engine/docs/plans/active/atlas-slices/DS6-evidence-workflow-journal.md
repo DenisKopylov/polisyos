@@ -4,7 +4,7 @@ title: "DS6 - Evidence Workflow & Instrumentation Journal"
 type: execution-journal
 status: active_light_half
 created: 2026-08-11
-last_updated: 2026-08-11
+last_updated: 2026-08-12
 slice: DS6
 baseline_commit: c1a89b6cf0c63573abad6b0ca8374e16b78c47dd
 plan: ./DS6-evidence-workflow.md
@@ -595,9 +595,9 @@ The exact five-path diff is:
 - `apps/runtime-dashboard/src/shared/i18n/locales/uk.json` — eight specified
   plural messages repaired with `one`/`few`/`many`/`other` forms.
 - `docs/plans/active/atlas-slices/DS6-evidence-workflow.md` — C01-R1
-  authorization, five-path cap, Russian ruling, and deferred 777/777/0
-  expectation; actual whole-suite totals remain controlling and a mismatch must
-  stop rather than be copied.
+  authorization, five-path cap, Russian ruling, and the then-deferred
+  777/777/0 estimate. C15's later two-gate correction retires that estimate;
+  actual whole-suite measurement remains controlling.
 - `docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md` — this
   correction/receipt section.
 
@@ -664,9 +664,10 @@ the focused command ran 1/1 file with 15 tests and 5 expected failures — four
 literal grouped-string semantic rows selected false singular/genitive forms,
 and malformed `{count, plural,}` was admitted by an exemption reason. After the
 minimal repair, the same command passed 1/1 file and 15/15 tests in 650 ms
-(36 ms test body). The focused denominator is 15; the deferred C03 expected
-green transition is `777/777/0`, while the committed open state remains
-`766/763/3` and the authorized whole-suite receipt still controls.
+(36 ms test body). The focused denominator is 15. This round recorded a
+`777/777/0` C03 estimate against the committed `766/763/3` open state, but it
+was never a receipt and C15's later two-gate correction retires it; the
+authorized whole-suite measurement controls.
 
 This is DS6-C01-R1's **second and final mechanism-changing round**. Any further
 mechanism-changing finding trips the DS6 breaker; review remains pending, no
@@ -877,14 +878,13 @@ re-review is also **CLOSED**: the complete float-admitting/non-finite-rejecting
 CanonSpec, all three evidence kinds plus unknown rejection, Zod-v4 binding
 helper, and 12/12 focused receipt have no remaining Blocking/Important issue.
 
-C07's new focused Vitest file induces one exact update to the consolidated C03
-handoff. The committed open baseline remains 263 files and 766/763/3 tests. The
-C01-R1-only historical expectation at this journal's line above was 263 files
-and 777/777/0 tests (+11). The current post-C07 expected resolved receipt is
-264 files and 789/789/0 tests (+1 file/+12 tests). The deferred plan now carries
-that exact arithmetic; the eventual authorized whole-suite run remains the
-authority, and any different measured total is a stop rather than a copied
-expectation.
+At C07's landing, its new focused Vitest file induced a provisional update to
+the consolidated C03 arithmetic. The committed open baseline was 263 files and
+766/763/3 tests; the C01-R1 estimate was 263 files and 777/777/0 tests (+11),
+and the post-C07 estimate became 264 files and 789/789/0 tests (+1 file/+12
+tests). These were never receipts. C15's later two-gate correction retires the
+whole sequence as future governed values; only the authorized whole-suite
+measurement may populate the named holes.
 
 The frozen final allowed wave ran after both reviews and the record-only
 arithmetic correction. Focused C07 Vitest passed 1/1 file and 12/12 tests in
@@ -892,8 +892,9 @@ arithmetic correction. Focused C07 Vitest passed 1/1 file and 12/12 tests in
 checks again exited 0 with `Contrast checks passed`,
 `Reduced-motion checks passed`, and `Color-blind checks passed`. No prohibited
 gate joined that wave. The final specification record-only recheck found and
-closed the older `776` typo above; the journal now has one consistent
-C01-only 777 expectation and one current post-C07 789 expectation.
+closed the older `776` typo above; at that point the journal consistently
+recorded the C01-only 777 and post-C07 789 historical estimates. C15 later
+retired both as prospective governed values.
 
 A final pre-commit refresh after that record-only correction passed the same
 focused C07 Vitest file 1/1 and 12/12 in 758 ms (15 ms test body) with
@@ -1044,8 +1045,8 @@ two locale strings and six outer-count branches (two English, four Ukrainian).
 The landed formatter witness fixes `blocked` at `7`, so it never exercises the
 singular forms `1 blocked packet` / `1 заблокований packet`. The gate admits the
 whole message because it sees `{count}` and a valid outer ICU plural even though
-the independent numeric axis is not adjudicated. That is the registered P38
-property/marker mismatch.
+the independent numeric axis is not adjudicated. That is the task brief's
+unregistered P38 property/marker mismatch.
 
 Measurement corrected one source citation without stopping execution: the
 pinned `GY-engine-subordination.md` contains build-discipline sections only
@@ -1191,12 +1192,12 @@ disclosure-only. Mechanism round 1 therefore changes the enforcement mechanism
 and its tests together. One review repair round remains under the declared
 breaker; it is not assumed free.
 
-The deferred resolved-Vitest expectation is now 265 files / 800 tests: baseline
-263/766, plus C01-R1's 11 additional parity cases, C07's +1 file/+12 tests, and
-C09's +1 file/+11 tests. This corrects the reviewers' provisional 265/798
-arithmetic, which was computed against the superseded 9-test C09 draft. The
-full suite was not run, so these are executable control totals, not a green
-receipt; measurement during C03 replaces them if it differs.
+At C09's landing, the provisional resolved-Vitest arithmetic became 265 files /
+800 tests: baseline 263/766, plus C01-R1's 11 additional parity cases, C07's +1
+file/+12 tests, and C09's +1 file/+11 tests. This corrected the reviewers'
+265/798 draft arithmetic, which used the superseded 9-test C09 draft. The full
+suite did not run, so this was never a receipt; C15's later two-gate correction
+retires the estimate and leaves the governed fields as named holes.
 
 ### C09 mechanism round 2 — canonical P37 vocabulary
 
@@ -1222,9 +1223,10 @@ This review fix changes both mechanism sources and the canonical-owner test, so
 it is C09 mechanism round 2 and consumes the second/final review-fix allowance.
 The source-aware measurement expands the C09 set from six to eight paths—the
 C07 owner source and its existing test are the two additions—still below the
-immutable cap of 10. No cap changed. The deferred test arithmetic is unchanged:
-the C07 file remains one existing 12-test file, while C09 remains one new
-11-test file.
+immutable cap of 10. No cap changed. This round did not alter its then-current
+test arithmetic: the C07 file remained one existing 12-test file while C09
+remained one new 11-test file. C15 later retired that arithmetic as a governed
+source.
 
 Duplication result: one semantic duplicate was found and consolidated into its
 C07 owner. The owner-discovery scans found no second receipt/payload/CAS,
@@ -1365,11 +1367,12 @@ reference and slice records do not implement the mechanism. This is mechanism
 round 0 (initial implementation), leaving both review-fix rounds available if
 an independent review finds an Important/Critical defect.
 
-The deferred resolved-Vitest expectation advances from the post-C09 265/800 to
-266 files / 808 tests: C12 adds one file and eight tests. No full suite ran, so
-this is expected control arithmetic for C03, not a receipt. C12 adds no
-governed-row transition, no receipt kind, and no threshold/stable delta to the
-deferred package.
+At C12's landing, the journal advanced the post-C09 265/800 arithmetic to an
+estimated 266 files / 808 tests because C12 added one file and eight tests. No
+full suite ran, so this was never a receipt. C15's later two-gate correction
+retires that estimate as a future governed value; the C03 fields are named
+holes until measurement. C12 adds no governed-row transition, no receipt kind,
+and no threshold/stable delta to the deferred package.
 
 ### C12 review batch and mechanism round 1
 
@@ -1492,8 +1495,8 @@ No browser, Storybook, `test:a11y:pages`, journey, visual, dev-server, full
 Vitest, full lint, full typecheck, or full build command ran. They remain
 non-receipts, not green: the browser/full wave remains serialized behind the GY
 contention budget, and the deferred package contains the exact commands for a
-later authorized run. The expected 266-file/808-test full-Vitest transition is
-still control arithmetic and must be replaced by measurement when C03 runs.
+later authorized run. The former 266-file/808-test estimate is retired; C03's
+governed numeric fields remain named holes until that measurement runs.
 
 No later cluster was entered. C03 and C04 still require the contended register
 and baseline artifacts and wait for DS5-C21b/C21c plus explicit continuation.
@@ -1505,3 +1508,164 @@ and actual observations; it was not entered. C15 remains a declared adjacent
 P38 debt at cap 5, not part of the repaired three-signature C03 transition.
 No contended artifact, product surface, DS5/GY path, or Russian catalog byte
 was written.
+
+## DS6-C15 stop record — 2026-08-12
+
+### Entry, measured correction, and attempt
+
+`git status -sb` at entry reported a clean attached
+`codex/atlas-ds6-evidence-workflow` at
+`b15747da633fc52748460de0dea9cbb755140302`, eight commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. The continuation directly
+authorized already-declared C15 out of sequence; C14 remains unentered behind
+the heavy/contended workflow. The attempt measured exactly the five capped
+paths: parity owner, `en.json`, `uk.json`, plan, and journal. No sixth path was
+needed.
+
+The complete catalog census reproduced the landed denominator: 2,449 leaves in
+each active catalog, 244 non-`count` interpolation identities / 488 locale
+strings, 149 variables, and the original-risk 23 identities / 36 path-variable
+pairs / 72 locale instances. Caller/type review of all 82 initially excluded
+names corrected the task input's proposed numeric set from 67 to 71: it added
+`completeness` (numeric API field formatted as percent), `fallbacks` (caller
+array length), `interval` (preformatted numeric CI endpoints), and `priority`
+(typed number-or-null). The measured 71 names occupy 183 exact active
+path-variable uses: 36 original-risk pairs plus 147 current non-agreement uses.
+
+Red first preserved the intended semantic receipts. Before mechanism code or
+catalog edits, seven new witnesses failed while all 15 inherited parity tests
+passed. With the generic AST mechanism present and catalogs untouched, active
+checks named exactly 36 unsafe pairs in each locale. The attempted repair
+adjudicated all 23 identities one by one as 20 label-form messages (33 pairs)
+and three ICU-plural messages (three pairs), with no split, exemption, or
+nested sixteen-branch message. It kept Russian out of active enforcement; the
+frozen key/value assertions stayed green and raw `ru.json` SHA-256 remained
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+
+### Mechanism breaker
+
+Review-fix round 1 closed three independently reproduced findings: ICU-valid
+whitespace after `{` escaped discovery; punctuation could masquerade as label
+form; and a new use of an already-declared numeric name escaped because only
+the fixed treatment map was visited. The round made point-use admission exact
+set subtraction over 183 uses, added non-empty reasons for all 147
+non-agreement uses, and required same-variable plural ownership or a bounded
+label form. Focused parity reached 30/30.
+
+Review-fix round 2 removed parentheses from the post-value label boundary after
+`Events: {events} (events)` remained admissible, and added that exact witness.
+Focused parity again reached 30/30. The journal then declared both allowed
+mechanism review-fix rounds consumed.
+
+Final specification delta review proved the same-class property still false:
+the boundary predicate checked only a separator prefix, so every admitted
+separator could hide an agreeing noun. Read-only `IntlMessageFormat` AST
+reproduction returned `admitted=true` for all four marker-preserving variants:
+
+- `Events: {events}; events`
+- `Events: {events}. events`
+- `Events: {events} · events`
+- `Events: {events} / events`
+
+This is a third mechanism-changing finding against the slice plan's P29/P33
+bounded-label bar. Per the standing law, C15 stopped rather than taking a third
+fix round. The 30/30 focused run is a receipt for the reverted draft's covered
+cases, not evidence that the wider property is repaired.
+
+### Preservation, forward revert, and resulting state
+
+Ordinary append-only history preserves the stopped five-path attempt in
+checkpoint `8fd8f9e5d` (`DS6-C15 checkpoint stopped numeric plural attempt`).
+Forward-revert `4d7743f07` removes every attempted parity/catalog/plan/journal
+byte rather than rewriting the checkpoint. The plan and this stop record are a
+new documentation-only cluster after that clean forward revert; they do not
+reintroduce the mechanism or active-locale copy. Consequently C15 is **not
+landed**, the numeric-variable class remains open, and a future implementation
+requires an explicitly authorized re-cut under the next continuous cluster
+number. It must not be described as a third C15 fix round.
+
+### C03 second gate and estimate retirement
+
+C03 has two independent gates. First, DS5 must release all eight contended
+manifest/schema/checker/test/register/report/status artifacts and C03 must
+re-read their then-current content-hash ownership. Second, explicit heavy-lane
+authorization must permit this receipt package from
+`apps/runtime-dashboard`:
+
+```bash
+mkdir -p ../../_build/apps/runtime-dashboard
+git rev-parse HEAD
+/usr/bin/time -p corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds6-c03-vitest.json
+```
+
+The first command creates the repository-ignored output directory and supplies
+no governed field. Field provenance is separate: the literal timed Vitest
+command supplies `command`; Git supplies `revision`; `/usr/bin/time real`
+supplies wall duration; JSON supplies Vitest duration, counts, and failure
+identities; process status supplies exit code; and the then-current
+producer/checker derives the failure hash and resolved failure/debt-class
+state. The historical 263/766 -> 264/789 ->
+265/800 -> 266/808 arithmetic is superseded as a future governed value. C03's
+`command`, `revision`, durations, exit code, file/test totals, failure-set hash,
+and empty resolved state remain named holes until the authorized receipt.
+
+### Duplication duty, reviews, and nonreceipts
+
+A complete scan of 951 TS/TSX/JS/MJS/CJS files under
+`apps/runtime-dashboard/src` found the exemption/numeric gate only in
+`shared/i18n/parity.test.ts`; the sole runtime ICU formatter owner is
+`shared/i18n/messages/icu-messages.ts`. No sibling scanner, registry, or
+numeric-variable authority exists. The attempt extended those owners and
+introduced no duplicate, but the forward revert leaves the repository in its
+pre-C15 state. The concrete divergence found was the attempted checker versus
+its own separator semantics; final comparator status is failing, not green.
+
+Two delta reviewers found no other Blocking/Important boundary, copy, Russian
+freeze, or exact-set issue after round 2, but the final independent
+specification finding above controls and stops the cluster. No full/whole-suite
+Vitest, browser, Storybook, `test:a11y:pages`, journey, visual, dev server, full
+lint, full typecheck, full build, or build-Storybook command ran. Those remain
+nonreceipts: the heavy wave is still serialized behind the GY/host release and
+C03 additionally lacks the contended-owner release. No contended artifact,
+product surface, DS5/GY path, Russian catalog, or denominator was written.
+
+### Restored-state verification and stop-record review
+
+After the forward revert and the documentation-only C03 correction, the final
+permitted verification wave ran against the restored implementation state:
+
+- `corepack pnpm exec vitest run src/shared/i18n/parity.test.ts --maxWorkers=2
+  --reporter=default` passed 1/1 file and 15/15 tests in 928 ms (55 ms test
+  body). This is the pre-C15 parity denominator, not a C15 repair receipt.
+- `corepack pnpm run a11y:contrast` exited zero with `Contrast checks passed.`
+- `corepack pnpm run a11y:motion` exited zero with `Reduced-motion checks
+  passed.`
+- `corepack pnpm run a11y:color-blind` exited zero with `Color-blind checks
+  passed.`
+
+The focused parity receipt kept the Russian cardinality, key-set fingerprint,
+and leaf-value fingerprint green at 2,449,
+`67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8`,
+and `0426d4ce0397027d25f5a2053bce794b12e31fbe3757d3afefb24de6ba3f45eb`.
+The raw `ru.json` SHA-256 read back as
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+The complete i18n subtree and every contended path were byte-identical to
+entry head `b15747da6` after the forward revert.
+
+The independent documentation review first found that the deferred Vitest
+command targeted an ignored but absent output directory. The executable
+package now begins with
+`mkdir -p ../../_build/apps/runtime-dashboard`; `policy-engine/.gitignore`
+owns `_build/`, and the directory-creation command supplies no governed field.
+Delta re-review returned no Blocking or Important finding: the two-path diff,
+append-only checkpoint/revert history, field-specific C03 provenance, stopped
+breaker status, census, duplication result, nonreceipts, and restored
+i18n/contended bytes all matched their owners.
+
+Two requested post-revert re-reviews from the earlier mechanism-review agents
+were orchestration nonreceipts because their review workspaces exhausted
+execution credit. They are not counted as green reviews; the separate
+stop-record reviewer supplied the completed independent receipt above. The
+final documentation-only file set is exactly this journal and
+`DS6-evidence-workflow.md`. No heavy command listed in the deferred package
+ran, and C15 remains stopped and open.

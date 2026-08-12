@@ -175,7 +175,7 @@ The governing register is
 | P34 | excluded heavy failure called green | every unrun gate is a named non-receipt with a waiting command |
 | P35/P36 | sampled denominator or authority by adjacency | enumerate the complete set and cite the controlling finding/ruling |
 | P37 | declared evidence predicate carries a gate | recompute or independently reconcile before authority-grade admission |
-| P38 | gate predicates on one marker while deciding a wider semantic property | enumerate every load-bearing variable and test the agreement property rather than the literal `{count}` spelling |
+| task-brief P38 (unregistered at this revision) | gate predicates on one marker while deciding a wider semantic property | enumerate every load-bearing variable and test the agreement property rather than the literal `{count}` spelling |
 
 At entry, the contrast class is `artifact_missing`, `verification_missing`,
 `surface_missing`, and `semantic_test_missing`; the i18n implementation is
@@ -329,9 +329,13 @@ attribution for any incomplete node.
 
 ### Task 3 — DS6-C03: rebind the i18n baseline lifecycle
 
-**Gate:** DS5-C21 merged, GY heavy-lane release granted, whole-suite Vitest
-receipt green, and explicit continuation authorization. **Declared path cap:
-9.**
+**Two independent gates:** (1) DS5 releases all eight governed C03 artifacts
+named in the deferred package, after which C03 re-reads their then-current
+owners and content-hash anchors; and (2) explicit heavy-lane continuation
+authorization permits a whole-suite JSON Vitest run whose green receipt
+package is the only source for the resolved Vitest fields. Neither gate
+satisfies the other; focused Vitest satisfies neither. GY/host release
+authorizes gate 2 but is not a third semantic gate. **Declared path cap: 9.**
 
 Own the baseline manifest/schema producer, both relevant governed tests, the
 disposition producer/generated register, report, induced status-inventory
@@ -570,8 +574,9 @@ complete.
 
 ### Task 15 — DS6-C15: close numeric-variable plural-safety gap
 
-**Registered adjacent debt; not entered in this session. Exact future candidate
-paths:**
+**Status: entered, stopped by the mechanism-round breaker, checkpointed, and
+forward-reverted. No C15 implementation or active-catalog byte remains at
+HEAD.** The measured candidate paths were:
 
 1. `apps/runtime-dashboard/src/shared/i18n/parity.test.ts`
 2. `apps/runtime-dashboard/src/shared/i18n/locales/en.json`
@@ -590,13 +595,26 @@ locale path-variable instances. `pages.dashboard.narrativeAttentionBody`'s
 set; it occurs in two locale strings and six outer-count ICU branches. The
 current witness fixes `blocked` at `7`, so singular agreement is untested.
 
-The defect is P38: the gate decides whether the whole message is plural-safe
-but predicates admission on the literal `{count}` marker. At this pinned head,
-the named GY-plan source has sections only through §3.5.13, so the P38 label and
-definition are task-brief inputs pending their upstream artifact; the complete
-catalog census independently establishes the defect. C15 must repair the
-general numeric-variable property, not only `{blocked}`. If a sixth owner path
-is measured, the sizing law re-cuts to C16; this cap is not enlarged.
+The unregistered task-brief P38 diagnosis is that the gate decides whether the
+whole message is plural-safe but predicates admission on the literal `{count}`
+marker. At this pinned head, the named GY-plan source has sections only through
+§3.5.13; P29, P31, P35, and P37 are the registered bars, while the complete
+catalog census independently establishes the P38-shaped defect.
+
+Entry measurement corrected the declared numeric-variable population from 67
+to 71 names after a complete caller/type audit found `completeness`,
+`fallbacks`, `interval`, and `priority`. Those names occupy 183 exact active
+path-variable uses: the original-risk 36 pairs plus 147 current non-agreement
+uses. The attempted general mechanism used exact point-use set subtraction and
+per-variable ICU AST checks; two review-fix rounds closed whitespace,
+missing-identity, branch-ownership, and punctuation variants. Final delta
+review nevertheless proved that every admitted post-value separator could
+still hide an agreeing noun (`;`, `.`, `·`, or `/` followed by a word). That
+third mechanism finding tripped the two-fix breaker. Ordinary history preserves
+the five-path attempt as a checkpoint and a later forward-revert; no third fix
+round is permitted inside C15. A future continuation must explicitly re-cut
+and authorize the mechanism rather than treating the reverted 30-test draft as
+landed evidence.
 
 This adjacent class does **not** block C03. The governed
 `baseline-test-i18n-count-debt` / `i18n-count-message-parity` row is exactly the
@@ -638,25 +656,15 @@ session; no listed governed artifact or heavy lane is touched.
 hand edit:
 
 1. `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`:
-   `vitest.disposition` `rebind_pending -> resolved`; `exit_code` `1 -> 0`;
-   `test_files` `{total:263,passed:262,failed:1} ->
-   {total:266,passed:266,failed:0}`; `tests`
-   `{total:766,passed:763,failed:3} -> {total:808,passed:808,failed:0}`;
-   `failure_set.sha256`
-   `533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd
-   -> 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`;
-   remove the complete sole `i18n-count-message-parity` debt-class object so
-   `debt_classes=[]`. Preserve `parent_reproduction`; refresh command/timing
-   fields only from the actual full run. If totals differ, stop and record the
-   measured values rather than copying these expected totals. The expected
-   resolved arithmetic is +11 tests from C01-R1's 4 -> 15 parity file, +1
-   file/+12 tests from C07's focused contract, +1 file/+11 tests from C09's
-   reviewed contract, and +1 file/+8 tests from C12's seed protocol. The
-   historical post-C01-only expectation of 263 files/777 tests, post-C07
-   expectation of 264 files/789 tests, and post-C09 expectation of 265
-   files/800 tests are superseded. These remain expected control totals until
-   the deferred full run measures them; a different measurement replaces them
-   rather than being forced to fit this arithmetic.
+   transition `vitest.disposition` `rebind_pending -> resolved` and remove the
+   complete sole `i18n-count-message-parity` debt-class object only from the
+   authorized green whole-suite receipt package. Before that run, `command`,
+   `revision`, `wall_duration_seconds`, `vitest_duration_seconds`, `exit_code`,
+   `test_files`, `tests`, `failure_set.sha256`, and the empty resolved
+   failure/debt-class state are named holes, not projected values. Preserve
+   `parent_reproduction` as historical provenance; it is not a substitute
+   receipt. The field-specific sources below are the only admissible producers
+   of those resolved values.
 2. `architecture/atlas_surfaces/frontend-baseline-debt.schema.json`: admit
    exactly two Vitest lifecycle shapes—the current exact open triple and the
    empty/resolved/exit-0 shape. Reject mixed disposition, nonzero exit, nonempty
@@ -683,17 +691,17 @@ hand edit:
 **C09 maturity consequence.** C09 adds no governed-row transition. In
 particular, the contended `unit_id=evidence-manual-at` row retains its
 current value because there is still no C08 CAS persistence/integrity receipt,
-producer, or C10 reconciliation result. The only C09 delta to the executable
-C03 handoff is its share of the expected full-Vitest control arithmetic above;
-upgrading a row from a contract-only schema would be a false capability claim
-under P01 and P32.
+producer, or C10 reconciliation result. C09 changes the future whole-suite
+population but contributes no projected C03 field; the authorized receipt
+measures that population. Upgrading a row from a contract-only schema would be
+a false capability claim under P01 and P32.
 
 **C12 protocol consequence.** C12 likewise adds no governed-row transition and
 does not add a C07 receipt kind. INT-R3 content, a generic reviewer producer,
 persistence, measurement, and reconciliation are absent, so the protocol
-remains `contract_only`. Its only delta to the executable contended handoff is
-the +1 file/+8 test expected full-Vitest arithmetic above. No future threshold
-or stable-bar effect is included in the deferred write.
+remains `contract_only`. C12 changes the future whole-suite population but
+contributes no projected C03 field; the authorized receipt measures it. No
+future threshold or stable-bar effect is included in the deferred write.
 
 **Rendered contrast, DS6-C04/C06.** Extend the canonical supplemental-finding
 producer in `check_frontend_disposition_register.py`, exercise it in
@@ -733,6 +741,9 @@ order shown. `/usr/bin/time -p` is part of each first authorized command so its
 `real` value is the suite's one measured wall-time baseline:
 
 ```bash
+mkdir -p ../../_build/apps/runtime-dashboard
+git rev-parse HEAD
+/usr/bin/time -p corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds6-c03-vitest.json
 /usr/bin/time -p corepack pnpm exec vitest run --config vitest.storybook.config.ts src/test/a11y/OpaqueBackgroundContrast.stories.tsx
 /usr/bin/time -p corepack pnpm run test:components -- --reporter=default --maxWorkers=2
 /usr/bin/time -p corepack pnpm run test:a11y:components -- --maxWorkers=2
@@ -744,6 +755,18 @@ order shown. `/usr/bin/time -p` is part of each first authorized command so its
 /usr/bin/time -p corepack pnpm run build
 /usr/bin/time -p corepack pnpm run build-storybook
 ```
+
+The first three lines form C03's governed receipt package and run only after
+both C03 gates are satisfied. The first line creates the repository-ignored
+output directory and supplies no governed field. Source provenance is
+field-specific: the literal third command supplies `command`; the second line,
+`git rev-parse HEAD`, supplies `revision`;
+`/usr/bin/time`'s `real` supplies `wall_duration_seconds`; the Vitest JSON
+supplies Vitest duration, file/test counts, and failure identities; runner
+process status supplies `exit_code`; and the then-current manifest
+producer/checker computes `failure_set.sha256` and the resolved
+failure/debt-class state. No control arithmetic or focused run supplies a
+governed hole, and no assumed empty-set hash is copied.
 
 The first authorized measurement runs without an outer kill budget; the test
 runners' existing per-test semantics are not widened. Immediately after each

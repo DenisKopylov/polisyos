@@ -1329,7 +1329,7 @@ def _recording_receipts(recording: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _receipt_comparison_admissions(
+def _manual_receipt_comparison_admissions(
     recording: dict[str, Any],
 ) -> tuple[GyComparisonAdmission, ...]:
     """Mint test tokens with the exact canonical owner vocabulary."""
@@ -1345,6 +1345,24 @@ def _receipt_comparison_admissions(
             predicate_provenance=owner.predicate_provenance,
         )
         for receipt in _recording_receipts(recording)
+    )
+
+
+def _allow_manual_receipt_proofs_for_projection_test(
+    monkeypatch: pytest.MonkeyPatch,
+    validator: Any,
+) -> None:
+    """Isolate structural projection tests from the separately tested owner capability."""
+
+    def _unwrap(value: object) -> GyComparisonAdmission:
+        if not isinstance(value, GyComparisonAdmission):
+            raise ValueError("test_receipt_proof_invalid")
+        return value
+
+    monkeypatch.setattr(
+        validator,
+        "canonical_promotion_comparison_admission_from_proof",
+        _unwrap,
     )
 
 
@@ -1425,19 +1443,22 @@ def _verification_lineage_variant(recording: dict[str, Any]) -> dict[str, Any]:
     return changed
 
 
-def test_controlled_recording_comparison_preserves_full_frozen_bytes() -> None:
+def test_controlled_recording_comparison_preserves_full_frozen_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Session lineage and clocks compare equal while complete custody bytes survive."""
 
     validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
     frozen_full = copy.deepcopy(payload["proof_recordings"]["first_vertical"])
     frozen = validator._without_authority_source_migration_receipt(frozen_full)
     live = _verification_lineage_variant(frozen)
-    live_receipt_admissions = _receipt_comparison_admissions(live)
+    live_receipt_proofs = _manual_receipt_comparison_admissions(live)
 
     live_admission = validator._admit_controlled_recording_for_comparison(
         live,
         role="first_vertical",
-        receipt_admissions=live_receipt_admissions,
+        receipt_proofs=live_receipt_proofs,
     )
     live_plan = build_gy_comparison_projection_plan(
         live,
@@ -1453,7 +1474,7 @@ def test_controlled_recording_comparison_preserves_full_frozen_bytes() -> None:
     frozen_admission = validator._admit_controlled_recording_for_comparison(
         live,
         role="first_vertical",
-        receipt_admissions=live_receipt_admissions,
+        receipt_proofs=live_receipt_proofs,
         aligned_recording=frozen,
     )
     frozen_plan = build_gy_comparison_projection_plan(
@@ -1463,7 +1484,7 @@ def test_controlled_recording_comparison_preserves_full_frozen_bytes() -> None:
     full_admission = validator._admit_controlled_recording_for_comparison(
         live,
         role="first_vertical",
-        receipt_admissions=live_receipt_admissions,
+        receipt_proofs=live_receipt_proofs,
         aligned_recording=frozen_full,
     )
     full_plan = build_gy_comparison_projection_plan(
@@ -1487,10 +1508,13 @@ def test_controlled_recording_comparison_preserves_full_frozen_bytes() -> None:
     )
 
 
-def test_controlled_recording_comparison_keeps_governing_input_red() -> None:
+def test_controlled_recording_comparison_keeps_governing_input_red(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """An admitted verification projection cannot hide a governing input change."""
 
     validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
     frozen = validator._without_authority_source_migration_receipt(
         payload["proof_recordings"]["first_vertical"]
     )
@@ -1500,7 +1524,7 @@ def test_controlled_recording_comparison_keeps_governing_input_red() -> None:
     admission = validator._admit_controlled_recording_for_comparison(
         live,
         role="first_vertical",
-        receipt_admissions=_receipt_comparison_admissions(live),
+        receipt_proofs=_manual_receipt_comparison_admissions(live),
     )
     plan = build_gy_comparison_projection_plan(live, admissions=(admission,))
 
@@ -1554,26 +1578,95 @@ def test_controlled_recording_comparison_declaration_fails_closed(
         validator._admit_controlled_recording_for_comparison(
             recording,
             role="first_vertical",
-            receipt_admissions=_receipt_comparison_admissions(recording),
+            receipt_proofs=_manual_receipt_comparison_admissions(recording),
         )
 
 
-def test_controlled_recording_rejects_self_rehashed_detached_receipt() -> None:
+def test_controlled_recording_rejects_self_rehashed_detached_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A coherent self-rehash cannot reuse an admission bound to different raw bytes."""
 
     validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
     frozen = validator._without_authority_source_migration_receipt(
         payload["proof_recordings"]["first_vertical"]
     )
-    frozen_admissions = _receipt_comparison_admissions(frozen)
+    frozen_admissions = _manual_receipt_comparison_admissions(frozen)
     forged = _verification_lineage_variant(frozen)
 
     with pytest.raises(ValueError, match="gy_comparison_live_admission_unbound"):
         validator._admit_controlled_recording_for_comparison(
             forged,
             role="first_vertical",
-            receipt_admissions=frozen_admissions,
+            receipt_proofs=frozen_admissions,
         )
+
+
+def test_controlled_recording_rejects_manually_minted_receipt_admission() -> None:
+    """Canonical-looking public admission metadata is not live owner proof."""
+
+    validator, payload = _complete_universality_payload()
+    recording = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="canonical_promotion_comparison_proof_invalid",
+    ):
+        validator._admit_controlled_recording_for_comparison(
+            recording,
+            role="first_vertical",
+            receipt_proofs=_manual_receipt_comparison_admissions(recording),
+        )
+
+
+def test_depth_receipt_proofs_delegate_to_live_canonical_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The Depth bridge cannot replace the canonical receipt proof factory."""
+
+    validator, payload = _complete_universality_payload()
+    control = import_module(
+        "polisyos.runtime.http.services.control.generation_cycle"
+    )
+    compiled = control.CompiledRecursiveGenerationCycleRun.model_validate(
+        payload["proof_recordings"]["first_vertical"]["compiled_run"]
+    )
+    sessions = {node.node_ref: object() for node in compiled.recursive_run.nodes}
+    calls: list[tuple[object, object, object]] = []
+
+    def _prove(
+        receipt: object,
+        *,
+        repo_root: Path,
+        confidence_ledger_session: object,
+        candidate_summary: object,
+        value_receipt: object,
+    ) -> object:
+        assert repo_root == REPO_ROOT
+        assert candidate_summary.candidate_id == receipt.candidate_id
+        assert value_receipt == candidate_summary.value_receipt
+        proof = object()
+        calls.append((proof, confidence_ledger_session, candidate_summary))
+        return proof
+
+    monkeypatch.setattr(
+        validator,
+        "prove_canonical_promotion_receipt_for_comparison",
+        _prove,
+    )
+
+    proofs = validator._depth_compiled_receipt_comparison_proofs(
+        compiled,
+        sessions_by_node_ref=sessions,
+        repo_root=REPO_ROOT,
+    )
+
+    assert proofs == tuple(call[0] for call in calls)
+    assert len(proofs) == 3
+    assert {call[1] for call in calls} == set(sessions.values())
 
 
 _PLAIN_LANGUAGE_PROOF_REQUESTS = {
@@ -2907,10 +3000,10 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         source_recording: dict[str, Any],
         *,
         role: str,
-        receipt_admissions: tuple[GyComparisonAdmission, ...],
+        receipt_proofs: tuple[object, ...],
         aligned_recording: dict[str, Any] | None = None,
     ) -> GyComparisonAdmission:
-        del role, receipt_admissions
+        del role, receipt_proofs
         target = aligned_recording or source_recording
         return GyComparisonAdmission(
             owner_rule="test.depth.recording_projection.v1",
@@ -2920,7 +3013,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
 
     monkeypatch.setattr(
         validator,
-        "_depth_compiled_receipt_comparison_admissions",
+        "_depth_compiled_receipt_comparison_proofs",
         lambda *args, **kwargs: (),
     )
     monkeypatch.setattr(

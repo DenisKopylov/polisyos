@@ -20,6 +20,7 @@ from polisyos.pdc import (
     ArtifactRef,
     AuthorityBoundary,
     AuthorityDerivationTrace,
+    GyComparisonAdmission,
     PromotionObligationClass,
     PromotionObligationRecord,
     PromotionObligationStatus,
@@ -1768,11 +1769,33 @@ def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission()
             promotion_input,
             confidence_ledger_session=session,
         )
-        promotion_sequence_module.admit_canonical_promotion_receipt_for_comparison(
+        proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
             receipt,
             repo_root=REPO_ROOT,
             confidence_ledger_session=session,
         )
+        admission = (
+            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+                proof
+            )
+        )
+        assert admission.source_content_hash == gy_recorded_content_hash(
+            receipt.model_dump(mode="json")
+        )
+        forged_public_token = GyComparisonAdmission(
+            owner_rule=admission.owner_rule,
+            source_content_hash=admission.source_content_hash,
+            projector=admission.projector,
+            action=admission.action,
+            predicate_provenance=admission.predicate_provenance,
+        )
+        with pytest.raises(
+            ValueError,
+            match="canonical_promotion_comparison_proof_invalid",
+        ):
+            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+                forged_public_token
+            )
 
         forged_payload = receipt.model_dump(mode="json")
         projection = forged_payload["confidence_ledger_projection"]

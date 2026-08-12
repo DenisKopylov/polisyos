@@ -16,6 +16,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
+from weakref import WeakSet
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -489,6 +490,29 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
     action="project",
     predicate_provenance="recomputed",
 )
+
+
+class _CanonicalPromotionComparisonProof:
+    """Opaque capability issued only after the live promotion owner validates."""
+
+    __slots__ = ("__weakref__", "_admission")
+
+    def __init__(self) -> None:
+        raise TypeError("canonical_promotion_comparison_proof_owner_required")
+
+
+_ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS: WeakSet[
+    _CanonicalPromotionComparisonProof
+] = WeakSet()
+
+
+def _issue_canonical_promotion_comparison_proof(
+    admission: GyComparisonAdmission,
+) -> _CanonicalPromotionComparisonProof:
+    proof = object.__new__(_CanonicalPromotionComparisonProof)
+    proof._admission = admission
+    _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS.add(proof)
+    return proof
 
 
 class LegacyPromotionStrangleReceipt(_StrictModel):
@@ -1656,6 +1680,46 @@ def admit_canonical_promotion_receipt_for_comparison(
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.predicate_provenance
         ),
     )
+
+
+def prove_canonical_promotion_receipt_for_comparison(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path,
+    confidence_ledger_session: ConfidenceLedgerSession,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
+) -> object:
+    """Issue an opaque proof after the canonical live comparison admission.
+
+    The proof is process-local and cannot be reconstructed from public
+    ``GyComparisonAdmission`` fields. Consumers must return it to this module
+    for unwrapping, preserving the live session/candidate validation boundary.
+    """
+
+    admission = admit_canonical_promotion_receipt_for_comparison(
+        receipt,
+        repo_root=repo_root,
+        confidence_ledger_session=confidence_ledger_session,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+    )
+    return _issue_canonical_promotion_comparison_proof(admission)
+
+
+def canonical_promotion_comparison_admission_from_proof(
+    proof: object,
+) -> GyComparisonAdmission:
+    """Resolve one owner-issued proof to its exact comparison admission."""
+
+    if (
+        type(proof) is not _CanonicalPromotionComparisonProof
+        or proof not in _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS
+    ):
+        raise ValueError("canonical_promotion_comparison_proof_invalid")
+    return proof._admission
 
 
 def _require_canonical_verification_registry(
@@ -2862,7 +2926,9 @@ __all__ = [
     "LegacyPromotionStrangleReceipt",
     "N9DesignProblemBinding",
     "PromotionCertificateOffer",
+    "canonical_promotion_comparison_admission_from_proof",
     "confidence_risk_scope_for_problem",
+    "prove_canonical_promotion_receipt_for_comparison",
     "recompute_authority_trace_hash",
     "run_canonical_promotion_sequence",
     "validate_canonical_promotion_receipt",

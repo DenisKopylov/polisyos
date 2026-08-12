@@ -79,8 +79,9 @@ from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionReceipt,
-    admit_canonical_promotion_receipt_for_comparison,
+    canonical_promotion_comparison_admission_from_proof,
     canonical_promotion_receipt_semantic_projection,
+    prove_canonical_promotion_receipt_for_comparison,
 )
 
 if TYPE_CHECKING:
@@ -4277,20 +4278,20 @@ def _governed_verification_recursive_controller(
     )
 
 
-def _depth_compiled_receipt_comparison_admissions(
+def _depth_compiled_receipt_comparison_proofs(
     compiled: object,
     *,
     sessions_by_node_ref: Mapping[str, ConfidenceLedgerSession],
     repo_root: Path,
-) -> tuple[GyComparisonAdmission, ...]:
-    """Bind every compiled receipt to its live verification-session owner."""
+) -> tuple[object, ...]:
+    """Prove every compiled receipt through its live verification-session owner."""
 
     recursive_run = getattr(compiled, "recursive_run", None)
     nodes = tuple(getattr(recursive_run, "nodes", ()) or ())
     node_refs = {str(getattr(node, "node_ref", "")) for node in nodes}
     if not node_refs or node_refs != set(sessions_by_node_ref):
         raise UniversalityContractError("verification_session_node_denominator_mismatch")
-    admissions: list[GyComparisonAdmission] = []
+    proofs: list[object] = []
     for node in nodes:
         node_ref = str(getattr(node, "node_ref", ""))
         cycle_run = getattr(node, "cycle_run", None)
@@ -4304,8 +4305,8 @@ def _depth_compiled_receipt_comparison_admissions(
                 raise UniversalityContractError(
                     "verification_receipt_candidate_owner_binding_missing"
                 )
-            admissions.append(
-                admit_canonical_promotion_receipt_for_comparison(
+            proofs.append(
+                prove_canonical_promotion_receipt_for_comparison(
                     receipt,
                     repo_root=repo_root,
                     confidence_ledger_session=sessions_by_node_ref[node_ref],
@@ -4313,7 +4314,7 @@ def _depth_compiled_receipt_comparison_admissions(
                     value_receipt=summary.value_receipt,
                 )
             )
-    return tuple(admissions)
+    return tuple(proofs)
 
 
 _CONTROLLED_RECORDING_REQUIRED_FIELDS = frozenset(
@@ -4475,7 +4476,7 @@ def _admit_controlled_recording_for_comparison(
     source_recording: Mapping[str, object],
     *,
     role: str,
-    receipt_admissions: tuple[GyComparisonAdmission, ...],
+    receipt_proofs: tuple[object, ...],
     aligned_recording: Mapping[str, object] | None = None,
 ) -> GyComparisonAdmission:
     """Bind one root recording only after every live receipt owner admitted it."""
@@ -4487,6 +4488,10 @@ def _admit_controlled_recording_for_comparison(
     source_blocks = _controlled_recording_receipt_blocks(
         source_payload,
         role=role,
+    )
+    receipt_admissions = tuple(
+        canonical_promotion_comparison_admission_from_proof(proof)
+        for proof in receipt_proofs
     )
     receipt_plan = build_gy_comparison_projection_plan(
         source_payload["compiled_run"],
@@ -5371,7 +5376,7 @@ async def _domain_run_and_normalized_recording(
             cycle_substrate_context=context,
             repo_root=repo_root,
         )
-        comparison_admissions = _depth_compiled_receipt_comparison_admissions(
+        comparison_proofs = _depth_compiled_receipt_comparison_proofs(
             compiled,
             sessions_by_node_ref=sessions_by_node_ref,
             repo_root=repo_root,
@@ -5447,7 +5452,7 @@ async def _domain_run_and_normalized_recording(
         live_recording_admission = _admit_controlled_recording_for_comparison(
             normalized_recording,
             role=role,
-            receipt_admissions=comparison_admissions,
+            receipt_proofs=comparison_proofs,
         )
         live_recording_plan = build_gy_comparison_projection_plan(
             normalized_recording,
@@ -5565,7 +5570,7 @@ async def _domain_run_and_normalized_recording(
     recording_admission = _admit_controlled_recording_for_comparison(
         live_recording_for_comparison,
         role=role,
-        receipt_admissions=comparison_admissions,
+        receipt_proofs=comparison_proofs,
         aligned_recording=normalized_recording,
     )
     return domain_run, normalized_recording, (recording_admission,)

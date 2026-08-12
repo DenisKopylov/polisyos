@@ -1522,3 +1522,51 @@ earlier artifact-layer reissues have already landed; the replacement reissues ar
 their v1 owner discarded a governing filtration predicate. Confidence remains the separate B3
 blocked member. `[P37: recomputed for the denominator/dependency; institutionally_supplied for B2
 and B3; not_established for post-freeze deltas and accepted reissues]`
+
+### Post-freeze correction — final Depth reconciliation must propagate migrated custody
+
+The first v2 wave review rejected the static recording census before any governed writer ran. That
+census called the v2 receipt projector directly on frozen v1 receipts, so its
+`promotion_comparison_semantic_ledger_missing` terminal was the new fail-closed rule working, not a
+product failure. A source-bound census must instead build a live candidate through the canonical
+promotion proofs and their ephemeral v1-to-v2 migrators, then reconcile the frozen artifact. The
+static census invocation is a setup/design non-receipt; it wrote only ignored `tmp/**` evidence and
+changed no governed byte. `[P37: independently_reconciled for the classification; recomputed for
+the retained source/error and current governed-byte boundary]`
+
+That review also found one real propagation defect in the source batch. The per-role live replay
+correctly called `_reissue_authority_source_envelopes_after_comparison_migration` after adding the
+new nested semantic lineage. The final artifact reconciliation then invoked the root legacy
+migrator a second time while preserving frozen custody: it rehashed the recursive run, compiled run
+and recording, but retained the old `authority_source_admission`, old
+`authority_source_migration_receipt`, and old sibling `domain_runs[role].recording_content_hash`.
+Thus the earlier statement that the full Depth path recomputed route and authority-envelope custody
+was true for live candidate construction but false at the final frozen-artifact seam. This is the
+same authorized recording-level mechanism, not a third one. `[P37: independently_reconciled for
+the two-call data-flow trace and same-owner classification]`
+
+A RED-first artifact-level witness used the real `GyComparisonProjectionPlan` root migration over
+the frozen `first_vertical` recording. Before the repair, the migrated recording bound
+`sha256:763dd44b…d229c0` while its sibling route still bound
+`sha256:980bd2f8…e244e4`; the authority owner reported at least
+`authority_source_recording_base_binding_mismatch` and
+`authority_source_admission_compiled_binding_mismatch`. The focused pytest invocation exited `1`
+on that exact hash-equality assertion. No artifact writer ran. `[P37: recomputed]`
+
+The minimal repair adds one final artifact-owner postpass between
+`preserve_admitted_blocks(...)` and `_set_artifact_identities(...)`. It derives the affected roots
+from the live plan's canonical recording-owner manifest entries; if and only if a preserved root
+actually changed through its ephemeral legacy migrator, it calls the existing authority-envelope
+owner with the frozen prior admission/receipt and the reconciled live route, then replaces the root
+and sibling route together. Missing prior authority or route evidence fails closed with a named
+code. It does not copy a live envelope, weaken a validator, or alter ledger scope semantics.
+`[P37: independently_reconciled for placement; recomputed for the implemented owner delegation]`
+
+The same focused witness then exited `0`: recording and route hashes matched, the complete
+authority-source issue set was empty, and full `validate_payload` returned no issue. The focused
+controlled-recording/outer-plan subset also exited `0`; Ruff and `git diff --check` were clean.
+These interactive RED/GREEN invocations establish source feedback but are not yet source-bound
+post-freeze receipts. No governed artifact, denominator, admission outcome, comparison outcome,
+transport covariate, N8 proof hash, or ambient discovery identity changed. `[P37: recomputed for
+the observed terminals and current two-path diff; not_established for the post-freeze live census
+and reissue wave]`

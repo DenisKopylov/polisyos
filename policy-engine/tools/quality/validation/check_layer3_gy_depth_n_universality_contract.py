@@ -8693,6 +8693,60 @@ def _contract_content_hash(payload: Mapping[str, Any]) -> str:
     return gy_content_hash(stable)
 
 
+def _reissue_artifact_recording_envelopes_after_comparison_migration(
+    frozen: Mapping[str, Any],
+    reconciled: Mapping[str, Any],
+    comparison_plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
+    """Rebind sibling route and authority envelopes after root migration."""
+
+    migrated = copy.deepcopy(dict(reconciled))
+    frozen_recordings = _mapping(frozen.get("proof_recordings"))
+    reconciled_recordings = _mapping(migrated.get("proof_recordings"))
+    reconciled_routes = _mapping(migrated.get("domain_runs"))
+    recording_pointers = {
+        str(row.get("json_pointer"))
+        for row in comparison_plan.manifest
+        if row.get("owner_rule") == _DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE
+    }
+    for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+        pointer = f"/proof_recordings/{role}"
+        if pointer not in recording_pointers:
+            continue
+        prior_recording = _mapping(frozen_recordings.get(role))
+        current_recording = _mapping(reconciled_recordings.get(role))
+        if current_recording == prior_recording:
+            continue
+        prior_admission = _mapping(
+            prior_recording.get("authority_source_admission")
+        )
+        if not prior_admission:
+            raise UniversalityContractError(
+                "comparison_migration_prior_authority_admission_missing"
+            )
+        current_route = _mapping(reconciled_routes.get(role))
+        if not current_route:
+            raise UniversalityContractError(
+                "comparison_migration_replayed_domain_run_missing"
+            )
+        rebound_recording, rebound_route = (
+            _reissue_authority_source_envelopes_after_comparison_migration(
+                current_recording,
+                prior_admission=prior_admission,
+                prior_migration_receipt=_mapping(
+                    prior_recording.get("authority_source_migration_receipt")
+                ),
+                replayed_domain_run=current_route,
+                expected_role=role,
+            )
+        )
+        reconciled_recordings[role] = rebound_recording
+        reconciled_routes[role] = rebound_route
+    migrated["proof_recordings"] = reconciled_recordings
+    migrated["domain_runs"] = reconciled_routes
+    return migrated
+
+
 def _reconcile_artifact_records(
     frozen: Mapping[str, Any],
     live: Mapping[str, Any],
@@ -8714,6 +8768,11 @@ def _reconcile_artifact_records(
         raise UniversalityContractError(str(exc)) from exc
     if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
         raise UniversalityContractError("universality_contract_comparison_projection_invalid")
+    reconciled = _reissue_artifact_recording_envelopes_after_comparison_migration(
+        frozen_body,
+        reconciled,
+        comparison_plan,
+    )
     _set_artifact_identities(reconciled, comparison_plan)
     return reconciled
 

@@ -1527,6 +1527,56 @@ def test_controlled_recording_comparison_preserves_full_frozen_bytes(
     )
 
 
+def test_artifact_reconciliation_reissues_recording_authority_envelopes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A root migration must rebind its authority envelope and sibling route."""
+
+    validator, frozen = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    role = "first_vertical"
+    live = copy.deepcopy(frozen)
+    live_recording = _verification_lineage_variant(
+        live["proof_recordings"][role]
+    )
+    live["proof_recordings"][role] = live_recording
+    owner = validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
+    recording_admission = GyComparisonAdmission(
+        owner_rule=validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE,
+        source_content_hash=gy_recorded_content_hash(live_recording),
+        projector=validator._controlled_recording_verification_semantic_projection,
+        action=owner.action,
+        predicate_provenance=owner.predicate_provenance,
+        legacy_migrator=lambda _previous, current: copy.deepcopy(dict(current)),
+    )
+    plan = build_gy_comparison_projection_plan(
+        live,
+        admissions=(recording_admission,),
+    )
+
+    stale_issues = validator._authority_source_admission_issues(
+        live_recording,
+        replayed_domain_run=live["domain_runs"][role],
+        expected_role=role,
+    )
+    assert "authority_source_recording_base_binding_mismatch" in stale_issues
+    assert "authority_source_admission_compiled_binding_mismatch" in stale_issues
+
+    reconciled = validator._reconcile_artifact_records(frozen, live, plan)
+    reconciled_recording = reconciled["proof_recordings"][role]
+    reconciled_route = reconciled["domain_runs"][role]
+
+    assert reconciled_recording["recording_content_hash"] == (
+        reconciled_route["recording_content_hash"]
+    )
+    assert not validator._authority_source_admission_issues(
+        reconciled_recording,
+        replayed_domain_run=reconciled_route,
+        expected_role=role,
+    )
+    assert not validator.validate_payload(reconciled)["issues"]
+
+
 def test_controlled_recording_comparison_keeps_governing_input_red(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -1834,3 +1834,69 @@ Final read-back keeps the sole `165,398`-byte artifact at `7b80bf43…8e30`; no 
 is dirty. Full raw receipt custody remains present while the v2 comparison projection binds the
 producer-verified semantic chain. No protected denominator, admission/comparison outcome,
 transport covariate, N8 proof, scope or ambient identity moved. `[P37: recomputed]`
+
+### GY-DEFC-5 N10a v2 — measured and declared five-output transition
+
+The canonical non-persisting transition measurement ran alone from clean head `f2aa668e3`, exited
+`0` in `459.014245` s under the approved `852.699146` s writer/prewrite envelope, and reported
+producer wall time `444.758685` s, `status: pass`, `issues: []`, `write_performed: false`. The only
+stderr is two expected database-connection log lines. All five governed outputs remained
+byte-identical to their preimages, and the external N8 value-gate artifact remained byte-identical.
+Meta, stdout, stderr, parsed-result and manifest-file identities are `76872ee6…1805`,
+`4f94dc6c…7d23`, `b57c003e…4e8c`, `dd0bfc96…7f6a`, and `1e576383…04dd5`.
+`[P37: recomputed]`
+
+The transition manifest is schema `policyos.gy.n10a.write_transition.v1`, source-bound to
+`f2aa668e3` and source-scope identity `sha256:7b49aa64…4839a`; its self identity is
+`sha256:fc390e7b…53c3a`. It enumerates exactly five ordered outputs and `2,832` changed scalar
+leaves with distribution `0 / 3 / 0 / 2,824 / 5` for census / pack / smoke / cycle trace / gaps.
+The complete output-plus-pointer TSV has SHA-256 `b7f7f01c…9537b`. Because this journal declaration
+will move HEAD, that first manifest is intentionally measurement-only; after this declaration is
+committed, a fresh non-persisting measurement must reproduce the complete structural set and live
+content identities while binding a new manifest to the new clean head. No writer may consume the
+stale first manifest. `[P37: recomputed for the manifest and complete denominator;
+independently_reconciled for the clean-head refresh requirement]`
+
+The accepted N10a writer is declared to move exactly this complete set and no other leaf:
+
+1. Census: zero leaves. Its custody identity remains
+   `sha256:fb98cc50…fd0d`. Smoke problem: zero leaves, identity
+   `sha256:d40e3fe5…70e5`.
+2. Pack: exactly `/cycle_trace_content_hash`, `/gap_report_content_hash`, and
+   `/manifest_content_hash`, moving the enclosing live identity from `sha256:a1953ae6…e0466` to
+   `sha256:5c57dffd…cb705`.
+3. Cycle trace: add exactly `703` scalar leaves below each of the four roots
+   `/generation_cycle_run/promotion_port/receipts/{0,1,2,3}/
+   confidence_ledger_semantic_projection` (`2,812` leaves). Each root has the same structural set:
+   `17` direct leaves; `maintained_assumptions/{0,1}`; two `budget_delta` leaves; two
+   `total_spend` leaves; eight `risk_scope` leaves; eight `checks`, each with the canonical
+   `40`-leaf semantic-check set; and eight `events`, each with that same `40`-leaf check plus
+   `{event_projection_hash,event_type,parent_event_projection_hash,revision}`. Arithmetic per root
+   is `17 + 2 + 2 + 2 + 8 + 8×40 + 8×44 = 703`.
+4. Cycle trace: move the four existing
+   `/comparison_admission_manifest/{0,1,2,3}/owner_rule` leaves from v1 to v2; move
+   `/comparison_content_hash`, `/comparison_projection_schema_version`, and
+   `/comparison_rule_version`; move dependent `/gap_triage/6/receipt_ref`; move only the three
+   ordinary operational leaves
+   `/generation_cycle_run/cycles/0/acquisition_routing_report/generated_at`,
+   `/runtime_metrics/aggregate_value_port_wall_time_ms`, and
+   `/runtime_metrics/cycle_value_port_wall_time_ms/0/value_port_wall_time_ms`; and move enclosing
+   `/trace_content_hash`. That is `2,812 + 12 = 2,824` trace leaves, from live identity
+   `sha256:83134ef4…e2b3` to `sha256:1e9c67b9…0d95`.
+5. Free-grow gaps: exactly `/gap_report_content_hash`, `/gaps/6/gap_content_hash`,
+   `/gaps/6/owner_evidence/stage_3_behavioral_receipt/receipt_ref`,
+   `/gaps/6/owner_evidence/stage_3_behavioral_receipt/run_content_hash`, and
+   `/gaps/6/owner_evidence/trace_content_hash`, moving the enclosing identity from
+   `sha256:34ad1cbf…60e92` to `sha256:c7c674e6…044d0`.
+
+The four newly added semantic projections contain producer-recomputed copies of check outcomes,
+eligibility, spend denominators, scope and proof-profile commitments; those are new comparison
+evidence, not changes to any pre-existing admission or proof leaf. Every pointer containing those
+terms lies below one of those four new roots. Outside those roots the transition contains no
+denominator, eligibility, supports-obligation, outcome, transport, N8 proof, scope,
+`ambient_discovery.manifest_id`, or `ambient_discovery.provenance_id` pointer. The already accepted
+N8 content identity does not move in this reissue; gap 5 is absent from the delta. The only
+downstream receipt movement is gap 6's trace-dependent N11 verification receipt. Accept only if the
+fresh source-bound manifest reproduces this exact set and the writer's observed five-output delta
+equals it. `[P37: recomputed for the complete pointer classification and external N8 byte pin;
+not_established for fresh-head reproduction, accepted persistence and verifications]`

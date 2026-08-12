@@ -1900,3 +1900,24 @@ downstream receipt movement is gap 6's trace-dependent N11 verification receipt.
 fresh source-bound manifest reproduces this exact set and the writer's observed five-output delta
 equals it. `[P37: recomputed for the complete pointer classification and external N8 byte pin;
 not_established for fresh-head reproduction, accepted persistence and verifications]`
+
+### GY-DEFC-5 N10a v2 — serialized-host interruption non-receipt
+
+The first post-declaration fresh-head measurement was launched from clean attached head
+`13ceb3762` only after six process censuses over a `25` s quiet interval found no matching
+writer/scanner-heavy process. A competing Atlas TypeScript scanner then appeared while the
+measurement was live (observed PID `19881`, approximately `185%` CPU and `300,832` KiB RSS). To
+preserve the one-heavy-process invariant, the N10a child process group was terminated deliberately
+after `70.012021` s. The wrapper records child and wrapper terminal `-15`, `timed_out: false`, empty
+stdout/stderr, identical attached branch/head before and after, and an empty tracked status before
+and after. `[P37: recomputed]`
+
+All five governed before/after pins are byte-identical: census `73,888` bytes /
+`ba20cdb3…e74c`, pack `252,598` / `9b67629d…65441`, smoke `4,665` / `688bd3d8…5f76d`,
+cycle trace `345,007` / `47a65629…09f4`, and gaps `21,053` / `496944b5…74941`.
+The external N8 value-gate remains `c3f131ce…bc303`. The meta/stdout/stderr identities are
+`d4ba8d9b…2d1fc`, `e3b0c442…b855`, and `e3b0c442…b855`. This invocation produced no transition
+manifest and no changed governed byte, so it is a contention non-receipt; it consumes neither the
+fresh measurement nor the accepted N10a reissue. A new quiet interval is required before the next
+launch. `[P37: recomputed for the byte/head/status boundary; institutionally_supplied for the
+completion/allowance rule]`

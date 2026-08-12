@@ -1308,3 +1308,109 @@ synchronized. Changed-path receipt SHA-256 is
 `ebe3eced3200c92e607e994055a1a964d8c01abdc21d117ce3d734aaa3edd29a`. `[P37: recomputed for the
 guardrail terminal, complete changed-path denominator and empty intersection; independently_reconciled
 for its pre-existing/unrelated classification]`
+
+## GY-DEFC-5 — recording-level comparison owner
+
+This continuation started on attached branch `codex/gy-defc-3-retry`, clean at
+`ba18ad7d72236e67a0b8a0f86deb7af03a751920`, exactly `20` commits ahead of
+`c1a89b6cf`. The existing worktree is linked and isolated; the unrelated edit in the main
+checkout's `src/polisyos/data_forge/read_api/catalog.py` is absent from this worktree's tracked
+delta. The session-start timing projection parsed `138` complete records and recomputed Depth-N's
+writer/check/rederive ceilings as `4,942.540412` s, `319.661388` s and `1,695.177568` s. The
+confidence-ledger writer still has no successful local sample; its catalog fallback is not converted
+into a successful-run claim. `[P37: recomputed]`
+
+### Confidence-ledger re-probe — B3 remains selected
+
+Before any source change, the canonical confidence-ledger writer was re-probed against an ignored
+scratch output under the task's declared `1,800` s fence. It ran alone with CPython `3.14.0` from
+the receipt environment, current-checkout source first in `PYTHONPATH`, `JAX_PLATFORMS=cpu`,
+`PYTHONDONTWRITEBYTECODE=1`, and explicit catalog/L5 inputs. The wrapper captured the attached
+branch, clean tracked status and `ba18ad7d7…` head both before and after launch. The catalog was
+`1,320,693,760` bytes at SHA-256 `4a1eab13…960dd7`, L5 was `2,112` bytes at
+`90f341b2…87aff`, and the confidence registry was `f337fc1e…f49942b`. `[P37: recomputed]`
+
+The probe reached its own fail terminal in `76.560691` s without timeout: child/wrapper exit `1`,
+`process_group_clean=true`, `byte_stable_passes=0`, `second_pass_started=false`, and first
+derivation wall time `47.079297` s. It emitted milestones through
+`n10_owner_recomputation_started`, then raised `OwnerProjectionError` with the exact chain
+`n10_capstone_invalid -> {comparison_projection_schema_version_invalid,
+comparison_rule_version_invalid, comparison_admission_manifest_invalid
+(gy_comparison_admission_manifest_invalid)}`. Unlike the pre-N10a probe, this is not
+`n8_transport_gap_receipt_drift`; that stale receipt boundary is absent. `[P37: recomputed]`
+
+No scratch candidate was produced. The governed confidence artifact stayed `108,740` bytes at
+SHA-256 `a844a0c3…4781`; the N10a pack, cycle trace and gaps stayed respectively
+`9b67629d…5441`, `47a65629…09f4` and `496944b5…4941`; every explicit input pin also stayed
+byte-identical. The retained receipts are
+`tmp/gy-defc-5/confidence-probe/{probe.meta.json,probe.stdout,probe.stderr,terminal.json}` at
+SHA-256 `713899ff…c5aa`, `3518c300…8dfe`, `9e4f3725…f5fc` and
+`5eff1b5b…337d`. `[P37: recomputed]`
+
+This selects pre-authorized B3: the confidence-ledger member remains blocked, now on its stored N10
+capstone validator not accepting the reissued comparison schema/rule/manifest. That validator is a
+different owner from the authorized controlled-recording comparator, so it is described and not
+repaired here; the batch proceeds with Depth alone. The probe is a measurement/non-receipt and
+consumes no accepted confidence reissue. `[P37: institutionally_supplied for B3 and allowance
+semantics; recomputed for the observed failure/byte boundary; independently_reconciled for the
+different-owner classification]`
+
+### Recording-level comparison contract — frozen before source work
+
+The ordinary recording custody identity remains unchanged: it hashes and retains every serialized
+byte, including verification-session lineage, enclosing identities and operational clocks. A second,
+versioned comparison identity is opt-in and exists only for controlled replay. It may be minted only
+after the canonical recording owner validates the complete recording and the canonical promotion
+owner resolves every nested receipt against the live verification session and candidate/value
+bindings. A field, manifest action, declaration, shape or self-recomputed hash cannot mint
+admission. The deciding predicate is frozen as `recomputed` in an ephemeral admission before the
+comparison begins. `[P37: institutionally_supplied for the contract; not_established until the
+behavioral witnesses close]`
+
+The comparison projection is structural and producer-owned:
+
+1. Strictly validate the recording schema/version, role, top-level-to-compiled-run identity links,
+   the complete compiled recursive run, and the exact nested-receipt denominator.
+2. Require one live session/candidate-bound canonical admission for every nested promotion receipt;
+   a missing, extra, duplicated, mismatched or forged admission fails closed.
+3. Delegate each admitted receipt to the canonical promotion semantic projection already used by
+   the artifact layer. Remove only the typed verification-session lineage and typed enclosing
+   identities that derive solely from it, plus the existing ordinary operational fields.
+4. Preserve every governing typed field. An absent, malformed, mixed or unrecognized declaration,
+   an unknown field, or a bare `authority_provenance=verification` mapping remains governing or
+   fails strict validation; it is never excluded.
+5. If and only if the two admitted comparison projections are equal, return the frozen raw recording
+   byte-for-byte. The comparison plan never substitutes live bytes into custody evidence and never
+   deletes, truncates or placeholder-normalizes a recorded block.
+
+The inner controlled-recording replay and the outer Depth artifact comparison must route through the
+same root recording admission so a child-receipt bypass cannot survive (`P31`). The existing
+identity-only DEFC-2 diagnostic remains the red surface for semantic mismatch; raw values remain
+absent. Ledger scope identity, per-problem scope semantics and the confidence ledger itself are not
+changed. `[P37: institutionally_supplied for the positive/forbidden contract;
+independently_reconciled for the one-chokepoint placement; not_established for implementation]`
+
+Five red-first acceptance witnesses bind the repair:
+
+- two otherwise identical recordings whose clocks and producer-admitted verification-session
+  lineage differ reconcile to the same comparison identity, both admit, and the returned recording
+  is the exact frozen raw object;
+- a genuinely governing input change remains red with its named controlled-recording drift code;
+- absent, malformed, mixed and unrecognized declarations remain governing/fail closed;
+- a detached forged receipt that recomputes its own hashes is rejected before admission; and
+- after successful reconciliation the full frozen record, including every verification block and
+  its byte-complete serialized form, remains readable.
+
+Each witness must exercise the real owner/bridge; retaining marker strings while removing the live
+admission path must turn the behavioral witness red (`P29`/`P32`/`P33`). `[P37:
+institutionally_supplied for the witness specification; not_established until RED then GREEN are
+retained]`
+
+Two read-only Terra tracks launched for preflight used recursive whole-home `find` commands and were
+terminated when the process census showed them consuming both scanner-heavy slots. They produced no
+repository change and their partial output is not used as evidence. The sole completed preflight
+track independently traced the actual source ordering: live receipt admissions are derived before
+the comparison, then discarded by the clock-only generic reconciler. These preflight tracks are not
+the three post-freeze independent reviews required by E11. `[P37: recomputed for the observed process
+census/termination and current tracked delta; consumer_asserted for dispatch identity;
+independently_reconciled for the completed source trace]`

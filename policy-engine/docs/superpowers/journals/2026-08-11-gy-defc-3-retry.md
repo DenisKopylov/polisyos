@@ -1803,3 +1803,34 @@ generation reissue; its allowance remains unused. The next launch waits for the 
 parent itself to exit and for a quiet process interval, not merely for a child PID to rotate.
 `[P37: recomputed for the terminal, zero-byte boundary and process-tree overlap;
 institutionally_supplied for the allowance rule]`
+
+### GY-DEFC-5 generation v2 — accepted reissue and verification closure
+
+After the external Atlas sequence completed and a `30` s quiet process interval held, the canonical
+writer ran alone from clean head `2666f5628`. It exited `0` in `45.148865` s under the unchanged
+`76.199994` s cap, did not time out, emitted empty stderr, and wrote candidate SHA-256
+`7b80bf43…8e30`. The bytes exactly equal the measured candidate, and the recursive delta has the
+identical `740/740` declared path set with no extra or missing leaf. The accepted generation
+allowance is therefore consumed. Meta, stdout, isolated timing and accepted-delta identities are
+`bee488d0…09a8`, `5ddbb5f2…96b6`, `58836b33…a75c`, and `bb05f4f6…ab6c9`.
+`[P37: recomputed]`
+
+The canonical `--check` exited `0` in `42.024739` s under its `85.542132` s cap with
+`status: pass`, `issues: []`, validator wall time `29.373727` s, no timeout and empty stderr. Its
+meta/stdout identities are `9b42615e…1eaf` and `242094cf…6356`. The rederive audit exited `0` in
+`42.188818` s under its `75.902086` s cap with `status: pass`, `issues: []`, validator wall time
+`29.746186` s, no timeout and empty stderr; its meta/stdout identities are
+`2142216e…f6cb` and `a945b4dd…2a10`. `[P37: recomputed]`
+
+The corrupt-field lane completed in `12.419707` s under the declared `300` s hang fence, did not
+time out, and exited `1`. Its producer contract reports `status: fail` with leading issue
+`corrupt_field_drift_detected`, followed by the named generation-run and dependent comparison /
+contract hash drifts. As with promotion, this proves the lane's one decisive-field mutation was
+detected; it does not claim an absent generic `missing` denominator. Meta/stdout identities are
+`c630b0ce…f585` and `3740c433…5566`; stderr is empty. `[P37: recomputed for the producer terminal;
+institutionally_supplied for the declared hang fence]`
+
+Final read-back keeps the sole `165,398`-byte artifact at `7b80bf43…8e30`; no other governed path
+is dirty. Full raw receipt custody remains present while the v2 comparison projection binds the
+producer-verified semantic chain. No protected denominator, admission/comparison outcome,
+transport covariate, N8 proof, scope or ambient identity moved. `[P37: recomputed]`

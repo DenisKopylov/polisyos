@@ -620,6 +620,53 @@ def reconcile_gy_operational_leaves(
     return _reconcile_gy_operational_leaves(previous, current)
 
 
+def reconcile_gy_comparison_projection(
+    previous: object,
+    current: object,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
+    admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
+) -> object:
+    """Preserve raw admitted evidence after producer-owned semantic agreement.
+
+    The supplied plan is ephemeral proof that its admitted live blocks were
+    resolved and validated by their canonical owners. The comparison remains
+    fail-closed for every field outside those exact paths. On agreement, the
+    frozen admitted blocks and shared operational leaves are retained verbatim;
+    the ordinary custody hash therefore continues to bind every recorded byte.
+    """
+
+    previous_semantic = comparison_plan.project(previous)
+    current_semantic = comparison_plan.project(current)
+    if previous_semantic != current_semantic:
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    if not _gy_payload_shape_matches(previous, current):
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_shape_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    reconciled = comparison_plan.preserve_admitted_blocks(previous, current)
+    if comparison_plan.project(reconciled) != previous_semantic:  # pragma: no cover
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    return reconciled
+
+
 def _gy_operational_reconciliation_error(
     code: Literal[
         "gy_operational_reconciliation_semantic_projection_mismatch",

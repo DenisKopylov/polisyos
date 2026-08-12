@@ -81,6 +81,7 @@ from ._impl.gy_waist import (
     gy_recorded_content_hash,
     is_gy_content_hash_excluded_field,
     is_gy_declared_non_authority_block,
+    reconcile_gy_comparison_projection,
     reconcile_gy_operational_leaves,
     strip_gy_volatile_fields,
 )
@@ -256,6 +257,7 @@ __all__ = [
     "persist_runtime_policy_design_case_graph",
     "persist_s2_design_search_run",
     "project_s2_design_search",
+    "reconcile_gy_comparison_projection",
     "reconcile_gy_operational_leaves",
     "run_s2_shadow_design_loop",
     "runtime_policy_design_case_projection_source",

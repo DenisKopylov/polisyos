@@ -7,6 +7,7 @@ import re
 import pytest
 from pydantic import ValidationError
 
+import polisyos.pdc as pdc_module
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -399,6 +400,65 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
         reconcile_gy_operational_leaves(
             previous,
             {**current, "added_at": "new"},
+        )
+
+
+def test_reconcile_gy_comparison_projection_preserves_admitted_raw_record() -> None:
+    """A producer-bound projection may preserve raw evidence but not governing drift."""
+
+    def _project_verified_block(value: dict[str, object]) -> dict[str, object]:
+        if value.get("authority_provenance") != "verification":
+            raise ValueError("verification_declaration_invalid")
+        return {
+            str(key): item
+            for key, item in value.items()
+            if key not in {"session_ref", "projection_hash"}
+        }
+
+    previous = {
+        "recording": {
+            "authority_provenance": "verification",
+            "governing_result": "refused",
+            "session_ref": "confidence-session:frozen",
+            "projection_hash": "sha256:" + "1" * 64,
+        },
+        "generated_at": "2026-08-09T10:33:22Z",
+        "governing_input": "stable",
+    }
+    current = copy.deepcopy(previous)
+    current["recording"]["session_ref"] = "confidence-session:live"
+    current["recording"]["projection_hash"] = "sha256:" + "2" * 64
+    current["generated_at"] = "2026-08-12T10:33:22Z"
+    admission = GyComparisonAdmission(
+        owner_rule="test.recording.verification_projection.v1",
+        source_content_hash=gy_recorded_content_hash(current["recording"]),
+        projector=_project_verified_block,
+    )
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    reconciled = pdc_module.reconcile_gy_comparison_projection(
+        previous,
+        current,
+        comparison_plan=plan,
+        recording_role="education",
+        admission_arm="migrated",
+    )
+
+    assert reconciled == previous
+    assert json.dumps(reconciled, sort_keys=True) == json.dumps(previous, sort_keys=True)
+
+    changed = copy.deepcopy(current)
+    changed["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            previous,
+            changed,
+            comparison_plan=plan,
+            recording_role="education",
+            admission_arm="migrated",
         )
 
 

@@ -69,7 +69,8 @@ from polisyos.pdc import (  # noqa: E402
     gy_recorded_content_hash,
     is_gy_content_hash_excluded_field,
     is_gy_declared_non_authority_block,
-    reconcile_gy_operational_leaves,
+    reconcile_gy_comparison_projection,
+    strip_gy_volatile_fields,
 )
 from polisyos.pdc._impl.gy_waist import (  # noqa: E402
     GyOperationalReconciliationError,
@@ -79,6 +80,7 @@ from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionReceipt,
     admit_canonical_promotion_receipt_for_comparison,
+    canonical_promotion_receipt_semantic_projection,
 )
 
 if TYPE_CHECKING:
@@ -99,6 +101,11 @@ _COMPARISON_IDENTITY_FIELDS = frozenset(
 _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE = (
     "tools.quality.validation.check_layer3_gy_depth_n_universality_contract."
     "verified_promotion_summary.v1"
+)
+
+_DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE = (
+    "tools.quality.validation.check_layer3_gy_depth_n_universality_contract."
+    "controlled_recording_verification_projection.v1"
 )
 
 PRODUCER = (
@@ -4309,6 +4316,267 @@ def _depth_compiled_receipt_comparison_admissions(
     return tuple(admissions)
 
 
+_CONTROLLED_RECORDING_REQUIRED_FIELDS = frozenset(
+    {
+        "compiled_run",
+        "compiled_run_content_hash",
+        "compiler_recording",
+        "cycle_substrate_context_content_hash",
+        "design_problem_ref",
+        "n4_recording",
+        "recording_content_hash",
+        "role",
+        "schema_version",
+    }
+)
+_CONTROLLED_RECORDING_OPTIONAL_FIELDS = frozenset(
+    {
+        "authority_source_admission",
+        "authority_source_migration_receipt",
+        "historical_context_rebind_receipt",
+    }
+)
+
+
+def _validated_controlled_recording_payload(
+    value: Mapping[str, object],
+    *,
+    role: str | None = None,
+) -> tuple[dict[str, Any], object]:
+    """Strictly validate one complete v2 controlled-recording custody object."""
+
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+
+    payload = copy.deepcopy(dict(value))
+    keys = frozenset(payload)
+    if not keys >= _CONTROLLED_RECORDING_REQUIRED_FIELDS or not keys <= (
+        _CONTROLLED_RECORDING_REQUIRED_FIELDS
+        | _CONTROLLED_RECORDING_OPTIONAL_FIELDS
+    ):
+        raise ValueError("controlled_recording_typed_payload_shape_invalid")
+    if payload.get("schema_version") != _DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
+        raise ValueError("controlled_recording_schema_version_invalid")
+    recorded_role = payload.get("role")
+    if recorded_role not in PLAIN_LANGUAGE_PROOF_REQUESTS or (
+        role is not None and recorded_role != role
+    ):
+        raise ValueError("controlled_recording_role_invalid")
+    if "authority_source_migration_receipt" in payload and (
+        "authority_source_admission" not in payload
+    ):
+        raise ValueError("controlled_recording_migration_without_admission")
+    stable = {
+        key: item
+        for key, item in payload.items()
+        if key != "recording_content_hash"
+    }
+    if payload.get("recording_content_hash") != _semantic_hash(stable):
+        raise ValueError("controlled_recording_content_hash_invalid")
+    try:
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            payload.get("compiled_run")
+        )
+    except ValidationError as exc:
+        raise ValueError("controlled_recording_compiled_run_invalid") from exc
+    if compiled.content_hash != payload.get("compiled_run_content_hash"):
+        raise ValueError("controlled_recording_compiled_run_binding_invalid")
+    if compiled.design_problem_ref != payload.get("design_problem_ref"):
+        raise ValueError("controlled_recording_design_problem_binding_invalid")
+    return payload, compiled
+
+
+def _controlled_recording_receipt_blocks(
+    value: Mapping[str, object],
+    *,
+    role: str | None = None,
+) -> tuple[tuple[str, dict[str, Any]], ...]:
+    """Return every typed promotion receipt and its compiled-run JSON pointer."""
+
+    payload, compiled = _validated_controlled_recording_payload(value, role=role)
+    recursive_payload = _mapping(
+        _mapping(payload["compiled_run"]).get("recursive_run")
+    )
+    node_payloads = _mappings(recursive_payload.get("nodes"))
+    typed_nodes = tuple(getattr(compiled.recursive_run, "nodes", ()))
+    if len(node_payloads) != len(typed_nodes):  # pragma: no cover - strict owner
+        raise ValueError("controlled_recording_node_denominator_invalid")
+    blocks: list[tuple[str, dict[str, Any]]] = []
+    for node_index, (node_payload, typed_node) in enumerate(
+        zip(node_payloads, typed_nodes, strict=True)
+    ):
+        typed_cycle = getattr(typed_node, "cycle_run", None)
+        raw_cycle = node_payload.get("cycle_run")
+        if typed_cycle is None:
+            if raw_cycle is not None:  # pragma: no cover - strict owner
+                raise ValueError("controlled_recording_cycle_run_shape_invalid")
+            continue
+        cycle_payload = _mapping(raw_cycle)
+        promotion_payload = _mapping(cycle_payload.get("promotion_port"))
+        receipt_payloads = _mappings(promotion_payload.get("receipts"))
+        typed_receipts = tuple(typed_cycle.promotion_port.receipts)
+        if len(receipt_payloads) != len(typed_receipts):  # pragma: no cover
+            raise ValueError("controlled_recording_receipt_denominator_invalid")
+        for receipt_index, receipt_payload in enumerate(receipt_payloads):
+            CanonicalPromotionReceipt.model_validate(receipt_payload)
+            pointer = (
+                f"/recursive_run/nodes/{node_index}/cycle_run/"
+                f"promotion_port/receipts/{receipt_index}"
+            )
+            blocks.append((pointer, receipt_payload))
+    if not blocks:
+        raise ValueError("controlled_recording_receipt_denominator_empty")
+    return tuple(blocks)
+
+
+def _controlled_recording_verification_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project a typed recording while retaining every governing owner field."""
+
+    payload, _ = _validated_controlled_recording_payload(value)
+    compiled_payload = _mapping(payload["compiled_run"])
+    recursive_payload = _mapping(compiled_payload["recursive_run"])
+    nodes = _mappings(recursive_payload["nodes"])
+    for node in nodes:
+        cycle_payload = node.get("cycle_run")
+        if cycle_payload is None:
+            continue
+        cycle = _mapping(cycle_payload)
+        promotion = _mapping(cycle["promotion_port"])
+        promotion["receipts"] = [
+            canonical_promotion_receipt_semantic_projection(receipt)
+            for receipt in _mappings(promotion["receipts"])
+        ]
+        cycle["promotion_port"] = promotion
+        node["cycle_run"] = cycle
+    recursive_payload["nodes"] = nodes
+    recursive_payload.pop("content_hash", None)
+    compiled_payload["recursive_run"] = recursive_payload
+    compiled_payload.pop("content_hash", None)
+    payload["compiled_run"] = compiled_payload
+    payload.pop("compiled_run_content_hash", None)
+    payload.pop("recording_content_hash", None)
+    projected = strip_gy_volatile_fields(payload)
+    if not isinstance(projected, dict):  # pragma: no cover - mapping input
+        raise ValueError("controlled_recording_projection_mapping_required")
+    return projected
+
+
+_DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_controlled_recording_verification_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+def _admit_controlled_recording_for_comparison(
+    source_recording: Mapping[str, object],
+    *,
+    role: str,
+    receipt_admissions: tuple[GyComparisonAdmission, ...],
+    aligned_recording: Mapping[str, object] | None = None,
+) -> GyComparisonAdmission:
+    """Bind one root recording only after every live receipt owner admitted it."""
+
+    source_payload, _ = _validated_controlled_recording_payload(
+        source_recording,
+        role=role,
+    )
+    source_blocks = _controlled_recording_receipt_blocks(
+        source_payload,
+        role=role,
+    )
+    receipt_plan = build_gy_comparison_projection_plan(
+        source_payload["compiled_run"],
+        admissions=receipt_admissions,
+    )
+    expected_manifest = [
+        {
+            "action": CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.action,
+            "json_pointer": pointer,
+            "owner_rule": CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+            "predicate_provenance": (
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.predicate_provenance
+            ),
+        }
+        for pointer, _ in source_blocks
+    ]
+    if receipt_plan.manifest != expected_manifest:
+        raise ValueError(
+            "controlled_recording_receipt_admission_denominator_invalid"
+        )
+    source_projection = _controlled_recording_verification_semantic_projection(
+        _without_authority_source_migration_receipt(source_payload)
+    )
+
+    aligned_payload = source_payload
+    if aligned_recording is not None:
+        aligned_payload, _ = _validated_controlled_recording_payload(
+            aligned_recording,
+            role=role,
+        )
+        aligned_blocks = _controlled_recording_receipt_blocks(
+            aligned_payload,
+            role=role,
+        )
+        if tuple(pointer for pointer, _ in aligned_blocks) != tuple(
+            pointer for pointer, _ in source_blocks
+        ):
+            raise ValueError(
+                "controlled_recording_receipt_path_denominator_invalid"
+            )
+        aligned_projection = _controlled_recording_verification_semantic_projection(
+            _without_authority_source_migration_receipt(aligned_payload)
+        )
+        if source_projection != aligned_projection:
+            raise ValueError("controlled_recording_semantic_projection_mismatch")
+
+    # A full aligned target may retain separately validated authority envelopes;
+    # those remain governing in the outer artifact projection.
+    _controlled_recording_verification_semantic_projection(aligned_payload)
+    return GyComparisonAdmission(
+        owner_rule=_DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE,
+        source_content_hash=gy_recorded_content_hash(aligned_payload),
+        projector=_controlled_recording_verification_semantic_projection,
+        action=_DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE.action,
+        predicate_provenance=(
+            _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE.predicate_provenance
+        ),
+    )
+
+
+def _reconcile_controlled_recording(
+    frozen: Mapping[str, object],
+    live: Mapping[str, object],
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
+    role: str,
+    admission_arm: str,
+) -> dict[str, Any]:
+    """Reconcile a controlled replay through its root producer admission."""
+
+    try:
+        reconciled = reconcile_gy_comparison_projection(
+            frozen,
+            live,
+            comparison_plan=comparison_plan,
+            recording_role=role,
+            admission_arm=admission_arm,
+        )
+    except GyOperationalReconciliationError as exc:
+        raise UniversalityContractError(
+            "authority_source_controlled_replay_recording_drift:" + str(exc),
+            replay_drift=exc,
+        ) from exc
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise UniversalityContractError(
+            "authority_source_controlled_replay_projection_invalid"
+        )
+    return reconciled
+
+
 def _depth_summary_integrity_projection(value: Mapping[str, object]) -> dict[str, object]:
     """Return a full summary copy; live admission decides its exclusion."""
 
@@ -5173,47 +5441,29 @@ async def _domain_run_and_normalized_recording(
         raise UniversalityContractError(
             "authority_source_replayed_projection_invalid:" + ",".join(replayed_authority_issues)
         )
+    live_recording_for_comparison = copy.deepcopy(normalized_recording)
     if prior_admission:
         expected_recording = _without_authority_source_migration_receipt(recording)
-        if expected_recording.get("recording_content_hash") == (
-            normalized_recording.get("recording_content_hash")
-        ):
-            try:
-                reconciled_recording = reconcile_gy_operational_leaves(
-                    expected_recording,
-                    normalized_recording,
-                    recording_role=role,
-                    admission_arm=str(prior_admission.get("admission_kind") or ""),
-                )
-            except GyOperationalReconciliationError as exc:
-                raise UniversalityContractError(
-                    "authority_source_controlled_replay_recording_drift:" + str(exc),
-                    replay_drift=exc,
-                ) from exc
-            if not isinstance(reconciled_recording, dict):  # pragma: no cover
-                raise UniversalityContractError(
-                    "authority_source_controlled_replay_projection_invalid"
-                )
-            normalized_recording = reconciled_recording
+        live_recording_admission = _admit_controlled_recording_for_comparison(
+            normalized_recording,
+            role=role,
+            receipt_admissions=comparison_admissions,
+        )
+        live_recording_plan = build_gy_comparison_projection_plan(
+            normalized_recording,
+            admissions=(live_recording_admission,),
+        )
+        normalized_recording = _reconcile_controlled_recording(
+            expected_recording,
+            normalized_recording,
+            comparison_plan=live_recording_plan,
+            role=role,
+            admission_arm=str(prior_admission.get("admission_kind") or ""),
+        )
         if expected_recording != normalized_recording:
-            drift_error: GyOperationalReconciliationError | None = None
-            try:
-                reconcile_gy_operational_leaves(
-                    expected_recording,
-                    normalized_recording,
-                    recording_role=role,
-                    admission_arm=str(prior_admission.get("admission_kind") or ""),
-                    require_exact_match=True,
-                )
-            except GyOperationalReconciliationError as exc:
-                drift_detail = str(exc)
-                drift_error = exc
-            else:  # pragma: no cover - unequal operands force an owner report.
-                drift_detail = "gy_operational_reconciliation_exact_mismatch_unreported"
             raise UniversalityContractError(
-                "authority_source_controlled_replay_recording_drift:" + drift_detail,
-                replay_drift=drift_error,
-            ) from drift_error
+                "authority_source_controlled_replay_recording_exact_mismatch"
+            )
         if prior_authority_receipt:
             normalized_recording["authority_source_migration_receipt"] = copy.deepcopy(
                 prior_authority_receipt
@@ -5312,7 +5562,13 @@ async def _domain_run_and_normalized_recording(
         raise UniversalityContractError(
             "authority_source_admission_invalid:" + ",".join(admission_issues)
         )
-    return domain_run, normalized_recording, comparison_admissions
+    recording_admission = _admit_controlled_recording_for_comparison(
+        live_recording_for_comparison,
+        role=role,
+        receipt_admissions=comparison_admissions,
+        aligned_recording=normalized_recording,
+    )
+    return domain_run, normalized_recording, (recording_admission,)
 
 
 def _is_historical_recursive_hash_drift(exc: ValidationError) -> bool:
@@ -5826,7 +6082,7 @@ async def _complete_payload_from_recordings(
     base = _build_pending_payload(repo_root, lane="cached")
     domain_runs: dict[str, Any] = {}
     normalized_recordings: dict[str, Any] = {}
-    receipt_admissions: list[GyComparisonAdmission] = []
+    recording_admissions: list[GyComparisonAdmission] = []
     receipt_counts_by_role: dict[str, int] = {}
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
         (
@@ -5845,8 +6101,17 @@ async def _complete_payload_from_recordings(
         )
         domain_runs[role] = domain_run
         normalized_recordings[role] = normalized_recording
-        receipt_admissions.extend(role_admissions)
-        receipt_counts_by_role[role] = len(role_admissions)
+        if len(role_admissions) != 1:
+            raise UniversalityContractError(
+                "controlled_recording_comparison_admission_denominator_invalid"
+            )
+        recording_admissions.extend(role_admissions)
+        receipt_counts_by_role[role] = len(
+            _controlled_recording_receipt_blocks(
+                normalized_recording,
+                role=role,
+            )
+        )
     base.update(
         {
             "proof_status": "complete",
@@ -5870,7 +6135,7 @@ async def _complete_payload_from_recordings(
     )
     plan = build_gy_comparison_projection_plan(
         base,
-        admissions=tuple(receipt_admissions) + summary_admissions,
+        admissions=tuple(recording_admissions) + summary_admissions,
     )
     _set_artifact_identities(base, plan)
     return base, plan
@@ -8215,6 +8480,9 @@ def _depth_plan_from_manifest(
         payload,
         manifest=manifest,
         owner_rule_registry={
+            _DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE: (
+                _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
+            ),
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
             ),

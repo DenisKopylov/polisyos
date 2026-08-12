@@ -1218,3 +1218,93 @@ five cycle-substrate mutations and both smoke-terminal mutations have nonempty d
 This validator emits no `missing` member, so the read result is `missing=null` rather than an
 invented empty list; the complete enumerated mutation denominator is detected. The N10a reissue and
 its three verification receipts are therefore closed. `[P37: recomputed]`
+
+### Depth-N measurement — semantic stop before an accepted reissue
+
+The canonical Depth-N writer was launched once with the isolation-local `.venv/bin/python`, current-checkout
+`PYTHONPATH`, `JAX_PLATFORMS=cpu`, and `PYTHONDONTWRITEBYTECODE=1`. It reached its own terminal in
+`873.977626` s under the recomputed `4,942.540412` s cap; the harness did not time out, both child
+and wrapper exited `1`, launch error is null, and stderr is empty. Stdout SHA-256 is
+`e4bb68a29a12859ae10214b4b7f5b66bb05e50a613493fff2ba49e8518e7d0ea`, metadata SHA-256 is
+`dd89ee4336dc92bd58107d5bed031758a054aa95e5a1a96720859db4f4c1db0d`, and empty stderr SHA-256 is
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`. The orchestration transcript
+placed the launch after the `d15681e5d68e7a1ae28556b45185338e684cecdd` landing and a clean status
+read, but the retained harness metadata carries neither Git head/status nor a source-scope manifest;
+launch-time source binding is therefore not elevated from that transcript. `[P37: recomputed for
+the retained command/environment/timing/terminal; consumer_asserted for transcript ordering;
+not_established for immutable launch-source binding]`
+
+The writer stopped before persistence. The complete one-file governed denominator is
+`1/1` JSON artifact, `1,841,810` bytes before and after, SHA-256
+`acc252579bb92ec1fcc7899ea73cf22a41154ceb68d249c135bca457a153f089` on both sides; the recursive
+delta contains `0` leaves. Thus this is a completed semantic rejection/non-receipt, not a timeout,
+partial write or accepted Depth reissue. The accepted Depth allowance and the one cold-N11 allowance
+remain unused. `[P37: recomputed for the byte boundary and terminal; institutionally_supplied for
+the allowance semantics]`
+
+The sole issue is `authority_source_controlled_replay_recording_drift`. The safe DEFC-2 diagnostic
+names `recording_role=first_vertical`, `admission_arm=migrated`, expected-frozen identity
+`sha256:5be394e2308b33fb9b4907446a54858d11c29be3cabf9cf93bce9d8a06855bdb`, and live-replayed identity
+`sha256:655922817cfb98503b1d001a0f3db3edb516f5d5e19cb5a310aed648e08d384c`.
+Its complete changed-leaf denominator is `84`: `5` ordinary operational clock leaves and `79`
+reported semantic leaves. Of those `79`, `75` are verification-session N9 lineage/check/risk-spend
+identities; the remaining four are the enclosing `/compiled_run/content_hash`,
+`/compiled_run/recursive_run/content_hash`, `/compiled_run_content_hash`, and
+`/recording_content_hash`. Only identity digests, presence, type and paths are retained; no raw
+operand value is recorded here. The extracted diagnostic SHA-256 is
+`7fd23245404d1caf23088b9c09abb0569191463ab550b2704f7ab4be397a065f`. `[P37: recomputed]`
+
+This failure is upstream of the repaired artifact comparison plan. The source would construct an
+outer plan from producer-bound admissions for `10` full canonical promotion receipts and `9`
+parent-bound summaries only after all three roles complete. This failed execution minted the live
+receipt admissions for its first (`first_vertical`) role, then `_domain_run_and_normalized_recording`
+compared that entire controlled recording through `reconcile_gy_operational_leaves` and demanded
+exact equality; it never completed the three-role loop, summary admissions or final `19`-entry plan.
+That generic comparator owns only field-name operational exclusion; it never consumes the live
+session/candidate-bound N9 admissions that the same function has just derived. Consequently it sees
+legitimate verification-session lineage as governing, and the enclosing self-identities follow.
+Independent frozen review reproduced this ordering and classified the inner controlled-recording
+comparison as a second bespoke bridge rather than the already-authorized outer §2 artifact plan.
+`[P37: independently_reconciled]`
+
+The smallest correct closure is described, not performed: create a typed recording-level comparison
+admission only after strict recording/schema/role validation, full compiled-run validation, and
+successful session/candidate-bound admission of every nested canonical promotion receipt. Its
+structural projector must delegate nested receipts to the canonical promotion semantic owner,
+retain every governing typed field, remove only typed enclosing self-identities plus ordinary
+operational fields from the comparison, and preserve the full frozen recording bytes when the
+projection is equal. A governed outcome change must fail; a self-rehashed or bare
+`authority_provenance=verification` mapping must not mint admission; an unknown typed field must
+remain governing or fail validation. No reported leaf-name whitelist, global exit widening,
+placeholder normalization, scope weakening or second ledger is acceptable. `[P37: independently_reconciled
+for the closure shape; not_established until a separately authorized implementation and witnesses]`
+
+This is the prompt's genuine §6(b) boundary: it needs a second comparison mechanism beyond §2.
+Accordingly no source byte was changed after this finding, no replacement Depth
+measurement/check/rederive/corrupt lane
+was launched, the posture gate was not reached, and the one cold N11 was not launched. The objective
+“a cold owner derivation reaches `owner_bundle_loaded`” therefore remains `not_established` in this
+wave. `[P37: institutionally_supplied for the stop boundary; recomputed for the current changed-path
+set and retained launch receipts; not_established for Depth acceptance, posture and the cold-N11
+outcome]`
+
+The retained non-receipt boundary is
+`tmp/gy-defc-4/wave/depth/measurement/{before,after,delta.jsonl,write.meta.json,write.stdout.log,write.stderr,comparator-diagnostic.json}`.
+Three Terra tracks, and no Sol track, covered the predicate/authority classification,
+P35/P37 and timing boundary, and serialized wave/fence. Root alone performed source writes and all
+writer-class processes; review tracks were read-only. Their final messages reported no further
+predicate or journal blocker after the corrections above, but those messages are not bound as
+repository review receipts. `[P37: consumer_asserted for dispatch identity, execution ownership and
+review verdicts; not_established for repository-bound independent review receipts]`
+
+The final architecture guardrail ran under the retained `180` s cap and reached its known negative
+terminal: exit `1` in `43.703427` s, no timeout, empty stderr, and `5,081` stdout bytes at SHA-256
+`73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb`—the same stdout identity as
+the prior retained negative. It names only `architecture/baselines/imports/deep_import.json` and the
+five pre-existing runtime paths `execution_policy.py`, `routes/runs.py`, `channel_contracts.py`,
+`lex_pipeline.py`, and `lex_search_projection.py`. The complete task delta from `c1a89b6cf` has
+`27` paths; its exact intersection with those six guardrail paths is empty. The baseline was not
+synchronized. Changed-path receipt SHA-256 is
+`ebe3eced3200c92e607e994055a1a964d8c01abdc21d117ce3d734aaa3edd29a`. `[P37: recomputed for the
+guardrail terminal, complete changed-path denominator and empty intersection; independently_reconciled
+for its pre-existing/unrelated classification]`

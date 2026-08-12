@@ -2229,3 +2229,88 @@
   duplication census must state the complete `950` TS/TSX denominator
   (`360 .ts + 590 .tsx`). C14a remains typed-open unchanged; candidate is to be
   checkpointed then forward-reverted, and C15a is not entered.
+
+## 2026-08-12 — DS5-C13b-R5 strengthened service-worker witness
+
+- The carried R3 review finding is the RED-first boundary for R5. A focused
+  intermediate witness named the static navigation handler but left the
+  Workbox factory returning its former anonymous function; the real imported
+  worker then failed `1 / 1`, exit `1`, in `1.32 s` (`2 s / 120 s` wall) at
+  the handler-identity assertion. This demonstrates that source deletion plus
+  route-marker assertions alone did not prove what the registered handler
+  executes.
+- The completed witness binds `createHandlerBoundToURL("/index.html")` to a
+  named handler, obtains the actual `NavigationRoute` passed to
+  `registerRoute`, executes its registered handler, and receives the static
+  shell response. Named `clients.matchAll` and client `postMessage` spies are
+  both untouched after worker import and handler execution; the worker event
+  map remains empty. The same real route admits `/workspace` and rejects
+  `/api/runs`, `/health`, and `/ready`.
+- Focused Vitest GREEN: `1 / 1`, exit `0`, in `1.28 s` (`2 s / 120 s` wall).
+  Dashboard typecheck GREEN in `20 s`; scoped ESLint for `src/sw.ts` and
+  `src/sw.test.ts` GREEN in `7 s`; production build GREEN in `32 s / 300 s`
+  with only the inherited chunk-size advisory. This lane ran no governed
+  writer or scanner-heavy suite and did not stage or commit. The root-owned
+  R4-denominator receipt, governed artifact transition, serialized gates, and
+  final review remain separate obligations.
+
+## 2026-08-12 — DS5-C13b-R5 root-owned artifact and R4 payoff receipts
+
+- Before invoking the writer, root declared and hashed the expected transition:
+  the restored R3 atom already supplied the four intended
+  `cache-service-worker-static` leaves and the matching DS19 status pin, so the
+  writer could change only the generated report. The register
+  (`9d804579...a3416e9d`), status inventory (`b518d6eb...e648372c`), readiness
+  ledger (`4b64f092...e2ae13`), and baseline manifest
+  (`215b1882...e4bc00`) are byte-identical before and after both writer calls.
+  `offline-draft-composer` is also byte-identical and stays
+  `rebind_pending / pending`, typed-open on C14a with `producer_missing`,
+  `artifact_missing`, `bridge_missing`, `consumer_missing`,
+  `verification_missing`, and `semantic_test_missing`.
+- The first canonical `--write-report` invocation completed `exit 0` and moved
+  only the report, but its launcher omitted elapsed time; its timing is a
+  non-receipt. One serialized idempotence invocation then completed `exit 0`
+  in `133.886 s / 400 s`, again deriving `261` roots, `63` supplemental
+  findings, and `9` censuses with root dispositions
+  `18 / 196 / 25 / 6 / 16` (`deleted / rebind_pending / retire / use_as_is /
+  wire`).
+- Independent `git diff --numstat d01eaa572 --
+  policy-engine/apps/runtime-dashboard` reproduces the report's
+  `21224 / 19248 / -1976 / 89`. Relative to the restored report receipt,
+  R5 contributes exactly `+18 / -0` from its strengthened worker test. The
+  four newly recorded history lines are exactly the live
+  `git log d01eaa572^..HEAD` prefix: stopped R3 `efd5ebcba`, its revert
+  `b9fcdbd66`, R4 `fd2971e73`, and the append-only R3 restoration
+  `7e6478b71`. Accumulated history plus R5's own test delta explain the whole
+  report movement; there is no residual.
+- R4 payoff is measured against the real added `src/sw.test.ts`, not inferred:
+  `check_atlas_enforcement.py --check` completed `exit 0` in
+  `41.916 s / 1800 s`, with `offline_queue_production_sources=587`, broad
+  definition sources `590`, and dashboard program roots `950`. The test root
+  therefore leaves the production denominator unchanged while the governed
+  gate remains green.
+- The standing duplication finding remains the registered module-path debt:
+  one canonical offline database module path is repeated as `16` literals
+  across `8` governed owners (`35 / 15` in the tracked-tree census).
+  Descriptor/register parity, scanner/checker facts, and status reconciliation
+  compare subsets, but no single owner updates all eight. R5 found no second
+  implementation or generated artifact owning the service-worker concept.
+
+## 2026-08-12 — DS5-C13b-R5 serialized governed verification
+
+- The frontend disposition module completed `88 / 88`, exit `0`, in
+  `144.601 s / 400 s`. Its deliberately nonzero future-closure child commands
+  remained asserted controls and did not affect the outer green result.
+- The disposition checker with source-byte verification and corruption probes
+  completed `exit 0` in `97.617 s / 400 s`: corruption PASS, `261` roots,
+  `63` supplemental findings, and `9` censuses with the declared distribution.
+- The status-retirement module completed `38 / 38`, exit `0`, in
+  `48.659 s / 400 s`. Its checker and corruption probes completed `exit 0` in
+  `17.521 s / 400 s`, preserving `13` current-authored statuses, `47` DS1
+  rows, and `0` semantic-retirement debt.
+- The full Atlas module completed `33 / 33`, exit `0`, in
+  `305.794 s / 1800 s`. This is a new DS-INFRA-2 timing sample; it is not a
+  product-semantic signal. All scanner-heavy parents were root-owned,
+  serialized, and terminal. The only new non-receipt in this cluster is the
+  missing elapsed time on the first report-writer invocation, superseded by
+  the `133.886 s` byte-idempotent writer receipt.

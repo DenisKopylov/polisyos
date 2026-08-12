@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **21206**
+- Application lines added: **21224**
 - Application lines deleted: **19248**
-- Net application LOC reduction: **-1958**
+- Net application LOC reduction: **-1976**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -566,6 +566,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `7e6478b71 Reapply "checkpoint: preserve stopped DS5-C13b-R3 service-worker closure"`
+- `fd2971e73 DS5-C13b-R4 repair offline queue production denominator`
+- `b9fcdbd66 Revert "checkpoint: preserve stopped DS5-C13b-R3 service-worker closure"`
+- `efd5ebcba checkpoint: preserve stopped DS5-C13b-R3 service-worker closure`
 - `2e144c048 DS5-C13b-R2 re-anchor composer DB module`
 - `cf80700bb Reapply "checkpoint: preserve stopped DS5-C13b-R2 rename"`
 - `f4990b6f5 Revert "checkpoint: preserve stopped DS5-C13b-R2 rename"`

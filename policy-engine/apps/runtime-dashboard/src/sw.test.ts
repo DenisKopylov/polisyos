@@ -1,12 +1,22 @@
 import { NavigationRoute, registerRoute } from "workbox-routing";
-import { precacheAndRoute } from "workbox-precaching";
+import { createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { clientMatchAll, clientPostMessage, navigationHandler } = vi.hoisted(() => {
+  const clientPostMessage = vi.fn();
+
+  return {
+    clientMatchAll: vi.fn(async () => [{ postMessage: clientPostMessage }]),
+    clientPostMessage,
+    navigationHandler: vi.fn(async () => new Response("navigation shell")),
+  };
+});
 
 vi.mock("workbox-core", () => ({ clientsClaim: vi.fn() }));
 
 vi.mock("workbox-precaching", () => ({
   cleanupOutdatedCaches: vi.fn(),
-  createHandlerBoundToURL: vi.fn(() => async () => new Response()),
+  createHandlerBoundToURL: vi.fn(() => navigationHandler),
   precacheAndRoute: vi.fn(),
 }));
 
@@ -43,7 +53,7 @@ describe("service worker", () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    vi.mocked(registerRoute).mockReset();
+    vi.clearAllMocks();
     registeredWorkerEvents.clear();
 
     Object.defineProperty(globalThis, "self", {
@@ -53,7 +63,7 @@ describe("service worker", () => {
         addEventListener: (type: string, listener: WorkerEventListener) => {
           registeredWorkerEvents.set(type, listener);
         },
-        clients: { matchAll: vi.fn() },
+        clients: { matchAll: clientMatchAll },
         skipWaiting: vi.fn(),
       },
       writable: true,
@@ -62,16 +72,24 @@ describe("service worker", () => {
     await import("./sw");
   });
 
-  it("test_service_worker_has_no_authority_sync_or_authenticated_api_cache", () => {
+  it("test_service_worker_has_no_authority_sync_or_authenticated_api_cache", async () => {
     const route = vi.mocked(registerRoute).mock.calls[0]?.[0];
 
     expect(vi.mocked(precacheAndRoute)).toHaveBeenCalledWith(staticManifest);
     expect(vi.mocked(registerRoute)).toHaveBeenCalledTimes(1);
     expect(route).toBeInstanceOf(NavigationRoute);
+    expect(vi.mocked(createHandlerBoundToURL)).toHaveBeenCalledWith("/index.html");
+    expect((route as NavigationRoute).handler.handle).toBe(navigationHandler);
     expect((route as NavigationRoute).match(navigationOptions("/workspace"))).toBe(true);
     expect((route as NavigationRoute).match(navigationOptions("/api/runs"))).toBe(false);
     expect((route as NavigationRoute).match(navigationOptions("/health"))).toBe(false);
     expect((route as NavigationRoute).match(navigationOptions("/ready"))).toBe(false);
+    await expect(
+      (route as NavigationRoute).handler.handle(navigationOptions("/workspace")),
+    ).resolves.toBeInstanceOf(Response);
+    expect(navigationHandler).toHaveBeenCalledTimes(1);
+    expect(clientMatchAll).not.toHaveBeenCalled();
+    expect(clientPostMessage).not.toHaveBeenCalled();
     expect(registeredWorkerEvents).toEqual(new Map());
   });
 });

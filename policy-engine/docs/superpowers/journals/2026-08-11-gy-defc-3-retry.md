@@ -1570,3 +1570,64 @@ post-freeze receipts. No governed artifact, denominator, admission outcome, comp
 transport covariate, N8 proof hash, or ambient discovery identity changed. `[P37: recomputed for
 the observed terminals and current two-path diff; not_established for the post-freeze live census
 and reissue wave]`
+
+### Envelope propagation freeze and review
+
+The propagation correction landed append-only as `cd29ca29d` on the attached task branch, `27`
+commits ahead of `c1a89b6cf`; the commit contains only the Depth owner, its mirrored test and this
+journal. A retained post-freeze suite selected ten controlled-recording, artifact-reconciliation and
+outer-plan tests under the receipt interpreter. It exited `0` in `104.065146` s under a `300` s
+fence, with empty stderr and unchanged clean head. Its meta/stdout SHA-256 values are
+`8e40fb9b…83197` and `7040371a…4103`. `[P37: recomputed]`
+
+Three independent Terra reviews, no Sol review, then inspected the frozen source. The authority
+track found no Critical/Important P05/P31/P32/P37 issue: migration remains available only on a live
+producer plan, and the postpass recomputes rather than copies the authority envelope. The
+correctness track traced the two-pass migrated-receipt/admission/hash loop and repeat-v2 path and
+found no Critical/Important defect. The wave track confirmed the live census must remain the real
+proof because the fast fixture deliberately substitutes the nested owner proof. The review tracks
+were read-only; root alone wrote source. `[P37: consumer_asserted for dispatch identities and
+verdicts; independently_reconciled for the source boundary they cite]`
+
+One overlapping focused-test capture was terminated with `SIGTERM` after the process census showed
+that a reviewer had independently launched the same test while root's retained run was active. It
+ran `123.570699` s, recorded child/wrapper exit `-15`, was not a timeout, and left the clean
+`cd29ca29d` head unchanged. Its meta SHA-256 is `cd61cea4…ddd2`. It is a contention/setup
+non-receipt and supplies neither correctness nor duration evidence. `[P37: recomputed]`
+
+### Live-census ordering correction — upstream v1 artifacts first
+
+The first ignored live-census harness attempt exited `1` in `150.857683` s with no timeout and no
+governed byte change. It called the cached async replay before the canonical synchronous provenance
+gate had warmed its cache, so composition validation attempted a nested `asyncio.run` and Python
+raised `RuntimeError: asyncio.run() cannot be called from a running event loop`. Meta/stderr hashes
+are `6ab8744f…6efc1` and `e34198fb…78aab`. The harness was corrected to match the canonical CLI's
+preflight ordering; no source or artifact changed. This is a harness non-receipt. `[P37:
+recomputed for the terminal and byte pin; independently_reconciled for the canonical-ordering
+classification]`
+
+The corrected second attempt reached that provenance gate and exited `1` in `220.705154` s, again
+without timeout and with the `1,841,810`-byte Depth artifact unchanged at
+`acc25257…3f089`. Its exact owner issues were the still-v1 N10a comparison schema, rule and manifest,
+plus their dependent N6 gap receipt. Meta/stderr hashes are `6fcc4e33…6487` and
+`5f2d744c…6304e`. This is expected fail-closed behavior after the v2 source freeze: the Depth
+candidate cannot be built until the already-enumerated upstream promotion, generation and N10a
+artifacts acquire their v2 projection lineage. It is a provenance-ordering non-receipt, not a third
+mechanism. `[P37: recomputed for the issues and byte boundary; independently_reconciled for the
+dependency classification]`
+
+This measurement corrects the prompt's order. The batch now runs promotion → generation → N10a,
+then re-runs the source-bound all-role Depth census, then accepts Depth. That is the same predeclared
+six-file family and obeys B2; it does not discover or repair an artifact one at a time. The live
+census remains a hard acceptance gate immediately before the Depth writer. `[P37:
+institutionally_supplied for the measurement-wins/B2 authority; recomputed for the dependency that
+forces the order; not_established for all four replacement reissues]`
+
+The refreshed timing report parsed `145` records and completed at the clean `cd29ca29d` head. Its
+recomputed two-times-p95 caps are promotion write/check/rederive
+`52.439504`/`52.486368`/`52.080878` s; generation
+`76.199994`/`85.542132`/`75.902086` s; N10a
+`852.699146`/`74.272168`/`726.805376` s; and Depth
+`4,942.540412`/`319.661388`/`1,695.177568` s. The four corrupt lanes remain under declared hang
+fences `300`/`300`/`300`/`600` s because GY-DI4 is registered and unimplemented. The report
+meta/output hashes are `2d487f36…5f4bf` and `5659b525…0583`. `[P37: recomputed]`

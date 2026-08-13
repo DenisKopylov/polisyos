@@ -2237,3 +2237,52 @@ PolicyOS-owned heavy process under the unchanged cap; it does not infer a larger
 killed duration and does not claim that contention caused `live4`. `[P37: recomputed for the
 post-terminal process census; institutionally_supplied for the replacement/parallel-execution
 rule; not_established for historical contention during live4]`
+
+### GY-DEFC-5 Depth v2 — B4 terminal and stop
+
+The one authorized B4 replacement, `live5`, ran from clean attached `93a6ba2d8` under the same
+receipt posture and unchanged `1,695.177568` s cap. It reached the cap after `1,695.515096` s;
+the wrapper recorded `timed_out: true`, child terminal `-15`, wrapper exit `124`, and no launch
+error. The tracked status and head were exact before and after, and the governed Depth pin again
+remained `1,841,810` bytes at `acc252579…f089`. No `candidate.json`, `summary.json`,
+`artifact-delta.jsonl`, `projection-leaves.jsonl` or `raw-receipt-preservation.jsonl` was produced.
+Meta/stdout/stderr identities are `28edbd24…56b1a`, `3dbd9d05…15c5e`, and
+`ae24c9fc…02659`. `[P37: recomputed]`
+
+The retained stdout ends in registry/replay construction and does not provide a semantic terminal.
+Accordingly `live5` is a second cap-measuring non-receipt, not a completed lane sample, source
+verdict, candidate verdict, semantic/reconciliation verdict or accepted artifact reissue. The
+replacement was launched without waiting for external host-wide quiescence, but there is no
+interval-wide process ledger that establishes whether or how contention affected it. `[P37:
+recomputed for the missing terminal artifacts; not_established for the overrun cause, interval
+contention, source correctness, candidate content/validation/delta and semantic path reached]`
+
+B4 is now exhausted: `live4` was the first alone-at-cap finding and `live5` the single authorized
+replacement. No third census and no cap increase are permitted. The smallest next closure is a
+separately priced timing/execution slice that obtains a completed source-bound live-owner census
+under an architect-ratified fence or changes the census' performance without changing its
+comparison semantics; it must preserve the same exact source, 353-artifact byte, 3-role/10-receipt,
+6-plan-entry, raw-custody and complete-delta predicates. That closure is described, not performed.
+`[P37: institutionally_supplied for B4 exhaustion and next-authority boundary;
+not_established for any replacement cap or performance diagnosis]`
+
+Because no Depth candidate exists, the complete expected delta cannot be declared, no canonical
+Depth writer or its three verification lanes may be launched, and the accepted Depth reissue
+allowance remains unused. The task orders the posture gate and single cold N11 only after Depth
+closes; neither was launched. Therefore `owner_bundle_loaded` remains `not_established`, the sole
+cold-N11 allowance remains unused, and GY-DEFC-5 stops at the B4 Depth lane rather than paying a
+cold run known to lack the prerequisite closure. `[P37: recomputed for output/run absence;
+institutionally_supplied for ordering and allowance semantics; not_established for the objective]`
+
+The final governed timing report is `0970d875…8d0e5` and still recommends
+`1,695.177568` s for Depth rederive from one admissible successful sample at `847.588784` s; killed
+`live4`/`live5` records are absent from that sample set. It continues to recommend
+`4,942.540412` s for a canonical Depth writer, but that lane was never entered because the
+pre-write source-bound delta gate did not close. `[P37: recomputed]`
+
+Orchestration remained three independent Terra tracks: authority/P32, correctness and wave
+readiness. They reviewed the frozen source batch independently, then prepared the live-census
+acceptance, Depth verification and one-build N11 protocols while the serialized heavy process ran.
+Only one PolicyOS-owned writer/scanner-heavy process was live at a time; no Sol agent was used.
+`[P37: consumer_asserted for orchestration history; recomputed for the final live agent/process
+state only]`

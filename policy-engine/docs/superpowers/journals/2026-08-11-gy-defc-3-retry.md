@@ -2257,8 +2257,8 @@ interval-wide process ledger that establishes whether or how contention affected
 recomputed for the missing terminal artifacts; not_established for the overrun cause, interval
 contention, source correctness, candidate content/validation/delta and semantic path reached]`
 
-B4 is now exhausted: `live4` was the first alone-at-cap finding and `live5` the single authorized
-replacement. No third census and no cap increase are permitted. The smallest next closure is a
+B4 is now exhausted: `live4` was the initial cap-terminated non-receipt and `live5` the single
+authorized replacement. No third census and no cap increase are permitted. The smallest next closure is a
 separately priced timing/execution slice that obtains a completed source-bound live-owner census
 under an architect-ratified fence or changes the census' performance without changing its
 comparison semantics; it must preserve the same exact source, 353-artifact byte, 3-role/10-receipt,

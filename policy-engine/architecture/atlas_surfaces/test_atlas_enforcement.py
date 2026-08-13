@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import copy
 import importlib.util
 import json
@@ -76,6 +75,10 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
 
+    def test_raw_local_state_envelope_cannot_be_issued_or_written(self) -> None:
+        """Execute the scoped local-state runtime witness instead of grepping it."""
+        self.assertEqual([], checker._authority_local_state_runtime_errors())
+
     def test_query_policy_splits_wrapper_construction_from_feature_producer(self) -> None:
         """Bind C12b construction to the wrapper while retaining the feature producer."""
         self.assertEqual(  # noqa: PT009 - unittest keeps the expected identity visible.
@@ -128,7 +131,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
 
         facts = scan["offlineQueueFacts"]
-        self.assertEqual(587, facts["productionFiles"])
+        self.assertEqual(588, facts["productionFiles"])
         self.assertEqual([], facts["authorityActionKinds"])
         self.assertEqual([], facts["mutationStores"])
         self.assertEqual([], facts["replayDeclarations"])
@@ -278,13 +281,13 @@ class AtlasEnforcementTests(unittest.TestCase):
         live_facts = live_scan["offlineQueueFacts"]
         test_source_delta = test_source_scan["offlineQueueFacts"]["productionFiles"]
         production_source_delta = production_source_scan["offlineQueueFacts"]["productionFiles"]
-        self.assertEqual(587, live_facts["productionFiles"])  # noqa: PT009 - live receipt.
-        self.assertEqual(590, live_facts["definitionFiles"])  # noqa: PT009 - broad receipt.
+        self.assertEqual(588, live_facts["productionFiles"])  # noqa: PT009 - live receipt.
+        self.assertEqual(591, live_facts["definitionFiles"])  # noqa: PT009 - broad receipt.
         self.assertEqual(  # noqa: PT009 - the three exclusions are source-derived.
             list(locale_json_paths), live_facts["nonTypeScriptDefinitionFiles"]
         )
-        self.assertEqual(587, test_source_delta)  # noqa: PT009 - test roots are excluded.
-        self.assertEqual(588, production_source_delta)  # noqa: PT009 - production is selected.
+        self.assertEqual(588, test_source_delta)  # noqa: PT009 - test roots are excluded.
+        self.assertEqual(589, production_source_delta)  # noqa: PT009 - production is selected.
         self.assertEqual(  # noqa: PT009 - the virtual test retains the live denominator.
             checker.OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT,
             test_source_delta,
@@ -324,8 +327,12 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_c13a_terminal_dispositions_have_live_census_and_composer_rebind(self) -> None:
         """Require C13a terminal rows to carry a fresh zero-consumer receipt."""
-        data = frontend_disposition_checker._load_json(
-            frontend_disposition_checker.REGISTER_PATH
+        data = json.loads(
+            frontend_disposition_checker._refresh_supplemental_findings_text(
+                frontend_disposition_checker.REGISTER_PATH.read_text(
+                    encoding="utf-8"
+                )
+            )
         )
         unit_ids = {
             "status-offline-queue-item",
@@ -357,27 +364,6 @@ class AtlasEnforcementTests(unittest.TestCase):
         for probe in census["probes"]:
             self.assertEqual([], frontend_disposition_checker._recompute_probe(probe))
 
-        c14 = next(
-            row
-            for row in data["supplemental_findings"]
-            if row["finding_id"] == "c14a-local-state-envelope-owner-debt"
-        )
-        source_path = (
-            "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts"
-        )
-        identity_refs = [
-            reference
-            for reference in c14["evidence_refs"]
-            if reference.startswith(f"{source_path}#ts-identity=")
-        ]
-        self.assertEqual(1, len(identity_refs))
-        payload_text = identity_refs[0].split("#ts-identity=", 1)[1]
-        payload = json.loads(
-            base64.urlsafe_b64decode(
-                payload_text + "=" * (-len(payload_text) % 4)
-            )
-        )
-        self.assertEqual("deleteComposerDraftRecord", payload["discriminator"])
         self.assertEqual(
             [],
             frontend_disposition_checker.validate_register(

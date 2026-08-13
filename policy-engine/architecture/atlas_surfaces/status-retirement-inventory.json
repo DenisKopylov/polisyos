@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:9d804579dc0304e13f4c02c0fd8ed91be7105a9b14e9725f1f2caa74a3416e9d"
+      "sha256": "sha256:cdf99476b7751f71493a7e2539749d7c056a65ac5332a82da3d321d4b7997a9f"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -1217,6 +1217,26 @@
           "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
           "line": 87,
           "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+          "line": 32,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+          "line": 40,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+          "line": 83,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+          "line": 91,
+          "kind": "prop"
         }
       ],
       "owner_type": {
@@ -2386,8 +2406,8 @@
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
-        "start_line": 80,
-        "end_line": 85,
+        "start_line": 83,
+        "end_line": 88,
         "declaration_name": "EvidenceWalletCandidateKind"
       },
       "literal_members": [

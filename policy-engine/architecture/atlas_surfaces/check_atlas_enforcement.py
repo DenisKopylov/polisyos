@@ -574,7 +574,7 @@ COMPOSER_DRAFT_DB_PATH = "apps/runtime-dashboard/src/app/offline/composerDraftDb
 COMPOSER_DRAFT_ADAPTER_PATH = (
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts"
 )
-OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT = 587
+OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT = 588
 COMPOSER_DRAFT_DB_BINDINGS = [
     "deleteComposerDraftRecord",
     "loadComposerDraftRecord",
@@ -1732,6 +1732,34 @@ def _authority_semantic_copy_runtime_errors() -> list[str]:
         return [f"authority_semantic_copy_runtime_harness_failed:{error}"]
     if completed.returncode != 0:
         return ["authority_semantic_copy_runtime_harness_failed"]
+    return []
+
+
+def _authority_local_state_runtime_errors() -> list[str]:
+    """Execute the scoped local-state envelope witnesses through the real dashboard runtime."""
+    try:
+        completed = subprocess.run(
+            [
+                "corepack",
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "src/app/offline/authorityLocalState.test.ts",
+                "src/features/runs/domain/operatorCraft.test.ts",
+                "--maxWorkers=1",
+                "--reporter=default",
+            ],
+            cwd=status_checker.REPO_ROOT / "apps/runtime-dashboard",
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=45,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return [f"authority_local_state_runtime_harness_failed:{error}"]
+    if completed.returncode != 0:
+        return ["authority_local_state_runtime_harness_failed"]
     return []
 
 

@@ -2314,3 +2314,190 @@
   serialized, and terminal. The only new non-receipt in this cluster is the
   missing elapsed time on the first report-writer invocation, superseded by
   the `133.886 s` byte-idempotent writer receipt.
+
+## 2026-08-13 — DS5-C17a-R2 local-state envelope implementation
+
+- Orchestration receipt: two read-only design/probe workers exhausted quota
+  before the entry probe succeeded on its one permitted retry; both are
+  non-receipts. The approved C17a-R2/cap-15 design was then implemented without
+  reopening architecture.
+- RED: missing owner import (`2 files`, exit `1`, `3.14 s`); raw craft keys and
+  absent-scope writes (`2 / 11` focused failures, exit `1`, `3.99 s`); and the
+  absent Python runtime bridge (`AttributeError`, exit `1`, `14.8 s`). An
+  intermediate C21 import failure from stale panel anchors was a non-receipt;
+  both panels' actual creation identities were re-derived before the bridge RED.
+- GREEN: focused Vitest `11 / 11`, exit `0`, `2.84 s`; enforcement runtime
+  witness `1 / 1`, exit `0`, `4.788 s`; dashboard typecheck exit `0`.
+  The owner rejects malformed/legacy/expired/cross-scope/copied-slot/
+  known-or-novel-family bytes without rewriting them; the four physical craft
+  families hydrate only under settled tenant/user scope.
+- P01/P02/P05/P27/P28/P29/P31/P33 pass: one canonical owner replaces all four
+  raw craft writes, the real runtime—not markers—proves the boundary, and
+  malformed plus sibling-family variants are exercised. No server/epoch/rule
+  revalidation is claimed. Root alone must serialize register/status/report
+  writers, full scanner modules, final review, staging, and commit.
+- A final combined command was first issued from `policy-engine/` and could not
+  resolve Vitest (`ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL`, `1.0 s`): non-receipt.
+  The prescribed dashboard-root rerun was GREEN `11 / 11`, exit `0`, `5.62 s`.
+
+## 2026-08-13 — DS5-C17a-R2 descriptor-source repair
+
+- Root review correctly rejected the dynamic descriptor `pop`: it left a dead
+  C14a absence literal and unreachable old debt test body. The complete literal,
+  dynamic removal, and dead test scaffolding were physically deleted; only the
+  behavioral closure witness remains. No generated artifact was edited.
+- Focused C14 closure command GREEN, terminal exit `0`, harness wall `27.9 s`;
+  it proves active descriptor absence, in-memory generated-row absence, and the
+  real runtime witness. Runtime witness GREEN `1 / 1`, `3.397 s` test duration,
+  wrapped wall `17.69 s`. `py_compile` GREEN `0.17 s`; `git diff --check`
+  GREEN `0.04 s`. No writer/scanner-heavy/full module, stage, or commit ran.
+
+## 2026-08-13 — DS5-C17a-R2 independent-review repair
+
+- RED: the new `authorityLocalState` null-storage witness failed as intended:
+  focused Vitest was `4 / 5`, exit `1`, `1.74 s`; `write()` returned `true`
+  after optional-chaining a null storage dependency. `write()` now resolves
+  storage inside `try`, returns `false` before `setItem`, and the focused owner
+  suite is GREEN `5 / 5`, exit `0`, `1.73 s`. Dashboard typecheck first exposed
+  new-test generic/narrowing defects; after the typed repair it is GREEN, exit
+  `0`, `18.99 s`.
+- C13a no longer dereferences the removed C14 debt row. Its in-memory surgical
+  refresh generically removes unsupported producer-binding rows, not a finding-
+  specific exception. The terminal census now asserts full register GREEN (`[]`)
+  **after** the root-owned artifact refresh. It is deliberately pre-writer RED
+  on the three known generated receipts (one C21 census count and two C21 panel
+  identities), and was not rerun in this receipt round; root must rerun it after
+  writers complete.
+- The complete 31-row dependency census is: direct C14a dependents (`3`) =
+  C13b composer, C14b-R1, C15a; prerequisite-only (`3`) = C16a, C16b, C17b;
+  remaining DS5 rows (`25`) receive no C14a direct transition in this cut. The
+  plan's C14a and C17a audit rows now state that post-C17a truth; plan delta is
+  `19 / 17` (36 changed lines, within cap).
+- Re-run C14 closure GREEN `1 / 1`, exit `0`, `54.19 s`; its nested runtime
+  witness is GREEN `1 / 1`, `3.395 s`. Root alone must execute the generated
+  artifact refresh, which will consume the three explicit pre-writer receipts.
+
+## 2026-08-13 — DS5-C17a-R2 post-writer gate receipt
+
+- The C13a terminal-census helper is deliberately pre-writer RED: it now
+  asserts full refreshed-register validation `[]`, rather than accepting the
+  three known generated-receipt drifts. It was not rerun before writers; root
+  must run it after the serialized register/report/status refresh.
+- C13b composer closure, C14b-R1, and C15a identity hydration are executable at
+  the post-C17a boundary; C14a and C17a-R2 state `landed-after-commit`. The
+  compact plan delta is `19 / 17` (36, cap 40).
+- Test/doc-only static receipt: `py_compile` and `git diff --check` exit `0`.
+  The frozen mechanism diff digest remains
+  `16b149dc4f0419186fde7a12a462d7738139fb502c75d74644b413e62961bf91`;
+  untracked owner snapshot digest is
+  `dcf001daf5c64265ce04ca4cf698ad15367e976c318e18c1fdae67386d91f890`.
+  No writer, scanner-heavy/full suite, stage, or commit ran.
+
+## 2026-08-13 — DS5-C17a-R2 declared generated-artifact delta
+
+- Declared before the writer: the register keeps `261` roots, `9` censuses,
+  and the complete `28`-reference signing census; supplemental findings move
+  `63 -> 62` solely by removing
+  `c14a-local-state-envelope-owner-debt`. Exactly two stored C21 call identities
+  re-anchor, for `AmbientTelemetryHud.tsx` and `OperatorCraftPanel.tsx`; decoded
+  payloads retain source path, role, discriminator, declaration chain, and
+  normalized-token hash, changing only their structural path after the two new
+  scope declarations. No finding identity, disposition, label, or denominator
+  may otherwise move; `cache-operator-craft` remains
+  `rebind_pending / pending`.
+- The no-write status scan completed `exit 1` in `20.56 s / 400 s` on exactly
+  the declared stale receipts: `status-inline-authz-provider` gains four direct
+  property consumers (two in each scoped panel), and
+  `semantic-evidence-wallet-kind` moves `80-85 -> 83-88` without changing its
+  members or expression. After the register write, only the dependent DS19
+  source hash may additionally move. Status denominators remain
+  `13` current-authored / `47` DS1 / `0` retirement debt; DS1, baseline, and
+  readiness artifacts remain byte-identical.
+- The generated report may mirror only that semantic projection plus its two
+  declared generation-time sections: one new HEAD commit line,
+  `bc9421163 DS5-C13b-R5 close service-worker authority bridge`, and independent
+  application numstat. The initial declaration omitted the two untracked owner
+  files, repeating the known porcelain trap, and is a non-receipt. After those
+  two exact files were staged, the corrected complete receipt is
+  `22178 / 19367 / -2811 / 89`. Relative to its prior
+  `21224 / 19248 / -1976 / 89` receipt, the C17a application contribution is
+  `+954 / -119`; a residual outside these sources is a stop.
+
+## 2026-08-13 — DS5-C17a-R2 review closure and live C21 receipt
+
+- Independent source review first returned NO-GO `0C / 2I / 0M`. The generic
+  owner had reported a successful write when storage was absent, and the Atlas
+  C13a test still dereferenced the C14 debt row that the writer must retire.
+  Null storage then failed `4 / 5` in `1.74 s` and passed `5 / 5` in `1.73 s`;
+  the owner now returns `false` without emitting a changed event. C13a now
+  validates the post-writer register without the retired row.
+- Delta review then found two real owner-boundary gaps. RED `1 / 6` in `4.29 s`
+  admitted a tampered extended expiry. The repaired parser binds the exact
+  writer-owned TTL, requires a finite owner clock and
+  `issuedAt <= now < expiresAt`, and rejects future-issued bytes. Clock, codec,
+  and storage failures are contained at the generic owner boundary as
+  fallback/`false`, without mutation. GREEN is `6 / 6` in `3.79 s`; the final
+  owner plus craft wave is `13 / 13` in `8.86 s`. Independent delta review is
+  GO `0C / 0I / 0M`.
+- The full frontend module's first post-writer run was governed RED: `88` tests
+  completed in `182.737 s` (`189.44 s / 400 s`) with five failures. Complete
+  read-only diagnosis proved C21 itself sound. Retiring C14 legitimately
+  removes five descriptor TypeScript identities plus one plan anchor, so the
+  live corpus is now `264 total / 156 TypeScript / 6 structured / 15
+  navigation` across `11` files; the TypeScript partition is `28 observed +
+  118 authority + 10 descriptor`, all `156 / 156` discriminated. Historical
+  C21 receipts remain `270 / 161 / 6 / 15`; they are not rewritten.
+- The stale C21 post-migration proxy now derives its expected partition from
+  the input and actual migration set. Its end-to-end move-green / rename-red
+  witness targets the surviving
+  `depthNCycleBoardProjectionQueryOptions` descriptor instead of the retired
+  C14 row. The C01 date test again applies its `2026-08-02` assertion only to
+  C01 authority rows; a complete diff proved the writer removed only C14 and
+  changed no surviving decision date. The focused repairs passed `3 / 3` in
+  `76.86 s` and `2 / 2` in `129.77 s`.
+- Scoped ESLint first found two type-hygiene diagnostics in the new owner and
+  is GREEN after type-only annotations (`57.16 s`); final typecheck is GREEN in
+  `51.93 s`, scoped ESLint in `71.95 s`, and production build in `56.81 s /
+  300 s` with only the inherited chunk advisory. The first artifact-allowlist
+  script was launched from the wrong directory and raised `FileNotFoundError`;
+  it is a harness non-receipt. The corrected allowlist proves exactly one C14
+  row removal, two structural-path-only C21 reanchors, the declared status
+  leaves, and no baseline/readiness/i18n movement.
+- Independent application numstat before staging reproduced only
+  `21567 / 19367 / -2200` because ordinary `git diff` omitted the two new
+  files. Their complete measured size is `611` additions (`327` owner + `284`
+  test). With only those two files staged, the independent report receipt is
+  `22178 / 19367 / -2811 / 89`, and C17a contributes `+954 / -119`. The
+  report's one new HEAD line remains exactly `bc9421163 DS5-C13b-R5 close
+  service-worker authority bridge`; root regenerates the report once against
+  this corrected declaration and rejects any other artifact byte movement.
+
+## 2026-08-13 — DS5-C17a-R2 final governed verification
+
+- Corrected report generation completed `exit 0` in `141.19 s / 400 s` after
+  staging only the two new owner files. Independent numstat reproduced
+  `22178 / 19367 / -2811 / 89`; the report records exactly that receipt and
+  the single expected prior-HEAD line. Register, status, baseline, and
+  readiness hashes remained unchanged. A final canonical supplemental/report
+  writer completed `exit 0` in `154.05 s / 400 s` and was byte-idempotent:
+  register `cdf99476...b7997a9f`, report `b0880364...699616a`.
+- The corrected frontend disposition module passed `88 / 88` in `366.862 s`
+  (`373.94 s / 400 s`). Its checker with baseline verification and corruption
+  probes passed in `276.89 s / 400 s`, retaining `261` roots, `62`
+  supplemental findings, and `9` censuses with root distribution
+  `18 / 196 / 25 / 6 / 16`.
+- The full Atlas module passed `34 / 34` in `1306.519 s` (`1338.89 s / 1800 s`).
+  It derives `588` offline production TypeScript sources and broad `591`
+  definition sources after adding the owner, while all other governed facts
+  remain source-complete. This is a DS-INFRA-2 timing sample, not a product
+  signal.
+- The status-retirement module passed `38 / 38` in `168.121 s` (`168.65 s /
+  400 s`). Its corruption checker passed in `50.36 s / 400 s`, preserving
+  `13` current-authored rows, `47` DS1 rows, and `0` semantic retirement debt.
+  Earlier post-writer receipts were also green: status corruption `27.68 s`,
+  status module `75.37 s`, C13a terminal history `66.97 s`, and C14 closure
+  `53.17 s`.
+- The standing duplication duty found no new second owner. The carried module
+  path debt remains one canonical offline module replicated as `16` literals
+  across `8` governed owners (`35 / 15` tracked); C17a introduces one canonical
+  local-state issuer consumed by four concrete codecs, not parallel issuers.

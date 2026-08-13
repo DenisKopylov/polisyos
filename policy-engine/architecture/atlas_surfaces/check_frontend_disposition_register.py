@@ -2848,110 +2848,6 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "imports directly use @polisyos/runtime-api-client."
         ),
     },
-    "c14a-local-state-envelope-owner-debt": {
-        "finding_kind": "producer_binding_debt",
-        "disposition": "rebind_pending",
-        "status": "open_debt",
-        "owner_slice": "DS5",
-        "capability_states": [
-            "producer_missing",
-            "artifact_missing",
-            "bridge_missing",
-            "consumer_missing",
-            "verification_missing",
-            "semantic_test_missing",
-        ],
-        "evidence_refs": [
-            (
-                "apps/runtime-dashboard/src/features/composer/state/compose"
-                "rDraftRepository.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbi"
-                "I6WyJleHBvcnQ6Q29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpDb21w"
-                "b3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6Q29tcG9zZXJEcmFmdFJlY2"
-                "9yZCIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3Jj"
-                "L2ZlYXR1cmVzL2NvbXBvc2VyL3N0YXRlL2NvbXBvc2VyRHJhZnRSZXBvc2"
-                "l0b3J5LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
-                "b3IiOiJDb21wb3NlckRyYWZ0UmVjb3JkIiwibm9ybWFsaXplZF90b2tlbn"
-                "Nfc2hhMjU2IjoiOTc5YjU5MTliYTRlYTg5NmIxMjhlN2EyN2JjMjQwNGM5"
-                "MjNhZjM5NWRhYThmNTIxNzhjZWU5NWY2MTJhNGQ5ZCIsInJvbGUiOiJleH"
-                "BvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50"
-                "aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvY29tcG9zZXIvc3RhdGUvY2"
-                "9tcG9zZXJEcmFmdFJlcG9zaXRvcnkudHMiLCJzdHJ1Y3R1cmFsX3BhdGgi"
-                "OltdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts#ts-identity=eyJkZWNsYX"
-                "JhdGlvbl9jaGFpbiI6WyJleHBvcnQ6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZCIsInN5bWJvbDpkZW"
-                "xldGVDb21wb3NlckRyYWZ0UmVjb3JkIiwicmVzb2x2ZWQ6ZGVsZXRlQ29tcG9zZXJEcmFmdFJlY29yZC"
-                "IsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwcC9vZmZsaW5lL2NvbXBvc2"
-                "VyRHJhZnREYi50czpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJkZWxldGVDb2"
-                "1wb3NlckRyYWZ0UmVjb3JkIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWQyZjE4YzQ4ZGEzYW"
-                "IzZmU3ZTY3NjFmY2UyZWYxMmY3YTk3NTI4NjgyYjdiYTlkNDNlNGVjYzhmYWUxYzkzNCIsInJvbGUiOi"
-                "JleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC"
-                "9zcmMvYXBwL29mZmxpbmUvY29tcG9zZXJEcmFmdERiLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidm"
-                "Vyc2lvbiI6MX0"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/routes/tabs/Causa"
-                "lTab.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsY"
-                "XJhdGlvbjp3cml0ZVN0b3JlZENhdXNhbERyYWZ0Iiwic3ltYm9sOndyaXR"
-                "lU3RvcmVkQ2F1c2FsRHJhZnQiLCJyZXNvbHZlZDp3cml0ZVN0b3JlZENhd"
-                "XNhbERyYWZ0IiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2F"
-                "yZC9zcmMvZmVhdHVyZXMvcnVucy9yb3V0ZXMvdGFicy9DYXVzYWxUYWIud"
-                "HN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6Ind"
-                "yaXRlU3RvcmVkQ2F1c2FsRHJhZnQiLCJub3JtYWxpemVkX3Rva2Vuc19za"
-                "GEyNTYiOiI1ZDE2ZWFmNTA1NDkzOTVmZGMyZjU3NmEwMzI5OWZkNzRhYmQ"
-                "zMzU3MTczNzE1NDBlNTg4YmE5NTBmYmU2YjBlIiwicm9sZSI6Im5hbWVkX"
-                "2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGF"
-                "zaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL3JvdXRlcy90YWJzL0NhdXNhb"
-                "FRhYi50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/domain/disputes.t"
-                "s#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6d3Jp"
-                "dGVTdG9yZWREaXNwdXRlcyIsInN5bWJvbDp3cml0ZVN0b3JlZERpc3B1dG"
-                "VzIiwicmVzb2x2ZWQ6d3JpdGVTdG9yZWREaXNwdXRlcyIsImRlY2xhcmF0"
-                "aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bn"
-                "MvZG9tYWluL2Rpc3B1dGVzLnRzOkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwi"
-                "ZGlzY3JpbWluYXRvciI6IndyaXRlU3RvcmVkRGlzcHV0ZXMiLCJub3JtYW"
-                "xpemVkX3Rva2Vuc19zaGEyNTYiOiJkMGU0ZDBmMDM4MTkxNzQzOGZhNjNh"
-                "ODEwODZhYTRiOGExZmUwOWQzZjFiODA4OTZiMTQ2NmQ5ZTYwNmQ3YWQ1Ii"
-                "wicm9sZSI6ImV4cG9ydGVkX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgi"
-                "OiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2"
-                "RvbWFpbi9kaXNwdXRlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZl"
-                "cnNpb24iOjF9"
-            ),
-            (
-                "apps/runtime-dashboard/src/features/runs/domain/operatorCr"
-                "aft.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ"
-                "6c2V0UmV2aWV3ZXJUaHJlc2hvbGQiLCJzeW1ib2w6c2V0UmV2aWV3ZXJUa"
-                "HJlc2hvbGQiLCJyZXNvbHZlZDpzZXRSZXZpZXdlclRocmVzaG9sZCIsImR"
-                "lY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1c"
-                "mVzL3J1bnMvZG9tYWluL29wZXJhdG9yQ3JhZnQudHM6RnVuY3Rpb25EZWN"
-                "sYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoic2V0UmV2aWV3ZXJUaHJlc"
-                "2hvbGQiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJjN2MwMjk0ZDZ"
-                "hNTFjYTIxMmY2NmMzNzBiOWE1Njg2NDVlZjczM2I1OTNkNjQ3MzdlZDk5N"
-                "jQ5MWFlYzA5MDYzIiwicm9sZSI6ImV4cG9ydGVkX2RlY2xhcmF0aW9uIiw"
-                "ic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZ"
-                "WF0dXJlcy9ydW5zL2RvbWFpbi9vcGVyYXRvckNyYWZ0LnRzIiwic3RydWN"
-                "0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0"
-            ),
-            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c14a",
-        ],
-        "rationale": (
-            "The live composer, causal, dispute, and operator-craft writers have no "
-            "module-private branded PersistedEnvelope issuer, per-family concrete codec, "
-            "or physical-key/frozen-envelope binding of family, tenant, user, and expiry. "
-            "The future team-architecture owner must inject a clock for writer TTL and "
-            "fail closed on absent identity, malformed or expired envelopes, legacy bytes, "
-            "and runtime-novel families; this records neither C14b nor client identity."
-        ),
-        "closure_signal": (
-            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
-            "AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written "
-            "exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, "
-            "injected-clock TTL, and fail-closed negatives are implemented"
-        ),
-    },
     "c08b-auth-session-revision-producer-debt": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
@@ -3987,12 +3883,12 @@ BENIGN_BADGE_LOCATIONS = (
     ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 662),
     ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 703),
     ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 732),
-    ("apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx", 104),
+    ("apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx", 122),
     ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 55),
     ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 134),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 65),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 230),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 389),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 66),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 258),
+    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 417),
     ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 51),
     ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 81),
     ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 154),
@@ -4036,7 +3932,7 @@ BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
         "ComposerModeSections.tsx": (1220, 1644),
         "LaunchRunPage.tsx": (172,),
         "DisputeRegistryPanel.tsx": (55, 134),
-        "OperatorCraftPanel.tsx": (65,),
+        "OperatorCraftPanel.tsx": (66,),
         "PublicationPacketPanel.tsx": (51, 309, 329),
         "PublicDecisionViewerPage.tsx": (31,),
         "CausalTab.tsx": (497,),
@@ -4049,7 +3945,7 @@ BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
         "EvidenceFabricPage.tsx": (1025, 1081),
         "PlatformHealthPage.tsx": (49, 167, 259),
         "AgentPipelinePanel.tsx": (201, 286),
-        "AmbientTelemetryHud.tsx": (104,),
+        "AmbientTelemetryHud.tsx": (122,),
         "RunDetailLayout.tsx": (585,),
     },
     "workflow_or_lifecycle_display_without_terminality_inference": {
@@ -4080,7 +3976,7 @@ BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
         "EvidenceFabricPage.tsx": (295, 302, 447, 480, 506),
         "PlatformHealthPage.tsx": (54, 59),
         "CausalDeltaStrip.tsx": (46,),
-        "OperatorCraftPanel.tsx": (230,),
+        "OperatorCraftPanel.tsx": (258,),
         "PublicationPacketPanel.tsx": (154,),
     },
     "opaque_metadata_or_taxonomy": {
@@ -4092,7 +3988,7 @@ BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
         "EvidenceFabricPage.tsx": (315, 1163),
         "ErrorsPanel.tsx": (66,),
         "NodeDebugPanel.tsx": (190,),
-        "OperatorCraftPanel.tsx": (389,),
+        "OperatorCraftPanel.tsx": (417,),
         "PublicationPacketPanel.tsx": (81, 170, 282, 390),
         "RunExplainabilityPanel.tsx": (480,),
         "RunDetailLayout.tsx": (426, 766),
@@ -4164,7 +4060,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:f528170f85af933dea11c0f65d8efa3d3f8e059b4b4e6b885d076a50c8eaf259"
+    "sha256:1fa3945c303d1919b207cad8de4cdd80cbfb003b863fe9744b13e4eee6bad4f3"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:6788ea4c78fcd8a333a1fa2dfc801bf423591478bf44f7c73532f35755b8a13a"
@@ -4762,7 +4658,7 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     'e980b8253921c0a8bbac4fd3690abfabd113ebf8dd4a37a2b42b499d1831be5f': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    '55ebc3051f5fce5e4235a34f27a5c741679c877f1c90385bc3d11015604d27f0': (
+    '0281a6096fb20622eb2f6a0d27a288cd4373cbba40894108996e0609cef7143d': (
         'benign:layout_or_counts'
     ),
     '5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c': (
@@ -4775,7 +4671,7 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
         'benign:workflow_or_lifecycle_display_without_terminality_i'
         'nference'
     ),
-    '60864f31c5b682a642582fabcb894fad46ee02ed941d4f9d0358826f9fe07b80': (
+    'c5f42d6c6c370c5c9e903983cf3bed1b299f9629965193b1e5746c633b678a7f': (
         'benign:transport_or_runtime_health'
     ),
     '614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb': (
@@ -5024,7 +4920,7 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     'cd1906fff055a17498a7b01c6c4216160b35ddc6db235de0593284fab4b6ca90': (
         'debt:badge-public-integrity-result'
     ),
-    'd3dca654b8691d00bc53ff481aa25904cb3d2a09161c3612ed89cbbb2b9aa206': (
+    '62dbfa8b0628c9bc2ba4782e72a1fb9ac23b9dde38e1b8d678aafbcbab012443': (
         'benign:opaque_metadata_or_taxonomy'
     ),
     'd5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69': (
@@ -6143,6 +6039,27 @@ def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
 def _c21b_surgical_identity_text(text: str) -> str:
     """Replace only gated observed/evidence reference string spans, backwards."""
     data = json.loads(text)
+    identity_counts_before = (
+        sum(
+            "#ts-identity=" in ref
+            for census in data["reference_censuses"]
+            for probe in census["probes"]
+            for ref in probe["observed_refs"]
+        ),
+        sum(
+            "#ts-identity=" in ref
+            for finding in data["supplemental_findings"]
+            if "authority_sink" in finding
+            for ref in finding["evidence_refs"]
+        ),
+        sum(
+            "#ts-identity=" in ref
+            for finding in data["supplemental_findings"]
+            if "authority_sink" not in finding
+            for ref in finding["evidence_refs"]
+        ),
+    )
+    migration_counts = [0, 0, 0]
     anchors: list[dict[str, Any]] = []
     references: list[str] = []
     for census in data["reference_censuses"]:
@@ -6152,6 +6069,7 @@ def _c21b_surgical_identity_text(text: str) -> str:
                 if anchor:
                     anchors.append(anchor)
                     references.append(reference)
+                    migration_counts[0] += 1
     for finding in data["supplemental_findings"]:
         if "authority_sink" in finding:
             sink = finding["authority_sink"]
@@ -6172,12 +6090,14 @@ def _c21b_surgical_identity_text(text: str) -> str:
                 if anchor:
                     anchors.append(anchor)
                     references.append(reference)
+                    migration_counts[1] += 1
             continue
         for reference in finding["evidence_refs"]:
             anchor = _c21b_identity_anchor(reference)
             if anchor:
                 anchors.append(anchor)
                 references.append(reference)
+                migration_counts[2] += 1
     identities = _typescript_reference_identities_from_anchors(anchors)
     replacements = {
         reference: identity["encoded_identity"]
@@ -6219,7 +6139,13 @@ def _c21b_surgical_identity_text(text: str) -> str:
         for ref in finding["evidence_refs"]
         if "#ts-identity=" in ref
     ]
-    if (len(observed), len(authority), len(descriptors)) != (28, 118, 15):
+    expected_partition = tuple(
+        existing + migrated
+        for existing, migrated in zip(
+            identity_counts_before, migration_counts, strict=True
+        )
+    )
+    if (len(observed), len(authority), len(descriptors)) != expected_partition:
         raise ValueError("c21b_identity_partition_drift")
     return migrated
 
@@ -6678,6 +6604,38 @@ def _supplemental_section(
     )
 
 
+def _surgical_supplemental_finding_ids(text: str) -> set[str]:
+    """Return descriptor rows and unsupported producer rows owned by refresh."""
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(
+        AUTHORITY_PRESENTATION_DEBT_SPECS
+    )
+    _start, _end, spans = _supplemental_section_spans(text)
+    for finding_id, object_start, object_end in spans:
+        row = json.loads(text[object_start : object_end + 1])
+        if (
+            row.get("finding_kind") == "producer_binding_debt"
+            and finding_id not in descriptor_ids
+        ):
+            descriptor_ids.add(finding_id)
+    return descriptor_ids
+
+
+def _remove_supplemental_finding_text(text: str, finding_id: str) -> str:
+    """Remove one refresh-owned supplemental object without rewriting neighbors."""
+    _start, _end, spans = _supplemental_section_spans(text)
+    for index, (candidate_id, object_start, object_end) in enumerate(spans):
+        if candidate_id != finding_id:
+            continue
+        if index + 1 < len(spans):
+            next_start = spans[index + 1][1]
+            return text[:object_start] + text[next_start:]
+        if index:
+            previous_end = spans[index - 1][2]
+            return text[: previous_end + 1] + text[object_end + 1 :]
+        return text[:object_start] + text[object_end + 1 :]
+    return text
+
+
 def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
     rendered = json.dumps(row, indent=2, ensure_ascii=False)
     lines = rendered.splitlines()
@@ -6686,18 +6644,19 @@ def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
 
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
-    descriptor_ids = (
-        set(GOVERNED_DEBT_DESCRIPTORS)
-        | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
-    )
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
     generated = {
         row["finding_id"]: row
         for row in _supplemental_findings()
         if row["finding_id"] in descriptor_ids
     }
-    _start, _end, spans = _supplemental_section_spans(text)
-    seen: set[str] = set()
+    refresh_owned_ids = _surgical_supplemental_finding_ids(text)
     refreshed = text
+    for finding_id in sorted(refresh_owned_ids - descriptor_ids):
+        refreshed = _remove_supplemental_finding_text(refreshed, finding_id)
+
+    _start, _end, spans = _supplemental_section_spans(refreshed)
+    seen: set[str] = set()
     for finding_id, object_start, object_end in reversed(spans):
         if finding_id not in generated:
             continue
@@ -6741,12 +6700,15 @@ def _raw_transport_writer_preservation_errors(
         errors.append("raw_transport_writer_prefix_drift")
     if original_text[original_end:] != candidate_text[candidate_end:]:
         errors.append("raw_transport_writer_suffix_drift")
-    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS)
+    descriptor_ids = _surgical_supplemental_finding_ids(original_text)
     original_accepted = [
         text for finding_id, text in original_rows if finding_id not in descriptor_ids
     ]
+    candidate_descriptor_ids = _surgical_supplemental_finding_ids(candidate_text)
     candidate_accepted = [
-        text for finding_id, text in candidate_rows if finding_id not in descriptor_ids
+        text
+        for finding_id, text in candidate_rows
+        if finding_id not in candidate_descriptor_ids
     ]
     if original_accepted != candidate_accepted:
         errors.append("raw_transport_writer_accepted_row_drift")

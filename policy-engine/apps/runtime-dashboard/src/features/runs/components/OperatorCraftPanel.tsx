@@ -28,6 +28,7 @@ import {
   startReadingOnboarding,
   type ReadingOnboardingStepId,
 } from "@/features/runs/domain/operatorCraft";
+import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Quantity } from "@/shared/ui/quantity";
 import {
@@ -76,6 +77,19 @@ export function OperatorCraftPanel({
   summary: RunInspectorSummary;
 }) {
   const { t } = useI18n();
+  const authz = useMaybeAuthz();
+  const scope = useMemo(
+    () =>
+      authz?.status === "ready" &&
+      authz.user?.tenant_id &&
+      authz.user.user_id
+        ? {
+            tenantId: authz.user.tenant_id,
+            userId: authz.user.user_id,
+          }
+        : null,
+    [authz?.status, authz?.user?.tenant_id, authz?.user?.user_id],
+  );
   const [operatorCraftVersion, refreshOperatorCraft] =
     useOperatorCraftVersion();
   const [annotationBody, setAnnotationBody] = useState("");
@@ -103,14 +117,14 @@ export function OperatorCraftPanel({
   const snapshot = useMemo(
     () =>
       buildOperatorCraftSnapshot({
-        annotations: readReviewerAnnotations(runId),
-        onboardingState: readReadingOnboardingState(runId),
+        annotations: readReviewerAnnotations(runId, scope),
+        onboardingState: readReadingOnboardingState(runId, scope),
         packet,
         runId,
-        thresholdProfile: readReviewerThresholdProfile(),
-        walletItems: readEvidenceWallet(),
+        thresholdProfile: readReviewerThresholdProfile(scope),
+        walletItems: readEvidenceWallet(scope),
       }),
-    [operatorCraftVersion, packet, runId],
+    [operatorCraftVersion, packet, runId, scope],
   );
 
   const firstTargetRef = snapshot.annotationTargets[0]?.ref ?? "";
@@ -140,12 +154,16 @@ export function OperatorCraftPanel({
     setReviewerThreshold({
       next,
       packet,
+      reviewerId: scope?.userId,
       runId,
       sequence: snapshot.thresholdProfile.auditEvent ? 1 : 0,
+      scope,
     });
     completeReadingOnboardingStep({
       packet,
+      reviewerId: scope?.userId,
       runId,
+      scope,
       stepId: "set_threshold",
     });
     refreshOperatorCraft();
@@ -160,13 +178,16 @@ export function OperatorCraftPanel({
       body: annotationBody,
       existingCount: snapshot.annotations.length,
       packet,
+      reviewerId: scope?.userId,
       runId,
       target: selectedTarget,
     });
-    saveReviewerAnnotation(annotation);
+    saveReviewerAnnotation(annotation, scope);
     completeReadingOnboardingStep({
       packet,
+      reviewerId: scope?.userId,
       runId,
+      scope,
       stepId: "annotate_snapshot",
     });
     setAnnotationBody("");
@@ -182,12 +203,15 @@ export function OperatorCraftPanel({
       candidate,
       existingCount: snapshot.walletItems.length,
       packet,
+      reviewerId: scope?.userId,
       runId,
     });
-    saveEvidenceWalletItem(item);
+    saveEvidenceWalletItem(item, scope);
     completeReadingOnboardingStep({
       packet,
+      reviewerId: scope?.userId,
       runId,
+      scope,
       stepId: "save_evidence",
     });
     refreshOperatorCraft();
@@ -200,12 +224,16 @@ export function OperatorCraftPanel({
       }
       completeReadingOnboardingRun({
         packet,
+        reviewerId: scope?.userId,
         runId,
+        scope,
       });
     } else {
       completeReadingOnboardingStep({
         packet,
+        reviewerId: scope?.userId,
         runId,
+        scope,
         stepId,
       });
     }
@@ -520,7 +548,7 @@ export function OperatorCraftPanel({
                 size="sm"
                 variant="ghost"
                 onClick={() => {
-                  startReadingOnboarding({ runId });
+                  startReadingOnboarding({ runId, scope });
                   refreshOperatorCraft();
                 }}
               >

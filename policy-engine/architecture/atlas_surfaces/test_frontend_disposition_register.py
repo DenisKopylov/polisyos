@@ -851,7 +851,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "c06-queryobserver-cache-posture-artifact-debt",
                 "c08b-auth-session-revision-producer-debt",
                 "c07b-dashboard-generated-client-single-owner-debt",
-                "c14a-local-state-envelope-owner-debt",
             },
             set(descriptors),
         )
@@ -984,114 +983,30 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
 
     def test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract(self) -> None:
-        """Record only the absent C14a issuer/codec boundary, not its consumers."""
+        """Close C14a only after the real local-state witness succeeds."""
         finding_id = "c14a-local-state-envelope-owner-debt"
-        expected = {
-            "finding_kind": "producer_binding_debt",
-            "disposition": "rebind_pending",
-            "status": "open_debt",
-            "owner_slice": "DS5",
-            "capability_states": [
-                "producer_missing",
-                "artifact_missing",
-                "bridge_missing",
-                "consumer_missing",
-                "verification_missing",
-                "semantic_test_missing",
-            ],
-            "evidence_refs": [
-                "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15",
-                "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13",
-                "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301",
-                "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109",
-                "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444",
-                "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c14a",
-            ],
-            "rationale": (
-                "The live composer, causal, dispute, and operator-craft writers have no "
-                "module-private branded PersistedEnvelope issuer, per-family concrete codec, "
-                "or physical-key/frozen-envelope binding of family, tenant, user, and expiry. "
-                "The future team-architecture owner must inject a clock for writer TTL and "
-                "fail closed on absent identity, malformed or expired envelopes, legacy bytes, "
-                "and runtime-novel families; this records neither C14b nor client identity."
-            ),
-            "closure_signal": (
-                "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
-                "AtlasEnforcementTests.test_raw_local_state_envelope_cannot_be_issued_or_written "
-                "exits 0 after the private issuer, concrete codecs, scoped key/envelope binding, "
-                "injected-clock TTL, and fail-closed negatives are implemented"
-            ),
-        }
-        expected["evidence_refs"] = self._migrated_descriptor_refs(
-            expected["evidence_refs"]
-        )
-        descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
-        self.assertEqual(  # noqa: PT009
-            expected["evidence_refs"][:2],
-            descriptor["evidence_refs"][:2],
-            "c14a_descriptor_current_c21_identity_drift",
-        )
-        writer_paths = {
-            "composer": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
-            "queue": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
-            "causal": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
-            "disputes": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
-            "operator_craft": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
-        }
-        writer_sources = {
-            name: (checker.REPO_ROOT / path).read_text(encoding="utf-8")
-            for name, path in writer_paths.items()
-        }
-        self.assertTrue(
-            all(
-                "PersistedEnvelope" not in source and "authorityLocalState" not in source
-                for source in writer_sources.values()
-            )
-        )
-        self.assertEqual(expected, descriptor)
-
+        self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
         refreshed = json.loads(
             checker._refresh_supplemental_findings_text(
                 REGISTER_PATH.read_text(encoding="utf-8")
             )
         )
-        rows = {
-            str(row["finding_id"]): row
-            for row in refreshed["supplemental_findings"]
-        }
+        self.assertNotIn(
+            finding_id,
+            {str(row["finding_id"]) for row in refreshed["supplemental_findings"]},
+        )
         self.assertEqual(
-            {"finding_id": finding_id, **expected, "decision_date": checker.DECISION_DATE},
-            rows.get(finding_id),
-        )
-
-        missing = copy.deepcopy(refreshed)
-        missing["supplemental_findings"] = [
-            row for row in missing["supplemental_findings"] if row["finding_id"] != finding_id
-        ]
-        self.assertIn(
-            f"producer_binding_debt_drift:{finding_id}:finding_id",
-            checker.validate_register(missing, live_probes=False, report_parity=False),
-        )
-
-        corrupted = copy.deepcopy(refreshed)
-        row = next(
-            item
-            for item in corrupted["supplemental_findings"]
-            if item["finding_id"] == finding_id
-        )
-        row["capability_states"] = ["surface_missing"]
-        self.assertIn(
-            f"producer_binding_debt_drift:{finding_id}:capability_states",
-            checker.validate_register(corrupted, live_probes=False, report_parity=False),
-        )
-
-        closure_command = expected["closure_signal"].split(" exits 0", 1)[0]
-        self.assertNotEqual(
             0,
             subprocess.run(
-                closure_command,
+                [
+                    "python3",
+                    "-m",
+                    "unittest",
+                    "architecture.atlas_surfaces.test_atlas_enforcement."
+                    "AtlasEnforcementTests."
+                    "test_raw_local_state_envelope_cannot_be_issued_or_written",
+                ],
                 cwd=checker.REPO_ROOT,
-                shell=True,
                 check=False,
             ).returncode,
         )
@@ -1444,7 +1359,10 @@ class ProducerBindingDebtTests(unittest.TestCase):
             refreshed_text[: refreshed_start + 1],
         )
         self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
-        descriptor_ids = set(checker.GOVERNED_DEBT_DESCRIPTORS)
+        descriptor_ids = checker._surgical_supplemental_finding_ids(original_text)
+        refreshed_descriptor_ids = checker._surgical_supplemental_finding_ids(
+            refreshed_text
+        )
         self.assertEqual(
             [
                 object_text
@@ -1454,7 +1372,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             [
                 object_text
                 for finding_id, object_text in refreshed_objects
-                if finding_id not in descriptor_ids
+                if finding_id not in refreshed_descriptor_ids
             ],
         )
         before = json.loads(original_text)
@@ -1800,10 +1718,17 @@ class RawTransportDriftTests(unittest.TestCase):
             original_text[: original_start + 1], refreshed_text[: refreshed_start + 1]
         )
         self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
-        generated_ids = set(checker.GOVERNED_DEBT_DESCRIPTORS)
+        generated_ids = checker._surgical_supplemental_finding_ids(original_text)
+        refreshed_generated_ids = checker._surgical_supplemental_finding_ids(
+            refreshed_text
+        )
         self.assertEqual(
             [text for finding_id, text in original_rows if finding_id not in generated_ids],
-            [text for finding_id, text in refreshed_rows if finding_id not in generated_ids],
+            [
+                text
+                for finding_id, text in refreshed_rows
+                if finding_id not in refreshed_generated_ids
+            ],
         )
 
     def test_raw_transport_drift_decision_date_is_c03a_specific(self) -> None:
@@ -2333,7 +2258,8 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
         before = json.loads(original_text)
         after = json.loads(refreshed)
-        new_ids = set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
+        new_ids = checker._surgical_supplemental_finding_ids(original_text)
+        refreshed_new_ids = checker._surgical_supplemental_finding_ids(refreshed)
 
         self.assertEqual(
             {
@@ -2344,7 +2270,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             {
                 row["finding_id"]: row["decision_date"]
                 for row in after["supplemental_findings"]
-                if row["finding_id"] not in new_ids
+                if row["finding_id"] not in refreshed_new_ids
             },
         )
         self.assertEqual(
@@ -2352,7 +2278,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             {
                 row["decision_date"]
                 for row in after["supplemental_findings"]
-                if row["finding_id"] in new_ids
+                if row["finding_id"] in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
             },
         )
 
@@ -3385,7 +3311,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in extension_references}),
             )
 
-        self.assertEqual(270, len(references), "ds5_line_address_total_reference_drift")
+        self.assertEqual(264, len(references), "ds5_line_address_total_reference_drift")
         self.assertEqual(15, len(line_references), "ds5_line_address_line_reference_drift")
         self.assertEqual(
             11,
@@ -3467,7 +3393,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             "ds5_line_address_descriptor_evidence_line_drift",
         )
         identity_references = [reference for reference in references if "#ts-identity=" in reference]
-        self.assertEqual(161, len(identity_references), "ds5_c21b_identity_reference_drift")
+        self.assertEqual(156, len(identity_references), "ds5_c21b_identity_reference_drift")
         identity_payloads = [
             json.loads(
                 base64.urlsafe_b64decode(
@@ -3480,7 +3406,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             )
         ]
         self.assertEqual(
-            161,
+            156,
             sum(
                 isinstance(payload.get("discriminator"), str)
                 and bool(payload["discriminator"])
@@ -3511,7 +3437,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         ]
         self.assertEqual(28, len(observed_identities), "ds5_c21b_observed_identity_drift")
         self.assertEqual(118, len(authority_identities), "ds5_c21b_authority_identity_drift")
-        self.assertEqual(15, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
+        self.assertEqual(10, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
         structured_descriptor_identities = [
             reference
             for finding in data["supplemental_findings"]
@@ -3603,7 +3529,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                     f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
                 )
         self.assertEqual(
-            (28, 118, 15),
+            (28, 118, 10),
             (
                 sum(
                     "#ts-identity=" in reference
@@ -3649,7 +3575,8 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         """The governed gate binds the migrated construct identity, never its line."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         source_path = (
-            "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts"
+            "apps/runtime-dashboard/src/features/runs/api/"
+            "useDepthNCycleBoardProjection.ts"
         )
         stored_references = [
             reference
@@ -3661,9 +3588,18 @@ class DS5LineAddressCensusTests(unittest.TestCase):
 
         target_path = checker.REPO_ROOT / source_path
         original = target_path.read_text(encoding="utf-8")
-        block = """export async function deleteComposerDraftRecord(key: string) {
-  const database = await openOfflineDb();
-  await database.delete(COMPOSER_DRAFTS_STORE, key);
+        block = """export function depthNCycleBoardProjectionQueryOptions(
+  client: GovernedProjectionClient = governedProjectionClient,
+) {
+  return {
+    queryKey: queryKeys.governedProjection("depth-n-cycle-board"),
+    queryFn: async () =>
+      narrowDepthNCycleBoardProjection(
+        await client.getGovernedProjection({
+          projection_id: "depth-n-cycle-board",
+        }),
+      ),
+  };
 }
 """
         self.assertEqual(1, original.count(block))
@@ -3671,7 +3607,9 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         import_end = without_block.index("\n\n") + 2
         moved = without_block[:import_end] + block + "\n" + without_block[import_end:]
         renamed = moved.replace(
-            "deleteComposerDraftRecord", "removeComposerDraftRecord", 1
+            "depthNCycleBoardProjectionQueryOptions",
+            "cycleBoardProjectionQueryOptions",
+            1,
         )
         original_read_text = Path.read_text
 

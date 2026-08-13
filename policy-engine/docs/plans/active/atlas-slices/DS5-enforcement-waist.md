@@ -610,7 +610,7 @@ generated debt rows persist 130 nested address slots / 36 files. Paths below are
 | C15a raw | `features/clerk/state/useChatStore.ts`; `features/clerk/state/useChatStore.test.ts` | no — |
 | C16a-R1 | `features/runs/routes/tabs/CausalTab.tsx`; `features/runs/routes/tabs/CausalTab.test.tsx` | yes: `features/runs/routes/tabs/CausalTab.tsx` → `c14a-local-state-envelope-owner-debt` `[2]:301` |
 | C16b-R1 | `features/runs/domain/disputes.ts`; `features/runs/domain/disputes.test.ts`; `features/runs/components/DisputeRegistryPanel.tsx`; `[new focused DisputeRegistryPanel test path not named]` | yes: `features/runs/domain/disputes.ts` → `c14a-local-state-envelope-owner-debt` `[3]:109` |
-| C17a-R1 | `features/runs/domain/operatorCraft.ts`; `features/runs/domain/operatorCraft.test.ts`; `features/runs/components/OperatorCraftPanel.tsx`; `features/runs/components/AmbientTelemetryHud.tsx`; `[new authorityLocalState owner path not named]`; `[new authorityLocalState test path not named]` | yes: `features/runs/domain/operatorCraft.ts` → `c14a-local-state-envelope-owner-debt:444`; `features/runs/domain/operatorCraft.test.ts` → `census-browser-signing-protected-live` `[10]:123`; `features/runs/components/OperatorCraftPanel.tsx` → same `[3]:85`; `features/runs/components/AmbientTelemetryHud.tsx` → same `[2]:42` |
+| C17a-R2 | `features/runs/domain/operatorCraft.ts`; `features/runs/domain/operatorCraft.test.ts`; `features/runs/components/OperatorCraftPanel.tsx`; `features/runs/components/AmbientTelemetryHud.tsx`; `app/offline/authorityLocalState.ts` + test | yes: C21 creation identities for both panels are re-derived after scoped Authz wiring; no line-padding/stale identity reuse |
 | C17b-R1 | `architecture/atlas_surfaces/check_frontend_disposition_register.py`; `architecture/atlas_surfaces/test_frontend_disposition_register.py`; `[new DS5 TypeScript AST scanner path not named]`; `[new DS5 TypeScript AST checker path not named]`; `[new DS5 TypeScript AST test path not named]` | no — |
 | C18a | `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | no — |
 | C18b-R1 | `app/providers/FeatureFlagProvider.tsx`; `app/providers/FeatureFlagProvider.test.tsx` | no — |
@@ -803,7 +803,7 @@ first continuously numbered `-R1` successor.
 | C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
 | C16a | 5 | 6 | no-fit | C16a-R1 / 6 |
 | C16b | 7 | 8 | no-fit | C16b-R1 / 8 |
-| C17a | 9 | 10 | no-fit | C17a-R1 / 10 |
+| C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 10 | no-fit | C17b-R1 / 10 |
 | C18b | 5 | 6 | no-fit | C18b-R1 / 6 |
 | C19 | 13 | 14 | no-fit | C19-R1 / 14 |
@@ -1309,16 +1309,16 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster | C12a |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
 | C13b-R1 | SW sync/flush authority bridge | worker flush bridge remains; provider is gone | `apps/runtime-dashboard/src/sw.ts:13-45` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
-| C13b-R1 | composer-only typed closure | composer-only repository remains; C14a envelope producer is absent | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:1-37` | blocked-on-another-cluster | DS5-LINE-ADDRESS-01 structural class repair, then C14a |
-| C14a | nominal envelope owner | no `PersistedEnvelope<StoreClass>` or `authorityLocalState` producer exists | complete absence: `rg -n -e 'PersistedEnvelope' -e 'authorityLocalState' apps/runtime-dashboard packages architecture --glob '*.{ts,tsx,json,toml}'` (0) | debt-only | none |
-| C14b-R1 | scoped composer consumer | raw composer record has neither scope nor TTL and needs C14a | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:13-16`; C14a table row | blocked-on-another-cluster | C14a |
+| C13b-R1 | composer-only typed closure | C14a producer prerequisite is landed; composer closure may proceed | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:1-37` | executable | none |
+| C14a | nominal envelope owner | canonical `PersistedEnvelope<StoreClass>` owner serves four operator-craft families | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` + focused runtime witness | landed-after-commit; consumer successors remain | C13b composer, C14b-R1, C15a direct; C16a/C16b/C17b prerequisite-only |
+| C14b-R1 | scoped composer consumer | raw composer record now has a landed scope/TTL owner prerequisite | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; C14a table row | executable | none |
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
-| C15a | identity hydration API | requires verified identity and envelope ownership | C08b-R1 and C14a table rows | blocked-on-another-cluster | C08b-R1, C14a |
+| C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
 | C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
 | C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
 | C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
-| C17a-R1 | storage-family partition | four typed raw-local-storage families emit today | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444-490,504-570,647-657,735-816` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
+| C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed-after-commit; root-owned generated receipts remain | C17a-R2 runtime bridge and descriptor closure |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
 | C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable | none |
@@ -2025,26 +2025,28 @@ successor evidence.
 
 **Expected commit:** `DS5-C16b-R1 partition dispute interaction state`.
 
-### DS5-C17a-R1 — operator-craft family partition
+### DS5-C17a-R2 — operator-craft family partition
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `operatorCraft.ts` + test, `OperatorCraftPanel.tsx`,
-`AmbientTelemetryHud.tsx`, the C14a `authorityLocalState.ts` owner + test,
-frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal. Operator craft
+**Measured set:** cap 15: canonical owner/test, four operator-craft paths,
+Atlas checker tests, generated surfaces, this plan, and journal; it unblocks
+C13b composer, C14b-R1, and C15a. C16a/C16b/C17b remain successors. Operator craft
 is one DS1 unit with four physical families: threshold, annotations, evidence
 wallet, and onboarding.
 
-**Red first:** `test_all_operator_craft_families_bind_scope_and_expiry`.
-Legacy, malformed, expired, prior-user and prior-tenant bytes fail for every
-family; a locale/theme preference is outside this adapter.
+**Red first:** focused envelope and craft tests prove legacy/malformed/expired,
+prior tenant/user, copied-slot, known/novel-family bytes, absent scope, TTL, and
+unrelated locale/theme storage. The nominal envelope, concrete codecs, and
+physical key bind family/tenant/user/slot; panels use only settled Authz scope.
 
 **Acceptance:** all four operator families use the nominal scoped envelope and
 concrete codecs, binding tenant/user/expiry. Panels consume only hydrated
 current-scope state. Domain ownership remains DS14; DS5 attaches isolation
 evidence/report without claiming operator semantics rebound.
 
-**Expected commit:** `DS5-C17a-R1 partition operator craft state`.
+**Limitations:** no server/epoch/rule revalidation; root serializes generated
+register/status/report receipts; C21 identities are re-derived, not line-padded.
+
+**Expected commit:** `DS5-C17a-R2 partition operator craft local state`.
 
 ### DS5-C17b-R1 — source-bind persistence construction and reconcile stores
 

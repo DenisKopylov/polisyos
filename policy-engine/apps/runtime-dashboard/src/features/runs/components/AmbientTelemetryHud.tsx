@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer } from "react";
 import { Activity, Radio, SlidersHorizontal, TimerReset } from "lucide-react";
 
+import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
@@ -25,6 +26,19 @@ export function AmbientTelemetryHud({
   summary: RunInspectorSummary;
 }) {
   const { t } = useI18n();
+  const authz = useMaybeAuthz();
+  const scope = useMemo(
+    () =>
+      authz?.status === "ready" &&
+      authz.user?.tenant_id &&
+      authz.user.user_id
+        ? {
+            tenantId: authz.user.tenant_id,
+            userId: authz.user.user_id,
+          }
+        : null,
+    [authz?.status, authz?.user?.tenant_id, authz?.user?.user_id],
+  );
   const temporalCursor = useMaybeTemporalCursor();
   const { flags, source, status } = useFeatureFlags();
   const [operatorCraftVersion, refreshOperatorCraft] = useReducer(
@@ -34,8 +48,8 @@ export function AmbientTelemetryHud({
   const enabledFlagCount = Object.values(flags).filter(Boolean).length;
   const effectiveScope = temporalCursor?.effectiveScope ?? null;
   const thresholdProfile = useMemo(
-    () => readReviewerThresholdProfile(),
-    [operatorCraftVersion],
+    () => readReviewerThresholdProfile(scope),
+    [operatorCraftVersion, scope],
   );
   const packet = useMemo(
     () =>
@@ -72,12 +86,16 @@ export function AmbientTelemetryHud({
     setReviewerThreshold({
       next,
       packet,
+      reviewerId: scope?.userId,
       runId,
       sequence: thresholdProfile.auditEvent ? 1 : 0,
+      scope,
     });
     completeReadingOnboardingStep({
       packet,
+      reviewerId: scope?.userId,
       runId,
+      scope,
       stepId: "set_threshold",
     });
     refreshOperatorCraft();

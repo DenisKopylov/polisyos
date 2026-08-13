@@ -308,6 +308,20 @@ def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
     }
     assert plan.project(reconciled) == plan.project(current)
 
+    governing_drift = copy.deepcopy(previous)
+    governing_drift["receipt"]["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            governing_drift,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
+        )
+
     reconstructed = build_gy_comparison_projection_plan_from_manifest(
         reconciled,
         manifest=plan.manifest,
@@ -324,6 +338,83 @@ def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
         plan.preserve_admitted_blocks(
             {"receipt": {**previous["receipt"], "governing_input": "changed"}},
             current,
+        )
+
+
+def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() -> None:
+    """The comparison owner must align admitted legacy custody before projecting it."""
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {
+            "governing_input": value["governing_input"],
+            "semantic_projection": semantic,
+        }
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        if previous.get("governing_input") != current.get("governing_input"):
+            raise ValueError("legacy_governing_input_mismatch")
+        return {
+            **copy.deepcopy(previous),
+            "semantic_projection": copy.deepcopy(current["semantic_projection"]),
+        }
+
+    previous = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "frozen",
+        }
+    }
+    current = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        }
+    }
+    plan = build_gy_comparison_projection_plan(
+        current,
+        admissions=(
+            GyComparisonAdmission(
+                owner_rule="test.verification_receipt.v2",
+                source_content_hash=gy_recorded_content_hash(current["receipt"]),
+                projector=_project_v2,
+                legacy_migrator=_migrate_legacy,
+            ),
+        ),
+    )
+
+    reconciled = pdc_module.reconcile_gy_comparison_projection(
+        previous,
+        current,
+        comparison_plan=plan,
+        recording_role="first_vertical",
+        admission_arm="migrated",
+    )
+
+    assert reconciled["receipt"]["raw_session_identity"] == "frozen"
+    assert reconciled["receipt"]["semantic_projection"] == {
+        "semantic_hash": "sha256:semantic"
+    }
+    assert plan.project(reconciled) == plan.project(current)
+
+    governing_drift = copy.deepcopy(previous)
+    governing_drift["receipt"]["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            governing_drift,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
         )
 
 

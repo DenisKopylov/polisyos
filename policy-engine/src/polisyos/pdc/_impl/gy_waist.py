@@ -712,20 +712,32 @@ def reconcile_gy_comparison_projection(
     the ordinary custody hash therefore continues to bind every recorded byte.
     """
 
-    previous_semantic = comparison_plan.project(previous)
-    current_semantic = comparison_plan.project(current)
-    if previous_semantic != current_semantic:
+    try:
+        aligned_previous = comparison_plan.migrate_admitted_blocks(previous, current)
+    except GyOperationalReconciliationError:
+        raise
+    except ValueError as exc:
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
             previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,
+        ) from exc
+    previous_semantic = comparison_plan.project(aligned_previous)
+    current_semantic = comparison_plan.project(current)
+    if previous_semantic != current_semantic:
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            aligned_previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
         )
-    if not _gy_payload_shape_matches(previous, current):
+    if not _gy_payload_shape_matches(aligned_previous, current):
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_shape_mismatch",
-            previous,
+            aligned_previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,
@@ -734,7 +746,7 @@ def reconcile_gy_comparison_projection(
     if comparison_plan.project(reconciled) != previous_semantic:  # pragma: no cover
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
-            previous,
+            aligned_previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,

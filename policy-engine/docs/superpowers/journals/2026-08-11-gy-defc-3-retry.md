@@ -2036,3 +2036,65 @@ generic `missing` field in this lane. Meta/stdout identities are `0eb2c8f7…7ac
 `a54991c4…d27a`; stderr is empty. This is the lane's completed-work green terminal, not exit `2`.
 `[P37: recomputed for the producer terminal and detection set; institutionally_supplied for the
 declared hang fence]`
+
+### GY-DEFC-5 Depth v2 — source-bound census non-receipt and legacy-order closure
+
+The first real-owner Depth census after the accepted N10a reissue ran from clean attached head
+`8829bbe9b`. It completed in `1,329.369582` s under the recomputed `1,695.177568` s rederive cap,
+exited `1`, and did not time out. The tracked status was empty before and after, and the governed
+Depth artifact remained exactly `1,841,810` bytes at SHA-256 `acc252579…f089`. Meta, stdout and
+stderr identities are `09f153bc…4f78`, `cb12b347…a272`, and `7424c1f8…a031`. External heavy
+processes were permitted to overlap under the user's parallel-execution ruling; no cap was raised
+and no second PolicyOS writer/scanner-heavy process was launched. `[P37: recomputed for the
+terminal, cap, head/status and byte boundary; institutionally_supplied for the overlap rule]`
+
+The complete retained exception chain is:
+`census.main → _build_live_payload_with_plan(lane="cached") →
+_complete_payload_from_recordings → _domain_run_and_normalized_recording →
+_reconcile_controlled_recording → reconcile_gy_comparison_projection → plan.project(previous) →
+_controlled_recording_verification_semantic_projection →
+canonical_promotion_receipt_semantic_projection →
+ValueError("promotion_comparison_semantic_ledger_missing")`. The frozen v1 receipt intentionally
+lacks the new v2 semantic projection, while the ephemeral live plan already owns a canonical
+legacy migrator. The generic comparator projected the raw v1 custody bytes before invoking that
+migrator, so the owner proof could never align the two versions. This is the same authorized
+recording-level comparison mechanism, not a third mechanism and not an artifact reissue. The live
+census remains unaccepted and its predicted Depth delta remains `not_established` until a frozen
+source batch passes review and the real-owner census closes. `[P37: independently_reconciled for
+the causal classification; not_established for the post-repair census and accepted Depth state]`
+
+Red-first work isolated two properties. First, a focused PDC witness supplied a raw v1 admitted
+block whose v2 projector fails with `semantic_projection_missing`; before the change,
+`reconcile_gy_comparison_projection` failed on that projection instead of running the producer's
+legacy migrator. Second, a governing-input mutation caused the migrator itself to raise raw
+`legacy_governing_input_mismatch`, bypassing the typed comparator diagnostic. One intended RED
+assertion was initially inserted into the older migration test by an ambiguous patch context and
+therefore passed without exercising the raw-migrator path; it was rejected as an authoring
+non-receipt. After moving it to the dedicated witness, the exact test exited `1` at the raw
+migrator error. `[P37: recomputed for the observed test terminals; not_established for a retained
+receipt of the two direct RED invocations]`
+
+The minimal source closure keeps the producer-owned vocabulary and custody boundary unchanged:
+`reconcile_gy_comparison_projection` now applies the live plan's path-bound legacy migrations to
+the frozen value before semantic projection and shape comparison. A migration `ValueError` is
+wrapped as named `gy_operational_reconciliation_semantic_projection_mismatch` with the original
+owner error retained as its cause. Raw preservation still runs through
+`preserve_admitted_blocks(previous, current)`; no receipt is deleted, truncated, self-admitted or
+rebaselined. Current source/test identities are `70806b35…0a69` and `5531a101…bc52`, and the
+tracked diff contains only those two paths plus this journal. `[P37: recomputed for the diff and
+source identities; not_established for frozen-review and live-census acceptance]`
+
+The complete PDC contract file passes `49/49` under the ordinary interpreter in `1.507756` s;
+meta/stdout identities are `b9325862…336c` and `34885ca5…164`. The focused Depth owner,
+recording, governing-change, envelope-reissue and proof-delegation set passes `10/10` under the
+existing receipt interpreter in `55.017483` s; meta/stdout identities are `83d87e2e…b0cb` and
+`7040371a…4103`. Both runs exited `0`, did not time out, kept their source pins exact and emitted
+empty stderr. Ruff reports `All checks passed!` for the two changed source/test files.
+`[P37: recomputed]`
+
+An ordinary-interpreter combined PDC/Depth collection is a setup non-receipt, not a product test:
+it exited `2` in `1.900840` s because Depth's executable preflight resolved Homebrew Python rather
+than the required receipt-venv prefix. It did not time out or alter either source pin. Meta/stdout
+identities are `40676eb9…a45f` and `73de3b5b…e3c3`; stderr is empty. Generic PDC tests therefore
+remain ordinary-interpreter evidence, while the Depth executable tests use the already-preserved
+receipt interpreter; no environment was rebuilt. `[P37: recomputed]`

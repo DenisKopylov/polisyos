@@ -5724,10 +5724,6 @@ async def _domain_run_and_normalized_recording(
             normalized_recording,
             admissions=(live_recording_admission,),
         )
-        migrated_expected_recording = live_recording_plan.migrate_admitted_blocks(
-            expected_recording,
-            normalized_recording,
-        )
         normalized_recording = _reconcile_controlled_recording(
             expected_recording,
             normalized_recording,
@@ -5735,11 +5731,7 @@ async def _domain_run_and_normalized_recording(
             role=role,
             admission_arm=str(prior_admission.get("admission_kind") or ""),
         )
-        if migrated_expected_recording != normalized_recording:
-            raise UniversalityContractError(
-                "authority_source_controlled_replay_recording_exact_mismatch"
-            )
-        comparison_lineage_migrated = migrated_expected_recording != expected_recording
+        comparison_lineage_migrated = normalized_recording != expected_recording
     elif recording_schema == _LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
         if context_rebind_required:
             raise UniversalityContractError("authority_source_migration_context_rebind_conflict")

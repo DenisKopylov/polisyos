@@ -2125,3 +2125,28 @@ the receipt interpreter; meta/stdout identities are `dcd69e46…0bf3` and `70403
 exited `0`, did not time out, preserved source pins and emitted empty stderr. Ruff and diff hygiene
 pass. Final pre-review source/test identities are `82385b5c…dc6d` and `a3013e79…9f2`.
 `[P37: recomputed; not_established for delta-only review and live census]`
+
+The delta was frozen at `c1a4df93b`. Authority and generic-correctness delta reviews closed their
+prior findings with no remaining Critical or Important issue, but the wave review traced one more
+double invocation in the real Depth bridge: `_domain_run_and_normalized_recording` explicitly
+migrated the frozen recording, then passed the same raw frozen value to the canonical reconciler,
+which correctly migrated it again. This was not exercised by the generic call-count witness and is
+the actual `prior_admission` path used by the live census. No census ran from `c1a4df93b`.
+`[P37: independently_reconciled; not_established for source acceptance]`
+
+A Depth integration witness now gives its fixture owner a single-use migrator and runs the cached
+`_domain_run_and_normalized_recording` bridge. Before the bridge change the selected two-case test
+exited `1`: the admissible historical-rederive case reached
+`depth_recording_legacy_migrator_called_twice`, wrapped by the named controlled-replay comparator;
+the unrelated fail-closed graph-binding case remained green. The bridge now delegates the only
+alignment to `reconcile_gy_comparison_projection` and derives the envelope-reissue predicate from
+whether that canonical result differs from the raw expected recording. This retains raw diagnostic
+identity, canonical projection/shape checks, exact root preservation, and the dependent authority
+envelope reissue while removing the second bespoke migration call. `[P37: recomputed]`
+
+The expanded focused set covers `12/12` recording owner, replay bridge, governing-change,
+single-call, envelope-reissue and proof-delegation witnesses. It exits `0` in `54.189037` s under
+the receipt interpreter, without timeout or pin movement; meta/stdout identities are
+`e93b0a46…dd41` and `eb27a136…2663`, stderr empty. Ruff and diff hygiene pass. Bridge/test identities
+are `c485c5d3…fe96` and `693429c8…b0ec`. `[P37: recomputed; not_established for final review and
+live-census acceptance]`

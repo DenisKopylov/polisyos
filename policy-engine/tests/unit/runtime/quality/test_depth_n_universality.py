@@ -2890,6 +2890,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     context_hash = "sha256:" + "1" * 64
     live_hash = "sha256:" + "3" * 64
     calls: dict[str, Any] = {}
+    legacy_migration_calls = 0
 
     class _Problem:
         def model_dump(self, *, mode: str) -> dict[str, str]:
@@ -3074,10 +3075,23 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     ) -> GyComparisonAdmission:
         del role, receipt_proofs
         target = aligned_recording or source_recording
+
+        def _migrate_once(
+            previous: dict[str, object],
+            current: dict[str, object],
+        ) -> dict[str, object]:
+            del current
+            nonlocal legacy_migration_calls
+            legacy_migration_calls += 1
+            if legacy_migration_calls > 1:
+                raise ValueError("depth_recording_legacy_migrator_called_twice")
+            return copy.deepcopy(previous)
+
         return GyComparisonAdmission(
             owner_rule="test.depth.recording_projection.v1",
             source_content_hash=gy_recorded_content_hash(target),
             projector=_fixture_recording_projector,
+            legacy_migrator=_migrate_once,
         )
 
     monkeypatch.setattr(
@@ -3176,8 +3190,10 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
 
     assert replayed_recording == normalized
     assert replayed_domain_run == domain_run
+    assert legacy_migration_calls == 1
 
     live_payload["recursive_run"]["nodes"][0]["node_ref"] = "design://changed-secret"
+    legacy_migration_calls = 0
     with pytest.raises(validator.UniversalityContractError) as exc_info:
         await validator._domain_run_and_normalized_recording(
             tmp_path,

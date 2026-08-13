@@ -1974,3 +1974,65 @@ otherwise-valid fresh manifest; another non-persisting source-bound measurement 
 the external DS5 sequence finishes before the accepted writer can be attempted again.
 `[P37: recomputed for the zero-byte boundary; institutionally_supplied for the
 completion/allowance rule; independently_reconciled for fresh-HEAD rebinding]`
+
+### GY-DEFC-5 N10a v2 — parallel-execution ruling and accepted reissue
+
+One further clean-head measurement at `d875a2285` was terminated deliberately when the external
+Atlas DS5 `check_frontend_disposition_register.py --write-report` sequence began after launch. It
+ran `71.708607` s, ended at child/wrapper terminal `-15` without timeout, produced empty stdout and
+only the two database-connection information lines on stderr, and kept all five governed pins,
+attached head and tracked status exact. Meta/stdout/stderr identities are `b3eb6154…64a3`,
+`e3b0c442…b855`, and `7fb70700…ecaf`. No manifest or changed byte was produced, so it is another
+non-receipt and consumed no allowance. `[P37: recomputed for the terminal and byte boundary;
+institutionally_supplied for the completion/allowance rule]`
+
+The user then explicitly changed the execution condition: external heavy processes may run in
+parallel because waiting for host-wide quiescence prevents completion. From this point the chain
+keeps only one PolicyOS writer/scanner-heavy process alive at a time, retains every governed cap and
+byte fence, but does not abort or defer merely because an external Atlas process overlaps it.
+External contention is therefore recorded as an execution covariate, not an admission predicate or
+a reason to raise a cap. `[P37: institutionally_supplied]`
+
+Under that condition, the next non-persisting measurement ran from clean attached head
+`d875a2285`, completed with exit `0` in `790.361101` s under the unchanged `852.699146` s cap, and
+reported producer wall time `753.083612` s, `status: pass`, `issues: []`, and
+`write_performed: false`. All five governed pins remained byte-identical. Its manifest binds that
+head, repeats source-scope identity `sha256:7b49aa64…4839a`, and has self identity
+`sha256:2e58b328…70fb`. Its complete TSV remains byte-identical to the declaration at
+`b7f7f01c…9537b`; the five transitions, all legacy/live identities and all `2,832` paths are exact.
+Meta/stdout/stderr/result/manifest-file identities are `0a97d218…ffa9`, `d6e9d006…5f1f`,
+`6b4f8d0b…ec3a`, `e4cb6a61…01ab`, and `f2bae901…9cb7`. `[P37: recomputed]`
+
+The accepted canonical writer consumed that exact manifest without an intervening source/head
+change. It completed with exit `0` in `821.343937` s under the same cap, did not time out, reported
+`status: pass`, `issues: []`, `write_performed: true`, and wrote exactly three of its five outputs.
+Its observed recursive delta equals the predeclared set exactly: `2,832/2,832` paths, distributed
+`0 / 3 / 0 / 2,824 / 5` across census / pack / smoke / cycle trace / gaps, with zero missing and
+zero unexpected path. Meta/stdout/stderr/result/delta/audit identities are `fd911f82…e1b1`,
+`f90cff61…4f2`, `7a169792…25d7`, `455fd068…d637`, `90f6239b…5d8b`, and
+`46da20f2…f441`. `[P37: recomputed]`
+
+Read-back reproduces every expected live content identity: census `sha256:fb98cc50…fd0d`, pack
+`sha256:5c57dffd…b705`, smoke `sha256:d40e3fe5…70e5`, cycle trace
+`sha256:1e9c67b9…0d95`, and gaps `sha256:c7c674e6…44d0`. The complete raw N9 receipt remains
+byte-for-byte present for each of the four promotion receipts after removing only its new
+`confidence_ledger_semantic_projection`; the projection is present and readable in every receipt.
+The protected-path intersection outside those four new roots is empty, and external N8 remains
+`c3f131ce…bc303`. The accepted N10a reissue is therefore consumed. `[P37: recomputed]`
+
+Canonical `--check` completed with exit `0` in `46.919253` s under `74.272168` s, with producer
+wall time `16.648031` s, `status: pass`, `issues: []`, unchanged five-output pins and empty stderr.
+Its meta/stdout identities are `1679dee4…f3f7` and `d5438ead…cdbb`. Canonical rederive audit
+completed with exit `0` in `589.402145` s under `726.805376` s, with producer wall time
+`564.062040` s, `status: pass`, `issues: []`, and unchanged pins. Its meta/stdout/stderr identities
+are `3e322d18…833a`, `2837172a…9efe`, and `1d34a254…0e51`; stderr contains only expected runtime
+information logs. `[P37: recomputed]`
+
+The corrupt-field lane completed in `33.428430` s under the declared `300` s hang fence, did not
+time out, and exited `1`. It reported `status: fail` with leading
+`corrupt_field_drift_detected` and a detected set of `40` named mutation classes; no mutation was
+reported missing or undetected, and all five pins remained exact. The producer does not emit a
+generic `missing` field in this lane. Meta/stdout identities are `0eb2c8f7…7ac0` and
+`a54991c4…d27a`; stderr is empty. This is the lane's completed-work green terminal, not exit `2`.
+`[P37: recomputed for the producer terminal and detection set; institutionally_supplied for the
+declared hang fence]`

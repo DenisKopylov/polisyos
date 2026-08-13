@@ -2043,3 +2043,208 @@ were not run independently; only command-managed servers ran. No governed
 artifact, contended register-family path, readiness ledger, checker, generated
 report, `src/polisyos/**`, Russian catalog, product surface, DS5/GY path, or
 denominator was edited.
+
+## DS6-C08 — automated evidence capture — 2026-08-12
+
+### Owner discovery, entry cut, and source reports
+
+C08 entered from the clean attached branch at
+`8a9e320588ba3378b4596a609bca3762501e577f`, 13 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. Read-only owner discovery found
+that persistence does not require a `src/polisyos/**` edit. The public Core
+contract already supplies `ArtifactStore.put_json`, `get_bytes`,
+`get_manifest`, and `verify`; the backend-neutral construction path is
+`build_artifact_store(ArtifactStoreConfig.from_env())`. The dashboard's
+`scripts/serve_fixture_runtime_api.py` is the existing app-local precedent for
+importing the public PolicyOS package boundary. The runtime artifact HTTP
+surface is inspection-only for this purpose and is not a substitute writer.
+
+The C08 cut measured eight paths against cap ten. It entered with seven; the
+installed workspace has Vite but no `vite-node` executable, so the failed
+direct invocation demonstrated that a small app-local launcher is structurally
+required. The cap is unchanged:
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.ts`;
+2. `apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts`;
+3. `apps/runtime-dashboard/src/test/evidence/captureAtlasEvidence.ts`;
+4. `apps/runtime-dashboard/scripts/capture_atlas_evidence.mjs`;
+5. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`;
+6. `docs/reference/frontend/atlas-evidence-artifact.md`;
+7. the DS6 plan; and
+8. this journal.
+
+No package command or Core implementation path is needed. The MJS launcher
+uses the installed Vite module loader and owns no evidence semantics. The TypeScript
+producer owns runner normalization and the existing C07 schemas; the
+executable TypeScript bridge owns file/process I/O; the Python adapter consumes
+the public Core store and owns no CAS layout, hash, manifest, or verifier.
+
+Two serialized real-run machine reports were acquired at revision
+`8a9e320588ba3378b4596a609bca3762501e577f` for the capture path:
+
+- `/usr/bin/time -p corepack pnpm exec playwright test
+  e2e/a11y/keyboard-journeys.spec.ts --project=chromium --reporter=json`
+  completed GREEN in 39.45 s. The report records exactly one expected test,
+  zero skipped/unexpected/flaky tests, runner duration 37,944.837 ms, and the
+  exact keyboard decision-packet journey passing. Its 3,925 raw bytes have
+  SHA-256
+  `050bc0ca4d925f78bc66fdc653fd7454f319dce7d92fc1552a8e23094d1ff7bd`.
+- `/usr/bin/time -p corepack pnpm exec vitest run --config
+  vitest.storybook.config.ts
+  src/test/a11y/OpaqueBackgroundContrast.stories.tsx --reporter=json
+  --outputFile=../../_build/apps/runtime-dashboard/ds6-c08-opaque-vitest.json`
+  completed RED in 39.32 s. The report records 0/1 story tests and preserves
+  the opaque-ancestor precondition failure before any of seven source receipts;
+  therefore its semantic result is exactly 0/7, never a partial pass. Its
+  2,678 raw bytes have SHA-256
+  `a03c5da2ebb0f60b1259e6bec3f77c10ce3e60671b07602e948db56d5a6a4572`.
+
+The first keyboard command named the nonexistent
+`src/test/a11y/keyboard-journeys.spec.ts` entry path. It completed nonzero in
+15.06 s with “No tests found”; it is a setup RED and is not admitted as an
+evidence observation. The corrected report above is separate. No ceiling was
+exceeded and the runner parents remained serialized.
+
+### Persistence implementation and admitted artifacts
+
+The runner normalizer accepts only the two closed profiles and their complete
+test identities. It recomputes every individual outcome and the summary from
+the runner JSON, rejects a summary/file-status contradiction or a partial
+population, and checks the exact declared runner command. The opaque story is
+atomic: its one story admits either all seven source observations or none. The
+real failure therefore carries `declared=7`, `admitted=0`, and
+`mode=all_or_nothing`; it is not represented as 0/1 at the evidence-class
+boundary.
+
+P37 is field-specific. Test population, result, findings, atomic denominator,
+and raw-report SHA are `recomputed`; the runner identity is
+`independently_reconciled` against the exact profile/test population.
+Playwright JSON exposes version 1.59.1 and that version is recomputed. The
+Vitest JSON does not encode its version, so `vitest-browser@4.1.5` and the
+declared rule identity remain `institutionally_supplied`. Neither the git
+revision nor shell argv is encoded in these runner reports, so those two
+provenance fields are also `institutionally_supplied` and are not used to turn
+the result green. The C07 receipt's decisive runner-result predicate remains
+`recomputed`. Observation, collection, and verification are distinct: runner
+start, runner finish, and the later capture/verification clock populate the
+three roles respectively.
+
+The app-local Python adapter delegates identity, canonicalization, write,
+manifest construction, and integrity to Core. Its behavioral focused witness
+uses an isolation-local ignored CAS, persists the exact raw report, payload,
+and receipt, resolves and verifies all three, checks the raw-to-payload
+`runner_report` edge and payload-to-receipt `verification_payload` edge, then
+corrupts the raw-report blob while retaining its manifest and proves the real
+Core verifier fails. A separately shaped but unresolved result, changed
+lineage edge, digest mismatch, and valid unrelated resolved payload all fail
+before admission.
+
+Review found four trust-boundary defects before the admitted reissue: caller
+selection of a bridge or Python executable was a sibling intake around Core;
+the raw report stopped at a digest string rather than a resolvable lineage
+edge; a hand-authored verifier version did not content-bind the executing
+implementation; and `classification=public` contradicted the non-public
+audience and local paths in the diagnostic. The closed mechanism now fixes the
+adapter and interpreter, persists the exact raw bytes as the payload's sole
+input, binds the ordered five implementation paths by per-file and aggregate
+SHA-256, and has Python independently recompute that set before writing. All
+three manifests carry Git commit
+`8a9e320588ba3378b4596a609bca3762501e577f` and repository-wide `dirty=true`;
+the dirty capture is reproducible by exact bytes, not represented as a clean
+revision. The manifests classify all three artifacts `internal` and state the
+actual encryption posture exactly: mode `none`, not enforced, not verified.
+Their 365-day manual-cleanup contract is retained. No public/export claim is
+made.
+
+After those review fixes, the two final serialized launcher invocations were
+rerun against the already-recorded runner JSON; no runner, browser, server, or
+journey lane was rerun. From `apps/runtime-dashboard`, the exact commands were:
+
+```bash
+node scripts/capture_atlas_evidence.mjs --profile keyboard_playwright --report ../../_build/apps/runtime-dashboard/ds6-c08-keyboard-playwright-run2.json --revision 8a9e320588ba3378b4596a609bca3762501e577f --command-json '["/usr/bin/time","-p","corepack","pnpm","exec","playwright","test","e2e/a11y/keyboard-journeys.spec.ts","--project=chromium","--reporter=json"]' --cas-root ../../_build/apps/runtime-dashboard/ds6-c08-cas-admitted-20260813 > ../../_build/apps/runtime-dashboard/ds6-c08-keyboard-capture-admitted-20260813.json
+node scripts/capture_atlas_evidence.mjs --profile opaque_storybook --report ../../_build/apps/runtime-dashboard/ds6-c08-opaque-vitest.json --revision 8a9e320588ba3378b4596a609bca3762501e577f --command-json '["/usr/bin/time","-p","corepack","pnpm","exec","vitest","run","--config","vitest.storybook.config.ts","src/test/a11y/OpaqueBackgroundContrast.stories.tsx","--reporter=json","--outputFile=../../_build/apps/runtime-dashboard/ds6-c08-opaque-vitest.json"]' --cas-root ../../_build/apps/runtime-dashboard/ds6-c08-cas-admitted-20260813 > ../../_build/apps/runtime-dashboard/ds6-c08-opaque-capture-admitted-20260813.json
+```
+
+They persisted these actual reports under the ignored isolated CAS. Both
+captures carry implementation aggregate
+`d92065244560b8e177323688e0c3564d37709e24141a38d107c57b1bb6a0845b`:
+
+| Profile | Runner result | Atomic receipt | Raw ref | Payload ref | Receipt ref | Capture JSON SHA-256 |
+| --- | --- | ---: | --- | --- | --- | --- |
+| `keyboard_playwright` | pass, 1/1 | 1/1 | `sha256:050bc0ca4d925f78bc66fdc653fd7454f319dce7d92fc1552a8e23094d1ff7bd` | `sha256:76cdfe158a60f506ea8b84f3a2e91866132bcf5b2f65f3d3817c0390b9341b3a` | `sha256:9bd31f4e8a1c956cf637c288c6df373d7c20130de66c2701489b7be7483e9f24` | `fb22852ffc832d969de044f9a4b70877d592f8ad1557cd506a186c3ade06d30d` |
+| `opaque_storybook` | fail, 0/1 story | **0/7** | `sha256:a03c5da2ebb0f60b1259e6bec3f77c10ce3e60671b07602e948db56d5a6a4572` | `sha256:717e5f1d456f477d3c2777add0dd4a174cb4d2245c71ccb0dabeb52042e848e9` | `sha256:3d4956e159c567d49f0da900e38b27279a01365d3c28fd9cf9de80eeb5c00a29` | `b5195b439646bbac78ccb0de0e08b4f238c3eada30e2cfed935d40926efae05f` |
+
+All six raw/payload/receipt integrity reports are `ok=true`; each payload
+manifest names the exact raw report as its `runner_report` input, each resolved
+receipt semantically binds the resolved payload, and each receipt manifest
+names that payload as its exact `verification_payload` input. Integrity green means
+the observations are authentic to this capture path, not that their test
+outcomes are green. The opaque outcome remains fail/0-of-7, so C06 remains
+gated on a future 7/7 observation as well as C04.
+
+The honest capability label moves from `contract_only` to
+`implemented_but_not_orchestrated`. A real producer, persisted artifacts,
+explicit runner-to-CAS bridge, Core integrity verification, and semantic
+rebinding now exist. Neither runner invokes capture automatically, no readiness
+consumer reconciles the receipts, and no external surface projects them;
+`consumer_missing` and `surface_missing` remain. C10's C08 integrity
+prerequisite is now available, but C10 is not entered in this explicitly
+ordered C05/C08/C13 session.
+
+### C08 duplication duty, implementation receipts, and nonreceipts
+
+The complete post-cut dashboard denominator is 1,130 paths: the 1,125 tracked
+entry paths plus five new implementation paths, partitioned as 392 `.ts`, 592
+`.tsx`, 17 `.mjs`, 9 `.cjs`, 2 `.py`, 1 `.sh`, and 117 other paths. Exact
+search over the 1,013 executable/source paths found one C07 receipt contract,
+one C08 runner normalizer/producer, one semantics-free MJS loader, one
+TypeScript file/process bridge, and one Python Core-store adapter. There was no
+entry `put_json()` caller, `FileSystemCAS` caller, or evidence persistence
+owner in the dashboard. Migration state is `new_consumer_of_existing_core`;
+Core remains canonical and no duplicate CAS/hash/manifest/verifier exists.
+
+The first focused round was RED at 21/23 because dynamic module loading tried
+to load an `http:` URL under the Storybook/Vitest environment. Static module
+ownership closed it. The next focused round passed 23/23; the behavioral Core
+round passed 24/24. A command-binding test initially exposed seven dependent
+failures because the synthetic fixture still used a placeholder argv; that
+fixture was corrected to the declared profile. After the trust-boundary batch,
+the frozen focused receipt is C07+C08 2/2 files, 28/28 tests, including the
+live Core corruption and provenance-mismatch witnesses. Focused ESLint over
+the three TypeScript implementation paths plus the MJS loader is green. Ruff
+check and format-check are green. Scoped basedpyright is 0 errors with 35
+JSON-boundary warnings. The app TypeScript check has zero C08-owned errors but
+remains RED on four pre-existing C02/C09 errors: two invalid
+`ds6-browser-fixture` author values and two possibly-undefined `badgeEntry`
+uses. This is a nonreceipt for full app typecheck, not a C08 green.
+
+Independent review was adversarial rather than claim-only. Initial spec and
+quality reviews found the override, raw-lineage, verifier-provenance,
+classification, stale-receipt, P37, and type/lint findings above. The final
+five-path delta review read the fixed intake, three-artifact lineage,
+corruption witness, independently reconciled implementation provenance,
+governance, and P37 classifications and returned CLEAN. Its independent
+receipts were 28/28 focused tests, scoped ESLint, focused strict TypeScript,
+Ruff check/format, and Python AST parse. A final read-only two-hunk review of
+the repository-wide dirty predicate also returned CLEAN.
+
+Three implementation-tool attempts are nonreceipts: `corepack pnpm exec
+vite-node ...` failed because `vite-node` is not installed; Node's native type
+stripper could not resolve extensionless TypeScript imports; and the first
+capture attempt correctly stopped after detecting that JSON key ordering is
+not semantic equality. The measured eighth path,
+`scripts/capture_atlas_evidence.mjs`, uses the installed pinned Vite loader and
+the admitted final invocations ran serially without those failures. A pair of
+pre-admission Vite-loader trials overlapped and one emitted an HMR-port warning;
+their artifacts are superseded and are not the admitted receipts above.
+The final Python verification first repeated `policy-engine/` in a path while
+already running from that directory and returned Ruff `E902`; that harness
+invocation is a nonreceipt. The corrected command is the Ruff green recorded
+above.
+
+No contended artifact, readiness ledger, checker family, generated report,
+`src/polisyos/**`, product surface, Russian catalog, DS5/GY path, or test
+denominator was edited. No whole-suite, browser, journey, visual, full lint,
+full typecheck, full build, Storybook-build, or design-token lane was rerun
+after C08 implementation; the C05 terminals remain receipts only for their
+recorded revision, while every omitted post-C08 lane is a nonreceipt.

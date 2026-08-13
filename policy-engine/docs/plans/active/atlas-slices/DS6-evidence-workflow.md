@@ -419,9 +419,71 @@ no open Important/Critical finding.
 
 ### Task 8 — DS6-C08: wire browser, keyboard, and automated evidence capture
 
-**Declared path cap: 10.** Wire existing runners to the canonical artifact
-producer/persistence path. Store positive and negative receipts without
-expanding a product denominator. Manual AT remains separate.
+**Owner-discovered path set declared before mechanism entry:**
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts`
+3. `apps/runtime-dashboard/src/test/evidence/captureAtlasEvidence.ts`
+4. `apps/runtime-dashboard/scripts/capture_atlas_evidence.mjs`
+5. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`
+6. `docs/reference/frontend/atlas-evidence-artifact.md`
+7. this plan
+8. the DS6 journal
+
+**Declared path cap: 10; measured candidate set: 8.** Read-only owner discovery
+found the complete persistence and integrity surface already in
+`src/polisyos/core/artifacts`: `ArtifactStore.put_json`, `get_bytes`,
+`get_manifest`, and `verify`, plus the backend-neutral
+`build_artifact_store(ArtifactStoreConfig.from_env())` configuration/factory
+pair. The dashboard already has an
+app-local Python bridge which imports PolicyOS through the public package
+boundary in `scripts/serve_fixture_runtime_api.py`; C08 follows that boundary
+without editing `src/polisyos/**`. The runtime artifact HTTP surface is an
+inspector, not the evidence writer, so routing capture through it would invent
+a second owner.
+
+The measured cut adds one app-local MJS launcher after entry because the
+installed workspace has Vite but no `vite-node` executable; a command which
+cannot load the typed bridge is a nonreceipt, not wiring. The launcher uses the
+installed Vite module loader and contains no evidence semantics. Wire exact,
+rule-owned Playwright and Storybook/Vitest report profiles to one
+strict normalization seam, then pass the normalized C07 payload and receipt to
+the app-local bridge. The bridge must use the existing Core store for three
+bound artifacts: exact raw runner bytes via `put_bytes`, the normalized payload
+via `put_json` with the raw artifact as its sole `runner_report` input, and the
+receipt via `put_json` with the payload as its sole `verification_payload`
+input. It resolves and integrity-verifies all three, decodes canonical JSON
+with the Core decoder, and returns the resolved payload and receipt for C07
+semantic binding. A raw report's digest, exact test denominator, outcome, and
+findings are recomputed from the machine report; caller-supplied outcome or
+artifact identity is not admitted. The runner identity is reconciled against
+the exact profile/test population. Playwright exposes and therefore recomputes
+its version; the Vitest JSON does not expose a version, so that profile version
+and the rule identity remain explicitly `institutionally_supplied` and cannot
+turn the result green.
+
+The exact five implementation paths that parse, launch, persist, and bind the
+receipt are byte-hashed into the normalized payload. The TypeScript producer
+computes the ordered per-file hashes and aggregate; the fixed Python adapter
+independently recomputes the same set before any write and places the current
+Git revision plus repository dirty bit in all three Core manifests. A dirty capture
+is traceable to exact bytes but is not represented as a cleanly replayable
+revision. Automated diagnostic artifacts are classified `internal`; their
+manifests explicitly state that at-rest encryption is not enforced or verified,
+matching the receipt's non-public audience rather than laundering local paths
+as public material. Positive and negative reports are both persisted. Manual
+AT remains separate and C09's maturity consumer is not invoked.
+
+Required negatives reject a report whose summary contradicts its individual
+results, an undeclared or incomplete test population, malformed runner JSON,
+a sibling bridge/interpreter override, changed implementation provenance, raw
+runner corruption, an integrity or manifest-lineage failure, and a
+CAS-resolved payload that does not semantically bind to its receipt. Capability
+stays `contract_only` until a real report is persisted, resolved, and
+integrity-verified. Even after that receipt, C08 is only
+`implemented_but_not_orchestrated` with
+`consumer_missing` and `surface_missing`: this explicit capture command is not
+automatic runner orchestration, and C10 owns readiness reconciliation.
 
 ### Task 9 — DS6-C09: wire manual AT evidence and maturity consumption
 

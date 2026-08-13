@@ -2286,3 +2286,29 @@ acceptance, Depth verification and one-build N11 protocols while the serialized 
 Only one PolicyOS-owned writer/scanner-heavy process was live at a time; no Sol agent was used.
 `[P37: consumer_asserted for orchestration history; recomputed for the final live agent/process
 state only]`
+
+### GY-DEFC-5 final blast-radius read-back
+
+The final architecture guardrail at clean attached `4bc138373` ran under the retained `180` s cap,
+exited `1` in `26.709649` s without timeout, and emitted empty stderr. Its `5,081` stdout bytes have
+SHA-256 `73b53d0a…1559fb`, byte-identical to the prior retained known-negative receipt. The output names
+only the existing baseline plus five runtime sources: `architecture/baselines/imports/deep_import.json`,
+`execution_policy.py`, `routes/runs.py`, `channel_contracts.py`, `lex_pipeline.py`, and
+`lex_search_projection.py`. Meta/stdout/stderr identities are `aa079f3b…205a`,
+`73b53d0a…1559fb`, and empty `e3b0c442…b855`. The baseline was not synchronized. `[P37:
+recomputed for terminal and exact output identity; independently_reconciled for the inherited
+classification]`
+
+Final measurement corrects the earlier path denominator: the complete `c1a89b6cf..HEAD` set is
+`28`, not `27`, because GY-DEFC-5 added the generation-cycle repo-quality test to the previously
+read set. It groups as five governed artifacts, one journal, four runtime/PDC sources, eleven tests,
+and seven tools/validators. Its exact intersection with the six guardrail paths above is empty;
+there is no `runtime/http/**` or deep-import baseline change. The sorted name-status receipt is
+`3c099ef9…01997`. `[P37: recomputed]`
+
+Ruff passes over all `22` Python paths in that complete branch range, and `git diff --check
+c1a89b6cf..HEAD` passes. A first Ruff invocation was a shell-argument setup non-receipt: a newline
+scalar was supplied as one filename and Ruff returned `E902 File name too long`; the corrected zsh
+array invoked the same complete set and passed. No product conclusion uses the setup invocation.
+The last source freeze remains `7a259daa6`; every later commit changes only this journal, so the
+reviewed source identities and `13/13` focused Depth receipt remain applicable. `[P37: recomputed]`

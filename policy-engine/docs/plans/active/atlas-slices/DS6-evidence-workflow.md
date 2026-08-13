@@ -622,10 +622,27 @@ Capability truth is `contract_only` with `producer_missing`,
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
-**Declared path cap: 6.** Consume DS8's shipped surface without editing it;
-run independent visual and semantic verification, persist evidence, and wire
-the appropriate readiness/audit consumer. Failure returns evidence to DS8; it
-does not authorize a DS6 product repair.
+**Owner-discovered path set declared before the browser lane:**
+
+1. this plan
+2. the DS6 journal
+
+**Declared path cap: 6; measured candidate set: 2.** Consume DS8's shipped
+surface without editing it. The unique real-browser owner is the filtered
+`run detail A4 print` case in `e2e/runtime-dashboard.visual.spec.ts`; the
+static snapshot checker proves only markers and image shape, not link/report
+non-overlap. Run the real Chromium comparison once under the supplied 2,400 s
+ceiling. If it is RED, preserve expected/actual/diff evidence and stop: the
+closure conjunction is already falsified. If it is GREEN, a second no-update
+capture is required for repeatability and semantic non-overlap still needs an
+independent verifier.
+
+The current readiness-ledger and disposition-register owners are contended and
+therefore unavailable. Ignored Playwright output plus this reviewed record are
+the strongest honest result in C13; no governed readiness/audit transition is
+written. Failure returns evidence to DS8 and does not authorize a DS6 product
+repair. The capability remains `consumer_missing`/`surface_missing` until the
+serialized owner family is released and C10/C14 reconcile the evidence.
 
 ### Task 14 — DS6-C14: close the evidence workflow slice
 

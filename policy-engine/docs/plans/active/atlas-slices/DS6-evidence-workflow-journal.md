@@ -2248,3 +2248,133 @@ denominator was edited. No whole-suite, browser, journey, visual, full lint,
 full typecheck, full build, Storybook-build, or design-token lane was rerun
 after C08 implementation; the C05 terminals remain receipts only for their
 recorded revision, while every omitted post-C08 lane is a nonreceipt.
+
+## DS6-C13 — independent adjacent-print-export verification — 2026-08-13
+
+### Owner discovery, entry cut, and lane declaration
+
+C13 entered from clean attached commit
+`075eedb3bd5cdfdee4c6a664f0fc3af18a50767d`, 14 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. The measured cut is this plan and
+journal only, 2 paths against cap 6. The product snapshot, visual spec,
+readiness ledger, disposition register, DS8 CSS, and every Core path are
+read-only inputs.
+
+Owner discovery found one real-browser comparator for
+`run-detail-a4-print.png`: `e2e/runtime-dashboard.visual.spec.ts` lines
+571–581. Its Chromium screenshot threshold is 100 pixels and retry count is
+zero. The static `tools/design/check-print-snapshots.ts` owner checks markers,
+existence, and dimensions but cannot establish generated-link/report
+non-overlap. The binding debt requires both semantic non-overlap and two
+consecutive no-update A4 captures; a RED first run falsifies that conjunction
+and does not need a second run. The expected snapshot entered byte-unchanged at
+724x2113, 231,141 bytes, SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`.
+
+The first command, run from `apps/runtime-dashboard`, was:
+
+```bash
+UV_PROJECT_ENVIRONMENT=../../_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=../../src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'run detail A4 print$' --output=../../_build/apps/runtime-dashboard/ds6-c13-print-run-1
+```
+
+Its controller ceiling was the supplied 2,400 s. This attempt completed setup
+RED in 4.09 s with zero tests: Playwright starts the fixture server from the
+policy-engine root, so the relative `UV_PROJECT_ENVIRONMENT` resolved outside
+the worktree and the server could not import `uvicorn`. It created one
+unintended environment at
+`/Users/deniskopylov/polisyos/.worktrees/_build/apps/runtime-dashboard/.venv-online`;
+that exact directory was moved to Trash as
+`atlas-ds6-unintended-venv-online-20260813-0956` and is recoverable. No
+out-of-fence scratch remains. This setup RED is not a visual verdict.
+
+The corrected command uses absolute environment identities while keeping the
+same one-test selector and 2,400 s ceiling:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'run detail A4 print$' --output=../../_build/apps/runtime-dashboard/ds6-c13-print-run-2
+```
+
+### Terminal verdict and evidence
+
+The corrected command completed visual RED, exit 1, in 55.87 s (`user 27.21`,
+`sys 3.54`), safely below the supplied ceiling. It ran exactly one Chromium
+test with zero retries. The screenshot assertion ran 15.1 s and reported:
+
+- expected: 724x2113, 231,141 bytes, SHA-256
+  `a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`;
+- actual: 770x12991, 3,185,010 bytes, SHA-256
+  `e1c7f7060c860575d8c389896f1f447b5add264025d7bf2446686dd8f5458d0d`;
+- diff: 770x12991, 1,048,673 bytes, SHA-256
+  `ad0a9b1177e11eb1803713f3e35697320001af11e04364fb8b041ef35fc47b85`;
+- measured difference: 685,932 pixels, ratio 0.07, against the declared
+  100-pixel maximum.
+
+Measurement corrects the inherited 770x13229 actual for this run; that was the
+separate C05 observation, not a value to force onto C13. The relevant product
+inputs — visual spec, expected snapshot, `styles.css`, `styles/print.css`, and
+`MonographLayout.tsx` — have zero diff from C05 revision `4748b9211` to this
+run. Even so, C05 produced a 770x13229 actual with SHA-256
+`fa6a35be9c9893f1ed856f2a320293b4f71440caf497cffefcb3c29b5af7f8c5`,
+while C13 produced 770x12991 and SHA-256
+`e1c7f7060c860575d8c389896f1f447b5add264025d7bf2446686dd8f5458d0d`.
+Thus both the
+100-pixel visual bar and repeatability fail; this is not a stable no-update
+capture. The first real C13 result falsifies the conjunctive closure, so no
+second targeted run was executed.
+
+Visual inspection confirms that the actual artifact is the extremely long run
+detail surface rather than the committed A4 reading-view expectation. It does
+not independently compute link and report bounding boxes. Therefore the exact
+semantic predicate “no generated link URL overlaps report content” remains
+`not_established`, not silently inferred from URL text or screenshot presence.
+That semantic nonreceipt cannot rescue the already-RED visual conjunction.
+The verdict is **DS8 regression reproduced; closure failed**. C13 changes no
+DS8 surface and returns the evidence to `team-design`.
+
+### C13 duplication duty, blocked list, and nonreceipts
+
+The complete dashboard print-style denominator is 13 tracked `.css` files.
+Exactly two active rules emit `attr(href)`: the canonical print owner
+`src/styles/print.css:82-86` and `src/styles.css:1609-1613`, even though
+`styles.css:11` already imports the canonical owner and
+`docs/brand/PRINT_AND_EXPORT.md:31-32` names it as the global entrypoint. The
+copies have concrete drift: angle-bracket/8pt/`word-break: break-all` versus
+parenthesis/0.8em/`#666`; the later rule shadows part, but not all, of the
+first. Migration state is `duplicate_active`, comparator status is
+`visual_red`, and the DS8-owned strangle target is the second emission owner.
+C13 records but does not repair this product duplication. The complete E2E
+denominator is 18 tracked TypeScript files and 18 `toHaveScreenshot` calls;
+exactly one call owns `run-detail-a4-print.png`.
+
+Blocked state after the serialized wave:
+
+- C03 still needs a GREEN authoritative whole-suite Vitest receipt and release
+  of the contended register/baseline manifest. C05's RED 315/316-file,
+  965/966-test measurement is authoritative for that run but cannot support a
+  repaired/empty governed transition; C08 subsequently added focused tests.
+- C04 remains blocked on DS5's register-family release.
+- C06 remains blocked on both C04 and a future exact 7/7 opaque-background
+  observation; C05/C08 preserve the current browser result as 0/7.
+- C10 now has C08 persistence/integrity evidence, but reconciliation was not
+  entered and its consumer/surface remain missing.
+- C11 remains blocked on INT-R3 content, a producer, and real observations;
+  every threshold stays `not_established`.
+- C13 has an independent RED verdict, but its governed readiness transition is
+  blocked on the contended readiness/register family and DS8 owns the repair.
+
+Nonreceipts are explicit: the 4.09 s setup RED ran zero tests; semantic
+non-overlap has no independent bounding-box verifier; no second targeted
+capture ran after the first real RED; and no governed readiness/audit artifact
+was written. No C05 lane, C08 capture, whole suite, other browser lane, lint,
+typecheck, build, Storybook build, or design-token check was rerun for C13.
+No contended artifact, readiness ledger, checker family, generated report,
+`src/polisyos/**`, product surface, Russian catalog, DS5/GY path, or denominator
+was edited.
+
+Independent C13 review returned CLEAN with no Blocking or Important finding.
+It independently read the failed-status artifact, all three PNG dimensions,
+byte sizes and SHA-256 values, the trace's 685,932-pixel/0.07 comparison, the
+unique test owner and 100-pixel limit, the no-diff product inputs, the C05
+repeatability counterexample, the two-path cap/fence, and every nonreceipt. It
+confirmed that semantic non-overlap remains `not_established`; it ran no lane
+and changed no file.

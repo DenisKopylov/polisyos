@@ -2209,3 +2209,31 @@ named cause. The expanded focused Depth set passes `13/13` under the receipt int
 are `67ef2103…2c60f`, `cfc14fd2…feb9`, and empty `e3b0c442…b855`. Ruff and diff hygiene pass. The
 validator/test identities are `7bdfee3f…c8f3` and `13d8dccc…f29`. `[P37: recomputed;
 not_established for frozen-review and replacement-census acceptance]`
+
+The source batch landed at `7a259daa6`. Three independent Terra delta reviews then closed with no
+Critical or Important finding: authority/P32, exact two-level correctness, and wave readiness all
+recomputed the proof-source/aligned-current split and retained raw-custody boundary. The ignored
+live-census harness and cap wrapper identities at launch were `5c747949…fdd8` and
+`d0580d1f…b9adf`. `[P37: independently_reconciled for review; recomputed for source and harness
+identities]`
+
+Replacement census `live4` started from clean attached `7a259daa6` with the receipt interpreter and
+the same exact Depth pin. The cap wrapper terminated it at the governed rederive cap: elapsed
+`1,695.388880` s against `1,695.177568` s, `timed_out: true`, child terminal `-15`, wrapper exit
+`124`. It had not serialized `candidate.json`, `summary.json`, `artifact-delta.jsonl`, projection
+rows or raw-preservation rows. The governed Depth file stayed exactly `1,841,810` bytes at
+`acc252579…f089`, and branch/head/status remained attached, unchanged and clean. Meta/stdout/stderr
+identities are `803bc800…ae9b2`, `f0849dc8…d591f`, and `8fd09465…78c5`. The retained stdout shows
+the process was still inside registry/replay construction at termination rather than a semantic
+terminal. This is a cap-measuring non-receipt with zero changed bytes and consumes no accepted
+Depth reissue or cold-N11 allowance. `[P37: recomputed for cap, terminal, missing outputs and byte
+boundary; institutionally_supplied for allowance semantics; not_established for the cause of the
+runtime overrun and for the Depth candidate]`
+
+The user-supplied parallel-execution ruling remains binding: external overlap is an execution
+covariate, not a reason to wait indefinitely. The post-terminal process census showed no other
+PolicyOS writer/scanner-heavy lane live. The pre-authorized B4 replacement therefore remains one
+PolicyOS-owned heavy process under the unchanged cap; it does not infer a larger budget from the
+killed duration and does not claim that contention caused `live4`. `[P37: recomputed for the
+post-terminal process census; institutionally_supplied for the replacement/parallel-execution
+rule; not_established for historical contention during live4]`

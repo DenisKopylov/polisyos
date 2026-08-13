@@ -1936,3 +1936,41 @@ serialized-host non-receipt with no accepted manifest or reissue. The next quiet
 scanner's orchestration parent exiting, not merely to a rotating child disappearing.
 `[P37: recomputed for process lineage, terminals and byte boundary; institutionally_supplied for
 the completion/allowance rule]`
+
+### GY-DEFC-5 N10a v2 — fresh source-bound manifest and writer contention non-receipt
+
+After the full Atlas enforcement sequence exited and an `85` s / `18`-sample quiet interval held,
+the third fresh-head non-persisting measurement ran alone at clean attached head `b4afdf052`. It
+exited `0` in `208.203441` s under the `852.699146` s cap, did not time out, and reported producer
+wall time `199.050905` s, `status: pass`, `issues: []`, `write_performed: false`. All five governed
+pins remained byte-identical and external N8 remained `c3f131ce…bc303`. Meta, stdout, stderr,
+parsed-result and manifest-file identities are `14d984f7…d50e`, `69b1512f…03d1`,
+`dec9a903…9b02`, `d6be64c1…e8e0`, and `f887c6ed…7341`. `[P37: recomputed]`
+
+The fresh manifest binds source head `b4afdf052`, repeats source-scope identity
+`sha256:7b49aa64…4839a`, and has self identity `sha256:7bbe2b28…d24de`. Its complete `2,832`-row
+output/pointer TSV is byte-identical to the declaration at SHA-256 `b7f7f01c…9537b`; all five
+transition modes, legacy identities, live identities and changed-leaf sets are identical. The only
+differences from the measurement-only manifest are the required source head and dependent manifest
+self identity. Two fresh independent Terra reviews returned no Critical or Important finding: each
+recomputed the manifest/path denominator and source binding, and one independently traversed the
+complete `3,286`-file source/tool scope. `[P37: recomputed for the manifest equality and identities;
+independently_reconciled for the two review verdicts]`
+
+The accepted writer was then launched from that same clean head only after the host again held an
+`85` s quiet interval. It ran alone for about two minutes, after which a new external Atlas DS5
+ESLint pass started and overlapped the writer for approximately `83` s. The observed external tree
+was `/usr/bin/time corepack pnpm exec eslint` with Node children, including an ESLint child at about
+`95%` CPU and `1,233,248` KiB RSS. To preserve the one-heavy-process rule, N10a was terminated
+deliberately after `217.754981` s. The wrapper records `timed_out: false`, child/wrapper terminal
+`-15`, empty stdout and only the two database-connection information lines on stderr. Meta/stdout/
+stderr identities are `ec6d1e74…809d`, `e3b0c442…b855`, and `504fe21c…80ab`.
+`[P37: recomputed]`
+
+All five governed outputs and the external N8 pin are byte-identical before/after, and branch,
+head and tracked status are unchanged. The invocation therefore produced no reissue and consumed no
+accepted N10a allowance. Committing this non-receipt advances HEAD and intentionally expires the
+otherwise-valid fresh manifest; another non-persisting source-bound measurement is required after
+the external DS5 sequence finishes before the accepted writer can be attempted again.
+`[P37: recomputed for the zero-byte boundary; institutionally_supplied for the
+completion/allowance rule; independently_reconciled for fresh-HEAD rebinding]`

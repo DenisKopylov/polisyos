@@ -1527,6 +1527,68 @@ def test_controlled_recording_comparison_preserves_full_frozen_bytes(
     )
 
 
+def test_aligned_recording_migration_uses_proof_bound_receipt_source(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Artifact reconciliation reuses the live receipts proven before alignment."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    frozen = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+    live = _verification_lineage_variant(frozen)
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+    strict_proofs: list[GyComparisonAdmission] = []
+    for receipt in _recording_receipts(live):
+        proof_bound = copy.deepcopy(receipt)
+
+        def _migrate(
+            previous: dict[str, object],
+            current: dict[str, object],
+            *,
+            expected: dict[str, object] = proof_bound,
+        ) -> dict[str, object]:
+            if current != expected:
+                raise ValueError("live_receipt_drift")
+            return copy.deepcopy(previous)
+
+        strict_proofs.append(
+            GyComparisonAdmission(
+                owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+                source_content_hash=gy_recorded_content_hash(receipt),
+                projector=_fixture_receipt_semantic_projection,
+                action=owner.action,
+                predicate_provenance=owner.predicate_provenance,
+                legacy_migrator=_migrate,
+            )
+        )
+
+    recording_admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=tuple(strict_proofs),
+        aligned_recording=frozen,
+    )
+    plan = build_gy_comparison_projection_plan(
+        frozen,
+        admissions=(recording_admission,),
+    )
+
+    assert plan.preserve_admitted_blocks(frozen, frozen) == frozen
+    forged_current = copy.deepcopy(frozen)
+    _change_all_operational_clocks(forged_current)
+    _refresh_recording_hashes(forged_current)
+    with pytest.raises(
+        ValueError,
+        match="controlled_recording_legacy_comparison_semantic_mismatch",
+    ) as exc_info:
+        plan.preserve_admitted_blocks(frozen, forged_current)
+    assert exc_info.value.__cause__ is not None
+    assert str(exc_info.value.__cause__) == "controlled_recording_aligned_current_drift"
+
+
 def test_artifact_reconciliation_reissues_recording_authority_envelopes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

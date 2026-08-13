@@ -2150,3 +2150,62 @@ the receipt interpreter, without timeout or pin movement; meta/stdout identities
 `e93b0a46…dd41` and `eb27a136…2663`, stderr empty. Ruff and diff hygiene pass. Bridge/test identities
 are `c485c5d3…fe96` and `693429c8…b0ec`. `[P37: recomputed; not_established for final review and
 live-census acceptance]`
+
+### GY-DEFC-5 Depth v2 — `live3` proof-source/aligned-current non-receipt
+
+The reviewed bridge batch was frozen at `1f7d549c0`, with all three Terra reviews clear, before the
+next real-owner census. `live3` ran from that clean attached head for `1,509.7816475` s under the
+unchanged `1,695.177568` s cap, ended at child/wrapper exit `1`, and did not time out. Its governed
+Depth pin was byte-identical before and after: `1,841,810` bytes at
+`acc252579bb92ec1fcc7899ea73cf22a41154ceb68d249c135bca457a153f089`. Meta/stdout/stderr identities
+are `3abaa2ef…897b4`, `6acee51f…c2e`, and `f196ac36…54e8d`. External heavy processes were allowed to
+overlap under the user-supplied parallel-execution ruling; no cap was raised and no second
+PolicyOS-owned writer/scanner-heavy process was launched. This completed semantic failure changed
+zero governed bytes and consumed neither the Depth accepted-reissue allowance nor the cold-N11
+allowance. `[P37: recomputed for head/status, cap, terminal and byte boundary;
+institutionally_supplied for overlap and allowance semantics]`
+
+The complete failing route is `census.main → _build_live_payload_with_plan(lane="cached") →
+_reconcile_artifact_records → comparison_plan.preserve_admitted_blocks →
+migrate_legacy_recording → receipt_plan.migrate_admitted_blocks →
+canonical promotion migrate_legacy`, which raises `ValueError("live_receipt_drift")`, then
+`promotion_legacy_comparison_semantic_mismatch`, then
+`controlled_recording_legacy_comparison_semantic_mismatch`, and finally
+`UniversalityContractError`. The live per-role bridge snapshots a proof-bound direct-live recording
+before reconciliation, then returns an aligned recording that deliberately retains frozen raw
+receipt custody plus the newly admitted semantic projection and reissued enclosing identities. The
+nested receipt plan is correctly bound to the first value, while the outer recording admission is
+correctly exact-bound to the second. Artifact migration incorrectly supplied the aligned receipt as
+the nested canonical migrator's current operand, so that owner correctly rejected it as different
+from its proof-bound direct-live receipt. Three independent read-only tracks reconciled the same
+two-level topology from source and the retained stack. This remains the authorized recording-level
+owner mechanism, not a third bespoke mechanism. `[P37: independently_reconciled]`
+
+The minimal closure therefore preserves both bindings rather than choosing one. The outer legacy
+migrator first validates and requires its callback current to equal the captured aligned recording,
+with named cause `controlled_recording_aligned_current_drift` on mismatch. It then migrates each
+frozen nested receipt against the captured, canonical-proof-bound source receipt, and finally
+compares the migrated root semantic projection with the captured aligned projection. Migration
+still begins from the frozen previous payload, so raw receipt custody is retained; the direct-live
+receipt is an owner proof operand, never replacement artifact bytes. No ledger rule, scope,
+denominator, admission outcome or promotion-owner check changes. `[P37: recomputed for the code
+shape; independently_reconciled for the authority/custody disposition; not_established for frozen
+review and live-census acceptance]`
+
+A source-bound pre-fix tree makes the exact topology RED. The focused witness builds strict nested
+admissions that accept only their proof-bound live receipts, then gives the outer admission a
+distinct aligned frozen-raw recording. Against pre-fix source it exits `1` in `22.996992` s, without
+timeout, at the expected nested `live_receipt_drift` wrapped by
+`controlled_recording_legacy_comparison_semantic_mismatch`; meta/stdout/stderr identities are
+`f515cc92…f3a3`, `3f88f8e6…5f7`, and empty `e3b0c442…b855`. Two preceding isolation-harness attempts
+are setup non-receipts: the first extracted no product subtree and exited `4` in `1.342457` s
+(`5cc96db0…761b0` / `bcdeed80…1cbb23`); the second extracted the subtree but failed to apply the
+dirty witness into it and exited `4` in `22.736805` s (`34c9456c…2961c` /
+`29360be9…9a880`). Neither timed out or exercised the property. `[P37: recomputed]`
+
+After the closure, the same witness passes and its forged-aligned-current negative reaches the new
+named cause. The expanded focused Depth set passes `13/13` under the receipt interpreter in
+`86.176092` s, exits `0`, does not time out, and emits empty stderr. Meta/stdout/stderr identities
+are `67ef2103…2c60f`, `cfc14fd2…feb9`, and empty `e3b0c442…b855`. Ruff and diff hygiene pass. The
+validator/test identities are `7bdfee3f…c8f3` and `13d8dccc…f29`. `[P37: recomputed;
+not_established for frozen-review and replacement-census acceptance]`

@@ -4788,9 +4788,11 @@ def _admit_controlled_recording_for_comparison(
                 current,
                 role=role,
             )
+            if current_payload != aligned_payload:
+                raise ValueError("controlled_recording_aligned_current_drift")
             migrated_compiled = receipt_plan.migrate_admitted_blocks(
                 previous_payload["compiled_run"],
-                current_payload["compiled_run"],
+                source_payload["compiled_run"],
             )
             if not isinstance(migrated_compiled, Mapping):
                 raise ValueError("controlled_recording_compiled_migration_invalid")
@@ -4799,7 +4801,7 @@ def _admit_controlled_recording_for_comparison(
             migrated = _rehash_controlled_recording_after_comparison_migration(migrated)
             if (
                 _controlled_recording_verification_semantic_projection(migrated)
-                != _controlled_recording_verification_semantic_projection(current_payload)
+                != _controlled_recording_verification_semantic_projection(aligned_payload)
             ):
                 raise ValueError("controlled_recording_migrated_projection_drift")
             return migrated

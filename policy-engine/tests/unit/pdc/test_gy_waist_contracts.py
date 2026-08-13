@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
 
@@ -344,6 +345,8 @@ def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
 def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() -> None:
     """The comparison owner must align admitted legacy custody before projecting it."""
 
+    migration_calls = 0
+
     def _project_v2(value: dict[str, object]) -> dict[str, object]:
         semantic = value.get("semantic_projection")
         if not isinstance(semantic, dict):
@@ -357,6 +360,10 @@ def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() 
         previous: dict[str, object],
         current: dict[str, object],
     ) -> dict[str, object]:
+        nonlocal migration_calls
+        migration_calls += 1
+        if migration_calls > 1:
+            raise ValueError("legacy_migrator_called_twice")
         if previous.get("governing_input") != current.get("governing_input"):
             raise ValueError("legacy_governing_input_mismatch")
         return {
@@ -402,6 +409,7 @@ def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() 
         "semantic_hash": "sha256:semantic"
     }
     assert plan.project(reconciled) == plan.project(current)
+    assert migration_calls == 1
 
     governing_drift = copy.deepcopy(previous)
     governing_drift["receipt"]["governing_input"] = "changed"
@@ -416,6 +424,69 @@ def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() 
             recording_role="first_vertical",
             admission_arm="migrated",
         )
+
+
+def test_reconcile_gy_comparison_projection_diagnostic_keeps_frozen_identity() -> None:
+    """A migrated comparison still labels the raw frozen operand truthfully."""
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {"semantic_projection": semantic}
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        return {
+            **copy.deepcopy(previous),
+            "semantic_projection": copy.deepcopy(current["semantic_projection"]),
+        }
+
+    previous = {
+        "governing_outer": "frozen",
+        "receipt": {"raw_session_identity": "frozen"},
+    }
+    current = {
+        "governing_outer": "live",
+        "receipt": {
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        },
+    }
+    plan = build_gy_comparison_projection_plan(
+        current,
+        admissions=(
+            GyComparisonAdmission(
+                owner_rule="test.verification_receipt.v2",
+                source_content_hash=gy_recorded_content_hash(current["receipt"]),
+                projector=_project_v2,
+                legacy_migrator=_migrate_legacy,
+            ),
+        ),
+    )
+
+    with pytest.raises(GyOperationalReconciliationError) as exc_info:
+        pdc_module.reconcile_gy_comparison_projection(
+            previous,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
+        )
+
+    report = json.loads(str(exc_info.value).partition(":")[2])
+    frozen_payload = json.dumps(
+        {"type": type(previous).__name__, "value": previous},
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+        default=str,
+    ).encode("utf-8")
+    assert report["expected_frozen"]["content_identity"] == (
+        "sha256:" + hashlib.sha256(frozen_payload).hexdigest()
+    )
 
 
 def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_lists() -> None:

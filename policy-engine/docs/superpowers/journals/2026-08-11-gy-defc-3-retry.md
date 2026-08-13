@@ -2098,3 +2098,30 @@ than the required receipt-venv prefix. It did not time out or alter either sourc
 identities are `40676eb9…a45f` and `73de3b5b…e3c3`; stderr is empty. Generic PDC tests therefore
 remain ordinary-interpreter evidence, while the Depth executable tests use the already-preserved
 receipt interpreter; no environment was rebuilt. `[P37: recomputed]`
+
+The first frozen source commit was `974036d4e`. Three independent Terra tracks reviewed authority,
+generic correctness, and live-census readiness. The wave track found the retained harness structurally
+ready, but the authority and correctness tracks each independently reproduced two Important generic
+contract defects: the legacy migrator ran once during explicit alignment and again inside raw
+preservation, so a stateful/single-use owner could reject or leak an untyped second-call error; and
+post-migration diagnostics labelled the ephemeral aligned value as `expected_frozen`, giving that
+operand role the wrong content identity. The source batch therefore remained frozen but unaccepted,
+and no live census was launched from `974036d4e`. `[P37: independently_reconciled for the review
+findings; not_established for source acceptance]`
+
+Delta TDD made both findings executable. A call-count migrator that raises on invocation two failed
+at the second call, and a post-alignment governing mismatch reported aligned identity
+`sha256:8ca8f030…2e96` instead of raw frozen identity `sha256:2f9a7f93…065e`; the two-test RED exited
+`1` with both failures. The plan now has one internal aligned-preservation seam: public callers still
+receive migrate-then-preserve behavior, while the generic reconciler passes its already-aligned value
+to that seam and invokes the owner migrator exactly once. Every typed diagnostic again compares raw
+`previous` with raw live `current`, so `expected_frozen` binds the actual custody operand even though
+the gate decision uses the producer-aligned projection. No artifact owner, admission rule, receipt or
+ledger scope changed. `[P37: recomputed]`
+
+After the delta, the complete PDC contract passes `50/50` in `1.558073` s; meta/stdout identities are
+`ea28ca7d…0cda` and `5952b218…8a79`. The same focused Depth set passes `10/10` in `54.003392` s under
+the receipt interpreter; meta/stdout identities are `dcd69e46…0bf3` and `7040371a…4103`. Both runs
+exited `0`, did not time out, preserved source pins and emitted empty stderr. Ruff and diff hygiene
+pass. Final pre-review source/test identities are `82385b5c…dc6d` and `a3013e79…9f2`.
+`[P37: recomputed; not_established for delta-only review and live census]`

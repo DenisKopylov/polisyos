@@ -292,8 +292,17 @@ class GyComparisonProjectionPlan:
         taken from the live record, except ordinary operational leaves.
         """
 
-        entries = {entry.path: entry for entry in self.entries}
         aligned_previous = self.migrate_admitted_blocks(previous, current)
+        return self._preserve_aligned_admitted_blocks(aligned_previous, current)
+
+    def _preserve_aligned_admitted_blocks(
+        self,
+        aligned_previous: object,
+        current: object,
+    ) -> object:
+        """Preserve one already-migrated frozen value without rerunning its owner."""
+
+        entries = {entry.path: entry for entry in self.entries}
         preserve_operational = self.project(aligned_previous) == self.project(current)
         visited: set[_GyComparisonPath] = set()
 
@@ -729,7 +738,7 @@ def reconcile_gy_comparison_projection(
     if previous_semantic != current_semantic:
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
-            aligned_previous,
+            previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,
@@ -737,16 +746,19 @@ def reconcile_gy_comparison_projection(
     if not _gy_payload_shape_matches(aligned_previous, current):
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_shape_mismatch",
-            aligned_previous,
+            previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    reconciled = comparison_plan.preserve_admitted_blocks(previous, current)
+    reconciled = comparison_plan._preserve_aligned_admitted_blocks(
+        aligned_previous,
+        current,
+    )
     if comparison_plan.project(reconciled) != previous_semantic:  # pragma: no cover
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
-            aligned_previous,
+            previous,
             current,
             recording_role=recording_role,
             admission_arm=admission_arm,

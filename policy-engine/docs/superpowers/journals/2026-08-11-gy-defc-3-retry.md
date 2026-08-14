@@ -2312,3 +2312,56 @@ scalar was supplied as one filename and Ruff returned `E902 File name too long`;
 array invoked the same complete set and passed. No product conclusion uses the setup invocation.
 The last source freeze remains `7a259daa6`; every later commit changes only this journal, so the
 reviewed source identities and `13/13` focused Depth receipt remain applicable. `[P37: recomputed]`
+
+## GY-DEFC-6 — producer-budgeted Depth closure and one cold N11
+
+### Session start, corrected budgets, and execution regime
+
+The continuation started from a clean, attached `codex/gy-defc-3-retry` at
+`6700ff36e1c510dc3c1ebeca4248316cf2e057b4`, exactly `48` commits ahead of `c1a89b6cf`.
+`[P37: recomputed]`
+
+The session-start timing source is `/private/tmp/polisyos-tools/timing.jsonl`, SHA-256
+`47f0a20512c87cb984aac4cecee977159a7944e50a47e902cde4245774f8a5a8`: all `151/151`
+rows parse, `81` rows are admitted `status=ok, exit_code=0` observations, `31` lanes are observed,
+and `23` have at least one successful sample. This corrects the prior saved `150`-row projection;
+the additional row is a later guardrail observation and does not change any relevant sample set.
+`[P37: recomputed]`
+
+Nearest-rank p95 and the catalog rule `2 x p95` reproduce these raw caps; the operational ceiling
+then applies the supplied conservative upper contention allowance of `2.0x`:
+
+| lane | complete admitted sample set (ms) | raw cap (ms) | operational ceiling (ms) |
+| --- | --- | ---: | ---: |
+| Depth measurement/write | `846792.938, 848863.199, 884220.303, 2471270.206` | `4942540.412` | `9885080.824` |
+| Depth check | `73877.202, 159830.694` | `319661.388` | `639322.776` |
+| Depth rederive audit | `847588.784` | `1695177.568` | `3390355.136` |
+| posture catalog provenance | `16883.512, 17008.493, 17036.059, 26424.476, 34765.007, 113928.075` | `227856.150` | `455712.300` |
+| cold N11 repository fallback | `951000, 1086000, 1111911.306, 1173279.650` | `2346559.300` | `4693118.600` |
+
+The raw arithmetic and complete sample sets are `recomputed`; the `2.0x` allowance and the chosen
+externally-contended regime are `institutionally_supplied`. The effect of contention on any one
+duration is `not_established` without an interval ledger. All six local N11 writer rows failed and
+are excluded, so its cap correctly uses the catalogued repository fallback. This also corrects the
+prompt's rounded `2,346,559` ms N11 cap to `2,346,559.300` ms. `[P37: recomputed for samples,
+arithmetic, and local-row exclusion; institutionally_supplied for allowance and regime;
+not_established for per-run contention effect]`
+
+Depth corrupt-field drift has no admitted exit-zero sample because success is the specified exit
+`1`. Its two healthy observations are `88.465166` and `87.310967` s, so `88.5` s is a faithful
+rounding of the maximum. This lane retains its separately declared `600` s hang fence; it is not a
+catalogued cap and is not multiplied again. Exit `1` is green only if every generated mutation is
+detected; exit `2` stops the task. `[P37: recomputed for observations; institutionally_supplied for
+the fence and terminal interpretation]`
+
+Only one PolicyOS-owned writer/scanner-heavy lane will run at a time. External host work may overlap
+and is part of the declared externally-contended regime; it is neither a reason to delay nor to
+invalidate a receipt. Each duration below records this regime. `[P37: institutionally_supplied]`
+
+The GY-DEFC-5 `live4` and `live5` Depth census attempts are reclassified as `GY-DI2`: they used the
+rederive lane's `1,695.177568` s cap even though that bespoke census had no successful sample of its
+own. The old ignored `tmp/gy-defc-5/recording-census-v2/census.py` remains preserved as attempted
+evidence and will not be run. The replacement is the landed Depth producer's non-persisting owner
+path under the Depth writer ceiling; an audited and restored writer would likewise be measurement
+and consume no accepted reissue. `[P37: recomputed for borrowed-cap provenance;
+institutionally_supplied for the superseding ruling and replacement path]`

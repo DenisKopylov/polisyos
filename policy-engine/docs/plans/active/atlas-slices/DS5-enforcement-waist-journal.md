@@ -2523,3 +2523,77 @@
   harness non-receipt and is not used. The staged receipt supersedes it.
 - Read-only P35 probes cover C08b, the C13b/C14b overlap, and C15a. No consumer,
   writer, or scanner-heavy process has started; no new non-receipt exists.
+
+## 2026-08-14 — DS5-C13b-R6 stopped consumer checkpoint
+
+- C08b-R1's landed successor is C08b-R2 at `edb8e045f`; verified tenant/user
+  identity is present, so C15a is not blocked on that prerequisite. The complete
+  overlap read found C13b composer closure and C14b-R1 are one live chain, not
+  two clusters. C13b-R6 therefore absorbed the name and measured cap 11.
+- The stopped source candidate extended C17a-R2's canonical owner with a pure
+  storage-independent envelope seam and kept async IndexedDB as the composer
+  I/O adapter. It fixed a 24-hour writer-owned TTL, strict workflow/NL codecs,
+  verified Authz tenant/user scope, scope-bound keys, pre-paint clearing, and
+  late load/save/discard generation guards. Server/epoch/rule and DS9/DS14
+  semantics remained explicitly open.
+- Red-first receipts were substantive: missing envelope seam `1 / 7` failed;
+  missing repository `4 / 5`; incomplete-form codec `1 / 7`; missing identity
+  bridge `3 / 11`. Review then found a real exception escape where `save()`
+  read `draft.key` outside containment: the 31-test wave failed exactly there
+  in `25.76 s / 120 s`. The named repair passed `1 / 1` in `5.00 s`; final
+  owner/repository/UI tests passed `32 / 32` in `8.50 s / 120 s`. Independent
+  review was GO with `0 Critical / 0 Important / 0 Minor` after it also caught
+  and closed the selected-model element-schema widening.
+- Same-regime intermediate timing samples remain usable substrate: the
+  pre-final focused suite passed `31 / 31` in `25.40 s`, and independent review
+  reproduced `31 / 31` in `82.27 s`; the test-port TS2352 governed RED completed
+  in `41.790 s`; the final selected-model witness passed `1 / 1` in `1.79 s`.
+  All are local macOS, installed-dependency, single-process non-scanner runs.
+- Consumer inheritance witnesses cover caller `ttlMs: 48 h` still issuing
+  exactly `24 h`; extended/future/expired/foreign/copied bytes; null/throwing
+  storage and DB; throwing clock and real hostile codec; partial valid drafts;
+  ready-A to ready-B pre-paint clearing; late A load/save; discard/reset; and
+  failed saves never reporting restored state. No second envelope/clock/TTL
+  owner or full form schema was introduced.
+- Static non-receipts are preserved, not green claims: two implementer
+  typecheck/lint launches lost terminal exits; root killed a final-state
+  typecheck after about `150 s / 120 s`; independent review killed its copy at
+  `138.04 s / 120 s` (`exit 143`); root killed scoped ESLint after about
+  `148 s / 120 s`; a read-only report helper returned no output/exit after
+  `10.4 s`. None was rerun at that ceiling. An earlier captured post-TS2352
+  typecheck passed in `78.40 s`, but it predates the final mechanism batch and
+  is not used as final compilation authority.
+- Before any writer, the staged allowlist was exact: six app paths plus plan,
+  journal, register, and status. The valid cached receipt was C13b app
+  `+1071 / -145` across six files; combined report history was
+  `23196 / 19459`, and the only recorded HEAD lines were `05bac9e37` and
+  `5e868da0c`. Register readback was exactly four composer leaves at
+  `3c5d44a7...1b94eb5`; status was the DS19 hash and `tone` span
+  `140 -> 143` at `cb45a29c...04c64b1`. A first generic patch accidentally
+  touched `route-welcome`; immediate diff readback restored it byte-exactly
+  before staging or writer execution. Baseline, readiness, report, i18n, and
+  historical C13a replay never moved.
+- The canonical checker then stopped during import, before argument parsing or
+  any write, in `2.8 s`: seven Composer Badge creation anchors were ambiguous
+  after ordinary moves `324→327`, `545→548`, `641→644`, `777→780`, `876→879`,
+  `1220→1268`, and `1644→1701`. Complete call-graph review proved both Badge
+  and prop creation maps execute eagerly at module import although their sole
+  legitimate consumer is the explicit digest-print CLI; normal gates consume
+  the committed frozen maps. This is the second recurrence after C17a-R2.
+- Laziness alone may expose the deeper P33 residual: stored `structural_path`
+  still turns on unrelated sibling-statement ordinals, while the old move
+  witness only prepended a newline. C21d must use this real composer move,
+  prove normal import independent of both creation helpers, keep unchanged
+  tokens/enclosing declarations green, and retain rename/content/ambiguity red.
+  Updating seven hints or padding source lines is an invalid instance repair.
+- The truthful set was therefore at least 13 paths (declared 11 plus checker
+  and focused checker test), a structural unpredicted cap break. The explicit
+  stop fired. Checkpoint `a3ad1e615` preserves exactly ten pre-report paths;
+  forward revert `f77850487` reverses the same ten and restores a clean tree.
+  C21d lands first; C13b-R7 may then restore the product work and absorb
+  C14b-R1 once. C15a was verified FIT/cap 3 but was not entered after the stop.
+- Duplication duty: the C13b/C14b duplicate name is now one future execution.
+  The carried module-path debt remains `16` literals / `8` governed owners
+  (`35 / 15` tracked), with only subset parity gates. Orchestration used root
+  plus three independent read-only audits; no scanner-heavy parents overlapped,
+  and no governed writer or full module ran. The register family is free.

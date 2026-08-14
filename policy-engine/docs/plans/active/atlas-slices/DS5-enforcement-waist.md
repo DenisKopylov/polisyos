@@ -1326,22 +1326,22 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | executable | none |
 | C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster | C12a |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
-| C13b-R1 | SW sync/flush authority bridge | worker flush bridge remains; provider is gone | `apps/runtime-dashboard/src/sw.ts:13-45` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
-| C13b-R1 | composer-only typed closure | C14a producer prerequisite is landed; composer closure may proceed | `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:1-37` | executable | none |
-| C14a | nominal envelope owner | canonical `PersistedEnvelope<StoreClass>` owner serves four operator-craft families | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` + focused runtime witness | landed-after-commit; consumer successors remain | C13b composer, C14b-R1, C15a direct; C16a/C16b/C17b prerequisite-only |
-| C14b-R1 | scoped composer consumer | raw composer record now has a landed scope/TTL owner prerequisite | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15-37`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16`; C14a table row | executable | none |
+| C13b-R5 | SW sync/flush authority bridge | app-authored worker mutation bridge is absent; static navigation handler remains inert | `bc9421163`; `apps/runtime-dashboard/src/sw.ts`; focused real-worker witness | landed | none |
+| C13b-R6/R7 | scoped composer consumer; absorbs C14b-R1 | R6 witnesses are preserved at `a3ad1e615`, but checker import turns on migration-only line anchors; R7 resumes afterward | C21 frozen-identity owner; forward revert `f77850487` | R6 stopped; R7 blocked | C21d |
+| C14a | nominal envelope owner | canonical `PersistedEnvelope<StoreClass>` owner serves four operator-craft families and transport adapters | `5e868da0c`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed | none |
+| C21d | line-free TypeScript identity moves | normal import eagerly rebuilds migration-only Badge/prop maps, and structural paths turn on sibling ordinals | C13b-R6 real composer move; checker creation-helper call graph | executable at cap 4 | none |
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
 | C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
-| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
-| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
-| C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed-after-commit; root-owned generated receipts remain | C17a-R2 runtime bridge and descriptor closure |
+| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | executable | none |
+| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | executable | none |
+| C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
 | C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable | none |
 | C18b-R1 | contextual flag source binding | provider emits merged flags and cached manifest today | `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-55,68-131` | executable | none |
-| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | blocked-on-another-plan | DS5-LINE-ADDRESS-01 structural class repair |
+| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
 | C20 | final ledger/corruption/architect receipt | requires closure of executable/debt clusters first | `DS5-C20` acceptance; all preceding blocked/debt rows | blocked-on-another-cluster | all preceding executable/debt clusters |
 
@@ -1956,24 +1956,6 @@ nonzero until that boundary exists; it claims no C14b/composer/client identity.
 
 **Expected commit:** `DS5-C14a-D1 record local-state envelope owner debt`.
 
-### DS5-C14b-R1 — bind the composer consumer
-
-**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
-cap 8: `composerDraftRepository.ts` + test, `ComposerModeSections.tsx`,
-`LaunchRunPage.test.tsx`, frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
-C08b-R1 verified tenant/user identity is a dependency.
-
-**Red first:** `test_composer_draft_cannot_cross_tenant_user_or_expiry`.
-Legacy unwrapped, malformed, expired, prior-tenant and prior-user bytes never
-hydrate. A same-scope non-authority draft is the positive control.
-
-**Acceptance:** composer uses the C14a envelope/codec owner; physical key and
-envelope bind family, tenant, user and expiry; no legacy byte silently migrates.
-`offline-draft-composer` gains a complete isolation consumer while
-`cache-local-storage-state` stays pending until C17b-R1.
-
-**Expected commit:** `DS5-C14b-R1 bind composer local state`.
 
 ### DS5-C15a — Clerk persisted codec and identity API
 
@@ -2249,15 +2231,15 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C13a | stopped predecessor: `DS5-C13a delete authority mutation replay` | 18 |
 | C13a-R2 | stopped historical: `DS5-C13a-R2 delete authority mutation replay` | 22 |
 | C13a-R3 | `DS5-C13a-R3 delete authority mutation replay` | 23 |
-| C13b-R1 | `DS5-C13b-R1 close service worker and composer DB` | 10 |
+| C13b-R2/R5/R6/R7 | R2/R5 landed; R6 stopped at `a3ad1e615`; R7 resumes after C21d | R2 `15`; R5 `6`; R6 `11`; R7 `11` |
 | C13b-R4 | `DS5-C13b-R4 source-complete offline-queue denominator` | 5 |
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
-| C14b-R1 | `DS5-C14b-R1 bind composer local state` | 8 |
+| C21d | `DS5-C21d repair line-free TypeScript identity moves` | 4 |
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |
 | C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | 6 |
 | C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
 | C16b-R1 | `DS5-C16b-R1 partition dispute interaction state` | 8 |
-| C17a-R1 | `DS5-C17a-R1 partition operator craft state` | 10 |
+| C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |
 | C17b-R1 | `DS5-C17b-R1 govern persistence construction` | 10 |
 | C18a | `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1 | `DS5-C18b-R1 bind flag sources to strict registry` | 6 |

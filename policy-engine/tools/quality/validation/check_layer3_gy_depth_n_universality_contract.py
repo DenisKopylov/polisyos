@@ -8000,7 +8000,23 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     cases: list[dict[str, Any]] = []
     for mutation_id, mutate, expected_codes in corruption_cases:
         payload = copy.deepcopy(frozen)
-        mutate(payload)
+        try:
+            mutate(payload)
+        except (UniversalityContractError, ValueError) as exc:
+            error = str(exc)
+            code = error.partition(":")[0]
+            if re.fullmatch(r"[a-z][a-z0-9_]*", code) is None:
+                raise
+            cases.append(
+                {
+                    "mutation_id": mutation_id,
+                    "status": "red",
+                    "expected_issue_codes": sorted(expected_codes),
+                    "observed_issue_codes": [code],
+                    "detection_phase": "identity_recomputation",
+                }
+            )
+            continue
         report = validate_payload(payload)
         observed = sorted(str(issue.get("code")) for issue in report["issues"])
         red = bool(set(observed) & expected_codes)
@@ -8010,6 +8026,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
                 "status": "red" if red else "survived",
                 "expected_issue_codes": sorted(expected_codes),
                 "observed_issue_codes": observed,
+                "detection_phase": "payload_validation",
             }
         )
     survivors = [case for case in cases if case["status"] != "red"]

@@ -2394,3 +2394,151 @@ The attempt changed zero governed bytes. The five N10a pins remain respectively
 `acc25257…f089` preimage; the tracked tree is clean. Meta/stdout/stderr identities are
 `99f4ea5e…3b5ee`, `72527f0c…65a55`, and `0d6409c3…f44d8`.
 This is a measurement non-receipt and consumes no accepted Depth reissue. `[P37: recomputed]`
+
+### Depth non-persisting measurement — terminal receipt and complete declaration
+
+The corrected producer invocation ran from clean attached head `b63e53b05`, alone among this task's
+heavy lanes in the declared externally-contended regime. It exited `0` in `942.100785` s under the
+`9,885.080824` s operational ceiling, without timeout, with provenance `stable`, candidate
+validation `pass`, `write_performed: false`, and zero protected existing-leaf movement. All `353`
+JSON artifacts in the policy-design-case root remained byte-identical. The five N10a pins, external
+N8, and the `acc25257…f089` Depth preimage remained byte-identical. Meta/stdout/stderr/summary
+identities are `641d9f75…b9cd`, `ae118804…6106`, `951e7c10…6fa8`, and
+`18c718a8…1c0`. `[P37: recomputed; not_established for the causal effect of external contention]`
+
+The complete declaration is the machine-produced
+`tmp/gy-defc-6/depth/measurement-2/transition-manifest.json`, schema
+`policyos.gy.depth_n.write_transition.v1`. It binds source head `b63e53b05`, all `3,286`
+non-bytecode files under `src/polisyos/**` and `tools/**` at
+`sha256:59e3e942…01f1b`, and one ordered Depth output transition from legacy contract identity
+`sha256:c50d0d70…6212a` to live identity `sha256:b8ac04cb…07db0`. Its producer-extracted
+comparison-admission denominator is six rows: three `project/recomputed` recording roots and three
+`exclude/independently_reconciled` promotion-summary roots. Manifest self-identity is
+`sha256:dc52979d…e9c6e`; serialized manifest identity is `4724decb…6f40`; the preserved candidate
+byte identity is `b44d7948…5d60f`. `[P37: recomputed]`
+
+That manifest declares exactly `6,095` changed scalar/empty-container pointers, zero removals:
+
+1. `6,022` additions below the ten new
+   `confidence_ledger_semantic_projection` receipt roots: education receipts `0..3` contain `703`
+   leaves each; first-vertical and unseen receipts `0..2` contain `535` leaves each
+   (`4 x 703 + 6 x 535 = 6,022`).
+2. `27` other additions: the six comparison-admission rows at four leaves each, plus
+   `/comparison_content_hash`, `/comparison_projection_schema_version`, and
+   `/comparison_rule_version`.
+3. `46` dependent existing-identity/operational moves: `/contract_content_hash`; twelve domain-run
+   enclosing hashes or `generated_at` leaves; and eleven recording-envelope/enclosing hashes for
+   each of education, first-vertical, and unseen. There is no changed pre-existing outcome leaf.
+
+The canonical delta JSONL has SHA-256 `eaf95376…60f2`; the exact ordered pointer projection has
+SHA-256 `a1dc8c21…9e65`. Those files and the self-hashed manifest, rather than this explanatory
+grouping, are the complete declaration. `[P37: recomputed]`
+
+The immutable boundary is stronger than pointer sampling: the five complete N10a files and the
+complete N8 artifact are byte pins. Therefore no governed denominator, pre-existing comparison or
+admission outcome, transport covariate, N8 proof hash, ambient-discovery manifest identity, or
+catalog-provenance identity moves. The prompt's `ambient_discovery.provenance_id` shorthand is
+structurally corrected: `/denominators/catalog_provenance/provenance_id` is a sibling of
+`ambient_discovery`, while `ambient_discovery/manifest_id` is nested; the complete N8 byte pin
+covers both. `[P37: recomputed]`
+
+The accepted writer is declared to produce exactly that manifest: same source head and source-scope
+identity, same ordered `6,095` pointers, same legacy/live contract identities, and the same six-row
+producer comparison manifest; only the Depth artifact may change, all six external pins must remain
+byte-identical, and the protected existing-leaf set must remain empty. Exact observed-manifest
+equality accepts. An explained recording-contract difference takes B1 and is recorded; any
+unexplained difference rejects, restores the exact preimage, and stops. This declaration is now
+written before the accepted writer; it remains uncommitted only so the manifest's clean source-head
+binding is not invalidated by a journal-only commit. `[P37: recomputed for the declaration;
+institutionally_supplied for acceptance and B1 semantics; not_established for observed equality]`
+
+### Depth accepted reissue — exact observed-manifest equality
+
+The one accepted canonical writer ran next from attached head `b63e53b05`, with the declaration
+already present in this journal and no source-scope change. It ran alone among this task's heavy
+lanes in the declared externally-contended regime, exited `0` in `939.877477` s under the
+`9,885.080824` s ceiling, did not time out, and reported producer wall time `929.486120` s,
+`status: pass`, `issues: []`, and live contract identity `sha256:b8ac04cb…07db0`. Stderr is empty.
+`[P37: recomputed; not_established for the causal effect of external contention]`
+
+The post-write audit accepts. The observed source-bound manifest is byte-identical to the complete
+declaration (`4724decb…6f40`, self-identity `sha256:dc52979d…e9c6e`): exactly
+`6,095/6,095` pointers, the same legacy/live identities, the same six producer admission rows, and
+the same `sha256:59e3e942…01f1b` source scope. Only
+`architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json` changed among all
+`353` JSON artifacts; it is now `2,193,438` bytes with SHA-256 `155f01a8…b615e`. All five N10a
+files and N8 remain byte-identical, and the protected existing-leaf intersection is empty. The
+observed raw delta differs from the measurement raw delta only in excluded operational values, but
+the declared manifest—which intentionally binds the complete path set and semantic content
+identity—equals exactly. No restore was performed. `[P37: recomputed]`
+
+Writer meta/stdout/stderr identities are `df457d88…caa48`, `f4a25d08…a0ffe`, and empty
+`e3b0c442…b855`. Acceptance-audit, observed-manifest, and observed-delta identities are
+`92a11a8a…35509`, `4724decb…6f40`, and `b0beef3a…0b6ac`. The accepted Depth reissue is consumed;
+the three serialized Depth verifications are now required before commit. `[P37: recomputed]`
+
+### Depth verification B2 — corrupt-lane owner diagnostic and in-scope closure
+
+The first post-reissue `--check` completed with exit `0` in `98.592036` s under
+`639.322776` s, producer wall time `89.969967` s, `status: pass`, `issues: []`, empty stderr, and
+all pins unchanged. Meta/stdout/stderr identities are `a4d7e2ec…b7c2`, `6793bf41…605`, and empty
+`e3b0c442…b855`. The first rederive audit likewise completed with exit `0` in
+`1,065.079180` s under `3,390.355136` s, producer wall time `1,055.581247` s,
+`status: pass`, `issues: []`, empty stderr, and all pins unchanged. Its meta/stdout/stderr
+identities are `3f68e9f8…3214`, `f34fbed6…f737`, and empty `e3b0c442…b855`.
+`[P37: recomputed; not_established for the causal effect of external contention]`
+
+The first corrupt-field launch is a B2 RED/non-receipt, not the authorized green exit `1`. It
+finished in `53.745054` s under the declared `600` s fence and returned child/wrapper exit `1`, but
+emitted no JSON case denominator. While preparing the first summary mutation, the producer-bound
+comparison projector rejected it with the named diagnostic
+`depth_verification_summary_shape_invalid`; the uncaught diagnostic reached stderr. All pins were
+unchanged. Meta/stdout/stderr identities are `541ace02…dd3a`, empty `e3b0c442…b855`, and
+`384e7733…6b78`. `[P37: recomputed]`
+
+The diagnostic is the landed owner's own fail-closed mechanism working before ordinary payload
+validation, but the corrupt-field orchestrator failed to record that early rejection and continue
+the complete mutation denominator. The smallest in-scope closure is confined to the existing Depth
+validator and its mirrored test: admit only snake-case named `ValueError` or
+`UniversalityContractError` owner diagnostics as a red
+`detection_phase: identity_recomputation`, re-raise unnamed programming failures, and retain the
+existing payload-validation path for mutations that reach it. This changes no governed semantic,
+artifact family, comparison/admission rule, producer write path, or recording owner. The accepted
+artifact remains the writer's exact manifest product; because the validator source changes, check,
+rederive, and corrupt receipts must all be renewed after the fix before commit. `[P37:
+independently_reconciled for the root cause and closure boundary; institutionally_supplied for B2;
+not_established for the renewed verification outcomes]`
+
+### Depth B2 fix and renewed three-receipt closure
+
+The in-scope B2 fix is confined to the existing corrupt-field orchestrator and its mirrored unit
+test. A mutation-time `ValueError` or `UniversalityContractError` is accepted as an early red only
+when its leading token is a snake-case named owner diagnostic; unnamed programming failures are
+re-raised. Each case now records `detection_phase`, while mutations that complete identity
+recomputation still traverse ordinary payload validation. The focused complete-denominator and
+invalid-baseline tests pass `2/2` in `164.473860` s with the Depth artifact byte-pinned. Their
+meta/stdout/stderr identities are `58303fbf…6247c`, `99db33d5…ec87`, and empty
+`e3b0c442…b855`; Ruff passes both changed Python paths. `[P37: recomputed]`
+
+All three required Depth receipts were then renewed, serialized, from the post-fix source:
+
+1. `--check` exited `0` in `95.082946` s under `639.322776` s, producer wall time
+   `85.909120` s, `status: pass`, `issues: []`, empty stderr, all seven pins unchanged.
+   Meta/stdout/stderr identities: `4b4639ee…81a6`, `4a658679…9f8e`, and
+   `e3b0c442…b855`.
+2. `--rederive-audit` exited `0` in `1,076.975079` s under `3,390.355136` s, producer wall
+   time `1,067.972052` s, `status: pass`, `issues: []`, empty stderr, all seven pins unchanged.
+   Meta/stdout/stderr identities: `b0d49320…4a24`, `444f9ebd…f76a3`, and
+   `e3b0c442…b855`.
+3. `--corrupt-field-drift-check` completed in `109.795318` s under the declared `600` s fence
+   with the specified green child/wrapper exit `1`, `status: fail`, `expected_exit: 1`,
+   `issues: []`, exactly `18/18` cases red, zero survivors, empty stderr, and all seven pins
+   unchanged. Six cases were caught by named owner diagnostics during identity recomputation and
+   twelve by payload validation. Meta/stdout/stderr identities: `b622db22…1a32`,
+   `a552b5a7…f96c`, and `e3b0c442…b855`.
+
+The three duration and terminal facts are `recomputed`; the `2.0x` catalog allowance, declared
+corrupt fence, serialized-own-lane/external-overlap regime, and exit interpretation are
+`institutionally_supplied`; the causal effect of external contention on any duration remains
+`not_established`. The accepted artifact remains `155f01a8…b615e`, and every external immutable
+pin is unchanged. Depth verification is closed and ready for the required commit. `[P37 as stated]`

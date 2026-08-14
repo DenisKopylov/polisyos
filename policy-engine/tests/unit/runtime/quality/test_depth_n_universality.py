@@ -5390,6 +5390,15 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
         "fabricated_terminal",
     ]
     assert {case["status"] for case in report["cases"]} == {"red"}
+    promotion_scope = next(
+        case
+        for case in report["cases"]
+        if case["mutation_id"] == "promotion_authority_scope"
+    )
+    assert promotion_scope["detection_phase"] == "identity_recomputation"
+    assert promotion_scope["observed_issue_codes"] == [
+        "depth_verification_summary_shape_invalid"
+    ]
 
 
 def test_corrupt_drift_refuses_missing_or_invalid_baseline(tmp_path: Path) -> None:

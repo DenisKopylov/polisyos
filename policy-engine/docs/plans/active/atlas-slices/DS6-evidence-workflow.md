@@ -57,30 +57,31 @@ JSON Schema, and repository architecture guardrails.
   `src/polisyos/data_forge/read_api/catalog.py` edit and every other uncommitted
   main-checkout byte are foreign to this worktree. Entry status and the scoped
   base diff are recorded in the journal.
-- The slice is deny-by-default. For the current DS6-C16 continuation, the
-  writable set is exactly the seven paths declared under Task 16; the earlier
-  continuation-specific C01-R1/C07 writable set is historical and grants no
-  additional path. No runtime-state registry or product surface joins C16.
+- The slice is deny-by-default. DS6-C16 closed at
+  `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`. The post-C16 attribution may
+  write only this plan and journal to register Task 17; Task 17's three
+  snapshot paths are declared but not authorized in this continuation. The
+  earlier C01-R1/C07/C16 writable sets are historical and grant no additional
+  path.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
   until it merges. Required deltas are specified there, not applied here.
-- C16 is explicitly authorized to run, one heavy parent at a time, the exact
+- C16 was explicitly authorized to run, one heavy parent at a time, the exact
   whole-suite Vitest, full lint, full typecheck, production build, opaque
   Storybook browser probe, and component-a11y closeout lanes declared under
-  Task 16. The earlier no-heavy posture is historical; it remains binding for
-  Playwright journeys, the full visual lane, dev servers outside the declared
-  runner, and every other undeclared heavy command.
+  Task 16. That authorization is consumed. The full visual lane, Playwright
+  journeys, dev servers, and every other heavy command are not authorized by
+  the post-C16 attribution.
 - Focused Vitest over touched files and scoped static checks may establish the
   source freeze, but only the serialized Task 16 lanes establish C16 closeout.
 - No product surface, DS5 path, GY path, a11y denominator, baseline suppression,
   skip, quarantine, tolerance widening, CI edit, merge, push, rebase, force
   push, or stash-as-storage. One scoped commit follows independent review for
   each entered cluster.
-- Only DS6-C16 is authorized in the current continuation. C03, C04, C06, C10,
-  C11, and C13 retain the gates stated under Task 16 and in the journal; C10 in
-  particular remains unentered until a later clean-tree continuation. Earlier
-  C01-R1/C07 authorization text records the entry session and is superseded by
-  this exact current-cluster grant.
+- No implementation cluster is authorized in the post-C16 attribution.
+  C17 is declared but unentered; C03, C04, C06, C10, C11, and C13 retain the
+  gates stated below and in the journal. C10 in particular remains unentered
+  until a later clean-tree continuation.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -834,10 +835,59 @@ standing gate unless every excluded gate is named at the point of use with its
 owner and re-entry condition; otherwise the omission is rediscovered only by
 paying for the lane (GY-DI2/P38).
 
-After C16 lands, a read-only attribution identifies the three non-print visual
-baselines that regressed after DS4's 17/18 receipt and names their introducing
-commit and owner. It is not part of C16's repair set. C10 remains unentered
-until the next clean-tree session.
+The post-C16 read-only attribution identified the three non-print visual
+baselines that regressed after DS4's 17/18 receipt. Task 17 records their
+introducing commit, mixed shared-fixture finding, owner, and cap; none is part
+of C16's repair set. C10 remains unentered until the next clean-tree session.
+
+### Task 17 — DS6-C17: reconcile C15-R1 visual baselines
+
+**Status: declared from post-C16 read-only attribution; not entered. Exact
+candidate path set:**
+
+1. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/evidence-promotion-focus-chromium-darwin.png`
+2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/dark-evidence-fabric-chromium-darwin.png`
+3. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/mobile-command-center-chromium-darwin.png`
+4. this plan
+5. the DS6 journal
+
+**Declared path cap: 5.** DS4-C19b's clean receipt at `470a802d4` was 17/18,
+with only DS8's `run detail A4 print` red. C05 at C15-R1 revision
+`4748b921113b884a3fe17593bc50c1af300e97f2` measured 14/18. The visual spec,
+all three baseline PNGs, and their consuming components are byte-identical
+from DS4 through C05; the persistent changed input is C15-R1's active-English
+label-form copy. `evidence promotion focus` binds
+`pages.evidence.runContextSummary`, `panels.dataIntelligence.focusSummary`,
+and `phase32.freshness.derivedFacts`; `dark evidence fabric` binds
+`phase32.freshness.derivedFacts`; `mobile command center` binds the three
+dashboard attention/throughput/evidence narrative bodies. The same strings
+first appeared in stopped checkpoint `8fd8f9e5d`, were removed by forward
+revert `4d7743f07`, and were persistently reintroduced by C15-R1. C01-R1's
+fixture-selected branches render byte-identical text and are not an
+introducing visual change.
+
+The two evidence-page baselines also expose a separate shared fixture defect.
+Their connector records carry `last_health_check=null`, so
+`EvidenceFabricPage` selects run-context or promotion-candidate response
+`meta.generated_at`, and `buildFreshnessBraidView` uses that selected response
+time as its fallback observation. `ApiMeta.generated_at` is supplied by the
+production `_utc_now` default in `src/polisyos/core/contracts/runtime.py`; DS4
+froze the browser clock but did not bind this visual-fixture response metadata
+across process starts. There is therefore no post-DS4 introducing commit for
+the timestamp drift. This is a shared visual-harness/DS4-C19b finding, not
+permission to change production `ApiMeta` semantics, not a DS6 backend repair,
+and not a DS5 change.
+
+C17 is gated on the shared visual-harness owner first deterministically binding
+the selected evidence-response metadata across process starts. After that
+lands, C17 may generate only these three snapshots from the real Playwright
+path and must prove the three named identities pass plus the full visual lane
+returns to the inherited envelope (only the separately DS8-owned print case
+may remain red). The C05 evidence-promotion capture timed out before a stable
+final comparison, so its actual PNG is not re-anchoring authority. No product,
+catalog, visual-spec, tolerance, or helper change belongs to C17; a structural
+need for one exceeds this cut and invokes the sizing law rather than enlarging
+the cap.
 
 ## Expected cluster commits
 
@@ -862,6 +912,7 @@ until the next clean-tree session.
 | C15 | `DS6-C15 close numeric-variable plural safety` | 5 |
 | C15-R1 | `DS6-C15-R1 gate quantitative-use declarations` | 5 |
 | C16 | `DS6-C16 close deferred-lane diagnostics` | 7 |
+| C17 | `DS6-C17 reconcile C15-R1 visual baselines` | 5 |
 
 ## Deferred execution package
 
@@ -1031,3 +1082,5 @@ that distinction.
   latter mechanic and the frozen catalog remains in-tree.
 - No standalone interactive Storybook, page-a11y, journey, or full-visual rerun
   is implied by C16. Their C05/C13 receipts retain their original strength.
+- No C17 snapshot regeneration until the shared evidence-response metadata
+  fixture is deterministic; C17 is declared at cap 5 and remains unentered.

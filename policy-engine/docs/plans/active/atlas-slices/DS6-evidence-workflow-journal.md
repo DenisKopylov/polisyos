@@ -2606,3 +2606,89 @@ contended register/manifest/readiness/checker/report, `src/polisyos/**`, Russian
 catalog, product component, DS5 path, or GY path was written. The C05/C13
 receipts for the omitted lanes retain their original strength and are not
 silently promoted.
+
+## Post-C16 read-only visual attribution and C17 registration
+
+C16 landed clean as `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`,
+16 commits ahead of `c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`.
+Branch readback showed exactly its seven declared paths and an empty working
+tree. The subsequent attribution ran no browser, server, build, or product
+mutation; only this plan and journal register its finding.
+
+The controlling comparison is DS4-C19b's clean `470a802d4` visual receipt
+versus C05's admitted run at `4748b9211`. The DS4 journal records 17/18 with
+only DS8's `run detail A4 print` red. C05's raw stdout (25,135 bytes, SHA-256
+`19e0279e59d862a37d800d79d976129e85e25d03ebdfb39c997b43ad3c8d637f`),
+stderr (13,462 bytes, SHA-256
+`b853f29a2ec3e263eb42d64c22b4a4cc0f55fdc10d14ea14f924b4f6ca537ede`),
+and exit file (`1`, SHA-256
+`4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865`)
+establish 14/18 and four failures. The DS8 print identity remains causally
+separate; the three newly attributed identities are:
+
+| Identity | C05 comparison | C15-R1 visible input | Additional finding |
+| --- | --- | --- | --- |
+| `evidence promotion focus` | expected/actual 1094x8529; 2,685 pixels reported before the 5 s stability timeout | `pages.evidence.runContextSummary`, `panels.dataIntelligence.focusSummary`, `phase32.freshness.derivedFacts` | selected response `meta.generated_at` drifted from the August 1 baseline to August 12 |
+| `dark evidence fabric` | expected/actual 1094x6521; stable 532-pixel delta | `phase32.freshness.derivedFacts` | the same response-metadata drift |
+| `mobile command center` | expected 369x3700, actual 369x3680; stable 28,414-pixel delta | attention, throughput, and evidence narrative bodies | fully explained by the C15-R1 copy/wrapping change |
+
+The committed expected PNGs are byte-identical to C05's retained expected
+artifacts and have SHA-256, respectively,
+`cfdc138b4438d6d6e18683dd958aa19f6c434fc681a29291bdf16cddf30df429`,
+`4a5e8d8eac993401ca9d47790ea9d8470554d06eb7708e2e5c9945f5193e8727`,
+and `40436c0cbdc3b7db02bc6cd155e0f5874eb85dd4db827f36f08a848853d42c4d`.
+Their C05 actual hashes are
+`af8468393572f8b4f96bc63de61fac70e58422ee8d5dc24c42b8bcb9708e5d82`,
+`6b2735bad47b767a759379d9b25745df49bbd7ce23c061cd8eac2a8833cd0a35`,
+and `23cab2cb08f15b1ee668faf1de5a4a81a4ba2dc1ec214d29981c7b575a49557d`.
+The three baseline Git blobs (`8ea8707a...`, `eb31eefd...`, `7b396812...`),
+the visual spec (`a0d296a3...`), and the four relevant consumers remain
+byte-identical from DS4 through C05 and current HEAD. The spec and baseline
+files therefore did not introduce the regressions.
+
+The live introducing commit for every C15-R1 copy delta is
+`4748b921113b884a3fe17593bc50c1af300e97f2` (`DS6-C15-R1 gate
+quantitative-use declarations`). The English catalog moved from SHA-256
+`9f0da15ea28d8f0b1ebe9cd39b1643ba7280e6fc720d54ab9237ab33ee132f01`
+to `e31c826d8c689c7a6350e30de48c4dc321cb673a34ebbdfa2315dfbf96ba5825`.
+The exact copy first appeared in stopped checkpoint `8fd8f9e5d`, was fully
+removed by forward revert `4d7743f07`, and was persistently reintroduced by
+C15-R1. A direct formatter comparison confirms C01-R1's fixture-selected
+`Unavailable` attention branch and `2` queue branch render the same text as
+DS4, so C01-R1 is not the visual introducing commit. There is no DS5
+attribution.
+
+The evidence-page cases also disclose a second, shared defect with no
+post-DS4 introducing commit. C05's retained response traces show every
+connector `last_health_check` is null. `EvidenceFabricPage.tsx:169-173`
+therefore selects run-context or promotion-candidate `meta.generated_at`, and
+`productionSlice.ts:206-207` falls back to that selected response time.
+Production `ApiMeta.generated_at` receives its `_utc_now` default at
+`src/polisyos/core/contracts/runtime.py:289-299`. DS4-C19b froze browser time
+and bureaucratic timestamps, but its visual harness did not bind the selected
+response metadata across process starts; its same-process receipt did not
+establish cross-start repeatability. The repair belongs to the shared
+visual-harness/DS4-C19b lineage and must not change production `ApiMeta`
+semantics. It is outside DS6's backend fence. Re-anchoring the two evidence
+snapshots before that harness owner makes the fixture deterministic would
+preserve a moving expectation.
+
+DS6 therefore registers **C17 — reconcile C15-R1 visual baselines**, declared
+cap 5: the three exact snapshot PNGs plus this plan and journal. C17 is not
+entered. Its first gate is the shared visual harness deterministically binding
+the selected evidence-response metadata; its second is explicit authorization
+for the real visual lane. It may then generate only the three snapshots and
+must restore their passes plus the inherited full-lane envelope, with only the
+separately DS8-owned print identity allowed to remain red. The timed-out
+evidence-promotion actual is a comparator RED, not a stable re-anchoring
+receipt.
+
+Duplication readback remains unchanged over all 13 tracked dashboard CSS
+files: exactly two active `attr(href)` emitters remain at
+`src/styles/print.css:84` and `src/styles.css:1611`. They are DS8-owned
+`duplicate_active`; `styles.css` remains the strangle target. No duplicate
+visual-baseline owner was found. The attempted read-only `tsx` formatter
+helper was unavailable and is a tooling nonreceipt; the same four renderings
+were then reproduced with the installed plain-Node `intl-messageformat`
+runtime. No full visual, targeted visual, server, or shared-fixture repair ran,
+and no snapshot, product, catalog, Core, contended, DS5, or GY byte changed.

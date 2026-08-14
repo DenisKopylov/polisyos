@@ -23,12 +23,17 @@ const BROWSER_ARTIFACT_ID = `sha256:${"b".repeat(64)}`;
 const REPOSITORY_REVISION = "e".repeat(40);
 const EVALUATED_AT = "2026-08-11T12:00:00.000Z";
 
-const badgeEntry = adoptionLedger.entries.find(
-  (entry) => entry.id === "component-badge",
-);
-if (badgeEntry === undefined) {
-  throw new Error("Expected the adoption-ledger owner row component-badge.");
+function requireBadgeEntry() {
+  const entry = adoptionLedger.entries.find(
+    (candidate) => candidate.id === "component-badge",
+  );
+  if (entry === undefined) {
+    throw new Error("Expected the adoption-ledger owner row component-badge.");
+  }
+  return entry;
 }
+
+const badgeEntry = requireBadgeEntry();
 
 function stableOwnerEntry(includeManualRef = true): unknown {
   return {
@@ -203,6 +208,37 @@ describe("Atlas manual AT maturity prerequisite", () => {
     });
 
     expect(evaluate(validBundle())).toEqual({
+      decision: "blocked",
+      code: "manual_at_integrity_not_established",
+      evidence_status: "unverified",
+      grants_stable: false,
+    });
+  });
+
+  it("keeps valid owner rows and unknown owner/ref keys admitted", () => {
+    const ownerEntry = stableOwnerEntry() as {
+      evidence_refs: Array<Record<string, unknown>>;
+    };
+    const ownerWithUnknownKeys = {
+      ...ownerEntry,
+      c16_unknown_owner_key: "preserved-by-loose-owner-contract",
+      evidence_refs: ownerEntry.evidence_refs.map((reference, index) =>
+        index === 0
+          ? {
+              ...reference,
+              c16_unknown_reference_key: "preserved-by-loose-reference-contract",
+            }
+          : reference,
+      ),
+    };
+
+    expect(evaluate(validBundle(), EVALUATED_AT, ownerEntry)).toEqual({
+      decision: "blocked",
+      code: "manual_at_integrity_not_established",
+      evidence_status: "unverified",
+      grants_stable: false,
+    });
+    expect(evaluate(validBundle(), EVALUATED_AT, ownerWithUnknownKeys)).toEqual({
       decision: "blocked",
       code: "manual_at_integrity_not_established",
       evidence_status: "unverified",

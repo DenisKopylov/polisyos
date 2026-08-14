@@ -197,10 +197,10 @@ const maturityOwnerEntrySchema = z
           ref: nonEmptyString,
           as_of: nonEmptyString,
         })
-        .passthrough(),
+        .loose(),
     ),
   })
-  .passthrough();
+  .loose();
 
 export type AtlasMaturityOwnerEntry = z.infer<typeof maturityOwnerEntrySchema>;
 

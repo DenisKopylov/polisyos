@@ -33,10 +33,17 @@ import {
 const OPAQUE_BACKGROUND_STYLE = {
   backgroundColor: "rgb(255, 255, 255)",
   backgroundImage: "none",
+  transition: "none",
 } satisfies CSSProperties;
 
+const TEXT_CONTRAST_OPTIONS = {
+  elementRef: true,
+  resultTypes: ["passes", "violations", "incomplete"],
+  runOnly: { type: "rule", values: ["color-contrast"] },
+} satisfies axe.RunOptions;
+
 const candidateBlock = {
-  author: "ds6-browser-fixture",
+  author: "drafter",
   author_agent_version: "fixture-only",
   confidence: 0.61,
   content:
@@ -216,7 +223,20 @@ export const SevenDeclaredSources: Story = {
     const popover = await within(document.body).findByLabelText("Provenance");
     popover.setAttribute("data-opaque-contrast-source", "provenance-popover");
 
+    const candidateFrame = document.querySelector<HTMLElement>(
+      '[data-opaque-contrast-source="candidate-frame"]',
+    );
+    if (!candidateFrame) {
+      throw new Error("The CandidateFrame contrast source is missing.");
+    }
+    const candidateGlyph = requireCandidateNonTextGlyph(candidateFrame);
+    await expectUndeclaredAriaHiddenContentFailsClosed(
+      candidateFrame,
+      candidateGlyph,
+    );
+
     const observations: OpaqueBackgroundContrastObservation[] = [];
+    const incompleteDiagnostics: string[] = [];
     for (const source of OPAQUE_BACKGROUND_CONTRAST_SOURCES) {
       const matches = Array.from(document.querySelectorAll(source.selector));
       await expect(matches).toHaveLength(1);
@@ -228,11 +248,19 @@ export const SevenDeclaredSources: Story = {
       const opaqueBackdrop = hasOpaqueBackground(element);
       await expect(opaqueBackdrop).toBe(true);
 
-      const results = await axe.run(element, {
-        elementRef: true,
-        resultTypes: ["passes", "violations", "incomplete"],
-        runOnly: { type: "rule", values: ["color-contrast"] },
-      });
+      const results = await runTextContrast(
+        element,
+        source.sourceId === "candidate-frame" ? candidateGlyph : undefined,
+      );
+      incompleteDiagnostics.push(
+        ...results.incomplete.flatMap((result) =>
+          result.nodes.flatMap((node) =>
+            [...node.any, ...node.all, ...node.none].map(
+              (check) => `${result.id}: ${check.message}`,
+            ),
+          ),
+        ),
+      );
       observations.push({
         sourceId: source.sourceId,
         opaqueBackdrop,
@@ -243,12 +271,102 @@ export const SevenDeclaredSources: Story = {
     }
 
     const classification = classifyOpaqueBackgroundContrast(observations);
-    await expect(classification.failures).toEqual([]);
+    if (classification.failures.length > 0) {
+      throw new Error(
+        `Opaque contrast classification failed: ${JSON.stringify(classification.failures)}; axe diagnostics (unattributed): ${JSON.stringify(incompleteDiagnostics)}`,
+      );
+    }
     await expect(classification.status).toBe("pass");
     await expect(classification.passed).toBe(7);
     await expect(classification.receipts).toHaveLength(7);
   },
 };
+
+function requireCandidateNonTextGlyph(candidateFrame: HTMLElement): HTMLElement {
+  const textBearingAriaHidden = Array.from(
+    candidateFrame.querySelectorAll<HTMLElement>('[aria-hidden="true"]'),
+  ).filter((element) => element.textContent?.trim());
+  if (textBearingAriaHidden.length !== 1) {
+    throw new Error(
+      `Expected exactly one text-bearing aria-hidden CandidateFrame decoration; received ${textBearingAriaHidden.length}.`,
+    );
+  }
+  const glyph = textBearingAriaHidden[0];
+  const content = glyph?.textContent?.trim();
+  if (
+    !glyph ||
+    glyph.tagName !== "SPAN" ||
+    content !== "⊙" ||
+    /[\p{L}\p{N}]/u.test(content)
+  ) {
+    throw new Error("The bounded CandidateFrame non-text decoration changed identity.");
+  }
+  return glyph;
+}
+
+async function expectUndeclaredAriaHiddenContentFailsClosed(
+  candidateFrame: HTMLElement,
+  excludedGlyph: HTMLElement,
+): Promise<void> {
+  const witness = candidateFrame.ownerDocument.createElement("span");
+  witness.setAttribute("aria-hidden", "true");
+  witness.textContent = "Undeclared visible text witness";
+  candidateFrame.append(witness);
+  try {
+    await expect(() => runTextContrast(candidateFrame, excludedGlyph)).toThrow(
+      "Undeclared text-bearing aria-hidden content",
+    );
+  } finally {
+    witness.remove();
+  }
+
+  candidateFrame.setAttribute("aria-hidden", "true");
+  try {
+    await expect(() => runTextContrast(candidateFrame, excludedGlyph)).toThrow(
+      "Undeclared text-bearing aria-hidden content",
+    );
+  } finally {
+    candidateFrame.removeAttribute("aria-hidden");
+  }
+}
+
+function assertNoUndeclaredAriaHiddenContent(
+  source: HTMLElement,
+  excludedGlyph?: HTMLElement,
+): void {
+  const candidates = [
+    ...(source.matches('[aria-hidden="true"]') ? [source] : []),
+    ...source.querySelectorAll<HTMLElement>('[aria-hidden="true"]'),
+  ];
+  const textBearingAriaHidden = candidates.filter((element) =>
+    element.textContent?.trim(),
+  );
+  const undeclared = textBearingAriaHidden.filter(
+    (element) => element !== excludedGlyph,
+  );
+  if (undeclared.length > 0) {
+    throw new Error(
+      `Undeclared text-bearing aria-hidden content entered the text-contrast scope (${undeclared.length} node(s)).`,
+    );
+  }
+}
+
+function runTextContrast(
+  element: HTMLElement,
+  excludedGlyph?: HTMLElement,
+): Promise<axe.AxeResults> {
+  if (excludedGlyph && !element.contains(excludedGlyph)) {
+    throw new Error("The bounded non-text exclusion is outside its declared source.");
+  }
+  assertNoUndeclaredAriaHiddenContent(element, excludedGlyph);
+  if (!excludedGlyph) {
+    return axe.run(element, TEXT_CONTRAST_OPTIONS);
+  }
+  return axe.run(
+    { exclude: excludedGlyph, include: element },
+    TEXT_CONTRAST_OPTIONS,
+  );
+}
 
 function establishOpaqueHarness(
   document: Document,

@@ -718,6 +718,9 @@ function getMessage(catalog: Catalog, path: string): string {
 }
 
 type MessageAstElement = ReturnType<IntlMessageFormat["getAst"]>[number];
+const VARIABLE_VALUE_AST_TYPES = new Set<MessageAstElement["type"]>([
+  1, 2, 3, 4,
+]);
 
 type MessageVariableScan = {
   uses: Array<[path: string, variable: string]>;
@@ -726,21 +729,21 @@ type MessageVariableScan = {
 
 function collectAstVariables(
   elements: MessageAstElement[],
-  variables: Set<string> = new Set(),
+  variables = new Set<string>(),
 ): Set<string> {
   for (const element of elements) {
-    if ([1, 2, 3, 4].includes(element.type) && "value" in element) {
+    if (VARIABLE_VALUE_AST_TYPES.has(element.type) && "value" in element) {
       variables.add(element.value);
       continue;
     }
-    if (element.type === 5 || element.type === 6) {
+    if ("options" in element) {
       variables.add(element.value);
       for (const option of Object.values(element.options)) {
         collectAstVariables(option.value, variables);
       }
       continue;
     }
-    if (element.type === 8) {
+    if ("children" in element) {
       collectAstVariables(element.children, variables);
     }
   }
@@ -872,7 +875,7 @@ function inspectNumericVariableAst(
   },
 ): NumericVariableAstEvidence {
   elements.forEach((element) => {
-    if (element.type === 6) {
+    if ("options" in element && "pluralType" in element) {
       const ownsVariable =
         element.value === variable && element.pluralType === "cardinal";
       if (ownsVariable) {
@@ -891,7 +894,7 @@ function inspectNumericVariableAst(
       return;
     }
 
-    if (element.type === 5) {
+    if ("options" in element) {
       if (element.value === variable) {
         evidence.rawOccurrences.push({ underOwningCardinalPlural });
       }
@@ -906,7 +909,7 @@ function inspectNumericVariableAst(
       return;
     }
 
-    if (element.type === 8) {
+    if ("children" in element) {
       inspectNumericVariableAst(
         element.children,
         variable,
@@ -917,7 +920,7 @@ function inspectNumericVariableAst(
     }
 
     if (
-      [1, 2, 3, 4].includes(element.type) &&
+      VARIABLE_VALUE_AST_TYPES.has(element.type) &&
       "value" in element &&
       element.value === variable
     ) {
@@ -1148,20 +1151,19 @@ describe("locale catalogs", () => {
         ),
       ).toEqual(ukrainianExpected);
 
-      if (ukrainianOtherWitness) {
-        expect(
-          formatIcuMessage(getMessage(uk, path), "uk", {
-            ...values,
-            count: new Intl.NumberFormat("uk-UA").format(1001),
-          }),
-        ).toBe(ukrainianOtherWitness.grouped);
-        expect(
-          formatIcuMessage(getMessage(uk, path), "uk", {
-            ...values,
-            count: "unavailable",
-          }),
-        ).toBe(ukrainianOtherWitness.unavailable);
-      }
+      const ukrainianOtherActual = ukrainianOtherWitness
+        ? {
+            grouped: formatIcuMessage(getMessage(uk, path), "uk", {
+              ...values,
+              count: new Intl.NumberFormat("uk-UA").format(1001),
+            }),
+            unavailable: formatIcuMessage(getMessage(uk, path), "uk", {
+              ...values,
+              count: "unavailable",
+            }),
+          }
+        : undefined;
+      expect(ukrainianOtherActual).toEqual(ukrainianOtherWitness);
     },
   );
 

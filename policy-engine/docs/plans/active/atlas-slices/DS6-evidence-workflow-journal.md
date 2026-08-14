@@ -2378,3 +2378,231 @@ unique test owner and 100-pixel limit, the no-diff product inputs, the C05
 repeatability counterexample, the two-path cap/fence, and every nonreceipt. It
 confirmed that semantic non-overlap remains `not_established`; it ran no lane
 and changed no file.
+
+## DS6-C16 — deferred-lane diagnostic closure — 2026-08-14
+
+### Entry, measured cut, and exact diagnostic census
+
+`git status -sb` at entry reported a clean attached
+`codex/atlas-ds6-evidence-workflow` at
+`41a2020d5c2097c30c94807737ba6d3a80323d2e`, 15 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. C16 measures exactly seven
+paths against declared cap 7: `LineageGraph.test.tsx`, `parity.test.ts`,
+`atlasManualAtMaturity.ts`, its focused test, the opaque Storybook fixture,
+the DS6 plan, and this journal. No helper, catalog, product component, governed
+Atlas artifact, Core path, C10 path, DS5/GY path, or Russian locale joins the
+cut.
+
+The C05 receipts reproduce as sixteen diagnostics, not twenty: one whole-suite
+assertion, four TypeScript errors, and eleven lint errors. Production build
+repeated the same four TypeScript errors before Vite and therefore contributes
+no additional identity. The exact individual adjudication is:
+
+| # | Diagnostic | Adjudication and repair |
+| ---: | --- | --- |
+| 1 | `LineageGraph.test.tsx:28`, stale threshold sentence | C15-R1 importer-test fallout; update only the assertion to the current label-form render, `Graph nodes: 3; render threshold: 2.` |
+| 2 | opaque fixture line 39, invalid `author` literal | C02 test-fixture contract defect; use the architecture-owned candidate author `drafter` |
+| 3 | opaque fixture line 166, propagated invalid authored block | same typed fixture value reaches `CandidateFrame`; the single owner correction closes this second compiler diagnostic |
+| 4 | maturity test line 39, `badgeEntry` possibly undefined | C09 test proof does not carry its top-level guard through the helper closure; construct the constant through a throwing owner-row resolver |
+| 5 | maturity test line 52, same possibly-undefined entry | same resolver closes the second array-spread diagnostic without a non-null assertion |
+| 6 | parity line 729, `consistent-generic-constructors` | static generic-placement diagnostic; move the type argument to `new Set<...>()` |
+| 7 | parity line 736, first enum comparison | static AST traversal typing diagnostic; route simple value elements through a typed AST-type set |
+| 8 | parity line 736, second enum comparison | same typed set/structural-options traversal; no admitted identity changes |
+| 9 | parity line 743, tag enum comparison | use the AST's real `children` discriminator |
+| 10 | parity line 875, plural enum comparison | use the real `options` plus `pluralType` discriminators; same-variable cardinal ownership is unchanged |
+| 11 | parity line 894, select enum comparison | use the real `options` discriminator without weakening the selector occurrence rule |
+| 12 | parity line 909, tag enum comparison | use the same real `children` discriminator in the ownership walk |
+| 13 | parity line 1152, conditional `expect` | compute the optional grouped witness conditionally, then compare unconditionally |
+| 14 | parity line 1158, conditional `expect` | include the unavailable-form result in that same unconditional comparison |
+| 15 | maturity nested evidence-ref `.passthrough()` deprecation | admission-sensitive C09 refactor; replace with Zod's exact `.loose()` successor only after characterization |
+| 16 | maturity owner-row `.passthrough()` deprecation | same admission-sensitive replacement at the outer owner boundary |
+
+Focused reproduction was exact. `tsc -p tsconfig.app.json --noEmit` exited 2 in
+19.27 s with only diagnostics 2–5. Scoped ESLint over the five implementation
+paths exited 1 with diagnostics 6–16, exactly eleven errors and zero warnings.
+The C05 whole-suite JSON remains the red-first receipt for diagnostic 1.
+
+### Admission characterization, static-round ruling, and focused repair
+
+Before changing either deprecated Zod call, a new behavioral characterization
+ran against `.passthrough()`: the architecture-shaped valid owner and the same
+owner carrying unknown top-level and nested evidence-ref keys both remained
+admitted and reached the identical fail-closed
+`manual_at_integrity_not_established` result. Focused C09 Vitest passed 12/12
+in 1.23 s. Zod 4.4.2's local implementation constructs both `.passthrough()`
+and `.loose()` with the same `catchall: unknown()` definition; after the two
+replacements the same 12/12 witness remains green. This proves the admitted set
+used by C09 is unchanged rather than inferring equivalence from the deprecation
+text.
+
+The nine parity findings are classified **non-behavioral static diagnostics**,
+not dropped logic. Their scoped diff changes only TypeScript discriminators,
+generic placement, and test assertion structure. It changes zero active or
+frozen catalog bytes, declaration identities, fingerprints, failure codes, or
+governed artifacts. The complete focused repair wave passed 4/4 files and
+62/62 tests: parity 34/34, C09 12/12, the opaque classifier 12/12, and
+LineageGraph 4/4. Scoped ESLint over all five implementation paths exited zero,
+and app TypeScript exited zero in 41.72 s. Under the repaired breaker predicate,
+this lint-only round does not consume a C15-R1 mechanism round; the behavioral
+denominators and governed bytes are proven unchanged.
+
+### Opaque fixture diagnosis and pre-closeout nonreceipt
+
+The C05/C08 0/7 receipt fails before source classification. Read-only owner
+tracing identifies the controlled `body` ancestry as the first fixture member
+with a dashboard `background` transition: the harness sets opaque color/image
+and immediately samples computed style while that transition may retain the
+gradient or an in-flight alpha. The strict `hasOpaqueBackground` function is
+not defective and its SHA-256 remains
+`c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225`.
+The fixture disables the transition on every controlled ancestor while still
+assigning an actual opaque white background. No predicate, source selector,
+component, denominator, or axe classifier changes.
+
+An attempted pre-repair diagnostic Storybook run did not execute the story: it
+was killed after the supplied 300 s ceiling and is a harness nonreceipt, never
+a contrast result or timing sample. The command wrapper delivered the signal
+late and `/usr/bin/time` recorded 373.75 s; the ceiling is not raised and that
+duration is not admitted as an Atlas sample. Its observed shared-host regime
+was eight logical CPUs, load averages 2.63/3.49/3.51, no other DS6 heavy
+parent, and multiple idle external Playwright MCP processes. The final
+source-frozen lane will use a hard process-group controller at the same 300 s
+ceiling.
+
+At this point the measured tracked set is six paths because this journal entry
+is the seventh declaration path being appended. `ru.json` remains byte
+identical at SHA-256
+`578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`,
+and every contended/Core/C10 path has zero diff. Independent source review and
+the serialized closeout wave remain pending; no green heavy-lane claim is made
+here.
+
+### Opaque fixture measured diagnosis, breaker-safe repair, and reviews
+
+The first hard-controller browser execution corrected the earlier
+source-only diagnosis: disabling transitions and assigning opaque white to the
+entire controlled ancestry did establish every `hasOpaqueBackground`
+precondition. The story then reached classification and returned one
+`axe_incomplete_unattributed`, not an ancestor failure. Unattributed axe
+diagnostics identified the node as the CandidateFrame authored-text decoration
+`<span aria-hidden="true">⊙</span>` with axe 4.11.4's exact message
+`Element content contains only non-text characters`. This finding is outside
+the seven text-foreground predicates; it is not converted into a pass.
+
+The first attempted remedy excluded every `aria-hidden` descendant. Independent
+quality/spec review rejected that open class under P31/P33/P37: a future
+text-bearing hidden subtree could bypass the text rule. The repaired fixture
+instead recomputes one exact live-DOM exception: one CandidateFrame `SPAN`,
+trimmed content exactly `⊙`, no Unicode letter/number, and exact cardinality.
+Only that HTMLElement is excluded. The single `runTextContrast` adapter first
+enumerates an `aria-hidden` source root plus all its descendants and fails
+closed on every other text-bearing node. Two marker-preserving witnesses invoke
+that same adapter: a newly appended textual descendant and an
+`aria-hidden=true` source root both turn red, then restore the DOM. Every
+remaining axe incomplete remains source-unattributed and makes the atomic
+receipt count zero.
+
+The browser chronology is retained at true strength:
+
+- the late-signalled 373.75 s attempt remains a killed harness nonreceipt;
+- 17.52 s, 15.54 s, 11.83 s, and 11.35 s diagnostic runs were RED while the
+  unattributed axe reason was narrowed to the exact glyph;
+- a 5.91 s 7/7 run was invalidated by review because its `aria-hidden`
+  exclusion was an open class;
+- a 29.51 s run was RED because an axe-only low-contrast textual witness did
+  not establish the intended declaration property;
+- a 14.57 s 7/7 run was invalidated when review found the witness bypassed the
+  default adapter and did not cover a source root; and
+- the final bounded run completed GREEN at exact 7/7 in 14.02 s. Its one
+  Storybook file/test passed, raw JSON is 163,320 bytes, and SHA-256 is
+  `a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa`.
+
+`hasOpaqueBackground`, the classifier, and the frozen registry remain
+byte-identical; the predicate SHA-256 is
+`c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225`.
+Final replacement spec and adversarial-quality reviews were both CLEAN. Their
+predecessor continuation attempts ended in tool-quota errors and are review
+nonreceipts, not approvals. Boundary review remained CLEAN on the exact
+seven-path cap and all forbidden scopes.
+
+### Serialized closeout receipts and regime
+
+Every admitted run used a hard process-group controller, one DS6 heavy parent
+at a time. The regime label is
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`; every run saw
+eight logical CPUs. Load values are the 1/5/15-minute averages sampled before
+launch. No run exceeded its supplied ceiling and no ceiling moved in flight.
+
+| Lane | Ceiling (s) | Result | `/usr/bin/time real` (s) | Launch load 1/5/15 | Exact receipt |
+| --- | ---: | --- | ---: | --- | --- |
+| whole-suite Vitest JSON | 1,200 | GREEN | 515.40 | 7.57 / 11.88 / 12.98 | 317/317 files; 983/983 tests; 0 failed/pending/skipped/todo |
+| full typecheck | 300 | GREEN | 14.85 | 99.38 / 79.36 / 44.58 | all app/node/tools `tsc --noEmit` projects exited 0 |
+| production build | 300 | GREEN | 20.75 | 70.76 / 74.24 / 43.73 | typecheck, 3,885-module Vite build, PWA, postbuild security, and Atlas Tailwind-source check exited 0 |
+| full lint | 2,400 | GREEN | 19.18 | 41.52 / 66.56 / 42.17 | complete configured ESLint population, zero errors/warnings; warm-cache sample, not compared to C05 cold time |
+| opaque Storybook probe | 300 | GREEN | 14.02 | 6.32 / 13.03 / 13.46 | exact 7/7 atomic computed-pass receipts; zero violations/incompletes in the seven custom source observations |
+| component a11y | 300 | GREEN | 30.39 | 22.82 / 58.59 / 40.37 | unchanged 84/84 files and 85/85 tests |
+
+The whole-suite JSON is the authority, not any retired estimate. It contains
+317 test-result files and 983 assertions, all passed; Vitest duration is
+512.9371760253906 s; raw JSON is 368,353 bytes with SHA-256
+`0621a29ad48454fa57c232206f2eec26267e82ad5285879dacc02bf29ebe79ec`.
+The run exercised the independently reviewed five-code-path C16 source delta
+above entry HEAD `41a2020d5c2097c30c94807737ba6d3a80323d2e`; that binary diff has SHA-256
+`800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a`.
+No nonexistent pre-commit Git SHA is invented; the register's
+`repair_commit` is filled from the landed C16 commit.
+
+The concurrent scoped-ESLint/app-TypeScript preflight after the first fixture
+edit had no regime capture and overlapped; it is admitted only as a source
+syntax check, never as a timing or closeout receipt. The serialized full
+typecheck and full-lint rows above are the sole closeout receipts.
+
+The raw Storybook automatic a11y meta-report separately retains three
+unattributed incomplete nodes, including one `color-contrast` incomplete for
+the exact excluded `aria-hidden` `⊙` glyph. They are outside the seven custom
+source observations and are neither attributed source receipts nor silently
+counted green; the custom story's atomic result remains exact 7/7.
+
+### C03 transition, blocked list, and duplication duty
+
+C16 discharges C03's green-receipt gate. The exact pending governed values are
+`exit_code=0`, `test_files={317,317,0}`, `tests={983,983,0}`,
+`wall_duration_seconds=515.40`,
+`vitest_duration_seconds=512.9371760253906`, and empty RFC8785/JCS
+`failure_set.sha256=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`.
+The literal command and raw receipt hash are recorded in the plan. The
+then-current released producer/checker must recompute those values; DS6 did not
+write the contended manifest.
+
+Current gates are therefore:
+
+- C03 waits only for DS5's register/baseline-manifest family release; its green
+  whole-suite gate is discharged.
+- C04 waits for the same register-family release.
+- C06 has exact 7/7 and now waits only for C04's released typed row.
+- C10 has C08 persistence/integrity evidence but is deliberately unentered
+  until the next clean-tree session; reconciliation consumer/surface remain
+  missing.
+- C11 still needs INT-R3 content, a producer, and real observations; every
+  threshold remains `not_established`.
+- C13 retains the independent visual RED and waits for the DS8 repair plus the
+  released readiness/register owner before any governed transition.
+
+Duplication census denominator was all 1,015 tracked dashboard `src` paths,
+including all 954 tracked TS/TSX source files (363 `.ts`, 591 `.tsx`). The
+C15-R1 numeric declaration/gate has one owner,
+`shared/i18n/parity.test.ts`; the contrast capability has one registry and
+classifier plus its focused test and Storybook consumer; C09 maturity has one
+contract owner plus its focused test. No sibling semantic owner was found.
+The product-local English `pluralize()` in `MonographLayout.tsx` remains an
+adjacent out-of-catalog finding, not a duplicate catalog gate. The complete
+13-file CSS denominator still has exactly two active `attr(href)` emitters,
+`src/styles/print.css:84` and `src/styles.css:1611`; their
+`duplicate_active` DS8 ownership and strangle target are unchanged.
+
+Nonreceipts remain explicit: no page-a11y, journey, full-visual, Storybook
+build, interactive Storybook/dev-server, or C10 lane was rerun in C16; no
+contended register/manifest/readiness/checker/report, `src/polisyos/**`, Russian
+catalog, product component, DS5 path, or GY path was written. The C05/C13
+receipts for the omitted lanes retain their original strength and are not
+silently promoted.

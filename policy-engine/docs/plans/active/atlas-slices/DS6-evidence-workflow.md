@@ -57,28 +57,30 @@ JSON Schema, and repository architecture guardrails.
   `src/polisyos/data_forge/read_api/catalog.py` edit and every other uncommitted
   main-checkout byte are foreign to this worktree. Entry status and the scoped
   base diff are recorded in the journal.
-- This continuation may write only this plan/journal,
-  `apps/runtime-dashboard/src/shared/i18n/**`, the already-landed probe paths
-  under `apps/runtime-dashboard/src/test/a11y/**`, and the exact five-path
-  DS6-C07 set declared under Task 7. No runtime-state registry or product
-  surface joins that set.
+- The slice is deny-by-default. For the current DS6-C16 continuation, the
+  writable set is exactly the seven paths declared under Task 16; the earlier
+  continuation-specific C01-R1/C07 writable set is historical and grants no
+  additional path. No runtime-state registry or product surface joins C16.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
   until it merges. Required deltas are specified there, not applied here.
-- This session must not start Playwright, journeys, visual tests, a dev server,
-  Storybook, full lint, full typecheck, full build, or whole-suite Vitest. The
-  governed host-contention measurements and exact waiting commands are recorded
-  under **Deferred execution package**.
-- Allowed verification is focused Vitest over touched files with at most two
-  workers and the single-process Node design checks `a11y:contrast`,
-  `a11y:motion`, and `a11y:color-blind`.
+- C16 is explicitly authorized to run, one heavy parent at a time, the exact
+  whole-suite Vitest, full lint, full typecheck, production build, opaque
+  Storybook browser probe, and component-a11y closeout lanes declared under
+  Task 16. The earlier no-heavy posture is historical; it remains binding for
+  Playwright journeys, the full visual lane, dev servers outside the declared
+  runner, and every other undeclared heavy command.
+- Focused Vitest over touched files and scoped static checks may establish the
+  source freeze, but only the serialized Task 16 lanes establish C16 closeout.
 - No product surface, DS5 path, GY path, a11y denominator, baseline suppression,
   skip, quarantine, tolerance widening, CI edit, merge, push, rebase, force
   push, or stash-as-storage. One scoped commit follows independent review for
   each entered cluster.
-- Only DS6-C01-R1 is authorized now, followed by DS6-C07 after its independent
-  source review. DS6-C03 through DS6-C06 and DS6-C13 remain stopped behind
-  their existing contended/heavy gates and explicit continuation authorization.
+- Only DS6-C16 is authorized in the current continuation. C03, C04, C06, C10,
+  C11, and C13 retain the gates stated under Task 16 and in the journal; C10 in
+  particular remains unentered until a later clean-tree continuation. Earlier
+  C01-R1/C07 authorization text records the entry session and is superseded by
+  this exact current-cluster grant.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -335,7 +337,9 @@ owners and content-hash anchors; and (2) explicit heavy-lane continuation
 authorization permits a whole-suite JSON Vitest run whose green receipt
 package is the only source for the resolved Vitest fields. Neither gate
 satisfies the other; focused Vitest satisfies neither. GY/host release
-authorizes gate 2 but is not a third semantic gate. **Declared path cap: 9.**
+authorizes gate 2 but is not a third semantic gate. C16's 317/317-file,
+983/983-test receipt discharges gate 2; only the current DS5 owner release
+remains. **Declared path cap: 9.**
 
 Own the baseline manifest/schema producer, both relevant governed tests, the
 disposition producer/generated register, report, induced status-inventory
@@ -346,7 +350,8 @@ receipt.
 
 ### Task 4 — DS6-C04: admit the typed rendered-contrast debt
 
-**Gate:** DS5-C21 merged and explicit continuation authorization.
+**Gate:** DS5 releases the current register family and explicit continuation
+authorization.
 **Declared path cap: 6.**
 
 Extend the canonical disposition producer; generate the register/report;
@@ -367,7 +372,8 @@ DS6 does not repair product components in this cluster.
 
 ### Task 6 — DS6-C06: close the typed rendered-contrast debt
 
-**Gate:** C04 typed row exists and C05 has a 7/7 browser receipt.
+**Gate:** C04 typed row exists; C16 has supplied the exact 7/7 browser receipt,
+so C04 is the only remaining gate.
 **Declared path cap: 6.**
 
 Through the canonical producer, transition the same row to `repaired`, attach
@@ -773,6 +779,66 @@ never admitted. The `reviewers` exemption is separately marked
 `declared, unenforced` now and no caller-source marker is mistaken for a
 behavioral witness.
 
+### Task 16 — DS6-C16: close deferred-lane diagnostics
+
+**Exact path set declared before repair entry:**
+
+1. `apps/runtime-dashboard/src/shared/ui/LineageGraph.test.tsx`
+2. `apps/runtime-dashboard/src/shared/i18n/parity.test.ts`
+3. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.ts`
+4. `apps/runtime-dashboard/src/test/evidence/atlasManualAtMaturity.test.ts`
+5. `apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx`
+6. this plan
+7. the DS6 journal
+
+**Declared path cap: 7; measured candidate set: 7.** C16 closes the sixteen
+diagnostics emitted by C05's previously deferred whole-suite, typecheck,
+production-build, and lint lanes: one C15-R1 importer assertion, four C02/C09
+TypeScript errors, and eleven C15-R1/C09 lint errors. The build's four repeated
+TypeScript errors are the same diagnostics, not four more. The C02 opaque
+browser precondition is a separate fixture defect: its repair must make the
+controlled Storybook ancestry actually opaque while leaving
+`hasOpaqueBackground` byte-identical and retaining the atomic seven-source
+denominator. If that requires loosening the predicate, the cluster stops.
+
+The two deprecated Zod calls are an admission-sensitive refactor. The valid
+owner payload and a payload with unknown top-level and nested evidence-ref
+keys must have identical admission behavior before and after the replacement;
+any changed admitted set stops the cluster. The nine parity findings are
+classified from a scoped mechanism diff: a static-only round is free under the
+mechanism breaker only if the 34-test behavioral result and every governed
+catalog byte are unchanged. A finding that exposes dropped logic is a
+mechanism finding and must remain within this seven-path cut.
+
+Source freezes before one serialized closeout wave. Supplied controller
+ceilings are 1,200 s for whole-suite Vitest, 2,400 s for lint, and 300 s each
+for typecheck, production build, opaque Storybook browser Vitest, and component
+a11y. Every duration is recorded with its observed host regime; a killed run
+is a nonreceipt, and a ceiling overrun is a finding rather than permission to
+raise the ceiling. Closure requires the complete whole suite, typecheck,
+production build, lint, and opaque probe to finish green. Component a11y is
+rerun as the inherited 85/85 denominator receipt; it is not a substitute for
+the separate browser result.
+
+The opaque lane's first classified RED established one additional fixture
+boundary: axe 4.11.4 reports CandidateFrame's visible, `aria-hidden` `⊙`
+decoration as manual-review non-text. The fixture may exclude only that exact
+live-DOM node (one `SPAN`, exact content and cardinality asserted). The real
+adapter fails closed on every other text-bearing `aria-hidden` source root or
+descendant, and descendant/root adversarial witnesses invoke that same adapter.
+This is a bounded text-rule scope, not an incomplete-to-pass conversion;
+every remaining incomplete still produces zero source receipts.
+
+**Suspended-gate cause:** a deferred heavy-lane fence silently suspends a
+standing gate unless every excluded gate is named at the point of use with its
+owner and re-entry condition; otherwise the omission is rediscovered only by
+paying for the lane (GY-DI2/P38).
+
+After C16 lands, a read-only attribution identifies the three non-print visual
+baselines that regressed after DS4's 17/18 receipt and names their introducing
+commit and owner. It is not part of C16's repair set. C10 remains unentered
+until the next clean-tree session.
+
 ## Expected cluster commits
 
 | Cluster | Expected subject | Max files |
@@ -795,11 +861,15 @@ behavioral witness.
 | C14 | `DS6-C14 close evidence workflow` | 6 |
 | C15 | `DS6-C15 close numeric-variable plural safety` | 5 |
 | C15-R1 | `DS6-C15-R1 gate quantitative-use declarations` | 5 |
+| C16 | `DS6-C16 close deferred-lane diagnostics` | 7 |
 
 ## Deferred execution package
 
-This is one consolidated, executable handoff. It is descriptive only in this
-session; no listed governed artifact or heavy lane is touched.
+This is one consolidated, executable handoff. The governed writes remain
+descriptive until DS5 releases their owners. C05 executed the original heavy
+package and C16 executed the diagnostic closeout subset; their measured
+receipts below supersede the earlier waiting state without authorizing any
+governed write.
 
 ### Contended governed writes after DS5-C21
 
@@ -808,11 +878,19 @@ hand edit:
 
 1. `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`:
    transition `vitest.disposition` `rebind_pending -> resolved` and remove the
-   complete sole `i18n-count-message-parity` debt-class object only from the
-   authorized green whole-suite receipt package. Before that run, `command`,
-   `revision`, `wall_duration_seconds`, `vitest_duration_seconds`, `exit_code`,
-   `test_files`, `tests`, `failure_set.sha256`, and the empty resolved
-   failure/debt-class state are named holes, not projected values. Preserve
+   complete sole `i18n-count-message-parity` debt-class object from the C16
+   authorized green whole-suite receipt package. Its resolved values are:
+   `command=/usr/bin/time -p corepack pnpm exec vitest run --reporter=json
+   --outputFile=../../_build/apps/runtime-dashboard/ds6-c16-vitest-final.json`,
+   `wall_duration_seconds=515.40`,
+   `vitest_duration_seconds=512.9371760253906`, `exit_code=0`,
+   `test_files={total:317,passed:317,failed:0}`,
+   `tests={total:983,passed:983,failed:0}`, and the RFC8785/JCS empty-array
+   `failure_set.sha256=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`.
+   The raw JSON receipt SHA-256 is
+   `0621a29ad48454fa57c232206f2eec26267e82ad5285879dacc02bf29ebe79ec`.
+   The register's `repair_commit` is the landed C16 commit, not a projected
+   pre-commit revision field. Preserve
    `parent_reproduction` as historical provenance; it is not a substitute
    receipt. The field-specific sources below are the only admissible producers
    of those resolved values.
@@ -841,11 +919,11 @@ hand edit:
 
 **C09 maturity consequence.** C09 adds no governed-row transition. In
 particular, the contended `unit_id=evidence-manual-at` row retains its
-current value because there is still no C08 CAS persistence/integrity receipt,
-producer, or C10 reconciliation result. C09 changes the future whole-suite
-population but contributes no projected C03 field; the authorized receipt
-measures that population. Upgrading a row from a contract-only schema would be
-a false capability claim under P01 and P32.
+current value. C08 now supplies real CAS persistence and integrity, so the
+remaining reason is specifically C10's absent
+reconciliation consumer and surface. C09 contributes no projected C03 field;
+the C16 receipt measures the resulting population. Upgrading the row without
+C10 would be a false capability claim under P01 and P32.
 
 **C12 protocol consequence.** C12 likewise adds no governed-row transition and
 does not add a C07 receipt kind. INT-R3 content, a generic reviewer producer,
@@ -881,11 +959,16 @@ producer in `check_frontend_disposition_register.py`, exercise it in
 After the real-browser 7/7 receipt, transition that same row—never a second
 row—to `status: repaired`, retain the seven evidence refs, add the actual
 `repair_commit`, and regenerate the same report and induced status receipt.
+The C16 receipt is exactly 7/7: one Storybook story passed in 14.02 s, its raw
+JSON SHA-256 is
+`a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa`,
+and all seven numeric source receipts were admitted atomically. Therefore C06
+is now gated only on C04's released register-family write.
 This discharges the master sentence that makes the DS4 prose table authoritative
 “until DS6 creates one.” It does not enter the Vitest debt-class array, because
 the four axe-incomplete clusters were never failing Vitest identities.
 
-### Heavy lanes waiting for the GY release
+### Serialized heavy-lane package and measured execution
 
 Run from `apps/runtime-dashboard` after the explicit release, serially in the
 order shown. `/usr/bin/time -p` is part of each first authorized command so its
@@ -919,36 +1002,32 @@ producer/checker computes `failure_set.sha256` and the resolved
 failure/debt-class state. No control arithmetic or focused run supplies a
 governed hole, and no assumed empty-set hash is copied.
 
-The first authorized measurement runs without an outer kill budget; the test
-runners' existing per-test semantics are not widened. Immediately after each
-first receipt, record `real` in the journal and set that suite's explicit
-controller timeout to `ceil(real * 2 / 30) * 30` seconds (twice the measured
-wall time, rounded up to the next 30 seconds) for every later rerun in this
-slice. A later timeout is a harness non-receipt and stop signal; it is not
-silently enlarged or reported as product regression. Numeric timeout values
-are presently `not_established` because running the only admissible measurement
-is prohibited by this session's heavy-lane boundary.
+C05 established the first measured wave and C16 used the hard ceilings declared
+under Task 16; no ceiling was raised in flight. The C16 journal records each
+`real` duration with its host regime. A killed run remains a harness
+nonreceipt, not a timing sample or product regression.
 
-`corepack pnpm run storybook` and any dashboard dev-server command remain
-unrun unless an interactive diagnosis is separately authorized; the commands
-above do not require a manually started server. The reason for waiting is not
-OOM risk or ordinary slowdown: the governed host-contention budget measured
+`corepack pnpm run storybook` and any standalone dashboard dev-server command
+remain unrun; the targeted Storybook browser runner managed its own browser.
+The original reason for waiting was not OOM risk or ordinary slowdown: the
+governed host-contention budget measured
 the same GY writer at 194.9–426.3 seconds (2.2x) and a full Atlas module at
 393–754 seconds (1.9x). Concurrent heavy work can push the governed writer past
-its cap and make policy interpret contention as a product regression. Until
-release, every command above is a non-receipt, never green.
+its cap and make policy interpret contention as a product regression. The C16
+receipts explicitly record the released shared-host regime rather than erasing
+that distinction.
 
 ## Not yet
 
-- No typed contrast row or i18n baseline removal until DS5-C21 releases the
-  contended governed owner.
-- No browser, Storybook, full suite, full lint/typecheck/build, journey, visual,
-  dev-server, or product-surface claim until the GY lane releases the heavy set.
+- No typed contrast row or i18n baseline removal until DS5 releases the
+  contended governed owner. C03's green-receipt gate is discharged; C04 and
+  C06 now wait only on that release.
 - No readiness-ledger CI validator, health-metric producer, persisted/manual-AT
-  maturity bridge, INT-R3 behavioral content or honesty threshold, or
-  adjacent-print verification. C09 and C12 are contract-only consumers/seams,
-  not evidence receipts or stable-bar closure.
+  maturity consumer, INT-R3 behavioral content, or honesty threshold. C10 is
+  deliberately next-session work; C11 remains evidence/content blocked.
+- No DS8 print repair or governed C13 readiness transition; DS6's independent
+  visual RED is evidence for the DS8 owner, not repair authority.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the
   latter mechanic and the frozen catalog remains in-tree.
-- No claim that seven source identities pass until the real-browser receipt is
-  7/7. The non-browser classifier contract proves only the gate semantics.
+- No standalone interactive Storybook, page-a11y, journey, or full-visual rerun
+  is implied by C16. Their C05/C13 receipts retain their original strength.

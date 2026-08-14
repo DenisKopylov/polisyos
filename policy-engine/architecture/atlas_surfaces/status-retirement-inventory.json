@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:cdf99476b7751f71493a7e2539749d7c056a65ac5332a82da3d321d4b7997a9f"
+      "sha256": "sha256:3c5d44a75d347689112ede294f18c094d81251da1eeb65fe3090722d31b94eb5"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -3118,8 +3118,8 @@
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
-        "start_line": 140,
-        "end_line": 140,
+        "start_line": 143,
+        "end_line": 143,
         "field_name": "tone"
       },
       "literal_members": ["accent", "default"],

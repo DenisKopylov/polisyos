@@ -2365,3 +2365,32 @@ evidence and will not be run. The replacement is the landed Depth producer's non
 path under the Depth writer ceiling; an audited and restored writer would likewise be measurement
 and consume no accepted reissue. `[P37: recomputed for borrowed-cap provenance;
 institutionally_supplied for the superseding ruling and replacement path]`
+
+### Depth non-persisting measurement — recording-envelope classifier non-receipt
+
+Repository measurement corrects one premise in the prompt: the Depth CLI has no
+`--measure-write-transition`, no `persist=False` entry point, and no expected-transition-manifest
+writer gate. Those facilities exist on N10a only. The Depth producer does expose the equivalent
+non-persisting owner sequence used here: provenance stability, cached live-payload construction,
+recording reconciliation, validation, and canonical candidate serialization to ignored scratch.
+The resulting six-row producer comparison-admission manifest is extracted from that candidate; the
+complete artifact transition declaration is the mechanical recursive preimage-to-candidate leaf
+manifest, not the dropped census and not a hand-built list. The ignored GY-DEFC-5 census was not
+run. `[P37: recomputed]`
+
+The first such launch from clean attached head `d095b9feb` reached the live producer and candidate
+validation but the receipt harness then exited `1` after `3,404.716554` s, well inside the
+`9,885.080824` s ceiling. Its generic protected-path classifier had treated twelve
+`authority_source_admission/*_content_hash` recording-envelope identities as governed admission
+outcomes. All twelve are the recording contract's expected dependent envelope reissue, not movement
+of the admitted outcome. This is the pre-authorized explained recording-contract branch: narrow the
+receipt-only classifier to distinguish those content identities and rerun the same non-persisting
+owner path; no landed owner or governed artifact changes. `[P37: recomputed for terminal, paths,
+and producer provenance; independently_reconciled for the recording-contract classification]`
+
+The attempt changed zero governed bytes. The five N10a pins remain respectively
+`ba20cdb3…5e74c`, `169df14a…da2e2`, `688bd3d8…5f76d`, `9b78cad2…e67f7`, and
+`361434b0…fd98f`; external N8 remains `c3f131ce…bc303`; Depth remains the `1,841,810`-byte
+`acc25257…f089` preimage; the tracked tree is clean. Meta/stdout/stderr identities are
+`99f4ea5e…3b5ee`, `72527f0c…65a55`, and `0d6409c3…f44d8`.
+This is a measurement non-receipt and consumes no accepted Depth reissue. `[P37: recomputed]`

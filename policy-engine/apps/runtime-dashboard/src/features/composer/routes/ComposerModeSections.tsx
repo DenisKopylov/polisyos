@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,8 +21,6 @@ import type { RunLaunchResponse } from "@polisyos/runtime-api-client";
 import { useLaunchNlRun } from "@/api/hooks/useLaunchNlRun";
 import { useLaunchRun } from "@/api/hooks/useLaunchRun";
 import type { ModelProfileInfo } from "@/api/hooks/useLlmProfiles";
-import { useAuthz } from "@/app/authz/AuthzProvider";
-import type { AuthorityLocalScope } from "@/app/offline/authorityLocalState";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   cn,
@@ -999,14 +996,12 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   form,
   fromRunId,
   mode,
-  scope,
 }: {
   defaults: TValues;
   draftKey: string;
   form: UseFormReturn<TValues>;
   fromRunId: string | null;
   mode: ComposerDraftMode;
-  scope: AuthorityLocalScope | null;
 }) {
   const { clearDraft, drafts, hydrateDraft, upsertDraft } =
     useComposerDraftStore();
@@ -1014,8 +1009,6 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   const latestValuesRef = useRef<TValues>(defaults);
   const saveTimerRef = useRef<number | null>(null);
   const persistenceDisabledRef = useRef(false);
-  const scopeGenerationRef = useRef(0);
-  const hydratedScopeRef = useRef<string | null>(null);
   const { isDirty } = useFormState({ control: form.control });
   const dirtyRef = useRef(false);
   const [restoredDraft, setRestoredDraft] =
@@ -1025,14 +1018,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
     dirtyRef.current = isDirty;
   }, [isDirty]);
 
-  const scopeKey = scope ? JSON.stringify([scope.tenantId, scope.userId]) : null;
-
   const persistLatest = useCallback(() => {
-    if (!scope) {
-      clearDraft(draftKey);
-      setRestoredDraft(null);
-      return;
-    }
     const draft: ComposerDraftRecord = {
       fromRunId,
       key: draftKey,
@@ -1040,36 +1026,19 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
       updatedAt: Date.now(),
       values: latestValuesRef.current,
     };
-    const generation = scopeGenerationRef.current;
-    void saveComposerDraft(scope, draft).then((saved) => {
-      if (saved && generation === scopeGenerationRef.current) {
-        upsertDraft(draft);
-      }
-    });
-  }, [clearDraft, draftKey, fromRunId, mode, scope, upsertDraft]);
+    upsertDraft(draft);
+    void saveComposerDraft(draft);
+  }, [draftKey, fromRunId, mode, upsertDraft]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     let cancelled = false;
-    const generation = scopeGenerationRef.current + 1;
-    scopeGenerationRef.current = generation;
     hydratedRef.current = false;
     persistenceDisabledRef.current = false;
     latestValuesRef.current = defaults;
     dirtyRef.current = false;
-    clearDraft(draftKey);
-    setRestoredDraft(null);
-    form.reset(defaults);
-    hydratedScopeRef.current = scopeKey;
 
-    if (!scope) {
-      hydratedRef.current = true;
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    void loadComposerDraft(scope, draftKey).then((draft) => {
-      if (cancelled || generation !== scopeGenerationRef.current) {
+    void loadComposerDraft(draftKey).then((draft) => {
+      if (cancelled) {
         return;
       }
       hydrateDraft(draft ?? null);
@@ -1083,7 +1052,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
     return () => {
       cancelled = true;
     };
-  }, [clearDraft, defaults, draftKey, form, hydrateDraft, scope, scopeKey]);
+  }, [defaults, draftKey, form, hydrateDraft]);
 
   useEffect(() => {
     const subscription = form.watch((values) => {
@@ -1117,9 +1086,6 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   }, [form, persistLatest]);
 
   const discardDraft = useCallback(() => {
-    scopeGenerationRef.current += 1;
-    hydratedScopeRef.current = scopeKey;
-    hydratedRef.current = true;
     persistenceDisabledRef.current = true;
     dirtyRef.current = false;
     if (saveTimerRef.current !== null) {
@@ -1127,11 +1093,9 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
       saveTimerRef.current = null;
     }
     clearDraft(draftKey);
-    if (scope) {
-      void deleteComposerDraft(scope, draftKey);
-    }
+    void deleteComposerDraft(draftKey);
     setRestoredDraft(null);
-  }, [clearDraft, draftKey, scope, scopeKey]);
+  }, [clearDraft, draftKey]);
 
   const resetForm = useCallback(() => {
     discardDraft();
@@ -1141,10 +1105,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   }, [defaults, discardDraft, form]);
 
   return {
-    activeDraft:
-      scopeKey !== null && hydratedScopeRef.current === scopeKey
-        ? drafts[draftKey] ?? restoredDraft ?? null
-        : null,
+    activeDraft: drafts[draftKey] ?? restoredDraft ?? null,
     discardDraft,
     isDirty,
     resetForm,
@@ -1160,14 +1121,6 @@ export function WorkflowComposerSection({
   recentLaunches,
 }: SectionSharedProps) {
   const { locale, label, t } = useI18n();
-  const authz = useAuthz();
-  const scope = useMemo<AuthorityLocalScope | null>(
-    () =>
-      authz.status === "ready" && authz.user?.tenant_id && authz.user.user_id
-        ? { tenantId: authz.user.tenant_id, userId: authz.user.user_id }
-        : null,
-    [authz.status, authz.user?.tenant_id, authz.user?.user_id],
-  );
   const navigate = useNavigate();
   const defaults = useMemo(
     () => buildWorkflowDefaults(t, fromRunId),
@@ -1190,7 +1143,6 @@ export function WorkflowComposerSection({
       form,
       fromRunId,
       mode: "workflow",
-      scope,
     });
   const workflowOutputs = useFieldArray({
     control: form.control,
@@ -1566,14 +1518,6 @@ export function NaturalLanguageComposerSection({
   recentLaunches,
 }: NaturalLanguageComposerSectionProps) {
   const { locale, label, t } = useI18n();
-  const authz = useAuthz();
-  const scope = useMemo<AuthorityLocalScope | null>(
-    () =>
-      authz.status === "ready" && authz.user?.tenant_id && authz.user.user_id
-        ? { tenantId: authz.user.tenant_id, userId: authz.user.user_id }
-        : null,
-    [authz.status, authz.user?.tenant_id, authz.user?.user_id],
-  );
   const navigate = useNavigate();
   const defaults = useMemo(() => buildNaturalLanguageDefaults(t), [t]);
   const form = useForm<NaturalLanguageLaunchFormValues>({
@@ -1593,7 +1537,6 @@ export function NaturalLanguageComposerSection({
       form,
       fromRunId,
       mode: "nl",
-      scope,
     });
   const nlOutputs = useFieldArray({
     control: form.control,

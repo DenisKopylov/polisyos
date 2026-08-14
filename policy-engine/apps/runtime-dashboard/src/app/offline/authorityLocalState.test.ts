@@ -1,5 +1,4 @@
 import {
-  createAuthorityLocalStateEnvelopeFamily,
   createAuthorityLocalStateFamily,
   type AuthorityLocalStateCodec,
 } from "./authorityLocalState";
@@ -97,44 +96,6 @@ describe("authority local state", () => {
     });
     expect(hydrated).toEqual(value);
     expect(Object.isFrozen(hydrated)).toBe(true);
-  });
-
-  it("issues and hydrates a storage-independent envelope through the canonical owner", () => {
-    const owner = createAuthorityLocalStateEnvelopeFamily({
-      clock: () => new Date("2026-08-13T10:00:00.000Z"),
-      codec,
-      family: "operator-craft.threshold" as const,
-      ttlMs: 1_000,
-      version: 1,
-    });
-
-    const issued = owner.encode({
-      scope,
-      slot: "profile",
-      value: { label: "threshold", revision: 1 },
-    });
-
-    expect(issued).toEqual({
-      envelope: {
-        encodedPayload: { label: "threshold", revision: 1 },
-        expiresAt: "2026-08-13T10:00:01.000Z",
-        family: "operator-craft.threshold",
-        issuedAt: "2026-08-13T10:00:00.000Z",
-        slot: "profile",
-        tenantId: "tenant-a",
-        userId: "reviewer-a",
-        version: 1,
-      },
-      key: "polisyos.authority-local-state.v1:operator-craft.threshold:tenant-a:reviewer-a:profile",
-    });
-    expect(
-      owner.decode({
-        envelope: issued!.envelope,
-        fallback: { label: "fallback", revision: 0 },
-        scope,
-        slot: "profile",
-      }),
-    ).toEqual({ label: "threshold", revision: 1 });
   });
 
   it("fails closed for invalid, expired, copied, foreign, and runtime-novel envelopes across every operator family", () => {

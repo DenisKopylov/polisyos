@@ -1,6 +1,5 @@
-import { act, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState, type ReactElement } from "react";
 
 import { useComposerDraftStore } from "@/features/composer/state/useComposerDraftStore";
 import { renderRouteWithProviders } from "@/test/routes";
@@ -11,7 +10,6 @@ const {
   deleteComposerDraftMock,
   loadComposerDraftMock,
   saveComposerDraftMock,
-  useAuthzMock,
   useCapabilitiesMock,
   useLaunchNlRunMock,
   useLaunchRunMock,
@@ -27,7 +25,6 @@ const {
   deleteComposerDraftMock: vi.fn(),
   loadComposerDraftMock: vi.fn(),
   saveComposerDraftMock: vi.fn(),
-  useAuthzMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useLaunchNlRunMock: vi.fn(),
   useLaunchRunMock: vi.fn(),
@@ -49,13 +46,6 @@ vi.mock("@/api/hooks/useLaunchRun", () => ({
 vi.mock("@/api/hooks/useLaunchNlRun", () => ({
   useLaunchNlRun: (...args: unknown[]) => useLaunchNlRunMock(...args),
 }));
-
-vi.mock("@/app/authz/AuthzProvider", async () => {
-  const actual = await vi.importActual<
-    typeof import("@/app/authz/AuthzProvider")
-  >("@/app/authz/AuthzProvider");
-  return { ...actual, useAuthz: () => useAuthzMock() };
-});
 
 vi.mock("@/features/composer/state/composerDraftRepository", () => ({
   buildComposerDraftKey: (mode: string, fromRunId: string | null) =>
@@ -81,12 +71,9 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
 
 import LaunchRunPage from "@/features/composer/routes/LaunchRunPage";
 
-function renderLaunchRunPage(
-  initialEntry = "/compose",
-  element: ReactElement = <LaunchRunPage />,
-) {
+function renderLaunchRunPage(initialEntry = "/compose") {
   return renderRouteWithProviders({
-    element,
+    element: <LaunchRunPage />,
     path: "/compose",
     initialEntry,
     extraRoutes: [
@@ -98,26 +85,6 @@ function renderLaunchRunPage(
   });
 }
 
-function ComposerIdentityRerenderHarness() {
-  const [, rerender] = useState(0);
-  return (
-    <>
-      <button type="button" onClick={() => rerender((value) => value + 1)}>
-        Refresh identity
-      </button>
-      <LaunchRunPage />
-    </>
-  );
-}
-
-function deferred<Value>() {
-  let resolve: (value: Value) => void = () => undefined;
-  const promise = new Promise<Value>((resolvePromise) => {
-    resolve = resolvePromise;
-  });
-  return { promise, resolve };
-}
-
 describe("LaunchRunPage", () => {
   beforeEach(() => {
     composerLabelMock.mockClear();
@@ -127,15 +94,7 @@ describe("LaunchRunPage", () => {
     loadComposerDraftMock.mockReset();
     loadComposerDraftMock.mockResolvedValue(null);
     saveComposerDraftMock.mockReset();
-    saveComposerDraftMock.mockResolvedValue(true);
-    useAuthzMock.mockReset();
-    useAuthzMock.mockReturnValue({
-      status: "ready",
-      user: {
-        tenant_id: "tenant-a",
-        user_id: "reviewer-a",
-      },
-    });
+    saveComposerDraftMock.mockResolvedValue(undefined);
     useCapabilitiesMock.mockReset();
     useCapabilitiesMock.mockReturnValue({
       data: {
@@ -218,288 +177,6 @@ describe("LaunchRunPage", () => {
       within(capabilityTiles).getByText("Multi-model"),
     ).toBeInTheDocument();
     expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
-  });
-
-  it("passes only settled Authz tenant-user scope to composer hydration", async () => {
-    renderLaunchRunPage();
-
-    await waitFor(() => {
-      expect(loadComposerDraftMock).toHaveBeenCalledWith(
-        { tenantId: "tenant-a", userId: "reviewer-a" },
-        "nl:new",
-      );
-    });
-  });
-
-  it("clears a prior in-memory draft and avoids hydration while identity is unsettled", async () => {
-    useComposerDraftStore.getState().upsertDraft({
-      fromRunId: null,
-      key: "nl:new",
-      mode: "nl",
-      updatedAt: 1_710_000_000_000,
-      values: {
-        checkpointPolicy: "strict",
-        domainHint: "custom",
-        executionIntent: "",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
-        governanceConstraints: [
-          { rule: "legal review", scope: "legal", severity: "warning" },
-        ],
-        maxIterations: 3,
-        maxParallelModels: 2,
-        nlDataSourceRef: "",
-        nlRequest: "",
-        perModelBudgetUsd: "",
-        runBudgetUsd: "",
-        selectedLlmModels: [],
-      },
-    });
-    useAuthzMock.mockReturnValue({ status: "loading", user: undefined });
-    loadComposerDraftMock.mockReturnValue(new Promise(() => undefined));
-
-    renderLaunchRunPage();
-
-    await waitFor(() => {
-      expect(useComposerDraftStore.getState().drafts).toEqual({});
-    });
-    expect(loadComposerDraftMock).not.toHaveBeenCalled();
-    expect(
-      screen.queryByText("pages.composer.restoredDraftTitle"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("clears tenant A before tenant B rehydrates and rejects tenant A's late draft", async () => {
-    const tenantALoad = deferred<unknown>();
-    const tenantBLoad = deferred<unknown>();
-    loadComposerDraftMock.mockImplementation(
-      (draftScope: { userId: string }, _key: string) =>
-        draftScope.userId === "reviewer-a"
-          ? tenantALoad.promise
-          : tenantBLoad.promise,
-    );
-    const tenantADraft = {
-      ...useComposerDraftStore.getState().drafts["nl:new"],
-      fromRunId: null,
-      key: "nl:new",
-      mode: "nl" as const,
-      updatedAt: 1_710_000_000_000,
-      values: {
-        checkpointPolicy: "strict" as const,
-        domainHint: "custom",
-        executionIntent: "",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
-        governanceConstraints: [
-          { rule: "legal review", scope: "legal", severity: "warning" },
-        ],
-        maxIterations: 3,
-        maxParallelModels: 2,
-        nlDataSourceRef: "",
-        nlRequest: "",
-        perModelBudgetUsd: "",
-        runBudgetUsd: "",
-        selectedLlmModels: [],
-      },
-    };
-    const tenantBDraft = { ...tenantADraft, updatedAt: 1_710_000_000_001 };
-
-    const user = userEvent.setup();
-    renderLaunchRunPage("/compose", <ComposerIdentityRerenderHarness />);
-    await waitFor(() => {
-      expect(loadComposerDraftMock).toHaveBeenCalledWith(
-        { tenantId: "tenant-a", userId: "reviewer-a" },
-        "nl:new",
-      );
-    });
-    useComposerDraftStore.getState().upsertDraft(tenantADraft);
-    useAuthzMock.mockReturnValue({
-      status: "ready",
-      user: { tenant_id: "tenant-b", user_id: "reviewer-b" },
-    });
-
-    await user.click(screen.getByRole("button", { name: "Refresh identity" }));
-
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-    await waitFor(() => {
-      expect(loadComposerDraftMock).toHaveBeenCalledWith(
-        { tenantId: "tenant-b", userId: "reviewer-b" },
-        "nl:new",
-      );
-    });
-    await act(async () => {
-      tenantALoad.resolve(tenantADraft);
-      await Promise.resolve();
-    });
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-
-    await act(async () => {
-      tenantBLoad.resolve(tenantBDraft);
-      await Promise.resolve();
-    });
-    await waitFor(() => {
-      expect(useComposerDraftStore.getState().drafts).toEqual({
-        "nl:new": tenantBDraft,
-      });
-    });
-  });
-
-  it("clears tenant A restored form state before tenant B hydration resolves", async () => {
-    const tenantBDraft = deferred<unknown>();
-    const tenantADraft = {
-      fromRunId: null,
-      key: "nl:new",
-      mode: "nl" as const,
-      updatedAt: 1_710_000_000_000,
-      values: {
-        checkpointPolicy: "strict" as const,
-        domainHint: "custom",
-        executionIntent: "Tenant A intent",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
-        governanceConstraints: [
-          { rule: "legal review", scope: "legal", severity: "warning" },
-        ],
-        maxIterations: 3,
-        maxParallelModels: 2,
-        nlDataSourceRef: "artifact-a",
-        nlRequest: "Tenant A request",
-        perModelBudgetUsd: "",
-        runBudgetUsd: "",
-        selectedLlmModels: ["openai/gpt-5.4"],
-      },
-    };
-    loadComposerDraftMock.mockImplementation(
-      (draftScope: { userId: string }) =>
-        draftScope.userId === "reviewer-a"
-          ? Promise.resolve(tenantADraft)
-          : tenantBDraft.promise,
-    );
-
-    const user = userEvent.setup();
-    renderLaunchRunPage("/compose", <ComposerIdentityRerenderHarness />);
-    expect(await screen.findByDisplayValue("Tenant A request")).toBeInTheDocument();
-    expect(
-      screen.getByText("pages.composer.restoredDraftTitle"),
-    ).toBeInTheDocument();
-    useAuthzMock.mockReturnValue({
-      status: "ready",
-      user: { tenant_id: "tenant-b", user_id: "reviewer-b" },
-    });
-
-    await user.click(screen.getByRole("button", { name: "Refresh identity" }));
-
-    expect(screen.queryByDisplayValue("Tenant A request")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("pages.composer.restoredDraftTitle"),
-    ).not.toBeInTheDocument();
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-    await waitFor(() => {
-      expect(loadComposerDraftMock).toHaveBeenCalledWith(
-        { tenantId: "tenant-b", userId: "reviewer-b" },
-        "nl:new",
-      );
-    });
-  });
-
-  it("does not restore a deferred save after the operator discards the draft", async () => {
-    const save = deferred<boolean>();
-    saveComposerDraftMock.mockReturnValue(save.promise);
-    const user = userEvent.setup();
-    renderLaunchRunPage();
-
-    await user.type(screen.getByTestId("composer-nl-brief"), "Discard this draft");
-    await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled());
-    await user.click(
-      screen.getByRole("button", { name: "pages.composer.reset" }),
-    );
-
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-    await act(async () => {
-      save.resolve(true);
-      await Promise.resolve();
-    });
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-  });
-
-  it("does not report a failed composer write as restored local state", async () => {
-    saveComposerDraftMock.mockResolvedValue(false);
-    const user = userEvent.setup();
-    renderLaunchRunPage();
-
-    await user.type(screen.getByTestId("composer-nl-brief"), "Do not persist");
-    await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled());
-
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-    expect(
-      screen.queryByText("pages.composer.restoredDraftTitle"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not restore tenant A when its save completes after switching to tenant B", async () => {
-    const tenantASave = deferred<boolean>();
-    const tenantBLoad = deferred<unknown>();
-    saveComposerDraftMock.mockReturnValue(tenantASave.promise);
-    loadComposerDraftMock.mockImplementation(
-      (draftScope: { userId: string }) =>
-        draftScope.userId === "reviewer-a"
-          ? Promise.resolve(null)
-          : tenantBLoad.promise,
-    );
-    const user = userEvent.setup();
-    renderLaunchRunPage("/compose", <ComposerIdentityRerenderHarness />);
-    await user.type(screen.getByTestId("composer-nl-brief"), "Tenant A draft");
-    await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled());
-    useAuthzMock.mockReturnValue({
-      status: "ready",
-      user: { tenant_id: "tenant-b", user_id: "reviewer-b" },
-    });
-
-    await user.click(screen.getByRole("button", { name: "Refresh identity" }));
-    await waitFor(() => {
-      expect(loadComposerDraftMock).toHaveBeenCalledWith(
-        { tenantId: "tenant-b", userId: "reviewer-b" },
-        "nl:new",
-      );
-    });
-    await act(async () => {
-      tenantASave.resolve(true);
-      await Promise.resolve();
-    });
-
-    expect(useComposerDraftStore.getState().drafts).toEqual({});
-    expect(
-      screen.queryByText("pages.composer.restoredDraftTitle"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("allows a new save after reset invalidates a pending hydration", async () => {
-    const load = deferred<unknown>();
-    loadComposerDraftMock.mockReturnValue(load.promise);
-    const user = userEvent.setup();
-    renderLaunchRunPage();
-
-    await user.click(
-      screen.getByRole("button", { name: "pages.composer.reset" }),
-    );
-    await user.type(screen.getByTestId("composer-nl-brief"), "New draft");
-    await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled());
-    await waitFor(() => {
-      expect(
-        useComposerDraftStore.getState().drafts["nl:new"]?.values,
-      ).toMatchObject({ nlRequest: "New draft" });
-    });
-
-    await act(async () => {
-      load.resolve({
-        fromRunId: null,
-        key: "nl:new",
-        mode: "nl",
-        updatedAt: 1_710_000_000_000,
-        values: { nlRequest: "Prior draft" },
-      });
-      await Promise.resolve();
-    });
-    expect(useComposerDraftStore.getState().drafts["nl:new"]?.values).toMatchObject({
-      nlRequest: "New draft",
-    });
   });
 
   it("feature enabled state cannot select Glyph authority clothing", () => {
@@ -608,7 +285,7 @@ describe("LaunchRunPage", () => {
   });
 
   it("hydrates and discards a saved workflow draft for replans", async () => {
-    loadComposerDraftMock.mockImplementation(async (_scope: unknown, key: string) => {
+    loadComposerDraftMock.mockImplementation(async (key: string) => {
       if (key === "workflow:run-42") {
         return {
           fromRunId: "run-42",
@@ -654,10 +331,7 @@ describe("LaunchRunPage", () => {
       screen.getByRole("button", { name: "pages.composer.discardDraft" }),
     );
 
-    expect(deleteComposerDraftMock).toHaveBeenCalledWith(
-      { tenantId: "tenant-a", userId: "reviewer-a" },
-      "workflow:run-42",
-    );
+    expect(deleteComposerDraftMock).toHaveBeenCalledWith("workflow:run-42");
   });
 
   it("persists NL drafts, builds a launch request, and navigates to the created run", async () => {
@@ -723,10 +397,7 @@ describe("LaunchRunPage", () => {
     );
 
     expect(await screen.findByText("Run detail page")).toBeInTheDocument();
-    expect(deleteComposerDraftMock).toHaveBeenCalledWith(
-      { tenantId: "tenant-a", userId: "reviewer-a" },
-      "nl:new",
-    );
+    expect(deleteComposerDraftMock).toHaveBeenCalledWith("nl:new");
   }, 15_000);
 
   it("keeps one editable required output and governance constraint when removing rows", async () => {

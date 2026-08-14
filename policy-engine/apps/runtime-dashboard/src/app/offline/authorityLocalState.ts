@@ -70,48 +70,15 @@ export type AuthorityLocalStateFamily<StoreClass extends string, Value> =
     }) => boolean;
   }>;
 
-export type AuthorityLocalStateEnvelopeFamily<StoreClass extends string, Value> =
-  Readonly<{
-    decode: <Fallback extends Value | null>(input: {
-      envelope: unknown;
-      fallback: Fallback;
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => Value | Fallback;
-    encode: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-      value: Value;
-    }) => Readonly<{
-      envelope: Omit<
-        PersistedEnvelope<StoreClass>,
-        typeof persistedEnvelopeIssuerBrand
-      >;
-      key: string;
-    }> | null;
-    key: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => string | null;
-  }>;
-
-export type AuthorityLocalStateEnvelopeFamilyConfig<
-  StoreClass extends string,
-  Value,
-> =
+type AuthorityLocalStateFamilyConfig<StoreClass extends string, Value> =
   Readonly<{
     clock: () => Date;
     codec: AuthorityLocalStateCodec<Value>;
     family: StoreClass;
+    storage: () => Storage | null;
     ttlMs: number;
     version: number;
   }>;
-
-type AuthorityLocalStateFamilyConfig<StoreClass extends string, Value> =
-  AuthorityLocalStateEnvelopeFamilyConfig<StoreClass, Value> &
-    Readonly<{
-      storage: () => Storage | null;
-    }>;
 
 type ParsedEnvelope<StoreClass extends string> = Omit<
   PersistedEnvelope<StoreClass>,
@@ -188,11 +155,16 @@ function parseEnvelope<StoreClass extends string>(input: {
   expectedScope: AuthorityLocalScope;
   expectedSlot: string;
   now: Date;
-  raw: unknown;
+  raw: string;
   ttlMs: number;
   version: number;
 }): ParsedEnvelope<StoreClass> | null {
-  const parsed = input.raw;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(input.raw) as unknown;
+  } catch {
+    return null;
+  }
   if (!isRecord(parsed)) {
     return null;
   }
@@ -229,16 +201,15 @@ function parseEnvelope<StoreClass extends string>(input: {
 }
 
 /**
- * Creates the canonical local-state envelope seam without choosing a storage
- * transport. Storage adapters delegate here for keys, TTL, clock, validation,
- * and codec handling.
+ * Creates one writer-owned local-state family adapter.
+ *
+ * Family, codec, clock, storage, version, and TTL are fixed at construction;
+ * callers supply only verified scope, logical slot, and payload. Invalid bytes
+ * are never migrated or rewritten during reads.
  */
-export function createAuthorityLocalStateEnvelopeFamily<
-  StoreClass extends string,
-  Value,
->(
-  config: AuthorityLocalStateEnvelopeFamilyConfig<StoreClass, Value>,
-): AuthorityLocalStateEnvelopeFamily<StoreClass, Value> {
+export function createAuthorityLocalStateFamily<StoreClass extends string, Value>(
+  config: AuthorityLocalStateFamilyConfig<StoreClass, Value>,
+): AuthorityLocalStateFamily<StoreClass, Value> {
   if (!isNonEmptyString(config.family) || !Number.isInteger(config.version) || config.version < 1) {
     throw new Error("Authority local-state family configuration is invalid.");
   }
@@ -257,106 +228,10 @@ export function createAuthorityLocalStateEnvelopeFamily<
   }
 
   return Object.freeze({
-    decode<Fallback extends Value | null>(input: {
-      envelope: unknown;
-      fallback: Fallback;
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }): Value | Fallback {
-      if (!isCompleteScope(input.scope) || !isNonEmptyString(input.slot)) {
-        return input.fallback;
-      }
-      let envelope: ParsedEnvelope<StoreClass> | null;
-      try {
-        envelope = parseEnvelope({
-          expectedFamily: config.family,
-          expectedScope: input.scope,
-          expectedSlot: input.slot,
-          now: config.clock(),
-          raw: input.envelope,
-          ttlMs: config.ttlMs,
-          version: config.version,
-        });
-      } catch {
-        return input.fallback;
-      }
-      if (!envelope) {
-        return input.fallback;
-      }
-      try {
-        const decoded = config.codec.decode(envelope.encodedPayload);
-        return decoded === null ? input.fallback : freezeRecursively(decoded);
-      } catch {
-        return input.fallback;
-      }
-    },
-    encode(input) {
+    key,
+    read(input) {
       const physicalKey = key(input);
       if (!physicalKey || !isCompleteScope(input.scope)) {
-        return null;
-      }
-      let issued: Date;
-      let expires: Date;
-      let encodedPayload: unknown;
-      try {
-        issued = config.clock();
-        expires = new Date(issued.getTime() + config.ttlMs);
-        if (!Number.isFinite(issued.getTime()) || !Number.isFinite(expires.getTime())) {
-          return null;
-        }
-        encodedPayload = copyEncodedPayload(config.codec.encode(input.value));
-        if (encodedPayload === null) {
-          return null;
-        }
-      } catch {
-        return null;
-      }
-      const issuedEnvelope: PersistedEnvelope<StoreClass> = freezeRecursively({
-        [persistedEnvelopeIssuerBrand]: config.family,
-        encodedPayload,
-        expiresAt: expires.toISOString(),
-        family: config.family,
-        issuedAt: issued.toISOString(),
-        slot: input.slot,
-        tenantId: input.scope.tenantId,
-        userId: input.scope.userId,
-        version: config.version,
-      });
-      return Object.freeze({
-        envelope: Object.freeze({
-          encodedPayload: issuedEnvelope.encodedPayload,
-          expiresAt: issuedEnvelope.expiresAt,
-          family: issuedEnvelope.family,
-          issuedAt: issuedEnvelope.issuedAt,
-          slot: issuedEnvelope.slot,
-          tenantId: issuedEnvelope.tenantId,
-          userId: issuedEnvelope.userId,
-          version: issuedEnvelope.version,
-        }),
-        key: physicalKey,
-      });
-    },
-    key,
-  });
-}
-
-/**
- * Creates one writer-owned local-state family adapter.
- *
- * Family, codec, clock, storage, version, and TTL are fixed at construction;
- * callers supply only verified scope, logical slot, and payload. Invalid bytes
- * are never migrated or rewritten during reads.
- */
-export function createAuthorityLocalStateFamily<StoreClass extends string, Value>(
-  config: AuthorityLocalStateFamilyConfig<StoreClass, Value>,
-): AuthorityLocalStateFamily<StoreClass, Value> {
-  const owner = createAuthorityLocalStateEnvelopeFamily(config);
-
-  return Object.freeze({
-    key: owner.key,
-    read(input) {
-      const physicalKey = owner.key(input);
-      if (!physicalKey) {
         return input.fallback;
       }
       let raw: string | null;
@@ -368,30 +243,80 @@ export function createAuthorityLocalStateFamily<StoreClass extends string, Value
       if (!raw) {
         return input.fallback;
       }
+      let envelope: ParsedEnvelope<StoreClass> | null;
       try {
-        return owner.decode({
-          envelope: JSON.parse(raw) as unknown,
-          fallback: input.fallback,
-          scope: input.scope,
-          slot: input.slot,
+        envelope = parseEnvelope({
+          expectedFamily: config.family,
+          expectedScope: input.scope,
+          expectedSlot: input.slot,
+          now: config.clock(),
+          raw,
+          ttlMs: config.ttlMs,
+          version: config.version,
         });
       } catch {
         return input.fallback;
       }
+      if (!envelope) {
+        return input.fallback;
+      }
+      let decoded: Value | null;
+      try {
+        decoded = config.codec.decode(envelope.encodedPayload);
+      } catch {
+        return input.fallback;
+      }
+      return decoded === null ? input.fallback : freezeRecursively(decoded);
     },
     write(input) {
-      const issued = owner.encode(input);
-      if (!issued) {
+      const physicalKey = key(input);
+      if (!physicalKey || !isCompleteScope(input.scope)) {
         return false;
       }
+      let issued: Date;
+      let expires: Date;
+      let encodedPayload: unknown;
+      try {
+        issued = config.clock();
+        expires = new Date(issued.getTime() + config.ttlMs);
+        if (!Number.isFinite(issued.getTime()) || !Number.isFinite(expires.getTime())) {
+          return false;
+        }
+        encodedPayload = copyEncodedPayload(config.codec.encode(input.value));
+        if (encodedPayload === null) {
+          return false;
+        }
+      } catch {
+        return false;
+      }
+      const envelope: PersistedEnvelope<StoreClass> = freezeRecursively({
+        [persistedEnvelopeIssuerBrand]: config.family,
+        encodedPayload,
+        expiresAt: expires.toISOString(),
+        family: config.family,
+        issuedAt: issued.toISOString(),
+        slot: input.slot,
+        tenantId: input.scope.tenantId,
+        userId: input.scope.userId,
+        version: config.version,
+      });
       try {
         const storage = config.storage();
         if (!storage) {
           return false;
         }
         storage.setItem(
-          issued.key,
-          JSON.stringify(issued.envelope),
+          physicalKey,
+          JSON.stringify({
+            encodedPayload: envelope.encodedPayload,
+            expiresAt: envelope.expiresAt,
+            family: envelope.family,
+            issuedAt: envelope.issuedAt,
+            slot: envelope.slot,
+            tenantId: envelope.tenantId,
+            userId: envelope.userId,
+            version: envelope.version,
+          }),
         );
         return true;
       } catch {

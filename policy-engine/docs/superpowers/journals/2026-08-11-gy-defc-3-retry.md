@@ -2542,3 +2542,28 @@ corrupt fence, serialized-own-lane/external-overlap regime, and exit interpretat
 `institutionally_supplied`; the causal effect of external contention on any duration remains
 `not_established`. The accepted artifact remains `155f01a8…b615e`, and every external immutable
 pin is unchanged. Depth verification is closed and ready for the required commit. `[P37 as stated]`
+
+### Posture receipt and authorization of the sole cold N11
+
+Depth plus its B2 closure were committed on attached branch `codex/gy-defc-3-retry` at
+`b340a88456236e220f41900a1b69f8c1f5511a20`; the post-commit tracked tree was clean.
+`[P37: recomputed]`
+
+The required posture command `check_layer3_gy_value_gate_contract.py
+--check-catalog-provenance --output-format json` then exited `0` in `13.405578` s under the
+`455.712300` s operational ceiling, without timeout, and reported
+`scope: catalog_provenance, status: pass`. Depth, N8, the frozen N11 artifact, and the confidence
+registry remained byte-identical; stderr is empty. Meta/stdout/stderr identities are
+`585dd186…cf5e`, `58909d79…a77c`, and `e3b0c442…b855`. `[P37: recomputed for terminal,
+duration, and pin preservation; institutionally_supplied for the allowance and regime;
+not_established for the causal effect of external contention]`
+
+The posture terminal authorizes exactly one cold N11 derivation. Its recomputed raw repository
+fallback cap is `2,346,559.300` ms and its `2.0x` externally-contended operational fence is
+`4,693,118.600` ms (`4,693.118600` s). A fresh interpreter will clear the owner-bundle cache once
+and call `build_live_contract()` once with the explicit catalog and L5 paths; it will not invoke the
+N11 writer or a second derivation. The same call will continue after any `owner_bundle_loaded`
+milestone through validation and `frozen_contract_derived`. The ignored trace harness is
+`tmp/gy-defc-6/single_cold_n11.py`, SHA-256 `574f56f6…b428`. `[P37: recomputed for the raw cap and
+harness identity; institutionally_supplied for the allowance, one-call rule, and B5 sequence;
+not_established for the cold outcome]`

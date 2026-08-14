@@ -2501,3 +2501,25 @@
   path debt remains one canonical offline module replicated as `16` literals
   across `8` governed owners (`35 / 15` tracked); C17a introduces one canonical
   local-state issuer consumed by four concrete codecs, not parallel issuers.
+
+## 2026-08-14 — consumer-wave timing and receipt preflight
+
+- Clean attached entry is `5e868da0c` on
+  `codex/atlas-ds5-enforcement-waist`, `66` commits ahead of `7cba15e56`; the
+  register family is free and nothing is staged.
+- GY-DI2 Revision 39 nearest-rank recomputation uses the local macOS worktree
+  regime with installed workspace dependencies, one root-owned scanner-heavy
+  parent, captured terminal exit, and no killed/lost-terminal samples. Full
+  Atlas is bounded at `2678 s` (`p95 1338.89`), the full frontend module at
+  `748 s` (`p95 373.94`), disposition corruption at `554 s` (`p95 276.89`),
+  and the status module retains `400 s` (`p95 168.65`, `2*p95 337.3`).
+- Receipt law: enumerate paths with `git status --porcelain=v1
+  --untracked-files=all`, then stage the complete intended set before using
+  `git diff --cached --numstat`. This review-corrected form closes the repeated
+  harness error that omitted two C17a owner files (`611` lines) and previously
+  undercounted the C13a path set.
+- One documentation `git diff --numstat` was issued after the porcelain census
+  but before staging; under the newly binding law its `19 / 17` output is a
+  harness non-receipt and is not used. The staged receipt supersedes it.
+- Read-only P35 probes cover C08b, the C13b/C14b overlap, and C15a. No consumer,
+  writer, or scanner-heavy process has started; no new non-receipt exists.

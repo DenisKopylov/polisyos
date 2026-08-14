@@ -685,6 +685,20 @@ unblocked on the line-address axis (their other audit waits still govern).
 | --- | --- | --- |
 | DS-INFRA-2 | Timing log has 117 valid records and zero Atlas lanes. Supplied full-Atlas evidence is 393.15s killed/nonreceipt and 754.20s terminal green; killed runs are never samples. `verification_missing` for durable lane timing. | Retain per-lane Atlas timing, use 2×p95 bounds, and name uncatalogued lanes at point of use. GY-INFRA-2 Part A/GY-DI2 governs the timing receipt; GY-DEF13 is only the address-versus-identity parallel. |
 
+**Current uncatalogued Atlas timing regime (GY-DI2, Revision 39):** local
+macOS worktree, installed workspace dependencies, one root-owned
+scanner-heavy parent at a time, terminal exit captured, and no killed or
+lost-terminal run admitted as a sample. Every new duration records this regime
+or names its difference. Nearest-rank `p95` uses rank `ceil(0.95 * n)` and the
+whole-second execution ceiling is `ceil(2 * p95)`:
+
+| Lane | Valid samples (seconds) | nearest-rank p95 | binding ceiling |
+| --- | --- | ---: | ---: |
+| full Atlas module | `395.5, 422, 465.9, 605, 626, 731, 754, 1338.89` | `1338.89` | `2678 s` |
+| full frontend module | `144.9, 151.7, 216.2, 222.2, 282.3, 290.6, 373.94` | `373.94` | `748 s` |
+| disposition corruption battery | `100.8, 114.2, 136.97, 150.5, 195.99, 215.1, 249, 276.89` | `276.89` | `554 s` |
+| status-retirement module | `52.6, 67.2, 73.2, 75.4, 102.3, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
+
 The target correct pattern is:
 
 ```text
@@ -717,6 +731,10 @@ Every implementation cluster follows this order:
 
 1. Record clean status, HEAD, exact preflight file set, current register rows,
    and inherited baseline identities.
+   Every path/LOC receipt starts from `git status --porcelain=v1
+   --untracked-files=all`; stage the complete intended set before any
+   `git diff --cached --numstat` receipt because ordinary diff omits untracked
+   files and a bare post-stage diff compares the index to the worktree.
 2. Add the named negative first. Run it and journal the exact expected failure
    reason; a timeout or lost output is a non-receipt.
 3. Make the smallest wire/extend/consolidate change. Never hand-edit generated

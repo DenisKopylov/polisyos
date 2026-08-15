@@ -2798,3 +2798,182 @@
   / 0 Minor`), verifying the exact four-path fence, plan `39` changed lines,
   `156 -> 129 / 108 / 129`, `234 -> 0` partitions, and every retained property
   witness.
+
+## 2026-08-15 — DS5-C13b-R7 restored consumer declaration
+
+- Append-only restore `07fd56378` reapplies the C13b-R6 checkpoint after C21d
+  landed at `19293faaa`; no `#ts-identity` payload re-anchor is expected. The
+  exact eight restored blobs equal `a3ad1e615` and current `HEAD`: six app
+  paths plus the frontend disposition register and DS19 inventory. The required
+  C13b-R7 continuation is one scoped-composer consumer landing and absorbs /
+  discharges C14b-R1; no separate C14b execution remains.
+- **Pre-writer declared delta:** relative to the C21d base, only
+  `offline-draft-composer` projects `rebind_pending -> use_as_is`,
+  `pending -> not_applicable`, the scoped-envelope seed rule, and its accepted
+  scoped-envelope rationale. Finding/evidence/identity/date/label and all
+  other leaves remain unchanged. Root buckets are `18 deleted / 195 rebind /
+  25 retire / 7 use / 16 wire`; totals remain `261 / 62 / 9`. DS19 changes
+  only its dependent register SHA and `semantic-composer-mode-sections-tone`
+  source span `140 -> 143`; census remains `13 current-authored / 47 DS1 / 0`
+  retirement debt. Baseline, readiness, C21 identities, C13a historical replay,
+  and every other artifact leaf are byte-identical. The generated report writer
+  is root-owned and was not run in this lane.
+- Fixed-base dashboard receipt recomputed from `d01eaa572..` current worktree is
+  `23262 added / 19459 deleted / -3803 reduction / 89 deleted files`. The
+  contractually HEAD-derived dashboard commit list begins `07fd56378`,
+  `f77850487`, `a3ad1e615`, `5e868da0c`, and `bc9421163`; the full list is in
+  `c13b-r7-report.md`. R7's current six-app contribution is separately
+  `+1137 / -145 / +992` across six files, measured from `f77850487` to the
+  frozen worktree.
+- Consumer receipt: focused Vitest on `authorityLocalState`,
+  `composerDraftRepository`, and `LaunchRunPage` passed `32 / 32` in `6.14 s`
+  (`6 s / 165 s` wall). Dashboard typecheck passed in `12 s / 482 s`; production
+  build passed in `18 s / 300 s`. The owner/consumer witness covers the fixed
+  24-hour TTL, invalid/cross-scope bytes, hostile dependencies, race clearing,
+  and partial legitimate drafts stated in the R7 brief.
+- Required scoped six-file ESLint is a terminal **RED**, not a nonreceipt:
+  `ComposerModeSections.tsx:1145` reads `hydratedScopeRef.current` during
+  render, yielding two `react-hooks/refs` errors in `22 s / 174 s`. Product
+  bytes are frozen by the restore, so this lane did not repair it; root must
+  decide whether the restored-source lint defect authorizes an owner re-cut.
+- Nonreceipts: the first blob command assigned zsh's special `path` variable
+  and could not execute `git`; it changed no bytes and was superseded by the
+  exact eight-blob receipt. The first Vitest wrapper assigned read-only zsh
+  `status` after Vitest's green output, so its wrapper exit was nonterminal;
+  the fresh terminal `32 / 32` run supersedes it. No scanner-heavy gate, writer,
+  staging, or commit ran. P01/P02/P05/P29/P31/P33/P35/P37 are satisfied by
+  inherited owner + persisted envelope + repository/UI consumer + negative
+  witness; publication remains `surface_missing` until the serialized root
+  report projection. The later terminal lint GREEN is recorded below.
+
+### C13b-R7 lint repair follow-up
+
+- Root-cause diagnosis: `hydratedScopeRef` was render-authoritative state for
+  `activeDraft`; `.current` mutation cannot schedule the render that consumes
+  it. The minimal repair replaces that string ref with
+  `hydratedScopeKey`/`setHydratedScopeKey`, uses the setter in the existing
+  layout effect and discard callback, and compares the state value at return.
+  It stays inside the declared `ComposerModeSections.tsx` path and introduces
+  no owner, codec, scope, or artifact re-cut.
+- Static RED-first receipts are retained: the initial six-file scoped ESLint
+  failed with the two `react-hooks/refs` diagnostics at line `1145` in
+  `22 s / 174 s`; root independently reproduced the same one-file RED with
+  terminal exit `1` in `31 s / 174 s`. The post-repair no-cache exact scoped
+  ESLint attempt returned no output or exit after `30.2 s` and left no process;
+  it is an orchestration **nonreceipt**, not a sample, RED, or green gate, and
+  was not retried at the same ceiling.
+- Behavioral outcome remains identical: the focused three-file owner/repository/
+  UI Vitest set passed `32 / 32` again in `8.70 s` (`9 s / 165 s` wall). No
+  scanner-heavy gate, writer, staging, or commit ran. Root's fresh exact
+  six-file scoped ESLint then passed with terminal exit `0` in `23 s / 174 s`
+  under the local-macOS, installed-dependencies, single-process, captured-exit
+  regime. The lint-only repair is therefore classified **behavior-preserving**:
+  the focused `32 / 32` outcome stayed green and no governed artifact has been
+  written. The post-repository-repair recomputation is recorded below.
+- Root post-fix dashboard typecheck passed with terminal exit `0` in
+  `22 s / 482 s`; production build passed with terminal exit `0` in
+  `31 s / 300 s`, transforming `3886` modules and emitting `109` precache
+  entries. The only build output is the inherited chunk-size advisory. Both
+  receipts use the same local-macOS, installed-dependencies, single-process,
+  captured-exit regime.
+
+### C13b-R7 repository ordering repair (independent review NO-GO)
+
+- Independent review was NO-GO `0 Critical / 2 Important / 1 Minor`: the UI
+  generation guard prevents only Zustand repopulation, while `put` and `delete`
+  on the same IndexedDB physical key could reorder. The test first deferred a
+  real repository `put`, requested deletion, and proved pre-fix `delete` was
+  issued early (`1 / 10` failed in `1 s / 165 s`).
+- `createComposerDraftRepository` now has one generic per-physical-key operation
+  sequencer shared by database `get`, `put`, and `delete`; each successor waits
+  for a predecessor while a rejected predecessor cannot poison the next
+  operation. It does not modify C17a owner logic. The witness releases the put,
+  awaits both calls, then real load is null and the record map is absent; it is
+  GREEN `10 / 10` in `1 s / 165 s`. The full owner/repository/UI set is GREEN
+  `33 / 33` in `10 s / 165 s`; dashboard typecheck is GREEN `27 s / 482 s`.
+- The post-sequencer six-file scoped ESLint launch produced no output or exit
+  after `30.2 s`; it is a nonreceipt, not a gate result, and was not retried.
+  Root's fresh exact six-file scoped ESLint then passed with terminal exit `0`
+  in `34 s / 174 s` under the local-macOS, installed-dependencies,
+  single-process, captured-exit regime. No writer, staging, commit,
+  scanner-heavy suite, or governed artifact ran.
+- Root post-queue production build passed with terminal exit `0` in
+  `34 s / 300 s`, transforming `3886` modules and emitting `109` precache
+  entries; only the inherited chunk-size advisory was emitted. It uses the same
+  local-macOS, installed-dependencies, single-process, captured-exit regime.
+
+### C13b-R7 root-owned writer closeout
+
+- The canonical serialized writer passed with terminal exit `0` in `58 s / 554 s`.
+  It produced only the generated report delta (`13+ / 6-`): register, DS19
+  status inventory, baseline, and readiness hashes remain respectively
+  `3c5d44a7...`, `cb45a29c...`, `215b1882...`, and `4b64f092...`; report hash
+  is `294413ab...`. Counts are `261 / 62 / 9` and root buckets are
+  `18 / 195 / 25 / 7 / 16`.
+- The second serialized idempotence pass exited `0` in `60 s / 554 s`; the
+  generated report hash was `294413ab...` before and after. Both receipts use
+  the recorded scanner regime. No plan or product source changed in this
+  closeout append.
+
+### C13b-R7 final governed wave
+
+- The first full frontend run exited `1` in `189 s / 748 s` because the wrapper
+  `bash` PATH resolved child `python3` to `/usr/bin/python3` 3.9, missing
+  `tomllib` and `jsonschema`. This is a wrong-regime **HARNESS NONRECEIPT**, not
+  a product RED. A minimal venv-first two-child probe passed `2 / 2`, exit `0`,
+  in `35 s / 748 s`, proving child `python3=.venv` 3.14. The corrected full
+  frontend run passed `94 / 94`, exit `0`, in `188 s / 748 s`.
+- Disposition checker plus baseline-byte verification and corruption probes
+  passed exit `0` in `159 s / 554 s`: `261 / 62 / 9` and buckets
+  `18 / 195 / 25 / 7 / 16`.
+- The first full status run was a governed RED, `37 / 38`, exit `1`, in
+  `81 s / 400 s` with `status_consumers_drift`; the corrected diagnostic is
+  recorded earlier. After the declared surgical four-consumer update, full
+  status passed `38 / 38`, exit `0`, in `83 s / 400 s`; status corruption
+  passed exit `0` in `28 s / 400 s` with `13 / 47 / 0` and `55` semantic
+  exemptions.
+- Atlas checker plus corruption passed exit `0` in `106 s / 400 s`
+  (`Badge=163`, `prop=19`, `offline=588`, `capability=591`, status `13 / 47 / 0`);
+  full Atlas passed `34 / 34`, exit `0`, in `462 s / 2678 s`.
+- Corrected heavy receipts use the local-macOS, installed-dependencies,
+  venv-first PATH, root-owned single-scanner-parent, captured-exit regime. No
+  further governed-lane nonreceipts occurred. Final hashes are register `3c5d44a7...`, status
+  `6fd36927...`, baseline `215b1882...`, readiness `4b64f092...`, and report
+  `294413ab...`. The earlier `cb45a29c...` is the preserved pre-writer status
+  hash, not the final status hash.
+- Duplication duty restated: C14b-R1 remains absorbed once; no separate consumer
+  was introduced. The pre-existing module-path debt is unchanged at `16 / 8`
+  governed and `35 / 15` tracked. The R7 plan now names all eleven measured
+  paths, including the register and DS19 inventory. Frozen current receipts:
+  fixed-base dashboard `23262 / 19459 / -3803 / 89`; R7 six-app
+  `+1137 / -145 / +992`.
+
+### C13b-R7 pre-status-write measurement correction
+
+- The first full status module was a governed RED (`37 / 38`, terminal exit
+  `1`, `81 s / 400 s`): `status-inline-authz-provider` retained its seven
+  pre-R7 consumers while the live scanner derived four additional, real
+  `authz.status` prop consumers in `ComposerModeSections.tsx` at lines
+  `1166`, `1169`, `1572`, and `1575`. The earlier pre-writer allowlist omitted
+  this induced consumer-membership movement; measurement supersedes it.
+- Before the surgical DS19 write, the corrected allowlist is declared: add
+  exactly those four `{path,line,kind="prop"}` consumer receipts to
+  `status-inline-authz-provider`, in addition to the already accepted DS19
+  register hash and `semantic-composer-mode-sections-tone` span `140 -> 143`.
+  The DS19 census remains `13 / 47 / 0`; no register, report, baseline,
+  readiness, identity, finding, label, or denominator leaf may move. This uses
+  the already-declared status path and keeps the measured cap at eleven.
+- The first diagnostic scanner completed but its wrapper queried nonexistent
+  key `facts` and exited `1` after `21 s / 400 s`; it is a harness nonreceipt,
+  not a product result. The corrected captured diagnostic exited `0` in
+  `21 s / 400 s` under the venv-first local-macOS installed-dependency,
+  root-owned single-scanner-parent regime and derived exactly the four receipts
+  above plus the sole named `status_consumers_drift` error.
+- This pre-status-write declaration was written before the surgical artifact
+  edit; a concurrent journal closeout append placed its section after the final
+  wave text without changing either declaration or artifact chronology.
+- A later read-only artifact helper printed the report receipt, then used a
+  repository-root path from the `policy-engine/` working directory and exited
+  `1` in `0.2 s`; it changed no byte and is a harness nonreceipt. The corrected
+  helper exited `0` in `0.2 s` and proved the status delta is exactly the DS19
+  hash, tone span, and four declared consumer members, with no removal.

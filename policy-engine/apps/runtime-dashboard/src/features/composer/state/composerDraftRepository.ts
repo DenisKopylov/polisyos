@@ -127,6 +127,26 @@ export function createComposerDraftRepository(config?: {
     ttlMs: COMPOSER_DRAFT_TTL_MS,
     version: 1,
   });
+  const operationTails = new Map<string, Promise<void>>();
+
+  function sequenceDatabaseOperation<T>(
+    physicalKey: string,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const prior = operationTails.get(physicalKey) ?? Promise.resolve();
+    const result = prior.catch(() => undefined).then(operation);
+    const settled = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    operationTails.set(physicalKey, settled);
+    void settled.then(() => {
+      if (operationTails.get(physicalKey) === settled) {
+        operationTails.delete(physicalKey);
+      }
+    });
+    return result;
+  }
 
   async function load(
     scope: AuthorityLocalScope | null | undefined,
@@ -138,7 +158,9 @@ export function createComposerDraftRepository(config?: {
     }
     let stored: unknown;
     try {
-      stored = await database.get(physicalKey);
+      stored = await sequenceDatabaseOperation(physicalKey, () =>
+        database.get(physicalKey),
+      );
     } catch {
       return null;
     }
@@ -169,7 +191,9 @@ export function createComposerDraftRepository(config?: {
       return false;
     }
     try {
-      await database.put({ envelope: issued.envelope, key: issued.key });
+      await sequenceDatabaseOperation(issued.key, () =>
+        database.put({ envelope: issued.envelope, key: issued.key }),
+      );
       return true;
     } catch {
       return false;
@@ -185,7 +209,9 @@ export function createComposerDraftRepository(config?: {
       return false;
     }
     try {
-      await database.delete(physicalKey);
+      await sequenceDatabaseOperation(physicalKey, () =>
+        database.delete(physicalKey),
+      );
       return true;
     } catch {
       return false;

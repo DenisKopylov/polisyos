@@ -846,7 +846,7 @@ first continuously numbered `-R1` successor.
 | C13a-R2 | 22 | 22 | stopped predecessor | C13a-R3 / 23 |
 | C13a-R3 | 23 | 23 | FIT | C13a-R3 / 23 (execution successor) |
 | C13b | 9 | 10 | no-fit | C13b-R1 / 10 |
-| C14b | 7 | 8 | no-fit | C14b-R1 / 8 |
+| C14b | 7 | 8 | absorbed/discharged | C13b-R7 / 11; no separate implementation |
 | C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
 | C16a | 5 | 6 | no-fit | C16a-R1 / 6 |
 | C16b | 7 | 8 | no-fit | C16b-R1 / 8 |
@@ -1356,9 +1356,9 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster | C12a |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
 | C13b-R5 | SW sync/flush authority bridge | app-authored worker mutation bridge is absent; static navigation handler remains inert | `bc9421163`; `apps/runtime-dashboard/src/sw.ts`; focused real-worker witness | landed | none |
-| C13b-R6/R7 | scoped composer consumer; absorbs C14b-R1 | R6 witnesses are preserved at `a3ad1e615`, but checker import turns on migration-only line anchors; R7 resumes afterward | C21 frozen-identity owner; forward revert `f77850487` | R6 stopped; R7 blocked | C21d |
+| C13b-R6/R7 | scoped composer consumer; absorbs/discharges C14b-R1 | the restored `a3ad1e615` consumer inherits C17a's canonical owner; C21d's landed line-free identity repair removes the stopped import defect | `07fd56378`; C21d landed identity owner; three-file consumer witness | R6 checkpoint restored; R7 current landing | root-owned report writer |
 | C14a | nominal envelope owner | canonical `PersistedEnvelope<StoreClass>` owner serves four operator-craft families and transport adapters | `5e868da0c`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed | none |
-| C21d | line-free TypeScript identity moves | normal import eagerly rebuilds migration-only Badge/prop maps, and structural paths turn on sibling ordinals | C13b-R6 real composer move; checker creation-helper call graph | executable at cap 4 | none |
+| C21d | line-free TypeScript identity moves | retired migration-only maps no longer execute at import; relocation is unique-content-safe and ambiguity remains RED | C21d closeout `19293faaa`; governed batch/cold-import witnesses | landed | none |
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
@@ -1957,6 +1957,28 @@ scanned TypeScript production file while ignoring a test root and the three
 locale JSON sources. Root alone runs the scanner-heavy/full gates and confirms
 the declared zero artifact delta.
 
+### DS5-C13b-R7 — restored scoped composer consumer (C14b-R1 absorbed)
+
+**Measured set:** restored six application paths;
+`architecture/atlas_surfaces/frontend-disposition-register.json`;
+`architecture/atlas_surfaces/status-retirement-inventory.json`; the root-owned
+generated disposition report; this plan; and this journal = 11. R7 is one
+consumer landing, not a second C14b implementation.
+
+**Pattern pass:** P01/P02/P04/P05/P09/P10/P27/P31/P33/P35/P37. C17a remains
+the sole envelope/clock/TTL owner; the composer repository is its IndexedDB
+adapter/consumer. The persisted artifact is scope-bound and fail-closed, and
+the 33-test witness exercises production owner plus consumer behavior.
+
+**Acceptance:** caller `ttlMs: 48 h` cannot exceed the writer-owned 24-hour
+bound; hostile, expired, extended, future, copied, and cross-scope bytes are
+rejected; absent/throwing stores, DB, clock, and codec do not escape or report
+restoration; settled Authz scope pre-clears A before B and rejects late A races.
+Partial valid workflow/NL drafts round-trip. Server, epoch, rule-version,
+DS9, and DS14 semantics remain unclaimed. The root writer alone projects the
+single `offline-draft-composer` transition; `cache-local-storage-state` and
+`cache-operator-craft` remain pending.
+
 ### DS5-C14a — nominal local-state envelope owner
 
 **Measured set:** exactly 7 governed paths: frontend disposition checker + test,
@@ -2058,7 +2080,8 @@ successor evidence.
 
 **Measured set:** cap 15: canonical owner/test, four operator-craft paths,
 Atlas checker tests, generated surfaces, this plan, and journal; it unblocks
-C13b composer, C14b-R1, and C15a. C16a/C16b/C17b remain successors. Operator craft
+C13b's composer consumer (including the discharged C14b-R1 name), and C15a.
+C16a/C16b/C17b remain successors. Operator craft
 is one DS1 unit with four physical families: threshold, annotations, evidence
 wallet, and onboarding.
 
@@ -2213,7 +2236,8 @@ incomplete structural G4 packet assigned to the private nominal sink, cached
 payload without visible posture, query construction/producer census omission,
 governed query pin, authority queue kind, service-worker authority API cache or
 sync registration, raw/unscoped storage construction, cross-tenant/user/expiry
-codec hydration across C14b-R1-C17a-R1, persistence-construction census drift, unknown
+codec hydration across the C13b-R7/C17a canonical-owner boundary,
+persistence-construction census drift, unknown
 flag, unbound/unscoped flag source, and flag/permission substitution must each
 fail while benign siblings pass. The meta-test imports and executes the real
 registered corruption witnesses; it does not merely search for their names.

@@ -1219,6 +1219,26 @@
           "kind": "prop"
         },
         {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1166,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1169,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1572,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1575,
+          "kind": "prop"
+        },
+        {
           "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
           "line": 32,
           "kind": "prop"

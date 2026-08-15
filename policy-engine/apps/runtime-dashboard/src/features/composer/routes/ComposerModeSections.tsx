@@ -1015,7 +1015,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   const saveTimerRef = useRef<number | null>(null);
   const persistenceDisabledRef = useRef(false);
   const scopeGenerationRef = useRef(0);
-  const hydratedScopeRef = useRef<string | null>(null);
+  const [hydratedScopeKey, setHydratedScopeKey] = useState<string | null>(null);
   const { isDirty } = useFormState({ control: form.control });
   const dirtyRef = useRef(false);
   const [restoredDraft, setRestoredDraft] =
@@ -1059,7 +1059,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
     clearDraft(draftKey);
     setRestoredDraft(null);
     form.reset(defaults);
-    hydratedScopeRef.current = scopeKey;
+    setHydratedScopeKey(scopeKey);
 
     if (!scope) {
       hydratedRef.current = true;
@@ -1118,7 +1118,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
 
   const discardDraft = useCallback(() => {
     scopeGenerationRef.current += 1;
-    hydratedScopeRef.current = scopeKey;
+    setHydratedScopeKey(scopeKey);
     hydratedRef.current = true;
     persistenceDisabledRef.current = true;
     dirtyRef.current = false;
@@ -1142,7 +1142,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
 
   return {
     activeDraft:
-      scopeKey !== null && hydratedScopeRef.current === scopeKey
+      scopeKey !== null && hydratedScopeKey === scopeKey
         ? drafts[draftKey] ?? restoredDraft ?? null
         : null,
     discardDraft,

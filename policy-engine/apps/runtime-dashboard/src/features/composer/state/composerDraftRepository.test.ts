@@ -124,6 +124,46 @@ describe("composerDraftRepository", () => {
     ).toBe(24 * 60 * 60 * 1_000);
   });
 
+  it("serializes a pending save before a same-key delete", async () => {
+    const records = new Map<string, unknown>();
+    let releasePut: (() => void) | undefined;
+    let signalPutStarted: (() => void) | undefined;
+    const putStarted = new Promise<void>((resolve) => {
+      signalPutStarted = resolve;
+    });
+    const database = {
+      delete: vi.fn(async (key: string) => {
+        records.delete(key);
+      }),
+      get: vi.fn(async (key: string) => records.get(key)),
+      put: vi.fn((record: { envelope: unknown; key: string }) => {
+        signalPutStarted?.();
+        return new Promise<void>((resolve) => {
+          releasePut = () => {
+            records.set(record.key, record);
+            resolve();
+          };
+        });
+      }),
+    };
+    const repository = createComposerDraftRepository({
+      clock: () => new Date("2026-08-14T10:00:00.000Z"),
+      database,
+    });
+
+    const save = repository.save(scope, workflowDraft);
+    await putStarted;
+    const remove = repository.delete(scope, workflowDraft.key);
+
+    expect(database.delete).not.toHaveBeenCalled();
+    releasePut?.();
+    await expect(save).resolves.toBe(true);
+    await expect(remove).resolves.toBe(true);
+    expect(database.delete).toHaveBeenCalledTimes(1);
+    await expect(repository.load(scope, workflowDraft.key)).resolves.toBeNull();
+    expect(records).toEqual(new Map());
+  });
+
   it("round-trips exact in-progress workflow and natural-language defaults before launch admission", async () => {
     const port = createMemoryPort();
     const repository = createComposerDraftRepository({

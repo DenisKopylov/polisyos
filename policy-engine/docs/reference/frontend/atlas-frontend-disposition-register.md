@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **22178**
-- Application lines deleted: **19367**
-- Net application LOC reduction: **-2811**
+- Application lines added: **23262**
+- Application lines deleted: **19459**
+- Net application LOC reduction: **-3803**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -100,9 +100,9 @@ No merge or push is performed.
 | Disposition | Root units |
 | --- | ---: |
 | `deleted` | 18 |
-| `rebind_pending` | 196 |
+| `rebind_pending` | 195 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 6 |
+| `use_as_is` | 7 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -535,7 +535,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `worker-json-parse` | `worker-json-parse` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `cache-service-worker-static` | `cache-service-worker-static` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `deleted` | `strangled` | `DS5` | `census-c13a-authority-replay-delete` |
-| `offline-draft-composer` | `offline-draft-composer` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `offline-draft-composer` | `offline-draft-composer` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-local-storage-state` | `cache-local-storage-state` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-clerk-sessions` | `cache-clerk-sessions` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
@@ -565,6 +565,13 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `07fd56378 Reapply "DS5-C13b-R6 checkpoint composer local state"`
+- `19293faaa DS5-C21d retire migration address bindings`
+- `dd52314af DS5 record C13b-R6 structural stop`
+- `f77850487 Revert "DS5-C13b-R6 checkpoint composer local state"`
+- `a3ad1e615 DS5-C13b-R6 checkpoint composer local state`
+- `05bac9e37 DS5 record governed timing ceilings`
+- `5e868da0c DS5-C17a-R2 partition operator craft local state`
 - `bc9421163 DS5-C13b-R5 close service-worker authority bridge`
 - `7e6478b71 Reapply "checkpoint: preserve stopped DS5-C13b-R3 service-worker closure"`
 - `fd2971e73 DS5-C13b-R4 repair offline queue production denominator`

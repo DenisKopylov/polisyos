@@ -1382,14 +1382,26 @@ class ProducerBindingDebtTests(unittest.TestCase):
             for row in checker._supplemental_findings()
             if row["finding_id"] in descriptor_ids
         }
-        self.assertEqual(
-            generated_descriptors,
-            {
-                row["finding_id"]: row
-                for row in refreshed["supplemental_findings"]
-                if row["finding_id"] in descriptor_ids
-            },
-        )
+        refreshed_descriptors = {
+            row["finding_id"]: row
+            for row in refreshed["supplemental_findings"]
+            if row["finding_id"] in descriptor_ids
+        }
+        self.assertEqual(set(generated_descriptors), set(refreshed_descriptors))
+        for finding_id, generated in generated_descriptors.items():
+            with self.subTest(finding_id=finding_id):
+                if finding_id in checker.AUTHORITY_PRESENTATION_DEBT_SPECS:
+                    self.assertEqual(
+                        checker._authority_row_semantic_value(generated),
+                        checker._authority_row_semantic_value(
+                            refreshed_descriptors[finding_id]
+                        ),
+                    )
+                else:
+                    self.assertEqual(
+                        generated,
+                        refreshed_descriptors[finding_id],
+                    )
         for field in sorted(set(before) - {"supplemental_findings"}):
             with self.subTest(field=field):
                 self.assertEqual(before[field], refreshed[field])
@@ -2090,6 +2102,23 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             ),
         )
 
+        navigation_only_reorder = copy.deepcopy(data)
+        row = next(
+            item
+            for item in navigation_only_reorder["supplemental_findings"]
+            if item["finding_id"]
+            == "authority-presentation-badge-compound-decision-grade"
+        )
+        row["authority_sink"]["consumer_sites"].reverse()
+        for receipt in row["authority_sink"]["consumer_sites"]:
+            receipt["line"] += 100
+        self.assertEqual(
+            [],
+            checker._authority_presentation_errors(
+                navigation_only_reorder, live_probes=False
+            ),
+        )
+
         for field, mutation in corruptions.items():
             with self.subTest(field=field):
                 errors = checker._authority_presentation_errors(
@@ -2176,16 +2205,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         )
 
         fingerprint_drift = copy.deepcopy(scan)
-        benign_location = next(
-            location
-            for location, classification in checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS.items()
-            if classification.startswith("benign:")
-        )
-        site = next(
-            item
-            for item in fingerprint_drift["badgeSites"]
-            if (item["path"], item["line"]) == benign_location
-        )
+        site = fingerprint_drift["badgeSites"][0]
         site["siteSha256"] = "sha256:" + "0" * 64
         errors = checker._badge_classification_errors(fingerprint_drift)
         self.assertTrue(
@@ -2465,7 +2485,7 @@ export async function publishDecision( input:string )
         self.assertEqual([], checker._validate_typescript_reference_identity(opening, {source_path: source}))
         self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: source}))
 
-    def test_jsx_navigation_hint_selects_one_duplicate_without_becoming_the_binding(self) -> None:
+    def test_unique_content_relocates_after_a_navigation_selected_sibling_is_removed(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
         source = """export function Surface() {
   return <>
@@ -2489,12 +2509,12 @@ export async function publishDecision( input:string )
 """
 
         self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
+            [],
             checker._validate_typescript_reference_identity(reference, {source_path: moved}),
         )
         self.assertNotIn("navigation_hint", reference["encoded_identity"])
 
-    def test_duplicate_canonical_candidates_replay_the_structurally_bound_sibling(self) -> None:
+    def test_duplicate_canonical_candidates_are_ambiguous_after_relocation(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
         one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
         duplicated_badges = """export function Surface() {
@@ -2509,12 +2529,11 @@ export async function publishDecision( input:string )
         )
 
         self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
+            ["typescript_reference_binding_ambiguous"],
             checker._validate_typescript_reference_identity(reference, {source_path: duplicated_badges}),
         )
 
-
-    def test_distinct_content_on_a_second_sibling_does_not_replace_the_bound_sibling(self) -> None:
+    def test_unique_bound_content_relocates_past_a_distinct_sibling(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
         one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
         second_distinct_badge = """export function Surface() {
@@ -2529,7 +2548,7 @@ export async function publishDecision( input:string )
         )
 
         self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
+            [],
             checker._validate_typescript_reference_identity(
                 reference,
                 {source_path: second_distinct_badge},
@@ -2836,55 +2855,468 @@ it("second", () => {
         self.assertEqual([], checker._validate_typescript_reference_identity(first, {source_path: source}))
         self.assertEqual([], checker._validate_typescript_reference_identity(second, {source_path: source}))
 
-    def test_real_badge_identity_moves_but_rejects_ambiguity_and_content(self) -> None:
-        """A configured Badge binds its enclosing construct rather than its line."""
-        location = next(
-            location
-            for location in sorted(checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS)
-            if (checker.REPO_ROOT / location[0]).read_text(encoding="utf-8").count(
-                "<Badge"
-            )
-            == 1
+    def test_c21d_real_composer_move_relocates_unique_badges_and_keeps_reds(self) -> None:
+        """Replay the seven Badge moves that stopped C13b-R6, including all reds."""
+        source_path = (
+            "apps/runtime-dashboard/src/features/composer/routes/"
+            "ComposerModeSections.tsx"
         )
-        source_path, line = location
-        original = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
-        identity = checker._typescript_reference_identity(
-            {source_path: original},
+
+        def historical_source(commit: str) -> str:
+            return subprocess.run(  # noqa: S603
+                ["git", "show", f"{commit}:policy-engine/{source_path}"],  # noqa: S607
+                cwd=checker.REPO_ROOT.parent,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            ).stdout
+
+        original = historical_source("f77850487")
+        moved = historical_source("a3ad1e615")
+        shifts = {
+            324: 327,
+            545: 548,
+            641: 644,
+            777: 780,
+            876: 879,
+            1220: 1268,
+            1644: 1701,
+        }
+        identities = {
+            original_line: checker._typescript_reference_identity(
+                {source_path: original},
+                source_path=source_path,
+                role="jsx_opening",
+                discriminator="Badge",
+                navigation_hint=original_line,
+            )
+            for original_line in shifts
+        }
+        moved_identities = {
+            original_line: checker._typescript_reference_identity(
+                {source_path: moved},
+                source_path=source_path,
+                role="jsx_opening",
+                discriminator="Badge",
+                navigation_hint=moved_line,
+            )
+            for original_line, moved_line in shifts.items()
+        }
+        original_keys = checker._typescript_reference_hybrid_keys(list(identities.values()))
+        moved_keys = checker._typescript_reference_hybrid_keys(
+            list(moved_identities.values())
+        )
+        self.assertEqual(original_keys, moved_keys)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            set(original_keys) <= set(checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+        )
+        moved_facts = checker._typescript_reference_construct_facts(
+            {source_path: moved},
             source_path=source_path,
             role="jsx_opening",
             discriminator="Badge",
-            navigation_hint=line,
         )
-        digest = checker.hashlib.sha256(
-            identity["encoded_identity"].encode("utf-8")
-        ).hexdigest()
-        self.assertIn(digest, checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+        moved_lines_by_chain = {
+            tuple(match["declarationChain"]): match["startLine"]
+            for match in moved_facts["matches"]
+        }
+        self.assertEqual(  # noqa: PT009
+            shifts,
+            {
+                original_line: moved_lines_by_chain[
+                    tuple(json.loads(identity["declaration_chain"]))
+                ]
+                for original_line, identity in identities.items()
+            },
+        )
+        for original_line, identity in identities.items():
+            with self.subTest(original_line=original_line):
+                self.assertEqual(
+                    [],
+                    checker._validate_typescript_reference_identity(
+                        identity, {source_path: moved}
+                    ),
+                )
+
+        target_line = shifts[1220]
+
+        def replace_target_line(source: str, old: str, new: str) -> str:
+            lines = source.splitlines(keepends=True)
+            self.assertIn(old, lines[target_line - 1])  # noqa: PT009
+            lines[target_line - 1] = lines[target_line - 1].replace(old, new, 1)
+            return "".join(lines)
+
+        renamed = replace_target_line(moved, "<Badge", "<RenamedBadge")
+        renamed_lines = renamed.splitlines(keepends=True)
+        closing_index = next(
+            index
+            for index in range(target_line, len(renamed_lines))
+            if "</Badge>" in renamed_lines[index]
+        )
+        renamed_lines[closing_index] = renamed_lines[closing_index].replace(
+            "</Badge>", "</RenamedBadge>", 1
+        )
+        renamed = "".join(renamed_lines)
         self.assertEqual(
-            [],
+            ["typescript_reference_binding_missing_or_renamed"],
             checker._validate_typescript_reference_identity(
-                identity, {source_path: "\n" + original}
+                identities[1220], {source_path: renamed}
             ),
         )
-        rewritten = original.replace(
-            "<Badge", '<Badge data-c21b-content="changed"', 1
+
+        rewritten = replace_target_line(
+            moved,
+            "<Badge",
+            '<Badge data-c21d-content="changed"',
         )
         self.assertEqual(
             ["typescript_reference_content_drift"],
             checker._validate_typescript_reference_identity(
-                identity, {source_path: rewritten}
+                identities[1220], {source_path: rewritten}
             ),
+        )
+
+        lines = moved.splitlines(keepends=True)
+        closing_index = next(
+            index
+            for index in range(target_line, len(lines))
+            if "</Badge>" in lines[index]
+        )
+        badge_block = lines[target_line - 1 : closing_index + 1]
+        ambiguous = "".join(
+            lines[: closing_index + 1]
+            + badge_block
+            + lines[closing_index + 1 :]
         )
         self.assertEqual(
             ["typescript_reference_binding_ambiguous"],
             checker._validate_typescript_reference_identity(
-                identity, {source_path: original + "\n" + original}
+                identities[1220], {source_path: ambiguous}
             ),
         )
+
+    def test_c21d_governed_batch_gate_replays_real_composer_move_and_reds(self) -> None:
+        """The production batch gate, not only its standalone helper, owns relocation."""
+        source_path = (
+            "apps/runtime-dashboard/src/features/composer/routes/"
+            "ComposerModeSections.tsx"
+        )
+
+        def historical_source(commit: str) -> str:
+            return subprocess.run(  # noqa: S603
+                ["git", "show", f"{commit}:policy-engine/{source_path}"],  # noqa: S607
+                cwd=checker.REPO_ROOT.parent,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            ).stdout
+
+        original = historical_source("f77850487")
+        moved = historical_source("a3ad1e615")
+        shifts = {
+            324: 327,
+            545: 548,
+            641: 644,
+            777: 780,
+            876: 879,
+            1220: 1268,
+            1644: 1701,
+        }
+        references = [
+            checker._typescript_reference_identity(
+                {source_path: original},
+                source_path=source_path,
+                role="jsx_opening",
+                discriminator="Badge",
+                navigation_hint=original_line,
+            )["encoded_identity"]
+            for original_line in shifts
+        ]
+        target_reference = references[list(shifts).index(1220)]
+        target_line = shifts[1220]
+        target_path = checker.REPO_ROOT / source_path
+        original_read_text = Path.read_text
+
+        def governed_errors(source: str) -> list[str]:
+            def read_text_override(
+                path: Path, *args: object, **kwargs: object
+            ) -> str:
+                if path == target_path:
+                    return source
+                return original_read_text(path, *args, **kwargs)
+
+            with mock.patch.object(Path, "read_text", new=read_text_override):
+                return checker._typescript_identity_reference_errors(references)
+
+        self.assertEqual([], governed_errors(moved))  # noqa: PT009
+
+        def replace_target_line(source: str, old: str, new: str) -> str:
+            lines = source.splitlines(keepends=True)
+            self.assertIn(old, lines[target_line - 1])  # noqa: PT009
+            lines[target_line - 1] = lines[target_line - 1].replace(old, new, 1)
+            return "".join(lines)
+
+        renamed = replace_target_line(moved, "<Badge", "<RenamedBadge")
+        renamed_lines = renamed.splitlines(keepends=True)
+        closing_index = next(
+            index
+            for index in range(target_line, len(renamed_lines))
+            if "</Badge>" in renamed_lines[index]
+        )
+        renamed_lines[closing_index] = renamed_lines[closing_index].replace(
+            "</Badge>", "</RenamedBadge>", 1
+        )
+        self.assertEqual(  # noqa: PT009
+            [
+                "typescript_reference_binding_missing_or_renamed:"
+                + target_reference
+            ],
+            governed_errors("".join(renamed_lines)),
+        )
+
+        rewritten = replace_target_line(
+            moved,
+            "<Badge",
+            '<Badge data-c21d-content="changed"',
+        )
+        self.assertEqual(  # noqa: PT009
+            ["typescript_reference_content_drift:" + target_reference],
+            governed_errors(rewritten),
+        )
+
+        lines = moved.splitlines(keepends=True)
+        closing_index = next(
+            index
+            for index in range(target_line, len(lines))
+            if "</Badge>" in lines[index]
+        )
+        badge_block = lines[target_line - 1 : closing_index + 1]
+        ambiguous = "".join(
+            lines[: closing_index + 1]
+            + badge_block
+            + lines[closing_index + 1 :]
+        )
+        self.assertEqual(  # noqa: PT009
+            ["typescript_reference_binding_ambiguous:" + target_reference],
+            governed_errors(ambiguous),
+        )
+
+    def test_c21d_ordinary_import_never_executes_identity_parser(self) -> None:
+        """Cold ordinary import cannot reach the retired migration binding site."""
+        spec = importlib.util.spec_from_file_location(
+            "frontend_disposition_checker_c21d_cold_import", CHECKER_PATH
+        )
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Unable to load a cold C21d checker module")
+        module = importlib.util.module_from_spec(spec)
+        with mock.patch.object(
+            subprocess,
+            "run",
+            side_effect=AssertionError("ordinary import executed a subprocess"),
+        ):
+            spec.loader.exec_module(module)
+        self.assertEqual(  # noqa: PT009
+            163, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+        )
+        self.assertEqual(  # noqa: PT009
+            72, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+        )
+
+    def test_c21d_retired_address_owners_are_absent_and_counts_are_complete(self) -> None:
+        """All fixed migration addresses are gone; line-free owners retain the census."""
+        self.assertFalse(hasattr(checker, "BENIGN_BADGE_CLASS_SPECS"))  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            {
+                "interaction_or_editor_state": 13,
+                "transport_or_runtime_health": 20,
+                "workflow_or_lifecycle_display_without_terminality_inference": 24,
+                "layout_or_counts": 21,
+                "opaque_metadata_or_taxonomy": 25,
+            },
+            checker.BENIGN_BADGE_CLASS_COUNTS,
+        )
+        self.assertEqual(103, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
+        self.assertEqual(19, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            35,
+            sum(
+                len(specification["consumer_paths"])
+                for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
+            ),
+        )
+        for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values():
+            self.assertNotIn("component_declaration_line", specification)  # noqa: PT009
+            self.assertNotIn("prop_declaration_line", specification)  # noqa: PT009
+            self.assertNotIn("uses", specification)  # noqa: PT009
+            self.assertTrue(  # noqa: PT009
+                all(
+                    isinstance(path, str)
+                    for path in specification["consumer_paths"]
+                )
+            )
+        self.assertEqual(27, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
+        for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
+            self.assertNotIn("locations", specification)  # noqa: PT009
+        badge_values = checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
+        self.assertEqual(58, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
+        prop_records = [
+            record
+            for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
+            for record in records
+        ]
+        self.assertEqual(73, len(prop_records))  # noqa: PT009
+
+        raw_address_residuals = {
+            "benign_or_count_anchors": 0
+            if not hasattr(checker, "BENIGN_BADGE_CLASS_SPECS")
+            else sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()),
+            "debt_group_bindings": sum(
+                len(specification.get("locations", ()))
+                for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values()
+            ),
+            "prop_addresses": sum(
+                int("component_declaration_line" in specification)
+                + int("prop_declaration_line" in specification)
+                + len(specification.get("uses", ()))
+                for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
+            ),
+        }
+        self.assertEqual(  # noqa: PT009
+            {
+                "benign_or_count_anchors": (103, 0),
+                "debt_group_bindings": (58, 0),
+                "prop_addresses": (73, 0),
+            },
+            {
+                "benign_or_count_anchors": (
+                    sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()),
+                    raw_address_residuals["benign_or_count_anchors"],
+                ),
+                "debt_group_bindings": (
+                    sum(
+                        value.startswith("debt:")
+                        for value in checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
+                    ),
+                    raw_address_residuals["debt_group_bindings"],
+                ),
+                "prop_addresses": (len(prop_records), raw_address_residuals["prop_addresses"]),
+            },
+            "ds5_c21d_retired_raw_address_residual_drift",
+        )
+
+    def test_c21d_live_register_identity_census_preserves_every_distinct_binding(self) -> None:
+        """Derive C21d's collision-safe identity census from every stored TypeScript ref."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        references = DS5LineAddressCensusTests._live_references(data)
+        identity_references = [
+            reference for reference in references if "#ts-identity=" in reference
+        ]
+        distinct_references = sorted(set(identity_references))
+        identities = [
+            checker._typescript_reference_identity_record(reference)
+            for reference in distinct_references
+        ]
+        relocation_families = {
+            checker._typescript_reference_relocation_family(identity) for identity in identities
+        }
+        hybrid_keys = checker._typescript_reference_hybrid_keys(identities)
+
+        self.assertEqual(  # noqa: PT009
+            156, len(identity_references), "ds5_c21d_identity_reference_drift"
+        )
+        self.assertEqual(  # noqa: PT009
+            129, len(distinct_references), "ds5_c21d_distinct_identity_drift"
+        )
+        self.assertEqual(  # noqa: PT009
+            108, len(relocation_families), "ds5_c21d_relocation_family_drift"
+        )
+        self.assertEqual(  # noqa: PT009
+            129, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+        )
+
+    def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:
+        """Keep semantic authority membership binding while ignoring nested navigation order."""
+        finding_id = "authority-presentation-badge-compound-decision-grade"
+        expected_red = f"authority_presentation_debt_drift:{finding_id}:authority_sink"
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+
+        def authority_row(document: dict[str, object]) -> dict[str, object]:
+            return next(
+                row
+                for row in document["supplemental_findings"]
+                if row["finding_id"] == finding_id
+            )
+
+        original = authority_row(data)
+        original_sink = original["authority_sink"]
+        self.assertGreater(len(original_sink["consumer_sites"]), 1)  # noqa: PT009
+
+        navigation_only = copy.deepcopy(data)
+        navigation_sink = authority_row(navigation_only)["authority_sink"]
+        navigation_sink["component_declaration"]["line"] += 100
+        navigation_sink["consumer_sites"].reverse()
+        for receipt in navigation_sink["consumer_sites"]:
+            receipt["line"] += 100
+        self.assertEqual(  # noqa: PT009
+            [],
+            checker._authority_presentation_errors(navigation_only, live_probes=False),
+        )
+
+        def assert_authority_sink_red(mutate: object) -> None:
+            mutation = copy.deepcopy(data)
+            mutate(authority_row(mutation)["authority_sink"])
+            self.assertIn(  # noqa: PT009
+                expected_red,
+                checker._authority_presentation_errors(mutation, live_probes=False),
+            )
+
+        assert_authority_sink_red(
+            lambda sink: sink["consumer_sites"][0].__setitem__(
+                "path", "apps/runtime-dashboard/src/changed.tsx"
+            )
+        )
+        assert_authority_sink_red(
+            lambda sink: sink["consumer_sites"][0].__setitem__(
+                "site_sha256", "sha256:" + "0" * 64
+            )
+        )
+        assert_authority_sink_red(lambda sink: sink["consumer_sites"].pop())
+        assert_authority_sink_red(
+            lambda sink: sink.__setitem__("consumer_count", sink["consumer_count"] + 1)
+        )
+        assert_authority_sink_red(
+            lambda sink: sink["consumer_sites"].append(copy.deepcopy(sink["consumer_sites"][0]))
+        )
+
+    def test_c21d_debt_group_membership_uses_identity_not_site_line(self) -> None:
+        """A moved debt site retains its group through its frozen hybrid key."""
+        group_id = "badge-review-required-aggregate"
+        key = "a" * 64
+        original = {"path": "apps/runtime-dashboard/src/example.tsx", "line": 10}
+        moved = {"path": original["path"], "line": 200}
+
+        def grouped(site: dict[str, object]) -> dict[str, list[object]]:
+            location = (str(site["path"]), int(site["line"]))
+            return checker._authority_badge_sites_by_debt_group(
+                {"badgeSites": [site]},
+                classifications={key: f"debt:{group_id}"},
+                live_key_by_location={location: key},
+            )
+
+        self.assertEqual([original], grouped(original)[group_id])  # noqa: PT009
+        self.assertEqual([moved], grouped(moved)[group_id])  # noqa: PT009
 
     def test_real_prop_declaration_and_use_move_but_reject_rewrite(self) -> None:
         """Configured prop declaration/use identities ignore navigation lines only."""
         descriptor_id = "prop-segmented-control-tone"
         specification = checker.AUTHORITY_PROP_CLASSIFICATIONS[descriptor_id]
+        live_fact = next(
+            fact
+            for fact in checker._authority_presentation_scan()["authorityPropCensus"]
+            if fact["descriptorId"] == descriptor_id
+        )
         declaration_path = specification["component_declaration_path"]
         declaration_source = (checker.REPO_ROOT / declaration_path).read_text(
             encoding="utf-8"
@@ -2894,11 +3326,9 @@ it("second", () => {
             source_path=declaration_path,
             role="type_property",
             discriminator="SegmentedControlProps.tone",
-            navigation_hint=specification["prop_declaration_line"],
+            navigation_hint=live_fact["propDeclarationLine"],
         )
-        declaration_digest = checker.hashlib.sha256(
-            declaration["encoded_identity"].encode("utf-8")
-        ).hexdigest()
+        declaration_digest = checker._typescript_reference_hybrid_keys([declaration])[0]
         self.assertIn(
             declaration_digest,
             checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
@@ -2928,14 +3358,17 @@ it("second", () => {
             ),
         )
 
-        use_path, use_line = specification["uses"][0]
+        use_path = specification["consumer_paths"][0]
+        live_use = next(
+            site for site in live_fact["consumerSites"] if site["path"] == use_path
+        )
         use_source = (checker.REPO_ROOT / use_path).read_text(encoding="utf-8")
         use = checker._typescript_reference_identity(
             {use_path: use_source},
             source_path=use_path,
             role="jsx_attribute",
             discriminator="tone",
-            navigation_hint=use_line,
+            navigation_hint=live_use["line"],
         )
         self.assertEqual(
             [],
@@ -3454,28 +3887,6 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
             set(structured_descriptor_identities),
             "ds5_c21c_descriptor_identity_set_drift",
-        )
-
-        authority_slots = list(checker._AUTHORITY_BADGE_CREATION_CLASSIFICATIONS)
-        for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values():
-            authority_slots.extend(
-                [
-                    (
-                        specification["component_declaration_path"],
-                        specification["component_declaration_line"],
-                    ),
-                    (
-                        specification["component_declaration_path"],
-                        specification["prop_declaration_line"],
-                    ),
-                    *specification["uses"],
-                ]
-            )
-        self.assertEqual(236, len(authority_slots), "ds5_line_address_authority_slot_drift")
-        self.assertEqual(
-            69,
-            len({path for path, _line in authority_slots}),
-            "ds5_line_address_authority_file_drift",
         )
 
         authority_rows = [

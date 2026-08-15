@@ -1495,6 +1495,59 @@ def _typescript_reference_identity(
     }
 
 
+def _typescript_reference_identity_record(encoded_identity: str) -> dict[str, str]:
+    """Decode one internally minted identity into the relocation-key input shape."""
+    source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
+    if not source_path or not marker:
+        raise ValueError("typescript_reference_identity_invalid")
+    payload = json.loads(
+        base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+    )
+    return {
+        "source_path": str(payload["source_path"]),
+        "role": str(payload["role"]),
+        "discriminator": str(payload["discriminator"]),
+        "declaration_chain": json.dumps(payload["declaration_chain"], separators=(",", ":")),
+        "structural_path": json.dumps(payload["structural_path"], separators=(",", ":")),
+        "normalized_tokens_sha256": str(payload["normalized_tokens_sha256"]),
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _typescript_reference_relocation_family(identity: Mapping[str, str]) -> str:
+    """Hash the binding/content pair that may relocate without structural authority."""
+    family = {
+        "source_path": identity["source_path"],
+        "role": identity["role"],
+        "discriminator": identity["discriminator"],
+        "declaration_chain": json.loads(identity["declaration_chain"]),
+        "normalized_tokens_sha256": identity["normalized_tokens_sha256"],
+    }
+    return hashlib.sha256(
+        b"c21d-relocation-family\0"
+        + json.dumps(
+            family,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _typescript_reference_hybrid_keys(
+    identities: Sequence[Mapping[str, str]],
+) -> list[str]:
+    """Use relocation identity only for a unique declaration/content family."""
+    families = [_typescript_reference_relocation_family(identity) for identity in identities]
+    family_counts = Counter(families)
+    return [
+        family
+        if family_counts[family] == 1
+        else hashlib.sha256(identity["encoded_identity"].encode("utf-8")).hexdigest()
+        for identity, family in zip(identities, families, strict=True)
+    ]
+
+
 def _typescript_reference_identities_from_anchors(
     anchors: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, str]]:
@@ -1596,6 +1649,51 @@ def _typescript_reference_anchor_matches(
     return matches
 
 
+def _typescript_reference_match_error(
+    payload: Mapping[str, Any], facts: Mapping[str, Any]
+) -> str | None:
+    """Classify one parsed identity against facts from either parser path."""
+    if facts.get("sourceMissing"):
+        return "typescript_reference_source_missing"
+    matches = facts["matches"]
+    if not matches:
+        return "typescript_reference_binding_missing_or_renamed"
+
+    binding_matches = [
+        match
+        for match in matches
+        if match["declarationChain"] == payload["declaration_chain"]
+        and match["structuralPath"] == payload["structural_path"]
+    ]
+    if len(binding_matches) > 1:
+        return "typescript_reference_binding_ambiguous"
+    if binding_matches:
+        if (
+            binding_matches[0]["normalizedTokensSha256"]
+            != payload["normalized_tokens_sha256"]
+        ):
+            return "typescript_reference_content_drift"
+        return None
+
+    declaration_matches = [
+        match
+        for match in matches
+        if match["declarationChain"] == payload["declaration_chain"]
+    ]
+    relocation_matches = [
+        match
+        for match in declaration_matches
+        if match["normalizedTokensSha256"] == payload["normalized_tokens_sha256"]
+    ]
+    if len(relocation_matches) > 1:
+        return "typescript_reference_binding_ambiguous"
+    if relocation_matches:
+        return None
+    if declaration_matches:
+        return "typescript_reference_content_drift"
+    return "typescript_reference_binding_missing_or_renamed"
+
+
 def _validate_typescript_reference_identity(
     reference: Mapping[str, str],
     sources: Mapping[str, str],
@@ -1645,29 +1743,15 @@ def _validate_typescript_reference_identity(
         role=role,
         discriminator=discriminator,
     )
-    matches = facts["matches"]
-    if facts.get("sourceMissing"):
-        return ["typescript_reference_source_missing"]
-    if len(matches) == 0:
-        return ["typescript_reference_binding_missing_or_renamed"]
-    binding_matches = [
-        match
-        for match in matches
-        if match["declarationChain"] == expected_chain
-        and match["structuralPath"] == expected_structural_path
-    ]
-    if len(binding_matches) == 0:
-        return ["typescript_reference_binding_missing_or_renamed"]
-    if len(binding_matches) > 1:
-        return ["typescript_reference_binding_ambiguous"]
-    content_matches = [
-        match
-        for match in binding_matches
-        if match["normalizedTokensSha256"] == expected_tokens_sha256
-    ]
-    if len(content_matches) == 0:
-        return ["typescript_reference_content_drift"]
-    return []
+    error = _typescript_reference_match_error(
+        {
+            "declaration_chain": expected_chain,
+            "structural_path": expected_structural_path,
+            "normalized_tokens_sha256": expected_tokens_sha256,
+        },
+        facts,
+    )
+    return [error] if error is not None else []
 
 
 _STRUCTURED_REFERENCE_FORMATS = frozenset({"json", "toml"})
@@ -3262,22 +3346,20 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "benign:interaction_state",
         "component": "ReviewPresenceSummary",
         "component_declaration_path": "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx",
-        "component_declaration_line": 47,
         "prop": "status",
-        "prop_declaration_line": 36,
-        "uses": [
-            ("apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx", 1211),
-            ("apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx", 63),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx",
         ],
     },
     "prop-control-approval-readiness": {
         "classification": "debt",
         "component": "ControlApprovalPanel",
         "component_declaration_path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
-        "component_declaration_line": 737,
         "prop": "readiness",
-        "prop_declaration_line": 744,
-        "uses": [("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1259)],
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
+        ],
         "owner_slice": "DS14",
         "capability_states": [
             "producer_missing",
@@ -3293,35 +3375,29 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "benign:layout_accent",
         "component": "AtlasFormSection",
         "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
-        "component_declaration_line": 126,
         "prop": "tone",
-        "prop_declaration_line": 140,
-        "uses": [
-            ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1240),
-            ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1664),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+            "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
         ],
     },
     "prop-composer-summary-tone": {
         "classification": "benign:layout_accent",
         "component": "ComposerSummaryMetric",
         "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
-        "component_declaration_line": 62,
         "prop": "tone",
-        "prop_declaration_line": 68,
-        "uses": [("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 432)],
+        "consumer_paths": ["apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"],
     },
     "prop-decision-grade-presentation": {
         "classification": "debt",
         "component": "DecisionGradeBadge",
         "component_declaration_path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
-        "component_declaration_line": 27,
         "prop": "presentation",
-        "prop_declaration_line": 30,
-        "uses": [
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 116),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 119),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 142),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 147),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
         ],
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
@@ -3333,24 +3409,20 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "benign:captured_quantity",
         "component": "AuthoredText",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
-        "component_declaration_line": 38,
         "prop": "confidence",
-        "prop_declaration_line": 30,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 57),
-            ("apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx", 907),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx",
         ],
     },
     "prop-data-freshness": {
         "classification": "debt",
         "component": "DataFreshnessBadge",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
-        "component_declaration_line": 17,
         "prop": "freshness",
-        "prop_declaration_line": 7,
-        "uses": [
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 396),
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 419),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3362,12 +3434,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "DecisionCard",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
-        "component_declaration_line": 39,
         "prop": "verdict",
-        "prop_declaration_line": 26,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 53),
-            ("apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx", 250),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
         ],
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
@@ -3379,10 +3449,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "DecisionCard",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
-        "component_declaration_line": 39,
         "prop": "confidence",
-        "prop_declaration_line": 27,
-        "uses": [("apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx", 251)],
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx"
+        ],
         "owner_slice": "DS17",
         "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
@@ -3393,10 +3463,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "ExplainabilityCard",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
-        "component_declaration_line": 62,
         "prop": "verdict",
-        "prop_declaration_line": 40,
-        "uses": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 563)],
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
         "closure_signal": _authority_closure(
@@ -3407,13 +3477,11 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "CounterfactualBadge",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
-        "component_declaration_line": 17,
         "prop": "status",
-        "prop_declaration_line": 13,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx", 87),
-            ("apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx", 51),
-            ("apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx", 54),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+            "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
         ],
         "owner_slice": "DS8",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3425,10 +3493,8 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "StatusCue",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
-        "component_declaration_line": 308,
         "prop": "status",
-        "prop_declaration_line": 308,
-        "uses": [("apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx", 191)],
+        "consumer_paths": ["apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx"],
         "owner_slice": "DS16",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
@@ -3439,10 +3505,8 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "FreshnessCue",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
-        "component_declaration_line": 325,
         "prop": "freshness",
-        "prop_declaration_line": 325,
-        "uses": [("apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx", 192)],
+        "consumer_paths": ["apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx"],
         "owner_slice": "DS16",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
@@ -3453,12 +3517,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "TimeSemanticsLabel",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-        "component_declaration_line": 16,
         "prop": "freshness",
-        "prop_declaration_line": 10,
-        "uses": [
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 398),
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 452),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3470,12 +3532,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "DisputeBadge",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
-        "component_declaration_line": 11,
         "prop": "status",
-        "prop_declaration_line": 7,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx", 82),
-            ("apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx", 79),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
         ],
         "owner_slice": "DS11",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3487,10 +3547,10 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "debt",
         "component": "StatusIcon",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
-        "component_declaration_line": 74,
         "prop": "tone",
-        "prop_declaration_line": 74,
-        "uses": [("apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx", 43)],
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx"
+        ],
         "owner_slice": "DS11",
         "capability_states": ["verification_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
@@ -3501,50 +3561,37 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "classification": "branded:authority_presentation",
         "component": "AuthorityBadge",
         "component_declaration_path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-        "component_declaration_line": 215,
         "prop": "presentation",
-        "prop_declaration_line": 64,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 60),
-            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 64),
-            ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 86),
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 483),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-envelope-authority-purpose": {
         "classification": "branded:governed_authority_purpose",
         "component": "EnvelopeChip",
         "component_declaration_path": "packages/atlas-ui/src/primitives/EnvelopeChip.tsx",
-        "component_declaration_line": 15,
         "prop": "authorityPurpose",
-        "prop_declaration_line": 9,
-        "uses": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 90),
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 426),
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-segmented-control-tone": {
         "classification": "benign:responsive_layout",
         "component": "SegmentedControl",
         "component_declaration_path": "packages/atlas-ui/src/primitives/SegmentedControl.tsx",
-        "component_declaration_line": 40,
         "prop": "tone",
-        "prop_declaration_line": 24,
-        "uses": [("apps/runtime-dashboard/src/app/layout/Sidebar.tsx", 25)],
+        "consumer_paths": ["apps/runtime-dashboard/src/app/layout/Sidebar.tsx"],
     },
 }
-
-_AUTHORITY_PROP_DISCRIMINATORS = {
-    descriptor_id: "__creation_anchor__"
-    for descriptor_id in AUTHORITY_PROP_CLASSIFICATIONS
-}
-
 
 AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-review-required-aggregate": {
         "owner_slice": "DS9",
         "capability_states": ["consumer_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/app/layout/Header.tsx", 115)],
         "closure_signal": _authority_closure(
             "a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive"
         ),
@@ -3552,7 +3599,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-bureaucratic-legal-review": {
         "owner_slice": "DS9",
         "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx", 18)],
         "closure_signal": _authority_closure(
             "a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized"
         ),
@@ -3560,11 +3606,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-preflight-readiness": {
         "owner_slice": "DS7",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 269),
-            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 312),
-            ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 418),
-        ],
         "closure_signal": _authority_closure(
             "typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw preview clothing is absent"
         ),
@@ -3572,10 +3613,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-artifact-pipeline-decision-grade": {
         "owner_slice": "DS5",
         "capability_states": ["producer_missing", "consumer_missing", "verification_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx", 364),
-            ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 461),
-        ],
         "closure_signal": _authority_closure(
             "C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty"
         ),
@@ -3583,10 +3620,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-control-approval-quality": {
         "owner_slice": "DS9",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", line)
-            for line in (760, 765, 771, 774, 782, 790, 798, 806, 887, 920, 1092)
-        ],
         "closure_signal": _authority_closure(
             "generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests"
         ),
@@ -3594,7 +3627,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-promotion-candidate-status": {
         "owner_slice": "DS15",
         "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 469)],
         "closure_signal": _authority_closure(
             "a generated promotion union enters a private issuer and novel values render unrecognized"
         ),
@@ -3602,10 +3634,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-evidence-source-freshness": {
         "owner_slice": "DS8",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx", line)
-            for line in (49, 69, 73)
-        ],
         "closure_signal": _authority_closure(
             "owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority"
         ),
@@ -3613,7 +3641,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-comparability": {
         "owner_slice": "DS16",
         "capability_states": ["consumer_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx", 37)],
         "closure_signal": _authority_closure(
             "a generated comparability union uses an incomparable veto and runtime-novelty tests"
         ),
@@ -3621,7 +3648,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-provenance-drift": {
         "owner_slice": "DS16",
         "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx", 37)],
         "closure_signal": _authority_closure(
             "a private invalidation-posture issuer vetoes on every load-bearing provenance change"
         ),
@@ -3629,10 +3655,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-run-deck-authority-summary": {
         "owner_slice": "DS7",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx", line)
-            for line in (130, 138, 139, 263)
-        ],
         "closure_signal": _authority_closure(
             "a live typed run-deck contract rejects fixture_only and prevents local authority synthesis"
         ),
@@ -3640,12 +3662,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-compound-decision-grade": {
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 96),
-            ("apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx", 99),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx", 44),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx", 36),
-        ],
         "closure_signal": _authority_closure(
             "C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck"
         ),
@@ -3653,10 +3669,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-governance-issue-severity": {
         "owner_slice": "DS9",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx", 185),
-            ("apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx", 194),
-        ],
         "closure_signal": _authority_closure(
             "a generated owner severity field enters a branded issuer with runtime novelty"
         ),
@@ -3664,10 +3676,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-public-packet-authority-framing": {
         "owner_slice": "DS12",
         "capability_states": ["producer_missing", "artifact_missing", "bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", line)
-            for line in (54, 82, 114)
-        ],
         "closure_signal": _authority_closure(
             "generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test"
         ),
@@ -3675,10 +3683,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-governed-projection-availability": {
         "owner_slice": "DS7",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", line)
-            for line in (383, 418)
-        ],
         "closure_signal": _authority_closure(
             "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
         ),
@@ -3686,7 +3690,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-governed-projection-rights-bar": {
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 439)],
         "closure_signal": _authority_closure(
             "a generated may_not_use_for item enters a branded veto presentation"
         ),
@@ -3694,7 +3697,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-governed-source-validation": {
         "owner_slice": "DS7",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 462)],
         "closure_signal": _authority_closure(
             "generated source validation status enters an exhaustive issuer with novelty tests"
         ),
@@ -3702,7 +3704,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-uncertainty-dispute": {
         "owner_slice": "DS16",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 720)],
         "closure_signal": _authority_closure(
             "an owner uncertainty artifact keeps disputed as a mixed-case veto or warning"
         ),
@@ -3710,7 +3711,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-operator-blocker-overridability": {
         "owner_slice": "DS14",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 74)],
         "closure_signal": _authority_closure(
             "a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck"
         ),
@@ -3718,7 +3718,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-candidate-declared-authority-purpose": {
         "owner_slice": "DS8",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx", 72)],
         "closure_signal": _authority_closure(
             "a candidate-purpose issuer cannot grant governed authority"
         ),
@@ -3726,10 +3725,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-projection-source-freshness": {
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx", line)
-            for line in (21, 30)
-        ],
         "closure_signal": _authority_closure(
             "ProjectionFreshness state enters an exhaustive issuer with explicit absence and novelty behavior"
         ),
@@ -3737,7 +3732,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-decision-confidence": {
         "owner_slice": "DS16",
         "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 103)],
         "closure_signal": _authority_closure(
             "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence"
         ),
@@ -3745,10 +3739,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-explainability-governance-counts": {
         "owner_slice": "DS9",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx", line)
-            for line in (124, 130, 137)
-        ],
         "closure_signal": _authority_closure(
             "a typed governance summary proves counts cannot synthesize composed authority"
         ),
@@ -3756,7 +3746,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-negative-certificate-blocker": {
         "owner_slice": "DS8",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx", 61)],
         "closure_signal": _authority_closure(
             "a generated blocker issuer prevents non-blockers from occupying the slot"
         ),
@@ -3764,11 +3753,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-public-integrity-result": {
         "owner_slice": "DS12",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 39),
-            ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 128),
-            ("apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx", 26),
-        ],
         "closure_signal": _authority_closure(
             "a verifier-private integrity presentation remains explicitly outside closeout authority"
         ),
@@ -3776,7 +3760,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-public-anti-authority-role": {
         "owner_slice": "DS12",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 101)],
         "closure_signal": _authority_closure(
             "a branded refusal from packet authorityRole cannot be upgraded to authority"
         ),
@@ -3784,7 +3767,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-threshold-unavailable": {
         "owner_slice": "DS16",
         "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
-        "locations": [("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 356)],
         "closure_signal": _authority_closure(
             "a typed unavailable or refusal artifact replaces the static caller-owned threshold token"
         ),
@@ -3792,23 +3774,10 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-candidate-refusal-markers": {
         "owner_slice": "DS8",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "locations": [
-            ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 92),
-            ("apps/runtime-dashboard/src/shared/ui/compounds/ReasoningChainDisplay.tsx", 209),
-        ],
         "closure_signal": _authority_closure(
             "typed candidate and refusal postures cannot be presented as governed output"
         ),
     },
-}
-
-BRANDED_BADGE_LOCATIONS = {
-    ("packages/atlas-ui/src/primitives/AuthorityBadge.tsx", 223): (
-        "branded:authority_presentation"
-    ),
-    ("packages/atlas-ui/src/primitives/EnvelopeChip.tsx", 23): (
-        "branded:governed_authority_purpose"
-    ),
 }
 
 BENIGN_BADGE_BASES = (
@@ -3819,219 +3788,18 @@ BENIGN_BADGE_BASES = (
     "opaque_metadata_or_taxonomy",
 )
 
-BENIGN_BADGE_LOCATIONS = (
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 26),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 28),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 91),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 94),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 102),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 107),
-    ("apps/runtime-dashboard/src/app/layout/Header.tsx", 112),
-    ("apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx", 61),
-    ("apps/runtime-dashboard/src/features/clerk/components/AIDiffView.tsx", 163),
-    ("apps/runtime-dashboard/src/features/clerk/components/AIDiffView.tsx", 284),
-    ("apps/runtime-dashboard/src/features/clerk/components/ChatMessage.tsx", 54),
-    ("apps/runtime-dashboard/src/features/clerk/components/ClerkHistoryList.tsx", 45),
-    ("apps/runtime-dashboard/src/features/clerk/components/ClerkProgressiveStream.tsx", 32),
-    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 70),
-    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 122),
-    ("apps/runtime-dashboard/src/features/clerk/components/ClerkStructuredResponse.tsx", 148),
-    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1010),
-    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1012),
-    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1097),
-    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1199),
-    ("apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx", 1200),
-    ("apps/runtime-dashboard/src/features/clerk/components/ConversationHistorySearch.tsx", 60),
-    ("apps/runtime-dashboard/src/features/clerk/components/ConversationHistorySearch.tsx", 120),
-    ("apps/runtime-dashboard/src/features/clerk/routes/ClerkRunSummaryPage.tsx", 36),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 324),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 545),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 641),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 777),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 876),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1220),
-    ("apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx", 1644),
-    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 142),
-    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 172),
-    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 206),
-    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 224),
-    ("apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx", 476),
-    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 99),
-    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 105),
-    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 184),
-    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 205),
-    ("apps/runtime-dashboard/src/features/dashboard/routes/DashboardPage.tsx", 211),
-    ("apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx", 66),
-    ("apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx", 123),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 295),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 302),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 315),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 447),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 480),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 506),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1025),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1081),
-    ("apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx", 1163),
-    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 49),
-    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 54),
-    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 59),
-    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 167),
-    ("apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx", 259),
-    ("apps/runtime-dashboard/src/features/runs/compare/CausalDeltaStrip.tsx", 46),
-    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 201),
-    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 286),
-    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 662),
-    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 703),
-    ("apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx", 732),
-    ("apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx", 122),
-    ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 55),
-    ("apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx", 134),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 66),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 258),
-    ("apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx", 417),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 51),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 81),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 154),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 170),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 282),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 309),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 329),
-    ("apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx", 390),
-    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 63),
-    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 81),
-    ("apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx", 86),
-    ("apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx", 480),
-    ("apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx", 179),
-    ("apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx", 230),
-    ("apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx", 66),
-    ("apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx", 76),
-    ("apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx", 190),
-    ("apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx", 31),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 122),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 425),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 426),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 430),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 585),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", 766),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx", 179),
-    ("apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx", 486),
-    ("apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx", 497),
-    ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 68),
-    ("apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx", 94),
-    ("apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx", 116),
-    ("apps/runtime-dashboard/src/shared/ui/compounds/NegativeCertificateCard.tsx", 164),
-    ("apps/runtime-dashboard/src/shared/ui/compounds/ProvenanceChain.tsx", 100),
-    ("apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx", 45),
-    ("apps/runtime-dashboard/src/shared/ui/compounds/WeakestLinkExplainer.tsx", 29),
-)
-
-BENIGN_BADGE_CLASS_SPECS: dict[str, dict[str, tuple[int, ...]]] = {
-    "interaction_or_editor_state": {
-        "ReviewCollaborationIndicators.tsx": (61,),
-        "AIDiffView.tsx": (163,),
-        "ComposerModeSections.tsx": (1220, 1644),
-        "LaunchRunPage.tsx": (172,),
-        "DisputeRegistryPanel.tsx": (55, 134),
-        "OperatorCraftPanel.tsx": (66,),
-        "PublicationPacketPanel.tsx": (51, 309, 329),
-        "PublicDecisionViewerPage.tsx": (31,),
-        "CausalTab.tsx": (497,),
-    },
-    "transport_or_runtime_health": {
-        "Header.tsx": (26, 28, 91, 94, 102, 107),
-        "ControlFailurePanel.tsx": (1199, 1200),
-        "DashboardPage.tsx": (99, 105),
-        "ConnectorCharacterCards.tsx": (66,),
-        "EvidenceFabricPage.tsx": (1025, 1081),
-        "PlatformHealthPage.tsx": (49, 167, 259),
-        "AgentPipelinePanel.tsx": (201, 286),
-        "AmbientTelemetryHud.tsx": (122,),
-        "RunDetailLayout.tsx": (585,),
-    },
-    "workflow_or_lifecycle_display_without_terminality_inference": {
-        "ChatMessage.tsx": (54,),
-        "ClerkHistoryList.tsx": (45,),
-        "ClerkProgressiveStream.tsx": (32,),
-        "ControlFailurePanel.tsx": (1010, 1097),
-        "ClerkRunSummaryPage.tsx": (36,),
-        "ComposerModeSections.tsx": (324,),
-        "LaunchRunPage.tsx": (224,),
-        "DashboardPage.tsx": (184,),
-        "AgentPipelinePanel.tsx": (662, 703, 732),
-        "NodeDebugPanel.tsx": (76,),
-        "RunChoreographyPanel.tsx": (63, 81, 86),
-        "WorkflowDagPanel.tsx": (179, 230),
-        "RunDetailLayout.tsx": (122, 425, 430),
-        "RunsListPage.tsx": (179, 486),
-        "StatusTimeline.tsx": (45,),
-    },
-    "layout_or_counts": {
-        "Header.tsx": (112,),
-        "AIDiffView.tsx": (284,),
-        "ControlFailurePanel.tsx": (1012,),
-        "ConversationHistorySearch.tsx": (120,),
-        "ComposerModeSections.tsx": (545, 641, 876),
-        "LaunchRunPage.tsx": (206, 476),
-        "DashboardPage.tsx": (205, 211),
-        "EvidenceFabricPage.tsx": (295, 302, 447, 480, 506),
-        "PlatformHealthPage.tsx": (54, 59),
-        "CausalDeltaStrip.tsx": (46,),
-        "OperatorCraftPanel.tsx": (258,),
-        "PublicationPacketPanel.tsx": (154,),
-    },
-    "opaque_metadata_or_taxonomy": {
-        "ClerkStructuredResponse.tsx": (70, 122, 148),
-        "ConversationHistorySearch.tsx": (60,),
-        "ComposerModeSections.tsx": (777,),
-        "LaunchRunPage.tsx": (142,),
-        "FreshnessBraidPanel.tsx": (123,),
-        "EvidenceFabricPage.tsx": (315, 1163),
-        "ErrorsPanel.tsx": (66,),
-        "NodeDebugPanel.tsx": (190,),
-        "OperatorCraftPanel.tsx": (417,),
-        "PublicationPacketPanel.tsx": (81, 170, 282, 390),
-        "RunExplainabilityPanel.tsx": (480,),
-        "RunDetailLayout.tsx": (426, 766),
-        "DecisionCard.tsx": (116,),
-        "NegativeCertificateCard.tsx": (164,),
-        "ProvenanceChain.tsx": (100,),
-        "WeakestLinkExplainer.tsx": (29,),
-        "OperatorDiagnosticPanel.tsx": (68, 94),
-    },
+BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
+    "interaction_or_editor_state": 13,
+    "transport_or_runtime_health": 20,
+    "workflow_or_lifecycle_display_without_terminality_inference": 24,
+    "layout_or_counts": 21,
+    "opaque_metadata_or_taxonomy": 25,
 }
 
-_BENIGN_BADGE_CLASS_BY_BASENAME_LINE: dict[tuple[str, int], str] = {}
-for _benign_class, _files in BENIGN_BADGE_CLASS_SPECS.items():
-    for _basename, _lines in _files.items():
-        for _line in _lines:
-            _key = (_basename, _line)
-            if _key in _BENIGN_BADGE_CLASS_BY_BASENAME_LINE:
-                raise RuntimeError(f"duplicate benign Badge class: {_key}")
-            _BENIGN_BADGE_CLASS_BY_BASENAME_LINE[_key] = _benign_class
-
-_BENIGN_BADGE_KEYS = {
-    (Path(path).name, line) for path, line in BENIGN_BADGE_LOCATIONS
-}
-if set(_BENIGN_BADGE_CLASS_BY_BASENAME_LINE) != _BENIGN_BADGE_KEYS:
-    raise RuntimeError("benign Badge class census does not match its source locations")
-if set(BENIGN_BADGE_CLASS_SPECS) != set(BENIGN_BADGE_BASES):
+if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if len(_BENIGN_BADGE_KEYS) != len(BENIGN_BADGE_LOCATIONS):
-    raise RuntimeError("benign Badge basename/line identity is not unique")
-
-_AUTHORITY_BADGE_CREATION_CLASSIFICATIONS = {
-    location: (
-        "benign:"
-        + _BENIGN_BADGE_CLASS_BY_BASENAME_LINE[(Path(location[0]).name, location[1])]
-    )
-    for location in BENIGN_BADGE_LOCATIONS
-}
-_AUTHORITY_BADGE_CREATION_CLASSIFICATIONS.update(BRANDED_BADGE_LOCATIONS)
-for _group_id, _spec in AUTHORITY_BADGE_DEBT_SPECS.items():
-    for _location in _spec["locations"]:
-        if _location in _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS:
-            raise RuntimeError(f"duplicate authority Badge classification: {_location}")
-        _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS[_location] = f"debt:{_group_id}"
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 103:
+    raise RuntimeError("benign Badge class count drift")
 
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
     "authority-presentation-" + descriptor_id: spec
@@ -4060,10 +3828,10 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:1fa3945c303d1919b207cad8de4cdd80cbfb003b863fe9744b13e4eee6bad4f3"
+    "sha256:aa5d8636a6ddd55d5769c91044d5507611af9c9e013fc18078e2a48926f9f0ff"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:6788ea4c78fcd8a333a1fa2dfc801bf423591478bf44f7c73532f35755b8a13a"
+    "sha256:c8873b4644cee24a3bb33fdd539644c2dadfdbf56b5e4d5617ed40d78409cfe1"
 )
 
 
@@ -4109,14 +3877,32 @@ def _badge_classification_errors(
         if isinstance(site, Mapping)
     }
     live_identity_by_location = _authority_badge_live_identity_by_location(sites)
-    live_identity_digests = {
-        location: hashlib.sha256(identity.encode("utf-8")).hexdigest()
-        for location, identity in live_identity_by_location.items()
-    }
-    live_identities = set(live_identity_digests.values())
+    live_identity_rows = [
+        _typescript_reference_identity_record(identity)
+        for identity in live_identity_by_location.values()
+    ]
+    live_key_by_location = dict(
+        zip(
+            live_identity_by_location,
+            _typescript_reference_hybrid_keys(live_identity_rows),
+            strict=True,
+        )
+    )
+    locations_by_key: defaultdict[str, list[tuple[str, int]]] = defaultdict(list)
+    for location, key in live_key_by_location.items():
+        locations_by_key[key].append(location)
+    for key, locations in sorted(locations_by_key.items()):
+        if len(locations) > 1:
+            errors.append(
+                "typescript_reference_binding_ambiguous:"
+                + key
+                + ":"
+                + ",".join(f"{path}:{line}" for path, line in sorted(locations))
+            )
+    live_identities = set(live_key_by_location.values())
     configured_identities = set(classifications)
     for path, line in sorted(live_locations):
-        if live_identity_digests[(path, line)] not in configured_identities:
+        if live_key_by_location[(path, line)] not in configured_identities:
             errors.append(f"authority_badge_unclassified:{path}:{line}")
     for identity in sorted(configured_identities - live_identities):
         errors.append(f"authority_badge_stale_classification:{identity}")
@@ -4166,35 +3952,37 @@ def _badge_classification_errors(
         errors.append(
             f"authority_badge_invalid_classification:{categories['invalid']}"
         )
-    for benign_class, files in sorted(BENIGN_BADGE_CLASS_SPECS.items()):
-        expected_count = sum(len(lines) for lines in files.values())
+    for benign_class, expected_count in sorted(BENIGN_BADGE_CLASS_COUNTS.items()):
         observed_count = exact_classifications[f"benign:{benign_class}"]
         if observed_count != expected_count:
             errors.append(
                 f"authority_badge_benign_class_count_drift:{benign_class}:"
                 + f"expected={expected_count}:actual={observed_count}"
             )
-    for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
-        expected_locations = {
+    debt_sites_by_group = _authority_badge_sites_by_debt_group(
+        {"badgeSites": sites},
+        classifications=classifications,
+        live_key_by_location=live_key_by_location,
+    )
+    for group_id in sorted(AUTHORITY_BADGE_DEBT_SPECS):
+        expected_identities = {
             identity
             for identity, classification in frozen_badges.items()
             if classification == f"debt:{group_id}"
         }
-        observed_locations = {
-            identity
-            for location, classification in classifications.items()
-            if classification == f"debt:{group_id}"
-            for identity in [location]
+        observed_identities = {
+            live_key_by_location[_site_location(site)]
+            for site in debt_sites_by_group[group_id]
         }
-        if observed_locations != expected_locations:
+        if observed_identities != expected_identities:
             errors.append(f"authority_badge_group_drift:{group_id}")
     if live_identities <= configured_identities:
         partition_rows = sorted(
             [
                 {
-                    "identity": live_identity_by_location[_site_location(site)],
+                    "identity": live_key_by_location[_site_location(site)],
                     "site_sha256": str(site.get("siteSha256", "")),
-                    "classification": classifications[live_identity_digests[_site_location(site)]],
+                    "classification": classifications[live_key_by_location[_site_location(site)]],
                 }
                 for site in sites
                 if isinstance(site, Mapping)
@@ -4264,12 +4052,14 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
     else:
         live_identity_ready = True
         live_props: dict[str, list[dict[str, str]]] = {}
-        for identity, record in zip(live_identities, live_records, strict=True):
+        live_keys = _typescript_reference_hybrid_keys(live_identities)
+        for _identity, key, record in zip(
+            live_identities, live_keys, live_records, strict=True
+        ):
             live_identity_by_record[(record["descriptor_id"], record["role"])].append(
-                identity["encoded_identity"]
+                key
             )
-            digest = hashlib.sha256(identity["encoded_identity"].encode("utf-8")).hexdigest()
-            live_props.setdefault(digest, []).append(record)
+            live_props.setdefault(key, []).append(record)
         if {
             digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
             for digest, records in live_props.items()
@@ -4306,7 +4096,7 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
         for field, expected_value in expected_identity.items():
             if fact.get(field) != expected_value:
                 errors.append(f"authority_prop_identity_drift:{descriptor_id}:{field}")
-        expected_uses = sorted(path for path, _line in spec["uses"])
+        expected_uses = sorted(spec["consumer_paths"])
         observed_uses = sorted(
             str(site.get("path"))
             for site in consumer_sites
@@ -4425,10 +4215,9 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
             {"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"]}
             for site in fact["consumerSites"]
         )
-    for group_id, spec in AUTHORITY_BADGE_DEBT_SPECS.items():
-        sites = [
-            site for site in scan["badgeSites"] if _site_location(site) in set(spec["locations"])
-        ]
+    debt_sites_by_group = _authority_badge_sites_by_debt_group(scan)
+    for group_id in AUTHORITY_BADGE_DEBT_SPECS:
+        sites = debt_sites_by_group[group_id]
         first = sites[0]
         anchors.append(
             {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
@@ -4440,20 +4229,6 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
     identities = _typescript_reference_identities_from_anchors(anchors)
     return {
         (str(anchor["path"]), int(anchor["line"]), str(anchor["role"])): identity["encoded_identity"]
-        for anchor, identity in zip(anchors, identities, strict=True)
-    }
-
-
-@lru_cache(maxsize=1)
-def _authority_badge_creation_identities() -> dict[tuple[str, int], str]:
-    """Freeze finite Badge classifications by C21a identity, never navigation line."""
-    anchors = [
-        {"path": path, "line": line, "role": "jsx_opening", "discriminator": "Badge"}
-        for path, line in _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS
-    ]
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {
-        (str(anchor["path"]), int(anchor["line"])): identity["encoded_identity"]
         for anchor, identity in zip(anchors, identities, strict=True)
     }
 
@@ -4473,100 +4248,125 @@ def _authority_badge_live_identity_by_location(
     }
 
 
+def _authority_badge_sites_by_debt_group(
+    scan: Mapping[str, Any],
+    *,
+    classifications: Mapping[str, str] | None = None,
+    live_key_by_location: Mapping[tuple[str, int], str] | None = None,
+) -> dict[str, list[Mapping[str, Any]]]:
+    """Group live debt sites by their line-free frozen classification identity."""
+    sites = [site for site in scan.get("badgeSites", []) if isinstance(site, Mapping)]
+    frozen_badges, _frozen_props = _frozen_authority_identity_config()
+    classifications = classifications or frozen_badges
+    if live_key_by_location is None:
+        live_identities = _authority_badge_live_identity_by_location(sites)
+        identity_rows = [
+            _typescript_reference_identity_record(identity)
+            for identity in live_identities.values()
+        ]
+        live_key_by_location = dict(
+            zip(
+                live_identities,
+                _typescript_reference_hybrid_keys(identity_rows),
+                strict=True,
+            )
+        )
+    grouped = {group_id: [] for group_id in AUTHORITY_BADGE_DEBT_SPECS}
+    for site in sites:
+        classification = classifications.get(
+            live_key_by_location[_site_location(site)], ""
+        )
+        if classification.startswith("debt:"):
+            group_id = classification.removeprefix("debt:")
+            if group_id in grouped:
+                grouped[group_id].append(site)
+    return grouped
+
+
 # C21B_FROZEN_AUTHORITY_IDENTITIES_BEGIN
-# Frozen from the root-owned no-write C21a identity-digest receipt:
-# sha256:bc8499f266e68d6e0c00ea4163846efb16588f6dde59265e98b2ba7c4df998b9.
-# Keys hash the complete line-free binding and normalized-content payload.
-# Creation anchors below are migration-only and may never become gate authority.
+# Frozen from the root-owned no-write C21d hybrid-key receipt. Unique
+# declaration/content families relocate; genuine collisions retain structural identity.
 FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
-    '0591fdc298c41f421a9112e516e05cb8a46ee8ea8a7df77b2575b23e8d0c30fc': (
-        'debt:badge-evidence-source-freshness'
+    '0124de230c2013b547c6c7e4c94944afc801d7f3da751ba6067806e49ae3437f': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
-    '05ab29cbdbb768d8fef433f3f933a764245c1f93e5e40cd95e5def62ec437cb6': (
-        'benign:interaction_or_editor_state'
+    '0132d8d97b3f44fbca967c039540f8bb1e61ad9934ad6e53dced7f37fcdf660c': (
+        'benign:transport_or_runtime_health'
+    ),
+    '062c1fe3f9e5ecaa59f778b965257dbc63be53dd48f0750430b4cf02631e73e3': (
+        'benign:layout_or_counts'
     ),
     '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
         'benign:transport_or_runtime_health'
     ),
-    '092c823bd9e95193c7ab56fd86dae176fae8406850db8c5bef33097f64dd2808': (
-        'debt:badge-compound-decision-grade'
+    '0963299bc8c2f44481a04d9a53aa44b6d0cd19eb5b738dcfae62517cadc7f1db': (
+        'debt:badge-governed-source-validation'
     ),
-    '09371589204ee442eb88acec47e740b2fab65faacbe19e2372a6ddd0700764f5': (
-        'benign:layout_or_counts'
+    '0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
-    '0a1680b86c1e2e19704e50549b4ecd8f11879c04f5f0bebccf6291ad286b21af': (
-        'benign:layout_or_counts'
-    ),
-    '0a8385f8b1fa797646cae6b2cb83a7a7286e8abfce36d71ec2df6617a5a489fd': (
-        'benign:layout_or_counts'
-    ),
-    '0a9f914727ff8b5976e56f4675ec5b2d34dcc477994a8a430efcc26d4dfed4e7': (
-        'benign:layout_or_counts'
-    ),
-    '0aa8907509078c4d0fc2bfe0ac85aed68e502aef61fe9b29f4e25ebbf433b955': (
-        'benign:layout_or_counts'
+    '0ad59fd60f80e424424dc14ad83b160cb48394ad294ad3844d8455bf3544e9de': (
+        'debt:badge-provenance-drift'
     ),
     '0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe': (
         'benign:layout_or_counts'
     ),
+    '0cbe26958fdbe6d578d16890500e7a353575b48fe8c8c6bf5515b444dca99164': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '0ccc46a2e3c1cfab2522bc4f4dbc22bdfbfc9f6f22351287a7053a6c8450f2aa': (
+        'benign:transport_or_runtime_health'
+    ),
     '0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e': (
         'debt:badge-control-approval-quality'
     ),
-    '0ddb359874f6a4d5fcd5e00360a22f27d7217303c7878a87f37a377bf05d1039': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    '0d02be3c6130a3b628b630687a44aa17c3758ffda106bf5ff46a74baadcc7ec4': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
     '0ef26827e7122cfff8edb79967bce02979742d84ad52825be64b530b0853935e': (
         'debt:badge-run-deck-authority-summary'
     ),
-    '11233a8cdc422074ea2c6b86d82e7471cd17eb3a0850e5c097d3be913d7a30ac': (
-        'debt:badge-bureaucratic-legal-review'
+    '116aa85ec7f5abe277667d64833a6bf469453309f2ce3e891188e21ce410bb3b': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '128486fc6ce4ef95c9ce2410f03c0d79b82a7aeccbfe9735a36c8b611b87b49c': (
+        'debt:badge-projection-source-freshness'
     ),
     '12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264': (
         'debt:badge-public-integrity-result'
     ),
+    '135b70bf4ba02dd4cbf39d810beaaeca8c7472f93bd90c790c7662801b1a76cf': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '14a3b807641e72cf79ecaaa83dd98249a6fa5ecebfbdb8434de52e93f9ee239d': (
+        'benign:layout_or_counts'
+    ),
     '14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f': (
         'debt:badge-explainability-governance-counts'
+    ),
+    '168d23a2e7bbd0b65d5239812cf87afad12e77f4c5ab14c8a58ec9d1d276b415': (
+        'debt:badge-control-approval-quality'
+    ),
+    '16950ecbf6fed6faf6a6d058a4e03dfc850ac9326c49df23b1ac67ec33efeb0d': (
+        'benign:layout_or_counts'
     ),
     '188038e809c5f6b4bcfdc8744185e9b9ea4f5841e2f2aa45c057a5e86f064946': (
         'benign:interaction_or_editor_state'
     ),
-    '1882ec408c7d1086791d99e4a10c4e205dbb33538108fc0481e48cc2ca3c32ac': (
-        'debt:badge-evidence-source-freshness'
+    '18c241f1f9f5ca3a237baf71f0cb7509c6f95113bc983fa3863a0d51cdf41cac': (
+        'debt:badge-promotion-candidate-status'
     ),
-    '18a4d255932c3a48599b060a2d99bdf5fd8daf4b91ae066f74d69803473415b6': (
-        'debt:badge-governance-issue-severity'
+    '19705539d0d15dbd5f66bf771c2ac39d62871075d237f115ebc145d372548e8d': (
+        'benign:interaction_or_editor_state'
     ),
-    '195d743d6068ca2375a79e8aed3366836c9cddd64039b7d9d421fad9b03f6f33': (
+    '1de29932d949fb40855f0a72b9792efdc7323a920d54e721dd9138ab44fa5ae6': (
         'benign:transport_or_runtime_health'
     ),
     '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
         'debt:badge-public-packet-authority-framing'
     ),
-    '1e2f9c599cad98e01e1ba1effdf5bb533801478c725ec9c8fb1197a605496a14': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
     '1e5efb80b85a26f8549c7d5a8ca3052496ff1ed8767b8cb8d12485b4704aeb7b': (
         'debt:badge-governed-projection-availability'
-    ),
-    '1fc3faffbbc04354a6bb3627ac70d4133896fa08e8bae81f4295c1aa7182e23c': (
-        'debt:badge-promotion-candidate-status'
-    ),
-    '1fc8147da08ef1a566e5d1ac7c48e6298b3cb9fd729204d0e3eea7551e4e03b2': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '20ccbe3cbcb4eec92a7850fc31478f673ad84724f396ca672da1936972aeaf47': (
-        'benign:layout_or_counts'
-    ),
-    '21432660cabdeff33e4050eb8fb5f195a8b858043d333fd8019ed7f467e289ce': (
-        'benign:layout_or_counts'
-    ),
-    '21e3b640a5a6432354974e9917ad0fac2a1419ae20a61ee09ecb28e2f4fd1130': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    '2295686924366044be3f7d09d14fc498551a498e1c7afb28453f8234b060b697': (
-        'benign:transport_or_runtime_health'
     ),
     '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
         'debt:badge-run-deck-authority-summary'
@@ -4574,14 +4374,14 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '2353ac212cdc4f28d6919059be719db9a21c2f357a9ff81637d034bde30e96d0': (
         'debt:badge-public-packet-authority-framing'
     ),
-    '241c46ec243e2f997d4eaf1c44cb4010479787f48c866313e19db47fdf630971': (
-        'debt:badge-control-approval-quality'
+    '24e1864e260b849cc456c772ce930bd535053d95129542d9c531cd0d66bbad9a': (
+        'benign:layout_or_counts'
     ),
-    '27727c420fdd590f8378222ba5546e163354b404602e7569e06944b9ba3d4f92': (
-        'branded:authority_presentation'
+    '258dd4eb0f8640e78aa80cbe6085a6b731e6e7ff33dd20e39776d6c097a73866': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
-    '2814d02bc1f5f904ca468e8bb33ec1b81fec3f43a5eb021c1132546ea49aec40': (
-        'benign:transport_or_runtime_health'
+    '2700e01e38e8458ef1fc6de7f9038c32b31d58ecfeb83cce399d212079b3fb10': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
     '28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24': (
         'benign:opaque_metadata_or_taxonomy'
@@ -4589,177 +4389,157 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe': (
         'debt:badge-threshold-unavailable'
     ),
-    '2af67d0d705cf88bcea7cefb365696c79dacfa2f79dc50cd4d49ec05c98ccff6': (
-        'debt:badge-candidate-refusal-markers'
+    '32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba': (
+        'debt:badge-preflight-readiness'
     ),
-    '3031da2354f2d3f4a75beb51a9ba2b52e54d47c153b14a8f0e17fd66c494a454': (
-        'benign:opaque_metadata_or_taxonomy'
+    '346b26c59bc4ca63a09e51cea968753acd54f1a407b731b89bc5b11a5e02d599': (
+        'benign:transport_or_runtime_health'
     ),
-    '308738e867a4f2efa15dd7470c993124a6c238739016629296b0c383b93a6ed7': (
+    '34c659f2601b1ddfbeab58c9d8140b87f71dd33297e81ee79a5d20d69f97d8be': (
         'debt:badge-compound-decision-grade'
-    ),
-    '36475692b9076f14ec0b98ec98322d400eafb7349a0db44aac7517782bef5843': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '37327401ea6b660d07a338a07ecc061b50df1e91abf5dde376a4f1f50ec66d50': (
-        'debt:badge-artifact-pipeline-decision-grade'
     ),
     '377c1bb5561cd4fef5e2d91c14a12376aac3958f9d8aedaabbacfd4ae8bfec94': (
         'debt:badge-decision-confidence'
     ),
-    '37b2a63a1d86f9ef88567f8d7a65a6a4e36f6553275835ebc956d9a9580a53f4': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
     '3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c': (
         'debt:badge-explainability-governance-counts'
     ),
-    '398d814083df90feb41a0aaa98269eee3172db07890781ecc7f0c2a22864e5b9': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '3eb84ab83499b4d8e1405e781d3c1993a9c5fd41dec76127139cc05a22c19ac1': (
-        'benign:layout_or_counts'
-    ),
-    '3f4e54c07fe06c9b4057890eea2e3692330618fc50c3499e765d5dfbd181245a': (
+    '3d35cd0642bc6151a02491b8f39576e526b9bdbc32b954f715d12f2490b47ff3': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    '3f700e5c1e3718dab62dfd3d8816e75c0aa60e491b436e4b9e1bd26a45a39fab': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    '3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f': (
+        'debt:badge-evidence-source-freshness'
+    ),
+    '3e2dac1a9f9315caf321dc572ef4cd24810ae15b17ba138e6ced1afcd4a58fd6': (
+        'debt:badge-compound-decision-grade'
     ),
     '406d88d51302590ea467bc8a6f1d36422bb080b18c1cb794b88c2bbd3d17ba6d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
-    '408eb3552eb34b2bf026878baecf255b99421ce05bb2c447552dbf30687fdf4a': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    '41847e62e0cb802532dad96b457939401e6e772a59acf0a343dc86da0873ffe5': (
+        'benign:layout_or_counts'
     ),
-    '47568f281c1e53f947a907729376aba8cc2cf39799fba2bd823f397bd0df11b8': (
-        'debt:badge-preflight-readiness'
+    '435f0224f0d2a9d5eba9f709f777adacf65dd28d1c36d39f4f702e5509a64452': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '45655bebe9f1cc0ac150c68901386e1c8feb554108e278612654a4eff4b23fe5': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '4681f7d7a6a1febf2badb65da22df140fae88ba3beef9313d8240b532c161b6e': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '47e551b9d6e8882de20bfd67eb14f852149d20872aa5d9d6834060afc2a25866': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '4824d5e19c44105391522152d9bd9febfe0327fd34e6c9485f4d215c99e5c394': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     '489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69': (
         'debt:badge-control-approval-quality'
     ),
-    '4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151': (
-        'benign:layout_or_counts'
+    '4966df28f2ae3778e52ac1226bded6b2b94a35c845a6b5e0dd729106e5f09acb': (
+        'debt:badge-control-approval-quality'
     ),
-    '4d55355f88d53ec24efbbde9f4716e18592a9e1827eefebd86b95377006abd45': (
-        'debt:badge-compound-decision-grade'
-    ),
-    '4f03608b90dc626cd01b37790a8a5fc7c88f3a26ff108bae628d75e37797dfd0': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '4f26888f4621fa194034d2689542ac8564890df8f4c02d7cb0af7a286fe9d1e9': (
-        'benign:transport_or_runtime_health'
-    ),
-    'e980b8253921c0a8bbac4fd3690abfabd113ebf8dd4a37a2b42b499d1831be5f': (
+    '4a079c0100a0b88e5a4cff84538e1fe187b266b842a7600660ea8cd692f86bda': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    '0281a6096fb20622eb2f6a0d27a288cd4373cbba40894108996e0609cef7143d': (
+    '4b0ca289239f6cb5cca22029afb268c85bf71eb90f73dae0f4a70ed2b8394cb1': (
+        'benign:interaction_or_editor_state'
+    ),
+    '4b6cc6e1e45662b2e66cdbaacb3dcb3913ba2eac1ca4931d3847fac9a88c3e65': (
+        'debt:badge-artifact-pipeline-decision-grade'
+    ),
+    '4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151': (
         'benign:layout_or_counts'
     ),
     '5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    '5b93ed99a5a8ba5a56c35aa023658e51c1a485784b0aef93426fd02fb741dd64': (
+    '575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76': (
+        'debt:badge-evidence-source-freshness'
+    ),
+    '5796af5c0c00e3724ae4e0f5a21ae84464d4c8f8c8e85dc3fb9afdd03536fbc6': (
+        'debt:badge-operator-blocker-overridability'
+    ),
+    '59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054': (
         'benign:interaction_or_editor_state'
     ),
-    '5e3de1e7f6577af7c0b1bb0f81685527c0b54e36b07a218782bc0ee578108117': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    '5a3bada810ad2a1c0b65fe6b458bfeadf3e8a641046b873a86c26b8d89cad2ef': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
-    'c5f42d6c6c370c5c9e903983cf3bed1b299f9629965193b1e5746c633b678a7f': (
-        'benign:transport_or_runtime_health'
+    '5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '5eccfc73c26b6c85df52cff3c0843e498d1c2a0b924204804c5aad9de3196ba1': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '60b71e5d2856a03dc8e9d8873e20f86b0cfcf623f4c9bcaacdb45c8048c0364c': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     '614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb': (
         'benign:layout_or_counts'
     ),
-    '665b5cd65a86a0fd32ac5c66ba21ad8c4aa60221ccd54fa56f7f1fc52c390a0d': (
-        'debt:badge-preflight-readiness'
-    ),
-    '733a0be941f37521e2e274d3ae1002cdd671f1835b931f33f4f78d7e4d9a48b9': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '70f48d1042fea29c28f7b68a26ac62e8caff126964126c55a1bdb9e9bb79d0c0': (
+    '662b0fc3606167f10f68500739758dd6e7b7ecb8f96db7859b9e1f8d0c0546d1': (
         'benign:interaction_or_editor_state'
+    ),
+    '66a00026342faf1877fa8ddb5128cd33a7b369884dfe64ae18ee237560899b15': (
+        'benign:layout_or_counts'
+    ),
+    '6ac80574002dfaad6ad5d921827e753111611f66ea6a0b7a7cce0c1b7ba96216': (
+        'benign:layout_or_counts'
     ),
     '71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28': (
         'debt:badge-control-approval-quality'
     ),
-    '736d1e5121e794abcc7761b1cefd8e8fd0b224eb8c97d5d3e57623553f3d1774': (
-        'debt:badge-projection-source-freshness'
+    '743515ddee3a1654cf2284926e6abbd7797ef5b3ae505e2f94006d3e9ffed683': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
-    '745d19cf88cde678e2e59530a1040642a4571347148f252e31e997c8f2584c22': (
-        'benign:transport_or_runtime_health'
-    ),
-    '74f7f6866ff3f40c667982fffe7e8122631949f8c757954385c2b549f4cccae9': (
+    '775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25': (
         'debt:badge-preflight-readiness'
     ),
-    '75159ba252ec1fb2b92a920765374699a1f5f862d939d2a9558479d92fc37ffa': (
-        'benign:transport_or_runtime_health'
+    '7752dd623b2b966fc992e43150813ae337e1667dcb2a75f1ae7e52d294655317': (
+        'debt:badge-uncertainty-dispute'
     ),
-    '76c452e585ecbaeb85fed964b9f5c86eed820746a9be074b3f4adb85cc20e8bc': (
-        'debt:badge-public-packet-authority-framing'
-    ),
-    '777fb68ab8a00f44501b0a7aa990f0f47542a54b18d153ecdd0522b1cfd63886': (
-        'benign:interaction_or_editor_state'
+    '77d4937a8a4ae3861a3d7ca0d409f1dcb5357b59fed592b6f1da55998c74415d': (
+        'debt:badge-control-approval-quality'
     ),
     '782d91933a21abe282a0b2eec316c9e5a01250ae6dd1be645f0564300544c721': (
         'benign:transport_or_runtime_health'
     ),
-    '7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '7c551931db65f2e221b4d3d0f2f7c1bef6ae5460b411a3c8be84332d548a7d41': (
-        'benign:interaction_or_editor_state'
-    ),
-    '7c69d00892b39fd2f6e379a574309e05cb4d6dde1ee224b8441d52a368f026cf': (
-        'benign:interaction_or_editor_state'
-    ),
-    '7d398016e3e4d61134ec115877baadbca9d72ef3329c2efea53148e567a19cee': (
+    '790d822d3220078d0202ff5acf18234e4989dddaa8f0763460945f568889a957': (
         'benign:opaque_metadata_or_taxonomy'
+    ),
+    '7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '7cab4e047bfad3eeba1fa62f6541f93ca94f7288e36da8ad9fce0b9f9fd075a8': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '7cbd142395b58dc08a0e2bb7aae5dddee45eae6beef62c24f0fb8b4b8fae67b7': (
+        'benign:layout_or_counts'
+    ),
+    '7d026294d7ab9b024d15f64c520125bf1a56d8546bbcc0a4c3889d11381e2e80': (
+        'benign:transport_or_runtime_health'
     ),
     '7dc80a2bca0f52eabe4056572779e0d61350184ebb303f8635de3a9b462b3d6f': (
         'debt:badge-candidate-refusal-markers'
     ),
-    '7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '802750f5c2fd6fa9b942ff1b8430252d0e07b714edbb7e7598b43fa25024f305': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '82ed268cb1ba63c8045b701c6b14376a68ea5278494b1d82e1ba496fbaff1cbd': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    '840f7cf36bfbe4c7e82907fbd0f62e2d622a19b2468f4006374e29367288fb09': (
+    '7df766a591cd08759ab97ce6fbf3c93b1d83d01e5e6e403886ede521aef97004': (
         'benign:transport_or_runtime_health'
     ),
-    '85722f844fe96e753c1fea373bc9996944fc574b0ca74fc5ab9c8661b864978f': (
-        'benign:interaction_or_editor_state'
+    '7e370a0c39a64ebb37b0b55f2a0121ab95430348581ba3f8e30cf90887a8722c': (
+        'benign:transport_or_runtime_health'
     ),
-    '873089b1b1cd6def9e2dfdebedb89d9f8147e570b306f2a67cdf3ea4ecefbc9b': (
-        'debt:badge-operator-blocker-overridability'
+    '7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
-    '8741661d6e1dd99962a695c40e285ccb9e4732a2d6b33bcdd89ce85543a54c35': (
-        'benign:layout_or_counts'
+    '89146b2b5fbfd278d218aeadc24ad53693a77af147e1086cea5b51a2511659c6': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
-    '88bdb782f91f8c88d9ab9f963b850be95ed094ea8e332e59a750a40f021b0df5': (
-        'benign:interaction_or_editor_state'
-    ),
-    '8900054f1d76669254dd63dbaa5891e31a1f776712fa3463e17ee071fcebd711': (
-        'debt:badge-governance-issue-severity'
+    '892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
-        'debt:badge-control-approval-quality'
-    ),
-    '8aee94a1cb391e8d5d90b999cfe6c14f7e524aee4c92fc8b3be6e9e488e9be4f': (
         'debt:badge-control-approval-quality'
     ),
     '8cb41cd36e24b70818f36d6f19392fd3c04f326382d61cbc631e03ff15a544dc': (
@@ -4768,98 +4548,80 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
         'benign:layout_or_counts'
     ),
-    '8e23eb6b4cf407944c7aa834540faae567624c8ab0e32254ccdea8b905218935': (
+    '901d277be8ac2a458d2d05c65b606307b3c6dc64f1cf48c080f57af4b6f27500': (
+        'debt:badge-public-packet-authority-framing'
+    ),
+    '9068a4cd4f2597a561b3ee5e9cb81493c299d6a9ac44a7c39f05f4c336cf42b0': (
         'benign:transport_or_runtime_health'
     ),
-    '8f8b752e1d47c54f43f99264acda93a3f2c01b98ec4b7a149e7189f479c30ef3': (
-        'benign:transport_or_runtime_health'
-    ),
-    '8fd51b1ea8607f9afc26805fc637f17649986f1e52d3190579f24bcee12c6911': (
+    '9356fe6a3c0dee6467263ab8bf82f01253fb3629c7090a4e14277418cfc96fe6': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    '917a54b7c543b3f679e2811f66aeeffb60c121d871939711f8bc290b75cd459d': (
-        'benign:interaction_or_editor_state'
-    ),
-    '91a7b65f06bccb318d3ef55773a576677a107906b5087f01e956edcebc8fa4a5': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    '9374faf00f67a0c3d645b9171576544ef88904aee1f831147de0b1f1e0572e55': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     '94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20': (
         'benign:layout_or_counts'
     ),
-    '963412ef9b5a521ff3951690e908d2b492df7c58bab373bee027403188e24646': (
-        'benign:opaque_metadata_or_taxonomy'
+    '95a566e23d8a67c3342e70696b8299ce11282524dcc512ef8f1b38a542166bb9': (
+        'branded:governed_authority_purpose'
     ),
-    '96df76eb13faef6e5240420d759eb253742fcbcfa96c14c1c7858599e31c220c': (
-        'debt:badge-negative-certificate-blocker'
+    '95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff': (
+        'debt:badge-projection-source-freshness'
     ),
-    '98ad471af90902ca518ef4035da2dbf5844750478f7f6c44b33ab4a27bd143af': (
+    '98ca189a06de16043ec40ca09c3d74f2b63a524ff10299c3561539dbea882f56': (
+        'debt:badge-governed-projection-rights-bar'
+    ),
+    '997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb': (
         'benign:transport_or_runtime_health'
     ),
-    '9955da9cb82ba264b63dc0f360e8c0afe52d72ed3a2e58267ad4b25df80e55a7': (
-        'debt:badge-evidence-source-freshness'
+    '999dfc41d8905bc8fb950ce74afe4ff73d2caa9e9d1144401dd7adc0e488e37a': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     '9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413': (
         'debt:badge-control-approval-quality'
     ),
-    '9d19950bc131004ecc102cb6d6c4ee25ca596e2cdfc6f43e0cc28cbe63fab28f': (
+    '9e5c541d557ae597994e067895ef46cc5c8106605e12517533c1ef4277c4db42': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '9f1248b9bc7ee9c7a669e91b3ab6a03a428cc9e442163b832d7daa0fd1a700e7': (
+        'debt:badge-artifact-pipeline-decision-grade'
+    ),
+    'a178781eec2205bb210feae1963866ddbebbc903e5b167439d795f47a47cd1ef': (
+        'debt:badge-negative-certificate-blocker'
+    ),
+    'a39decd55a70a0982f1206d37466ed416d440f2fae951c3f6026add2f89ddfd8': (
         'benign:transport_or_runtime_health'
     ),
-    'a4be1d0d533f8f4040230424292afcfe7bf3d2879fa402122868a318ad3fdcbd': (
-        'benign:opaque_metadata_or_taxonomy'
+    'a42bc462f389e95b1711b2bd8c2d65c7efe1d62adecff77803629d81ae2c7c72': (
+        'debt:badge-preflight-readiness'
+    ),
+    'a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed': (
+        'debt:badge-evidence-source-freshness'
     ),
     'a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2': (
         'benign:layout_or_counts'
     ),
-    'aa008fa891ae0cfe612a238d70de3e9978541182f547d83e2e4943a3704b8f67': (
-        'debt:badge-control-approval-quality'
-    ),
-    'aa0a6d7cad06cb9a9d596b19b349a628344b826dbbd6833a275c5014d324a19a': (
-        'benign:layout_or_counts'
-    ),
-    'afda3a56b1fe6a8fd54b96fc5ad773a28d3d4c50d390b7d01cd86276208f5f39': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'b02781d0afa37080ad24d8d0ae98ca2a2134b6ea219566e766030a5f0a31b482': (
-        'debt:badge-provenance-drift'
-    ),
-    'b1af74a7bd405c4ec52d91e4a60788c1b71ee96d3979a87b652942b578d6dba5': (
-        'debt:badge-public-integrity-result'
-    ),
-    'b1c7b485d32b68a83a5e870744db1784d631e39882ba8f61e1dc884dc0d3a2f2': (
+    'a707876130fc42b9006569b81f1f191de061ba6c2d9e00218e130c5688e3588e': (
         'benign:interaction_or_editor_state'
     ),
-    'b34f94152bdbcf9436caad5a2c1d26963a504b67a936306fc1f09190ec4acd38': (
-        'debt:badge-review-required-aggregate'
+    'b002b5f620661bc50ef765de2a66149010e584f39eb810139e8d2441898eaacb': (
+        'benign:interaction_or_editor_state'
     ),
-    'b43282820198399adafe543b18feab15911d14896bdbdeee94c53707b786a188': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'b46af64e0efc9a4b0a073427ddb55679a80ae5c005066e3a69a5b7226152637e': (
-        'benign:layout_or_counts'
+    'b22524f2bb0c743cad0ba903c0913378f1755770798e5296e1eb2fd290a44a96': (
+        'debt:badge-bureaucratic-legal-review'
     ),
     'b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6': (
         'benign:transport_or_runtime_health'
     ),
-    'b5302cf1c3b290fb3c9f74932fc4022a9d1709a57bfae5b9d133bbaa77425544': (
-        'debt:badge-governed-projection-rights-bar'
+    'b6ed98bcceca5eb3659f89e979641aaedbedbc1a7d48462b820c2ecb4b6911ec': (
+        'debt:badge-candidate-refusal-markers'
     ),
-    'b5afe69c5cf7117574eb65c8cc5fa1051fbd071020db1ffe145fd6e8153f2512': (
+    'b849a709f7783feecf45e635476c00aae9859d9a207c6cfa611a5113ce5b785a': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'b65ce47a1734e07f729480b0d08ff62f8e76d76b78d9cc141ad57e4c3bfc6567': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'b7e0b7b097daa2098c78ff5f1f4e03420e0207823181291613af448fa2417be9': (
-        'debt:badge-artifact-pipeline-decision-grade'
-    ),
-    'b7e80f7dcefa2e9bd22e2ba39e78d9b457f6222510031d439a15634f6526f6c3': (
-        'debt:badge-control-approval-quality'
-    ),
-    'b84b12f55cf379dcf164dbbee1c50651e2b1358c61b140930f20c7973185d96d': (
-        'branded:governed_authority_purpose'
+    'b8956759f3667ee4a2aab6f14ff3f9633530ce94bad4c5741758dbf1872f4131': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
     'b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca': (
         'debt:badge-explainability-governance-counts'
@@ -4867,174 +4629,239 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     'ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41': (
         'benign:layout_or_counts'
     ),
-    'bbe18b9065b1461ba09fc256c685a1d39275d218bd159d664ad502be0c729809': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    'ba344f7d265fd1539ac0fb5435a9f53d1caf848e8f1d452f54f90fb31097ef66': (
+        'benign:layout_or_counts'
+    ),
+    'bbfc4140d1b606629556acde90334230a32a304f848211c89f60b73c6bd19947': (
+        'debt:badge-governance-issue-severity'
+    ),
+    'bdf81e235a4ca11b7864dc6ecdd2284cbe034374693508f633cb85a9761eb6df': (
+        'benign:transport_or_runtime_health'
     ),
     'bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a': (
         'debt:badge-public-anti-authority-role'
     ),
-    'c0f90a6dd5f3278a2cd4ba7fc9e081688a8199e70a3add819ba8ea16f92f9faf': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'c16c87f6ded32d32e9ff0d7779c0155860851c95e30544e93e786c0e560a27bf': (
-        'debt:badge-projection-source-freshness'
-    ),
     'c189d4abe2d873e07f6be8e26b018f8d6d89469e72303dfceb0257e6e81fbf1a': (
         'debt:badge-run-deck-authority-summary'
+    ),
+    'c1c1c5396f7e6e331fd35de27613fac55a01597ec02e48a0c0fe7d37b229e047': (
+        'benign:transport_or_runtime_health'
+    ),
+    'c21834b2fafddae48203bb9f1d73a8bffd39ccb98d63b23da53ba610eec8131c': (
+        'debt:badge-comparability'
     ),
     'c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b': (
         'benign:transport_or_runtime_health'
     ),
-    'c76685906a77b2706cb7d7f80cd772348f484dba86b948541e2d9977199bd3ba': (
-        'debt:badge-uncertainty-dispute'
+    'c46e2809d8f349d9518a86fe0f8c33df00e393dc7cd50f048fc7d9455a95eeba': (
+        'benign:transport_or_runtime_health'
+    ),
+    'c614d3390a9d679fbe9253314cbd5f1a18b0613411afdb5e3d550db91252b5c6': (
+        'branded:authority_presentation'
+    ),
+    'c7112bfb817734b2a54a7d55cdb9ad540842a4befcd49b49e8c12863a66047e8': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     'c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'c83d34fe7093137541a133086f00f6ef64692b733f83b51a00625b71a08fb31b': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'c92af4118776313dd8ac2c0fbff36aa7f0a28f28a897f6b4be74b3f6cfd33449': (
-        'debt:badge-compound-decision-grade'
-    ),
-    'c94e4b85b63dc00a08735921cc7721c3978decff3aa630c5d387313cf6e83a40': (
-        'debt:badge-candidate-declared-authority-purpose'
-    ),
-    'cb6660b22750a29119c57ddd8424fe8969fdff554499acd589be9739d14aeb31': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
-    ),
-    'cb6bee44789c333922b929674cdbc104c7438d160de90bb8f5889e70bf17ee7d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    'cba8b385d57d853f1a0aeed9b9fd8731925269cb37a52aeb62005831353f482c': (
+        'benign:layout_or_counts'
     ),
     'cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8': (
         'debt:badge-control-approval-quality'
     ),
-    'cc2fe7d5dd5bd7c7e7c452c472944137392b6ebea7fd37a95bcafe06c7100248': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    'ce1071346d9f93620cad1b88481b396016a563d8ccad39f58d2853be27d960ea': (
+        'benign:layout_or_counts'
     ),
-    'cd1906fff055a17498a7b01c6c4216160b35ddc6db235de0593284fab4b6ca90': (
+    'cef8147b083b7868c257481362ce5759966736f14fe65cd9f764ddee809e95ea': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'cf40b1db383289a0e350568c515e85540ceef41a10c87b9c6b03a38c1ddd1657': (
         'debt:badge-public-integrity-result'
     ),
-    '62dbfa8b0628c9bc2ba4782e72a1fb9ac23b9dde38e1b8d678aafbcbab012443': (
+    'd1cf53e72c35bc04a947b651a2afae3efbb7d3d0261dff7aa63aa0ad705bd622': (
         'benign:opaque_metadata_or_taxonomy'
+    ),
+    'd3597f124b355ae0df1aba078fe15dcbfc1eb5273d91497ee5dac0c3a10fa36e': (
+        'benign:interaction_or_editor_state'
     ),
     'd5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'd560495934d47a0798c5205664f271a853f4a28c15ae46ba761b1557c5693952': (
-        'benign:interaction_or_editor_state'
+    'd55790cad1c256c2c84508b5044b318ce50a87c809a16153b95de4aa1006075f': (
+        'benign:transport_or_runtime_health'
     ),
-    'd5f60247e0a0aba92b4353873cb8dc6c591dd70dfa5ba349ed7dd0232b78b225': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    'd6e518e4dcafece66b74ce39b0d7cffb9ef46e95722e93ca7a37047f5b2f903a': (
+        'debt:badge-governance-issue-severity'
     ),
-    'd943cd952108f75f81c3b5922012f1b55d672a3e732c97ae767d877834c7386c': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'daa5b0e08c79ce3d8a723c273663bee95293fbdc1d345070b06919afe1957db3': (
-        'benign:interaction_or_editor_state'
+    'd95f9d9d1dfd718118166a3d0a1fef3cfcefa60c5483c6d303ba303a61ac7659': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
     'dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
-    'dbf01f9208f0382c4d03826471a6c10349d4a041626d256983c5a6df76f93b80': (
-        'debt:badge-comparability'
+    'dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71': (
+        'benign:layout_or_counts'
     ),
-    'dc8738296ee8fa951ad4fc193dcc6b9414ac61908560de03065ccffa1e7ab2f5': (
-        'benign:workflow_or_lifecycle_display_without_terminality_i'
-        'nference'
+    'e1dc361da1a68012e234580fa349e121cdbf5dc50539f79e6c5e163a3ec62b50': (
+        'benign:opaque_metadata_or_taxonomy'
     ),
     'e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a': (
         'benign:layout_or_counts'
     ),
-    'e4bd5884f5dbe9c7842cea868be351d7f556d84394906b1cbde4c6ebfe1fe110': (
-        'benign:layout_or_counts'
+    'e3555ae77473368474ac2aecf962494ce2e015bb56abaf84ad068b5adc37068a': (
+        'benign:interaction_or_editor_state'
     ),
-    'e6b9636f999f5ddff847a2169882600dcd386cab1bca11f54d67234a1f30ba37': (
-        'benign:transport_or_runtime_health'
+    'e4dd773e764fec196875160e57f6b310dbf2813075a33e9265eeb980262ef55d': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
-    'e855284fbb11b535f098133da8d9ec76dca4a2b260b7164d39012006251a24b9': (
+    'e8cf63710e8b312c6a9698070215a3d80fd58936593857124775f944ee4b4f27': (
+        'benign:interaction_or_editor_state'
+    ),
+    'ec040ce3c17b4c38911f63c37a44188fa51e1415c9063352a3a46dc2f8cd734d': (
         'benign:opaque_metadata_or_taxonomy'
+    ),
+    'eda6e6440c411b1ff4b59c9dd5597e500cd4426a31eddae9b46cc21f0eb636f8': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'ee0b13c84383978509b3e3ec3504eb334945728b1ccee816e9ba13615ba68dd6': (
+        'debt:badge-candidate-declared-authority-purpose'
     ),
     'eeab67da3dac0589720725a171123edeb49c68d05982622c9c36c9b06cc7c4a7': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'efe268e73d41d08239beb4f4c762994db27e11b90d700605de9063c077634860': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f011e2c04a23cf82c10807b3a3d6c3e630b9f1eda2df9525c916e6d86b31bb35': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f0380f45dfd33d71b540b91ac94c7d4229b26f4814bb700502fce5bf39be7946': (
+    'eef12bc2ad51233243467d1e006c5a973e0fa138838dffc80cfe3e533ce7afc5': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'f0903ed8b2c84061a279b9d096e82fa945f14d003507121bb4e8722af31b67eb': (
-        'debt:badge-governed-source-validation'
+    'ef1118d17b97434338471b627d65ba07d0091fe9f064ecb5a5b5c04b71c5a714': (
+        'benign:interaction_or_editor_state'
     ),
     'f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433': (
         'benign:opaque_metadata_or_taxonomy'
     ),
-    'f7a0203c9ce249d0b77de667671226eaf5ca5dc74da8fc322d145a0bb9493ece': (
-        'benign:opaque_metadata_or_taxonomy'
+    'f429bd648712b69892f15f0815570e349ba93123e3c1689fcc7e8e21b1a39e47': (
+        'benign:interaction_or_editor_state'
+    ),
+    'f46d2b5c605e3c5ab6acab65873537121df8cacb43228f16e53a000c97ec0684': (
+        'benign:transport_or_runtime_health'
+    ),
+    'f4d4f3e59310e146c58a0ca3952caab54ef348745db6044d0097138675dd94ba': (
+        'debt:badge-control-approval-quality'
     ),
     'f83591094c3b0059152f1882dc77da6851a0463478b16aa4748d05face2ec690': (
         'benign:transport_or_runtime_health'
     ),
-    'f9d04f876c4cf6d1a2b6abf79c59269bc50b5b7cef29f53423fc40e5ff9691e8': (
-        'benign:opaque_metadata_or_taxonomy'
+    'f932043880d8e07b0d22732d16690d159f803a03ed23d24b9543ad412f443f8f': (
+        'debt:badge-public-integrity-result'
     ),
-    'fadf2838d758fa3bbdebc11ca7b0231556ac540dfbe76b764328c13a982ccba3': (
+    'f9376c6dc6670e77368e91b72ef7de90fd69f4b5290e4352c4a7dbea5d9a00dc': (
+        'debt:badge-review-required-aggregate'
+    ),
+    'f99e0acb8cfd2e2cb117f0f4822ca0c0dde856f03f1f4d629959614e86bf9889': (
+        'debt:badge-run-deck-authority-summary'
+    ),
+    'fb60590aea23ce4d4a823d3cf19aea558f5b666e86029388d52469f5f5739641': (
+        'benign:interaction_or_editor_state'
+    ),
+    'fbb881aadd093a5e283964b7d4b4c1d233d7e1017887fb875d1622ecd2026235': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'fc595d1619d1ed3590dcdf87d110fe2e4dc88a0193f018555f9eb3148bde68e2': (
+        'benign:layout_or_counts'
+    ),
+    'feae06fefd2cab14a9599492d36ddf16213e3999dacbfa716ebeec97085618fb': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4': (
         'debt:badge-control-approval-quality'
     ),
 }
+
 FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
     str, list[dict[str, str]]
 ] = {
-    '03088e861da70d67a7922ca76038e6ce436d2aa4cb7277f4cbeb2949c49ff121': [
+    '06aa52447c49bbdd19d77123ae8a5a3313abd7a0a8226976da55a52915b8fe49': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
+            'descriptor_id': 'prop-decision-card-verdict',
             'role': 'consumer',
         },
     ],
-    '075884b26c1d4c69936874691f5dc2fca0a6235b5700ef347390eaf3255ed3dc': [
+    '090221c80046c9557a9424e0098ed8c01eaa9621b0a6f99f41d47e6f292da42a': [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'component_declaration',
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'consumer',
         },
     ],
-    '0b0227e5eda519302d3c0c53664b050eb898172b70d74018b926101d4d687abb': [
+    '0a9923c0cfd7cb57b27f5bacf64bac468e5862621c904335b290a17e61aa6547': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
             'role': 'consumer',
         },
     ],
-    '0cf3089bc31a9bfc147e43a3909ce80af2b5e96354ff663e99f56642ebf1c3dd': [
+    '0e44a93350c9b74533e5905e633c97892b6e4db719cb24df3aef7ea2bbce2964': [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
             'role': 'consumer',
         },
     ],
-    '172a3f309e904a9f3605d2aad66b7b8ef8b6c073e5ffbec27ba424019899c684': [
+    '1288071d7e0ac163c12ce6aa1a20c20f589cbea5e2c433c37011760c01801a4a': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'consumer',
+        },
+    ],
+    '161ada920d42be7ec2d8a0dfd475ae9abd0de9bb4c611601f93afbf43bd5616b': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
+            'descriptor_id': 'prop-time-semantics-freshness',
             'role': 'prop_declaration',
         },
     ],
-    '271fa5c333ccff489e2a988b3f2645902d2ab23981a024e280b0372945c302a1': [
+    '16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'component_declaration',
+        },
+    ],
+    '1908e4138916f64036152bf0f1aad44c6a3b305019545811e2fd330d6abfcc41': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-explainability-verdict',
+            'role': 'consumer',
+        },
+    ],
+    '19ba562d4caaa193b36eb258135bc8eedefa22de9a825e1230b7e397b9bc777a': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-cue',
+            'role': 'consumer',
+        },
+    ],
+    '22ce2429b6954c1461643264ddeb56ea9b906a4b4c7baa61513d0db4818a9d5c': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'consumer',
+        },
+    ],
+    '2539f0dd770d4d81ed7eac41b8659198913e28f7433f2a126d07908aa3f41a55': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'prop_declaration',
+        },
+    ],
+    '28451c7385b5593edfd0ac17602ed328120a4949c1a6410d9cb31a3367a773bb': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
             'role': 'prop_declaration',
         },
     ],
@@ -5045,130 +4872,88 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    '2cdf6cc6aa8f07ac87dbefa0476b1196a3be7fcdb1b58de0e831b3a987c19a38': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'component_declaration',
-        },
-    ],
-    '2f0e79a9516c9ba39b479a46fb44f1802c875e5e76d3364a49cfefe1ea2c117c': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'component_declaration',
-        },
-    ],
-    '2fe7686f28bcf65a8cce672daf4e52261c1e74c836a88a7e2a621b664c647b92': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
-        },
-    ],
-    '30f0c6d9ec76ee688dd31d0a9591a09b3e26ea3ef9abdb0566dc78b4f71cd62b': [
+    '2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c': [
         {
             'classification': 'benign:layout_accent',
             'descriptor_id': 'prop-composer-summary-tone',
             'role': 'component_declaration',
         },
     ],
-    '319e933f5ef56ed50ad3dc0706a028021735ceff808e6a769d565240898ce42e': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'component_declaration',
-        },
-    ],
-    '40c6bbd244419b4628918ef40338c82fc1b23ddad781c96b99d2db9669076850': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'prop_declaration',
-        },
-    ],
-    '4c007cc44162355ab8838fdeeaf4352edd047f9f2b6236ac571d7678f771702f': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
-        },
-    ],
-    '4c3a59fdea599485bce03d08c1f6b6eb2e8ebc97b67dfcae189b43d4559a1c5d': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '520731b63c34d1b5fa1a984979fdf19fa69a0652a8d3a926093a8dab5e04e6f0': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'consumer',
-        },
-    ],
-    '52ad00281a363bfa9c1bdb22a6803009500bf8ac2914d6b6ac5093addd58216c': [
+    '3235dc9058cd679aab28663d8ef6e40fd690dba5931c4222d3c750e895090fdc': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
+            'descriptor_id': 'prop-control-approval-readiness',
             'role': 'prop_declaration',
         },
     ],
-    '5a564dd77cca9a37aefe75d634a593b0bb0c604bf64a609755bde38276a3b2a2': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '5ae681a17d2bf65c5c4bf7ff791aa0aedab7378111257eb571a509ae8c05a1db': [
+    '345048647f2c38a7b4c40150a4f6cf8a157750e34a2313939da45a3bcc3fc03b': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
+            'role': 'component_declaration',
+        },
+    ],
+    '3508cd57a8aa6a4eed2f965c15224b54f17b739fa262e5e96c3247b3de0aee5f': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-composer-summary-tone',
             'role': 'consumer',
         },
     ],
-    '5f683b7a79ba67fa07b4dcfdba5fd916a365247b1c2d660c84e14689608da39c': [
+    '39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-explainability-verdict',
+            'role': 'component_declaration',
+        },
+    ],
+    '45fb2442e80045b23fdac4889b002440759292449e536cd2995b84bf67fa5893': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'component_declaration',
+        },
+    ],
+    '4626948f8965be6e9d6feb132e399319d02a9ab5c07ff4eb2e04fb977cdf9fa2': [
         {
             'classification': 'benign:layout_accent',
             'descriptor_id': 'prop-form-section-tone',
-            'role': 'prop_declaration',
+            'role': 'component_declaration',
         },
     ],
-    '64494f5ca0bb56db3c183890d18ab97c841cddb3893db38c2fed6feca20009b0': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'prop_declaration',
-        },
-    ],
-    '23836a44349390b1f89ca30e19e25a47b86d96e5811ed767889594173951b337': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'consumer',
-        },
-    ],
-    '65ff7393c86ce7c57eb94dd827983884c2fda5ffc266f13b833872a6dc07967b': [
+    '463bfc23955e33fcf61719c3b4510aa516bcae5e1d025ad74596bff687bc2d37': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-verification-status-icon-tone',
             'role': 'component_declaration',
         },
     ],
-    '6687157a0d05dd3924bc2551abef93ea7bee8617b6dd72f392ce1f6d7fd5f475': [
+    '47120da814a4f5702cf969d1779626ce434e42c7ae8d22ed96c2da483f867590': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
+            'descriptor_id': 'prop-explainability-verdict',
+            'role': 'prop_declaration',
+        },
+    ],
+    '60f1705ce16da1d211d4bd2c9291a0770773e0295f67b15aa375f9113022247e': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'component_declaration',
+        },
+    ],
+    '6396aaba2a2937fd48c9bc99e4834eaa06c4122dd0e0162a9f9ba31af4e2d6a8': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-control-approval-readiness',
             'role': 'consumer',
         },
     ],
-    '669b3eef4f1e591390eb409754a4f0ea12507e6529df1f98a8540b0406e6914e': [
+    '68ad2101e3f8b279cb6d41f7fb1ae93e5767fecf714e9db9e427b226d8454f6f': [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'component_declaration',
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'prop_declaration',
         },
     ],
     '712710c5c423a0ffc5e2f1567cf5332bb8fcae73a1e15f0495d3312d0a1eb5de': [
@@ -5178,6 +4963,27 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
+    '71a80646a121675e49570c8c85fa30ffdd40bdf3846ffb245aa265071b73f1c5': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
+            'role': 'component_declaration',
+        },
+    ],
+    '73ac833708a0af8050ac16602ceb7cea2c0fc956868ac75bb17143960f24eec4': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'consumer',
+        },
+    ],
+    '73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'prop_declaration',
+        },
+    ],
     '76a74cb838945515d42022bddecafeb70cc1adc5f2e9334adddb61eb208352ca': [
         {
             'classification': 'debt',
@@ -5185,10 +4991,10 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    '771ce0f548683589321c4256c3d8e20ae8a892235d619cded8a9a532b2d8c30f': [
+    '782ed9f3d4c893ff5e9640b2c420cb48a2d08cf8e28d60740bd0c63f3039e462': [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
             'role': 'consumer',
         },
     ],
@@ -5199,101 +5005,80 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    '7a655c25ca9b4ff83205d4fcd3b3f8ade39da89f762b98eadc7529bc3933f6a7': [
+    '7967b768451295aab7bb93830edce43a8605903a6e00fdae468919ccb340c211': [
         {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
             'role': 'consumer',
         },
     ],
-    '806903786674d3d712c7d5fc1a4e6e5f59b1caff89c92295c6060ae3aa9338fc': [
+    '7a76b59f3a814dc6f6b1f9f887eb4b69416f0878a7af3c735f552d937fdb6823': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-cue',
+            'role': 'prop_declaration',
+        },
+    ],
+    '831ce02647e1042330f85888d1569f0325a235e7e9ce138a03cbfa58f85e8fe7': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-composer-summary-tone',
+            'role': 'prop_declaration',
+        },
+    ],
+    '88061a949593f884d5bef7b9384c644d2c5c7d5d953e04413936be6c0f3a18a8': [
         {
             'classification': 'branded:authority_presentation',
             'descriptor_id': 'prop-authority-badge-presentation',
             'role': 'consumer',
         },
     ],
-    '83314b02f2631ca48dbffe18d06bd139d78e4d01b2c1dfb482b07a877e90962d': [
+    '89f4504a2816c5af91a874a64d8117379b47e931e6313d226171a70f1f953413': [
+        {
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'component_declaration',
+        },
+    ],
+    '8a560a599792148ea45043a3e13200ca36ab8f47756a677eb1eaa2ef899a7d19': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-confidence',
+            'role': 'prop_declaration',
+        },
+    ],
+    '8bc040f4b701b7f4945431070d65f56529c55eb6f832d094bf116f2083689c5f': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-verification-status-cue',
             'role': 'component_declaration',
         },
     ],
-    '843fcea0d6242947634b81d0a5819247ce91948bd9853fc0bdb28b5b5d65b650': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '85805b28cbb06ac1f7529df6b5eb35b776493702e696e2419b025d1d103b5f75': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'consumer',
-        },
-    ],
-    '861535b0223fae1e82ec9c3ec5d60f03fd63eaf11c982a92b3d361cd16e6171d': [
-        {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
-        },
-    ],
-    '8a2adc12305e2002a48fa489b58cad0d8bd2671f9ed392bf26c3feaea29484e0': [
-        {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'component_declaration',
-        },
-    ],
-    '8d04d71444816f0fea45faca047900f9fa84244690b75f2fa760df834e648c07': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
-        },
-    ],
-    '90548db3f1bca4a561854e8ec937ba48efd235cf4e7adaaa4843df8e7607793f': [
-        {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
-        },
-    ],
-    '91b8670efab393858b379edf24581718f878c52225b9cb6dc82bcf99485a9b14': [
+    '9156023f5437ed35cbd33f0b0cf42bcd52ba029088f23fd0b05e0e24d5d445ef': [
         {
             'classification': 'branded:authority_presentation',
             'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '94527927d03d160ca987ac01d71d4894b66f35ade816cbf1324a114e7084b373': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-time-semantics-freshness',
             'role': 'component_declaration',
         },
     ],
-    '91df60760f5d0e9f1d161d670cd53b7cb326caeeb4b223e06778da34132cac00': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'prop_declaration',
-        },
-    ],
-    '92dbb1d4e78c61335b57f155c6b66b4a365f7379a9f85742ffcd70d8abd4a48e': [
+    '9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-dispute-status',
             'role': 'prop_declaration',
         },
     ],
-    '98629faa6a7d511210958e9af6e18634db12a439d2eb19bf3fc6c6dda700eed1': [
+    'a07acb5b94cfdd350caf61f450240bda7f814c1faa029785290c9c58b47056d6': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
-            'role': 'component_declaration',
-        },
-    ],
-    '9f5d7e7c46db32f40cd134e8150f6cba2a6fea1db6ba2620e1476e9a9dc7fb2c': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
             'role': 'consumer',
         },
     ],
@@ -5304,38 +5089,52 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    'a1546a50a9b8b8edad84944f9bc18af26293ebf222ce1422d23ba4967061293b': [
+    'a21ca9ee9373c8c076d703502dcb653879d7a6ce910e3f0e3dff896d217eafd8': [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'component_declaration',
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'consumer',
         },
     ],
-    'a2e2056e046593804fe2105fc81e859addf3ed7cd9fcf8e510aaa699e8be7ce3': [
+    'a87cba5c1e6540ca2bc33b6ee9a169a8fcd8fad7bf460f81d813944814ecbe84': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    'a9a606e66e7adf776835a8a41bf8968446e341b88dfd3bed962660e5519f0b0e': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
+            'descriptor_id': 'prop-decision-card-verdict',
             'role': 'prop_declaration',
         },
     ],
-    'a5db9f3db4610235fc7532b9ddab524a493d704ba6435c7a0b4b811fab777c95': [
+    'b0f22a17ed4d8431f2c8e16579664f17c226202b1a9cf742a3de4fa981a440eb': [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
             'role': 'component_declaration',
         },
     ],
-    'aa93c929eefa4b5c36a64a4186db218b4a544836d01a1eb18f0e73041924b2b0': [
+    'b1a02625d2fd21109e548cac22c0714690f5803eb15cc7b7be91e7db1f792048': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'component_declaration',
+            'descriptor_id': 'prop-verification-status-icon-tone',
+            'role': 'consumer',
         },
     ],
-    'b0a1d5d8e78a9c293302669c8f885f0801d29ba290b9c412d06f2462c353e441': [
+    'b1e30068cb924fa281fed1ac8005603790672b75c00733847d74c8ca637a704f': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
+            'descriptor_id': 'prop-decision-card-verdict',
+            'role': 'consumer',
+        },
+    ],
+    'b6a1ef787665b777d6a4a7e18fdca654b493d6a8a43473a4d33756514a1e64f1': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
             'role': 'prop_declaration',
         },
     ],
@@ -5346,6 +5145,13 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
+    'bba89136665934edc4fb94e1e2c0becd1a0560553b6ed11486d00a5ae512e931': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'component_declaration',
+        },
+    ],
     'bbba02809125cc44d061c07208227cfd0a110963de7e507daeb434db0efa9644': [
         {
             'classification': 'debt',
@@ -5353,116 +5159,109 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    'beb3a6c894d1dd06d6a523590148803dd095a3ebac8b0c69ded50545791e37d4': [
+    'c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0': [
         {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
             'role': 'consumer',
         },
     ],
-    'c483d8e6f14fca2505f4c991e898a96f3a94777d66b028e50e192ca96d27adfa': [
+    'c8ea08d12ba9b28b1cdfb0f1ed2d1aa2f87913b558025eb8e3448f41dd5888fa': [
         {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'component_declaration',
+        },
+    ],
+    'cba019c47cf0748e39a681763c7d228872e1f3e33726c182359faad876a740ff': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'consumer',
+        },
+    ],
+    'd13b77727ec6e59051fd01de3d2595381d08ab8a5753470173f4dca54e913f6b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
             'role': 'prop_declaration',
         },
     ],
-    'c52b33fe805fb3b722df78a0f64a9773af2d5d393f65cf5035ed03168a77460f': [
+    'd488da2243cfb0c12b495bfb8becb25dbaf50f1d03f853aaddf9e7530a52495a': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'prop_declaration',
+        },
+    ],
+    'd6903156024e582887e0992f164d9fa191eb57d44ccb412655aec1a050ca05b8': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'consumer',
+        },
+    ],
+    'd76cf4788345fad84023b91ef225308c43aecf68e6b58f9eb2569fdbd07e9a77': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
+            'role': 'component_declaration',
+        },
+    ],
+    'd9f1be34765232337b7e2075e012450b6474312bd313b4e3609de5ddf4488e89': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-confidence',
+            'role': 'consumer',
+        },
+    ],
+    'daa7db05ca9b71c307935c4f074b1d12df0dc02856ca5292b60bd1824a094230': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'prop_declaration',
+        },
+    ],
+    'ddb70bb5bc1bb2dc30cac27c2428930e5c95c973fc5064de6c01ecb061ed1950': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'consumer',
+        },
+    ],
+    'e5cc3356ae2208fb98c4b1cdfa1d0d37f11c7e933666dc45e0098666561e14d3': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
             'role': 'consumer',
         },
     ],
-    'c7807493cefa1a2cb8f5577c6299c43fda5189a283d8ec54c38b81504c11b60b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'component_declaration',
-        },
-    ],
-    'c834f6a63eb763b9b3af8343c614b866cd3e704c4040582b83aafab9a2b7ae28': [
+    'ea3c053f9dddfa174cd58f96f0b08967fe93e3465d82fef26c146a11f246ff9d': [
         {
             'classification': 'branded:authority_presentation',
             'descriptor_id': 'prop-authority-badge-presentation',
             'role': 'consumer',
         },
     ],
-    'c9a49a1238eeacca6e4a9271deb9bd70ca5eb3268e8853daff035c752ec9a3f4': [
+    'ead85722c60492a096a673bb40f117a9798ac462c647086ce7990f60e339f65e': [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-icon-tone',
             'role': 'prop_declaration',
         },
     ],
-    'cca58a6c9ad201bfac6b6a6367a56656d5f26cec872073594df0007d7172a76b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'consumer',
-        },
-    ],
-    'cf78131a3876b452090057af8bb2429ea342c753e601201483cafc7ba46ce56f': [
+    'ed68a06d959bbc1db946cb34228ca88a11a8bb2a44658dbf19506ed94e5804d9': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
             'role': 'prop_declaration',
         },
     ],
-    'cfbb9b27a3358924a24b91935d21b1e7d5396acf22d131e98089f45a9e772071': [
+    'ef2b25e842386c37d954cb282e8d2a14cb69b22cdb689c4a273de5cd35d80911': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'consumer',
-        },
-    ],
-    'd350ecab570b9a8dc7c8d81438e351a2ce48407692829454a02dba799e165156': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'prop_declaration',
-        },
-    ],
-    'd9a61449049b9684f9ed5ebca0d8ff251fedcfe5b30182f015c0a9a1cb54a14f': [
-        {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'prop_declaration',
-        },
-    ],
-    'cb630b240b115556c78afcd82d1c638e81bdbe95db6e73a40d8672f30a0c6a9a': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'consumer',
-        },
-    ],
-    'def392de449f43b5571226d249a1b020f82d910a35abe14e049736147906354b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'prop_declaration',
-        },
-    ],
-    'e6c4abfe7351c360f6e2da6e332d95da8bb8966aaacc2ba36e653c6992190525': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'consumer',
-        },
-    ],
-    'efa9edf995fa97082f4f6035cc0731cfe514382669b413c13a165fac881900be': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'prop_declaration',
-        },
-    ],
-    'f076f5e2e1ea894fab0290df30db4c9ae2e5c416e3f9edc3488eab352bd52cf3': [
-        {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'prop_declaration',
+            'role': 'component_declaration',
         },
     ],
     'f1663c94e21b16352db7368cd12538ef545d06fbb71e6b717d9624cd8e36f163': [
@@ -5472,18 +5271,11 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    'f8e598f43f1cc70d9a988087cbbaee635ea34ddf081fa5701cfbfc5e169a4878': [
+    'fb7a63d86c79d996df5f71c0611b6b7bf44848a6fc0838fb96e7dd371c28e3b2': [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'consumer',
-        },
-    ],
-    'fcd07d96dc3888c929817936cc8b135616cffe2c7c244624f77c3caaeb2f9ae4': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'component_declaration',
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'prop_declaration',
         },
     ],
     'fe5c1e593fa09b93ff37f01f2789d2197faa2f053ac2fc01b68493c20b29bd40': [
@@ -5498,55 +5290,10 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    'ff8dba03d2f8bd402f48557823f84c2abd879fd8bd336a1580bfa0e0b6c68c61': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'prop_declaration',
-        },
-    ],
 }
 # C21B_FROZEN_AUTHORITY_IDENTITIES_END
 
-_CREATION_AUTHORITY_BADGE_CLASSIFICATIONS = {
-    identity: _AUTHORITY_BADGE_CREATION_CLASSIFICATIONS[location]
-    for location, identity in _authority_badge_creation_identities().items()
-}
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
-
-
-@lru_cache(maxsize=1)
-def _authority_prop_creation_identities() -> dict[tuple[str, str, int], str]:
-    """Freeze prop declaration/use classifications by C21a identity."""
-    anchors: list[dict[str, Any]] = []
-    keys: list[tuple[str, str, int]] = []
-    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
-        path = str(spec["component_declaration_path"])
-        anchors.extend(
-            [
-                {"path": path, "line": spec["component_declaration_line"], "role": "named_declaration", "discriminator": spec["component"], "descriptor_id": descriptor_id},
-                {"path": path, "line": spec["prop_declaration_line"], "role": "type_property", "descriptor_id": descriptor_id, "discriminator": _AUTHORITY_PROP_DISCRIMINATORS.get(descriptor_id, "__creation_anchor__")},
-            ]
-        )
-        keys.extend(
-            [(descriptor_id, "component_declaration", int(spec["component_declaration_line"])), (descriptor_id, "prop_declaration", int(spec["prop_declaration_line"]))]
-        )
-        for use_path, use_line in spec["uses"]:
-            anchors.append({"path": use_path, "line": use_line, "role": "jsx_attribute", "discriminator": spec["prop"], "descriptor_id": descriptor_id})
-            keys.append((descriptor_id, "consumer", int(use_line)))
-    identities = _typescript_reference_identities_from_anchors(anchors)
-    return {key: identity["encoded_identity"] for key, identity in zip(keys, identities, strict=True)}
-
-
-_CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[str, list[dict[str, str]]] = {}
-for (_descriptor_id, _role, _line), _identity in _authority_prop_creation_identities().items():
-    _CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.setdefault(_identity, []).append(
-        {
-            "descriptor_id": _descriptor_id,
-            "classification": str(AUTHORITY_PROP_CLASSIFICATIONS[_descriptor_id]["classification"]),
-            "role": _role,
-        }
-    )
 
 
 def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
@@ -5557,25 +5304,6 @@ def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[
         FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
         FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
     )
-
-
-def _authority_identity_digest_table() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
-    """Project creation-only full identities to compact frozen authority keys."""
-    def digest(identity: str) -> str:
-        return hashlib.sha256(identity.encode("utf-8")).hexdigest()
-
-    badge = {
-        digest(identity): classification
-        for identity, classification in _CREATION_AUTHORITY_BADGE_CLASSIFICATIONS.items()
-    }
-    prop = {
-        digest(identity): records
-        for identity, records in _CREATION_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.items()
-    }
-    if len(badge) != 163 or len(prop) != 72 or sum(map(len, prop.values())) != 73:
-        raise RuntimeError("c21b_authority_identity_digest_cardinality_drift")
-    return badge, prop
-
 
 AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
 
@@ -5591,6 +5319,15 @@ def _authority_row_semantic_value(row: Mapping[str, Any]) -> dict[str, Any]:
         for receipt in sink.get("consumer_sites", []):
             if isinstance(receipt, dict):
                 receipt.pop("line", None)
+        consumer_sites = sink.get("consumer_sites")
+        if isinstance(consumer_sites, list):
+            consumer_sites.sort(
+                key=lambda receipt: json.dumps(
+                    receipt,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
     return value
 
 
@@ -5610,9 +5347,7 @@ def _authority_presentation_rows(
     prop_by_id = {
         fact["descriptorId"]: fact for fact in scan["authorityPropCensus"]
     }
-    badge_by_location = {
-        _site_location(site): site for site in scan["badgeSites"]
-    }
+    debt_badge_sites_by_group = _authority_badge_sites_by_debt_group(scan)
     rows: list[dict[str, Any]] = []
     evidence_identities = _authority_evidence_identities(scan)
 
@@ -5680,7 +5415,7 @@ def _authority_presentation_rows(
         )
 
     for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
-        badge_sites = [badge_by_location[location] for location in spec["locations"]]
+        badge_sites = debt_badge_sites_by_group[group_id]
         first = badge_sites[0]
         component_identity = (
             first["component"],
@@ -5911,21 +5646,9 @@ def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str
         _typescript_reference_construct_facts_batch(sources, requests),
         strict=True,
     ):
-        matches = facts["matches"]
-        bound = [
-            match
-            for match in matches
-            if match["declarationChain"] == payload["declaration_chain"]
-            and match["structuralPath"] == payload.get("structural_path")
-        ]
-        if facts.get("sourceMissing"):
-            errors.append(f"typescript_reference_source_missing:{reference}")
-        elif not matches or not bound:
-            errors.append(f"typescript_reference_binding_missing_or_renamed:{reference}")
-        elif len(bound) > 1:
-            errors.append(f"typescript_reference_binding_ambiguous:{reference}")
-        elif bound[0]["normalizedTokensSha256"] != payload["normalized_tokens_sha256"]:
-            errors.append(f"typescript_reference_content_drift:{reference}")
+        error = _typescript_reference_match_error(payload, facts)
+        if error is not None:
+            errors.append(f"{error}:{reference}")
     return errors
 
 
@@ -6660,6 +6383,13 @@ def _refresh_supplemental_findings_text(text: str) -> str:
     for finding_id, object_start, object_end in reversed(spans):
         if finding_id not in generated:
             continue
+        if finding_id in AUTHORITY_PRESENTATION_DEBT_SPECS:
+            stored = json.loads(refreshed[object_start : object_end + 1])
+            if _authority_row_semantic_value(stored) == _authority_row_semantic_value(
+                generated[finding_id]
+            ):
+                seen.add(finding_id)
+                continue
         replacement = _render_supplemental_finding(generated[finding_id])
         refreshed = (
             refreshed[:object_start]
@@ -9565,11 +9295,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="print no-write C21b authority identity maps for static freezing",
     )
     parser.add_argument(
-        "--print-c21b-authority-identity-digests",
-        action="store_true",
-        help="print no-write compact authority classification keys for C21b freezing",
-    )
-    parser.add_argument(
         "--print-c21b-descriptor-identities",
         action="store_true",
         help="print no-write full C21a literals for the 15 descriptor bindings",
@@ -9612,10 +9337,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             "badge": AUTHORITY_BADGE_CLASSIFICATIONS,
             "prop": AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
         }, indent=2, sort_keys=True))
-        return 0
-    if args.print_c21b_authority_identity_digests:
-        badge, prop = _authority_identity_digest_table()
-        print(json.dumps({"badge": badge, "prop": prop}, indent=2, sort_keys=True))
         return 0
     if args.print_c21b_descriptor_identities:
         print(json.dumps(_c21b_descriptor_identity_literals(), indent=2, sort_keys=True))

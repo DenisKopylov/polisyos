@@ -644,11 +644,11 @@ gates. `contract_only` is not accepted: the register, authority projection,
 checker, report, and DS19 hash pin move together. Direct syntax only—this makes
 no flow-completeness claim.
 
-**Measured migration:** 161 C21a identities: 28 protected-live direct calls or
-route literals, 118 authority-presentation evidence slots, and 15 explicit
-producer/integrate descriptor slots. The remaining line-address residual is 21
-(six TS navigation, six Python descriptor prose, three Markdown navigation,
-and six structured JSON/TOML bindings owned by C21c). A real governed-validator
+**Measured current corpus:** 156 C21a identities: 28 protected-live direct calls
+or route literals, 118 authority-presentation evidence slots, and 10 explicit
+producer/integrate descriptor slots. The remaining line-address residual is 15
+(six TS navigation, six Python descriptor prose, and three Markdown navigation).
+A real governed-validator
 replay moves `deleteComposerDraftRecord` without a register edit and stays
 green; renaming the same construct is binding-missing red. C08 whole-file
 baseline bytes remain unchanged.
@@ -679,6 +679,26 @@ TypeScript refs, so no gate turns on them. C21c closes the remaining structured
 binding class; C13b-R1, C16a-R1, C16b-R1, C17a-R1, and C19-R1 are therefore
 unblocked on the line-address axis (their other audit waits still govern).
 
+### DS5-C21d — retire migration bindings and relocate unique constructs
+
+**Measured set:** exactly the checker, focused checker test, this plan, and this
+journal; cap 4. The complete `9,585`-path (`5,549` Python) walk found one eager
+call each for the Badge (`163` anchors / `52` files) and prop (`73` records /
+`30` files, `72` identities) creation helpers, consumed only by the retired
+digest CLI. C21d deletes them and all fixed Badge/prop address maps (`234` raw
+addresses survived the first cut). Scanner-derived current-gate and descriptor
+consumers retain the generic anchor resolver; they are not migration maps.
+
+**Acceptance:** exact declaration-chain/structural binding remains first. Only
+when it fails may one unique declaration-chain/token candidate relocate; zero
+or multiple candidates retain named rename/content/ambiguity REDs. One shared
+classifier governs standalone and single-program batch paths. Hybrid frozen
+keys retain structural identity for the `14` collision families exposed when
+`129` identities collapse to `108` semantic keys. The exact seven-construct
+`f77850487 -> a3ad1e615` move is green through the governed batch gate while all
+three REDs remain; ordinary import runs no parser. The `156 / 15` register
+corpus and every governed artifact remain byte-identical.
+
 ### DS-INFRA-2 — Atlas timing evidence debt
 
 | Debt | Evidence / capability state | Closure |
@@ -698,6 +718,15 @@ whole-second execution ceiling is `ceil(2 * p95)`:
 | full frontend module | `144.9, 151.7, 216.2, 222.2, 282.3, 290.6, 373.94` | `373.94` | `748 s` |
 | disposition corruption battery | `100.8, 114.2, 136.97, 150.5, 195.99, 215.1, 249, 276.89` | `276.89` | `554 s` |
 | status-retirement module | `52.6, 67.2, 73.2, 75.4, 102.3, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
+| focused dashboard/component tests (R6 family) | `1.79, 5.00, 8.50, 25.40, 25.76, 82.27` | `82.27` | `165 s` (`ceil(2*p95)`) |
+| dashboard typecheck (R6 family) | `78.40, 241` | `241` | `482 s` (`ceil(2*p95)`) |
+| scoped dashboard ESLint | `6.10, 6.39, 7.00, 12.705, 17.79, 57.16, 71.95, 86.84` | `86.84` | `174 s` (`ceil(2*p95)`) |
+
+A ceiling recomputation covers every lane the slice runs, not only expensive
+lanes: a stale focused ceiling manufactures the same non-receipt as a stale
+full-suite ceiling. Killed overruns remain censored non-receipts and never enter
+the nearest-rank sample set. A floor chosen for tidiness is a supplied number,
+and a supplied number in a gate is P38.
 
 The target correct pattern is:
 

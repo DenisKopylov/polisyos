@@ -2597,3 +2597,204 @@
   (`35 / 15` tracked), with only subset parity gates. Orchestration used root
   plus three independent read-only audits; no scanner-heavy parents overlapped,
   and no governed writer or full module ran. The register family is free.
+
+## 2026-08-14 — DS5-C21d entry and declared delta
+
+- Clean attached entry is `dd52314af` on
+  `codex/atlas-ds5-enforcement-waist`, `70` commits ahead of `7cba15e56`.
+  The declared pre-writer delta is exactly four paths: the frontend disposition
+  checker, its focused test, this plan, and this journal. The register's `156`
+  stored TypeScript identities and `15` navigation-only line references, the
+  generated report, status inventory, baseline, and readiness ledger must stay
+  byte-identical. Changing an encoded identity version would induce governed
+  re-anchors and is outside this cut.
+- The complete tracked-file/symbol walk covered `9,585` PolicyOS paths (`5,549`
+  Python). The two migration creation helpers have exactly one call each, both
+  at module import: `163` Badge anchors across `52` files and `73` prop records
+  across `30` files (`72` unique identities). Their only downstream consumer is
+  the explicit digest-print branch; no tracked current gate, script, or test
+  invokes that CLI. Normal gates consume the frozen maps, so the migration is
+  complete and deletion, not deferred execution, is the selected closure.
+- Red first replays the exact `f77850487 -> a3ad1e615` Composer source. Five of
+  seven unchanged Badge identities stayed green, while `1220 -> 1268` and
+  `1644 -> 1701` failed `typescript_reference_binding_missing_or_renamed`;
+  their content-rewrite counterpart also misclassified as missing. The named
+  test failed three assertions in `22.87 s` under the local macOS,
+  installed-dependency, single-process focused-test regime. This proves both
+  the real relocation defect and the missing content/rename distinction before
+  mechanism repair.
+- A decode of the complete stored corpus also rejects a naive
+  declaration-chain-plus-content key: `129` unique encoded identities collapse
+  to `108` such keys, with `14` families containing multiple distinct
+  structural bindings. C21d therefore retains exact structural matching first
+  and permits relocation only to one unique declaration-chain/content
+  candidate; multiple candidates remain ambiguity RED.
+- The focused-ceiling recomputation covers all three lanes used by this slice
+  under the current local-macOS, installed-dependency, single-process regime.
+  R6-family focused tests have six completed samples (`1.79, 5.00, 8.50,
+  25.40, 25.76, 82.27`), nearest-rank `p95 82.27`, and computed `2*p95
+  164.54 s`; dashboard typecheck has two (`41.790, 78.40`), `p95 78.40`, and
+  computed `156.80 s`. Scoped ESLint has no completed current-regime sample,
+  so its p95 is not established; the full-history `86.84 s` p95 is
+  non-binding. All three use a conservative supplied/retained `300 s` floor,
+  not a mislabelled p95 result. The `138.04`/approximately `150 s` typecheck
+  kills and approximately `148 s` ESLint kill remain censored non-receipts.
+  A ceiling recomputation must cover every lane the slice runs: a stale
+  focused ceiling manufactures a non-receipt as readily as a stale full-suite
+  ceiling.
+- The repaired validator now resolves the exact structural binding first, then
+  permits only one declaration-chain/content relocation. The exact historical
+  seven-construct move is green; its rename is
+  `typescript_reference_binding_missing_or_renamed`, its content rewrite is
+  `typescript_reference_content_drift`, and an indistinguishable duplicate is
+  `typescript_reference_binding_ambiguous`. The frozen Badge/prop keys use the
+  same group-aware hybrid rule, preserving `163` Badge keys and `72` prop keys
+  over `73` prop records. The `156` stored identities and every governed
+  artifact remain byte-identical.
+- The obsolete Badge and prop anchor maps, both eager creation projections,
+  their digest table, and the digest-print CLI branch are removed. A cold
+  ordinary import with all subprocess execution trapped passes, so import can
+  no longer execute the retired migration parser. Scanner-derived current-gate
+  and descriptor consumers retain the generic anchor resolver; neither is a
+  fixed migration map.
+- Focused receipts, all under that same regime: historical move plus one
+  existing Badge witness passed `2 / 2` in `28.98 s`; cold import plus the
+  historical property passed `2 / 2` in `10.05 s`. The first complete identity
+  class run exposed four stale expectations from the structural-address era
+  (`4 / 23` failed in `25.04 s`); readback showed three expected structural
+  missing where the new unique-relocation contract requires green/ambiguity
+  and one expected a full digest where the hybrid key is authoritative. This
+  was test re-attribution to the declared C21d property, not evidence that the
+  repaired mechanism was wrong. The four corrected witnesses passed `4 / 4`
+  in `7.96 s`, and the frozen complete identity class passed `23 / 23` in
+  `29.39 s`. `py_compile` and `git diff --check` pass. Ruff remains baseline
+  red but is delta-clean: `566` diagnostics at entry versus `538` now, zero
+  new and 28 removed under code/message/source-line multiset comparison.
+- Duplication duty: C21d deletes the duplicate line-bound migration maps and
+  their third digest projection rather than assigning another owner. The
+  separate module-path debt remains `16` literals / `8` governed owners
+  (`35 / 15` tracked), with only subset parity gates. C21d produced no killed
+  run or lost terminal; all REDs above are captured receipts. All subsequent
+  durations use the recorded local-macOS installed-dependency regime: focused
+  tests are single-process, and partition scans use one root-owned heavy parent
+  with a captured exit; no regime difference applies. Root's serialized
+  live partition run reported the expected two hash REDs in `19.16 s`; after
+  changing only the checker-owned expected hashes, its second run was green in
+  `37.65 s` with exactly `163` Badge keys and `72` prop keys / `73` records.
+  The pre-review complete identity class was `23 / 23` green in `66.61 s`.
+- Independent review then produced a governed RED: the standalone validator
+  carrying relocation had no production caller, while the actual batch gate
+  still required exact structural paths. A shared match classifier now serves
+  both the standalone probe and the one-program batch gate. The governed exact
+  historical replay proves all seven moves green and gives each rename,
+  content, and ambiguity error its complete encoded-reference suffix. Its
+  focused receipt is `1 / 1` green in `16.80 s`; standalone, batch, and cold
+  import together are `3 / 3` green in `21.72 s`.
+- The same review's complete fixed-address census found that the first deletion
+  removed only two of `236` creation slots: `103` benign Badge addresses, `58`
+  debt Badge addresses, and `73` prop addresses (`234 / 236`) survived in
+  sibling configs. C21d now deletes all three address sets. Benign ownership is
+  five explicit line-free counts totalling `103`; the 19 prop descriptors own
+  only `35` consumer-path incidences; and one shared live-hybrid-key helper
+  assigns the `58` debt sites to 27 groups for the checker, evidence writer,
+  and presentation-row writer. Scanner-derived current-gate and descriptor
+  consumers retain the generic anchor resolver; it is not a fixed migration
+  map. The complete-zero-address and move-stable debt membership witnesses,
+  together with the governed batch replay, pass `3 / 3` in `13.69 s`.
+- Root's post-review scan first printed `errors=[]` but the receipt wrapper then
+  called a misspelled helper and exited `1` after `17.76 s`; this is a harness
+  non-receipt, not a product RED. The corrected captured run passed in `17.08 s`
+  with `163 / 72 / 73`, all `27` debt groups and all `58` debt sites, and zero
+  classification/partition errors. The final complete identity class passed
+  `26 / 26` in `47.30 s` under the same focused-test regime.
+- Independent final mechanism review was GO with `0 Critical / 0 Important /
+  0 Minor`; its five historical/batch/cold-import/address/debt witnesses passed
+  `5 / 5` in `17.385 s` under the same focused-test regime.
+- The first serialized full frontend module after that review was a governed
+  RED, not a non-receipt: `92` tests ran in `117.889 s` (`118.12 s` wall,
+  exit `1`) and five failures reduced exactly to two multi-site authority
+  groups. The line-free group membership was correct, but scanner order
+  differed from the historical navigation order in
+  `badge-compound-decision-grade` and `badge-governance-issue-severity`, so
+  their otherwise identical `authority_sink.consumer_sites` lists compared
+  unequal and the surgical writer was not byte-idempotent.
+- Delta repair keeps path, role, site hash, membership, count, and duplicates
+  binding while treating nested line and consumer navigation order as
+  non-semantic. The writer preserves an existing authority row byte-for-byte
+  only when that normalized semantic projection equals the generated row;
+  producer and integrate descriptors do not receive this preservation path.
+  The five previously failing real-gate, corruption, and writer witnesses are
+  green `5 / 5` in `54.429 s` (`54.72 s` wall, exit `0`) under the same
+  root-owned installed-dependency scanner/focused regime. No governed artifact
+  byte moved.
+- Independent delta review was GO with `0 Critical / 0 Important / 0 Minor`.
+  Its no-scanner writer matrix passed in `1.014 s` and its validator matrix in
+  `0.715 s`: navigation reorder/line changes alone stayed byte-identical and
+  green, while path, hash, count, and duplicate-site mutations changed writer
+  output and returned the named `authority_sink` RED.
+- The next serialized full frontend module removed those five failures and
+  exposed one stale exact-row writer assertion: `92` tests ran in `157.721 s`
+  (`158.05 s` wall, exit `1`). The assertion required generated scanner order
+  even for authority rows whose order had just been proven navigation-only.
+  Producer and integrate descriptors remain exact; authority rows now use the
+  same normalized semantic projection in that writer test. Its focused receipt
+  is green `1 / 1` in `41.119 s` (`41.40 s` wall, exit `0`) under the same
+  regime. This is test attribution to the reviewed contract, not a mechanism
+  or artifact change.
+- Final test-only delta review was GO with zero findings: authority IDs alone
+  use normalized comparison, while every producer/integrate descriptor and
+  the complete descriptor-ID set remain exact.
+- Source-frozen full frontend verification is terminal green: `92 / 92` in
+  `155.119 s` (`155.37 s` wall, exit `0`) under the corrected `748 s`, local
+  macOS installed-dependency, root-owned single-parent regime. Expected
+  nonzero nested closure-probe diagnostics were contained inside their tests;
+  the module itself passed.
+- The serialized disposition checker plus baseline-byte verification and
+  corruption probes is terminal green in `115.25 s` (exit `0`) under the
+  corrected `554 s` regime: `261` roots, `62` supplemental findings, `9`
+  censuses, `23` seeded negatives, and the unchanged
+  `18 / 196 / 25 / 6 / 16` root distribution.
+
+## 2026-08-15 — DS5-C21d closeout correction
+
+- The focused local-macOS, installed-dependency, one-single-process, captured-
+  terminal-exit timing law is corrected in place. Successful R6-family samples
+  are `1.79, 5.00, 8.50, 25.40, 25.76, 82.27`; nearest-rank p95 is `82.27` and
+  the binding `ceil(2*p95)` ceiling is `165 s`. Dashboard typecheck samples are
+  `78.40, 241`; p95 is `241` and the binding ceiling is `482 s`. Scoped
+  dashboard ESLint samples are `6.10, 6.39, 7.00, 12.705, 17.79, 57.16, 71.95,
+  86.84`; p95 is `86.84` and the binding ceiling is `174 s`. Killed or
+  lost-terminal runs are not samples. A floor chosen for tidiness is a supplied
+  number, and a supplied number in a gate is P38.
+- The complete live-register P35 witness walks all `156` stored TypeScript
+  references and derives `129` distinct encoded identities, `108` distinct
+  naive relocation families, and `129` distinct hybrid keys. The hybrid count
+  proves that no identity silently merges after relocation repair.
+- The complete retired-address-owner witness derives raw-address residuals by
+  kind: benign/count anchors `103 -> 0`, debt-group bindings `58 -> 0`, prop
+  addresses `73 -> 0`, total `234 -> 0`. The five line-free benign counts are
+  current census values, not residual addresses.
+- The retained real multi-site authority-row witness is green for member
+  reorder plus nested line shifts and red with the named `authority_sink`
+  diagnostic for changed path, changed site/content hash, member removal with
+  the stored count leaf unchanged, count-only change, and duplicate member.
+  It preserves multiplicity; the seven-Composer governed-batch historical
+  replay remains the separate move-green plus rename/content/ambiguity control.
+- Focused receipt: `python3 -m unittest` for the retired-address, live-register
+  identity census, and multi-site authority-sink witnesses passed `3 / 3` in
+  `18.951 s` (exit `0`). `git diff --check` and `py_compile` passed; the scoped
+  Ruff delta found `0` findings on the added C21d witness lines. Scanner-heavy
+  and full-suite receipts remain root-owned.
+- The first Atlas checker closeout launch exited before its tool cell could be
+  recovered after the session boundary. It has no captured exit/output, is a
+  NON-RECEIPT to be superseded by a fresh root-owned run, was not killed, and is
+  not a product red.
+- Root's fresh acceptance receipt passed `3 / 3` in `20.366 s` (`20.54 s` wall,
+  exit `0`) under the local macOS, installed-dependency, single-parent regime.
+  The fresh Atlas checker `--check --corruption-probes` terminally passed in
+  `60.08 s`, exit `0`: `163` Badge classifications, `19` prop groups, `588`
+  offline production sources, `591` capability production sources, and status
+  `13 / 47 / 0`. Independent closeout review was GO (`0 Critical / 0 Important
+  / 0 Minor`), verifying the exact four-path fence, plan `39` changed lines,
+  `156 -> 129 / 108 / 129`, `234 -> 0` partitions, and every retained property
+  witness.

@@ -4662,13 +4662,13 @@
         "ds1_entry_id": "offline-draft-composer",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c13b_composer_scoped_envelope_use_as_is",
+      "rationale": "C13b retains composer draft persistence through the canonical authority-local-state envelope seam with settled tenant/user scope, a writer-owned 24-hour TTL, strict per-mode codecs, scope-bound IndexedDB keys, and fail-closed storage, clock, and codec behavior; server, epoch, rule-version, and operator semantics remain unclaimed."
     },
     {
       "unit_id": "cache-query-memory",

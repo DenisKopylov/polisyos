@@ -1,17 +1,11 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import process from "node:process";
-
 import { describe, expect, it } from "vitest";
 
 import {
   ATLAS_EVIDENCE_DENIED_USES,
   ATLAS_EVIDENCE_PAYLOAD_SCHEMA,
-  ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA,
   ATLAS_EVIDENCE_RECEIPT_SCHEMA,
   ATLAS_EVIDENCE_STORAGE_CONVENTION,
   ATLAS_PREDICATE_PROVENANCE_VALUES,
-  ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT,
   assertAtlasEvidencePayloadBinding,
   atlasEvidencePayloadSchema,
   atlasEvidenceReceiptSchema,
@@ -19,29 +13,9 @@ import {
   type AtlasEvidencePayload,
   type AtlasEvidenceReceipt,
 } from "./atlasEvidenceArtifact";
-import { buildAtlasSurfaceReadinessReconciliation } from "./atlasSurfaceReadinessReconciliation";
 
 const PAYLOAD_ARTIFACT_ID = `sha256:${"a".repeat(64)}`;
 const REPOSITORY_REVISION = "b".repeat(40);
-const policyEngineRoot = path.resolve(process.cwd(), "../..");
-const canonicalAdoptionLedger = JSON.parse(
-  readFileSync(
-    path.resolve(
-      policyEngineRoot,
-      "architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
-    ),
-    "utf8",
-  ),
-);
-const canonicalReadinessLedger = JSON.parse(
-  readFileSync(
-    path.resolve(
-      policyEngineRoot,
-      "architecture/atlas_surfaces/live-application-readiness-ledger.json",
-    ),
-    "utf8",
-  ),
-);
 
 function validReceipt(): AtlasEvidenceReceipt {
   return {
@@ -478,60 +452,6 @@ describe("Atlas evidence artifact contract", () => {
         evidence_kind: "screen_capture",
       }).success,
     ).toBe(false);
-  });
-
-  it("keeps v1.0 receipts readable while versioning the named C10 reconciliation observation", () => {
-    const routeReport = {
-      success: true,
-      testResults: [
-        {
-          name: `/workspace/${ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.test_file}`,
-          status: "passed",
-          assertionResults:
-            ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.assertions.map(
-              (fullName) => ({ fullName, status: "passed" }),
-            ),
-        },
-      ],
-    };
-    const reconciliation = buildAtlasSurfaceReadinessReconciliation({
-      adoption_ledger: canonicalAdoptionLedger,
-      readiness_ledger: canonicalReadinessLedger,
-      route_test_report_bytes: new TextEncoder().encode(JSON.stringify(routeReport)),
-      route_test_exit_code: 0,
-      observed_at: "2026-08-11T09:00:00.000Z",
-      verified_at: "2026-08-11T09:00:02.000Z",
-    });
-    const reconciliationPayload = reconciliation.payload;
-    const reconciliationReceipt = {
-      ...reconciliation.receipt_without_payload_ref,
-      evidence_payload_ref: {
-        ...validReceipt().evidence_payload_ref,
-        schema_id: ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.id,
-        schema_version: ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.version,
-      },
-    };
-
-    expect(atlasEvidencePayloadSchema.parse(reconciliationPayload)).toEqual(
-      reconciliationPayload,
-    );
-    expect(atlasEvidenceReceiptSchema.parse(reconciliationReceipt)).toEqual(
-      reconciliationReceipt,
-    );
-    expect(parseAtlasEvidenceReceipt(validReceipt())).toEqual(validReceipt());
-    expect(
-      atlasEvidencePayloadSchema.safeParse({
-        ...reconciliationPayload,
-        payload_schema: ATLAS_EVIDENCE_PAYLOAD_SCHEMA,
-      }).success,
-    ).toBe(false);
-    expect(
-      atlasEvidenceReceiptSchema.safeParse({
-        ...reconciliationReceipt,
-        receipt_schema: ATLAS_EVIDENCE_RECEIPT_SCHEMA,
-      }).success,
-    ).toBe(false);
-    expect(reconciliationReceipt.authority.may_not_use_for).toContain("stable");
   });
 
   it("rejects duplicate, unordered, empty, or unknown audience identities", () => {

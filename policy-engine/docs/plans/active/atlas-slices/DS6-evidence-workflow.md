@@ -75,15 +75,13 @@ JSON Schema, and repository architecture guardrails.
 - Focused Vitest over touched files and scoped static checks may establish the
   source freeze, but only the serialized Task 16 lanes establish C16 closeout.
 - No product surface, DS5 path, GY path, a11y denominator, baseline suppression,
-  skip, quarantine, tolerance widening, merge, push, rebase, force push, or
-  stash-as-storage. One scoped commit follows independent review for each
-  entered cluster. The C10 continuation is the sole exception to the historical
-  CI-edit fence: it may edit only `../.github/workflows/ci.yml` to run its real
-  behavioral gate after the existing dashboard/Python setup; it does not alter
-  any projection, governed artifact, or other workflow.
-- C10 is entered by the clean-tree continuation described in its Task 10 fence
-  below. C17 remains declared and unentered; C03, C04, C06, C11, and C13 retain
-  the gates stated below and in the journal.
+  skip, quarantine, tolerance widening, CI edit, merge, push, rebase, force
+  push, or stash-as-storage. One scoped commit follows independent review for
+  each entered cluster.
+- No implementation cluster is authorized in the post-C16 attribution.
+  C17 is declared but unentered; C03, C04, C06, C10, C11, and C13 retain the
+  gates stated below and in the journal. C10 in particular remains unentered
+  until a later clean-tree continuation.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -548,9 +546,8 @@ known zero, owner-reference absence, basis absence/mismatch, and missing CAS
 integrity.
 
 C09 has no `satisfied` path yet. C07's semantic binder expressly does not prove
-CAS existence or digest integrity by itself; C08 now supplies that persistence
-path, while C10 is only the narrower ledger reconciliation and does not resolve
-the manual-AT maturity basis or grant stable. A perfectly
+CAS existence or digest integrity, C08 persistence/integrity is absent, and C10
+has not resolved the basis or reconciled the full maturity bar. A perfectly
 shaped in-memory bundle therefore fails closed as
 `manual_at_integrity_not_established`. Capability truth is `contract_only`
 with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
@@ -558,136 +555,10 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Declared path cap: 16; exact measured candidate set: 10.**
-
-**Status: entered and stopped by the mechanism-round breaker.** Both allowed
-mechanism repair rounds were consumed. Final independent review found a
-Blocking P29/P31/P32/P37 fixed-runner-provenance/single-intake defect, a
-second Blocking incomplete-owner-invariant defect at the same persistence
-boundary, and an Important bidirectional status-contract defect. The
-round-2 fence below requires a further Blocking or Important mechanism
-finding to preserve and stop the attempt; no third repair is authorized.
-C10 is not landed. Its candidate bytes will be preserved in an ordinary
-checkpoint commit and removed by forward revert; the succeeding two-document
-stop record owns the literal checkpoint/revert SHAs. C11 and C17 are not
-entered because the authorized sequence placed them after a landed C10.
-Focused green receipts cover admitted cases in the stopped attempt only and
-are withdrawn as C10 closure evidence.
-
-1. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts` — extend
-   the canonical C07 receipt/payload union compatibly for a specifically named
-   repository-reconciliation observation; C07 v1.0 receipt parsing remains
-   accepted and no receipt gains `stable` authority.
-2. `apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.test.ts` —
-   prove v1.0 compatibility, the named reconciliation authority boundary, and
-   rejected shaped/unbound references.
-3. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py` — extend the
-   existing C08 raw-report → payload → receipt Core CAS adapter for the
-   versioned C10 observation; it remains the only persistence adapter.
-4. `apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.ts`
-   — read-only reconciliation producer/consumer over the canonical ledgers and
-   real redirect source/test matrix.
-5. `apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts`
-   — behavioral C10 negatives and CAS resolve/content-bind/integrity coverage.
-6. `apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs` —
-   app-local executable Vite loader for the typed C10 bridge; no second CAS.
-7. `docs/reference/frontend/atlas-surface-readiness-reconciliation.md` —
-   reviewer/audit reference for the persisted observation and its explicit
-   `contract_only` stable-admission nonreceipt.
-8. `../.github/workflows/ci.yml` — canonical PR workflow run step after its
-   existing setup, using an isolated temporary CAS and failing on C10 RED.
-9. this plan
-10. `docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md`
-
-**Owner discovery and reconciliation ruling.** The canonical adoption ledger
-and schema, live-readiness ledger and schema, and the actual route
-declarations/test owner are read-only. A complete walk of one adoption-ledger
-JSON file establishes `entries=233`, `maturity.stable=0`; a complete walk of
-one live-readiness-ledger JSON file establishes `entries=261`,
-`maturity.stable=0`, and `readiness_state.implemented=5`. The five implemented
-rows are exactly the deprecated `/launch`, `/sources`, `/data`, `/lex`, and
-`/health` redirects. The ledger locators have drifted by two lines, while
-`apps/runtime-dashboard/src/app/routes/routes.test.tsx:235-282` behaviorally
-exercises all five real redirects. C10 independently reconciles route identity
-and this behavioral matrix; it does not treat the stale locator as proof and it
-does not weaken the general rule to admit arbitrary `out_of_scope` tests.
-
-**Pattern pass.** P01 requires the C07/C08 persisted receipt and CI consumer;
-P07 keeps the observation schema/rule versioned and v1.0-readable; P29 runs
-the actual route declarations and behavioral test matrix; P31 applies one
-reconciliation invariant to every stable/implemented row; P32 resolves,
-integrity-verifies, and content-binds CAS evidence; P35 derives every count
-from the complete ledger set; and P37 freezes all gate predicates as
-`recomputed` or `independently_reconciled`, rejecting `consumer_asserted`,
-`institutionally_supplied`, and `not_established` inputs.
-
-**Capability truth and deferred surface.** Derive ledger claims and actual
-test/evidence existence from their canonical owners, independently reconcile
-them, persist the reconciliation receipt through C07/C08, and fail CI for a
-stable or non-deprecated implemented overclaim. The governed audit/reference
-projection tail is deferred exactly: no register, report, status, readiness,
-baseline, or checker-family byte changes here. A green reconciliation receipt
-does not grant stable; live stable admission remains `contract_only` because
-the actual denominator is zero and there is no stored browser plus manual-AT
-stable evidence.
-
-**Round-1 binding repair fence (same 10 paths; no cap expansion).** C10's
-first review found marker/form admission in the ledger and redirect paths. The
-repair must strictly parse the declared canonical owner fields and
-maturity/readiness/exact-chain vocabularies, reject duplicate identities and
-unknown states, and fail every live or
-synthetic stable claim closed until the contended typed subject-bound evidence
-tail exists. A non-deprecated `implemented` row remains a negative and semantic
-test failure even when its string chain says `implemented`; that string is not
-content-bound test evidence. The deprecated exception derives only from the
-real imported `APP_ROUTES` runtime objects (exact `Navigate` type/props and
-five-route set), never source/test text matching. The fixed launcher, not an
-adjacent CI step, executes and parses the real route Vitest JSON matrix,
-requires process exit zero, and invokes only `uv run --frozen python` from the
-policy-engine root. The remaining raw-wrapper, raw-result-equality, and
-synthetic negative-launcher statements from this first repair are withdrawn;
-the final C10 contract is the round-2 raw-Vitest-byte and independent
-recomputation mechanism below. The launcher exposes no controlled
-evidence/route/bridge input to CI. P29/P31/P32/P37 acceptance requires
-structural-mutation, failed-route-report, unknown-state, raw-fail/payload-pass,
-unrelated subject/rule, and stable-ref adversaries.
-
-**Round-1 closure receipt withdrawn.** Its initial repair correctly removed
-marker matching, string-only stable admission, and the caller-selectable
-Python path, but it did not mirror all relevant owner constraints and still
-treated a derived reconciliation wrapper as raw authority. It also did not
-independently derive the canonical semantic facts at the persistence choke
-point. Those statements are historical review findings, not green closure
-receipts; round 2 below is the final allowed mechanism repair.
-
-**Round-2 final mechanism repair fence (same exact 10 paths; cap remains 16).**
-This is C10's second and final allowed mechanism repair round. It may change
-only the ten paths declared above: the versioned C07 artifact/test, the one
-canonical C08 Python adapter, one C10 reconciler/test/launcher, the reviewer
-reference, canonical CI, and this plan/journal pair. The adoption/readiness
-ledgers and their schemas, route source/test, and every governed projection
-remain read-only. The repair mirrors only the owner-schema date/date-time and
-`uniqueItems` constraints discovered by a complete schema census; it moves the
-exact real Vitest JSON bytes into the existing C08 raw-artifact lineage, keeps
-reconciliation facts in C10 payload details, and independently recomputes the
-declared ledger/route semantics at the Python choke point before every CAS
-write. The launcher has no synthetic public intake; its negative claim is
-limited to pure reconciliation/adapter behavior unless an isolated invocation
-is actually exercised. A further Blocking or Important mechanism finding after
-this source freeze trips the two-fix breaker: preserve this attempt and stop
-rather than opening another C10 repair round.
-
-**Round-2 source-freeze acceptance.** The final repair must show the ten-field
-owner-schema census (and no broader schema claim), exact Vitest raw-byte CAS
-readback, independently recomputed six-file source basis and reconciliation,
-and a fixed-launcher live PASS. Its red witnesses include every constraint
-family, a raw-fail/payload-pass attempt, stable/pass and route-fail/pass
-contradictions, source drift, missing/duplicate route assertions, and structural
-redirect mutation. The final receipt records the focused C07/C08/C10 and route
-matrix counts, scoped lint/type/Python checks, path/whitespace census, and the
-breaker as consumed (`2/2`); it makes no synthetic negative-launcher persistence
-claim. Stable-positive admission remains `contract_only` behind the typed
-subject-bound evidence tail.
+**Declared path cap: 16.** Derive ledger claims and actual test/evidence
+existence from their canonical owners, independently reconcile them, persist
+the reconciliation receipt, fail CI for `stable`/`implemented` overclaim, and
+surface the result in the governed audit/reference projection.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 
@@ -967,8 +838,7 @@ paying for the lane (GY-DI2/P38).
 The post-C16 read-only attribution identified the three non-print visual
 baselines that regressed after DS4's 17/18 receipt. Task 17 records their
 introducing commit, mixed shared-fixture finding, owner, and cap; none is part
-of C16's repair set. That historical note predates the C10 round-1 repair;
-C10's reconciliation bridge is now entered without changing any C17 gate.
+of C16's repair set. C10 remains unentered until the next clean-tree session.
 
 ### Task 17 — DS6-C17: reconcile C15-R1 visual baselines
 
@@ -1100,9 +970,9 @@ hand edit:
 
 **C09 maturity consequence.** C09 adds no governed-row transition. In
 particular, the contended `unit_id=evidence-manual-at` row retains its
-current value. C08 now supplies real CAS persistence and integrity; C10's
-narrow reconciliation bridge does not supply the typed manual-AT maturity
-consumer or a stable-positive admission. C09 contributes no projected C03 field;
+current value. C08 now supplies real CAS persistence and integrity, so the
+remaining reason is specifically C10's absent
+reconciliation consumer and surface. C09 contributes no projected C03 field;
 the C16 receipt measures the resulting population. Upgrading the row without
 C10 would be a false capability claim under P01 and P32.
 
@@ -1203,10 +1073,9 @@ that distinction.
 - No typed contrast row or i18n baseline removal until DS5 releases the
   contended governed owner. C03's green-receipt gate is discharged; C04 and
   C06 now wait only on that release.
-- No health-metric producer, persisted/manual-AT maturity consumer, INT-R3
-  behavioral content, or honesty threshold. C10's read-only readiness-ledger
-  CI reconciler is implemented, while stable-positive admission remains
-  `contract_only`; C11 remains evidence/content blocked.
+- No readiness-ledger CI validator, health-metric producer, persisted/manual-AT
+  maturity consumer, INT-R3 behavioral content, or honesty threshold. C10 is
+  deliberately next-session work; C11 remains evidence/content blocked.
 - No DS8 print repair or governed C13 readiness transition; DS6's independent
   visual RED is evidence for the DS8 owner, not repair authority.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the

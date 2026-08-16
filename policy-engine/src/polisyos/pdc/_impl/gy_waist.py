@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
@@ -89,6 +90,141 @@ type GyComparisonLegacyMigrator = Callable[
     [Mapping[str, object], Mapping[str, object]],
     Mapping[str, object],
 ]
+
+
+@dataclass(frozen=True)
+class GyArtifactProjectionRule:
+    """One reason-bound top-level exclusion from an artifact projection."""
+
+    top_level_fields: frozenset[str]
+    applies_to: Literal["artifact_and_identity", "identity_only"]
+    reason: str
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.top_level_fields, frozenset)
+            or not self.top_level_fields
+            or any(
+                not isinstance(field, str) or not field.strip()
+                for field in self.top_level_fields
+            )
+        ):
+            raise ValueError("gy_artifact_projection_rule_fields_required")
+        if self.applies_to not in {"artifact_and_identity", "identity_only"}:
+            raise ValueError("gy_artifact_projection_rule_scope_invalid")
+        if not isinstance(self.reason, str) or not self.reason.strip():
+            raise ValueError("gy_artifact_projection_rule_reason_required")
+
+
+@dataclass(frozen=True)
+class GyArtifactProjectionOwner:
+    """Own JSON representation and declared exclusions for one artifact family.
+
+    Explicit nulls are governing JSON values. Missing members stay missing, and
+    unsupported values fail closed rather than being stringified. Exclusions are
+    exact top-level names, grouped by a durable reason.
+    """
+
+    exclusion_rules: tuple[GyArtifactProjectionRule, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.exclusion_rules, tuple) or any(
+            not isinstance(rule, GyArtifactProjectionRule)
+            for rule in self.exclusion_rules
+        ):
+            raise ValueError("gy_artifact_projection_rules_invalid")
+        seen_fields: set[str] = set()
+        seen_reasons: set[str] = set()
+        for rule in self.exclusion_rules:
+            if seen_fields.intersection(rule.top_level_fields):
+                raise ValueError("gy_artifact_projection_rule_field_duplicate")
+            if rule.reason in seen_reasons:
+                raise ValueError("gy_artifact_projection_rule_reason_duplicate")
+            seen_fields.update(rule.top_level_fields)
+            seen_reasons.add(rule.reason)
+
+    def exclusion_rule(self, *, reason: str) -> GyArtifactProjectionRule:
+        """Return the one declared exclusion rule carrying ``reason``."""
+
+        for rule in self.exclusion_rules:
+            if rule.reason == reason:
+                return rule
+        raise ValueError("gy_artifact_projection_rule_unknown")
+
+    def artifact_projection(self, value: object) -> dict[str, object]:
+        """Return canonical artifact JSON with governing nulls retained."""
+
+        return self._project(value, include_identity_only=False)
+
+    def identity_projection(self, value: object) -> dict[str, object]:
+        """Return the artifact projection without its recursive self-identity."""
+
+        return self._project(value, include_identity_only=True)
+
+    def _project(
+        self,
+        value: object,
+        *,
+        include_identity_only: bool,
+    ) -> dict[str, object]:
+        payload = _gy_artifact_projection_json_mapping(value)
+        excluded = {
+            field
+            for rule in self.exclusion_rules
+            if rule.applies_to == "artifact_and_identity" or include_identity_only
+            for field in rule.top_level_fields
+        }
+        return {key: item for key, item in payload.items() if key not in excluded}
+
+
+GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER = GyArtifactProjectionOwner(
+    exclusion_rules=(
+        GyArtifactProjectionRule(
+            top_level_fields=frozenset(
+                {
+                    "comparison_content_hash",
+                    "comparison_projection_schema_version",
+                    "comparison_rule_version",
+                }
+            ),
+            applies_to="artifact_and_identity",
+            reason="non_governing_verification_identity",
+        ),
+        GyArtifactProjectionRule(
+            top_level_fields=frozenset({"artifact_content_hash"}),
+            applies_to="identity_only",
+            reason="recursive_self_identity",
+        ),
+    )
+)
+
+
+def _gy_artifact_projection_json_mapping(value: object) -> dict[str, object]:
+    if isinstance(value, BaseModel):
+        value = value.model_dump(mode="json", exclude_none=False)
+    if not isinstance(value, Mapping):
+        raise ValueError("gy_artifact_projection_mapping_required")
+    projected = _gy_artifact_projection_json_value(value)
+    if not isinstance(projected, dict):  # pragma: no cover - root checked above
+        raise ValueError("gy_artifact_projection_mapping_required")
+    return projected
+
+
+def _gy_artifact_projection_json_value(value: object) -> object:
+    if isinstance(value, Mapping):
+        if any(not isinstance(key, str) for key in value):
+            raise ValueError("gy_artifact_projection_mapping_key_invalid")
+        return {
+            key: _gy_artifact_projection_json_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_gy_artifact_projection_json_value(item) for item in value]
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float) and math.isfinite(value):
+        return value
+    raise ValueError("gy_artifact_projection_value_not_json")
 
 
 @dataclass(frozen=True)
@@ -2018,6 +2154,7 @@ class CompositionCertificate(GyWaistModel):
 __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
     "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+    "GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER",
     "GY_WAIST_SCHEMA_VERSION",
     "PROMOTION_RISK_CONDITIONALITY_CAVEAT",
     "AgentDecisionRecord",
@@ -2035,6 +2172,8 @@ __all__ = [
     "EvidenceBasis",
     "EvidenceKind",
     "FrontierSnapshot",
+    "GyArtifactProjectionOwner",
+    "GyArtifactProjectionRule",
     "MethodOutputConsumptionRecord",
     "MethodPlan",
     "ObligationRecord",

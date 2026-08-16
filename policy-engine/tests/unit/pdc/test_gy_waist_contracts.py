@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 import polisyos.pdc as pdc_module
 from polisyos.pdc import (
+    GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER,
     ApplicabilityResult,
     ArtifactEnvelope,
     ArtifactRef,
@@ -20,6 +21,8 @@ from polisyos.pdc import (
     DecisionGrade,
     EvidenceBasis,
     EvidenceKind,
+    GyArtifactProjectionOwner,
+    GyArtifactProjectionRule,
     GyComparisonAdmission,
     GyComparisonOwnerRule,
     OperationClass,
@@ -605,6 +608,63 @@ def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None
 
     with pytest.raises(ValueError, match="artifact_self_identity_ambiguous"):
         gy_artifact_self_identity_projection({**artifact, "record_hash": "sha256:other"})
+
+
+def test_gy_n11_projection_owner_retains_nulls_and_declares_exclusions() -> None:
+    payload = {
+        "required_nullable": None,
+        "comparison_content_hash": None,
+        "comparison_projection_schema_version": None,
+        "comparison_rule_version": None,
+        "artifact_content_hash": "sha256:self",
+    }
+
+    assert GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(payload) == {
+        "required_nullable": None,
+        "artifact_content_hash": "sha256:self",
+    }
+    assert GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.identity_projection(payload) == {
+        "required_nullable": None,
+    }
+    assert tuple(
+        (rule.applies_to, rule.reason)
+        for rule in GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.exclusion_rules
+    ) == (
+        ("artifact_and_identity", "non_governing_verification_identity"),
+        ("identity_only", "recursive_self_identity"),
+    )
+
+
+@pytest.mark.parametrize(
+    ("applies_to", "reason", "code"),
+    [
+        (
+            "invalid",
+            "declared_reason",
+            "gy_artifact_projection_rule_scope_invalid",
+        ),
+        (
+            "identity_only",
+            " ",
+            "gy_artifact_projection_rule_reason_required",
+        ),
+    ],
+)
+def test_gy_artifact_projection_owner_rejects_malformed_declarations(
+    applies_to: str,
+    reason: str,
+    code: str,
+) -> None:
+    with pytest.raises(ValueError, match=code):
+        GyArtifactProjectionOwner(
+            exclusion_rules=(
+                GyArtifactProjectionRule(
+                    top_level_fields=frozenset({"field"}),
+                    applies_to=applies_to,  # type: ignore[arg-type]
+                    reason=reason,
+                ),
+            )
+        )
 
 
 def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() -> None:

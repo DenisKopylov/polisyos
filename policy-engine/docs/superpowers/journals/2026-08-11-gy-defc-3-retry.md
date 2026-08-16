@@ -3036,3 +3036,91 @@ It emitted no stdout/stderr and therefore establishes no pytest result. No track
 no matching Python process or child survived. This is an orchestrator-terminated exploratory
 non-receipt, not a product RED. `[P37: consumer_asserted for the launch/termination history;
 recomputed for the empty output, tree, and process readback]`
+
+### Shared N11 projection owner — red first, then source closure
+
+The first root-controlled witness launch selected the five required behaviors as six pytest cases
+(the malformed/unrecognized witness is parametrized). Before source change, all `6/6` failed in
+`15.845514` s at the same missing boundary:
+`AttributeError: GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER`. This is the intended red-first
+receipt; no producer ran. The owner was then added at the shared PDC waist and exported through
+`polisyos.pdc`. It retains explicit nested nulls and declares exactly two reason-bound top-level
+exclusion groups: the three comparison identities under
+`non_governing_verification_identity`, and `artifact_content_hash` under
+`recursive_self_identity` only for identity construction. `strip_gy_volatile_fields` and
+`gy_content_hash` did not change, so GY-DEF10 remains closed on its independent exclusion axis.
+`[P37: recomputed for the red and diff; independently_reconciled for the owner boundary]`
+
+Every N11 load-bearing boundary now asks that owner: construction and self-hash assignment,
+validation, canonical bytes, strict byte reparse, worker first/second-pass reparse, stored read,
+corruption rehash, and the dormant legacy reconciliation body. The owner accepts a Pydantic model
+through `model_dump(mode="json", exclude_none=False)` or exact JSON mappings; missing fields remain
+missing, unknown keys remain present, unsupported/non-finite values fail, and no `default=str`
+coercion exists. Runtime rule validation rejects empty field sets, invalid scopes, duplicate fields
+or reasons, and blank reasons. The new PDC mirror went red `2/2` on an invalid scope and blank reason,
+then green `3/3`; the initial six behavioral cases went green in `75.56` s. `[P37: recomputed]`
+
+Review then found a second instance of the same P31 class before any writer was spent: direct
+`validate_payload` normalized a raw `accounted_run.n10_route_count: "3"` to integer `3` before
+self-hash validation and returned pass, while explicit-null excluded comparison keys were accepted
+by direct validation but rejected by the byte parser. The expanded red-first receipt was `8/8`
+failures: all three explicit-null comparison keys, stable parser diagnostics for missing/unknown/
+malformed input, the coercible numeric string, and the monitored two-pass parser boundary. The
+root cause was one missing raw-representation choke, not a new producer mechanism. `[P37:
+recomputed]`
+
+One shared intake now owner-projects raw input, parses its canonical JSON bytes with Pydantic strict
+JSON semantics, owner-projects the parsed object, and compares canonical bytes. Strict **Python**
+mode was an honest intermediate RED: it rejected legitimate JSON arrays for tuple fields and left
+`4/8` cases red. Replacing it with strict **JSON** mode preserved JSON arrays while rejecting scalar
+coercion; the same `8/8` boundary cases then passed. Raw mappings reject presence of any deliberately
+excluded comparison identity even when its value is null; model instances may carry only their
+schema-materialized default-null attributes. Byte intake now emits stable chained terminals:
+`confidence_contract_json_invalid`, `schema_invalid`,
+`confidence_contract_representation_invalid`,
+`confidence_contract_representation_drift`, or
+`confidence_verification_projection_remains_governing`. `[P37: recomputed]`
+
+The five closure witnesses are now behaviorally complete:
+
+1. a required `row_addressable_variable: null` survives construction, validation, serialization,
+   and reparse byte-identically;
+2. construction and validation derive the same `artifact_content_hash` from the owner's identity
+   projection;
+3. the test recursively deletes each construction null to derive the `36/36` required-nullable
+   subset, and proves the **complete** dynamically enumerated null-path set is identical in
+   construction, serialized JSON, and reparsed projection;
+4. genuine absence returns `schema_invalid` with the exact missing location through both direct and
+   monitored byte intake; and
+5. unknown, non-coercible malformed, and coercible malformed representations stay governing and
+   fail closed. A separate positive/negative comparison control proves non-null and explicit-null
+   excluded identities remain diagnosable. `[P37: recomputed]`
+
+The focused frozen-source package passed `15/15` in approximately `309` s. It includes both-pass
+tmp-output writing, byte stability, stable monitored parser failure, and the complete `50`-mutation
+corrupt lane. All 50 cases were RED for their semantic/schema detector and **none** used
+`artifact_content_hash_drift`, proving the owner actually rebound each corrupted candidate rather
+than letting a stale self-hash make the lane vacuously green. Two independent read-only reviews found
+no remaining owner bypass, `exclude_none=True`, duplicate comparison-field set, direct worker
+`model_validate_json`, or hand-built production root hash. Ruff and `git diff --check` are green on
+the complete five-file source/test set. `[P37: recomputed for tests/search/lint; independently_reconciled
+for review]`
+
+One complete-suite run closed every source/test node except the existing synthetic
+`test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination`. Its inherited
+`0.5` s historical fixture creates a `1.0` s no-progress stop threshold; measured real conformance
+work between named milestones was about `1.13` s, so the harness killed an objectively progressing
+worker. Isolated reproduction failed at the same boundary. A first correction to `2.0` s allowed the
+product path to pass but no longer exercised the test's `>2x` predicate, so it remained an honest
+test RED. The measured valid interval is `1.0` s: its `2.0` s no-progress threshold exceeds the
+observed milestone gap while the cold stage remains above `2x`; isolated readback then passed in
+`138.88` s with `completed_with_objective_progress`, two byte-identical passes, and no termination.
+This is a corrected synthetic test budget, not a product RED or a task lane cap. `[P37: recomputed]`
+
+An earlier complete-suite attempt is retained as an orchestration non-receipt: the command completed
+while the Superpowers instruction files were being read, its process exited cleanly, but its final
+PTY chunk was no longer retrievable. It establishes no aggregate pytest verdict and is superseded by
+the later full run plus the isolated correction. The only warnings in retained green receipts are
+the inherited unknown `cache_dir` pytest option and Python 3.14's fork-from-multithreaded-process
+deprecation; neither changed a test outcome. `[P37: recomputed for process/output readback;
+consumer_asserted for the unavailable terminal lifecycle]`

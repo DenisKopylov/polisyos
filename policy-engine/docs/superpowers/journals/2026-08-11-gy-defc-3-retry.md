@@ -2704,8 +2704,8 @@ task process was launched is `consumer_asserted`. `[P37 as stated]`
 
 A complete execution census across the tracked journals finds six actual cold N11 attempts since
 2026-08-08: the two GY-DEF6 writers (`497.418045` s and `512.873833` s), the GY-DEFC-1 writer
-(`1,599.639458` s), GY-DEF13's one-world call (`138.988216` s), GY-DEFC-2's one-world call
-(`104.592529` s), and this task's one-world call (`1,066.900077` s wrapper duration). The first five
+(`1,599.639458` s), GY-DEFC-2's one-world call (`104.592529` s), GY-DEF13's one-world call
+(`138.988216` s), and this task's one-world call (`1,066.900077` s wrapper duration). The first five
 stopped before `owner_bundle_loaded`; attempt six reached it at `1,055.290051` s and continued
 through all `28` milestones. `[P37: independently_reconciled for the cross-journal attempt census;
 recomputed for this task's trace]`
@@ -2715,14 +2715,14 @@ equality `6,095/6,095`, protected-set intersection empty, and all external pins 
 accepted artifact audit, post-fix `--check`, post-fix `--rederive-audit`, and corrupt terminal are the
 four closure receipts. The corrupt terminal caught exactly `18/18` mutations with zero survivors.
 The single authorized cold allowance was spent once, reached `owner_bundle_loaded`, and then exposed
-the separately classified N11 suffix defect above. No cold rerun or suffix repair occurred in
-GY-DEFC-6. `[P37: recomputed]`
+the separately classified N11 suffix defect above. `[P37: recomputed]` No cold rerun or suffix repair
+occurred in GY-DEFC-6. `[P37: consumer_asserted]`
 
 `GY-N11` has moved out of `built_not_closed`: its acceptance milestone is reached while a suffix
 remains open. This state is intentionally more precise than the plan's existing vocabulary; the
 suffix remains `verification_missing` until its artifact identity is canonical from construction
-through validation. `[P37: recomputed for the milestone; independently_reconciled for the capability
-state; not_established for suffix closure]`
+through validation. `[P37: institutionally_supplied for the vocabulary; recomputed for the
+milestone and open suffix; not_established for suffix closure]`
 
 The GY-DEFC-6 orchestration used three read-only research lanes for timing/journal evidence, the
 Depth command/pin/manifest denominator, and the posture/N11 envelope. Root alone edited tracked
@@ -2733,3 +2733,199 @@ twelve recording-owner envelope hashes for protected admission outcomes, while t
 had returned a valid candidate. The corrected classifier was checked before the accepted write.
 `[P37: consumer_asserted for the dispatch history; independently_reconciled for the returned
 research; recomputed for tracked edits, launched processes, and final agent/process state]`
+
+## GY-DEFC-7 — confidence-ledger drift classification and re-probe
+
+Date resumed: 2026-08-16
+
+The standalone GY-DEFC-6 closure is committed at
+`a67d172e61b32c7e2489987d26f9e665918685b3`, 53 commits ahead of `c1a89b6cf`; the attached
+tracked tree was clean before this section began. That commit is the separate historical receipt
+that `owner_bundle_loaded` was reached and the P30 objective fell. `[P37: recomputed]`
+
+The cold suffix classification selects the confidence-ledger artifact family but corrects the
+prompt's mechanism hypothesis. Depth's accepted v2 reissue removed the earlier
+`n10_capstone_invalid` blocker, as proved by the cold trace reaching
+`n10_owner_recomputation_complete`. The final RED is the confidence ledger's own null-versus-absent
+artifact-identity normalization defect described above, not a surviving v1 comparison identity.
+The comparison migration explains when the defect entered; its three comparison fields are
+deliberately absent and non-governing. `[P37: recomputed for the trace; independently_reconciled for
+the source/history classification]`
+
+The confidence-ledger writer has no successful sample of its own, so it has no catalog budget. Its
+re-probe uses the supplied declared `1,800` s fence unchanged, under regime
+`own_heavy_lane_serialized_external_overlap_allowed`: no other root heavy lane will overlap, external
+contention is permitted, and its causal duration effect remains `not_established`. The public owner
+has no non-persisting candidate mode; the measurement therefore runs `--write` with `--output`
+pointing only to fresh ignored scratch under `tmp/gy-defc-7/confidence-reprobe-1/`. The governed
+confidence artifact, all policy-design-case JSON roots, the registry, catalog, and L5 registry are
+pinned. Candidate existence alone is not acceptance: this writer can persist scratch bytes before
+its final validation, so only child/wrapper exit `0`, `status: pass`, `issues: []`, two byte-stable
+passes, cold/warm equality, complete process cleanup, and its 50-case corrupt denominator would be a
+clean producer terminal. Any scratch candidate is preserved for classification; the governed target
+does not need restoration because the public output path never names it. `[P37: institutionally_supplied
+for the fence and regime; recomputed for the CLI/output boundary and pins; not_established for the
+re-probe terminal]`
+
+Three P37/ordering corrections to the standalone closure are recorded without rewriting its
+separate commit. In the six-attempt chronology, GY-DEFC-2's `104.592529` s call at
+2026-08-10T18:02Z precedes GY-DEF13's `138.988216` s call at 20:56Z; the count and all six members
+remain unchanged. Task-level “no second process/no rerun” is `consumer_asserted`, while the
+process-local one-call count is `recomputed`. Finally, the new state vocabulary “moved out of
+`built_not_closed` while a suffix remains open” is `institutionally_supplied`; the acceptance
+milestone and open suffix are `recomputed`. `[P37 as stated]`
+
+### Confidence-ledger re-probe — blocker moved, writer still RED
+
+The public confidence-ledger `--write` re-probe ran alone among root heavy lanes from attached head
+`a67d172e61b32c7e2489987d26f9e665918685b3`. It exited child/wrapper `1` without timeout in
+`1,066.669687` s under the declared `1,800` s fence; producer wall time was `1,055.697357` s.
+The cold pass and cache-hit pass both completed, each reached `owner_bundle_loaded`, and the worker
+emitted its two-pass completion heartbeat. The cold pass emitted
+`n10_owner_recomputation_complete`; the cache-hit pass correctly reused that admitted owner bundle
+without recomputing N10. The earlier `n10_capstone_invalid` blocker is removed exactly as the prompt
+hypothesized. `[P37: recomputed for terminal, durations, trace, and moved blocker;
+institutionally_supplied for the fence/regime; not_established for the causal duration effect of
+external contention]`
+
+The producer nevertheless returned `status: fail` with one outer issue whose named content is
+`36 validation errors for FrozenConfidenceLedgerContract`. `contract_bytes()` globally omitted
+every `None`; `_run_one_process_closeout()` then attempted to parse the first serialized pass back
+into `FrozenConfidenceLedgerContract` before its write block and found 36 fields that are nullable
+but required to be present. The complete missing-field denominator, grouped without omission, is:
+
+1. three N10 routes `{0,1,2}` at `row_addressable_variable`;
+2. eight N13b fields: `local_rights_trust_anchor_sha256`, `overlay_content_sha256`, and both
+   `raw_evidence_event_sha256`/`raw_body_sha256` for attempts `{1,3,4}`;
+3. ten real-ledger fields: `risk_scope.epoch_ref` plus `events/{0,1,2,4,5,6,8,9,10}/check/owner_binding`;
+4. seven conformance-ledger fields: `risk_scope.{epoch_ref,model_ref}`,
+   `events/{0,1,2,3}/check/owner_binding`, and `checks/0/owner_binding`;
+5. one N9 field, `n9_promotion_projection.risk_scope.epoch_ref`;
+6. two N12 fields, `n12_epoch_reference_projection.{risk_scope.epoch_ref,epoch_ref}`; and
+7. five unseen-probe fields: `execution_ordinal`, `schedule_query_index`, `execution_id`,
+   `instrument_definition_hash`, and `proof_profile_hash`.
+
+The parsed count is exactly `36/36`, and the first boundary is
+`/owner_bundle_projection/n10/routes/0/row_addressable_variable`. The writer never reached its
+scratch write block, so the candidate path is absent. This is not a second mechanism: it is the same
+global null-versus-absent normalization defect that the cold live validator exposed as
+`artifact_content_hash_drift`, now observed one step earlier at serialize/reparse. It is also not the
+corrected receipt-wrapper classifier: no candidate existed for that classifier to inspect.
+`[P37: recomputed for the terminal and complete field denominator; independently_reconciled for the
+source boundary and mechanism identity]`
+
+The producer exposes no stable snake-case diagnostic for this boundary: its `issues[0].code` is the
+entire Pydantic validation-error string. This journal registers the evidence-local class as
+`confidence_contract_required_nullable_fields_omitted`; that label describes the observed class and
+does not pretend to be an emitted producer code. `[P37: recomputed for the emitted value;
+independently_reconciled for the local classification]`
+
+The measurement pinned `449` recursively enumerated policy-design-case JSON files, including the
+complete `353`-file top-level denominator, plus the absent candidate, confidence registry, catalog,
+and L5 registry: `453` pins total. All `453/453` before/after identities match, the candidate is
+absent on both sides, the governed confidence artifact remains
+`a844a0c318a95e6f653dda34c3a7f6db6592070b8abe25b0b9e9b1bdc2824781`, and the tracked
+status was identical before and after and contained only this already-open journal. No restore was required, and no checker/wrapper
+process survived the terminal. Meta/stdout/stderr are respectively `401,845`, `138,632`, and
+`21,473` bytes with SHA-256 identities `b08af5e9…bf3c`, `5f9fd9c0…2f89`, and
+`a29717eb…25f8`. The retained receipt paths are
+`tmp/gy-defc-7/confidence-reprobe-1/probe.meta.json`, `probe.stdout`, and `probe.stderr`.
+`[P37: recomputed]`
+
+This selects §3's “confidence ledger writer still fails” branch. The prompt's main dependency
+hypothesis is corrected narrowly: Depth did remove the old blocker, but that only made the already
+landed N11 serialization defect executable. No accepted writer, delta declaration, ledger check,
+rederive, corrupt lane, or second cold N11 is authorized after this RED. `GY-DEF14` therefore remains
+closed for four members and open for the fifth confidence-ledger member; the batch does not close.
+The authorized second cold N11 was not reached because the prerequisite drift did not close.
+`[P37: institutionally_supplied for the branch/stop rule and four-of-five batch interpretation;
+recomputed for the failed prerequisite; consumer_asserted for the unrun downstream lanes, including
+no second task process]`
+
+The earlier smallest-closure wording (“normalize all optional `None` exactly as current
+`contract_bytes()`”) is superseded by this measurement. Global omission changes a required-nullable
+field into absence and cannot preserve ledger scope semantics. The smallest correct closure is one
+shared N11 artifact projection that removes only the three explicitly non-governing top-level
+comparison identity fields (and the self-hash when hashing), retains all 36 required-nullable fields
+as explicit `null`, and is used by construction, hash validation, reconciliation, corruption rehash,
+and serialization. A red-first test must prove the canonical bytes reparse with the full 36-field
+presence denominator and matching self-hash, while a retained non-null mutation still turns red.
+That repair is described, not performed. `[P37: independently_reconciled for the closure boundary;
+not_established for any repaired outcome]`
+
+### GY-DEFC-7 closeout verification and file-set readback
+
+The first fresh architecture wrapper is a tooling non-receipt: a deliberately narrow `PATH` could
+not resolve `uv`, so no scanner ran. It exited wrapper `125` in `0.001236` s with
+`FileNotFoundError`, empty stdout/stderr, and unchanged baseline pin; its meta identity is
+`0f2f7b44…7c7c`. The corrected launch used the read-back absolute `/opt/homebrew/bin/uv` path under
+the same `180` s fence. It reproduced the known guardrail negative at child/wrapper exit `1` in
+`16.290607` s, with the deep-import baseline byte-identical at `4c391c6c…bb5c`, empty stderr, and
+stdout identity `73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb` — byte-for-byte
+the retained earlier receipt. The corrected meta identity is `5c915b2b…bb2d`. No baseline sync was
+run. `[P37: recomputed; independently_reconciled for equality with the retained receipt]`
+
+The complete branch file denominator read from `git diff --name-status c1a89b6cf..HEAD` is `29`
+paths, SHA-256
+`8bac628aabf0c02028d0b2ee5c7088ca560896f2c11692230fafb968325fd556` over the sorted
+name-status rows. Its intersection with the complete six-path guardrail denominator — the baseline
+plus `execution_policy.py`, `routes/runs.py`, `channel_contracts.py`, `lex_pipeline.py`, and
+`lex_search_projection.py` — is empty. `[P37: recomputed]`
+
+The 29 paths read back are:
+
+```text
+A  policy-engine/docs/superpowers/journals/2026-08-11-gy-defc-3-retry.md
+M  policy-engine/architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json
+M  policy-engine/architecture/policy_design_case/layer3_gy_generation_cycle_contract.json
+M  policy-engine/architecture/policy_design_case/layer3_gy_promotion_contract.json
+M  policy-engine/architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json
+M  policy-engine/architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json
+M  policy-engine/architecture/policy_design_case/layer3_gy_second_domain_pack.json
+M  policy-engine/src/polisyos/pdc/__init__.py
+M  policy-engine/src/polisyos/pdc/_impl/gy_waist.py
+M  policy-engine/src/polisyos/runtime/quality/confidence_ledger.py
+M  policy-engine/src/polisyos/runtime/quality/promotion_sequence.py
+M  policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py
+M  policy-engine/tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py
+M  policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py
+M  policy-engine/tests/repo_quality/tools/test_timing.py
+M  policy-engine/tests/repo_quality/tools/test_unified_cli.py
+M  policy-engine/tests/unit/pdc/test_gy_waist_contracts.py
+M  policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py
+M  policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py
+M  policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+M  policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py
+M  policy-engine/tests/unit/runtime/quality/test_second_domain_pack.py
+M  policy-engine/tools/cli.py
+M  policy-engine/tools/lib/timing.py
+M  policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py
+M  policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py
+M  policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py
+M  policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py
+M  policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py
+```
+
+`tools/cli.py` and `tools/lib/timing.py` are inherited members of the pre-task branch delta, not
+GY-DEFC-6/7 edits: their blobs at start ref `6700ff36e` and current head are identical
+(`2c2ae245…040` and `75e79fe3…9b5`, respectively). The complete GY-DEFC-6/7 delta from that start ref
+contains only the Depth artifact, its validator, its mirrored test, and this journal. The full branch
+set has an empty `src/polisyos/data_forge/**` intersection. Ruff passes all `22` Python paths in the
+29-path branch denominator, and both committed and worktree whitespace checks are clean.
+`[P37: recomputed]`
+
+The closeout pattern pass preserves P29 by using the real confidence writer, P35 by enumerating the
+complete 36-field, 449-recursive-JSON, 353-top-level-JSON, 453-pin, 29-path, and six-guardrail
+denominators, P34 by retaining the RED rather than relabelling it green, P31 by describing one shared
+canonical projection instead of 36 per-field defaults, and P37 by keeping un-emitted live hashes and
+unperformed repair outcomes `not_established`. `[P37: independently_reconciled]`
+
+The GY-DEFC-7 orchestration retained the three read-only lanes from the interrupted task: one
+classified the cold N11 artifact/hash operands, one reconstructed and independently audited the
+confidence-ledger producer protocol and re-probe, and one audited the standalone GY-DEFC-6 closure,
+attempt census, and P37 labels. Root alone edited tracked files and launched every writer-class,
+architecture, and readback process. Root's heavy lane was serialized throughout; unrelated external
+processes were permitted under the declared contention regime. All three research lanes are complete,
+no subagent edited the tree or launched a heavy process, and no task process remains live at closeout.
+`[P37: consumer_asserted for dispatch and subagent activity; independently_reconciled for returned
+findings; recomputed for root launches, tracked edits, agent terminal states, and final process state]`

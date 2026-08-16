@@ -3250,3 +3250,46 @@
   evidence, not a product signal; all three retain their recorded regimes.
   No governed-lane nonreceipt occurred after the pre-writer mechanical patch
   rejection.
+
+## 2026-08-16 — C16a-R1 landing and C16b-R1 structural entry stop
+
+- C16a-R1 landed on the attached branch at
+  `72522acd95f10bad779d08419b065cd48d6c79d8`, `75` commits ahead of
+  `7cba15e56`. Branch readback showed an empty porcelain and exactly seven
+  landing paths: `CausalTab.tsx`, `CausalTab.test.tsx`, the frontend
+  disposition register, DS19 status inventory, generated frontend report,
+  DS5 plan, and this journal. The register family was free immediately after
+  landing.
+- C16b-R1's complete entry walk measured `10` paths, not the declared `9`.
+  The omitted path is
+  `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`:
+  its shared ready-authz fixture has no `tenant_id` or `user_id`, while its
+  existing test asserts that a local dispute survives a governance
+  unmount/remount. Honest canonical-owner binding makes that an incomplete
+  scope and must fail closed with zero storage I/O. An anonymous/run-only
+  fallback or legacy-key read would reopen the C14a defect; changing the test
+  to non-persistence would contradict its capability claim. The fixture is
+  therefore a structural tenth path, not arithmetic padding.
+- No cap-9 substitution is truthful: both the domain test and new focused
+  panel test are required for the four inheritance properties, while the
+  broad remount witness supplies the integration identity fixture. C16b-R1
+  stops cleanly under the structural over-cap rule; the measured execution
+  successor is C16b-R2 / cap `10`.
+- Product and governed bytes stayed clean through stop discovery; only this
+  plan/journal stop record then moved. No C16b source/test, governed artifact,
+  writer, scanner, heavy lane, staging, or product commit ran. One
+  proposed source patch was rejected atomically because it attempted to delete
+  and add the same path; it changed no bytes and is a tooling nonreceipt.
+- The C14 family is therefore truthfully `4 / 5` references discharged:
+  `[0]/[1]` by C13b-R7, `[2]` by C16a-R1, and owner plus `[4]` by C17a-R2;
+  dispute reference `[3]` remains open for C16b-R2. The persisted-authority
+  census remains `35 / 14` sites/files and `16 / 13` families/owners; dispute
+  actor/status stripping is measured but not claimed landed. The unrelated
+  module-path replication debt remains `16` literals / `8` governed owners
+  (`35 / 15` tracked), with no new duplicate owner introduced.
+- C17b-R1 was not entered. The queue stops at C16b-R2, and C17b retains the
+  clean, undivided later session required by its prior ruling.
+- Because no C16b governed byte moved, the register family remains free at the
+  stop. C16a's read-back hashes remain register `a4916c0f...e1ce92`, report
+  `aafd18aa...d6fea`, status `f75b660d...7e005`, baseline
+  `215b1882...e4bc00`, and readiness `4b64f092...e2ae13`.

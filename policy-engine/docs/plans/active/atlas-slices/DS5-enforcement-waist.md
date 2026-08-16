@@ -203,7 +203,7 @@ byte-unmodified. Any new identity is red.
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 1 live store; the deleted queue survives only as an upgrade tombstone | composer drafts enveloped; promotion queue barred |
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
-| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1-C16b-R1 exclude causal `edges[].status` and keep dispute `status` explicitly interaction-only |
+| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1 excludes causal `edges[].status`; C16b-R2 still owes interaction-only dispute status |
 | persistence API census | current 35 symbol-resolved sites / 14 production files: 25 Web Storage, 5 Zustand, 5 IndexedDB | historical pre-C13a/C15a receipt was 41/14; C17b-R1 must remeasure its clean entry |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
@@ -574,7 +574,7 @@ NODE
 
 Historical recorded output: `41` sites / `14` files; Web Storage `23`, Zustand
 `5`, IndexedDB `13`. C17b-R1 reruns this declaration-resolved API set and
-remeasures it at its clean entry after C13a-C16b-R1; it does not infer payload
+remeasures it at its clean entry after C13a-C16b-R2; it does not infer payload
 semantics from method or field names.
 
 The surface and store commands are bounded structural censuses, not future lint
@@ -849,7 +849,7 @@ first continuously numbered `-R1` successor.
 | C14b | 7 | 8 | absorbed/discharged | C13b-R7 / 11; no separate implementation |
 | C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
 | C16a | 5 | 7 | no-fit | C16a-R1 / 7 |
-| C16b | 7 | 9 | no-fit | C16b-R1 / 9 |
+| C16b | 7 | 10 | stopped structural re-cut | C16b-R2 / 10 |
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 10 | no-fit | C17b-R1 / 10 |
 | C18b | 5 | 6 | no-fit | C18b-R1 / 6 |
@@ -1363,8 +1363,8 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
 | C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
-| C16a-R1 | causal-draft partition | live raw local-storage writer exists; DS8 semantics are untouched | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301-310,444` | executable | none |
-| C16b-R1 | dispute-interaction partition | live raw local-storage writer exists; DS9 semantics are untouched | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109-130`; `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx:90-103` | executable | none |
+| C16a-R1 | causal-draft partition | scoped, authority-free candidate persistence is landed; DS8 semantics remain untouched | `72522acd9`; focused causal consumer witness | landed; register family free | none |
+| C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; DS9 semantics remain untouched | `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx:552-560,1309-1337` | R1 stopped; R2 recut required | complete-scope fixture path |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
@@ -2065,13 +2065,15 @@ partition successor evidence.
 
 **Expected commit:** `DS5-C16a-R1 partition causal draft state`.
 
-### DS5-C16b-R1 — dispute interaction local state
+### DS5-C16b-R1/R2 — dispute interaction local state
 
-**Measured set:** exactly 8 implementation/governed paths plus this plan = 9;
-cap 9: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
-test, frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, this plan, and
-journal.
+**R1 entry stop:** the complete fence is 9 implementation/governed paths plus
+this plan = 10, not 9. In addition to dispute domain + test,
+`DisputeRegistryPanel.tsx` + a new focused panel test, register + report,
+status, plan, and journal, the existing `runDetailSurfaces.test.tsx` remount
+witness must receive complete tenant/user identity. Its ready fixture currently
+has neither, so scoped fail-closed persistence cannot keep its stated remount
+claim without this structural re-anchor. Execution successor: C16b-R2 / cap 10.
 
 **Red first:** `test_dispute_state_rejects_cross_scope_and_stale_bytes`.
 
@@ -2080,7 +2082,7 @@ journal.
 presentation slot. The DS9 domain row remains `rebind_pending` with partition
 successor evidence.
 
-**Expected commit:** `DS5-C16b-R1 partition dispute interaction state`.
+**Expected commit:** `DS5-C16b-R2 partition dispute interaction state`.
 
 ### DS5-C17a-R2 — operator-craft family partition
 
@@ -2297,7 +2299,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |
 | C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | 6 |
 | C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
-| C16b-R1 | `DS5-C16b-R1 partition dispute interaction state` | 8 |
+| C16b-R1/R2 | R1 stopped on omitted scope fixture; `DS5-C16b-R2 partition dispute interaction state` | 10 |
 | C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |
 | C17b-R1 | `DS5-C17b-R1 govern persistence construction` | 10 |
 | C18a | `DS5-C18a make flag exposure registry strict` | 3 |
@@ -2390,7 +2392,8 @@ backend test path.
   other 65 construction sites and 41 producer sites as typed debt with
   producer-side integrate-contracts.
 - No theorem that a storage caller classified arbitrary unbranded payload
-  meaning correctly. C13a/C15a/C16a-R1-C16b-R1 close the six measured status paths; C17b-R1
+  meaning correctly. C13a/C15a/C16a-R1 close five measured status paths;
+  C16b-R2 still owes the sixth before C17b-R1
   enforces registered constructors, nominal envelopes and concrete codecs.
   Semantic equivalents outside nominal authority types remain attached to the
   C01a typed owner debt rather than being claimed as universally detected.

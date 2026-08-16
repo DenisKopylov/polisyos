@@ -38,62 +38,74 @@ disconnected drill.
 ## 1. Inspection boundary and count method
 
 Documentation anchors in this amended package are pinned to
-`109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`. The architect established that
-`policy-engine/src` at that pin is byte-identical to the original research pin
-`1a7a2d05ebba22fae80e9934329e4b880806588e`, so source censuses remain directly comparable.
+`109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`. The comparison from the original research pin
+`1a7a2d05ebba22fae80e9934329e4b880806588e` to that documentation pin changes no path below
+`policy-engine/src`, so the source census denominator is comparable.
 
-The complete literal census below was supplied by the architect from a complete tree walk using
-case-sensitive fixed-string `git grep` over the pinned ref. Its **path denominator** is
-`policy-engine/src`; binary files are excluded. Each row states its **file-type denominator**. These
-figures are not connector or search-index results. This applies the symmetric P35 index rider at
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:76-80,139-167`: an index
-establishes neither a zero nor a positive count.
+The dual-denominator literal census below is **institutionally supplied** by the architect. The
+architect reports two clean-archive walks of the pin with identical results. This package's execution
+environment cannot perform that recursive byte walk, so the package does not label the result
+`recomputed` and does not treat the supplied numbers as a positive gate predicate. The pin, path
+denominator, match semantics, commands, and both file-type denominators are retained so a party with
+tree access can reproduce the result.
+
+**Path denominator:** `policy-engine/src`  
+**Match semantics:** case-sensitive fixed string; binary files excluded
+
+Architect-supplied reproduction template, run from `policy-engine/src` at the pin. The bracketed
+include option is used only for the Python-only denominator:
+
+```text
+grep -rIl --binary-files=without-match [--include='.py'] -F <token> . # files
+grep -rI --binary-files=without-match [--include='.py'] -F <token> . # matching lines
+grep -rIo --binary-files=without-match [--include='*.py'] -F <token> . # occurrences
+```
 
 Count vocabulary:
 
 - **files**: distinct files with at least one exact literal;
 - **matching lines**: physical lines with one or more exact literals;
 - **occurrences**: all non-overlapping exact appearances, including multiple appearances on one line;
-- **all source**: every non-binary file under the path denominator;
+- **all source**: every non-binary file under the path denominator; and
 - **Python only**: `*.py` files under the path denominator.
 
 Authority claims cite their controlling finding IDs rather than adjacent prose, applying P36.
 Load-bearing gate predicates are classified under P37 in the primary report.
 
-## 2. Complete source census
+## 2. Institutionally supplied source census
 
-**Pinned ref:** `109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`  
-**Path denominator:** `policy-engine/src`  
-**Search:** case-sensitive fixed strings; binary files excluded
-
-| Token | File-type denominator | Files | Matching lines | Occurrences | Verdict |
-| --- | --- | ---: | ---: | ---: | --- |
-| `legal_hold` | all source | **2** | **7** | **8** | Established by complete walk. |
-| `renewal` | all source | **4** | **4** | **4** | Established by complete walk. |
-| `renewal` | Python only | **1** | **1** | **1** | Established by complete walk. |
-| `expires_at` | Python only | **49** | **280** | **363** | Established by complete walk. |
-| `ttl_seconds` | Python only | **30** | **116** | **148** | Established by complete walk. |
-| `expiry` | Python only | **27** | **102** | **121** | Established by complete walk. |
-| `grace_period` | all source | **0** | **0** | **0** | True zero at the pin. |
-| `not_after` | all source | **0** | **0** | **0** | True zero at the pin. |
-| `revocation_time` | all source | **0** | **0** | **0** | True zero at the pin. |
+| Token | All-source files / lines / occurrences | Python-only files / lines / occurrences | Package treatment |
+| --- | ---: | ---: | --- |
+| `legal_hold` | **2 / 7 / 8** | **2 / 7 / 8** | `institutionally_supplied`; non-positive here. |
+| `renewal` | **4 / 4 / 4** | **1 / 1 / 1** | `institutionally_supplied`; non-positive here. |
+| `expires_at` | **50 / 281 / 364** | **49 / 280 / 363** | `institutionally_supplied`; non-positive here. |
+| `ttl_seconds` | **30 / 116 / 148** | **30 / 116 / 148** | `institutionally_supplied`; non-positive here. |
+| `expiry` | **28 / 103 / 122** | **27 / 102 / 121** | `institutionally_supplied`; non-positive here. |
+| `grace_period` | **0 / 0 / 0** | **0 / 0 / 0** | Supplied zero; `not_established` for this package. |
+| `not_after` | **0 / 0 / 0** | **0 / 0 / 0** | Supplied zero; `not_established` for this package. |
+| `revocation_time` | **0 / 0 / 0** | **0 / 0 / 0** | Supplied zero; `not_established` for this package. |
 
 ### 2.1 Reconciliation with the commission and independent audit
 
 - The commission's `renewal = 1` is correct only for the unstated Python-only denominator. The
-  all-source result is `4 / 4 / 4`.
-- The independent audit reproduced both `renewal` denominators and the file counts for `expires_at`,
-  `ttl_seconds`, and `expiry`.
-- The audit's `legal_hold = 2 files / 4 matching lines / 5 occurrences` is wrong. The correct complete-
-  walk result is **2 / 7 / 8**. Its file count is right; its indexed candidate set was not a complete
-  line or occurrence denominator.
-- The three zeroes are established facts, not `not_established` findings.
+  supplied all-source result is `4 / 4 / 4`.
+- The all-source `expires_at` result is `50 / 281 / 364`, one file, line, and occurrence larger than
+  the Python-only `49 / 280 / 363` result.
+- The all-source `expiry` result is `28 / 103 / 122`, one file, line, and occurrence larger than the
+  Python-only `27 / 102 / 121` result.
+- The audit's `legal_hold = 2 files / 4 matching lines / 5 occurrences` is wrong. The architect's
+  dual-denominator walk reports **2 / 7 / 8**, and the independent conformance verification separately
+  reproduced that low-cardinality tuple.
+- The three supplied zeroes are reproducible claims, not settled facts of this package. Under P37 the
+  package result is `not_established` because the decisive census predicate is
+  `institutionally_supplied`.
 
 ### 2.2 Semantic consequence
 
-The conclusion is strengthened. Expiry and TTL are represented in many Python files, while exact
-source literals for `grace_period`, `not_after`, and `revocation_time` are absent across all source
-files. More importantly, repository inspection establishes no admitted capability chain that combines:
+The supplied census reports many expiry and TTL literals and reports no exact all-source literals for
+`grace_period`, `not_after`, or `revocation_time`. This package does not promote those supplied zeroes
+to established absences. The operative semantic finding is independent of that promotion: repository
+inspection establishes no admitted capability chain that combines:
 
 - an accountable renewal role and succession/escalation path;
 - process-derived lead time;
@@ -157,14 +169,17 @@ The five runbooks remain necessary, substantive inputs. They are not themselves 
 
 ## 5. Orientation conclusion
 
-1. The complete census is now established with explicit path and file-type denominators.
-2. `renewal` is **4 / 4 / 4** over all source and **1 / 1 / 1** over Python; the Python occurrence is
-   worker-lease renewal only.
-3. `legal_hold` is **2 / 7 / 8**, correcting both the original ledger and the independent audit's line
-   and occurrence counts.
-4. `expires_at`, `ttl_seconds`, and `expiry` reproduce the original file counts and now have established
-   line and occurrence totals.
-5. `grace_period`, `not_after`, and `revocation_time` are true zeroes at the pin.
+1. The census is carried with its pin, path denominator, match semantics, exact reproduction commands,
+   and both file-type denominators; its P37 classification is `institutionally_supplied`, not
+   `recomputed`.
+2. `renewal` is supplied as **4 / 4 / 4** over all source and **1 / 1 / 1** over Python; the Python
+   occurrence is worker-lease renewal only.
+3. `legal_hold` is supplied as **2 / 7 / 8**, correcting the independent audit's line and occurrence
+   totals; the independent conformance verification separately reproduced this low-cardinality tuple.
+4. `expires_at` and `expiry` each have one additional non-Python file, line, and occurrence beyond the
+   Python-only denominator; `ttl_seconds` is identical across both denominators.
+5. `grace_period`, `not_after`, and `revocation_time` are supplied as zeroes but remain
+   `not_established` for this package.
 6. The semantic absence of a complete governed renewal capability remains the operative finding.
 7. The acceptance defect is a documentation/tabletop-versus-exercised-recovery taxonomy defect, not a
    claim that the baseline expressly accepted a paper runbook as custody-grade DR closeout.

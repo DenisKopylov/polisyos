@@ -9,11 +9,13 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.run import context as run_context_module
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord, TraceRefs
+from polisyos.core.trace.sink import JsonlTraceSink
 from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
 from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -176,6 +178,62 @@ def test_runs_sse_exit_consumes_producer_terminality_not_status_text() -> None:
 
     assert "still_running_but_owner_finalized_v47" in event
     assert '"run_terminality": "terminal"' in event
+
+
+@pytest.mark.parametrize(
+    "run_terminality",
+    [RunTerminality.NON_TERMINAL, RunTerminality.NOT_ESTABLISHED],
+)
+def test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact(
+    run_terminality: RunTerminality,
+    monkeypatch,
+) -> None:
+    checks = 0
+
+    class _DisconnectAfterFirstSnapshot:
+        async def is_disconnected(self) -> bool:
+            nonlocal checks
+            checks += 1
+            return checks > 1
+
+    async def _no_sleep(_seconds: float) -> None:
+        return None
+
+    monkeypatch.setattr(runs_routes.asyncio, "sleep", _no_sleep)
+    now = datetime.now(UTC)
+    snapshot = RunDetailSnapshot(
+        run_id="R_completed_label_without_terminal_fact",
+        cursor=now,
+        status="completed_successfully",
+        run_terminality=run_terminality,
+        timeline_events=0,
+        agent_attempts=0,
+        agent_steps=0,
+        governance_issues=0,
+        decision_review_required=False,
+        generated_at=now,
+    )
+
+    async def _emit_one_snapshot() -> str:
+        stream = runs_routes._stream_payloads(
+            lambda: snapshot,
+            _DisconnectAfterFirstSnapshot(),
+            policy=runs_routes.LiveStreamPolicy(
+                min_interval_seconds=0.01,
+                max_interval_seconds=0.01,
+                keepalive_seconds=10.0,
+                max_duration_seconds=1.0,
+            ),
+        )
+        event = await anext(stream)
+        with pytest.raises(StopAsyncIteration):
+            await anext(stream)
+        return event
+
+    event = asyncio.run(_emit_one_snapshot())
+
+    assert "completed_successfully" in event
+    assert checks == 2
 
 
 def test_runs_sse_final_encoder_rejects_malformed_timeout_data() -> None:
@@ -500,6 +558,130 @@ def test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established
     assert warning in projected["warnings"]
 
 
+@pytest.mark.parametrize(
+    "failure_kind",
+    ["missing_ref", "unresolvable_ref", "wrong_media_ref", "unprovenanced_ref"],
+)
+def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
+    runtime_api_env,
+    failure_kind: str,
+) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = f"R_terminal_fact_{failure_kind}"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    outputs = []
+    if failure_kind == "unresolvable_ref":
+        outputs = [
+            ctx.store.put_json(
+                {"not": "a run manifest"},
+                PutOptions(kind="core.run_manifest", media_type="application/json"),
+            )
+        ]
+    elif failure_kind in {"wrong_media_ref", "unprovenanced_ref"}:
+        manifest = RunManifest(
+            run_id=run_id,
+            registry_bundle=registry_ref,
+            status="completed",
+            started_at=datetime.now(UTC).replace(microsecond=0),
+            finished_at=datetime.now(UTC).replace(microsecond=0),
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        if failure_kind == "unprovenanced_ref":
+            ref = ctx.store.put_json(
+                manifest,
+                PutOptions(kind="core.run_manifest", media_type="application/json"),
+            )
+        else:
+            ref = ctx.store.put_json(
+                manifest,
+                run_context_module._run_manifest_write_options(manifest),
+            ).model_copy(update={"media_type": "text/plain"})
+        outputs = [ref]
+    with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(
+            TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_FINALIZED",
+                run_terminality=RunTerminality.TERMINAL,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+                refs=TraceRefs(outputs=outputs),
+            ).model_dump_json(exclude_none=True)
+            + "\n"
+        )
+
+    ctx.run_index.refresh(force=True)
+    projected = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
+
+    assert projected["run_terminality"] == RunTerminality.NOT_ESTABLISHED
+    assert projected["run_terminality"] != RunTerminality.NON_TERMINAL
+
+
+def test_terminal_fact_manifest_scope_must_match_started_owner(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminal_manifest_scope_mismatch"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    substituted_manifest = RunManifest(
+        run_id=run_id,
+        registry_bundle=registry_ref,
+        status="completed",
+        started_at=datetime.now(UTC).replace(microsecond=0),
+        finished_at=datetime.now(UTC).replace(microsecond=0),
+        tenant_id="tenant_substituted",
+        cell_id="cell_substituted",
+    )
+    manifest_ref = ctx.store.put_json(
+        substituted_manifest,
+        run_context_module._run_manifest_write_options(substituted_manifest),
+    )
+    with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(
+            TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_FINALIZED",
+                run_terminality=RunTerminality.TERMINAL,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+                refs=TraceRefs(outputs=[manifest_ref]),
+            ).model_dump_json(exclude_none=True)
+            + "\n"
+        )
+
+    ctx.run_index.refresh(force=True)
+    projected = ctx.run_index.get_run(run_id).summary
+
+    assert projected.run_terminality is RunTerminality.NOT_ESTABLISHED
+    assert projected.tenant_id == runtime_api_env["tenant_a"]
+    assert projected.cell_id == runtime_api_env["cell_a"]
+
+
 def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_regression"
@@ -624,6 +806,237 @@ def test_finalize_recovery_refuses_journal_without_owner_start(runtime_api_env) 
 
     assert journal_path.exists()
     assert "RUN_FINALIZED" not in trace_path.read_text(encoding="utf-8")
+
+
+def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_journal_scope_owner"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    substituted_manifest = RunManifest(
+        run_id=run_id,
+        registry_bundle=registry_ref,
+        status="completed",
+        tenant_id="tenant_substituted",
+        cell_id="cell_substituted",
+    )
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_manifest": substituted_manifest.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+
+    assert recovered is None
+    assert journal_path.exists()
+    assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
+
+
+def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_journal_ambiguous_owner"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(
+            TraceRecord(
+                run_id="R_conflicting_started_owner",
+                phase="core",
+                event="RUN_STARTED",
+                run_terminality=RunTerminality.NON_TERMINAL,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            ).model_dump_json(exclude_none=True)
+            + "\n"
+        )
+    pending_manifest = run.run_manifest.model_copy(deep=True)
+    pending_manifest.status = "completed"
+    pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_manifest": pending_manifest.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+
+    assert recovered is None
+    assert journal_path.exists()
+    assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
+
+
+def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_recovery_exact_ref"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    pending_manifest = run.run_manifest.model_copy(deep=True)
+    pending_manifest.status = "completed"
+    pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+    manifest_ref = ctx.store.put_json(
+        pending_manifest,
+        run_context_module._run_manifest_write_options(pending_manifest),
+    )
+    wrong_media_ref = manifest_ref.model_copy(update={"media_type": "text/plain"})
+    trace_path = run_dir / "trace.jsonl"
+    with trace_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_FINALIZED",
+                run_terminality=RunTerminality.TERMINAL,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+                refs=TraceRefs(outputs=[wrong_media_ref]),
+            ).model_dump_json(exclude_none=True)
+            + "\n"
+        )
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_manifest": pending_manifest.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+
+    assert recovered == manifest_ref
+    assert journal_path.exists() is False
+    finalized = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if '"event":"RUN_FINALIZED"' in line
+    ]
+    assert len(finalized) == 2
+    assert finalized[-1].refs.outputs == [manifest_ref]
+
+
+def test_cached_active_run_observes_journal_only_finalize_recovery(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_cached_journal_recovery"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    ctx.run_index.refresh(force=True)
+    assert ctx.run_index.get_run(run_id).summary.run_terminality is RunTerminality.NON_TERMINAL
+
+    pending_manifest = run.run_manifest.model_copy(deep=True)
+    pending_manifest.status = "completed"
+    pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_manifest": pending_manifest.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    ctx.run_index.refresh(force=True)
+
+    assert journal_path.exists() is False
+    assert ctx.run_index.get_run(run_id).summary.run_terminality is RunTerminality.TERMINAL
+
+
+def test_finalize_keeps_journal_when_required_local_trace_write_fails(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("POLISYOS_AUDIT_CHAIN_ENABLED", "1")
+    monkeypatch.delenv("POLISYOS_AUDIT_HOT_TIER_URL", raising=False)
+    monkeypatch.delenv("POLISYOS_AUDIT_COLD_TIER_BUCKET", raising=False)
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_required_trace_failure"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    original_emit = JsonlTraceSink.emit
+
+    def _fail_terminal_write(self, record: TraceRecord) -> None:
+        if record.event == "RUN_FINALIZED":
+            raise OSError("simulated required trace failure")
+        original_emit(self, record)
+
+    monkeypatch.setattr(JsonlTraceSink, "emit", _fail_terminal_write)
+
+    with pytest.raises(OSError, match="required trace failure"):
+        run.finalize(status="completed")
+
+    assert (run_dir / ".finalize-journal.json").exists()
+    assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
+    if run._audit_sink is not None:
+        run._audit_sink.close()
 
 
 def test_recovery_rebinds_unlinked_terminal_event_to_its_manifest(runtime_api_env) -> None:

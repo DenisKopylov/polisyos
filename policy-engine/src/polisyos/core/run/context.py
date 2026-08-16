@@ -18,7 +18,7 @@ from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, S
 from ..artifacts.write_contract import ArtifactWriteOptions
 from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
-from ..trace.sink import CompositeTraceSink, JsonlTraceSink, TraceSink
+from ..trace.sink import JsonlTraceSink, TraceSink
 from .manifest import RunManifest
 
 if TYPE_CHECKING:
@@ -29,6 +29,15 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 _FINALIZE_JOURNAL_SCHEMA_VERSION = "1.0"
 _FINALIZE_JOURNAL_NAME = ".finalize-journal.json"
+
+
+@dataclass(frozen=True)
+class _RunOwnerIdentity:
+    """Lifecycle identity established by the canonical RUN_STARTED event."""
+
+    run_id: str
+    tenant_id: str | None
+    cell_id: str | None
 
 
 class _AuditTraceSink(Protocol):
@@ -97,7 +106,7 @@ def _load_finalize_journal(run_dir: Path) -> RunManifest | None:
 def _trace_has_terminal_run_finalized_event(
     trace_path: Path,
     *,
-    run_id: str,
+    owner: _RunOwnerIdentity,
     run_ref: ArtifactRef,
 ) -> bool:
     if not trace_path.exists():
@@ -110,23 +119,22 @@ def _trace_has_terminal_run_finalized_event(
         except (TypeError, ValueError):
             continue
         if (
-            record.run_id == run_id
+            record.run_id == owner.run_id
+            and record.tenant_id == owner.tenant_id
+            and record.cell_id == owner.cell_id
             and record.phase == "core"
             and record.event == "RUN_FINALIZED"
             and record.run_terminality is RunTerminality.TERMINAL
-            and any(
-                output.artifact_id == run_ref.artifact_id and output.kind == run_ref.kind
-                for output in record.refs.outputs
-            )
+            and any(output == run_ref for output in record.refs.outputs)
         ):
             return True
     return False
 
 
-def _trace_run_started_identity(trace_path: Path) -> str | None:
+def _trace_run_started_identity(trace_path: Path) -> _RunOwnerIdentity | None:
     if not trace_path.exists():
         return None
-    owner_run_ids: set[str] = set()
+    owners: set[_RunOwnerIdentity] = set()
     for line in trace_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
@@ -137,10 +145,34 @@ def _trace_run_started_identity(trace_path: Path) -> str | None:
         if record.phase == "core" and record.event == "RUN_STARTED":
             if record.run_terminality not in {None, RunTerminality.NON_TERMINAL}:
                 return None
-            owner_run_ids.add(record.run_id)
-    if len(owner_run_ids) != 1:
+            owners.add(
+                _RunOwnerIdentity(
+                    run_id=record.run_id,
+                    tenant_id=record.tenant_id,
+                    cell_id=record.cell_id,
+                )
+            )
+    if len(owners) != 1:
         return None
-    return next(iter(owner_run_ids))
+    return next(iter(owners))
+
+
+def _record_recovered_run_manifest_owner(
+    store: ArtifactStore,
+    *,
+    run_manifest: RunManifest,
+    run_ref: ArtifactRef,
+) -> None:
+    if not run_manifest.tenant_id:
+        return
+    recorder = getattr(store, "record_artifact_owner", None)
+    if callable(recorder):
+        recorder(
+            run_ref.artifact_id,
+            tenant_id=run_manifest.tenant_id,
+            cell_id=run_manifest.cell_id,
+            writer="recover_pending_run_finalize.manifest",
+        )
 
 
 def _append_run_finalized_event(
@@ -169,27 +201,41 @@ def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> Artifac
     if run_manifest is None:
         return None
     trace_path = run_dir / "trace.jsonl"
-    trace_run_id = _trace_run_started_identity(trace_path)
-    if trace_run_id is None:
+    trace_owner = _trace_run_started_identity(trace_path)
+    if trace_owner is None:
         logger.warning(
             "Refusing finalize journal for run %s without a core RUN_STARTED owner event",
             run_manifest.run_id,
         )
         return None
-    if run_manifest.run_id != trace_run_id:
+    journal_owner = _RunOwnerIdentity(
+        run_id=run_manifest.run_id,
+        tenant_id=run_manifest.tenant_id,
+        cell_id=run_manifest.cell_id,
+    )
+    if journal_owner != trace_owner:
         logger.warning(
-            "Refusing finalize journal for run %s in trace owned by %s",
+            "Refusing finalize journal for run %s/%s/%s in trace owned by %s/%s/%s",
             run_manifest.run_id,
-            trace_run_id,
+            run_manifest.tenant_id,
+            run_manifest.cell_id,
+            trace_owner.run_id,
+            trace_owner.tenant_id,
+            trace_owner.cell_id,
         )
         return None
     run_ref = store.put_json(
         run_manifest,
         _run_manifest_write_options(run_manifest),
     )
+    _record_recovered_run_manifest_owner(
+        store,
+        run_manifest=run_manifest,
+        run_ref=run_ref,
+    )
     if not _trace_has_terminal_run_finalized_event(
         trace_path,
-        run_id=run_manifest.run_id,
+        owner=trace_owner,
         run_ref=run_ref,
     ):
         _append_run_finalized_event(
@@ -257,7 +303,6 @@ class RunContext:
                     backends=build_default_audit_backends_from_env(),
                 )
                 audit_sink = cast("_AuditTraceSink", chained_sink)
-                trace_sink = CompositeTraceSink([trace_sink, audit_sink])
             except (ImportError, RuntimeError, OSError, ValueError, TypeError) as exc:
                 logger.debug(
                     "Failed to initialize audit chain for run %s: %s",
@@ -344,6 +389,11 @@ class RunContext:
             metrics=metrics or {},
         )
         self.trace.emit(rec)
+        if self._audit_sink is not None:
+            try:
+                self._audit_sink.emit(rec)
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                logger.warning("Optional audit trace emit failed for run %s: %s", rec.run_id, exc)
 
     def add_input(self, ref: ArtifactRef) -> None:
         self.run_manifest.inputs.append(ref)

@@ -49,6 +49,8 @@ class _RunDirFingerprint:
 
     trace_mtime_ns: int
     trace_size: int
+    finalize_journal_mtime_ns: int
+    finalize_journal_size: int
 
 
 class RunIndexService:
@@ -244,7 +246,6 @@ class RunIndexService:
                 fingerprint = _fingerprint_run_dir(run_dir)
                 if fingerprint is None:
                     continue
-                next_fingerprints[run_dir] = fingerprint
                 cached = self._cache.get(run_dir.name)
                 record: IndexedRunRecord | None
                 if cached is not None and self._dir_fingerprints.get(run_dir) == fingerprint:
@@ -252,12 +253,14 @@ class RunIndexService:
                     self._record_cache_event(operation="adapt_run", outcome="unchanged")
                 else:
                     record = self._adapt_core_run(run_dir)
+                    fingerprint = _fingerprint_run_dir(run_dir)
                     self._record_cache_event(
                         operation="adapt_run",
                         outcome="updated" if record is not None else "skipped",
                     )
-                if record is None:
+                if record is None or fingerprint is None:
                     continue
+                next_fingerprints[run_dir] = fingerprint
                 index[record.run_id] = record
                 _register_artifact_tenants(artifact_tenants, record)
 
@@ -404,9 +407,19 @@ def _fingerprint_run_dir(run_dir: Path) -> _RunDirFingerprint | None:
         stat = trace_path.stat()
     except FileNotFoundError:
         return None
+    journal_path = run_dir / ".finalize-journal.json"
+    try:
+        journal_stat = journal_path.stat()
+        journal_mtime_ns = int(journal_stat.st_mtime_ns)
+        journal_size = int(journal_stat.st_size)
+    except FileNotFoundError:
+        journal_mtime_ns = -1
+        journal_size = -1
     return _RunDirFingerprint(
         trace_mtime_ns=int(stat.st_mtime_ns),
         trace_size=int(stat.st_size),
+        finalize_journal_mtime_ns=journal_mtime_ns,
+        finalize_journal_size=journal_size,
     )
 
 

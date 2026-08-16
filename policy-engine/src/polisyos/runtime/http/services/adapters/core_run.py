@@ -21,6 +21,11 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+_RUN_MANIFEST_KIND = "core.run_manifest"
+_RUN_MANIFEST_MEDIA_TYPE = "application/json"
+_RUN_MANIFEST_SCHEMA_NAME = "polisyos.core.RunManifest"
+_RUN_MANIFEST_SCHEMA_VERSION = "0.1.0"
+
 
 @dataclass(frozen=True)
 class CoreRunAdapterResult:
@@ -67,7 +72,8 @@ def load_core_run(
     trace_started_at: datetime | None = None
     trace_tenant_id: str | None = None
     trace_cell_id: str | None = None
-    manifest_ref: ArtifactRef | None = None
+    latest_manifest_ref: ArtifactRef | None = None
+    terminal_manifest_ref: ArtifactRef | None = None
     manifest: CoreRunManifest | None = None
 
     for line in _iter_trace_lines(trace_path):
@@ -80,8 +86,24 @@ def load_core_run(
             run_terminality = RunTerminality.NOT_ESTABLISHED
             terminality_conflicted = True
             continue
-        if record.phase == "core" and record.event == "RUN_STARTED" and run_id is None:
-            run_id = record.run_id
+        if record.phase == "core" and record.event == "RUN_STARTED":
+            if run_id is None:
+                run_id = record.run_id
+                trace_started_at = record.ts
+                trace_tenant_id = record.tenant_id
+                trace_cell_id = record.cell_id
+            elif (
+                record.run_id != run_id
+                or record.tenant_id != trace_tenant_id
+                or record.cell_id != trace_cell_id
+            ):
+                if "core_run_trace_owner_identity_ambiguous" not in warnings:
+                    warnings.append("core_run_trace_owner_identity_ambiguous")
+                if "core_run_terminality_fact_conflict" not in warnings:
+                    warnings.append("core_run_terminality_fact_conflict")
+                run_terminality = RunTerminality.NOT_ESTABLISHED
+                terminality_conflicted = True
+                continue
         if run_id is None:
             if "core_run_trace_event_before_run_started" not in warnings:
                 warnings.append("core_run_trace_event_before_run_started")
@@ -94,10 +116,19 @@ def load_core_run(
             run_terminality = RunTerminality.NOT_ESTABLISHED
             terminality_conflicted = True
             continue
-        if record.phase == "core" and record.event == "RUN_STARTED":
-            trace_started_at = trace_started_at or record.ts
-            trace_tenant_id = trace_tenant_id or record.tenant_id
-            trace_cell_id = trace_cell_id or record.cell_id
+        if (
+            record.run_terminality is not None
+            and record.phase == "core"
+            and record.event in {"RUN_STARTED", "RUN_FINALIZED"}
+            and (record.tenant_id != trace_tenant_id or record.cell_id != trace_cell_id)
+        ):
+            if "core_run_terminality_owner_scope_mismatch" not in warnings:
+                warnings.append("core_run_terminality_owner_scope_mismatch")
+            if "core_run_terminality_fact_conflict" not in warnings:
+                warnings.append("core_run_terminality_fact_conflict")
+            run_terminality = RunTerminality.NOT_ESTABLISHED
+            terminality_conflicted = True
+            continue
         run_terminality, terminality_conflicted, finalized_without_fact = (
             _admit_run_terminality(
                 record,
@@ -109,15 +140,37 @@ def load_core_run(
         )
         if record.phase != "core" or record.event != "RUN_FINALIZED":
             continue
-        for ref in record.refs.outputs:
-            if ref.kind == "core.run_manifest":
-                manifest_ref = ref
+        manifest_refs = [ref for ref in record.refs.outputs if ref.kind == _RUN_MANIFEST_KIND]
+        if len(manifest_refs) == 1:
+            latest_manifest_ref = manifest_refs[0]
+        if (
+            record.run_terminality is RunTerminality.TERMINAL
+            and not terminality_conflicted
+        ):
+            candidate = _terminal_manifest_ref(record)
+            if candidate is None or (
+                terminal_manifest_ref is not None and terminal_manifest_ref != candidate
+            ):
+                if "core_run_terminal_manifest_ref_invalid" not in warnings:
+                    warnings.append("core_run_terminal_manifest_ref_invalid")
+                run_terminality = RunTerminality.NOT_ESTABLISHED
+                terminality_conflicted = True
+                continue
+            terminal_manifest_ref = candidate
 
     if run_id is None:
         logger.debug("No RUN_STARTED identity found in trace %s", trace_path)
         return None
 
+    manifest_ref = (
+        terminal_manifest_ref
+        if run_terminality is RunTerminality.TERMINAL
+        else latest_manifest_ref
+    )
     if manifest_ref is None:
+        if run_terminality is RunTerminality.TERMINAL:
+            warnings.append("core_run_terminal_manifest_ref_not_established")
+            run_terminality = RunTerminality.NOT_ESTABLISHED
         warnings.append("core_run_manifest_ref_not_found_in_trace")
         return CoreRunAdapterResult(
             run_id=run_id,
@@ -143,11 +196,21 @@ def load_core_run(
         )
 
     try:
-        payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
-        manifest = CoreRunManifest.model_validate(payload)
-    except (TypeError, ValueError, OSError) as exc:
+        if run_terminality is RunTerminality.TERMINAL:
+            manifest = _load_bound_terminal_manifest(
+                store=store,
+                manifest_ref=manifest_ref,
+                run_id=run_id,
+                tenant_id=trace_tenant_id,
+                cell_id=trace_cell_id,
+            )
+        else:
+            payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
+            manifest = CoreRunManifest.model_validate(payload)
+    except Exception as exc:  # terminal authority fails closed on any store/validation failure
         logger.debug("Failed to load core run manifest %s: %s", manifest_ref, exc)
         warnings.append(f"core_run_manifest_load_failed:{type(exc).__name__}")
+        run_terminality = RunTerminality.NOT_ESTABLISHED
         return CoreRunAdapterResult(
             run_id=run_id,
             status="unknown",
@@ -172,7 +235,8 @@ def load_core_run(
         )
 
     if manifest.run_id != run_id:
-        warnings.append("core_run_manifest_run_id_mismatch")
+        warnings.append("core_run_manifest_owner_identity_mismatch")
+        run_terminality = RunTerminality.NOT_ESTABLISHED
         return CoreRunAdapterResult(
             run_id=run_id,
             status="unknown",
@@ -223,6 +287,68 @@ def load_core_run(
         warnings=tuple(warnings),
         errors=tuple(manifest.errors),
     )
+
+
+def _terminal_manifest_ref(record: TraceRecord) -> ArtifactRef | None:
+    refs = [ref for ref in record.refs.outputs if ref.kind == _RUN_MANIFEST_KIND]
+    if len(refs) != 1:
+        return None
+    ref = refs[0]
+    if ref.media_type != _RUN_MANIFEST_MEDIA_TYPE:
+        return None
+    return ref
+
+
+def _load_bound_terminal_manifest(
+    *,
+    store: ArtifactStore,
+    manifest_ref: ArtifactRef,
+    run_id: str,
+    tenant_id: str | None,
+    cell_id: str | None,
+) -> CoreRunManifest:
+    """Resolve and content-bind the manifest carried by an owner terminal event."""
+    if (
+        manifest_ref.kind != _RUN_MANIFEST_KIND
+        or manifest_ref.media_type != _RUN_MANIFEST_MEDIA_TYPE
+    ):
+        raise ValueError("terminal run manifest ref metadata mismatch")
+    verification = store.verify(manifest_ref.artifact_id)
+    if not verification.ok:
+        raise ValueError("terminal run manifest failed CAS verification")
+    artifact_manifest = store.get_manifest(manifest_ref.artifact_id)
+    if (
+        artifact_manifest.kind != manifest_ref.kind
+        or artifact_manifest.media_type != manifest_ref.media_type
+    ):
+        raise ValueError("terminal run manifest sidecar metadata mismatch")
+    schema = artifact_manifest.artifact_schema
+    if (
+        schema is None
+        or schema.name != _RUN_MANIFEST_SCHEMA_NAME
+        or schema.version != _RUN_MANIFEST_SCHEMA_VERSION
+    ):
+        raise ValueError("terminal run manifest schema provenance mismatch")
+
+    payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
+    manifest = CoreRunManifest.model_validate(payload)
+    if (
+        manifest.run_id != run_id
+        or manifest.tenant_id != tenant_id
+        or manifest.cell_id != cell_id
+    ):
+        raise ValueError("terminal run manifest owner identity mismatch")
+    if artifact_manifest.producer != manifest.producer or artifact_manifest.env != manifest.env:
+        raise ValueError("terminal run manifest producer provenance mismatch")
+    if len(artifact_manifest.inputs) != 1:
+        raise ValueError("terminal run manifest lineage mismatch")
+    registry_input = artifact_manifest.inputs[0]
+    if (
+        registry_input.role != "registry_bundle"
+        or registry_input.artifact_id != manifest.registry_bundle.artifact_id
+    ):
+        raise ValueError("terminal run manifest registry binding mismatch")
+    return manifest
 
 
 def _admit_run_terminality(

@@ -3576,3 +3576,50 @@
   already-landed C16b commit; the following fix commit remains self-unrecorded
   by contract. Register/status hashes remain `37aac42c...78e05` and
   `2c81f0ab...5ed07`; baseline/readiness remain byte-identical.
+- Scoped fix-round re-review is GO `0 Critical / 0 Important / 0 Minor`: the
+  immutable snapshot is used consistently by key, read/decode, write/encode,
+  and remove, and the three changing-without-throwing witnesses retain B bytes
+  unchanged. No new breakage or out-of-scope observation was reported. This
+  closes fix round `1 / 5`; the expensive governed wave is rerun once on this
+  reviewed source freeze.
+
+### C16b-R2 final governed rerun and closeout receipt
+
+- Every successful duration below used the same local macOS worktree,
+  installed-dependency, venv-first, explicit `.venv/bin/python`, one-root-owned-
+  scanner-parent regime. Full frontend disposition passed `94 / 94`, exit `0`,
+  real `325.94 s / 748 s`; its intentional child-failure diagnostics remained
+  parent-asserted green.
+- The first disposition-corruption launch after that test lost its terminal
+  session: the process was no longer present when checked, and no exit or
+  output could be recovered. It is a tooling nonreceipt and is excluded from
+  timing samples. The one controlled rerun passed, exit `0`, real
+  `107.64 s / 554 s`, reproducing `261 / 62 / 9` and
+  `18 / 195 / 25 / 7 / 16` with all corruption probes green.
+- Full status retirement passed `38 / 38`, exit `0`, real
+  `48.66 s / 400 s`; the status checker/corruption battery passed, exit `0`,
+  real `17.49 s / 400 s`, reproducing `13 / 47 / 0`, the
+  `24 / 15 / 8` classification partition, and `55` semantic exemptions.
+- The Atlas checker/corruption battery passed, exit `0`, real
+  `60.56 s / 400 s`, with `588` offline-queue production sources, `591` broad
+  definition sources, `163` authority Badge sites, and no corruption escape.
+  Full Atlas passed `34 / 34`, exit `0`, real `326.71 s / 2678 s`. The timing
+  table admits only these successful terminal receipts; every binding ceiling
+  remains unchanged.
+- No source or governed artifact changed during the rerun. C16b-R2 remains the
+  five-of-five C14 family closure, its exact governed semantics remain those
+  read back at the landing, and the register family is free pending the final
+  deterministic report-history refresh.
+- Declared before the final writer: report-only movement to add landed fix
+  commit `0cfcf6690`; application LOC, every register/status leaf, the
+  baseline, and readiness must remain fixed. The writer passed, exit `0`, real
+  `42.33 s / 554 s`; the identical second write passed in
+  `50.22 s / 554 s` and preserved report SHA-256
+  `d3b32d9423118b8311ea9b874b973c539c0fdfbea6c04fb946d816a8f71c9065`.
+  Its only byte delta is the expected commit-history line. Register, status,
+  baseline, and readiness remain respectively `37aac42c...78e05`,
+  `2c81f0ab...5ed07`, `215b1882...e4bc00`, and `4b64f092...e2ae13`.
+- One pre-writer hash command repeated two obsolete guessed artifact names and
+  returned file-not-found for those operands. The corrected canonical manifest
+  and ledger paths produced the hashes above; this read-only attempt is a
+  tooling nonreceipt and changed no bytes.

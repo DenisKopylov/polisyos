@@ -565,6 +565,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `0cfcf6690 DS5-C16b-R2 bind dispute scope snapshot`
 - `78ea7c3d7 DS5-C16b-R2 partition dispute interaction state`
 - `e5a190261 DS5-C16b-R1 record structural recut`
 - `72522acd9 DS5-C16a-R1 partition causal draft state`

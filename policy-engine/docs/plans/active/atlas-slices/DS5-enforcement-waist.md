@@ -714,10 +714,10 @@ whole-second execution ceiling is `ceil(2 * p95)`:
 
 | Lane | Valid samples (seconds) | nearest-rank p95 | binding ceiling |
 | --- | --- | ---: | ---: |
-| full Atlas module | `253.72, 395.5, 422, 462, 465.9, 605, 626, 731, 751.90, 754, 1338.89` | `1338.89` | `2678 s` |
-| full frontend module | `144.9, 151.7, 216.2, 222.2, 248.03, 282.3, 290.6, 373.94` | `373.94` | `748 s` |
-| disposition corruption battery | `100.8, 114.2, 136.97, 150.5, 195.99, 215.1, 235.50, 249, 276.89` | `276.89` | `554 s` |
-| status-retirement module | `52.6, 67.2, 73.2, 75.4, 102.3, 120.79, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
+| full Atlas module | `253.72, 326.71, 395.5, 422, 462, 465.9, 605, 626, 731, 751.90, 754, 1338.89` | `1338.89` | `2678 s` |
+| full frontend module | `144.9, 151.7, 216.2, 222.2, 248.03, 282.3, 290.6, 325.94, 373.94` | `373.94` | `748 s` |
+| disposition corruption battery | `100.8, 107.64, 114.2, 136.97, 150.5, 195.99, 215.1, 235.50, 249, 276.89` | `276.89` | `554 s` |
+| status-retirement module | `48.66, 52.6, 67.2, 73.2, 75.4, 102.3, 120.79, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
 | focused dashboard/component tests (R6 family) | `1.79, 5.00, 8.50, 25.40, 25.76, 82.27` | `82.27` | `165 s` (`ceil(2*p95)`) |
 | dashboard typecheck (R6 family) | `78.40, 241` | `241` | `482 s` (`ceil(2*p95)`) |
 | scoped dashboard ESLint | `6.10, 6.39, 7.00, 12.705, 17.79, 57.16, 71.95, 86.84` | `86.84` | `174 s` (`ceil(2*p95)`) |

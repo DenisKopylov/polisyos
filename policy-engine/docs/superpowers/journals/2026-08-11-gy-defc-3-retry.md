@@ -2973,3 +2973,66 @@ unrecognized representations stay governing and fail closed. The complete govern
 radius remains `not_established` until the blocking P35 census runs, so no source change is yet
 admissible. `[P37: independently_reconciled for the closure boundary; not_established for blast
 radius and repaired outcome]`
+
+### Blocking P35 null-representation blast-radius census — zero-move branch
+
+The complete read-only census ran at pre-source head
+`3f9c817b2f1e820560f2526e58562a4f06f1fd70`, `55` commits ahead of `c1a89b6cf`.
+It recursively walked every physical file below `architecture/policy_design_case/`: `509/509` paths,
+with the file-type denominator `449` JSON, `24` TOML, `23` Markdown, `11` BLOB, one YAML, and one
+JSONL. Every parseable member was read; all `449/449` JSON files parsed to mapping roots. Among
+`180` top-level SHA-256 candidates in `80` JSON roots, exactly `13` reproduce a whole-root stored
+self-identity under a measured current owner recipe: `12` use `gy_content_hash`, and the acquisition
+contract uses its separate exact-canonical JSON owner. `[P37: recomputed]`
+
+The representation result is `12` null-retained-only identities, one null-free representation-
+invariant identity, and zero null-omitted-only identities. The proposed retained-null N11 owner
+reproduces all `13/13`; the complete move set is empty. The other `436` JSON roots are recorded as
+having no whole-root self-identity that matches either measured owner recipe among their remaining
+`167` top-level SHA candidates; this does **not** claim those records have no nested, custom-basis,
+or external identity. The `60` non-JSON paths are explicitly outside the JSON representation domain.
+`[P37: recomputed]`
+
+The per-artifact identity result and reason are:
+
+| artifact | identity field / owner | governing null leaves | result and reason |
+| --- | --- | ---: | --- |
+| `layer3_gy_acquisition_contract.json` | `contract_content_hash` / exact canonical JSON | 366 | unchanged; stored identity is null-retained |
+| `layer3_gy_confidence_ledger_contract.json` | `artifact_content_hash` / `gy_content_hash` | 106 | unchanged; stored identity is null-retained |
+| `layer3_gy_depth_n_universality_contract.json` | `contract_content_hash` / `gy_content_hash` | 5,570 | unchanged; stored identity is null-retained |
+| `layer3_gy_generation_cycle_contract.json` | `contract_content_hash` / `gy_content_hash` | 363 | unchanged; stored identity is null-retained |
+| `layer3_gy_n10_cg1_l2_relation_census.json` | `content_hash` / `gy_content_hash` | 58,236 | unchanged; stored identity is null-retained |
+| `layer3_gy_promotion_contract.json` | `contract_content_hash` / `gy_content_hash` | 220 | unchanged; stored identity is null-retained |
+| `layer3_gy_second_domain_census.json` | `census_content_hash` / `gy_content_hash` | 0 | unchanged; retained and omitted projections are identical |
+| `layer3_gy_second_domain_cycle_entry_trace.json` | `trace_content_hash` / `gy_content_hash` | 842 | unchanged; stored identity is null-retained |
+| `layer3_gy_second_domain_free_grow_gaps.json` | `gap_report_content_hash` / `gy_content_hash` | 1 | unchanged; stored identity is null-retained |
+| `layer3_gy_second_domain_pack.json` | `manifest_content_hash` / `gy_content_hash` | 343 | unchanged; stored identity is null-retained |
+| `layer3_gy_second_domain_smoke_design_problem.json` | `smoke_problem_content_hash` / `gy_content_hash` | 5 | unchanged; stored identity is null-retained |
+| `layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json` | `audit_digest` / `gy_content_hash` | 814 | unchanged; stored identity is null-retained |
+| `layer3_gy_value_gate_contract.json` | `contract_content_hash` / `gy_content_hash` | 182 | unchanged; stored identity is null-retained |
+
+The confidence-ledger row independently reproduces the earlier discriminator: stored/proposed
+null-retained identity `sha256:62df18eb9d78368cacc607790541d2237f66f9a7ab381ef83bf6116fdea4f225`
+versus null-omitted `sha256:fb4c9c336f9d301bef6b089b961b4d57f8f5b9838158218a618e42976ff84005`,
+with `106` governing null leaves. The earlier `36/36` denominator is the required-nullable subset
+whose omission made strict reparse fail, not the full null-materialization denominator. `[P37:
+recomputed]`
+
+This selects the task's **zero artifacts move** branch. The source repair changes no existing stored
+identity; the confidence-ledger reissue remains the only later artifact write. That branch selection
+is `institutionally_supplied`, while its zero-move predicate is `recomputed`. No source, test, tool,
+or governed-artifact byte changed before the census and this receipt. `[P37 as stated]`
+
+The ignored census source, summary, complete `509`-row path ledger, and `13`-row identity ledger have
+SHA-256 identities `488b706f…8b0c`, `afa13cc5…57ef`, `1c30db50…36c2`, and
+`4fada7c7…d954`, respectively, under `tmp/gy-defc-8/blast-radius/`. A second root-controlled run to
+`repeat-root/` reproduced all three output identities byte-for-byte. `[P37: recomputed]`
+
+One exploratory test launch is retained as an orchestration non-receipt. A read-only research lane
+started two monkeypatched repo-quality nodes with `.venv/bin/python -m pytest ... -q -p
+no:cacheprovider`; the execution wrapper yielded after `30.2` s without a terminal while child PID
+`66045` continued CPU work. Root directed termination; `SIGTERM` stopped it at approximately `88` s.
+It emitted no stdout/stderr and therefore establishes no pytest result. No tracked byte changed and
+no matching Python process or child survived. This is an orchestrator-terminated exploratory
+non-receipt, not a product RED. `[P37: consumer_asserted for the launch/termination history;
+recomputed for the empty output, tree, and process readback]`

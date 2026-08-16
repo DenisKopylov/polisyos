@@ -2929,3 +2929,47 @@ processes were permitted under the declared contention regime. All three researc
 no subagent edited the tree or launched a heavy process, and no task process remains live at closeout.
 `[P37: consumer_asserted for dispatch and subagent activity; independently_reconciled for returned
 findings; recomputed for root launches, tracked edits, agent terminal states, and final process state]`
+
+## GY-DEFC-8 — null-versus-absent projection axis
+
+Date started: 2026-08-16
+
+The task began on attached branch `codex/gy-defc-3-retry`, clean at
+`7b15ea2dfdabbfac633f84d5e2fae9221ff5d5c6`, exactly `54` commits ahead of
+`c1a89b6cf`. No path differed from that head before the registration below. The discharged DEFC
+objective remains closed: attempt six reached `owner_bundle_loaded`. The successor P30 objective is
+that the cold owner derivation completes green and the GY-N11 contract derives and validates.
+`[P37: recomputed for branch, cleanliness, arithmetic, and prior milestone;
+institutionally_supplied for the successor objective]`
+
+### GY-DEF15 registered before source change
+
+`GY-DEF15 — canonical identity has no owner for null-versus-absent representation` is now registered
+in the active GY plan before any source byte changed. Canonical projection has two axes: which fields
+are excluded, and how a present nullable value is represented. `strip_gy_volatile_fields` /
+`gy_content_hash` owns the exclusion axis; no shared owner decides whether a present nullable member
+is serialized as explicit `null` or omitted. Two call sites can therefore process the same typed
+object under locally valid rules and derive different bytes or identities. `[P37: independently_reconciled]`
+
+This is adjacent to `GY-DEF10` and explicitly does **not** reopen it. DEF10's canonical operational-
+leaf exclusion/reconciliation owner remains correct on its axis and closed at `431bcd798`. DEF15 is
+the missing representation-axis owner for the N11 confidence-ledger artifact. `[P37:
+independently_reconciled for the source/history boundary; institutionally_supplied for the closed
+standing]`
+
+The two measured instances are retained as one class. The cold suffix compared a construction hash
+whose nested nulls were retained with validation after `exclude_none=True`; its frozen same-family
+discriminator is `62df18eb…f225` versus `fb4c9c33…4005`. The ledger writer then omitted exactly
+`36/36` required-nullable members during serialization and failed its immediate reparse before a
+candidate write. The first boundary is hash construction versus validation; the second is
+serialization versus reparse. `[P37: recomputed for the executed diagnostics and denominators;
+independently_reconciled for the shared-mechanism classification]`
+
+The registered closure is one shared N11 projection consumed by construction, hash validation,
+serialization, reparse, and corruption rehash. It declares two exclusions with reasons: the three
+comparison identity fields are deliberately non-governing, and the self-hash is excluded only while
+computing itself. Required nullable members remain explicit `null`; truly absent, malformed, or
+unrecognized representations stay governing and fail closed. The complete governed-artifact blast
+radius remains `not_established` until the blocking P35 census runs, so no source change is yet
+admissible. `[P37: independently_reconciled for the closure boundary; not_established for blast
+radius and repaired outcome]`

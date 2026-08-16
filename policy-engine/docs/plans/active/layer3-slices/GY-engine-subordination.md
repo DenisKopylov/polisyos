@@ -2889,6 +2889,44 @@ and cold closeout remain unproved.
   named code. `P29`: an ambient-difference witness that must stay green and a governed-difference
   witness that must go red.
 
+- **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
+  2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
+  the shared PDC identity boundary rather than adding another validator-local normalizer.
+
+  A canonical projection has two independent axes. The first decides **which fields are excluded**;
+  `strip_gy_volatile_fields` / `gy_content_hash` already owns that decision. The second decides
+  **how a present nullable value is represented**, including the distinction between an explicit
+  `null` and an absent member. That representation axis has no owner. Consequently, two call sites
+  over the same typed object can each follow their local rule and still disagree about its bytes and
+  identity.
+
+  **GY-DEF10 stays closed at `431bcd798`.** DEF10 repaired the first axis: canonical operational-leaf
+  exclusion and reconciliation. DEF15 is adjacent because both concern canonical projection, but it
+  does not refute or reopen DEF10; the existing owner is correct on the axis it owns. DEF15 supplies
+  the missing representation owner for one artifact family.
+
+  Two measured instances prove one class. In the cold N11 suffix, construction embedded a content
+  hash over a dump retaining nested nulls while validation recomputed after `exclude_none=True`,
+  producing `artifact_content_hash_drift`; the frozen same-family discriminator is
+  `62df18eb…f225` null-retained versus `fb4c9c33…4005` null-omitted. In the public ledger writer,
+  serialization omitted exactly `36/36` required-nullable fields and the immediate reparse rejected
+  them as missing before any candidate was written. The first instance is hash-construction versus
+  validation; the second is serialization versus reparse.
+
+  **Smallest correct closure:** one shared N11 projection owns representation and is consumed by
+  construction, hash validation, serialization, reparse, and corruption rehash. It declares rather
+  than infers both exclusion sets and their reasons: the three comparison identity fields are
+  deliberately non-governing, and the self-hash is excluded only while computing that hash. Required
+  nullable members remain present as explicit `null`; genuinely absent, malformed, or unrecognized
+  members remain governing and fail closed.
+
+  **Closure signal:** a required-nullable `null` survives construction, validation, serialization,
+  and reparse byte-identically; construction and validation derive one identity; all measured
+  `36/36` fields survive round trip; genuine absence fails with its named diagnostic; and malformed
+  or unrecognized representation remains governing. The complete governed-artifact blast radius is
+  measured before source changes; until that census completes, which stored artifacts move is
+  `not_established`.
+
 - **GY-DEFC-3 — reissue the downstream receipt chain and reach `owner_bundle_loaded` (NEW, Rev 34).**
   Owner: **runtime/quality**. **Named by the objective it continues** (`P30`), unchanged since
   `GY-DEFC-1`: *a cold owner derivation reaches `owner_bundle_loaded`.*

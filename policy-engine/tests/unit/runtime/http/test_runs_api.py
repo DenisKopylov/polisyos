@@ -616,13 +616,10 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=runtime_api_env["cell_a"],
         )
+        options = run_context_module._run_manifest_write_options(manifest)
         if failure_kind == "missing_schema_provenance":
-            ref = ctx.store.put_json(
-                manifest,
-                PutOptions(kind="core.run_manifest", media_type="application/json"),
-            )
+            options = replace(options, schema=None)
         else:
-            options = run_context_module._run_manifest_write_options(manifest)
             if failure_kind == "producer_mismatch":
                 options = replace(
                     options,
@@ -651,9 +648,9 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
                         )
                     ],
                 )
-            ref = ctx.store.put_json(manifest, options)
-            if failure_kind == "wrong_media_ref":
-                ref = ref.model_copy(update={"media_type": "text/plain"})
+        ref = ctx.store.put_json(manifest, options)
+        if failure_kind == "wrong_media_ref":
+            ref = ref.model_copy(update={"media_type": "text/plain"})
         outputs = [ref]
         if failure_kind == "duplicate_manifest_refs":
             outputs.append(

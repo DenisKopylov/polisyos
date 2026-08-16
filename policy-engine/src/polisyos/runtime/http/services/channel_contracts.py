@@ -10,7 +10,9 @@ from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001 - Pydant
 from polisyos.core.contracts.decision_validity import (  # noqa: TC001 - Pydantic runtime type
     DecisionValidityStatus,
 )
-from polisyos.core.trace import RunTerminality  # noqa: TC001 - Pydantic runtime type
+from polisyos.runtime.http.services.adapters import (  # noqa: TC001 - Pydantic runtime type
+    RunTerminality,
+)
 
 RUNS_CHANNEL_DATA_EVENT_CONTRACT = "policyos.runtime.runs_channel_data_event.v2"
 

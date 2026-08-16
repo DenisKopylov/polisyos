@@ -33,13 +33,13 @@ from polisyos.core.contracts.runtime import (
     RunsBatchRequest,
     RunsBatchResponse,
     RunsListResponse,
+    RunTerminality,
     RunTimelineResponse,
     RunWorkflowResponse,
     SourceKind,
     TemporalScope,
     TemporalSurfaceSupport,
 )
-from polisyos.core.trace import RunTerminality
 from polisyos.fabric.evidence.decision_data import (
     FabricDecisionDataResponse,
 )

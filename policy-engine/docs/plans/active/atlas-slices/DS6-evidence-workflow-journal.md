@@ -2,9 +2,9 @@
 plan_id: atlas-ds6-evidence-workflow
 title: "DS6 - Evidence Workflow & Instrumentation Journal"
 type: execution-journal
-status: active_light_half
+status: in_progress_stopped_on_c10_mechanism_breaker
 created: 2026-08-11
-last_updated: 2026-08-12
+last_updated: 2026-08-16
 slice: DS6
 baseline_commit: c1a89b6cf0c63573abad6b0ca8374e16b78c47dd
 plan: ./DS6-evidence-workflow.md
@@ -2692,3 +2692,73 @@ helper was unavailable and is a tooling nonreceipt; the same four renderings
 were then reproduced with the installed plain-Node `intl-messageformat`
 runtime. No full visual, targeted visual, server, or shared-fixture repair ran,
 and no snapshot, product, catalog, Core, contended, DS5, or GY byte changed.
+
+## DS6-C10 stop record — 2026-08-16
+
+C10 entered on the explicit C10 → C11 → C17 continuation with a declared cap
+of 16 and measured exactly ten candidate paths. Two bounded mechanism repair
+rounds were consumed. The final source freeze had focused C07/C08/C10
+**47/47**, route behavior **10/10**, scoped lint/type/Python checks, and one
+live launcher PASS, but two independent final reviews rejected the mechanism.
+Those green results remain receipts for admitted cases in the stopped attempt;
+they are withdrawn as C10 closure evidence.
+
+The final findings are set against the round-2 acceptance fence preserved in
+checkpoint `573be959890f8e35f72e846e0a37b6eac5fc4396` and against P29, P31,
+P32, and P37 in
+`docs/reference/policy-design-case-failure-patterns.md`:
+
+1. **Blocking — canonical-runner provenance and single-intake gap.** The
+   checkpoint's positive `routeTestReport()` fixture in
+   `atlasSurfaceReadinessReconciliation.test.ts` constructs purported Vitest
+   JSON in memory and persists it through the real adapter.
+   `_derive_c10_route_test_receipt()` derives assertion facts from those
+   supplied bytes while `_validate_c10_raw_binding()` consumes caller-supplied
+   `process_exit_code`. CAS hashing proves the supplied bytes and shaped
+   consistency, not execution by the fixed launcher or the OS exit.
+   `C10_FIELD_PROVENANCE` nevertheless labels the route receipt and process
+   exit `independently_reconciled`. Both final reviewers reproduced this
+   P29/P31/P32/P37 defect.
+2. **Blocking — incomplete pre-CAS owner invariant.** The checkpoint's
+   `_c10_entries()` checks selected identity, maturity, and readiness
+   vocabulary only. A reviewer invalidated all ten claimed date/uniqueness
+   constraints and removed `chain.semantic_test`;
+   `_c10_canonical_reconciliation()` still returned `pass`, no findings, and
+   the canonical counts. That falsifies the round-2 statement that a single
+   pre-CAS choke point independently recomputes the complete admitted owner
+   semantics.
+3. **Important — non-bidirectional status contract.** The checkpoint's
+   `c10DetailsMatch()` forces `fail` when a negative predicate exists but does
+   not require `pass` when none exists and does not exclude C10 `incomplete`.
+   Canonical zero-finding PASS facts mutated to `fail` or `incomplete` with an
+   unrelated finding pass the exported TypeScript payload and binding
+   contract, although Python later rejects them.
+
+All three are mechanism findings; the test/docs-only breaker exemption does
+not apply. The breaker is consumed (**2/2**), so no third repair was attempted.
+Ordinary history preserves the full ten-path candidate at
+`573be959890f8e35f72e846e0a37b6eac5fc4396` and removes it in forward revert
+`a7ae9189147d012fd8a3c80d741ed5c330787672`. A root-scoped comparison proves
+that the revert tree is byte-identical to pre-entry HEAD
+`a84556865454a506b80ca5e12aadf9c932f4d07e`.
+
+C10 is not landed. Its producer, artifact, bridge, CI consumer, verification,
+surface, and governed projection tail remain absent at HEAD. C11 is not
+INT-R3-blocked for six metrics, and the deterministic visual-fixture repair is
+DS6-owned; both remained unentered solely because the authorized sequence
+placed them after a landed C10. Owner discovery measured the visual repair's
+honest future set as the visual spec, three attributed PNGs, plan, and journal
+(six paths). The cap-5 C17 declaration therefore remains unentered and the
+work is re-cut as C18 at cap 6 under the continuous-number sizing law.
+
+The heavy-lane timing record gains no new sample. The existing lint samples
+remain cold **1,182.94 s** and warm shared-`_cache` **19.18 s** (**62x**); a
+future ceiling uses `2 x p95` for the matching host/cache regime, not a margin
+over the minimum. No C11/C17/C18 implementation, heavy lane, contended
+artifact, baseline, DS8 print byte, `src/polisyos/**`, product surface, DS5
+path, or GY path changed. The duplicate census is unchanged: exactly two
+active `attr(href)` emitters over 13 tracked dashboard CSS files, DS8-owned
+with `src/styles.css` the strangle target.
+
+Earlier sections' “current” and “blocked” lists remain chronological snapshots
+of their cluster landings; this stop record is the later controlling state.

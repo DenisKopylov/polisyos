@@ -2,10 +2,10 @@
 plan_id: atlas-ds6-evidence-workflow
 title: "DS6 - Evidence Workflow & Instrumentation"
 type: slice-plan
-status: execution_authorized_light_half
+status: in_progress_stopped_on_c10_mechanism_breaker
 created: 2026-08-11
-revised: 2026-08-11
-last_verified: 2026-08-11
+revised: 2026-08-16
+last_verified: 2026-08-16
 stability: measured_execution_plan
 slice: DS6
 baseline_commit: c1a89b6cf0c63573abad6b0ca8374e16b78c47dd
@@ -58,11 +58,12 @@ JSON Schema, and repository architecture guardrails.
   main-checkout byte are foreign to this worktree. Entry status and the scoped
   base diff are recorded in the journal.
 - The slice is deny-by-default. DS6-C16 closed at
-  `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`. The post-C16 attribution may
-  write only this plan and journal to register Task 17; Task 17's three
-  snapshot paths are declared but not authorized in this continuation. The
-  earlier C01-R1/C07/C16 writable sets are historical and grant no additional
-  path.
+  `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`. The continuation authorized C10,
+  then C11, then C17. C10 stopped under its mechanism breaker; its ten-path
+  candidate is preserved at `573be959890f8e35f72e846e0a37b6eac5fc4396`
+  and removed by forward revert
+  `a7ae9189147d012fd8a3c80d741ed5c330787672`. Only this plan and journal may
+  now record that stop. C11 and C17 were not entered.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
   until it merges. Required deltas are specified there, not applied here.
@@ -75,13 +76,15 @@ JSON Schema, and repository architecture guardrails.
 - Focused Vitest over touched files and scoped static checks may establish the
   source freeze, but only the serialized Task 16 lanes establish C16 closeout.
 - No product surface, DS5 path, GY path, a11y denominator, baseline suppression,
-  skip, quarantine, tolerance widening, CI edit, merge, push, rebase, force
-  push, or stash-as-storage. One scoped commit follows independent review for
-  each entered cluster.
-- No implementation cluster is authorized in the post-C16 attribution.
-  C17 is declared but unentered; C03, C04, C06, C10, C11, and C13 retain the
-  gates stated below and in the journal. C10 in particular remains unentered
-  until a later clean-tree continuation.
+  skip, quarantine, tolerance widening, merge, push, rebase, force push, or
+  stash-as-storage. One scoped commit follows independent review for each
+  entered cluster.
+- C10 is stopped, checkpointed, and forward-reverted. C11 is technically
+  unblocked at six instrumentable metrics plus one `not_established` seam, and
+  C17's deterministic visual-fixture repair is DS6-owned; neither was entered
+  because the authorized order placed both after a landed C10. C03, C04, C06,
+  C13's governed transition, and C14 retain the gates stated below and in the
+  journal.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -555,12 +558,34 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Declared path cap: 16.** Derive ledger claims and actual test/evidence
+**Status: entered, stopped by the mechanism-round breaker, checkpointed, and
+forward-reverted. No C10 reconciliation, persistence-extension, CI, or
+reference byte remains at HEAD.** The stopped ten-path implementation is
+preserved at `573be959890f8e35f72e846e0a37b6eac5fc4396` and removed by forward
+revert `a7ae9189147d012fd8a3c80d741ed5c330787672`. Both permitted mechanism
+repair rounds were consumed. Final independent review found a Blocking
+P29/P31/P32/P37 canonical-runner-provenance/single-intake defect, a second
+Blocking incomplete-owner-invariant defect at the same persistence boundary,
+and an Important non-bidirectional status-contract defect. The round-2
+acceptance rule in the checkpoint required any further Blocking or Important
+mechanism finding to preserve and stop the attempt; no third repair is
+authorized. Focused green receipts exercise admitted cases in the stopped
+implementation only and are withdrawn as C10 closure evidence. C10 is not
+landed, and its governed projection tail remains deferred.
+
+**Declared path cap: 16; measured stopped-attempt set: 10.** Derive ledger
+claims and actual test/evidence
 existence from their canonical owners, independently reconcile them, persist
 the reconciliation receipt, fail CI for `stable`/`implemented` overclaim, and
 surface the result in the governed audit/reference projection.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
+
+**Status: technically unblocked but not entered after the C10 stop.** Six
+metrics can be instrumented against current repository owners; honesty
+comprehension/review effectiveness retains C12's instrument seam with every
+threshold `not_established`. This is a sequencing nonreceipt, not an INT-R3
+block on the other six metrics.
 
 **Declared path cap: 12.** Produce typed, versioned, replayable measurements
 for primitive adoption, fail-closed fidelity, audience enforcement,
@@ -838,7 +863,8 @@ paying for the lane (GY-DI2/P38).
 The post-C16 read-only attribution identified the three non-print visual
 baselines that regressed after DS4's 17/18 receipt. Task 17 records their
 introducing commit, mixed shared-fixture finding, owner, and cap; none is part
-of C16's repair set. C10 remains unentered until the next clean-tree session.
+of C16's repair set. The later C10 attempt is preserved and forward-reverted
+under its consumed mechanism breaker.
 
 ### Task 17 — DS6-C17: reconcile C15-R1 visual baselines
 
@@ -875,19 +901,38 @@ production `_utc_now` default in `src/polisyos/core/contracts/runtime.py`; DS4
 froze the browser clock but did not bind this visual-fixture response metadata
 across process starts. There is therefore no post-DS4 introducing commit for
 the timestamp drift. This is a shared visual-harness/DS4-C19b finding, not
-permission to change production `ApiMeta` semantics, not a DS6 backend repair,
-and not a DS5 change.
+permission to change production `ApiMeta` semantics and not a DS5 change. The
+repair is DS6 visual-harness work, not a production-backend repair.
 
-C17 is gated on the shared visual-harness owner first deterministically binding
-the selected evidence-response metadata across process starts. After that
-lands, C17 may generate only these three snapshots from the real Playwright
-path and must prove the three named identities pass plus the full visual lane
-returns to the inherited envelope (only the separately DS8-owned print case
-may remain red). The C05 evidence-promotion capture timed out before a stable
-final comparison, so its actual PNG is not re-anchoring authority. No product,
-catalog, visual-spec, tolerance, or helper change belongs to C17; a structural
-need for one exceeds this cut and invokes the sizing law rather than enlarging
-the cap.
+Owner discovery established that deterministically binding the selected
+evidence-response metadata requires the real visual-spec fixture path. That is
+a sixth path in addition to the three PNGs and two records. C17 therefore
+measured above its declared cap before entry and was not entered. Under the
+sizing law the cap is not enlarged: the work is re-cut below with the next
+continuous number. The C05 evidence-promotion capture timed out before a stable
+final comparison, so its actual PNG is not re-anchoring authority.
+
+### Task 18 — DS6-C18: fix the visual fixture, then re-anchor C15-R1 deltas
+
+**Status: re-cut from unentered C17 after owner discovery; not entered because
+C10 stopped first. Exact candidate set:**
+
+1. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/evidence-promotion-focus-chromium-darwin.png`
+3. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/dark-evidence-fabric-chromium-darwin.png`
+4. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/mobile-command-center-chromium-darwin.png`
+5. this plan
+6. the DS6 journal
+
+**Declared path cap: 6; measured candidate set: 6.** The fixture must bind the
+three exact response `meta.generated_at` inputs—run context, promotion
+candidates, and connectors—to the established visual clock before any snapshot
+update. The complete 18-snapshot-call/18-baseline
+denominator is then run without updates to enumerate blast radius. Only the
+three attributed identities may move; a fourth identity is a new finding, not
+permission to re-anchor. After targeted generation, a no-update pass must
+restore those three identities and the full visual envelope may retain only
+the separately DS8-owned print RED. The DS8 print PNG remains byte-identical.
 
 ## Expected cluster commits
 
@@ -913,6 +958,7 @@ the cap.
 | C15-R1 | `DS6-C15-R1 gate quantitative-use declarations` | 5 |
 | C16 | `DS6-C16 close deferred-lane diagnostics` | 7 |
 | C17 | `DS6-C17 reconcile C15-R1 visual baselines` | 5 |
+| C18 | `DS6-C18 fix visual fixture and re-anchor C15-R1 deltas` | 6 |
 
 ## Deferred execution package
 
@@ -1058,6 +1104,13 @@ under Task 16; no ceiling was raised in flight. The C16 journal records each
 `real` duration with its host regime. A killed run remains a harness
 nonreceipt, not a timing sample or product regression.
 
+Lint now has two measured regimes: C05's cold run was **1,182.94 s** and C16's
+warm shared-`_cache` run was **19.18 s**, a **62x** spread. That is the measured
+price of DS-INFRA-1's shared-cache state. A future ceiling is derived from
+`2 x p95` of successful runs in the matching regime, never from a margin over
+the minimum; a sample without its host/cache regime is not a usable timing
+sample.
+
 `corepack pnpm run storybook` and any standalone dashboard dev-server command
 remain unrun; the targeted Storybook browser runner managed its own browser.
 The original reason for waiting was not OOM risk or ordinary slowdown: the
@@ -1073,14 +1126,17 @@ that distinction.
 - No typed contrast row or i18n baseline removal until DS5 releases the
   contended governed owner. C03's green-receipt gate is discharged; C04 and
   C06 now wait only on that release.
-- No readiness-ledger CI validator, health-metric producer, persisted/manual-AT
-  maturity consumer, INT-R3 behavioral content, or honesty threshold. C10 is
-  deliberately next-session work; C11 remains evidence/content blocked.
+- No landed readiness-ledger CI validator or health-metric producer. C10 is a
+  stopped, checkpointed, forward-reverted attempt. C11 is not blocked by
+  INT-R3 for its first six metrics, but was not entered after C10 stopped; its
+  seventh metric retains C12's `not_established` content/threshold seam.
 - No DS8 print repair or governed C13 readiness transition; DS6's independent
   visual RED is evidence for the DS8 owner, not repair authority.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the
   latter mechanic and the frozen catalog remains in-tree.
 - No standalone interactive Storybook, page-a11y, journey, or full-visual rerun
   is implied by C16. Their C05/C13 receipts retain their original strength.
-- No C17 snapshot regeneration until the shared evidence-response metadata
-  fixture is deterministic; C17 is declared at cap 5 and remains unentered.
+- No C17/C18 snapshot regeneration occurred. The deterministic fixture repair
+  is DS6-owned; its added visual-spec path measured six paths, so C17 remains
+  unentered at cap 5 and C18 is declared at cap 6. The three attributed
+  snapshots and DS8 print baseline remain byte-unmodified here.

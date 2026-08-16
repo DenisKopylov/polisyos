@@ -266,25 +266,55 @@ exactly `delivery_gap` despite the intact declaration.
 independently observed event history. Compare source time, query time, recomputed due set, independent
 high-water mark, event history, declaration, and action count.
 
-## 4. Four audit-amendment fixtures
+## 4. Four audit-amendment fixture families
 
-Each fixture below has one detector, one expected verdict, and one forbidden outcome.
+F-14 remains one numbered fixture family but has two mutually exclusive executable worlds. F-14A and
+F-14B each have one detector, one exact verdict, and one forbidden outcome. F-15–F-17 retain the same
+discipline.
 
-### F-14 - lawful partial succession with disputed overlap
+### F-14A - lawful partial succession from independently reconciled admitted instruments
 
-**Input:** issuer `O`; instrument `IA` lawfully assigning successor `A` scope `X`; instrument `IB`
-lawfully assigning successor `B` scope `Y`; one predecessor record spanning `X union Y`; and a
+**Input:** issuer `O`; content-bound instrument `IA` assigning successor `A` scope `X`; content-bound
+instrument `IB` assigning successor `B` scope `Y`; canonical admission receipts for both instruments;
+non-producing authoritative records against which identity, authority, scope, timing, notice,
+conditions, and effective time can be reconciled; one predecessor record spanning `X union Y`; and a
 conflict only over `X intersection Y`.
 
-**Detector:** bind each query to its subject scope, compare both admitted instruments and effective
-times, and assert the original issuer identity remains `O`.
+**Detector:** resolve every declaration and instrument reference to exact bytes and admission receipt,
+independently reconcile both instruments against the non-producing authoritative records, bind each
+query to its subject scope, and assert the original issuer identity remains `O`.
 
-**Expected verdict:** `scoped_succession_partial` — `A` is current custodian for `X-only`, `B` for
-`Y-only`, and custody/current authority is `not_established` for the overlap; original issuer remains
-`O` everywhere.
+**Predicate provenance:** the admitted-instrument scope predicate is
+`independently_reconciled` under PP-36. A declaration or marker alone never satisfies it.
 
-**Forbidden outcome:** a global pass assigning the overlap to either successor, or a global failure
-that erases the established non-overlapping scopes.
+**Expected verdict:** `scoped_succession_partial` — `A` is current custodian for `X-only`, `B` is current
+custodian for `Y-only`, and custody/current authority is `not_established` for the overlap; original
+issuer remains `O` everywhere.
+
+**Forbidden outcome:** a global pass assigning the overlap to either successor, a global failure that
+erases the independently reconciled non-overlapping scopes, or any positive conclusion obtained from
+a declaration without the content-bound instrument reconciliation.
+
+### F-14B - merely supplied or falsified succession premise
+
+**Input:** the same issuer, successors, scope declarations, `admitted=true` markers, and claimed
+instrument references remain intact, while the independently obtained instrument bytes or
+non-producing authoritative record is absent, conflicts with the declaration, or proves that an
+authority, scope, timing, notice, condition, or effective-time premise is false.
+
+**Detector:** resolve the declared references, compare their exact bytes and admission receipts with
+the independently obtained authoritative record, bind the query to the affected scope, and retain the
+original issuer identity `O`.
+
+**Predicate provenance:** the unresolved declaration remains `institutionally_supplied`; it does not
+become PP-36 merely because an `admitted=true` marker is present.
+
+**Expected verdict:** `succession_scope_not_established`; no positive current-custodian or
+current-authority conclusion is returned for the affected scope, the original issuer remains `O`, and
+the declaration, conflict, and failed reconciliation append.
+
+**Forbidden outcome:** `scoped_succession_partial`, a current-custodian positive, or any other green
+result based on the intact declaration or marker.
 
 ### F-15 - declared independence with a shared substrate
 
@@ -331,15 +361,18 @@ success.
 
 ## 5. P37 falsify-the-declaration probes
 
-The fixture oracle was applied with declarations left intact and the underlying premise falsified:
+The fixture oracle is applied with declarations and markers left intact and the underlying premise
+falsified:
 
-| Probe | Declaration left intact | Falsified property | Required red result |
+| Probe | Declaration or marker left intact | Falsified property | Required red result |
 | --- | --- | --- | --- |
 | F-13 | “alert sent” | No due/expiry event exists in independent history. | `delivery_gap`; use blocked. |
+| F-14B | `admitted=true`, successor identities, scope declarations, and claimed instrument refs | Exact instrument bytes or the non-producing authoritative record fails authority, scope, timing, notice, conditions, or effective time. | `succession_scope_not_established`; no current-custodian positive. |
 | F-15 | `independent=true` on two observers | Both share one compromised substrate/root. | `custody_independence_not_established`; restoration false. |
 
 These probes go red because the decisive predicates are recomputed or independently reconciled. A
-fixture that accepted either declaration would test the declaration rather than the property.
+fixture that accepted any intact declaration or marker would test the declaration rather than the
+property.
 
 ## 6. Mandatory current-state comparator
 
@@ -413,8 +446,9 @@ conjunction `RP-10 + RC-01 + RC-07 + F-04 + F-09 + DE-07`.
 ### DE-08 - negative and adversarial outcomes
 
 Include orphan content, missing control reference, duplicate/conflicting event, duplicate wake,
-stale authentic checkpoint, expired right with delayed timer, tampered record, false independence,
-time rollback, and parser differential. Unexpected positives fail the drill.
+stale authentic checkpoint, expired right with delayed timer, tampered record, a supplied succession
+declaration whose premise is falsified with markers intact, false independence, time rollback, and
+parser differential. Unexpected positives fail the drill.
 
 ### DE-09 - evidence integrity and review
 
@@ -425,7 +459,8 @@ appointing holders. Every exception has a role, due condition, and retest requir
 ### DE-10 - remediation and retest
 
 A failed drill remains retained. Remediation and retest append, reference the same or declared revised
-corpus, re-run the failed fixture, and report regression across the full seventeen-fixture denominator.
+corpus, re-run the failed fixture, and report regression across the full seventeen-fixture-family
+denominator, including both mutually exclusive F-14 worlds where applicable.
 
 ## 8. Acceptance-evidence taxonomy and closure signal
 
@@ -449,8 +484,8 @@ material change; and immediate targeted retest after incident or failed check. C
 
 ## 10. Standing
 
-The seventeen-fixture suite and DE-01–DE-10 are accepted bounded research specifications. No fixture
-has been executed against a delivered custody chain by this amendment.
+The seventeen-fixture-family suite and DE-01–DE-10 are accepted bounded research specifications. No
+fixture has been executed against a delivered custody chain by this amendment.
 
 **Research standing:** `accepted_narrow_scope`.  
 **Capability standing:** `NO_GO`.  

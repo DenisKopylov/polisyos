@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **23262**
-- Application lines deleted: **19459**
-- Net application LOC reduction: **-3803**
+- Application lines added: **24988**
+- Application lines deleted: **19552**
+- Net application LOC reduction: **-5436**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -540,7 +540,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `cache-local-storage-state` | `cache-local-storage-state` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-clerk-sessions` | `cache-clerk-sessions` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
 | `cache-whatif-scenarios` | `cache-whatif-scenarios` | 0 | `deleted` | `strangled` | `DS19` | `census-whatif-local-subgraph-delete` |
-| `cache-causal-drafts` | `cache-causal-drafts` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
+| `cache-causal-drafts` | `cache-causal-drafts` | 0 | `rebind_pending` | `strangled` | `DS8` | `dashboard-causal-draft-scoped-local-state` |
 | `cache-local-disputes` | `cache-local-disputes` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `cache-review-attention` | `cache-review-attention` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `cache-operator-craft` | `cache-operator-craft` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
@@ -565,6 +565,8 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `96a7e6dff DS5-C15a partition Clerk session codec`
+- `4f1f71cd3 DS5-C13b-R7 close scoped composer persistence`
 - `07fd56378 Reapply "DS5-C13b-R6 checkpoint composer local state"`
 - `19293faaa DS5-C21d retire migration address bindings`
 - `dd52314af DS5 record C13b-R6 structural stop`

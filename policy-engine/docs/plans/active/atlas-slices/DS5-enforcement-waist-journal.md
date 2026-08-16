@@ -3101,3 +3101,152 @@
   identity bridge. The unrelated registered module-path replication remains
   `16` literals across `8` governed owners (`35 / 15` tracked); C15a changes
   neither side. The register family stayed free for the entire cluster.
+
+## 2026-08-16 — C16 entry census and C16a-R1 declared delta
+
+- Clean entry was attached at `96a7e6dff1893d4d115158351bc3fa73c0bb27c5`,
+  `74` commits ahead of `7cba15e56`, with an empty porcelain and the register
+  family free. Two read-only audit commands had no product effect: one zsh glob
+  for absent `architecture/atlas_surfaces/*.ts` paths and one historical
+  `git show` with an incorrect `policy-engine/` object prefix both exited
+  nonzero and were corrected; they are nonreceipts.
+- The declaration-resolved complete walk measured `952` TS/TSX program files
+  (`362 .ts / 590 .tsx`), `574` production TS/TSX plus `3` locale JSON program
+  sources (`577` broad production sources), and `35` persistence API
+  sites across `14` production files: `25` Web Storage, `5` Zustand, and `5`
+  IndexedDB. These resolve to `16` logical persisted families across `13`
+  owner modules: `8` benign/control, `2` already-contained candidate, `2` C16
+  in-scope, and `4` separately registered operator-craft provenance families.
+  The complete family set is theme, trust view, interface mode, preferences,
+  runs-live preference, dashboard layout, locale, feature-flag manifest; Clerk
+  sessions, composer drafts; causal drafts, disputes; and operator threshold,
+  annotations, evidence wallet, and reading onboarding.
+  Owner mapping is respectively `ThemeProvider.tsx`, `TrustViewProvider.tsx`,
+  `InterfaceModeProvider.tsx`, `usePreferencesStore.ts`,
+  `useRunsLivePreferenceStore.ts`, `useDashboardLayoutStore.ts`, `locale.ts`,
+  `featureFlags.ts`, `useChatStore.ts`, `composerDraftRepository.ts`,
+  `CausalTab.tsx`, `disputes.ts`, and the shared `operatorCraft.ts` owner for
+  its four families.
+  The prior `41 / 14 = 23 / 5 / 13` receipt is historical; C13a removed eight
+  IndexedDB sites and C15a added two direct Web Storage sites.
+- The four operator families are not a C16 tail: `cache-operator-craft` remains
+  `rebind_pending`; C17a's scoped envelope proves identity/TTL containment but
+  not stored semantic provenance. After the recorded DS14/DS9 ownership
+  resolution, their separately cut closure is current-identity rebinding,
+  independent packet/event-reference reconciliation, and reissuance or
+  interaction-only projection of reviewer/audit claims.
+- The C16a-R1 cut is declared before product or writer work at cap `7`: causal
+  source/test, register, generated report, DS19 inventory, plan, and journal.
+  Baseline, readiness, checker family, schema, i18n, GY, and C17b bytes are
+  forbidden. C21 expects zero identity reanchors: the live register has no
+  causal identity, and C21d resolves the retained named
+  `writeStoredCausalDraft` declaration uniquely.
+- C16a's pre-writer JSON allowlist is one root transition only:
+  `cache-causal-drafts.strangle_status pending -> strangled`, a successor with
+  the causal source/test refs, and scoped-candidate rationale while disposition
+  remains `rebind_pending` under DS8. DS19 may add exactly the two source-derived
+  `CausalTab.tsx` `authz.status` members at `963` and `971`, plus the dependent
+  DS19 register hash;
+  its `13 / 47 / 0` census and `55` semantic exemptions stay invariant. The
+  report mirrors that row plus its declared HEAD/LOC sections. Root buckets
+  remain `18 / 195 / 25 / 7 / 16`; every other governed leaf is reject.
+- The consumer must use the canonical envelope owner with fixed 24-hour TTL;
+  retain only candidate node/edge topology, distrust stored authority fields,
+  fail closed for missing/throwing storage and clock/codec faults, and prove
+  A-to-B scope/run isolation plus synchronous write-delete-reload ordering.
+  The historical C14 family is recorded without resurrecting its already-absent
+  debt row: `[0]/[1]` closed by C13b-R7, `[2]` by C16a, `[3]` by C16b, while
+  owner plus `[4]` were supplied by C17a-R2.
+
+### C16a-R1 red-first implementation and independent repair
+
+- Initial RED was `0 / 7`, exit `1`, `3.57 s / 165 s`: the canonical consumer
+  did not exist and legacy authority-looking graph bytes rendered. The first
+  implementation reached `7 / 7` GREEN in `2.55 s`; the source freeze was then
+  held for independent review before any governed writer.
+- Review was NO-GO `1 Critical / 3 Important`: raw colon concatenation made the
+  render binding non-injective, null scope resolved storage before rejection,
+  the A-to-B witness changed run and identity without dirtying A, and the hostile
+  getter witness failed earlier on a missing sibling. The combined repair RED
+  was `9 / 11`, exit `1`, `2.02 s / 165 s`; the isolated real same-run delimiter
+  collision was `10 / 11`, exit `1`, `2.08 s / 165 s`, with A-dirty state
+  visibly surviving the B identity transition.
+- The repair uses tagged JSON tuples for injective scoped/unscoped remounts,
+  validates/encodes before storage resolution, exercises the actual hostile
+  getter, injects `edges[0].status`, and keeps future/expired intervals exactly
+  24 hours. Final focused Vitest passed `11 / 11`, exit `0`, `2.04 s / 165 s`;
+  dashboard typecheck passed in `13.73 s / 482 s`; exact two-file ESLint passed
+  in `21.73 s / 174 s`; diff-check passed. Independent re-review returned GO
+  `0 Critical / 0 Important` on source hashes `aa9589b8...` / `581691f9...`.
+- Non-product diagnostic receipts, excluded from the successful timing sample:
+  typecheck found an under-typed hostile storage fixture (`22.47 s`) and later
+  its missing explicit `unknown` cast (`11.12 s`); ESLint found three conditional
+  expectations (`23.15 s`). Two collision harness attempts that did not notify
+  the routed child or asserted on null (`2.04 s`, `2.21 s`) are harness
+  nonreceipts. Each was corrected before the final receipts. All runs used local macOS installed
+  dependencies, one captured-exit process; Vitest used one worker.
+- Source freeze retains the named `writeStoredCausalDraft`, changes no canonical
+  owner byte, and leaves exactly two `authz.status` syntax consumers: readiness
+  predicate plus memo dependency. The root-owned status derivation must add
+  exactly those two members; measurement supersedes the intermediate one- and
+  three-member predictions. C21 identity reanchor remains zero.
+- Root's post-review local-macOS, installed-dependencies, captured-exit wave
+  reproduced focused Causal Vitest `11 / 11` in `2.93 s / 165 s`, full dashboard
+  typecheck in `14.00 s / 482 s`, and exact two-file ESLint in `21.82 s / 174 s`,
+  all exit `0`. Production build passed in `18.55 s / 300 s`, transforming
+  `3,886` app modules and producing `109` precache entries; the inherited
+  chunk-size advisory was its only warning and the Atlas Tailwind check passed.
+
+### C16a-R1 root-owned artifact write
+
+- The serialized no-write status derivation used the explicit venv interpreter
+  and exited `0` in `12.51 s / 400 s`, deriving exactly the declared additions:
+  `CausalTab.tsx:963:prop` and `:971:prop`, with zero removals.
+- The first surgical register patch had insufficient unit-ID context and matched
+  the earlier DS8 `route-runs-compare` row. The pre-writer semantic allowlist
+  rejected it immediately before any report writer or governed gate ran. That
+  wrong-target patch and one-sided diff are a mechanical artifact nonreceipt,
+  not an accepted C16 delta; it was reverted exactly, then reapplied with
+  `cache-causal-drafts` in the patch context.
+- Corrected pre-writer readback matches the declared leaves exactly. Register
+  SHA-256 is `a4916c0f...e1ce92`; roots/supplemental/censuses remain
+  `261 / 62 / 9`, buckets `18 / 195 / 25 / 7 / 16`, and the only strangle
+  movement is pending `164 -> 163` / strangled `49 -> 50`. DS19 adds the two
+  derived members and pins that register hash; status remains `13 / 47 / 0`
+  with `55` semantic exemptions. Baseline/readiness remain forbidden.
+- Canonical report generation passed twice, exit `0`, in `36.20 s` and
+  `36.47 s` against the `554 s` ceiling; report SHA-256 stayed
+  `aafd18aa...d6fea`. The report changes only fixed-base LOC, the causal row,
+  and the two contractually lagged commit lines (`96a7e6dff` C15a and
+  `4f1f71cd3` C13b-R7). Independent reconciliation is: prior report
+  `23262 / 19459`, accumulated C15a/HEAD effect `+952 / +44`, and C16a
+  fixed-base effect `+774 / +49`, yielding `24988 / 19552 / -5436 / 89`.
+  C16a's raw staged app delta is separately `+817 / -92`; the difference is
+  fixed-baseline composition, not unexplained movement.
+- Final artifact hashes are register `a4916c0f...e1ce92`, report
+  `aafd18aa...d6fea`, and status `f75b660d...7e005`; baseline
+  `215b1882...e4bc00` and readiness `4b64f092...e2ae13` remain byte-identical.
+  No identity, finding, disposition, label, denominator, readiness, baseline,
+  i18n, GY, or C17b leaf moved outside the declaration.
+
+### C16a-R1 serialized governed wave
+
+- Every lane used local macOS, installed dependencies, captured terminal exit,
+  one root-owned scanner parent at a time, and an explicit repository venv
+  parent interpreter. For inherited wrappers that still spawn `python3`, PATH
+  was venv-first to avoid the registered macOS-3.9 false-RED class; repairing
+  those wrappers is separate class work, not a C16 product byte.
+- Full frontend passed `94 / 94`, exit `0`, in `114.15 s / 748 s` (nested
+  corruption subprocess diagnostics were expected witnesses). Disposition
+  baseline verification plus corruption passed in `95.14 s / 554 s` with
+  `261 / 62 / 9` and buckets `18 / 195 / 25 / 7 / 16`.
+- Full status passed `38 / 38`, exit `0`, in `48.13 s / 400 s`; status
+  corruption passed in `16.96 s / 400 s` with `13 / 47 / 0` and `55`
+  exemptions. Atlas checker/corruption passed in `60.51 s / 400 s`, deriving
+  Badge `163`, prop `19`, architecture `952`, offline production `588`, and
+  capability production `591`.
+- Full Atlas passed `34 / 34`, exit `0`, in `253.72 s / 2678 s`. Against the
+  prior comparable `462 s` and `1338.9 s` samples, this is further contention
+  evidence, not a product signal; all three retain their recorded regimes.
+  No governed-lane nonreceipt occurred after the pre-writer mechanical patch
+  rejection.

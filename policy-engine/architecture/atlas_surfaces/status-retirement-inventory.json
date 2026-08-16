@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:3c5d44a75d347689112ede294f18c094d81251da1eeb65fe3090722d31b94eb5"
+      "sha256": "sha256:a4916c0f5a16ab5054ab92337df6382199094ea9e13cc8a7ee151ff546e1ce92"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -1256,6 +1256,16 @@
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
           "line": 91,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+          "line": 963,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+          "line": 971,
           "kind": "prop"
         }
       ],

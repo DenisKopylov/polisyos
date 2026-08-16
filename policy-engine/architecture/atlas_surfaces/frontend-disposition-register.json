@@ -4734,12 +4734,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS8",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-causal-draft-scoped-local-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.test.tsx"
+        ]
+      },
+      "rationale": "C16a replaces unscoped raw causal-draft bytes with the canonical tenant/user-bound authority-local-state envelope, a writer-owned 24-hour TTL, a strict candidate-only graph codec that excludes persisted authority-looking fields including graph.edges[].status, and fail-closed storage, clock, and codec behavior; DS8 server, epoch, rule-version, and causal-authority semantics remain unclaimed."
     },
     {
       "unit_id": "cache-local-disputes",

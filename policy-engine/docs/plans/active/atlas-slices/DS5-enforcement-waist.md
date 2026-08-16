@@ -201,10 +201,10 @@ byte-unmodified. Any new identity is red.
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
 | locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
-| IndexedDB | 1 DB / 2 stores; queue has exactly 2 kinds | promotion approve/reject barred; composer drafts enveloped |
+| IndexedDB | 1 DB / 1 live store; the deleted queue survives only as an upgrade tombstone | composer drafts enveloped; promotion queue barred |
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
 | persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1-C16b-R1 exclude causal `edges[].status` and keep dispute `status` explicitly interaction-only |
-| persistence API census | 41 symbol-resolved lifecycle/construction calls / 14 production files: 23 Web Storage, 5 Zustand, 13 IndexedDB | C17b-R1 content-binds every current site as registered authority-like or fingerprint-bound benign; earlier clusters migrate only their named families |
+| persistence API census | current 35 symbol-resolved sites / 14 production files: 25 Web Storage, 5 Zustand, 5 IndexedDB | historical pre-C13a/C15a receipt was 41/14; C17b-R1 must remeasure its clean entry |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
 The historical 9/5 fetch and six-store denominators remain provenance facts,
@@ -243,10 +243,10 @@ commands and their receipts are in the baseline table above.
 | 1 `may_not_use_for` production consumer / 0 semantic-review receipt owners | `rg -l 'packet\.may_not_use_for' apps/runtime-dashboard/src --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/test/**'` returns exactly `RunExplainabilityPanel.tsx`; a separate `rg -l 'AuthoritySemanticCopy\|authority-semantic-copy\|semantic_review_receipt\|competent_reviewer' apps/runtime-dashboard/src packages/atlas-ui/src architecture/atlas_surfaces` returns exit 1 with no output, recorded honestly as the zero entry census rather than piped through a success exit |
 | 66 query syntax / 40 files; 42 producers / 39 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\b(useQuery\|queryOptions)(<[^>]+>)?\\s*\\(' apps/runtime-dashboard/src`; repeat with `rg -l`; repeat both for `\\bqueryFn\\s*:` |
 | 43 query-key constructors | `rg -c '^  [A-Za-z][A-Za-z0-9_]*:' apps/runtime-dashboard/src/api/queryKeys.ts`; C12a re-derives it from the real exported owner rather than pinning this number |
-| 1 IndexedDB / 2 stores / 2 queue kinds | `rg -n 'openDB\|createObjectStore\|OfflineQueueItemKind' apps/runtime-dashboard/src/app/offline/{db.ts,offlineQueueRepository.ts}` |
+| historical 1 IndexedDB / 2 stores / 2 queue kinds | predecessor command retained as provenance; current source has one live `composer-drafts` store plus the queue-deletion tombstone |
 | 6 historical / 4 live authority-store units / 8 living physical families | literal `authority_and_store_census` and `physical_store_census` commands below; both names and existence are recorded |
 | 5 persisted-status writes / 4 modules / 6 field paths | `rg -n 'database\.put\(OFFLINE_MUTATION_QUEUE_STORE|localStorage\.setItem|persist\s*\(' apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx apps/runtime-dashboard/src/features/runs/domain/disputes.ts apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts`; bounded source inspection records queue `status`, causal `graph.edges[].status`, dispute `disputes[].status`, and Clerk `sessions[].messages[].{runStatus,structured.verdict,structured.statusChips[]}` |
-| 41 persistence API calls / 14 files | literal installed-TypeScript `persistence_api_census` command below resolves `Storage`, Zustand middleware, `openDB`, `IDBPDatabase` and `IDBPObjectStore` declarations; recorded families are Web Storage 23, Zustand 5, IndexedDB 13 |
+| current 35 persistence API calls / 14 files | the same installed-TypeScript census resolves 25 Web Storage, 5 Zustand, 5 IndexedDB sites; 41/14 is the historical predecessor receipt |
 | 261 roots / 17 current DS5 roots / 21 historical readiness rows | `jq '[.. \| objects \| select(.owner_slice? == "DS5")] \| length' architecture/atlas_surfaces/frontend-disposition-register.json`; `jq '[.entries[] \| select(.owning_slice == "DS5")] \| length' architecture/atlas_surfaces/live-application-readiness-ledger.json`; the disposition checker supplies the 261-root denominator |
 
 `frozen_locale_compatibility_census` was run literally from the dashboard
@@ -572,8 +572,8 @@ console.log(JSON.stringify({sites:rows.length,files:new Set(rows.map(r=>r.path))
 NODE
 ```
 
-Recorded output: `41` sites / `14` files; Web Storage `23`, Zustand `5`,
-IndexedDB `13`. C17b-R1 governs this exact declaration-resolved API set and
+Historical recorded output: `41` sites / `14` files; Web Storage `23`, Zustand
+`5`, IndexedDB `13`. C17b-R1 reruns this declaration-resolved API set and
 remeasures it at its clean entry after C13a-C16b-R1; it does not infer payload
 semantics from method or field names.
 
@@ -848,8 +848,8 @@ first continuously numbered `-R1` successor.
 | C13b | 9 | 10 | no-fit | C13b-R1 / 10 |
 | C14b | 7 | 8 | absorbed/discharged | C13b-R7 / 11; no separate implementation |
 | C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
-| C16a | 5 | 6 | no-fit | C16a-R1 / 6 |
-| C16b | 7 | 8 | no-fit | C16b-R1 / 8 |
+| C16a | 5 | 7 | no-fit | C16a-R1 / 7 |
+| C16b | 7 | 9 | no-fit | C16b-R1 / 9 |
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 10 | no-fit | C17b-R1 / 10 |
 | C18b | 5 | 6 | no-fit | C18b-R1 / 6 |
@@ -2046,9 +2046,14 @@ remains DS14 `rebind_pending`; DS5 attaches isolation evidence only.
 
 ### DS5-C16a-R1 — causal draft local state
 
-**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
-cap 6: `CausalTab.tsx` + test, frontend disposition register + generated
-report, `architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+**Cross-cluster class rules (registered before C16 implementation):**
+- **Interpreter resolution:** a wrapper that spawns Python passes the repository venv interpreter explicitly; a child never resolves `python3` through `PATH`, because the macOS 3.9 child can turn a valid 3.14 module into a false product RED.
+- **Declaration completeness for membership:** a cluster that adds a consumer of a governed vocabulary owns the complete induced membership update in its declared artifact delta; a post-hoc allowlist repair is a declaration defect.
+- **Persisted self-attested operator provenance:** the complete current dashboard census is `35` persistence sites / `14` files and `16` families / `13` owners; four `operatorCraft.ts` families hydrate reviewer/audit/packet/completion claims. `cache-operator-craft` remains `rebind_pending`: its landed isolation contract does not verify semantic provenance; after the recorded DS14/DS9 ownership resolution, a separate owner cut must rebind current identity, reconcile packet/event refs independently, and reissue or project stored reviewer/audit claims as interaction-only.
+
+**Measured set:** cap 7: `CausalTab.tsx` + test, register + generated report,
+status inventory, this plan, and journal. Historical `41 / 14`; clean C16 entry
+`35 / 14 = 25 Web Storage / 5 Zustand / 5 IndexedDB`.
 
 **Red first:** `test_causal_state_rejects_cross_scope_stale_and_stored_status`.
 
@@ -2062,10 +2067,11 @@ partition successor evidence.
 
 ### DS5-C16b-R1 — dispute interaction local state
 
-**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
-cap 8: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
+**Measured set:** exactly 8 implementation/governed paths plus this plan = 9;
+cap 9: dispute domain + test, `DisputeRegistryPanel.tsx` + a new focused panel
 test, frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+`architecture/atlas_surfaces/status-retirement-inventory.json`, this plan, and
+journal.
 
 **Red first:** `test_dispute_state_rejects_cross_scope_and_stale_bytes`.
 
@@ -2108,9 +2114,9 @@ register/schema/checker/test + generated report,
 `architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
 C17b-R1 records the
 existing WhatIf deletion and a fresh zero-path/zero-import census for the
-DS4-deleted review-attention unit. The measured C00 persistence API universe is
-41 declaration-resolved lifecycle/construction sites / 14 production files: 23
-Web Storage, 5 Zustand and 13 IndexedDB. C17b-R1 reruns the identical census at its
+DS4-deleted review-attention unit. The current C16 entry persistence universe is
+35 declaration-resolved sites / 14 production files: 25 Web Storage, 5 Zustand
+and 5 IndexedDB. C17b-R1 reruns the identical census at its
 clean post-C17a-R1 boundary and records the exact source-derived delta before a
 negative; a new authority family or edit need outside these governed paths
 triggers the sizing stop.

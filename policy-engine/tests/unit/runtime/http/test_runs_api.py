@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.run import context as run_context_module
 from polisyos.core.run.context import RunContext
@@ -560,7 +563,16 @@ def test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established
 
 @pytest.mark.parametrize(
     "failure_kind",
-    ["missing_ref", "unresolvable_ref", "wrong_media_ref", "unprovenanced_ref"],
+    [
+        "missing_ref",
+        "unresolvable_ref",
+        "wrong_media_ref",
+        "missing_schema_provenance",
+        "producer_mismatch",
+        "environment_mismatch",
+        "registry_lineage_mismatch",
+        "duplicate_manifest_refs",
+    ],
 )
 def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
     runtime_api_env,
@@ -584,32 +596,72 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
     outputs = []
     if failure_kind == "unresolvable_ref":
         outputs = [
-            ctx.store.put_json(
-                {"not": "a run manifest"},
-                PutOptions(kind="core.run_manifest", media_type="application/json"),
+            ArtifactRef(
+                artifact_id=ArtifactID("sha256:" + "f" * 64),
+                kind="core.run_manifest",
+                media_type="application/json",
             )
         ]
-    elif failure_kind in {"wrong_media_ref", "unprovenanced_ref"}:
+    elif failure_kind != "missing_ref":
+        producer = ProducerInfo(component="tests.run-owner", version="1.0")
+        env = EnvInfo(python="test", platform="test", deps_lock_hash="sha256:test")
         manifest = RunManifest(
             run_id=run_id,
             registry_bundle=registry_ref,
             status="completed",
             started_at=datetime.now(UTC).replace(microsecond=0),
             finished_at=datetime.now(UTC).replace(microsecond=0),
+            producer=producer,
+            env=env,
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=runtime_api_env["cell_a"],
         )
-        if failure_kind == "unprovenanced_ref":
+        if failure_kind == "missing_schema_provenance":
             ref = ctx.store.put_json(
                 manifest,
                 PutOptions(kind="core.run_manifest", media_type="application/json"),
             )
         else:
-            ref = ctx.store.put_json(
-                manifest,
-                run_context_module._run_manifest_write_options(manifest),
-            ).model_copy(update={"media_type": "text/plain"})
+            options = run_context_module._run_manifest_write_options(manifest)
+            if failure_kind == "producer_mismatch":
+                options = replace(
+                    options,
+                    producer=ProducerInfo(component="tests.substituted-owner", version="9.9"),
+                )
+            elif failure_kind == "environment_mismatch":
+                options = replace(
+                    options,
+                    env=EnvInfo(
+                        python="substituted",
+                        platform="substituted",
+                        deps_lock_hash="sha256:substituted",
+                    ),
+                )
+            elif failure_kind == "registry_lineage_mismatch":
+                substituted_registry = ctx.store.put_json(
+                    {"registry": {"substituted": True}},
+                    PutOptions(kind="core.registry.bundle", media_type="application/json"),
+                )
+                options = replace(
+                    options,
+                    inputs=[
+                        InputRef(
+                            artifact_id=substituted_registry.artifact_id,
+                            role="registry_bundle",
+                        )
+                    ],
+                )
+            ref = ctx.store.put_json(manifest, options)
+            if failure_kind == "wrong_media_ref":
+                ref = ref.model_copy(update={"media_type": "text/plain"})
         outputs = [ref]
+        if failure_kind == "duplicate_manifest_refs":
+            outputs.append(
+                ctx.store.put_json(
+                    {"not": "the owner manifest"},
+                    PutOptions(kind="core.run_manifest", media_type="application/json"),
+                )
+            )
     with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
         handle.write(
             TraceRecord(
@@ -898,6 +950,45 @@ def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> N
     assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
 
 
+@pytest.mark.parametrize("journal_kind", ["non_mapping", "missing_version", "future_version"])
+def test_finalize_recovery_refuses_invalid_journal_envelope(
+    runtime_api_env,
+    journal_kind: str,
+) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = f"R_terminality_invalid_journal_{journal_kind}"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    if journal_kind == "non_mapping":
+        payload: object = []
+    elif journal_kind == "missing_version":
+        payload = {"run_manifest": run.run_manifest.model_dump(mode="json")}
+    else:
+        payload = {
+            "schema_version": "2.0",
+            "run_manifest": run.run_manifest.model_dump(mode="json"),
+        }
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+
+    assert recovered is None
+    assert journal_path.exists()
+    assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
+
+
 def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_recovery_exact_ref"
@@ -933,6 +1024,74 @@ def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env)
                 tenant_id=runtime_api_env["tenant_a"],
                 cell_id=runtime_api_env["cell_a"],
                 refs=TraceRefs(outputs=[wrong_media_ref]),
+            ).model_dump_json(exclude_none=True)
+            + "\n"
+        )
+    journal_path = run_dir / ".finalize-journal.json"
+    journal_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "run_manifest": pending_manifest.model_dump(mode="json"),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+
+    assert recovered == manifest_ref
+    assert journal_path.exists() is False
+    finalized = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if '"event":"RUN_FINALIZED"' in line
+    ]
+    assert len(finalized) == 2
+    assert finalized[-1].refs.outputs == [manifest_ref]
+    assert ctx.store.for_tenant(
+        runtime_api_env["tenant_a"], runtime_api_env["cell_a"]
+    ).has(manifest_ref.artifact_id)
+
+
+def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_api_env) -> None:
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_recovery_ambiguous_outputs"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    pending_manifest = run.run_manifest.model_copy(deep=True)
+    pending_manifest.status = "completed"
+    pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
+    manifest_ref = ctx.store.put_json(
+        pending_manifest,
+        run_context_module._run_manifest_write_options(pending_manifest),
+    )
+    decoy_ref = ctx.store.put_json(
+        {"not": "the recovered manifest"},
+        PutOptions(kind="core.run_manifest", media_type="application/json"),
+    )
+    trace_path = run_dir / "trace.jsonl"
+    with trace_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_FINALIZED",
+                run_terminality=RunTerminality.TERMINAL,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+                refs=TraceRefs(outputs=[manifest_ref, decoy_ref]),
             ).model_dump_json(exclude_none=True)
             + "\n"
         )
@@ -1037,6 +1196,44 @@ def test_finalize_keeps_journal_when_required_local_trace_write_fails(
     assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
     if run._audit_sink is not None:
         run._audit_sink.close()
+
+
+def test_finalize_isolates_optional_audit_emit_and_close_failures(runtime_api_env) -> None:
+    class _FailingOptionalAuditSink:
+        def emit(self, _record: TraceRecord) -> None:
+            raise AttributeError("simulated optional audit emit failure")
+
+        def close(self) -> None:
+            raise KeyError("simulated optional audit close failure")
+
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    run_id = "R_terminality_optional_audit_failure"
+    registry_ref = ctx.store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_dir = runtime_api_env["cas_root"] / "runs" / run_id
+    run = RunContext.start(
+        store=ctx.store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=run_dir,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    run._audit_sink = _FailingOptionalAuditSink()
+
+    manifest_ref = run.finalize(status="completed")
+
+    assert manifest_ref.kind == "core.run_manifest"
+    assert (run_dir / ".finalize-journal.json").exists() is False
+    finalized = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if '"event":"RUN_FINALIZED"' in line
+    ]
+    assert len(finalized) == 1
+    assert finalized[0].run_terminality is RunTerminality.TERMINAL
 
 
 def test_recovery_rebinds_unlinked_terminal_event_to_its_manifest(runtime_api_env) -> None:

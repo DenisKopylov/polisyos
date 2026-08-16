@@ -47,6 +47,24 @@ function dispute(overrides: Partial<DisputeRecord> = {}): DisputeRecord {
   };
 }
 
+function changingScope() {
+  let tenantReads = 0;
+  let userReads = 0;
+  return {
+    reads: () => ({ tenant: tenantReads, user: userReads }),
+    scope: {
+      get tenantId() {
+        tenantReads += 1;
+        return tenantReads === 1 ? SCOPE_A.tenantId : SCOPE_B.tenantId;
+      },
+      get userId() {
+        userReads += 1;
+        return userReads === 1 ? SCOPE_A.userId : SCOPE_B.userId;
+      },
+    },
+  };
+}
+
 afterEach(() => {
   window.localStorage.clear();
 });
@@ -251,21 +269,25 @@ describe("run dispute persistence", () => {
     expect(scopeGetterObserved).toBe(true);
     expect(resolver).not.toHaveBeenCalled();
 
+    resolver.mockClear();
     let repeatedTenantReads = 0;
-    const changesAfterKey = {
+    const throwsOnRepeatedScopeRead = {
       get tenantId() {
         repeatedTenantReads += 1;
-        if (repeatedTenantReads > 2) {
-          throw new Error("scope changed after key");
+        if (repeatedTenantReads > 1) {
+          throw new Error("scope read more than once");
         }
         return "tenant-a";
       },
       userId: "user-a",
     };
-    expect(scoped.write(changesAfterKey, "run-a", [dispute()])).toBe(false);
-    expect(repeatedTenantReads).toBeGreaterThan(2);
-    expect(resolver).not.toHaveBeenCalled();
-    expect(storage.values).toHaveLength(0);
+    expect(scoped.write(throwsOnRepeatedScopeRead, "run-a", [dispute()])).toBe(
+      true,
+    );
+    expect(repeatedTenantReads).toBe(1);
+    expect(resolver).toHaveBeenCalledOnce();
+    expect(storage.values).toHaveLength(1);
+    storage.values.clear();
 
     const absent = createDisputePersistence({
       clock: () => NOW,
@@ -395,5 +417,89 @@ describe("run dispute persistence", () => {
     expect(keyB).not.toBe(keyA);
     expect(persistence.read(collidingB, "same-run")).toEqual([]);
     expect(storage.getItem(keyB)).toBeNull();
+  });
+
+  it("writes through one immutable identity snapshot when scope getters change", () => {
+    const storage = new MemoryStorage();
+    const persistence = createDisputePersistence({
+      clock: () => NOW,
+      storage: () => storage,
+    });
+    const keyA = persistence.key(SCOPE_A, "run-a")!;
+    const keyB = persistence.key(SCOPE_B, "run-a")!;
+    const binding = changingScope();
+    storage.calls.splice(0);
+
+    expect(
+      persistence.write(binding.scope, "run-a", [
+        dispute({ id: "local:a", title: "A dispute" }),
+      ]),
+    ).toBe(true);
+
+    expect(binding.reads()).toEqual({ tenant: 1, user: 1 });
+    expect(storage.calls).toEqual([`set:${keyA}`]);
+    expect(storage.values.get(keyA)).toContain("A dispute");
+    expect(storage.values.has(keyB)).toBe(false);
+  });
+
+  it("deletes through one immutable identity snapshot when scope getters change", () => {
+    const storage = new MemoryStorage();
+    const persistence = createDisputePersistence({
+      clock: () => NOW,
+      storage: () => storage,
+    });
+    expect(
+      persistence.write(SCOPE_A, "run-a", [
+        dispute({ id: "local:a", title: "A dispute" }),
+      ]),
+    ).toBe(true);
+    expect(
+      persistence.write(SCOPE_B, "run-a", [
+        dispute({ id: "local:b", title: "B dispute" }),
+      ]),
+    ).toBe(true);
+    const keyA = persistence.key(SCOPE_A, "run-a")!;
+    const keyB = persistence.key(SCOPE_B, "run-a")!;
+    const bBytes = storage.values.get(keyB);
+    const binding = changingScope();
+    storage.calls.splice(0);
+
+    expect(persistence.write(binding.scope, "run-a", [])).toBe(true);
+
+    expect(binding.reads()).toEqual({ tenant: 1, user: 1 });
+    expect(storage.calls).toEqual([`remove:${keyA}`]);
+    expect(storage.values.has(keyA)).toBe(false);
+    expect(storage.values.get(keyB)).toBe(bBytes);
+  });
+
+  it("reads through one immutable identity snapshot when scope getters change", () => {
+    const storage = new MemoryStorage();
+    const persistence = createDisputePersistence({
+      clock: () => NOW,
+      storage: () => storage,
+    });
+    expect(
+      persistence.write(SCOPE_A, "run-a", [
+        dispute({ id: "local:a", title: "A dispute" }),
+      ]),
+    ).toBe(true);
+    expect(
+      persistence.write(SCOPE_B, "run-a", [
+        dispute({ id: "local:b", title: "B dispute" }),
+      ]),
+    ).toBe(true);
+    const keyA = persistence.key(SCOPE_A, "run-a")!;
+    const keyB = persistence.key(SCOPE_B, "run-a")!;
+    const bBytes = storage.values.get(keyB);
+    const binding = changingScope();
+    storage.calls.splice(0);
+
+    expect(persistence.read(binding.scope, "run-a")).toMatchObject([
+      { actor: "reviewer", id: "local:a", title: "A dispute" },
+    ]);
+
+    expect(binding.reads()).toEqual({ tenant: 1, user: 1 });
+    expect(storage.calls).toEqual([`get:${keyA}`]);
+    expect(storage.values.get(keyB)).toBe(bBytes);
   });
 });

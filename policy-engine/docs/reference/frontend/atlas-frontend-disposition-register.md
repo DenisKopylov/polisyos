@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **25862**
+- Application lines added: **26011**
 - Application lines deleted: **19602**
-- Net application LOC reduction: **-6260**
+- Net application LOC reduction: **-6409**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -565,6 +565,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `78ea7c3d7 DS5-C16b-R2 partition dispute interaction state`
 - `e5a190261 DS5-C16b-R1 record structural recut`
 - `72522acd9 DS5-C16a-R1 partition causal draft state`
 - `96a7e6dff DS5-C15a partition Clerk session codec`

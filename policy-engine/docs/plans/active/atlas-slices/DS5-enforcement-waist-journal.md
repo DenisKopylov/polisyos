@@ -3536,3 +3536,43 @@
   `751.90 s / 2678 s`. This new sample is logged beside the comparable
   `253.72–1338.89 s` range; nearest-rank p95 and every binding ceiling remain
   unchanged.
+
+### C16b-R2 committed-review repair — immutable scope binding
+
+- The committed-range review was NO-GO `0 Critical / 1 Important / 0 Minor`.
+  Although throwing repeat getters were contained, the consumer derived one
+  physical key and then re-read the caller's mutable scope through
+  `owner.encode()`, `owner.decode()`, or the empty-write remove path. A getter
+  returning identity A first and B later could redirect a successful write or
+  delete. This is the changing-without-throwing P33 sibling of the prior
+  getter exception, so the review finding is accepted.
+- Three storage-backed witnesses were written first for non-throwing scope
+  mutation across write, empty-write/delete, and read. The complete domain
+  RED was `8 / 12`, exit `1`, real `2.53 s / 165 s`, with four immutable-
+  binding assertions failing for the expected repeated-read reason. The
+  adapter now snapshots tenant, user, and primitive run slot exactly once
+  inside containment, freezes that binding, and passes only it to canonical
+  key/encode/decode/remove operations. The canonical owner remains unchanged.
+  Domain GREEN was `12 / 12`, exit `0`, real `1.84 s / 165 s`; implementer
+  combined GREEN was `40 / 40` in `10.25 s`, typecheck `27.40 s`, and ESLint
+  `66.58 s`.
+- Root independently reproduced combined `40 / 40`, exit `0`, real
+  `28.04 s / 165 s`; typecheck exit `0`, real `67.31 s / 482 s`; and exact
+  five-file ESLint exit `0`, real `113.55 s / 174 s`. These independent source
+  lanes shared no scanner-heavy parent. The first Prettier check was a
+  formatting diagnostic; the exact two-file mechanical format and all
+  behavioral gates were rerun afterward.
+- Declared before the repair writer: register, DS19 status, baseline, and
+  readiness bytes must remain identical to the C16b landing. Only the
+  canonical report may move, to catch up the now-landed C16b commit and the
+  source/test LOC growth; its following fix commit cannot self-record. No
+  disposition, identity, status member, finding, denominator, or label may
+  change. The register family is temporarily claimed only for this serialized
+  report write and becomes free again at the repair landing.
+- The canonical repair write passed, exit `0`, real `73.88 s / 554 s`; the
+  identical second write passed in `86.97 s / 554 s` and preserved report
+  SHA-256 `30e2f1eebd88de0788b89231d49585f9a354591e845f9679fc3f374f3fa8d067`.
+  The report now reproduces `26011 / 19602 / -6409 / 89` and records the
+  already-landed C16b commit; the following fix commit remains self-unrecorded
+  by contract. Register/status hashes remain `37aac42c...78e05` and
+  `2c81f0ab...5ed07`; baseline/readiness remain byte-identical.

@@ -205,19 +205,53 @@ export function createDisputePersistence(config?: {
     }
   }
 
-  function key(scope: AuthorityLocalScope | null | undefined, runId: string) {
+  type DisputeBinding = Readonly<{
+    scope: AuthorityLocalScope;
+    slot: string;
+  }>;
+
+  function snapshotBinding(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+  ): DisputeBinding | null {
     try {
-      return owner.key({ scope, slot: runId });
+      if (!scope) {
+        return null;
+      }
+      const tenantId = scope.tenantId;
+      const userId = scope.userId;
+      const slot = runId;
+      return Object.freeze({
+        scope: Object.freeze({ tenantId, userId }),
+        slot,
+      });
     } catch {
       return null;
     }
+  }
+
+  function keyForBinding(binding: DisputeBinding) {
+    try {
+      return owner.key({ scope: binding.scope, slot: binding.slot });
+    } catch {
+      return null;
+    }
+  }
+
+  function key(scope: AuthorityLocalScope | null | undefined, runId: string) {
+    const binding = snapshotBinding(scope, runId);
+    return binding ? keyForBinding(binding) : null;
   }
 
   function read(
     scope: AuthorityLocalScope | null | undefined,
     runId: string,
   ): DisputeRecord[] {
-    const physicalKey = key(scope, runId);
+    const binding = snapshotBinding(scope, runId);
+    if (!binding) {
+      return [];
+    }
+    const physicalKey = keyForBinding(binding);
     if (!physicalKey) {
       return [];
     }
@@ -230,19 +264,16 @@ export function createDisputePersistence(config?: {
       return owner.decode({
         envelope: JSON.parse(raw) as unknown,
         fallback: [],
-        scope,
-        slot: runId,
+        scope: binding.scope,
+        slot: binding.slot,
       });
     } catch {
       return [];
     }
   }
 
-  function remove(
-    scope: AuthorityLocalScope | null | undefined,
-    runId: string,
-  ): boolean {
-    const physicalKey = key(scope, runId);
+  function removeBinding(binding: DisputeBinding): boolean {
+    const physicalKey = keyForBinding(binding);
     if (!physicalKey) {
       return false;
     }
@@ -258,13 +289,21 @@ export function createDisputePersistence(config?: {
     }
   }
 
+  function remove(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+  ): boolean {
+    const binding = snapshotBinding(scope, runId);
+    return binding ? removeBinding(binding) : false;
+  }
+
   function write(
     scope: AuthorityLocalScope | null | undefined,
     runId: string,
     disputes: DisputeRecord[],
   ): boolean {
-    const physicalKey = key(scope, runId);
-    if (!physicalKey) {
+    const binding = snapshotBinding(scope, runId);
+    if (!binding) {
       return false;
     }
     try {
@@ -272,14 +311,18 @@ export function createDisputePersistence(config?: {
         return false;
       }
       if (disputes.length === 0) {
-        return remove(scope, runId);
+        return removeBinding(binding);
       }
     } catch {
       return false;
     }
     const issued = (() => {
       try {
-        return owner.encode({ scope, slot: runId, value: disputes });
+        return owner.encode({
+          scope: binding.scope,
+          slot: binding.slot,
+          value: disputes,
+        });
       } catch {
         return null;
       }

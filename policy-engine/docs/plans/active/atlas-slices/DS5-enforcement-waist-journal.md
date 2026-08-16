@@ -3623,3 +3623,153 @@
   returned file-not-found for those operands. The corrected canonical manifest
   and ledger paths produced the hashes above; this read-only attempt is a
   tooling nonreceipt and changed no bytes.
+
+## DS5-C18a — strict feature-flag registry/parser boundary
+
+- Pattern pass: P01/P02/P04/P05/P10/P29/P31/P32/P33/P37. The prior owner
+  coerced untyped values, accepted global profiles, silently omitted unknown
+  keys, and retained cache state without an exact scope/version witness. The
+  smallest correct C18a pattern is one canonical twelve-key D5 registry plus a
+  pure, typed, fail-closed parser. C18b remains `consumer_missing`: it must
+  bind the strict source-read results to the provider's lifecycle and typed
+  diagnostic surface. The legacy env/window/cache wrappers intentionally remain
+  unchanged in this slice; no interim provider cache disablement is claimed.
+- Registry receipt: all twelve defaults are `true`; dispositions are `11 WIRE /
+  1 RETIRE`; eight existing wires are `live`; C19 owns three pending wires
+  (causal graph, command palette, what-if) and the collaboration retirement.
+  `FeatureFlagKey` is a closed twelve-string union and imports no
+  `RuntimePermission` vocabulary. Strict admission rejects unknown-key plus
+  valid-sibling payloads atomically, non-boolean values, `all_on`/`all_off`,
+  old schemas, and auth/permission pseudo-keys with named diagnostics. Cache
+  admission additionally requires exact registry version, tenant/user scope,
+  non-expiry, and a non-future timestamp.
+- Complete production census (read-only command: `find src -type f \( -name
+  '*.ts' -o -name '*.tsx' \) ! -name '*.test.ts' ! -name '*.test.tsx' ! -name
+  '*.stories.ts' ! -name '*.stories.tsx' | grep -v '^src/test/'`): `574`
+  dashboard TS/TSX sources. A complete key-specific `rg` over that list found
+  `11` live binding literals in `8` files for `8/12` keys; causal graph,
+  collaboration, command palette, and what-if are unread. `Object.values`
+  telemetry is not counted as a key-specific exposure consumer. The inherited
+  composer module-path debt remains `16 literals / 8 owners` governed
+  (`35 / 15` tracked); this slice creates no new duplicate owner.
+- Regime and terminal receipts: local macOS worktree with installed dashboard
+  dependencies, foreground commands, one Vitest worker. Initial behavioral RED
+  was `8/8` failures, exit `1`, real `1.51 s / 165 s`: the strict parser and
+  registry were absent and legacy input partially applied. The first GREEN
+  attempt was a terminal `7/8`, exit `1`, real `3.73 s`; the fixture name
+  `forgedAuthorityFlag` correctly took the auth-pseudo-key branch, so the
+  neutral unknown-key witness replaced it. A metadata-validator typecheck RED
+  was exit `2`, real `27.61 s / 482 s`, `TS2322` at the combined diagnostic
+  branch; split guards fix the actual narrowing cause. The resulting focused
+  GREEN was `8/8`, exit `0`, real `6.14 s / 165 s`; typecheck passed, exit
+  `0`, real `19.14 s / 482 s`.
+- C18b seam repair: the strict reader/future-time RED was `2/8`, exit `1`,
+  real `1.24 s / 165 s`: no typed injected-source result existed and a future
+  cache timestamp was admitted. The strict `absent | present(result)` source
+  readers now expose env/window/scoped-cache parsing without changing the live
+  compatibility wrappers. GREEN was `8/8`, exit `0`, real `2.43 s / 165 s`;
+  post-seam typecheck passed, exit `0`, real `17.96 s / 482 s`; exact two-file
+  ESLint passed, exit `0`, real `5.35 s / 174 s`; production dashboard build
+  passed, exit `0`, real `23.32 s / 300 s`. No command exceeded its cap and no
+  zero-test alias-resolution invocation occurred; therefore there is no such
+  tooling nonreceipt. No writer, scanner, full module suite, staging, or commit
+  ran. Governed-artifact delta is declared zero; the final porcelain/hash fence
+  is read back before independent review.
+- Final-fence nonreceipt: a combined lint/hash command was invoked from the
+  worktree root, where `pnpm exec` reported
+  `ERR_PNPM_RECURSIVE_EXEC_NO_PACKAGE`, exit `1`, real `0.13 s`. It launched no
+  lint or test and changed no bytes; the exact dashboard-directory lint and
+  root Git/hash fence are rerun separately.
+- Hash-only fence nonreceipt: the corrected root command reached clean diff,
+  the exact three-path porcelain, zero `architecture`/`docs/reference`
+  governed-artifact paths, and the ignored-report check, but its loop assigned
+  zsh's special `path` variable. That removed command lookup inside the loop,
+  producing `git`/`shasum`/`awk` command-not-found diagnostics, exit `127`.
+  The exact two-file ESLint independently passed, exit `0`, real `4.93 s / 174
+  s`; the hash loop itself changed no bytes and is rerun with a task-specific
+  variable.
+- Final fence receipt: `git diff --check` passed; porcelain is exactly the
+  C18a three-file cap; `git diff --name-only HEAD -- policy-engine/architecture
+  policy-engine/docs/reference` returned `0`; and the required report is
+  ignored by `.git/info/exclude`. Code/test SHA-256 base→worktree are
+  `3e73fbc6ef39a8dad45b38a35d746ce402b769daf50b1d2892eb1d13e8396807 →
+  3747736a0892b1835c5bb7e6385b4bc796f8a8f75ae3f1e5e87f4e502f831ec0` and
+  `27e82484fa3dcd9dcef414174d2946f9e7dacfd92a2bfb5c81ed8cd4db1be856 →
+  3bea1b124bdaafa76beaeb75cc5aec3d0066abdc5530fa0e22ce96285941f3a9`.
+  The journal hash is necessarily read after this append and is supplied in
+  the independent-review fence rather than self-recorded.
+
+## DS5-C18a review fix — strict scoped cache handshake
+
+- Review finding accepted: the first pure reader required a strict scoped cache
+  envelope, but only the permissive predecessor wrote legacy
+  `{source,version,...}` bytes. That was a P01/P02/P28 producer handshake gap:
+  C18b could neither consume the strict cache nor remove the predecessor within
+  its former provider-only cap. C18a now owns the strict cache writer and typed
+  receipt; it serializes exactly the envelope its strict reader admits. C18b is
+  truthfully recut from cap `6` to cap `8` for `featureFlags.ts` and its test so
+  it can remove/strangle the permissive exports after the provider has switched;
+  the subsequent plan-inclusive coordination recut is cap `9`. C18a remains at
+  its exact three tracked paths.
+- Pattern pass: P01/P02/P04/P05/P07/P08/P09/P10/P28/P29/P31/P32/P33/P37. The
+  repair snapshots/validates own data-property tenant/user scope once (nonempty
+  strings only) and rejects accessor, throwing, and mutable data values before
+  any mixed identity can be emitted; it does not claim to detect proxy identity.
+  Parser Proxy traps are separately contained. The repair snapshots `now` once
+  on strict parser/writer paths,
+  requires cache `updatedAt`, rejects future timestamps and exact
+  `age >= ttlMs` expiry, and contains storage/window/parser/serialization faults
+  as named typed diagnostics. Legacy wrapper tests are retained because C18b
+  has not yet removed their consumer imports; strict output is still
+  `consumer_missing` until that strangle lands.
+- RED first: focused Vitest was `4/12`, exit `1`, real `2.55 s / 165 s`.
+  Expected failures proved the missing strict writer, cache `updatedAt` default,
+  and escaping storage `getItem` exception. New behavioral witnesses cover the
+  exact strict envelope round-trip; scope accessor rejection with throwing
+  getters; absent, throwing-read, and throwing-write storage; serialization
+  failure; injected-window getter; and parser Proxy traps. GREEN is `13/13`,
+  exit `0`, real `1.30 s / 165 s`, then final `13/13`, exit `0`, real `1.24 s
+  / 165 s` after the throwing-scope-getter witness.
+- Regime: local macOS worktree, installed dependencies, foreground commands,
+  one Vitest worker. Dashboard typecheck passed, exit `0`, real `14.24 s / 482
+  s`; exact two-file ESLint passed, exit `0`, real `6.55 s / 174 s`; dashboard
+  production build passed, exit `0`, real `22.66 s / 300 s`. No cap was
+  exceeded. No writer, generated/governed artifact writer, scanner, full module
+  suite, staging, or commit ran. The post-repair porcelain/hash/governed-delta
+  fence is re-read before delta review.
+- Post-journal final verification: focused Vitest passed `13/13`, exit `0`,
+  real `1.31 s / 165 s`; dashboard typecheck passed, exit `0`, real `21.78 s
+  / 482 s`; exact two-file ESLint passed, exit `0`, real `5.46 s / 174 s`; and
+  production build passed, exit `0`, real `37.52 s / 300 s`. Build emitted only
+  its pre-existing chunk-size advisory and no verification failure.
+
+## DS5-C18a accepted-review round 2 — validated snapshot emission
+
+- Independent review NO-GO `0 Critical / 2 Important / 1 Minor` was accepted.
+  I1 repaired the writer's raw-object emission: all manifest reads and
+  `Date.now()` occur inside containment; old `manifest.version` is rejected;
+  parser output is copied into a fresh primitive flags map; serialization uses
+  only that validated snapshot; and `window.localStorage` is read once before
+  `setItem`, preventing getter-based redirection. I2 snapshots the injected
+  window value once and treats only `rawValue === null` as cache absence, so an
+  empty string is a present, typed-invalid input. M1 narrows the scope statement
+  above: data-property/accessor containment is not proxy-identity detection.
+- RED first: focused Vitest `4/17`, exit `1`, real `1.33 s / 165 s`. The four
+  expected witnesses were raw `toJSON` false→true mutation entering persisted
+  bytes, a throwing manifest getter escaping, injected flags reread across the
+  boundary, and empty cache treated absent. GREEN: focused Vitest `17/17`, exit
+  `0`, real `1.27 s / 165 s`; provider compatibility `4/4`, exit `0`, real
+  `2.06 s / 165 s`; typecheck exit `0`, real `18.57 s / 482 s`; exact two-file
+  ESLint exit `0`, real `8.32 s / 174 s`; production build exit `0`, real
+  `37.52 s / 300 s`. The build's chunk-size advisory is non-failing and
+  pre-existing. No writer/scanner/full module suite/governed artifact/staging/
+  commit ran. Final cap/porcelain/hash/governed-delta fence follows.
+- Independent final review is GO `0 Critical / 0 Important / 0 Minor`. It
+  reconciled the exact twelve-key `11 WIRE / 1 RETIRE`, `8 live / 4
+  awaiting_c19` registry; the `574`-source / `11`-literal / `8`-file census;
+  atomic diagnostics; the strict cache read/write handshake; source, storage,
+  time, and hostile-input containment; honest `consumer_missing` handoff; and
+  zero governed bytes. Root independently reproduced the strict registry plus
+  unchanged provider compatibility suite at `21 / 21`, exit `0`, real
+  `3.15 s / 165 s`, under the same local installed-dependency single-worker
+  regime. The register family remains free.

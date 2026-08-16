@@ -52,9 +52,10 @@ reportable dimensions and PV-K02 forbids present failure from rewriting a histor
 (`policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:91-123`).
 
 Every replay gate applies P37. Mechanically decidable predicates are recomputed from retained bytes and
-history; observations such as time, checkpoint order, and custody independence are independently
-reconciled. A decisive predicate that remains consumer-asserted, institutionally supplied, or not
-established cannot produce a positive replay or current-authority claim.
+history; observations such as time, checkpoint order, custody independence, and admitted-instrument
+identity/scope are independently reconciled. A decisive predicate that remains consumer-asserted,
+institutionally supplied, or not established cannot produce a positive replay or current-authority
+claim.
 
 ## 2. Preservation closure
 
@@ -176,18 +177,26 @@ correction owners; they never mutate the original record.
 ### RP-08 - organization change and lawful succession
 
 A successor organization may preserve and serve predecessor evidence and append a custody/status
-statement where competent succession evidence, effective time, and scope are established. It does
-not become the original issuer. Replay preserves predecessor identity, original bytes, issuance-time
-evidence, and the separate succession proposition.
+statement only where the exact succession instrument is content-bound, canonically admitted, and
+independently reconciled against a non-producing authoritative record for authority, scope, timing,
+notice, conditions, and effective time. It does not become the original issuer. Replay preserves
+predecessor identity, original bytes, issuance-time evidence, and the separate succession proposition.
 
-A split is query-specific. Where `A` lawfully inherits scope `X`, `B` inherits `Y`, and an overlap is
-disputed, established non-overlapping scopes remain established while the overlap is not established.
-A global pass launders the overlap; a global failure erases valid scoped succession. This follows the
-INT-R7 succession rule (`int-r7/lifecycle-migration-preservation.md:630-650`) and is exercised by F-10
-and F-14.
+A split is query-specific and has two deterministic worlds. Where admitted instruments for `A` scope
+`X` and `B` scope `Y` pass that reconciliation, established non-overlapping scopes may return
+`scoped_succession_partial` while a disputed overlap remains `not_established`. Where the same scope
+declarations or `admitted=true` markers are merely supplied, cannot be resolved to exact instrument
+bytes, or are contradicted by the independent record, the exact verdict is
+`succession_scope_not_established` and no current-custodian positive is permitted. A global pass
+launders the overlap; a global failure erases valid independently reconciled scope. This follows the
+INT-R7 succession rule (`int-r7/lifecycle-migration-preservation.md:630-650`) and is exercised by F-10,
+F-14A, and F-14B.
 
-**Verifier:** compare admitted instruments, effective times, subject/query scope, and predecessor
-identity. Zero issuer substitution is mandatory.
+**Verifier:** resolve declarations and instrument references to exact bytes and admission receipts;
+independently reconcile authority, scope, timing, notice, conditions, and effective time against the
+non-producing authoritative record; bind the subject/query scope; and require zero issuer
+substitution. Leaving declarations and markers intact while falsifying the instrument premise must
+return `succession_scope_not_established`.
 
 ### RP-09 - vanished source
 
@@ -259,9 +268,11 @@ interpretation. Differential interpretation blocks a positive semantic replay.
 ### 4.5 Organization renamed, merged, split, or abolished
 
 Preserve stable predecessor identity and append independently evidenced organizational events. A
-rename may retain continuity when the competent record establishes it. A split requires scoped
-succession evidence; account control or data possession is insufficient. Disputed overlap remains
-not established without erasing established non-overlap.
+rename may retain continuity only when the content-bound competent record is canonically admitted and
+independently reconciled for the relevant scope. A split uses the two RP-08 worlds: independently
+reconciled admitted instruments can preserve scoped non-overlap, while merely supplied declarations
+or a falsified premise return `succession_scope_not_established`. Account control or data possession
+is insufficient, and disputed overlap remains not established.
 
 ### 4.6 Storage provider or archive changed
 

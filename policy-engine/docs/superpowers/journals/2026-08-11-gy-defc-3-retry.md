@@ -3124,3 +3124,88 @@ the later full run plus the isolated correction. The only warnings in retained g
 the inherited unknown `cache_dir` pytest option and Python 3.14's fork-from-multithreaded-process
 deprecation; neither changed a test outcome. `[P37: recomputed for process/output readback;
 consumer_asserted for the unavailable terminal lifecycle]`
+
+### Confidence-ledger non-governed measurement — GREEN
+
+The producer-owned public writer was re-probed at clean, attached source head
+`2789b49eacf15b95f4cb8efacc830bfac9f52a31` with its output redirected to the ignored candidate
+`tmp/gy-defc-8/confidence/measurement/candidate/layer3_gy_confidence_ledger_contract.json`. It ran
+alone among root's heavy lanes under regime
+`own_heavy_lane_serialized_external_overlap_allowed`; unrelated external overlap remained permitted,
+and its causal contribution to duration is `not_established`. The declared no-own-success ceiling was
+`1,800` s. The wrapper completed in `1,625.501530` s with child/wrapper `0/0`, no timeout or launch
+error; the producer terminal was `status=pass`, `issues=[]`, `byte_stable_passes=2`, cold/warm bytes
+identical, `50` corrupt-field cases, a clean process group, no worker termination, and a started second
+pass. `[P37: recomputed for the execution and predicates; institutionally_supplied for the declared
+ceiling and contention regime; not_established for external-contention causality]`
+
+The producer's own wall time was `1,608.546905` s: cold derivation `1,561.410008` s and cache-hit
+derivation `20.566038` s. Its internal historical `1,500` s cold budget was exceeded only after named
+objective progress continued, so the owner emitted its contract terminal
+`completed_with_objective_progress`; all `54` two-pass progress ordinals completed through the second
+`stage_complete`. This corrects the task-start expectation derived from the prior RED's
+`1,066.669687` s: that value was a failed earlier run, not this successful sample. `[P37: recomputed]`
+
+The complete pin denominator was `453`: all `449` recursive PDC JSON files, the candidate, confidence
+TOML, catalog, and L5 registry. The candidate alone moved absent→present; all `452/452` other pins,
+including the governed confidence artifact at `108,740` bytes and
+`a844a0c318a95e6f653dda34c3a7f6db6592070b8abe25b0b9e9b1bdc2824781`, were byte-identical. Head,
+branch, and tracked status were unchanged and no process survived. The candidate is `977,814` bytes,
+file SHA `a9aed0395f4760e55650d531ce7a8a53620026adbe2e204c6e61b6f7e7b06753`, and embedded identity
+`sha256:0ad9c383ffc2cc9dbd944dde6a330af94f4452f3b2914d7541f65f4aa5564709`.
+Measurement meta/stdout/stderr SHA-256 values are `e9eb1a6a…a5f2`, `f7c064fe…1ef`, and
+`ecbb630a…64a`. `[P37: recomputed]`
+
+The timing log now has the first accepted local confidence-writer sample. Across `167` parseable
+records, the `write` lane reports one successful local sample, p95 `1,624,468.342` ms and base
+`2 × p95 = 3,248,936.684` ms. Applying the institutionally supplied `2.0×` contention allowance gives
+the accepted-writer ceiling `6,497,873.368` ms (`6,497.873368` s). Failed local rows remain excluded;
+no sibling lane supplies this budget. The timing report/meta hashes are `f454a353…c072` and
+`9d18b50e…7f4e`. `[P37: recomputed for records/sample/p95/arithmetic;
+institutionally_supplied for the allowance and admission rule]`
+
+### Confidence transition declaration — frozen before the accepted writer
+
+The first declaration-harness attempt is retained as a harness non-receipt. Before creating any
+snapshot or declaration file it classified three existing→existing
+`*/risk_scope/owner_projection_hash` leaves as governed scope changes and stopped with
+`protected_confidence_leaf_moved`. Readback established that every semantic sibling in all three
+risk-scope objects was byte-equivalent; only their dependent owner identity moved, and each new value
+exactly equals `owner_bundle_projection.projection_sha256`
+`sha256:090b18c98de292f0aebabff261fd5c48faa38c803c9f626546abfe7ec0e98c97`. The classifier was narrowed
+to distinguish dependent identity from scope meaning, while any other risk-scope movement remains
+protected. This was a receipt-classifier defect, not a product RED and not a change in INT-K05 scope
+semantics. `[P37: recomputed for paths/values/equality; independently_reconciled for classification]`
+
+The corrected ignored harness also compares canonical JSON bytes rather than Python equality, so
+`true` and `1` cannot collapse into one leaf value; self-checks the complete `3 roles × 4 fields = 12`
+recording-owner envelope controls as non-admission outcomes; checks the confidence
+`consumed_inputs` envelope separately; retains positive admission/denominator controls; and requires
+the three dependent risk-scope identities to equal the candidate owner-bundle identity. Harness SHA
+is `c77edd8c…e8da`. `[P37: recomputed]`
+
+The complete pre-write manifest at `tmp/gy-defc-8/confidence/declaration-v2/` declares exactly
+`12,674` JSON-leaf transitions: `12,546` absent→present sealed-input-envelope leaves and `128`
+existing→existing identities (`124` dependent receipt identities, three risk-scope owner identities,
+and the artifact self-identity). There are no deletions, no ordinary unclassified movements, and the
+protected movement set is empty. The comparison trio is absent by key presence, not merely null.
+All `111` candidate null leaves survive owner projection, serialization, and strict reparse
+byte-identically; the dynamically derived required-nullable subset is still `36/36`. `[P37:
+recomputed]`
+
+The declaration binds frozen file SHA `a844a0c3…4781` / embedded identity `62df18eb…f225` to candidate
+file SHA `a9aed039…6753` / embedded identity `0ad9c383…4709`; `449` PDC JSON paths; all `453` pins; and
+a `2,976`-file source scope at `sha256:eee7fc54…ca2e`. Its delta JSONL SHA is
+`aede42ec…f593`, manifest content hash is `sha256:b4abbdfd…684bc`, and manifest file SHA is
+`93622bbd…ef6`. A root-controlled repeat generated byte-identical frozen, candidate, delta, pins,
+source-scope, manifest, and summary files. `[P37: recomputed]`
+
+**Accepted-write declaration, made before launch:** accept only if the governed output bytes equal the
+declared candidate bytes exactly; the observed `12,674/12,674` leaf rows equal the declared rows
+exactly; only the governed confidence-artifact pin changes; source scope and every other pin remain
+identical; comparison fields remain absent; protected movement remains empty; all null representation
+predicates remain green; and all three dependent scope identities bind the accepted owner-bundle
+projection. Any mismatch invokes the declaration snapshot restore and rejects the write. This is the
+confidence ledger as the sole reissue and fifth member of GY-DEF14's enumerated batch; whether it is
+accepted remains `not_established` until the writer and audit finish. `[P37: institutionally_supplied
+for the acceptance rule and batch branch; not_established for the future outcome]`

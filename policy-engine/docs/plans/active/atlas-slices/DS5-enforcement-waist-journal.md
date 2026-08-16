@@ -3293,3 +3293,246 @@
   stop. C16a's read-back hashes remain register `a4916c0f...e1ce92`, report
   `aafd18aa...d6fea`, status `f75b660d...7e005`, baseline
   `215b1882...e4bc00`, and readiness `4b64f092...e2ae13`.
+
+## 2026-08-16 — C16b-R2 source implementation and pre-writer declaration
+
+- Entry readback remained attached at
+  `e5a1902618b293a45d15adc07762e9b08c8326f7`, `76` commits ahead of
+  `7cba15e56`; product bytes were clean and the register family was free. The
+  complete current actor-consumer walk sharpened the registered finding:
+  stored `actor: "governance"` is presentation-live because the parser
+  reconstructs it and `DisputeRegistryPanel` projects the governance label,
+  but authority-inert because zero authz, permission, action, admissibility,
+  or publication gates consume it. The DS14/DS9 provenance cut remains
+  scheduled, not an emergency permission-floor repair.
+- C16b-R2 is declared at its measured cap `10`: `disputes.ts` + test,
+  `DisputeRegistryPanel.tsx` + new focused test, the induced complete-scope
+  fixture in `runDetailSurfaces.test.tsx`, frontend register, generated report,
+  DS19 inventory, plan, and this journal. Baseline, readiness, checker family,
+  canonical envelope owner, i18n, GY, C17b, and every later-cluster byte are
+  forbidden. C21 expects zero reanchors; this is re-derived after source freeze
+  rather than inherited from C16a.
+- Before any governed writer, the JSON/report allowlist is declared as one
+  `cache-local-disputes` transition only: disposition stays
+  `rebind_pending`, `strangle_status` moves `pending -> strangled`, and its
+  successor cites the dispute domain/panel source and focused tests. Rationale
+  may name canonical tenant/user scope, writer-owned 24-hour TTL, strict
+  topology-only payload, fresh reviewer/open interaction hydration, and
+  fail-closed storage/clock/codec behavior while expressly leaving DS9 server,
+  epoch, rule, and dispute-authority semantics unclaimed. DS19 may add exactly
+  the scanner-derived `DisputeRegistryPanel.tsx:163:prop` and `:169:prop`
+  `authz.status` consumers plus its dependent register hash. The report may
+  mirror that row and its contractual HEAD/LOC sections. All other finding,
+  identity, disposition, label, denominator, status, readiness, and baseline
+  leaves are reject.
+- Domain TDD first failed `0 / 9`, exit `1`, real `3.62 s / 165 s`, because
+  the canonical adapter did not exist; the first implementation passed
+  `9 / 9`, exit `0`, real `3.21 s / 165 s`. Panel TDD then measured
+  `1 / 3` green and `2 / 3` red, exit `1`, real `4.71 s / 165 s`: an unscoped
+  remount could not hydrate and delimiter-colliding A/B bindings had no
+  identity-aware bridge. The scoped keyed consumer passed `3 / 3`, exit `0`,
+  real `4.95 s / 165 s`; the first combined domain/panel/remount pass was
+  `33 / 33`, exit `0`, real `15.85 s / 165 s`.
+- Strengthening found one live consumer-boundary defect before freeze:
+  `new Date().toISOString()` ran outside containment. The real hostile clock
+  witness left its four assertions green but produced a Vitest uncaught error,
+  exit `1`, real `3.05 s / 165 s`; guarding the complete timestamp operation
+  made `4 / 4` green, exit `0`, real `2.86 s / 165 s`. The strengthened domain
+  battery separately passed `9 / 9`, exit `0`, real `1.84 s / 165 s`, now
+  exercising the actual injected legacy store, duplicate encode rejection,
+  and the exact cross-scope physical read set. Terminal combined focused
+  verification passed `34 / 34`, exit `0`, real `9.95 s / 165 s`.
+- The consumer inherits all six required properties. Future and expired exact-
+  24-hour envelopes plus widened stored TTLs fail closed without rewrite;
+  absent, resolver-throwing, and hostile-method storage returns empty/false,
+  with incomplete scope resolving zero storage; clock, codec, source getter,
+  and consumer timestamp exceptions stay contained; set, synchronous remove,
+  then reload executes in that order and cannot resurrect; canonical encoded
+  keys plus a keyed remount keep delimiter-colliding A/B identities isolated
+  before paint and write; and the persisted payload contains only `basis`,
+  `id`, `openedAt`, `target`, and `title`. `actor` and status are absent, every
+  hydrated local record becomes reviewer-authored with a fresh branded
+  interaction-only `open`, and only live `issueToDispute()` emits governance.
+- Typecheck first exited `2` in `29.84 s / 482 s` on two intentionally hand-
+  written unbranded interaction fixtures and one incomplete governance fixture;
+  that was a test-fixture nonreceipt, not product evidence. Replacing them with
+  the canonical status constructor and complete view fields produced green in
+  `15.65 s / 482 s`; terminal post-format typecheck was green, exit `0`, in
+  `17.70 s / 482 s`. Exact five-file ESLint first passed in
+  `41.69 s / 174 s` and terminally passed in `27.33 s / 174 s`. A Prettier
+  check correctly exited `1` on four newly edited files before the mechanical
+  formatter; it is a formatting nonreceipt and moved no semantics.
+- All timed receipts used local macOS, installed dependencies, one captured-
+  exit foreground process, and one Vitest worker. No governed writer, scanner,
+  heavy module, staging, or commit ran in the source phase. The unrelated
+  registered module-path replication remains `16` literals / `8` governed
+  owners (`35 / 15` tracked); the C16b consumer adds no second envelope,
+  clock, TTL, codec, or storage owner.
+
+### C16b-R2 independent source-review repair and refreeze
+
+- Independent source review was NO-GO `1 Critical / 3 Important / 1 Minor`.
+  The critical finding was that the panel mutated its rendered list and cleared
+  the draft even when the synchronous persistence receipt was false, so an
+  absent/throwing backend still looked successful. The important findings were
+  a legacy witness reading a different slot rather than proving the canonical-
+  only same-slot read set, an owner `key()` call outside the consumer's hostile-
+  scope boundary, and a missing dirty A-to-different-run-B prepaint/write
+  witness. The minor finding was the missing throwing storage-resolver probe.
+  All are accepted consumer/test repairs inside the declared source paths;
+  none changes the canonical owner or artifact allowlist.
+- Red-first review witnesses produced `13 / 16` green with three real failures,
+  exit `1`, real `4.08 s / 165 s`: the tenant getter escaped, and both null and
+  throwing backends still mutated/cleared the UI. Wrapping the complete owner
+  key call and accepting UI mutation only after a true synchronous write
+  receipt made `16 / 16` green, exit `0`, real `5.04 s / 165 s`. The same-slot
+  legacy witness now records exactly one canonical key read and byte-identical
+  untouched legacy storage; hostile scope touches no storage; an explicitly
+  throwing resolver returns empty/false; and dirty A state neither prepaints
+  nor writes under run B.
+- Post-format terminal focused verification passed `37 / 37`, exit `0`, real
+  `9.96 s / 165 s`; dashboard typecheck passed, exit `0`, real
+  `17.88 s / 482 s`; exact five-file ESLint passed, exit `0`, real
+  `64.38 s / 174 s`. Regime remained local macOS, installed dependencies,
+  one captured foreground process, one Vitest worker. No writer, scanner,
+  governed byte, staging, or heavy lane ran before the repaired refreeze.
+- Delta re-review retained one important P33 residual: `write()` called the
+  caught key wrapper and then called `owner.encode()` outside that boundary,
+  so a scope getter that changed between reads could still escape. The getter-
+  count witness lets the complete first key read succeed and throws on the
+  next owner access; it reproduced the escape at `8 / 9`, exit `1`, real
+  `3.03 s / 165 s`. Containing the complete encode call returns false without
+  resolving storage or changing bytes and passed `9 / 9`, exit `0`, real
+  `3.23 s / 165 s`. Final combined focused verification remained
+  `37 / 37`, exit `0`, real `20.00 s / 165 s`; typecheck passed in
+  `25.61 s / 482 s`; and exact five-file ESLint passed in
+  `72.20 s / 174 s`, under the same declared regime. This is a consumer
+  containment repair only; the canonical owner is unchanged.
+
+### C16b-R2 root pre-writer verification and window claim
+
+- Final independent source and fence reviews are GO
+  `0 Critical / 0 Important / 0 Minor`. The live register still contains
+  `156` TypeScript identity refs / `129` distinct payloads and zero binds any
+  C16b product/test path, so the measured C21 re-anchor is exactly zero. The
+  only current panel `authz.status` syntax sites are source lines `163` and
+  `169`; the root-owned scanner must derive those exact members rather than
+  inherit or pad them.
+- Root reproduced the frozen source under local macOS, installed dependencies,
+  captured foreground exits, and one Vitest worker. The three-file focused
+  suite passed `37 / 37`, exit `0`, real `32.19 s / 165 s`; dashboard
+  typecheck passed, exit `0`, real `56.95 s / 482 s`; exact five-file ESLint
+  passed, exit `0`, real `68.04 s / 174 s`; and the production build passed,
+  exit `0`, real `57.45 s / 300 s`, with `3,886` application modules, `109`
+  precache entries, the inherited chunk advisory only, and the Atlas Tailwind
+  source check green.
+- One read-only actor-census command used an unquoted nonexistent `test*` zsh
+  glob and exited before its walk; the corrected explicit source globs produced
+  the complete `952`-file result. It changed no bytes and is a census
+  nonreceipt. With source frozen and the declared JSON/report allowlist still
+  exact, root now owns the single register/status/report writer window.
+
+### C16b-R2 declared artifact delta and pre-writer derivation
+
+- The root-owned no-write status derivation ran with the repository venv
+  interpreter as the only scanner parent and completed in `28.35 s / 400 s`.
+  It derived exactly two additions and zero removals:
+  `DisputeRegistryPanel.tsx:163:prop` and `:169:prop`. The pre-artifact status
+  checker then returned only the expected
+  `status_consumers_drift:status-inline-authz-provider`, exit `1`, real
+  `30.94 s / 400 s`; that is the intentional RED proving the membership
+  declaration, not a product failure.
+- Before the canonical report writer, the surgical JSON readback is exact:
+  only `cache-local-disputes` differs from the landed register; it remains
+  `rebind_pending`, moves `pending -> strangled`, and gains the declared
+  scoped successor/rationale. Root/supplemental/census denominators remain
+  `261 / 62 / 9`; dispositions remain `18 / 195 / 25 / 7 / 16`; strangle
+  counts become `162 pending / 51 strangled / 48 not_applicable`. The register
+  SHA-256 is `37aac42c82d340cdc1c8eddee6efc7aeadb2017640da97fee3bcbf1871678e05`.
+  DS19 changes only that dependent hash plus the two scanner-derived members;
+  its authz consumer count becomes `15`, while `13 / 47 / 0` and `55`
+  semantic exemptions remain invariant. Its pre-writer SHA-256 is
+  `2c81f0ab6ddb31f7f888d406c990aef4a22d7240394db9fc8c99ed7628f5ed07`.
+- Two surgical-patch attempts were rejected by the semantic allowlist before
+  any writer: a context-generic hunk first bound `route-compose`, then a second
+  generic hunk bound `route-run-governance`. Each was diagnosed by a complete
+  parsed-row comparison, reverted with unit-id-anchored patches, and changed no
+  accepted artifact state. A first compact readback also used the nonexistent
+  top-level key `censuses` instead of `reference_censuses` and exited
+  `KeyError`; the corrected complete readback produced the receipts above.
+  Direct execution of the bundled SDD workspace helper was permission-denied;
+  invoking the same helper through `bash` succeeded and changed no tracked
+  bytes. These are tooling nonreceipts, not verification samples.
+
+### C16b-R2 C21 writer RED, declaration repair, and canonical write
+
+- The first canonical report writer wrote its provisional report and then
+  returned a governed RED, exit `1`, real `39.11 s / 554 s`: two unchanged
+  dispute-panel Badges were unclassified, their prior classifications were
+  stale, and the benign/interaction counts moved `103 -> 101` and `13 -> 11`.
+  The Badge token bodies were unchanged; the candidate had renamed their
+  enclosing declaration from `DisputeRegistryPanel` to
+  `DisputeRegistryPanelContent`. C21d correctly treated that declaration-chain
+  rename as binding. This disproved the source review's zero-reanchor
+  inference before any landing and is a writer nonreceipt.
+- The source-only repair keeps the Badge-bearing inner declaration named
+  `DisputeRegistryPanel`, names the authz/scope/key-remount wrapper
+  `ScopedDisputeRegistryPanel`, and exports that wrapper under the unchanged
+  public `DisputeRegistryPanel` name. No checker, frozen identity, governed
+  hash, line padding, or ambiguity predicate changed. Independent repair
+  verification passed the focused `37 / 37` suite in `10.72 s`, typecheck in
+  `43.31 s`, and exact five-file ESLint in `67.04 s` under the local installed-
+  dependency regime.
+- Root then ran the real governed writer: the canonical write passed, exit
+  `0`, real `76.34 s / 554 s`; the identical second write passed in
+  `69.21 s / 554 s` and preserved report SHA-256
+  `08b34b6936520eb9c3ab4fec0908e42cb284d2f31eec6a9e475efb95e2bc5f49`.
+  The report reproduces `25862 / 19602 / -6260 / 89`, mirrors only the dispute
+  successor row plus its contractual HEAD/LOC projection, and retains the
+  `261 / 62 / 9` census and `18 / 195 / 25 / 7 / 16` distribution. Register,
+  status, baseline, and readiness hashes are respectively `37aac42c...78e05`,
+  `2c81f0ab...5ed07`, `215b1882...e4bc00`, and `4b64f092...e2ae13`.
+- Root's fresh post-repair source lanes passed: focused `37 / 37`, exit `0`,
+  real `20.82 s / 165 s`; typecheck exit `0`, real `41.29 s / 482 s`; exact
+  five-file ESLint exit `0`, real `51.12 s / 174 s`. These three independent
+  lanes ran concurrently but no scanner-heavy parent overlapped. A first LOC
+  wrapper invoked PATH-resolved `python3`; its arithmetic was discarded under
+  the interpreter-resolution rule and rerun with `.venv/bin/python`, producing
+  the report's exact `25862 / 19602 / -6260` receipt. A first artifact-hash
+  command guessed two nonexistent baseline/readiness filenames and emitted
+  errors; the corrected canonical paths produced the hashes above. The bundled
+  task-brief helper also inherited its non-executable workspace helper and then
+  found no `Task 16` heading in this cluster-oriented plan; an ignored explicit
+  brief replaced it. These are tooling nonreceipts and changed no accepted
+  product or governed bytes.
+- C16b-R2 completes the C14 consumer matrix at five of five: `[0]` and `[1]`
+  landed in C13b-R7; `[2]` in C16a-R1; the canonical owner and `[4]` in
+  C17a-R2; and `[3]` in this cluster. The already-retired supplemental debt row
+  is not resurrected. No later reader should execute a second dispute/composer
+  envelope closure.
+
+### C16b-R2 serialized governed wave
+
+- Every lane used the local macOS worktree, installed dependencies, one
+  root-owned scanner-heavy parent at a time, a captured terminal exit, and an
+  explicit `.venv/bin/python` parent. `PATH` was venv-first only so inherited
+  child-Python probes resolved the same interpreter. No two governed lanes
+  overlapped.
+- Full frontend disposition passed `94 / 94`, exit `0`, real
+  `248.03 s / 748 s`. Its intentional child-failure probes emitted their
+  expected missing-test diagnostics while the parent assertions remained
+  green. The disposition checker with baseline-source verification and
+  corruption probes passed, exit `0`, real `235.50 s / 554 s`, reproducing
+  `261 / 62 / 9`, `18 / 195 / 25 / 7 / 16`, and all corruption reds.
+- Full status retirement passed `38 / 38`, exit `0`, real
+  `120.79 s / 400 s`; the status checker/corruption battery passed, exit `0`,
+  real `42.54 s / 400 s`, reproducing current/DS1/debt `13 / 47 / 0`,
+  classifications `24 interaction / 15 lattice / 8 removed`, and `55`
+  semantic exemptions.
+- The Atlas checker/corruption battery passed, exit `0`, real
+  `156.60 s / 400 s`, with `588` scanned production sources, `591` broad
+  definition sources, `163` authority Badge sites, and zero corruption
+  escapes. Full Atlas passed `34 / 34`, exit `0`, real
+  `751.90 s / 2678 s`. This new sample is logged beside the comparable
+  `253.72–1338.89 s` range; nearest-rank p95 and every binding ceiling remain
+  unchanged.

@@ -556,7 +556,11 @@ describe("run detail surfaces", () => {
       permissions: new Set<string>(),
       roles: new Set<string>(),
       status: "ready",
-      user: { feature_overrides: { enableReviewCollaboration: false } },
+      user: {
+        feature_overrides: { enableReviewCollaboration: false },
+        tenant_id: "tenant-a",
+        user_id: "reviewer-a",
+      },
     });
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);

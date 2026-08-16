@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:a4916c0f5a16ab5054ab92337df6382199094ea9e13cc8a7ee151ff546e1ce92"
+      "sha256": "sha256:37aac42c82d340cdc1c8eddee6efc7aeadb2017640da97fee3bcbf1871678e05"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -1246,6 +1246,16 @@
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
           "line": 40,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 163,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 169,
           "kind": "prop"
         },
         {

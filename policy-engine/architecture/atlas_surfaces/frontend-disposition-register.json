@@ -4755,12 +4755,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS9",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-dispute-scoped-local-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+          "apps/runtime-dashboard/src/features/runs/domain/disputes.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.test.tsx"
+        ]
+      },
+      "rationale": "C16b-R2 replaces unscoped raw dispute bytes with the canonical tenant/user/run-bound authority-local-state envelope, a writer-owned 24-hour TTL, a strict topology-only codec that omits actor and status and rehydrates reviewer/open interaction state, receipt-gated fail-closed storage, clock, codec, and getter handling, and synchronous remove ordering; DS9 server, epoch, rule-version, and dispute-authority semantics remain unclaimed."
     },
     {
       "unit_id": "cache-review-attention",

@@ -203,7 +203,7 @@ byte-unmodified. Any new identity is red.
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 1 live store; the deleted queue survives only as an upgrade tombstone | composer drafts enveloped; promotion queue barred |
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
-| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1 excludes causal `edges[].status`; C16b-R2 still owes interaction-only dispute status |
+| persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1 excludes causal `edges[].status`; C16b-R2 excludes stored dispute actor/status and rederives reviewer/open interaction state |
 | persistence API census | current 35 symbol-resolved sites / 14 production files: 25 Web Storage, 5 Zustand, 5 IndexedDB | historical pre-C13a/C15a receipt was 41/14; C17b-R1 must remeasure its clean entry |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
@@ -714,10 +714,10 @@ whole-second execution ceiling is `ceil(2 * p95)`:
 
 | Lane | Valid samples (seconds) | nearest-rank p95 | binding ceiling |
 | --- | --- | ---: | ---: |
-| full Atlas module | `395.5, 422, 465.9, 605, 626, 731, 754, 1338.89` | `1338.89` | `2678 s` |
-| full frontend module | `144.9, 151.7, 216.2, 222.2, 282.3, 290.6, 373.94` | `373.94` | `748 s` |
-| disposition corruption battery | `100.8, 114.2, 136.97, 150.5, 195.99, 215.1, 249, 276.89` | `276.89` | `554 s` |
-| status-retirement module | `52.6, 67.2, 73.2, 75.4, 102.3, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
+| full Atlas module | `253.72, 395.5, 422, 462, 465.9, 605, 626, 731, 751.90, 754, 1338.89` | `1338.89` | `2678 s` |
+| full frontend module | `144.9, 151.7, 216.2, 222.2, 248.03, 282.3, 290.6, 373.94` | `373.94` | `748 s` |
+| disposition corruption battery | `100.8, 114.2, 136.97, 150.5, 195.99, 215.1, 235.50, 249, 276.89` | `276.89` | `554 s` |
+| status-retirement module | `52.6, 67.2, 73.2, 75.4, 102.3, 120.79, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
 | focused dashboard/component tests (R6 family) | `1.79, 5.00, 8.50, 25.40, 25.76, 82.27` | `82.27` | `165 s` (`ceil(2*p95)`) |
 | dashboard typecheck (R6 family) | `78.40, 241` | `241` | `482 s` (`ceil(2*p95)`) |
 | scoped dashboard ESLint | `6.10, 6.39, 7.00, 12.705, 17.79, 57.16, 71.95, 86.84` | `86.84` | `174 s` (`ceil(2*p95)`) |
@@ -727,6 +727,9 @@ lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
 the nearest-rank sample set. A floor chosen for tidiness is a supplied number,
 and a supplied number in a gate is P38.
+The comparable full-Atlas range is now `253.72–1338.89 s`, a `5.3x` spread:
+the ceiling remains safe, while the regime label carries more information than
+the duration and remains binding on every receipt.
 
 The target correct pattern is:
 
@@ -1364,7 +1367,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
 | C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
 | C16a-R1 | causal-draft partition | scoped, authority-free candidate persistence is landed; DS8 semantics remain untouched | `72522acd9`; focused causal consumer witness | landed; register family free | none |
-| C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; DS9 semantics remain untouched | `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx:552-560,1309-1337` | R1 stopped; R2 recut required | complete-scope fixture path |
+| C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`; focused domain/panel witnesses | R2 current landing; register free after commit | none |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
@@ -2050,6 +2053,7 @@ remains DS14 `rebind_pending`; DS5 attaches isolation evidence only.
 - **Interpreter resolution:** a wrapper that spawns Python passes the repository venv interpreter explicitly; a child never resolves `python3` through `PATH`, because the macOS 3.9 child can turn a valid 3.14 module into a false product RED.
 - **Declaration completeness for membership:** a cluster that adds a consumer of a governed vocabulary owns the complete induced membership update in its declared artifact delta; a post-hoc allowlist repair is a declaration defect.
 - **Persisted self-attested operator provenance:** the complete current dashboard census is `35` persistence sites / `14` files and `16` families / `13` owners; four `operatorCraft.ts` families hydrate reviewer/audit/packet/completion claims. `cache-operator-craft` remains `rebind_pending`: its landed isolation contract does not verify semantic provenance; after the recorded DS14/DS9 ownership resolution, a separate owner cut must rebind current identity, reconcile packet/event refs independently, and reissue or project stored reviewer/audit claims as interaction-only.
+- **Dispute actor consequence:** at C16b entry the stored `actor: "governance"` self-claim is presentation-live but authority-inert: the complete entry read walk finds parser reconstruction plus `DisputeRegistryPanel` provenance-label selection, while zero authz, permission, action, admissibility, or publication gates consume it; C16b-R2 strips/rederives this field, and the scheduled DS14/DS9 provenance cut remains required but is not an emergency permission-floor repair.
 
 **Measured set:** cap 7: `CausalTab.tsx` + test, register + generated report,
 status inventory, this plan, and journal. Historical `41 / 14`; clean C16 entry
@@ -2077,10 +2081,12 @@ claim without this structural re-anchor. Execution successor: C16b-R2 / cap 10.
 
 **Red first:** `test_dispute_state_rejects_cross_scope_and_stale_bytes`.
 
-**Acceptance:** dispute persistence serializes its existing branded
-`InteractionState` label as interaction-only and cannot feed an authority
-presentation slot. The DS9 domain row remains `rebind_pending` with partition
-successor evidence.
+**Acceptance:** the canonical identity-scoped envelope stores only dispute
+topology (`basis`, `id`, `openedAt`, `target`, `title`), omits both `actor` and
+the complete branded status, and hydrates it as reviewer-authored with a fresh
+interaction-only `open` state. Only live `issueToDispute()` input may produce
+`actor: "governance"`. The DS9 domain row remains `rebind_pending` with
+partition successor evidence.
 
 **Expected commit:** `DS5-C16b-R2 partition dispute interaction state`.
 
@@ -2392,8 +2398,8 @@ backend test path.
   other 65 construction sites and 41 producer sites as typed debt with
   producer-side integrate-contracts.
 - No theorem that a storage caller classified arbitrary unbranded payload
-  meaning correctly. C13a/C15a/C16a-R1 close five measured status paths;
-  C16b-R2 still owes the sixth before C17b-R1
+  meaning correctly. C13a/C15a/C16a-R1/C16b-R2 close all six measured status
+  paths before C17b-R1
   enforces registered constructors, nominal envelopes and concrete codecs.
   Semantic equivalents outside nominal authority types remain attached to the
   C01a typed owner debt rather than being claimed as universally detected.

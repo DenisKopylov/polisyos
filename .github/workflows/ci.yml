@@ -138,6 +138,13 @@ jobs:
       - name: Setup runtime dashboard
         uses: ./.github/actions/setup-runtime-dashboard
 
+      - name: Reconcile Atlas surface-readiness evidence
+        working-directory: policy-engine/apps/runtime-dashboard
+        run: |
+          c10_cas_root="$(mktemp -d)"
+          trap 'rm -rf "$c10_cas_root"' EXIT
+          node scripts/reconcile_atlas_surface_readiness.mjs --cas-root "$c10_cas_root"
+
       - name: Validate Playwright quarantine registry
         run: uv run python tools/quality/testing/check_playwright_quarantines.py
 

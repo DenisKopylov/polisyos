@@ -10,6 +10,17 @@ export const ATLAS_EVIDENCE_PAYLOAD_SCHEMA = {
   version: "1.0.0",
 } as const;
 
+/** C10 extends, rather than replaces, the C07 evidence envelope. */
+export const ATLAS_EVIDENCE_RECONCILIATION_RECEIPT_SCHEMA = {
+  id: "polisyos.atlas.evidence-receipt",
+  version: "1.1.0",
+} as const;
+
+export const ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA = {
+  id: "polisyos.atlas.evidence-verification-payload",
+  version: "1.1.0",
+} as const;
+
 export const ATLAS_EVIDENCE_DENIED_USES = [
   "component_maturity",
   "design_authority",
@@ -27,6 +38,92 @@ export const ATLAS_PREDICATE_PROVENANCE_VALUES = [
   "institutionally_supplied",
   "not_established",
 ] as const;
+
+/**
+ * The only authority-grade identity accepted for the C10 reconciliation
+ * observation.  C07 remains intentionally more general and keeps v1.0
+ * receipts readable; C10 must not turn that compatibility into an unrelated
+ * subject/rule admission path.
+ */
+export const ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT = {
+  evidence_kind: "automated_reconciliation",
+  subject: {
+    kind: "surface",
+    subject_id: "atlas-surface-readiness",
+    state_id: "ledger-reconciliation",
+  },
+  rule: {
+    rule_id: "atlas.surface-readiness-reconciliation",
+    rule_version: "1.0.0",
+  },
+  authority: {
+    authoritative_for: ["atlas_surface_readiness_reconciliation"],
+    may_not_use_for: [
+      "component_maturity",
+      "design_authority",
+      "policy_authority",
+      "promotion",
+      "publication",
+      "runtime_authority",
+      "stable",
+    ],
+  },
+  producer: {
+    producer_id: "atlas-surface-readiness-reconciliation-producer",
+    producer_version: "1.0.0",
+  },
+  verifier: {
+    verifier_id: "atlas-surface-readiness-reconciliation-verifier",
+    verifier_version: "1.0.0",
+  },
+  command_argv: ["node", "scripts/reconcile_atlas_surface_readiness.mjs"],
+  predicate_provenance: "independently_reconciled",
+  field_provenance: {
+    adoption_denominator: "recomputed",
+    readiness_denominator: "recomputed",
+    stable_claims: "recomputed",
+    implemented_claims: "recomputed",
+    redirect_route_identity: "independently_reconciled",
+    redirect_behavioral_matrix: "independently_reconciled",
+    route_test_receipt: "independently_reconciled",
+    route_test_process_exit: "independently_reconciled",
+    route_test_report_sha256: "recomputed",
+    raw_report_sha256: "recomputed",
+    canonical_source_artifacts: "recomputed",
+    capture_implementation: "independently_reconciled",
+  },
+  route_test: {
+    receipt_schema: {
+      id: "polisyos.atlas.c10-route-test-receipt",
+      version: "1.0.0",
+    },
+    test_file: "src/app/routes/routes.test.tsx",
+    assertions: [
+      "APP_ROUTES wraps app routes with the shell and follows legacy redirect from '/launch'",
+      "APP_ROUTES wraps app routes with the shell and follows legacy redirect from '/sources'",
+      "APP_ROUTES wraps app routes with the shell and follows legacy redirect from '/data'",
+      "APP_ROUTES wraps app routes with the shell and follows legacy redirect from '/lex'",
+      "APP_ROUTES wraps app routes with the shell and follows legacy redirect from '/health'",
+    ],
+  },
+  implementation_paths: [
+    "apps/runtime-dashboard/src/test/evidence/atlasEvidenceArtifact.ts",
+    "apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.ts",
+    "apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.ts",
+    "apps/runtime-dashboard/src/app/routes/routes.tsx",
+    "apps/runtime-dashboard/src/app/routes/routes.test.tsx",
+    "apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs",
+    "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+  ],
+  source_artifact_paths: [
+    "architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+    "architecture/atlas_surfaces/adoption-ledger.schema.json",
+    "architecture/atlas_surfaces/live-application-readiness-ledger.json",
+    "architecture/atlas_surfaces/surface-readiness-ledger.schema.json",
+    "apps/runtime-dashboard/src/app/routes/routes.tsx",
+    "apps/runtime-dashboard/src/app/routes/routes.test.tsx",
+  ],
+} as const;
 
 /**
  * Storage is delegated to the repository's existing ArtifactStore boundary.
@@ -70,6 +167,7 @@ const evidenceKindSchema = z.enum([
   "automated_browser",
   "automated_keyboard",
   "manual_at",
+  "automated_reconciliation",
 ]);
 const utcTimestamp = z
   .string()
@@ -80,26 +178,54 @@ const utcTimestamp = z
   }, "timestamp must be a real millisecond-precision UTC instant");
 
 const receiptSchemaIdentity = z
-  .object({
-    id: z.literal(ATLAS_EVIDENCE_RECEIPT_SCHEMA.id),
-    version: z.literal(ATLAS_EVIDENCE_RECEIPT_SCHEMA.version),
-  })
-  .strict();
+  .union([
+    z
+      .object({
+        id: z.literal(ATLAS_EVIDENCE_RECEIPT_SCHEMA.id),
+        version: z.literal(ATLAS_EVIDENCE_RECEIPT_SCHEMA.version),
+      })
+      .strict(),
+    z
+      .object({
+        id: z.literal(ATLAS_EVIDENCE_RECONCILIATION_RECEIPT_SCHEMA.id),
+        version: z.literal(ATLAS_EVIDENCE_RECONCILIATION_RECEIPT_SCHEMA.version),
+      })
+      .strict(),
+  ]);
 
 const authoritySchema = z
-  .object({
-    authoritative_for: z.tuple([z.literal("atlas_evidence_capture")]),
-    may_not_use_for: z.tuple([
-      z.literal("component_maturity"),
-      z.literal("design_authority"),
-      z.literal("policy_authority"),
-      z.literal("promotion"),
-      z.literal("publication"),
-      z.literal("runtime_authority"),
-      z.literal("stable"),
-    ]),
-  })
-  .strict();
+  .union([
+    z
+      .object({
+        authoritative_for: z.tuple([z.literal("atlas_evidence_capture")]),
+        may_not_use_for: z.tuple([
+          z.literal("component_maturity"),
+          z.literal("design_authority"),
+          z.literal("policy_authority"),
+          z.literal("promotion"),
+          z.literal("publication"),
+          z.literal("runtime_authority"),
+          z.literal("stable"),
+        ]),
+      })
+      .strict(),
+    z
+      .object({
+        authoritative_for: z.tuple([
+          z.literal("atlas_surface_readiness_reconciliation"),
+        ]),
+        may_not_use_for: z.tuple([
+          z.literal("component_maturity"),
+          z.literal("design_authority"),
+          z.literal("policy_authority"),
+          z.literal("promotion"),
+          z.literal("publication"),
+          z.literal("runtime_authority"),
+          z.literal("stable"),
+        ]),
+      })
+      .strict(),
+  ]);
 
 const subjectSchema = z
   .object({
@@ -252,16 +378,28 @@ const evidencePayloadRefSchema = z
     kind: z.literal("atlas_evidence_verification_payload"),
     media_type: z.literal("application/json"),
     schema_id: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.id),
-    schema_version: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.version),
+    schema_version: z.enum([
+      ATLAS_EVIDENCE_PAYLOAD_SCHEMA.version,
+      ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.version,
+    ]),
   })
   .strict();
 
 const evidencePayloadSchemaIdentity = z
-  .object({
-    id: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.id),
-    version: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.version),
-  })
-  .strict();
+  .union([
+    z
+      .object({
+        id: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.id),
+        version: z.literal(ATLAS_EVIDENCE_PAYLOAD_SCHEMA.version),
+      })
+      .strict(),
+    z
+      .object({
+        id: z.literal(ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.id),
+        version: z.literal(ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.version),
+      })
+      .strict(),
+  ]);
 const payloadDetailsSchema = z
   .record(z.string(), z.json())
   .superRefine((details, context) => {
@@ -272,6 +410,228 @@ const payloadDetailsSchema = z
       });
     }
   });
+
+function c10IdentityMatches(
+  value: unknown,
+  expected: unknown,
+): boolean {
+  if (Array.isArray(value) || Array.isArray(expected)) {
+    return (
+      Array.isArray(value) &&
+      Array.isArray(expected) &&
+      value.length === expected.length &&
+      value.every((item, index) => c10IdentityMatches(item, expected[index]))
+    );
+  }
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    typeof expected === "object" &&
+    expected !== null
+  ) {
+    const valueRecord = value as Record<string, unknown>;
+    const expectedRecord = expected as Record<string, unknown>;
+    const valueKeys = Object.keys(valueRecord).sort();
+    const expectedKeys = Object.keys(expectedRecord).sort();
+    return (
+      c10IdentityMatches(valueKeys, expectedKeys) &&
+      valueKeys.every((key) =>
+        c10IdentityMatches(valueRecord[key], expectedRecord[key]),
+      )
+    );
+  }
+  return Object.is(value, expected);
+}
+
+const C10_DETAIL_KEYS = [
+  "reconciliation",
+  "route_test_receipt",
+  "route_test_report_sha256",
+  "raw_report_sha256",
+  "source_artifacts",
+  "capture_implementation",
+  "field_provenance",
+] as const;
+
+const C10_RECONCILIATION_KEYS = [
+  "adoption_entries",
+  "adoption_stable",
+  "adoption_stable_ids",
+  "readiness_entries",
+  "readiness_stable",
+  "readiness_stable_ids",
+  "readiness_implemented",
+  "implemented_surface_ids",
+  "nondeprecated_implemented_ids",
+  "verified_deprecated_redirects",
+] as const;
+
+function c10Record(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function c10Sha256(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
+}
+
+function c10UniqueStrings(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => typeof item === "string" && item.length > 0) &&
+    new Set(value).size === value.length
+  );
+}
+
+function c10SourceArtifactsMatch(value: unknown): boolean {
+  const sourceArtifacts = c10Record(value);
+  if (
+    !sourceArtifacts ||
+    !c10IdentityMatches(Object.keys(sourceArtifacts).sort(), ["files", "source_set_sha256"]) ||
+    !c10Sha256(sourceArtifacts.source_set_sha256) ||
+    !Array.isArray(sourceArtifacts.files) ||
+    sourceArtifacts.files.length !==
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.source_artifact_paths.length
+  ) {
+    return false;
+  }
+  return sourceArtifacts.files.every((file, index) => {
+    const record = c10Record(file);
+    return (
+      record !== undefined &&
+      c10IdentityMatches(Object.keys(record).sort(), ["path", "sha256"]) &&
+      record.path ===
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.source_artifact_paths[index] &&
+      c10Sha256(record.sha256)
+    );
+  });
+}
+
+function c10RouteReceiptPasses(value: unknown): boolean | undefined {
+  const receipt = c10Record(value);
+  if (!receipt || !Array.isArray(receipt.required_assertions)) {
+    return undefined;
+  }
+  const expectedKeys = [
+    "outcome",
+    "process_exit_code",
+    "receipt_schema",
+    "report_sha256",
+    "required_assertions",
+    "test_file",
+  ];
+  if (receipt.outcome === "fail") {
+    expectedKeys.push("failure_code");
+  }
+  if (
+    !c10IdentityMatches(Object.keys(receipt).sort(), expectedKeys.sort()) ||
+    !c10IdentityMatches(
+      receipt.receipt_schema,
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.receipt_schema,
+    ) ||
+    receipt.test_file !== ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.test_file ||
+    !c10Sha256(receipt.report_sha256) ||
+    !Number.isInteger(receipt.process_exit_code) ||
+    (receipt.outcome !== "pass" && receipt.outcome !== "fail") ||
+    receipt.required_assertions.length !==
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.assertions.length
+  ) {
+    return undefined;
+  }
+  const allPassed = receipt.required_assertions.every((assertion, index) => {
+    const record = c10Record(assertion);
+    return (
+      record !== undefined &&
+      c10IdentityMatches(Object.keys(record).sort(), ["full_name", "status"]) &&
+      record.full_name ===
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.route_test.assertions[index] &&
+      record.status === "pass"
+    );
+  });
+  const passes = receipt.process_exit_code === 0 && allPassed;
+  if (receipt.outcome === "pass") {
+    return passes ? true : undefined;
+  }
+  return receipt.failure_code === "redirect_test_receipt_invalid" ? false : undefined;
+}
+
+function c10DetailsMatch(
+  value: Record<string, unknown>,
+  result: { outcome: "pass" | "fail" | "incomplete"; findings: { code: string }[] },
+): boolean {
+  const reconciliation = c10Record(value.reconciliation);
+  const routePasses = c10RouteReceiptPasses(value.route_test_receipt);
+  if (
+    !c10IdentityMatches(Object.keys(value).sort(), [...C10_DETAIL_KEYS].sort()) ||
+    !c10IdentityMatches(
+      value.field_provenance,
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.field_provenance,
+    ) ||
+    !reconciliation ||
+    !c10IdentityMatches(
+      Object.keys(reconciliation).sort(),
+      [...C10_RECONCILIATION_KEYS].sort(),
+    ) ||
+    !c10SourceArtifactsMatch(value.source_artifacts) ||
+    !c10Sha256(value.raw_report_sha256) ||
+    !c10Sha256(value.route_test_report_sha256) ||
+    value.raw_report_sha256 !== value.route_test_report_sha256 ||
+    value.route_test_report_sha256 !== c10Record(value.route_test_receipt)?.report_sha256 ||
+    routePasses === undefined
+  ) {
+    return false;
+  }
+  const countKeys = [
+    "adoption_entries",
+    "adoption_stable",
+    "readiness_entries",
+    "readiness_stable",
+    "readiness_implemented",
+  ] as const;
+  if (
+    countKeys.some(
+      (key) =>
+        !Number.isInteger(reconciliation[key]) ||
+        (reconciliation[key] as number) < 0,
+    ) ||
+    !c10UniqueStrings(reconciliation.adoption_stable_ids) ||
+    !c10UniqueStrings(reconciliation.readiness_stable_ids) ||
+    !c10UniqueStrings(reconciliation.implemented_surface_ids) ||
+    !c10UniqueStrings(reconciliation.nondeprecated_implemented_ids) ||
+    !Array.isArray(reconciliation.verified_deprecated_redirects) ||
+    reconciliation.adoption_stable_ids.length !== reconciliation.adoption_stable ||
+    reconciliation.readiness_stable_ids.length !== reconciliation.readiness_stable ||
+    reconciliation.implemented_surface_ids.length !== reconciliation.readiness_implemented
+  ) {
+    return false;
+  }
+  const findingCodes = new Set(result.findings.map((finding) => finding.code));
+  const hasStable =
+    reconciliation.adoption_stable + reconciliation.readiness_stable > 0;
+  const hasNonDeprecatedImplemented =
+    reconciliation.nondeprecated_implemented_ids.length > 0;
+  const requiresFailure = hasStable || hasNonDeprecatedImplemented || !routePasses;
+  if (requiresFailure && result.outcome !== "fail") {
+    return false;
+  }
+  if (
+    hasStable &&
+    !findingCodes.has("stable_evidence_reference_unresolved")
+  ) {
+    return false;
+  }
+  if (
+    hasNonDeprecatedImplemented &&
+    (!findingCodes.has("implemented_negative_test_missing") ||
+      !findingCodes.has("implemented_semantic_test_missing"))
+  ) {
+    return false;
+  }
+  return (
+    routePasses || findingCodes.has("redirect_test_receipt_invalid")
+  );
+}
 
 export const atlasEvidencePayloadSchema = z
   .object({
@@ -284,7 +644,79 @@ export const atlasEvidencePayloadSchema = z
     result: resultSchema,
     details: payloadDetailsSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((payload, context) => {
+    const isReconciliation =
+      payload.evidence_kind ===
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.evidence_kind;
+    const isReconciliationSchema =
+      payload.payload_schema.version ===
+      ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.version;
+    if (isReconciliation !== isReconciliationSchema) {
+      context.addIssue({
+        code: "custom",
+        path: ["evidence_kind"],
+        message:
+          "automated reconciliation evidence must use the C10 versioned payload schema",
+      });
+    }
+    if (!isReconciliation) {
+      return;
+    }
+    if (
+      !c10IdentityMatches(
+        payload.subject,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.subject,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["subject"],
+        message: "C10 payload must bind the exact reconciliation subject",
+      });
+    }
+    if (
+      !c10IdentityMatches(
+        payload.rule,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.rule,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["rule"],
+        message: "C10 payload must bind the exact reconciliation rule",
+      });
+    }
+    if (
+      !c10IdentityMatches(
+        payload.provenance.producer,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.producer,
+      ) ||
+      !c10IdentityMatches(
+        payload.provenance.verifier,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.verifier,
+      ) ||
+      !c10IdentityMatches(
+        payload.provenance.command_argv,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.command_argv,
+      ) ||
+      payload.provenance.predicate_provenance !==
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.predicate_provenance
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "C10 payload must use independently reconciled producer and verifier provenance",
+      });
+    }
+    if (!c10DetailsMatch(payload.details, payload.result)) {
+      context.addIssue({
+        code: "custom",
+        path: ["details"],
+        message: "C10 payload details must bind the exact reconciliation basis",
+      });
+    }
+  });
 
 export type AtlasEvidencePayload = z.infer<
   typeof atlasEvidencePayloadSchema
@@ -324,6 +756,67 @@ export const atlasEvidenceReceiptSchema = z
         code: "custom",
         path: ["retention", "retain_until"],
         message: "retain_until must be exactly 365 days after collection",
+      });
+    }
+    const isReconciliation =
+      receipt.evidence_kind ===
+      ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.evidence_kind;
+    const isReconciliationSchema =
+      receipt.receipt_schema.version ===
+      ATLAS_EVIDENCE_RECONCILIATION_RECEIPT_SCHEMA.version;
+    const isReconciliationAuthority =
+      receipt.authority.authoritative_for[0] ===
+      "atlas_surface_readiness_reconciliation";
+    const hasReconciliationPayload =
+      receipt.evidence_payload_ref.schema_version ===
+      ATLAS_EVIDENCE_RECONCILIATION_PAYLOAD_SCHEMA.version;
+    if (
+      !(
+        isReconciliation === isReconciliationSchema &&
+        isReconciliation === isReconciliationAuthority &&
+        isReconciliation === hasReconciliationPayload
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "receipt schema, authority, evidence kind, and payload schema must form one versioned C07/C10 contract",
+      });
+    }
+    if (!isReconciliation) {
+      return;
+    }
+    if (
+      !c10IdentityMatches(
+        receipt.authority,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.authority,
+      ) ||
+      !c10IdentityMatches(
+        receipt.subject,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.subject,
+      ) ||
+      !c10IdentityMatches(
+        receipt.rule,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.rule,
+      ) ||
+      !c10IdentityMatches(
+        receipt.provenance.producer,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.producer,
+      ) ||
+      !c10IdentityMatches(
+        receipt.provenance.verifier,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.verifier,
+      ) ||
+      !c10IdentityMatches(
+        receipt.provenance.command_argv,
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.command_argv,
+      ) ||
+      receipt.provenance.predicate_provenance !==
+        ATLAS_SURFACE_READINESS_RECONCILIATION_CONTRACT.predicate_provenance
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "C10 receipt must bind the exact authority, subject, rule, and independent provenance",
       });
     }
   });

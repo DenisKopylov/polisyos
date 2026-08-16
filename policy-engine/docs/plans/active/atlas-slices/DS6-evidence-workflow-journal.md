@@ -2762,3 +2762,467 @@ with `src/styles.css` the strangle target.
 
 Earlier sections' “current” and “blocked” lists remain chronological snapshots
 of their cluster landings; this stop record is the later controlling state.
+
+## DS6-C11 — Atlas health-metric instrumentation entry — 2026-08-16
+
+### Clean entry, refused predecessor, and exact fence
+
+`git status -sb` at entry showed the attached
+`codex/atlas-ds6-evidence-workflow` branch with no changes at
+`b856d4e1f735c8158d93504cdb6d5c7d5ab8a81f`, 20 commits ahead of
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. C11 measures exactly seven
+candidate paths against its immutable cap of 12: the new health-metric contract
+and focused test, a fixed MJS producer, the existing app-local Core persistence
+adapter, a reference page, this plan, and this journal. No helper path is
+created; a future structural need for one still fits the cap but must be
+measured before entry.
+
+C10-R1 is not entered. The architect ruling classifies the stopped findings as
+one refused mechanism: independently verified facts were accepted from
+supplied report bytes, exit status, or declared basis, and then collapsed into
+one boolean. The three witnesses are the canonical-runner-provenance/single-
+intake gap, the incomplete pre-CAS owner invariant, and the non-bidirectional
+status contract recorded in the preceding stop section. The plan records the
+two future per-claim bases and explicitly identifies the PV-K01 analogy as an
+internal C10-R1 ruling rather than an extension of that public ratification.
+
+The C11 production intake applies the lesson structurally: callers may select
+only the closed C11 operation. They cannot supply report bytes, a repository
+root, producer path, exit status, or observation basis. The Python adapter
+invokes the fixed repository producer and observes its own child exit/stdout.
+Review later found that process selection and authority admission were not yet
+closed; the repair entry below is the controlling mechanism description.
+
+### Owner discovery and complete denominators
+
+The bars are the master health table at lines 1642-1652, the INT-R3 rider at
+lines 1035-1043, C07's storage convention in
+`atlasEvidenceArtifact.ts:31-56`, C12's exact instrument seam, and P07, P10,
+P29, P31, P32, P35, and P37 in the failure-pattern register.
+
+- The complete DS1 readiness owner has 261/261 entries, SHA-256
+  `11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812`;
+  its strict schema SHA-256 is
+  `f884cc3b9522b5a291f7b3d1a1e4256a243df603d9d16aa6510d183582d9beab`.
+  Neither owner contains an exhaustive decision-bearing-render/DS4-primitive
+  relation or a blocker/abstention/out-of-envelope/stale-cached render-state
+  classifier. Primitive adoption and fail-closed fidelity are therefore
+  `unknown`, not zero and not missing; their denominator predicates are
+  `not_established`.
+- The complete audience-denial proxy file has six test functions and SHA-256
+  `ada70a43798605e4d62274078dcf29b6946c792f7f0701cf47df5e8c16932ce3`.
+  Its own module contract says DS5 owns the final audience mapping. Six proxies
+  are not the complete audience-scoped endpoint set and source presence is not
+  a test-run receipt, so audience enforcement is `unknown`.
+- The canonical cluster-map validator ran read-only and returned PASS with
+  27/27 cells implemented, zero open/incomplete cells, zero open-cell closure
+  rows, and emitted-report SHA-256
+  `aa3d5e9c9e5ed5891fcc9def053803e9b4d49c25b1a52fcdd086ba3245ae5959`.
+  The map SHA-256 is
+  `b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4`.
+  Review rejected the initial cited-report basis because it did not bind a
+  resolvable artifact and verifier provenance. The repair below reruns the
+  canonical validator as a subordinate closed recomputation and admits this
+  row only as `observed_by_instrument/recomputed`.
+- The complete adoption ledger has 233/233 entries and zero `stable` rows,
+  SHA-256
+  `8e253a971d87119c7685efdf64895a364ffb253d19694dbc743dd697b4057545`.
+  Its schema SHA-256
+  `5ae69e709ed569dcae677b5b9778c96f783b1e61c587f161cd68222cffc62085`
+  requires both browser and `at_manual` evidence for every stable row. Eligible
+  zero and covered zero form `0/0`, so evidence coverage is `incomparable` with
+  null ratio/ranking, never a vacuous 100% pass.
+- Across the same complete 261 rows, 193 carry MACHINE audience and five are
+  `implemented`; the strict one-key-set schema has no shipped-surface/twin
+  relation or twin-test receipt. Those fields are refused proxies and the
+  missing structured relation makes machine-twin parity `missing`.
+- C12's actual imported profile freezes six behavioral metric identities and
+  six threshold rows, all `not_established` with null comparator, value, unit,
+  and source. Its research source and observation artifact are absent. C11
+  therefore records `protocol_seam_only` plus observation `missing`, without
+  inventing a threshold or stable-bar effect.
+
+The initial duplication note used a narrower matcher and is superseded by the
+complete repair census below. C07/Core remain the one CAS/storage owner and C11
+adds no evidence receipt, kind, hash implementation, or second CAS.
+
+### Corrected contended package and nonreceipts at entry
+
+C03, C04, and C06 are complete executable deltas once DS5 releases the
+then-current owner family. C13 is not executable: it is a `NO WRITE` until DS8
+repairs the regression, semantic non-overlap is independently established, and
+two consecutive stable no-update captures exist. The package is ready for
+three executable transitions plus one held no-write, not four governed
+transitions. No C10-R1 projection delta exists.
+
+No browser, visual, Storybook, full Vitest, full lint, full typecheck, full
+build, page-a11y, journey, dev-server, contended owner, `src/polisyos/**`,
+Russian locale, product surface, DS5 path, GY path, or DS8 print byte was
+touched at entry. Each unrun lane is a nonreceipt, never green.
+
+### Red-first, implementation, and mechanism classification
+
+The focused C11 test was written before its owner. The first run failed in
+2.07 seconds because `./atlasHealthMetrics` did not exist; no test executed.
+That is the ordinary red-first receipt for the missing contract and producer,
+not a product regression.
+
+The implementation then established exactly the seven declared paths:
+
+- a strict `polisyos.atlas.health-metric-report@1.0.0` contract whose ordered
+  tuple rejects an added, removed, or renamed metric identity;
+- six repository-derived metric rows plus C12's exact seventh protocol seam,
+  retaining `unknown`, observed zero, `missing`, and `incomparable` as separate
+  closed variants;
+- one fixed no-argument MJS producer which reads the complete canonical owners
+  and runs the canonical cluster-map validator;
+- one closed `persist_atlas_health_metrics` operation in the existing C08
+  adapter. Its request is exactly `{"operation":"persist_atlas_health_metrics"}`;
+  report, repository-root, producer-script, exit-code, basis, and arbitrary
+  extra intake fail before execution;
+- exact raw producer stdout persisted as `atlas_health_metric_report`, plus one
+  `atlas_health_metric_snapshot` whose sole Core CAS input is that report under
+  `measurement_report`. This introduces neither a C07 evidence kind nor a C07
+  receipt and leaves `src/polisyos/**` untouched;
+- a reference projection that documents current denominators, state semantics,
+  replay bindings, denied uses, and the honest
+  `implemented_but_not_orchestrated` capability label with
+  `consumer_missing` and `surface_missing`.
+
+This was the pre-review mechanism. Review demonstrated that PATH and
+`NODE_OPTIONS` could replace or alter the process that emitted rows, and that
+the cited surface basis lacked sufficient provenance for an observed zero.
+The repair entry below supersedes this description without entering C10-R1.
+
+Two static findings were adjudicated before repair. ESLint rejected the test's
+two-argument Vitest `expect`, and TypeScript rejected assigning a deliberately
+invalid union member into a fixed tuple slot. Scoped diffs changed only the
+test witness: the assertion now preserves stderr in the compared object and a
+typed helper mutates the invalid candidate through `unknown`. Neither changed
+production logic, a governed byte, nor a test outcome; both are
+non-behavioral test-harness diagnostics, not mechanism findings. The C11
+enforcement and persistence mechanism therefore consumed no mechanism repair
+round for either finding.
+
+### Verification receipts and capability strength
+
+The focused C11 run passed **13/13** in 5.52 seconds, including the exact
+seven-identity rejection, all four state distinctions, no-ranking comparison,
+six observation-vs-one-cited-report bases, the incomplete audience and MACHINE
+proxies, five forbidden public-intake fields, and a real temporary Core CAS
+round trip with a negative lineage mutation.
+
+The importer/blast-radius run passed **49/49** across four files in 11.71
+seconds: C07 artifact contract 12/12, C08 automated capture/persistence 16/16,
+C12 honesty protocol 8/8, and C11 health metrics 13/13. This proves the existing
+C07/C08 operation still persists, resolves, verifies, and binds its original
+receipt path after the adapter gained the closed C11 branch.
+
+The app TypeScript project (`tsconfig.app.json`, not the three-project full
+typecheck) passed with no diagnostics. Scoped ESLint over the C11 TS, test, and
+MJS producer passed with zero warnings. Offline Ruff 0.15.22 and Python bytecode
+compilation passed for the modified adapter. The fixed MJS producer emitted
+seven typed rows in the exact current sequence:
+`unknown/unknown/unknown/zero/incomparable/missing/missing`, with the seventh
+labelled `protocol_seam_only`.
+
+An independent executable smoke invocation used a fresh temporary filesystem
+CAS, passed with exit zero, persisted seven rows, verified the report and
+snapshot, and returned the exact `measurement_report` lineage plus
+`implemented_but_not_orchestrated` / `consumer_missing` /
+`surface_missing`. Its artifact identities are run-specific because the report
+binds the observation time and current dirty posture; the terminal receipt,
+not a copied identifier in this journal, is the authority.
+
+Tooling nonreceipts are explicit. `uv run --frozen python -m ruff` found no
+Ruff module in the worktree environment; `uvx --offline ruff` was then the
+available pinned-cache route and passed. One first Ruff call used an
+app-relative path from inside the app and returned `E902` (path absent); the
+corrected same-file invocation passed. A broad Prettier check reported the two
+long-lived append-only plan/journal files as unformatted, so no bulk rewrite of
+their historical bytes was taken; the two new TS files, MJS producer, and new
+reference page were formatted directly. These are tooling/path nonreceipts,
+never metric or product failures.
+
+No aggregate health PASS, stable grant, blocking authority, consumer, CI
+orchestration, or governed surface projection exists. C11 is therefore
+`implemented_but_not_orchestrated`; the missing chain is explicit rather than
+hidden behind the persisted artifacts.
+
+### Pre-review duplication duty and nonreceipts (superseded)
+
+The quoted “three backend lexical hits” was a sampled classification, not the
+complete matcher result, and is withdrawn. The controlling repair census below
+walks the exact denominator and classifies all 13 matches. No second C07
+receipt/evidence-kind family or Core CAS is introduced. C12 remains the reused
+honesty instrument. The two active `attr(href)` print emitters remain the
+previously registered DS8-owned duplication and are untouched by C11.
+
+At the C11 freeze the later controlling dependency state is:
+
+- C03 waits only for DS5's register/baseline-family release; C16 already
+  discharged its green whole-suite gate.
+- C04 waits for the same register-family release.
+- C06 waits for C04's typed row; C16's exact 7/7 receipt already discharged the
+  browser gate.
+- C10-R1 requires its own clean-tree session under the per-claim vector/basis
+  ruling recorded above.
+- C13 remains a `NO WRITE` until DS8 repairs the print regression, semantic
+  non-overlap is independently established, two consecutive stable no-update
+  captures exist, and the readiness/register owner is released.
+- C14 remains last, after the preceding closure obligations.
+
+C18 is the separately authorized deterministic-fixture and re-anchor cluster,
+not a C11 dependency or a reason to widen this seven-path cut.
+
+No full Vitest, full three-project typecheck, full lint, build, browser,
+Storybook, page a11y, journey, visual, dev server, design-token lane, contended
+governed artifact, readiness ledger, `src/polisyos/**`, product surface, Russian
+locale, DS5/GY path, visual baseline, or DS8 print byte ran or changed in C11.
+Each unrun lane remains a named nonreceipt, never green.
+
+## DS6-C11 review repair entry — 2026-08-16
+
+Independent review reopened C11 on two Blocking and four Important mechanism
+findings. The repair stays below the immutable cap of 12 and declares exactly
+ten paths before adding one structural owner and its locked validator
+dependency:
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+3. `apps/runtime-dashboard/scripts/measure_atlas_health.mjs`
+4. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`
+5. `apps/runtime-dashboard/scripts/validate_atlas_health_sources.py`
+6. `pyproject.toml`
+7. `uv.lock`
+8. `docs/reference/frontend/atlas-health-metrics.md`
+9. the DS6 plan
+10. this journal
+
+The new path is the domain-named, shared canonical-source validator used by
+both the fixed MJS producer and the Python admission chokepoint. It is required
+to apply the complete DS1/DS2 Draft 2020-12 schemas with format checking and
+local reference resolution without creating a caller-selectable source path.
+The test-toolchain extra adds the already locked `jsonschema` implementation
+as a direct dependency so the fixed `.venv/bin/python` path is reproducible;
+dependency declaration and lockfile are both part of this ten-path cut.
+The repair closes P05/P07/P10/P29/P31/P32/P33/P35/P37: raw process output is a
+candidate, Python admission is the sole limited-descriptive emission, exact
+metric identities own their status/basis/state combinations, and no cited
+report is promoted into an observation or independent reconciliation.
+
+Red/green receipts, the complete duplication denominator, and all explicit
+nonreceipts are recorded after the repair source freezes.
+
+### Review-repair red/green and authority result
+
+The first adversarial repair run collected 18 tests and failed seven in 11.70
+seconds: the old cited surface basis was still accepted, cross-metric
+status/basis/state substitutions passed, `not_established` rows accepted an
+observed zero, no full-schema helper existed, raw report authority was not
+candidate-only, a caller-PATH fake Node ran, and a `NODE_OPTIONS` preload ran.
+Those are mechanism RED receipts, not hypothetical assertions. The first
+post-repair focused receipt was 19/19; it is retained as chronology, not the
+controlling final receipt. A separate provenance witness was also red first,
+1 failed/18 skipped in 8.23 seconds, before the snapshot bound the isolated
+source-validator toolchain and environment; it then passed 1/1 in 8.37
+seconds. The final repair added the duplicate readiness/adoption identity and
+mixed-state surface-binding witnesses; the controlling focused receipt is the
+21/21 test-extra receipt recorded below.
+
+The repaired flow has two deliberately different authority bands. The fixed
+MJS/TypeScript report is `candidate_only`, authoritative for nothing, and
+explicitly denied descriptive measurement. The Python adapter resolves Node
+only through its module-owned absolute allowlist, executes the resolved binary
+with a fixed minimal environment, and rejects every caller-selected report,
+root, script, exit, or basis. Both the producer and admission execute the
+fixed `.venv/bin/python -I` source validator with the same minimal environment.
+The validator applies the complete DS1 and DS2 Draft 2020-12 schemas, including
+formats, unique arrays, additional-property rejection, locally bound external
+definitions, and the stable-evidence conditional, before any projection. The
+adapter reruns it, recomputes every exact row, and is the single
+`limited_descriptive_admission` chokepoint.
+
+All seven metric identities now own their exact instrumentation status, basis,
+predicate provenance, measurement variant, known-fact shape, scope, source-ref
+set, and threshold shape. Primitive adoption, fail-closed fidelity, and
+audience enforcement are `instrumented/not_established/unknown`; surface
+closure is `instrumented/recomputed/zero|measured`; evidence coverage is
+`instrumented/recomputed/incomparable|zero|measured`; machine parity is
+`instrumented/not_established/missing`; honesty is
+`protocol_seam_only/not_established/missing`. Every C12 threshold remains
+`not_established` with null comparator, value, unit, and source. The surface
+zero is now a subordinate closed recomputation, never a cited or independently
+reconciled fact.
+
+The report and snapshot have distinct Core manifest producers. Only the
+snapshot admits the matched rows; it binds the raw report artifact/digest,
+validator identity and implementation ref, Python and `jsonschema` versions,
+JSON Schema dialect, executable/script/stdout digests, fixed environments,
+complete owner/schema refs, admission ref, and exact measurements. Its actual
+revision comparator walks every bound owner, schema, validator, producer, and
+admission path. It derives the enclosing worktree prefix with `git rev-parse
+--show-prefix` before requesting the recorded bytes, so product-relative bound
+paths resolve as `policy-engine/<path>` at this worktree root. It records
+`revision_resolvable` only for current bytes equal to the recorded Git blobs;
+otherwise it records `source_hash_bound_only` and the exact non-revision paths.
+The behavioral witnesses prove one clean product-relative path resolves and one
+absent path degrades. This is source resolvability, not a historical rerun or
+cross-snapshot replay consumer.
+
+### Complete repair census
+
+The complete backend denominator is **2,560 tracked recursive Python paths,
+including `__init__.py`**. It was measured with the executable command
+`git ls-files -- ':(glob)src/polisyos/**/*.py' | wc -l`; the case-insensitive
+literal matcher is `health_metric`, measured with
+`git grep -i -l -e 'health_metric' -- ':(glob)src/polisyos/**/*.py' | wc -l`.
+It has exactly **13 path hits**, all classified:
+
+1. `src/polisyos/fabric/_adapters/observability.py` is generic runtime
+   telemetry emission.
+2. `src/polisyos/runtime/http/services/governed_projection_validation_worker.py`
+   validates the separate Layer-3 health-ledger projection.
+3. `src/polisyos/runtime/http/services/governed_projections.py` projects that
+   separate Layer-3 owner.
+4. `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`
+   owns the G0 health-ledger inventory.
+5. `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`
+   owns the G1 delta.
+6. `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py` owns
+   the G2 delta.
+7. `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
+   owns the G3 delta.
+8. `src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py`
+   consumes the G4 promotion delta.
+9. `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`
+   owns the G5 dependency snapshot/delta.
+10. `src/polisyos/runtime/quality/proving_ground/region_widening.py` owns the G7
+    widening delta.
+11. `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
+    owns G8 health-metric governance.
+12. `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py` owns
+    the GL delta.
+13. `src/polisyos/runtime/quality/required_reference_resolver.py` resolves the
+    cross-stage Layer-3 health references.
+
+They are one telemetry adapter, two projection/validation consumers, nine
+Layer-3 stage owners/consumers, and one cross-stage reference resolver; none is
+the seven-metric C11 frontend instrument. The hidden-aware tracked-plus-
+untracked dashboard denominator is **1,007** relevant `.ts`, `.tsx`, `.mjs`,
+or `.py` paths, measured with
+`rg --files --hidden -g '*.ts' -g '*.tsx' -g '*.mjs' -g '*.py' apps/runtime-dashboard | wc -l`.
+The case-insensitive C11 matcher
+`rg -i -l --hidden -g '*.ts' -g '*.tsx' -g '*.mjs' -g '*.py' 'ATLAS_HEALTH_METRIC_IDS|polisyos\\.atlas\\.health[_-]metric|primitive_adoption|surface_missing_closure|machine_twin_parity' apps/runtime-dashboard | wc -l`
+returns exactly **3** paths: the C11 typed owner, its focused test, and the
+existing persistence adapter:
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts` — typed
+   C11 contract/measurement owner;
+2. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts` —
+   focused C11 semantic and adversarial consumer; and
+3. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py` — existing
+   bounded persistence/admission bridge.
+
+The MJS is a semantics-free fixed launcher and the new Python helper is the
+single shared canonical-source validator; neither is a C11 lexical match under
+this deliberately narrower matcher. C07/Core remain the sole CAS and receipt
+owners; no second receipt, evidence kind, hash implementation, or CAS was
+added.
+
+### Frozen verification receipts and nonreceipts
+
+The controlling root test-extra bootstrap receipt was
+`uv run --frozen --extra test python -I apps/runtime-dashboard/scripts/validate_atlas_health_sources.py --corruption-probes`.
+It installed 14 locked packages and left no tracked diff; because that command
+has no `--offline`, it is not an offline claim. Its focused C11 receipt passed
+21/21 in 15.25 seconds (14.20 seconds in Vitest tests), replacing the earlier
+19/19 and temporary-site-path receipts at that time; the later 22/22
+replay-prefix receipt below is now controlling.
+
+An earlier fresh focused rerun used
+`corepack pnpm exec vitest run src/test/evidence/atlasHealthMetrics.test.ts --maxWorkers=2 --reporter=default`
+and passed 1/1 files, **21/21 tests**, in 16.22 seconds (15.36 seconds tests;
+16.85 seconds wall). It includes the complete **nine** canonical-owner
+corruption probes, duplicate readiness/adoption identity rejection, mixed-state
+surface binding, a real filesystem Core CAS round trip, report/snapshot lineage
+mutations, the fake-PATH Node witness, the real `NODE_OPTIONS --require`
+preload witness, and the revision-binding witness. The importer/blast-radius
+rerun used the four C07/C08/C12/C11 files with two workers and passed 4/4 files,
+**57/57 tests** in 15.93 seconds (16.25 seconds tests; 16.50 seconds wall): 12
+C07, 16 C08, eight C12, and 21 C11.
+
+The app `tsconfig.app.json` check passed with no diagnostics in 12.78 seconds;
+scoped ESLint passed with zero warnings in 8.54 seconds; Python bytecode
+compilation passed. `uv run --frozen --extra lint --extra test python -m ruff
+check apps/runtime-dashboard/scripts/persist_atlas_evidence.py
+apps/runtime-dashboard/scripts/validate_atlas_health_sources.py` reported `All
+checks passed!`; this command provisioned its lint tooling and is not an offline
+claim. `uv lock --check --offline` resolved the locked 416-package graph in
+23 ms.
+
+The separate fresh-temporary-filesystem CAS smoke exited zero and verified both
+artifacts. The exact run-specific refs were report
+`sha256:73ac27704c914c4e48d4bf140b20154648a4e86f84fb7526359553a8561cb0cf`
+and snapshot
+`sha256:561cb9b0c36b5a4ec1e54233668b2be6ed41dda31acbc67aed4e8d697f5ac22b`;
+the lineage role was exactly `measurement_report`, metric count seven, report
+authority `candidate_only`, snapshot authority
+`limited_descriptive_admission`, both CAS verifications true, and capability
+`implemented_but_not_orchestrated` with `consumer_missing` and
+`surface_missing`. Because the ten-path candidate is dirty/untracked and the
+bound `pyproject.toml` and `uv.lock` are included, the honest replay result is
+`source_hash_bound_only` with **17 checked paths and six non-revision C11
+paths**. This earlier CAS receipt is superseded by the replay-prefix repair
+receipt below.
+
+### Replay-prefix repair receipt
+
+The worktree-root replay defect was reproduced from the `policy-engine` cwd:
+`git show HEAD:apps/runtime-dashboard/scripts/persist_atlas_evidence.py` exits
+128, while `git show HEAD:policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py`
+exits 0. The generic revision-byte comparator now derives that prefix rather
+than treating product-relative bindings as worktree-relative paths. Its
+behavioral witnesses prove `CONTRIBUTING.md` is `revision_resolvable` at HEAD
+and an absent bound path is `source_hash_bound_only`.
+
+The fresh temporary-filesystem CAS receipt after that repair is report
+`sha256:a94a08810b1d3682f982af1b2aea36ed5a9b3d594d7ecdbbb048041a2ec5b3c5`
+and snapshot
+`sha256:8f32d9a252aaf46eff39d7c09bf8bfa03b0e1913ad0e2e4a9de1503f31c23257`.
+It checks 17 bound paths and returns `source_hash_bound_only` for exactly six:
+`apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`,
+`apps/runtime-dashboard/scripts/measure_atlas_health.mjs`,
+`apps/runtime-dashboard/scripts/validate_atlas_health_sources.py`,
+`apps/runtime-dashboard/scripts/persist_atlas_evidence.py`, `pyproject.toml`,
+and `uv.lock`. The status remains limited descriptive admission with
+`implemented_but_not_orchestrated`, `consumer_missing`, and `surface_missing`;
+this repair changes source resolvability only.
+
+The fresh focused C11 rerun passed 1/1 file and **22/22 tests** in 18.28
+seconds (17.29 seconds tests; 18.94 seconds wall). The C07/C08/C12/C11 importer
+rerun, restricted to two workers, passed 4/4 files and **58/58 tests** in
+18.03 seconds (18.44 seconds tests; 18.61 seconds wall): 12 C07, 16 C08,
+eight C12, and 22 C11. `tsc -p tsconfig.app.json --noEmit`, scoped ESLint,
+Python compilation, Ruff, and `uv lock --check --offline` all passed; none of
+those checks is a browser, full-suite, or orchestration receipt.
+
+Historical provisioning nonreceipts remain evidence, not green receipts. The
+post-temporary-`.pth`, pre-provision isolated-Python attempt failed with
+`ModuleNotFoundError` for `jsonschema`; the temporary ignored site-path file was
+removed before freeze and is not a delivered path. Separately,
+`uv sync --offline --frozen --extra test` could not provision the already
+locked `rpds-py` transitive because its Python 3.14 wheel was absent from the
+offline cache. The later root `uv run --frozen --extra test ...` bootstrap
+receipt above supersedes neither failure as history, but it supplies the
+test-extra prerequisite for C11 acceptance. A fresh environment must bootstrap
+the locked `test` extra before invoking the isolated validator.
+
+No full Vitest, full three-project typecheck, full lint, build, browser,
+Storybook, page-a11y, journey, visual, dev server, architecture guardrail,
+contended governed artifact, readiness/adoption owner, `src/polisyos/**`,
+Russian locale, DS5/GY path, C10 implementation, C18 path, visual baseline, or
+DS8 print byte ran or changed. Those lanes remain nonreceipts. C11 stays
+`implemented_but_not_orchestrated`; its consumer and governed surface remain
+missing, and no aggregate PASS, stable grant, blocking authority, or C10-R1
+mechanism exists.

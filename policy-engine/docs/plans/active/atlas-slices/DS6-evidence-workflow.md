@@ -2,7 +2,7 @@
 plan_id: atlas-ds6-evidence-workflow
 title: "DS6 - Evidence Workflow & Instrumentation"
 type: slice-plan
-status: in_progress_stopped_on_c10_mechanism_breaker
+status: c11_review_repair_verified_c10_r1_deferred
 created: 2026-08-11
 revised: 2026-08-16
 last_verified: 2026-08-16
@@ -59,11 +59,13 @@ JSON Schema, and repository architecture guardrails.
   base diff are recorded in the journal.
 - The slice is deny-by-default. DS6-C16 closed at
   `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`. The continuation authorized C10,
-  then C11, then C17. C10 stopped under its mechanism breaker; its ten-path
+  then C11, then the visual-fixture re-cut. C10 stopped under its mechanism
+  breaker; its ten-path
   candidate is preserved at `573be959890f8e35f72e846e0a37b6eac5fc4396`
   and removed by forward revert
   `a7ae9189147d012fd8a3c80d741ed5c330787672`. Only this plan and journal may
-  now record that stop. C11 and C17 were not entered.
+  recorded that stop. The later architect ruling gave C10-R1 its own session
+  and explicitly authorized C11 independently; C11 is implemented below.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
   until it merges. Required deltas are specified there, not applied here.
@@ -79,12 +81,12 @@ JSON Schema, and repository architecture guardrails.
   skip, quarantine, tolerance widening, merge, push, rebase, force push, or
   stash-as-storage. One scoped commit follows independent review for each
   entered cluster.
-- C10 is stopped, checkpointed, and forward-reverted. C11 is technically
-  unblocked at six instrumentable metrics plus one `not_established` seam, and
-  C17's deterministic visual-fixture repair is DS6-owned; neither was entered
-  because the authorized order placed both after a landed C10. C03, C04, C06,
-  C13's governed transition, and C14 retain the gates stated below and in the
-  journal.
+- C10 is stopped, checkpointed, forward-reverted, and re-cut as the separately
+  authorized C10-R1 vector/basis mechanism. C11 implements six measurements
+  plus one `not_established` protocol seam without entering C10-R1. The
+  deterministic visual-fixture repair is DS6-owned and separately re-cut as
+  C18. C03, C04, C06, C13's governed transition, and C14 retain the gates
+  stated below and in the journal.
 
 ## DS6-C00: inherited entry contract and stop gate
 
@@ -573,6 +575,33 @@ authorized. Focused green receipts exercise admitted cases in the stopped
 implementation only and are withdrawn as C10 closure evidence. C10 is not
 landed, and its governed projection tail remains deferred.
 
+**C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
+`PV-K01` is ratified for public verification: it requires separately
+reportable dimensions and rejects an unqualified public `Verified` Boolean
+(`docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md`,
+§4.1 and §7). The 2026-08-16 architect ruling extends that law's *shape* to
+C10's internal case; this is a C10-R1 ruling, not a ratification beyond
+PV-K01's public subject. C10-R1 refuses the mechanism “inspect supplied report
+bytes plus a supplied exit code, then mint one `independently_reconciled`
+Boolean.” Its evidence is the three stopped findings:
+
+1. supplied Vitest bytes and caller-supplied process exit were labelled
+   independently reconciled (`canonical-runner-provenance-and-single-intake-gap`);
+2. canonical owner constraints could be falsified while the supplied
+   reconciliation remained positive (`incomplete-pre-CAS-owner-invariant`);
+3. supplied `fail` or `incomplete` status could coexist with canonical
+   zero-finding PASS facts (`non-bidirectional-status-contract`).
+
+C10-R1 must instead report each claim separately with exactly one basis:
+`observed_by_reconciler` only when that process ran the canonical check through
+a closed path with no report/exit/basis intake, or
+`consistent_with_cited_report` with the cited artifact identity, digest,
+producer/verifier provenance, and execution status recorded. No number or
+conjunction of cited-report consistencies composes into an observation,
+aggregate reconciliation PASS, or stable authority. The refused Boolean must
+not return under another field, receipt outcome, provenance label, or aggregate
+status.
+
 **Declared path cap: 16; measured stopped-attempt set: 10.** Derive ledger
 claims and actual test/evidence
 existence from their canonical owners, independently reconcile them, persist
@@ -581,17 +610,74 @@ surface the result in the governed audit/reference projection.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 
-**Status: technically unblocked but not entered after the C10 stop.** Six
-metrics can be instrumented against current repository owners; honesty
+**Status: review repair implemented and verified 2026-08-16; not orchestrated.
+Exact declared repair path set: ten paths, below the declared cap of 12.**
+
+1. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`
+2. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+3. `apps/runtime-dashboard/scripts/measure_atlas_health.mjs`
+4. `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`
+5. `apps/runtime-dashboard/scripts/validate_atlas_health_sources.py`
+6. `pyproject.toml`
+7. `uv.lock`
+8. `docs/reference/frontend/atlas-health-metrics.md`
+9. this plan
+10. the DS6 journal
+
+Six metrics are instrumented against current repository owners; honesty
 comprehension/review effectiveness retains C12's instrument seam with every
-threshold `not_established`. This is a sequencing nonreceipt, not an INT-R3
-block on the other six metrics.
+threshold `not_established`. The current owner-derived states are: primitive
+adoption `unknown`; fail-closed fidelity `unknown`; audience enforcement
+`unknown`; `surface_missing` closure known zero at `0/27`; evidence coverage
+`incomparable` at `0/0` stable components; machine-twin parity `missing`; and
+honesty comprehension `protocol_seam_only` with its observation `missing`.
+These are descriptive measurements, never one aggregate PASS or ranking.
 
 **Declared path cap: 12.** Produce typed, versioned, replayable measurements
 for primitive adoption, fail-closed fidelity, audience enforcement,
 `surface_missing` closure, evidence coverage, machine-twin parity, and honesty
 comprehension/review effectiveness. Unknown, zero, missing, and incomparable
-remain distinct.
+remain distinct. The public C11 persistence operation accepts no caller report,
+repository root, producer script, exit status, or basis. It invokes the fixed
+repository producer itself through an allowlisted absolute Node realpath and a
+minimal environment, observes its terminal status and stdout, and then treats
+that stdout as candidate input only. The fixed source validator applies the
+complete DS1 and DS2 Draft 2020-12 owner schemas, including local reference,
+format, uniqueness, additional-property, and stable-evidence constraints,
+before projection. The Python adapter reruns that fixed validator in an
+isolated repository Python process, recomputes and matches every exact row, and
+is the single limited-descriptive admission point. It persists the exact
+candidate report plus one content-bound admitted snapshot through Core CAS.
+The snapshot reuses C07's canon, governance, retention, integrity, and lineage
+convention without adding a C07 evidence kind or receipt.
+
+The fixed producer emits
+`polisyos.atlas.health-metric-report@1.0.0`; the existing Python persistence
+adapter stores that candidate report plus one content-bound
+`polisyos.atlas.health-metric-snapshot@1.0.0`. The snapshot's sole CAS input is
+the report with role `measurement_report`; its distinct admission producer
+binds the report digest, exact admitted measurements, validator/toolchain/
+environment provenance, owner/schema/producer/verifier hashes, and an actual
+revision-byte comparator result. Every row is `observed_by_instrument`, while
+its exact metric schema separately fixes the predicate provenance to
+`recomputed` or `not_established` and fixes the only allowed status,
+measurement variant, known facts, and threshold shape. A dirty or untracked
+binding records `source_hash_bound_only`, never historical replay. The stored
+capability is honestly `implemented_but_not_orchestrated`, with
+`consumer_missing` and `surface_missing`. The typed authority, replay, current
+denominators, and acceptance commands are documented in
+`docs/reference/frontend/atlas-health-metrics.md`.
+
+**Acceptance prerequisite and controlling receipt.** A fresh C11 environment
+must bootstrap the locked `test` extra before the isolated source validator
+runs; the acceptance command intentionally does not claim offline operation.
+The controlling current focused receipt is 22/22 tests (with nine
+canonical-owner corruption probes and clean/absent revision-byte witnesses),
+superseding the earlier 21/21 and 19/19 review-repair receipts. The current
+dirty/untracked ten-path repair binding checks 17 bound paths and reports
+`source_hash_bound_only` for exactly six C11 paths: the typed instrument, MJS
+producer, source validator, persistence adapter, `pyproject.toml`, and
+`uv.lock`.
 
 ### Task 12 — DS6-C12: seed the honesty-comprehension protocol
 
@@ -1065,6 +1151,15 @@ This discharges the master sentence that makes the DS4 prose table authoritative
 “until DS6 creates one.” It does not enter the Vitest debt-class array, because
 the four axe-incomplete clusters were never failing Vitest identities.
 
+**Contended-package readiness.** C03, C04, and C06 are complete executable
+deltas for separate append-only commits once DS5 releases the then-current
+owner family; each begins by rereading current owners and content-hash anchors.
+C13 is an exact `NO WRITE` hold until DS8 supplies a repair, an independently
+established semantic-non-overlap result, and two consecutive stable no-update
+captures. No C10-R1 projection delta exists at HEAD. The register-window
+package is therefore ready for three executable transitions plus one explicitly
+held no-write, not four governed transitions.
+
 ### Serialized heavy-lane package and measured execution
 
 Run from `apps/runtime-dashboard` after the explicit release, serially in the
@@ -1126,10 +1221,11 @@ that distinction.
 - No typed contrast row or i18n baseline removal until DS5 releases the
   contended governed owner. C03's green-receipt gate is discharged; C04 and
   C06 now wait only on that release.
-- No landed readiness-ledger CI validator or health-metric producer. C10 is a
-  stopped, checkpointed, forward-reverted attempt. C11 is not blocked by
-  INT-R3 for its first six metrics, but was not entered after C10 stopped; its
-  seventh metric retains C12's `not_established` content/threshold seam.
+- No landed readiness-ledger CI validator. C10 is a stopped, checkpointed,
+  forward-reverted attempt and C10-R1 requires its own clean-tree session. C11
+  now persists six instrumented measurements plus the seventh C12 seam; INT-R3
+  content, observations, and every honesty threshold remain
+  `not_established`.
 - No DS8 print repair or governed C13 readiness transition; DS6's independent
   visual RED is evidence for the DS8 owner, not repair authority.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the

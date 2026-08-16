@@ -2977,3 +2977,127 @@
   `1` in `0.2 s`; it changed no byte and is a harness nonreceipt. The corrected
   helper exited `0` in `0.2 s` and proved the status delta is exactly the DS19
   hash, tone span, and four declared consumer members, with no removal.
+
+## 2026-08-16 — DS5-C15a declared consumer delta
+
+- **Declared before implementation:** C15a is capped at exactly three tracked
+  paths: `useChatStore.ts`, its mirrored test, and this journal. It consumes the
+  canonical `authorityLocalState` envelope owner synchronously; it does not
+  modify that owner or mount identity into the Clerk page. The complete
+  governed-artifact allowlist is empty: register, generated report, DS19 status
+  inventory, baseline manifest, and readiness ledger must remain byte-identical,
+  and no writer will run. The register family therefore remains free throughout
+  C15a.
+- Honest capability labels stay limited: `cache-clerk-sessions` remains DS14
+  `rebind_pending/pending` with readiness `contract_only`; the structured
+  verdict/status-chip producer remains `producer_missing`; C15b remains
+  `bridge_missing` / `consumer_missing` until it mounts the typed hydration API.
+  No server, epoch, rule-revalidation, or DS14 operator-semantic closure is
+  claimed.
+- Verification regime declared for every C15a receipt: local macOS worktree,
+  installed dependencies, one captured-exit process. Focused Vitest ceiling is
+  `165 s`, dashboard typecheck `482 s`, scoped ESLint `174 s`, and production
+  build `300 s`. No scanner-heavy parent or full suite is authorized here.
+
+### C15a red-first implementation and source freeze
+
+- TDD RED `1` was the absent typed hydration bridge: all `4 / 4` then-current
+  tests reached the shared setup and failed on the missing function, exit `1`
+  in `1.85 s / 165 s`. The minimum canonical-owner adapter plus identity clear /
+  rehydrate seam made the same `4 / 4` green, exit `0`, in `2.47 s / 165 s`.
+- TDD RED `2` executed the actual persisted envelope and found the encoded
+  bytes still contained `runStatus`, `structured.verdict`, status chips, and
+  progressive fields (`1 / 5` failed, exit `1`, `1.83 s / 165 s`). A single
+  concrete strict codec now projects safe fields on write and distrusts
+  non-schema fields on read. The fixed 24-hour owner TTL, safe sibling, and
+  authority/live-field witness passed `5 / 5`, exit `0`, in `1.85 s / 165 s`.
+- TDD RED `3` proved `saveSession()` returned a non-empty ID after its real
+  synchronous storage write threw (`1 / 6` failed, exit `1`, `1.97 s / 165 s`).
+  The consumer now requires exactly one new adapter write attempt with a true
+  receipt and performs a persistence-suppressed rollback otherwise. The first
+  post-fix run correctly exposed one stale historical test that attempted to
+  save without identity (`1 / 6` failed, exit `1`, `1.85 s / 165 s`); its
+  acceptance was corrected to hydrate a scope, retain `runFinishedAt`, and
+  exclude opaque `runStatus`. The result passed `6 / 6`, exit `0`, in
+  `1.83 s / 165 s`.
+- TDD RED `4` proved `newSession()` discarded live conversation state even
+  when its autosave returned failure (`1 / 7` failed, exit `1`, `1.81 s / 165
+  s`). It now returns without clearing on that failure; `7 / 7` passed, exit
+  `0`, in `1.87 s / 165 s`. The expanded real-store matrix then passed `12 / 12`
+  in `1.82 s / 165 s` and the final matrix passed `15 / 15` in `1.87 s / 165 s`.
+  It covers A/B isolation and synchronous preclear; absent identity with zero
+  I/O; exact TTL; safe nested round-trip; forbidden/live-field removal;
+  malformed, extra, foreign, copied, extended-expiry, and at-expiry rejection
+  without rewrite; missing/throwing storage; hostile codec and clock paths;
+  fifty-session truncation; and owner-valid empty-envelope removal.
+- Dashboard typecheck passed at source checkpoints in `19.94 s`, `19.08 s`, and
+  terminally `19.24 s`, each exit `0 / 482 s`. Scoped two-file ESLint first
+  returned a static RED for two invalid two-argument Vitest `expect` calls,
+  exit `1` in `8.37 s / 174 s`; the assertion-only repair preserved `12 / 12`
+  in `1.83 s / 165 s`, then lint passed in `6.23 s / 174 s`. The green-
+  preserving refactor to the repository's existing strict-Zod pattern kept
+  `15 / 15` green in `1.87 s / 165 s`; lint then correctly rejected five
+  deprecated Zod-4 `.finite()` no-ops, exit `1` in `7.63 s / 174 s`. Removing
+  those no-ops preserved `15 / 15` in `1.88 s / 165 s`, and terminal scoped
+  ESLint passed, exit `0`, in `7.86 s / 174 s`.
+- Source-freeze readback: exactly the declared three tracked paths are dirty,
+  `git diff --check` passes, and register, generated report, DS19 inventory,
+  baseline manifest, and readiness ledger are byte-clean. No writer,
+  scanner-heavy process, full suite, killed lane, lost-terminal run, or other
+  nonreceipt occurred. The register family remains free.
+
+### C15a independent-review repair and final source review
+
+- Independent review was NO-GO `0 Critical / 2 Important / 0 Minor`, plus one
+  missing behavioral witness. First, `saveSession()` still read hostile
+  message `role` / `content` and the message-array length before its owner-side
+  exception boundary. Second, `deleteSession()` mutated five live state leaves
+  while ignoring a false storage receipt, so a failed delete appeared to work
+  until stale bytes resurrected it. The claimed malformed-JSON case also had no
+  direct physical-byte witness. These were consumer-boundary findings, not an
+  owner change; the cap remains three.
+- The role/content cases and failed-delete receipt were added before their
+  bounded repairs. A final sibling probe then proved the remaining structural
+  hole: a legal message-array Proxy throwing on `length` escaped the public
+  save API (`16 / 17` passed, exit `1`, real `1.90 s / 165 s`). Moving the
+  complete `get` / empty check / snapshot under one guarded boundary, with
+  rollback only after snapshot capture, made `17 / 17` green, exit `0`, real
+  `1.84 s / 165 s`. An independent rerun reproduced `17 / 17`, exit `0`, in
+  `1.86 s / 165 s`.
+- Delete now accepts success only from exactly one new true synchronous write
+  receipt; false/throwing storage restores sessions, active ID, messages,
+  streaming, and current run without a second write. Its real witness proves
+  one attempted backend write, byte-identical storage, full live rollback, and
+  successful later rehydrate of the supposedly deleted session. A direct raw
+  `"{"` physical value hydrates empty and remains byte-identical.
+- Final delta review returned GO `0 Critical / 0 Important / 0 Minor`; it also
+  re-read exactly three dirty paths, green diff-check, and zero governed-family
+  bytes. The implementation and first source-review agents each later exhausted
+  their workspace quota and produced terminal orchestration errors; those two
+  quota interruptions are nonreceipts and are not evidence. The separate
+  delta reviewer completed normally and supplies the final review receipt.
+
+### C15a final verification and duplication duty
+
+- Root's post-review wave used the same declared local-macOS,
+  installed-dependency, one-process regime. Focused `useChatStore` passed
+  `17 / 17`, exit `0`, real `2.19 s / 165 s`; dashboard typecheck passed, exit
+  `0`, real `22.32 s / 482 s`; scoped two-file ESLint passed, exit `0`, real
+  `8.16 s / 174 s`; and the production build passed, exit `0`, real
+  `33.13 s / 300 s`, with `3,886` application modules, `109` precache entries,
+  the inherited chunk-size advisory only, and the Atlas Tailwind source check
+  green. No scanner-heavy or full module was run because C15a adds no file and
+  changes no governed artifact or scanner denominator.
+- Final governed-family comparison against `HEAD` exited `0`. SHA-256 readback
+  remains register `3c5d44a75d347689112ede294f18c094d81251da1eeb65fe3090722d31b94eb5`,
+  report `294413ab73b3ae818a7cc334790fcc304bcb583c82d6c2f316a1494094cfd75a`,
+  status `6fd36927918c6b8d9b4ae8839e5e48f9ff353a800decd69cfc936c78279e800c`,
+  baseline `215b1882bc8dd7fbafad8e2394e5f203c703cc96eb225f1d19ebcf7220e4bc00`,
+  and readiness `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+  Diff-check is green; final porcelain is exactly the declared three paths.
+- Duplication duty: C15a consumes the single C17a envelope/clock/TTL/parser
+  owner and strangles the raw auto-hydrating Zustand predecessor in the same
+  module; it creates no second owner, codec path, raw-key migration, or mounted
+  identity bridge. The unrelated registered module-path replication remains
+  `16` literals across `8` governed owners (`35 / 15` tracked); C15a changes
+  neither side. The register family stayed free for the entire cluster.

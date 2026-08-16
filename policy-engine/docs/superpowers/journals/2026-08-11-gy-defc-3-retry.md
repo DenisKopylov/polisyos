@@ -2567,3 +2567,169 @@ milestone through validation and `frozen_contract_derived`. The ignored trace ha
 `tmp/gy-defc-6/single_cold_n11.py`, SHA-256 `574f56f6…b428`. `[P37: recomputed for the raw cap and
 harness identity; institutionally_supplied for the allowance, one-call rule, and B5 sequence;
 not_established for the cold outcome]`
+
+### Sole cold N11 receipt — `owner_bundle_loaded` reached for the first time
+
+The single authorized cold invocation ran from clean attached head
+`ca9bc59b025d3360f1ca9173c29d653dc4c7e1c5` in a fresh interpreter. It called
+`clear_owner_bundle_cache()` exactly once and `build_live_contract()` exactly once, using the
+explicit `1,320,693,760`-byte catalog and explicit L5 registry. It did not invoke an N11 writer or
+a second derivation. The wrapper completed without timeout in `1,066.900077` s under
+`4,693.118600` s; the traced one-world call reached its suffix validation at `1,058.162707` s.
+All eleven pins remained byte-identical, the tracked tree stayed clean, and no N11 artifact was
+written. `[P37: recomputed for invocation counts, terminal, durations, pins, and non-write;
+institutionally_supplied for the allowance and regime; not_established for the causal effect of
+external contention]`
+
+The complete monotone milestone trace is:
+
+| ordinal | elapsed s | milestone |
+| ---: | ---: | --- |
+| 1 | `0.001334` | `confidence_registry_loaded` |
+| 2 | `0.523031` | `owner_pre_derivation_fence_started` |
+| 3 | `10.374700` | `owner_pre_derivation_fence_complete` |
+| 4 | `10.378754` | `n10_owner_recomputation_started` |
+| 5 | `1035.180535` | `n10_owner_recomputation_complete` |
+| 6 | `1035.181416` | `n13b_owner_recomputation_started` |
+| 7 | `1039.613991` | `n13b_owner_recomputation_complete` |
+| 8 | `1039.614839` | `n10_owner_projection_complete` |
+| 9 | `1039.616640` | `n13b_owner_projection_complete` |
+| 10 | `1039.680863` | `owner_post_derivation_fence_started` |
+| 11 | `1055.257978` | `owner_post_derivation_fence_complete` |
+| 12 | `1055.287494` | `owner_bundle_fence_validated` |
+| 13 | `1055.290051` | `owner_bundle_loaded` |
+| 14 | `1055.773846` | `n10_evidence_accounting_started` |
+| 15 | `1056.184249` | `n10_evidence_accounting_complete` |
+| 16 | `1056.184284` | `n13b_passport_accounting_started` |
+| 17 | `1056.184303` | `n13b_passport_accounting_complete` |
+| 18 | `1056.276655` | `real_ledger_receipt_validated` |
+| 19 | `1056.436805` | `n9_live_projection_validated` |
+| 20 | `1056.688652` | `n12_live_projection_validated` |
+| 21 | `1056.689148` | `conformance_ledger_started` |
+| 22 | `1057.321141` | `conformance_check_executed` |
+| 23 | `1057.356249` | `conformance_ledger_receipt_validated` |
+| 24 | `1057.857082` | `confidence_ledger_receipts_validated` |
+| 25 | `1057.941256` | `real_semantic_projection_complete` |
+| 26 | `1057.963454` | `conformance_semantic_projection_complete` |
+| 27 | `1057.974593` | `frozen_consumer_projections_complete` |
+| 28 | `1058.055239` | `frozen_contract_derived` |
+
+`owner_bundle_loaded` is reached, plainly, for the first time. A complete census of all `19`
+tracked superpowers journals finds `15` prior textual mentions across six files; every prior runtime
+claim is negative (`before`, `did not reach`, `not established`, or no invocation) and the remaining
+mentions state the objective/sequence. Thus “first time” is independently reconciled rather than
+inferred from one sampled journal. The P30 objective is closed. Per B5 this removes the objective
+block on `GY-N12`, `GY-N13a/b`, `GY-GAP1`, and `GY-INFRA-3` Step 1; that dependency consequence is
+`institutionally_supplied`, while the milestone itself is `recomputed`. No successor cluster is
+entered. `[P37 as stated]`
+
+### N11 suffix RED — new artifact-identity normalization class, not repaired
+
+The same call continued through all remaining N11 milestones and then the explicit live-contract
+validator returned one issue. The wrapper therefore exited `1`; its complete exception chain is:
+
+```json
+[
+  {
+    "type": "builtins.RuntimeError",
+    "code": "cold_n11_live_validation_failed",
+    "message": "cold_n11_live_validation_failed:[{\"code\": \"artifact_content_hash_drift\"}]",
+    "safe_replay_drift_detail": null
+  }
+]
+```
+
+This is a new suffix class, not any earlier cold-run class: the owner bundle returned and the frozen
+contract was derived, whereas every prior cold failure stopped before `owner_bundle_loaded`. The
+only prior journal occurrence of `artifact_content_hash_drift` is an N10a red-first corruption
+witness, not an N11 live-identity failure. The failing artifact is the newly derived in-memory
+`FrozenConfidenceLedgerContract`, whose persisted path is
+`architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json`. The cold harness passes
+that live object as both `payload` and `expected`; it does not compare the disk artifact at this
+boundary. `[P37: recomputed for the artifact type and call operands; independently_reconciled for
+class novelty]`
+
+Stored-versus-recomputed means two projections of that same live N11 object. Construction calls
+`contract.model_dump(mode="json")` and stores `artifact_content_hash` over the resulting body, which
+retains nested optional `None` values. Validation parses the object and recomputes over
+`model_dump(..., exclude_none=True)`; `contract_bytes()` uses that same omit-`None` projection. The
+saved cold receipt records the named inequality but did not emit the live object's two hash values,
+so their exact pair cannot be recovered without the forbidden rerun. Their direction and cause are
+established by the executed source path; the un-emitted pair is explicitly `not_established`.
+`[P37: independently_reconciled for the code-path distinction; recomputed for the saved diagnostic;
+not_established for the un-emitted live hash values]`
+
+A complete recursive census of the frozen member provides an exact same-family discriminator. Its
+stored `artifact_content_hash` is
+`sha256:62df18eb9d78368cacc607790541d2237f66f9a7ab381ef83bf6116fdea4f225`, exactly equal to
+the GY content hash of its body with all `106` explicit null leaves retained. Omitting those null
+leaves yields
+`sha256:fb4c9c336f9d301bef6b089b961b4d57f8f5b9838158218a618e42976ff84005`.
+After the real volatile-field removal and compact canonical JSON projection, the two inputs are
+`87,295` and `84,679` bytes. Their first differing byte is offset `2,967`, at
+`/conformance_ledger_projection/checks/0/certificate_class`: construction retains
+`"certificate_class":null`, while the validator projection omits the member and proceeds directly
+to `certificate_ref`.
+The frozen file is independently stale and cannot itself be a current validation receipt because it
+lacks the now-required `/owner_bundle_projection/consumed_inputs`; this calculation is a
+normalization discriminator, not a claim that the current validator reached its hash comparison on
+the frozen bytes. `[P37: recomputed]`
+
+The difference was introduced by the v1/v2 comparison migration commit `207069dae`: that commit
+changed validation and serialization to `exclude_none=True` but left construction hashing the
+include-`None` dump. It also deliberately removed the confidence ledger from comparison authority:
+the builder deletes all three top-level comparison identity fields and the validator rejects any
+non-null survivor as `confidence_verification_projection_remains_governing`. Therefore the migration
+explains when the defect entered, but the RED is not an admissible v1/v2 comparison-schema split and
+is not caused by a v1 comparison identity remaining governing. Depth removed the upstream N10
+capstone blocker and allowed this distinct N11 artifact-identity normalization defect to execute.
+This corrects the prompt's narrower stale-v1-comparison hypothesis while retaining its artifact
+identification. `[P37: independently_reconciled]`
+
+The smallest correct closure, described and deliberately not performed, is to give N11 one shared
+canonical artifact-identity projection used by live construction, validation, corruption rehash,
+and serialization: it must normalize optional `None` values exactly as `contract_bytes()` does.
+The red-first witness should prove that inserting/removing a serialized-away nested `None` cannot
+change or invalidate identity, while changing a retained non-`None` value still turns red. That is
+a separate N11-owner change and would require its own authorization plus a new cold receipt; B5
+forbids chaining it here. `[P37: independently_reconciled for the smallest closure boundary;
+not_established for any repaired outcome]`
+
+Receipt meta/stdout/stderr identities are `32268dd3…19df`, `54ee2551…6203`, and
+`8b8ea139…cbbb`; stdout retains all 28 milestone JSON rows and stderr retains the failure JSON plus
+traceback. The process-local call count of one is `recomputed`; the orchestration fact that no second
+task process was launched is `consumer_asserted`. `[P37 as stated]`
+
+### GY-DEFC-6 closure receipt
+
+A complete execution census across the tracked journals finds six actual cold N11 attempts since
+2026-08-08: the two GY-DEF6 writers (`497.418045` s and `512.873833` s), the GY-DEFC-1 writer
+(`1,599.639458` s), GY-DEF13's one-world call (`138.988216` s), GY-DEFC-2's one-world call
+(`104.592529` s), and this task's one-world call (`1,066.900077` s wrapper duration). The first five
+stopped before `owner_bundle_loaded`; attempt six reached it at `1,055.290051` s and continued
+through all `28` milestones. `[P37: independently_reconciled for the cross-journal attempt census;
+recomputed for this task's trace]`
+
+The P30 objective is reached. Depth closed on the first accepted write with exact declared/observed
+equality `6,095/6,095`, protected-set intersection empty, and all external pins unchanged; its
+accepted artifact audit, post-fix `--check`, post-fix `--rederive-audit`, and corrupt terminal are the
+four closure receipts. The corrupt terminal caught exactly `18/18` mutations with zero survivors.
+The single authorized cold allowance was spent once, reached `owner_bundle_loaded`, and then exposed
+the separately classified N11 suffix defect above. No cold rerun or suffix repair occurred in
+GY-DEFC-6. `[P37: recomputed]`
+
+`GY-N11` has moved out of `built_not_closed`: its acceptance milestone is reached while a suffix
+remains open. This state is intentionally more precise than the plan's existing vocabulary; the
+suffix remains `verification_missing` until its artifact identity is canonical from construction
+through validation. `[P37: recomputed for the milestone; independently_reconciled for the capability
+state; not_established for suffix closure]`
+
+The GY-DEFC-6 orchestration used three read-only research lanes for timing/journal evidence, the
+Depth command/pin/manifest denominator, and the posture/N11 envelope. Root alone edited tracked
+files and launched every writer-class or scanner-heavy process; those own lanes were serialized,
+while unrelated external processes were allowed to overlap. The first `3,404.716554` s Depth
+measurement terminal is retained as a receipt-wrapper non-receipt: its initial classifier mistook
+twelve recording-owner envelope hashes for protected admission outcomes, while the producer itself
+had returned a valid candidate. The corrected classifier was checked before the accepted write.
+`[P37: consumer_asserted for the dispatch history; independently_reconciled for the returned
+research; recomputed for tracked edits, launched processes, and final agent/process state]`

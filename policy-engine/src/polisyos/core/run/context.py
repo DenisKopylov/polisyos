@@ -16,6 +16,7 @@ from polisyos.common.serialization import fast_json_dumps
 from ..artifacts._atomic_write import AtomicFileWriter
 from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
 from ..artifacts.write_contract import ArtifactWriteOptions
+from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
 from ..trace.sink import CompositeTraceSink, JsonlTraceSink, TraceSink
 from .manifest import RunManifest
@@ -93,7 +94,12 @@ def _load_finalize_journal(run_dir: Path) -> RunManifest | None:
         return None
 
 
-def _trace_has_run_finalized_event(trace_path: Path) -> bool:
+def _trace_has_terminal_run_finalized_event(
+    trace_path: Path,
+    *,
+    run_id: str,
+    run_ref: ArtifactRef,
+) -> bool:
     if not trace_path.exists():
         return False
     for line in trace_path.read_text(encoding="utf-8").splitlines():
@@ -103,9 +109,38 @@ def _trace_has_run_finalized_event(trace_path: Path) -> bool:
             record = TraceRecord.model_validate_json(line)
         except (TypeError, ValueError):
             continue
-        if record.event == "RUN_FINALIZED":
+        if (
+            record.run_id == run_id
+            and record.phase == "core"
+            and record.event == "RUN_FINALIZED"
+            and record.run_terminality is RunTerminality.TERMINAL
+            and any(
+                output.artifact_id == run_ref.artifact_id and output.kind == run_ref.kind
+                for output in record.refs.outputs
+            )
+        ):
             return True
     return False
+
+
+def _trace_run_started_identity(trace_path: Path) -> str | None:
+    if not trace_path.exists():
+        return None
+    owner_run_ids: set[str] = set()
+    for line in trace_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            record = TraceRecord.model_validate_json(line)
+        except (TypeError, ValueError):
+            return None
+        if record.phase == "core" and record.event == "RUN_STARTED":
+            if record.run_terminality not in {None, RunTerminality.NON_TERMINAL}:
+                return None
+            owner_run_ids.add(record.run_id)
+    if len(owner_run_ids) != 1:
+        return None
+    return next(iter(owner_run_ids))
 
 
 def _append_run_finalized_event(
@@ -119,6 +154,7 @@ def _append_run_finalized_event(
             run_id=run_manifest.run_id,
             phase="core",
             event="RUN_FINALIZED",
+            run_terminality=RunTerminality.TERMINAL,
             tenant_id=run_manifest.tenant_id,
             cell_id=run_manifest.cell_id,
             refs=TraceRefs(outputs=[run_ref]),
@@ -132,12 +168,30 @@ def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> Artifac
     run_manifest = _load_finalize_journal(run_dir)
     if run_manifest is None:
         return None
+    trace_path = run_dir / "trace.jsonl"
+    trace_run_id = _trace_run_started_identity(trace_path)
+    if trace_run_id is None:
+        logger.warning(
+            "Refusing finalize journal for run %s without a core RUN_STARTED owner event",
+            run_manifest.run_id,
+        )
+        return None
+    if run_manifest.run_id != trace_run_id:
+        logger.warning(
+            "Refusing finalize journal for run %s in trace owned by %s",
+            run_manifest.run_id,
+            trace_run_id,
+        )
+        return None
     run_ref = store.put_json(
         run_manifest,
         _run_manifest_write_options(run_manifest),
     )
-    trace_path = run_dir / "trace.jsonl"
-    if not _trace_has_run_finalized_event(trace_path):
+    if not _trace_has_terminal_run_finalized_event(
+        trace_path,
+        run_id=run_manifest.run_id,
+        run_ref=run_ref,
+    ):
         _append_run_finalized_event(
             trace_path=trace_path,
             run_manifest=run_manifest,
@@ -230,7 +284,11 @@ class RunContext:
             access_scope=access_scope,
         )
         ctx._record_ref_owner(registry_bundle, writer="RunContext.start.registry_bundle")
-        ctx.emit("core", "RUN_STARTED")
+        ctx._emit_record(
+            "core",
+            "RUN_STARTED",
+            run_terminality=RunTerminality.NON_TERMINAL,
+        )
         return ctx
 
     def _record_ref_owner(self, ref: ArtifactRef, *, writer: str) -> None:
@@ -255,12 +313,31 @@ class RunContext:
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
     ) -> None:
+        self._emit_record(
+            phase,
+            event,
+            inputs=inputs,
+            outputs=outputs,
+            metrics=metrics,
+        )
+
+    def _emit_record(
+        self,
+        phase: str,
+        event: str,
+        *,
+        run_terminality: RunTerminality | None = None,
+        inputs: list[ArtifactRef] | None = None,
+        outputs: list[ArtifactRef] | None = None,
+        metrics: dict[str, float | int] | None = None,
+    ) -> None:
         for ref in [*(inputs or []), *(outputs or [])]:
             self._record_ref_owner(ref, writer=f"RunContext.emit:{event}")
         rec = TraceRecord(
             run_id=self.run_manifest.run_id,
             phase=phase,
             event=event,
+            run_terminality=run_terminality,
             tenant_id=self.tenant_id,
             cell_id=self.cell_id,
             refs=TraceRefs(inputs=inputs or [], outputs=outputs or []),
@@ -311,9 +388,10 @@ class RunContext:
             _run_manifest_write_options(self.run_manifest),
         )
         self._record_ref_owner(run_ref, writer="RunContext.finalize.manifest")
-        self.emit(
+        self._emit_record(
             "core",
             "RUN_FINALIZED",
+            run_terminality=RunTerminality.TERMINAL,
             outputs=[run_ref],
             metrics={"status_ok": 1 if status == "ok" else 0},
         )

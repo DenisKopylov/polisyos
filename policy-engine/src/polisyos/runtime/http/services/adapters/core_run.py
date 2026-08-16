@@ -9,6 +9,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
+from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord
 
 if TYPE_CHECKING:
@@ -28,6 +29,7 @@ class CoreRunAdapterResult:
 
     run_id: str
     status: str
+    run_terminality: RunTerminality
     started_at: datetime | None
     finished_at: datetime | None
     duration_ms: int | None
@@ -58,8 +60,14 @@ def load_core_run(
     if not trace_path.exists():
         return None
 
-    run_id = run_dir.name
+    run_id: str | None = None
     warnings: list[str] = []
+    run_terminality = RunTerminality.NOT_ESTABLISHED
+    terminality_conflicted = False
+    finalized_without_fact = False
+    trace_started_at: datetime | None = None
+    trace_tenant_id: str | None = None
+    trace_cell_id: str | None = None
     manifest_ref: ArtifactRef | None = None
     manifest: CoreRunManifest | None = None
 
@@ -68,23 +76,59 @@ def load_core_run(
             record = TraceRecord.model_validate_json(line)
         except (TypeError, ValueError) as exc:
             logger.debug("Failed to validate trace record from %s: %s", trace_path, exc)
+            if "core_run_trace_record_invalid" not in warnings:
+                warnings.append("core_run_trace_record_invalid")
+            run_terminality = RunTerminality.NOT_ESTABLISHED
+            terminality_conflicted = True
             continue
-        if record.event != "RUN_FINALIZED":
+        if record.phase == "core" and record.event == "RUN_STARTED" and run_id is None:
+            run_id = record.run_id
+        if run_id is None:
+            if "core_run_trace_event_before_run_started" not in warnings:
+                warnings.append("core_run_trace_event_before_run_started")
+            run_terminality = RunTerminality.NOT_ESTABLISHED
+            terminality_conflicted = True
+            continue
+        if record.run_id != run_id:
+            if "core_run_trace_run_id_mismatch" not in warnings:
+                warnings.append("core_run_trace_run_id_mismatch")
+            run_terminality = RunTerminality.NOT_ESTABLISHED
+            terminality_conflicted = True
+            continue
+        if record.phase == "core" and record.event == "RUN_STARTED":
+            trace_started_at = trace_started_at or record.ts
+            trace_tenant_id = trace_tenant_id or record.tenant_id
+            trace_cell_id = trace_cell_id or record.cell_id
+        run_terminality, terminality_conflicted, finalized_without_fact = (
+            _admit_run_terminality(
+                record,
+                current=run_terminality,
+                conflicted=terminality_conflicted,
+                finalized_without_fact=finalized_without_fact,
+                warnings=warnings,
+            )
+        )
+        if record.phase != "core" or record.event != "RUN_FINALIZED":
             continue
         for ref in record.refs.outputs:
             if ref.kind == "core.run_manifest":
                 manifest_ref = ref
+
+    if run_id is None:
+        logger.debug("No RUN_STARTED identity found in trace %s", trace_path)
+        return None
 
     if manifest_ref is None:
         warnings.append("core_run_manifest_ref_not_found_in_trace")
         return CoreRunAdapterResult(
             run_id=run_id,
             status="unknown",
-            started_at=None,
+            run_terminality=run_terminality,
+            started_at=trace_started_at,
             finished_at=None,
             duration_ms=None,
-            tenant_id=None,
-            cell_id=None,
+            tenant_id=trace_tenant_id,
+            cell_id=trace_cell_id,
             execution_profile=None,
             control_job_id=None,
             capability_manifest_ref=None,
@@ -108,11 +152,37 @@ def load_core_run(
         return CoreRunAdapterResult(
             run_id=run_id,
             status="unknown",
-            started_at=None,
+            run_terminality=run_terminality,
+            started_at=trace_started_at,
             finished_at=None,
             duration_ms=None,
-            tenant_id=None,
-            cell_id=None,
+            tenant_id=trace_tenant_id,
+            cell_id=trace_cell_id,
+            execution_profile=None,
+            control_job_id=None,
+            capability_manifest_ref=None,
+            manifest_ref=manifest_ref,
+            trace_ref=None,
+            root_artifacts=(),
+            workflow_report_ref=None,
+            experiment_state_ref=None,
+            decision_packet_ref=None,
+            trace_path=trace_path,
+            warnings=tuple(warnings),
+            errors=(),
+        )
+
+    if manifest.run_id != run_id:
+        warnings.append("core_run_manifest_run_id_mismatch")
+        return CoreRunAdapterResult(
+            run_id=run_id,
+            status="unknown",
+            run_terminality=run_terminality,
+            started_at=trace_started_at,
+            finished_at=None,
+            duration_ms=None,
+            tenant_id=trace_tenant_id,
+            cell_id=trace_cell_id,
             execution_profile=None,
             control_job_id=None,
             capability_manifest_ref=None,
@@ -135,6 +205,7 @@ def load_core_run(
     return CoreRunAdapterResult(
         run_id=manifest.run_id,
         status=manifest.status,
+        run_terminality=run_terminality,
         started_at=manifest.started_at,
         finished_at=manifest.finished_at,
         duration_ms=duration_ms,
@@ -153,6 +224,46 @@ def load_core_run(
         warnings=tuple(warnings),
         errors=tuple(manifest.errors),
     )
+
+
+def _admit_run_terminality(
+    record: TraceRecord,
+    *,
+    current: RunTerminality,
+    conflicted: bool,
+    finalized_without_fact: bool,
+    warnings: list[str],
+) -> tuple[RunTerminality, bool, bool]:
+    """Admit producer lifecycle facts without interpreting status or timestamps."""
+    observed = record.run_terminality
+    if observed is None:
+        if (
+            record.phase == "core"
+            and record.event == "RUN_FINALIZED"
+            and current is not RunTerminality.TERMINAL
+        ):
+            if not finalized_without_fact:
+                warnings.append("core_run_finalized_without_terminality")
+            return RunTerminality.NOT_ESTABLISHED, conflicted, True
+        return current, conflicted, finalized_without_fact
+    expected = (
+        {
+            "RUN_STARTED": RunTerminality.NON_TERMINAL,
+            "RUN_FINALIZED": RunTerminality.TERMINAL,
+        }.get(record.event)
+        if record.phase == "core"
+        else None
+    )
+    if conflicted or expected is not observed:
+        if not conflicted:
+            warnings.append("core_run_terminality_fact_conflict")
+        return RunTerminality.NOT_ESTABLISHED, True, finalized_without_fact
+    if observed is RunTerminality.NON_TERMINAL and (
+        current is RunTerminality.TERMINAL or finalized_without_fact
+    ):
+        warnings.append("core_run_terminality_fact_regression")
+        return RunTerminality.NOT_ESTABLISHED, True, finalized_without_fact
+    return observed, False, False
 
 
 def _first_ref_by_kind(refs: list[ArtifactRef], kind: str) -> ArtifactRef | None:

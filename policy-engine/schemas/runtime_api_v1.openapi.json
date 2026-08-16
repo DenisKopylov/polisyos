@@ -18832,6 +18832,9 @@
             "title": "Run Id",
             "type": "string"
           },
+          "run_terminality": {
+            "$ref": "#/components/schemas/RunTerminality"
+          },
           "source_kind": {
             "const": "core_run",
             "title": "Source Kind",
@@ -18875,10 +18878,21 @@
         "required": [
           "run_id",
           "source_kind",
-          "status"
+          "status",
+          "run_terminality"
         ],
         "title": "RunSummary",
         "type": "object"
+      },
+      "RunTerminality": {
+        "description": "Producer-owned knowledge state for whether a run has terminated.",
+        "enum": [
+          "terminal",
+          "non_terminal",
+          "not_established"
+        ],
+        "title": "RunTerminality",
+        "type": "string"
       },
       "RunTimelineEvent": {
         "additionalProperties": false,
@@ -36330,7 +36344,7 @@
                             "apps/runtime-dashboard:RunsLiveProvider"
                           ],
                           "include_in_schema": false,
-                          "message_contract": "policyos.runtime.runs_channel_data_event.v1",
+                          "message_contract": "policyos.runtime.runs_channel_data_event.v2",
                           "owner": "polisyos.runtime.http.routes.runs",
                           "path_template": "/api/v1/runs/live",
                           "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent",
@@ -36346,7 +36360,7 @@
                             "apps/runtime-dashboard:useRunLiveUpdates"
                           ],
                           "include_in_schema": false,
-                          "message_contract": "policyos.runtime.runs_channel_data_event.v1",
+                          "message_contract": "policyos.runtime.runs_channel_data_event.v2",
                           "owner": "polisyos.runtime.http.routes.runs",
                           "path_template": "/api/v1/runs/{run_id}/live",
                           "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent",
@@ -42367,6 +42381,7 @@
                           "has_workflow_report": true,
                           "root_artifact_count": 2,
                           "run_id": "R_core_api_001",
+                          "run_terminality": "terminal",
                           "source_kind": "core_run",
                           "started_at": "2026-02-11T12:00:00Z",
                           "status": "completed",

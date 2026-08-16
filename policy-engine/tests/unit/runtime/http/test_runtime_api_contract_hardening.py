@@ -70,6 +70,23 @@ def test_openapi_contract_includes_batch_read_operations() -> None:
     assert lineage_batch["operationId"] == "get_lineage_batch"
 
 
+def test_openapi_run_summary_requires_three_state_producer_terminality() -> None:
+    schema = export_runtime_openapi_schema()
+    components = schema["components"]["schemas"]
+    summary = components["RunSummary"]
+
+    assert components["RunTerminality"]["enum"] == [
+        "terminal",
+        "non_terminal",
+        "not_established",
+    ]
+    assert "run_terminality" in summary["required"]
+    assert summary["properties"]["run_terminality"] == {
+        "$ref": "#/components/schemas/RunTerminality"
+    }
+    assert "run_terminality" not in components["RunDetails"]["properties"]
+
+
 def test_openapi_contract_exposes_typed_policy_design_case_projection() -> None:
     schema = export_runtime_openapi_schema()
     components = schema["components"]["schemas"]

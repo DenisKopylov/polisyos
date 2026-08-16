@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.ir import governance, observation
 
 from ..artifacts.manifest import ArtifactRef, InputRef
+from ..trace import RunTerminality
 from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
     EvaluatorVerdict,
@@ -1495,6 +1496,7 @@ class RunRecordV1(BaseModel):
 class RunSummary(RunRecordV1):
     """List-view projection of a run with artifact counts, warnings, and decision status."""
 
+    run_terminality: RunTerminality
     root_artifact_count: int = Field(default=0, ge=0)
     has_workflow_report: bool = False
     warnings: list[str] = Field(default_factory=list)

@@ -348,6 +348,7 @@ def _core_result_to_indexed(
         run_id=result.run_id,
         source_kind="core_run",
         status=result.status,
+        run_terminality=result.run_terminality,
         started_at=details.started_at,
         finished_at=details.finished_at,
         duration_ms=details.duration_ms,

@@ -333,6 +333,78 @@ Both panels render a producer value or an honest typed refusal. The three produc
 updated together; the `RunDetailLayout` and `GovernanceTab` call sites are the complete consumer set
 (measured — verify it has not changed).
 
+#### C05/C06 outcome (executed 2026-08-17)
+
+**MERGE HOLD STANDS — unchanged by this cluster.** `codex/gy-defc-3-retry` is still spending its
+single authorized cold `N11`; any `.py` under the source root moves the `E12` deployment identity.
+Do not merge this branch until that closeout is banked.
+
+**The rendering decision: each refusal individually, never a statement over them.** A single summary
+would have to *compose* eleven refusals — and a count is a composite, so even "11 values unavailable"
+is the `DS4-C23` sin rebuilt one layer up. Each member renders its own `value_id`, `refusal_code`,
+`reason` and `owner_surface`, and nothing is aggregated. A test asserts the glass carries no count,
+share or percentage, and the twin asserts the same for machines.
+
+**What a reader now learns that `common.unavailable` could not tell them:** *which* eleven values are
+absent; *why each* is absent, by kind — `no_runtime_estimator` (no such computation exists anywhere)
+is a different world from `analysis_not_runtime_resident` (it exists, offline) and from
+`owned_by_another_surface` (real data exists, elsewhere); and *where to go instead* for the one
+member that has an owner. The stub's "Unavailable" is indistinguishable from broken, loading, or
+permission-denied. That distinction is the cluster's product.
+
+**The flip.** C02's gate asserted `panelEmissionMode === "contained"`, recording that it passed for
+the vacuous reason. Both panels are now **`bound`**. The gate *refused the rewire* until
+`useRunAuthorityValues` was added to the sanctioned producer set — a panel cannot reach for a new
+producer without someone widening that set on purpose.
+
+**Two analyzer refinements C05 forced, both principled rather than relaxations.** Iteration over a
+producer collection is not computation, so `producerCollection.map(...)` is permitted with the
+callback parameter becoming a producer root — refusing it would have pushed the loop into a helper
+the gate cannot see, which is the ancestor's direct-helper corruption in a new hat. And a prop handed
+to a producer read is not a computed argument. Every other rule still applies inside the callback.
+
+**The two behavioural properties, with the REDs observed before they passed:**
+
+| property | exact RED |
+|---|---|
+| typed refusal reaches the glass with its reason | `Unable to find an element with the text: No governed artifact defines how a readiness verdict is composed.` — panel rendered only `Unavailable` with an empty list |
+| label-channel carrier (output follows the producer) | `Unable to find an element with the text: first producer answer` |
+| surface partition | `AssertionError: expected null not to be null` |
+| no summary composed | `Unable to find an element with the text: reason for readiness.composite_verdict` |
+
+Root cause of all four: the generated client calls `fetch(url, init)` with a path-relative URL while
+`authAwareRuntimeFetch` takes a `Request`, and `new Request()` cannot parse a relative URL —
+`TypeError: Failed to parse URL from /api/v1/runs/r/authority-values`, isolated with a throwaway probe.
+
+**Ancestor retirement — coverage argument, re-verified not inherited.** The successor now covers
+**10 of 11** ancestor corruptions, not C02's 9: the cross-file sibling-wrapper mount is carried by
+`mountGraphCensus`, which C02 built and proves. The single uncovered case remains the arbitrary
+i18n key, **intentionally** permitted because a label is not a value. No third gap appeared, so the
+retirement proceeded. The witness was deleted in the same commit that rewired the panels (`P28`), and
+a strangle proof asserts nothing still *loads* it — testing for reaching, not for mentioning, since
+the successor's prose names its ancestor deliberately.
+
+**Contract addition.** C05 added a server-supplied `surface` partition (`readiness` | `scientific`)
+so no consumer parses a value id to decide what belongs to it; deriving that client-side would be a
+local routing decision over authority data. Bridge replayed: schema, client and contract check green.
+
+**Twin.** `policyos.atlas.ds16.authority_values.twin.v1` — member-for-member, no aggregate, parity
+read off the **rendered DOM** rather than off the shared model, with a failing mutation for each
+property (dropped member, invented member, reordering into a ranking, softened code, softened reason).
+
+**Finding — the DS3 governed-projections machinery was NOT used, deliberately.** It requires an
+`owner_validator_id` and an isolated owner-validation worker, and is built for governed artifact
+files under `architecture/policy_design_case/**`. This contract is runtime-computed, so registering
+it there would have meant inventing an owner validator to satisfy a shape. The twin instead meets the
+master plan's stated requirement directly — typed JSON export, replayable packet, stable URL
+(`GET /api/v1/runs/{run_id}/authority-values`) — with the parity test in-slice.
+
+**Verification.** typecheck green · lint exit 0 · quantity coverage exit 0 · a11y 84 files / 85 tests
+`28.086` s · full component suite **919 passed / 3 failed**, failing set byte-identical to the C04
+baseline (DS6's inherited ICU-plural rows) · guardrails **byte-identical to the pre-C03 baseline**
+(5 before, 5 after) · runtime contract check green · ruff clean · 8 Python contract tests green.
+`testing-library/no-container` was satisfied by moving to Testing Library queries, not suppressed.
+
 ### C06 — MACHINE twin + parity test
 
 Ships in-slice, using DS3 export machinery, with a surface↔twin parity test. A surface without its

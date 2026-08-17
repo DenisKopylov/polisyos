@@ -53,11 +53,16 @@ export const PANEL_NAMES = new Set([
 ]);
 
 /**
- * The sanctioned producer surface. Today it holds only the i18n binding: the
- * readiness/scientific-depth producer does not exist yet. C03/C05 extend this,
- * and extending it is a deliberate reviewable act, never a side effect.
+ * The sanctioned producer surface.
+ *
+ * C05 added `useRunAuthorityValues`. The gate refused the rewired panel until this
+ * line changed — which is the point: a panel cannot reach for a new producer without
+ * someone widening this set on purpose, in a diff a reviewer sees.
  */
-export const DEFAULT_PRODUCER_READS = ["useI18n"] as const;
+export const DEFAULT_PRODUCER_READS = [
+  "useI18n",
+  "useRunAuthorityValues",
+] as const;
 
 /**
  * The refusal the ancestor already pins. REFERENCED from
@@ -135,6 +140,44 @@ function traceableRoot(expression: ts.Expression): string | null {
     break;
   }
   return ts.isIdentifier(current) ? current.text : null;
+}
+
+/**
+ * `producerCollection.map(item => ...)` — iteration, not computation.
+ *
+ * C05 forced this distinction. A panel that renders a served collection must walk it,
+ * and a gate that refuses `.map` would push the loop into a helper the gate cannot see,
+ * which is the ancestor's direct-helper corruption wearing a different hat. So iteration
+ * over a value traceable to a producer is permitted, the callback parameter becomes a
+ * producer root inside the callback, and every other rule keeps applying underneath —
+ * a callback that computes is still caught.
+ */
+function producerIterationParameters(
+  node: ts.Expression,
+  roots: ReadonlySet<string>,
+): string[] | null {
+  if (
+    !ts.isCallExpression(node) ||
+    !ts.isPropertyAccessExpression(node.expression) ||
+    node.expression.name.text !== "map" ||
+    node.arguments.length !== 1
+  ) {
+    return null;
+  }
+  const source = traceableRoot(node.expression.expression);
+  if (source === null || !roots.has(source)) return null;
+  const callback = node.arguments[0];
+  if (!ts.isArrowFunction(callback)) return null;
+  const parameters: string[] = [];
+  for (const parameter of callback.parameters) {
+    if (ts.isIdentifier(parameter.name)) parameters.push(parameter.name.text);
+    if (ts.isObjectBindingPattern(parameter.name)) {
+      for (const element of parameter.name.elements) {
+        if (ts.isIdentifier(element.name)) parameters.push(element.name.text);
+      }
+    }
+  }
+  return parameters;
 }
 
 function isLabelCall(node: ts.Expression, roots: ReadonlySet<string>): boolean {
@@ -248,7 +291,13 @@ export function mintedValueFindings(
       } else if (!imported.has(callee)) {
         findings.add(`unimported-producer-read:${callee}`);
       }
-      if (initializer.arguments.some((argument) => !ts.isStringLiteral(argument))) {
+      // A prop handed to a producer read (`useX(runId)`) is not a computed argument.
+      const computedArgument = initializer.arguments.some((argument) => {
+        if (ts.isStringLiteral(argument)) return false;
+        const argumentRoot = traceableRoot(argument);
+        return argumentRoot === null || !roots.has(argumentRoot);
+      });
+      if (computedArgument) {
         findings.add(`computed-producer-argument:${callee}`);
       }
       if (ts.isObjectBindingPattern(binding.name)) {
@@ -271,6 +320,12 @@ export function mintedValueFindings(
     }
     if (ts.isConditionalExpression(expression)) {
       findings.add(`local-conditional:${slot}`);
+      return;
+    }
+    const iterationParameters = producerIterationParameters(expression, roots);
+    if (iterationParameters !== null) {
+      sanctionedCalls.add(expression);
+      for (const parameter of iterationParameters) roots.add(parameter);
       return;
     }
     if (ts.isCallExpression(expression)) {

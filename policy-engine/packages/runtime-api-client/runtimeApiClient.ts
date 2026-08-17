@@ -427,6 +427,8 @@ export type AuthoredText = {
   text: string;
 };
 
+export type AuthoritySurface = "readiness" | "scientific";
+
 export type AuthorityValueId = "readiness.composite_verdict" | "readiness.lens_projection" | "readiness.fairness_audit" | "readiness.harm_assessment" | "readiness.embargo_overlay" | "readiness.slow_review" | "readiness.revocation_ledger" | "scientific.identifiability_remedy" | "scientific.sensitivity_e_value" | "scientific.cohort_timeline" | "scientific.stress_ranking";
 
 export type AvailableGovernedProjectionPacket = {
@@ -3095,6 +3097,7 @@ export type RefusedAuthorityValue = {
   refusal_code: ValueRefusalCode;
   retired_from: string;
   state?: string;
+  surface: AuthoritySurface;
   value_id: AuthorityValueId;
 };
 
@@ -3714,6 +3717,7 @@ export type SuppliedAuthorityValue = {
   metric_id: string;
   point?: number | null;
   state?: string;
+  surface: AuthoritySurface;
   value_id: AuthorityValueId;
 };
 

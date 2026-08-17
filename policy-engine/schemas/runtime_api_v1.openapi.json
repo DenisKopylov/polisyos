@@ -2331,6 +2331,15 @@
         "title": "AuthoredText",
         "type": "object"
       },
+      "AuthoritySurface": {
+        "description": "Which retired surface owned the value.\n\nServer-supplied so a consumer never has to parse a value id to decide where a\nmember belongs. Deriving the partition on the client would be a locally computed\nrouting decision over authority data, which is the class of thing this slice exists\nto keep off the glass.",
+        "enum": [
+          "readiness",
+          "scientific"
+        ],
+        "title": "AuthoritySurface",
+        "type": "string"
+      },
       "AuthorityValueId": {
         "description": "Every value family the retired surfaces minted, recovered from their source.",
         "enum": [
@@ -17058,12 +17067,16 @@
             "title": "State",
             "type": "string"
           },
+          "surface": {
+            "$ref": "#/components/schemas/AuthoritySurface"
+          },
           "value_id": {
             "$ref": "#/components/schemas/AuthorityValueId"
           }
         },
         "required": [
           "value_id",
+          "surface",
           "refusal_code",
           "reason",
           "retired_from"
@@ -20816,12 +20829,16 @@
             "title": "State",
             "type": "string"
           },
+          "surface": {
+            "$ref": "#/components/schemas/AuthoritySurface"
+          },
           "value_id": {
             "$ref": "#/components/schemas/AuthorityValueId"
           }
         },
         "required": [
           "value_id",
+          "surface",
           "metric_id"
         ],
         "title": "SuppliedAuthorityValue",
@@ -44658,7 +44675,7 @@
                   "default": {
                     "summary": "get_run_authority_values response example",
                     "value": {
-                      "inventory_version": "ds16-c03.1",
+                      "inventory_version": "ds16-c05.1",
                       "retirement_commit": "bc1d01001",
                       "run_id": "run-2026-08-17-001",
                       "values": [
@@ -44668,6 +44685,7 @@
                           "refusal_code": "no_runtime_composition_rule",
                           "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
                           "state": "refused",
+                          "surface": "readiness",
                           "value_id": "readiness.composite_verdict"
                         },
                         {
@@ -44676,6 +44694,7 @@
                           "refusal_code": "owned_by_another_surface",
                           "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
                           "state": "refused",
+                          "surface": "readiness",
                           "value_id": "readiness.lens_projection"
                         }
                       ]

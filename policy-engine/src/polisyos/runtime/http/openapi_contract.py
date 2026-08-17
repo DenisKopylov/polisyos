@@ -285,11 +285,12 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
     "get_run_authority_values": {
         "run_id": "run-2026-08-17-001",
-        "inventory_version": "ds16-c03.1",
+        "inventory_version": "ds16-c05.1",
         "retirement_commit": "bc1d01001",
         "values": [
             {
                 "value_id": "readiness.composite_verdict",
+                "surface": "readiness",
                 "state": "refused",
                 "refusal_code": "no_runtime_composition_rule",
                 "reason": ("No governed artifact defines how a readiness verdict is composed."),
@@ -300,6 +301,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             },
             {
                 "value_id": "readiness.lens_projection",
+                "surface": "readiness",
                 "state": "refused",
                 "refusal_code": "owned_by_another_surface",
                 "reason": (

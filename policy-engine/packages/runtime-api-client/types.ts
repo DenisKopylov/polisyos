@@ -2475,6 +2475,17 @@ export interface components {
             text: string;
         };
         /**
+         * AuthoritySurface
+         * @description Which retired surface owned the value.
+         *
+         *     Server-supplied so a consumer never has to parse a value id to decide where a
+         *     member belongs. Deriving the partition on the client would be a locally computed
+         *     routing decision over authority data, which is the class of thing this slice exists
+         *     to keep off the glass.
+         * @enum {string}
+         */
+        AuthoritySurface: "readiness" | "scientific";
+        /**
          * AuthorityValueId
          * @description Every value family the retired surfaces minted, recovered from their source.
          * @enum {string}
@@ -8636,6 +8647,7 @@ export interface components {
              * @enum {string}
              */
             state: "refused";
+            surface: components["schemas"]["AuthoritySurface"];
             value_id: components["schemas"]["AuthorityValueId"];
         };
         /**
@@ -10058,6 +10070,7 @@ export interface components {
              * @enum {string}
              */
             state: "supplied";
+            surface: components["schemas"]["AuthoritySurface"];
             value_id: components["schemas"]["AuthorityValueId"];
         };
         /**

@@ -1,6 +1,6 @@
 {
-  "content_sha256": "sha256:1225e9251434a3058c8b7696898e47d2513d7e89e0fddaae4eed947854399261",
-  "inventory_version": "ds16-c03.1",
+  "content_sha256": "sha256:d965d839139991758be252fc471e2135d8c0053d45f6161fc25b48d005184ca6",
+  "inventory_version": "ds16-c05.1",
   "member_count": 11,
   "retired_modules": [
     "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
@@ -14,6 +14,7 @@
       "refusal_code": "no_runtime_composition_rule",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.composite_verdict"
     },
     {
@@ -22,6 +23,7 @@
       "refusal_code": "owned_by_another_surface",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.lens_projection"
     },
     {
@@ -30,6 +32,7 @@
       "refusal_code": "analysis_not_runtime_resident",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.fairness_audit"
     },
     {
@@ -38,6 +41,7 @@
       "refusal_code": "analysis_not_runtime_resident",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.harm_assessment"
     },
     {
@@ -46,6 +50,7 @@
       "refusal_code": "no_runtime_producer",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.embargo_overlay"
     },
     {
@@ -54,6 +59,7 @@
       "refusal_code": "no_runtime_producer",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.slow_review"
     },
     {
@@ -62,6 +68,7 @@
       "refusal_code": "no_runtime_producer",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
       "state": "refused",
+      "surface": "readiness",
       "value_id": "readiness.revocation_ledger"
     },
     {
@@ -70,6 +77,7 @@
       "refusal_code": "no_runtime_estimator",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
       "state": "refused",
+      "surface": "scientific",
       "value_id": "scientific.identifiability_remedy"
     },
     {
@@ -78,6 +86,7 @@
       "refusal_code": "no_runtime_estimator",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
       "state": "refused",
+      "surface": "scientific",
       "value_id": "scientific.sensitivity_e_value"
     },
     {
@@ -86,6 +95,7 @@
       "refusal_code": "analysis_not_runtime_resident",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
       "state": "refused",
+      "surface": "scientific",
       "value_id": "scientific.cohort_timeline"
     },
     {
@@ -94,6 +104,7 @@
       "refusal_code": "no_runtime_producer",
       "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
       "state": "refused",
+      "surface": "scientific",
       "value_id": "scientific.stress_ranking"
     }
   ]

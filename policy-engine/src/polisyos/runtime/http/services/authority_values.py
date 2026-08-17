@@ -46,7 +46,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-INVENTORY_VERSION = "ds16-c03.1"
+INVENTORY_VERSION = "ds16-c05.1"
 
 # The retired surfaces, kept as identity so a disposition can never drift from the
 # module it was recovered from. `bc1d01001` is the DS4-C23 containment commit.
@@ -71,6 +71,19 @@ class AuthorityValueId(StrEnum):
     SCIENTIFIC_SENSITIVITY_E_VALUE = "scientific.sensitivity_e_value"
     SCIENTIFIC_COHORT_TIMELINE = "scientific.cohort_timeline"
     SCIENTIFIC_STRESS_RANKING = "scientific.stress_ranking"
+
+
+class AuthoritySurface(StrEnum):
+    """Which retired surface owned the value.
+
+    Server-supplied so a consumer never has to parse a value id to decide where a
+    member belongs. Deriving the partition on the client would be a locally computed
+    routing decision over authority data, which is the class of thing this slice exists
+    to keep off the glass.
+    """
+
+    READINESS = "readiness"
+    SCIENTIFIC = "scientific"
 
 
 class ValueRefusalCode(StrEnum):
@@ -100,6 +113,7 @@ class RefusedAuthorityValue(_StrictModel):
     """A served, first-class refusal. The absence itself is the supplied value."""
 
     value_id: AuthorityValueId
+    surface: AuthoritySurface
     state: Literal["refused"] = "refused"
     refusal_code: ValueRefusalCode
     reason: str = Field(min_length=1)
@@ -125,6 +139,7 @@ class SuppliedAuthorityValue(_StrictModel):
     """
 
     value_id: AuthorityValueId
+    surface: AuthoritySurface
     state: Literal["supplied"] = "supplied"
     metric_id: str = Field(min_length=1)
     point: float | None = None
@@ -255,16 +270,13 @@ def _refusal(
     reason: str,
     owner_surface: str | None,
 ) -> RefusedAuthorityValue:
-    retired = (
-        RETIRED_READINESS_MODULE
-        if value_id.value.startswith("readiness.")
-        else RETIRED_SCIENTIFIC_MODULE
-    )
+    readiness = value_id.value.startswith("readiness.")
     return RefusedAuthorityValue(
         owner_surface=owner_surface,
         reason=" ".join(reason.split()),
         refusal_code=code,
-        retired_from=retired,
+        retired_from=RETIRED_READINESS_MODULE if readiness else RETIRED_SCIENTIFIC_MODULE,
+        surface=AuthoritySurface.READINESS if readiness else AuthoritySurface.SCIENTIFIC,
         value_id=value_id,
     )
 

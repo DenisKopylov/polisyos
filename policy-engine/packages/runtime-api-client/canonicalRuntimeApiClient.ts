@@ -131,6 +131,9 @@ export type AuthMeResponse = RuntimeApiComponents["schemas"]["AuthMeResponse"];
 
 export type AuthoredText = RuntimeApiComponents["schemas"]["AuthoredText"];
 
+export type AuthoritySurface =
+  RuntimeApiComponents["schemas"]["AuthoritySurface"];
+
 export type AuthorityValueId =
   RuntimeApiComponents["schemas"]["AuthorityValueId"];
 

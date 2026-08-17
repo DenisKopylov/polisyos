@@ -67,12 +67,15 @@ const siblingWrapperPath = path.join(
 );
 
 describe("DS16-C02 successor containment gate", () => {
-  it("states which reason it is passing for, and it is currently the vacuous one", () => {
+  it("states which reason it is passing for, and it is no longer the vacuous one", () => {
+    // THE FLIP. Until C05 both panels were `contained` and this gate passed for the
+    // vacuous reason — "emits nothing it did not receive" is trivially true of a panel
+    // that emits nothing. Both are now `bound`: they read a producer and render what it
+    // served. The property is the same; what changed is that it now has something to say.
     for (const [name, source] of PANELS) {
-      expect(panelEmissionMode(source, name), `${name} mode`).toBe("contained");
+      expect(panelEmissionMode(source, name), `${name} mode`).toBe("bound");
     }
-    // Recorded plainly: the producer does not exist, so no panel is bound yet.
-    expect(DEFAULT_PRODUCER_READS).toEqual(["useI18n"]);
+    expect(DEFAULT_PRODUCER_READS).toEqual(["useI18n", "useRunAuthorityValues"]);
   });
 
   it("proves no locally minted value on both real panels, and fails on each minting class", () => {
@@ -142,32 +145,36 @@ describe("DS16-C02 successor containment gate", () => {
       expect(renderedLabelKeys(source, name)).toContain(SANCTIONED_REFUSAL_KEY);
     }
 
-    // Strip the refusal from a contained panel: it now emits nothing at all,
-    // which is a blank, not a refusal.
-    const noRefusal = readinessSource.replace(
-      '{t("common.unavailable")}',
-      "{null}",
+    // Blanks are refused in every slot, bound or not: null, zero and an empty
+    // expression container are each caught where the refusal used to render.
+    for (const blank of ["{null}", "{0}", "{}"]) {
+      expect(
+        refusalFindings(
+          readinessSource.replace('{t("common.unavailable")}', blank),
+          "PublicSectorReadinessPanel",
+        ),
+        `blank slot ${blank}`,
+      ).toEqual(["blank-emission:child"]);
+    }
+
+    // `refusal-missing` is a CONTAINED-mode property and did not disappear when the
+    // panels went bound — it is checked here against a contained control, because a
+    // bound panel's refusal arrives from the producer at runtime and is carried by
+    // the behavioural assertion in ds16BoundPanelBehaviour.test.tsx instead.
+    const containedWithoutRefusal = `import { useI18n } from "@/shared/i18n/LocaleProvider";
+
+export function PublicSectorReadinessPanel() {
+  const { t } = useI18n();
+
+  return <section data-testid="public-sector-readiness-panel">{t("common.other")}</section>;
+}
+`;
+    expect(panelEmissionMode(containedWithoutRefusal, "PublicSectorReadinessPanel")).toBe(
+      "contained",
     );
     expect(
-      refusalFindings(noRefusal, "PublicSectorReadinessPanel"),
-    ).toEqual(["blank-emission:child", "refusal-missing"]);
-
-    // A zero is not a refusal either — the DS16 negative-5 distinction, held
-    // here at the source level.
-    expect(
-      refusalFindings(
-        readinessSource.replace('{t("common.unavailable")}', "{0}"),
-        "PublicSectorReadinessPanel",
-      ),
-    ).toEqual(["blank-emission:child", "refusal-missing"]);
-
-    // An empty expression container is a blank with the markers still present.
-    expect(
-      refusalFindings(
-        readinessSource.replace('{t("common.unavailable")}', "{}"),
-        "PublicSectorReadinessPanel",
-      ),
-    ).toEqual(["blank-emission:child", "refusal-missing"]);
+      refusalFindings(containedWithoutRefusal, "PublicSectorReadinessPanel"),
+    ).toEqual(["refusal-missing"]);
   });
 
   it("pins the label-key inventory so a value-bearing key cannot arrive silently", () => {
@@ -244,9 +251,12 @@ describe("DS16-C02 successor containment gate", () => {
     // Re-measured, not inherited: three production mounts, all propless.
     expect(census.findings).toEqual([]);
     expect(census.mounts).toHaveLength(3);
+    // C02 generalized the ancestor's "zero mount props" to "no MINTED mount props",
+    // and C05 is where that distinction pays: every mount now passes `runId`, which is
+    // traceable producer input, while a computed prop is still refused below.
     expect(
-      census.mounts.every((mount) => mount.props === 0),
-      "every production mount must be propless today",
+      census.mounts.every((mount) => mount.props === 1),
+      "every production mount passes exactly runId",
     ).toBe(true);
     expect(
       census.mounts
@@ -271,8 +281,8 @@ describe("DS16-C02 successor containment gate", () => {
     expect(
       mountGraphCensus({
         [runDetailLayoutPath]: layoutSource.replace(
-          "<PublicSectorReadinessPanel />",
-          "<PublicSectorReadinessPanel score={summary.coverage * 0.6} />",
+          "<PublicSectorReadinessPanel runId={runId} />",
+          "<PublicSectorReadinessPanel runId={runId} score={summary.coverage * 0.6} />",
         ),
       }).findings,
     ).toEqual([
@@ -284,8 +294,8 @@ describe("DS16-C02 successor containment gate", () => {
     expect(
       mountGraphCensus({
         [runDetailLayoutPath]: layoutSource.replace(
-          "<PublicSectorReadinessPanel />",
-          "<PublicSectorReadinessPanel {...composed} />",
+          "<PublicSectorReadinessPanel runId={runId} />",
+          "<PublicSectorReadinessPanel runId={runId} {...composed} />",
         ),
       }).findings,
     ).toEqual([
@@ -301,8 +311,8 @@ describe("DS16-C02 successor containment gate", () => {
           'import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";\nimport { ReadinessSiblingWrapper } from "@/features/runs/components/ReadinessSiblingWrapper";',
         )
         .replace(
-          "<ScientificDepthPanel />",
-          "<ReadinessSiblingWrapper />\n                <ScientificDepthPanel />",
+          "<ScientificDepthPanel runId={runId} />",
+          "<ReadinessSiblingWrapper />\n                <ScientificDepthPanel runId={runId} />",
         ),
       [siblingWrapperPath]: `import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
 
@@ -350,15 +360,42 @@ export function ReadinessSiblingWrapper() {
     ).toEqual(["local-arithmetic", "untraceable-render:child"]);
   });
 
-  it("leaves the ancestor's own file untouched", () => {
+  it("proves the ancestor is strangled, not merely superseded (P28)", () => {
+    // C05 retires `readinessScientificContainment.test.ts` in the same change that
+    // rewires the panels — not before, because it was the only gate until now, and not
+    // after, because it asserts `calls === 0` and goes RED the moment a hook is wired.
     const ancestor = path.join(
       sourceRoot,
       "features/runs/components/readinessScientificContainment.test.ts",
     );
-    expect(fs.existsSync(ancestor)).toBe(true);
-    // The ancestor pins the exact refusal key this gate references; if it ever
-    // stops doing so, the reference above is stale rather than merely different.
-    expect(fs.readFileSync(ancestor, "utf8")).toContain(SANCTIONED_REFUSAL_KEY);
+    expect(fs.existsSync(ancestor), "the retired witness must be gone").toBe(false);
+
+    // A successor closes only when the old owner path is proven strangled. The test is
+    // whether anything still REACHES for the witness — imports it, or reads it off disk
+    // — not whether its name still appears: the successor's own prose names its ancestor
+    // deliberately, and erasing that would lose the lineage rather than prove anything.
+    const componentsDir = path.join(sourceRoot, "features/runs/components");
+    const reachers = fs
+      .readdirSync(componentsDir)
+      .filter((file) => file.endsWith(".ts") || file.endsWith(".tsx"))
+      .filter((file) =>
+        fs
+          .readFileSync(path.join(componentsDir, file), "utf8")
+          .split("\n")
+          .some(
+            (line) =>
+              line.includes("readinessScientificContainment") &&
+              (/\bimport\b/u.test(line) ||
+                /\brequire\(/u.test(line) ||
+                /readFileSync|existsSync/u.test(line)),
+          ),
+      );
+    expect(reachers, "nothing may still load the retired witness").toEqual([]);
+
+    // And the properties it carried are carried here: the mount census it owned is
+    // asserted above, and the emission property it owned is superseded by
+    // `mintedValueFindings`, which permits a producer value and refuses a minted one.
+    expect(mountGraphCensus().mounts).toHaveLength(3);
     expect(fs.existsSync(governanceTabPath)).toBe(true);
   });
 });

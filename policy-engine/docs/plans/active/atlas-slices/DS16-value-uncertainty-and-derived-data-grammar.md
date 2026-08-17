@@ -255,6 +255,72 @@ E-values, claim extinction, cohort timelines, stress rankings) and give each one
 producer-supplied, typed refusal, or **out of scope with its reason**. A value silently dropped is
 the failure this slice exists to close.
 
+#### C03/C04 outcome (executed 2026-08-17)
+
+**MERGE HOLD — this branch does not merge until the GY cold closeout is banked.** Any `.py` added
+under the source root moves the `E12` deployment identity (`_deployment_relative_paths` globs
+`source_root.rglob("*.py")`), re-pricing the three deployment-bound GY artifacts, and
+`codex/gy-defc-3-retry` is spending its single authorized cold `N11` right now. Nothing here touches
+a GY artifact and no GY validator runs on this branch — the *merge* is sequenced, not the work.
+
+**The inventory is ELEVEN value families, not seven.** Re-derived from the deleted modules at
+`bc1d01001` rather than from the record's prose. The summary sentence "readiness composition"
+collapses **six** distinct readiness builders into one phrase; the scientific side matches.
+
+| # | member | disposition | reason (a property of the value) |
+|---|---|---|---|
+| 1 | `readiness.composite_verdict` | typed refusal · `no_runtime_composition_rule` | No governed artifact defines how a verdict is composed. Inputs are served by their own owners; the composition rule does not exist, and composing one on the surface is the C23 sin. |
+| 2 | `readiness.lens_projection` | typed refusal · `owned_by_another_surface` | Stakeholder lens is audience mapping, owned by DS0/DS3; DS16 references and may not re-derive it. |
+| 3 | `readiness.fairness_audit` | typed refusal · `analysis_not_runtime_resident` | Resident in offline `scientist`/`foundry` (29 files); **0** in `runtime/http`. |
+| 4 | `readiness.harm_assessment` | typed refusal · `analysis_not_runtime_resident` | Resident in offline `scientist`/`foundry` (23 files); **0** in `runtime/http`. |
+| 5 | `readiness.embargo_overlay` | typed refusal · `no_runtime_producer` | **0** occurrences repo-wide under any name. |
+| 6 | `readiness.slow_review` | typed refusal · `no_runtime_producer` | Derived from browser dwell state in local storage; interaction state never became a runtime value. |
+| 7 | `readiness.revocation_ledger` | typed refusal · `no_runtime_producer` | The one `revocation` token in the served schema is a **step-up auth class** on a reissue endpoint — an unrelated concept. |
+| 8 | `scientific.identifiability_remedy` | typed refusal · `no_runtime_estimator` | Identifiability *state* is served; the **remedy** and its acquisition ref need an acquisition planner that does not exist. |
+| 9 | `scientific.sensitivity_e_value` | typed refusal · `no_runtime_estimator` | **0** E-value estimator anywhere in `src/`; claim extinction derives from it. |
+| 10 | `scientific.cohort_timeline` | typed refusal · `analysis_not_runtime_resident` | Cohort transition analysis is offline and not served per run. |
+| 11 | `scientific.stress_ranking` | typed refusal · `no_runtime_producer` | **0** stress-scene producer; the retired ranking ordered scenes the surface invented. |
+
+**Not a member, recorded for completeness:** `identifiability` itself. DS4-C23's own wording is that
+`ScientificDepth` "binds generated identifiability correctly", and it is served today on
+`QuantityUncertainty` and `DecisionPacketEffectSize` (17 schema hits). It was consumed honestly and
+was never minted.
+
+**Why every disposition is a refusal, and why that is the honest answer.** No member has a runtime
+producer. The contract therefore defines **no** value field the runtime would populate with `null` —
+that shape is `contract_only` by construction. Each member is a served `RefusedAuthorityValue`
+carrying its reason and, where one exists, the owning surface. Completeness is **enforced** by
+`RunAuthorityProjection`'s validator, not documented: dropping or duplicating a member raises, and
+the test proves it by dropping one. A `SuppliedAuthorityValue` variant exists so a value can graduate
+without a contract change.
+
+**What C05 gets.** A discriminated `state` — a distinguishable "no value" that is not an absent key.
+An optional field is how "unavailable" silently becomes "zero" one slice later.
+
+**Bridge:** `GET /api/v1/runs/{run_id}/authority-values` → `schemas/runtime_api_v1.openapi.json` →
+`packages/runtime-api-client`. Schema and client diffs are **purely additive** (one path, one
+operation, five component schemas, 0 deletions), so replaying the regeneration after another lane
+lands the schema is cheap and conflict-free. The contract check first failed with *missing success
+response example*; fixed **upstream** in the operation example registry, never patched downstream.
+
+**Findings.**
+- `apps/runtime-dashboard/src/api/types.ts` is **stale on `main`** — regenerating it from `main`'s own
+  schema changes 1504 lines, before any DS16 edit. It has 25 importers (the package client has 74).
+  Repairing it is not this slice's scope and would bury an additive change under someone else's
+  drift, so it was reverted and is registered here instead.
+- `openapi_contract.py` was already not `ruff format` clean on `main`; running the repo's formatter on
+  the file this cluster edits normalized 3 incidental pre-existing lines.
+- `defusedxml` is imported directly by `fabric/connectors/sources/eurostat.py` but declared by no
+  extra; the runtime-http test barrel needs `--extra test` to import at all.
+
+**Verification.** Guardrail deep-import set **byte-identical** to the pre-edit baseline (5 before, 5
+after, none in the new module). Runtime contract check passes. 8 new Python tests green (`7.836` s).
+Four `runs_api`/`architecture_boundaries` failures were confirmed **inherited** by running them in a
+throwaway worktree at `88210076e`, where they fail identically. Frontend: typecheck `12.434` s,
+lint, quantity coverage clean; full suite 910 passed / 3 failed, the failing set identical to the C02
+baseline. C02's gate still reports both panels `contained`; panels, mount sites and the ancestor are
+byte-identical to `main`.
+
 ### C04 — Persisted artifact + bridge
 
 Producer → persisted artifact → OpenAPI schema → `packages/runtime-api-client` regeneration.

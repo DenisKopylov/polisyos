@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import dataclasses
 import json
 import os
 import re
@@ -9,6 +10,7 @@ import shlex
 import signal
 import subprocess
 import sys
+import tempfile
 import textwrap
 from decimal import Decimal
 from pathlib import Path
@@ -17,10 +19,12 @@ import pytest
 
 from tools.lib.timing import (
     DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
+    DEFAULT_TIMING_RETENTION,
     ToolRunRecord,
     _mode_and_output_format_from_argv,
     admit_duration_sample,
     append_timing_record,
+    default_timing_log_path,
     healthy_terminal_exit_codes_for,
     load_healthy_terminal_declarations,
     load_timing_budget_catalog,
@@ -1589,3 +1593,80 @@ def test_lane_summary_counts_a_declared_nonzero_terminal_as_an_admitted_run() ->
     assert summaries[0].admitted_runs == len(records)
     assert summaries[0].inadmissible_runs == 0
     assert summaries[0].local_failures == len(records)  # the retained proxy still says "failed"
+
+
+def test_default_timing_log_is_durable_and_not_under_tmp() -> None:
+    """GY-DI3: a reboot or tmp sweep must not erase the measurement substrate."""
+
+    default_path = default_timing_log_path()
+
+    assert not default_path.is_relative_to(Path(tempfile.gettempdir()))
+    assert not str(default_path).startswith(("/tmp/", "/private/tmp/", "/var/tmp/"))
+    assert default_path.is_relative_to(REPO_ROOT), "the log must live inside the repository"
+    assert default_path.name.endswith(".jsonl")
+
+
+def test_default_timing_log_location_is_ignored_but_its_evidence_path_is_committed() -> None:
+    """Ignored is fine; ignored under /tmp was the defect. Promotion is what protects evidence."""
+
+    default_path = default_timing_log_path()
+    ignore_check = subprocess.run(  # noqa: S603 - trusted local git query.
+        ["git", "check-ignore", "-q", str(default_path)],
+        cwd=REPO_ROOT,
+        check=False,
+        capture_output=True,
+    )
+    assert ignore_check.returncode == 0, "the rolling log must not be committed"
+
+    tracked = subprocess.run(  # noqa: S603 - trusted local git query.
+        ["git", "ls-files", "--error-unmatch", str(SALVAGED_TIMING_RECORDS.relative_to(REPO_ROOT))],
+        cwd=REPO_ROOT,
+        check=False,
+        capture_output=True,
+    )
+    assert tracked.returncode == 0, "promoted timing evidence must be committed"
+
+
+def test_default_retention_holds_a_sample_for_every_currently_known_lane() -> None:
+    """The retention number is a measurement of the lane count, not a constant."""
+
+    catalogued = {lane.timing_key for lane in load_timing_budget_catalog()}
+    observed = {
+        timing_key_for(record.tool, record.mode) for record in _salvaged_records()
+    }
+    known_lanes = catalogued | observed
+
+    assert len(known_lanes) <= DEFAULT_TIMING_RETENTION, (
+        "retention below the lane count guarantees a lane loses its only sample"
+    )
+    assert DEFAULT_TIMING_RETENTION // len(known_lanes) >= 25, (
+        f"{len(known_lanes)} known lanes need headroom for a p95 to survive a wave; "
+        "re-derive the retention default if the lane count moved"
+    )
+
+
+def test_retention_still_caps_the_log_at_the_default_limit(tmp_path: Path) -> None:
+    """Raising the default must not disable the cap that keeps the log bounded."""
+
+    log = tmp_path / "timing.jsonl"
+    record = ToolRunRecord(
+        tool="quality.validation.check_layer3_gy_second_domain_pack",
+        category="quality",
+        output_format="json",
+        status="ok",
+        preflight_status="ok",
+        started_at="2026-08-13T09:52:04.088329+00:00",
+        duration_ms=815_662.044,
+        exit_code=0,
+        mode="write",
+    )
+    log.write_text(
+        "".join(
+            json.dumps(dataclasses.asdict(record), sort_keys=True) + "\n"
+            for _ in range(DEFAULT_TIMING_RETENTION + 25)
+        ),
+        encoding="utf-8",
+    )
+    append_timing_record(log, record)
+
+    assert len(read_timing_records(log)) == DEFAULT_TIMING_RETENTION

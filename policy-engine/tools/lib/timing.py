@@ -22,8 +22,35 @@ from .runner import ToolSpec
 
 DEFAULT_TIMING_LOG_ENV = "POLISYOS_TOOLS_TIMING_LOG"
 DEFAULT_TIMING_RETENTION_ENV = "POLISYOS_TOOLS_TIMING_RETENTION"
-DEFAULT_TIMING_LOG_PATH = Path("/tmp/polisyos-tools/timing.jsonl")
-DEFAULT_TIMING_RETENTION = 200
+
+# This log is diagnostic evidence, not scratch: it is the only thing that distinguishes a slow
+# environment from a producer regression, and a budget derived without it is a guess paid for by
+# a timeout. It previously defaulted under /tmp, where a reboot or a tmp sweep erases it -- which
+# is exactly what happened, taking every accumulated sample with it. It now defaults inside the
+# repository, which survives both. `.polisyos-tools/` is the location the repository already
+# reserves for durable local tool state (ignored in both .gitignore files), so no new mechanism
+# and no ignore-rule change is introduced here.
+#
+# Committed or ignored: IGNORED, deliberately. The contents are host-specific wall-clock
+# measurements that would churn on every run and conflict across parallel lanes, so committing
+# them is wrong. What protects the evidence instead is promotion, not the file's own persistence:
+# a sample that justifies a budget is copied into `docs/superpowers/timing-evidence/` and cited
+# from `source_refs` in `tools/quality/timing_budgets.json`, both of which are committed. The
+# live log is a rolling buffer feeding that promotion; the committed catalog and evidence are the
+# archive. "Ignored" was never the defect -- "ignored AND under /tmp" was.
+#
+# Note the log is per-worktree, because it is anchored to this file. Point several worktrees at
+# one log with POLISYOS_TOOLS_TIMING_LOG when a wave should accumulate into a single history.
+DEFAULT_TIMING_LOG_PATH = Path(__file__).resolve().parents[2] / ".polisyos-tools" / "timing.jsonl"
+
+# Retention is a whole-file record count, so a busy lane evicts other lanes' samples. Measured
+# 2026-08-17 there are 32 distinct known lanes (22 catalogued + 10 further lanes observed in the
+# recovered log). At the previous default of 200 that is ~6 records per lane if runs were spread
+# evenly -- and they are not, so one repeated wave could evict the only sample another lane ever
+# recorded. 2000 holds ~60 runs per known lane at roughly 250 bytes each (~500 KB), enough for a
+# p95 to survive a wave. The number is a measurement of the current lane count, not a constant:
+# re-derive it if the lane count moves materially.
+DEFAULT_TIMING_RETENTION = 2000
 DEFAULT_TIMING_BUDGET_CATALOG_PATH = (
     Path(__file__).resolve().parents[1] / "quality" / "timing_budgets.json"
 )

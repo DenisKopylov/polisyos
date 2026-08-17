@@ -20,12 +20,14 @@ import pytest
 from tools.lib.timing import (
     DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
     DEFAULT_TIMING_RETENTION,
+    MIN_SAMPLES_FOR_P95,
     SAMPLE_ADMISSION_PREDICATE_ID,
     SAMPLE_ADMISSION_PREDICATE_IDS,
     ToolRunRecord,
     _mode_and_output_format_from_argv,
     admit_duration_sample,
     append_timing_record,
+    budget_basis_for,
     default_timing_log_path,
     derive_timing_budget_lanes,
     healthy_terminal_exit_codes_for,
@@ -1830,3 +1832,100 @@ def test_report_names_unbudgeted_lanes_at_the_point_of_use(tmp_path: Path) -> No
     assert "quality.validation.check_layer3_gy_second_domain_pack:write" in rendered
     assert "ABSENT from the budget catalog" in rendered
     assert "a ceiling must be DECLARED and recorded as supplied" in rendered
+
+
+def test_nearest_rank_p95_is_the_maximum_below_the_published_threshold() -> None:
+    """The threshold is arithmetic, not taste: below it the p95 IS the maximum."""
+
+    for count in range(1, MIN_SAMPLES_FOR_P95):
+        values = [float(value) for value in range(count)]
+        assert percentile_ms(values, 0.95) == max(values), count
+
+    boundary = [float(value) for value in range(MIN_SAMPLES_FOR_P95)]
+    assert percentile_ms(boundary, 0.95) != max(boundary), (
+        "MIN_SAMPLES_FOR_P95 must be the first count where a p95 carries tail information"
+    )
+
+
+@pytest.mark.parametrize(
+    ("sample_count", "expected_basis"),
+    [
+        (0, "declared"),
+        (1, "max_observed"),
+        (MIN_SAMPLES_FOR_P95 - 1, "max_observed"),
+        (MIN_SAMPLES_FOR_P95, "p95"),
+        (MIN_SAMPLES_FOR_P95 + 5, "p95"),
+    ],
+)
+def test_budget_basis_names_what_the_ceiling_actually_rests_on(
+    sample_count: int, expected_basis: str
+) -> None:
+    assert budget_basis_for(sample_count) == expected_basis
+
+
+def test_no_p95_is_published_for_a_lane_that_cannot_support_one() -> None:
+    """Forbidden closure: publishing a percentile from a sample count that cannot support it."""
+
+    derived = derive_timing_budget_lanes(_salvaged_records())
+
+    assert derived
+    for lane in derived:
+        if len(lane.samples_ms) < MIN_SAMPLES_FOR_P95:
+            assert lane.published_p95_ms is None, lane.timing_key
+        if lane.samples_ms:
+            assert lane.max_observed_ms == max(lane.samples_ms)
+        else:
+            assert lane.budget_basis == "declared"
+            assert lane.max_observed_ms is None
+
+
+def test_committed_catalog_publishes_no_p95_it_cannot_support() -> None:
+    """Measured: every committed row currently stores a maximum, not a percentile."""
+
+    catalog = load_timing_budget_catalog()
+
+    for lane in catalog:
+        assert lane.measured_p95_ms == max(lane.samples_ms), lane.timing_key
+        if len(lane.samples_ms) < MIN_SAMPLES_FOR_P95:
+            assert lane.published_p95_ms is None
+            assert lane.budget_basis == "max_observed"
+
+
+def test_report_labels_a_sub_threshold_ceiling_as_a_maximum_not_a_p95(tmp_path: Path) -> None:
+    """A reader must be able to tell a percentile from a maximum at the point of use."""
+
+    from tools.cli import _render_timing_text, _summary_payload
+
+    log = tmp_path / "timing.jsonl"
+    log.write_text(
+        "".join(
+            json.loads(line)["raw"] + "\n"
+            for line in SALVAGED_TIMING_RECORDS.read_text(encoding="utf-8").splitlines()
+        ),
+        encoding="utf-8",
+    )
+    payload = _summary_payload(5, log, include_unmeasured=True)
+    rendered = _render_timing_text(payload)
+
+    assert payload["min_samples_for_p95"] == MIN_SAMPLES_FOR_P95
+    assert payload["lanes_publishing_a_p95"] == 0, "no lane currently has enough samples"
+    assert "too few for a p95" in rendered
+    for lane in payload["lane_summaries"]:
+        assert lane["budget_basis"] in {"p95", "max_observed", "declared"}
+        if lane["budget_basis"] != "p95":
+            assert lane["published_p95_ms"] is None
+
+
+def test_every_gy_validator_persists_timing_at_its_own_entry_point() -> None:
+    """The invocation contract: plans call these scripts directly and must keep doing so."""
+
+    scripts = sorted(VALIDATION_ROOT.glob("check_layer3_gy_*.py"))
+    assert scripts, "the GY validator surface must not be empty"
+
+    for script in scripts:
+        source = script.read_text(encoding="utf-8")
+        assert "run_timed_entrypoint" in source, script.name
+
+    # None of them are registered as tools.cli commands, so nothing may require that path.
+    registry_source = (REPO_ROOT / "tools" / "cli.py").read_text(encoding="utf-8")
+    assert "check_layer3_gy" not in registry_source

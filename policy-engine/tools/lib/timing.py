@@ -300,6 +300,32 @@ class ToolTimingSummary:
     over_budget_runs: int
 
 
+# A nearest-rank p95 over n samples picks index ceil(0.95*n) - 1. For every n <= 19 that index IS
+# n - 1, so the "p95" is arithmetically the MAXIMUM of the samples and carries no tail information
+# whatsoever. The two first separate at n = 20. Publishing a number computed from fewer samples
+# under the name "p95" is an unmeasured number wearing a measured number's clothes -- the E14(a)
+# failure inverted -- so below this count the honest label is `max_observed`, not a percentile.
+# Measured 2026-08-17: 0 of the 22 committed catalog lanes reach this count, and all 22 currently
+# store a "measured_p95_ms" that equals the maximum of at most 4 samples.
+MIN_SAMPLES_FOR_P95 = 20
+
+#: What a lane's published ceiling actually rests on. Never a synonym for confidence -- it names
+#: the arithmetic, so a reader can tell a percentile from a maximum from a supplied number.
+BUDGET_BASIS_P95 = "p95"
+BUDGET_BASIS_MAX_OBSERVED = "max_observed"
+BUDGET_BASIS_DECLARED = "declared"
+
+
+def budget_basis_for(sample_count: int) -> str:
+    """Name what a ceiling derived from ``sample_count`` admitted samples actually is."""
+
+    if sample_count <= 0:
+        return BUDGET_BASIS_DECLARED
+    if sample_count < MIN_SAMPLES_FOR_P95:
+        return BUDGET_BASIS_MAX_OBSERVED
+    return BUDGET_BASIS_P95
+
+
 @dataclass(frozen=True)
 class TimingBudgetLane:
     """A measured timeout recommendation for one exact tool and operational mode."""
@@ -320,6 +346,24 @@ class TimingBudgetLane:
     #: True when this lane has no admitted sample of its own and its ceiling was supplied rather
     #: than measured. A lane in this state never inherits a sibling lane's cap.
     ceiling_is_declared: bool = False
+
+    @property
+    def budget_basis(self) -> str:
+        """Whether this lane's ceiling is a real percentile, a maximum, or a supplied number."""
+
+        return budget_basis_for(len(self.samples_ms))
+
+    @property
+    def published_p95_ms(self) -> float | None:
+        """The p95 only when the sample count can support one; otherwise nothing is published."""
+
+        return self.measured_p95_ms if self.budget_basis == BUDGET_BASIS_P95 else None
+
+    @property
+    def max_observed_ms(self) -> float | None:
+        """The largest admitted sample, which is what a sub-threshold ceiling actually rests on."""
+
+        return max(self.samples_ms) if self.samples_ms else None
 
 
 @dataclass(frozen=True)
@@ -342,6 +386,12 @@ class TimingBudgetLaneSummary:
     #: is retained for continuity but counts the harness's exit-code proxy, not lane health.
     admitted_runs: int = 0
     inadmissible_runs: int = 0
+    #: What the catalogued ceiling rests on: a real percentile, a maximum, or a supplied number.
+    budget_basis: str = BUDGET_BASIS_DECLARED
+    #: Populated only when the lane clears MIN_SAMPLES_FOR_P95; otherwise no p95 is published.
+    published_p95_ms: float | None = None
+    max_observed_ms: float | None = None
+    catalog_sample_count: int = 0
 
 
 @contextmanager
@@ -697,6 +747,10 @@ def summarize_timing_budget_lanes(
                 inadmissible_runs=len(local_records) - len(completed_records),
                 latest_duration_ms=(local_records[-1].duration_ms if local_records else None),
                 over_budget_runs=over_budget_runs,
+                budget_basis=lane.budget_basis,
+                published_p95_ms=lane.published_p95_ms,
+                max_observed_ms=lane.max_observed_ms,
+                catalog_sample_count=len(lane.samples_ms),
             )
         )
     return summaries

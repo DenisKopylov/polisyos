@@ -237,8 +237,11 @@ def test_report_timing_text_lists_catalog_lanes_without_a_timing_log(
 
     output = capsys.readouterr().out
     assert exit_code == 0
-    assert "Measured budget lanes:" in output
+    assert "Budget lanes" in output
     assert "frontend.eslint:default: state=measured" in output
+    # The committed rows rest on at most 4 samples, so none may be presented as a p95.
+    assert "basis=max_observed" in output
+    assert "too few for a p95" in output
 
 
 def test_quarantined_preflight_records_skipped_run(tmp_path: Path, capsys) -> None:

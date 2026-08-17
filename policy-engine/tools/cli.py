@@ -22,6 +22,7 @@ from tools.lib.output import (
 from tools.lib.preflight import PreflightStatus, run_preflight
 from tools.lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
 from tools.lib.timing import (
+    MIN_SAMPLES_FOR_P95,
     append_timing_record,
     load_timing_budget_catalog,
     make_timing_record,
@@ -120,6 +121,9 @@ def _summary_payload(
                 "recommended_timeout_ms": lane.recommended_timeout_ms,
                 "regime": lane.regime,
                 "ceiling_is_declared": lane.ceiling_is_declared,
+                "budget_basis": lane.budget_basis,
+                "published_p95_ms": lane.published_p95_ms,
+                "max_observed_ms": lane.max_observed_ms,
             }
             for lane in uncatalogued
         ],
@@ -154,10 +158,18 @@ def _summary_payload(
                 "local_failures": summary.local_failures,
                 "latest_duration_ms": summary.latest_duration_ms,
                 "over_budget_runs": summary.over_budget_runs,
+                "budget_basis": summary.budget_basis,
+                "published_p95_ms": summary.published_p95_ms,
+                "max_observed_ms": summary.max_observed_ms,
+                "catalog_sample_count": summary.catalog_sample_count,
             }
             for summary in lane_summaries
             if include_unmeasured or summary.state != "unmeasured"
         ],
+        "min_samples_for_p95": MIN_SAMPLES_FOR_P95,
+        "lanes_publishing_a_p95": sum(
+            1 for summary in lane_summaries if summary.budget_basis == "p95"
+        ),
     }
 
 
@@ -175,12 +187,19 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         lines.append("- none")
     for item in uncatalogued:
         assert isinstance(item, dict)
-        if item["ceiling_is_declared"]:
+        basis = item["budget_basis"]
+        if basis == "declared":
             advice = "no admitted sample - a ceiling must be DECLARED and recorded as supplied"
+        elif basis == "p95":
+            advice = (
+                f"p95={float(item['published_p95_ms']):.1f}ms from "
+                f"{int(item['admitted_samples'])} admitted sample(s), regime={item['regime']}"
+            )
         else:
             advice = (
-                f"p95={float(item['measured_p95_ms']):.1f}ms from "
-                f"{int(item['admitted_samples'])} admitted sample(s), regime={item['regime']}"
+                f"max_observed={float(item['max_observed_ms']):.1f}ms from "
+                f"{int(item['admitted_samples'])} admitted sample(s) "
+                f"(too few for a p95), regime={item['regime']}"
             )
         lines.append(f"- {item['timing_key']}: {advice}")
     lines.extend(
@@ -201,11 +220,14 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         if budget is not None:
             over_budget_runs = int(item.get("over_budget_runs") or 0)
             budget_text = f", budget={float(budget):.1f}ms, over_budget={over_budget_runs}"
+        # The same discipline as the lane table: a nearest-rank p95 over fewer than
+        # MIN_SAMPLES_FOR_P95 runs is arithmetically the maximum, so it is labelled as one.
+        tail_label = "p95" if int(item["runs"]) >= MIN_SAMPLES_FOR_P95 else "max"
         lines.append(
             "- "
             f"{item['tool']}: avg={float(item['average_duration_ms']):.1f}ms, "
             f"mode={item['latest_mode']}, "
-            f"p95={float(item['p95_duration_ms']):.1f}ms, "
+            f"{tail_label}={float(item['p95_duration_ms']):.1f}ms, "
             f"latest={float(item['latest_duration_ms']):.1f}ms, "
             f"runs={int(item['runs'])}, failures={int(item['failures'])}, "
             f"skipped={int(item['skipped'])}, status={item['latest_status']}"
@@ -214,13 +236,29 @@ def _render_timing_text(payload: dict[str, object]) -> str:
     lane_summaries = payload["lane_summaries"]
     assert isinstance(lane_summaries, list)
     if lane_summaries:
-        lines.extend(["", "Measured budget lanes:"])
+        lines.extend(
+            [
+                "",
+                f"Budget lanes (a p95 is published only at >= {payload['min_samples_for_p95']} "
+                f"admitted samples; {payload['lanes_publishing_a_p95']} lane(s) qualify):",
+            ]
+        )
         for item in lane_summaries:
             assert isinstance(item, dict)
+            basis = item["budget_basis"]
+            if basis == "p95":
+                ceiling = f"p95={item['published_p95_ms']}"
+            elif basis == "max_observed":
+                ceiling = (
+                    f"max_observed={item['max_observed_ms']} "
+                    f"(n={int(item['catalog_sample_count'])}, too few for a p95)"
+                )
+            else:
+                ceiling = "no admitted sample - ceiling must be DECLARED as supplied"
             lines.append(
                 "- "
                 f"{item['timing_key']}: state={item['state']}, "
-                f"p95={item['measured_p95_ms']}, "
+                f"basis={basis}, {ceiling}, "
                 f"timeout={item['recommended_timeout_ms']}, "
                 f"local_runs={item['local_runs']}, "
                 f"over_budget={item['over_budget_runs']}"
@@ -238,8 +276,8 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         f"- Budget catalog scope: `{payload['timing_budget_catalog_scope']}`",
         f"- Unbudgeted lanes observed in the log: {len(payload['uncatalogued_lanes'])}",
         "",
-        "| Tool | Mode | Avg (ms) | P95 (ms) | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Tool | Mode | Avg (ms) | Tail (ms) | Runs | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     summaries = payload["summaries"]
     assert isinstance(summaries, list)
@@ -248,7 +286,8 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         budget = item.get("budget_ms")
         lines.append(
             f"| `{item['tool']}` | {item['latest_mode']} | {float(item['average_duration_ms']):.1f} | "
-            f"{float(item['p95_duration_ms']):.1f} | {float(item['latest_duration_ms']):.1f} | "
+            f"{float(item['p95_duration_ms']):.1f} | {int(item['runs'])} | "
+            f"{float(item['latest_duration_ms']):.1f} | "
             f"{int(item['failures'])} | {int(item['skipped'])} | "
             f"{('-' if budget is None else f'{float(budget):.1f}')} | {int(item['over_budget_runs'])} |"
         )
@@ -260,15 +299,25 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
                 "",
                 "## Measured Budget Lanes",
                 "",
-                "| Lane | State | P95 (ms) | Recommended timeout (ms) | Local runs | Over budget |",
-                "| --- | --- | ---: | ---: | ---: | ---: |",
+                f"A p95 is published only for lanes with at least "
+                f"{payload['min_samples_for_p95']} admitted samples; below that the ceiling is the",
+                "observed **maximum** and is labelled as such.",
+                "",
+                "| Lane | State | Basis | Samples | Ceiling (ms) | Recommended timeout (ms) | Local runs | Over budget |",
+                "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |",
             ]
         )
         for item in lane_summaries:
             assert isinstance(item, dict)
+            ceiling = (
+                item["published_p95_ms"]
+                if item["budget_basis"] == "p95"
+                else item["max_observed_ms"]
+            )
             lines.append(
-                f"| `{item['timing_key']}` | {item['state']} | "
-                f"{item['measured_p95_ms'] if item['measured_p95_ms'] is not None else '-'} | "
+                f"| `{item['timing_key']}` | {item['state']} | {item['budget_basis']} | "
+                f"{int(item['catalog_sample_count'])} | "
+                f"{ceiling if ceiling is not None else '-'} | "
                 f"{item['recommended_timeout_ms'] if item['recommended_timeout_ms'] is not None else '-'} | "
                 f"{item['local_runs']} | {item['over_budget_runs']} |"
             )

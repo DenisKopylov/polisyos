@@ -378,6 +378,19 @@ export const zeroValuedQuantity = grammarQuantity("ds16.zero_reference", {
 
 export const unknownValuedQuantity = grammarQuantity("ds16.unknown_reference");
 
+/**
+ * Fixture copy is rendered as i18n-key-shaped TOKENS, never as prose. The
+ * catalog under `shared/i18n/**` is DS6's exclusive territory, so this slice
+ * may not add keys to it, and squatting on the eventual product wording here
+ * would be a worse answer than not writing it: these negatives discriminate on
+ * the rendered SIGNATURE, and the signature does not need English to be
+ * distinct. C07/C08 resolve these tokens through DS6's catalog when the copy
+ * is actually owned.
+ */
+export const GAP_STATE_TOKEN = "ds16.value_state.no_observation_in_period";
+export const NO_ADMISSIBLE_RANKING_TOKEN =
+  "ds16.comparison.no_admissible_ranking_exists";
+
 // -- negative 1: a set-valued value rendered as a point estimate -------------
 
 /** Compliant: the production seam keeps every member and declares cardinality. */
@@ -485,9 +498,9 @@ function ValueStateCell({
     state === "gap"
       ? {
           absentValue: (
-            <span data-testid="ds16-gap-marker">No observation in period</span>
+            <span data-testid="ds16-gap-marker">{GAP_STATE_TOKEN}</span>
           ),
-          absentValueLabel: "No observation in period",
+          absentValueLabel: GAP_STATE_TOKEN,
         }
       : {};
   return (
@@ -550,7 +563,7 @@ export function renderGapAsZero(): ReactElement {
 export function renderIncomparableAsFrontier(): ReactElement {
   return (
     <ul data-comparison="incomparable" data-testid="ds16-comparison">
-      <li>No admissible ranking exists</li>
+      <li>{NO_ADMISSIBLE_RANKING_TOKEN}</li>
       {outerSetMembers.map((member) => (
         <li key={member.metric_id}>
           <Quantity provenanceMode="off" value={member} />

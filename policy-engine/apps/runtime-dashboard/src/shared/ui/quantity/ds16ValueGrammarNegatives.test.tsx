@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { ObservationProvenanceClass } from "@/test/contracts/quantityDecisionProducerHarness";
 import {
+  GAP_STATE_TOKEN,
+  NO_ADMISSIBLE_RANKING_TOKEN,
   outerSetMembers,
   renderDerivedSeriesWithProvenanceClass,
   renderDerivedSeriesWithoutProvenanceClass,
@@ -207,7 +209,7 @@ describe("DS16-C01 value-grammar negatives", () => {
     expect(
       collapsedStateFindings(asGap.container, ["zero", "unknown", "gap"]),
     ).toEqual([
-      "states-collapsed:unknown~gap:non-scalar:No observation in period",
+      `states-collapsed:unknown~gap:non-scalar:${GAP_STATE_TOKEN}`,
     ]);
     asGap.unmount();
 
@@ -222,7 +224,7 @@ describe("DS16-C01 value-grammar negatives", () => {
     const compliant = markup(renderIncomparableAsFrontier());
     expect(rankingFindings(compliant.container)).toEqual([]);
     expect(compliant.container.textContent).toContain(
-      "No admissible ranking exists",
+      NO_ADMISSIBLE_RANKING_TOKEN,
     );
     compliant.unmount();
 

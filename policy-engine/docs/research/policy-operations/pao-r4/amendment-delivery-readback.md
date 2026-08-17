@@ -117,7 +117,9 @@ The read-back files were checked for the amendment's load-bearing properties:
 14. reference-class shopping, purpose synonyms, false materiality assertions, and multi-hop relay are
     represented by exact cases;
 15. the source census records both path and file-type denominators, including 106/794/903, the
-    67/12/27 partition, seven all-source versus six Python `anonymi` files, and the three true zeroes;
+    67/12/27 partition, seven all-source versus six Python `anonymi` files, and the three zero-result
+    searches — recorded under `W4-K01` as `institutionally_supplied` to this package rather than as
+    established absences, since this package's environment could not execute the walk;
 16. external currentness identifies the 2025 Canadian instrument/tool snapshots, M-25-21 as replacing
     M-24-10, and Dawid's transfer as an inference;
 17. `public_export.py` is no longer appointed by adjacency; emission placement is an open

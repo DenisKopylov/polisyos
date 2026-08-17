@@ -143,13 +143,27 @@ It contains the case-insensitive prefix in `anonymity`. The original six-file re
 count presented under an all-source denominator. The amended statement is seven all-source and six
 Python, with both denominators explicit.
 
-### 3.5 Settled zeroes
+### 3.5 Zero-result searches
 
 The exact all-source searches for `individual_decision`, `export_gate`, and `prohibited_use` each
-produce zero files, zero matching lines, and zero occurrences. These are settled true zeroes from a
-complete walk, not connector absences.
+produce zero files, zero matching lines, and zero occurrences. The walk that produced them was
+executed by the architect at pin `109ba3f44` and independently reproduced there with positive and
+negative controls, so the **numbers are sound**; the original refusal to infer a zero from a connector
+index also stands.
 
-The negative capability conclusion is therefore stronger and exact: the source can carry denied uses
+What this package may do with them is narrower. Its own environment could not execute a complete
+tree walk, so under ratified `W4-K01`
+(`docs/system-design-decisions/wave4-decision-evidence-ratification.md`) the census is
+`institutionally_supplied` **to this package**, and an `institutionally_supplied` census **cannot
+settle a zero**. These are therefore recorded as reproducible claims, not as established absences of
+this package. The earlier wording — "settled true zeroes from a complete walk" — asserted an
+entitlement this package does not hold, and is corrected here rather than removed: nothing about the
+measurement was wrong, only about who may cite it.
+
+The negative capability conclusion does **not** rest on these zeroes and is unchanged by the
+correction: it rests on the absence of an admitted typed chain, producer, persisted artifact, bridge,
+consumer, verification and appointed owner, which the integration handoff establishes independently.
+On that basis the source can carry denied uses
 but cannot name an individual-decision concept, a policy-to-case export gate, or a parallel
 `prohibited_use` mechanism.
 
@@ -196,7 +210,10 @@ research appoints no owner and creates no implementation. The PAO-R4-specific ch
 2. `aggregate_only` appears in seven all-source files and remains form metadata, not a firewall.
 3. `anonymi` appears in seven all-source files and six Python files; neither count establishes
    non-resolution.
-4. The three missing-vocabulary zeroes are true all-source zeroes.
+4. The three missing-vocabulary searches return zero on an architect-executed complete all-source
+   walk. That census is `institutionally_supplied` to this package, so under `W4-K01` the zeroes are
+   recorded as reproducible claims and **not** as established absences of this package; the negative
+   capability conclusion rests on the missing chain (item 6), not on them.
 5. The live denied-use mechanism is reusable and pervasive.
 6. The individual-decision vocabulary, gate, governed case consumer, evidence return, and
    composition transcript remain absent/unallocated.

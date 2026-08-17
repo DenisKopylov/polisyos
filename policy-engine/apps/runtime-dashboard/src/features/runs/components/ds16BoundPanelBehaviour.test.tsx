@@ -52,6 +52,13 @@ function refusal(overrides: Partial<Refusal> & { value_id: string }): Refusal {
   };
 }
 
+/** Row lookup through Testing Library queries rather than container node access. */
+function rowFor(valueId: string) {
+  return screen
+    .queryAllByTestId("authority-refusal")
+    .find((row) => row.getAttribute("data-value-id") === valueId);
+}
+
 function serve(values: readonly Refusal[]) {
   server.use(
     http.get(ENDPOINT, () =>
@@ -106,13 +113,13 @@ describe("DS16-C05 bound panel behaviour", () => {
   it("renders nothing beyond the sanctioned refusal when the producer serves no member", async () => {
     serve([]);
 
-    const view = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
+    renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
 
     const panel = await screen.findByTestId("public-sector-readiness-panel");
     expect(panel).toHaveTextContent("Unavailable");
     // No invented placeholder row, and no zero.
     expect(
-      view.container.querySelectorAll("[data-value-id]"),
+      screen.queryAllByTestId("authority-refusal"),
       "an empty producer answer must not be padded with a placeholder",
     ).toHaveLength(0);
     expect(panel.textContent).not.toContain("0");
@@ -131,9 +138,10 @@ describe("DS16-C05 bound panel behaviour", () => {
     ]);
     const first = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
     await screen.findByText("first producer answer");
-    expect(
-      first.container.querySelector('[data-value-id="readiness.fairness_audit"]'),
-    ).toHaveAttribute("data-refusal-code", "no_runtime_estimator");
+    expect(rowFor("readiness.fairness_audit")).toHaveAttribute(
+      "data-refusal-code",
+      "no_runtime_estimator",
+    );
     first.unmount();
 
     serve([
@@ -143,17 +151,16 @@ describe("DS16-C05 bound panel behaviour", () => {
         value_id: "readiness.harm_assessment",
       }),
     ]);
-    const second = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
+    renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
     await screen.findByText("second producer answer");
 
     // The first payload's content is gone: nothing was retained locally.
     expect(screen.queryByText("first producer answer")).not.toBeInTheDocument();
-    expect(
-      second.container.querySelector('[data-value-id="readiness.fairness_audit"]'),
-    ).toBeNull();
-    expect(
-      second.container.querySelector('[data-value-id="readiness.harm_assessment"]'),
-    ).toHaveAttribute("data-refusal-code", "analysis_not_runtime_resident");
+    expect(rowFor("readiness.fairness_audit")).toBeUndefined();
+    expect(rowFor("readiness.harm_assessment")).toHaveAttribute(
+      "data-refusal-code",
+      "analysis_not_runtime_resident",
+    );
   });
 
   it("renders only its own surface's members, on the producer's partition", async () => {
@@ -165,29 +172,13 @@ describe("DS16-C05 bound panel behaviour", () => {
     const readiness = renderWithProviders(
       <PublicSectorReadinessPanel runId={RUN_ID} />,
     );
-    await waitFor(() =>
-      expect(
-        readiness.container.querySelector('[data-value-id="readiness.slow_review"]'),
-      ).not.toBeNull(),
-    );
-    expect(
-      readiness.container.querySelector(
-        '[data-value-id="scientific.stress_ranking"]',
-      ),
-    ).toBeNull();
+    await waitFor(() => expect(rowFor("readiness.slow_review")).toBeDefined());
+    expect(rowFor("scientific.stress_ranking")).toBeUndefined();
     readiness.unmount();
 
-    const scientific = renderWithProviders(<ScientificDepthPanel runId={RUN_ID} />);
-    await waitFor(() =>
-      expect(
-        scientific.container.querySelector(
-          '[data-value-id="scientific.stress_ranking"]',
-        ),
-      ).not.toBeNull(),
-    );
-    expect(
-      scientific.container.querySelector('[data-value-id="readiness.slow_review"]'),
-    ).toBeNull();
+    renderWithProviders(<ScientificDepthPanel runId={RUN_ID} />);
+    await waitFor(() => expect(rowFor("scientific.stress_ranking")).toBeDefined());
+    expect(rowFor("readiness.slow_review")).toBeUndefined();
   });
 
   it("composes no summary over the refusals", async () => {
@@ -197,12 +188,13 @@ describe("DS16-C05 bound panel behaviour", () => {
       refusal({ value_id: "readiness.harm_assessment" }),
     ]);
 
-    const view = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
+    renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
     await screen.findByText("reason for readiness.composite_verdict");
 
     // Eleven honest refusals are the product. A count, a share or a score over them is
     // the DS4-C23 sin rebuilt one layer up, so the glass carries no such number.
-    const text = view.container.textContent ?? "";
+    const text =
+      screen.getByTestId("public-sector-readiness-panel").textContent ?? "";
     expect(text).not.toMatch(/\b3\b/u);
     expect(text).not.toMatch(/%/u);
     expect(text).not.toMatch(/\bof\s+\d/iu);

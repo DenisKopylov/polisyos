@@ -13,6 +13,41 @@ export type AuthorityValue = RunAuthorityProjection["values"][number];
 export type { AuthoritySurface };
 
 /**
+ * A flat display record over the served discriminated union.
+ *
+ * The union is normalized HERE rather than on the panel because narrowing it on the
+ * glass would be a conditional in a rendered position, which the C02 gate refuses on
+ * purpose. Nothing is invented in the process: `detail` is the producer's own `reason`
+ * for a refusal and its own `metric_id` for a supplied value, so a supplied member can
+ * never arrive and be silently blanked — the failure this slice exists to close.
+ */
+export type AuthorityMember = {
+  detail: string;
+  ownerSurface: string | null;
+  refusalCode: string | null;
+  state: AuthorityValue["state"];
+  valueId: string;
+};
+
+function toMember(value: AuthorityValue): AuthorityMember {
+  return value.state === "refused"
+    ? {
+        detail: value.reason,
+        ownerSurface: value.owner_surface ?? null,
+        refusalCode: value.refusal_code,
+        state: value.state,
+        valueId: value.value_id,
+      }
+    : {
+        detail: value.metric_id,
+        ownerSurface: null,
+        refusalCode: null,
+        state: value.state,
+        valueId: value.value_id,
+      };
+}
+
+/**
  * DS16-C05 — intake for the retired DS4-C23 inventory.
  *
  * WHY THIS HOOK USES THE PACKAGE CLIENT DIRECTLY, unlike its neighbours.
@@ -49,9 +84,9 @@ export function useRunAuthorityValues(runId: string, surface: AuthoritySurface) 
     queryKey: ["runs", runId, "authority-values"],
   });
 
-  const values = (query.data?.values ?? []).filter(
-    (value) => value.surface === surface,
-  );
+  const values = (query.data?.values ?? [])
+    .filter((value) => value.surface === surface)
+    .map(toMember);
 
   return { values };
 }

@@ -266,7 +266,7 @@ export function renderRepresentativeProducerConsumers(): ReactElement[] {
 }
 
 export function renderContainedPublicSectorConsumer(): ReactElement {
-  return <PublicSectorReadinessPanel />;
+  return <PublicSectorReadinessPanel runId="run-c06" />;
 }
 
 export function renderTypedFixtureAuthorityConsumer(): ReactElement {

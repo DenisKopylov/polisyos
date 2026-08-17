@@ -505,7 +505,13 @@ function renderRoute(
 }
 
 function renderNestedRunDetail(path: string) {
+  // The DS16 panels are producer-bound as of C05, so this route now needs a query client
+  // like `renderRoute` already had.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
+    <QueryClientProvider client={queryClient}>
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="/runs/:runId" element={<RunDetailLayout />}>
@@ -520,7 +526,8 @@ function renderNestedRunDetail(path: string) {
         </Route>
         <Route path="/runs" element={<RunDetailLayout />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -1274,7 +1281,10 @@ describe("run detail surfaces", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders both contained panels unavailable without producer inputs", () => {
+  it("renders both producer-bound panels with their sanctioned refusal", () => {
+    // C05 replaced containment with binding: the panels now read a producer and render
+    // its typed refusals. The sanctioned refusal key is still what a panel shows when
+    // the producer has served no member.
     renderNestedRunDetail("/runs/run-1/overview");
 
     expect(

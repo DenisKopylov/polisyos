@@ -11,13 +11,14 @@ export function PublicSectorReadinessPanel({ runId }: { runId: string }) {
       <ul data-testid="authority-refusal-list">
         {values.map((value) => (
           <li
-            data-owner-surface={value.owner_surface}
-            data-refusal-code={value.refusal_code}
+            data-owner-surface={value.ownerSurface}
+            data-refusal-code={value.refusalCode}
             data-state={value.state}
-            data-value-id={value.value_id}
-            key={value.value_id}
+            data-testid="authority-refusal"
+            data-value-id={value.valueId}
+            key={value.valueId}
           >
-            {value.reason}
+            {value.detail}
           </li>
         ))}
       </ul>

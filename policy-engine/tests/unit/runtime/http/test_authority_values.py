@@ -17,6 +17,7 @@ from pydantic import ValidationError
 
 from polisyos.runtime.http.services.authority_values import (
     INVENTORY_VERSION,
+    AuthoritySurface,
     AuthorityValueId,
     RefusedAuthorityValue,
     RunAuthorityProjection,
@@ -78,6 +79,7 @@ def test_no_value_is_an_optional_field_the_client_could_fill_in() -> None:
 
     for value in build_run_authority_projection("run-ds16").values:
         assert value.state in {"refused", "supplied"}
+        assert value.surface in set(AuthoritySurface)
         if value.state == "refused":
             assert value.reason.strip()
             assert value.refusal_code in set(ValueRefusalCode)
@@ -117,6 +119,7 @@ def test_supplied_variant_exists_so_a_future_value_needs_no_contract_change() ->
     supplied = SuppliedAuthorityValue(
         metric_id="readiness.composite",
         point=None,
+        surface=AuthoritySurface.READINESS,
         value_id=AuthorityValueId.READINESS_COMPOSITE_VERDICT,
     )
     assert supplied.state == "supplied"

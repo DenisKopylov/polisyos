@@ -93,18 +93,39 @@ Let:
 
 For a component `X` and failure mode `f`, let `SemProv_f(X)` be the transitive **answer-producing semantic provenance** that can influence `X`'s determination for `f`: source files, generated code/tables/models, semantic services, dependencies, authorship and review inputs used to derive logic, build inputs, and runtime calls. Let `Input_f(X)` be the complete set of declared immutable run data supplied to `X`. Undeclared data access is treated as a `SemProv_f` violation rather than silently excluded.
 
-For every load-bearing gate predicate `g`, let `PredClass(g)` be exactly one of:
+For every load-bearing gate predicate `g`, let `PredClass(g)` be exactly one of the **five registered
+`P37` classes**:
 
 ```text
 recomputed
-machine_observed
 independently_reconciled
-attested
-institutionally_accepted
+consumer_asserted
+institutionally_supplied
 not_established
 ```
 
-The class is frozen at admission. `attested`, `institutionally_accepted`, and `not_established` may preserve a premise or support a bounded limitation, but they cannot be rendered as machine proof or, by themselves, turn a positive verification gate green.
+The class is frozen at admission. `consumer_asserted`, `institutionally_supplied`, and
+`not_established` may preserve a premise or support a bounded limitation, but they cannot be rendered
+as machine proof or, by themselves, turn a positive verification gate green.
+
+**Corrected under ratified `W4-K02`**
+(`docs/system-design-decisions/wave4-decision-evidence-ratification.md`). This package originally
+defined a six-way vocabulary adding `machine_observed`, `attested` and `institutionally_accepted`.
+The independent conformance verification established that the refinement does **not** widen the
+non-positive set and commended the three distinctions as genuine — and they are retained here, as
+**required sub-annotations recorded beside the registered class**, never as labels:
+
+| Sub-annotation | Registered class | What the sub-annotation adds |
+| --- | --- | --- |
+| `machine_observed` | `recomputed` when deterministically re-derived from controlled artifacts; `independently_reconciled` when the observation is retained by a **second non-producing observer** | bounded direct machine observation as distinct from deterministic recomputation, always carrying an explicit observed-envelope limitation. **Bare producer-retained telemetry is `not_established`**, never eligible. |
+| `attested` | `consumer_asserted` | a signed declaration by any constrained role, not only the consumer — authorship, conflict, competence statements. Non-positive. |
+| `institutionally_accepted` | `institutionally_supplied` | the supplied premise has additionally been accepted for a **named scope** after proficiency, dissent and challenge review. Still non-machine evidence; non-positive. |
+
+The reason the refinement is not adoptable as labels is lookup shape, not substance:
+`machine_observed` is positive-eligible only *conditionally*, and a gate must answer
+positive-eligibility by fixed lookup rather than by evaluating a declared condition — which would
+reproduce `P37` one level below itself (ratified `W4-K03`). A sub-annotation qualifies the evidence
+and **never alters positive-eligibility**.
 
 The shared-input/shared-provenance split remains essential. `R_v` and `P_v` may consume the same committed fixture, raw trace, and scoped expectation version because they must judge the same run. Those declared bytes are common **inputs**, not common answer-producing code. Mutual evaluator independence concerns `SemProv_f`; correctness of shared `B` or `O_v` is governed separately by `S_v`, and failure to establish it withholds the stronger custody-semantics claim.
 
@@ -159,23 +180,23 @@ The table below is part of the architecture, not optional commentary. Each row h
 | trace canonicalization preserves duplicates, order, time, scope, and semantic atoms | `recomputed` | round-trip and adversarial conformance vectors | eligible |
 | raw trace bytes equal the implementation output frozen for the run | `independently_reconciled` | product output digest compared with evaluator intake and immutable run manifest | eligible |
 | static source/import/generated-file/SBOM closure contains no prohibited ancestor | `recomputed` | full transitive graph and allow/deny evaluation | eligible |
-| runtime modules and network destinations match the declared execution envelope | `machine_observed` | independently retained load/network telemetry | eligible within observed envelope |
+| runtime modules and network destinations match the declared execution envelope | `independently_reconciled` · sub-annotation `machine_observed` | independently retained load/network telemetry | eligible within the observed envelope, **because the telemetry is retained by a second non-producing observer**; producer-retained telemetry is `not_established` |
 | storage, network, and key-service records agree with the oracle access log | `independently_reconciled` | signed heads plus reconciliation witness | eligible |
 | a common helper satisfies representation-only conformance vectors | `recomputed` | conformance and poisoned-helper results for every `F_impl` family | eligible |
-| a common helper performed no undeclared runtime semantic call | `machine_observed` | runtime trace and network evidence | eligible within observed envelope |
+| a common helper performed no undeclared runtime semantic call | `independently_reconciled` · sub-annotation `machine_observed` **only when the trace is independently retained**, otherwise `not_established` | runtime trace and network evidence | eligible within the observed envelope **only** under independent retention; a producer-retained trace cannot make this predicate positive |
 | answer-neutrality scope was independently reviewed | `independently_reconciled` | signed review that independently repeats source and behavioral checks | eligible |
 | implementation/submission freeze preceded hidden mutation generation | `independently_reconciled` | signed chronology from independent commitment and run logs | eligible |
 | hidden seed, exposure budget, and diagnostic-query budget remained within the committed window | `independently_reconciled` | seed commitment, access evidence, query ledger, and reconciliation result | eligible |
 | role assignment satisfies the incompatibility matrix for the evaluation window | `recomputed` | role-window validator over identity and authority records | eligible subject to truthful input limitations |
-| authorship and role declarations are truthful | `attested` | signed declarations and conflict records | cannot independently turn gate green |
-| declared evaluator competence exists for the named scope | `institutionally_accepted` | mandate and proficiency acceptance record | claim remains institutionally bounded; absence degrades/blocks |
+| authorship and role declarations are truthful | `consumer_asserted` · sub-annotation `attested` | signed declarations and conflict records | cannot independently turn gate green |
+| declared evaluator competence exists for the named scope | `institutionally_supplied` · sub-annotation `institutionally_accepted` | mandate and proficiency acceptance record | claim remains institutionally bounded; absence degrades/blocks |
 | non-collusion is true | `not_established` | no complete technical proof exists | no positive independence claim may rely on it as machine fact |
 | each discriminator detects its bound semantic delta | `recomputed` | liveness, removal, and neutralization witnesses | eligible |
 | mutation relation is independently validated without shared private semantics | `independently_reconciled` | `M_v`/`J_v`/`R_v`/`P_v` provenance and relation witnesses | eligible |
 | reviewer records preserve every assigned position, abstention, recusal, dissent, and correction | `recomputed` | assignment roster, signed position set, completeness walk, and append-only history | eligible |
 | reviewer proficiency anchors were passed for the claimed domain | `independently_reconciled` | blinded seed results and drift record | eligible |
 | the `B` to `O_v` derivation used independent derivation or dual control | `independently_reconciled` | derivation record, role-window validation, and independent source comparison | eligible |
-| scope-specific competent acceptance of the public axiom/expectation premise exists | `institutionally_accepted` | `S_v`, dissent, challenges, mandate evidence, and the named scope acceptance record | never rendered as machine proof; missing acceptance yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED` |
+| scope-specific competent acceptance of the public axiom/expectation premise exists | `institutionally_supplied` · sub-annotation `institutionally_accepted` | `S_v`, dissent, challenges, mandate evidence, and the named scope acceptance record | never rendered as machine proof; missing acceptance yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED` |
 | no undiscovered substantive error remains in the shared specification | `not_established` | no finite technical or institutional procedure proves universal absence | cannot support a universal-correctness claim; bounded claim only |
 | fixture population and denominators equal the committed plan | `recomputed` | population digest and complete member walk | eligible |
 | correction and supersession history is append-only and the receipt remains bound to the historical bundle | `recomputed` | consistency proofs, prior receipt digest, and supersession links | eligible |

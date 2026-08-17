@@ -84,7 +84,7 @@ Use a **dual diverse evaluator architecture with a separate specification-assura
 6. Generate hidden post-freeze cases through `M_v`, and validate mutation certificates through separately governed `J_v`; neither may share a private semantic ancestor with the evaluators that decide the relation.
 7. Bind every seeded mutation to a `DiscriminatorWitness`: expected semantic delta, named discriminator, liveness result, removal probe, and neutralization probe. Removing the relevant discriminator makes acceptance fail closed as `EVALUATOR_COVERAGE_NOT_ESTABLISHED`.
 8. Maintain `S_v` over public axioms and expectations: independent derivation or dual control, reviewer proficiency/drift evidence, preserved dissent and challenges. A shared bad axiom accepted by both evaluators yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`; the stronger claim is withheld.
-9. Freeze every load-bearing premise in a P37 register as `recomputed`, `machine_observed`, `independently_reconciled`, `attested`, `institutionally_accepted`, or `not_established`. A decisive predicate in the last three classes cannot be rendered as machine proof or turn a positive gate green by itself.
+9. Freeze every load-bearing premise in a P37 register as one of the five registered classes — `recomputed`, `independently_reconciled`, `consumer_asserted`, `institutionally_supplied`, or `not_established`. A decisive predicate in the last three classes cannot be rendered as machine proof or turn a positive gate green by itself.
 10. Bind commitments, storage/network/key-service access heads and reconciliation, roles, challenges, corrections and supersessions into an append-only receipt. A blocking challenge prevents claim rendering.
 11. Emit two different statements:
     - when implementation-side evidence passes but `S_v` is not established: **“not refuted under the committed specification”**;
@@ -164,7 +164,7 @@ For named implementation-origin failure families, structural independence requir
 9. `S_v` separately records whether shared specification/expectation assurance is established for the claimed scope;
 10. the receipt binds all provenance, answer-neutrality, access reconciliation, role, proficiency, discriminator, challenge and population evidence.
 
-Conditions involving competence, authorship influence and non-collusion are not mislabelled machine proof. They are `attested`, `institutionally_accepted`, or `not_established` and can only have the predeclared bounded/degrading effect.
+Conditions involving competence, authorship influence and non-collusion are not mislabelled machine proof. They are `consumer_asserted` (sub-annotation `attested`), `institutionally_supplied` (sub-annotation `institutionally_accepted`), or `not_established`, and can only have the predeclared bounded/degrading effect (ratified `W4-K02`).
 
 ### 6.3 Verification and claim rules
 

@@ -94,9 +94,12 @@ This ordering addresses the blocking misuse seen in prior audits: a more downstr
 
 Every load-bearing gate predicate is frozen at admission as exactly one of:
 
-`recomputed` · `machine_observed` · `independently_reconciled` · `attested` · `institutionally_accepted` · `not_established`.
+`recomputed` · `independently_reconciled` · `consumer_asserted` · `institutionally_supplied` · `not_established`.
 
-The richer six-way split is deliberate: an authorship or non-collusion attestation is not the same as an institutionally accepted competence premise, and neither is machine proof. A positive verification gate may depend decisively only on `recomputed`, `machine_observed`, or `independently_reconciled` predicates. An `attested`, `institutionally_accepted`, or `not_established` decisive premise must fail closed or degrade the claim according to its predeclared rule. A missing institutional premise renders `INDEPENDENCE_NOT_ESTABLISHED`; it is never displayed as machine-proved.
+**Corrected under ratified `W4-K02`** (`docs/system-design-decisions/wave4-decision-evidence-ratification.md`). This section originally froze predicates against a six-way split adding `machine_observed`, `attested` and `institutionally_accepted`. The distinctions it drew are **correct and retained** — an authorship or non-collusion attestation is not the same as an institutionally accepted competence premise, and neither is machine proof — but they are carried as **required sub-annotations recorded beside the registered class**, not as classes:
+`machine_observed` → `recomputed`, or `independently_reconciled` when the observation is retained by a second **non-producing** observer, and `not_established` for bare producer-retained telemetry · `attested` → `consumer_asserted` · `institutionally_accepted` → `institutionally_supplied`. The full crosswalk is in `independence-model-and-evaluator-interface.md` §2.
+
+The reason is lookup shape, not substance. A positive verification gate may depend decisively only on `recomputed` or `independently_reconciled` — a **fixed lookup**. Under the six-way form, `machine_observed` was positive-eligible only *conditionally*, so the gate would have had to evaluate a declared condition to know whether it could go green, which reproduces `P37` one level below itself (ratified `W4-K03`). A `consumer_asserted`, `institutionally_supplied`, or `not_established` decisive premise must fail closed or degrade the claim according to its predeclared rule. A missing institutional premise renders `INDEPENDENCE_NOT_ESTABLISHED`; it is never displayed as machine-proved. Sub-annotations qualify the evidence and never alter positive-eligibility.
 
 The *falsify-the-declaration* probe is mandatory: make the declared premise false while preserving the declaration bytes. If the gate remains green, the release is rejected because it tests the declaration rather than the property.
 

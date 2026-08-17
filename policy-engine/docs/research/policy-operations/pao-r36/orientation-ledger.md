@@ -1,69 +1,121 @@
 ---
 title: PAO-R36 - Orientation and Repository Evidence Ledger
 research_id: PAO-R36
-status: delivered_research
+status: amended_research
 result_standing: accepted_narrow_scope
+audit_disposition_of_submitted_version: NO_GO
+amendment_status: pending_independent_conformance
 repository: https://github.com/DenisKopylov/polisyos
 repository_branch_inspected: main
-pinned_repository_commit: 1a7a2d05ebba22fae80e9934329e4b880806588e
-inspection_date: 2026-08-06
+pinned_repository_commit: 109ba3f4
+audited_commit: 1bccc012b636d6a13930735a4f748d1f8cf7b9cf
+audit_commit: 9bbfd37a218222ae06c1f669b95dba37c4732765
+amendment_branch: research/pao-r36-amendment
+inspection_date: 2026-08-08
 research_only: true
-inspection_method: connected_exact_ref_interface_due_to_blocked_git_egress
+inspection_method: architect_supplied_complete_git_grep_plus_exact_ref_file_readback
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, media-type, or API contract
-  - canonical owner, vendor, or service appointment
+  - canonical owner, vendor, archive, signer, publication-of-record venue, or service appointment
   - authority grant
   - capability claim
   - legal-sufficiency or jurisdictional conclusion
   - permission to publish or open a gate
+  - translation-parity mechanism design
+  - recovery objective, retention period, expiry rule, or disaster-mode design
   - automatic amendment of any plan, backlog, or system-design decision
 ---
 
 # PAO-R36 orientation and repository evidence ledger
 
-## 1. Inspection boundary and delivery discipline
+## 1. Inspection boundary and P35 discipline
 
-Every repository proposition in this package is bound to commit
-`1a7a2d05ebba22fae80e9934329e4b880806588e` on `main`. The delivery branch was created from that
-exact commit.
+Documentation claims in this amendment are bound to `main@109ba3f4`. The architect established that
+`policy-engine/src` at `109ba3f4` is byte-identical to the original source pin
+`1a7a2d05ebba22fae80e9934329e4b880806588e`. Source-owner conclusions therefore carry forward; every
+document reference is evaluated at the new docs pin.
 
-Ordinary Git egress was unavailable and `gh` was not installed. The research therefore used the
-commission-permitted connected GitHub exact-ref interface. No CI workflow, base64 upload fragment,
-staging directory, or self-executing repository artifact was used.
+The token census below is supplied by the architect's complete tree walk, not re-derived from the
+connected search index:
 
-The connector can read exact files and run exact-ref path-bounded searches, but it cannot execute the
-requested local whole-tree counting script. P35 therefore requires a split verdict: exact file reads
-and finite returned sets are reported, while search-result counts are not promoted into a complete
-literal census. The limitation is part of the result rather than hidden by a false success claim.
+- command class: `git grep` over the pinned ref;
+- path denominator: `policy-engine/src`;
+- match semantics: case-sensitive fixed strings;
+- binary files: excluded; and
+- file-type denominator: stated in every row.
 
-Counting vocabulary is fixed as follows:
+P35's index rider is symmetric. An index cannot establish a zero and cannot establish a positive
+count. It may omit a member in either case. This amendment records the complete-walk figures as the
+controlling census and does not average them with connector results.
 
-- `source-line count`: physical newline-delimited lines in one exact file;
-- `matched-line count`: lines containing at least one exact, case-sensitive token;
-- `literal-occurrence count`: non-overlapping exact substring occurrences;
-- `token-containing-file count`: distinct files containing at least one exact token; and
-- `connector candidate-file count`: distinct exact-ref search results, which is not represented as a
-  P35-complete whole-tree walk.
+Counting vocabulary:
 
-These units are not interchangeable.
+- **token-containing files**: distinct files with at least one exact occurrence;
+- **matching lines**: physical source lines with at least one exact occurrence; and
+- **occurrences**: non-overlapping exact substring occurrences.
 
-## 2. Pass I token census audit
+These units and denominators are not interchangeable.
 
-Search boundary was `policy-engine/src` at the pin.
+## 2. Audit count conflict and adjudication
 
-| Exact token | Brief claim: files | Exact-ref connector observation | Matched lines | Literal occurrences | Pass I disposition |
-| --- | ---: | --- | --- | --- | --- |
-| `supersede` | 48 | 49 distinct candidate files | not established | not established | **Disagreement.** The inherited 48 is not independently verified; connector search is not the required complete literal script. |
-| `superseded` | 34 | 37 distinct candidate files | not established | not established | **Disagreement** under the same P35 limitation. |
-| `retraction` | 6 | 7 files total: 6 Python files and 1 README | not established | not established | **Denominator error.** Six agrees only for an unstated Python-file denominator; the stated all-file source denominator has seven returned files. |
-| `cache_invalidat` | 3 | 3 distinct files | not established | not established | **Connector agreement on file count**, not a complete occurrence census. |
-| `subscriber` | 3 | 3 distinct files | not established | not established | **Connector agreement on file count**, not a complete occurrence census. |
-| `correction_notice` | 0 | 0 indexed path-bounded results | 0 indexed matched lines | 0 indexed occurrences | **Connector agreement**, not an overstated script-proved universal absence. |
-| `notify_subscribers` | 0 | 0 indexed path-bounded results | 0 indexed matched lines | 0 indexed occurrences | **Connector agreement** with the same boundary. |
-| `correction_feed` | 0 | 0 indexed path-bounded results | 0 indexed matched lines | 0 indexed occurrences | **Connector agreement** with the same boundary. |
+### 2.1 `supersede`
 
-### 2.1 The seven `retraction` files
+The independent audit reported 47 files / 203 matching lines / 246 occurrences and called the
+commission's 48-file value wrong. That correction is declined.
+
+The failure mechanism is exact:
+
+1. the true case-insensitive candidate set under `policy-engine/src` has 50 files;
+2. the connector returned 49 candidates, omitting one tree member;
+3. the audit correctly identified two returned files with zero lowercase occurrences:
+   - `policy-engine/src/polisyos/foundry/methods/lifecycle/deprecation.py`, containing
+     `SupersededBy...`; and
+   - `policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`,
+     containing `DATASET_SUPERSEDED`;
+4. subtracting those two from the incomplete 49-candidate index set produced 47; and
+5. the complete case-sensitive tree walk establishes 48 lowercase files.
+
+The subtraction was sound; its indexed denominator was incomplete. This is the P35 index rider
+biting a positive count.
+
+### 2.2 Other audit undercounts
+
+The audit's file count for lowercase `superseded` was correct at 34, but its line/occurrence counts
+were short. Its `retraction` and `cache_invalidat` occurrence counts were each short by one. Its
+`subscriber` count reproduces exactly.
+
+The audit was right about the original denominator defect for `retraction`: six is the Python-only
+count, while seven is the all-source count. The amendment records both denominators.
+
+### 2.3 Zero claims
+
+The original research correctly refused to promote zero connector results into universal absence.
+The complete walk now settles all three zeroes. They are no longer `not_established`:
+
+- `correction_notice`: 0 files / 0 lines / 0 occurrences;
+- `notify_subscribers`: 0 / 0 / 0; and
+- `correction_feed`: 0 / 0 / 0.
+
+This strengthens, rather than weakens, the capability conclusion.
+
+## 3. Complete token census
+
+Common path denominator and method are fixed by §1.
+
+| Exact token | File-type denominator | Files | Matching lines | Occurrences | Disposition |
+| --- | --- | ---: | ---: | ---: | --- |
+| `supersede` | all source; all 48 members are Python | **48** | **215** | **260** | Commission file count confirmed; audit correction declined. |
+| `superseded` | all source | **34** | **154** | **183** | File count confirmed; audit line/occurrence counts corrected. |
+| `retraction` | all source | **7** | **40** | **45** | All-source denominator. |
+| `retraction` | Python only | **6** | **39** | **44** | Original commission's six named Python paths; denominator now explicit. |
+| `cache_invalidat` | all source | **3** | **5** | **6** | Generic cache concerns only. |
+| `subscriber` | all source | **3** | **18** | **21** | Generic subscriber text only. |
+| `correction_notice` | all source | **0** | **0** | **0** | Settled complete-walk absence. |
+| `notify_subscribers` | all source | **0** | **0** | **0** | Settled complete-walk absence. |
+| `correction_feed` | all source | **0** | **0** | **0** | Settled complete-walk absence. |
+
+### 3.1 Seven all-source `retraction` members
 
 1. `policy-engine/src/polisyos/runtime/quality/policy_design_case.py`;
 2. `policy-engine/src/polisyos/runtime/quality/policy_benchmarking.py`;
@@ -73,102 +125,66 @@ Search boundary was `policy-engine/src` at the pin.
 6. `policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py`; and
 7. `policy-engine/src/polisyos/data_forge/domains/academic/knowledge/README.md`.
 
-The first six are the Python withdrawal paths named by the commission. The seventh proves why the
-denominator must be stated. None establishes a public correction notice, subscriber fan-out, or
-correction feed.
+The first six form the Python-only denominator. None establishes a public correction notice,
+notification chain, or correction feed.
 
-### 2.2 The three `cache_invalidat` files
+### 3.2 Three `cache_invalidat` members
 
 1. `policy-engine/src/polisyos/foundry/methods/compiler/hot_reload.py`;
 2. `policy-engine/src/polisyos/fabric/_adapters/observability.py`; and
 3. `policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py`.
 
-They show generic cache invalidation concerns, not a correction-scoped cache inventory, invalidation
-receipt, or effective-correction gate.
+These are reusable generic mechanisms, not a correction-scoped `C` registry, source generation,
+member receipt, authority fence, or effective gate.
 
-### 2.3 The three `subscriber` files
+### 3.3 Three `subscriber` members
 
 1. `policy-engine/src/polisyos/scholar/search/security.py`;
 2. `policy-engine/src/polisyos/runtime/http/services/review_collaboration.py`; and
 3. `policy-engine/src/polisyos/data_forge/domains/academic/knowledge/runtime_canonical_registry.py`.
 
-They do not establish a correction subscriber registry, cohort, or failure-visible delivery chain.
+They do not establish correction subscription scope, frozen cohorts/obligations, delivery intents,
+receipts, retry/escalation, or a failure-visible aggregate.
 
-## 3. Structural orientation audit
+## 4. Structural orientation at `109ba3f4`
 
-| Orientation proposition | Re-derived evidence at the pin | Disposition |
+| Proposition | Re-derived/retained evidence | Amended disposition |
 | --- | --- | --- |
-| The INT-R7/R8 ratification record is 439 lines | An exact endpoint read returned lines 436-439 and no line 440 from `policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md`. | **Agrees: 439 source lines.** |
-| `rule_evolution.py` is the canonical evolution owner | It declares the shared registry, replay, public annotation, producer/reader owners, and public-policy blocker at `policy-engine/src/polisyos/core/contracts/rule_evolution.py:1-38`; its capability-reality record names producer, artifact, bridge, consumer, verification, and surface at `:177-189`. | **Agrees on owner.** Extend, do not duplicate. |
-| `rule_evolution.py` has 30 top-level classes/functions | A complete four-range read of all 839/839 lines found 28 column-zero `def` declarations and 2 column-zero `class` declarations, with no column-zero `async def`. | **Agrees: 28 + 2 = 30.** The nested protocol method is excluded. |
-| Silent semantic upgrade is prohibited | The public annotation sets `silent_upgrade_allowed` false and binds closed-case replay to original logic at `rule_evolution.py:302-330`. | **Agrees.** PAO-R36 makes the prohibition detectable; it does not re-ratify it. |
-| `public_export.py` is 2,103 lines | An exact endpoint read returned lines 2101-2103 and no line 2104 from `policy-engine/src/polisyos/runtime/quality/public_export.py`. | **Agrees: 2,103 source lines.** |
-| `projection_semantics.py` is 3,763 lines | An exact endpoint read returned lines 3761-3763 and no line 3764 from `policy-engine/src/polisyos/runtime/quality/projection_semantics.py`. | **Agrees: 3,763 source lines.** |
-| `projection_semantics.py` owns four audiences | The enum declares PUBLIC, REVIEWER, EXPERT, and MACHINE at `projection_semantics.py:648-655`. | **Agrees.** No fifth correction audience is proposed. |
-| `public_export.py` has a producer but no production HTTP caller | The prior complete invocation census found the definition, two tools, and two tests, with no HTTP caller at `policy-engine/docs/research/policy-operations/int-r8/orientation-ledger.md:145-166`. | **Agrees.** The existing relation is `bridge_missing`, not `producer_missing`. |
-| `public_export.py` is signed | Exact in-file searches found no `signature` or `signing` token and no production signing bridge was established. | **Not established.** It must not be represented as a signed public correction capability. |
-| `projection_semantics.py` owns omission, gap, contest, recourse, redaction, and audit-reference behavior | INT-R8 re-derived the helpers and audience contract at `int-r8/orientation-ledger.md:180-198`; the source owner contains the corresponding projection machinery. | **Agrees.** A notice must reuse it. |
-| GY-N12 owns epoch/currentness/reissue chronology | GY-N12 declares append-only model-revision epochs, current heads, stale/revalidation behavior, and forbids a parallel correction chronology at `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2052-2138`. | **Agrees, contract-only/undelivered.** Consume by name. |
-| Atlas D4 fixes language posture | D4 states `uk` primary, `en` baseline/fallback, and `ru` UI `legacy_continuity_frozen` - not used and not deleted - at `policy-engine/docs/brand/ATLAS_SOURCE_OF_TRUTH.md:262-275`. | **Agrees.** Equivalence mechanics remain INT-R6. |
-| INT-R7 supplies key-lifecycle semantics | INT-R7 separates historical signature authenticity from current authorization, preserves predecessor proofs across rotation, and treats uncertain compromise overlap as indeterminate at `policy-engine/docs/research/policy-operations/int-r7/public-verification-profile.md:250-405`. | **Agrees, delivered profile.** Consume; do not redesign. |
+| INT-R7/R8 ratification record has 439 source lines | Exact read at docs pin returned lines 435-439 and no line 440. | **Agrees: 439.** Ratified findings are cited by ID, not surrounding prose. |
+| `rule_evolution.py` has 839 source lines and 30 top-level declarations | Exact endpoint read at `109ba3f4` returned lines 836-839 and no line 840. Original complete declaration read found 28 column-zero functions plus 2 column-zero classes. Source SHA remains `e93ecbb...`. | **Agrees: 839; 28 + 2 = 30.** Nested protocol methods remain excluded. |
+| `public_export.py` has 2,103 source lines | Exact read returned lines 2101-2103 and no later content; source SHA remains `12f9bb...`. | **Agrees: 2,103.** |
+| `projection_semantics.py` has 3,763 source lines | Exact read returned lines 3761-3763 and no later content; source SHA remains `6874a2...`. | **Agrees: 3,763.** |
+| Four projection audiences remain canonical | PUBLIC, REVIEWER, EXPERT, and MACHINE are owned by `projection_semantics.py`. | **Agrees.** No fifth correction audience is introduced. |
+| `rule_evolution.py` is the owner to extend | Registry/replay/persistence/public annotation, producer/reader ownership, semantic-change blocking, and silent-upgrade prohibition remain co-located. | **Agrees.** Public-correction specialization remains absent. |
+| Public export producer-to-HTTP relation is `bridge_missing` | Producer `build_public_export_bundle` exists. HTTP control-response shaping consumes `public_export`/`public_export_ref`, and the control-plane store invokes the shaper. Complete invocation census has no production builder call. | **Agrees.** Both endpoints exist; orchestration does not connect them. No signing path is established. |
+| GY-N12 is the currentness owner | The plan at docs pin names append-only epoch/current-head/`as_of`/reissue chronology and forbids a parallel owner. | **Agrees; `contract_only`/undelivered.** |
+| Atlas D4 fixes project language posture | D4 remains the project posture. | **Agrees.** Council Regulation No 1 is now cited only for governed institutional language enumeration; parity remains INT-R6. |
+| INT-R7 controls key/proof semantics | Final decomposition, snapshot selection, obtainability, succession, and pre-issuance gate are in terminal Section 18 at `int-r7/public-verification-profile.md:620-760`. | **Agrees.** Earlier rows are historical detail read through §18. |
+| P37 controls gate-predicate provenance | `policy-design-case-failure-patterns.md` at docs pin classifies load-bearing predicates and requires the falsify-the-declaration probe. | **Consumed.** The detailed PAO contract contains the complete table and admission freeze. |
 
-## 4. Fixed findings, cited by ID
+## 5. Capability reality conclusion
 
-P36 forbids authority by adjacency. The controlling findings are cited by their IDs:
+The source asymmetry is settled:
 
-- `PV-K01`: current authority is separately reportable and cutoff-bounded;
-- `PV-K02`: historical authenticity and current authority are distinct and non-erasing;
-- `PV-K04`: a projection may reduce detail but may not amplify truth, certainty, authority,
-  currency, or permission;
-- `S0-K08`: correction appends; history is not rewritten;
-- `P27` and `P28`: extend the canonical owner and do not leave a parallel default path;
-- `P35`: every complete-set claim needs a complete enumerated denominator; and
-- `P36`: cite the actual finding and reproduce its arithmetic.
-
-Pinned anchors are
-`policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md:92-151`,
-`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:101`, and
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:71-80`.
-
-## 5. Capability-state vocabulary audit
-
-The repository defines a capability as a typed contract/artifact plus producer, persisted artifact or
-event, orchestration bridge, consumer, verification, visible surface or explicit out-of-scope
-statement, and a negative/end-to-end semantic test at
-`policy-engine/docs/reference/policy-design-case-failure-patterns.md:16-35`.
-
-The prerequisite-sensitive rules are:
-
-- `producer_missing` requires a named consumer that expects an artifact/event but no deployed
-  producer;
-- `bridge_missing` requires both producer and consumer with no orchestration connection; and
-- `verification_missing` requires an already wired chain that lacks end-to-end automated proof.
+- internal supersession/evolution is broad and has a canonical owner;
+- a general public-export producer and HTTP consumer boundary exist but remain `bridge_missing`;
+- no correction-specific notice, notification operation, or correction feed exists in source;
+- no frozen correction surface/cache/subscriber/archive/language registry exists;
+- GY-N12 is undelivered; and
+- INT-R6 parity is unresearched.
 
 Therefore:
 
-- the existing public-export producer with no HTTP production caller is `bridge_missing`;
-- correction notice/feed/subscriber capabilities are **absent/unallocated**, not
-  `producer_missing`, because no admitted correction consumer contract was found;
-- correction-scoped cache and archive fan-out are **absent/unallocated** until their controlled set
-  and consumer obligations are admitted; and
-- the full correction chain is not `verification_missing` because there is no wired chain to verify.
+- correction notice/feed/notification/cache/archive/parity/end-to-end chains are
+  `absent/unallocated`;
+- they are not `producer_missing`, because a correction consumer chain is not yet established;
+- they are not `verification_missing`, because the end-to-end chain is not wired; and
+- the amended research remains `accepted_narrow_scope`, `pending_independent_conformance`, and
+  non-capability-bearing.
 
-## 6. Orientation conclusion
+## 6. Amendment-specific orientation conclusion
 
-The qualitative asymmetry survives, but not every inherited number does. Internal supersession is
-extensively represented while named outward-correction tokens have zero indexed connector results.
-The 48/34 supersession file counts remain unverified and disagree with connector candidate sets. The
-all-file `retraction` denominator is seven rather than six. The 439-line ratification record, the
-30 top-level declarations in `rule_evolution.py`, the 2,103-line public export, and the 3,763-line
-projection owner reproduce exactly.
-
-The correct posture is to bind every set claim to its denominator, mark unavailable literal counts as
-not established, and make no capability claim from token presence or absence alone.
-
-## 7. `may_not_use_for`
-
-This ledger may not be used for production implementation authorization; a final wire, schema,
-package, database, serialization, media-type, or API contract; canonical owner, vendor, or service
-appointment; an authority grant; a capability claim; legal sufficiency or a jurisdictional
-conclusion; permission to publish or open a gate; or automatic amendment of any plan, backlog, or
-system-design decision.
+R10 is closed in the research text by recording the architect-supplied complete census with both
+path and file-type denominators. The amendment does not claim to have independently re-run that
+census in this environment. Its evidence is the supplied complete-walk result, adjudicated against
+the known connector omission mechanism and recorded without averaging.

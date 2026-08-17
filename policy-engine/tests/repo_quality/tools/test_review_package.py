@@ -221,7 +221,7 @@ def test_full_package_is_deterministic_and_contains_every_changed_path(tmp_path:
     assert second_run.returncode == 0, second_run.stderr
     first_bytes = first.read_bytes()
     assert second.read_bytes() == first_bytes
-    assert b"schema_version=1\n" in first_bytes
+    assert b"schema_version=2\n" in first_bytes
     assert b"package_kind=full\n" in first_bytes
     assert f"base_commit={base}\n".encode() in first_bytes
     assert f"head_commit={head}\n".encode() in first_bytes
@@ -1129,7 +1129,7 @@ def test_committed_ratio_fixture_receipt_is_replayable(tmp_path: Path) -> None:
     """Catch a size-ratio receipt that cannot be regenerated from committed inputs."""
 
     receipt = json.loads(RATIO_FIXTURE_RECEIPT.read_text(encoding="utf-8"))
-    assert receipt["schema_version"] == 1
+    assert receipt["schema_version"] == 2
 
     repo = (tmp_path / "receipt-fixture").resolve()
     repo.mkdir()
@@ -1218,3 +1218,87 @@ def test_committed_ratio_fixture_receipt_is_replayable(tmp_path: Path) -> None:
     assert len(delta_bytes) / len(full_bytes) == receipt["delta_to_full_ratio"]
     assert receipt["requirement_delta_at_most_full_tenth"] is True
     assert len(delta_bytes) <= len(full_bytes) / 10
+
+
+def test_delta_package_states_what_it_excludes_inside_the_package(tmp_path: Path) -> None:
+    """A delta that silently omits the context its findings refer to is worse than a large one."""
+
+    repo, _base = _init_repo(tmp_path)
+    (repo / "policy.py").write_text("REVIEWED = True\n", encoding="utf-8")
+    prior_review_point = _commit(repo, "first reviewed change")
+    (repo / "policy.py").write_text("REVIEWED = True\nFIXED = True\n", encoding="utf-8")
+    head = _commit(repo, "apply the review fix")
+    findings = repo / "prior-findings.md"
+    findings.write_text("1. Confirm the fix closes the finding.\n", encoding="utf-8")
+    output = repo / "delta.review"
+
+    result = _run_builder(
+        repo,
+        base=prior_review_point,
+        head=head,
+        output=output,
+        prior_findings=findings,
+    )
+    assert result.returncode == 0, result.stderr
+
+    package = output.read_bytes()
+    scope = _section_payload(package, "delta_scope")
+
+    # The rule must be legible in the package, not inferred from the commit range.
+    assert b"INCLUDES:" in scope
+    assert b"EXCLUDES:" in scope
+    assert b"DELTA review package" in scope
+    # It must say plainly that absence is not evidence of correctness.
+    assert b"NOT evidence" in scope
+    # And it must carry the escape hatch: how to get the full package instead.
+    assert b"build_review_package.py" in scope
+    assert b"--base <original-review-base>" in scope
+    # The notice is deterministic: no timestamps, no absolute paths, no environment.
+    assert str(repo).encode("utf-8") not in scope
+
+
+def test_full_package_carries_no_delta_scope_section(tmp_path: Path) -> None:
+    """The exclusion notice belongs only where something was actually excluded."""
+
+    repo, base = _init_repo(tmp_path)
+    (repo / "policy.py").write_text("REVIEWED = True\n", encoding="utf-8")
+    head = _commit(repo, "first reviewed change")
+    output = repo / "full.review"
+
+    assert _run_builder(repo, base=base, head=head, output=output).returncode == 0
+
+    package = output.read_bytes()
+    assert b"section=delta_scope" not in package
+    assert b"package_kind=full" in package
+
+
+def test_delta_scope_notice_does_not_break_the_one_tenth_ratio(tmp_path: Path) -> None:
+    """The notice costs bytes; confirm it stays negligible against a realistic full package."""
+
+    repo, base = _init_repo(tmp_path)
+    bulk = repo / "policy" / "rules.py"
+    bulk.parent.mkdir()
+    bulk.write_text(
+        "\n".join(f"RULE_{index:04d} = 'authority-{index:04d}'" for index in range(2000)),
+        encoding="utf-8",
+    )
+    prior_review_point = _commit(repo, "first reviewed change")
+    full_output = repo / "full.review"
+    assert _run_builder(
+        repo, base=base, head=prior_review_point, output=full_output
+    ).returncode == 0
+
+    (repo / "policy" / "fix.py").write_text("FAIL_CLOSED = True\n", encoding="utf-8")
+    head = _commit(repo, "apply the review fix")
+    findings = repo / "prior-findings.md"
+    findings.write_text("1. Confirm the fix closes the finding.\n", encoding="utf-8")
+    delta_output = repo / "delta.review"
+    assert _run_builder(
+        repo,
+        base=prior_review_point,
+        head=head,
+        output=delta_output,
+        prior_findings=findings,
+    ).returncode == 0
+
+    assert delta_output.stat().st_size * 10 <= full_output.stat().st_size

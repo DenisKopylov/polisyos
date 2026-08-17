@@ -18,7 +18,31 @@ from pathlib import Path
 from typing import Final
 
 PACKAGE_MAGIC: Final = b"POLISYOS_REVIEW_PACKAGE\n"
-SCHEMA_VERSION: Final = 1
+# 2: delta packages carry an explicit ``delta_scope`` section. A delta that silently omits the
+# context its findings refer to is worse than an oversized package, so the omission is declared
+# inside the package rather than left for the reader to infer from the commit range.
+SCHEMA_VERSION: Final = 2
+
+#: Rendered verbatim into every delta package. Deterministic by construction -- no timestamps, no
+#: paths, no environment -- so it cannot perturb the byte-identical rebuild guarantee.
+DELTA_SCOPE_NOTICE: Final = (
+    b"This is a DELTA review package. It is not a substitute for the full package.\n"
+    b"\n"
+    b"INCLUDES: every commit, name-status entry and patch hunk in base_commit..head_commit\n"
+    b"(the fix range named in the metadata above), plus the prior_findings checklist this\n"
+    b"delta must be adjudicated against.\n"
+    b"\n"
+    b"EXCLUDES: everything at or before base_commit. That means the originally reviewed diff,\n"
+    b"files changed earlier in the review but untouched by this fix, and all unchanged\n"
+    b"repository context. Their absence here is NOT evidence that they are unchanged or\n"
+    b"correct -- they were simply not re-sent.\n"
+    b"\n"
+    b"IF A FINDING CANNOT BE ADJUDICATED FROM THIS DELTA, DO NOT GUESS. Rebuild the full\n"
+    b"package over the original review range and review that instead:\n"
+    b"\n"
+    b"  python tools/quality/testing/build_review_package.py \\\n"
+    b"    --base <original-review-base> --head <head_commit> --output <path>\n"
+)
 _GIT_CONTEXT_ENVIRONMENT_KEYS: Final = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_ATTR_SOURCE",
@@ -891,13 +915,19 @@ def _render_package(
         + f"base_commit={base_commit}\n".encode("ascii")
         + f"head_commit={head_commit}\n\n".encode("ascii")
     )
-    sections = [
-        metadata,
-        _render_section("commit_list", commit_list),
-        _render_section("diff_stat", diff_stat),
-        _render_section("name_status", name_status),
-        _render_section("patch", patch),
-    ]
+    sections = [metadata]
+    if prior_findings is not None:
+        # First section after the metadata, so a reviewer reads what the package leaves out
+        # before reading anything it contains.
+        sections.append(_render_section("delta_scope", DELTA_SCOPE_NOTICE))
+    sections.extend(
+        (
+            _render_section("commit_list", commit_list),
+            _render_section("diff_stat", diff_stat),
+            _render_section("name_status", name_status),
+            _render_section("patch", patch),
+        )
+    )
     if prior_findings is not None:
         sections.append(
             _render_section(

@@ -2,8 +2,12 @@
 id: OPS-R14-WATCHED-DEPENDENCY-HOLD
 artifact_kind: research_semantic_contract
 status: research_only
-standing: NO_GO
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+research_standing: accepted_narrow_scope
+capability_standing: NO_GO
+gate_standing: NO_GO
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+audited_head: 3a694212aa47c4c2d8a631f8edc4ba8f7e15dce7
+audit_head: 34c65a04ef178b9a59f70b9fb2012edee17a67cd
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, or API contract
@@ -36,8 +40,10 @@ Represent legal hold as an orthogonal override over disposal operations, not as 
 underlying retention class. A hold suspends destructive disposition. It does not make an expired,
 revoked, superseded, restricted, or historically inauthentic record valid or current.
 
-This artifact is intentionally prose-only. It defines no wire format, schema, enum, database table,
-package, serialization, or API.
+The semantic contract is an accepted bounded research result. The pinned repository does not
+implement or operate it, and the first-public-signature gate remains closed. This artifact is
+intentionally prose-only and defines no wire format, schema, enum, database table, package,
+serialization, or API.
 
 ## 2. `WatchedDependencyRecord` semantic contract
 
@@ -76,7 +82,8 @@ time at which authority is being evaluated.
 
 **Checkability:** the verifier applies the Custody Time Model and GY-N12 currentness interface. A late
 scheduler event cannot move the expiry time. Processing time cannot become legal-effective time.
-GY-N12 remains the sole currentness owner
+GY-N12 remains the sole currentness owner at the project semantic/plan contract layer; its runtime
+capability is absent/undelivered
 (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:2053-2120`).
 
 ### WD-04 - renewal owner role and succession path
@@ -88,7 +95,9 @@ holder and this research does not appoint one.
 
 **Checkability:** before the lead-time threshold, the verifier checks that an active role binding and
 escalation route are evidenced. A person leaving office must not orphan the watch. A successor is not
-accepted solely because it controls the same account or storage system.
+accepted solely because it controls the same account or storage system. Role competence is
+institutionally supplied; until independently admitted for the specific scope, it cannot support a
+positive renewal finding.
 
 ### WD-05 - lead time and review cadence
 
@@ -100,6 +109,35 @@ source review, or public-law process. It is not a fixed platform-wide constant.
 **Checkability:** a watcher consumes the expiry time, declared lead policy, current time, and last
 completed renewal step. It emits due and overdue evidence events. The watcher can prove that a notice
 was emitted; it cannot prove that authority was renewed.
+
+### WD-05A - prospective delivery and independent reconciliation
+
+Authority safety at use time and prospective event delivery are separate predicates. For every
+watched right `r`, define the named due window
+`W(r) = [lead_start(r), expiry_or_review_boundary(r)]` from the admitted lead policy and authority
+time. The durable event history must contain:
+
+1. a due event no later than `lead_start(r)`; and
+2. either admitted renewal evidence, an overdue event, or a missed-delivery incident no later than the
+   end of `W(r)`.
+
+A reconciliation run over an explicit interval `[t0,t1]` enumerates every watched right whose due
+window intersects that interval and compares the expected event obligations with the independently
+retained event history and high-water mark. Its exact outcomes are:
+
+- `delivery_reconciled`: every expected event obligation is present, content-bound to the right and
+  observed in the independent history; or
+- `delivery_gap`: one or more expected obligations are missing, late, conflicting, or not independently
+  observable.
+
+`delivery_gap` is a non-positive result for the prospective scheduling claim. It appends an incident,
+identifies every affected right and window, and cannot be converted to green by an intact declaration,
+calendar entry, queue acknowledgement, or later protected-use refusal. The protected-use gate still
+performs WD-12 separately and fails closed when authority is non-positive.
+
+**Predicate provenance:** the expected due set is `recomputed` from admitted rights and lead rules;
+the observed-event set is `independently_reconciled` against a non-producing history. A consumer-
+asserted or institutionally supplied statement that an alert was sent cannot satisfy this clause.
 
 ### WD-06 - renewal evidence
 
@@ -113,7 +151,8 @@ linked to the prior interval and independently evaluated.
 **Checkability:** the renewal verifier consumes the evidence, admitted authority source, scope,
 effective time, signatures/approvals where applicable, and prior interval. It reports whether the new
 interval is established, narrower, conflicting, future-only, or not established. These findings feed
-the existing status machinery; they do not create a second status lattice.
+the existing status machinery; they do not create a second status lattice. Where sufficiency or
+competence is institutionally supplied and not independently admitted, renewal remains non-positive.
 
 ### WD-07 - grace policy
 
@@ -124,7 +163,8 @@ or institutional grace period.
 
 **Checkability:** the verifier rejects any use during a claimed grace interval unless the retained
 source supports that exact scope. It distinguishes a credential-overlap mechanism from continued
-substantive authority.
+substantive authority. A declaration that grace exists is institutionally supplied and cannot return
+a positive unless the retained instrument independently supports it.
 
 ### WD-08 - failure consequence
 
@@ -146,9 +186,9 @@ dependency-graph version, rule/reducer version, and scope. It must return identi
 edge by which each item was affected.
 
 **Checkability:** the affected-set verifier runs the stored query against the recovered dependency
-history, compares it with registered authority edges and an independently generated fixture oracle,
-and reports omissions, extras, and non-reproducible results. A list hand-maintained in an alert is not
-an affected-case query.
+history, compares the result with registered authority edges and an independently generated fixture
+oracle, and reports omissions, extras, and non-reproducible results. A list hand-maintained in an
+alert is not an affected-case query. A consumer-asserted denominator cannot support completeness.
 
 ### WD-10 - public effect
 
@@ -160,7 +200,9 @@ fan-out, machine-readable correction feeds, and translation parity
 (`policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:512-532`).
 
 **Checkability:** OPS-R14 verifies that PAO-R36's declared completion evidence is durably retained and
-reconciles after recovery. It does not define that evidence's wire shape or the correction protocol.
+reconciles it against the frozen owned-surface/recipient denominator after recovery. OPS-R14 does not
+define that evidence's wire shape or correction protocol. A consumer assertion of completion without
+independent member reconciliation cannot make the public-history predicate positive.
 
 ### WD-11 - append-only event history
 
@@ -182,8 +224,9 @@ its evidenced time. The next protected use performs an authority-time check and 
 missing alert as continued authority.
 
 **Checkability:** a fixture disables the scheduler across expiry and then requests the protected use.
-Expected result: the use is non-positive, the late expiry event is admitted with its original
-effective time, and historical authenticity is unchanged.
+The use is non-positive, the late expiry event is admitted with its original effective time, and
+historical authenticity is unchanged. The same execution must separately return
+`delivery_gap` under WD-05A; safe refusal is not evidence that prospective delivery succeeded.
 
 ## 3. Structural families of expiring rights
 
@@ -194,8 +237,10 @@ different families, each with a different renewal proposition.
 
 A data-sharing agreement, model licence, audit right, and contract depend on an external or bilateral
 instrument. Renewal may require another party's signature, an option exercise, consideration,
-procurement action, or evidence that a survival clause continues after service termination. Local
-intent cannot complete the renewal.
+procurement action, or evidence that a survival clause continues after service termination. **Local
+intent alone cannot establish renewal.** A locally performed unilateral option exercise can establish
+a next interval only where the admitted existing instrument authorizes the competent role and every
+scope, notice, timing, and condition precedent is proved.
 
 Escrow or dual custody can preserve the instrument, evidence, source code, model materials, or exit
 package where the instrument permits it. Escrow cannot extend the right, exercise a government power,
@@ -329,12 +374,13 @@ historical spending evidence.
 ### 4.10 Contract
 
 The watched proposition covers term, options, notice periods, termination, service continuity,
-records custody, audit, security, exit, and survival clauses. Renewal evidence must show a valid
-option exercise, extension, or replacement and its effective time. A supplier's continued service
-cannot silently renew government authority. The affected query identifies cases, stored evidence,
-keys, interfaces, audit rights, and public records dependent on the contract. Exit and escrow
-materials can preserve continuity where the contract authorizes them; they cannot preserve powers
-that terminate with the contract.
+records custody, audit, security, exit, and survival clauses. Renewal evidence must show an executed
+extension or replacement, or a competent unilateral option exercise that the admitted instrument
+expressly authorizes and whose timing, notice, scope, and conditions are proved. Local intent,
+continued supplier service, payment, or expectation cannot establish renewal. The affected query
+identifies cases, stored evidence, keys, interfaces, audit rights, and public records dependent on the
+contract. Exit and escrow materials can preserve continuity where the contract authorizes them; they
+cannot preserve powers that terminate with the contract.
 
 ### 4.11 Jurisdiction-pack review
 
@@ -353,12 +399,14 @@ The selected model is a governed record plus delivery mechanisms:
 - a queue delivers due events;
 - alerts help accountable roles act;
 - every protected use independently rechecks the authority proposition;
-- a census reconciles due records against delivered wakes;
+- WD-05A recomputes the due set and independently reconciles it with observed events over a named
+  window;
 - duplicate wakes are safe because wake is only a candidate;
-- a delayed or missing wake never extends authority.
+- a delayed or missing wake never extends authority; and
+- a safe runtime refusal does not conceal a prospective delivery failure.
 
-A scheduled job alone is rejected because it does not preserve the source, owner role, renewal
-proof, failure consequence, affected set, or public effect. Alerting alone is rejected because an
+A scheduled job alone is rejected because it does not preserve the source, owner role, renewal proof,
+failure consequence, affected set, or public effect. Alerting alone is rejected because an
 acknowledged notification is not renewal evidence and an unacknowledged notification cannot define
 whether authority exists.
 
@@ -418,9 +466,9 @@ blocked. The original retention schedule and the fact that its deadline passed r
 the last hold is validly released, the system performs a new, separately authorized disposal
 evaluation. It does not backdate deletion and does not treat release as an immediate delete command.
 
-**Checkability:** a race fixture releases the last hold while a deletion worker is running. Expected
-result: the worker cannot delete until it observes the release event and a later disposal decision
-whose scope and preconditions are re-evaluated.
+**Checkability:** a race fixture releases the last hold while a deletion worker is running. The worker
+cannot delete until it observes the release event and a later disposal decision whose scope and
+preconditions are re-evaluated.
 
 ### LH-05 - correction and supersession
 
@@ -436,10 +484,10 @@ held superseded version is retained but not rendered as current.
 
 ### LH-06 - public effect
 
-A hold's existence is not automatically public and does not alter a signature's historical
-validity. If a lawful restriction, release, correction, or availability change requires public
-notice, PAO-R36 supplies the semantics. OPS-R14 preserves the evidence and verifies recovery of the
-result. This research makes no disclosure or privilege determination.
+A hold's existence is not automatically public and does not alter a signature's historical validity.
+If a lawful restriction, release, correction, or availability change requires public notice,
+PAO-R36 supplies the semantics. OPS-R14 preserves the evidence and verifies recovery of the result.
+This research makes no disclosure or privilege determination.
 
 ### LH-07 - release authority and evidence
 
@@ -451,14 +499,18 @@ changing a tag is not sufficient release evidence.
 whether the preservation barrier remains. Any ambiguity keeps destructive disposal blocked while
 leaving correction, quarantine, and access restrictions operational.
 
-## 8. Current repository baseline
+## 8. Current repository baseline and standing
 
 The repository implements one narrow fragment: snapshot retention classification and GC protection
 for legal-hold tags (`policy-engine/src/polisyos/fabric/security/retention.py:32-38,100-112`;
 `policy-engine/src/polisyos/fabric/world/store/snapshots.py:661-689`). That fragment is `implemented`
-within its scope.
+within its exact scope.
 
-No inspected source establishes the full watched-dependency contract or the general hold lifecycle.
-The Python `renewal` occurrence is worker-lease renewal
+No inspected source establishes the full watched-dependency contract, WD-05A delivery reconciliation,
+or the general hold lifecycle. The Python `renewal` occurrence is worker-lease renewal
 (`policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-85,128-174`). The broader
-watched-dependency and hold semantics are `absent/unallocated`, not a claimed live capability.
+watched-dependency and hold capabilities are `absent/unallocated`.
+
+**Research standing:** `accepted_narrow_scope`.  
+**Capability standing:** `NO_GO`.  
+**First-public-signature gate standing:** `NO_GO`.

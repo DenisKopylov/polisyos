@@ -2,8 +2,12 @@
 id: OPS-R14-DISASTER-DRILLS
 artifact_kind: research_fixture_protocol
 status: research_only
-standing: NO_GO
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+research_standing: accepted_narrow_scope
+capability_standing: NO_GO
+gate_standing: NO_GO
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+audited_head: 3a694212aa47c4c2d8a631f8edc4ba8f7e15dce7
+audit_head: 34c65a04ef178b9a59f70b9fb2012edee17a67cd
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization, or API contract
@@ -26,10 +30,10 @@ may_not_use_for:
 
 ## 1. Fixture execution contract
 
-Each fixture is an executable specification even though this research supplies no test code. A later
-semantic test must instantiate the stated corpus and failure injection, run the real intended paths,
-and compare every expected predicate. A test that only searches for marker strings does not pass,
-applying the repository's behavioral-gate rule at `AGENTS.md:28`.
+Each fixture is an executable semantic specification even though this research supplies no test code.
+A later test must instantiate the stated corpus and failure injection, run the real intended paths,
+and compare every expected predicate. Marker strings, declarations, field presence, or a hand-authored
+green receipt do not pass.
 
 Every execution freezes:
 
@@ -41,9 +45,12 @@ Every execution freezes:
 - failure injection and exact start/end clocks;
 - network policy and custody-domain availability;
 - expected predicates and permitted losses;
+- predicate-provenance labels frozen at admission under P37;
 - actual outputs, measurements, missing evidence, and unexpected side effects.
 
-The predicates below are test assertions, not a new project status lattice.
+The predicates below are test assertions, not a new project status lattice. A decisive predicate
+classified `consumer_asserted`, `institutionally_supplied`, or `not_established` cannot return a
+positive gate result.
 
 ## 2. Required commission fixtures
 
@@ -52,508 +59,399 @@ The predicates below are test assertions, not a new project status lattice.
 **Purpose:** prove that immutable bytes do not confer control authority and that the control plane can
 be reconstructed only from admitted history.
 
-**Given**
+**Given** one governed record and one published record whose control events reference known CAS
+digests; one extra valid CAS object never admitted by a control event; an independently retained
+immutable control-event journal and high-water mark; and no usable control database snapshot.
 
-- one governed record and one published record whose control events reference known CAS digests;
-- one extra valid CAS object that was never admitted by a control event;
-- an independently retained immutable control-event journal and high-water mark;
-- no usable control database snapshot.
+**When** CAS is restored, the control database is empty, and recovery first attempts a read and then
+replays the journal into a clean database.
 
-**When**
+**Then** before replay `Restored(governed)` and `Restored(published)` are false; the orphan authorizes
+nothing; every absent digest fails closure; replay creates the frozen deterministic head; no post-
+cutoff object is admitted; and RPO/RTO ends only after all class predicates pass.
 
-- the CAS is restored;
-- the control database is empty;
-- recovery first attempts a read, then replays the event journal into a clean database.
+**Violated invariant:** `ControlRef(event,digest)` resolves to matching bytes, and CAS possession alone
+never creates `ControlRef`.
 
-**Then**
-
-1. before replay, `Restored(governed)` and `Restored(published)` are false;
-2. the orphan object is retained for investigation but authorizes no record, publication, or head;
-3. every control reference whose digest is absent fails control-to-content closure;
-4. replay creates the same deterministic control head as the frozen oracle;
-5. no post-cutoff object is silently admitted;
-6. RPO/RTO measurement starts at declared recovery start and ends only after all class predicates
-   pass.
-
-**Violated invariant:** `ControlRef(event,digest)` must resolve to matching bytes, and CAS possession
-alone must not create `ControlRef`.
-
-**Detection:** compare replayed event prefix, control head, CAS census, and oracle. Verdict identifies
-missing refs, orphans, replay divergence, and elapsed time.
-
-**Current-state comparator:** `replay-or-restore.md` and retained-artifact recovery contain useful
-replay and digest procedures, but no inspected evidence proves a clean cross-store restore with an
-independent high-water mark and orphan-authority negative assertion
-(`policy-engine/docs/runbooks/replay-or-restore.md:1-128`;
-`policy-engine/docs/runbooks/retained-artifact-recovery.md:1-180`). A runbook-only closeout fails this fixture.
+**Detection:** compare the replayed prefix, independent high-water mark, control head, CAS census, and
+oracle. Missing refs, orphans, divergence, and elapsed time are explicit.
 
 ### F-02 - duplicate control event
 
-**Purpose:** prove idempotent admission without suppressing a conflicting event that reuses an
-identity.
+**Given** event `E`; byte-identical retry `E'` with the same identity and payload; conflicting `E''`
+with the same identity but a different payload or predecessor; and an irreversible-effect counter.
 
-**Given**
+**When** `E`, `E'`, and `E''` arrive in order with a restart between deliveries.
 
-- one event `E` that creates a governed control effect;
-- byte-identical retry `E'` with the same event identity and payload;
-- conflicting `E''` with the same event identity but a different payload or predecessor;
-- an irreversible downstream action counter.
+**Then** `E` creates one effect; `E'` creates none and records a duplicate receipt; `E''` is retained as
+a conflict and cannot be collapsed into the retry; replay yields one admitted `E`; and the irreversible
+counter is one.
 
-**When**
-
-- `E`, `E'`, and `E''` are delivered in that order, including a restart between deliveries.
-
-**Then**
-
-1. `E` creates exactly one logical effect;
-2. `E'` creates zero additional logical or irreversible effects and records a duplicate receipt;
-3. `E''` is not collapsed into the retry; it is quarantined or otherwise made non-positive as a
-   conflict;
-4. replay before and after restart yields one admitted `E` and the retained conflict evidence;
-5. the downstream irreversible action count is one.
-
-**Violated invariant:** one event identity cannot denote two payloads, and a retry cannot multiply a
+**Violated invariant:** one event identity cannot denote two payloads, and retries cannot multiply a
 logical effect.
 
-**Detection:** identity/payload digest comparison, predecessor check, effect-count oracle, and replay
-comparison.
-
-**Current-state comparator:** the fabric recovery runbook discusses deduplication and replay, but the
-inspected acceptance evidence does not execute this authority-semantic conflict fixture
-(`policy-engine/docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md:1-178`).
+**Detection:** identity/payload digest, predecessor relation, effect count, and replay equality.
 
 ### F-03 - duplicate wake
 
-**Purpose:** prove S0-K10: wake is a candidate, never authority to resume.
+**Given** a durably suspended case, duplicate wakes, a later wake after restart, a dependency that
+remains non-positive, and an irreversible action that would occur on resume.
 
-**Given**
+**When** every wake is delivered and reevaluation runs.
 
-- a case durably suspended for an expired dependency;
-- two byte-identical wake deliveries and one later wake after a worker restart;
-- the dependency remains non-positive;
-- an irreversible action that would occur if the case resumed.
+**Then** suspension history remains; wakes schedule reevaluation only; the dependency failure remains;
+no resume occurs; the irreversible count is zero; and duplicate receipts do not create duplicate
+heads.
 
-**When**
+**Violated invariant:** S0-K10 makes wake a candidate, never authority to resume
+(`stage0-custody-kernel-ratification.md:102-110`).
 
-- all wakes are delivered and the case is reevaluated each time.
-
-**Then**
-
-1. the suspension history remains present;
-2. each wake may schedule reevaluation, but none directly changes authority or case state;
-3. reevaluation returns the existing dependency failure;
-4. the case does not resume and the irreversible action count remains zero;
-5. duplicate wake receipts are retained without creating duplicate current heads.
-
-**Violated invariant:** S0-K10 requires durable suspension and treats wake as only a candidate
-(`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:102-110`).
-
-**Detection:** replay the case history and compare state transitions, dependency evidence, and side
-effects.
-
-**Current-state comparator:** `ControlWorker` emits/handles wake and lease activity, but its lease
-renewal is not an authority dependency and the inspected path does not establish a case-level
-S0-K10 semantic test (`policy-engine/src/polisyos/runtime/http/services/control_worker.py:84-174`).
+**Detection:** replay state transitions, dependency evidence, and side effects.
 
 ### F-04 - world head advanced but fan-out incomplete
 
-**Purpose:** preserve one public history while respecting the PAO-R36 seam.
+**Given** public head `H1`; admitted successor `H2`; one controlled surface on `H2`, one still on `H1`,
+and one missing completion receipt; with both signed versions and log evidence retained.
 
-**Given**
+**When** recovery or reconciliation runs.
 
-- a published record with public head `H1`;
-- an admitted change produces `H2` and advances the governed world head;
-- one owned public surface has `H2`, another still exposes `H1`, and one subscriber completion receipt
-  is missing;
-- both signed versions and their public-log evidence remain present.
+**Then** both versions remain historically verifiable; completion is non-positive; `Restored(published)`
+is false; no endpoint may select whichever head answered first; and OPS-R14 records divergence without
+inventing PAO-R36 notice or correction semantics.
 
-**When**
+**Violated invariant:** canonical public head and completion evidence reconcile over the frozen owned-
+surface denominator.
 
-- recovery or reconciliation runs after the partial fan-out.
-
-**Then**
-
-1. both historical versions remain byte- and signature-verifiable;
-2. no surface is allowed to claim fan-out complete;
-3. `Restored(published)` remains false until PAO-R36's completion interface reconciles the surfaces;
-4. current public posture for the affected set is non-positive or explicitly degraded rather than
-   silently selecting whichever endpoint answered first;
-5. OPS-R14 records the divergence, affected set, and completion evidence; it does not invent a notice
-   or correction protocol.
-
-**Violated invariant:** the canonical public head and completion evidence must reconcile across owned
-surfaces.
-
-**Detection:** compare head identities and PAO-R36-provided completion receipts against the frozen
-surface census.
-
-**Current-state comparator:** no inspected OPS-R14 primitive supplies fan-out-completion evidence;
-PAO-R36 is parallel and owns the missing semantics. Treating a valid signature on `H2` as complete
-publication would cross the seam and fail.
+**Detection:** compare head identities and PAO-R36 completion receipts against that denominator.
 
 ### F-05 - signing-key compromise
 
-**Purpose:** separate historical authenticity, compromise interval, current authority, and future
-signing.
+**Given** records before, within, and after a bounded compromise interval; mixed-quality signing-time
+status and trusted time; independent log checkpoints; an old private key in backup; and a separately
+authorized replacement key.
 
-**Given**
-
-- signed records immediately before, within, and after a bounded compromise interval;
-- signing-time status and trusted-time evidence of varying quality;
-- independently retained public-log checkpoints;
-- a backup containing the old private key;
-- a separately authorized replacement key.
-
-**When**
-
-- compromise is declared, the primary signer is isolated, and records are replayed from independent
+**When** compromise is declared, the signer is isolated, and records are replayed from independent
 custody.
 
-**Then**
+**Then** the old key produces zero new signatures; proven pre-compromise records may retain historical
+authenticity; unresolved-interval records are non-positive for the affected dimension; revocation
+rewrites nothing; replacement evidence appends without backdating; and log rollback is independently
+checked.
 
-1. zero new signatures are produced by the compromised or restored old key;
-2. records proven before the compromise interval can retain historical issuer authenticity;
-3. records in an unresolved interval are non-positive for the affected verification dimension;
-4. a present revocation does not delete or rewrite original records;
-5. replacement-key evidence appends and never backdates a replacement issuance;
-6. public-log rollback and selective omission are checked independently.
+**Violated invariant:** private-key possession is not authority, and present failure cannot rewrite a
+historical occurrence under PV-K02.
 
-**Violated invariant:** private-key possession is not authority; present evidentiary failure cannot
-rewrite historical occurrence under PV-K02.
+**Detection:** key activation audit, signature-key census, interval verification, independent log
+reconciliation, and history digest.
 
-**Detection:** key-activation audit, signature-key census, interval-boundary verification, public-log
-head reconciliation, and history digest comparison.
+### F-06 - vanished official source
 
-**Current-state comparator:** `key-rotation.md` provides rotation and emergency revocation procedure,
-but no inspected drill proves signing-time interval replay, independent log recovery, or refusal to
-reactivate a backed-up key over a decades-long closure
-(`policy-engine/docs/runbooks/key-rotation.md:1-113`).
+**Given** a governed and published record based on retained official-source bytes and acquisition
+evidence; the official endpoint and domain unavailable; no authenticated successor source; and the
+retained capture intact.
 
-### F-06 - a vanished official source
+**When** historical replay and a current-authority query run.
 
-**Purpose:** distinguish retained historical evidence from present official-source obtainability.
-
-**Given**
-
-- a governed and published record based on captured official-source bytes and acquisition evidence;
-- the official endpoint, domain, and current API all become unavailable;
-- no independently authenticated successor source is available;
-- the retained capture remains intact.
-
-**When**
-
-- a historical replay and a current-authority query are run.
-
-**Then**
-
-1. the historical replay may use and attribute the retained capture;
-2. source disappearance does not rewrite what PolicyOS used historically;
-3. current source authority/obtainability is non-positive or not established;
-4. every record whose current posture depended on that source appears in the affected query;
-5. no mirror or cached page is silently promoted to official successor;
-6. public effects are handed to PAO-R36 where needed.
+**Then** historical attribution survives; source disappearance rewrites nothing; current official
+status is non-positive; the affected set is complete; no mirror is promoted; and public effects are
+handed to PAO-R36 where required.
 
 **Violated invariant:** historical evidence and current official status are separate propositions.
 
-**Detection:** source-identity and acquisition-receipt verification, network-denied current lookup,
-successor-evidence check, and affected-set oracle.
+**Detection:** source identity, acquisition receipt, network-denied lookup, successor evidence, and
+affected-set oracle.
 
-**Current-state comparator:** retained-artifact mechanisms can preserve bytes, but the inspected
-repository does not establish a first-class watched source right, renewal/currentness owner, or
-complete affected-case query.
+### F-07 - ten thousand cases go stale at once
 
-### F-07 - ten thousand cases going stale at once
+**Given** 10,000 cases linked to one dependency across all custody classes; duplicate events and
+wakes; constrained capacity; one restart; and an exact affected-set oracle.
 
-**Purpose:** prove bounded, deduplicated, priority-aware invalidation without extending authority
-through overload.
+**When** the dependency expires.
 
-**Given**
-
-- 10,000 cases linked to one expiring dependency;
-- a mix of shadow, governed, published, active-incident, appeal-relevant, and legal-release classes;
-- duplicate expiry and wake deliveries;
-- constrained worker capacity and one restart;
-- an oracle containing the exact affected set.
-
-**When**
-
-- the dependency expires and the event is admitted once.
-
-**Then**
-
-1. authority-time checks make affected protected uses non-positive immediately, independent of queue
-   delay;
-2. the affected query returns exactly 10,000 unique cases with their dependency edges;
-3. duplicate events and wakes create no duplicate irreversible effects;
-4. processing is prioritized by custody class, with active incidents and public/appeal/release risks
-   handled before shadow recomputation;
-5. queue growth remains bounded by the declared operating envelope, and overflow is durably visible;
-6. restart resumes from durable progress without skipping or repeating logical case effects;
-7. every unprocessed case remains visibly stale rather than appearing current;
-8. measured completion and per-class RTO are reported.
+**Then** protected uses become non-positive immediately; exactly 10,000 unique cases and edges are
+returned; duplicates create no duplicate effect; class priority is respected; overflow is durably
+visible; restart resumes from durable progress; unprocessed cases remain visibly stale; and per-class
+completion/RTO is measured.
 
 **Violated invariant:** backlog pressure cannot extend authority or hide an affected case.
 
-**Detection:** affected-set exact comparison, unique-effect counts, queue/backpressure telemetry,
-restart replay, and per-class clocks.
+**Detection:** exact affected-set comparison, unique-effect counts, backpressure telemetry, restart
+replay, and per-class clocks.
 
-**Current-state comparator:** scattered expiry/TTL fields and worker leasing do not establish a
-single governed dependency event, complete affected query, class priority, or mass-expiry semantic
-test. This is the first commission falsifier in executable form.
-
-## 3. Additional fixtures constructed by OPS-R14
+## 3. Additional fixtures retained from the original result
 
 ### F-08 - last legal hold released during deletion
 
-**Given** an object covered by two holds, one release already admitted, the second release racing a
-retention deletion worker, and a retention deadline in the past.
+**Given** an object covered by two holds, one prior release, the final release racing a deletion
+worker, and a passed retention deadline.
 
-**When** the worker reads stale hold state while the final release event commits.
+**When** the worker reads stale hold state while the release event commits.
 
-**Then** no object, proof closure, key, or derivation is deleted until the final release is visible
-**and** a later independent disposal decision re-evaluates current policy. Releasing one of two holds
-never permits deletion. A stale worker precondition fails rather than winning the race.
+**Then** no object, proof closure, key, or derivation is deleted until release is visible and a later
+independent disposal decision re-evaluates current policy. A stale worker loses the race.
 
-**Violated invariant:** an effective hold is a cross-store disposal barrier; release is not a delete
-command.
-
-**Detection:** compare hold event prefix, worker precondition token, disposal decision time, and
-object/key census.
-
-**Current-state comparator:** snapshot GC can protect a legal-hold tag, but no inspected general hold
-issuance/release or race protocol exists
-(`policy-engine/src/polisyos/fabric/security/retention.py:32-38,100-112`;
-`policy-engine/src/polisyos/fabric/world/store/snapshots.py:661-689`).
+**Invariant and detector:** an effective hold is a cross-store disposal barrier; compare the hold
+prefix, worker precondition, disposal-decision time, and object/key census.
 
 ### F-09 - authentic old snapshot rollback
 
-**Given** two correctly signed status/control snapshots `S1 < S2`, a later independently retained
-checkpoint proving `S2`, and a recovery package containing only `S1`.
+**Given** correctly signed snapshots `S1 < S2`, an independently retained observation proving `S2`,
+and a recovery package containing only `S1`.
 
-**When** recovery validates `S1`'s signature.
+**When** `S1` validates cryptographically.
 
-**Then** authenticity of `S1` passes as a historical fact, but latest-applicable-head selection fails
-or rollback is detected. Current authority and current public head remain non-positive. `S1` may be
-used only for an explicitly historical query.
+**Then** `S1` may pass as a historical fact, but latest-head selection fails; current authority and
+public head remain non-positive; and `S1` is usable only for an explicitly historical query.
 
-**Violated invariant:** authentic does not imply latest applicable.
-
-**Detection:** compare recovered head with independent monotonic observations and checkpoint chain.
-
-**Current-state comparator:** INT-R7 specifies this anti-rollback outcome, but no inspected OPS-R14
-drill evidence establishes it
-(`policy-engine/docs/research/policy-operations/int-r7/lifecycle-migration-preservation.md:607-629`).
+**Invariant and detector:** authentic does not imply latest applicable; compare the recovered head,
+monotonic observations, and checkpoint chain.
 
 ### F-10 - organization splits and two successors claim custody
 
-**Given** original issuer `O`, two successor organizations `A` and `B`, both holding complete copies,
-and conflicting succession instruments whose scopes cannot be adjudicated by retained evidence.
+**Given** original issuer `O`; successors `A` and `B`; complete copies; and conflicting succession
+instruments whose scopes cannot be adjudicated from retained evidence.
 
-**When** each successor serves the same predecessor record and asserts current custody/authority.
+**When** both successors assert current custody and authority for the same disputed scope.
 
-**Then** original issuer attribution remains `O`; both custody claims and conflict evidence are
-preserved; historical authenticity is evaluated independently; current custody/current authority is
-not established for the disputed scope; neither successor may rewrite or re-sign the original as its
-own act.
+**Then** original issuer remains `O`; claims and conflict evidence remain; historical authenticity is
+separate; present custody/current authority is not established for the disputed scope; and neither
+successor re-signs or rewrites the original.
 
-**Violated invariant:** storage possession and organizational continuity are not equivalent to lawful
-succession.
+**Invariant and detector:** storage possession is not lawful succession; compare predecessor identity,
+instrument scope, query-time currentness, and issuer substitution count.
 
-**Detection:** predecessor identity check, succession-instrument scope comparison, query-time
-currentness, and zero issuer-substitution assertion.
+### F-11 - historical algorithm verifier unavailable in disconnected restore
 
-**Current-state comparator:** INT-R7 specifies lawful succession semantics, but the repository does
-not establish an implemented succession adjudication or recovery chain.
+**Given** intact bytes and preservation evidence, an unsupported historical algorithm, a retained
+build recipe and vectors, and no network.
 
-### F-11 - historical algorithm verifier unavailable in a disconnected restore
+**When** the retained verifier path is rebuilt and executed.
 
-**Given** intact signed bytes and preservation evidence, an algorithm no longer supported by the
-current runtime, a retained build recipe and test vectors, and no network.
+**Then** the verdict is determined only by that reproducible path and frozen positive/negative/tamper
+vectors. If the required verifier closure is absent, `DurablyVerifiableAt(t_v)` is non-positive while
+fixity and record retention remain; no current algorithm substitutes and no history is rewritten.
 
-**When** a clean environment attempts verification.
+**Invariant and detector:** byte preservation is not verifier closure; inspect build provenance,
+dependency closure, vector outcomes, network denial, and the five-dimension report.
 
-**Then** the drill first tries the reproducible retained verifier path. If it can be rebuilt and passes
-positive/negative/tamper vectors, durable verification may pass. If it cannot, fixity and historical
-record retention remain, but `DurablyVerifiableAt(t_v)` is non-positive; no current algorithm is
-substituted and no history is rewritten.
+### F-12 - encrypted bytes restored without authorized decryption material
 
-**Violated invariant:** byte preservation alone is not verifier closure.
+**Given** intact ciphertext and digest, complete control history, and unavailable authorized key
+material.
 
-**Detection:** build provenance, dependency closure, vector results, network-denial evidence, and
-five-dimension report.
+**When** an appeal-relevant or legal-release record is evaluated.
 
-**Current-state comparator:** no inspected runbook demonstrates a disconnected historical verifier
-rebuild or exact negative outcome.
+**Then** fixity may pass, but readable evidentiary closure and `Restored` remain false; no unauthorized
+key is imported; ciphertext is not presented as a usable record; and the affected set is retained.
 
-### F-12 - encrypted bytes restored, only decryption key missing
+**Invariant and detector:** ciphertext fixity is not evidence availability; compare digest result,
+authorized-decryption result, key-destruction/hold audit, and class predicate.
 
-**Given** intact CAS bytes, matching ciphertext digest, complete control history, and unavailable or
-destroyed authorized decryption material.
+### F-13 - scheduler down across authority expiry
 
-**When** recovery evaluates an appeal-relevant or legal-release record.
+**Given** a watched delegation expiring at `t_exp`; a scheduler outage spanning `t_exp`; no durable
+due or expiry event in the independently retained history; a declaration that the alert was sent;
+and a protected action requested at `t_exp + 1`.
 
-**Then** fixity may pass, but readable evidentiary closure and `Restored` remain false. Recovery does
-not import an unauthorized key or disclose ciphertext as a usable record. The missing-key event and
-affected set are retained.
+**When** the protected-use gate and WD-05A delivery reconciliation run, and the scheduler later emits a
+delayed event.
 
-**Violated invariant:** ciphertext fixity is not evidence availability or legal-release readiness.
+**Then** the action is non-positive at `t_exp + 1`; the late event retains effective time `t_exp` and
+later processing time; the affected interval is returned; and the prospective delivery verdict is
+exactly `delivery_gap` despite the intact declaration.
 
-**Detection:** digest pass plus authorized-decryption failure, key-destruction/hold audit, and
-class-specific restored predicate.
+**Forbidden outcome:** authority-positive use or `delivery_reconciled` based on the alert declaration.
 
-**Current-state comparator:** artifact recovery checks do not by themselves establish authorized key
-recovery and appeal/release usability.
+**Invariant and detector:** authority derives from evidenced time, while delivery success derives from
+independently observed event history. Compare source time, query time, recomputed due set, independent
+high-water mark, event history, declaration, and action count.
 
-### F-13 - scheduler is down across authority expiry
+## 4. Four audit-amendment fixtures
 
-**Given** a watched delegation expiring at `t_exp`, a scheduler outage from before `t_exp` until after
-it, no expiry wake, and a protected action requested at `t_exp + 1`.
+Each fixture below has one detector, one expected verdict, and one forbidden outcome.
 
-**When** the action gate evaluates the request and the scheduler later emits the delayed event.
+### F-14 - lawful partial succession with disputed overlap
 
-**Then** the request is non-positive at `t_exp + 1`; absence of the event does not extend the
-right; the late event is recorded with effective time `t_exp` and later processing time; no prior
-unauthorized action becomes valid; the affected query covers the outage interval.
+**Input:** issuer `O`; instrument `IA` lawfully assigning successor `A` scope `X`; instrument `IB`
+lawfully assigning successor `B` scope `Y`; one predecessor record spanning `X union Y`; and a
+conflict only over `X intersection Y`.
 
-**Violated invariant:** authority derives from evidenced time, not successful timer delivery.
+**Detector:** bind each query to its subject scope, compare both admitted instruments and effective
+times, and assert the original issuer identity remains `O`.
 
-**Detection:** compare authority source, query time, scheduler logs, event effective/processing time,
-and action count.
+**Expected verdict:** `scoped_succession_partial` — `A` is current custodian for `X-only`, `B` for
+`Y-only`, and custody/current authority is `not_established` for the overlap; original issuer remains
+`O` everywhere.
 
-**Current-state comparator:** the repository has many time-to-live and expiry fields but no
-established governed event with owner, renewal evidence, grace authority, affected query, and failure
-consequence. A sudden runtime error after `t_exp` therefore remains plausible.
+**Forbidden outcome:** a global pass assigning the overlap to either successor, or a global failure
+that erases the established non-overlapping scopes.
 
-## 4. Mandatory negative comparator: present repository state
+### F-15 - declared independence with a shared substrate
 
-Against the current state, the fixture suite predicts these failures:
+**Input:** two checkpoint observers whose records declare `independent=true`, while provenance shows
+both use one control account, one storage substrate, and one root signing key that is compromised.
 
-- F-01 can restore bytes or follow a runbook, but cannot prove the complete cross-store restored
-  predicate and independent event high-water mark.
-- F-02 has deduplication-related mechanisms, but no inspected authority-semantic conflict drill.
-- F-03 has wake and lease mechanics, but no established rule tying duplicate wakes to S0-K10 case
-  semantics.
-- F-04 has no owned fan-out completion interface; PAO-R36 is still parallel.
-- F-05 has rotation/revocation procedure, but no long-horizon independent compromise-interval drill.
-- F-06 can retain artifacts, but has no governed source-expiry watch and complete affected query.
-- F-07 has no first-class mass-expiry event/owner chain and no 10,000-case stale-storm fixture.
-- F-08 protects selected snapshot tags but has no cross-store hold release/deletion race semantics.
-- F-09 is specified by INT-R7, but no OPS-R14 recovery evidence executes it.
-- F-10 has no implemented organizational-succession recovery owner.
-- F-11 has no disconnected historical-verifier build-and-negative-evidence drill.
-- F-12 does not prove authorized decryption closure merely by restoring ciphertext.
-- F-13 can miss a timer and surface expiry as a runtime error because authority-time evaluation is
-  not represented as the governed watched dependency defined here.
+**Detector:** reconstruct administration, storage, key, and observation provenance from non-producing
+records and collapse observers sharing any load-bearing root.
 
-The comparison does not deny the runbooks or unit mechanisms. It denies promotion of those fragments
-to a custody-grade capability without the missing chain and evidence.
+**Expected verdict:** `custody_independence_not_established`; the independent-observer count is one and
+`Restored(published)` is false.
 
-## 5. Drill evidence contract
+**Forbidden outcome:** counting the declarations as two independent observations or returning a green
+restoration result.
 
-A qualifying drill is a retained event package proving that real intended paths were exercised. It
-must contain all of the following.
+### F-16 - authenticated-time rollback across expiry
+
+**Input:** a right expires at `t_exp`; scheduler and protected-use gate share a rolled-back local
+clock; an independent authenticated monotonic checkpoint proves the real coordinate is after
+`t_exp`; and an action is requested.
+
+**Detector:** compare local wall clock, trusted-time chain, checkpoint sequence, event effective time,
+and action timestamp.
+
+**Expected verdict:** `authority_time_not_established`; the protected action is blocked and the
+rollback incident/affected interval appends.
+
+**Forbidden outcome:** accepting the action because the shared local clock reports `t_exp - 1`.
+
+### F-17 - parser and canonicalization differential after migration
+
+**Input:** identical original signed bytes; retained parser/canonicalizer implementations `P1` and
+`P2`; one migrated representation; and protected-query vectors on which `P1` and `P2` derive materially
+different statements while both report syntactic success.
+
+**Detector:** compare implementation digests, canonical signing-input bytes, protected-query results,
+and original-to-migrated linkage against the frozen vectors.
+
+**Expected verdict:** `historical_semantic_interpretation_not_established`; original bytes and both
+interpretations remain retained and the differential appends.
+
+**Forbidden outcome:** selecting either parser as authoritative merely because it is newer or returns
+success.
+
+## 5. P37 falsify-the-declaration probes
+
+The fixture oracle was applied with declarations left intact and the underlying premise falsified:
+
+| Probe | Declaration left intact | Falsified property | Required red result |
+| --- | --- | --- | --- |
+| F-13 | “alert sent” | No due/expiry event exists in independent history. | `delivery_gap`; use blocked. |
+| F-15 | `independent=true` on two observers | Both share one compromised substrate/root. | `custody_independence_not_established`; restoration false. |
+
+These probes go red because the decisive predicates are recomputed or independently reconciled. A
+fixture that accepted either declaration would test the declaration rather than the property.
+
+## 6. Mandatory current-state comparator
+
+At the pin, the suite predicts that:
+
+- complete cross-store closure, independent high-water marks, prospective due-event reconciliation,
+  mass-expiry behavior, scoped succession, common-mode independence, authenticated time, and parser
+  differential handling are `absent/unallocated`;
+- deduplication, runbooks, key rotation, retained artifacts, and narrow snapshot hold protection are
+  useful fragments, not the aggregate capability;
+- PAO-R36 and GY-N12 remain declared semantic dependencies rather than delivered runtime endpoints;
+- no inspected event package satisfies the drill evidence contract.
+
+The comparison preserves implemented fragments while refusing capability promotion.
+
+## 7. Drill evidence contract
+
+A qualifying drill is a retained event package proving that real intended paths were exercised.
 
 ### DE-01 - frozen scope
 
-Identify the custody classes, exact corpus and digest, record counts, size distribution, dependency
-classes, hold cases, public-log heads, cryptographic profiles, expected RPO/RTO, and all excluded
-scope. Sampling must state the complete denominator and selection method.
+Identify custody classes, exact corpus and digest, counts, size distribution, dependency classes,
+hold cases, public-log heads, cryptographic profiles, expected RPO/RTO, and excluded scope. Sampling
+states the complete path/member denominator and method.
 
 ### DE-02 - real failure injection
 
-Record the injected failure and prove it affected the intended domain: deleted or isolated control
-database, inaccessible primary object store, corrupt object, stale checkpoint, queue duplication,
-key quarantine, source disappearance, or network denial. A discussion of what would happen is not an
-injection.
+Record the injection and prove it affected the intended domain. A discussion, declaration, or mocked
+Boolean is not an injection.
 
 ### DE-03 - clean and independently sourced recovery
 
-Restore into a clean environment without hidden production state. For a cross-custody drill, obtain
-objects, event history, trust/status, checkpoints, and source captures from the declared independent
-domains. Record environment identity and prove the suspected primary was unavailable or untrusted.
+Restore into a clean environment without hidden production state. Obtain content, history,
+trust/status, checkpoints, and source captures from declared independent domains, and independently
+reconcile whether those domains share an administrative, storage, or key root.
 
 ### DE-04 - disconnected public-verification drill
 
-Before the first live authority-bearing public signature, execute INT-R7 Phase A using a
-non-authoritative ceremonial corpus through the real intended canonicalization, verifier, trust and
-status inputs, log/checkpoint path, preservation event path, and clean disconnected restore. Network
-denial must be evidenced, not asserted. Exact positive, negative, tamper, compromise, supersession,
-algorithm-renewal, and rollback outcomes must be retained.
+Before the first live authority-bearing public signature, execute INT-R7 Phase A with a non-
+authoritative ceremonial corpus through the real intended canonicalizer, verifier, trust/status,
+log/checkpoint, preservation-event, and clean disconnected restore paths. Retain content identities
+and digests for every production-target component and profile. Evidence network denial. Retain exact
+positive, negative, tamper, compromise, supersession, algorithm-renewal, rollback, and parser-
+differential outcomes.
 
-After the first live record, Phase B restores and verifies that exact record from retained closure in
-a clean disconnected environment before any fleet-wide readiness claim. Phase B cannot retroactively
-authorize the first record. These requirements come from INT-R7's controlling amendment
-(`policy-engine/docs/research/policy-operations/int-r7/lifecycle-migration-preservation.md:558-606`).
+After the first live record, Phase B restores that exact record from retained closure before any
+fleet-wide readiness claim. Phase B cannot retroactively authorize the first record
+(`int-r7/lifecycle-migration-preservation.md:558-606`).
 
-### DE-05 - command and configuration transcript
+### DE-05 - command, configuration, and anti-substitution transcript
 
-Retain operator actions, tool and dependency versions, configuration digests, clock sources, error
-output, access identity, key activation state, and network policy. Redact or protect secrets without
-removing the evidence needed to prove which path ran.
+Retain commands, tool and dependency versions, executable/component content digests, configuration
+and profile digests, clock sources, errors, access identity, key activation state, and network policy.
+Run one negative substitution: replace a production-target canonicalizer, verifier, reducer, or
+profile with a permissive test stub while leaving marker strings and declarations intact. The drill
+must fail with `real_path_identity_mismatch`.
 
 ### DE-06 - measured loss and elapsed recovery
 
-Record the latest acknowledged pre-failure event, latest restored event, computed loss interval,
-recovery declaration time, start, every major milestone, and completion only when the restored
-predicate passes. Compare actual values with each class objective. A configured backup frequency is
-not an RPO measurement; a runbook estimate is not an RTO measurement.
+Record latest acknowledged pre-failure event, latest restored event, computed loss interval,
+recovery declaration/start/milestones/completion, and compare actual values with every class
+objective. Backup settings and runbook estimates are not measurements.
 
 ### DE-07 - clause-by-clause restored predicate
 
-Retain event-prefix, control-to-content, deterministic-head, authority-time, hold, signed-record,
-public-history, watched-dependency, and measurement results. Include every missing object, conflict,
-or non-positive dimension. "Restore succeeded" is insufficient.
+Retain event-prefix, content closure, deterministic head, authority time, hold, signed-record,
+public-history, correction-chain, watched-dependency, delivery-reconciliation, independence, and
+measurement results. “Restore succeeded” is insufficient. PAO-R36 F11 closes only through the
+conjunction `RP-10 + RC-01 + RC-07 + F-04 + F-09 + DE-07`.
 
 ### DE-08 - negative and adversarial outcomes
 
-The drill must prove fail-closed behavior, not only a happy path. At minimum include an orphan object,
-missing control reference, duplicate/conflicting event, duplicate wake, stale authentic checkpoint,
-expired right with delayed timer, and tampered signed record. Unexpected positives fail the drill.
+Include orphan content, missing control reference, duplicate/conflicting event, duplicate wake,
+stale authentic checkpoint, expired right with delayed timer, tampered record, false independence,
+time rollback, and parser differential. Unexpected positives fail the drill.
 
 ### DE-09 - evidence integrity and review
 
-Package the drill corpus, transcript, measurements, verifier results, and after-action decisions under
-stable digests. Record responsible operating and independent review roles without appointing their
-holders here. Every exception has an owner role, due condition, and retest requirement.
+Package corpus, transcript, measurements, verifier results, predicate-provenance labels, and after-
+action decisions under stable digests. Record operating and independent review roles without
+appointing holders. Every exception has a role, due condition, and retest requirement.
 
 ### DE-10 - remediation and retest
 
-A failed drill remains retained. Remediation appends; it does not rewrite the first result. A later
-retest references the same or declared revised corpus, proves the fix under the failed fixture, and
-reports regressions across the full mandatory suite.
+A failed drill remains retained. Remediation and retest append, reference the same or declared revised
+corpus, re-run the failed fixture, and report regression across the full seventeen-fixture denominator.
 
-## 6. Why a paper runbook cannot satisfy the contract
+## 8. Acceptance-evidence taxonomy and closure signal
 
-A runbook describes intended procedure. It cannot by itself establish that:
+At `109ba3f4`, `platform-acceptance.md:15,23,30` records runbook presence, retention/restore posture,
+and an incident/runbook tabletop as passing. `platform-acceptance-manual.md:85-95` records reading the
+alert-to-runbook path and validating compose syntax. It does not claim an exercised custody-grade
+restore, measured RPO/RTO, or PV-K01 passage.
 
-- the backup existed at the incident cutoff;
-- the independent copy was actually independent;
-- credentials and keys were usable without violating security policy;
-- all acknowledged events survived;
-- cross-store references closed;
-- an authentic but stale head was rejected;
-- the verifier ran without the network;
-- duplicate events and wakes caused zero duplicate effects;
-- RPO and RTO were measured and met;
-- the public and authority dimensions remained correctly separated.
+The defect is the missing distinction between document presence, tabletop, exercised restore, and
+custody-grade drill evidence. `OPS-R14-ACCEPTANCE-001` closes only when the acceptance surface carries
+a separate non-green exercised-recovery row until a real restore runs, or links a retained DE-01–
+DE-10 package with a bounded result.
 
-The current acceptance material closes posture items from runbook presence and a tabletop review
-(`policy-engine/docs/archive/reports/platform-acceptance.md:15,23,30`;
-`policy-engine/docs/archive/reports/platform-acceptance-manual.md:85-95`). That is documentary
-preparedness, not drill evidence under PV-K01.
+## 9. Recommended exercise cadence
 
-## 7. Recommended exercise cadence
+This is engineering research subject to institutional adoption, not a legal minimum: continuous
+closure and delivery reconciliation; monthly sampled clean restore; quarterly class-spanning replay;
+annual disconnected verification and independent-custody exercise; event-triggered full drill after
+material change; and immediate targeted retest after incident or failed check. Calendar entries and
+“last tested” metadata are not execution evidence.
 
-This is an engineering recommendation subject to institutional adoption, not a legal minimum:
+## 10. Standing
 
-- continuous fixity, event-prefix, public-head, dependency-due, and hold-barrier checks;
-- monthly sampled restore into a clean non-production environment, with a complete denominator and
-  reproducible sample;
-- quarterly class-spanning cross-store replay/restore including duplicate and stale-head fixtures;
-- annual disconnected public-verification and independent-custody exercise;
-- event-triggered full drill after major storage, cryptographic, format, verifier, control-journal,
-  organizational-custody, or public-correction integration change;
-- immediate targeted drill after a real incident or a failed continuous check.
+The seventeen-fixture suite and DE-01–DE-10 are accepted bounded research specifications. No fixture
+has been executed against a delivered custody chain by this amendment.
 
-A cadence is accepted only when the retained drill packages show execution. Calendar entries and
-"last tested" frontmatter are not evidence.
+**Research standing:** `accepted_narrow_scope`.  
+**Capability standing:** `NO_GO`.  
+**First-public-signature gate standing:** `NO_GO`.

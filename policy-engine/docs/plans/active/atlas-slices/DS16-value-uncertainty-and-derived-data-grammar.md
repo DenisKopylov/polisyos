@@ -125,6 +125,49 @@ Per the doctrine, positive work may not start with negatives unwritten. Write an
 
 Each carries its register ID. Each must be observed RED before its fix exists.
 
+#### C01 outcome (executed 2026-08-17)
+
+All six written and **all six proven non-vacuous** — each observed RED against a deliberately
+violating fixture and green when the fixture is corrected. Files:
+`src/test/contracts/quantityDecisionProducerHarness.tsx` (fixtures, extending the existing harness
+rather than forking a registry), `src/shared/ui/quantity/ds16ValueGrammarNegatives.test.tsx`
+(negatives 1/2/3/5/6), `src/features/runs/components/ds16SuccessorAuthority.test.ts` (negative 4).
+`readinessScientificContainment.test.ts` is untouched and still green.
+
+**`class-(iv)` is RESOLVED to an existing defined term — no local coining, no stop.** It is the
+**fourth** member of `ObservationProvenanceClass` in
+`src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:84-90`, whose full denominator is
+exactly four: (i) `observed`, (ii) `proxy`, (iii) `derived`, (iv) `model_output`. Corroborated by
+`acquisition_executor.py:1719` returning `("model_output_not_observation",)` and by
+`layer3_gy_n13b_acquisition_contract.py:1051-1052` asserting that code under the message
+*"class-(iv) output must fail observation admission closed"*.
+
+**Finding routed to the master-plan owner — the C10 provenance triple is wrong.** The master plan
+(and §3 above) name the provenance classes as `observed` / `derived` / `deployment_update`. Measured
+against both full enums, that sentence **conflates two different vocabularies**: `observed` and
+`derived` are `ObservationProvenanceClass` members, but `deployment_update` is not a provenance class
+at all — it is a `BranchMode` member (`world_model_record.py:66-71`; `observed` | `scenario` |
+`deployment_update`), i.e. world-*branch* semantics. The shared `observed` member is the likely seam
+of the conflation. The triple also silently **drops `proxy` and `model_output`**, and `model_output`
+is precisely the class negative 3 exists to police. **C10 must mark against the four-member
+`ObservationProvenanceClass`, not the stated triple**; whether a branch mode is *also* surfaced is a
+separate question with a separate owner.
+
+**Two lane divergences from this plan's §5, reported on re-measured numbers:**
+
+- Negative 1 was assigned to the visual-regression lane. It runs in the **Vitest component lane**
+  instead, because a screenshot diff carries no semantics — a PNG cannot assert that a set was
+  collapsed to a point, only that pixels changed. The property is observable exactly where the seam
+  lives: `chartQuantityScalarPoint` and `data-chart-quantity-cardinality`. Note also that
+  `visualRegressionHarness.test.ts` is itself a **Vitest** AST/asset auditor, not a Playwright spec.
+- `test:contracts` runs **only** `src/test/contracts/contractFixtures.test.ts`, not the contracts
+  directory; the harness and its consumers run under `test:components`.
+
+**Measured durations (this slice's own samples, replacing the supplied `DS-INFRA-2` ceilings):**
+production build `18.504` s against the supplied `47.29` s; blast-radius suite (8 files, 38 tests)
+`5.032` s; typecheck `16.781` s; a11y components (84 files, 85 tests) green; full component suite as
+recorded in the C01 commit trail.
+
 ### C02 — The successor containment gate (the crux; do this before touching the panels)
 
 Replace "proves constant unavailable emission" with a gate that proves **no locally minted value**.

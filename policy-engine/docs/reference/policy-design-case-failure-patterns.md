@@ -1,7 +1,7 @@
 # Policy Design Case Failure And Repair Patterns
 
 Owner: `team-policyos-runtime`
-Source of truth: `AGENTS.md`, `policy-engine/AGENTS.md`, and this register.
+Source of truth: the root `AGENTS.md` and this register.
 
 This is the on-demand register behind the root `AGENTS.md` failure lens. Use it when changing Policy Design Case, governance, evidence, runtime quality, producer, API, dashboard, export, or research-plan behavior.
 
@@ -17,10 +17,11 @@ This is the on-demand register behind the root `AGENTS.md` failure lens. Use it 
 
 Capability = `typed contract/artifact + producer + persisted artifact/event + orchestration bridge + consumer + verification + external/audit/API/dashboard surface or explicit out_of_scope + negative/e2e semantic test`.
 
-If any part is missing, do not call the capability implemented. Mark it precisely as `contract_only`, `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `implemented_but_not_orchestrated`, `surface_missing`, `surface_out_of_scope`, or `semantic_test_missing`.
+If any part is missing, do not call the capability implemented. Mark it precisely as `absent/unallocated`, `contract_only`, `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `implemented_but_not_orchestrated`, `surface_missing`, `surface_out_of_scope`, or `semantic_test_missing`.
 
 | Label | Meaning |
 | --- | --- |
+| `absent/unallocated` | **Weaker than every label below.** No admitted prerequisite chain exists at all: no typed contract, no owner, no producer, no consumer — and no canonical owner has been appointed. Use it when the stronger labels would *overstate* what is present, and say which prerequisite is missing. Prose, a research contract, or a plan section is an input, not a chain: a substantive Markdown procedure is still `absent/unallocated`, never `contract_only`. |
 | `contract_only` | Type/schema/status exists, but no producer, consumer, or workflow uses it. |
 | `producer_missing` | A consumer expects an event/artifact, but no deployed producer emits it. |
 | `artifact_missing` | Producer logic exists, but the artifact/event is not persisted, queryable, or replayable. |
@@ -79,6 +80,7 @@ presence, checksum integrity, or schema compatibility.
 | P35 | Sampled-denominator generalization | Full-set enumeration by script | Is a SET-LEVEL fact (a count, a distribution, "all of them are X", "the field is always null") derived from opening one member, a truncated `grep -A N`, a frontmatter summary, or a **search index / connector / ranked query** — rather than from walking the whole set? Would the claim change if the set had one more member than you looked at? Can you name the **path denominator** and the **file-type denominator** the number was measured over? | Produce every set-level fact with a script that walks the complete set and prints the denominator, then quote the denominator with the fact. Never generalize from a sampled member, and never let a truncated context window define a set boundary. **An index is not a denominator in either direction:** a ranked/indexed result cannot establish an absence (it may not have looked), and it cannot establish a positive count either (it may omit a member the tree contains) — settle every literal census by a complete walk at the pinned ref (`git grep` over the ref), and state both denominators beside the number. Applies to enums, registries, manifests, pools, finding registers, and file censuses alike. |
 | P36 | Authority by adjacency | Cite the finding by ID, not the prose around it | Is a downstream document relying on a sentence from an authoritative source that was NOT the source's finding — an aside, a motivating example, an explanatory paraphrase — and treating it as carrying the source's authority? Can you name the finding ID that the relied-upon statement IS? | Cite the finding by its ID and reproduce set-level and arithmetic claims from the pinned owner rather than from the citing document. A document is authoritative only for what it establishes; the prose around a finding carries the document's tone, not its warrant. When correcting such a chain, follow every dependent BINDING (grep the key/ID), not only the narrative that reads wrong. |
 | P37 | Declared gate predicate | Predicate-provenance classification, fail closed on a declared premise | The contract names a gate. For each predicate that gate DEPENDS ON — completeness of a declared basis or denied-use set, neutrality of a shared artifact, a consumer's "would the action have changed?", the arrival of an expiry/correction event, adequacy of a named discriminator, membership of a frozen set — is it RECOMPUTED by the procedure, or SUPPLIED by the party the gate is meant to constrain? Would the gate still return green if the declaration were false? Is the deciding predicate itself frozen at admission, or can it still be chosen after the transaction begins? | Label every load-bearing predicate as exactly one of `recomputed` (derived from a controlled artifact/history), `independently_reconciled` (observed against a second, non-producing source), `consumer_asserted`, `institutionally_supplied`, or `not_established` — and freeze the label at admission. A gate whose decisive predicate is `consumer_asserted`, `institutionally_supplied`, or `not_established` must fail closed or degrade its claim; it may not return a positive. This is `S0-K06` applied to the gate's own predicate rather than to the statement it guards: the authority band forbids a declared unknown INSIDE a gate exactly as it forbids one inside a published claim, and a candidate-grade predicate cannot carry an authority-grade gate. Prove it with the *falsify-the-declaration* probe — make the declared premise false while leaving its declaration intact; if the gate stays green it is testing the declaration, not the property. |
+| P38 | Proxy gate — the implementation stands in for the property | Property-constructed gate with a named divergent case | A gate is built to decide some property, but it turns on a cheap adjacent stand-in — an exit code, a field's *name*, a `file:line`, a byte diff, a program root, a prefix. The stand-in agrees with the property nearly everywhere and diverges **precisely at the boundary the gate exists to police**, so the gate is confidently wrong exactly when it matters. Can you name one case where the property holds and the implementation says no, or the property fails and the implementation says yes? | Before writing or accepting a gate, state the property in one sentence, state what the implementation actually tests, and **name one divergent case**. If none can be constructed, the implementation *is* the property. If one can, either the gate consults the context that distinguishes them, or the divergence is recorded as a declared, bounded limitation — never left implicit. Falsifier: replace the proxy while holding the property fixed, then change the property while holding the proxy fixed; a gate that tracks the proxy rather than the property is a P38 instance. This applies to a procedural rule in a plan exactly as it applies to code. |
 
 Notes:
 
@@ -148,6 +150,18 @@ Notes:
   connector had returned 49 candidates where the tree holds 50; the two uppercase-only exclusions the
   audit made were themselves correct, so the arithmetic was sound on an incomplete set. P35 is
   symmetric: an index establishes neither a zero nor a positive.
+  **Holder rider, added 2026-08-17 from the wave-4 consolidation — P35 composed with P37.** A complete
+  walk settles the number; it does not settle *who may cite it*. Four wave-4 packages carried census
+  results their own environment could not execute, and two families of overclaim survived into terminal
+  text ("settled true zeroes from a complete walk"; "settled because the architect supplied a walk").
+  Beyond the two denominators, a set-level record must therefore also name **the party that executed
+  the walk** and carry the P37 label **relative to the holder making the present claim**. The same
+  numeric tuple is legitimately `recomputed` for the holder that ran it and `institutionally_supplied`
+  for one that did not — and **an `institutionally_supplied` census cannot settle a zero**. The facts
+  were never in doubt in that wave; the attribution was, so the repair is to name the executing party,
+  never to strip the numbers. All thirteen wave-4 tokens reproduce exactly at the pin in both
+  denominators, with positive and negative controls; a zero reported without a positive control is not
+  a measurement, and two harness defects were caught that way before any figure was retained.
 - P37 is the **OPS-R14/PAO-R36/PAO-R4/S0-GAP-02 wave's single cross-task result**, added 2026-08-08.
   Eleven blocking findings across four independent audits of four unrelated subjects reduced to one
   shape: the contract names a gate, and the predicate that gate turns on is supplied by declaration
@@ -162,6 +176,56 @@ Notes:
   expired dependency without measuring that the expiry event was ever delivered. None is a defect of
   care; each package is strong. The common cause is that the band lens had been applied to
   statements and never to the predicates of gates.
+  **Fixed-point corollary, added 2026-08-17 from the wave-4 consolidation — the wave's second result,
+  and it came out of the repairs rather than the research.** *Every repair that preserves a positive by
+  adding a condition creates a new gate predicate, which must itself be classified. There is no fixed
+  point until the condition is constructed at the level of the property it names.* Two packages reached
+  this independently. OPS-R14 split a falsifier so that a positive survived behind "an independently
+  reconciled **non-producing** authoritative record", then established non-producing character by
+  comparing instrument bytes and receipts — a successor-controlled record agrees perfectly and takes
+  the positive. S0-GAP-02 added `machine_observed`, whose positive eligibility turns on a *declared*
+  frozen scope and second observer. Both moved the unconstructed premise one level down and left the
+  positive alive. The diagnostic is a class check, not a quality check: content agreement can never
+  establish provenance, so no amount of strengthening the comparison closes it — when the added
+  condition names a different **measurement class** than the evidence constructs, withdraw the positive
+  rather than commissioning another round. This retro-explains the GY-G saga's ~7 NO-GO rounds
+  (P31/P32/P33): each round satisfied the named condition and a sibling reopened the class.
+  Closure signal for any added condition: assign one registered label, name the evidence source and the
+  non-producing observer, construct the property rather than its marker, and falsify the condition while
+  keeping its declaration intact.
+  **The five labels are fixed; refinements are sub-annotations.** S0-GAP-02 proposed a six-way
+  vocabulary (`machine_observed`, `attested`, `institutionally_accepted` beside the registered five) and
+  its verifier correctly showed the refinement does not widen the non-positive set. It is still not
+  adoptable as *labels*: `machine_observed` is positive-eligible only conditionally — a subtype of
+  `recomputed`, **or** `independently_reconciled` when retained by a second non-producing observer, with
+  bare producer telemetry mapping to `not_established` — and a gate must answer positive-eligibility by
+  fixed lookup, never by evaluating a declared condition (which is this row, one level down). Record
+  the three genuine distinctions as **required sub-annotations on the registered class**: they qualify
+  the evidence, are carried beside the label, and never alter positive-eligibility.
+
+- P38 is **P37 seen from the consumer's end rather than the producer's**, and the two are kept apart
+  deliberately. P37 asks *who supplied the predicate* — a declared premise the gate cannot recompute.
+  P38 asks *what the implementation actually turns on* — a stand-in the gate can compute perfectly and
+  which is simply not the property. A P37 gate is green because someone said so; a P38 gate is green
+  because it measured the wrong thing correctly. **Why it recurs:** the proxy is almost always what is
+  already computable at the gate's call site — an exit code the harness already has, a field name
+  already in hand, a line number the AST already emits, a diff the tooling already produces —
+  while constructing the real predicate needs context the call site does not yet carry.
+  Four measured instances are catalogued in `docs/plans/active/layer3-slices/GY-engine-subordination.md`
+  §3.5.14, with two further applications at that plan's hash owner and its run-directory
+  address-versus-identity class, and one in the Atlas plan's Execution Doctrine.
+  **Corollary for architect and reviewer instructions.** A stop rule keyed to a number, a list, or a
+  directory *the architect supplied* is a proxy gate by construction: key stop rules to the property
+  ("stop if something changed that the named mechanism does not explain"), never to the architect's
+  arithmetic. Five stops in the `GY-DEFC-3` family were caused this way. The wave-4 consolidation added
+  four more, all architect-side and all caught by agents rather than by the architect: a 40-character
+  commit SHA extended by hand from a 9-character prefix (a prefix is a proxy for an identity — resolve
+  it, never complete it); disposition *occurrences* counted as ledger *rows*, where every summary
+  exceeded that package's own finding total; a line-anchored `^field:` regex matching inside a fenced
+  block where a document **quoted** a field rather than declaring it; and a frequency table stated
+  without its measure, which moved materially once fenced blocks were excluded. The cheap general
+  defence is the **denominator check**: before reporting a count, confirm it sums to a total the
+  document already states.
 
 ## Grounding Anchors
 
@@ -204,6 +268,7 @@ plans, or backlog docs.
 | P34 | the GY-G G5 exclusion (`layer3_proving_ground_conversion.py` no-governed-input terminal — asserted honest, was laundering blocked-as-conversion) and the canary/public-export exclusion (`runtime/quality/public_export.py` dirty worktree — only confirmed unrelated after a completed stash isolation) |
 | P35 | `src/polisyos/pdc/_impl/gy_waist.py` `PromotionObligationClass` (15 members, reported as 14 from a truncated `grep -A 16`); the fifteen INT-R9 manifests (`calibration_round_id` null in 11 of 15, not all; `authority_level` = 5 production / 6 governed / 4 research, not one value); `architecture/production_quality/confidence_ledger.toml` (13 instruments vs 5 proof profiles, conflated in one orientation); the index rider — `supersede` 48/215/260 and `legal_hold` 2/7/8 over `policy-engine/src` at `1a7a2d05e`, against connector-derived 47/203/246 and 2/4/5 in two wave-4 audits, and `benchmark`/`evaluator`/`oracle` = 183/80/44 Python-only vs 197/85/44 all-source (a correct number with an unstated file-type denominator) |
 | P37 | the wave-4 audit branches `research/{ops-r14,pao-r36,pao-r4,s0-gap-02}-independent-audit` (registers `PAO-R4-III-002`, `S0-GAP-02-III-001`/`-VI-001`, `PAO-R36-III-002`/`-III-003`, `OPS-R14-V-001`); the ratified band lens it instantiates at `docs/system-design-decisions/stage0-custody-kernel-ratification.md:46-88,164-176` (`S0-K06`); the runtime analogue is P32's resolve-bind-verify intake — P32 governs a REFERENCE offered as evidence, P37 governs the PREDICATE the gate itself turns on |
+| P38 | `docs/plans/active/layer3-slices/GY-engine-subordination.md` §3.5.14 (the four-instance table: exit code as completion `GY-DI4`; field *name* as non-decisiveness `GY-DEF14`; `file:line` as construct identity `DS5-LINE-ADDRESS-01`; mechanism-byte rounds as proof of wrong design, the DS5 two-fix breaker), plus that plan's hash owner and run-directory address-versus-identity class, and the Atlas plan Execution Doctrine; the architect-side instances are recorded in the P38 note above |
 | P36 | the `3δ` chain: the INT-R9 independent audit's aside about "a fresh δ" propagated into `docs/plans/active/layer3-slices/GY-engine-subordination.md` (GY-GAP2, Rev 23), the original INT-R10 research and its fixture, and the INT-R9 amendment summary, before the INT-R10 audit enumerated `confidence_ledger.py`'s Basel-square allocation and refuted it (corrected in Rev 24); the incomplete-rebinding corollary is the `bound_int_r10_commit` key surviving in five INT-R9 frontmatters plus a YAML header after the narrative was corrected (closed in `65b0beb72`) |
 
 ## Repair Priority
@@ -217,6 +282,12 @@ plans, or backlog docs.
 6. Preserve evidence strength truthfulness: `P14`.
 7. Protect universal-design axis declarations, composition, search, and delegation: `P16` through `P26`.
 8. Run complexity audits continuously so repairs do not add ceremonial load: `P13`.
+9. Before a gate, census, or research claim is accepted: measure the whole set and name both
+   denominators and the executing party (`P35`), cite the finding by ID rather than the prose around it
+   (`P36`), classify what the gate turns on and fail closed on a declared premise (`P37`), and name one
+   case where the implementation and the property diverge (`P38`). `P35`–`P38` govern review and
+   research artifacts as much as code; `P37`/`P38` are the producer-side and consumer-side halves of the
+   same failure and are checked together.
 
 ## Maintenance Rules
 
@@ -229,6 +300,14 @@ plans, or backlog docs.
 - Do not declare a fix done by passing the named probe without checking P33/P34: fix the property and self-generate adversarial variants (synonym, malformed, present-but-fake, sibling consumer); do not exclude a failing test as "honest/unrelated" without a completed revert/stash isolation.
 - Do not state a set-level fact — a count, a distribution, a "the field is always X" — in a context pack, orientation, audit, review, or plan annotation without checking P35: derive it from a script that walks the complete set, and quote both the path denominator and the file-type denominator alongside the fact. A search index, connector result, or ranked query settles nothing — not a zero, and not a positive count.
 - Do not specify a gate, admission rule, completeness assertion, effective/authority boundary, falsifier, or firewall predicate without checking P37: classify every predicate it depends on as `recomputed`, `independently_reconciled`, `consumer_asserted`, `institutionally_supplied`, or `not_established`, freeze that label at admission, and make the gate fail closed or degrade its claim whenever the decisive predicate is one of the last three. Run the falsify-the-declaration probe before calling the gate designed.
+- Do not write or accept a gate, breaker, admission rule, or stop rule — in code or in a plan — without
+  checking P38: state the property, state what the implementation turns on, and name one case where
+  they diverge. If the divergent case cannot be eliminated, record it as a declared bounded limitation;
+  never leave it implicit. Check P38 together with P37: they are the consumer-side and producer-side
+  halves of one failure.
+- Do not label a capability chain that does not exist as `contract_only` merely because a contract,
+  research package, or plan section describes it: if no admitted prerequisite chain and no appointed
+  owner exist, the honest label is `absent/unallocated`, and the missing prerequisite is named.
 - Do not rely on a statement from an authoritative document without checking P36: name the finding ID it is, or reproduce it from the pinned owner. When correcting an inherited claim, grep the binding key and fix every dependent reference, not only the prose that reads wrong.
 - Do not touch compatibility roots or imports without checking P06.
 - Do not change admissibility, taxonomy, claim-support, or closeout logic without checking P04, P07, P08, and P10.

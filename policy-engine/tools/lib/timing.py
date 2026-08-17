@@ -22,6 +22,7 @@ from .runner import ToolSpec
 
 DEFAULT_TIMING_LOG_ENV = "POLISYOS_TOOLS_TIMING_LOG"
 DEFAULT_TIMING_RETENTION_ENV = "POLISYOS_TOOLS_TIMING_RETENTION"
+DEFAULT_TIMING_REGIME_ENV = "POLISYOS_TOOLS_TIMING_REGIME"
 
 # This log is diagnostic evidence, not scratch: it is the only thing that distinguishes a slow
 # environment from a producer regression, and a budget derived without it is a guess paid for by
@@ -276,6 +277,11 @@ class ToolRunRecord:
     duration_ms: float
     exit_code: int
     mode: str = "default"
+    #: The contention regime this duration was measured in, supplied by the executor through
+    #: POLISYOS_TOOLS_TIMING_REGIME. Defaults to "unknown" rather than guessing: measured
+    #: contention on this host is 1.6-2.0x, so a cap derived from a sample of unknown regime is
+    #: not safe to apply as if it were serialized.
+    regime: str = "unknown"
 
 
 @dataclass(frozen=True)
@@ -306,6 +312,14 @@ class TimingBudgetLane:
     measured_p95_ms: float | None
     recommended_timeout_ms: float | None
     source_refs: tuple[str, ...]
+    #: Which rule admitted these samples, so a widened predicate is visible rather than silent.
+    sample_admission_predicate: str = MANUAL_SAMPLE_ADMISSION_PREDICATE_ID
+    #: The contention regime the samples were measured in. A cap from a ``serialized`` sample
+    #: applied on a host running lanes in parallel manufactures false cap non-receipts.
+    regime: str = "unknown"
+    #: True when this lane has no admitted sample of its own and its ceiling was supplied rather
+    #: than measured. A lane in this state never inherits a sibling lane's cap.
+    ceiling_is_declared: bool = False
 
 
 @dataclass(frozen=True)
@@ -365,7 +379,15 @@ def make_timing_record(
         duration_ms=float(state.get("duration_ms") or 0.0),
         exit_code=exit_code,
         mode=str(state.get("mode") or "default"),
+        regime=str(state.get("regime") or regime_from_env()),
     )
+
+
+def regime_from_env() -> str:
+    """The regime the executor declares it launched under; never inferred from timings."""
+
+    raw = os.environ.get(DEFAULT_TIMING_REGIME_ENV, "").strip()
+    return raw if raw in SAMPLE_REGIMES else "unknown"
 
 
 def _retention_limit() -> int:
@@ -393,6 +415,7 @@ def _coerce_record(payload: dict[str, object]) -> ToolRunRecord:
         duration_ms=float(payload.get("duration_ms") or 0.0),
         exit_code=int(payload.get("exit_code") or 0),
         mode=str(payload.get("mode") or "default"),
+        regime=str(payload.get("regime") or "unknown"),
     )
 
 
@@ -495,6 +518,14 @@ def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
         not isinstance(source_ref, str) or not source_ref.strip() for source_ref in source_refs_data
     ):
         raise ValueError("timing budget lane source_refs must be non-empty strings")
+    predicate = _required_string(payload, "sample_admission_predicate")
+    if predicate not in SAMPLE_ADMISSION_PREDICATE_IDS:
+        raise ValueError(
+            "timing budget lane sample_admission_predicate must name a known admission rule"
+        )
+    regime = _required_string(payload, "regime")
+    if regime not in SAMPLE_REGIMES:
+        raise ValueError("timing budget lane regime must be one of serialized/contended/unknown")
     return TimingBudgetLane(
         timing_key=timing_key,
         tool=tool,
@@ -504,6 +535,9 @@ def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
         measured_p95_ms=measured_p95_ms,
         recommended_timeout_ms=recommended_timeout_ms,
         source_refs=tuple(source_refs_data),
+        sample_admission_predicate=predicate,
+        regime=regime,
+        ceiling_is_declared=not samples_ms,
     )
 
 
@@ -534,6 +568,77 @@ def load_timing_budget_catalog(
     except json.JSONDecodeError as exc:
         raise ValueError(f"could not parse timing budget catalog: {path}") from exc
     return load_timing_budget_catalog_data(payload)
+
+
+def derive_timing_budget_lanes(
+    records: list[ToolRunRecord],
+    *,
+    declarations: Mapping[str, Mapping[str, tuple[int, ...]]] | None = None,
+    source_ref: str = "recorded timing log",
+) -> list[TimingBudgetLane]:
+    """Build budget lanes from what the log actually recorded, not from a requested list.
+
+    The join is the one the catalog already enforces: a record's ``tool`` and ``mode`` compose
+    the catalog's ``timing_key`` as ``f"{tool}:{mode}"``. No other correspondence is invented.
+
+    A lane with no admitted sample of its own yields no measured cap. It is returned with empty
+    samples and ``ceiling_is_declared`` set, so the caller must supply a ceiling and record it as
+    supplied. It never inherits a sibling lane's number -- that substitution is the original
+    GY-DI2 defect reappearing one level up.
+    """
+
+    resolved = load_healthy_terminal_declarations() if declarations is None else declarations
+    grouped: dict[tuple[str, str], list[ToolRunRecord]] = {}
+    for record in records:
+        grouped.setdefault((record.tool, record.mode), []).append(record)
+
+    lanes: list[TimingBudgetLane] = []
+    for (tool, mode), lane_records in grouped.items():
+        terminals = healthy_terminal_exit_codes_for(tool, mode, resolved)
+        admitted = [
+            record
+            for record in lane_records
+            if admit_duration_sample(record, healthy_terminal_exit_codes=terminals).admitted
+        ]
+        samples = tuple(sorted(record.duration_ms for record in admitted))
+        measured_p95 = round(percentile_ms(list(samples), 0.95), 3) if samples else None
+        regimes = {record.regime for record in admitted} or {"unknown"}
+        lanes.append(
+            TimingBudgetLane(
+                timing_key=timing_key_for(tool, mode),
+                tool=tool,
+                mode=mode,
+                command="",
+                samples_ms=samples,
+                measured_p95_ms=measured_p95,
+                recommended_timeout_ms=(measured_p95 * 2 if measured_p95 is not None else None),
+                source_refs=(source_ref,),
+                sample_admission_predicate=SAMPLE_ADMISSION_PREDICATE_ID,
+                regime=regimes.pop() if len(regimes) == 1 else "unknown",
+                ceiling_is_declared=not samples,
+            )
+        )
+    return sorted(lanes, key=lambda lane: lane.timing_key)
+
+
+def uncatalogued_timing_lanes(
+    records: list[ToolRunRecord],
+    catalog: list[TimingBudgetLane],
+    *,
+    declarations: Mapping[str, Mapping[str, tuple[int, ...]]] | None = None,
+) -> list[TimingBudgetLane]:
+    """Lanes the log has seen that the committed catalog does not name.
+
+    This is the point-of-use surface: an executor must be able to learn that its lane is
+    unbudgeted BEFORE it spends a run discovering the duration by hitting a timeout.
+    """
+
+    catalogued = {lane.timing_key for lane in catalog}
+    return [
+        lane
+        for lane in derive_timing_budget_lanes(records, declarations=declarations)
+        if lane.timing_key not in catalogued
+    ]
 
 
 def summarize_timing_budget_lanes(
@@ -705,6 +810,7 @@ def run_timed_operation(
             duration_ms=round((time.perf_counter() - started) * 1000.0, 3),
             exit_code=exit_code,
             mode=mode,
+            regime=regime_from_env(),
         )
         _append_timing_record_best_effort(record)
 

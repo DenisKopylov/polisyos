@@ -20,11 +20,14 @@ import pytest
 from tools.lib.timing import (
     DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
     DEFAULT_TIMING_RETENTION,
+    SAMPLE_ADMISSION_PREDICATE_ID,
+    SAMPLE_ADMISSION_PREDICATE_IDS,
     ToolRunRecord,
     _mode_and_output_format_from_argv,
     admit_duration_sample,
     append_timing_record,
     default_timing_log_path,
+    derive_timing_budget_lanes,
     healthy_terminal_exit_codes_for,
     load_healthy_terminal_declarations,
     load_timing_budget_catalog,
@@ -34,6 +37,7 @@ from tools.lib.timing import (
     summarize_timing_budget_lanes,
     summarize_timing_records,
     timing_key_for,
+    uncatalogued_timing_lanes,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -498,6 +502,8 @@ def test_canonical_direct_run_records_action_lane_and_output_format(tmp_path: Pa
                     "measured_p95_ms": 0.0,
                     "recommended_timeout_ms": 0.0,
                     "source_refs": ["docs/receipt.md:1"],
+                    "sample_admission_predicate": "manual_journal_excerpt:v1",
+                    "regime": "serialized",
                 }
             ]
         }
@@ -904,6 +910,8 @@ def test_timing_budget_catalog_rejects_p95_drift_from_literal_samples(tmp_path: 
                         "measured_p95_ms": 100.0,
                         "recommended_timeout_ms": 200.0,
                         "source_refs": ["docs/receipt.md:1"],
+                        "sample_admission_predicate": "manual_journal_excerpt:v1",
+                        "regime": "serialized",
                     }
                 ]
             }
@@ -1166,6 +1174,8 @@ def test_timing_budget_lanes_keep_unmeasured_catalog_entries_before_local_runs(
                         "measured_p95_ms": None,
                         "recommended_timeout_ms": None,
                         "source_refs": ["docs/receipt.md:2"],
+                        "sample_admission_predicate": "manual_journal_excerpt:v1",
+                        "regime": "serialized",
                     }
                 ]
             }
@@ -1196,6 +1206,8 @@ def test_timing_budget_lane_reports_completed_duration_above_measured_p95() -> N
                     "measured_p95_ms": 200.0,
                     "recommended_timeout_ms": 400.0,
                     "source_refs": ["docs/receipt.md:3"],
+                    "sample_admission_predicate": "manual_journal_excerpt:v1",
+                    "regime": "serialized",
                 }
             ]
         }
@@ -1577,6 +1589,8 @@ def test_lane_summary_counts_a_declared_nonzero_terminal_as_an_admitted_run() ->
                     "measured_p95_ms": 31661.172,
                     "recommended_timeout_ms": 63322.344,
                     "source_refs": ["docs/superpowers/timing-evidence/README.md:1"],
+                    "sample_admission_predicate": "manual_journal_excerpt:v1",
+                    "regime": "serialized",
                 }
             ]
         }
@@ -1670,3 +1684,149 @@ def test_retention_still_caps_the_log_at_the_default_limit(tmp_path: Path) -> No
     append_timing_record(log, record)
 
     assert len(read_timing_records(log)) == DEFAULT_TIMING_RETENTION
+
+
+def _catalog_lane_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "timing_key": "quality.validation.check_layer3_gy_second_domain_pack:write",
+        "tool": "quality.validation.check_layer3_gy_second_domain_pack",
+        "mode": "write",
+        "command": "python tools/quality/validation/check_layer3_gy_second_domain_pack.py --write",
+        "samples_ms": [815662.044],
+        "measured_p95_ms": 815662.044,
+        "recommended_timeout_ms": 1631324.088,
+        "source_refs": ["docs/superpowers/timing-evidence/README.md:1"],
+        "sample_admission_predicate": "declared_healthy_terminal:v1",
+        "regime": "contended",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def test_derived_lane_timing_key_is_the_tool_and_mode_join_the_catalog_already_enforces() -> None:
+    """State the join rather than invent one: records carry tool+mode, the catalog keys on both."""
+
+    derived = derive_timing_budget_lanes(_salvaged_records())
+
+    for lane in derived:
+        assert lane.timing_key == f"{lane.tool}:{lane.mode}"
+        assert lane.timing_key == timing_key_for(lane.tool, lane.mode)
+
+
+def test_uncatalogued_lanes_name_the_write_lane_whose_absence_stopped_a_wave() -> None:
+    """GY-DI2: a lane with real samples must never be silently absent at the point of use."""
+
+    catalog = load_timing_budget_catalog()
+    missing = uncatalogued_timing_lanes(_salvaged_records(), catalog)
+    missing_keys = {lane.timing_key for lane in missing}
+
+    assert "quality.validation.check_layer3_gy_second_domain_pack:write" in missing_keys
+    assert missing_keys.isdisjoint({lane.timing_key for lane in catalog})
+
+    observed = {
+        timing_key_for(record.tool, record.mode) for record in _salvaged_records()
+    }
+    catalogued = {lane.timing_key for lane in catalog}
+    assert missing_keys == observed - catalogued, "every observed-but-absent lane must be named"
+
+
+def test_lane_without_an_admitted_sample_gets_no_derived_cap_and_is_marked_declared() -> None:
+    """A lane with no successful sample of its own has no budget at all -- it must be declared."""
+
+    derived = {lane.timing_key: lane for lane in derive_timing_budget_lanes(_salvaged_records())}
+
+    # architecture.guardrails only ever recorded real failures; check-udf-perf only ever skipped.
+    for key in ("architecture.guardrails:default", "diagnostics.check-udf-perf:default"):
+        lane = derived[key]
+        assert lane.samples_ms == ()
+        assert lane.measured_p95_ms is None
+        assert lane.recommended_timeout_ms is None
+        assert lane.ceiling_is_declared is True
+
+
+def test_a_lane_with_no_sample_never_inherits_a_sibling_lanes_number() -> None:
+    """The forbidden closure: reconstructing a cap from another mode of the same tool."""
+
+    records = [
+        record
+        for record in _salvaged_records()
+        if record.tool.endswith("check_layer3_gy_second_domain_pack")
+    ]
+    derived = {lane.timing_key: lane for lane in derive_timing_budget_lanes(records)}
+    rederive = derived["quality.validation.check_layer3_gy_second_domain_pack:rederive-audit"]
+    write = derived["quality.validation.check_layer3_gy_second_domain_pack:write"]
+
+    assert rederive.measured_p95_ms is not None
+    assert write.measured_p95_ms is not None
+    assert write.measured_p95_ms != rederive.measured_p95_ms
+    assert write.samples_ms and rederive.samples_ms
+    assert set(write.samples_ms).isdisjoint(rederive.samples_ms)
+
+
+def test_derived_lanes_record_the_regime_their_samples_were_measured_in() -> None:
+    """A sample carries its regime; an unrecorded regime stays 'unknown' rather than assumed."""
+
+    derived = derive_timing_budget_lanes(_salvaged_records())
+
+    assert derived
+    for lane in derived:
+        assert lane.regime in {"serialized", "contended", "unknown"}
+        assert lane.sample_admission_predicate == SAMPLE_ADMISSION_PREDICATE_ID
+    # The salvaged records predate the regime field, so none may claim to be serialized.
+    assert {lane.regime for lane in derived} == {"unknown"}
+
+
+def test_every_committed_catalog_row_records_which_predicate_admitted_its_samples() -> None:
+    """A widened predicate must be visible rather than silent."""
+
+    for lane in load_timing_budget_catalog():
+        assert lane.sample_admission_predicate in SAMPLE_ADMISSION_PREDICATE_IDS
+        assert lane.regime in {"serialized", "contended", "unknown"}
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        {"sample_admission_predicate": "whatever_i_felt_like"},
+        {"regime": "quiet_host"},
+        {"regime": ""},
+    ],
+)
+def test_catalog_rejects_an_unknown_predicate_or_regime(corruption: dict[str, object]) -> None:
+    """Verify the verifier: a corrupted provenance field must fail the catalog loader."""
+
+    with pytest.raises(ValueError):
+        load_timing_budget_catalog_data({"lanes": [_catalog_lane_payload(**corruption)]})
+
+
+def test_catalog_requires_the_provenance_fields_rather_than_defaulting_them() -> None:
+    """An omitted predicate or regime must fail, not silently inherit a default."""
+
+    for omitted in ("sample_admission_predicate", "regime"):
+        payload = _catalog_lane_payload()
+        del payload[omitted]
+        with pytest.raises(ValueError):
+            load_timing_budget_catalog_data({"lanes": [payload]})
+
+
+def test_report_names_unbudgeted_lanes_at_the_point_of_use(tmp_path: Path) -> None:
+    """An executor must learn its lane is unbudgeted before spending a run to find out."""
+
+    from tools.cli import _render_timing_text, _summary_payload
+
+    log = tmp_path / "timing.jsonl"
+    log.write_text(
+        "".join(
+            json.dumps(json.loads(line)["raw"] and json.loads(json.loads(line)["raw"])) + "\n"
+            for line in SALVAGED_TIMING_RECORDS.read_text(encoding="utf-8").splitlines()
+        ),
+        encoding="utf-8",
+    )
+    payload = _summary_payload(5, log)
+    rendered = _render_timing_text(payload)
+
+    assert isinstance(payload["uncatalogued_lanes"], list)
+    assert payload["uncatalogued_lanes"], "the salvaged log contains uncatalogued lanes"
+    assert "quality.validation.check_layer3_gy_second_domain_pack:write" in rendered
+    assert "ABSENT from the budget catalog" in rendered
+    assert "a ceiling must be DECLARED and recorded as supplied" in rendered

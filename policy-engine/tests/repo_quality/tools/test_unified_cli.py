@@ -210,8 +210,10 @@ def test_report_timing_lists_measured_catalog_lanes_without_a_timing_log(
     payload = json.loads(capsys.readouterr().out)
     assert exit_code == 0
     assert payload["record_count"] == 0
-    assert payload["timing_budget_catalog_scope"] == "requested_expensive_lanes_only"
-    assert payload["uncatalogued_lanes"] == "outside_requested_expensive_lane_scope"
+    assert payload["timing_budget_catalog_scope"] == "committed_rows_plus_log_derived_lanes"
+    # With no recorded log there is nothing to derive, so no lane can be reported unbudgeted.
+    # The field is a list of observed-but-absent lanes now, not a constant excuse string.
+    assert payload["uncatalogued_lanes"] == []
     frontend_lint = next(
         lane for lane in payload["lane_summaries"] if lane["timing_key"] == "frontend.eslint:default"
     )

@@ -2,7 +2,12 @@
 title: S0-GAP-02 — Public input schema, fixture corpus, and sealed expectations
 status: research
 research_only: true
-repository_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+repository_pin: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
+source_tree_equivalent_pin: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a7c34cc40b649a10b6878228a8a57acc498f279a
+audit_commit: 3abbaf8c2808e31fd7d8f9929b696e78dc91b3d4
+amendment_branch: research/s0-gap-02-amendment
+amendment_status: audit_amended
 result_standing: accepted_narrow_scope
 authoritative_for:
   - research-only public input and corpus semantics
@@ -26,7 +31,7 @@ may_not_use_for:
 
 ## 1. Design objective
 
-The public package must let an implementation execute a custody scenario without telling it which action, status, label, mechanism, or trace the evaluator will accept. OPS-R15’s prior art requires an input corpus, hidden mutations, set-valued expectations, and a bounded receipt, but its prose fixtures expose expected traces and do not constitute an executable independent oracle. (`policy-engine/docs/research/policy-operations/stage0/ops-r15-custody-capstone-semantic-kernel-and-benchmark-architecture.md:326-470@1a7a2d05ebba22fae80e9934329e4b880806588e`, especially `CK-11`; `policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:80-160@1a7a2d05ebba22fae80e9934329e4b880806588e`.)
+The public package must let an implementation execute a custody scenario without telling it which action, status, label, mechanism, or trace the evaluator will accept. OPS-R15’s prior art requires an input corpus, hidden mutations, set-valued expectations, and a bounded receipt, but its prose fixtures expose expected traces and do not constitute an executable independent oracle. (`policy-engine/docs/research/policy-operations/stage0/ops-r15-custody-capstone-semantic-kernel-and-benchmark-architecture.md:326-470@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, especially `CK-11`; `policy-engine/docs/research/policy-operations/audits/ops-r15/ops-r15-test-and-probe-verification.md:80-160@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`.)
 
 The split is therefore strict:
 
@@ -195,8 +200,8 @@ The existing in-tree benchmark owners demonstrate why these rules are necessary:
 - Any correction creates a new fixture version and digest; prior runs remain bound to prior bytes.
 - A public fixture may be superseded but not overwritten.
 - The public package includes the full `may_not_use_for` block.
-- The corpus defines observable semantics only and does not require an internal production architecture, preserving `S0-K13`. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K13`.)
-- Dissent and uncertainty are retained, preserving `S0-K15`, rather than normalized into a single hidden label. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:155-176@1a7a2d05ebba22fae80e9934329e4b880806588e`, finding `S0-K15`.)
+- The corpus defines observable semantics only and does not require an internal production architecture, preserving `S0-K13`. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:96-112@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `S0-K13`.)
+- Dissent and uncertainty are retained, preserving `S0-K15`, rather than normalized into a single hidden label. (`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md:155-176@109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee`, finding `S0-K15`.)
 
 ## 4. Sealed expectation format
 
@@ -210,6 +215,10 @@ SealedExpectationBundle:
   benchmark_specification_digest: digest
   authority_axiom_profile_digest: digest
   trace_observation_profile_digest: digest
+  finite_trace_domain_profile_digest: digest
+  predicate_dsl_version: stable_identifier
+  predicate_compiler_proof_digest: digest
+  specification_assurance_record_digest: digest
   canonicalization_profile: stable_identifier
   created_at: timestamp
   admissible_alternatives: [AdmissibleAlternative]
@@ -259,16 +268,65 @@ An alternative is invalid if it has no positive discriminator, no negative bound
 ```yaml
 PredicateRequirement:
   predicate_id: stable_identifier
-  predicate_language_version: string
+  predicate_language_version: S0-GAP-02-PDL-1
+  normalized_ast_digest: digest
   parameters: map<string, typed_value>
   quantification_scope: fixture | entity_set | event_set | dependency_closure |
                         observation_channel | mutation_family
   required_result: true | false
   indeterminate_policy: blocks_verification
   evidence_requirement: stable_identifier
+  compiler_proof_refs: [digest]
 ```
 
-The predicate language is evaluator-independent and declarative. Its interpreter may not be shared between `R_v` and `P_v` if the interpreter itself performs semantic reduction; each evaluator must independently operationalize the public predicate definition.
+The predicate language is evaluator-independent and declarative. Its interpreter may not be shared between `R_v` and `P_v` when the interpreter performs semantic reduction; each evaluator independently operationalizes the same normalized public formula. The bundle compiler, not either evaluator, establishes the finite-domain well-formedness and proof obligations below.
+
+#### 4.3.1 Chosen decidability model: finite-domain total predicate DSL
+
+This amendment selects a **total decidable predicate DSL over a finite trace-domain profile**. It does not authorize a final production language or API. An admitted profile must enumerate or bound every domain used by the fixture:
+
+```yaml
+FiniteTraceDomainProfile:
+  profile_id: stable_identifier
+  entity_ids: finite_canonical_set
+  event_ids: finite_canonical_set
+  dependency_edges: finite_canonical_set
+  observation_channels: finite_enum
+  event_types: finite_enum
+  authority_and_posture_atoms: finite_enum
+  integer_range: {minimum: integer, maximum: integer}
+  time_ticks: finite_ordered_set
+  maximum_trace_events: integer
+  maximum_entities: integer
+  maximum_edges: integer
+  string_atoms: finite_dictionary
+  profile_digest: digest
+```
+
+A numeric bound is not itself an enumerable domain. Every `finite_canonical_set` is materialized as a committed, canonically ordered member list before bundle admission. Maximum values are validation caps over those lists, not permission for a compiler to invent members later. If any domain needed by a predicate cannot be completely enumerated at admission, the bundle is `not_established` for positive verification and the stronger claim is withheld.
+
+`S0-GAP-02-PDL-1` permits only:
+
+- Boolean connectives over a normalized finite AST;
+- equality/inequality, membership, exact bounded integer comparison, and finite cardinality;
+- quantification over named finite sets from the domain profile;
+- finite set union/intersection/difference and subset relations;
+- reachability and partial-order predicates over the bounded declared graph;
+- exact event/time ordering over declared finite time ticks; and
+- references to public primitive predicates whose own normalized definitions are included in the bundle.
+
+It forbids recursion, unbounded quantification, user-defined executable functions, floating-point approximation, external calls, nondeterminism, implementation callbacks, unbounded strings, hidden model inference, and unsupported theories.
+
+Compilation terminates by construction over the finite domain and emits proof or counterexample certificates for:
+
+```text
+SAT(phi)       -- at least one admitted trace satisfies phi
+UNSAT(phi)     -- no admitted trace satisfies phi
+TAUT(phi)      -- every admitted trace satisfies phi
+NOT_TAUT(phi)  -- a counterexample trace exists
+```
+
+A resource limit, unsupported operator, malformed proof, or compiler disagreement is not a favourable result. It returns an indeterminate admission finding and blocks the expectation bundle under `PV-K06`.
 
 ### 4.4 Ambiguity and reviewer record
 
@@ -292,31 +350,63 @@ AmbiguityRecord:
 
 `abstains` and `conflict_recusal` are first-class values. They are never converted to assent and never deleted when a later adjudication occurs.
 
-## 5. Bounded ambiguity: preserving alternatives without becoming unfalsifiable
+## 5. Decidable bounded ambiguity
 
-For fixture `x`, let `A_x` be the finite nonempty set of admissible alternatives. Each alternative `a` denotes a set of raw traces satisfying all of its positive requirements and none of its exclusions. Let `G_x` be the mandatory cross-alternative predicates. The expectation-side compatibility relation is:
+For fixture `x`, let `D_x` be the finite trace domain fixed by the admitted `FiniteTraceDomainProfile`. Let `A_x` be the finite nonempty set of admissible alternatives. Each alternative compiles to a total Boolean formula `phi_a(y)` over `D_x`; the mandatory cross-alternative requirements compile to `G_x(y)`. The compatibility relation is:
 
 ```text
-Compatible(x, y) = (exists a in A_x: y satisfies a) and (y satisfies every g in G_x)
+Compatible(x, y) = (OR over a in A_x of phi_a(y)) AND G_x(y)
 ```
 
-The bundle is structurally invalid when any of the following is true:
+`Compatible` is decidable because `y` and every quantified domain are finite and every admitted formula is total. Bundle admission requires proof-producing checks:
 
-- `A_x` is empty;
-- an “other,” wildcard, “reasonable outcome,” or open-ended branch exists;
-- every possible raw trace matches at least one alternative;
-- an alternative has no positive discriminator or no exclusion boundary;
-- `may_vary` covers a semantic field;
-- a reviewer disagreement is hidden by taking the union of positions without preserving the dissent;
-- an indeterminate mandatory predicate is treated as true;
-- an alternative was added after observing an uncommitted implementation output without a correction/supersession record.
+1. `SAT(phi_a)` for every alternative: no impossible branch;
+2. every positive discriminator is `NOT_TAUT` and changes truth value on its bound seed/baseline witness;
+3. every negative boundary predicate is `SAT` and `NOT_TAUT`: it can actually occur and actually exclude something;
+4. `NOT_TAUT(OR_a phi_a)`: the union of alternatives is not catch-all over `D_x`;
+5. `may_vary` is restricted to enumerated representation-only fields and cannot widen `D_x`; and
+6. the mandatory formula `G_x` is satisfiable with at least one admitted alternative.
 
-Genuine ambiguity is different from uncertainty about the benchmark itself:
+The bundle is invalid when any proof is missing, indeterminate, unsupported, timed out, or fails verification. An evaluator may not treat compiler uncertainty as acceptance.
 
-- **Genuine multiple outcomes:** the public axioms explicitly permit more than one outcome; each is enumerated and bounded. Any listed branch may satisfy the fixture.
-- **Contested axiom:** reviewers disagree about the premise. The disagreement remains visible. The fixture may be marked non-claimable until the challenge protocol resolves or explicitly accepts a set-valued premise.
-- **Incomplete information:** the fixture branches on a bounded missing fact, or it is not claimable. The evaluator may not guess.
-- **Reviewer disagreement about an output:** there is no automatic majority rule. The run remains challengeable and the bounded verification claim is withheld unless the predeclared adjudication protocol is satisfied.
+Genuine ambiguity remains distinct from benchmark uncertainty:
+
+- **Genuine multiple outcomes:** public axioms explicitly permit more than one outcome; each branch is finite, satisfiable, and non-universal.
+- **Contested axiom:** reviewer positions and `S_v` remain visible. The stronger custody-semantics claim is withheld unless the named scope's assurance is established.
+- **Incomplete information:** the finite domain contains explicit bounded branches, or the fixture is non-claimable. The evaluator may not guess.
+- **Reviewer disagreement about an output:** there is no automatic majority rule. The claim remains withheld while a blocking challenge/disagreement is unresolved.
+
+### 5.1 Required rejection fixture: syntactically valid catch-all
+
+The audit's construction is committed as a compiler falsifier:
+
+```yaml
+case_id: BUNDLE-CATCHALL-01
+finite_trace_domain_profile: bounded_synthetic_trace_domain_v1
+alternatives:
+  - alternative_id: universal
+    mandatory_positive_predicates:
+      - "event_count >= 0"
+    mandatory_negative_predicates:
+      - "event_type == 'x' and event_type != 'x'"
+    may_vary: []
+expected_compiler_proofs:
+  positive_predicate: TAUT
+  negative_predicate: UNSAT
+  alternative_union: TAUT
+expected_admission:
+  accepted: false
+  findings:
+    - POSITIVE_DISCRIMINATOR_TAUTOLOGY
+    - NEGATIVE_BOUNDARY_UNSATISFIABLE
+    - CATCH_ALL_ALTERNATIVE
+  claim_effect: VERIFICATION_BLOCKED
+forbidden:
+  - expectation_bundle_admitted
+  - timeout_or_unsupported_theory_treated_as_acceptance
+```
+
+The bundle satisfies the old syntactic checklist but is rejected by the amended decidable semantics. This is the direct evidence for audit finding `S0-GAP-02-VI-001`.
 
 ## 6. Commitment construction
 
@@ -436,6 +526,12 @@ admissible_alternatives:
     negative_discriminators: [D-090, D-091]
     rationale_refs: [AX-BRANCH-B, SEM-015]
     reviewer_position_refs: [pos_3]
+predicate_compiler:
+  dsl_version: S0-GAP-02-PDL-1
+  finite_trace_domain_profile_digest: sha256:...
+  alternative_formula_proof_digests: [sha256:..., sha256:...]
+  union_not_tautology_proof_digest: sha256:...
+  mandatory_formula_satisfiability_proof_digest: sha256:...
 ambiguity_record:
   ambiguity_kind: genuine_multiple_outcomes
   accepted_as_set_valued: true
@@ -449,17 +545,25 @@ ambiguity_record:
 A future bundle compiler must reject, rather than warn on:
 
 - public fixture fields matching the prohibited-answer vocabulary;
-- missing fixture/specification/axiom digests;
-- zero alternatives or wildcard alternatives;
-- alternatives without positive and negative discriminators;
+- missing fixture/specification/axiom/domain-profile digests;
+- a predicate outside `S0-GAP-02-PDL-1`, unbounded domain, recursion, external call, nondeterminism, or unsupported theory;
+- zero alternatives or wildcard/open-ended alternatives;
+- any alternative whose formula is unsatisfiable;
+- a positive discriminator that is tautological, has no bound seed/delta witness, or does not change on that witness;
+- a negative boundary that is unsatisfiable or tautological;
+- an alternative union proved catch-all, or whose non-universality is not proved;
 - semantic fields listed as nonsemantic variability;
 - unsigned reviewer positions, missing dissent/abstention records, or deleted prior positions;
 - plaintext digest inconsistent with canonical bytes;
 - commitment root or inclusion proof mismatch;
 - a correction without `supersedes_bundle_digest` and a reason;
-- an expectation bundle created after the implementation output without a prior commitment or a logged correction process;
-- a mandatory predicate whose indeterminate policy is anything other than `blocks_verification`.
+- an expectation bundle created after implementation output without prior commitment or logged correction;
+- a missing or unverified specification-assurance record;
+- a mandatory predicate whose indeterminate policy is anything other than `blocks_verification`; and
+- timeout, resource exhaustion, compiler disagreement, malformed certificate, or proof-checker `unknown` being converted to acceptance.
+
+Compiler acceptance evidence includes the normalized ASTs, finite-domain digest, satisfiability/non-tautology certificates, exact proof-checker version, and verification results. Prose saying “not catch-all” is not evidence of the gate predicate.
 
 ## 10. Standing
 
-This specification is machine-readable enough to test architecture and leakage rules, but it remains research-only. It defines no final package name, serializer, database, API, custodian, or evaluator. Its acceptance cannot score OPS-R15 until independent implementations, custody, challenge, and institutional competence are separately established and accepted.
+The amended format now makes `Compatible(x,y)` decidable within a declared finite trace domain and commits a concrete catch-all rejection fixture. It remains research-only and defines no final package name, serializer, database, API, custodian, or evaluator. No compiler, proof checker, expectation bundle, specification-assurance institution, or operational gate is established by this Markdown. Timeout or unsupported theory blocks under `PV-K06`; agreement under an unassured shared premise yields `SPECIFICATION_ASSURANCE_NOT_ESTABLISHED`, a local `INT-K08` negative completion rather than a new product/outcome vocabulary element. Nothing here scores or unblocks OPS-R15.

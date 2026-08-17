@@ -2331,6 +2331,24 @@
         "title": "AuthoredText",
         "type": "object"
       },
+      "AuthorityValueId": {
+        "description": "Every value family the retired surfaces minted, recovered from their source.",
+        "enum": [
+          "readiness.composite_verdict",
+          "readiness.lens_projection",
+          "readiness.fairness_audit",
+          "readiness.harm_assessment",
+          "readiness.embargo_overlay",
+          "readiness.slow_review",
+          "readiness.revocation_ledger",
+          "scientific.identifiability_remedy",
+          "scientific.sensitivity_e_value",
+          "scientific.cohort_timeline",
+          "scientific.stress_ranking"
+        ],
+        "title": "AuthorityValueId",
+        "type": "string"
+      },
       "AvailableGovernedProjectionPacket": {
         "additionalProperties": false,
         "description": "Projection state with a source-specific typed payload.",
@@ -17006,6 +17024,53 @@
         "title": "QuantityValue",
         "type": "object"
       },
+      "RefusedAuthorityValue": {
+        "additionalProperties": false,
+        "description": "A served, first-class refusal. The absence itself is the supplied value.",
+        "properties": {
+          "owner_surface": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Surface"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "refusal_code": {
+            "$ref": "#/components/schemas/ValueRefusalCode"
+          },
+          "retired_from": {
+            "minLength": 1,
+            "title": "Retired From",
+            "type": "string"
+          },
+          "state": {
+            "const": "refused",
+            "default": "refused",
+            "title": "State",
+            "type": "string"
+          },
+          "value_id": {
+            "$ref": "#/components/schemas/AuthorityValueId"
+          }
+        },
+        "required": [
+          "value_id",
+          "refusal_code",
+          "reason",
+          "retired_from"
+        ],
+        "title": "RefusedAuthorityValue",
+        "type": "object"
+      },
       "ReplayRef": {
         "additionalProperties": false,
         "description": "Replay or retention alternative reference for the value.",
@@ -17322,6 +17387,56 @@
           }
         },
         "title": "RetrievalTelemetryView",
+        "type": "object"
+      },
+      "RunAuthorityProjection": {
+        "additionalProperties": false,
+        "description": "The complete disposition of the DS4-C23 inventory for one run.\n\nCompleteness is enforced, not documented: a value silently dropped is the exact\nfailure this slice exists to close, so the projection refuses to exist unless every\n`AuthorityValueId` is dispositioned exactly once.",
+        "properties": {
+          "inventory_version": {
+            "minLength": 1,
+            "title": "Inventory Version",
+            "type": "string"
+          },
+          "retirement_commit": {
+            "minLength": 1,
+            "title": "Retirement Commit",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "values": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "refused": "#/components/schemas/RefusedAuthorityValue",
+                  "supplied": "#/components/schemas/SuppliedAuthorityValue"
+                },
+                "propertyName": "state"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RefusedAuthorityValue"
+                },
+                {
+                  "$ref": "#/components/schemas/SuppliedAuthorityValue"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "inventory_version",
+          "retirement_commit",
+          "values"
+        ],
+        "title": "RunAuthorityProjection",
         "type": "object"
       },
       "RunCompareResponse": {
@@ -20675,6 +20790,43 @@
         "title": "SourceProfilesListResponse",
         "type": "object"
       },
+      "SuppliedAuthorityValue": {
+        "additionalProperties": false,
+        "description": "A value the runtime genuinely computes.\n\nThe inventory holds none today. The variant exists so that a future supplied value\nslots in without a contract change, and so the discriminated union the surface reads\nis the same shape before and after.",
+        "properties": {
+          "metric_id": {
+            "minLength": 1,
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point"
+          },
+          "state": {
+            "const": "supplied",
+            "default": "supplied",
+            "title": "State",
+            "type": "string"
+          },
+          "value_id": {
+            "$ref": "#/components/schemas/AuthorityValueId"
+          }
+        },
+        "required": [
+          "value_id",
+          "metric_id"
+        ],
+        "title": "SuppliedAuthorityValue",
+        "type": "object"
+      },
       "SurfaceReadinessPayload": {
         "additionalProperties": false,
         "description": "Owner-versioned surface readiness projection once a live schema exists.",
@@ -21601,6 +21753,18 @@
         ],
         "title": "ValueGatePayload",
         "type": "object"
+      },
+      "ValueRefusalCode": {
+        "description": "Why a value is refused. Every code is a property of the VALUE, never of effort.",
+        "enum": [
+          "no_runtime_composition_rule",
+          "no_runtime_estimator",
+          "analysis_not_runtime_resident",
+          "no_runtime_producer",
+          "owned_by_another_surface"
+        ],
+        "title": "ValueRefusalCode",
+        "type": "string"
       },
       "VerificationMetadata": {
         "additionalProperties": false,
@@ -44467,6 +44631,253 @@
           }
         },
         "summary": "Get Run Agents",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/authority-values": {
+      "get": {
+        "operationId": "get_run_authority_values",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_authority_values response example",
+                    "value": {
+                      "inventory_version": "ds16-c03.1",
+                      "retirement_commit": "bc1d01001",
+                      "run_id": "run-2026-08-17-001",
+                      "values": [
+                        {
+                          "owner_surface": null,
+                          "reason": "No governed artifact defines how a readiness verdict is composed.",
+                          "refusal_code": "no_runtime_composition_rule",
+                          "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+                          "state": "refused",
+                          "value_id": "readiness.composite_verdict"
+                        },
+                        {
+                          "owner_surface": "atlas audience mapping (DS0/DS3)",
+                          "reason": "Stakeholder-lens projection is audience mapping, owned by the DS0/DS3 audience grammar.",
+                          "refusal_code": "owned_by_another_surface",
+                          "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+                          "state": "refused",
+                          "value_id": "readiness.lens_projection"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RunAuthorityProjection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/authority-values",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Disposition of every retired readiness/scientific-depth value",
         "tags": [
           "runtime-runs"
         ]

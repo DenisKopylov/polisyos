@@ -1279,6 +1279,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/authority-values": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Disposition of every retired readiness/scientific-depth value */
+        get: operations["get_run_authority_values"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/compare-candidates": {
         parameters: {
             query?: never;
@@ -2457,6 +2474,12 @@ export interface components {
             /** Text */
             text: string;
         };
+        /**
+         * AuthorityValueId
+         * @description Every value family the retired surfaces minted, recovered from their source.
+         * @enum {string}
+         */
+        AuthorityValueId: "readiness.composite_verdict" | "readiness.lens_projection" | "readiness.fairness_audit" | "readiness.harm_assessment" | "readiness.embargo_overlay" | "readiness.slow_review" | "readiness.revocation_ledger" | "scientific.identifiability_remedy" | "scientific.sensitivity_e_value" | "scientific.cohort_timeline" | "scientific.stress_ranking";
         /**
          * AvailableGovernedProjectionPacket
          * @description Projection state with a source-specific typed payload.
@@ -8597,6 +8620,25 @@ export interface components {
             unit: components["schemas"]["polisyos__core__contracts__runtime__UnitRef"];
         };
         /**
+         * RefusedAuthorityValue
+         * @description A served, first-class refusal. The absence itself is the supplied value.
+         */
+        RefusedAuthorityValue: {
+            /** Owner Surface */
+            owner_surface?: string | null;
+            /** Reason */
+            reason: string;
+            refusal_code: components["schemas"]["ValueRefusalCode"];
+            /** Retired From */
+            retired_from: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            state: "refused";
+            value_id: components["schemas"]["AuthorityValueId"];
+        };
+        /**
          * ReplayRef
          * @description Replay or retention alternative reference for the value.
          */
@@ -8726,6 +8768,24 @@ export interface components {
             notes?: string[];
             /** Phases */
             phases?: components["schemas"]["RetrievalPhaseTelemetry"][];
+        };
+        /**
+         * RunAuthorityProjection
+         * @description The complete disposition of the DS4-C23 inventory for one run.
+         *
+         *     Completeness is enforced, not documented: a value silently dropped is the exact
+         *     failure this slice exists to close, so the projection refuses to exist unless every
+         *     `AuthorityValueId` is dispositioned exactly once.
+         */
+        RunAuthorityProjection: {
+            /** Inventory Version */
+            inventory_version: string;
+            /** Retirement Commit */
+            retirement_commit: string;
+            /** Run Id */
+            run_id: string;
+            /** Values */
+            values: (components["schemas"]["RefusedAuthorityValue"] | components["schemas"]["SuppliedAuthorityValue"])[];
         };
         /**
          * RunCompareResponse
@@ -9981,6 +10041,26 @@ export interface components {
             profiles?: components["schemas"]["SourceProfileInfo"][];
         };
         /**
+         * SuppliedAuthorityValue
+         * @description A value the runtime genuinely computes.
+         *
+         *     The inventory holds none today. The variant exists so that a future supplied value
+         *     slots in without a contract change, and so the discriminated union the surface reads
+         *     is the same shape before and after.
+         */
+        SuppliedAuthorityValue: {
+            /** Metric Id */
+            metric_id: string;
+            /** Point */
+            point?: number | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            state: "supplied";
+            value_id: components["schemas"]["AuthorityValueId"];
+        };
+        /**
          * SurfaceReadinessPayload
          * @description Owner-versioned surface readiness projection once a live schema exists.
          */
@@ -10310,6 +10390,12 @@ export interface components {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             }[];
         };
+        /**
+         * ValueRefusalCode
+         * @description Why a value is refused. Every code is a property of the VALUE, never of effort.
+         * @enum {string}
+         */
+        ValueRefusalCode: "no_runtime_composition_rule" | "no_runtime_estimator" | "analysis_not_runtime_resident" | "no_runtime_producer" | "owned_by_another_surface";
         /**
          * VerificationMetadata
          * @description Audit metadata used by Trust View without changing the underlying truth.
@@ -17097,6 +17183,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentPipelineResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_authority_values: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunAuthorityProjection"];
                 };
             };
             /** @description Malformed request payload or parameters. */

@@ -1,0 +1,100 @@
+{
+  "content_sha256": "sha256:1225e9251434a3058c8b7696898e47d2513d7e89e0fddaae4eed947854399261",
+  "inventory_version": "ds16-c03.1",
+  "member_count": 11,
+  "retired_modules": [
+    "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+    "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts"
+  ],
+  "retirement_commit": "bc1d01001",
+  "values": [
+    {
+      "owner_surface": null,
+      "reason": "No governed artifact defines how a readiness verdict is composed. The retired surface derived one from local thresholds, regexes, dwell state and disputes; the inputs are served by their own owners, the composition rule does not exist.",
+      "refusal_code": "no_runtime_composition_rule",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.composite_verdict"
+    },
+    {
+      "owner_surface": "atlas audience mapping (DS0/DS3)",
+      "reason": "Stakeholder-lens projection is audience mapping, owned by the DS0/DS3 audience grammar. DS16 references that grammar and may not re-derive it.",
+      "refusal_code": "owned_by_another_surface",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.lens_projection"
+    },
+    {
+      "owner_surface": null,
+      "reason": "Fairness analysis is resident in the offline scientist and foundry packages and has no presence in the HTTP runtime. Serving it would establish an analysis capability, which this slice explicitly does not claim.",
+      "refusal_code": "analysis_not_runtime_resident",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.fairness_audit"
+    },
+    {
+      "owner_surface": null,
+      "reason": "Harm assessment is resident in the offline scientist and foundry packages and has no presence in the HTTP runtime. Serving it would establish an analysis capability, which this slice explicitly does not claim.",
+      "refusal_code": "analysis_not_runtime_resident",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.harm_assessment"
+    },
+    {
+      "owner_surface": null,
+      "reason": "No embargo concept exists anywhere in the source tree under any name; the retired overlay was constructed entirely on the surface.",
+      "refusal_code": "no_runtime_producer",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.embargo_overlay"
+    },
+    {
+      "owner_surface": null,
+      "reason": "Slow-review requirements were derived from browser dwell state held in local storage. Dwell time is interaction state and never became a runtime value.",
+      "refusal_code": "no_runtime_producer",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.slow_review"
+    },
+    {
+      "owner_surface": null,
+      "reason": "No revocation ledger exists. The one 'revocation' token in the served schema is a step-up authentication class on a reissue endpoint, an unrelated concept.",
+      "refusal_code": "no_runtime_producer",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+      "state": "refused",
+      "value_id": "readiness.revocation_ledger"
+    },
+    {
+      "owner_surface": null,
+      "reason": "Identifiability state is served on QuantityUncertainty and was bound correctly by the retired surface. The REMEDY \u2014 which dataset, RCT or instrument would repair it, and its acquisition ref \u2014 requires an acquisition planner that does not exist in the source tree.",
+      "refusal_code": "no_runtime_estimator",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+      "state": "refused",
+      "value_id": "scientific.identifiability_remedy"
+    },
+    {
+      "owner_surface": null,
+      "reason": "No E-value estimator exists anywhere in the source tree, so neither the E-value nor the claim-extinction verdict derived from it has a producer.",
+      "refusal_code": "no_runtime_estimator",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+      "state": "refused",
+      "value_id": "scientific.sensitivity_e_value"
+    },
+    {
+      "owner_surface": null,
+      "reason": "Cohort transition analysis is resident offline and is not served per run; the retired timeline interpolated shares that no runtime computation produced.",
+      "refusal_code": "analysis_not_runtime_resident",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+      "state": "refused",
+      "value_id": "scientific.cohort_timeline"
+    },
+    {
+      "owner_surface": null,
+      "reason": "No stress-scene or stress-ranking producer exists in the source tree; the retired ranking ordered scenes the surface itself invented.",
+      "refusal_code": "no_runtime_producer",
+      "retired_from": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+      "state": "refused",
+      "value_id": "scientific.stress_ranking"
+    }
+  ]
+}

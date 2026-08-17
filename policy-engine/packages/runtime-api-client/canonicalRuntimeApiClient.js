@@ -508,6 +508,12 @@ export class RuntimeApiClient {
     return this.request("GET", path, query);
   }
 
+  async getRunAuthorityValues(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
+    const query = undefined;
+    return this.request("GET", path, query);
+  }
+
   async getRunCompareCandidates(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/compare-candidates`;
     const query = this.buildQuery({

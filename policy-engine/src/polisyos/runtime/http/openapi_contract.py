@@ -283,6 +283,36 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
 }
 
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
+    "get_run_authority_values": {
+        "run_id": "run-2026-08-17-001",
+        "inventory_version": "ds16-c03.1",
+        "retirement_commit": "bc1d01001",
+        "values": [
+            {
+                "value_id": "readiness.composite_verdict",
+                "state": "refused",
+                "refusal_code": "no_runtime_composition_rule",
+                "reason": ("No governed artifact defines how a readiness verdict is composed."),
+                "retired_from": (
+                    "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+                ),
+                "owner_surface": None,
+            },
+            {
+                "value_id": "readiness.lens_projection",
+                "state": "refused",
+                "refusal_code": "owned_by_another_surface",
+                "reason": (
+                    "Stakeholder-lens projection is audience mapping, owned by the "
+                    "DS0/DS3 audience grammar."
+                ),
+                "retired_from": (
+                    "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+                ),
+                "owner_surface": "atlas audience mapping (DS0/DS3)",
+            },
+        ],
+    },
     "health": {"status": "ok"},
     "ready": {"status": "ready"},
     "runtime_api_health": {
@@ -360,9 +390,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "bound_dependency_aggregate_identity": _SHA_BINDINGS,
                 "bound_dependency_count": 1,
                 "semantic_projection_hash": _SHA_PLAN,
-                "semantic_projection_hash_rule_version": (
-                    "polisyos.pdc.gy_content_hash.v1"
-                ),
+                "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
                 "issue_codes": [],
             },
             "related_artifact_bindings": [],

@@ -131,6 +131,9 @@ export type AuthMeResponse = RuntimeApiComponents["schemas"]["AuthMeResponse"];
 
 export type AuthoredText = RuntimeApiComponents["schemas"]["AuthoredText"];
 
+export type AuthorityValueId =
+  RuntimeApiComponents["schemas"]["AuthorityValueId"];
+
 export type AvailableGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["AvailableGovernedProjectionPacket"];
 
@@ -789,6 +792,9 @@ export type QuantityValueInput =
 export type QuantityValueOutput =
   RuntimeApiComponents["schemas"]["QuantityValue-Output"];
 
+export type RefusedAuthorityValue =
+  RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
+
 export type ReplayRef = RuntimeApiComponents["schemas"]["ReplayRef"];
 
 export type ReproducibilityView =
@@ -799,6 +805,9 @@ export type RetrievalPhaseTelemetry =
 
 export type RetrievalTelemetryView =
   RuntimeApiComponents["schemas"]["RetrievalTelemetryView"];
+
+export type RunAuthorityProjection =
+  RuntimeApiComponents["schemas"]["RunAuthorityProjection"];
 
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
@@ -959,6 +968,9 @@ export type SourceProfileInfo =
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
 
+export type SuppliedAuthorityValue =
+  RuntimeApiComponents["schemas"]["SuppliedAuthorityValue"];
+
 export type SurfaceReadinessPayload =
   RuntimeApiComponents["schemas"]["SurfaceReadinessPayload"];
 
@@ -999,6 +1011,9 @@ export type ValidationError =
 
 export type ValueGatePayload =
   RuntimeApiComponents["schemas"]["ValueGatePayload"];
+
+export type ValueRefusalCode =
+  RuntimeApiComponents["schemas"]["ValueRefusalCode"];
 
 export type VerificationMetadata =
   RuntimeApiComponents["schemas"]["VerificationMetadata"];
@@ -1774,6 +1789,14 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<AgentPipelineResponse>("GET", path, query);
+  }
+
+  async getRunAuthorityValues(params: {
+    run_id: string;
+  }): Promise<RunAuthorityProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
+    const query = undefined;
+    return this.request<RunAuthorityProjection>("GET", path, query);
   }
 
   async getRunCompareCandidates(params: {

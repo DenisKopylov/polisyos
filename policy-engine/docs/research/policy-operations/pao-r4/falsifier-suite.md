@@ -2,14 +2,18 @@
 title: PAO-R4 — Falsifier suite
 research_id: PAO-R4
 artifact_role: falsifier-suite
-status: research
+status: amended_research
 research_only: true
 repository: DenisKopylov/polisyos
-baseline_commit: 1a7a2d05ebba22fae80e9934329e4b880806588e
+audited_commit: a27c3da9942b03881dbee1005a8a1e44e5ac44b4
+audit_commit: 69182c079fb5dc99808d7cd27874d50433efd5a4
+pinned_repository_commit: 109ba3f44e09e0d34cf49ae19aa25ba4048ee3ee
 result_standing: GO_WITH_REVISIONS
+adoption_status: NO_GO_pending_independent_conformance
 authoritative_for:
-  - research-only executable specification of firewall falsifiers
-  - exact expected semantic outcomes for PAO-R4
+  - amended research-only executable specification of PAO-R4 falsifiers
+  - exact detector and expected verdict for each single-world case
+  - declaration-falsification and remove-property-keep-markers probes
 may_not_use_for:
   - production implementation authorization
   - final wire, schema, package, database, serialization or API contract
@@ -25,24 +29,33 @@ may_not_use_for:
 
 ## 1. Execution model
 
-This suite is an executable **semantic specification**, not an implementation, API, schema, or case
-system. A future verifier supplies four functions over real runtime paths:
+This is an executable **semantic specification**, not test code, schema, API, case-management model,
+or product outcome/status lattice. A future verifier must exercise the real parser, semantic
+classifier, named-history evaluator, projection owner, consumer consultation gate, and returning-
+evidence reconciliation.
 
 ```text
-export_verdict(artifact, request, source_lineage, controlled_history)
-consumer_verdict(imported_artifact, declared_purpose, protected_action, material_contribution)
-return_reconciliation(issue_records, use_records, protected_action_denominator)
-projection_verdict(source_restrictions, projected_restrictions)
+classify_semantics(artifact, source_evidence) -> E | G | X | S | NOT_ESTABLISHED
+classify_predicate_provenance(predicate_evidence) ->
+    recomputed | independently_reconciled | consumer_asserted |
+    institutionally_supplied | not_established
+individualizable(artifact, named_history_H) -> true | false | NOT_ESTABLISHED
+export_verdict(artifact, request, lineage, named_history_H)
+consumer_use_verdict(artifact_ref, subject_ref, protected_action, consultation_event)
+return_reconciliation(issue_records, derivative_records, consultation_records,
+                      protected_action_denominator)
+projection_verdict(source_denials, projected_denials)
 ```
 
-The evaluator must execute the actual exporter, projection owner, consumer gate, and returning-
-evidence reconciliation. Marker-string or constructor-only checks fail pattern **`P29`**.
+Marker strings, labels, declared purpose, and self-reported counterfactuals cannot substitute for
+behavior. This applies `P29`, `P33`, and `P37`.
 
-Canonical research verdicts:
+The suite reuses its existing bounded research verdict vocabulary:
 
 ```text
 ALLOW_NON_INDIVIDUAL
 REFUSE_EXPORT
+BLOCK_BASIS
 BLOCK_PURPOSE
 BLOCK_PERMISSION_AMPLIFICATION
 BLOCK_COMPOSITION
@@ -52,376 +65,492 @@ NOT_ESTABLISHED
 NOT_DETECTABLE
 ```
 
-A test passes only when the exact expected outcome is produced and the stated forbidden outcome is
-absent.
+No new outcome-vocabulary element is introduced for normative-rule transport. For G, candidate-band
+transport can remain unblocked while the authority/applicability gate returns the existing bounded
+result `NOT_ESTABLISHED`.
 
-## 2. F-01 — commissioned falsifier: population rule used for eligibility
+Every case below describes one world, one detector, and one `expected_verdict`.
+
+## 2. Fixture manifest
+
+| Case | Property | Detector | Expected verdict |
+|---|---|---|---|
+| F-01 | allowed planning purpose drifts into eligibility | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-02 | bypass of F-01 gate | return reconciliation | `FIREWALL_VIOLATION` |
+| F-03 | two aggregates reconstruct a subject | named-history export gate | `BLOCK_COMPOSITION` |
+| F-04 | history/auxiliary inventory is asserted or incomplete | named-history export gate | `NOT_ESTABLISHED` |
+| F-05 | Artifact A singleton empirical rate | semantic/individualizability gate | `REFUSE_EXPORT` |
+| F-06 | Artifact B deterministic empirical partition | semantic/individualizability gate | `REFUSE_EXPORT` |
+| F-07 | Artifact C normative rule | semantic authority gate | `NOT_ESTABLISHED` |
+| F-08 | empirical tree with Artifact C syntax | semantic authority gate | `REFUSE_EXPORT` |
+| F-09 | projection narrows denied uses | projection gate | `BLOCK_PERMISSION_AMPLIFICATION` |
+| F-10 | complete query transcript reconstructs a determination | transcript composition gate | `BLOCK_COMPOSITION` |
+| F-11 | reconstruction lies outside a complete transcript | boundary classifier | `NOT_DETECTABLE` |
+| F-12 | voluntary channel, no reports | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
+| F-13 | voluntary channel, one incident report | claim reconciliation | `FIREWALL_CLAIM_NOT_ESTABLISHED` |
+| F-14 | human rubber stamp after consultation | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-15 | population explanation becomes individual reason | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-16 | correction weakens a restriction | correction interface gate | `BLOCK_PERMISSION_AMPLIFICATION` |
+| F-17 | synthetic exemplar resolves a real subject | semantic/individualizability gate | `REFUSE_EXPORT` |
+| F-18 | screenshot/manual application outside instrumentation | boundary classifier | `NOT_DETECTABLE` |
+| F-19 | large safe aggregate used for planning | export gate | `ALLOW_NON_INDIVIDUAL` |
+| F-20 | false complete-basis declaration retains markers | predicate-provenance gate | `NOT_ESTABLISHED` |
+| F-21 | false “not material” assertion despite consultation | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-22 | reference-class shopping for adverse action | consumer consultation gate | `BLOCK_PURPOSE` |
+| F-23 | benign purpose synonym masks protected triage | action-effect gate | `BLOCK_PURPOSE` |
+| F-24 | lineage disappears through multi-hop relay | governed consumer intake | `NOT_ESTABLISHED` |
+| F-25 | controlled derivative drops restrictions | derivative/projection gate | `BLOCK_PERMISSION_AMPLIFICATION` |
+| F-26 | semantic class remains mixed/unknown | semantic admission gate | `NOT_ESTABLISHED` |
+
+## 3. F-01 — commissioned falsifier: silent purpose drift
 
 ```yaml
 case_id: F-01
 artifact:
-  class: population_predictive_estimate
-  proposition: "Within declared cohort R, estimated non-compliance rate is 0.37"
-  basis: complete_declared_population_basis
+  semantic_class: E
+  proposition: "Within cohort R, estimated non-compliance rate is 0.37"
+  basis_state: visible
+  individualizable_under_H: false
   may_not_use_for: [individual_eligibility_determination]
 request:
+  declared_purpose: programme_capacity_planning
   consumer: case-system-A
+export_event:
+  verdict: ALLOW_NON_INDIVIDUAL
+later_use:
   subject_ref: person-opaque-17
-  purpose: individual_eligibility_determination
-action:
-  type: benefit_denial
-  material_contribution: threshold_population_rate_at_0_30
-expected:
-  export_or_request_gate: BLOCK_PURPOSE
-  consumer_gate: BLOCK_PURPOSE
-  if_consumed_anyway: FIREWALL_VIOLATION
-  returning_evidence_required: true
-forbidden:
-  - ALLOW_NON_INDIVIDUAL
-  - human_review_cures_denied_use
-  - population_membership_treated_as_individual_fact
+  protected_action: benefit_eligibility_denial
+  consultation: population_rate_thresholded_at_0_30
+detector: consumer_consultation_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: protected_action_proceeds
 ```
 
-**Exact pass condition:** at least one pre-action gate goes red, and a bypass is visible in returning
-evidence. If the rule is consumed and every gate remains green, the firewall is falsified.
+The request is truthfully permitted. The red signal must come from the consumer/use gate, not the
+request or exporter.
 
-**Pinned negative comparator:** no individual-purpose vocabulary exists, so the current state has no
-required red gate for this use.
+**Remove-property/keep-markers probe:** remove the consumer gate behavior while retaining request
+purpose, `may_not_use_for`, event fields, and labels. F-01 must fail because no real
+`BLOCK_PURPOSE` occurs.
 
-## 3. F-02 — two permitted aggregates re-identify a person
+## 4. F-02 — bypass of silent-purpose gate
 
 ```yaml
 case_id: F-02
-history:
-  - export_id: A
-    class: aggregate_descriptive_statistic
-    cells: [{district: d7, occupation: o3, count: 6, value: 1}]
-    initial_verdict: permitted_in_isolation
-  - export_id: B
-    class: aggregate_descriptive_statistic
-    cells: [{district: d7, occupation: o3, age_band: a9, count: 1, value: 1}]
-request:
-  declared_purpose: programme_planning
-auxiliary_information:
-  directory_resolves_unique_subject: true
-expected:
-  export_verdict_B: BLOCK_COMPOSITION
-  if_history_or_auxiliary_model_incomplete: NOT_ESTABLISHED
-  release_effect: refuse_second_export_or_coarsen_and_retest
-forbidden:
-  - each_export_safe_therefore_union_safe
-  - k_marker_without_composition_evaluation
+artifact_ref: empirical-rate-37
+admitted_request_purpose: programme_capacity_planning
+subject_ref: person-opaque-17
+protected_action: benefit_eligibility_denial
+consultation_event: recorded
+consumer_gate_event: bypassed
+protected_action_event: completed
+return_records: complete_and_reconciled
+detector: return_reconciliation
+expected_verdict: FIREWALL_VIOLATION
+forbidden_outcome: bounded_compliance_claim
 ```
 
-**Exact pass condition:** the proposed release is evaluated against the controlled prefix and known
-auxiliary information. Unknown history never inherits safety.
-
-## 4. F-03 — rule-level export is individually executable
+## 5. F-03 — aggregate join under complete history
 
 ```yaml
 case_id: F-03
-artifact:
-  class: general_rule_statement
-  text: "Prioritize applicants when score >= 62"
-  parameters:
-    score: "0.5*income_percentile + 0.3*district_risk + 0.2*household_size"
-    threshold: 62
-    tie_break: lower_case_id_first
-  declared_form: rule_level
-request:
-  purpose: policy_training
-expected:
-  export_verdict: REFUSE_EXPORT
-  reason: individually_executable_rule
-forbidden:
-  - allow_because_no_person_row_present
-  - allow_because_declared_form_is_rule_level
+semantic_class: E
+release_history_id: history-complete-03
+release_A: {district: d7, occupation: o3, count: 6, value: 1}
+release_B: {district: d7, occupation: o3, age_band: a9, count: 1, value: 1}
+auxiliary_model_id: directory-model-03
+unique_subject_resolution: true
+history_inventory_provenance: independently_reconciled
+detector: named_history_export_gate
+expected_verdict: BLOCK_COMPOSITION
+forbidden_outcome: second_release_allowed
 ```
 
-**Exact pass condition:** semantic executability, not the artifact label, controls the verdict. A
-rule with sufficient parameters to map case facts to an action is inherently unsafe to cross toward
-a case system.
-
-## 5. F-04 — denied use narrowed during projection
+## 6. F-04 — aggregate history is not established
 
 ```yaml
 case_id: F-04
-source:
-  may_not_use_for:
-    - individual_eligibility_determination
-    - individual_risk_scoring_or_profiling
-    - individual_sanction_or_enforcement
-projection:
-  may_not_use_for:
-    - individual_sanction_or_enforcement
-expected:
-  projection_verdict: BLOCK_PERMISSION_AMPLIFICATION
-  controlling_invariant: PV-K04
-forbidden:
-  - projection_pass
-  - omission_treated_as_editorial_shortening
-  - source_denials_replaced_by_surface_default
+semantic_class: E
+proposed_release: district_age_aggregate
+history_inventory_provenance: consumer_asserted
+auxiliary_model_provenance: not_established
+detector: named_history_export_gate
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: ALLOW_NON_INDIVIDUAL
 ```
 
-**Exact pass condition:** projected denied uses are a superset of all source and derivation denials.
-The test must fail even when every retained claim byte is accurate.
+A declared “complete history” cannot make the gate green.
 
-## 6. F-05 — individual determination reconstructed from compliant queries
+## 7. F-05 — Artifact A: singleton empirical rate
 
 ```yaml
 case_id: F-05
-queries:
-  - "count eligible in district d and age band a"
-  - "count eligible in district d and age band a excluding household h"
-  - "aggregate score distribution for household type t"
-  - "threshold used for programme planning"
-individual_queries:
-  each_export_verdict: ALLOW_NON_INDIVIDUAL
-combined_result:
-  unique_subject_resolved: true
-  eligibility_determination_reconstructed: true
-expected:
-  with_complete_transcript: BLOCK_COMPOSITION
-  without_complete_transcript: NOT_DETECTABLE
-  export_class_disposition_without_transcript: REFUSE_EXPORT
-forbidden:
-  - all_queries_pass_therefore_sequence_passes
-  - unknown_history_treated_as_empty_history
+artifact:
+  semantic_class_claim: E
+  reference_class_predicate: exact_district_age_rare_occupation_filing_minute
+  class_cardinality: 1
+  empirical_functional: mean_eligibility
+  result: 0
+named_history_H: independently_reconciled
+subject_resolution: true
+detector: semantic_individualizability_gate
+expected_verdict: REFUSE_EXPORT
+forbidden_outcome: aggregate_label_controls
 ```
 
-**Exact pass condition:** complete controlled history blocks the reconstructing query. If the
-boundary cannot make the sequence visible, the class is refused rather than documented as safe.
-
-## 7. F-06 — voluntary returning evidence is silent
+## 8. F-06 — Artifact B: deterministic empirical partition
 
 ```yaml
 case_id: F-06
 artifact:
-  class: population_causal_estimate
-  export_requires_use_time_detection: true
-consumer_contract:
-  returning_evidence: voluntary
-observations:
-  reports_received: 0
-  protected_actions_total: unknown
-possible_worlds:
-  - compliant_non_use
-  - prohibited_use_followed_by_silence
-expected:
-  export_verdict: REFUSE_EXPORT
-  firewall_claim: FIREWALL_CLAIM_NOT_ESTABLISHED
-forbidden:
-  - no_report_means_no_use
-  - terms_of_use_called_firewall
+  semantic_class_claim: E
+  cells: complete_mutually_exclusive_feature_partition
+  cell_results: binary_zero_or_one
+  case_feature_mapping: total_and_deterministic
+named_history_H: independently_reconciled
+pointwise_action_mapping: true
+detector: semantic_individualizability_gate
+expected_verdict: REFUSE_EXPORT
+forbidden_outcome: no_person_row_means_safe
 ```
 
-**Exact pass condition:** observational equivalence is recognized. Voluntary reporting never
-supports a positive firewall claim.
-
-## 8. F-07 — human rubber stamp
+## 9. F-07 — Artifact C: competent normative rule
 
 ```yaml
 case_id: F-07
-artifact_use:
-  subject_resolved: true
-  purpose: individual_priority_or_triage
-  model_output: rank_1_of_230
-human_step:
-  reviewer_saw_output: true
-  reviewer_changed_output: false
-  final_click_by_human: true
-counterfactual:
-  without_artifact_action_changes: true
-expected:
-  consumer_gate: BLOCK_PURPOSE
-  if_action_occurs: FIREWALL_VIOLATION
-forbidden:
-  - human_click_breaks_material_contribution
-  - formal_finality_only_test
+artifact:
+  semantic_class: G
+  rule: "For every applicant x, proven predicate Q(x) entails eligibility"
+  executable_parameters: present
+source_identity: independently_reconciled
+external_authority_competence: institutionally_supplied
+candidate_transport: not_blocked
+policyos_authority_effect: none
+detector: semantic_authority_gate
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: REFUSE_EXPORT
 ```
 
-**Exact pass condition:** material contribution, not who clicked, determines individual use.
+`NOT_ESTABLISHED` applies to authority, applicability, case facts, and determination. It does not
+prohibit candidate-band rule transport. Executability alone cannot produce `REFUSE_EXPORT`.
 
-## 9. F-08 — population explanation presented as an individual reason
+## 10. F-08 — empirical decision tree with Artifact C syntax
 
 ```yaml
 case_id: F-08
-population_artifact:
-  claim: "Cohort members have higher historical default rates"
-case_action:
-  outcome: licence_denied
-  stated_reason: "Applicants in this cohort present higher default risk"
-expected:
-  consumer_gate: BLOCK_PURPOSE
-  denied_use: individual_reason_generation
-  additional_denied_use: individual_risk_scoring_or_profiling
-forbidden:
-  - population_association_accepted_as_case_specific_ground
-  - explanation_link_to_full_report_cures_reason
+artifact:
+  semantic_class: E
+  syntax: executable_rule_tree
+  variables: [income, district_risk, household_size]
+  coefficients: [0.5, 0.3, 0.2]
+  threshold: 62
+  output: individual_priority
+source_identity: empirical_model
+pointwise_action_mapping: true
+detector: semantic_authority_gate
+expected_verdict: REFUSE_EXPORT
+forbidden_outcome: syntax_matches_normative_rule_therefore_allowed
 ```
 
-**Exact pass condition:** an individual reason resolves to the actual case facts and competent rule,
-not a population association.
+F-07 and F-08 have executable syntax. Semantic class and authority effect yield different bounded
+results.
 
-## 10. F-09 — correction weakens an individual-use restriction
+## 11. F-09 — denied use narrows during projection
 
 ```yaml
 case_id: F-09
-predecessor:
-  record_id: r1
-  may_not_use_for:
-    - individual_eligibility_determination
-    - individual_risk_scoring_or_profiling
-successor:
-  record_id: r2
-  supersedes: r1
-  may_not_use_for:
-    - individual_risk_scoring_or_profiling
-expected:
-  interface_verdict: BLOCK_PERMISSION_AMPLIFICATION
-  owner_dependency: PAO-R36
-forbidden:
-  - later_record_may_silently_relax_denial
-  - PAO-R4_defines_correction_mechanism
+source_denials:
+  - individual_eligibility_determination
+  - individual_risk_scoring_or_profiling
+  - individual_sanction_or_enforcement
+projected_denials:
+  - individual_sanction_or_enforcement
+lineage_state: resolved
+detector: projection_gate
+expected_verdict: BLOCK_PERMISSION_AMPLIFICATION
+forbidden_outcome: projection_pass
 ```
 
-**Exact pass condition:** the successor carries at least the predecessor's individual-use denials.
-PAO-R4 states only the interface obligation; `PAO-R36` owns correction mechanics.
+Controlling invariant: **`PV-K04`**.
 
-## 11. F-10 — synthetic exemplar maps to a real subject
+## 12. F-10 — query transcript reconstructs determination
 
 ```yaml
 case_id: F-10
-artifact:
-  class: synthetic_exemplar
-  rows: [{age: 47, district: d2, rare_job: j19, amount: 8123}]
-auxiliary_information:
-  unique_real_subject_match: true
-request:
-  purpose: training
-expected:
-  export_verdict: REFUSE_EXPORT
-  reason: purported_synthetic_record_is_subject_resolvable
-forbidden:
-  - synthetic_label_overrides_resolution_test
+transcript_identity: complete-query-family-10
+transcript_provenance: independently_reconciled
+queries:
+  - count_eligible_in_district_and_age
+  - count_excluding_household_h
+  - aggregate_score_distribution_for_type_t
+  - planning_threshold
+combined_effect: unique_subject_and_eligibility_reconstructed
+detector: transcript_composition_gate
+expected_verdict: BLOCK_COMPOSITION
+forbidden_outcome: local_query_passes_compose_to_pass
 ```
 
-**Exact pass condition:** the exemplar's provenance label does not override its actual resolution
-risk.
-
-## 12. F-11 — screenshot and off-ledger manual use
+## 13. F-11 — reconstruction outside transcript
 
 ```yaml
 case_id: F-11
-artifact:
-  class: individually_actionable_threshold_table
-route:
-  - authorized_view
-  - screenshot
-  - manual_case_application
-instrumentation:
-  screenshot_event: absent
-  case_use_event: absent
-expected:
-  detection_verdict: NOT_DETECTABLE
-  export_class_disposition: REFUSE_EXPORT
-forbidden:
-  - policy_text_treated_as_detection
-  - lack_of_event_treated_as_compliance
+queries: individually_permitted_population_queries
+transcript_inventory: absent
+reconstructed_individual_action: true
+governed_observable: none
+detector: boundary_classifier
+expected_verdict: NOT_DETECTABLE
+forbidden_outcome: complete_non_use_claim
 ```
 
-**Exact pass condition:** the architecture says `NOT_DETECTABLE` and refuses the actionable class.
-Inventing a downstream observable fails the test.
+`NOT_DETECTABLE` is not permission.
 
-## 13. F-12 — permitted population planning aggregate
+## 14. F-12 — voluntary channel, no reports
 
 ```yaml
 case_id: F-12
+use_time_detection_required: true
+returning_channel: voluntary
+reports_received: 0
+protected_action_denominator: unknown
+detector: claim_reconciliation
+expected_verdict: FIREWALL_CLAIM_NOT_ESTABLISHED
+forbidden_outcome: no_report_means_no_use
+```
+
+## 15. F-13 — voluntary channel, one incident report
+
+```yaml
+case_id: F-13
+use_time_detection_required: true
+returning_channel: voluntary
+reports_received: 1
+report_integrity: content_bound
+protected_action_denominator: unknown
+detector: claim_reconciliation
+expected_verdict: FIREWALL_CLAIM_NOT_ESTABLISHED
+permitted_bounded_claim: one_prohibited_use_was_reported
+forbidden_outcome: complete_non_use_or_incidence_rate_claim
+```
+
+The incident claim is permitted; completeness remains unavailable.
+
+## 16. F-14 — human rubber stamp
+
+```yaml
+case_id: F-14
+semantic_class: E
+subject_ref: person-opaque-44
+protected_action: individual_priority_or_triage
+consultation_event: rank_displayed
+human_action: approve_rank
+purpose_denied: true
+detector: consumer_consultation_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: human_click_cures_use
+```
+
+## 17. F-15 — population explanation becomes reason
+
+```yaml
+case_id: F-15
+semantic_class: E
+population_claim: cohort_has_higher_default_rate
+subject_ref: person-opaque-51
+protected_action: licence_denial
+consultation_event: population_claim_inserted_as_reason
+detector: consumer_consultation_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: report_link_becomes_case_ground
+```
+
+## 18. F-16 — correction weakens restriction
+
+```yaml
+case_id: F-16
+predecessor_denials:
+  - individual_eligibility_determination
+  - individual_risk_scoring_or_profiling
+successor_denials:
+  - individual_risk_scoring_or_profiling
+supersession_link: resolved
+detector: correction_interface_gate
+expected_verdict: BLOCK_PERMISSION_AMPLIFICATION
+forbidden_outcome: correction_resets_permission
+```
+
+This is the PAO-R36 interface obligation only.
+
+## 19. F-17 — synthetic exemplar resolves subject
+
+```yaml
+case_id: F-17
+semantic_class_claim: S
+synthetic_row: {age: 47, district: d2, rare_job: j19, amount: 8123}
+named_history_H: independently_reconciled
+unique_real_subject_match: true
+detector: semantic_individualizability_gate
+expected_verdict: REFUSE_EXPORT
+forbidden_outcome: synthetic_label_controls
+```
+
+## 20. F-18 — screenshot/manual application
+
+```yaml
+case_id: F-18
+artifact: individually_actionable_empirical_threshold_table
+authorized_display: true
+screenshot_event: outside_instrumentation
+manual_case_application: true
+governed_observable: none
+detector: boundary_classifier
+expected_verdict: NOT_DETECTABLE
+forbidden_outcome: lack_of_event_means_compliance
+```
+
+## 21. F-19 — permitted aggregate planning use
+
+```yaml
+case_id: F-19
 artifact:
-  class: aggregate_descriptive_statistic
+  semantic_class: E
   denominator: 182000
   cells:
     - {region: r1, count: 54000, rate: 0.12}
     - {region: r2, count: 61000, rate: 0.09}
     - {region: r3, count: 67000, rate: 0.15}
   subject_keys: none
-  executable_case_rule: none
-  basis: complete_and_visible
-  may_not_use_for: complete_individual_use_set
-request:
-  purpose: programme_capacity_planning
-  consumer: planning-system-P
-history:
-  composition_safe: established_for_declared_model
-expected:
-  export_verdict: ALLOW_NON_INDIVIDUAL
-  authority_effect: none
-  returning_evidence: bounded_planning_use_receipt
-forbidden:
-  - eligibility_authority
-  - case_ranking
-  - permission_to_infer_individual_rate
+  basis_state: independently_reconciled
+  denied_uses: complete_individual_use_set
+named_history_H: independently_reconciled
+individualizable: false
+request_purpose: programme_capacity_planning
+detector: export_gate
+expected_verdict: ALLOW_NON_INDIVIDUAL
+forbidden_outcome: individual_authority_effect
 ```
 
-**Exact pass condition:** the firewall admits useful population planning while preserving all
-individual-use denials. This guards against abstention inertia and overbroad refusal.
-
-## 14. F-13 — incomplete auxiliary-information model
+## 22. F-20 — false complete-basis declaration
 
 ```yaml
-case_id: F-13
+case_id: F-20
 artifact:
-  declared_form: anonymized_aggregate
-reconstruction_evaluation:
-  known_auxiliary_sources: evaluated
-  uncontrolled_external_sources: unknown
-  controlled_history_complete: false
-expected:
-  export_verdict: NOT_ESTABLISHED
-  authority_band_effect: REFUSE_EXPORT
-forbidden:
-  - unknown_defaults_to_safe
-  - anonymized_string_treated_as_proof
+  basis_marker: complete
+  registered_fields_present: true
+  material_selection_assumption_omitted: true
+basis_completeness_provenance: institutionally_supplied
+detector: predicate_provenance_gate
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: field_presence_grants_export
 ```
 
-**Exact pass condition:** unknown history or out-of-model channels cannot inherit a safe result,
-consistent with **`PV-K06`**.
-
-## 15. F-14 — downstream derivative drops restrictions
+## 23. F-21 — counterfactual reliance laundering
 
 ```yaml
-case_id: F-14
-issued_artifact:
-  digest: sha256:source
-  may_not_use_for: [individual_priority_or_triage, individual_eligibility_determination]
-derivative:
-  digest: sha256:derived
-  source_digest: sha256:source
-  may_not_use_for: []
-consumer_request:
-  purpose: programme_planning
-expected:
-  consumer_gate: BLOCK_PERMISSION_AMPLIFICATION
-  returning_evidence: derivative_violation_record
-forbidden:
-  - derivative_considered_new_unrestricted_artifact
+case_id: F-21
+semantic_class: E
+subject_ref: person-opaque-62
+protected_action: sanction
+consultation_event: empirical_risk_displayed
+operator_materiality_assertion: false
+operator_assertion_provenance: consumer_asserted
+detector: consumer_consultation_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: self_report_keeps_gate_green
 ```
 
-**Exact pass condition:** every derivative carries the union of source restrictions. The violation is
-visible at the first governed consumer boundary.
+The gate turns on consultation, not the assertion.
 
-## 16. Suite-level acceptance
+## 24. F-22 — reference-class shopping
 
-A future implementation passes PAO-R4 only if:
+```yaml
+case_id: F-22
+semantic_class: E
+subject_ref: person-opaque-70
+available_cohort_rates: multiple_legitimate_population_rates
+selection_event: most_adverse_matching_cohort_chosen_after_case_features_seen
+protected_action: enhanced_investigation
+consultation_event: selected_rate_used
+detector: consumer_consultation_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: each_rate_allowed_therefore_selection_allowed
+```
 
-1. all fourteen cases produce the exact expected verdicts;
-2. F-01 produces a red pre-action gate and a bypass record;
-3. F-02 and F-05 evaluate complete history rather than isolated artifacts;
-4. F-04, F-09, and F-14 demonstrate denied-use monotonicity;
-5. F-06 proves absence is `not_established`, not compliance;
-6. F-11 and F-13 retain honest `NOT_DETECTABLE`/`NOT_ESTABLISHED` outcomes;
-7. F-12 remains permitted, proving the architecture does not forbid population analysis itself;
-8. the tests import and run the real paths rather than checking marker strings.
+## 25. F-23 — semantic purpose synonym
 
-The pinned repository does not satisfy this suite. The suite authorizes no implementation and no
-capability claim.
+```yaml
+case_id: F-23
+semantic_class: E
+declared_purpose: workload_balancing
+actual_action_effect: delay_one_person_service
+canonical_effect_class: individual_priority_or_triage
+consultation_event: population_rate_used
+detector: action_effect_gate
+expected_verdict: BLOCK_PURPOSE
+forbidden_outcome: benign_string_controls
+```
+
+## 26. F-24 — multi-hop relay loses lineage
+
+```yaml
+case_id: F-24
+source_artifact: allowed_population_aggregate
+relay_system: planning-system-P
+relay_output: unlinked_narrative_recommendation
+case_consumer: case-system-C
+source_digest_at_consumer: absent
+protected_action: individual_service_routing
+detector: governed_consumer_intake
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: lineage_absence_grants_use
+```
+
+## 27. F-25 — controlled derivative drops restrictions
+
+```yaml
+case_id: F-25
+source_digest: sha256-source
+source_denials:
+  - individual_priority_or_triage
+  - individual_eligibility_determination
+derivative_digest: sha256-derived
+derivative_source_link: resolved
+derivative_denials: []
+detector: derivative_projection_gate
+expected_verdict: BLOCK_PERMISSION_AMPLIFICATION
+forbidden_outcome: derivative_resets_permission
+```
+
+## 28. F-26 — mixed semantic class
+
+```yaml
+case_id: F-26
+artifact:
+  normative_rule_source: unresolved
+  empirical_coefficients: present
+  case_action_output: present
+semantic_class_evidence: conflicting
+detector: semantic_admission_gate
+expected_verdict: NOT_ESTABLISHED
+forbidden_outcome: default_to_G_or_E
+```
+
+## 29. Suite-level conformance requirements
+
+A later implementation conforms only when:
+
+1. every manifest row produces its one exact verdict through the named real detector;
+2. F-01 cannot be satisfied by request-time purpose checks;
+3. deleting the real consumer-gate behavior while retaining markers makes F-01 fail;
+4. F-05/F-06 refuse Artifacts A/B;
+5. F-07 does not return `REFUSE_EXPORT` merely because G is executable, while authority and
+   applicability remain `NOT_ESTABLISHED`;
+6. F-08 refuses the identical-syntax empirical decision tree;
+7. F-20 stays non-positive after a false declaration retains completeness markers;
+8. F-21 blocks on consultation despite the false materiality assertion;
+9. F-22–F-24 close reference-class shopping, purpose relabeling, and relay lineage loss;
+10. no conditional/disjunctive expected field, new outcome vocabulary, capability upgrade, or owner
+    appointment is introduced.
+
+The amended research does not execute or pass this suite. Adoption remains `NO_GO` pending
+independent conformance at an exact commit.

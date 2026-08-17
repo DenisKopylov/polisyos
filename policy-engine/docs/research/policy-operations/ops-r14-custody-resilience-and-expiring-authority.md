@@ -100,35 +100,42 @@ have existed. Historical issuance, projection fidelity, public history, durable 
 verification time, and current authority at query time remain separately reportable under PV-K01 and
 PV-K02 (`int-r7-r8-public-verification-and-disclosure-ratification.md:91-123`).
 
-## 2. Orientation and complete source census
+## 2. Orientation and institutionally supplied source census
 
 The full amended ledger is [`ops-r14/orientation-ledger.md`](ops-r14/orientation-ledger.md).
-Documentation anchors use `109ba3f4`; the architect established that `policy-engine/src` is byte-
-identical to the original pin.
+Documentation anchors use `109ba3f4`; comparison with the original pin changes no path below
+`policy-engine/src`.
 
-The following figures are the architect-supplied complete tree walk. **Path denominator:**
-`policy-engine/src`. **Search:** case-sensitive fixed strings over the pinned ref, binary files
-excluded. Each row states its **file-type denominator** as required by P35.
+The figures below are institutionally supplied by the architect from two clean-archive walks with
+identical results. This package's environment cannot execute that recursive byte walk. PP-01 is
+therefore `institutionally_supplied`, not `recomputed`; no supplied count can open a positive gate in
+this package. **Path denominator:** `policy-engine/src`. **Search:** case-sensitive fixed strings over
+the pinned ref, binary files excluded. The orientation ledger retains the exact reproduction commands
+and both file-type denominators.
 
-| Token | File-type denominator | Files | Matching lines | Occurrences |
-| --- | --- | ---: | ---: | ---: |
-| `legal_hold` | all source | **2** | **7** | **8** |
-| `renewal` | all source | **4** | **4** | **4** |
-| `renewal` | Python only | **1** | **1** | **1** |
-| `expires_at` | Python only | **49** | **280** | **363** |
-| `ttl_seconds` | Python only | **30** | **116** | **148** |
-| `expiry` | Python only | **27** | **102** | **121** |
-| `grace_period` | all source | **0** | **0** | **0** |
-| `not_after` | all source | **0** | **0** | **0** |
-| `revocation_time` | all source | **0** | **0** | **0** |
+| Token | All-source files / lines / occurrences | Python-only files / lines / occurrences |
+| --- | ---: | ---: |
+| `legal_hold` | **2 / 7 / 8** | **2 / 7 / 8** |
+| `renewal` | **4 / 4 / 4** | **1 / 1 / 1** |
+| `expires_at` | **50 / 281 / 364** | **49 / 280 / 363** |
+| `ttl_seconds` | **30 / 116 / 148** | **30 / 116 / 148** |
+| `expiry` | **28 / 103 / 122** | **27 / 102 / 121** |
+| `grace_period` | **0 / 0 / 0** | **0 / 0 / 0** |
+| `not_after` | **0 / 0 / 0** | **0 / 0 / 0** |
+| `revocation_time` | **0 / 0 / 0** | **0 / 0 / 0** |
 
 Consequences:
 
 - the commission's `renewal = 1` was correct only for an unstated Python denominator;
-- the audit's `renewal` results and high-cardinality file counts reproduce;
-- the audit's `legal_hold = 2 / 4 / 5` is wrong; the complete result is **2 / 7 / 8**;
-- the three zeroes are established, not `not_established`; and
-- the semantic conclusion is strengthened: no source capability combines the complete governed-
+- `expires_at` has one additional non-Python file, matching line, and occurrence beyond the
+  Python-only result;
+- `expiry` has one additional non-Python file, matching line, and occurrence beyond the Python-only
+  result;
+- the architect-supplied `legal_hold` result is **2 / 7 / 8**, not the audit's `2 / 4 / 5`, and the
+  independent conformance verification separately reproduced this low-cardinality tuple;
+- the supplied zeroes for `grace_period`, `not_after`, and `revocation_time` remain
+  `not_established` for this package under P37; and
+- the semantic conclusion remains: no admitted source capability combines the complete governed-
   renewal proposition.
 
 The one Python `renewal` occurrence is worker processing-lease renewal
@@ -267,7 +274,7 @@ predicate they decide; none creates a sixth class.
 
 | ID | Load-bearing predicate | Classification | Positive rule / required treatment |
 | --- | --- | --- | --- |
-| PP-01 | Complete literal source census and denominators | `recomputed` | Positive set-level facts require complete path/file-type enumeration; indexes never count. |
+| PP-01 | Complete literal source census and denominators | `institutionally_supplied` | This package retains the pin, path denominator, match semantics, exact commands, both file-type denominators, and architect-supplied two-run results. It cannot use the census as a positive gate or call supplied zeroes established. |
 | PP-02 | Original object identity and fixity | `recomputed` | Positive only from retained bytes and digest recomputation. |
 | PP-03 | Control-to-content reference closure | `recomputed` | Positive only when every reference resolves and hashes match. |
 | PP-04 | Deterministic control head from retained prefix/reducer | `recomputed` | Recovered index or declared head never outranks replay. |
@@ -301,8 +308,8 @@ predicate they decide; none creates a sixth class.
 | PP-32 | PAO-R36 correction meaning/current-head assignment | `consumer_asserted` | OPS-R14 cannot make it positive; it consumes the canonical owner's content-bound result and otherwise blocks mutation. |
 | PP-33 | PAO-R36 frozen controlled-member denominator | `consumer_asserted` | A denominator declaration alone cannot establish completion or restoration. |
 | PP-34 | PAO-R36 fan-out/member completion | `independently_reconciled` | Positive only after member-bound reconciliation over the frozen denominator. |
-| PP-35 | External source current official status/successor identity | `independently_reconciled` | Retained historical capture does not prove current official status. |
-| PP-36 | Organizational succession scope | `institutionally_supplied` | Query-specific unresolved overlap remains non-positive; original issuer never changes. |
+| PP-35 | External source current official status/successor identity | `independently_reconciled` | Retained historical capture, review date, URL, or stable identifier does not prove current official status. |
+| PP-36 | Admitted organizational succession scope from content-bound instruments | `independently_reconciled` | Positive only after exact instrument bytes and admission receipts are independently reconciled against a non-producing authoritative record for authority, scope, timing, notice, conditions, and effective time. Merely supplied declarations or unadmitted refs remain non-positive. |
 | PP-37 | RPO data-loss measurement | `recomputed` | Compute from acknowledged/restored event coordinates; backup frequency is not measurement. |
 | PP-38 | RTO elapsed-time measurement | `recomputed` | Compute from declared start through all passing predicates using reconciled time. |
 | PP-39 | Drill corpus/member denominator | `recomputed` | Freeze exact corpus and membership; sampling states complete denominator/method. |
@@ -321,17 +328,28 @@ predicate they decide; none creates a sixth class.
 Institutional facts may later be admitted by their canonical owner, but this research never promotes
 the declaration itself.
 
+PP-36 is deliberately the admitted-instrument predicate. A succession declaration that has not been
+resolved to exact content-bound instruments and independently reconciled against the non-producing
+authoritative record never reaches PP-36; it remains `institutionally_supplied` under PP-09/PP-10 and
+fails closed. R9 already required this admitted-instrument test for unilateral option exercise. The
+pre-remediation F-14/PP-36 pair was internally inconsistent with that rule; the split F-14 worlds make
+the package consistent without weakening P37.
+
 ### 7.1 Falsify-the-declaration proof
 
-Two amended fixtures perform the P37 probe:
+Three amended fixture executions perform the P37 probe:
 
 - F-13 leaves “alert sent” intact but removes the event from independent history. The result is
   `delivery_gap` and blocked use.
+- F-14B leaves `admitted=true`, successor identities, scope declarations, and claimed instrument refs
+  intact while the exact instrument bytes or non-producing authoritative record falsifies authority,
+  scope, timing, notice, conditions, or effective time. The result is
+  `succession_scope_not_established` and no current-custodian positive.
 - F-15 leaves two `independent=true` declarations intact but makes both observers share one compromised
   substrate/root. The result is `custody_independence_not_established` and restoration false.
 
-Both fixtures go red because the property is recomputed/reconciled. A green result would prove the
-fixture tested the declaration.
+All three executions go red because the property is recomputed or independently reconciled. A green
+result would prove the fixture tested the declaration or marker.
 
 ## 8. Watched dependency and six renewal families
 
@@ -378,7 +396,8 @@ Controlling rules survive without weakening:
 - missing historical verifier makes durable verifiability non-positive without erasing history;
 - parser/canonicalization differential makes historical interpretation not established;
 - historical and current replay are distinct;
-- scoped succession preserves established non-overlap and blocks disputed overlap;
+- scoped succession preserves independently reconciled admitted non-overlap and blocks merely
+  supplied or disputed scope;
 - vanished source separates historical use from current official status; and
 - every replay failure appends.
 
@@ -388,7 +407,7 @@ verification material. It does not extend authority, permit use/publication, blo
 access restrictions, or make a superseded record current. Holds aggregate; final release requires
 competent evidence and a later separate disposal decision.
 
-## 10. Seventeen fixtures and drill evidence
+## 10. Seventeen fixture families and drill evidence
 
 The amended suite is in
 [`ops-r14/disaster-fixtures-and-drill-evidence.md`](ops-r14/disaster-fixtures-and-drill-evidence.md):
@@ -406,13 +425,16 @@ The amended suite is in
 11. unavailable historical verifier;
 12. ciphertext without authorized key;
 13. scheduler outage across expiry plus declared-alert falsification;
-14. lawful partial succession with disputed overlap;
+14. lawful partial succession with two deterministic worlds: independently reconciled admitted
+    instruments (F-14A) and merely supplied or falsified declarations (F-14B);
 15. false independence over one shared substrate/root;
 16. authenticated-time rollback; and
 17. parser/canonicalization differential.
 
-F-14–F-17 each specify one input, detector, exact expected verdict, and forbidden outcome. F-13/F-15
-prove P37 by keeping declarations intact while making their premises false and returning red.
+F-14 remains one numbered fixture family with two mutually exclusive executable worlds, each carrying
+one detector, one exact verdict, and one forbidden outcome. F-15–F-17 retain that discipline.
+F-13/F-14B/F-15 prove P37 by keeping declarations or markers intact while making their premises false
+and returning red.
 
 DE-01–DE-10 require frozen scope, actual injection, clean independently sourced recovery,
 disconnected execution, content-bound real-path identities, anti-substitution, measured loss/time,
@@ -421,8 +443,10 @@ only remediation/retest. No runbook, calendar entry, marker, or self-attested gr
 
 ## 11. Public-administration grounding
 
-The external ledger remains grounded in official U.S./UK primary sources plus archival and
-cryptographic standards. Transfer limits remain explicit:
+The external ledger preserves stable identifiers and the transfer analysis recorded on 2026-08-06.
+This amendment supplied no fresh retrieval record. Current official status, successor identity, live
+URL resolution, and continued source currency are `not_established` here and require PP-35
+independent reconciliation before reliance. The transfer limits remain explicit:
 
 - government decisions/material transactions need adequate explanatory records;
 - disposition, archives, holds, disclosure, litigation, and procurement records remain governed and
@@ -436,8 +460,8 @@ cryptographic standards. Transfer limits remain explicit:
 - continuity confidence comes from exercises, after-action evidence, remediation, and retest; and
 - long-term verification is an institutional service, not one algorithm/provider.
 
-No external period, legal conclusion, archive, vendor, custodian, owner, or instrument-specific right
-is transferred into PolicyOS.
+No external period, legal conclusion, archive, vendor, custodian, owner, instrument-specific right, or
+source-currentness finding is transferred into PolicyOS.
 
 ## 12. Capability honesty
 
@@ -467,13 +491,15 @@ used without its prerequisite. The worker-lease anti-laundering guard remains ex
   [`ops-r14/watched-dependency-and-legal-hold-semantics.md`](ops-r14/watched-dependency-and-legal-hold-semantics.md);
 - replay/preservation:
   [`ops-r14/long-term-replay-and-preservation.md`](ops-r14/long-term-replay-and-preservation.md);
-- seventeen fixtures and drill contract:
+- seventeen fixture families and drill contract:
   [`ops-r14/disaster-fixtures-and-drill-evidence.md`](ops-r14/disaster-fixtures-and-drill-evidence.md);
 - capability labels/interfaces:
   [`ops-r14/repository-integration-handoff.md`](ops-r14/repository-integration-handoff.md);
 - primary sources/transfer limits:
-  [`ops-r14/external-primary-source-and-transfer-ledger.md`](ops-r14/external-primary-source-and-transfer-ledger.md); and
-- per-audit-finding disposition: [`ops-r14/amendment-ledger.md`](ops-r14/amendment-ledger.md).
+  [`ops-r14/external-primary-source-and-transfer-ledger.md`](ops-r14/external-primary-source-and-transfer-ledger.md);
+- per-audit-finding disposition: [`ops-r14/amendment-ledger.md`](ops-r14/amendment-ledger.md); and
+- bounded conformance-verification remediation:
+  [`ops-r14/remediation-ledger.md`](ops-r14/remediation-ledger.md).
 
 ## 14. Final decision
 

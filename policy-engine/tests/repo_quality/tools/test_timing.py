@@ -16,15 +16,20 @@ from pathlib import Path
 import pytest
 
 from tools.lib.timing import (
+    DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
     ToolRunRecord,
     _mode_and_output_format_from_argv,
+    admit_duration_sample,
     append_timing_record,
+    healthy_terminal_exit_codes_for,
+    load_healthy_terminal_declarations,
     load_timing_budget_catalog,
     load_timing_budget_catalog_data,
     percentile_ms,
     read_timing_records,
     summarize_timing_budget_lanes,
     summarize_timing_records,
+    timing_key_for,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -1345,3 +1350,242 @@ def test_external_suite_runner_preserves_signal_termination(
     assert len(records) == 1
     assert records[0]["status"] == "failed"
     assert records[0]["exit_code"] == -termination_signal
+
+
+SALVAGED_TIMING_RECORDS = (
+    REPO_ROOT / "docs" / "superpowers" / "timing-evidence" / "2026-08-17-salvaged-timing-records.jsonl"
+)
+
+# Measured 2026-08-17 by reading every module that defines ``corrupt_field_drift_check`` and
+# pairing the status it returns on DETECTION with the exit code ``main`` maps that status to.
+# Seven of the fifteen report "fail" when the mutation was detected -- the correct outcome -- so
+# their healthy terminal is exit 1. Six of those seven map their DEFECT to exit 0, which is why
+# the default {0} does not merely drop good samples there: it admits exactly the failures.
+INVERTED_CORRUPT_LANES = {
+    "check_layer3_gy_acquisition_contract",
+    "check_layer3_gy_depth_n_universality_contract",
+    "check_layer3_gy_generation_cycle_contract",
+    "check_layer3_gy_generation_cycle_disposition_ledger",
+    "check_layer3_gy_joint_simulation_horizon_contract",
+    "check_layer3_gy_promotion_contract",
+    "check_layer3_gy_second_domain_pack",
+}
+NORMAL_CORRUPT_LANES = {
+    "check_grounding_active_controller_contract",
+    "check_grounding_admission_contract",
+    "check_grounding_benchmark_contract",
+    "check_grounding_bind_contract",
+    "check_grounding_credal_reference_contract",
+    "check_grounding_relation_contract",
+    "check_layer3_gy_confidence_ledger",
+    "check_layer3_gy_value_gate_contract",
+}
+CORRUPT_DRIFT_MODE = "corrupt-field-drift-check"
+
+
+def _salvaged_records() -> list[ToolRunRecord]:
+    lines = SALVAGED_TIMING_RECORDS.read_text(encoding="utf-8").splitlines()
+    return [
+        ToolRunRecord(**json.loads(json.loads(line)["raw"])) for line in lines if line.strip()
+    ]
+
+
+def test_salvaged_corrupt_lane_run_at_exit_one_is_admitted_as_a_sample() -> None:
+    """The completed corrupt-drift run today's proxy drops must become an admissible sample."""
+
+    declarations = load_healthy_terminal_declarations()
+    fixtures = [
+        record
+        for record in _salvaged_records()
+        if record.tool.endswith("check_layer3_gy_second_domain_pack")
+        and record.mode == CORRUPT_DRIFT_MODE
+    ]
+    assert fixtures, "salvaged evidence must retain the exit-1 second_domain_pack fixture"
+
+    for record in fixtures:
+        assert record.exit_code == 1
+        assert record.status == "failed"  # the harness proxy, contradicted by the lane contract
+        admission = admit_duration_sample(
+            record,
+            healthy_terminal_exit_codes=healthy_terminal_exit_codes_for(
+                record.tool, record.mode, declarations
+            ),
+        )
+        assert admission.admitted, admission.reason
+        assert admission.reason == "declared_healthy_terminal"
+
+
+def test_killed_run_stays_inadmissible_even_when_its_exit_code_is_declared_healthy() -> None:
+    """A killed run's duration measures the cap, not the lane, under every declaration."""
+
+    killed = ToolRunRecord(
+        tool="quality.validation.check_layer3_gy_second_domain_pack",
+        category="quality",
+        output_format="json",
+        status="killed",
+        preflight_status="ok",
+        started_at="2026-08-13T09:52:04.088329+00:00",
+        duration_ms=526_392.0,
+        exit_code=1,
+        mode=CORRUPT_DRIFT_MODE,
+    )
+    admission = admit_duration_sample(killed, healthy_terminal_exit_codes=(0, 1, 2))
+    assert not admission.admitted
+    assert admission.reason == "no_terminal_decision:killed"
+
+
+@pytest.mark.parametrize(
+    ("record_kwargs", "expected_reason"),
+    [
+        ({"status": "failed", "exit_code": -9, "duration_ms": 900.0}, "signal_death"),
+        (
+            {"status": "skipped", "exit_code": 78, "duration_ms": 0.0, "preflight_status": "quarantined"},
+            "skipped",
+        ),
+        ({"status": "ok", "exit_code": 0, "duration_ms": 0.0}, "zero_duration"),
+        ({"status": "running", "exit_code": 0, "duration_ms": 10.0}, "no_terminal_decision:running"),
+        ({"status": "ok", "exit_code": 0, "duration_ms": 10.0, "tool": ""}, "malformed_record"),
+    ],
+)
+def test_non_terminal_records_stay_inadmissible_under_a_maximally_wide_declaration(
+    record_kwargs: dict[str, object], expected_reason: str
+) -> None:
+    """No declaration can widen admission to a run that never reached its own terminal."""
+
+    base = {
+        "tool": "quality.validation.check_layer3_gy_second_domain_pack",
+        "category": "quality",
+        "output_format": "json",
+        "status": "ok",
+        "preflight_status": "ok",
+        "started_at": "2026-08-13T09:52:04.088329+00:00",
+        "duration_ms": 1000.0,
+        "exit_code": 0,
+        "mode": CORRUPT_DRIFT_MODE,
+    }
+    record = ToolRunRecord(**{**base, **record_kwargs})
+    admission = admit_duration_sample(
+        record, healthy_terminal_exit_codes=(-9, 0, 1, 2, 78)
+    )
+    assert not admission.admitted
+    assert admission.reason == expected_reason
+
+
+def test_guardrail_failures_at_exit_one_are_not_admitted_by_the_default_declaration() -> None:
+    """Widening exit 1 globally is forbidden: these are truncated failures measuring nothing."""
+
+    declarations = load_healthy_terminal_declarations()
+    guardrail_records = [
+        record for record in _salvaged_records() if record.tool == "architecture.guardrails"
+    ]
+    assert guardrail_records, "salvaged evidence must retain the guardrail counter-example"
+
+    for record in guardrail_records:
+        assert record.exit_code == 1
+        terminals = healthy_terminal_exit_codes_for(record.tool, record.mode, declarations)
+        assert terminals == DEFAULT_HEALTHY_TERMINAL_EXIT_CODES
+        admission = admit_duration_sample(record, healthy_terminal_exit_codes=terminals)
+        assert not admission.admitted
+        assert admission.reason == "terminal_not_declared_healthy"
+
+
+def test_every_corrupt_drift_lane_is_classified_and_declares_its_own_healthy_terminal() -> None:
+    """Lock the denominator: a new corrupt-drift lane must be classified, not silently defaulted."""
+
+    defining = {
+        path.stem
+        for path in VALIDATION_ROOT.rglob("*.py")
+        if "def corrupt_field_drift_check" in path.read_text(encoding="utf-8")
+    }
+    assert defining == INVERTED_CORRUPT_LANES | NORMAL_CORRUPT_LANES, (
+        "a corrupt-drift lane was added or removed; classify its healthy terminal by reading the "
+        "status it returns on detection and the exit code main maps that status to"
+    )
+
+    declarations = load_healthy_terminal_declarations()
+    for stem in INVERTED_CORRUPT_LANES:
+        terminals = healthy_terminal_exit_codes_for(
+            f"quality.validation.{stem}", CORRUPT_DRIFT_MODE, declarations
+        )
+        assert terminals == (1,), f"{stem} reports success at exit 1 and must declare it"
+    for stem in NORMAL_CORRUPT_LANES:
+        terminals = healthy_terminal_exit_codes_for(
+            f"quality.validation.{stem}", CORRUPT_DRIFT_MODE, declarations
+        )
+        assert terminals == DEFAULT_HEALTHY_TERMINAL_EXIT_CODES, (
+            f"{stem} reports success at exit 0 and must not declare a widened terminal"
+        )
+
+
+def test_declaration_is_resolved_for_both_direct_entry_and_registry_tool_names() -> None:
+    """The same module is recorded under two namespaces; both must find the declaration."""
+
+    declarations = load_healthy_terminal_declarations()
+    direct = healthy_terminal_exit_codes_for(
+        "quality.validation.check_layer3_gy_second_domain_pack", CORRUPT_DRIFT_MODE, declarations
+    )
+    registry = healthy_terminal_exit_codes_for(
+        "validation.check-layer3-gy-second-domain-pack", CORRUPT_DRIFT_MODE, declarations
+    )
+    assert direct == registry == (1,)
+
+
+def test_declared_modes_do_not_leak_into_other_modes_of_the_same_tool() -> None:
+    """Exit 1 is the completed terminal only in the mode whose contract declares it."""
+
+    declarations = load_healthy_terminal_declarations()
+    write_terminals = healthy_terminal_exit_codes_for(
+        "quality.validation.check_layer3_gy_second_domain_pack", "write", declarations
+    )
+    assert write_terminals == DEFAULT_HEALTHY_TERMINAL_EXIT_CODES
+
+    write_failure = ToolRunRecord(
+        tool="quality.validation.check_layer3_gy_second_domain_pack",
+        category="quality",
+        output_format="json",
+        status="failed",
+        preflight_status="ok",
+        started_at="2026-08-13T09:52:04.088329+00:00",
+        duration_ms=815_662.044,
+        exit_code=1,
+        mode="write",
+    )
+    assert not admit_duration_sample(
+        write_failure, healthy_terminal_exit_codes=write_terminals
+    ).admitted
+
+
+def test_lane_summary_counts_a_declared_nonzero_terminal_as_an_admitted_run() -> None:
+    """End to end: the catalog projection must see the corrupt lane's completed run."""
+
+    catalog = load_timing_budget_catalog_data(
+        {
+            "lanes": [
+                {
+                    "timing_key": timing_key_for(
+                        "quality.validation.check_layer3_gy_second_domain_pack",
+                        CORRUPT_DRIFT_MODE,
+                    ),
+                    "tool": "quality.validation.check_layer3_gy_second_domain_pack",
+                    "mode": CORRUPT_DRIFT_MODE,
+                    "command": "python tools/quality/validation/check_layer3_gy_second_domain_pack.py --corrupt-field-drift-check",
+                    "samples_ms": [31661.172],
+                    "measured_p95_ms": 31661.172,
+                    "recommended_timeout_ms": 63322.344,
+                    "source_refs": ["docs/superpowers/timing-evidence/README.md:1"],
+                }
+            ]
+        }
+    )
+    records = [
+        record
+        for record in _salvaged_records()
+        if record.tool.endswith("check_layer3_gy_second_domain_pack")
+        and record.mode == CORRUPT_DRIFT_MODE
+    ]
+    summaries = summarize_timing_budget_lanes(records, catalog)
+
+    assert len(summaries) == 1
+    assert summaries[0].admitted_runs == len(records)
+    assert summaries[0].inadmissible_runs == 0
+    assert summaries[0].local_failures == len(records)  # the retained proxy still says "failed"

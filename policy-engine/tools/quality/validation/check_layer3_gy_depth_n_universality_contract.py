@@ -12,6 +12,15 @@ from time import perf_counter as _timing_perf_counter
 
 _TIMING_STARTED_AT = _timing_perf_counter()
 
+# Completed-work terminals per mode, owned here because this module's own return mapping is the
+# only place that knows them. ``corrupt_field_drift_check`` reports "fail" when no mutation
+# SURVIVED (the correct outcome) and "pass" when one did, while ``_main_report`` returns
+# ``1 if status == "fail" else 0`` -- so this lane's healthy terminal is exit 1 and its DEFECT
+# terminal is exit 0. The default {0} would admit exactly the failures and reject the good runs.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import asyncio
 import contextlib
 import copy

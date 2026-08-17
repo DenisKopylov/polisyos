@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import ast
 import fcntl
 import json
 import math
 import os
 import sys
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
@@ -35,6 +36,7 @@ _DIRECT_ACTION_OPTION_PREFIXES = (
     "corrupt",
     "execute",
     "rederive",
+    "reissue",
     "source-flip",
     "warm",
     "write",
@@ -47,6 +49,193 @@ DEFAULT_TIMING_BUDGETS_MS: dict[str, float] = {
     "diagnostics.abi-diff": 15_000.0,
     "lint.lint-imports": 20_000.0,
 }
+
+TOOLS_ROOT = Path(__file__).resolve().parents[1]
+
+# A lane's completed-work terminals are a per-lane contract fact owned by the tool module that
+# returns them, never a global constant. Each tool module may declare a module-level mapping of
+# ``mode -> healthy exit codes``; any mode it does not name falls back to the default below.
+HEALTHY_TERMINAL_DECLARATION_NAME = "TIMING_HEALTHY_TERMINAL_EXIT_CODES"
+DEFAULT_HEALTHY_TERMINAL_EXIT_CODES: tuple[int, ...] = (0,)
+
+#: Identifies which rule admitted a duration sample, so a widened predicate is visible rather than
+#: silent. Catalog rows carrying an older identifier were admitted under an older rule.
+SAMPLE_ADMISSION_PREDICATE_ID = "declared_healthy_terminal:v1"
+MANUAL_SAMPLE_ADMISSION_PREDICATE_ID = "manual_journal_excerpt:v1"
+SAMPLE_ADMISSION_PREDICATE_IDS = frozenset(
+    {SAMPLE_ADMISSION_PREDICATE_ID, MANUAL_SAMPLE_ADMISSION_PREDICATE_ID}
+)
+
+#: Regimes a sample can be measured in. A cap derived from a ``serialized`` sample manufactures
+#: false cap non-receipts on a host that runs lanes in parallel, so the regime travels with the
+#: sample rather than being assumed at the point of use.
+SAMPLE_REGIMES = frozenset({"serialized", "contended", "unknown"})
+
+SKIP_EXIT_CODE = 78
+
+# Statuses that mean the run never reached its own terminal decision. No declaration can widen
+# these: a killed run's duration measures the cap, not the lane.
+_NO_TERMINAL_STATUSES = frozenset({"running", "killed", "timeout", "terminated", "cancelled"})
+
+
+@dataclass(frozen=True)
+class SampleAdmission:
+    """Whether one record's duration may be used as a timing sample, and under which rule."""
+
+    admitted: bool
+    reason: str
+    predicate_id: str = SAMPLE_ADMISSION_PREDICATE_ID
+
+
+def admit_duration_sample(
+    record: ToolRunRecord,
+    *,
+    healthy_terminal_exit_codes: tuple[int, ...] = DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
+) -> SampleAdmission:
+    """Admit a duration iff the run reached a terminal its own lane declares completed work.
+
+    Admission is completion, not success. ``exit_code == 0`` is only the *default* declaration:
+    lanes exist whose contract makes exit ``1`` the completed outcome and exit ``0`` the defect,
+    so the exit code alone carries no health meaning without the lane's declaration. Harness
+    termination, signal death, skips and malformed records stay inadmissible under every
+    declaration, because their duration measures something other than the lane's work.
+    """
+
+    if not record.tool or not record.started_at:
+        return SampleAdmission(False, "malformed_record")
+    if not math.isfinite(record.duration_ms):
+        return SampleAdmission(False, "malformed_record")
+    if record.status in _NO_TERMINAL_STATUSES:
+        return SampleAdmission(False, f"no_terminal_decision:{record.status}")
+    if record.status == "skipped" or record.exit_code == SKIP_EXIT_CODE:
+        return SampleAdmission(False, "skipped")
+    if record.preflight_status != "ok":
+        return SampleAdmission(False, f"preflight_{record.preflight_status}")
+    if record.exit_code < 0:
+        return SampleAdmission(False, "signal_death")
+    if record.duration_ms <= 0:
+        return SampleAdmission(False, "zero_duration")
+    if record.exit_code not in healthy_terminal_exit_codes:
+        return SampleAdmission(False, "terminal_not_declared_healthy")
+    return SampleAdmission(True, "declared_healthy_terminal")
+
+
+def _healthy_terminal_declaration_from_source(
+    source: str, filename: str
+) -> dict[str, tuple[int, ...]]:
+    """Read a module's healthy-terminal declaration without importing the module."""
+
+    tree = ast.parse(source, filename=filename)
+    for node in tree.body:
+        targets = (
+            node.targets
+            if isinstance(node, ast.Assign)
+            else [node.target]
+            if isinstance(node, ast.AnnAssign) and node.value is not None
+            else []
+        )
+        if not any(
+            isinstance(target, ast.Name) and target.id == HEALTHY_TERMINAL_DECLARATION_NAME
+            for target in targets
+        ):
+            continue
+        value = node.value
+        if value is None:
+            continue
+        try:
+            declared = ast.literal_eval(value)
+        except ValueError as exc:
+            raise ValueError(
+                f"{filename}: {HEALTHY_TERMINAL_DECLARATION_NAME} must be a literal mapping"
+            ) from exc
+        if not isinstance(declared, Mapping):
+            raise ValueError(
+                f"{filename}: {HEALTHY_TERMINAL_DECLARATION_NAME} must be a mapping of"
+                " mode to exit codes"
+            )
+        resolved: dict[str, tuple[int, ...]] = {}
+        for mode, codes in declared.items():
+            if not isinstance(mode, str) or not mode.strip():
+                raise ValueError(
+                    f"{filename}: healthy-terminal mode names must be non-empty strings"
+                )
+            if isinstance(codes, bool) or not isinstance(codes, list | tuple | set):
+                raise ValueError(
+                    f"{filename}: healthy-terminal exit codes for {mode!r} must be a sequence"
+                )
+            if not codes or any(
+                isinstance(code, bool) or not isinstance(code, int) for code in codes
+            ):
+                raise ValueError(
+                    f"{filename}: healthy-terminal exit codes for {mode!r} must be non-empty ints"
+                )
+            entries = tuple(sorted(set(codes)))
+            if any(code < 0 for code in entries):
+                raise ValueError(
+                    f"{filename}: healthy-terminal exit codes for {mode!r} must not"
+                    " include signal deaths"
+                )
+            if SKIP_EXIT_CODE in entries:
+                raise ValueError(
+                    f"{filename}: exit {SKIP_EXIT_CODE} is a skip and can never be a"
+                    " completed terminal"
+                )
+            resolved[mode] = entries
+        return resolved
+    return {}
+
+
+def _timing_keys_for_module(path: Path, root: Path) -> tuple[str, ...]:
+    """Return every timing-log ``tool`` name one tool module can be recorded under.
+
+    Two namespaces reach the same module. Direct entrypoints derive their key from the script
+    path (``quality.validation.check_x``); registry dispatch records ``category.command-name``
+    (``validation.check-x``). Both are indexed so a declaration is found whichever path ran.
+    """
+
+    relative = path.relative_to(root).with_suffix("")
+    parts = relative.parts
+    direct_key = ".".join(parts)
+    category = parts[-2] if len(parts) > 1 else parts[0]
+    command = parts[-1].replace("_", "-")
+    return tuple(dict.fromkeys((direct_key, f"{category}.{command}")))
+
+
+def load_healthy_terminal_declarations(
+    root: Path = TOOLS_ROOT,
+) -> dict[str, dict[str, tuple[int, ...]]]:
+    """Index every tool module's declared healthy terminals by the tool names it records under."""
+
+    declarations: dict[str, dict[str, tuple[int, ...]]] = {}
+    for path in sorted(root.rglob("*.py")):
+        try:
+            source = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if HEALTHY_TERMINAL_DECLARATION_NAME not in source:
+            continue
+        declared = _healthy_terminal_declaration_from_source(source, str(path))
+        if not declared:
+            continue
+        for key in _timing_keys_for_module(path, root):
+            declarations[key] = declared
+    return declarations
+
+
+def healthy_terminal_exit_codes_for(
+    tool: str,
+    mode: str,
+    declarations: Mapping[str, Mapping[str, tuple[int, ...]]],
+) -> tuple[int, ...]:
+    """Resolve one lane's declared completed-work terminals, defaulting to ``{0}``."""
+
+    return tuple(declarations.get(tool, {}).get(mode, DEFAULT_HEALTHY_TERMINAL_EXIT_CODES))
+
+
+def timing_key_for(tool: str, mode: str) -> str:
+    """The catalog join rule: log records carry ``tool`` and ``mode``; the catalog keys on both."""
+
+    return f"{tool}:{mode}"
 
 
 @dataclass(frozen=True)
@@ -108,6 +297,10 @@ class TimingBudgetLaneSummary:
     local_failures: int
     latest_duration_ms: float | None
     over_budget_runs: int
+    #: Runs whose duration the lane's declared terminal set admits as a sample. ``local_failures``
+    #: is retained for continuity but counts the harness's exit-code proxy, not lane health.
+    admitted_runs: int = 0
+    inadmissible_runs: int = 0
 
 
 @contextmanager
@@ -319,9 +512,14 @@ def load_timing_budget_catalog(
 def summarize_timing_budget_lanes(
     records: list[ToolRunRecord],
     catalog: list[TimingBudgetLane],
+    *,
+    declarations: Mapping[str, Mapping[str, tuple[int, ...]]] | None = None,
 ) -> list[TimingBudgetLaneSummary]:
     """Project local records onto the separately named catalog tool/mode lanes."""
 
+    resolved_declarations = (
+        load_healthy_terminal_declarations() if declarations is None else declarations
+    )
     records_by_lane: dict[tuple[str, str], list[ToolRunRecord]] = {}
     for record in records:
         records_by_lane.setdefault((record.tool, record.mode), []).append(record)
@@ -330,8 +528,15 @@ def summarize_timing_budget_lanes(
         local_records = sorted(
             records_by_lane.get((lane.tool, lane.mode), []), key=lambda record: record.started_at
         )
+        healthy_terminals = healthy_terminal_exit_codes_for(
+            lane.tool, lane.mode, resolved_declarations
+        )
         completed_records = [
-            record for record in local_records if record.status in {"ok", "failed"}
+            record
+            for record in local_records
+            if admit_duration_sample(
+                record, healthy_terminal_exit_codes=healthy_terminals
+            ).admitted
         ]
         over_budget_runs = sum(
             1
@@ -356,6 +561,8 @@ def summarize_timing_budget_lanes(
                 state=state,
                 local_runs=len(local_records),
                 local_failures=sum(record.status == "failed" for record in local_records),
+                admitted_runs=len(completed_records),
+                inadmissible_runs=len(local_records) - len(completed_records),
                 latest_duration_ms=(local_records[-1].duration_ms if local_records else None),
                 over_budget_runs=over_budget_runs,
             )

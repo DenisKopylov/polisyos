@@ -185,6 +185,64 @@ State the property, state what the implementation tests, and **name one case whe
 proof for a convention. If a purely structural successor cannot express the property, say so and
 state what behavioural gate carries it instead.
 
+#### C02 outcome (executed 2026-08-17)
+
+Gate: `src/features/runs/components/ds16SuccessorContainment.test.ts`, over the **real** panel files.
+C01's analyzer moved verbatim to `src/test/contracts/successorAuthorityAnalyzer.ts` so both C01's
+negative and C02's gate consume one function (`P27`); C01's six expectations are unchanged and still
+green, which is what proves the move was behaviour-preserving.
+
+**The vacuity trap is answered, not commented on.** Both panels are stubs, so the property holds
+trivially. The gate therefore *asserts* `panelEmissionMode === "contained"` for both, putting the
+reason on the record where it cannot drift; C05 flipping a panel to `bound` must update that
+assertion deliberately. Beyond that, the whole gate was verified by **corrupting the real
+`PublicSectorReadinessPanel.tsx` and the real `RunDetailLayout.tsx` mount site on disk** — 4 of 9
+tests went RED including the cross-file census, and both files were restored byte-identical.
+
+**Gap 1 — mount graph: carried forward and strengthened.** Re-measured rather than inherited:
+**3** production mounts — `RunDetailLayout.tsx` readiness ×1 + scientific ×1, `GovernanceTab.tsx`
+readiness ×1 — all propless. The ancestor's "zero mount props" is generalized to **no *minted* mount
+props**, since C05 may legitimately pass a producer value but may never compute one at the mount
+site. **Reachability, not filename, is what excludes the test harness:**
+`quantityDecisionProducerHarness.tsx` also mounts the readiness panel and is *not* a `*.test.tsx`
+file, so a census filtering on filename alone reports four mounts and is wrong.
+
+**Gap 2 — the label-channel ruling (`P38`).** The answer is **both halves, and they are not
+symmetric**:
+
+- **Key *selection* is structurally closed.** A key can only be chosen by a construct the gate
+  already refuses — a conditional, a template literal, a non-literal argument, a threshold, or
+  control flow. Verified with four violating shapes, each RED, rather than assumed.
+- **Key *identity* is a bounded, declared limitation.** No AST analysis can separate
+  `t("readiness.high")` (minting a verdict) from `t("readiness.sectionTitle")` (labelling a section):
+  the difference is the key's *meaning*, which lives in the i18n catalog — DS6's exclusive territory,
+  which DS16 may neither write nor treat as authority. Claiming this channel closed would be a proxy
+  gate.
+- **Mitigation, so the limitation is watched rather than merely declared:** the gate pins each
+  panel's exact rendered-key inventory (`["common.unavailable"]` for both today). A value-bearing key
+  cannot enter without editing the gate, which converts an invisible minting channel into a
+  reviewable diff.
+- **The one case where property and implementation diverge:** a reviewer who *approves*
+  `readiness.high` in that diff. The structural gate then passes while the property is violated.
+  **Carrier:** C05's behavioural assertion — a bound panel rendered with a producer supplying no
+  readiness must render the typed refusal, which a panel hardcoding a verdict fails at runtime
+  whatever its AST says.
+
+**Typed refusal — structural reach and its limit.** The gate enforces that a `contained` panel
+renders the sanctioned refusal `common.unavailable` (referenced from the ancestor, not coined) and
+that no panel renders a blank, a `null`, an empty expression, or a `0` in a value slot. Whether a
+**bound** panel refuses when a producer field is null *at runtime* is not a property of source text;
+that half is behavioural and is C05's, recorded here rather than left implied.
+
+**The ancestor stays.** `readinessScientificContainment.test.ts` is untouched and green. It asserts
+`calls === 0`, so it goes RED the moment C05 wires a hook — it retires in that same change (C11),
+not before. Until then the two gates coexist deliberately. The mount-graph walk is knowingly
+duplicated because the ancestor exports none of its internals and may not be edited; that
+duplication ends at the ancestor's retirement (`P28`).
+
+**Measured:** typecheck `14.675` s · blast radius 9 files / 47 tests / `5.089` s · lint, quantity
+coverage clean.
+
 ### C03 — The producer contract
 
 Define the typed contract for readiness composition and scientific-depth values. Each named value

@@ -279,9 +279,9 @@ execution:
   - run transitive provenance, behavioral vectors, runtime telemetry, and independent review
 expected_for_each_family:
   answer_neutral: false
-  declaration_class: attested
+  declaration_class: consumer_asserted   # sub-annotation: attested
   behavioral_probe_class: recomputed
-  runtime_envelope_class: machine_observed
+  runtime_envelope_class: independently_reconciled   # sub-annotation: machine_observed; not_established if the trace is producer-retained
   review_class: independently_reconciled
   combined_outcomes: [ARCHITECTURE_DETECTED, RUN_INVALID]
 forbidden:

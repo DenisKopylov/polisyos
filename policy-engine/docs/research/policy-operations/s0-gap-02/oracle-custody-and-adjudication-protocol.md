@@ -104,7 +104,7 @@ SpecificationAssuranceRecord:
   drift_check_record_digests: [digest]
   dissent_and_abstention_digests: [digest]
   open_blocking_challenge_digests: [digest]
-  predicate_provenance_class: institutionally_accepted | not_established
+  predicate_provenance_class: institutionally_supplied | not_established   # sub-annotation: institutionally_accepted
   disposition: assurance_established_for_named_scope | assurance_not_established
   signatures: [detached_signature]
 ```

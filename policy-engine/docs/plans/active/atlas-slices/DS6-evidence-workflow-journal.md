@@ -4149,3 +4149,39 @@ population, Ruff over both Python mechanism paths, Python compilation, and
 `git diff --check` each exited 0. These repair receipts are `recomputed`. They
 are scoped source verification, not an aggregate readiness result and not the
 deferred whole-suite receipt.
+
+### R2 delta re-review and serialized-wave declaration
+
+All three adversaries independently reviewed repair commit
+`c186885010ad74d995d438f928e61b74de8a61d3` and its exact
+`c1354ec7a..c18688501` delta. Authority/intake, semantics/three-state, and
+CAS/projection each returned zero Blocking or Important bucket-A intake
+findings. The latter two again reproduced only the already declared
+`transitive-runner-closure-unbound` scenario, classified bucket B and folded
+into the limitation without code change or round effect. The stable row's
+non-null Node executable is producer-process provenance, not a claim-check
+result: its runner, report, assertion, and route facts are null, so the absent
+stable observer is not described as executed. That reviewer note is therefore
+not a finding and creates no bucket ambiguity. These review results are
+`independently_reconciled`; the mechanism source is frozen at `c18688501` with
+R2 repair use **1/2**.
+
+Before launch, the whole-suite Vitest ceiling is declared as **1,800 s**. The
+institutionally supplied C16 measure is 515.40 s wall / 512.94 s Vitest over
+317/317 files and 983/983 tests; the selected ceiling adds 1,284.60 s of
+shared-host allowance, or 3.49 times the historical wall. The command is
+`/usr/bin/time -p corepack pnpm exec vitest run --reporter=json
+--outputFile=../../_build/apps/runtime-dashboard/ds6-c10-r2-c18688501-vitest-final.json`,
+enforced by a process-group watchdog that exits 124 at the declared ceiling.
+The output path did not exist before launch.
+
+The declared shared-host regime is
+`two-external-lanes-institutionally-supplied; no-competing-heavy-process-observed`.
+The DS5 frontend and GY validator lanes are `institutionally_supplied`. A
+complete launch-time process census over the selected Vitest/Pytest/
+Playwright-test/Storybook/build/verify patterns found zero active test or build
+lane; its 14 matches were seven long-lived Playwright MCP service parent/child
+pairs, not visual-test processes. That process classification is `recomputed`.
+The pre-launch uptime observation was `17:24 up 1 day, 22:55`, with load
+averages 4.14/3.77/3.45. Root remains the sole launcher, this is the only heavy
+DS6 process, and no Playwright visual lane will run.

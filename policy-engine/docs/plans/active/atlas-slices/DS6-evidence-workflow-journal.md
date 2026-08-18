@@ -4040,3 +4040,68 @@ baseline completed at 27/27 tests in one file, with Vitest duration 48.06 s and
 `/usr/bin/time -p` wall 49.16 s (`user 46.62`, `sys 6.92`). This scoped run is
 a source baseline, not an aggregate readiness outcome and not the deferred
 whole-suite receipt.
+
+### Threat-model field, stable witness, and limitation falsifier
+
+The R2 implementation adds one required `attestation_scope` value to each
+`observed_by_reconciler` basis in both producer arms and makes Python admission
+require that exact value before persistence. The one-sentence value says the
+row attests intake closure and expressly does not attest unmodified runner code
+on disk. Because this is a required strict-artifact field, the report and
+projection schemas and their producer/admission component versions move from
+`1.0.0` to `2.0.0`; the cited-report schema remains `1.0.0` and separately
+reportable.
+
+TDD evidence is `recomputed`. Before source changed, the per-row persisted
+scope witness returned five intended failures and 27 skipped tests: all five
+live rows lacked `attestation_scope`. The stable/Python admission slice also
+failed as intended because the otherwise valid scoped stable row carried a key
+the old admission did not recognize. After the bounded source change, the
+combined scope/stable slice completed 6/6 with 26 skipped tests, and the schema
+version witness separately completed 1/1 with 32 skipped tests.
+
+The stable-specific P29 mutation falsifier temporarily removed only the Python
+condition that requires
+`canonical_stable_observer_not_registered`. The real stable control then
+incorrectly admitted the alternative `canonical_check_not_registered` reason,
+and the targeted test went red at its nonzero-exit assertion. Restoring that
+single condition returned the same targeted witness to 1/1. The mutation and
+restoration were performed with `apply_patch`; the weakened source is not a
+candidate or commit. This test-only closure does not consume a mechanism round.
+
+The bounded-limitation falsifier enumerated all **9,870 tracked files**. The
+complete search found supply-chain candidate terms in 386 files. Four producer
+term occurrences appeared in three files: two GitHub build-provenance action
+uses, one `cosign sign-blob` workflow template, and one operability-checker
+string. A verifier-pattern search returned one occurrence, the unrelated TEE
+`AttestationVerifier` platform protocol; after source inspection, zero
+qualifying paths independently verify or consume an identity binding for the
+C10 runner/module closure. Existing in-repository SLSA/audit code produces and
+verifies its own package material and does not bind this runner. The absence
+result and counts are `recomputed`; release-time external execution is
+`not_established`.
+
+The limitation is therefore registered in Task 10 as the named residual
+`transitive-runner-closure-unbound`, with closure owner `absent/unallocated`.
+Its exact falsifier remains a modified transitive Vite/Vitest chunk forging
+module loading or passing JSON while bound entry identity stays green. It does
+not affect the closed intake paths. The smallest closing capability is an
+out-of-band signed runner/build identity or attestation produced outside this
+repository and independently verified before admission. This is the
+runner-integrity bucket, not a repair-round finding; the R2 counter remains
+**0/2** before independent review.
+
+Pre-freeze verification remained scoped. The complete C10 semantic file
+completed **33/33 tests in 1/1 file**, with Vitest duration 22.05 s and
+`/usr/bin/time -p` wall 22.58 s (`user 25.82`, `sys 3.56`). The app TypeScript
+project and scoped two-file ESLint population both exited 0. Ruff over the two
+Python mechanism paths, Python compilation, and `git diff --check` exited 0;
+the canonical owner validator's complete built-in corruption denominator
+returned **9/9** named probes. These are `recomputed` candidate receipts, not
+an aggregate readiness result.
+
+The R2 working delta touches three of the five already declared mechanism
+paths—the reconciler, persistence/admission, and semantic witnesses—and all
+three mandatory companions. The unchanged fixed launcher and canonical-owner
+validator remain part of the reviewed five-path mechanism. Thus the P39 measure
+remains **5/16 mechanisms plus 3 companions**, not a six-path redefinition.

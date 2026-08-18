@@ -561,23 +561,17 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: C10-R1 stopped on the terminal post-round-2 review on 2026-08-18;
-the final candidate is preserved at
-`6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`.** The terminal Important finding
-is `transitive-runner-closure-unbound`: the candidate binds the Vite and Vitest
-entry files but not the transitive chunks those entries execute. It is an
-instance of the already named
-`canonical-runner-provenance-and-single-intake-gap`, with P32, not a new class.
-No third repair is attempted. This was a fresh two-round mechanism budget
-because the contract changed from one aggregate reconciliation Boolean to one
-separately based row per gated top-level claim. The preserved stopped attempt
-at `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
-`a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only; none of its
-source is continued. The fresh budget is **2/2 consumed**. Any Blocking or
-Important mechanism finding against the final repair was a third-round finding;
-it has been classified, preserved, and stopped without another repair. The
-objective is not claimed complete, the candidate is not controlling CI/audit
-authority, and no surface-readiness `stable` claim is made.
+**Status: C10-R2 threat-model candidate entered on 2026-08-18; independent
+review and the serialized whole-suite wave are pending, so it is not yet
+controlling CI/audit authority.** R2 continues from the preserved R1 mechanism
+candidate `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd` and its docs-only stop record.
+R1 stopped correctly after classifying `transitive-runner-closure-unbound` as
+another instance of `canonical-runner-provenance-and-single-intake-gap`. R2
+changes the contract by making the intake-closure threat model explicit, so its
+fresh mechanism-round counter is **0/2**. The preserved stopped attempt at
+`573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
+`a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only. No
+surface-readiness `stable` claim is made.
 
 **C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
 `PV-K01` is ratified for public verification: it requires separately
@@ -622,6 +616,37 @@ path before repair. The current mechanism measure is therefore **5/16** and the
 complete candidate cut is eight paths. A newly discovered mechanism path is
 remeasured before it is touched; a mechanism set above 16 stops for a ruling
 and is never split across commits to fit.
+
+**C10-R2 declared threat model.** Every `observed_by_reconciler` basis persists
+the exact `attestation_scope` value: “observed_by_reconciler attests intake
+closure: the fact was produced by this process running the canonical check
+through a closed path with no report, exit code, status, or basis supplied by a
+caller; it does not attest that the runner's code was unmodified on disk.” This
+is one per-row intake statement, not a runner-integrity claim or aggregate
+status. Report and projection schemas are versioned `2.0.0` for the new
+required field.
+
+**Named residual — `transitive-runner-closure-unbound`.** Classification:
+declared bounded runner-integrity limitation. Closure owner:
+**`absent/unallocated`**; `team-frontend` owns the reference/artifact surface,
+not the absent closure capability. Exact scenario: a modified transitively
+loaded Vite or Vitest chunk can forge module loading or passing JSON while the
+recorded entry path, package version, and entry SHA-256 remain valid. This does
+not reopen any caller, report, exit-code, status, basis, environment-selection,
+or sibling-consumer intake; those remain closed and separately witnessed. The
+smallest closing capability is an out-of-band runner identity—such as a signed
+build artifact or attestation produced outside this repository—that binds the
+runner/module closure and is independently verified before admission.
+
+The required absence falsifier walked the complete 9,870 tracked-file
+denominator. Supply-chain candidate terms occurred in 386 files. Four producer
+term occurrences appeared in three files: three real release/build producer
+occurrences in two workflow/template files plus one operability-checker string.
+The only verifier-pattern occurrence was an unrelated TEE platform-attestation
+protocol; zero qualifying consumer/verifier paths bind the C10 runner or its
+module closure. Capability existence and those counts are `recomputed`; actual
+external release-attestation execution is `not_established`. The residual is
+therefore a limitation, not an omitted repository capability.
 
 The gated unit is one row for each top-level `maturity=stable` or
 `readiness_state=implemented` claim. Each row carries exactly one discriminated

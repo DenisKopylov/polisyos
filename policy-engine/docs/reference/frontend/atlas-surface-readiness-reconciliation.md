@@ -2,38 +2,63 @@
 
 Freshness: 2026-08-18
 
-Status: stopped candidate; not controlling CI or audit authority
+Status: C10-R2 candidate; pending independent review and whole-suite receipt;
+not yet controlling CI or audit authority
 
 Owner: `team-frontend`
 
-Preserved candidate: `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`
+R1 preserved candidate: `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`
 
 Candidate closed producer:
 `apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs`
 
 Persistence operation: `persist_atlas_surface_readiness_claims`
 
-The preserved DS6-C10-R1 candidate reports the basis of each gated top-level
+The DS6-C10-R2 candidate reports the basis of each gated top-level
 claim in the canonical surface-readiness ledger. It does not issue a
 reconciliation verdict, grant `stable`, or compose several rows into a stronger
-claim. The mechanism is stopped and this document does not promote it to
-controlling CI/audit authority.
+claim. Review and the deferred whole-suite wave remain pending, so this document
+does not yet promote it to controlling CI/audit authority.
 
-## Stop disposition
+## R2 threat model and declared residual
 
-The fresh two-round repair budget was exhausted. Terminal independent review
-found `transitive-runner-closure-unbound`: the candidate content-binds the Vite
-and Vitest entry files but not the transitive chunks those entries execute. A
-changed Vite `dist/node/chunks/*` loader or Vitest `dist/chunks/*` runner can
-forge execution while the recorded entry path, version, and SHA-256 remain
-green. The finding is an instance of the already named
-`canonical-runner-provenance-and-single-intake-gap`, with P32, rather than a new
-class. The final candidate is preserved at the commit above and no third repair
-is attempted.
+`observed_by_reconciler` attests intake closure. Every such persisted row
+carries `attestation_scope` with this exact one-sentence value:
 
-The rows and receipts below describe the preserved candidate at their exact
-strength. They do not constitute an aggregate PASS, an accepted C10-R1
-mechanism, or authority for `stable`/`implemented`.
+> observed_by_reconciler attests intake closure: the fact was produced by this
+> process running the canonical check through a closed path with no report,
+> exit code, status, or basis supplied by a caller; it does not attest that the
+> runner's code was unmodified on disk.
+
+The required field is part of report and projection schema `2.0.0`; Python
+admission rejects a missing or different value. It is a per-row statement and
+does not compose into runner integrity, an aggregate result, or readiness
+authority.
+
+The named residual `transitive-runner-closure-unbound` is a declared bounded
+runner-integrity limitation with closure owner `absent/unallocated`. A modified
+transitively loaded Vite `dist/node/chunks/*` or Vitest `dist/chunks/*` file can
+forge module loading or passing JSON while every recorded entry path, version,
+and SHA-256 remains valid. That scenario does not affect the closed report,
+exit-code, status, basis, environment-selection, or sibling-consumer intake
+paths. The smallest closing capability is an out-of-band runner identity, such
+as a signed build artifact or attestation produced outside this repository,
+which binds the runner/module closure and is independently verified before
+admission.
+
+The absence falsifier walked all 9,870 tracked files. Supply-chain terms
+occurred in 386 files; release/build workflows contain producer actions, but
+there is no qualifying verifier/consumer binding the C10 runner or module
+closure. The only verifier-pattern match was an unrelated TEE attestation
+protocol. Capability absence is `recomputed`; actual external
+release-attestation execution is `not_established`.
+
+R1's two-round stop remains historical evidence and is not rewritten. R2's
+fresh counter is 0/2 before independent review. Further runner/module/Node or
+kernel integrity examples are folded into this limitation; caller/report/
+exit/status/basis, self-attested-field, or sibling-consumer intake findings are
+mechanism findings. The rows below remain non-aggregate and grant no
+`stable`/`implemented` authority.
 
 ## Gated claim population
 
@@ -175,6 +200,7 @@ The witnesses cover the closed current path, complete row set, Core CAS
 integrity and lineage, owner corruption, denied request and environment
 intake, both cited-status mismatch directions, valid cited evidence, distinct
 negative/unavailable states, the zero-instance stable arm, exactly-one-basis
-shape, aggregate-field absence, and the CI/artifact-independence falsifier.
-They do not bind the transitive Vite/Vitest execution closure and therefore do
-not close the stopped finding.
+shape, aggregate-field absence, exact per-row threat-model value, and the
+CI/artifact-independence falsifier. They do not bind the transitive Vite/Vitest
+execution closure; that divergence is the declared bounded limitation above,
+not an intake-closure claim.

@@ -84,12 +84,12 @@ HEALTH_INSTRUMENT_PATHS = HEALTH_IMPLEMENTATION_PATHS[:3]
 READINESS_REPORT_KIND = "atlas_surface_readiness_claim_report"
 READINESS_REPORT_SCHEMA = {
     "id": "polisyos.atlas.surface-readiness-claim-report",
-    "version": "1.0.0",
+    "version": "2.0.0",
 }
 READINESS_PROJECTION_KIND = "atlas_surface_readiness_claim_projection"
 READINESS_PROJECTION_SCHEMA = {
     "id": "polisyos.atlas.surface-readiness-claim-projection",
-    "version": "1.0.0",
+    "version": "2.0.0",
 }
 READINESS_REPORT_INPUT_ROLE = "claim_report"
 READINESS_PRODUCER_SCRIPT = (
@@ -112,10 +112,16 @@ READINESS_SCHEMA_PATH = (
 READINESS_ROUTE_SOURCE = "apps/runtime-dashboard/src/app/routes/routes.tsx"
 READINESS_ROUTE_TEST = "apps/runtime-dashboard/src/app/routes/routes.test.tsx"
 READINESS_RECONCILER_COMPONENT = (
-    "polisyos.atlas.surface_readiness_reconciler@1.0.0"
+    "polisyos.atlas.surface_readiness_reconciler@2.0.0"
 )
 READINESS_ADMISSION_COMPONENT = (
-    "polisyos.atlas.surface_readiness_admission@1.0.0"
+    "polisyos.atlas.surface_readiness_admission@2.0.0"
+)
+READINESS_OBSERVED_ATTESTATION_SCOPE = (
+    "observed_by_reconciler attests intake closure: the fact was produced by this process "
+    "running the canonical check through a closed path with no report, exit code, status, "
+    "or basis supplied by a caller; it does not attest that the runner's code was unmodified "
+    "on disk."
 )
 READINESS_IMPLEMENTATION_PATHS = (
     READINESS_RECONCILER_SOURCE,
@@ -1418,6 +1424,7 @@ def _require_observed_readiness_basis(
         basis,
         {
             "kind",
+            "attestation_scope",
             "observation",
             "owner_validation",
             "canonical_check",
@@ -1428,6 +1435,10 @@ def _require_observed_readiness_basis(
     if basis["kind"] != "observed_by_reconciler":
         raise AtlasEvidencePersistenceError(
             "closed readiness producer may emit only observed_by_reconciler rows"
+        )
+    if basis["attestation_scope"] != READINESS_OBSERVED_ATTESTATION_SCOPE:
+        raise AtlasEvidencePersistenceError(
+            "observed readiness basis attestation scope mismatch"
         )
 
     observation = basis["observation"]
@@ -1788,7 +1799,7 @@ def _require_readiness_report(
         raise AtlasEvidencePersistenceError("claim report producer must be an object")
     expected_producer = {
         "producer_id": "polisyos.atlas.surface_readiness_reconciler",
-        "producer_version": "1.0.0",
+        "producer_version": "2.0.0",
         "implementation_ref": _readiness_source_ref(
             READINESS_RECONCILER_SOURCE,
             "closed_claim_reconciler",
@@ -2251,7 +2262,7 @@ def persist_atlas_surface_readiness_claims() -> dict[str, Any]:
         "claims": resolved_report["claims"],
         "verifier": {
             "verifier_id": "polisyos.atlas.surface_readiness_admission",
-            "verifier_version": "1.0.0",
+            "verifier_version": "2.0.0",
             "predicate_provenance": "recomputed",
             "implementation_ref": _readiness_source_ref(
                 "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",

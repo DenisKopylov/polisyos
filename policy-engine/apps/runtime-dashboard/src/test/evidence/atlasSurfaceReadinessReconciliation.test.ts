@@ -19,6 +19,8 @@ import {
 } from "./atlasSurfaceReadinessReconciliation";
 
 const OPERATION = "persist_atlas_surface_readiness_claims";
+const OBSERVED_ATTESTATION_SCOPE =
+  "observed_by_reconciler attests intake closure: the fact was produced by this process running the canonical check through a closed path with no report, exit code, status, or basis supplied by a caller; it does not attest that the runner's code was unmodified on disk.";
 
 interface PersistenceResult {
   status: number | null;
@@ -35,6 +37,7 @@ interface ProjectionResult {
   resolved_claim_report: {
     artifact_id: string;
     report: {
+      report_schema: { id: string; version: string };
       claims: AtlasSurfaceReadinessClaim[];
       producer: {
         vite_loader: { path: string; sha256: string; version: string };
@@ -44,6 +47,7 @@ interface ProjectionResult {
   resolved_projection: {
     artifact_id: string;
     projection: {
+      projection_schema: { id: string; version: string };
       claim_report_ref: { artifact_id: string };
       claim_report_sha256: string;
       claims: AtlasSurfaceReadinessClaim[];
@@ -214,6 +218,27 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
   it("enumerates the complete gated owner set through the admitted projection", () => {
     expect(persisted.operation).toBe(OPERATION);
     expect(independentlyDiscoveredGates).toHaveLength(5);
+  });
+
+  it.each(persisted.resolved_projection.projection.claims)(
+    "persists the exact intake-closure threat model on $claim_id",
+    (claim) => {
+      expect(claim).toMatchObject({
+        basis: {
+          kind: "observed_by_reconciler",
+          attestation_scope: OBSERVED_ATTESTATION_SCOPE,
+        },
+      });
+    },
+  );
+
+  it("versions the required threat-model field in both persisted schemas", () => {
+    expect(persisted.resolved_claim_report.report.report_schema.version).toBe(
+      "2.0.0",
+    );
+    expect(
+      persisted.resolved_projection.projection.projection_schema.version,
+    ).toBe("2.0.0");
   });
 
   it.each(independentlyDiscoveredGates)(
@@ -496,6 +521,12 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
 
   it("gates the zero-instance stable arm identically to implemented", () => {
     const stableUnavailable = buildAtlasStableReadinessNegativeControl();
+    if (stableUnavailable.basis.kind !== "observed_by_reconciler") {
+      throw new Error("stable control must have an observed basis");
+    }
+    expect(stableUnavailable.basis.attestation_scope).toBe(
+      OBSERVED_ATTESTATION_SCOPE,
+    );
     const implementedUnavailable = observedVariant(
       observedClaim(persisted),
       "observation_unavailable",
@@ -551,32 +582,64 @@ module._require_observed_readiness_basis(
 )
 print(json.dumps({"stable_basis": "admitted_as_unavailable"}))
 `;
-    const admission = spawnSync(
-      path.join(policyEngineRoot, ".venv/bin/python"),
-      [
-        "-I",
-        "-c",
-        admissionWitness,
-        path.join(dashboardRoot, "scripts/persist_atlas_evidence.py"),
-      ],
-      {
-        cwd: policyEngineRoot,
-        encoding: "utf8",
-        env: {
-          HOME: "/var/empty",
-          LANG: "C",
-          LC_ALL: "C",
-          PATH: "/usr/bin:/bin",
-          TZ: "UTC",
+    const invokeAdmission = (claim: unknown) =>
+      spawnSync(
+        path.join(policyEngineRoot, ".venv/bin/python"),
+        [
+          "-I",
+          "-c",
+          admissionWitness,
+          path.join(dashboardRoot, "scripts/persist_atlas_evidence.py"),
+        ],
+        {
+          cwd: policyEngineRoot,
+          encoding: "utf8",
+          env: {
+            HOME: "/var/empty",
+            LANG: "C",
+            LC_ALL: "C",
+            PATH: "/usr/bin:/bin",
+            TZ: "UTC",
+          },
+          input: JSON.stringify(claim),
+          timeout: 30_000,
         },
-        input: JSON.stringify(stableUnavailable),
-        timeout: 30_000,
-      },
-    );
+      );
+    const admission = invokeAdmission(stableUnavailable);
     expect(admission).toMatchObject({ status: 0, stderr: "" });
     expect(JSON.parse(admission.stdout)).toEqual({
       stable_basis: "admitted_as_unavailable",
     });
+
+    const wrongScope = {
+      ...stableUnavailable,
+      basis: {
+        ...stableUnavailable.basis,
+        attestation_scope:
+          "observed_by_reconciler attests unbounded runner integrity",
+      },
+    };
+    const scopeRejection = invokeAdmission(wrongScope);
+    expect(scopeRejection.status).not.toBe(0);
+    expect(scopeRejection.stderr).toContain(
+      "observed readiness basis attestation scope mismatch",
+    );
+
+    const wrongStableReason = {
+      ...stableUnavailable,
+      basis: {
+        ...stableUnavailable.basis,
+        observation: {
+          status: "observation_unavailable",
+          reason: "canonical_check_not_registered",
+        },
+      },
+    };
+    const stableRejection = invokeAdmission(wrongStableReason);
+    expect(stableRejection.status).not.toBe(0);
+    expect(stableRejection.stderr).toContain(
+      "stable claim must fail closed while its canonical observer is absent",
+    );
   });
 
   it("rejects a row with no basis or a second basis-shaped field", () => {

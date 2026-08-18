@@ -10,12 +10,12 @@ import { z } from "zod";
 
 export const ATLAS_SURFACE_READINESS_REPORT_SCHEMA = {
   id: "polisyos.atlas.surface-readiness-claim-report",
-  version: "1.0.0",
+  version: "2.0.0",
 } as const;
 
 export const ATLAS_SURFACE_READINESS_PROJECTION_SCHEMA = {
   id: "polisyos.atlas.surface-readiness-claim-projection",
-  version: "1.0.0",
+  version: "2.0.0",
 } as const;
 
 export const ATLAS_SURFACE_READINESS_PERSISTENCE_OPERATION =
@@ -27,9 +27,11 @@ export const ATLAS_CITED_SURFACE_READINESS_REPORT_SCHEMA = {
 } as const;
 
 const PRODUCER_ID = "polisyos.atlas.surface_readiness_reconciler";
-const PRODUCER_VERSION = "1.0.0";
+const PRODUCER_VERSION = "2.0.0";
 const CITED_REPORT_VERIFIER_ID =
   "polisyos.atlas.cited_report_consistency_verifier";
+const OBSERVED_ATTESTATION_SCOPE =
+  "observed_by_reconciler attests intake closure: the fact was produced by this process running the canonical check through a closed path with no report, exit code, status, or basis supplied by a caller; it does not attest that the runner's code was unmodified on disk.";
 const READINESS_LEDGER =
   "architecture/atlas_surfaces/live-application-readiness-ledger.json";
 const READINESS_SCHEMA =
@@ -153,6 +155,7 @@ const canonicalCheckSchema = z
 const observedBasisSchema = z
   .object({
     kind: z.literal("observed_by_reconciler"),
+    attestation_scope: z.literal(OBSERVED_ATTESTATION_SCOPE),
     observation: z.discriminatedUnion("status", [
       z
         .object({
@@ -999,6 +1002,7 @@ function observedBasisFor(
 
   return observedBasisSchema.parse({
     kind: "observed_by_reconciler",
+    attestation_scope: OBSERVED_ATTESTATION_SCOPE,
     observation: { status, reason },
     owner_validation: {
       predicate_provenance: "recomputed",
@@ -1041,6 +1045,7 @@ function unavailableStableBasis(
   const executable = realpathSync(process.execPath);
   return observedBasisSchema.parse({
     kind: "observed_by_reconciler",
+    attestation_scope: OBSERVED_ATTESTATION_SCOPE,
     observation: {
       status: "observation_unavailable",
       reason: "canonical_stable_observer_not_registered",

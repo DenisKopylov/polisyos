@@ -561,20 +561,13 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: entered, stopped by the mechanism-round breaker, checkpointed, and
-forward-reverted. No C10 reconciliation, persistence-extension, CI, or
-reference byte remains at HEAD.** The stopped ten-path implementation is
-preserved at `573be959890f8e35f72e846e0a37b6eac5fc4396` and removed by forward
-revert `a7ae9189147d012fd8a3c80d741ed5c330787672`. Both permitted mechanism
-repair rounds were consumed. Final independent review found a Blocking
-P29/P31/P32/P37 canonical-runner-provenance/single-intake defect, a second
-Blocking incomplete-owner-invariant defect at the same persistence boundary,
-and an Important non-bidirectional status-contract defect. The round-2
-acceptance rule in the checkpoint required any further Blocking or Important
-mechanism finding to preserve and stop the attempt; no third repair is
-authorized. Focused green receipts exercise admitted cases in the stopped
-implementation only and are withdrawn as C10 closure evidence. C10 is not
-landed, and its governed projection tail remains deferred.
+**Status: C10-R1 entered 2026-08-18 from current `main` `f63748684`; source and
+verification are in progress.** This is a fresh two-round mechanism budget
+because the contract changed from one aggregate reconciliation Boolean to one
+separately based row per gated top-level claim. The preserved stopped attempt
+at `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
+`a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only; none of its
+source is continued. The fresh budget is 0/2 consumed.
 
 **C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
 `PV-K01` is ratified for public verification: it requires separately
@@ -608,6 +601,34 @@ claims and actual test/evidence
 existence from their canonical owners, independently reconcile them, persist
 the reconciliation receipt, fail CI for `stable`/`implemented` overclaim, and
 surface the result in the governed audit/reference projection.
+
+**C10-R1 P39 entry measure.** The cap applies to four mechanism paths: the
+typed per-claim reconciler, its semantic/CI test, the fixed launcher, and the
+existing persistence/projection adapter. Three mandatory record companions are
+named and held outside that count: this plan, the DS6 journal, and the reviewer
+reference. The mechanism measure is therefore 4/16 and the complete candidate
+cut is seven paths. A newly discovered mechanism path is remeasured before it
+is touched; a mechanism set above 16 stops for a ruling and is never split
+across commits to fit.
+
+The gated unit is one row for each top-level `maturity=stable` or
+`readiness_state=implemented` claim. Each row carries exactly one discriminated
+basis. `observed_by_reconciler` has three results: `observed`, `not_observed`
+after a completed canonical negative, or `observation_unavailable` with a
+reason when the canonical check could not run. The last two are distinct CI
+reds. `consistent_with_cited_report` carries artifact identity, digest,
+distinct producer/verifier provenance, execution status, and findings. Its
+status/facts contract is bidirectional: `pass` with findings is named red, and
+`fail` or `incomplete` without findings is separately named red. A valid cited
+row remains reportable but is never observation-eligible. A synthetic `stable`
+row is the live negative control for the otherwise empty gate arm.
+
+The CI exit code is the **only** place a conjunction over rows may exist. It is
+a gate, not a claim. It is never written to an artifact, never given a field
+name, never surfaced in the projection or the reviewer reference, and never
+carried as a receipt outcome, provenance label, or aggregate status. Its
+falsifier deletes the CI exit-code calculation and proves that every persisted
+artifact and projection byte retains the same per-row information.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 

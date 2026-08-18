@@ -3761,3 +3761,68 @@ Lint retains two measured regimes: cold **1,182.94 s** and warm shared-cache
 runs in the matching regime, never a margin over the minimum; no timing sample
 without its load/cache regime is promoted. C18's commit and post-commit branch
 readback remain pending.
+
+## DS6-C10-R1 per-claim readiness reconciliation entry — 2026-08-18
+
+C10-R1 entered in isolated worktree `.worktrees/atlas-ds6-c10r1` on attached
+branch `codex/atlas-ds6-c10r1-readiness-reconciliation` at current `main`
+`f6374868456dc45bedf197e53701bd83d7921daa`. That base contains
+`fa708f2bc656be52e62ff80a7ca2b112d89694a5` as an ancestor plus the docs-only
+P39 registration. The root checkout's foreign
+`src/polisyos/data_forge/read_api/catalog.py` modification remains untouched.
+
+Under P39 the pre-entry measure is four mechanism paths: the new typed
+reconciler, its semantic/CI test, the fixed launcher, and the existing
+persistence/projection adapter. The mandatory companions held outside the cap
+are this journal, the DS6 plan, and the reviewer reference. The mechanism is
+therefore **4/16** and the complete candidate cut is **seven paths**. No
+mechanism is split across commits to make the count smaller. The fresh
+mechanism repair budget begins at **0/2**.
+
+The C11 persistence boundary was remeasured against current `main`, not
+inherited from the stopped attempt. The unchanged
+`validate_atlas_health_sources.py` applied the complete canonical owners and
+reported 261 readiness rows, five top-level `implemented` claims, 233 adoption
+rows, and zero `stable` adoption claims. Relative to this executing C10-R1
+session those four counts and the full-schema acceptance are `recomputed`.
+The stopped `incomplete-pre-CAS-owner-invariant` finding was measured against a
+pre-C11 persistence boundary; it remains evidence about that superseded
+boundary, not a statement about the mechanism entered here. C10-R1 reuses the
+landed C11 full-schema validator byte-for-byte and makes its result a
+prerequisite at both producer and persistence admission.
+
+The entered contract adds the three approved corrections. Cited execution
+status and cited findings constrain one another in both directions, with
+separate named reds for `pass` plus findings and for `fail`/`incomplete` plus
+zero findings. Observation has three states: `observed`; `not_observed` only
+after the canonical check completed negatively; and
+`observation_unavailable` with its reason when owner, route, or harness
+execution was unavailable. CI fails the last two under distinct codes. A
+synthetic `stable` row is the mandatory negative control for the live zero-row
+arm.
+
+The CI exit code is the **only** place a conjunction over rows may exist. It is
+a gate, not a claim. It is never written to an artifact, never given a field
+name, never surfaced in the projection or the reviewer reference, and never
+carried as a receipt outcome, provenance label, or aggregate status. The
+required falsifier removes that exit-code calculation and compares artifacts;
+any artifact-byte change would expose the refused aggregate under a new name.
+
+Setup receipts and nonreceipts are explicit. `corepack pnpm install
+--frozen-lockfile` installed the complete locked 1,211-package workspace from
+the local store in 15.1 seconds and changed no tracked byte. The mandated
+`uv sync --offline --frozen --extra test` created an isolated environment but
+stopped because the `jaxlib==0.8.2` CPython 3.14 macOS wheel was absent from the
+offline cache; that zero-source-byte attempt is a tooling nonreceipt. The
+worktree then linked the existing DS6 repository-managed environment, whose
+`jsonschema 4.25.1` installation let the unchanged source validator reproduce
+the 261/5 and 233/0 owner counts above.
+
+The pre-source focused baseline ran the C11 health test and canonical route
+test: route behavior passed **10/10** and the combined run passed **31/32** in
+25.28 seconds. The sole C11 failure expected dirty candidate paths
+`pyproject.toml` and `uv.lock`, while the clean committed base honestly returned
+an empty `non_revision_paths` list. No C10 path or tracked byte existed yet, so
+this is a pre-existing clean-worktree C11 test nonreceipt, not a C10 result or a
+consumed mechanism round. It is not repaired or excluded here without a scoped
+ruling.

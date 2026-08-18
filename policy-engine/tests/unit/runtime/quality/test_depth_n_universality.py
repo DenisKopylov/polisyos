@@ -648,6 +648,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
         reject_authority_state,
     )
     problem = _recursive_problem("design://verification/root")
+    sessions_by_node_ref: dict[str, Any] = {}
     controller = depth_n._governed_verification_recursive_controller(
         REPO_ROOT,
         expected_problem=problem,
@@ -655,6 +656,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
         cycle_substrate_context=None,
         n4_generation_port=None,
         state_root=tmp_path,
+        sessions_by_node_ref=sessions_by_node_ref,
     )
     factory = controller._cycle_controller_factory
     assert factory is not None
@@ -675,6 +677,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
 
     observation = leaf._promotion_port(summaries=(summary,), problem=problem)
     receipt = observation.receipts[0]
+    session = sessions_by_node_ref["design://verification/root"]
 
     monkeypatch.setattr(
         depth_n,
@@ -780,6 +783,9 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
     stage_authority = projected["stage_trace"]["promotion"]
 
     assert controller._authority_scope == "contract_testing"
+    assert set(sessions_by_node_ref) == {"design://verification/root"}
+    assert session.authority_provenance == "verification"
+    assert session.is_authority_session is False
     assert observation.reason == "verification_n9_sequence_non_consumer"
     assert receipt["confidence_ledger_projection"]["authority_provenance"] == (
         "verification"

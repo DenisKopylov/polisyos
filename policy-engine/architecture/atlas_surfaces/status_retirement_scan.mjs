@@ -60,6 +60,16 @@ function isDashboardStatusInventorySource(fileName) {
   );
 }
 
+function isDashboardPersistenceProductionSource(fileName) {
+  const relative = relativePath(fileName);
+  return (
+    relative.startsWith(DASHBOARD_SOURCE_PREFIX) &&
+    /\.tsx?$/.test(relative) &&
+    !/(?:\.(?:a11y\.)?(?:test|spec)|\.stories)\.[cm]?tsx?$/.test(relative) &&
+    !relative.includes("/src/test/")
+  );
+}
+
 function lineOf(sourceFile, node) {
   return (
     sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1
@@ -227,11 +237,403 @@ function collectOfflineQueueFacts(sourceFiles, pathOf) {
     visit(sourceFile);
   }
 
-  const compare = (left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right));
+  const compare = (left, right) =>
+    JSON.stringify(left).localeCompare(JSON.stringify(right));
   for (const table of Object.values(facts)) {
     if (Array.isArray(table)) table.sort(compare);
   }
   return facts;
+}
+
+function persistenceDeclarationChain(node) {
+  const chain = [];
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isFunctionDeclaration(current) && current.name) {
+      chain.push(`function:${current.name.text}`);
+    } else if (ts.isMethodDeclaration(current)) {
+      chain.push(`method:${propertyNameText(current.name) ?? "<computed>"}`);
+    } else if (ts.isConstructorDeclaration(current)) {
+      chain.push("constructor");
+    } else if (
+      ts.isVariableDeclaration(current) &&
+      ts.isIdentifier(current.name)
+    ) {
+      chain.push(`variable:${current.name.text}`);
+    } else if (
+      (ts.isPropertyDeclaration(current) ||
+        ts.isPropertyAssignment(current) ||
+        ts.isPropertySignature(current)) &&
+      current.name
+    ) {
+      chain.push(`property:${propertyNameText(current.name) ?? "<computed>"}`);
+    } else if (ts.isClassDeclaration(current) && current.name) {
+      chain.push(`class:${current.name.text}`);
+    }
+  }
+  return chain.reverse().join("/") || "module";
+}
+
+function persistenceDeclarationPaths(symbol) {
+  return (symbol?.declarations ?? []).map((declaration) =>
+    relativePath(declaration.getSourceFile().fileName),
+  );
+}
+
+function persistenceDeclarationOwner(declaration) {
+  for (let current = declaration?.parent; current; current = current.parent) {
+    if (
+      (ts.isInterfaceDeclaration(current) ||
+        ts.isClassDeclaration(current) ||
+        ts.isTypeAliasDeclaration(current)) &&
+      current.name
+    ) {
+      return current.name.text;
+    }
+  }
+  return null;
+}
+
+function persistenceApiForSymbol(symbol, operation) {
+  const declarations = symbol?.declarations ?? [];
+  const paths = persistenceDeclarationPaths(symbol);
+  const isTypeScriptDom = paths.some(
+    (candidate) =>
+      candidate.endsWith("/typescript/lib/lib.dom.d.ts") ||
+      candidate.endsWith("/@types/node/web-globals/storage.d.ts"),
+  );
+  const storageMember = declarations.some(
+    (declaration) => persistenceDeclarationOwner(declaration) === "Storage",
+  );
+  if (
+    isTypeScriptDom &&
+    storageMember &&
+    ["clear", "getItem", "key", "removeItem", "setItem"].includes(operation)
+  ) {
+    return {
+      apiKind: "web_storage",
+      resolvedApi: `typescript/lib/lib.dom.d.ts::Storage.${operation}`,
+    };
+  }
+  if (
+    paths.some(
+      (candidate) =>
+        candidate.includes("/zustand/") && candidate.includes("middleware"),
+    ) &&
+    ["createJSONStorage", "persist"].includes(operation)
+  ) {
+    return {
+      apiKind: "zustand",
+      resolvedApi: `zustand/middleware::${operation}`,
+    };
+  }
+  if (
+    paths.some(
+      (candidate) =>
+        candidate.includes("/idb/") && candidate.endsWith("/entry.d.ts"),
+    ) &&
+    ["createObjectStore", "delete", "get", "openDB", "put"].includes(operation)
+  ) {
+    return {
+      apiKind: "indexed_db",
+      resolvedApi: `idb::${operation}`,
+    };
+  }
+  return null;
+}
+
+function localStorageApiForSymbol(symbol) {
+  const declarations = symbol?.declarations ?? [];
+  const paths = persistenceDeclarationPaths(symbol);
+  const canonicalDeclaration = paths.some(
+    (candidate) =>
+      candidate.endsWith("/typescript/lib/lib.dom.d.ts") ||
+      candidate.endsWith("/@types/node/web-globals/storage.d.ts"),
+  );
+  const localStorageDeclaration = declarations.some(
+    (declaration) => propertyNameText(declaration.name) === "localStorage",
+  );
+  return canonicalDeclaration && localStorageDeclaration
+    ? {
+        apiKind: "web_storage",
+        resolvedApi: "typescript/lib/lib.dom.d.ts::Window.localStorage",
+      }
+    : null;
+}
+
+function isAuthorityLocalStateFactorySymbol(symbol, operation) {
+  if (
+    ![
+      "createAuthorityLocalStateEnvelopeFamily",
+      "createAuthorityLocalStateFamily",
+    ].includes(operation)
+  ) {
+    return false;
+  }
+  return persistenceDeclarationPaths(symbol).some(
+    (candidate) =>
+      candidate ===
+      "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+  );
+}
+
+function persistenceAccessName(expression) {
+  if (ts.isIdentifier(expression)) return expression;
+  if (ts.isPropertyAccessExpression(expression)) return expression.name;
+  if (
+    ts.isElementAccessExpression(expression) &&
+    expression.argumentExpression &&
+    ts.isStringLiteral(expression.argumentExpression)
+  ) {
+    return expression.argumentExpression;
+  }
+  return null;
+}
+
+function persistenceBindingSymbol(checker, binding, operation) {
+  if (!ts.isBindingElement(binding)) return null;
+  const pattern = binding.parent;
+  if (!ts.isObjectBindingPattern(pattern)) return null;
+  const declaration = pattern.parent;
+  if (!ts.isVariableDeclaration(declaration) || !declaration.initializer) {
+    return null;
+  }
+  const sourceType = checker.getTypeAtLocation(declaration.initializer);
+  return checker.getPropertyOfType(sourceType, operation) ?? null;
+}
+
+function persistenceCalleeTarget(checker, expression, seen = new Set()) {
+  const current = unwrapExpression(expression);
+  if (seen.has(current)) return null;
+  seen.add(current);
+
+  if (ts.isCallExpression(current)) {
+    const calledName = persistenceAccessName(current.expression)?.text ?? null;
+    if (calledName === "bind") {
+      const boundTarget =
+        ts.isPropertyAccessExpression(current.expression) ||
+        ts.isElementAccessExpression(current.expression)
+          ? current.expression.expression
+          : null;
+      return boundTarget
+        ? persistenceCalleeTarget(checker, boundTarget, seen)
+        : null;
+    }
+    return null;
+  }
+
+  if (
+    ts.isPropertyAccessExpression(current) ||
+    ts.isElementAccessExpression(current)
+  ) {
+    const nameNode = persistenceAccessName(current);
+    const operation = nameNode?.text ?? null;
+    if (!operation) return null;
+    if (["call", "apply"].includes(operation)) {
+      return persistenceCalleeTarget(checker, current.expression, seen);
+    }
+    if (operation === "bind") return null;
+    return {
+      operation,
+      symbol: resolvedSymbol(checker, nameNode),
+    };
+  }
+
+  if (!ts.isIdentifier(current)) return null;
+  const directSymbol = checker.getSymbolAtLocation(current);
+  for (const declaration of directSymbol?.declarations ?? []) {
+    if (ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      const target = persistenceCalleeTarget(
+        checker,
+        declaration.initializer,
+        seen,
+      );
+      if (target) return target;
+    }
+    if (ts.isBindingElement(declaration)) {
+      const operation =
+        propertyNameText(declaration.propertyName) ??
+        propertyNameText(declaration.name);
+      const symbol = operation
+        ? persistenceBindingSymbol(checker, declaration, operation)
+        : null;
+      if (operation && symbol) {
+        return { operation, symbol };
+      }
+    }
+  }
+  return {
+    operation: current.text,
+    symbol: resolvedSymbol(checker, current),
+  };
+}
+
+function isNestedPersistenceReceiver(node) {
+  const parent = node.parent;
+  if (
+    (ts.isPropertyAccessExpression(parent) ||
+      ts.isElementAccessExpression(parent)) &&
+    parent.expression === node &&
+    ts.isCallExpression(parent.parent) &&
+    parent.parent.expression === parent
+  ) {
+    return true;
+  }
+  return false;
+}
+
+
+function collectPersistenceConstructionFacts(program, checker) {
+  const productionSources = program
+    .getSourceFiles()
+    .filter((sourceFile) =>
+      isDashboardPersistenceProductionSource(sourceFile.fileName),
+    );
+  const candidates = [];
+  const authorityFactoryCandidates = [];
+  for (const sourceFile of productionSources) {
+    const pathOfSource = relativePath(sourceFile.fileName);
+    const sourceSha256 = textSha256(sourceFile.text);
+    const visit = (node) => {
+      if (ts.isCallExpression(node)) {
+        const target = persistenceCalleeTarget(checker, node.expression);
+        const operation = target?.operation ?? null;
+        const symbol = target?.symbol ?? null;
+        const api = operation
+          ? persistenceApiForSymbol(symbol, operation)
+          : null;
+        if (api) {
+          candidates.push({
+            node,
+            operation,
+            pathOfSource,
+            sourceFile,
+            sourceSha256,
+            ...api,
+          });
+        }
+        if (
+          operation &&
+          isAuthorityLocalStateFactorySymbol(symbol, operation)
+        ) {
+          authorityFactoryCandidates.push({
+            node,
+            operation,
+            pathOfSource,
+            sourceFile,
+            sourceSha256,
+          });
+        }
+      }
+
+      const isLocalStorageAccess =
+        (ts.isPropertyAccessExpression(node) ||
+          ts.isElementAccessExpression(node)) &&
+        persistenceAccessName(node)?.text === "localStorage";
+      const isGlobalLocalStorageIdentifier =
+        ts.isIdentifier(node) &&
+        node.text === "localStorage" &&
+        !(
+          (ts.isPropertyAccessExpression(node.parent) ||
+            ts.isElementAccessExpression(node.parent)) &&
+          persistenceAccessName(node.parent) === node
+        );
+      if (
+        (isLocalStorageAccess || isGlobalLocalStorageIdentifier) &&
+        !isNestedPersistenceReceiver(node)
+      ) {
+        const nameNode = isLocalStorageAccess
+          ? persistenceAccessName(node)
+          : node;
+        const api = localStorageApiForSymbol(resolvedSymbol(checker, nameNode));
+        if (api) {
+          candidates.push({
+            node,
+            operation: "acquire",
+            pathOfSource,
+            sourceFile,
+            sourceSha256,
+            ...api,
+          });
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  candidates.sort((left, right) =>
+    `${left.pathOfSource}:${String(left.node.getStart(left.sourceFile)).padStart(12, "0")}`.localeCompare(
+      `${right.pathOfSource}:${String(right.node.getStart(right.sourceFile)).padStart(12, "0")}`,
+    ),
+  );
+  authorityFactoryCandidates.sort((left, right) =>
+    `${left.pathOfSource}:${String(left.node.getStart(left.sourceFile)).padStart(12, "0")}`.localeCompare(
+      `${right.pathOfSource}:${String(right.node.getStart(right.sourceFile)).padStart(12, "0")}`,
+    ),
+  );
+  const factoryOrdinals = new Map();
+  const authorityFactoryCalls = authorityFactoryCandidates.map((candidate) => {
+    const declarationChain = persistenceDeclarationChain(candidate.node);
+    const ordinalKey = [
+      candidate.pathOfSource,
+      declarationChain,
+      candidate.operation,
+    ].join("|");
+    const ordinal = (factoryOrdinals.get(ordinalKey) ?? 0) + 1;
+    factoryOrdinals.set(ordinalKey, ordinal);
+    const stableKey = `${ordinalKey}|${ordinal}`;
+    return {
+      candidate,
+      declarationChain,
+      factory: candidate.operation,
+      factorySiteId: `authority-factory-${createHash("sha256").update(stableKey).digest("hex")}`,
+      path: candidate.pathOfSource,
+      siteSha256: textSha256(candidate.node.getText(candidate.sourceFile)),
+      sourceSha256: candidate.sourceSha256,
+    };
+  });
+
+  const ordinals = new Map();
+  const sites = candidates.map((candidate) => {
+    const declarationChain = persistenceDeclarationChain(candidate.node);
+    const ordinalKey = [
+      candidate.pathOfSource,
+      declarationChain,
+      candidate.resolvedApi,
+      candidate.operation,
+    ].join("|");
+    const ordinal = (ordinals.get(ordinalKey) ?? 0) + 1;
+    ordinals.set(ordinalKey, ordinal);
+    const stableKey = `${ordinalKey}|${ordinal}`;
+    const location = candidate.sourceFile.getLineAndCharacterOfPosition(
+      candidate.node.getStart(candidate.sourceFile),
+    );
+    const site = {
+      apiKind: candidate.apiKind,
+      column: location.character + 1,
+      declarationChain,
+      line: location.line + 1,
+      operation: candidate.operation,
+      path: candidate.pathOfSource,
+      resolvedApi: candidate.resolvedApi,
+      siteId: `storage-site-${createHash("sha256").update(stableKey).digest("hex")}`,
+      siteSha256: textSha256(candidate.node.getText(candidate.sourceFile)),
+      sourceSha256: candidate.sourceSha256,
+    };
+    return site;
+  });
+  const apiCounts = { indexed_db: 0, web_storage: 0, zustand: 0 };
+  for (const site of sites) apiCounts[site.apiKind] += 1;
+  return {
+    apiCounts,
+    authorityFactoryCalls: authorityFactoryCalls.map(
+      ({ candidate: _candidate, ...receipt }) => receipt,
+    ),
+    productionSourceCount: productionSources.length,
+    residual:
+      "direct declaration-resolved calls, acquisitions, and local destructured/bound aliases only; indirect storage value-flow remains not_established",
+    sites,
+  };
 }
 
 function enumMembers(node) {
@@ -318,7 +720,9 @@ function symbolHasDeclaration(checker, symbol, predicate) {
 function typeHasDeclaration(checker, type, predicate) {
   if (!type) return false;
   const symbols = [type.getSymbol(), type.aliasSymbol];
-  return symbols.some((symbol) => symbolHasDeclaration(checker, symbol, predicate));
+  return symbols.some((symbol) =>
+    symbolHasDeclaration(checker, symbol, predicate),
+  );
 }
 
 function typeHasCanonicalCapabilityFeature(checker, type) {
@@ -342,12 +746,15 @@ function typeHasCanonicalCapabilityFeature(checker, type) {
 
 function typeHasCanonicalCapabilityManifest(checker, type) {
   const features = checker.getPropertyOfType(type, "features");
-  return symbolHasDeclaration(checker, features, (declaration) =>
-    declarationIsNamedAtPath(
-      declaration,
-      "features",
-      CAPABILITY_TYPES_PATH,
-    ) &&
+  return symbolHasDeclaration(
+    checker,
+    features,
+    (declaration) =>
+      declarationIsNamedAtPath(
+        declaration,
+        "features",
+        CAPABILITY_TYPES_PATH,
+      ) &&
       declaration.parent &&
       ts.isTypeLiteralNode(declaration.parent) &&
       declaration.parent.parent &&
@@ -364,7 +771,8 @@ function objectProperty(node, name) {
   return (
     node.properties.find(
       (property) =>
-        ts.isPropertyAssignment(property) && propertyNameText(property.name) === name,
+        ts.isPropertyAssignment(property) &&
+        propertyNameText(property.name) === name,
     ) ?? null
   );
 }
@@ -378,13 +786,16 @@ function enclosingFunction(node) {
 function directCanonicalCapabilityManifestArgument(checker, typeNode) {
   if (!ts.isTypeReferenceNode(typeNode)) return false;
   const symbol = resolvedSymbol(checker, typeNode.typeName);
-  return symbolHasDeclaration(checker, symbol, (declaration) =>
-    ts.isTypeAliasDeclaration(declaration) &&
-    declarationIsNamedAtPath(
-      declaration,
-      "CapabilityManifestResponse",
-      CAPABILITY_DISCOVERY_OWNER_PATH,
-    ) &&
+  return symbolHasDeclaration(
+    checker,
+    symbol,
+    (declaration) =>
+      ts.isTypeAliasDeclaration(declaration) &&
+      declarationIsNamedAtPath(
+        declaration,
+        "CapabilityManifestResponse",
+        CAPABILITY_DISCOVERY_OWNER_PATH,
+      ) &&
       ts.isIndexedAccessTypeNode(declaration.type) &&
       typeHasCanonicalCapabilityManifest(
         checker,
@@ -437,7 +848,10 @@ function directCapabilityQueryParameter(checker, functionNode) {
 }
 
 function directCapabilityQueryData(checker, expression, functionNode) {
-  if (!ts.isPropertyAccessExpression(expression) || expression.name.text !== "data") {
+  if (
+    !ts.isPropertyAccessExpression(expression) ||
+    expression.name.text !== "data"
+  ) {
     return false;
   }
   if (!ts.isIdentifier(expression.expression)) return false;
@@ -498,7 +912,8 @@ function availableCapabilityCallIsLoadingGuarded(checker, call, functionNode) {
 
 function stringLiteralValue(node) {
   const current = unwrapExpression(node);
-  return ts.isStringLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)
+  return ts.isStringLiteral(current) ||
+    ts.isNoSubstitutionTemplateLiteral(current)
     ? current.text
     : null;
 }
@@ -518,38 +933,55 @@ function collectCapabilityDiscoveryFacts(sourceFiles, checker, pathOf) {
           ),
         );
         if (isIssuer) {
-          const argument = node.arguments.length === 1 ? unwrapExpression(node.arguments[0]) : null;
+          const argument =
+            node.arguments.length === 1
+              ? unwrapExpression(node.arguments[0])
+              : null;
           const state = argument ? objectProperty(argument, "state") : null;
           const reason = argument ? objectProperty(argument, "reason") : null;
-          const manifest = argument ? objectProperty(argument, "manifest") : null;
+          const manifest = argument
+            ? objectProperty(argument, "manifest")
+            : null;
           const functionNode = enclosingFunction(node);
           issuerCalls.push({
             path: pathOf(sourceFile),
             line: lineOf(sourceFile, node),
-            argumentKind: argument && ts.isObjectLiteralExpression(argument) ? "object_literal" : "other",
-            state: state && ts.isPropertyAssignment(state) ? stringLiteralValue(state.initializer) : null,
-            reason: reason && ts.isPropertyAssignment(reason) ? stringLiteralValue(reason.initializer) : null,
-            manifest: manifest && ts.isPropertyAssignment(manifest)
-              ? {
-                  kind: ts.isObjectLiteralExpression(unwrapExpression(manifest.initializer))
-                    ? "object_literal"
-                    : "expression",
-                  canonical: typeHasCanonicalCapabilityManifest(
-                    checker,
-                    checker.getTypeAtLocation(manifest.initializer),
-                  ),
-                  directQueryData: directCapabilityQueryData(
-                    checker,
-                    manifest.initializer,
-                    functionNode,
-                  ),
-                  loadingGuarded: availableCapabilityCallIsLoadingGuarded(
-                    checker,
-                    node,
-                    functionNode,
-                  ),
-                }
-              : null,
+            argumentKind:
+              argument && ts.isObjectLiteralExpression(argument)
+                ? "object_literal"
+                : "other",
+            state:
+              state && ts.isPropertyAssignment(state)
+                ? stringLiteralValue(state.initializer)
+                : null,
+            reason:
+              reason && ts.isPropertyAssignment(reason)
+                ? stringLiteralValue(reason.initializer)
+                : null,
+            manifest:
+              manifest && ts.isPropertyAssignment(manifest)
+                ? {
+                    kind: ts.isObjectLiteralExpression(
+                      unwrapExpression(manifest.initializer),
+                    )
+                      ? "object_literal"
+                      : "expression",
+                    canonical: typeHasCanonicalCapabilityManifest(
+                      checker,
+                      checker.getTypeAtLocation(manifest.initializer),
+                    ),
+                    directQueryData: directCapabilityQueryData(
+                      checker,
+                      manifest.initializer,
+                      functionNode,
+                    ),
+                    loadingGuarded: availableCapabilityCallIsLoadingGuarded(
+                      checker,
+                      node,
+                      functionNode,
+                    ),
+                  }
+                : null,
           });
         }
       }
@@ -612,7 +1044,11 @@ function queryKeyOwners(sourceFiles, checker) {
         const name = propertyNameText(node.name);
         const symbol = resolvedSymbol(checker, node.name);
         if (name && symbol) {
-          owners.set(symbol, { name, path: QUERY_KEYS_OWNER_PATH, line: lineOf(sourceFile, node) });
+          owners.set(symbol, {
+            name,
+            path: QUERY_KEYS_OWNER_PATH,
+            line: lineOf(sourceFile, node),
+          });
         }
       }
       ts.forEachChild(node, visit);
@@ -629,15 +1065,21 @@ function directQueryKeyOwner(checker, initializer, owners) {
   if (symbol && owners.has(symbol)) return owners.get(symbol);
   if (!ts.isPropertyAccessExpression(current.expression)) return null;
   const ownerSymbol = resolvedSymbol(checker, current.expression.expression);
-  const isCanonicalOwner = symbolHasDeclaration(checker, ownerSymbol, (declaration) =>
-    ts.isVariableDeclaration(declaration) &&
-    propertyNameText(declaration.name) === "queryKeys" &&
-    relativePath(declaration.getSourceFile().fileName) === QUERY_KEYS_OWNER_PATH,
+  const isCanonicalOwner = symbolHasDeclaration(
+    checker,
+    ownerSymbol,
+    (declaration) =>
+      ts.isVariableDeclaration(declaration) &&
+      propertyNameText(declaration.name) === "queryKeys" &&
+      relativePath(declaration.getSourceFile().fileName) ===
+        QUERY_KEYS_OWNER_PATH,
   );
   if (!isCanonicalOwner) return null;
-  return [...owners.values()].find(
-    (owner) => owner.name === current.expression.name.text,
-  ) ?? null;
+  return (
+    [...owners.values()].find(
+      (owner) => owner.name === current.expression.name.text,
+    ) ?? null
+  );
 }
 
 function queryKeyOwnerForObject(checker, object, owners) {
@@ -683,7 +1125,9 @@ function isDirectTanstackQueryOptionsObject(checker, object) {
   const parent = object.parent;
   return (
     ts.isCallExpression(parent) &&
-    parent.arguments.some((argument) => unwrapExpression(argument) === object) &&
+    parent.arguments.some(
+      (argument) => unwrapExpression(argument) === object,
+    ) &&
     tanstackQueryCallee(checker, parent.expression) !== null
   );
 }
@@ -713,22 +1157,29 @@ function collectQueryCachePolicyFacts(sourceFiles, checker, pathOf) {
       if (ts.isCallExpression(node)) {
         const callee = tanstackQueryCallee(checker, node.expression);
         if (callee) {
-          const options = node.arguments.length === 1 ? unwrapExpression(node.arguments[0]) : null;
-          const owner = options && ts.isObjectLiteralExpression(options)
-            ? queryKeyOwnerForObject(checker, options, owners)
-            : null;
+          const options =
+            node.arguments.length === 1
+              ? unwrapExpression(node.arguments[0])
+              : null;
+          const owner =
+            options && ts.isObjectLiteralExpression(options)
+              ? queryKeyOwnerForObject(checker, options, owners)
+              : null;
           constructions.push({
             callee,
             path: pathOf(sourceFile),
             line: lineOf(sourceFile, node),
             sourceSha256: sourceSha256(sourceFile, node),
             queryKeyOwner: owner?.name ?? null,
-            optionsDeclaration: options ? optionsDeclarationFact(checker, options) : null,
-            optionsResolution: options &&
+            optionsDeclaration: options
+              ? optionsDeclarationFact(checker, options)
+              : null,
+            optionsResolution:
+              options &&
               ts.isObjectLiteralExpression(options) &&
               !objectContainsSpreadAssignment(options)
-              ? "inline"
-              : "referenced",
+                ? "inline"
+                : "referenced",
           });
         }
       }
@@ -760,7 +1211,8 @@ function collectQueryCachePolicyFacts(sourceFiles, checker, pathOf) {
       `${right.path}:${String(right.line).padStart(8, "0")}`,
     );
   return {
-    residual: "direct construction-site declaration identity only; option-value semantics for referenced options are unestablished and no call is excluded, debt, or exempted on that basis",
+    residual:
+      "direct construction-site declaration identity only; option-value semantics for referenced options are unestablished and no call is excluded, debt, or exempted on that basis",
     queryKeyOwners: queryKeyOwnersRows,
     constructions: constructions.sort(sortRows),
     producers: producers.sort(sortRows),
@@ -5144,8 +5596,8 @@ function collectProgramFacts(
       (sourceFile) => relativePath(sourceFile.fileName),
     ),
   };
-  const offlineQueueProductionSources = statusInventorySources.filter((sourceFile) =>
-    isOfflineQueueProductionSource(sourceFile.fileName),
+  const offlineQueueProductionSources = statusInventorySources.filter(
+    (sourceFile) => isOfflineQueueProductionSource(sourceFile.fileName),
   );
   const offlineQueueFacts = collectOfflineQueueFacts(
     offlineQueueProductionSources,
@@ -5193,6 +5645,10 @@ function collectProgramFacts(
       program.getSourceFiles(),
       checker,
       (sourceFile) => relativePath(sourceFile.fileName),
+    ),
+    persistenceConstructionFacts: collectPersistenceConstructionFacts(
+      program,
+      checker,
     ),
     ...authorityEscapeFacts,
   };
@@ -5265,7 +5721,10 @@ function overrideInteractionIdentities(sourceFile, relative) {
   };
 }
 
-function createOverrideProgram(overrides, includeDashboardProgramRoots = false) {
+function createOverrideProgram(
+  overrides,
+  includeDashboardProgramRoots = false,
+) {
   const sources = new Map(
     Object.entries(overrides).map(([relative, source]) => [
       path.resolve(repoRoot, relative),
@@ -5352,7 +5811,10 @@ function collectOverrideFacts(
       featureLiterals: [],
     },
   };
-  const program = createOverrideProgram(overrides, includeDashboardProgramRoots);
+  const program = createOverrideProgram(
+    overrides,
+    includeDashboardProgramRoots,
+  );
   if (validateOverrideDiagnostics) {
     const overridePaths = new Set(
       Object.keys(overrides).map((relative) =>
@@ -5515,7 +5977,9 @@ function collectOverrideFacts(
   const offlineQueueDefinitionSources = includeDashboardProgramRoots
     ? program
         .getSourceFiles()
-        .filter((sourceFile) => isDashboardStatusInventorySource(sourceFile.fileName))
+        .filter((sourceFile) =>
+          isDashboardStatusInventorySource(sourceFile.fileName),
+        )
     : sourceFiles.filter((sourceFile) =>
         isDashboardStatusInventorySource(sourceFile.fileName),
       );
@@ -5525,15 +5989,23 @@ function collectOverrideFacts(
     ),
     (sourceFile) => relativePath(sourceFile.fileName),
   );
-  facts.offlineQueueFacts.definitionFiles = offlineQueueDefinitionSources.length;
-  facts.offlineQueueFacts.nonTypeScriptDefinitionFiles = offlineQueueDefinitionSources
-    .filter((sourceFile) => !/\.tsx?$/.test(relativePath(sourceFile.fileName)))
-    .map((sourceFile) => relativePath(sourceFile.fileName))
-    .sort();
+  facts.offlineQueueFacts.definitionFiles =
+    offlineQueueDefinitionSources.length;
+  facts.offlineQueueFacts.nonTypeScriptDefinitionFiles =
+    offlineQueueDefinitionSources
+      .filter(
+        (sourceFile) => !/\.tsx?$/.test(relativePath(sourceFile.fileName)),
+      )
+      .map((sourceFile) => relativePath(sourceFile.fileName))
+      .sort();
   facts.queryCachePolicyFacts = collectQueryCachePolicyFacts(
     [...program.getSourceFiles()],
     checker,
     (sourceFile) => relativePath(sourceFile.fileName),
+  );
+  facts.persistenceConstructionFacts = collectPersistenceConstructionFacts(
+    program,
+    checker,
   );
   return facts;
 }

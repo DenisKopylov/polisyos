@@ -2761,6 +2761,15 @@ CLUSTER_PROOFS = {
             "polisyos.runtime.whatif",
         ],
     },
+    "review-attention": {
+        "unit_ids": {"cache-review-attention"},
+        "paths": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+        "targets": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+    },
 }
 
 BASE_EXPECTED_FINDING_IDS = {
@@ -5565,6 +5574,65 @@ C23_RATIONALE = (
     "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
 )
 
+C17B_SCOPED_ENVELOPE_OWNER = (
+    "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts"
+)
+C17B_REGISTERED_CODEC_BY_OWNER = {
+    C17B_SCOPED_ENVELOPE_OWNER: "authority-local-state-envelope-v1",
+    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts": (
+        "composer-draft-v1"
+    ),
+    "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts": (
+        "clerk-chat-sessions-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts": (
+        "dispute-topology-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts": (
+        "operator-craft-family-codecs-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx": (
+        "causal-draft-v1"
+    ),
+}
+C17B_BENIGN_REASON_BY_OWNER = {
+    "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": "ui_preference",
+    "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx": "theme",
+    "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx": "ui_preference",
+    "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts": "ui_preference",
+    "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts": "ui_preference",
+    "apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts": (
+        "ui_preference"
+    ),
+    "apps/runtime-dashboard/src/shared/i18n/locale.ts": "locale",
+    "apps/runtime-dashboard/src/shared/lib/featureFlags.ts": (
+        "rollout_exposure_control"
+    ),
+}
+C17B_STORAGE_CLASS_COUNTS = {
+    "interaction_benign": 22,
+    "rollout_cache_pending": 0,
+    "scoped_authority": 14,
+}
+C17B_AUTHORITY_FLOW_LIMITATION = {
+    "direct_construction_provenance": "recomputed",
+    "semantic_class_provenance": "institutionally_supplied",
+    "authority_flow_provenance": "not_established",
+    "authority_flow_scope": (
+        "site-to-owner-instance provider, receiver, key, and payload value flow is "
+        "outside the declaration-resolved direct-construction census"
+    ),
+    "authority_flow_falsifier": (
+        "const storage = provider(); storage.setItem(...) preserves a resolved "
+        "Storage.setItem site while changing the unproved owner-instance flow"
+    ),
+    "authority_flow_required_capability": (
+        "sound whole-program interprocedural data/control-flow with reaching "
+        "definitions and owner-instance identity"
+    ),
+    "authority_flow_capability_status": "absent/unallocated",
+}
+
 EXPECTED_FINDING_IDS = (
     BASE_EXPECTED_FINDING_IDS
     | set(GOVERNED_DEBT_DESCRIPTORS)
@@ -6019,6 +6087,63 @@ def _reference_matches(targets: Sequence[str], scan_roots: Sequence[str]) -> lis
     return sorted(matches)
 
 
+def _typescript_import_matches(
+    targets: Sequence[str],
+    scan_roots: Sequence[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Return AST imports/re-exports whose module resolves or spells a target."""
+    if sources is None:
+        sources = {}
+        for path in _iter_scan_files(scan_roots):
+            if path.suffix not in {".cts", ".mts", ".ts", ".tsx"}:
+                continue
+            try:
+                sources[path.relative_to(REPO_ROOT).as_posix()] = path.read_text(
+                    encoding="utf-8"
+                )
+            except (UnicodeDecodeError, OSError):
+                continue
+    def module_stem(value: str) -> str:
+        normalized = posixpath.normpath(value.replace("\\", "/"))
+        return re.sub(r"\.(?:d\.)?[cm]?[jt]sx?$", "", normalized)
+
+    target_forms: set[str] = set()
+    for target in targets:
+        without_suffix = module_stem(target)
+        target_forms.add(without_suffix)
+        dashboard_prefix = "apps/runtime-dashboard/src/"
+        if without_suffix.startswith(dashboard_prefix):
+            target_forms.add(without_suffix[len(dashboard_prefix) :])
+
+    matches: set[str] = set()
+    for fact in _typescript_module_facts(sources):
+        if fact.get("kind") not in {"dynamic", "export", "import_declaration"}:
+            continue
+        module = str(fact.get("module", "")).replace("\\", "/")
+        importer = str(fact.get("path", "")).replace("\\", "/")
+        resolved = fact.get("resolved_module")
+        candidates: set[str] = set()
+        if isinstance(resolved, str) and resolved:
+            candidates.add(module_stem(resolved))
+        if module.startswith("@/"):
+            candidates.add(
+                module_stem(
+                    "apps/runtime-dashboard/src/" + module.removeprefix("@/")
+                )
+            )
+        elif module.startswith("."):
+            candidates.add(
+                module_stem(
+                    posixpath.join(posixpath.dirname(importer), module)
+                )
+            )
+        if candidates & target_forms:
+            matches.add(f"{fact['path']}:{fact['line']}")
+    return sorted(matches)
+
+
 def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
     if probe["kind"] == "path_absent":
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
@@ -6027,6 +6152,8 @@ def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
     if probe["kind"] == "typescript_symbol_consumer_census":
         sources = _typescript_production_sources(probe["scan_roots"])
         return _ui_primitive_consumers_from_sources(sources)
+    if probe["kind"] == "typescript_import_census":
+        return _typescript_import_matches(probe["targets"], probe["scan_roots"])
     return _reference_matches(probe["targets"], probe["scan_roots"])
 
 
@@ -6478,9 +6605,14 @@ def _seeded_negatives() -> list[dict[str, Any]]:
 
 
 def build_seed_register() -> dict[str, Any]:
-    """Build the deterministic DS19 seed from the two source ledgers."""
+    """Build the DS19 seed while preserving explicit storage adjudications."""
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
+    if not REGISTER_PATH.exists():
+        raise ValueError("storage_construction_census_missing")
+    storage_census = _load_json(REGISTER_PATH).get("storage_construction_census")
+    if not isinstance(storage_census, Mapping):
+        raise ValueError("storage_construction_census_missing")
     ds1_ids = {entry["surface_id"] for entry in ds1["entries"]}
     mapped, unbound, mapping_errors = _ds2_links(ds1_ids, ds2)
     if mapping_errors:
@@ -6541,6 +6673,7 @@ def build_seed_register() -> dict[str, Any]:
         "baseline_debt_manifest_ref": "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json",
         "ds2_unbound_adoption_ids": unbound,
         "reference_censuses": [_protected_signing_census()],
+        "storage_construction_census": copy.deepcopy(storage_census),
         "entries": entries,
         "subunits": [
             {
@@ -7973,6 +8106,122 @@ def _validate_c23_containment_roots(
             errors.append(f"c23_containment_root_drift:{unit_id}")
 
 
+def _validate_storage_construction_census(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind every explicit persistence class to its finite owner contract."""
+    census = data.get("storage_construction_census")
+    if not isinstance(census, Mapping):
+        errors.append("storage_construction_census_missing")
+        return
+    sites = census.get("sites")
+    if not isinstance(sites, list):
+        errors.append("storage_construction_sites_invalid")
+        return
+    if census.get("rows_sha256") != "sha256:" + _canonical_sha256(sites):
+        errors.append("storage_construction_rows_digest_drift")
+    for field, expected in C17B_AUTHORITY_FLOW_LIMITATION.items():
+        if census.get(field) != expected:
+            errors.append(f"storage_construction_authority_flow_limit_drift:{field}")
+    factory_receipts = census.get("authority_factory_receipts")
+    if not isinstance(factory_receipts, list):
+        errors.append("storage_construction_factory_receipts_invalid")
+        factory_receipts = []
+    if census.get("authority_factory_count") != len(factory_receipts):
+        errors.append("storage_construction_factory_count_drift")
+    if census.get("authority_factory_receipts_sha256") != (
+        "sha256:" + _canonical_sha256(factory_receipts)
+    ):
+        errors.append("storage_construction_factory_receipts_digest_drift")
+    factory_ids: list[str] = []
+    for raw_receipt in factory_receipts:
+        if not isinstance(raw_receipt, Mapping):
+            errors.append("storage_construction_factory_receipt_invalid")
+            continue
+        receipt_id = str(raw_receipt.get("factory_site_id", "unknown"))
+        factory_ids.append(receipt_id)
+        factory_path = _path_from_ref(str(raw_receipt.get("path", "")))
+        if not factory_path.is_file():
+            errors.append(f"storage_construction_factory_source_missing:{receipt_id}")
+        elif raw_receipt.get("source_fingerprint") != _sha256(factory_path):
+            errors.append(
+                f"storage_construction_factory_source_fingerprint_drift:{receipt_id}"
+            )
+    duplicate_factory_ids = sorted(
+        receipt_id
+        for receipt_id, count in Counter(factory_ids).items()
+        if count > 1
+    )
+    errors.extend(
+        f"storage_construction_duplicate_factory_id:{receipt_id}"
+        for receipt_id in duplicate_factory_ids
+    )
+    site_ids: list[str] = []
+    classes: Counter[str] = Counter()
+    for raw_row in sites:
+        if not isinstance(raw_row, Mapping):
+            errors.append("storage_construction_row_invalid")
+            continue
+        row = raw_row
+        site_id = str(row.get("site_id", "unknown"))
+        site_ids.append(site_id)
+        classification = str(row.get("classification", "unknown"))
+        classes[classification] += 1
+        path = str(row.get("path", ""))
+        store_owner = str(row.get("store_owner", ""))
+        source_path = _path_from_ref(path)
+        if not source_path.is_file():
+            errors.append(f"storage_construction_source_missing:{site_id}")
+        elif row.get("source_fingerprint") != _sha256(source_path):
+            errors.append(f"storage_construction_source_fingerprint_drift:{site_id}")
+        if not _path_from_ref(store_owner).is_file():
+            errors.append(f"storage_construction_store_owner_missing:{site_id}")
+        if "authority_binding" in row:
+            errors.append(f"storage_construction_retired_authority_binding:{site_id}")
+
+        if classification == "scoped_authority":
+            if row.get("scoped_envelope_owner") != C17B_SCOPED_ENVELOPE_OWNER:
+                errors.append(f"storage_construction_scoped_owner_drift:{site_id}")
+            expected_codec = C17B_REGISTERED_CODEC_BY_OWNER.get(store_owner)
+            if expected_codec is None or row.get("registered_codec_id") != expected_codec:
+                errors.append(f"storage_construction_codec_owner_drift:{site_id}")
+        elif classification == "interaction_benign":
+            expected_reason = C17B_BENIGN_REASON_BY_OWNER.get(store_owner)
+            if store_owner != path or row.get("benign_reason") != expected_reason:
+                errors.append(f"storage_construction_benign_owner_drift:{site_id}")
+            for field in (
+                "capability_states",
+                "closure_signal",
+                "owner_slice",
+                "registered_codec_id",
+                "scoped_envelope_owner",
+            ):
+                if field in row:
+                    errors.append(
+                        f"storage_construction_benign_debt_field:{site_id}:{field}"
+                    )
+        elif classification == "rollout_cache_pending":
+            pass
+        else:
+            errors.append(f"storage_construction_class_invalid:{site_id}")
+
+    duplicates = sorted(
+        site_id for site_id, count in Counter(site_ids).items() if count > 1
+    )
+    errors.extend(
+        f"storage_construction_duplicate_site_id:{site_id}" for site_id in duplicates
+    )
+    observed_class_counts = {
+        classification: classes.get(classification, 0)
+        for classification in C17B_STORAGE_CLASS_COUNTS
+    }
+    if (
+        observed_class_counts != C17B_STORAGE_CLASS_COUNTS
+        or set(classes) - set(C17B_STORAGE_CLASS_COUNTS)
+    ):
+        errors.append("storage_construction_class_distribution_drift")
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -8018,6 +8267,7 @@ def validate_register(
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
             return errors
+    _validate_storage_construction_census(data, errors)
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
     ds1_ids = [entry["surface_id"] for entry in ds1["entries"]]
@@ -8175,7 +8425,7 @@ def validate_register(
         stored_targets = {
             target
             for probe in probes
-            if probe["kind"] == "reference_count"
+            if probe["kind"] in {"reference_count", "typescript_import_census"}
             for target in probe["targets"]
         }
         if not set(proof["paths"]) <= stored_paths:
@@ -8597,6 +8847,26 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     )
     responsive["rationale"] = "C17 proves responsive readiness."
     probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
+
+    storage_fingerprint_drift = copy.deepcopy(data)
+    storage_fingerprint_drift["storage_construction_census"]["sites"][0][
+        "source_fingerprint"
+    ] = "sha256:" + "0" * 64
+    probes.append(
+        ("storage-construction-source-fingerprint-drift", storage_fingerprint_drift)
+    )
+
+    storage_class_drift = copy.deepcopy(data)
+    storage_site = next(
+        row
+        for row in storage_class_drift["storage_construction_census"]["sites"]
+        if row["classification"] == "scoped_authority"
+    )
+    storage_site["classification"] = "interaction_benign"
+    storage_site["benign_reason"] = "ui_preference"
+    storage_site.pop("scoped_envelope_owner")
+    storage_site.pop("registered_codec_id")
+    probes.append(("storage-construction-class-retag", storage_class_drift))
 
     for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
         governed_fields = ("finding_id", *descriptor)
@@ -9022,6 +9292,69 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             f"| `{unit_id}` | `{row['disposition']}` | `{row['decision_detail']['consumer_slice']}` | {row['decision_detail']['rationale']} |"
         )
 
+    persistence_census = data["storage_construction_census"]
+    persistence_sites = persistence_census["sites"]
+    persistence_counts = Counter(row["classification"] for row in persistence_sites)
+    lines.extend(
+        [
+            "",
+            "### Persistence construction census",
+            "",
+            (
+                f"Declaration-resolved production denominator: "
+                f"**{persistence_census['production_source_count']} TS/TSX sources**, "
+                f"**{persistence_census['site_count']} sites / "
+                f"{persistence_census['production_file_count']} files**. "
+                f"Classes: **{persistence_counts['scoped_authority']} scoped authority**, "
+                f"**{persistence_counts['interaction_benign']} interaction benign**, "
+                f"**{persistence_counts['rollout_cache_pending']} rollout cache pending**; "
+                f"**{persistence_census['authority_factory_count']} independently "
+                "content-bound authority factory declarations**. Direct construction "
+                f"facts are `{persistence_census['direct_construction_provenance']}`; "
+                "semantic classes are "
+                f"`{persistence_census['semantic_class_provenance']}`; exact "
+                "site-to-owner-instance flow is "
+                f"`{persistence_census['authority_flow_provenance']}`."
+            ),
+            "",
+            (
+                "Declared bounded residual: "
+                f"{persistence_census['authority_flow_scope']}. Falsifier: "
+                f"`{persistence_census['authority_flow_falsifier']}`. Closing it "
+                "requires "
+                f"{persistence_census['authority_flow_required_capability']}; "
+                "repository capability status: "
+                f"`{persistence_census['authority_flow_capability_status']}`."
+            ),
+            "",
+            "| Site | Declared adjudication | Resolved API / operation | Store owner | Source | Fingerprints | Posture |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in persistence_sites:
+        if row["classification"] == "scoped_authority":
+            posture = (
+                f"`{row['scoped_envelope_owner']}` / "
+                f"`{row['registered_codec_id']}`; "
+                "authority flow `not_established`"
+            )
+        elif row["classification"] == "interaction_benign":
+            posture = f"`{row['benign_reason']}`"
+        else:
+            states = ", ".join(
+                f"`{state}`" for state in row["capability_states"]
+            )
+            posture = (
+                f"`{row['owner_slice']}`; {states}; {row['closure_signal']}"
+            )
+        lines.append(
+            f"| `{row['site_id']}` | `{row['classification']}` | "
+            f"`{row['resolved_api_declaration']}` / `{row['operation']}` | "
+            f"`{row['store_owner']}` | `{row['path']}` | "
+            f"`{row['source_fingerprint'][7:19]}` / "
+            f"`{row['site_fingerprint'][7:19]}` | {posture} |"
+        )
+
     lines.extend(
         [
             "",
@@ -9138,6 +9471,7 @@ def render_report(data: Mapping[str, Any]) -> str:
     baseline = _load_json(BASELINE_PATH)
     added, deleted, deleted_files = _application_reduction()
     projection = _report_projection(data)
+    census_count = len(data["reference_censuses"])
     commit_lines = "\n".join(f"- `{line}`" for line in _recent_commits())
     return f"""# Atlas DS19 Frontend Disposition Register and Strangle-Wave Report
 
@@ -9219,7 +9553,7 @@ Vitest receipt SHA-256:
 | Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
 | Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | baseline-red, no regression; no fence expansion |
 | Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is invalid; isolated run installed 116 ephemeral packages and changed no repository file |
-| Register/check | schema, 261 DS1 roots, 233 DS2 edges, seven live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
+| Register/check | schema, 261 DS1 roots, 233 DS2 edges, {census_count} live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
 | Fence | 55 paths, 0 violations against `main...HEAD`; `git diff --check` PASS | DS19 fence only |
 
 Closure ESLint receipt SHA-256:
@@ -9260,6 +9594,7 @@ def _report_projection_errors(data: Mapping[str, Any]) -> list[str]:
 
 
 def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
+    persistence = data["storage_construction_census"]
     return {
         "root_entries": len(data["entries"]),
         "root_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["entries"]).items())),
@@ -9267,6 +9602,12 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "censuses": len(data["reference_censuses"]),
         "supplemental_findings": len(data["supplemental_findings"]),
         "seeded_negatives": len(data["seeded_negative_lifecycle"]),
+        "storage_construction_classes": dict(
+            sorted(Counter(row["classification"] for row in persistence["sites"]).items())
+        ),
+        "storage_construction_files": persistence["production_file_count"],
+        "storage_construction_sites": persistence["site_count"],
+        "storage_production_sources": persistence["production_source_count"],
     }
 
 

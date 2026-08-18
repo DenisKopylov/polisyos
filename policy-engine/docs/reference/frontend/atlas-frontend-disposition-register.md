@@ -78,7 +78,7 @@ Vitest receipt SHA-256:
 | Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
 | Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | baseline-red, no regression; no fence expansion |
 | Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is invalid; isolated run installed 116 ephemeral packages and changed no repository file |
-| Register/check | schema, 261 DS1 roots, 233 DS2 edges, seven live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
+| Register/check | schema, 261 DS1 roots, 233 DS2 edges, 10 live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
 | Fence | 55 paths, 0 violations against `main...HEAD`; `git diff --check` PASS | DS19 fence only |
 
 Closure ESLint receipt SHA-256:
@@ -99,10 +99,10 @@ No merge or push is performed.
 
 | Disposition | Root units |
 | --- | ---: |
-| `deleted` | 18 |
-| `rebind_pending` | 186 |
+| `deleted` | 19 |
+| `rebind_pending` | 184 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 16 |
+| `use_as_is` | 17 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -118,6 +118,7 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification` |
 | clerk-index | `route-home-clerk-duplicate` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification` |
 | whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification` |
+| review-attention | `cache-review-attention` | zero_consumers | `deleted` | `architecture/atlas_surfaces/test_atlas_enforcement.py`, `architecture/atlas_surfaces/test_frontend_disposition_register.py`, `docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md` |
 
 ### DS4 primitive aggregate disposition
 
@@ -198,6 +199,51 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `flag-enable-collaboration` | `retire_disposition` | `DS5` | C19 removes enableCollaboration from the canonical manifest keys and registry; the environment-boundary test proves the retired key is rejected atomically, while the refreshed zero registry-entry census proves no live construction remains. The separate enableReviewCollaboration authz override is unchanged. |
 | `flag-enable-command-palette` | `wire_disposition` | `DS5` | C19 gates both CommandPalette mounting and global shortcut registration with enableCommandPalette; focused layout and palette tests prove a false flag removes UI and keyboard entry without changing permission authority. |
 | `flag-enable-what-if-analysis` | `wire_disposition` | `DS5` | C19 gates the AppShell counterfactual rail and the Overview scenario workbench with enableWhatIfAnalysis; focused layout and run-detail tests prove a false flag removes both surfaces and cannot grant or replace permission. |
+
+### Persistence construction census
+
+Declaration-resolved production denominator: **574 TS/TSX sources**, **36 sites / 15 files**. Classes: **14 scoped authority**, **22 interaction benign**, **0 rollout cache pending**; **9 independently content-bound authority factory declarations**. Direct construction facts are `recomputed`; semantic classes are `institutionally_supplied`; exact site-to-owner-instance flow is `not_established`.
+
+Declared bounded residual: site-to-owner-instance provider, receiver, key, and payload value flow is outside the declaration-resolved direct-construction census. Falsifier: `const storage = provider(); storage.setItem(...) preserves a resolved Storage.setItem site while changing the unproved owner-instance flow`. Closing it requires sound whole-program interprocedural data/control-flow with reaching definitions and owner-instance identity; repository capability status: `absent/unallocated`.
+
+| Site | Declared adjudication | Resolved API / operation | Store owner | Source | Fingerprints | Posture |
+| --- | --- | --- | --- | --- | --- | --- |
+| `storage-site-82510a28616480aab3bb2b282ff9e6b7d0a82a8e1c48b63e1c2a15a44de2df2b` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | `fe3dbe8201a7` / `db4d83c5f87f` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `authority-local-state-envelope-v1`; authority flow `not_established` |
+| `storage-site-4d8f77f82e9ee648e28b94559b50152d8f4f7ef2247044319f61d1c762e6df3c` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | `fe3dbe8201a7` / `8c8d9fb61c39` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `authority-local-state-envelope-v1`; authority flow `not_established` |
+| `storage-site-30109455714193156e695ebb76de40e1dd7c713c37134f93d7e9e2e2d7e9d073` | `scoped_authority` | `idb::get` / `get` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/composerDraftDb.ts` | `1b6e8c724e4c` / `71555bd946dd` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
+| `storage-site-115f5f50e836a6f341d240bb8b1bcf7d04d8f70035764295eaeda6f5bef58830` | `scoped_authority` | `idb::put` / `put` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/composerDraftDb.ts` | `1b6e8c724e4c` / `cd80d80f674a` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
+| `storage-site-2812777f4bad3bbbb26690108c006a75d57f72239510ac3fbdda785573596818` | `scoped_authority` | `idb::delete` / `delete` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/composerDraftDb.ts` | `1b6e8c724e4c` / `2da9793449f4` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
+| `storage-site-a65e9e41c63f480c9ff8f0d4ac322385a2e87c49d48b805e536f350d8a0a9fc9` | `scoped_authority` | `idb::openDB` / `openDB` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/db.ts` | `52f77e69ca89` / `2c26efab04f7` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
+| `storage-site-a0b9ca9ee8a58915ac642421094f802a3c8420ad57955ccf83a99af37560905c` | `scoped_authority` | `idb::createObjectStore` / `createObjectStore` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/db.ts` | `52f77e69ca89` / `d07aa1e764e5` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
+| `storage-site-16fd635bf34fe09f73e3b44a31ccfafad75156b796e8859f9b9cbc538cfe0e14` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `ac7fe67b8cae` / `0fe71b65d6fa` | `ui_preference` |
+| `storage-site-23548efc36e0219011a48a6724ae68ec5d4628af0defc812fc01201a99791e92` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `ac7fe67b8cae` / `3db64878e593` | `ui_preference` |
+| `storage-site-0dbde606ec251f4e52ff7fd880f30e052ecf4c6e079a27e5687507cc88c2c8f7` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `bf14023a0a5f` / `62482b685c28` | `theme` |
+| `storage-site-a74c7659e6f35601921ba6be48de09e484a5f29177a651ea035a32920d370a93` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `bf14023a0a5f` / `51e3d2952a4f` | `theme` |
+| `storage-site-329d8de4da47acace6e2e32e15aa05598bed6e289730277a0e5fdc5f96d2a73d` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `1ab5964b99bc` / `3d0568d4c661` | `ui_preference` |
+| `storage-site-efe95ffd4464c44b760c3a4e1a67ed87a773292648a265c7161bdfe38cc3f2d5` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `1ab5964b99bc` / `f0a9f5381eae` | `ui_preference` |
+| `storage-site-eff54e9a5215a602daf5630ea95130795ec90cd80ba979fc4ecca71ec9105cc6` | `interaction_benign` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/app/state/usePreferencesStore.ts` | `apps/runtime-dashboard/src/app/state/usePreferencesStore.ts` | `994b51046b9f` / `62f491bea38e` | `ui_preference` |
+| `storage-site-9cea128f712d1ed1848977ef80db0c50035b69815b6f22862551b98310fe1361` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/state/usePreferencesStore.ts` | `apps/runtime-dashboard/src/app/state/usePreferencesStore.ts` | `994b51046b9f` / `cf00005078c7` | `ui_preference` |
+| `storage-site-e8e788c9df1bdaa180027ca1442ab6b9d9c34161129e39637d9f186a5cf8161b` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `ed0c399486af` | `ui_preference` |
+| `storage-site-a9d23a198b0e7b28d1198b170461fd00b37cb2509def77c4fdf0aee2705db1b4` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.removeItem` / `removeItem` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `be87b439881f` | `ui_preference` |
+| `storage-site-c2b81c1e937dce9d85c3c2545f0f9f054eb805b8af60ade94e7148a9a605663d` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `83b71b7c882e` | `ui_preference` |
+| `storage-site-5319297e1cb3990cd2cff0c2efdda8ba93735cf4fd3c68c28f516a599db01fb3` | `interaction_benign` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `b91459b9e25d` | `ui_preference` |
+| `storage-site-2afa9a6f31f495e80927aed7385b39bc2a10dd50f1cd83d511072b54ac9e9f25` | `interaction_benign` | `zustand/middleware::createJSONStorage` / `createJSONStorage` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `51761bc5666a` | `ui_preference` |
+| `storage-site-8239d22c7f77a369d97fb6a48bbbfffcf6b8a771634302d4936deb7e48f4cb0f` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts` | `9c6d1bb092d4` / `bae4c6206ee3` | `ui_preference` |
+| `storage-site-95099d85b2a91ec570611998bec15df4bd314320aaded048a2d2dcadaabbd2ed` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
+| `storage-site-c4b0eec11e781f705082fcf9fcd94b6865cd49ba14670a662165a6378131b628` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `41673351af3b` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
+| `storage-site-e3197d69b09afa722469ce0e22e3bf01adf7038eddd75de070c1b27c3f64bdef` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `9254211607da` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
+| `storage-site-978eef015dbbda52cd406bfc44b44295c9384bb63d93531bff09dcb357604878` | `scoped_authority` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `e8de1ebe950f` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
+| `storage-site-c6193aadc4f6a0e690999f7db6d3f30f21872a3c15ce5eb604fed46f020e9d4f` | `interaction_benign` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts` | `apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts` | `9cd24ad38d84` / `3b84ad9036f5` | `ui_preference` |
+| `storage-site-f51ff807af1565a3557c7e53a8d6c2e4a29f4b66a8dc86806c34ae8ea6e98f70` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `03fe198af004` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `dispute-topology-v1`; authority flow `not_established` |
+| `storage-site-b502f3a54daa6a55ed0116c0556dc83893818684e3743285e82e1aa7b0a30c40` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` | `c899d4a2acc9` / `f93e6557153c` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `operator-craft-family-codecs-v1`; authority flow `not_established` |
+| `storage-site-28c02183482a1769a8cdf4e5a4d82e0e4792aa344ee1035b4d41ffcb121706bc` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx` | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx` | `9d5af744104b` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `causal-draft-v1`; authority flow `not_established` |
+| `storage-site-6e4acc5199d026aaa88c5f2a1c0a0d26a5c49928b150227a5452ff60090dabec` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `0ec043f6b8b1` / `eede4f6d129d` | `locale` |
+| `storage-site-399705a043705ae1f1ec0cc91763cc5ff8043d3c167132da0dff4068050b2607` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `0ec043f6b8b1` / `901accda25fc` | `locale` |
+| `storage-site-b51fd8cf5b5698c0fd273ed568c03273a12b9ebb3cade2a14c162156dec414f4` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `0ec043f6b8b1` / `eede4f6d129d` | `locale` |
+| `storage-site-9d51649078e6303ac8b43ba7a28348c4608225ac5c53369f7fc9c4970400a311` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `709491ffcca1` / `4e4aa8087062` | `rollout_exposure_control` |
+| `storage-site-65f27f552e5ca38bcdbcfac301937b83d8b244d7d55cd8d6eba94d54268ad19d` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `709491ffcca1` / `2a2e19cd3432` | `rollout_exposure_control` |
+| `storage-site-cba2f36e647c09f58a91dc4ff652a30b6762ac9294fea79262861ea49d772ac3` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `709491ffcca1` / `4e4aa8087062` | `rollout_exposure_control` |
+| `storage-site-779df52284e1767610abdfdf8a4ec284a04962a1d6be0d9098944c1ed41031ae` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | `709491ffcca1` / `e80a94e64e39` | `rollout_exposure_control` |
 
 ### Subunits and structural findings
 
@@ -537,12 +583,12 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `deleted` | `strangled` | `DS5` | `census-c13a-authority-replay-delete` |
 | `offline-draft-composer` | `offline-draft-composer` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `cache-local-storage-state` | `cache-local-storage-state` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `cache-local-storage-state` | `cache-local-storage-state` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `cache-clerk-sessions` | `cache-clerk-sessions` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
 | `cache-whatif-scenarios` | `cache-whatif-scenarios` | 0 | `deleted` | `strangled` | `DS19` | `census-whatif-local-subgraph-delete` |
 | `cache-causal-drafts` | `cache-causal-drafts` | 0 | `rebind_pending` | `strangled` | `DS8` | `dashboard-causal-draft-scoped-local-state` |
 | `cache-local-disputes` | `cache-local-disputes` | 0 | `rebind_pending` | `strangled` | `DS9` | `dashboard-dispute-scoped-local-state` |
-| `cache-review-attention` | `cache-review-attention` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
+| `cache-review-attention` | `cache-review-attention` | 0 | `deleted` | `strangled` | `DS9` | `census-review-attention-delete` |
 | `cache-operator-craft` | `cache-operator-craft` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `transport-telemetry-beacon` | `transport-telemetry-beacon` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `transport-sentry` | `transport-sentry` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
@@ -565,6 +611,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `c84b9262f DS5-C19-R2 wire and retire D5 flags`
 - `24cebe3ca DS5 record C19 flag-gate recut stop`
 - `33ea792b5 Revert "DS5-C19-R1 preserve stopped flag-gate candidate"`
 - `9b87f0e09 DS5-C19-R1 preserve stopped flag-gate candidate`

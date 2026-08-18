@@ -543,8 +543,564 @@
         "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c13a-delete-authority-mutation-replay",
         "architecture/atlas_surfaces/test_atlas_enforcement.py:246"
       ]
+    },
+    {
+      "census_id": "census-review-attention-delete",
+      "captured_at": "2026-08-18T22:54:04+03:00",
+      "covers_unit_ids": ["cache-review-attention"],
+      "ds1_evidence_ids": ["cache-review-attention"],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "typescript_import_census",
+          "targets": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e",
+            "apps/runtime-dashboard/.storybook",
+            "apps/runtime-dashboard/scripts",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": [],
+          "checked_import_forms": [
+            "barrel",
+            "composition",
+            "direct",
+            "dynamic",
+            "namespace",
+            "relative"
+          ]
+        }
+      ],
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_atlas_enforcement.py",
+        "architecture/atlas_surfaces/test_frontend_disposition_register.py",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md"
+      ]
     }
   ],
+  "storage_construction_census": {
+    "schema_version": "1.0",
+    "census_id": "ds5-c17b-storage-construction",
+    "captured_at": "2026-08-18T22:54:04+03:00",
+    "scanner_rule_version": "c17b-declaration-resolver-v3-direct-only",
+    "production_source_count": 574,
+    "production_file_count": 15,
+    "site_count": 36,
+    "api_counts": {
+      "indexed_db": 5,
+      "web_storage": 26,
+      "zustand": 5
+    },
+    "authority_factory_count": 9,
+    "authority_factory_receipts_sha256": "sha256:bd188fbe4fc0b75b1668f56045b3943e2762709191312b273c0cfaf7f4cb9deb",
+    "authority_factory_receipts": [
+      {
+        "factory_site_id": "authority-factory-19024dff84297253b16d0b1a33f0ea66b7c88f862437c163ed7c28e96a771cdf",
+        "path": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "factory": "createAuthorityLocalStateEnvelopeFamily",
+        "declaration_chain": "function:createAuthorityLocalStateFamily/variable:owner",
+        "source_fingerprint": "sha256:fe3dbe8201a735d76540a02a1daa01fb7137e2c4326e526f899e9f677e14d3f0",
+        "site_fingerprint": "sha256:48571045d5452a950ebde7559aa7f6df4ab44b19c20b3fafb9a39069c4a1cfcb"
+      },
+      {
+        "factory_site_id": "authority-factory-6e3f26a1bcb469ffcbc97bd425b5e85de835d4a97573ed958f27bc9a8ae90d34",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+        "factory": "createAuthorityLocalStateEnvelopeFamily",
+        "declaration_chain": "function:createDisputePersistence/variable:owner",
+        "source_fingerprint": "sha256:03fe198af004454eea0e16f8b1749216e8217bc1e868a784d3d4b339ae40fe6e",
+        "site_fingerprint": "sha256:e8b3a0259fcca15eeed9c2066d8d35d178cc97d24d4596ff20e8b2514e807233"
+      },
+      {
+        "factory_site_id": "authority-factory-b2e3c9741b77c74c02e8f732d7cf677be2ea5aab8dbb634b75fe4077b2b9ec68",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "factory": "createAuthorityLocalStateFamily",
+        "declaration_chain": "variable:annotationsLocalState",
+        "source_fingerprint": "sha256:c899d4a2acc946f815f84d0839d90327daac5f372cad438614fe44315575361e",
+        "site_fingerprint": "sha256:0fee86e84dd19f9b7d99cef28539ace6e0a67a61521a4e1b071d4b321bda7b01"
+      },
+      {
+        "factory_site_id": "authority-factory-bee53653e3eb846441de628b98de841ee7455f3987e739a8f5a3fb602e854045",
+        "path": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "factory": "createAuthorityLocalStateEnvelopeFamily",
+        "declaration_chain": "function:createComposerDraftRepository/variable:owner",
+        "source_fingerprint": "sha256:2e460de515ccfbc71d9a856724c195d1e95169460e81fe2f767655a7945db5f5",
+        "site_fingerprint": "sha256:315919f8eff8e1afe6a85ba2a2f58b505b5b09fa2e6ef5f167aa4396d149f8fd"
+      },
+      {
+        "factory_site_id": "authority-factory-c7a1f55ef85aa64d0ae5fa56e2e82e1a7384f135b2228874dc0f219aedbcc9ec",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "factory": "createAuthorityLocalStateFamily",
+        "declaration_chain": "variable:walletLocalState",
+        "source_fingerprint": "sha256:c899d4a2acc946f815f84d0839d90327daac5f372cad438614fe44315575361e",
+        "site_fingerprint": "sha256:c528d43e774adef0590abf02fa938903346ea21fb2517ce23ffcf4e2ca47218b"
+      },
+      {
+        "factory_site_id": "authority-factory-dccedd3439d0f878ab423e950722ede3c2eaacbdfdd5e7fc85e55a88235e3857",
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+        "factory": "createAuthorityLocalStateEnvelopeFamily",
+        "declaration_chain": "function:createCausalDraftPersistence/variable:owner",
+        "source_fingerprint": "sha256:9d5af744104b647e7360b3e3556ff506fd02ab6e09297e29e07d0b1b0cea2862",
+        "site_fingerprint": "sha256:beba690fc9574559e65ca4fa6684711079c0756ce383c9043ac1a825bfaa0535"
+      },
+      {
+        "factory_site_id": "authority-factory-dd1b6dd848769acebbcdb0fdf3dc9a0a8ccb1c10e4ea1648cd2fed9136874335",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "factory": "createAuthorityLocalStateFamily",
+        "declaration_chain": "variable:thresholdLocalState",
+        "source_fingerprint": "sha256:c899d4a2acc946f815f84d0839d90327daac5f372cad438614fe44315575361e",
+        "site_fingerprint": "sha256:18c9eb0ab78dacf904b4f41fdbb257333a1b19bcf00d5061e7a95dc67e63f739"
+      },
+      {
+        "factory_site_id": "authority-factory-e07949ba73d3f6d8a1c81656fbfed8db717a1569836af3f5528d575bb5db10ee",
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "factory": "createAuthorityLocalStateEnvelopeFamily",
+        "declaration_chain": "variable:chatEnvelopeOwner",
+        "source_fingerprint": "sha256:394ffec7e8ff0c8cd25e5a7e54aed2067c8eacf044337f1398841683fab4f04e",
+        "site_fingerprint": "sha256:318e63f61ef87348f94e036f9984756d0814332b9d01bc7c26b746afdc4b3aeb"
+      },
+      {
+        "factory_site_id": "authority-factory-e70483972912094af4a3367f1a980fcf78788a40c1067176009559e8e25ff5b0",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "factory": "createAuthorityLocalStateFamily",
+        "declaration_chain": "variable:onboardingLocalState",
+        "source_fingerprint": "sha256:c899d4a2acc946f815f84d0839d90327daac5f372cad438614fe44315575361e",
+        "site_fingerprint": "sha256:062d1701fee578e18782fc5e473fab1136a650e0f60715f63b5b35934b3cafac"
+      }
+    ],
+    "direct_construction_provenance": "recomputed",
+    "semantic_class_provenance": "institutionally_supplied",
+    "authority_flow_provenance": "not_established",
+    "authority_flow_scope": "site-to-owner-instance provider, receiver, key, and payload value flow is outside the declaration-resolved direct-construction census",
+    "authority_flow_falsifier": "const storage = provider(); storage.setItem(...) preserves a resolved Storage.setItem site while changing the unproved owner-instance flow",
+    "authority_flow_required_capability": "sound whole-program interprocedural data/control-flow with reaching definitions and owner-instance identity",
+    "authority_flow_capability_status": "absent/unallocated",
+    "rows_sha256": "sha256:d258c8a2b16512cebb9f604644deefdfbd8ab6feb866ca48f875c2e26b610713",
+    "sites": [
+      {
+        "site_id": "storage-site-82510a28616480aab3bb2b282ff9e6b7d0a82a8e1c48b63e1c2a15a44de2df2b",
+        "path": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "source_fingerprint": "sha256:fe3dbe8201a735d76540a02a1daa01fb7137e2c4326e526f899e9f677e14d3f0",
+        "site_fingerprint": "sha256:db4d83c5f87f2420a8673ca333c219ad8daa201ab64fc8c4edfde3de55858bc7",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "authority-local-state-envelope-v1"
+      },
+      {
+        "site_id": "storage-site-4d8f77f82e9ee648e28b94559b50152d8f4f7ef2247044319f61d1c762e6df3c",
+        "path": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "source_fingerprint": "sha256:fe3dbe8201a735d76540a02a1daa01fb7137e2c4326e526f899e9f677e14d3f0",
+        "site_fingerprint": "sha256:8c8d9fb61c39ad36d5caa06cf6cf4d9d51a33406543df23a48c8350f42c38e63",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "authority-local-state-envelope-v1"
+      },
+      {
+        "site_id": "storage-site-30109455714193156e695ebb76de40e1dd7c713c37134f93d7e9e2e2d7e9d073",
+        "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+        "resolved_api_declaration": "idb::get",
+        "operation": "get",
+        "store_owner": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "source_fingerprint": "sha256:1b6e8c724e4cfad11f0a106411f3bbdb51bd5b105339e76d744d55a064b4f76f",
+        "site_fingerprint": "sha256:71555bd946dd47e6c35ea7867f234a569c2e7e632c9fb55027cc9eadde93161e",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "composer-draft-v1"
+      },
+      {
+        "site_id": "storage-site-115f5f50e836a6f341d240bb8b1bcf7d04d8f70035764295eaeda6f5bef58830",
+        "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+        "resolved_api_declaration": "idb::put",
+        "operation": "put",
+        "store_owner": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "source_fingerprint": "sha256:1b6e8c724e4cfad11f0a106411f3bbdb51bd5b105339e76d744d55a064b4f76f",
+        "site_fingerprint": "sha256:cd80d80f674a77e7ab995543044243592989c5bbff88c1a4191dc5dad4f5f774",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "composer-draft-v1"
+      },
+      {
+        "site_id": "storage-site-2812777f4bad3bbbb26690108c006a75d57f72239510ac3fbdda785573596818",
+        "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+        "resolved_api_declaration": "idb::delete",
+        "operation": "delete",
+        "store_owner": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "source_fingerprint": "sha256:1b6e8c724e4cfad11f0a106411f3bbdb51bd5b105339e76d744d55a064b4f76f",
+        "site_fingerprint": "sha256:2da9793449f4fa3dc08f0f5dab516d49b07128dba785eaa3a4c681b32904580e",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "composer-draft-v1"
+      },
+      {
+        "site_id": "storage-site-a65e9e41c63f480c9ff8f0d4ac322385a2e87c49d48b805e536f350d8a0a9fc9",
+        "path": "apps/runtime-dashboard/src/app/offline/db.ts",
+        "resolved_api_declaration": "idb::openDB",
+        "operation": "openDB",
+        "store_owner": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "source_fingerprint": "sha256:52f77e69ca89b5086e46e32704a24a3274abde126807b0c78276e2b693917a1f",
+        "site_fingerprint": "sha256:2c26efab04f7e10f9db314bf6a59752bd5ac2ca9ddf24146c949aae2f3eea84c",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "composer-draft-v1"
+      },
+      {
+        "site_id": "storage-site-a0b9ca9ee8a58915ac642421094f802a3c8420ad57955ccf83a99af37560905c",
+        "path": "apps/runtime-dashboard/src/app/offline/db.ts",
+        "resolved_api_declaration": "idb::createObjectStore",
+        "operation": "createObjectStore",
+        "store_owner": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "source_fingerprint": "sha256:52f77e69ca89b5086e46e32704a24a3274abde126807b0c78276e2b693917a1f",
+        "site_fingerprint": "sha256:d07aa1e764e555d953ae8cf62f6bcd09dbdbf89496288ce010cbf6f617ad0eab",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "composer-draft-v1"
+      },
+      {
+        "site_id": "storage-site-16fd635bf34fe09f73e3b44a31ccfafad75156b796e8859f9b9cbc538cfe0e14",
+        "path": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
+        "source_fingerprint": "sha256:ac7fe67b8caea038fa67cf8ccff265cfa428ce25374c45dcb73d2f8bc1a83123",
+        "site_fingerprint": "sha256:0fe71b65d6fa5d433e5499b80eaf4599e48cc4e60b1c076f30385530de965f88",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-23548efc36e0219011a48a6724ae68ec5d4628af0defc812fc01201a99791e92",
+        "path": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
+        "source_fingerprint": "sha256:ac7fe67b8caea038fa67cf8ccff265cfa428ce25374c45dcb73d2f8bc1a83123",
+        "site_fingerprint": "sha256:3db64878e593688e5b514e58192b4a9917e065387f9c6a3c54d484b04fe8d812",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-0dbde606ec251f4e52ff7fd880f30e052ecf4c6e079a27e5687507cc88c2c8f7",
+        "path": "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx",
+        "source_fingerprint": "sha256:bf14023a0a5fd00bd976b32d71415f516e9590cb303b964d28270b0ec942013d",
+        "site_fingerprint": "sha256:62482b685c2844bb5fd62f439f2fbbefa9eb830ecbf1bbe2e2260a3c4d19de91",
+        "classification": "interaction_benign",
+        "benign_reason": "theme"
+      },
+      {
+        "site_id": "storage-site-a74c7659e6f35601921ba6be48de09e484a5f29177a651ea035a32920d370a93",
+        "path": "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx",
+        "source_fingerprint": "sha256:bf14023a0a5fd00bd976b32d71415f516e9590cb303b964d28270b0ec942013d",
+        "site_fingerprint": "sha256:51e3d2952a4f540a2239b9a7c7a2bc2e460ced73a6d3265c5396da3d0e7746bb",
+        "classification": "interaction_benign",
+        "benign_reason": "theme"
+      },
+      {
+        "site_id": "storage-site-329d8de4da47acace6e2e32e15aa05598bed6e289730277a0e5fdc5f96d2a73d",
+        "path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "source_fingerprint": "sha256:1ab5964b99bcf66a8dffaecd2b917fc078062b868ecbf3f76635a3844f976886",
+        "site_fingerprint": "sha256:3d0568d4c66118e676ef12bbfa7b5de5b82fbf2c3e42e36a064e04d2dac3b895",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-efe95ffd4464c44b760c3a4e1a67ed87a773292648a265c7161bdfe38cc3f2d5",
+        "path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "source_fingerprint": "sha256:1ab5964b99bcf66a8dffaecd2b917fc078062b868ecbf3f76635a3844f976886",
+        "site_fingerprint": "sha256:f0a9f5381eae430b68f842449ba8c8e83f8961846ff1133afc84ec621c320a00",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-eff54e9a5215a602daf5630ea95130795ec90cd80ba979fc4ecca71ec9105cc6",
+        "path": "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts",
+        "resolved_api_declaration": "zustand/middleware::persist",
+        "operation": "persist",
+        "store_owner": "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts",
+        "source_fingerprint": "sha256:994b51046b9f1737cecb9547e7762c1ecb1c8963b9e4b45a1fb07f5d7a3a4373",
+        "site_fingerprint": "sha256:62f491bea38e45c958b45a9eddb5f5c9bd338a1db8d1bae7528388d61f8ed35f",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-9cea128f712d1ed1848977ef80db0c50035b69815b6f22862551b98310fe1361",
+        "path": "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts",
+        "source_fingerprint": "sha256:994b51046b9f1737cecb9547e7762c1ecb1c8963b9e4b45a1fb07f5d7a3a4373",
+        "site_fingerprint": "sha256:cf00005078c7d450db920ddc5190109720ad8a5541efb9d031b577ee18a0ef1a",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-e8e788c9df1bdaa180027ca1442ab6b9d9c34161129e39637d9f186a5cf8161b",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:ed0c399486af636cb4e9b2fbdc2628230f6f847204f6d84c400ed77533a894ad",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-a9d23a198b0e7b28d1198b170461fd00b37cb2509def77c4fdf0aee2705db1b4",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.removeItem",
+        "operation": "removeItem",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:be87b439881fe5edb6216dad061a9afd74c8e90ca993edb00d0358ae70d94185",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-c2b81c1e937dce9d85c3c2545f0f9f054eb805b8af60ade94e7148a9a605663d",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:83b71b7c882ec1e7c787e10459888eb7fc6f91bdafcc3584d1987dc3258953b6",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-5319297e1cb3990cd2cff0c2efdda8ba93735cf4fd3c68c28f516a599db01fb3",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "zustand/middleware::persist",
+        "operation": "persist",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:b91459b9e25d3ce0f1b1e16a9ce137f54ba63fbc8f84e14b97e7bb1eac257049",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-2afa9a6f31f495e80927aed7385b39bc2a10dd50f1cd83d511072b54ac9e9f25",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "zustand/middleware::createJSONStorage",
+        "operation": "createJSONStorage",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:51761bc5666a7443bafc4dc8c088b0894a5b7f9fc3458bc0f93012fcbc56d284",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-8239d22c7f77a369d97fb6a48bbbfffcf6b8a771634302d4936deb7e48f4cb0f",
+        "path": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts",
+        "source_fingerprint": "sha256:9c6d1bb092d4eb87d8470c100b510206417c84b2e60fff6a9bfc323964e2f47a",
+        "site_fingerprint": "sha256:bae4c6206ee34ea9526e37912c9db6327144ea7035b80941fef5e378cbdd1e2f",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-95099d85b2a91ec570611998bec15df4bd314320aaded048a2d2dcadaabbd2ed",
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "source_fingerprint": "sha256:394ffec7e8ff0c8cd25e5a7e54aed2067c8eacf044337f1398841683fab4f04e",
+        "site_fingerprint": "sha256:4e4aa80870626f85f381cfa9514c013c663ad6dc49eb920c2d306a60b79b7b3e",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "clerk-chat-sessions-v1"
+      },
+      {
+        "site_id": "storage-site-c4b0eec11e781f705082fcf9fcd94b6865cd49ba14670a662165a6378131b628",
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "source_fingerprint": "sha256:394ffec7e8ff0c8cd25e5a7e54aed2067c8eacf044337f1398841683fab4f04e",
+        "site_fingerprint": "sha256:41673351af3b2983f5563f7c1066b7b913bebd4acbcfd643234190d8fe353dfa",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "clerk-chat-sessions-v1"
+      },
+      {
+        "site_id": "storage-site-e3197d69b09afa722469ce0e22e3bf01adf7038eddd75de070c1b27c3f64bdef",
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "source_fingerprint": "sha256:394ffec7e8ff0c8cd25e5a7e54aed2067c8eacf044337f1398841683fab4f04e",
+        "site_fingerprint": "sha256:9254211607da4b2524418337da2199efc4ec24963bb3b9616b2609d3bb826242",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "clerk-chat-sessions-v1"
+      },
+      {
+        "site_id": "storage-site-978eef015dbbda52cd406bfc44b44295c9384bb63d93531bff09dcb357604878",
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "resolved_api_declaration": "zustand/middleware::persist",
+        "operation": "persist",
+        "store_owner": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "source_fingerprint": "sha256:394ffec7e8ff0c8cd25e5a7e54aed2067c8eacf044337f1398841683fab4f04e",
+        "site_fingerprint": "sha256:e8de1ebe950fb8a07920c984be2d3893cd15b27686ec89d2e8efb020e343ef4d",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "clerk-chat-sessions-v1"
+      },
+      {
+        "site_id": "storage-site-c6193aadc4f6a0e690999f7db6d3f30f21872a3c15ce5eb604fed46f020e9d4f",
+        "path": "apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts",
+        "resolved_api_declaration": "zustand/middleware::persist",
+        "operation": "persist",
+        "store_owner": "apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts",
+        "source_fingerprint": "sha256:9cd24ad38d847daa98a64a1f019218a21aae1e9bc822eb3635acb3357a363790",
+        "site_fingerprint": "sha256:3b84ad9036f578b45c66f236e4b88fd0341ed09067011e28869a0c4e98186dc6",
+        "classification": "interaction_benign",
+        "benign_reason": "ui_preference"
+      },
+      {
+        "site_id": "storage-site-f51ff807af1565a3557c7e53a8d6c2e4a29f4b66a8dc86806c34ae8ea6e98f70",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+        "source_fingerprint": "sha256:03fe198af004454eea0e16f8b1749216e8217bc1e868a784d3d4b339ae40fe6e",
+        "site_fingerprint": "sha256:4e4aa80870626f85f381cfa9514c013c663ad6dc49eb920c2d306a60b79b7b3e",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "dispute-topology-v1"
+      },
+      {
+        "site_id": "storage-site-b502f3a54daa6a55ed0116c0556dc83893818684e3743285e82e1aa7b0a30c40",
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "source_fingerprint": "sha256:c899d4a2acc946f815f84d0839d90327daac5f372cad438614fe44315575361e",
+        "site_fingerprint": "sha256:f93e6557153c066c082c536aae87c88451d7b90e9ebc5f76cf3e44b25db1eaba",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "operator-craft-family-codecs-v1"
+      },
+      {
+        "site_id": "storage-site-28c02183482a1769a8cdf4e5a4d82e0e4792aa344ee1035b4d41ffcb121706bc",
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+        "source_fingerprint": "sha256:9d5af744104b647e7360b3e3556ff506fd02ab6e09297e29e07d0b1b0cea2862",
+        "site_fingerprint": "sha256:4e4aa80870626f85f381cfa9514c013c663ad6dc49eb920c2d306a60b79b7b3e",
+        "classification": "scoped_authority",
+        "scoped_envelope_owner": "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts",
+        "registered_codec_id": "causal-draft-v1"
+      },
+      {
+        "site_id": "storage-site-6e4acc5199d026aaa88c5f2a1c0a0d26a5c49928b150227a5452ff60090dabec",
+        "path": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "site_fingerprint": "sha256:eede4f6d129deb044692ae11b84401ecee0af05d39c4f1fa9ef2991e65165e19",
+        "classification": "interaction_benign",
+        "benign_reason": "locale"
+      },
+      {
+        "site_id": "storage-site-399705a043705ae1f1ec0cc91763cc5ff8043d3c167132da0dff4068050b2607",
+        "path": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "site_fingerprint": "sha256:901accda25fcdb2b7724b6928c51f172c75a1a2fa8c11996f67c05840664f552",
+        "classification": "interaction_benign",
+        "benign_reason": "locale"
+      },
+      {
+        "site_id": "storage-site-b51fd8cf5b5698c0fd273ed568c03273a12b9ebb3cade2a14c162156dec414f4",
+        "path": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "site_fingerprint": "sha256:eede4f6d129deb044692ae11b84401ecee0af05d39c4f1fa9ef2991e65165e19",
+        "classification": "interaction_benign",
+        "benign_reason": "locale"
+      },
+      {
+        "site_id": "storage-site-9d51649078e6303ac8b43ba7a28348c4608225ac5c53369f7fc9c4970400a311",
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "source_fingerprint": "sha256:709491ffcca1c1214a6d1c4873d542585ac4745b734282cb55ef470254af5dac",
+        "site_fingerprint": "sha256:4e4aa80870626f85f381cfa9514c013c663ad6dc49eb920c2d306a60b79b7b3e",
+        "classification": "interaction_benign",
+        "benign_reason": "rollout_exposure_control"
+      },
+      {
+        "site_id": "storage-site-65f27f552e5ca38bcdbcfac301937b83d8b244d7d55cd8d6eba94d54268ad19d",
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
+        "operation": "getItem",
+        "store_owner": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "source_fingerprint": "sha256:709491ffcca1c1214a6d1c4873d542585ac4745b734282cb55ef470254af5dac",
+        "site_fingerprint": "sha256:2a2e19cd3432d690d28f4da97d822b3a2765d383d44b32e836905f31ffaf470f",
+        "classification": "interaction_benign",
+        "benign_reason": "rollout_exposure_control"
+      },
+      {
+        "site_id": "storage-site-cba2f36e647c09f58a91dc4ff652a30b6762ac9294fea79262861ea49d772ac3",
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Window.localStorage",
+        "operation": "acquire",
+        "store_owner": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "source_fingerprint": "sha256:709491ffcca1c1214a6d1c4873d542585ac4745b734282cb55ef470254af5dac",
+        "site_fingerprint": "sha256:4e4aa80870626f85f381cfa9514c013c663ad6dc49eb920c2d306a60b79b7b3e",
+        "classification": "interaction_benign",
+        "benign_reason": "rollout_exposure_control"
+      },
+      {
+        "site_id": "storage-site-779df52284e1767610abdfdf8a4ec284a04962a1d6be0d9098944c1ed41031ae",
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
+        "operation": "setItem",
+        "store_owner": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "source_fingerprint": "sha256:709491ffcca1c1214a6d1c4873d542585ac4745b734282cb55ef470254af5dac",
+        "site_fingerprint": "sha256:e80a94e64e394ae1391f539c7b7ee1b2a26c559830d51d3743f2214a99e71b6d",
+        "classification": "interaction_benign",
+        "benign_reason": "rollout_exposure_control"
+      }
+    ]
+  },
   "entries": [
     {
       "unit_id": "route-welcome",
@@ -4702,13 +5258,13 @@
         "ds1_entry_id": "cache-local-storage-state",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c17b_storage_construction_bounded",
+      "rationale": "C17b retains the complete declaration-resolved, content-bound direct storage-construction ledger under explicit scoped-authority or interaction-benign adjudication; every new, moved, or unclassified direct site fails. Exact site-to-owner-instance provider, receiver, key, and payload flow is not established because the required whole-program interprocedural reaching-definition capability is absent/unallocated; DS8, DS9, and DS14 storage semantics remain unclaimed."
     },
     {
       "unit_id": "cache-clerk-sessions",
@@ -4789,13 +5345,14 @@
         "ds1_entry_id": "cache-review-attention",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS9",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "seed_rule": "ds5_c17b_review_attention_deletion",
+      "rationale": "DS4 commit bc1d01001 deleted the review-attention storage owner; C17b re-proves the exact source path absent and every static, barrel, namespace, relative, dynamic, and composition import form at zero without claiming DS9 semantics.",
+      "reference_census_id": "census-review-attention-delete"
     },
     {
       "unit_id": "cache-operator-craft",

@@ -10,7 +10,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
-from typing import Any
+from typing import Any, Mapping
 
 ATLAS_DIR = Path(__file__).resolve().parent
 ENFORCEMENT_CHECKER_PATH = ATLAS_DIR / "check_atlas_enforcement.py"
@@ -845,6 +845,385 @@ class AtlasEnforcementTests(unittest.TestCase):
         self.assertNotIn("unauthorizedStatusOwners", scan)
         self.assertNotIn("unauthorizedStatusSinks", scan)
         self.assertIn("authoritySinkDeclarations", scan)
+
+    def test_persistence_construction_census_is_source_complete_and_bounded(self) -> None:
+        """Bind direct constructions while refusing an owner-instance flow claim."""
+        inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
+        register = frontend_disposition_checker._load_json(
+            frontend_disposition_checker.REGISTER_PATH
+        )
+        live_scan = checker._enforcement_scan(
+            None,
+            inventory=inventory,
+            validate_override_diagnostics=False,
+        )
+        facts = live_scan["persistenceConstructionFacts"]
+        self.assertEqual(574, facts["productionSourceCount"])
+        self.assertEqual(36, len(facts["sites"]))
+        self.assertEqual(15, len({row["path"] for row in facts["sites"]}))
+        self.assertEqual(
+            {"indexed_db": 5, "web_storage": 26, "zustand": 5},
+            facts["apiCounts"],
+        )
+        self.assertIn("indirect storage value-flow remains not_established", facts["residual"])
+        census = register["storage_construction_census"]
+        self.assertEqual("recomputed", census["direct_construction_provenance"])
+        self.assertEqual(
+            "institutionally_supplied", census["semantic_class_provenance"]
+        )
+        self.assertEqual("not_established", census["authority_flow_provenance"])
+        self.assertEqual("absent/unallocated", census["authority_flow_capability_status"])
+        self.assertIn("provider()", census["authority_flow_falsifier"])
+        self.assertIn("interprocedural", census["authority_flow_required_capability"])
+        self.assertTrue(
+            all("authorityBinding" not in row for row in facts["sites"]), facts["sites"]
+        )
+        self.assertTrue(
+            all("classification" not in row for row in facts["sites"]), facts["sites"]
+        )
+        self.assertTrue(
+            all("authority_binding" not in row for row in census["sites"]),
+            census["sites"],
+        )
+        factory_ids = {
+            factory_call["factorySiteId"]
+            for factory_call in facts["authorityFactoryCalls"]
+        }
+        self.assertEqual(
+            9,
+            len(factory_ids),
+        )
+        self.assertEqual(
+            {row["siteId"] for row in facts["sites"]},
+            {
+                row["site_id"]
+                for row in register["storage_construction_census"]["sites"]
+            },
+        )
+        self.assertEqual(
+            [], checker._persistence_construction_errors(live_scan, register=register)
+        )
+        first_site = register["storage_construction_census"]["sites"][0]
+        for field, value, expected_prefix in (
+            ("operation", "clear", "persistence_operation_drift:"),
+            (
+                "resolved_api_declaration",
+                "typescript/lib/lib.dom.d.ts::Storage.clear",
+                "persistence_resolved_declaration_drift:",
+            ),
+            (
+                "site_fingerprint",
+                "sha256:" + "0" * 64,
+                "persistence_site_fingerprint_drift:",
+            ),
+        ):
+            with self.subTest(governed_field=field):
+                mutation = copy.deepcopy(register)
+                row = next(
+                    item
+                    for item in mutation["storage_construction_census"]["sites"]
+                    if item["site_id"] == first_site["site_id"]
+                )
+                row[field] = value
+                mutation_errors = checker._persistence_construction_errors(
+                    live_scan, register=mutation
+                )
+                self.assertTrue(
+                    any(error.startswith(expected_prefix) for error in mutation_errors),
+                    mutation_errors,
+                )
+
+        factory_mutation = copy.deepcopy(register)
+        factory_mutation["storage_construction_census"][
+            "authority_factory_receipts"
+        ][0]["site_fingerprint"] = "sha256:" + "0" * 64
+        self.assertTrue(
+            any(
+                error.startswith("persistence_authority_factory_drift:")
+                for error in checker._persistence_construction_errors(
+                    live_scan, register=factory_mutation
+                )
+            )
+        )
+
+        def override_scan(path: str, source: str) -> dict[str, Any]:
+            scan = checker._enforcement_scan(
+                {path: ts_source(source)},
+                inventory=inventory,
+                validate_override_diagnostics=True,
+                include_dashboard_program_roots=True,
+            )
+            self.assertEqual([], scan["overrideDiagnostics"], scan)
+            return scan
+
+        direct_path = "apps/runtime-dashboard/src/shared/lib/domain/storageCensusProbe.ts"
+        direct_scan = override_scan(
+            direct_path,
+            """
+            export function writeRawEnvelope(payload: unknown) {
+              const envelope = { codec: "raw", expiresAt: 1, payload, scope: "tenant" };
+              window.localStorage.setItem("storage-census-probe", JSON.stringify(envelope));
+            }
+            """,
+        )
+        self.assertEqual(
+            [direct_path],
+            [
+                row["path"]
+                for row in direct_scan["persistenceConstructionFacts"]["sites"]
+                if row["path"] == direct_path
+            ],
+        )
+        direct_rows = [
+            row
+            for row in direct_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == direct_path
+        ]
+        direct_errors = checker._persistence_construction_errors(
+            direct_scan, register=register
+        )
+        self.assertTrue(
+            all(
+                f"persistence_unregistered_site:{row['siteId']}" in direct_errors
+                for row in direct_rows
+            ),
+            direct_errors,
+        )
+
+        lookalike_path = "apps/runtime-dashboard/src/shared/lib/domain/storageLookalikeProbe.ts"
+        lookalike_scan = override_scan(
+            lookalike_path,
+            """
+            export function writeFakeStorage() {
+              const localStorage = { setItem(_key: string, _value: string) {} };
+              localStorage.setItem("candidate", "not-storage");
+            }
+            """,
+        )
+        self.assertEqual(
+            [],
+            [
+                row
+                for row in lookalike_scan["persistenceConstructionFacts"]["sites"]
+                if row["path"] == lookalike_path
+            ],
+        )
+        set_control_path = (
+            "apps/runtime-dashboard/src/shared/lib/domain/storageSetControl.ts"
+        )
+        set_control_scan = override_scan(
+            set_control_path,
+            """
+            class FakeSet { add(_value: string) {} }
+            const fake = new FakeSet();
+            const real = new Set<string>();
+            fake.add("candidate");
+            real.add("candidate");
+            """,
+        )
+        self.assertEqual(
+            [],
+            [
+                row
+                for row in set_control_scan["persistenceConstructionFacts"]["sites"]
+                if row["path"] == set_control_path
+            ],
+        )
+
+        alias_path = "apps/runtime-dashboard/src/shared/lib/domain/storageAliasProbe.ts"
+        alias_scan = override_scan(
+            alias_path,
+            """
+            const storage = window.localStorage;
+            const { getItem } = storage;
+            const setItem = storage.setItem.bind(storage);
+            getItem("candidate");
+            setItem("candidate", "value");
+            Storage.prototype.removeItem.call(storage, "candidate");
+            """,
+        )
+        alias_rows = [
+            row
+            for row in alias_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == alias_path
+        ]
+        self.assertEqual(
+            ["acquire", "getItem", "removeItem", "setItem"],
+            sorted(row["operation"] for row in alias_rows),
+        )
+
+        authority_path = "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts"
+        authority_source = (
+            checker.status_checker.REPO_ROOT / authority_path
+        ).read_text(encoding="utf-8")
+        authority_scan = checker._enforcement_scan(
+            {
+                authority_path: authority_source
+                + '\nwindow.localStorage.setItem("raw-authority", "{}");\n'
+            },
+            inventory=inventory,
+            validate_override_diagnostics=False,
+            include_dashboard_program_roots=True,
+        )
+        authority_live_ids = {
+            row["siteId"]
+            for row in live_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == authority_path
+        }
+        raw_authority_rows = [
+            row
+            for row in authority_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == authority_path
+            and row["siteId"] not in authority_live_ids
+        ]
+        self.assertEqual(1, len(raw_authority_rows))
+        raw_authority_errors = checker._persistence_construction_errors(
+            authority_scan, register=register
+        )
+        self.assertIn(
+            f"persistence_unregistered_site:{raw_authority_rows[0]['siteId']}",
+            raw_authority_errors,
+        )
+
+        for label, source, operations in (
+            (
+                "provider-borrow",
+                """
+                function provider(): Storage { return window.localStorage; }
+                export function write(value: string) {
+                  const storage = provider();
+                  storage.setItem("candidate", value);
+                }
+                """,
+                {"acquire", "setItem"},
+            ),
+            (
+                "raw-acquire",
+                """
+                export function write(storage: Storage, value: string) {
+                  const raw = window.localStorage;
+                  storage.setItem("candidate", value);
+                  void raw;
+                }
+                """,
+                {"acquire", "setItem"},
+            ),
+            (
+                "stale-assignment",
+                """
+                export function write(storage: Storage, value: string) {
+                  let key = "owner-derived";
+                  key = "raw";
+                  storage.setItem(key, value);
+                }
+                """,
+                {"setItem"},
+            ),
+        ):
+            with self.subTest(declared_residual=label):
+                limitation_path = (
+                    "apps/runtime-dashboard/src/shared/lib/domain/"
+                    f"storageFlowLimitation{label.replace('-', '')}.ts"
+                )
+                limitation_scan = override_scan(limitation_path, source)
+                limitation_rows = [
+                    row
+                    for row in limitation_scan["persistenceConstructionFacts"]["sites"]
+                    if row["path"] == limitation_path
+                ]
+                self.assertEqual(
+                    operations,
+                    {row["operation"] for row in limitation_rows},
+                )
+                self.assertTrue(
+                    all("authorityBinding" not in row for row in limitation_rows),
+                    limitation_rows,
+                )
+                limitation_errors = checker._persistence_construction_errors(
+                    limitation_scan, register=register
+                )
+                self.assertTrue(
+                    all(
+                        f"persistence_unregistered_site:{row['siteId']}"
+                        in limitation_errors
+                        for row in limitation_rows
+                    ),
+                    limitation_errors,
+                )
+
+        review_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        )
+        review_scan = override_scan(
+            review_path,
+            """
+            export function readStoredReviewAttention(runId: string) {
+              return window.localStorage.getItem(`polisyos:atlas:review-attention:${runId}`);
+            }
+            export function writeStoredReviewAttention(runId: string, value: string) {
+              window.localStorage.setItem(`polisyos:atlas:review-attention:${runId}`, value);
+            }
+            """,
+        )
+        self.assertEqual(
+            2,
+            len(
+                [
+                    row
+                    for row in review_scan["persistenceConstructionFacts"]["sites"]
+                    if row["path"] == review_path
+                ]
+            ),
+        )
+        review_rows = [
+            row
+            for row in review_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == review_path
+        ]
+        review_errors = checker._persistence_construction_errors(
+            review_scan, register=register
+        )
+        self.assertTrue(
+            all(
+                f"persistence_unregistered_site:{row['siteId']}" in review_errors
+                for row in review_rows
+            ),
+            review_errors,
+        )
+
+        feature_path = "apps/runtime-dashboard/src/shared/lib/featureFlags.ts"
+        feature_source = (checker.status_checker.REPO_ROOT / feature_path).read_text(
+            encoding="utf-8"
+        )
+        moved_scan = checker._enforcement_scan(
+            {feature_path: "\n" + feature_source},
+            inventory=inventory,
+            validate_override_diagnostics=False,
+            include_dashboard_program_roots=True,
+        )
+        moved_errors = checker._persistence_construction_errors(
+            moved_scan, register=register
+        )
+        self.assertTrue(
+            any(error.startswith("persistence_source_fingerprint_drift:") for error in moved_errors),
+            moved_errors,
+        )
+
+        benign_path = "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts"
+        registered_benign = [
+            row
+            for row in register["storage_construction_census"]["sites"]
+            if row["path"] == benign_path
+        ]
+        self.assertEqual(6, len(registered_benign))
+        self.assertEqual(
+            {"interaction_benign"},
+            {row["classification"] for row in registered_benign},
+        )
+        for row in registered_benign:
+            self.assertNotIn("owner_slice", row)
+            self.assertNotIn("capability_states", row)
+            self.assertNotIn("closure_signal", row)
 
     def test_query_construction_and_producer_censuses_are_source_complete(self) -> None:
         """Reject source construction drift rather than inferring option-value flow."""

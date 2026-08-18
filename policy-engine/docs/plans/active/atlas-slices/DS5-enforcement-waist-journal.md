@@ -4320,3 +4320,152 @@
   the landing boundary. C20 is not entered; it still needs C07a, C09a-R1,
   C09b-R1, C11b-R1, C15b-R1 and C17b-R3. C07b, C10-R1, the C15a structured
   plane and C17a-R1 remain named external-plan debt.
+
+## 2026-08-18 — DS5-C17b-R3 admitted the direct construction census and bounded the flow claim
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at C19-R2 landing
+  `c84b9262f6c8c9cbb80a00b227353b122f5bdc3c`, 100 commits ahead of `main`,
+  clean, with the register family free. P39 accounting remained exact: four
+  mechanism paths (the shared TypeScript scanner plus the Atlas and frontend
+  checkers and the register schema) and seven mandatory companions (their two
+  owner tests, register, status inventory, canonical report, plan and this
+  journal), for eleven landing paths. No dashboard product source, C23 owner,
+  baseline, readiness ledger, DS8, DS9 or DS14 path entered the cut.
+- R3 began with the binding question required by the architect, not a fourth
+  flow repair. The real TypeChecker-backed override scanner showed all three
+  round-three variants—a provider borrowed from a bound caller, an unused raw
+  acquisition inside an otherwise bound function, and a key/payload symbol
+  with a stale earlier assignment—as declaration-resolved construction sites.
+  They passed only R2's heuristic authority-binding predicate. P40 therefore
+  classifies them as worked examples of the already-declared level-three
+  P33/P37/P38 proxy-gate class; they consume no R3 mechanism round.
+- The claim is narrowed to the quantity the implementation actually decides.
+  A complete scan over all `574` production TS/TSX sources recomputed `36`
+  direct sites in `15` files: `26` Web Storage, `5` Zustand and `5` IndexedDB.
+  Every site is joined one-to-one by stable ID, path, resolved API declaration,
+  operation, source fingerprint and site fingerprint. The scanner emits no
+  semantic class and no authority-binding verdict. The register contains `14`
+  explicit `scoped_authority` and `22` explicit `interaction_benign`
+  adjudications; the four C19 strict flag-cache sites use exact benign reason
+  `rollout_exposure_control`, leaving zero current `rollout_cache_pending`
+  rows. Nine content-bound canonical factory declarations are independent
+  direct facts and are never joined to storage sites as flow proof.
+- The declared bounded residual is exact site-to-owner-instance provider,
+  receiver, key and payload value flow, with P37 provenance
+  `not_established`. Its falsifier is
+  `const storage = provider(); storage.setItem(...)`: the direct site remains
+  while the unproved owner-instance relation changes. Closure requires sound
+  whole-program interprocedural data/control-flow, reaching definitions,
+  dominance and owner-instance identity. The complete repository capability
+  census found that capability `absent/unallocated`, so the direct census may
+  not stand in for it. A review observation that the report labels the explicit
+  column `Store owner` is another worked example of this same declared
+  presentation/flow-overclaim class; it folds into the adjacent limitation and
+  triggers no fourth mechanism change under P40.
+- RED-first evidence exercised the real boundary. The exact Atlas owner test
+  first failed on the absent `direct_construction_provenance` contract, exit
+  `1`, real `15.29 s`. After narrowing, the no-write resolver pass completed in
+  `38.68 s`, the focused frontend owner witness in `40.70 s`, and the exact
+  Atlas construction witness `1/1` in `227.89 s`. The latter was preceded by a
+  censored `199.55 s` run launched under the wrong `165 s` lane price; it had
+  not terminated and changed no byte, so it is a timing nonreceipt, not a
+  regression or successful sample. The tests prove missing/new/moved/duplicate
+  direct sites, content drift, fake Storage lookalikes, raw structural writes,
+  review-attention resurrection and exact benign adjudication. The three P40
+  worked examples remain visible direct sites and receive no flow verdict.
+- The parsed register transition is surgical. Root totals are `261` units,
+  `10` reference censuses and `62` supplemental findings. Dispositions are
+  `19/184/25/17/16` for deleted/rebind/retire/use-as-is/wire and strangles are
+  `58/150/53` for not-applicable/pending/strangled. Only
+  `cache-local-storage-state` and `cache-review-attention` move as units;
+  review-attention has the fresh DS4 zero-path/zero-import census. All C19
+  collaboration/flag evidence and all four C23 rows/constants/rationale remain
+  byte-preserved. Status changes only its dependent DS19 register hash and
+  retains authored `12` and exemptions `56`.
+- The first canonical report write changed its SHA-256 from `05df0797…` to
+  `9403c15be80a3e280b7ab950aa1943c9e4e821083697e966a2e7e9f9dfcaecfe`
+  in `81.66 s`; the second took `77.42 s` and retained the exact bytes. After
+  the provenance review repair, the next write took `60.25 s` and changed the
+  projection to `8fe67e8673a45ca2d009914cd38c7c38776ae5b58b15344470e20d41d706a1ea`;
+  the second took `60.42 s` and retained the exact bytes. Final governed
+  artifact SHA-256 values are register
+  `373033ccdaa2324df8d1b61cfb49ca6d7f6223da20360167bcbc0f7a1e11b7c5`,
+  status `2ec8b1a8e2ffa8dc6b43c02fbe893d81449d3897e681b5d4b98f2e97140c86f2`
+  and report `8fe67e8673a45ca2d009914cd38c7c38776ae5b58b15344470e20d41d706a1ea`.
+- The serialized pre-final-review governed wave used the repository Python 3.14 venv,
+  venv-first child resolution, `/usr/bin/time -p`, uptime pairs and captured
+  exits: full frontend `98/98` GREEN in `235.76 s`; disposition checker,
+  baseline and corruption PASS in `161.78 s`; status module `38/38` GREEN in
+  `75.81 s`; status checker/corruption PASS in `27.09 s`; Atlas
+  checker/corruption PASS in `94.28 s`; and full Atlas `35/35` GREEN in
+  `543.53 s`. All remained below their predeclared ceilings. The plan admits
+  these and the focused/writer terminals into their successful-run samples and
+  recomputes each executed lane's nearest-rank p95 ceiling.
+- One full-frontend attempt correctly found the stale owner receipt `18 -> 19`
+  in `283.36 s`, but its wrapper then used a trailing uptime command and masked
+  the child exit. The exact owner receipt was repaired and passed in `29.87 s`,
+  then the full module was rerun on the final freeze. Other tooling
+  nonreceipts: a first candidate dry-apply used worktree-root-prefixed paths
+  from the product root; an `apply_patch` attempt supplied numeric unified-hunk
+  headers and failed atomically; and the first exact Atlas run was priced under
+  the wrong lane as noted above. During final readback, one parsed comparison
+  omitted the repository's `policy-engine/` object prefix and a corrected
+  draft then guessed `file_count` instead of the schema's
+  `production_file_count`; both exited before a complete receipt. The final
+  corrected comparison walked the whole parsed artifact. None supplied product
+  evidence or changed a governed byte. Behavioral REDs and censored/tooling
+  runs are excluded from timing samples.
+- Three independent read-only reviews received the P40 bucket rule before
+  inspection. Mechanism and test reviews returned GO with no new class or
+  mechanism finding; the artifact/fence review reconciled all direct facts,
+  hashes, totals and the exact four-plus-seven path split. P37 provenance is
+  `recomputed` for source/site counts, API distributions, fingerprints, hashes,
+  timings and gate results; explicit semantic adjudications are
+  `institutionally_supplied` and are held as non-authoritative declarations,
+  not independently proved or consumed as runtime permission grants; exact
+  authority flow is `not_established`. The
+  eight-owner module-path duplication remains registered as 16 literals over
+  eight governed owners and 35 occurrences in 15 tracked files.
+- Final documentation review found two new classes. The first was a real P37
+  mechanism finding: the register called semantic class
+  `independently_reconciled` although the checker preserved the same explicit
+  owner maps rather than consuming independent semantic evidence. It consumed
+  R3 mechanism round 1. Updating only the owner expectations produced the
+  intended RED, exit `1`, real `0.20 s`; relabeling the non-authoritative
+  adjudication `institutionally_supplied` made the focused owner witness GREEN
+  in `29.81 s`. The checker holds that declaration fail-closed for artifact
+  drift but no runtime permission or authority grant depends on it. The second
+  was a documentation-state finding: a working-tree candidate used the word
+  `landed` before branch attachment. It consumes no mechanism round; the plan
+  and journal now make the containing commit plus branch readback the exact
+  transition predicate rather than treating successful working-tree evidence
+  as a committed state.
+- Because the provenance repair changed checker mechanism bytes after the
+  expensive wave, root reran the complete serialized governed wave once on the
+  final freeze. Receipts were full frontend `98/98` GREEN in `235.48 s`;
+  disposition checker/baseline/corruption PASS in `161.77 s`; status module
+  `38/38` GREEN in `75.87 s`; status checker/corruption PASS in `27.03 s` with
+  authored `12` and exemptions `56`; Atlas checker/corruption PASS in
+  `94.25 s` with 1030 modules / 4198 dependency edges / zero violations; and
+  full Atlas `35/35` GREEN in `542.64 s`. Each used the repository venv,
+  venv-first child resolution, uptime pair and captured exit under its declared
+  ceiling. The full frontend lane again printed two expected nested loader
+  errors from corruption fixtures; its outer 98-test owner module exited zero.
+  Every new successful duration is admitted in the plan and every executed
+  lane's nearest-rank p95 ceiling remains unchanged.
+- Delta mechanism re-review after the provenance repair returned GO: direct
+  construction facts are `recomputed`, explicit nominal class is
+  `institutionally_supplied`, exact authority flow is `not_established`, and
+  no retired binding producer survives. Final artifact and documentation delta
+  reviews also returned GO: they reconciled the exact eleven-path fence,
+  hashes/report parity, C19/C23 preservation, prospective landing predicate and
+  post-repair receipts. No source byte moved after those reviews.
+- **Terminal classification encoded by the containing commit: `landed`.** The
+  precommit freeze remains a reviewed candidate; attachment of commit subject
+  `DS5-C17b-R3 govern persistence construction` plus branch readback is the
+  transition predicate. The exact branch SHA, ahead count and eleven-path
+  readback are reported only after that predicate succeeds. The register family
+  is free at the landing boundary. C20 is not entered and, after this landing,
+  still needs executable-unentered C07a, C09a-R1, C09b-R1, C11b-R1 and
+  C15b-R1; C07b, C10-R1, the C15a structured plane and C17a-R1 remain carried
+  external-plan debt.

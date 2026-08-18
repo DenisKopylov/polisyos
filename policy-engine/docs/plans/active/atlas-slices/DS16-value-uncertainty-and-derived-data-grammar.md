@@ -579,6 +579,81 @@ and the served contract are untouched by this cluster.
 Move the 4 `rebind_pending` rows. A successor closes only when a **real consumer exists** AND the old
 owner path is **proven strangled**. Retire the old containment witness in the same change.
 
+#### C11/C12 outcome — STOPPED at register closure (2026-08-17)
+
+**MERGE HOLD STANDS.** `codex/gy-defc-3-retry` is still spending its single authorized cold `N11`.
+
+**A governed gate was RED on this branch and no cluster before C11 ran it** — an architect omission,
+recorded so the next slice inherits the habit rather than the debt. Baseline taken first: `main`
+exit **0**, branch exit **1** with **7** findings, all caused by this slice.
+
+**Closed: 2 of 7 (7 → 5).** `PublicSectorReadinessPanel.tsx` and `RunDetailLayout.tsx` legitimately
+changed when C05 bound the panels, so their `sha256` content bindings in the baseline debt manifest
+were stale. Recomputed from the live files, two lines, no reformat. Correct rather than convenient:
+the new hash *is* the hash of the file this slice deliberately changed.
+
+**Not closed: 5 of 7, and both reasons are stops rather than remaining work.**
+
+**(a) The four `rebound_consumer_missing` rows.** Re-pointing `consumer_refs` at what exists is the
+right repair and was applied — and it immediately produced **four new**
+`c23_containment_root_drift` findings, because `_validate_c23_containment_roots` pins the expected
+list in the constant `C23_SUCCESSOR_REFS` (`check_frontend_disposition_register.py:1484`). The
+register and the checker must move together. That checker is named in this plan's §3 exclusion list
+(*the DS5 register/baseline-manifest/status-inventory/**checker** set*), and the in-flight
+`codex/atlas-ds5-enforcement-waist` lane has it open, rewritten from ~1,832 to ~8,000 lines, with
+the register itself at **2,374** changed lines. The re-point was therefore reverted rather than
+landed against a file this slice does not own and another lane is rewriting.
+
+Measured and worth stating: DS5's branch still carries `readinessScientificContainment.test.ts` in
+both `C23_SUCCESSOR_REFS` and its register, so **DS5 is not closing these rows either** — it carries
+them forward. Whoever lands second must reconcile.
+
+**(b) The census drift, diagnosed and deliberately not patched.** A single ref moved:
+`quantityDecisionProducerHarness.tsx:139` → `:148`. Same file, same symbol, byte-identical line
+content (`  return buildSignedPublicDecisionPacket({`), nine lines lower because C01 inserted its
+import block above it. Count unchanged, **28 → 28** — the checker reported `observation_drift` and
+*not* `expected_count_drift`, which is what identified it as a coordinate move rather than a
+membership change. Nothing in DS16 touches browser signing.
+
+Bumping the number would have been correct today and **wrong after DS5 lands**: DS5 replaces
+line-numbered census refs with content-addressed TypeScript identity tokens
+(`...tsx#ts-identity=<base64>`), which eliminates this drift class structurally. Patching a line
+number into an artifact whose owner is removing line numbers is the "update a number to make a gate
+green" this slice refused three times. Reverted; registered for DS5's landing.
+
+#### What DS16 delivered, and what it did not
+
+**Delivered — the authority repair, end to end.** Eleven value families measured with positive
+controls, every one a refusal because no runtime producer exists; a typed contract defining **no**
+field the runtime would populate with `null`; producer → persisted content-addressed artifact →
+OpenAPI → generated client; both panels bound with behavioural proof the refusal reaches the glass;
+the containment ancestor retired in the same commit that rewired the panels, with a strangle proof;
+a MACHINE twin whose parity is read from the rendered DOM.
+
+**Not delivered — the grammar body.** `OuterSetValue` is built, proven against C01's negatives and
+a11y-clean, with **zero production importers**. Recorded as *a finished component awaiting a
+surface*, not as debt.
+
+**Six registered dependencies** — three from C07 (`NormativeAuthorizationRecord`,
+`NormativeDecisionRequest`, run-scoped `ValueOuterSetComparison` producer) and three from C08/C09/C10
+(basis bridge, derivation bridge, run-scoped `ObservationProvenanceClass` producer + served field),
+each carried with its measurement, owner and consumer in its own outcome section.
+
+**Successor slice for the grammar body**, with a property-shaped re-entry condition:
+**a surface exists that renders values rather than refusals.** By the master plan's DAG that arrives
+with **DS7 Cycle Board on real capstone data**; DS7 gates on DS5, which is in flight.
+
+**Sequencing correction — a finding about the plan, not this slice.** The slice table and the DS16
+section gate DS16 on `DS4`, while the Start-Now ladder grouped its value grammar under "DS5 closed".
+**Both were partly right:** `DS4` is the correct gate for *defining* the grammar, and it is not
+sufficient for *landing* it, because DS16's own surfaces carry no values to decorate. C08 and C09
+could be bridged tomorrow and still have no consumer here.
+
+**The two bridges were not built,** as instructed: `BasisSignature`/`BasisAttribute`/
+`BasisParameterBinding` and `DerivationRecipe`/`DerivationCertificate` are real and exercised (32
+call sites on `build_derivation_recipe` alone) and served nowhere. Buildable — but a bridge with no
+consumer is `contract_only` by construction.
+
 ### C12 — Ledger + "Not yet"
 
 Update the surface readiness ledger; state explicitly what the slice does not claim.

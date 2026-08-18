@@ -422,6 +422,70 @@ worst-case-over-process value may not be shown as a cancelling average.
 before designing against it; if it does not, the honest surface is the frontier and the dependency
 is registered.
 
+#### C07 outcome (executed 2026-08-17)
+
+**MERGE HOLD STANDS.** `codex/gy-defc-3-retry` is still spending its single authorized cold `N11`.
+Do not merge this branch until that closeout is banked.
+
+**Decision: render against what is served. Do NOT bridge `ValueOuterSet`.** This diverges from the
+cluster brief, which framed the choice as a work-size tradeoff. Measured, bridging is not *larger* —
+it is **unfoundable**:
+
+- the only `ValueOuterSet` construction in the entire source tree is
+  `_empty_household_value_outer_set()` (`src/polisyos/foundry/contracts/state.py:295`), an **empty
+  placeholder** with `representation="unknown"`, `identification_status="blocked"` and empty
+  coordinate/lower/upper tuples;
+- `.compare()` — the sole producer of `incomparable` anywhere — has **zero callers**;
+- `ValueOuterSet` appears in **0** served schemas, and **0 of 356** served schemas express an order
+  verdict at all (`incomparable`, `dominates`, or any equivalent).
+
+An endpoint over that would serve a placeholder: `contract_only` by construction, which is precisely
+what C03 refused. So the served types genuinely cannot express `incomparable`, and the honest response
+is to register the producer rather than manufacture one.
+
+**Registered dependencies (three, all with zero occurrences, none invented here):**
+
+| dependency | measured | owner | consumer |
+|---|---|---|---|
+| `NormativeAuthorizationRecord` | 0 files in `src`/`schemas`/`architecture` | `GY-PA1` | any ranked recommendation |
+| `NormativeDecisionRequest` | 0 files | `GY-PA1` | the absent-authorization surface |
+| run-scoped `ValueOuterSetComparison` producer | contract exists, 0 callers, 0 served | GY value-gate / foundry | `OuterSetValue` order statement |
+
+Because the first two do not exist, **no ranking may render at all**, and the family has no ordering
+code path — asserted by scanning its own source for `<ol`, `aria-posinset`, `aria-setsize`,
+`data-rank`, `.sort(` and `localeCompare`.
+
+**Two order statements, deliberately not conflated.** `incomparable` is a claim about the **values**
+("no admissible ranking exists") and only a producer may make it. Order-not-authorized is a claim
+about the **surface** ("nothing licenses this glass to rank"), true today for every set, and it is
+DS16's own to make. `null` is the *absence* of a verdict, not a fourth member of
+`ValueOuterSetComparison` — the vocabulary is referenced verbatim and never extended.
+
+**C01's negatives now bind real components.** The compliant fixtures render `OuterSetValue` and
+`OuterSetValueStateCell`; the guards are unchanged. The neutering experiment was re-run against the
+real family and negatives 1, 5 and 6 all went RED on demand (`expected [] to deeply equal [ …(2) ]`,
+`[ Array(1) ]`, `[ 'ordered-list-semantics', …(2) ]`), then green on restore.
+
+**Honest limit: the family has zero production importers.** It is built, proven and a11y-clean, but no
+rendered surface consumes it yet — the panels render refusals, not set-valued quantities, and mounting
+the family where no set-valued decision value is served would be fabrication. Its consumers are
+C08–C10.
+
+**Snapshot decision: do NOT update any snapshot.** `run detail A4 print` still fails, and it fails on
+unmodified `main` as well. Updating it would make the lane green by absorbing an inherited failure
+whose cause has not been diagnosed — so a green could not mean "the new image is correct", only "I
+took someone else's failure with mine". C07 itself changes **no** rendered surface (zero production
+importers), so nothing in this cluster requires an update. The A4 print snapshot needs a deliberate
+update *after* the inherited failure is diagnosed, by whoever owns it.
+
+**Finding that refines the inherited-visual baseline:** `evidence promotion focus` is **flaky**, not
+deterministically inherited. It failed at C06 and on `main`, and passes here (1 failed / 17 passed,
+`83.6` s, versus 2 failed / 16 passed at C06).
+
+**Measured:** typecheck green · lint 0 · quantity coverage 0 · a11y 85 files / 87 tests `72.23` s
+(up from `28.086` s with the new component and its two suites) · components **925 passed / 3 failed**,
+failing set identical to the C06 baseline · visual `83.6` s.
+
 ### C08 — Basis chips
 
 Every monetary or unit-bearing chart carries its basis (`real, base-2020, deflator=CPI`) as a

@@ -260,13 +260,14 @@ def _run_n10a_owner(product_root: Path) -> tuple[bytes, int, int, int]:
 def _run_depth_n_owner(product_root: Path) -> tuple[bytes, int, int, int]:
     import asyncio
 
+    from polisyos.pdc import build_gy_comparison_projection_plan
     from tools.quality.validation import (
         check_layer3_gy_depth_n_universality_contract as owner,
     )
 
     frozen = json.loads((product_root / owner.OUTPUT_PATH).read_text(encoding="utf-8"))
     role = "unseen"
-    domain_run, recording, _admissions = asyncio.run(
+    domain_run, recording, admissions = asyncio.run(
         owner._domain_run_and_normalized_recording(
             product_root,
             role=role,
@@ -296,14 +297,16 @@ def _run_depth_n_owner(product_root: Path) -> tuple[bytes, int, int, int]:
     assert promotion["all_receipts_non_consumer"] is True
     assert promotion["certified_candidate_ids"] == []
     receipt_count = int(promotion["receipt_count"])
+    owner_output = {
+        "domain_runs": {role: domain_run},
+        "proof_recordings": {role: recording},
+    }
+    comparison_plan = build_gy_comparison_projection_plan(
+        owner_output,
+        admissions=admissions,
+    )
     output = (
-        owner._canonical_json(
-            {
-                "domain_run": domain_run,
-                "proof_recording": recording,
-            }
-        )
-        + "\n"
+        owner._canonical_json(comparison_plan.project(owner_output)) + "\n"
     ).encode("utf-8")
     return output, receipt_count, receipt_count, 1
 

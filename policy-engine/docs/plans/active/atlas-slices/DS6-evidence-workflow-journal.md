@@ -4226,3 +4226,57 @@ Immediately before this declaration the required scratch parent existed, the
 output did not, and the selected heavy-process census was empty. Uptime was
 `17:33 up 1 day, 23:03`, with load 2.47/5.82/5.34. No tracked source changes,
 no mechanism round, and no Playwright lane intervene between launches.
+
+### Governed rerun, closeout pattern pass, and local landing
+
+The governed rerun completed before its ceiling with process exit 1 and wrote
+391,704 JSON bytes with SHA-256
+`d4c6f10f15e30e0c176e4f3dc2235c319fab401149453d5c963c474fc1f85a89`.
+`/usr/bin/time -p` reported wall 100.03 s, user 591.82 s, and sys 101.19 s.
+The immediate pre-run uptime was `17:34 up 1 day, 23:04` with load
+1.99/4.96/5.05; post-run it was `17:36 up 1 day, 23:06` with load
+8.63/6.94/5.84.
+
+The independently parsed complete denominator contains 319 file records: 318
+passed and one failed. Its 1,038 assertion records contain 1,037 passed and one
+failed, with zero pending or todo. Vitest's separate suite fields report
+650 total, 648 passed, and two failed. C10 completed 33/33; C08 completed
+16/16; C11 completed 21/22. The sole failure is the already governed C11
+clean-worktree replay pin at `atlasHealthMetrics.test.ts:649`, which received an
+empty and correct committed-revision path set instead of its dirty-candidate
+expectation. Thus the setup rerun introduced no new failure, and no C10
+mechanism finding exists in the full wave. These counts and failure identity
+are `recomputed` from every JSON file/assertion record. The process exit is a
+repository test-execution fact, not a C10 row fact or aggregate reconciliation
+status, and it is not copied into any report or projection.
+
+The closeout pattern pass re-opened the failure register. P29 is witnessed by
+the real producer, Python admission, stable-reason mutation red, and canonical
+owner corruption reds. P31/P32 are closed by the one fixed request intake,
+one admitted projection consumer, exact cited bytes, CAS resolution/content
+binding, and no sibling claim-shaped CI intake. P35 uses the complete 261-row
+ledger and 319-file/1,038-assertion test denominators. P37 freezes each row's
+predicate provenance and fails closed on `not_established`; P38 names the
+transitive-runner divergence as the bounded residual instead of calling the
+entry hash runner integrity. P39 remains five mechanism paths under cap 16,
+with the plan, journal, and reviewer reference as three named companions.
+
+C10-R2 is therefore landed locally on attached branch
+`codex/atlas-ds6-c10r1-readiness-reconciliation`, with mechanism source
+`c186885010ad74d995d438f928e61b74de8a61d3` and **1/2** repair rounds used.
+Existing Vitest discovery now invokes one gate per admitted top-level
+`stable`/`implemented` row. Only that row's own
+`observed_by_reconciler/observed` basis is green; completed negatives,
+unavailable observations, cited bases, missing rows, and extra rows are red.
+Core CAS exposes the same five current rows and bases under authority limited
+to `surface_readiness_claim_basis_audit`. This is controlling mechanism
+placement, not a claim that the ledger, the five rows together, or any surface
+is `stable`. No C11, C03/C04/C06, C13/C14, DS8, frontend-register, GY, foundry,
+scenario-composer, or Playwright visual source was changed.
+
+Final pre-commit readback recomputed the complete `main..HEAD` cut as the same
+eight paths: **5/16 mechanisms plus 3 companions**, with zero additional or
+out-of-scope paths. The final focused C10 command completed 33/33 tests in one
+file with Vitest duration 19.33 s and `/usr/bin/time -p` wall 19.82 s
+(`user 23.02`, `sys 2.81`). `git diff --check` remained clean. These are final
+source/readback receipts, not a row conjunction or readiness outcome.

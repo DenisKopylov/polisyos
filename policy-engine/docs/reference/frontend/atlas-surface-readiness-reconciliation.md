@@ -2,23 +2,24 @@
 
 Freshness: 2026-08-18
 
-Status: C10-R2 candidate; pending independent review and whole-suite receipt;
-not yet controlling CI or audit authority
+Delivery branch: `codex/atlas-ds6-c10r1-readiness-reconciliation`
 
 Owner: `team-frontend`
 
 R1 preserved candidate: `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`
 
-Candidate closed producer:
+Mechanism source: `c186885010ad74d995d438f928e61b74de8a61d3`
+
+Closed producer:
 `apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs`
 
 Persistence operation: `persist_atlas_surface_readiness_claims`
 
-The DS6-C10-R2 candidate reports the basis of each gated top-level
-claim in the canonical surface-readiness ledger. It does not issue a
-reconciliation verdict, grant `stable`, or compose several rows into a stronger
-claim. Review and the deferred whole-suite wave remain pending, so this document
-does not yet promote it to controlling CI/audit authority.
+DS6-C10-R2 reports the basis of each gated top-level claim in the canonical
+surface-readiness ledger. Existing Vitest discovery invokes the CI gate once
+per row, and the Core CAS projection is authoritative only for
+`surface_readiness_claim_basis_audit`. Neither issues a reconciliation verdict,
+grants `stable`, or composes several rows into a stronger claim.
 
 ## R2 threat model and declared residual
 
@@ -54,11 +55,13 @@ closure. The only verifier-pattern match was an unrelated TEE attestation
 protocol. Capability absence is `recomputed`; actual external
 release-attestation execution is `not_established`.
 
-R1's two-round stop remains historical evidence and is not rewritten. R2's
-fresh counter is 0/2 before independent review. Further runner/module/Node or
-kernel integrity examples are folded into this limitation; caller/report/
-exit/status/basis, self-attested-field, or sibling-consumer intake findings are
-mechanism findings. The rows below remain non-aggregate and grant no
+R1's two-round stop remains historical evidence and is not rewritten. R2 used
+1/2 fresh rounds: the first frozen candidate's scope sentence was false for the
+stable-unavailable arm, and repair `c18688501` received a clean three-adversary
+delta review. Further runner/module/Node or kernel integrity examples are
+folded into this limitation; caller/report/exit/status/basis,
+self-attested-field, or sibling-consumer intake findings are mechanism
+findings. The rows below remain non-aggregate and grant no
 `stable`/`implemented` authority.
 
 ## Gated claim population

@@ -561,14 +561,27 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: C10-R2 threat-model candidate entered on 2026-08-18; independent
-review and the serialized whole-suite wave are pending, so it is not yet
-controlling CI/audit authority.** R2 continues from the preserved R1 mechanism
-candidate `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd` and its docs-only stop record.
-R1 stopped correctly after classifying `transitive-runner-closure-unbound` as
+**Status: C10-R2 landed locally on
+`codex/atlas-ds6-c10r1-readiness-reconciliation` on 2026-08-18 and is
+controlling for the per-claim CI gate and governed Core CAS claim-basis audit
+projection on that branch.** Mechanism source is frozen at
+`c186885010ad74d995d438f928e61b74de8a61d3` after one of two fresh repair
+rounds and a clean three-adversary delta review. Existing Vitest discovery now
+gates every top-level `maturity=stable` or `readiness_state=implemented` row:
+only its own admitted `observed_by_reconciler/observed` basis is green;
+completed negative, unavailable, cited, missing, or extra rows are red under
+their row-level contracts. The audit projection exposes every row and its own
+basis and is authoritative only for `surface_readiness_claim_basis_audit`.
+Neither surface grants a `stable`/`implemented` claim or an aggregate
+reconciliation result.
+
+R2 continued from preserved R1 mechanism candidate
+`6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd` and its docs-only stop record. R1
+stopped correctly after classifying `transitive-runner-closure-unbound` as
 another instance of `canonical-runner-provenance-and-single-intake-gap`. R2
-changes the contract by making the intake-closure threat model explicit, so its
-fresh mechanism-round counter is **0/2**. The preserved stopped attempt at
+made that runner-integrity boundary explicit and used **1/2** fresh mechanism
+rounds; further transitive runner examples remain limitation evidence, not
+repairs. The preserved stopped attempt at
 `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
 `a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only. No
 surface-readiness `stable` claim is made.
@@ -721,6 +734,36 @@ stable admission witness exercises the valid stable-unavailable row but does
 not corrupt its stable-specific reason to prove that Python branch red. The
 stop precludes even that post-freeze test edit. The expensive verification wave
 was not launched after the stop and supplies no receipt.
+
+**C10-R2 review and wave outcome.** Frozen R2 candidate `c1354ec7a` received
+one Important bucket-A finding: its universal threat-model sentence falsely
+said the stable-unavailable row had run a canonical claim check. That intake
+self-attestation defect consumed R2 round 1. Repair `c18688501` instead says
+the process runs every available applicable check and records an unavailable
+claim check as unavailable; its stable witness pins runner, report, assertion,
+and route facts to null. Three delta reviewers returned no Blocking or
+Important intake finding. Their repeated transitive-chunk falsifiers are
+bucket-B examples of the named residual and consume no round. R2 ends at
+**1/2** rounds used.
+
+The serialized whole-suite rerun completed under its declared 1,800 s ceiling
+in 100.03 s wall. Its complete denominator is 319 test files and 1,038 test
+assertions: 318 files/1,037 assertions passed, and one file/one assertion
+failed. C10 passed 33/33 and the earlier C08 scratch setup nonreceipt was gone.
+The sole remaining red is the pre-existing C11 clean-worktree test pin that
+expects dirty `pyproject.toml`/`uv.lock` replay paths; R1 had reproduced and
+classified it before C10 source existed. It is not repaired or excluded here.
+The repository-wide Vitest process therefore remains red for that recorded C11
+nonreceipt, while the discovered C10 gate itself is controlling: each of the
+five current rows independently supplies its own observed-positive basis, and
+no multi-row result is emitted. The unrelated suite exit is not copied into
+any claim, projection, status, or receipt outcome.
+
+The final P39 measure remains **5/16 mechanism paths plus 3 mandatory record
+companions**, eight paths in the complete `main..HEAD` cut. No mechanism was
+split to fit the cap. The current full ledger denominator remains 261 rows,
+with five `implemented` and zero `stable`; those are separately recomputed
+owner counts, not a composed readiness result.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 

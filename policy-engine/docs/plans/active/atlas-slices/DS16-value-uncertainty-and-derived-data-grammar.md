@@ -1,6 +1,6 @@
 ---
 title: DS16 — Value, Uncertainty & Derived-Data Grammar — slice task plan
-status: ACTIVE — not started
+status: CLOSED blocked_on_ds5 (2026-08-18) — authority repair delivered; grammar body deferred to a successor
 slice: DS16
 owner: team-design
 branch: codex/atlas-ds16-value-grammar
@@ -657,6 +657,120 @@ consumer is `contract_only` by construction.
 ### C12 — Ledger + "Not yet"
 
 Update the surface readiness ledger; state explicitly what the slice does not claim.
+
+#### C11 / C12 outcome (executed 2026-08-18) — the slice closes here, as `blocked_on_ds5`
+
+**Everything still outstanding is blocked on another lane, and nothing remains that DS16 can do.**
+That is why this closes rather than staying open: not because the work ran out, but because the
+work that remains is not this slice's to perform.
+
+**Delivered and permanent — the authority repair, end to end.** Eleven inventory families measured
+with positive controls and every one a refusal, because no runtime producer exists for any of them; a
+typed contract that defines **no field the runtime would populate with `null`**, with completeness
+enforced by a validator that raises on a dropped or duplicated member and proven by dropping one; the
+bridge (producer → artifact → OpenAPI → generated client), purely additive at `+411/−0`; both panels
+bound and rendering typed refusals with behavioural proof; the ancestor retired in the same commit as
+the rewire with a strangle proof; the MACHINE twin with parity read from the **rendered DOM** rather
+than the shared model.
+
+**`OuterSetValue` is finished and unconsumed.** Built, proven against `C01`'s negatives, a11y-clean,
+**zero production importers**. Recorded as a component awaiting a surface — not as debt, and not to be
+mounted over a refusal string to give it a home.
+
+**Two of the seven register findings closed; five are stops, not remaining work.**
+
+The two `baseline_lint_resolution_content_hash_drift:C06` entries were closed by recomputing the
+`sha256` bindings from the live files — `PublicSectorReadinessPanel.tsx` and `RunDetailLayout.tsx`
+genuinely changed when `C05` bound the panels, so the new hash is the hash of a file this slice
+deliberately changed. Correct rather than convenient.
+
+The remaining five do not close inside DS16's cut-lines:
+
+- **Four `rebound_consumer_missing`.** The re-point was performed exactly as briefed and produced
+  four *new* `c23_containment_root_drift` findings, because `_validate_c23_containment_roots` pins the
+  expected list in `C23_SUCCESSOR_REFS` (checker `:1484`) and compares `consumer_refs` against it for
+  exact equality (`:3410`). **The register and the checker are coupled and have different owners** —
+  the register is DS16's under §3, the checker is explicitly excluded by that same §3. The re-point
+  was reverted rather than landed against a file this slice does not own.
+- **One `census_observation_drift`.** Diagnosed, deliberately not patched: a single reference moved
+  `quantityDecisionProducerHarness.tsx:139 → :148`, **byte-identical line content**
+  (`return buildSignedPublicDecisionPacket({`), nine lines lower because `C01` inserted an import
+  block above; membership unchanged at `28 → 28`, which is why the checker reported
+  `observation_drift` and not `expected_count_drift`. `DS5` is replacing line-numbered census
+  references with content-addressed TypeScript identity tokens, so bumping a line number into an
+  artifact whose owner is removing line numbers would be correct today and discarded on `DS5`'s
+  landing. This is the "update a number to make a gate green" the slice refused three times, wearing
+  the mask of a legitimate edit.
+
+**The bind is an architect defect in §3 of this plan, recorded so it is not repeated.** §3 made the
+disposition register DS16's to write while excluding the checker that pins the register's contents.
+Two coupled files, two owners, and the coupling was not visible when the cut-lines were drawn.
+
+**The two-condition proof holds; only landing it does not.** A successor closes when a real consumer
+exists **and** the old owner path is proven strangled. Both are established: the panels are bound to
+`useRunAuthorityValues` and render typed refusals with behavioural assertions; the minting modules
+were deleted at `bc1d01001` and the witness retired in the rewire commit, with the successor covering
+**10 of 11** ancestor corruptions and the single gap (arbitrary i18n key) declared. The blocker is
+ownership and contention, not evidence.
+
+##### Handoff to DS5 — the exact end state DS5 must pin
+
+`DS5` owns `check_frontend_disposition_register.py`, so **`DS5` reconciles**. It has both files open —
+the checker at `+5,312/−517` and the register at `+2,315/−57` — and **still carries the retired
+`readinessScientificContainment.test.ts`** in `C23_SUCCESSOR_REFS`, so `DS5` is not closing these rows
+on its own either. The required end state, stated here so it does not have to be re-derived:
+
+```python
+C23_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
+]
+```
+
+Only the third entry changes; the first two are unchanged. The register's successor `consumer_refs`
+must equal this list exactly, and the four rows then move out of `rebind_pending`.
+
+**`C23_RATIONALE` is also stale and its own condition is now satisfied.** It reads *"the retained
+panels emit unavailable until DS16 provides producer-signed fields or registered typed refusal"* —
+DS16 has provided the registered typed refusal, so the rationale should be rewritten to describe the
+delivered state rather than the awaited one.
+
+##### Merge ordering — now two conditions, not one
+
+1. the `GY-DEFC-8` cold `N11` closeout is banked (`E12`: any `.py` under the source root re-prices the
+   three deployment-bound GY artifacts);
+2. **`DS5` lands first**, then this branch takes `main` and reconciles.
+
+The second is not a preference. `DS5` carries `+2,315` lines of the same register this branch edited;
+the later DS16 merges, the more that costs. The branch is currently **RED on a governed gate**
+(register checker exit `1`, five findings) — closing the task and merging the branch are different
+acts, and only the first is done here.
+
+##### Six registered dependencies
+
+Three from `C07`: `NormativeAuthorizationRecord` (0 files), `NormativeDecisionRequest` (0 files),
+run-scoped `ValueOuterSetComparison` producer (contract exists, 0 callers, 0 served).
+Three from `C08`/`C09`/`C10`: the basis bridge (`BasisSignature` real and exercised, 0 served), the
+derivation bridge (`DerivationRecipe`/`DerivationCertificate`, 32 call sites on
+`build_derivation_recipe`, 0 served), and a run-scoped `ObservationProvenanceClass` producer and served
+field (0 served under any name).
+
+##### Successor slice — re-entry condition as a property
+
+The grammar body (`C07`–`C10`) becomes a registered successor. **Re-entry condition: a surface exists
+that renders values rather than refusals.** By the master plan's DAG that arrives with **`DS7` Cycle
+Board on real capstone data**; `DS7` gates on `DS5`, in flight. The two bridges are buildable today by
+whoever needs them, but **not by this slice** — a bridge with no consumer is `contract_only` by
+construction.
+
+##### Sequencing correction, recorded as a finding about the plan
+
+The slice table and the `DS16` section both gate this slice on `DS4`; the Start-Now ladder grouped its
+value grammar under "DS5 closed". **Both were partly right.** `DS4` is the correct gate for *defining*
+the grammar and is insufficient for *landing* it, because DS16's own surfaces carry no values to
+decorate — measured: both panels contain **zero** quantity references. `C08` and `C09` could be
+bridged tomorrow and still have no consumer here.
 
 ## 5. Verification protocol
 

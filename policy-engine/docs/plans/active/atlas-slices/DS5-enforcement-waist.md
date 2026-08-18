@@ -196,7 +196,7 @@ byte-unmodified. Any new identity is red.
 | all raw transport constructors | 7 calls / 5 production files | adds one `EventSource` and one `WebSocket` |
 | flags | 12 keys; 8 consumed; 4 `consumer_missing` | wire 3, retire collaboration; auth pseudo-flag is separate |
 | permissions | 33/33 unique server/OpenAPI values | dashboard local list has 15: 12 overlap, 3 unsupported collaboration strings, 21 omitted |
-| governed projection audiences | accepted live denominator: 13 definitions, 5 EXPERT and 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 did not add G4; `g4-complete-audience-projection-contract` remains typed producer debt. C07a enforces all four classes without relabeling the 13 emitted definitions; G4 waits on its owner plan |
+| governed projection audiences | accepted live denominator: 13 definitions, 5 EXPERT and 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 did not add G4; `g4-complete-audience-projection-contract` remains typed producer debt. After the generated-client owner conflict closes, C07a must enforce all four classes without relabeling the 13 emitted definitions; G4 waits on its owner plan |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
 | locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
@@ -233,7 +233,7 @@ commands and their receipts are in the baseline table above.
 | 5 `fetch` / 3 files; 7 raw transports / 5 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' '\\bfetch\\s*\\(' apps/runtime-dashboard/src`; repeat with `\\b(fetch\\s*\\(\|new EventSource\\s*\\(\|new WebSocket\\s*\\()'` and use `rg -l` for file counts |
 | 12 flag keys / 8 referenced outside owner / four named missing consumers | literal `flag_consumer_census` command and per-key output below |
 | 33 server and generated permission values | literal `authority_and_store_census` command below; recorded `server=33`, `generated=33`, `equal=True` |
-| accepted live 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'`; C07a records 13/5/8; C06 leaves G4 as typed producer debt |
+| accepted live 13 projection definitions / 5 EXPERT / 8 MACHINE | `sed -n '/^_DEFINITIONS:/,/^_DEFINITION_BY_ID/p' src/polisyos/runtime/http/services/governed_projections.py \| rg -c '_ProjectionDefinition\\('`; repeat the bounded scan with `rg -c 'AudienceClass.EXPERT'` and `rg -c 'AudienceClass.MACHINE'`; the preserved C07a candidate records 13/5/8, and a future owner-authorized execution must recompute it; C06 leaves G4 as typed producer debt |
 | G4 owner shape: 8 fields; owner projection refs: PUBLIC/REVIEWER/EXPERT/MACHINE | `jq -c '{fields:(keys\|sort)}' architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json` returns `blocker_refs, issue_codes, limitation_refs, produced_by, promotion_scope, promotion_state, status, weakest_boundary_reason`; `jq -c '{audiences,EXPERT:(.EXPERT\|keys\|sort),MACHINE:(.MACHINE\|keys\|sort),PUBLIC:(.PUBLIC\|keys\|sort),REVIEWER:(.REVIEWER\|keys\|sort)}' architecture/policy_design_case/layer3_g4_public_export_projection_refs.json` records all four source-owned audience projections and their distinct field classes |
 | 11 N010 expressions / 6 production consumers | literal `authority_and_store_census` command below; its per-path output is 1/2/1/1/2/4 |
 | 14 fallback capability records | `sed -n '/features: \\[/,/^  \\],/p' apps/runtime-dashboard/src/shared/lib/capabilities.ts \| rg -c '^      key:'`; `rg -n 'FALLBACK_CAPABILITY_MANIFEST\|capabilitiesQuery.isLoading'` locates the two production bypass consumers |
@@ -939,7 +939,7 @@ first continuously numbered `-R1` successor.
 | C05a | 10 | 11 | no-fit | C05a-R1 / 11 |
 | C05b | 6 | 7 | record-only | C05b-D2 / 7 |
 | C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
-| C07 | 26 | 25 | re-cut | C07a HTTP/backend / C07b dashboard consumption |
+| C07 | 26 | 25 | re-cut; C07a stopped at entry | C07a waits on an owner-authorized single-owner migration for `runtime-dashboard-api-types`; C07b records the blocked debt, and no source was restored |
 | C08b | 10 | 11 | R1 superseded | C08b-R2 / 7 landed at `edb8e045f` |
 | C09a | 10 | 11 | no-fit | C09a-R1 / 11 |
 | C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
@@ -964,9 +964,15 @@ C01b/C01c are the separately authorized `636645bec` re-cut. C06 retains its
 ID and cap because its corrected set already fits. C13a is the stopped 18-path
 predecessor; C13a-R2 is its stopped historical 22-path successor; C13a-R3 is
 the 23-path execution successor. C07 is
-re-cut: C07a restores the already-green HTTP/backend candidate without
-regenerating the dashboard local client; C07b is separately blocked on the
-single-owner frontend generated-artifact strangle.
+re-cut: C07a's preserved HTTP/backend candidate cannot change the shared
+OpenAPI source while the separately registered dashboard client remains a
+`stale_output_behavior = fail` consumer. C07a is therefore
+`blocked_on_another_owner` until the registered `runtime-dashboard-api-types`
+owners authorize and close the single-owner migration recorded by C07b; no
+backend source was restored at the 2026-08-19 re-entry. The artifact records
+`owner = team-polisyos`, `approval_owner = team-polisyos`, and
+`version_owner = team-frontend`; the owning execution plan is
+`not_established` pending architect ruling.
 
 ### Register transition map
 
@@ -982,7 +988,7 @@ single-owner frontend generated-artifact strangle.
 | `route-app-layout::ru-ui-catalog` | C05a-R1 | stays `frozen_legacy_continuity`; active exposure negative proves it is not a product locale |
 | `semantic-copy-issuer-panel-consumer-deferral` | C05b-D2 then C05b-R3 | C05b-R3 lands only the private issuer/generated `may_not_use_for` guard; it remains `rebind_pending/open_debt` for the panel/direct-Badge bridge, consumer, verification and semantic test while DS6 accepted human-review receipts remain 0 |
 | three `ds4-waist-debt-register` rows | C06 | close only after runtime model, generated union, singular adapter, consumer, corruption and novel-value proof |
-| audience enforcement supplemental/readiness evidence | C07a | four-class server deny matrix over all 33 enum-owned permission values and the accepted 13-definition/5-EXPERT/8-MACHINE census; exact `mode.analyst` applies to all five emitted EXPERT definitions; G4 remains typed producer debt and waits on its owner plan; restores the already-green backend candidate without regenerating the dashboard local client |
+| audience enforcement supplemental/readiness evidence | C07a after the owner-authorized migration recorded by C07b | four-class server deny matrix over all 33 enum-owned permission values and the accepted 13-definition/5-EXPERT/8-MACHINE census; exact `mode.analyst` applies to all five emitted EXPERT definitions; G4 remains typed producer debt and waits on its owner plan; restore is blocked until the shared-schema dashboard client has one owner |
 | dashboard generated-client consumption | C07b | blocked-on-another-plan pending the single-owner frontend generated-artifact strangle; the historical 77/27 raw-string input is superseded by compiler-resolved dashboard AST facts: 75 canonical imports, 27 non-test local imports, and 28 local imports across all TS/TSX including `validators.test.ts`; the relative-only scan omitted the `@/api/types` aliases in `optimistic.ts`, the authMe fixture, ControlFailurePanel, and DataIntelligencePanel. The sole closure deletes `apps/runtime-dashboard/src/api/types.ts`, repoints every local importer to `@polisyos/runtime-api-client`, removes the local artifact from `architecture/generated_artifacts.toml` and `docs/reference/frontend/workspace-contract.md`, and removes dashboard `openapi-typescript`; a comparison gate is temporary mitigation only and cannot close this row |
 | `route-login`, `feature-auth`, `api-op-get-auth-me` | C08a-C09b-R1 | test support is isolated first; core identity then six downstream surfaces rebound to verified live identity or explicit unknown; loading/error/401/cross-tenant remain fail-closed |
 | composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 retains `g4-complete-audience-projection-contract` as typed producer debt; deferred C10-R1 waits on that owner plan before any nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
@@ -1446,7 +1452,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 
 | Cluster | Deliverable | Producer today | Evidence | Verdict | Waits on |
 | --- | --- | --- | --- | --- | --- |
-| C07a | HTTP/backend audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners | `src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `src/polisyos/runtime/http/permissions.py:16-51,211-216`; `schemas/runtime_api_v1.openapi.json:/api/v1/auth/me` | executable; restore already-green backend candidate without regenerating dashboard local client | none |
+| C07a | HTTP/backend audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners, but its OpenAPI source feeds two registered fail-on-stale clients | `3db3f4154` candidate; `b0d7dcaa6` revert; `8794d58c8` generated-family correction; `architecture/generated_artifacts.toml:677-775` | blocked_on_another_owner; no source byte restored at re-entry | owner-authorized single-owner migration of `runtime-dashboard-api-types`; C07b is the blocked DS5 debt record, and the executing plan is not established |
 | C07b | dashboard generated-client consumption | canonical `packages/runtime-api-client/types.ts` exists, but dashboard retains a separately maintained local generated client | `packages/runtime-api-client/types.ts`; `apps/runtime-dashboard/src/api/types.ts`; Duplication findings below | blocked-on-another-plan | single-owner frontend generated-artifact strangle |
 | C08a | test-only identity fixture | verified `/auth/me` producer exists; only test fallback import must be isolated | `40fc512ae`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/test/render.tsx:7,28` | landed | none |
 | C08b-R2 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `edb8e045f`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | landed | none |
@@ -1476,7 +1482,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1 |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a's new owner block needs prerequisite-versus-carried-debt reconciliation | `DS5-C20` acceptance; complete standing census below; C07a 2026-08-19 entry stop | blocked-on-another-cluster; C07a opening effect not_established | C09a-R1, C09b-R1, C11b-R1, C15b-R1; architect ruling for C07a |
 
 **Entry standing census (recomputed and independently reconciled at
 `324996652`, structurally refreshed through C17b-R2 revert `eb97981c4`):**
@@ -1489,8 +1495,10 @@ landed, C17b-R2 stopped for the same-cap R3 mechanism re-cut, and this
 plan-bearing commit lands C17b-R3's narrowed direct census once branch
 attachment/readback succeeds. Outside that chain, the
 executable-and-unentered set is exactly
-`C07a`, `C09a-R1`, `C09b-R1`, `C11b-R1`, and `C15b-R1`. `C07b`, `C10-R1`,
-C15a's structured verdict/status-chip plane, and `C17a-R1` remain
+`C09a-R1`, `C09b-R1`, `C11b-R1`, and `C15b-R1`. C07a is now
+`blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
+owner tuple; C07b records the same unresolved single-owner migration debt but
+is not its executable owner. `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1` remain
 blocked-on-another-plan and are carried into C20 as named owner debt rather
 than closure prerequisites.
 
@@ -1628,19 +1636,39 @@ hand-edited.
 
 ### DS5-C07a — restore the server audience-permission mapping
 
-**Status:** restore the already-green HTTP/backend candidate. C07a does not
-regenerate, compare, or otherwise change the dashboard local client; that
-consumer/strangle is C07b.
+**Status:** `blocked_on_another_owner` at the 2026-08-19 re-entry. Preserved
+candidate `3db3f4154` and forward revert `b0d7dcaa6` remain the evidence; no
+source byte was restored. The later generated-family correction `8794d58c8`
+supersedes the earlier executable label: C07a's OpenAPI change feeds both the
+canonical package and the separately registered dashboard client, whose
+`stale_output_behavior = fail` contract cannot be left behind. C07b records
+the blocked single-owner frontend-strangle debt; the generated-artifact
+register instead assigns `owner = team-polisyos`,
+`approval_owner = team-polisyos`, and `version_owner = team-frontend`, while
+the owning execution plan remains `not_established` pending architect ruling.
+
+P40 classifies this as a second-or-later instance of the already registered
+generated-family/owner-strangle class, not a new backend defect. The falsifier
+is the dashboard family's canonical generation followed by byte comparison;
+it produces the recorded `+1501/-11` drift, including
+`AuthMeResponse.permissions` as canonical `RuntimePermission[]` versus local
+`string[]`. The smallest closing capability is the blocked single-owner
+migration recorded by C07b: delete the local artifact/family, repoint all 28
+compiler-resolved imports, and remove dashboard `openapi-typescript`. Because
+that capability exists but is not yet available, the residual cannot be used
+as a C07a landing limitation and no further instance repair is attempted.
 
 **Measured set:** the HTTP/backend candidate: four HTTP source files (new
 `audience_permissions.py`, `authorization.py`, governed service and route);
 the five fence-listed HTTP/contract tests; generated OpenAPI snapshot; package
 `types.ts`, `runtimeApiClient.{ts,js}` and
 `canonicalRuntimeApiClient.{ts,js}`; it explicitly excludes dashboard
-`src/api/types.ts`. The single authored direction is
-`RuntimePermission -> frozenset[AudienceClass]`; the inverse is derived. Every
-one of the 33 values appears exactly once. Current inverse counts are PUBLIC 0,
-REVIEWER 20, EXPERT 28, MACHINE 22.
+`src/api/types.ts`. In that preserved candidate, the single authored direction
+is `RuntimePermission -> frozenset[AudienceClass]`; the inverse is derived,
+every one of the 33 values appears exactly once, and the inverse counts are
+PUBLIC 0, REVIEWER 20, EXPERT 28, MACHINE 22. None of those candidate
+properties is claimed as current C07a branch behavior before restoration and
+fresh verification.
 
 | Eligible audiences | Exact server-owned permissions |
 | --- | --- |
@@ -1652,8 +1680,9 @@ REVIEWER 20, EXPERT 28, MACHINE 22.
 | PUBLIC | no privileged permission; this does not create an anonymous route |
 
 At C07a entry the accepted live audience census is 5 EXPERT projections and 8
-MACHINE projections. C07a assigns exact `mode.analyst` to all 5 emitted EXPERT
-definitions and exact `platform.view` to all 8 MACHINE definitions. G4 is not
+MACHINE projections. Once the generated-client owner conflict closes, C07a
+must assign exact `mode.analyst` to all 5 emitted EXPERT definitions and exact
+`platform.view` to all 8 MACHINE definitions. G4 is not
 synthesized here: `g4-complete-audience-projection-contract` remains typed
 producer debt and waits on the `team-runtime-quality` G4 projection owner plan.
 `AudienceClass` gains PUBLIC in this
@@ -1689,7 +1718,9 @@ package-client generation needed for the backend contract; do not run
 `runtime-dashboard generate:api` and do not modify
 `apps/runtime-dashboard/src/api/types.ts`.
 
-**Expected commit:** `DS5-C07a restore server audience permission boundaries`.
+**Future expected commit after the owner-authorized single-owner migration
+recorded by C07b:**
+`DS5-C07a restore server audience permission boundaries`.
 
 ### DS5-C07b — dashboard generated-client consumption
 
@@ -2459,12 +2490,17 @@ their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
-by another plan. It remains unopened while `C07a`, `C09a-R1`, `C09b-R1`,
-`C11b-R1`, or `C15b-R1` remains unclosed as a local DS5 prerequisite.
-`C07b`, `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1`
-are carried as named debt with their owning plans and do not become C20
-closure prerequisites. This ruling does not narrow C20's corruption or
-non-claim battery.
+by another plan. It remains unopened while `C09a-R1`, `C09b-R1`, `C11b-R1`,
+or `C15b-R1` remains unclosed as a local DS5 prerequisite. C07a's 2026-08-19
+entry stop reclassifies it from executable to `blocked_on_another_owner`
+against the registered `runtime-dashboard-api-types` owner tuple; C07b is the
+blocked DS5 debt record rather than the executable owner. The
+commission called it a C20 prerequisite, while the standing rule carries
+another-plan blockers as debt. C07a's effect on C20 is therefore
+`not_established` pending an architect ruling rather than silently selecting
+either interpretation. `C07b`, `C10-R1`, C15a's structured verdict/status-chip
+plane, and `C17a-R1` otherwise remain carried as named debt with their owning
+plans. This ruling does not narrow C20's corruption or non-claim battery.
 
 **Red first:**
 `test_ds5_closure_corruption_sweep_covers_every_governed_property` executes the
@@ -2511,7 +2547,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C05b-D2 | `DS5-C05b-D2 record semantic-copy deferral` | 7 |
 | C05b-R3 | `DS5-C05b-R3 recover semantic-copy issuer guard` | 13 |
 | C06 | `DS5-C06 bridge the three canonical waist unions` | 26 |
-| C07a | `DS5-C07a restore server audience permission boundaries` | HTTP/backend candidate |
+| C07a | stopped at clean entry; future `DS5-C07a restore server audience permission boundaries` | blocked on the registered `runtime-dashboard-api-types` owner tuple; C07b records the single-owner migration debt, and its executing plan is not established |
 | C07b | `DS5-C07b dashboard generated-client consumption` (blocked-on-another-plan) | single-owner frontend generated-artifact strangle |
 | C08a | `DS5-C08a isolate auth test identity fixtures` | 5 |
 | C08b-R2 | `DS5-C08b-R2 fail closed on unsettled identity` | 7 |

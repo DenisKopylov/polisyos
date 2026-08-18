@@ -4469,3 +4469,83 @@
   still needs executable-unentered C07a, C09a-R1, C09b-R1, C11b-R1 and
   C15b-R1; C07b, C10-R1, the C15a structured plane and C17a-R1 remain carried
   external-plan debt.
+
+## 2026-08-19 — DS5-C07a stopped cleanly on the shared generated-family owner
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at landed C17b-R3
+  `9e389a17a5cfa2870bb62768bbe16682fccff5c6`, 101 commits ahead of `main`,
+  clean, with the register family free. The complete current C07a plan section,
+  five-test fence, preserved checkpoint `3db3f4154`, forward revert
+  `b0d7dcaa6`, later correction `8794d58c8`, and both generated-family
+  descriptors were read before any mutation.
+- The checkpoint has eighteen paths, but its backend-contract core is ten
+  actual changed paths: four HTTP files, three of the five authorized tests,
+  the OpenAPI snapshot, and two package TypeScript outputs. Its dashboard local
+  generated client and seven historical governed/doc companions are not a
+  restorable C07a set. All four HTTP files and three tests remain exactly at the
+  forward-revert boundary on current HEAD, so transplant mechanics are not the
+  stop. No source, test, schema, package, governed, generated, staged or
+  untracked byte moved.
+- The stop is the shared source-of-truth relation. `AudienceClass.PUBLIC`
+  changes `schemas/runtime_api_v1.openapi.json`, which feeds both registered
+  fail-on-stale families: canonical `runtime-api-client` and dashboard
+  `src/api/types.ts`. The dashboard generator's complete clean witness changes
+  that local artifact by `+1501/-11`; the concrete divergence includes
+  canonical `AuthMeResponse.permissions: RuntimePermission[]` versus local
+  `string[]`. Excluding the dashboard path from the commit does not make its
+  source dependency disappear, and regenerating or hand-editing it is expressly
+  outside C07a.
+- P40 classifies this as a second-or-later finding of the already registered
+  generated-family/owner-strangle class. It consumes no fresh C07a mechanism
+  round and triggers no instance patch. Its falsifier is the registered
+  dashboard generator followed by exact byte comparison. The smallest closing
+  capability is the single-owner migration recorded as C07b debt—delete the
+  local family/artifact, repoint all 28 compiler-resolved local imports to the
+  canonical package, and remove dashboard `openapi-typescript`. The generated
+  artifact register assigns `runtime-dashboard-api-types` to
+  `owner = team-polisyos`, `approval_owner = team-polisyos`, and
+  `version_owner = team-frontend`; C07b is not the executable owner, and the
+  owning execution plan is `not_established` pending architect ruling. The
+  capability is specified but unavailable, so the residual is not an
+  admissible C07a landing limitation.
+- Independent static audits also retained successor acceptance debt without
+  spending rounds: the old candidate lacks real-route exact-grant positive
+  witnesses for EXPERT/MACHINE, a test-only REVIEWER construction, a current
+  projection UI-hidden variant, and a source-derived exact `13/5/8`
+  no-relabel/G4-debt census witness. Its immutable 33-key mapping, derived
+  `0/20/28/22` inverse, PUBLIC-empty behavior and six-high-stakes MACHINE
+  exclusion remain useful preserved evidence, not a landed capability.
+- P39 accounting at the stop is zero mechanism paths plus the two mandatory
+  record companions, plan and journal. No terminal product/generator lane ran,
+  so no timing sample or ceiling changes. The registered two-client duplication
+  finding remains open; the separate eight-owner module-path replication also
+  remains registered. C23, baseline, readiness, DS8, DS9 and DS14 bytes are
+  untouched.
+- Three independent read-only reviews returned final GO after doc-only
+  corrections. Under P40, each correction was the same declared
+  generated-family/owner-strangle class at a dependent-reference boundary and
+  consumed no mechanism round: present-tense candidate claims became explicitly
+  future or preserved-candidate evidence; C07b became the blocked DS5 debt
+  record rather than an invented owner; and every owner reference now resolves
+  to the registered artifact tuple while the executing plan remains
+  `not_established`. The final reviewers verified the exact two-record fence and
+  `git diff --check`; they ran no product, generator, scanner, writer or test
+  lane, and produced no tooling non-receipt.
+- The first precommit guard was a tooling non-receipt: after explicitly staging
+  only the two intended records, it compared repository-root cached paths
+  (`policy-engine/docs/...`) with product-root-relative expected paths
+  (`docs/...`) and exited before `git commit`. No commit or unintended path was
+  produced; the corrected guard normalizes on repository-root paths and
+  re-verifies the same two-file set.
+- **Terminal classification: `blocked_on_another_owner`.** Owner/artifact:
+  registered family `runtime-dashboard-api-types`, with
+  `owner = team-polisyos`, `approval_owner = team-polisyos`, and
+  `version_owner = team-frontend`; C07b is the blocked DS5 debt record for its
+  single-owner migration, not the executing owner. The owning execution plan
+  is `not_established` pending architect ruling. Preserved evidence
+  is `3db3f4154`; no new stopped source commit or successor cap exists because
+  no mechanism opened. The register family remains free. Per dependency rules,
+  this stop does not block C09a-R1, C09b-R1, C11b-R1 or C15b-R1; C20 remains
+  unentered. Whether its former C07a prerequisite becomes carried owner debt is
+  `not_established`: the commission and standing another-plan rule disagree,
+  so the hand-back requests an architect ruling instead of selecting one.

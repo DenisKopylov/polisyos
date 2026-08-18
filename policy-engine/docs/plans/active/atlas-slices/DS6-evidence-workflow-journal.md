@@ -3761,3 +3761,522 @@ Lint retains two measured regimes: cold **1,182.94 s** and warm shared-cache
 runs in the matching regime, never a margin over the minimum; no timing sample
 without its load/cache regime is promoted. C18's commit and post-commit branch
 readback remain pending.
+
+## DS6-C10-R1 per-claim readiness reconciliation entry — 2026-08-18
+
+C10-R1 entered in isolated worktree `.worktrees/atlas-ds6-c10r1` on attached
+branch `codex/atlas-ds6-c10r1-readiness-reconciliation` at current `main`
+`f6374868456dc45bedf197e53701bd83d7921daa`. That base contains
+`fa708f2bc656be52e62ff80a7ca2b112d89694a5` as an ancestor plus the docs-only
+P39 registration. The root checkout's foreign
+`src/polisyos/data_forge/read_api/catalog.py` modification remains untouched.
+
+Under P39 the pre-entry measure is four mechanism paths: the new typed
+reconciler, its semantic/CI test, the fixed launcher, and the existing
+persistence/projection adapter. The mandatory companions held outside the cap
+are this journal, the DS6 plan, and the reviewer reference. The mechanism is
+therefore **4/16** and the complete candidate cut is **seven paths**. No
+mechanism is split across commits to make the count smaller. The fresh
+mechanism repair budget begins at **0/2**.
+
+The C11 persistence boundary was remeasured against current `main`, not
+inherited from the stopped attempt. The unchanged
+`validate_atlas_health_sources.py` applied the complete canonical owners and
+reported 261 readiness rows, five top-level `implemented` claims, 233 adoption
+rows, and zero `stable` adoption claims. Relative to this executing C10-R1
+session those four counts and the full-schema acceptance are `recomputed`.
+The stopped `incomplete-pre-CAS-owner-invariant` finding was measured against a
+pre-C11 persistence boundary; it remains evidence about that superseded
+boundary, not a statement about the mechanism entered here. C10-R1 reuses the
+landed C11 full-schema validator byte-for-byte and makes its result a
+prerequisite at both producer and persistence admission.
+
+The entered contract adds the three approved corrections. Cited execution
+status and cited findings constrain one another in both directions, with
+separate named reds for `pass` plus findings and for `fail`/`incomplete` plus
+zero findings. Observation has three states: `observed`; `not_observed` only
+after the canonical check completed negatively; and
+`observation_unavailable` with its reason when owner, route, or harness
+execution was unavailable. CI fails the last two under distinct codes. A
+synthetic `stable` row is the mandatory negative control for the live zero-row
+arm.
+
+The CI exit code is the **only** place a conjunction over rows may exist. It is
+a gate, not a claim. It is never written to an artifact, never given a field
+name, never surfaced in the projection or the reviewer reference, and never
+carried as a receipt outcome, provenance label, or aggregate status. The
+required falsifier removes that exit-code calculation and compares artifacts;
+any artifact-byte change would expose the refused aggregate under a new name.
+
+Setup receipts and nonreceipts are explicit. `corepack pnpm install
+--frozen-lockfile` installed the complete locked 1,211-package workspace from
+the local store in 15.1 seconds and changed no tracked byte. The mandated
+`uv sync --offline --frozen --extra test` created an isolated environment but
+stopped because the `jaxlib==0.8.2` CPython 3.14 macOS wheel was absent from the
+offline cache; that zero-source-byte attempt is a tooling nonreceipt. The
+worktree then linked the existing DS6 repository-managed environment, whose
+`jsonschema 4.25.1` installation let the unchanged source validator reproduce
+the 261/5 and 233/0 owner counts above.
+
+The pre-source focused baseline ran the C11 health test and canonical route
+test: route behavior passed **10/10** and the combined run passed **31/32** in
+25.28 seconds. The sole C11 failure expected dirty candidate paths
+`pyproject.toml` and `uv.lock`, while the clean committed base honestly returned
+an empty `non_revision_paths` list. No C10 path or tracked byte existed yet, so
+this is a pre-existing clean-worktree C11 test nonreceipt, not a C10 result or a
+consumed mechanism round. It is not repaired or excluded here without a scoped
+ruling.
+
+## DS6-C10-R1 mechanism review round 1 — 2026-08-18
+
+The first mechanism candidate is preserved at
+`b0e557c04b920aa8bb0d81b6c09dd198ad76bafc`. It changed exactly the four
+predeclared mechanism paths, so the P39 measure remains **4/16**; the later
+reviewer-reference commit `2120daeebbf72a5b130c4f6dcd0a05f19be24d09`
+changes one mandatory companion outside that count. Focused pre-review
+verification was 20/20 C10 semantic tests, 10/10 nested canonical route tests,
+TypeScript app/tools projects exit 0, scoped ESLint exit 0, Ruff check exit 0,
+and `git diff --check` exit 0. Those are candidate receipts, not review
+closure.
+
+Three independent read-only terra/luna reviews inspected the same frozen
+candidate before any repair. They are one mechanism round, not three: a round
+is a candidate-and-repair cycle, and no source changed between reviews. The
+fresh counter is therefore **1/2 consumed**. Findings and classifications:
+
+- Blocking, old class instance:
+  `canonical-runner-provenance-and-single-intake-gap`. The operation bound the
+  Node executable and canonical test source but not the resolved
+  `node_modules/vitest/vitest.mjs` entry, version, and bytes.
+- Important, old class instance: `non-bidirectional-status-contract`. The
+  exported observed-basis schema allowed `observation_unavailable` with a
+  passed assertion, and completed observations did not require a non-null
+  runner-report digest.
+- Blocking, new C10-R1 CI-boundary class: one discovered Vitest test looped
+  across every row, creating a hidden conjunction before the Vitest/CI process
+  exit. The artifact-independence test only proved non-mutation, not one
+  separately discovered gate result per row.
+- Important, new P37/P38 integrity class: both Node and Python validated one
+  owner read, then enumerated a later loosely read owner using only cardinality
+  equality. A same-cardinality post-validation mutation could therefore sever
+  owner validation from the enumerated bytes.
+- Important, new P32 class: `consistent_with_cited_report` accepted a
+  hash-shaped artifact declaration and supplied facts without resolving and
+  digesting actual cited bytes. Its CI ineligibility prevented authority
+  escalation but did not make the basis name true.
+- Important test finding, no mechanism-round effect: the owner corruption
+  witness checked probe names after accepting any validator error, rather than
+  proving the clean owner and each targeted property-specific red through the
+  real validator.
+- Minor test finding, no mechanism-round effect: aggregate absence used a key
+  regex that could miss a differently named field; the repair must assert the
+  complete allowed report/projection shapes.
+
+The root pre-repair audit added one new P38 mechanism case to the same batch:
+the route assertion name bound `/launch` (and its four siblings) but did not
+bind the ledger title's declared target. A same-source, different-target title
+could therefore stay `observed` against the real route test. The repair must
+inspect the imported runtime route object and bind both declared endpoints as
+well as the behavioral assertion.
+
+The focused C10 suite and both reviewer diagnostic runs changed no tracked
+byte. One reviewer repeated the known pre-existing C11 clean-tree nonreceipt:
+the combined health test remained 31/32 because its revision-byte control
+expected dirty `pyproject.toml`/`uv.lock` paths on a clean committed base. It is
+not a C10 finding or round. No source repair had begun when this classification
+was recorded.
+
+## DS6-C10-R1 mechanism review round 2 — 2026-08-18
+
+The round-1 repair candidate is preserved at
+`2c1df24b4b8e19a8edf1ea6d2c1d000fc045f84d`. It still changed exactly the four
+then-declared mechanism paths. Before review, the root focused run recomputed
+27/27 C10 semantic witnesses in 25.18 seconds, the app TypeScript project
+returned exit 0, scoped ESLint and Ruff returned exit 0, Python compilation and
+`git diff --check` returned exit 0, and the branch readback found the stable
+control plus the cited-byte and runtime-import bindings in that commit. These
+are `recomputed` candidate receipts, not a reconciliation outcome.
+
+Three independent read-only terra/luna reviews inspected that same frozen
+commit before any next edit, so they form mechanism round 2 rather than three
+rounds. Two reviewers independently falsified the exported CI helper by
+supplying a shape-valid positive observation with fabricated runner/report
+hashes; it returned green without resolving the closed persistence result.
+This Blocking/Important mechanism finding consumes round **2/2**. It is an
+instance of the already named
+`canonical-runner-provenance-and-single-intake-gap`, now at a sibling CI
+consumer, with P31/P32 authority-by-shape. The final permitted repair removes
+that public claim-shaped intake and makes each CI case look up its row only in
+the admitted projection produced by the fixed operation.
+
+The same frozen review returned one Important P29/P33 test finding with no
+mechanism-round effect: the synthetic `stable` test merely relabelled an
+implemented negative, so deleting the actual stable producer arm would not
+make it red. The final test must construct the row through the real stable
+producer branch, make the real Python stable admission accept only its
+unavailable basis, and then observe the distinct unavailable CI code.
+
+The remaining review claims were classified before repair:
+
+- Vite loader provenance was unbound. This is another instance of the existing
+  canonical-runner provenance class and is accepted for repair, together with
+  pre/post content checks for ordinary Node and Vitest mutation.
+- Duplicate JSON object names were accepted by the reused canonical-owner
+  validator. Python admission already rejects them in the ledger, but not in
+  the schema; this is a new P32 ambiguous-source class and is accepted for a
+  generic parser-level rejection plus a real `_load_json` witness.
+- Treating any nonzero Vitest suite exit as every row's negative/unavailable
+  fact is classified as a non-finding under the changed contract. A different
+  test or cleanup failure is a conjunction over unrelated assertions; copying
+  it onto each passing row recreates the refused aggregate. The owned per-row
+  assertion status remains the fact.
+- Persisting the raw Vitest suite report is classified as a non-finding. The
+  report is internal runner transport; the exact extracted row fact, runner,
+  test/source identities, and provenance are already content-addressed in the
+  claim report. Persisting the suite-level `success` conjunction would violate
+  the CI-only boundary.
+- A malicious concurrent swap-and-restore of installed Node/Vitest bytes is
+  outside the repository gate's threat model. The final repair detects
+  ordinary between-phase mutation with pre/post hashes; host immutability
+  remains an execution-regime assumption, never an artifact claim.
+
+The reviewers' reported focused reruns were independently reconciled as 27/27
+in 25.79 and 26.7 seconds; they are semantic-suite receipts, not a readiness
+PASS. No review changed a tracked byte. Adding the already reused
+`validate_atlas_health_sources.py` parser to the mechanism is declared before
+touch under P39: the mechanism measure becomes **5/16**, the mandatory
+companions remain three, and the complete cut becomes **eight paths**. The
+budget is exhausted. Any Blocking or Important mechanism finding against the
+next frozen candidate is classified as a third-round finding, preserved, and
+stopped without another repair.
+
+## DS6-C10-R1 terminal review and stopped disposition — 2026-08-18
+
+The final permitted repair is preserved at
+`6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`. Its source readback contained the
+five-path mechanism declared under P39: the per-claim reconciler, semantic/CI
+test, fixed MJS launcher from the prior repair, persistence/admission adapter,
+and canonical owner validator. Before freeze, the root recomputed 27/27 focused
+semantic witnesses in 28.19 seconds; app TypeScript, scoped ESLint, Ruff,
+Python compilation, `git diff --check`, and the canonical validator's nine
+built-in corruption probes all returned exit 0. Those are candidate/source
+receipts only. They are not an aggregate readiness outcome and do not discharge
+the terminal provenance finding below.
+
+Three independent read-only terra/luna reviewers inspected the same clean
+frozen commit. The authority reviewer returned no Blocking/Important mechanism
+finding and independently reran 27/27 tests in 28.92 seconds. The semantic
+reviewer likewise returned no Blocking/Important mechanism finding and reran
+27/27 in 28.8 seconds, but found one Important P29 test-only gap: the real
+stable producer and Python admission witness proves the valid unavailable row,
+yet does not corrupt its stable-specific reason to make deletion of that
+Python branch go red. Test additions do not consume a mechanism round, but the
+terminal mechanism stop below precludes a post-freeze edit. The CAS/provenance
+reviewer reran 27/27 and the canonical corruption probes, then returned one
+Important mechanism finding.
+
+The terminal finding is named `transitive-runner-closure-unbound`. The
+candidate hashes and pre/post checks Vite's `dist/node/index.js` and Vitest's
+`vitest.mjs`, but each entry executes additional unbound chunks. The concrete
+falsifier changes a loaded Vite dependency such as
+`vite/dist/node/chunks/config.js`, or a Vitest `dist/chunks/*` dependency,
+without changing either bound entry. The substituted loader can return a
+forged reconciler module, or the substituted test runner can emit passing JSON,
+while the candidate's recorded entry path/version/hash and Python admission
+remain green. This is a mechanism finding, not a docs/test finding.
+
+Classification occurred before stopping: this is another instance of the
+already named `canonical-runner-provenance-and-single-intake-gap`, at the
+transitive execution closure, with P32 trust-by-entry-file. It is **not a new
+class**. Because round 1 and round 2 had already consumed the fresh two-round
+budget, this terminal Blocking/Important review result is the third finding
+that invokes the breaker. The candidate is preserved at the commit above and
+no third repair is attempted. C10-R1 is stopped, the objective is not claimed
+complete, and the candidate is not controlling CI or audit authority.
+
+No expensive whole-suite wave was launched after the stop. That unlaunched
+wave is neither a timeout nor a result and supplies no test-count, timing, or
+shared-host receipt. No Playwright lane ran. No C03/C04/C06, C13, C14, DS8
+print, scenario-composer instability, frontend disposition register/checker,
+or foreign `catalog.py` byte was touched.
+
+## DS6-C10-R2 threat-model entry — 2026-08-18
+
+C10-R2 continues in the existing isolated worktree
+`.worktrees/atlas-ds6-c10r1` on attached branch
+`codex/atlas-ds6-c10r1-readiness-reconciliation`. At entry, current `main`
+resolved to `66d08f2871eee7e36e2af19d8a7c1bde557e63ad`; the required ancestor check
+proved `f6374868456dc45bedf197e53701bd83d7921daa` is in its history. The complete
+commit census was three commits after `f63748684`—the registered standing, GY
+Rev 44, and the data-forge catalog cache change—rather than the brief's
+two-commit shorthand. The branch merged that verified `main` at
+`7fa48a9d9089c12eaee5db21d094857e885761fc`. These ancestry and commit-count
+claims are `recomputed`; the merge changed no C10 path.
+
+Before the first R2 mechanism edit, the complete `main..HEAD` path census
+recomputed eight C10 paths. Under P39, five are mechanism paths: the typed
+per-claim reconciler, persistence/admission adapter, fixed MJS launcher,
+canonical-owner validator, and semantic/CI witnesses. The three mandatory
+record companions held outside the cap are this journal, the DS6 plan, and the
+governed reviewer reference. The published split is therefore **5/16
+mechanism paths plus 3 companions**, with all eight paths enumerated and no
+mechanism split across commits.
+
+R2 changes the contract by declaring the threat model, so its mechanism-round
+counter begins fresh at **0/2**. Every future Blocking/Important review finding
+is classified in writing before action. Caller/report/exit-code/status/basis,
+self-attested-field, or sibling-consumer evidence entering the reconciler is
+an **intake** finding and can consume a repair round. A further Vite/Vitest
+module, loader-resolution, Node-binary, or kernel-integrity example is a
+**runner-integrity** limitation example: it is folded into the declared
+limitation and does not trigger a code repair or consume a round. Ambiguity
+between those buckets stops for a ruling rather than being guessed.
+
+The canonical owner validator completed over its full source and schema and
+reported 261 readiness rows; a complete enumeration of those rows found five
+`readiness_state=implemented` claims and zero `maturity=stable` claims. Those
+three counts are `recomputed`, not sampled. The post-merge, pre-edit focused
+baseline completed at 27/27 tests in one file, with Vitest duration 48.06 s and
+`/usr/bin/time -p` wall 49.16 s (`user 46.62`, `sys 6.92`). This scoped run is
+a source baseline, not an aggregate readiness outcome and not the deferred
+whole-suite receipt.
+
+### Threat-model field, stable witness, and limitation falsifier
+
+The R2 implementation adds one required `attestation_scope` value to each
+`observed_by_reconciler` basis in both producer arms and makes Python admission
+require that exact value before persistence. The one-sentence value says the
+row attests intake closure and expressly does not attest unmodified runner code
+on disk. Because this is a required strict-artifact field, the report and
+projection schemas and their producer/admission component versions move from
+`1.0.0` to `2.0.0`; the cited-report schema remains `1.0.0` and separately
+reportable.
+
+TDD evidence is `recomputed`. Before source changed, the per-row persisted
+scope witness returned five intended failures and 27 skipped tests: all five
+live rows lacked `attestation_scope`. The stable/Python admission slice also
+failed as intended because the otherwise valid scoped stable row carried a key
+the old admission did not recognize. After the bounded source change, the
+combined scope/stable slice completed 6/6 with 26 skipped tests, and the schema
+version witness separately completed 1/1 with 32 skipped tests.
+
+The stable-specific P29 mutation falsifier temporarily removed only the Python
+condition that requires
+`canonical_stable_observer_not_registered`. The real stable control then
+incorrectly admitted the alternative `canonical_check_not_registered` reason,
+and the targeted test went red at its nonzero-exit assertion. Restoring that
+single condition returned the same targeted witness to 1/1. The mutation and
+restoration were performed with `apply_patch`; the weakened source is not a
+candidate or commit. This test-only closure does not consume a mechanism round.
+
+The bounded-limitation falsifier enumerated all **9,870 tracked files**. The
+complete search found supply-chain candidate terms in 386 files. Four producer
+term occurrences appeared in three files: two GitHub build-provenance action
+uses, one `cosign sign-blob` workflow template, and one operability-checker
+string. A verifier-pattern search returned one occurrence, the unrelated TEE
+`AttestationVerifier` platform protocol; after source inspection, zero
+qualifying paths independently verify or consume an identity binding for the
+C10 runner/module closure. Existing in-repository SLSA/audit code produces and
+verifies its own package material and does not bind this runner. The absence
+result and counts are `recomputed`; release-time external execution is
+`not_established`.
+
+The limitation is therefore registered in Task 10 as the named residual
+`transitive-runner-closure-unbound`, with closure owner `absent/unallocated`.
+Its exact falsifier remains a modified transitive Vite/Vitest chunk forging
+module loading or passing JSON while bound entry identity stays green. It does
+not affect the closed intake paths. The smallest closing capability is an
+out-of-band signed runner/build identity or attestation produced outside this
+repository and independently verified before admission. This is the
+runner-integrity bucket, not a repair-round finding; the R2 counter remains
+**0/2** before independent review.
+
+Pre-freeze verification remained scoped. The complete C10 semantic file
+completed **33/33 tests in 1/1 file**, with Vitest duration 22.05 s and
+`/usr/bin/time -p` wall 22.58 s (`user 25.82`, `sys 3.56`). The app TypeScript
+project and scoped two-file ESLint population both exited 0. Ruff over the two
+Python mechanism paths, Python compilation, and `git diff --check` exited 0;
+the canonical owner validator's complete built-in corruption denominator
+returned **9/9** named probes. These are `recomputed` candidate receipts, not
+an aggregate readiness result.
+
+The R2 working delta touches three of the five already declared mechanism
+paths—the reconciler, persistence/admission, and semantic witnesses—and all
+three mandatory companions. The unchanged fixed launcher and canonical-owner
+validator remain part of the reviewed five-path mechanism. Thus the P39 measure
+remains **5/16 mechanisms plus 3 companions**, not a six-path redefinition.
+
+### R2 frozen-candidate review batch and round-1 classification
+
+Three independent adversaries reviewed frozen candidate
+`c1354ec7a9664ae86275b025fb2a0c4dc0726d79` against its entry record
+`cb0273ba4`. The authority/intake reviewer returned one Important finding: the
+single `attestation_scope` sentence says that every row's fact came from
+running the canonical check, but the live synthetic `stable` arm correctly
+emits `observation_unavailable` with no runner, report, assertion, or route.
+Python nevertheless admits that internally contradictory sentence. This is
+classified **bucket A — intake mechanism**: a persisted self-attestation is
+false for one admitted producer arm. It is not runner-code integrity. The
+classification was made before repair, and it consumes fresh R2 mechanism
+repair round **1/2**.
+
+The semantics/three-state and CAS/projection reviewers returned no additional
+Blocking or Important intake finding. Both independently reproduced the
+modified-transitive-chunk scenario already named
+`transitive-runner-closure-unbound`. Each reproduction is classified **bucket
+B — runner-integrity limitation**: it changes code loaded behind the bound
+entry without introducing caller/report/exit/status/basis or sibling-consumer
+intake. Under the R2 ruling, those worked examples are folded into the declared
+limitation, trigger no code change, and consume no repair round. The complete
+batch therefore consumes one round, not three. These classifications and the
+review findings are `independently_reconciled`; the root's bucket assignment is
+`recomputed` from the finding scenarios and the R2 boundary.
+
+Round-1 repair keeps one required sentence but makes its subject the admitted
+row rather than a necessarily completed claim check: this process runs every
+available applicable canonical check itself and records an unavailable claim
+check as unavailable. The stable witness now also pins `runner`,
+`report_sha256`, `assertion_name`, `assertion_status`, and `runtime_route` to
+null. In the TDD red, that real stable row still carried the old contradictory
+sentence and the targeted witness failed 1/1 with 32 skipped tests. After the
+TypeScript producer, Python admission constant, plan, and reference moved to
+the truthful exact value, the same witness completed 1/1 with 32 skipped.
+
+The repaired complete C10 semantic denominator completed **33/33 tests in 1/1
+file**, with Vitest duration 22.01 s and `/usr/bin/time -p` wall 22.58 s
+(`user 26.17`, `sys 3.31`). The app TypeScript project, scoped two-file ESLint
+population, Ruff over both Python mechanism paths, Python compilation, and
+`git diff --check` each exited 0. These repair receipts are `recomputed`. They
+are scoped source verification, not an aggregate readiness result and not the
+deferred whole-suite receipt.
+
+### R2 delta re-review and serialized-wave declaration
+
+All three adversaries independently reviewed repair commit
+`c186885010ad74d995d438f928e61b74de8a61d3` and its exact
+`c1354ec7a..c18688501` delta. Authority/intake, semantics/three-state, and
+CAS/projection each returned zero Blocking or Important bucket-A intake
+findings. The latter two again reproduced only the already declared
+`transitive-runner-closure-unbound` scenario, classified bucket B and folded
+into the limitation without code change or round effect. The stable row's
+non-null Node executable is producer-process provenance, not a claim-check
+result: its runner, report, assertion, and route facts are null, so the absent
+stable observer is not described as executed. That reviewer note is therefore
+not a finding and creates no bucket ambiguity. These review results are
+`independently_reconciled`; the mechanism source is frozen at `c18688501` with
+R2 repair use **1/2**.
+
+Before launch, the whole-suite Vitest ceiling is declared as **1,800 s**. The
+institutionally supplied C16 measure is 515.40 s wall / 512.94 s Vitest over
+317/317 files and 983/983 tests; the selected ceiling adds 1,284.60 s of
+shared-host allowance, or 3.49 times the historical wall. The command is
+`/usr/bin/time -p corepack pnpm exec vitest run --reporter=json
+--outputFile=../../_build/apps/runtime-dashboard/ds6-c10-r2-c18688501-vitest-final.json`,
+enforced by a process-group watchdog that exits 124 at the declared ceiling.
+The output path did not exist before launch.
+
+The declared shared-host regime is
+`two-external-lanes-institutionally-supplied; no-competing-heavy-process-observed`.
+The DS5 frontend and GY validator lanes are `institutionally_supplied`. A
+complete launch-time process census over the selected Vitest/Pytest/
+Playwright-test/Storybook/build/verify patterns found zero active test or build
+lane; its 14 matches were seven long-lived Playwright MCP service parent/child
+pairs, not visual-test processes. That process classification is `recomputed`.
+The pre-launch uptime observation was `17:24 up 1 day, 22:55`, with load
+averages 4.14/3.77/3.45. Root remains the sole launcher, this is the only heavy
+DS6 process, and no Playwright visual lane will run.
+
+### First whole-suite launch: setup nonreceipt and governed rerun
+
+The first launch completed before the 1,800 s ceiling and wrote 393,234 JSON
+bytes with SHA-256
+`8ed0585f16a7db35b3b4ddb0af261fd9c8feb9af89d47988416200d0e74996e6`,
+but exited 1. `/usr/bin/time -p` reported wall 171.33 s, user 853.31 s, and
+sys 153.98 s. The immediate launch uptime was `17:26 up 1 day, 22:56` with
+load 4.46/3.97/3.56; post-run it was `17:29 up 1 day, 22:59` with load
+16.73/10.51/6.40.
+
+The complete JSON denominator contains 319 file records: 317 passed and two
+failed. Its 1,038 assertion records contain 1,036 passed and two failed, with
+zero pending or todo. Separately, Vitest's aggregate `numTotalTestSuites` field
+reports 650 suites, 646 passed and four failed; this journal does not infer
+file counts from that differently defined field. The complete C10 file passed
+33/33 assertions. C08 passed 15/16 and C11 passed 21/22.
+
+Both failures were traced before any repair. C08 attempted `mkdtemp` under the
+absent `_build/apps/runtime-dashboard` parent; the JSON reporter created that
+parent only after test execution. Once the parent existed, the exact targeted
+C08 test completed 1/1 with 15 skipped. This is a setup nonreceipt, not a C10
+mechanism finding. C11 independently reproduced its one failure with 21
+skipped: a clean committed checkout correctly returns an empty
+`non_revision_paths`, while the C11 assertion still expects the dirty-candidate
+`pyproject.toml` and `uv.lock` paths. The R1 entry had already recorded this
+same clean-worktree C11 nonreceipt before any C10 source existed and ruled it
+out of C10 repair without a scoped C11 ruling. It remains a pre-existing C11
+test pin, not a C10 finding and not a repair round. These diagnosis results and
+targeted reruns are `recomputed`.
+
+Because the first launch contained a setup nonreceipt, one governed whole-suite
+rerun is declared against the unchanged frozen source. Its ceiling remains
+**1,800 s**, its shared-host regime remains
+`two-external-lanes-institutionally-supplied; no-competing-heavy-process-observed`,
+and its unique output is
+`../../_build/apps/runtime-dashboard/ds6-c10-r2-c18688501-vitest-rerun.json`.
+Immediately before this declaration the required scratch parent existed, the
+output did not, and the selected heavy-process census was empty. Uptime was
+`17:33 up 1 day, 23:03`, with load 2.47/5.82/5.34. No tracked source changes,
+no mechanism round, and no Playwright lane intervene between launches.
+
+### Governed rerun, closeout pattern pass, and local landing
+
+The governed rerun completed before its ceiling with process exit 1 and wrote
+391,704 JSON bytes with SHA-256
+`d4c6f10f15e30e0c176e4f3dc2235c319fab401149453d5c963c474fc1f85a89`.
+`/usr/bin/time -p` reported wall 100.03 s, user 591.82 s, and sys 101.19 s.
+The immediate pre-run uptime was `17:34 up 1 day, 23:04` with load
+1.99/4.96/5.05; post-run it was `17:36 up 1 day, 23:06` with load
+8.63/6.94/5.84.
+
+The independently parsed complete denominator contains 319 file records: 318
+passed and one failed. Its 1,038 assertion records contain 1,037 passed and one
+failed, with zero pending or todo. Vitest's separate suite fields report
+650 total, 648 passed, and two failed. C10 completed 33/33; C08 completed
+16/16; C11 completed 21/22. The sole failure is the already governed C11
+clean-worktree replay pin at `atlasHealthMetrics.test.ts:649`, which received an
+empty and correct committed-revision path set instead of its dirty-candidate
+expectation. Thus the setup rerun introduced no new failure, and no C10
+mechanism finding exists in the full wave. These counts and failure identity
+are `recomputed` from every JSON file/assertion record. The process exit is a
+repository test-execution fact, not a C10 row fact or aggregate reconciliation
+status, and it is not copied into any report or projection.
+
+The closeout pattern pass re-opened the failure register. P29 is witnessed by
+the real producer, Python admission, stable-reason mutation red, and canonical
+owner corruption reds. P31/P32 are closed by the one fixed request intake,
+one admitted projection consumer, exact cited bytes, CAS resolution/content
+binding, and no sibling claim-shaped CI intake. P35 uses the complete 261-row
+ledger and 319-file/1,038-assertion test denominators. P37 freezes each row's
+predicate provenance and fails closed on `not_established`; P38 names the
+transitive-runner divergence as the bounded residual instead of calling the
+entry hash runner integrity. P39 remains five mechanism paths under cap 16,
+with the plan, journal, and reviewer reference as three named companions.
+
+C10-R2 is therefore landed locally on attached branch
+`codex/atlas-ds6-c10r1-readiness-reconciliation`, with mechanism source
+`c186885010ad74d995d438f928e61b74de8a61d3` and **1/2** repair rounds used.
+Existing Vitest discovery now invokes one gate per admitted top-level
+`stable`/`implemented` row. Only that row's own
+`observed_by_reconciler/observed` basis is green; completed negatives,
+unavailable observations, cited bases, missing rows, and extra rows are red.
+Core CAS exposes the same five current rows and bases under authority limited
+to `surface_readiness_claim_basis_audit`. This is controlling mechanism
+placement, not a claim that the ledger, the five rows together, or any surface
+is `stable`. No C11, C03/C04/C06, C13/C14, DS8, frontend-register, GY, foundry,
+scenario-composer, or Playwright visual source was changed.
+
+Final pre-commit readback recomputed the complete `main..HEAD` cut as the same
+eight paths: **5/16 mechanisms plus 3 companions**, with zero additional or
+out-of-scope paths. The final focused C10 command completed 33/33 tests in one
+file with Vitest duration 19.33 s and `/usr/bin/time -p` wall 19.82 s
+(`user 23.02`, `sys 2.81`). `git diff --check` remained clean. These are final
+source/readback receipts, not a row conjunction or readiness outcome.

@@ -59,8 +59,20 @@ class AtlasHealthSourceError(ValueError):
     """Report a fail-closed canonical-source validation error."""
 
 
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise AtlasHealthSourceError(f"duplicate JSON key: {key}")
+        value[key] = item
+    return value
+
+
 def _load_json(path: Path) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
+    value = json.loads(
+        path.read_text(encoding="utf-8"),
+        object_pairs_hook=_reject_duplicate_keys,
+    )
     if not isinstance(value, dict):
         raise AtlasHealthSourceError(f"{path} must contain one JSON object")
     return value

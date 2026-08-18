@@ -515,3 +515,38 @@ recomputed for every value; institutionally_supplied for the acceptance predicat
 }
 ```
 <!-- GY-DEFC-9-CONFIDENCE-DECLARATION-END -->
+
+## Item 4 accepted confidence reissue
+
+The declaration-bound consumer launched the canonical writer against only the ignored stage. It
+completed in `1,106.613387` wrapper seconds, within the declared `6,497.873368` s ceiling, with
+child/wrapper exit `0`, no timeout, `status=pass`, `issues=[]`, two byte-stable passes, cold/warm byte
+identity, all `50` corrupt-field cases, a clean process group, a started second pass, and no worker
+termination. Producer wall time was `1,094.449343` s: first derivation `1,057.445377` s and cache-hit
+derivation `21.223791` s. All `54/54` unique objective-progress ordinals completed through the second
+`stage_complete`. `[P37: recomputed for the execution and complete terminal; institutionally_supplied
+for the ceiling and shared-host allowance]`
+
+The staged, declared-candidate, and governed files are byte-identical: each is `977,814` bytes at
+file SHA `4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9`
+with embedded identity
+`sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71`.
+The complete post-write audit reproduced all `143/143` declared rows and category counts, both source
+maps, all four zero comparison-key counts, the `14,162/111` leaf/null denominators, and zero-issue
+internal validation before staging, after staging, and after promotion. `[P37: recomputed]`
+
+Exactly one of all `453` pins changed: the governed confidence artifact. The post-write pin-map hash
+is `05187beeffe6a0a09be577f9bdb142437b2c9d2568cd9bc9da99fadda9da9839`.
+The deployment identity is now bound as
+`policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f`.
+The acceptance audit returned `status=accepted`, `promoted=true`, `restored=false`; its SHA is
+`c7559d1e90f197603067c8e63ea03cc1f6034ccc3f8894388870c4fdb33eef47`.
+Writer stdout/stderr are `154,178/21,695` bytes at SHA
+`a7cc109765133048715e10f930e244bb200aec51a4228db1d85d6d8605244621` /
+`d3d5f54808f0a9c085924acf482c2d1f5db5637abe1f412879efa45dda00728e`.
+`[P37: recomputed]`
+
+Item 4 is green and committed at `8ae3facde…`. Its two repair rounds are spent and no third finding
+occurred. The single Item 5 cold N11 allowance remains unspent; the confidence writer is Item 4's
+deployment reissue, not the registered N11 live-contract run. `[P37: recomputed for commit/readback
+and allowance use; institutionally_supplied for item classification]`

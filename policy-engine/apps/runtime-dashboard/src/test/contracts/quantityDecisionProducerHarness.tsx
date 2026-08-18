@@ -18,6 +18,12 @@ import * as runSummaryModule from "@/features/runs/routes/useRunDetailSummary";
 import { ChartQuantityEvidence } from "@/shared/charts/quantityChartSemantics";
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import { Quantity } from "@/shared/ui/quantity";
+import {
+  OUTER_SET_GAP_TOKEN,
+  OUTER_SET_NO_ADMISSIBLE_RANKING_TOKEN,
+  OuterSetValue,
+  OuterSetValueStateCell,
+} from "@/shared/ui/quantity/OuterSetValue";
 import type { QuantityValue } from "@/shared/ui/quantity/quantity.types";
 
 type UnknownRecord = Record<string, unknown>;
@@ -387,15 +393,18 @@ export const unknownValuedQuantity = grammarQuantity("ds16.unknown_reference");
  * distinct. C07/C08 resolve these tokens through DS6's catalog when the copy
  * is actually owned.
  */
-export const GAP_STATE_TOKEN = "ds16.value_state.no_observation_in_period";
-export const NO_ADMISSIBLE_RANKING_TOKEN =
-  "ds16.comparison.no_admissible_ranking_exists";
+// C07 moved these into the production component that renders them; the harness re-exports
+// so C01's expectations bind the real tokens rather than a test-local copy of them.
+export const GAP_STATE_TOKEN = OUTER_SET_GAP_TOKEN;
+export const NO_ADMISSIBLE_RANKING_TOKEN = OUTER_SET_NO_ADMISSIBLE_RANKING_TOKEN;
 
 // -- negative 1: a set-valued value rendered as a point estimate -------------
 
 /** Compliant: the production seam keeps every member and declares cardinality. */
 export function renderOuterSetAsSet(): ReactElement {
-  return <ChartQuantityEvidence value={outerSetMembers} />;
+  // C07: the real family, which composes the existing set-vs-point seam rather than
+  // reducing the members first.
+  return <OuterSetValue comparison={null} members={outerSetMembers} />;
 }
 
 /**
@@ -487,6 +496,8 @@ export function renderModelOutputStyledAsObserved(): ReactElement {
 
 // -- negative 5: unknown, zero and gap are three states, not two -------------
 
+/** C07: the real component now renders every value-state cell, compliant and violating
+ * alike, so the negatives discriminate production code rather than fixture markup. */
 function ValueStateCell({
   state,
   value,
@@ -494,20 +505,7 @@ function ValueStateCell({
   state: RenderedValueState;
   value: QuantityValue;
 }) {
-  const absent =
-    state === "gap"
-      ? {
-          absentValue: (
-            <span data-testid="ds16-gap-marker">{GAP_STATE_TOKEN}</span>
-          ),
-          absentValueLabel: GAP_STATE_TOKEN,
-        }
-      : {};
-  return (
-    <span data-testid="ds16-value-state" data-value-state={state}>
-      <Quantity provenanceMode="off" value={value} {...absent} />
-    </span>
-  );
+  return <OuterSetValueStateCell state={state} value={value} />;
 }
 
 /** Compliant: three states, three distinct rendered signatures. */
@@ -561,16 +559,10 @@ export function renderGapAsZero(): ReactElement {
  * no list ordinals, no rank, no set-position semantics.
  */
 export function renderIncomparableAsFrontier(): ReactElement {
-  return (
-    <ul data-comparison="incomparable" data-testid="ds16-comparison">
-      <li>{NO_ADMISSIBLE_RANKING_TOKEN}</li>
-      {outerSetMembers.map((member) => (
-        <li key={member.metric_id}>
-          <Quantity provenanceMode="off" value={member} />
-        </li>
-      ))}
-    </ul>
-  );
+  // C07: the real family renders this. `incomparable` is a producer verdict about the
+  // VALUES; the family has no ranking path at all, because the authorization type that
+  // would license one does not exist.
+  return <OuterSetValue comparison="incomparable" members={outerSetMembers} />;
 }
 
 /** VIOLATING: the same incomparable members sorted and given rank positions. */

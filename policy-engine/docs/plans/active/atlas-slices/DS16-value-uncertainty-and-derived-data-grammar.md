@@ -35,11 +35,14 @@ This matters because `DS17` and `DS18` *are* behind N11/N12 and DS16 is often gr
 **Substrate measured present, both halves:**
 - value: `src/polisyos/core/contracts/value_outer_set.py`; `ValueOuterSet` in
   `architecture/policy_design_case/layer3_gy_value_gate_contract.json`;
-- derived: `src/polisyos/runtime/quality/derived_observations.py`;
-  `derivation_certificate` / `provenance_class` already present in
-  `schemas/runtime_api_v1.openapi.json` and `core/contracts/policy_design_case_projection.py`.
-  `GY-N13a`/`GY-N13b` are recorded executed, so the derived half is not gate-blocked —
-  **but confirm the certificate shape before consuming it; do not infer it from a name.**
+- derived: `src/polisyos/runtime/quality/derived_observations.py` — **CORRECTED by C08/C09/C10
+  (2026-08-17), the original claim here was wrong.** `derivation_certificate` has **0 occurrences**
+  in `schemas/runtime_api_v1.openapi.json`; the type exists only in Python. The served
+  `provenance_class` on `core/contracts/policy_design_case_projection.py` is
+  `ParticipationProvenanceClass` (ADR-0167), a **different vocabulary with a different owner**, not
+  the `ObservationProvenanceClass` DS16 needs — which is served nowhere. `GY-N13a`/`GY-N13b` being
+  executed does not make the derived half *served*: the substrate is real and exercised, the bridge
+  is absent. See the C08/C09/C10 outcome section.
 
 ## 2. The finding that shapes the whole slice — read before planning any cluster
 
@@ -500,6 +503,76 @@ only; no transform-planner UI — the GY plan defers transform chains.
 ### C10 — Provenance-class marking
 
 `observed` / `derived` / `deployment_update` wherever data is decision-bearing.
+
+#### C08/C09/C10 outcome — MEASURED, NOT BUILT (2026-08-17): a terminal for the grammar body
+
+**MERGE HOLD STANDS.** `codex/gy-defc-3-retry` is still spending its single authorized cold `N11`.
+
+**This cluster stopped deliberately.** Two of its stop-rule conditions are met, and the overriding
+question it was given — whether the grammar body is implementable in its planned scope — resolves to
+**no, but not for the reason C03 and C07 resolved that way.**
+
+**§1 of this plan contains an architect error, corrected here.** It states `derivation_certificate` is
+"already present in `schemas/runtime_api_v1.openapi.json`". Measured: **0 occurrences in the entire
+schema document.** The file-level grep that produced that claim matched `provenance_class` and was
+attributed to the wrong token.
+
+| cluster | gap kind | measurement |
+|---|---|---|
+| C08 basis chips | **bridge** (buildable) | `BasisSignature`, `BasisAttribute`, `BasisParameterBinding` live in `src/polisyos/runtime/quality/derived_observations.py` — the **runtime** tree — and the module has real callers. Served: **0**. |
+| C09 derivation recipe | **bridge** (buildable) | `DerivationRecipe` (:592) and `DerivationCertificate` (:695) exist; `build_derivation_recipe` has **32 call sites**, `persist_source_series` 8, `persist_transform_family_registry` 6. Served: **0**. |
+| C10 provenance marking | **name collision + absent producer** | See below. Not a type gap. |
+
+**C08/C09 are decisively unlike C07.** `ValueOuterSet` was unfoundable — its only construction was an
+empty placeholder and `.compare()` had zero callers. The derivation machinery is genuinely exercised
+by five `tools/quality/validation/**` GY validators. The substrate is real; only the bridge is missing.
+
+**C10's premise was wrong, and this is the cluster's sharpest finding.** The single served
+`provenance_class` (`PolicyDesignCaseParticipationRequirementProjection`, typed bare `string`,
+`minLength: 1`) does **not** carry DS16's concept. It carries `ParticipationProvenanceClass` — ADR-0167
+participation grades `A_representative_population` / `B_structured_deliberative_or_process` /
+`C_attributable_nonrepresentative` / `D_unverifiable_or_speculative` — owned by
+`src/polisyos/participation_requirement/`. DS16's concept is `ObservationProvenanceClass`
+(`observed` / `proxy` / `derived` / `model_output`), which is served **nowhere**: `observation_class`
+**0**, `model_output` **0**, `proxy` **0**, `derived` **0**.
+
+Same token, two unrelated vocabularies, two owners. **Narrowing the served field would (a) move a
+producer DS16 does not own and (b) narrow the wrong concept entirely** — the C10 stop-rule condition,
+met exactly. Not narrowed; registered instead.
+
+**Why the grammar body has no mount point, which is the real terminal.** C03 established that all
+eleven DS16 authority families are refusals. So both DS16-owned panels render **refusal strings and no
+quantities at all** — measured, zero `Quantity` references in either panel. There is therefore
+nothing unit-bearing to attach a basis chip to, nothing derived to open a recipe for, and no
+decision-bearing value to mark with a provenance class. The blocker is not an absent substrate; it is
+that **this slice's surfaces carry no values to decorate.**
+
+**The C07 family found no honest mount point, for the same reason.** `OuterSetValue` remains built,
+proven against C01's negatives and a11y-clean, with zero production importers. Mounting it over a
+refusal string to give it a home would be the fabrication C07 explicitly refused.
+
+**A further subtlety for whoever builds C08.** `BasisSignature.attributes` is
+`tuple[BasisAttribute, ...]` of free `{name, value}` strings, and `attribute()` is documented as
+returning a declared attribute *"without assigning vocabulary meaning"*. The substrate is
+**deliberately vocabulary-neutral**. The plan's chip design — `real, base-2020, deflator=CPI` —
+presumes a vocabulary the substrate declines to define, so an honest chip renders the owner-declared
+attributes verbatim and must not interpret them.
+
+**Registered dependencies (three, added to C07's three):**
+
+| dependency | measured | owner | consumer |
+|---|---|---|---|
+| basis bridge (`BasisSignature` → schema) | substrate real, 0 served | DS16 (bridge) / GY-N13b (substrate) | C08 basis chip |
+| derivation bridge (`DerivationRecipe`/`DerivationCertificate` → schema) | substrate real, 32 call sites, 0 served | DS16 (bridge) / GY-N13b | C09 recipe popover |
+| run-scoped `ObservationProvenanceClass` producer + served field | 0 served under any name | `data_forge` catalog / GY-N13b | C10 marking, C01 negative 3 |
+
+**C01's negative 3 stays fixture-bound, and that is the honest outcome.** It was to be rebound to the
+real marking; no real observation-provenance marking exists to bind to, because the concept is served
+nowhere. The negative remains proven non-vacuous against its fixture and is registered as blocked on
+the third dependency above.
+
+**Nothing was built and nothing was narrowed**, so no gate moved: guardrails, schema, generated client
+and the served contract are untouched by this cluster.
 
 ### C11 — Disposition register closure
 

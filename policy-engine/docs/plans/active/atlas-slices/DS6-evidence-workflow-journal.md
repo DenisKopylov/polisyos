@@ -4185,3 +4185,44 @@ pairs, not visual-test processes. That process classification is `recomputed`.
 The pre-launch uptime observation was `17:24 up 1 day, 22:55`, with load
 averages 4.14/3.77/3.45. Root remains the sole launcher, this is the only heavy
 DS6 process, and no Playwright visual lane will run.
+
+### First whole-suite launch: setup nonreceipt and governed rerun
+
+The first launch completed before the 1,800 s ceiling and wrote 393,234 JSON
+bytes with SHA-256
+`8ed0585f16a7db35b3b4ddb0af261fd9c8feb9af89d47988416200d0e74996e6`,
+but exited 1. `/usr/bin/time -p` reported wall 171.33 s, user 853.31 s, and
+sys 153.98 s. The immediate launch uptime was `17:26 up 1 day, 22:56` with
+load 4.46/3.97/3.56; post-run it was `17:29 up 1 day, 22:59` with load
+16.73/10.51/6.40.
+
+The complete JSON denominator contains 319 file records: 317 passed and two
+failed. Its 1,038 assertion records contain 1,036 passed and two failed, with
+zero pending or todo. Separately, Vitest's aggregate `numTotalTestSuites` field
+reports 650 suites, 646 passed and four failed; this journal does not infer
+file counts from that differently defined field. The complete C10 file passed
+33/33 assertions. C08 passed 15/16 and C11 passed 21/22.
+
+Both failures were traced before any repair. C08 attempted `mkdtemp` under the
+absent `_build/apps/runtime-dashboard` parent; the JSON reporter created that
+parent only after test execution. Once the parent existed, the exact targeted
+C08 test completed 1/1 with 15 skipped. This is a setup nonreceipt, not a C10
+mechanism finding. C11 independently reproduced its one failure with 21
+skipped: a clean committed checkout correctly returns an empty
+`non_revision_paths`, while the C11 assertion still expects the dirty-candidate
+`pyproject.toml` and `uv.lock` paths. The R1 entry had already recorded this
+same clean-worktree C11 nonreceipt before any C10 source existed and ruled it
+out of C10 repair without a scoped C11 ruling. It remains a pre-existing C11
+test pin, not a C10 finding and not a repair round. These diagnosis results and
+targeted reruns are `recomputed`.
+
+Because the first launch contained a setup nonreceipt, one governed whole-suite
+rerun is declared against the unchanged frozen source. Its ceiling remains
+**1,800 s**, its shared-host regime remains
+`two-external-lanes-institutionally-supplied; no-competing-heavy-process-observed`,
+and its unique output is
+`../../_build/apps/runtime-dashboard/ds6-c10-r2-c18688501-vitest-rerun.json`.
+Immediately before this declaration the required scratch parent existed, the
+output did not, and the selected heavy-process census was empty. Uptime was
+`17:33 up 1 day, 23:03`, with load 2.47/5.82/5.34. No tracked source changes,
+no mechanism round, and no Playwright lane intervene between launches.

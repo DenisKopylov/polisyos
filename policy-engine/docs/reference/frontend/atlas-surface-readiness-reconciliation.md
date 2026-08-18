@@ -2,16 +2,38 @@
 
 Freshness: 2026-08-18
 
+Status: stopped candidate; not controlling CI or audit authority
+
 Owner: `team-frontend`
 
-Closed producer:
+Preserved candidate: `6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`
+
+Candidate closed producer:
 `apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs`
 
 Persistence operation: `persist_atlas_surface_readiness_claims`
 
-DS6-C10-R1 reports the basis of each gated top-level claim in the canonical
-surface-readiness ledger. It does not issue a reconciliation verdict, grant
-`stable`, or compose several rows into a stronger claim.
+The preserved DS6-C10-R1 candidate reports the basis of each gated top-level
+claim in the canonical surface-readiness ledger. It does not issue a
+reconciliation verdict, grant `stable`, or compose several rows into a stronger
+claim. The mechanism is stopped and this document does not promote it to
+controlling CI/audit authority.
+
+## Stop disposition
+
+The fresh two-round repair budget was exhausted. Terminal independent review
+found `transitive-runner-closure-unbound`: the candidate content-binds the Vite
+and Vitest entry files but not the transitive chunks those entries execute. A
+changed Vite `dist/node/chunks/*` loader or Vitest `dist/chunks/*` runner can
+forge execution while the recorded entry path, version, and SHA-256 remain
+green. The finding is an instance of the already named
+`canonical-runner-provenance-and-single-intake-gap`, with P32, rather than a new
+class. The final candidate is preserved at the commit above and no third repair
+is attempted.
+
+The rows and receipts below describe the preserved candidate at their exact
+strength. They do not constitute an aggregate PASS, an accepted C10-R1
+mechanism, or authority for `stable`/`implemented`.
 
 ## Gated claim population
 
@@ -141,7 +163,7 @@ is called, calls the gate, and compares the bytes afterward. Removing the gate
 call leaves every artifact byte unchanged. Therefore the exit calculation is
 not carrying artifact information under another name.
 
-From `apps/runtime-dashboard`, the focused acceptance command is:
+From `apps/runtime-dashboard`, the focused diagnostic command is:
 
 ```bash
 corepack pnpm exec vitest run \
@@ -154,3 +176,5 @@ integrity and lineage, owner corruption, denied request and environment
 intake, both cited-status mismatch directions, valid cited evidence, distinct
 negative/unavailable states, the zero-instance stable arm, exactly-one-basis
 shape, aggregate-field absence, and the CI/artifact-independence falsifier.
+They do not bind the transitive Vite/Vitest execution closure and therefore do
+not close the stopped finding.

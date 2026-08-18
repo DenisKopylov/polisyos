@@ -561,17 +561,23 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: C10-R1 final permitted mechanism repair entered 2026-08-18 from
-current `main` `f63748684`; the first candidate is preserved at `b0e557c04`
-and the round-1 repair candidate at `2c1df24b4`.** This is a fresh two-round
-mechanism budget
+**Status: C10-R1 stopped on the terminal post-round-2 review on 2026-08-18;
+the final candidate is preserved at
+`6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`.** The terminal Important finding
+is `transitive-runner-closure-unbound`: the candidate binds the Vite and Vitest
+entry files but not the transitive chunks those entries execute. It is an
+instance of the already named
+`canonical-runner-provenance-and-single-intake-gap`, with P32, not a new class.
+No third repair is attempted. This was a fresh two-round mechanism budget
 because the contract changed from one aggregate reconciliation Boolean to one
 separately based row per gated top-level claim. The preserved stopped attempt
 at `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
 `a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only; none of its
 source is continued. The fresh budget is **2/2 consumed**. Any Blocking or
-Important mechanism finding against the final repair is a third-round finding:
-classify it, preserve the candidate, and stop without another repair.
+Important mechanism finding against the final repair was a third-round finding;
+it has been classified, preserved, and stopped without another repair. The
+objective is not claimed complete, the candidate is not controlling CI/audit
+authority, and no surface-readiness `stable` claim is made.
 
 **C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
 `PV-K01` is ratified for public verification: it requires separately
@@ -676,6 +682,20 @@ aggregate `success` would violate the CI-only conjunction boundary. A
 swap-and-restore by a concurrent writer with control of installed executables
 remains outside this repository gate's threat model, while ordinary mutation
 is closed by pre/post content checks.
+
+Terminal review of frozen final candidate `6906777f4` returned no
+Blocking/Important mechanism finding from two reviewers and one Important
+mechanism finding from the independent CAS/provenance reviewer. The concrete
+falsifier modifies a loaded Vite chunk such as
+`vite/dist/node/chunks/config.js`, or a Vitest `dist/chunks/*` dependency,
+while leaving the bound entry and package files unchanged. The modified code
+can forge module loading or a passing JSON assertion report while all recorded
+entry hashes remain green. This is the terminal third finding described in the
+status paragraph. One additional P29 test-only finding remains recorded: the
+stable admission witness exercises the valid stable-unavailable row but does
+not corrupt its stable-specific reason to prove that Python branch red. The
+stop precludes even that post-freeze test edit. The expensive verification wave
+was not launched after the stop and supplies no receipt.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 

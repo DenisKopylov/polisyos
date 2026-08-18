@@ -3949,3 +3949,53 @@ companions remain three, and the complete cut becomes **eight paths**. The
 budget is exhausted. Any Blocking or Important mechanism finding against the
 next frozen candidate is classified as a third-round finding, preserved, and
 stopped without another repair.
+
+## DS6-C10-R1 terminal review and stopped disposition — 2026-08-18
+
+The final permitted repair is preserved at
+`6906777f4dfc13c3ee81e6a60dc4eacf7f5aa0fd`. Its source readback contained the
+five-path mechanism declared under P39: the per-claim reconciler, semantic/CI
+test, fixed MJS launcher from the prior repair, persistence/admission adapter,
+and canonical owner validator. Before freeze, the root recomputed 27/27 focused
+semantic witnesses in 28.19 seconds; app TypeScript, scoped ESLint, Ruff,
+Python compilation, `git diff --check`, and the canonical validator's nine
+built-in corruption probes all returned exit 0. Those are candidate/source
+receipts only. They are not an aggregate readiness outcome and do not discharge
+the terminal provenance finding below.
+
+Three independent read-only terra/luna reviewers inspected the same clean
+frozen commit. The authority reviewer returned no Blocking/Important mechanism
+finding and independently reran 27/27 tests in 28.92 seconds. The semantic
+reviewer likewise returned no Blocking/Important mechanism finding and reran
+27/27 in 28.8 seconds, but found one Important P29 test-only gap: the real
+stable producer and Python admission witness proves the valid unavailable row,
+yet does not corrupt its stable-specific reason to make deletion of that
+Python branch go red. Test additions do not consume a mechanism round, but the
+terminal mechanism stop below precludes a post-freeze edit. The CAS/provenance
+reviewer reran 27/27 and the canonical corruption probes, then returned one
+Important mechanism finding.
+
+The terminal finding is named `transitive-runner-closure-unbound`. The
+candidate hashes and pre/post checks Vite's `dist/node/index.js` and Vitest's
+`vitest.mjs`, but each entry executes additional unbound chunks. The concrete
+falsifier changes a loaded Vite dependency such as
+`vite/dist/node/chunks/config.js`, or a Vitest `dist/chunks/*` dependency,
+without changing either bound entry. The substituted loader can return a
+forged reconciler module, or the substituted test runner can emit passing JSON,
+while the candidate's recorded entry path/version/hash and Python admission
+remain green. This is a mechanism finding, not a docs/test finding.
+
+Classification occurred before stopping: this is another instance of the
+already named `canonical-runner-provenance-and-single-intake-gap`, at the
+transitive execution closure, with P32 trust-by-entry-file. It is **not a new
+class**. Because round 1 and round 2 had already consumed the fresh two-round
+budget, this terminal Blocking/Important review result is the third finding
+that invokes the breaker. The candidate is preserved at the commit above and
+no third repair is attempted. C10-R1 is stopped, the objective is not claimed
+complete, and the candidate is not controlling CI or audit authority.
+
+No expensive whole-suite wave was launched after the stop. That unlaunched
+wave is neither a timeout nor a result and supplies no test-count, timing, or
+shared-host receipt. No Playwright lane ran. No C03/C04/C06, C13, C14, DS8
+print, scenario-composer instability, frontend disposition register/checker,
+or foreign `catalog.py` byte was touched.

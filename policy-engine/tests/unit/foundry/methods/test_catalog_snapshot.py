@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 from dataclasses import replace
 
@@ -9,6 +10,7 @@ from polisyos.foundry.extensions.discovery import discover_foundry_method_compon
 from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
 from polisyos.foundry.methods.base import MethodMetadata
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+from polisyos.foundry.methods.catalog import snapshot as snapshot_module
 from polisyos.foundry.methods.catalog.bayesian.regression import (
     BayesianLinearRegressionEstimator,
 )
@@ -245,6 +247,121 @@ def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() ->
         report.registry_binding_sha256
     )
     assert provenance["provenance_id"] == method_catalog_provenance_id(provenance)
+
+
+def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> None:
+    """Ambient observation drift must move raw custody but not governed identity."""
+
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    assert ambient_report.manifest is not None
+    recorded = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=report,
+        ambient_manifest=ambient_report.manifest,
+    )
+    changed = copy.deepcopy(recorded)
+    changed["ambient_discovery"]["manifest_id"] = "component_discovery_manifest_ambient_other"
+    changed["ambient_discovery"]["component_count"] += 1
+    changed["ambient_discovery"]["unbound_inputs"].append(
+        "discovery_error:entry_point:example.weighted_average:ModuleNotFoundError"
+    )
+    changed["ambient_discovery"]["admission"]["status"] = "declared_not_admitted"
+    membership = next(
+        row
+        for row in changed["predicate_provenance"]
+        if row["predicate"] == "ambient.discovered_component_membership"
+    )
+    membership["classification"] = (
+        "not_established"
+        if membership["classification"] == "recomputed"
+        else "recomputed"
+    )
+    changed["provenance_id"] = method_catalog_provenance_id(changed)
+
+    assert recorded["provenance_id"] != changed["provenance_id"]
+    assert (
+        snapshot_module.method_catalog_governed_provenance_projection(recorded)
+        == snapshot_module.method_catalog_governed_provenance_projection(changed)
+    )
+    assert snapshot_module.method_catalog_governed_provenance_id(
+        recorded
+    ) == snapshot_module.method_catalog_governed_provenance_id(changed)
+    assert changed["ambient_discovery"]["unbound_inputs"]
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    (
+        ("missing_parent_admission", "catalog_ambient_input_not_quarantined"),
+        ("governing_parent_admission", "catalog_ambient_input_not_quarantined"),
+        ("contradictory_predicate_admission", "catalog_predicate_provenance_invalid"),
+    ),
+)
+def test_governed_provenance_projection_fails_closed_on_invalid_admission(
+    mutation: str,
+    expected_error: str,
+) -> None:
+    """Only a complete structural quarantine may remove ambient observations."""
+
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    assert ambient_report.manifest is not None
+    provenance = build_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=report,
+        ambient_manifest=ambient_report.manifest,
+    )
+    if mutation == "missing_parent_admission":
+        provenance["ambient_discovery"].pop("admission")
+    elif mutation == "governing_parent_admission":
+        provenance["ambient_discovery"]["admission"][
+            "included_in_governed_denominator"
+        ] = True
+    else:
+        predicate = next(
+            row
+            for row in provenance["predicate_provenance"]
+            if row["predicate"] == "ambient.discovered_component_membership"
+        )
+        predicate["decisive"] = True
+
+    with pytest.raises(MethodCatalogDiscoveryProvenanceError, match=expected_error):
+        snapshot_module.method_catalog_governed_provenance_projection(provenance)
 
 
 def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> None:

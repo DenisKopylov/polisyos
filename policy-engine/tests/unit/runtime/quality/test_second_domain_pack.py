@@ -6,6 +6,8 @@ import ast
 import asyncio
 import copy
 import json
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -25,6 +27,101 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
 
+_PLUGIN_POSTURE_WITNESS_SCRIPT = r"""
+import copy
+import json
+import os
+import site
+from pathlib import Path
+
+site.addsitedir(os.environ["GY_DEFC9_SITE_PACKAGES"])
+
+from polisyos.foundry.extensions.discovery import discover_foundry_method_components
+from polisyos.foundry.methods.catalog.snapshot import (
+    method_catalog_governed_provenance_id,
+    method_catalog_provenance_id,
+)
+from tools.quality.validation import (
+    check_layer3_gy_depth_n_universality_contract as depth,
+)
+from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+root = Path(os.environ["GY_DEFC9_REPO_ROOT"])
+discovery = discover_foundry_method_components(
+    include_builtins=False,
+    include_entry_points=True,
+    include_dev_scan=False,
+)
+component_ids = {str(row.metadata.component_id) for row in discovery.components}
+example_entry_points = [
+    row.as_dict()
+    for row in discovery.manifest.entry_points
+    if row.name == "example.weighted_average"
+]
+example_errors = [
+    row.error_type
+    for row in discovery.errors
+    if row.item == "example.weighted_average"
+]
+
+n8_result = n8.check_result(root)
+n10a_result = n10a.validate(root)
+depth_result = depth._derive_provenance_stability(root.as_posix())
+recorded_n8 = json.loads((root / n8.OUTPUT_PATH).read_text(encoding="utf-8"))
+recorded_catalog = recorded_n8["denominators"]["catalog_provenance"]
+live_catalog = n8._catalog_denominators_cached()["catalog_provenance"]
+
+result = {
+    "component_count": len(component_ids),
+    "example_resolved": "example.summary.weighted_average@1.0.0" in component_ids,
+    "example_entry_points": example_entry_points,
+    "example_errors": example_errors,
+    "n8_governing_issues": list(n8_result.governing_issues),
+    "n8_ambient_findings": list(n8_result.ambient_findings),
+    "n10a_status": n10a_result["status"],
+    "n10a_issues": n10a_result["issues"],
+    "depth_status": depth_result["status"],
+    "depth_issues": depth_result["issues"],
+    "recorded_raw_provenance_id": method_catalog_provenance_id(recorded_catalog),
+    "live_raw_provenance_id": method_catalog_provenance_id(live_catalog),
+    "recorded_governed_provenance_id": method_catalog_governed_provenance_id(
+        recorded_catalog
+    ),
+    "live_governed_provenance_id": method_catalog_governed_provenance_id(live_catalog),
+}
+
+if os.environ.get("GY_DEFC9_GOVERNED_PROBE") == "1":
+    governed_payload = copy.deepcopy(recorded_n8)
+    catalog_provenance = governed_payload["denominators"]["catalog_provenance"]
+    catalog_provenance["governed_discovery"]["component_count"] += 1
+    catalog_provenance["provenance_id"] = method_catalog_provenance_id(
+        catalog_provenance
+    )
+    governed_payload["contract_content_hash"] = n8._content_hash(governed_payload)
+
+    governed_n8 = n8.validate_payload_result(governed_payload)
+    governed_n10a = n10a._n8_transport_gap_closure(
+        governed_payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+    original_read_json = depth._read_json
+
+    def _read_with_governed_change(path: Path) -> dict[str, object]:
+        if path == root / depth.N8_PATH:
+            return copy.deepcopy(governed_payload)
+        return original_read_json(path)
+
+    depth._read_json = _read_with_governed_change
+    governed_depth = depth._derive_provenance_stability(root.as_posix())
+    result["governed_n8_issues"] = list(governed_n8.governing_issues)
+    result["governed_n10a"] = governed_n10a
+    result["governed_depth_status"] = governed_depth["status"]
+    result["governed_depth_issues"] = governed_depth["issues"]
+
+print("GY_DEFC9_RESULT=" + json.dumps(result, sort_keys=True))
+"""
+
 
 def _git_head_sha(repo_root: Path) -> str:
     """Resolve the checkout head for the moving-range adversarial probe."""
@@ -37,6 +134,98 @@ def _git_head_sha(repo_root: Path) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+def _run_plugin_posture_witness(
+    tmp_path: Path,
+    *,
+    importable: bool,
+    governed_probe: bool,
+) -> dict[str, object]:
+    """Run N8, N10a, and Depth-N in one real isolated plugin environment."""
+
+    dependency_site = Path(pytest.__file__).resolve().parents[1]
+    example_dist_infos = tuple(
+        dependency_site.glob("polisyos_foundry_method_example-*.dist-info")
+    )
+    if len(example_dist_infos) != 1:
+        raise AssertionError(
+            "expected one installed polisyos-foundry-method-example distribution, "
+            f"found {len(example_dist_infos)}"
+        )
+
+    posture_name = "importable" if importable else "missing_target"
+    posture_root = tmp_path / posture_name
+    isolated_site = posture_root / "site-packages"
+    isolated_site.mkdir(parents=True)
+    excluded_names = {
+        example_dist_infos[0].name,
+        "_editable_impl_polisyos_foundry_method_example.pth",
+        "_editable_impl_policy_engine.pth",
+    }
+    for entry in sorted(dependency_site.iterdir(), key=lambda path: path.name):
+        if entry.name in excluded_names:
+            continue
+        (isolated_site / entry.name).symlink_to(
+            entry,
+            target_is_directory=entry.is_dir(),
+        )
+    shutil.copytree(
+        example_dist_infos[0],
+        isolated_site / example_dist_infos[0].name,
+    )
+    (isolated_site / "00_policy_engine_worktree.pth").write_text(
+        f"{REPO_ROOT}\n{REPO_ROOT / 'src'}\n",
+        encoding="utf-8",
+    )
+    editable_target = REPO_ROOT / "examples/extensions/foundry_method/src"
+    if not importable:
+        editable_target = posture_root / "missing-editable-target"
+        editable_target.mkdir()
+    (isolated_site / "_editable_impl_polisyos_foundry_method_example.pth").write_text(
+        f"{editable_target}\n",
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["GY_DEFC9_SITE_PACKAGES"] = isolated_site.as_posix()
+    env["GY_DEFC9_REPO_ROOT"] = REPO_ROOT.as_posix()
+    env["GY_DEFC9_GOVERNED_PROBE"] = "1" if governed_probe else "0"
+    process = subprocess.run(
+        [
+            str(REPO_ROOT / ".venv/bin/python"),
+            "-S",
+            "-c",
+            _PLUGIN_POSTURE_WITNESS_SCRIPT,
+        ],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=240,
+    )
+    if process.returncode != 0:
+        raise AssertionError(
+            f"{posture_name} witness exited {process.returncode}\n"
+            f"stdout:\n{process.stdout[-4000:]}\n"
+            f"stderr:\n{process.stderr[-4000:]}"
+        )
+    result_lines = [
+        line.removeprefix("GY_DEFC9_RESULT=")
+        for line in process.stdout.splitlines()
+        if line.startswith("GY_DEFC9_RESULT=")
+    ]
+    if len(result_lines) != 1:
+        raise AssertionError(
+            f"{posture_name} witness emitted {len(result_lines)} result rows\n"
+            f"stdout:\n{process.stdout[-4000:]}"
+        )
+    result = json.loads(result_lines[0])
+    if not isinstance(result, dict):
+        raise AssertionError("plugin posture witness result must be a mapping")
+    return result
 
 
 def _rehash_pack_manifest(bundle: dict[str, object]) -> None:
@@ -340,6 +529,163 @@ def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> Non
     ]
     assert evidence["unseen_covariates"] == ["watershed_slope"]
     assert str(evidence["receipt_ref"]).startswith("sha256:")
+
+
+def test_n8_transport_gap_consumes_the_typed_governing_subset(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Ambient N8 findings stay visible without deciding the N10a bridge."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    payload = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload_result",
+        lambda _payload: n8.ValueGateValidationResult(
+            governing_issues=(),
+            ambient_findings=({"code": "real_ambient_posture_difference"},),
+        ),
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload",
+        lambda _payload: (_ for _ in ()).throw(
+            AssertionError("N10a bypassed the typed N8 result")
+        ),
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+
+    assert evidence["closed"] is True
+    assert evidence["reason_code"] == "n8_data_derived_transport_proven"
+
+
+def test_n8_transport_gap_fails_closed_on_a_typed_governing_issue(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A governed N8 failure remains decisive even beside ambient findings."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    payload = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload_result",
+        lambda _payload: n8.ValueGateValidationResult(
+            governing_issues=({"code": "governed_catalog_change"},),
+            ambient_findings=({"code": "real_ambient_posture_difference"},),
+        ),
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+
+    assert evidence == {
+        "closed": False,
+        "reason_code": "n8_value_contract_invalid",
+        "issue_codes": ["governed_catalog_change"],
+        "receipt_ref": None,
+    }
+
+
+def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
+    tmp_path: Path,
+) -> None:
+    """A real editable-path difference is diagnostic; governed drift stays red."""
+
+    missing_target = _run_plugin_posture_witness(
+        tmp_path,
+        importable=False,
+        governed_probe=False,
+    )
+    importable = _run_plugin_posture_witness(
+        tmp_path,
+        importable=True,
+        governed_probe=True,
+    )
+
+    assert missing_target["example_entry_points"] == importable[
+        "example_entry_points"
+    ]
+    assert len(missing_target["example_entry_points"]) == 1
+    assert missing_target["component_count"] == 389
+    assert importable["component_count"] == 390
+    assert missing_target["example_resolved"] is False
+    assert importable["example_resolved"] is True
+    assert missing_target["example_errors"] == ["ModuleNotFoundError"]
+    assert importable["example_errors"] == []
+    assert missing_target["recorded_raw_provenance_id"] == importable[
+        "recorded_raw_provenance_id"
+    ]
+    assert missing_target["live_raw_provenance_id"] == missing_target[
+        "recorded_raw_provenance_id"
+    ]
+    assert importable["live_raw_provenance_id"] != importable[
+        "recorded_raw_provenance_id"
+    ]
+    assert missing_target["recorded_governed_provenance_id"] == importable[
+        "recorded_governed_provenance_id"
+    ]
+    for result in (missing_target, importable):
+        assert result["live_governed_provenance_id"] == result[
+            "recorded_governed_provenance_id"
+        ]
+
+    for result in (missing_target, importable):
+        assert result["n8_governing_issues"] == []
+        assert result["n10a_status"] == "pass"
+        assert result["n10a_issues"] == []
+        assert result["depth_status"] == "stable"
+        assert result["depth_issues"] == []
+
+    assert missing_target["n8_ambient_findings"] == []
+    assert {
+        (finding["code"], finding.get("predicate"))
+        for finding in importable["n8_ambient_findings"]
+    } == {
+        ("catalog_ambient_discovery_manifest_mismatch", None),
+        ("catalog_ambient_component_manifest_mismatch", None),
+        ("catalog_ambient_unbound_input_manifest_mismatch", None),
+        (
+            "catalog_predicate_provenance_mismatch",
+            "ambient.discovered_component_membership",
+        ),
+    }
+    assert all(
+        finding["code"] != "catalog_provenance_manifest_mismatch"
+        for finding in importable["n8_ambient_findings"]
+    )
+
+    assert importable["governed_n8_issues"] == [
+        {"code": "catalog_builtin_discovery_manifest_mismatch"}
+    ]
+    assert importable["governed_n10a"] == {
+        "closed": False,
+        "issue_codes": ["catalog_builtin_discovery_manifest_mismatch"],
+        "reason_code": "n8_value_contract_invalid",
+        "receipt_ref": None,
+    }
+    assert importable["governed_depth_status"] == "drifted"
+    assert importable["governed_depth_issues"] == [
+        {
+            "code": "n8_owner_validation_failed",
+            "owner_issue": {"code": "catalog_builtin_discovery_manifest_mismatch"},
+        }
+    ]
 
 
 def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:

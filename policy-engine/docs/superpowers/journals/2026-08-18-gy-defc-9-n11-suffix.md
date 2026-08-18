@@ -122,11 +122,87 @@ initial path census]`
 
 | Item | Blocking/Important findings | Remaining rounds | Status |
 | --- | ---: | ---: | --- |
-| Items 1+2 | 0 | 2 | not started |
-| Item 3 | 0 | 2 | ruling registered; behavioral proof pending |
+| Items 1+2 | 0 | 2 | green; source frozen |
+| Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
 | Item 4 | 0 | 2 | not started |
 | Item 5 | n/a | single cold allowance unspent | not authorized yet |
 
 ## Execution receipts
 
-No source or governed artifact has been edited at this checkpoint. `[P37: recomputed]`
+### Items 1+2 mechanism
+
+- Foundry now derives a governed catalog-provenance projection while leaving the complete raw
+  ambient block and raw `provenance_id` untouched. Only an exact valid parent quarantine admission
+  and exact predicate-row structure permit non-decision; missing, malformed, duplicated, or
+  contradictory declarations raise the named fail-closed catalog error. `[P37: recomputed]`
+- N8 now returns `ValueGateValidationResult(governing_issues, ambient_findings)`. Raw custody hash
+  failure remains governing; ambient block differences route only under the structural admission;
+  predicate differences are placed per row; the raw aggregate
+  `catalog_provenance_manifest_mismatch` is emitted nowhere. Validation, full check, and rederive
+  compare through the one Foundry projection. The strict N8 reissue authorization is unchanged and
+  unused. `[P37: recomputed]`
+- N10a now calls `validate_payload_result` and decides its bridge only from
+  `governing_issues`. The typed-result tests fail if it falls back to the tuple wrapper. No issue-code
+  allowlist and no N10a receipt field was added. `[P37: recomputed]`
+
+### Real environment and Depth-N witness
+
+Two fresh `-S` child environments used the worktree interpreter and isolated site-package trees.
+Both copied the same complete `polisyos-foundry-method-example` distribution metadata; one editable
+`.pth` target contained the real example module and one target was empty. The complete discovered
+component denominator was `390` in the importable posture and `389` in the missing-target posture.
+The example resolved only in the first and produced `ModuleNotFoundError` only in the second. The
+recorded raw provenance identity was equal across environments; the importable live raw identity
+differed from recorded while the missing-target live raw identity equalled it; both live governed
+identities equalled the recorded governed identity. `[P37: recomputed]`
+
+Both environments returned zero N8 governing issues, N10a `status:pass` with zero issues, and
+Depth-N `status:stable` with zero issues. The importable posture retained exactly four ambient
+findings: the three ambient-block codes and the per-row
+`catalog_predicate_provenance_mismatch` for `ambient.discovered_component_membership`. An internally
+rehashed governed component-count mutation stayed red in N8 and N10a with
+`catalog_builtin_discovery_manifest_mismatch`, and Depth-N returned that same named code inside
+`n8_owner_validation_failed`. `[P37: recomputed]`
+
+### Tests and live receipts
+
+- The complete two-file Foundry/N8 denominator was `23 + 83 = 106` collected tests; `106/106`
+  completed green. The five N10a transport tests completed green as a four-test typed/bridge run plus
+  the serialized real-environment test. `[P37: recomputed]`
+- N8 `--check-catalog-provenance` and full `--check` exited `0`, each reporting exactly the four
+  ambient findings above and zero governing issues. N8 `--rederive-audit` exited `0` in
+  `59.352921` internal seconds and emitted those same four ambient findings. N10a full `--check`
+  exited `0` with zero issues (`6.497074` internal seconds). `[P37: recomputed]`
+- Ruff, bytecode compilation, and `git diff --check` passed over all six changed Python paths.
+  `[P37: recomputed]`
+- All six frozen N8/N10a artifact files are byte-identical to `HEAD`: N8
+  `c3f131ce4f47…`, census `ba20cdb384eb…`, pack `169df14ab4fb…`, smoke
+  `688bd3d8c845…`, trace `9b78cad2693a…`, and gaps `361434b07fcd…`. The denominator is every N8
+  artifact plus all five N10a artifact files. `[P37: recomputed]`
+
+Architecture guardrails remain red on five deep imports in untouched `runtime/http` files. A clean
+full `git archive HEAD` reproduced the exact same deep-import delta and five findings, while the six
+named files and their baseline have zero working-tree differences. This is a base-state verification
+finding, not an exclusion inferred from directory names; no architecture baseline was changed.
+`[P37: independently_reconciled]`
+
+### Independent review and repair round
+
+Two read-only terra/luna reviews inspected the full mechanism. One returned no findings. The other
+returned one Important Item 3 finding: `--rederive-audit` used the legacy governing-only tuple and
+therefore hid ambient findings. This consumed Item 3 repair round 1. A red test required a typed
+rederive result and emitted ambient summary; the correction added `run_rederive_audit_result`, kept
+the tuple wrapper for the existing disposition-ledger truthiness consumer, and routed the CLI through
+the typed result. Delta review closed the Important finding. Its Minor request for explicit raw and
+governed identities was also implemented and re-reviewed; no Blocking, Important, or Minor finding
+remains. `[P37: independently_reconciled]`
+
+### Measured mechanism cut
+
+The source/test mechanism is six paths, `1,126` added and `155` removed lines: Foundry owner/test
+`128/0 + 117/0`; N8 owner/test `364/127 + 164/25`; N10a consumer/test `7/3 + 346/0`.
+The larger test body is the genuine two-environment plus Depth-N process witness, not a split
+mechanism. The confidence artifact remains the seventh pending mechanism path. `[P37: recomputed]`
+
+Items 1–3 are source-frozen. Item 4 is now eligible for an exact pre-write declaration; no confidence
+writer and no cold N11 run has started. `[P37: recomputed]`

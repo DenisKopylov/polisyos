@@ -847,12 +847,12 @@ first continuously numbered `-R1` successor.
 | C05b | 6 | 7 | record-only | C05b-D2 / 7 |
 | C06 | 26 | 24 | FIT | C06 / 26 (already fit) |
 | C07 | 26 | 25 | re-cut | C07a HTTP/backend / C07b dashboard consumption |
-| C08b | 10 | 11 | no-fit | C08b-R1 / 11 |
+| C08b | 10 | 11 | R1 superseded | C08b-R2 / 7 landed at `edb8e045f` |
 | C09a | 10 | 11 | no-fit | C09a-R1 / 11 |
 | C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
 | C10 | 7 | 8 | no-fit | C10-R1 / 8 (DEFERRED) |
 | C11b | 9 | 10 | no-fit | C11b-R1 / 10 |
-| C12b | 9 | 10 | no-fit | C12b-R1 / 10 |
+| C12b | 9 | 10 | landed | C12b-R1 / 10 at `53fe8a84c` |
 | C13a | 18 | 18 | stopped predecessor | C13a-R2 / 22 |
 | C13a-R2 | 22 | 22 | stopped predecessor | C13a-R3 / 23 |
 | C13a-R3 | 23 | 23 | FIT | C13a-R3 / 23 (execution successor) |
@@ -864,7 +864,7 @@ first continuously numbered `-R1` successor.
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 11 | stopped structural re-cut | C17b-R2 / 11 after C18b-R2 |
 | C18b | 5 | 12 | stopped structural re-cut | C18b-R2 / 12; R1 cap-10 checkpoint preserved then reverted |
-| C19 | 13 | 14 | no-fit | C19-R1 / 14 |
+| C19 | 13 | 14 | no-fit | C19-R1 / 14 after C18b-R2 |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
 C01b/C01c are the separately authorized `636645bec` re-cut. C06 retains its
@@ -1355,35 +1355,84 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | --- | --- | --- | --- | --- | --- |
 | C07a | HTTP/backend audience-permission relation | `intended_audience` projection and all 33 `/auth/me` permissions emit; the mapping is the relation over those owners | `src/polisyos/runtime/http/services/governed_projections.py:36-41,1014-1031,1109-1114`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `src/polisyos/runtime/http/permissions.py:16-51,211-216`; `schemas/runtime_api_v1.openapi.json:/api/v1/auth/me` | executable; restore already-green backend candidate without regenerating dashboard local client | none |
 | C07b | dashboard generated-client consumption | canonical `packages/runtime-api-client/types.ts` exists, but dashboard retains a separately maintained local generated client | `packages/runtime-api-client/types.ts`; `apps/runtime-dashboard/src/api/types.ts`; Duplication findings below | blocked-on-another-plan | single-owner frontend generated-artifact strangle |
-| C08a | test-only identity fixture | verified `/auth/me` producer exists; only test fallback import must be isolated | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/test/render.tsx:7,28` | executable | none |
-| C08b-R1 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | executable | none |
-| C08b-R1 | auth-session revision partition | no relevant identity revision producer in OpenAPI/apps/packages/runtime HTTP | complete absence: `rg -n -i -e 'auth_session_revision' -e 'auth.*session.*revision' -e 'session.*revision.*auth' -e 'identity.*revision' -e 'revision.*identity' schemas/runtime_api_v1.openapi.json apps/runtime-dashboard packages/runtime-api-client src/polisyos/runtime/http --glob '*.{json,ts,tsx,py}'` (0) | debt-only | none |
-| C09a-R1 | chrome default deny | requires C08b verified Authz decision; current defaults still allow | `apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx:48-75`; `apps/runtime-dashboard/src/app/layout/Sidebar.tsx:39-46`; `apps/runtime-dashboard/src/app/layout/Header.tsx:1-8`; C08b-R1 table row | blocked-on-another-cluster | C08b-R1 |
-| C09b-R1 | mode/run default deny | requires C08b verified Authz decision; current defaults still allow | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx:43-99`; `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx:834`; C08b-R1 table row | blocked-on-another-cluster | C08b-R1 |
+| C08a | test-only identity fixture | verified `/auth/me` producer exists; only test fallback import must be isolated | `40fc512ae`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/test/render.tsx:7,28` | landed | none |
+| C08b-R2 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `edb8e045f`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | landed | none |
+| C08b-D1 | auth-session revision partition | no relevant identity revision producer in OpenAPI/apps/packages/runtime HTTP | `0b811e884`; complete absence: `rg -n -i -e 'auth_session_revision' -e 'auth.*session.*revision' -e 'session.*revision.*auth' -e 'identity.*revision' -e 'revision.*identity' schemas/runtime_api_v1.openapi.json apps/runtime-dashboard packages/runtime-api-client src/polisyos/runtime/http --glob '*.{json,ts,tsx,py}'` (0) | debt-only record landed; producer debt remains | none |
+| C09a-R1 | chrome default deny | C08b-R2's verified Authz decision is landed; current defaults still allow | `apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx:48-75`; `apps/runtime-dashboard/src/app/layout/Sidebar.tsx:39-46`; `apps/runtime-dashboard/src/app/layout/Header.tsx:1-8`; `edb8e045f` | executable and unentered; predecessor discharged by C08b-R2 | none |
+| C09b-R1 | mode/run default deny | C08b-R2's verified Authz decision is landed; current defaults still allow | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx:43-99`; `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx:834`; `edb8e045f` | executable and unentered; predecessor discharged by C08b-R2 | none |
 | C10-R1 | weakest-boundary presentation | no routed complete G4 producer; C05b implementation debt also remains | `docs/reference/frontend/atlas-frontend-disposition-register.md:221`; C05b-D2 above | blocked-on-another-plan | `team-runtime-quality` G4 projection owner plan |
-| C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | executable | none |
-| C11b-R1 | visible cache posture | depends on C11a typed `CachePosture` artifact | C11a table row; `DS5-C11b-R1` acceptance | blocked-on-another-cluster | C11a |
-| C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | executable | none |
-| C12b-R1 | governed query wrapper/policy | depends on C12a source-bound register and policy classification | C12a table row; `DS5-C12b-R1` acceptance | blocked-on-another-cluster | C12a |
+| C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `c8c7a291c`; `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | landed | none |
+| C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed | `c8c7a291c`; `DS5-C11b-R1` acceptance | executable and unentered; predecessor discharged by C11a | none |
+| C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | `15c89d241`; complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | landed | none |
+| C12b-R1 | governed query wrapper/policy | consumes C12a's source-bound register and policy classification | `53fe8a84c`; C12a table row; `DS5-C12b-R1` acceptance | landed | none |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
 | C13b-R5 | SW sync/flush authority bridge | app-authored worker mutation bridge is absent; static navigation handler remains inert | `bc9421163`; `apps/runtime-dashboard/src/sw.ts`; focused real-worker witness | landed | none |
-| C13b-R6/R7 | scoped composer consumer; absorbs/discharges C14b-R1 | the restored `a3ad1e615` consumer inherits C17a's canonical owner; C21d's landed line-free identity repair removes the stopped import defect | `07fd56378`; C21d landed identity owner; three-file consumer witness | R6 checkpoint restored; R7 current landing | root-owned report writer |
+| C13b-R6/R7 | scoped composer consumer; absorbs/discharges C14b-R1 | the restored `a3ad1e615` consumer inherits C17a's canonical owner; C21d's landed line-free identity repair removes the stopped import defect | restore `07fd56378`; closeout `4f1f71cd3`; journal governed receipts; three-file consumer witness | landed; C14b-R1 absorbed once | none |
 | C14a | nominal envelope owner | canonical `PersistedEnvelope<StoreClass>` owner serves four operator-craft families and transport adapters | `5e868da0c`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed | none |
 | C21d | line-free TypeScript identity moves | retired migration-only maps no longer execute at import; relocation is unique-content-safe and ambiguity remains RED | C21d closeout `19293faaa`; governed batch/cold-import witnesses | landed | none |
-| C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; store persists sessions | `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts:223-228` | executable | none |
+| C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; the landed strict codec excludes it from persisted authority | `96a7e6dff`; `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | landed | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
-| C15a | identity hydration API | verified identity and envelope prerequisites are landed | C08b-R1 and C14a table rows | executable | none |
-| C15b-R1 | mounted Clerk identity bridge | requires C15a codec and C08b verified identity | C15a and C08b-R1 table rows | blocked-on-another-cluster | C15a, C08b-R1 |
+| C15a | identity hydration API | verified identity and envelope prerequisites are landed | `96a7e6dff`; C08b-R2 and C14a table rows | landed | none |
+| C15b-R1 | mounted Clerk identity bridge | C15a codec and C08b-R2 verified identity are landed | `96a7e6dff`; `edb8e045f`; `DS5-C15b-R1` acceptance | executable and unentered; both predecessors discharged | none |
 | C16a-R1 | causal-draft partition | scoped, authority-free candidate persistence is landed; DS8 semantics remain untouched | `72522acd9`; focused causal consumer witness | landed; register family free | none |
-| C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`; focused domain/panel witnesses | R2 current landing; register free after commit | none |
+| C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `78ea7c3d7`; final verification `a1e6ebcdc`; focused domain/panel witnesses | landed; register family free | none |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
 | C17b-R1/R2 | persistence construction census | R1's ten mandatory governed paths omit the now-required timing-plan path; no post-C18b resolver census exists | path pricing + `not_established` denominator | stopped_for_recut | C18b-R2, then C17b-R2 / 11 |
-| C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable | none |
+| C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R1 source/governed candidate is preserved at `52ab21cf6`, but owner receipts pin stale `13/55`; R2 must close at `12/56` | provider/registry/HUD witnesses; two governed owner tests | stopped_for_recut | C18b-R2 / 12 |
-| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable | none |
+| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; C18b-R2 supplies the strict live-source/provider interface consumed here | `DS5-C18b-R2` acceptance; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | blocked-on-another-cluster; executable after C18b-R2 | C18b-R2 |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | requires closure of executable/debt clusters first | `DS5-C20` acceptance; all preceding blocked/debt rows | blocked-on-another-cluster | all preceding executable/debt clusters |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C18b-R2, C17b-R2, C19-R1 |
+
+**Standing census (recomputed and independently reconciled at `324996652`):**
+the complete walk covered all `25` cap-table records (`23/23` audited writer
+rows plus the two stopped C13a predecessor records), `31/31` execution-plane
+rows, all `28` C07–C20 status-heading occurrences collapsing to `24` base
+cluster groups, `48/48` expected-commit rows, branch ancestry, and every
+cluster status paragraph. Outside the commissioned
+C18b-R2 → C17b-R2 → C19-R1 chain, the executable-and-unentered set is exactly
+`C07a`, `C09a-R1`, `C09b-R1`, `C11b-R1`, and `C15b-R1`. `C07b`, `C10-R1`,
+C15a's structured verdict/status-chip plane, and `C17a-R1` remain
+blocked-on-another-plan and are carried into C20 as named owner debt rather
+than closure prerequisites.
+
+Reproduce those Markdown denominators from the `policy-engine/` root with the
+repository venv; this reads the complete named tables and all C07–C20 status
+headings rather than sampling rows:
+
+```bash
+.venv/bin/python - <<'PY'
+from pathlib import Path
+import json, re
+p = Path("docs/plans/active/atlas-slices/DS5-enforcement-waist.md")
+text = p.read_text(encoding="utf-8")
+def rows(header, end):
+    body = text.split(header, 1)[1].split(end, 1)[0]
+    return [x for x in body.splitlines()
+            if x.startswith("| ") and not x.startswith("| ---")]
+cap = rows("| Original cluster | " + "Declared cap |",
+           "The audited writer set is exactly")
+execution = rows("| Cluster | Deliverable | " + "Producer today |", "### DS5-C06")
+expected = rows("| Cluster | Expected " + "subject | Max files |",
+                "## Closure " + "battery")
+occurrences, groups = [], set()
+for line in text.splitlines():
+    match = re.match(r"^### DS5-C(\d{2}[a-z]?)", line)
+    if match and 7 <= int(match.group(1)[:2]) <= 20:
+        occurrences.append(line); groups.add(match.group(1))
+print(json.dumps({"target": str(p), "file_type": "Markdown",
+    "cap_table_records": len(cap),
+    "audited_writer_records": sum("stopped predecessor" not in x for x in cap),
+    "stopped_predecessor_records": sum("stopped predecessor" in x for x in cap),
+    "execution_plane_rows": len(execution),
+    "c07_c20_heading_occurrences": len(occurrences),
+    "c07_c20_heading_groups": len(groups),
+    "expected_commit_rows": len(expected)}, sort_keys=True))
+PY
+```
+
+Receipt: `25 / 23 / 2 / 31 / 28 / 24 / 48` in the field order above.
 
 ### DS5-C06 — three waist contracts, one regeneration, one re-anchor
 
@@ -1854,7 +1903,7 @@ producers with one governed wrapper/producer and 65/41 exact legacy debts.
 `ApiMeta.generated_at` is never owner time. No claim is made that legacy sites
 were migrated or semantically inferred.
 
-**Expected commit:** `DS5-C12b-R1 enforce governed query policy`.
+**Landed commit:** `53fe8a84c` (`DS5-C12b-R1 enforce governed query policy`).
 
 ### DS5-C13a-R3 — delete authority mutation replay
 
@@ -2196,7 +2245,7 @@ registry/validator unit only. Live source binding, observable provider
 diagnostics and version/expiry/scope cache behavior remain explicitly
 `consumer_missing` until C18b-R2.
 
-**Expected commit:** `DS5-C18a make flag exposure registry strict`.
+**Landed commit:** `94e2c8ca0` (`DS5-C18a make flag exposure registry strict`).
 
 ### DS5-C18b-R1/R2 — bind every flag source to the strict registry
 
@@ -2256,6 +2305,15 @@ reference document, and
 their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
+**Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
+by another plan. It remains unopened while `C07a`, `C09a-R1`, `C09b-R1`,
+`C11b-R1`, `C15b-R1`, `C18b-R2`, `C17b-R2`, or `C19-R1` remains unclosed as a
+local DS5 prerequisite.
+`C07b`, `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1`
+are carried as named debt with their owning plans and do not become C20
+closure prerequisites. This ruling does not narrow C20's corruption or
+non-claim battery.
+
 **Red first:**
 `test_ds5_closure_corruption_sweep_covers_every_governed_property` executes the
 closure corruption sweep over the governed local properties:
@@ -2312,21 +2370,21 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C11a | `DS5-C11a derive governed cache posture` | 5 |
 | C11b-R1 | `DS5-C11b-R1 render governed cache posture` | 10 |
 | C12a | `DS5-C12a register query construction debt` | 7 |
-| C12b-R1 | `DS5-C12b-R1 enforce governed query policy` | 10 |
+| C12b-R1 | landed at `53fe8a84c`: `DS5-C12b-R1 enforce governed query policy` | 10 |
 | C13a | stopped predecessor: `DS5-C13a delete authority mutation replay` | 18 |
 | C13a-R2 | stopped historical: `DS5-C13a-R2 delete authority mutation replay` | 22 |
 | C13a-R3 | `DS5-C13a-R3 delete authority mutation replay` | 23 |
-| C13b-R2/R5/R6/R7 | R2/R5 landed; R6 stopped at `a3ad1e615`; R7 resumes after C21d | R2 `15`; R5 `6`; R6 `11`; R7 `11` |
+| C13b-R2/R5/R6/R7 | R2/R5 landed; R6 checkpoint restored inside R7; R7 landed at `4f1f71cd3` after C21d | R2 `15`; R5 `6`; R6 `11`; R7 `11` |
 | C13b-R4 | `DS5-C13b-R4 source-complete offline-queue denominator` | 5 |
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
 | C21d | `DS5-C21d repair line-free TypeScript identity moves` | 4 |
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |
 | C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | 6 |
 | C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
-| C16b-R1/R2 | R1 stopped on omitted scope fixture; `DS5-C16b-R2 partition dispute interaction state` | 10 |
+| C16b-R1/R2 | R1 stopped on omitted scope fixture; R2 landed at `78ea7c3d7` with final verification `a1e6ebcdc` | 10 |
 | C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |
 | C17b-R1/R2 | R1 stopped on the mandatory plan path; `DS5-C17b-R2 govern persistence construction` | 11 |
-| C18a | `DS5-C18a make flag exposure registry strict` | 3 |
+| C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1/R2 | R1 stopped on two omitted owner receipts; `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |

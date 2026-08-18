@@ -3855,3 +3855,89 @@
   collision count. The review's first read-only `rg` pattern embedded Markdown
   backticks and caused zsh to attempt commands `10` and `12`; the literal
   rerun succeeded and no bytes changed.
+
+## 2026-08-18 — DS5 standing-column reconciliation before C18b-R2
+
+- Entry readback was attached `codex/atlas-ds5-enforcement-waist` at
+  `324996652`, 91 commits ahead of `main`, with an empty porcelain and the
+  register family free. No candidate, governed artifact, scanner, or writer was
+  opened before the reconciliation.
+- P35 denominator, `recomputed` from the plan's own owners and
+  `independently_reconciled` against branch ancestry: all `25` cap-table
+  records (`23/23` audited writer rows plus the two stopped C13a predecessor
+  records), all `31/31` execution-plane rows, all `28` C07–C20 status-heading
+  occurrences collapsing to `24` base groups, all `48/48` expected-commit
+  rows, every cluster status paragraph, and the complete branch log through
+  entry HEAD. Subject text was not used as the completion predicate; ancestry
+  plus the declared landing file set and journal closeout were the receipt.
+- Reproduction from the `policy-engine/` root, using the repository venv and
+  the complete Markdown file denominator:
+
+  ```bash
+  .venv/bin/python - <<'PY'
+  from pathlib import Path
+  import json, re
+  p = Path("docs/plans/active/atlas-slices/DS5-enforcement-waist.md")
+  text = p.read_text(encoding="utf-8")
+  def rows(header, end):
+      body = text.split(header, 1)[1].split(end, 1)[0]
+      return [x for x in body.splitlines()
+              if x.startswith("| ") and not x.startswith("| ---")]
+  cap = rows("| Original cluster | " + "Declared cap |",
+             "The audited writer set is exactly")
+  execution = rows("| Cluster | Deliverable | " + "Producer today |", "### DS5-C06")
+  expected = rows("| Cluster | Expected " + "subject | Max files |",
+                  "## Closure " + "battery")
+  occurrences, groups = [], set()
+  for line in text.splitlines():
+      match = re.match(r"^### DS5-C(\d{2}[a-z]?)", line)
+      if match and 7 <= int(match.group(1)[:2]) <= 20:
+          occurrences.append(line); groups.add(match.group(1))
+  print(json.dumps({"target": str(p), "file_type": "Markdown",
+      "cap_table_records": len(cap),
+      "audited_writer_records": sum("stopped predecessor" not in x for x in cap),
+      "stopped_predecessor_records": sum("stopped predecessor" in x for x in cap),
+      "execution_plane_rows": len(execution),
+      "c07_c20_heading_occurrences": len(occurrences),
+      "c07_c20_heading_groups": len(groups),
+      "expected_commit_rows": len(expected)}, sort_keys=True))
+  PY
+  ```
+
+  Terminal output was `25 / 23 / 2 / 31 / 28 / 24 / 48` for those seven
+  count fields. The first read-only helper incorrectly discarded the first
+  data row from each table and conflated literal heading occurrences with base
+  groups, yielding `24 / 30 / 47 / 28`; it was rejected as a tooling
+  nonreceipt, corrected before use, and changed no byte. The first documented
+  self-hosting form then matched its own literal expected-table header and
+  returned `expected_commit_rows=0`; the split marker above is deliberately
+  concatenated so the complete command cannot become its own first match.
+  That result was likewise rejected before use and changed no governed byte.
+- The census corrected landed rows for C08a, C08b-R2, C11a, C12a, C12b-R1,
+  C13b-R7, C15a's raw/hydration planes, C16b-R2, and C18a. In particular,
+  C13b-R7 is the immutable landed baseline `4f1f71cd3`, with restore
+  `07fd56378` and its root-owned governed receipts above; it is not restored,
+  replayed, or re-landed.
+- The named predecessor waits on C09a-R1/C09b-R1, C11b-R1, and C15b-R1 are
+  discharged by C08b-R2 `edb8e045f`, C11a `c8c7a291c`, and C15a
+  `96a7e6dff` plus C08b-R2. The exact executable-and-unentered set outside the
+  commissioned chain is now recorded once as C07a, C09a-R1, C09b-R1,
+  C11b-R1, and C15b-R1.
+- C19-R1 now waits explicitly on C18b-R2's strict live-source/provider
+  interface. The commissioned order is C18b-R2 → C17b-R2 → C19-R1; C17b's
+  persistence denominator remains `not_established` until its post-C18b
+  declaration-resolving census.
+- C20's opening ruling is explicit: it closes over executable DS5 clusters.
+  C07b (frontend generated-artifact owner), C10-R1 (`team-runtime-quality` G4),
+  C15a's structured verdict/status-chip plane (structured producer owner), and
+  C17a-R1 (DS14/DS9 owner resolution) are carried as named another-plan debt,
+  not closure prerequisites. C20 was not entered.
+- This is a plan/journal-only standing correction, consumes no mechanism
+  round, and never locks the register family. The registered eight-owner
+  duplication finding and the C23 non-claim remain unchanged.
+- Tooling nonreceipts: the SDD workspace helper lacks its execute bit and was
+  therefore invoked through `bash`; a first skill-path read used the wrong
+  `openai-bundled` root and returned `No such file or directory` before the
+  available-skills catalog's `openai-curated-remote` path was used. Neither
+  output was admitted as product or census evidence, and neither changed a
+  tracked byte.

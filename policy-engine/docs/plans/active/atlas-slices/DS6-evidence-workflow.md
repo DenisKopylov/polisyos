@@ -64,7 +64,7 @@ JSON Schema, and repository architecture guardrails.
   candidate is preserved at `573be959890f8e35f72e846e0a37b6eac5fc4396`
   and removed by forward revert
   `a7ae9189147d012fd8a3c80d741ed5c330787672`. Only this plan and journal may
-  recorded that stop. The later architect ruling gave C10-R1 its own session
+  record that stop. The later architect ruling gave C10-R1 its own session
   and explicitly authorized C11 independently; C11 is implemented below.
 - This session must not write the shared governed Atlas-surface artifacts named
   under **Deferred execution package**. DS5-C21 owns that contended resource
@@ -72,9 +72,10 @@ JSON Schema, and repository architecture guardrails.
 - C16 was explicitly authorized to run, one heavy parent at a time, the exact
   whole-suite Vitest, full lint, full typecheck, production build, opaque
   Storybook browser probe, and component-a11y closeout lanes declared under
-  Task 16. That authorization is consumed. The full visual lane, Playwright
-  journeys, dev servers, and every other heavy command are not authorized by
-  the post-C16 attribution.
+  Task 16. That authorization is consumed. Task 18 separately authorizes its
+  exact serialized Playwright visual-fixture, generation, and no-update lanes
+  under a 2,400-second ceiling. Playwright journeys, standalone dev servers,
+  and every other undeclared heavy command remain unauthorized.
 - Focused Vitest over touched files and scoped static checks may establish the
   source freeze, but only the serialized Task 16 lanes establish C16 closeout.
 - No product surface, DS5 path, GY path, a11y denominator, baseline suppression,
@@ -1000,8 +1001,8 @@ final comparison, so its actual PNG is not re-anchoring authority.
 
 ### Task 18 — DS6-C18: fix the visual fixture, then re-anchor C15-R1 deltas
 
-**Status: re-cut from unentered C17 after owner discovery; not entered because
-C10 stopped first. Exact candidate set:**
+**Status: verified and ready to land; commit and post-commit branch readback
+remain pending. Exact re-cut set:**
 
 1. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
 2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/evidence-promotion-focus-chromium-darwin.png`
@@ -1010,15 +1011,132 @@ C10 stopped first. Exact candidate set:**
 5. this plan
 6. the DS6 journal
 
-**Declared path cap: 6; measured candidate set: 6.** The fixture must bind the
-three exact response `meta.generated_at` inputs—run context, promotion
-candidates, and connectors—to the established visual clock before any snapshot
-update. The complete 18-snapshot-call/18-baseline
-denominator is then run without updates to enumerate blast radius. Only the
-three attributed identities may move; a fourth identity is a new finding, not
-permission to re-anchor. After targeted generation, a no-update pass must
-restore those three identities and the full visual envelope may retain only
-the separately DS8-owned print RED. The DS8 print PNG remains byte-identical.
+**Declared path cap: 6; measured candidate set: 6.** The contract-harness
+experiment was restored to HEAD and is not a C18 path. The retained mechanism is
+bounded fixture determinism, not a claim that JavaScript can prove compositor
+pixel stability: three exact GET responses—run evidence context, promotion
+candidates, and connectors—are fetched through `route.fetch()`, fail closed on
+missing or malformed `meta.generated_at`, and replace only that value with the
+established visual clock. `page.clock.setFixedTime()` freezes wall time while
+live timers continue. A browser witness exercises all three real routes; the
+promotion capture additionally waits for and validates the catalog response
+and observes response-derived readiness. Playwright's direct
+`toHaveScreenshot` remains the canonical raster comparator. No wrapper,
+sampling admission rule, comparator relaxation, or tolerance change remains.
+
+The complete denominator is one spec with **19 tests**, **18 literal
+`toHaveScreenshot` calls**, **18 unique screenshot names**, and **18 PNGs**.
+The frozen visual-spec SHA-256 is
+`9b634763d8708e0e00d20998e0928f43ad6157b7c0cd7ec690b1ff20d2ae9361`.
+Independent source reviews are CLEAN. Only the three attributed PNG identities
+moved; the DS8 print PNG and visual configuration remain byte-identical.
+
+#### C18 deterministic fixture and closeout receipt
+
+The pre-fixture no-update baseline ran from `apps/runtime-dashboard` with one
+heavy DS6 parent and the supplied 2,400-second ceiling:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --output=../../_build/apps/runtime-dashboard/ds6-c18-01-pre-fixture-full
+```
+
+It returned RED with 14 passed and four failed in `real 117.26` seconds. The
+before/after `uptime` load triples were `3.97 5.26 4.55` and
+`6.64 5.98 4.93`; the regime was exactly
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`. Its true
+strength is one complete live no-update mismatch census at this HEAD and in
+that regime. It is not a stability receipt, snapshot-generation authority, or
+post-fixture result. The four failures were `evidence-promotion-focus.png`,
+`dark-evidence-fabric.png`, `mobile-command-center.png`, and the separately
+DS8-owned `run-detail-a4-print.png`.
+
+The complete source-derived denominator is one visual spec containing exactly
+18 screenshot calls and one snapshot directory containing exactly 18 PNGs:
+
+1. `command-center-shell.png`
+2. `scenario-composer-dark.png`
+3. `run-detail-summary.png`
+4. `evidence-promotion-focus.png`
+5. `clerk-chat-shell-lite.png`
+6. `dark-evidence-fabric.png`
+7. `mobile-command-center.png`
+8. `mobile-run-detail-overview.png`
+9. `logo-mark-16-32-48.png`
+10. `run-deck-content-slide.png`
+11. `ds4-candidate-clothing.png`
+12. `ds4-fixture-only-boundary.png`
+13. `ds4-evidence-primitives.png`
+14. `decision-reading-view-a4-print.png`
+15. `run-detail-a4-print.png`
+16. `bureaucratic-document-a4-print.png`
+17. `policy-compare-a4-print.png`
+18. `scenario-a4-print.png`
+
+The retained nineteenth test behaviorally fetches the real run
+evidence-context, promotion-candidates, and connectors responses and binds
+their `meta.generated_at` values to the visual clock. Before the fixture it
+failed on live time; after the fixture it passed. The post-fixture sequence
+also proved that `page.clock.install()` was the wrong clock operation because
+it advanced wall time, while `setFixedTime()` preserves a fixed `Date` and live
+timers. The promotion page's 250 ms debounced catalog query is handled at its
+point of use by awaiting the exact GET, validating its typed response, and
+observing response-derived copy before the direct screenshot assertion.
+
+The source-frozen authoritative sequence is:
+
+- run 35, `ds6-c18-35-final-source-update`: targeted generation GREEN 3/3,
+  `real 38.50`, `user 39.94`, `sys 5.28`, loads
+  `2.00 2.32 2.37` -> `3.80 2.70 2.50`;
+- run 36, `ds6-c18-36-final-source-targeted-no-update`: targeted verification
+  GREEN 3/3, `real 26.77`, `user 26.04`, `sys 3.38`, loads
+  `3.57 2.67 2.49` -> `3.93 2.81 2.55`;
+- run 37, `ds6-c18-37-final-source-full-no-update`: genuine full-envelope RED
+  17/19, `real 103.86`, because `scenario composer` oscillated between
+  1094x453 and 1094x3877 while the known DS8 print remained RED;
+- run 38, `ds6-c18-38-scenario-stability-diagnostic`: isolated scenario GREEN
+  1/1, `real 20.83`, showing the extra run-37 failure was not a stable C18
+  baseline delta;
+- run 39, `ds6-c18-39-final-source-full-no-update-rerun`: controlling full
+  expected RED 18/19, `real 93.69`; its sole failure is DS8-owned `run detail
+  A4 print`, 724x2113 expected versus 770x13229 actual with exactly 691,791
+  differing pixels.
+
+Every run used supplied ceiling 2,400 seconds and regime
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`; no run was
+killed and none exceeded its ceiling. Run 35 is generation only, run 36 is the
+targeted verification receipt, and run 39 is the controlling full envelope.
+Run 37 remains a genuine RED rather than being erased by the control. The
+journal preserves all earlier runs and nonreceipts at their original strength.
+The enumerated fixture blast radius is exactly the two evidence baselines,
+while the re-anchor radius is those two plus the C15-R1 mobile copy baseline;
+no fourth DS6 identity moved.
+
+Final DS6 baseline SHA-256 values are `03e69c28aeda2baf2caca233b050c31193b0b327f269ef32cf27c3f34a73e667`
+(evidence promotion), `f5a8c3257cb070bc276827c1cefcc6fc9f85864af20f3f56d531d394fcc0d98f`
+(dark evidence), and `23cab2cb08f15b1ee668faf1de5a4a81a4ba2dc1ec214d29981c7b575a49557d`
+(mobile command center). The DS8 print baseline remains byte-identical at
+SHA-256 `a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`
+and git blob `104ef3c896c3897de48252409494b867b0820f66`.
+
+**Refused mechanism.** A generic sampled/event/prototype/compositor-stability
+gate is refused for C18. Repeated P31/P38 review showed one class: JavaScript
+activity is a proxy for compositor pixels, not the property. Sampling missed a
+250 ms asynchronous mutation; event/prototype variants missed WAAPI
+construction, `MediaList`, computed style, aliased raw capture, and retained
+proxy cleanup; an observer ending before the matcher did not cover the
+screenshot transaction. Closing those instances still cannot discriminate an
+unchanged raster from compositor-only or browser-internal work. No later
+cluster should re-attempt that gate by adding another hook. C18 instead fixes
+the known drifting inputs at the fixture and leaves raster comparison to
+Playwright.
+
+Pattern closeout: P08 separates response time and fixed wall time; P29/P33 are
+closed by the browser route/clock witness and response-derived readiness; P35
+is closed by the complete 19-test/18-call/18-name/18-PNG census. P31/P38 record
+the refused generic gate rather than laundering a proxy into admission. The
+two active `attr(href)` print emitters stay registered as DS8-owned duplicate
+debt rather than being changed here. The exact candidate remains six paths;
+the commit and post-commit branch readback are pending.
 
 ## Expected cluster commits
 
@@ -1151,14 +1269,14 @@ This discharges the master sentence that makes the DS4 prose table authoritative
 “until DS6 creates one.” It does not enter the Vitest debt-class array, because
 the four axe-incomplete clusters were never failing Vitest identities.
 
-**Contended-package readiness.** C03, C04, and C06 are complete executable
-deltas for separate append-only commits once DS5 releases the then-current
-owner family; each begins by rereading current owners and content-hash anchors.
-C13 is an exact `NO WRITE` hold until DS8 supplies a repair, an independently
-established semantic-non-overlap result, and two consecutive stable no-update
-captures. No C10-R1 projection delta exists at HEAD. The register-window
-package is therefore ready for three executable transitions plus one explicitly
-held no-write, not four governed transitions.
+**Contended-package readiness.** Four prepared executable deltas are **READY**:
+C03, C04, and C06 are separate append-only transitions once the register
+window opens, and each begins by rereading current owners and content-hash
+anchors; C13 is the fourth delta and is an exact `NO WRITE` hold until DS8
+supplies a repair, an independently established semantic-non-overlap result,
+and two consecutive stable no-update captures. No C10-R1 projection delta
+exists at HEAD. The package is therefore three governed writes plus one
+executable held no-write, not four governed transitions.
 
 ### Serialized heavy-lane package and measured execution
 
@@ -1230,9 +1348,11 @@ that distinction.
   visual RED is evidence for the DS8 owner, not repair authority.
 - No Russian catalog deletion or active-locale exposure change; DS5 owns the
   latter mechanic and the frozen catalog remains in-tree.
-- No standalone interactive Storybook, page-a11y, journey, or full-visual rerun
-  is implied by C16. Their C05/C13 receipts retain their original strength.
-- No C17/C18 snapshot regeneration occurred. The deterministic fixture repair
-  is DS6-owned; its added visual-spec path measured six paths, so C17 remains
-  unentered at cap 5 and C18 is declared at cap 6. The three attributed
-  snapshots and DS8 print baseline remain byte-unmodified here.
+- No standalone interactive Storybook, page-a11y, or journey rerun is implied
+  by C16 or C18. Their C05 receipts retain their original strength; C18 owns
+  only the exact visual lanes recorded under Task 18.
+- C17 remains unentered because the fixture path measured the cap-5 proposal
+  at six paths. C18 is the verified, ready-to-land cap-6 replacement: it
+  deterministically re-anchors the three DS6-attributed PNGs. Its commit is
+  pending. The DS8 print baseline remains byte-unmodified and RED under its
+  existing owner.

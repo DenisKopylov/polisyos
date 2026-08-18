@@ -3226,3 +3226,538 @@ DS8 print byte ran or changed. Those lanes remain nonreceipts. C11 stays
 `implemented_but_not_orchestrated`; its consumer and governed surface remain
 missing, and no aggregate PASS, stable grant, blocking authority, or C10-R1
 mechanism exists.
+
+## DS6-C18 deterministic visual-fixture stage — 2026-08-16
+
+Entry was clean and branch-attached at C11 landing `dec77a050` on
+`codex/atlas-ds6-evidence-workflow`, 21 commits ahead of the bound base. C18's
+immutable cap remains six paths: the visual spec, the three named DS6 PNGs,
+this plan, and this journal. This stage intentionally changes only the spec and
+two records. The three DS6 PNGs and the DS8-owned print PNG remain
+byte-unmodified; comparator, tolerances, product, backend, and runtime API
+semantics are outside this stage.
+
+### Pre-fixture authority and complete denominator
+
+The already-run baseline command from `apps/runtime-dashboard` was exactly:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --output=../../_build/apps/runtime-dashboard/ds6-c18-01-pre-fixture-full
+```
+
+The no-update run returned 14 passed / four failed across all 18 screenshot
+tests in `real 117.26` seconds. `uptime` before was load averages
+`3.97 5.26 4.55`; after was `6.64 5.98 4.93`. The supplied ceiling was 2,400
+seconds and the exact regime was
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`. The output root
+is `../../_build/apps/runtime-dashboard/ds6-c18-01-pre-fixture-full`. This is a
+complete one-run live mismatch census at `dec77a050` under that host regime;
+it does not prove repeat stability, authorize a snapshot update, or describe
+post-fixture behavior. The four RED identities were
+`evidence-promotion-focus.png`, `dark-evidence-fabric.png`,
+`mobile-command-center.png`, and DS8-owned `run-detail-a4-print.png`.
+
+A Node script read the complete visual spec and snapshot directory rather than
+sampling search output. Its path denominator was one
+`apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`; its file-type
+denominator was all `.png` files in the adjacent `-snapshots` directory. It
+returned exactly 18 screenshot calls and exactly 18 PNGs with these complete
+call identities:
+
+1. `command-center-shell.png`
+2. `scenario-composer-dark.png`
+3. `run-detail-summary.png`
+4. `evidence-promotion-focus.png`
+5. `clerk-chat-shell-lite.png`
+6. `dark-evidence-fabric.png`
+7. `mobile-command-center.png`
+8. `mobile-run-detail-overview.png`
+9. `logo-mark-16-32-48.png`
+10. `run-deck-content-slide.png`
+11. `ds4-candidate-clothing.png`
+12. `ds4-fixture-only-boundary.png`
+13. `ds4-evidence-primitives.png`
+14. `decision-reading-view-a4-print.png`
+15. `run-detail-a4-print.png`
+16. `bureaucratic-document-a4-print.png`
+17. `policy-compare-a4-print.png`
+18. `scenario-a4-print.png`
+
+The corresponding baseline directory contained the same 18 stems with the
+platform suffix `-chromium-darwin.png`; there was no missing or extra PNG.
+The C18 witness is a nineteenth Playwright test but adds no screenshot call,
+so the governed image denominator remains 18/18. Before installing the helper,
+the targeted owner grep was:
+
+```bash
+rg -n "VISUAL_CLOCK_TIME|meta\\.generated_at|evidence-context|promotion/candidates|control/data/connectors" apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts
+```
+
+It returned only the visual-clock constant, the existing connector APIRequest
+fetch, the two existing artifact timestamp substitutions, and the browser
+clock installation. It returned no response-`meta.generated_at` binding for
+run evidence-context, promotion candidates, or connectors.
+
+### RED-first behavioral witness and fixture
+
+The witness fetches all three real response paths through `page.evaluate` in
+the browser: the run evidence-context URL built from
+`fixtureMetadata.core_run_id`, `/api/v1/control/data/promotion/candidates`, and
+`/api/v1/control/data/connectors`. It asserts each returned
+`meta.generated_at` equals the existing `VISUAL_CLOCK_TIME`. Before the shared
+helper existed, the exact RED command was:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'binds visual response metadata to the visual clock$' --output=../../_build/apps/runtime-dashboard/ds6-c18-02-witness-red
+```
+
+It failed 1/1 for the intended missing behavior: received
+`2026-08-16T11:43:33.955264Z`, expected
+`2026-01-01T00:00:00.000Z`. `/usr/bin/time` recorded `real 12.36`, `user
+5.29`, `sys 0.74`; before/after loads were `2.91 4.74 4.60` and
+`3.25 4.72 4.60`. The output root was exactly
+`../../_build/apps/runtime-dashboard/ds6-c18-02-witness-red`.
+
+The minimal implementation adds one shared visual response-metadata route
+fixture, installed in `beforeEach` before navigation. It registers only the
+three exact path patterns and accepts only GET; any nonmatching method/path
+falls through. Each handler calls `route.fetch()` for the real response,
+requires an object `meta` and a nonempty string `meta.generated_at`, then
+fulfills a copied payload whose sole value change is
+`meta.generated_at = VISUAL_CLOCK_TIME`. It does not widen any visual
+comparator or tolerance.
+
+The exact GREEN command was the same except for its unique output root:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'binds visual response metadata to the visual clock$' --output=../../_build/apps/runtime-dashboard/ds6-c18-03-witness-green
+```
+
+It passed 1/1 in Playwright's 15.9 seconds; `/usr/bin/time` recorded `real
+16.57`, `user 6.47`, `sys 1.33`. Before/after loads were `3.13 4.53 4.53`
+and `3.64 4.57 4.54`; output was exactly
+`../../_build/apps/runtime-dashboard/ds6-c18-03-witness-green`. Both targeted
+runs used the supplied 2,400-second ceiling and the baseline's exact
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent` regime.
+
+The pre-reanchor blast expectation remains the same complete set: the 14
+baseline-green identities stay green, the three DS6-attributed identities stay
+RED until their separate snapshot generation, and DS8's print identity stays
+RED and byte-unmodified. That is explicitly an expectation, not a post-fixture
+receipt; the full post-fixture no-update lane is not run in this stage. No
+snapshot generation, targeted PNG update, full visual rerun, DS8 print repair,
+comparator/tolerance change, product/backend change, staging, or commit occurs.
+
+Pattern closeout for this stage: P08 separates production response time from
+the visual test clock; P29/P33 are satisfied by a RED-first behavioral witness
+over real route responses rather than authorial markers; P35 is satisfied by
+the complete one-spec/18-call and one-directory/18-PNG census. Snapshot
+re-anchor and full-envelope verification remain open by design rather than
+being reported as green.
+
+The lightweight source-freeze checks then passed: focused Vitest over
+`src/test/contracts/visualRegressionHarness.test.ts` and
+`src/app/surfaces/visualFixtureHarness.test.ts` returned 2/2 files and 6/6
+tests in 2.55 seconds; scoped ESLint over the visual spec returned zero
+warnings; scoped Prettier reported the spec formatted; and
+`tsc -p tsconfig.app.json --noEmit` returned no diagnostics. The static visual
+harness behaviorally re-read the spec and snapshot directory and kept the
+18-call/18-PNG relation one-to-one. These are source checks, not browser-image,
+post-fixture blast, snapshot-generation, or stability receipts.
+
+## DS6-C18 re-anchor and closeout continuation — 2026-08-16
+
+This continuation supersedes only the earlier stage's open-status statements;
+it does not rewrite their historical strength. The same declared cap remains
+six paths: the visual spec, the three named DS6 PNGs, this plan, and this
+journal. The DS8 print PNG, visual comparator/configuration, product sources,
+backend sources, and runtime API remain outside the write set.
+
+All browser runs below used one DS6 heavy parent, the supplied 2,400-second
+ceiling, and regime
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`. Their common
+literal prefix, from `apps/runtime-dashboard`, was:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium
+```
+
+The suffix was the selection/update option, if any, plus the exact `--output`
+root named in the table. A GREEN update run is generation, never verification;
+a missing load endpoint is a timing-substrate nonreceipt, never an invented
+sample. No run was killed and no run exceeded the ceiling.
+
+| Run/output suffix | Selection and true-strength receipt | `real` seconds | Load before -> after |
+| --- | --- | ---: | --- |
+| `04-post-fixture-full` | full no-update RED, 15/19; exact four screenshot REDs remained evidence promotion, dark evidence, mobile command center, and DS8 print | 70.32 | `2.74 3.52 4.05` -> `3.99 3.73 4.07` |
+| `05-targeted-update` | three target tests GREEN under `--update-snapshots`; generation only, later superseded | 30.05 | `3.91 3.72 4.07` -> `4.18 3.77 4.06` |
+| `06-targeted-no-update` | RED 1/3: mobile green, evidence and dark RED because wall-clock freshness lag advanced | 40.69 | missing pair: timing sample nonreceipt |
+| `07-clock-red` | clock witness RED 0/1: `clock.install()` produced `2026-01-01T00:00:00.917Z`, not the fixed instant | 26.63 | `4.77 4.30 4.24` -> `7.35 5.00 4.50` |
+| `08-clock-green` | same witness GREEN 1/1 after `page.clock.setFixedTime()` | 13.76 | `6.22 4.87 4.46` -> `5.67 4.83 4.46` |
+| `09-post-clock-full` | full no-update RED 16/19; only evidence, dark, and DS8 print remained RED | 61.58 | `2.36 3.15 3.77` -> `3.15 3.25 3.76` |
+| `10-authoritative-update` | target GREEN 3/3 under `--update-snapshots`; authoritative generation, not verification | 25.73 | `3.06 3.23 3.75` -> `3.40 3.29 3.75` |
+| `11-authoritative-targeted-no-update` | target GREEN 3/3 on then-current source; later helper changes superseded it | 29.94 | `3.40 3.29 3.75` -> `8.53 4.57 4.19` |
+| `12-final-full-no-update` | full RED 17/19: evidence promotion oscillated and DS8 print remained RED | 59.26 | before `8.08 4.55 4.18`; immediate after missing, so timing pair nonreceipt |
+| `13-layout-diagnostic` | 6/6 diagnostic-only run; not a closure or screenshot receipt | 37.46 | pair not captured: timing sample nonreceipt |
+| `14-data-intelligence-diagnostic` | 1/1 diagnostic-only run; not a closure receipt | 23.48 | before `5.01 4.79 4.43`; immediate after missing, so timing pair nonreceipt |
+| `15-catalog-readiness-green` | evidence-promotion readiness condition GREEN 1/1 | 15.00 | `4.09 4.57 4.38` -> `3.41 4.37 4.31` |
+| `16-final-targeted-three` | interim target GREEN 3/3; later generic-helper source change superseded it | 27.72 | `4.12 4.44 4.34` -> `6.43 5.00 4.55` |
+| `17-stability-window-red` | test returned GREEN 1/1 because Playwright assertions auto-waited; invalid RED design and therefore a behavioral-witness nonreceipt | 11.62 | pair not captured: timing sample nonreceipt |
+| `18-stability-window-red` | corrected direct witness RED 0/1: received `initial`, expected `settled` | 13.06 | `3.22 4.15 4.28` -> `3.33 4.12 4.26` |
+| `19-stability-window-green` | generic quiet-window witness GREEN 1/1; later review showed it did not yet prove the full post-mutation interval and used wall time, so it was superseded | 12.05 | `2.83 3.95 4.19` -> `2.75 3.84 4.15` |
+| `20-final-targeted-three` | target GREEN 3/3; superseded by the monotonic-clock delta | 19.87 | `2.69 3.81 4.13` -> `3.12 3.80 4.12` |
+| `21-final-full-no-update` | full RED 19/20, sole DS8 print; superseded by the monotonic-clock delta | 64.03 | `2.95 3.75 4.10` -> `4.01 4.01 4.17` |
+| `22-monotonic-stability-green` | strengthened quiet-window witness GREEN 1/1 on current source | 17.18 | `5.99 4.53 4.33` -> `4.88 4.39 4.28` |
+| `23-final-targeted-three` | current-source target GREEN 3/3; functional receipt valid, but missing pre-load makes its timing sample incomplete | 26.67 | before missing; after `4.02 4.15 4.19` |
+| `24-final-full-no-update` | controlling complete RED 19/20; sole failure DS8 `run detail A4 print` | 68.48 | `4.02 4.15 4.19` -> `4.97 4.35 4.26` |
+| `25-final-targeted-three-with-load-pair` | controlling target GREEN 3/3 on current source | 29.39 | `4.97 4.35 4.26` -> `6.04 4.67 4.37` |
+
+Run 22 and the two controlling final runs logged a nonfatal Prometheus exporter
+bootstrap warning (`Errno 48`, address already in use). The visual web server
+continued, every selected test executed, and Playwright emitted terminal
+results; the exporter is therefore an unavailable ancillary telemetry
+nonreceipt, not a visual-test failure or a killed lane.
+
+### Root-cause and property record
+
+The response fixture alone was necessary but not sufficient. First,
+`page.clock.install()` fixed the initial time and then advanced `Date`, while
+the UI computes connector freshness as current wall time minus the frozen
+response timestamp. Run 07 proved the drift; `page.clock.setFixedTime()` fixed
+wall time while leaving timers live, and run 08 proved both properties.
+
+Second, run 12 exposed a test-harness readiness defect. Its final retained
+evidence actual was byte-identical to the 8,529 px baseline, but an earlier
+8,497 px sample made the comparator RED. The shorter image was an exact pixel
+prefix; only a 32 px tail was absent. The complete trace placed the old
+`waitForStableRender` return about 102 ms before the catalog GET. The 250 ms
+debounce in `DataIntelligencePanel` then enabled the catalog request and added
+one 16 px knowledge-weave line plus its 16 px gap. The final evidence test
+registers the exact catalog response wait before navigation, requires a 2xx
+typed response, observes response-derived text inside the real knowledge panel,
+and only then enters the generic render-stability check.
+
+P38 is explicit here: the required property is a continuously settled render;
+the prior implementation tested one equal signature pair. The debounced
+catalog mutation is the measured divergent case. The generic repair samples
+the complete markup/font/bounds signature every 50 ms, uses runner
+`performance.now()` for elapsed time, resets the quiet clock on every observed
+change, and requires 500 ms continuously quiet. The twentieth Playwright test
+mutates real text and height after 150 ms, records the browser monotonic
+mutation time, and asserts both the final DOM and at least 500 ms elapsed after
+that mutation. Run 18 is the meaningful RED; run 22 is the current-source
+GREEN. Run 17 is retained as the exact test-design nonreceipt rather than
+rounded into RED evidence.
+
+The three-response fixture remains exact: GET run evidence-context for
+`fixtureMetadata.core_run_id`, GET promotion candidates, and GET connectors.
+Each handler fetches the real response, requires object `meta` and nonempty
+string `meta.generated_at`, then shallow-copies only that field to
+`VISUAL_CLOCK_TIME`. The metadata witness fetches all three through the real
+browser path. There is no comparator/tolerance/product/API relaxation.
+
+### Re-anchor authority and current visual envelope
+
+The exact authoritative generation command was:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep '(evidence promotion focus|dark evidence fabric|mobile command center)$' --update-snapshots --output=../../_build/apps/runtime-dashboard/ds6-c18-10-authoritative-update
+```
+
+Generation is not verification. The current-source closure sequence, followed
+by the timing-complete target repeat, was:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep '(evidence promotion focus|dark evidence fabric|mobile command center)$' --output=../../_build/apps/runtime-dashboard/ds6-c18-23-final-targeted-three
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --output=../../_build/apps/runtime-dashboard/ds6-c18-24-final-full-no-update
+UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/_build/apps/runtime-dashboard/.venv-online UV_NO_SYNC=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/atlas-ds6/policy-engine/src /usr/bin/time -p corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep '(evidence promotion focus|dark evidence fabric|mobile command center)$' --output=../../_build/apps/runtime-dashboard/ds6-c18-25-final-targeted-three-with-load-pair
+```
+
+The target returned 3/3. The complete spec returned 19/20 across 20 tests and
+18 screenshot identities. Its sole RED was DS8-owned `run detail A4 print`:
+724x2113 expected, 770x13229 actual, exactly 691,742 differing pixels at ratio
+0.07 against `maxDiffPixels: 100`. That exact RED is the C13/DS8 result, not a
+C18 failure or repair permission. It proves the C18 fixture introduced no
+fourth moved baseline.
+
+The complete one-spec/one-directory P35 census is now 20 Playwright tests, 18
+`toHaveScreenshot` calls, and the same 18 distinct committed PNG stems—no
+missing, extra, or duplicate baseline. Final authorized baseline artifacts are:
+
+| Baseline | Dimensions | Bytes | SHA-256 |
+| --- | ---: | ---: | --- |
+| evidence promotion focus | 1094x8529 | 1,994,425 | `03e69c28aeda2baf2caca233b050c31193b0b327f269ef32cf27c3f34a73e667` |
+| dark evidence fabric | 1094x6521 | 873,550 | `f5a8c3257cb070bc276827c1cefcc6fc9f85864af20f3f56d531d394fcc0d98f` |
+| mobile command center | 369x3680 | 326,520 | `23cab2cb08f15b1ee668faf1de5a4a81a4ba2dc1ec214d29981c7b575a49557d` |
+
+The DS8 print baseline remains 724x2113, 231,141 bytes, SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`,
+and git blob `104ef3c896c3897de48252409494b867b0820f66`. The visual config remains
+byte-identical to HEAD at SHA-256
+`869a74240ea22ad7cdf93a296d8aaabc6ee20f5201e86d62e2a554dac6c4e15f`;
+all five existing `maxDiffPixels: 100` print comparators are unchanged.
+
+### Duplication, capability strength, package, and remaining order
+
+The complete adjacent visual owner census has one screenshot call for each of
+the 18 PNG identities; C18 creates no duplicate snapshot owner. The complete
+tracked dashboard CSS denominator remains 13 files and exactly two active
+`attr(href)` emitters: `src/styles/print.css:84` and `src/styles.css:1611`.
+They remain `duplicate_active`, DS8/team-design owned, with `styles.css` the
+registered strangle target. C18 does not edit either emitter or the DS8 print
+baseline.
+
+C18 is a deterministic test-harness repair plus independently executed visual
+evidence, not a new governed C07 receipt or orchestration bridge. Its ignored
+Playwright outputs are execution evidence, not CAS-persisted artifacts. No C07
+capture, C08 orchestration, C10 reconciliation, readiness-ledger transition,
+or public surface is inferred from a green screenshot.
+
+The contended package remains **ready**: C03, C04, and C06 are three executable
+append-only transitions after a fresh owner/hash reread when the register
+window opens; C13 is an exact held `NO WRITE` until DS8 repairs print,
+independent semantic non-overlap is established, and two stable no-update A4
+captures exist. There is no C10-R1 projection delta.
+
+The post-session blocked/order list is exact:
+
+- C03, C04, and C06 wait on the register-family release; C03's green-suite gate
+  and C06's honest 7/7 contrast gate are already discharged.
+- C10-R1 requires its own clean-tree session using per-claim disposition/basis;
+  the refused aggregate reconciled Boolean remains forbidden.
+- C13's governed transition waits on DS8's print repair and the named semantic
+  plus two-capture gates.
+- C14 is last.
+- C11 is landed as `implemented_but_not_orchestrated`; its honesty content,
+  observations, and every threshold remain `not_established`, not a blocker on
+  the six current descriptive measurements.
+
+The final static/fence/read-back receipts follow after the frozen six-path
+candidate is rerun and independently reviewed. No claim below this line is
+pre-authorized by the browser receipts above.
+
+### Frozen-source and fence receipts
+
+After the final monotonic quiet-window source freeze, four independent source
+checks ran in parallel because they share no browser/server/fixture process:
+
+- focused Vitest over `visualRegressionHarness.test.ts` and
+  `visualFixtureHarness.test.ts`: 2/2 files and 6/6 tests GREEN, 204 ms test
+  body, Vitest duration 4.70 s, `real 5.81`;
+- scoped ESLint over the visual spec: exit 0, `real 4.80`;
+- scoped Prettier check over the visual spec: exit 0, `real 1.22`;
+- `tsc -p tsconfig.app.json --noEmit`: exit 0, `real 24.81`.
+
+`git diff --check` returned exit 0. The corrected read-only TypeScript-AST and
+filesystem census returned exactly six dirty paths, 20 `test(...)` calls, 18
+literal `toHaveScreenshot(...)` calls, 18 unique names, and 18 matching PNG
+files. It separately walked all 13 tracked dashboard CSS files and returned
+only `src/styles/print.css:84` and `src/styles.css:1611` as `attr(href)`
+emitters. The scoped forbidden-path diff was empty for the Russian catalog,
+visual config, DS8 print baseline, `src/polisyos/**`, and every named
+register/report/status/readiness/baseline-manifest owner.
+
+Two earlier census command attempts are explicit tooling nonreceipts. The
+first trimmed the leading porcelain status byte and therefore misparsed one
+path; the second assumed `git ls-files` used the same prefix semantics with and
+without a pathspec and therefore found zero CSS files. Both exited before
+emitting a complete census and changed no file. The corrected command retained
+the exact same six-path source set and produced the denominator above; neither
+failed harness attempt is treated as product RED or evidence.
+
+Pre-commit readback was branch-attached at
+`dec77a050e3ddefc647e46cf4fc053c84c008d97`, 21 commits ahead of
+`c1a89b6cf`, with exactly the six declared C18 paths modified and no untracked
+or staged path. Independent review and the post-commit branch readback remain
+the only outstanding landing gates.
+
+## DS6-C18 bounded-fixture closeout — 2026-08-18
+
+This continuation is the active C18 record. It supersedes the preceding
+continuation's current-mechanism, current-census, authoritative-generation,
+controlling-envelope, and ready-to-land statements without rewriting any
+historical run. C18 is **verified and ready to land**; its commit and
+post-commit branch readback are pending.
+
+The exact cap-6 candidate is:
+
+1. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/evidence-promotion-focus-chromium-darwin.png`
+3. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/dark-evidence-fabric-chromium-darwin.png`
+4. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/mobile-command-center-chromium-darwin.png`
+5. `docs/plans/active/atlas-slices/DS6-evidence-workflow.md`
+6. `docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md`
+
+The visual contract-harness experiment was restored to HEAD and is not in the
+candidate. The frozen visual-spec SHA-256 is
+`9b634763d8708e0e00d20998e0928f43ad6157b7c0cd7ec690b1ff20d2ae9361`.
+The complete source/filesystem census is **19 Playwright tests**, **18 literal
+`toHaveScreenshot` calls**, **18 unique literal screenshot names**, and **18
+PNG files**. Independent source reviews are CLEAN. No C18 commit SHA exists
+yet; recording one before the landing readback would be an invented receipt.
+
+### Final mechanism and refused mechanism
+
+The final mechanism is bounded fixture determinism. One fixture registers only
+the exact GET run-evidence-context, promotion-candidates, and connectors
+routes. Each handler calls `route.fetch()` for the real response, requires an
+object `meta` and nonempty string `meta.generated_at`, and fulfills a copied
+payload whose only changed value is `meta.generated_at = VISUAL_CLOCK_TIME`.
+`page.clock.setFixedTime()` freezes wall time while live timers continue. The
+browser route/clock witness fetches all three real responses. The promotion
+capture registers the exact catalog response before navigation, validates its
+typed result, and observes response-derived readiness copy. Playwright's
+direct `toHaveScreenshot` remains the canonical raster comparator. Comparator,
+threshold, tolerance, production response, API contract, and DS8 print bytes
+are unchanged.
+
+The sampled/event/prototype/compositor-stability gate is **REFUSED**. This is a
+P31/P38 class finding, not a collection of missing hook instances: JavaScript
+activity is a proxy for compositor pixels and cannot prove the raster property.
+The evidence accumulated in order:
+
+- the sampled DOM signature missed a 250 ms asynchronous mutation;
+- event and prototype variants missed WAAPI construction, `MediaList`,
+  computed-style effects, aliased raw capture, and retained-proxy cleanup;
+- an observer that ended before `toHaveScreenshot` did not observe the
+  screenshot transaction, while moving it around the matcher still supplied
+  no discriminator for compositor-only or browser-internal raster change.
+
+Adding another hook would repeat the refused mechanism. The final source
+therefore removes the generic gate and its twentieth test, restores the visual
+contract harness to HEAD, fixes only the known drifting fixture inputs, and
+leaves pixel equality to the real Playwright comparator.
+
+### Preserved experimental receipts and nonreceipts
+
+Runs 01–25 above retain exactly their historical strength. In particular, run
+17 remains a behavioral-witness **nonreceipt**: Playwright assertion autowait
+made the proposed RED test GREEN without exercising the break. It is neither a
+RED nor evidence for the refused gate. Runs 26–34 are preserved below as
+noncontrolling mechanism exploration; none authorizes the final PNGs:
+
+| Run/output suffix | True-strength receipt | `real` seconds | Load before -> after |
+| --- | --- | ---: | --- |
+| `26-event-gate-red` | RED: sampled gate returned 460 ms against required >=500 ms | 15.58 | `2.87 3.24 3.00` -> `3.48 3.36 3.05` |
+| `27-event-gate-green` | interim event-gate GREEN 1/1; later structural review superseded the mechanism | 13.51 | `3.14 3.75 3.47` -> `2.99 3.67 3.45` |
+| `28-structural-review-red` | helper/tooling **nonreceipt**: `expect: Property 'then' not found`; the async helper accidentally exposed Playwright's expectation proxy to Promise assimilation, so no intended property was measured | 12.38 | before `2.20 2.46 2.87`; after missing, timing pair nonreceipt |
+| `29-structural-review-red` | RED: sibling-overlay mutation returned 408 ms against required >=500 ms | 12.62 | `2.63 2.49 2.84` -> `2.60 2.49 2.83` |
+| `30-structural-review-green` | interim document-observer GREEN 1/1; later paint review superseded the mechanism | 15.07 | `2.25 2.42 2.80` -> `2.58 2.49 2.81` |
+| `31-paint-review-red` | RED: canvas-only paint mutation returned 403 ms against required >=500 ms | 15.47 | `2.66 2.48 2.66` -> `2.80 2.52 2.67` |
+| `32-paint-review-green` | interim enumerated-paint-hook GREEN 1/1; later completeness review superseded the mechanism | 16.27 | `2.50 2.47 2.64` -> `2.58 2.50 2.65` |
+| `33-transaction-red` | RED: delayed stylesheet replacement settlement time was missing | 18.54 | `2.00 2.15 2.33` -> `1.65 2.06 2.29` |
+| `34-transaction-green` | RED: transaction reported visual activity during screenshot emission | 17.21 | `2.11 2.15 2.20` -> `2.16 2.16 2.20` |
+| `34b-transaction-green` | RED: `CSSRuleList` iteration was misclassified as visual activity | 17.27 | `2.60 2.25 2.22` -> `2.38 2.22 2.21` |
+| `34c-transaction-green` | same `CSSRuleList` false-positive RED after the next repair | 17.33 | `2.47 2.24 2.22` -> `3.02 2.37 2.27` |
+| `34d-transaction-green` | RED: quiet-window duration was 459 ms against required >=500 ms | 63.90 | before `1.93 2.20 2.21`; after missing, timing pair nonreceipt |
+| `34e-transaction-green` | experimental witness GREEN 1/1; subsequent review refused the mechanism, so this is not admission or generation authority | 23.24 | `4.58 2.83 2.44` -> `3.88 2.88 2.47` |
+
+Two command-design attempts also remain explicit tooling nonreceipts. A
+Playwright invocation/configuration using unsupported `minWorkers` did not
+exercise the intended browser property. A root-launched TypeScript AST command
+could not resolve the app-local `typescript` package and emitted no complete
+census. Neither is a product RED, timing sample, source-review receipt, or
+permission to change the fixture. The two earlier porcelain/CSS census
+nonreceipts recorded above likewise remain nonreceipts.
+
+### Source-frozen generation and verification
+
+Every final browser lane used supplied ceiling 2,400 seconds and regime
+`shared_host_uncontrolled_external_load_one_ds6_heavy_parent`; the load triple
+is the 1/5/15-minute average captured immediately before and after. No run was
+killed and none exceeded its ceiling.
+
+| Run/output suffix | True-strength receipt | `real` / `user` / `sys` seconds | Load before -> after |
+| --- | --- | ---: | --- |
+| `35-final-source-update` | targeted GREEN 3/3 under `--update-snapshots`; **authoritative generation only**, never verification | `38.50 / 39.94 / 5.28` | `2.00 2.32 2.37` -> `3.80 2.70 2.50` |
+| `36-final-source-targeted-no-update` | targeted no-update GREEN 3/3; controlling target verification | `26.77 / 26.04 / 3.38` | `3.57 2.67 2.49` -> `3.93 2.81 2.55` |
+| `37-final-source-full-no-update` | genuine full RED 17/19: scenario composer oscillated between 1094x453 and 1094x3877, and DS8 print remained RED | `103.86 / 167.83 / 22.25` | `3.71 2.82 2.55` -> `10.53 6.01 3.85` |
+| `38-scenario-stability-diagnostic` | isolated scenario GREEN 1/1; diagnostic control, not a full-envelope receipt | `20.83 / 14.56 / 1.59` | `8.34 5.75 3.79` -> `6.47 5.51 3.76` |
+| `39-final-source-full-no-update-rerun` | controlling full expected RED 18/19; sole failure DS8-owned `run detail A4 print` | `93.69 / 157.67 / 20.47` | `6.03 5.43 3.75` -> `6.62 5.74 4.03` |
+
+Run 37 is not rounded away: it is a genuine RED whose extra scenario failure
+did not reproduce in isolation or in the controlling full rerun. Run 39's sole
+failure compared the expected 724x2113 DS8 print against actual 770x13229 and
+reported exactly 691,791 differing pixels. Run 35 is the only authoritative
+generation; run 36 verifies the three C18 targets; run 39 defines the final
+visual envelope. The three re-anchored baselines remain:
+
+| Baseline | Dimensions | Bytes | SHA-256 |
+| --- | ---: | ---: | --- |
+| evidence promotion focus | 1094x8529 | 1,994,425 | `03e69c28aeda2baf2caca233b050c31193b0b327f269ef32cf27c3f34a73e667` |
+| dark evidence fabric | 1094x6521 | 873,550 | `f5a8c3257cb070bc276827c1cefcc6fc9f85864af20f3f56d531d394fcc0d98f` |
+| mobile command center | 369x3680 | 326,520 | `23cab2cb08f15b1ee668faf1de5a4a81a4ba2dc1ec214d29981c7b575a49557d` |
+
+The DS8 print baseline remains byte-unmodified at SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`
+and git blob `104ef3c896c3897de48252409494b867b0820f66`. Thus the fixture blast
+radius remains the two evidence pages, while the re-anchor radius is those two
+plus the C15-R1 mobile-copy baseline; no fourth DS6 baseline moved.
+
+### Ready package, blocked order, duplication, and timing law
+
+The four contended executable deltas remain **READY**. C03, C04, and C06 are
+three append-only governed transitions once the register window opens, each
+beginning with a fresh owner/hash readback. C13 is the fourth prepared delta
+and remains exact `NO WRITE` until DS8 supplies its print repair, independent
+semantic non-overlap, and two stable no-update captures. There is no C10-R1
+projection delta.
+
+The active blocked/order list is:
+
+- C03, C04, and C06 wait on the register-family release; C03's green-suite and
+  C06's honest 7/7 contrast gates are already discharged;
+- C10-R1 requires its own clean-tree session under the per-claim
+  disposition/basis vector; the refused single reconciled Boolean remains
+  forbidden under the recorded PV-K01 analogy/ruling;
+- C13 waits on the DS8 repair, semantic result, and two captures;
+- C14 is last.
+
+C11 remains `implemented_but_not_orchestrated`. The honesty-comprehension
+content, observations, and every threshold remain `not_established`; none is
+silently collapsed into zero or a stable bar.
+
+The standing duplication census remains the complete 13 tracked dashboard CSS
+files and exactly two active `attr(href)` print emitters:
+`src/styles/print.css:84` and `src/styles.css:1611`. They remain DS8-owned
+`duplicate_active` debt; `styles.css` is the registered strangle target. The
+18 screenshot names remain one-to-one with the 18 PNGs, so C18 creates no
+duplicate snapshot owner.
+
+The final frozen-source static wave is GREEN: focused Vitest over
+`visualRegressionHarness.test.ts` and `visualFixtureHarness.test.ts` returned
+2/2 files and 6/6 tests (`real 6.14`, 146 ms test body); scoped ESLint returned
+exit 0 (`real 4.24`); scoped Prettier returned exit 0 (`real 1.39`); and the app
+TypeScript project returned exit 0 (`real 19.68`). The independent TypeScript
+AST/filesystem census recomputed 19 tests, 18 literal screenshot calls, 18
+unique names, 18 PNGs, and exact one-to-one parity. `git diff --check` and the
+protected-path diff were empty. These are source/fence receipts, not browser
+or CAS evidence.
+
+One duplication-command attempt was a tooling nonreceipt: it quoted the
+newline-separated 13-file CSS list as one `rg` path and produced an I/O error.
+The corrected complete command piped the same sorted `git ls-files`
+denominator through `xargs rg`; it returned exactly the two emitters above.
+An independent final review also first launched a policy-root pathspec from
+the dashboard directory and therefore received an empty `CSS_COUNT`; its
+policy-root retry reproduced 13 files and the same two emitters. Both failed
+invocations changed nothing and supply no zero, count, or timing claim.
+Another final review first used a nonexistent `e2e/visualRegressionHarness.test.ts`
+path and Git object names without the monorepo's `policy-engine/` prefix; those
+lookups errored and supplied no byte-identity receipt. Its corrected retry used
+`src/test/contracts/visualRegressionHarness.test.ts` and
+`HEAD:policy-engine/...`, reproducing the HEAD-identical harness SHA-256
+`16199c3a1b9b3f869f65d7c0c714cc5d3f4ca9b1f0d1f405959de1f4808e86b6`
+and DS8 print blob `104ef3c896c3897de48252409494b867b0820f66`.
+The final receipt audit's optional owner-hash command also misspelled
+`test_frontend_baseline_debt_manifest.py` with a hyphen, so that invocation
+hashed only its first three inputs and supplied no eight-owner hash census.
+The prior existence loop had already found all eight owners; the corrected
+retry hashed all eight. The misspelled command changed nothing and is not an
+owner-identity, package-readiness, or timing receipt.
+
+Lint retains two measured regimes: cold **1,182.94 s** and warm shared-cache
+**19.18 s**, a **62x** spread. A future ceiling is `2 x p95` of successful
+runs in the matching regime, never a margin over the minimum; no timing sample
+without its load/cache regime is promoted. C18's commit and post-commit branch
+readback remain pending.

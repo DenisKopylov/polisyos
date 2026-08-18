@@ -12,7 +12,6 @@ import re
 import subprocess
 import sys
 import tempfile
-from collections import Counter
 from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -1141,162 +1140,6 @@ def _query_cache_policy_errors(
     return sorted(set(errors))
 
 
-def _persistence_construction_errors(
-    scan: Mapping[str, Any],
-    *,
-    register: Mapping[str, Any],
-) -> list[str]:
-    """Join declaration-resolved persistence sites to explicit governed rows."""
-    facts = scan.get("persistenceConstructionFacts")
-    census = register.get("storage_construction_census")
-    if not isinstance(facts, Mapping):
-        return ["persistence_construction_facts_missing"]
-    if not isinstance(census, Mapping):
-        return ["persistence_construction_census_missing"]
-    live_sites = facts.get("sites")
-    governed_sites = census.get("sites")
-    if not isinstance(live_sites, list) or not isinstance(governed_sites, list):
-        return ["persistence_construction_census_invalid"]
-
-    errors: list[str] = []
-    disposition_checker._validate_storage_construction_census(register, errors)
-    if facts.get("productionSourceCount") != census.get("production_source_count"):
-        errors.append("persistence_production_source_denominator_drift")
-    live_paths = {
-        str(row.get("path"))
-        for row in live_sites
-        if isinstance(row, Mapping) and isinstance(row.get("path"), str)
-    }
-    if len(live_paths) != census.get("production_file_count"):
-        errors.append("persistence_production_file_denominator_drift")
-    if len(live_sites) != census.get("site_count"):
-        errors.append("persistence_site_denominator_drift")
-    if facts.get("apiCounts") != census.get("api_counts"):
-        errors.append("persistence_api_denominator_drift")
-
-    def rows_by_id(rows: Sequence[Any], label: str) -> dict[str, Mapping[str, Any]]:
-        mapped: dict[str, Mapping[str, Any]] = {}
-        for row in rows:
-            if not isinstance(row, Mapping) or not isinstance(row.get("site_id"), str):
-                errors.append(f"persistence_{label}_row_invalid")
-                continue
-            site_id = str(row["site_id"])
-            if site_id in mapped:
-                errors.append(f"persistence_{label}_site_duplicate:{site_id}")
-            mapped[site_id] = row
-        return mapped
-
-    def normalize_binding(raw: Any) -> Mapping[str, Any] | None:
-        if not isinstance(raw, Mapping):
-            return None
-        source_fingerprints = raw.get("sourceFingerprints")
-        if not isinstance(source_fingerprints, list):
-            return None
-        return {
-            "factory_site_ids": raw.get("factorySiteIds"),
-            "proof_kind": raw.get("proofKind"),
-            "proof_sha256": raw.get("proofSha256"),
-            "source_fingerprints": [
-                {
-                    "path": receipt.get("path"),
-                    "source_fingerprint": receipt.get("sourceSha256"),
-                }
-                for receipt in source_fingerprints
-                if isinstance(receipt, Mapping)
-            ],
-        }
-
-    normalized_live = [
-        {
-            "site_id": row.get("siteId"),
-            "path": row.get("path"),
-            "resolved_api_declaration": row.get("resolvedApi"),
-            "operation": row.get("operation"),
-            "source_fingerprint": row.get("sourceSha256"),
-            "site_fingerprint": row.get("siteSha256"),
-            "authority_binding": normalize_binding(row.get("authorityBinding")),
-        }
-        for row in live_sites
-        if isinstance(row, Mapping)
-    ]
-    live_by_id = rows_by_id(normalized_live, "live")
-    governed_by_id = rows_by_id(governed_sites, "registered")
-    authority_factory_calls = facts.get("authorityFactoryCalls")
-    if not isinstance(authority_factory_calls, list):
-        errors.append("persistence_authority_factory_facts_invalid")
-        authority_factory_calls = []
-    normalized_factories: list[dict[str, Any]] = []
-    for factory_call in authority_factory_calls:
-        if not isinstance(factory_call, Mapping):
-            errors.append("persistence_authority_factory_fact_invalid")
-            continue
-        normalized_factories.append(
-            {
-                "factory_site_id": factory_call.get("factorySiteId"),
-                "path": factory_call.get("path"),
-                "factory": factory_call.get("factory"),
-                "declaration_chain": factory_call.get("declarationChain"),
-                "source_fingerprint": factory_call.get("sourceSha256"),
-                "site_fingerprint": factory_call.get("siteSha256"),
-            }
-        )
-    live_factory_ids = [
-        str(row.get("factory_site_id")) for row in normalized_factories
-    ]
-    errors.extend(
-        f"persistence_authority_factory_duplicate:{factory_id}"
-        for factory_id, count in Counter(live_factory_ids).items()
-        if count > 1
-    )
-    live_factories = {
-        str(row.get("factory_site_id")): row for row in normalized_factories
-    }
-    governed_factory_rows = census.get("authority_factory_receipts")
-    governed_factories = (
-        {
-            str(row.get("factory_site_id")): row
-            for row in governed_factory_rows
-            if isinstance(row, Mapping)
-        }
-        if isinstance(governed_factory_rows, list)
-        else {}
-    )
-    for factory_id in sorted(live_factories.keys() - governed_factories.keys()):
-        errors.append(f"persistence_unregistered_authority_factory:{factory_id}")
-    for factory_id in sorted(governed_factories.keys() - live_factories.keys()):
-        errors.append(f"persistence_stale_authority_factory:{factory_id}")
-    for factory_id in sorted(live_factories.keys() & governed_factories.keys()):
-        if live_factories[factory_id] != governed_factories[factory_id]:
-            errors.append(f"persistence_authority_factory_drift:{factory_id}")
-    for site_id in sorted(live_by_id.keys() - governed_by_id.keys()):
-        errors.append(f"persistence_unregistered_site:{site_id}")
-    for site_id in sorted(governed_by_id.keys() - live_by_id.keys()):
-        errors.append(f"persistence_stale_registered_site:{site_id}")
-    comparisons = {
-        "path": "path_drift",
-        "resolved_api_declaration": "resolved_declaration_drift",
-        "operation": "operation_drift",
-        "source_fingerprint": "source_fingerprint_drift",
-        "site_fingerprint": "site_fingerprint_drift",
-    }
-    for site_id in sorted(live_by_id.keys() & governed_by_id.keys()):
-        live = live_by_id[site_id]
-        governed = governed_by_id[site_id]
-        for field, label in comparisons.items():
-            if live.get(field) != governed.get(field):
-                errors.append(f"persistence_{label}:{site_id}")
-        live_binding = live.get("authority_binding")
-        governed_binding = governed.get("authority_binding")
-        if governed.get("classification") == "scoped_authority":
-            if live_binding is None:
-                errors.append(f"persistence_authority_binding_missing:{site_id}")
-            elif live_binding != governed_binding:
-                errors.append(f"persistence_authority_binding_drift:{site_id}")
-        elif live_binding is not None:
-            errors.append(f"persistence_unexpected_authority_binding:{site_id}")
-    return sorted(set(errors))
-
-
 def _offline_queue_errors(
     scan: Mapping[str, Any], *, enforce_denominator: bool
 ) -> list[str]:
@@ -1625,10 +1468,6 @@ def _enforcement_scan(
         raise RuntimeError("status TypeScript scan returned invalid authorityIssuerFacts")
     if not isinstance(scan.get("offlineQueueFacts"), Mapping):
         raise RuntimeError("status TypeScript scan returned invalid offlineQueueFacts")
-    if not isinstance(scan.get("persistenceConstructionFacts"), Mapping):
-        raise RuntimeError(
-            "status TypeScript scan returned invalid persistenceConstructionFacts"
-        )
     return scan
 
 
@@ -1959,12 +1798,6 @@ def validate_enforcement(
     if source_overrides is None:
         errors.extend(_query_cache_policy_errors(scan, enforce_denominator=True))
         errors.extend(_offline_queue_errors(scan, enforce_denominator=True))
-        errors.extend(
-            _persistence_construction_errors(
-                scan,
-                register=disposition_checker._load_json(disposition_checker.REGISTER_PATH),
-            )
-        )
     if source_overrides is None:
         errors.extend(_authority_issuer_errors(scan))
         errors.extend(

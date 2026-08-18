@@ -3209,3 +3209,60 @@ projection. Any mismatch invokes the declaration snapshot restore and rejects th
 confidence ledger as the sole reissue and fifth member of GY-DEF14's enumerated batch; whether it is
 accepted remains `not_established` until the writer and audit finish. `[P37: institutionally_supplied
 for the acceptance rule and batch branch; not_established for the future outcome]`
+
+### Confidence-ledger accepted reissue and four producer receipts — accepted
+
+The accepted `--write` used the predeclared contended ceiling `6,497.873368` s and completed in
+`1,270.618687` s with child/wrapper exit `0/0`, no timeout, and a clean process group. Its producer
+terminal was `status=pass`, `issues=[]`, two byte-stable passes, cold/warm byte identity, a started
+second pass, `50` corrupt-field cases, and no worker termination. The governed output is exactly the
+declared candidate: `977,814` bytes and SHA-256
+`a9aed0395f4760e55650d531ce7a8a53620026adbe2e204c6e61b6f7e7b06753`.
+`acceptance-audit.json` records `12,674/12,674` declared/observed leaf rows, all declared rows equal,
+the comparison trio absent, protected movement `[]`, all `111` canonical null leaves retained, all
+three dependent scope identities rebound to the owner projection, and the confidence artifact as the
+only changed governed pin. The audit predicates are all true; no snapshot restore was needed.
+`run.meta.json`, stdout and stderr have SHA-256 `53440e…`, `011d4d…`, and `38730…` respectively.
+`[P37: recomputed]`
+
+The governed artifact then closed three serialized verification lanes, all under
+`own_heavy_lane_serialized_external_overlap_allowed`; unrelated external overlap was allowed and its
+causal contribution is `not_established`.
+
+* `--check` completed in `1,083.481236` s with child/wrapper `0/0`, `status=pass`, `issues=[]`, and
+  two byte-stable passes; all `453/453` pins were byte-identical.
+* `--cold-rederive` completed in `1,077.555323` s with child/wrapper `0/0`, `status=pass`, `issues=[]`,
+  two byte-identical cold/warm passes, `50` built-in corrupt cases, a clean process group, and all
+  `453/453` pins byte-identical.
+* `--corrupt-field-drift-check` completed in `1,074.107726` s with child/wrapper `0/0`,
+  `status=pass`, `issues=[]`, and two byte-stable passes. Its complete denominator is **`50/50` RED,
+  zero survivors**; no result was an `artifact_content_hash_drift` shortcut. This is the P29 witness
+  that each corrupt candidate was rehashed through the shared owner and rejected by its semantic or
+  schema detector. All `453/453` pins were byte-identical.
+
+The check, cold-rederive and corrupt meta/stdout/stderr receipts are respectively
+`c6829de…`/`b1808d…`/`492ff…`, `a772ba…`/`3dac89…`/`3372b…`, and
+`a86438ddbd29a6abc52979e9331ac7255199fe774b248146c01e5c6567f48d08`/
+`208e14adaa3ed68f6b36dd4b3ae09a81b091d71849bd33478ee071c24c97c6de`/
+`92b074310bd6aecb777ceb034ccae4e1bf021475d46e17356c64f05906c381df`.
+`[P37: recomputed for terminals, durations, pin equality, and denominator; institutionally_supplied
+for the regime; not_established for external-contention causality]`
+
+Before committing, an independent HEAD-to-worktree recursive leaf readback re-ran the declaration
+algorithm against `HEAD:policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json`.
+It reproduced `12,546` absent→present, `0` present→absent, and `128` present→present rows —
+`12,674` total — with `111` null leaves. The worktree bytes equal the declared candidate bytes exactly;
+both hash to `a9aed039…6753`. The supplied pre-write counts therefore remain confirmed rather than
+assumed. `[P37: recomputed]`
+
+### P34 timing-test isolation status before timing-lane reconciliation
+
+The historical RED is provisionally classified as a **synthetic harness-budget artifact**, not a
+product-source regression and not evidenced host contention: its test monkeypatches a `0.5` s historical
+budget, making the monitor's `1.0` s no-progress fence shorter than an intentionally slow objective-
+progress interval. The source correction at `2789b49e` changes only that synthetic fixture from `0.5`
+to `1.0` s. However, the asserted earlier isolated `138.88` s terminal is not retained as an independently
+inspectable stdout/meta receipt. Under P34 it is therefore **unresolved, not excluded** at this boundary.
+The focused test must be run and receipted after the timing-lane merge before it can be called a completed
+isolation proof. `[P37: independently_reconciled for classification and missing-receipt finding;
+recomputed for the fixture/source inspection]`

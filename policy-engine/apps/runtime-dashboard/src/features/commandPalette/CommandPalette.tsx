@@ -113,13 +113,14 @@ export function CommandPalette() {
   const { t } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { cycleDensity, density } = useDensity();
+  const commandPaletteEnabled = flags.enableCommandPalette;
 
   useGlobalShortcut(
     "command-palette",
     { key: "k", meta: true },
     "Open command palette",
     () => setOpen((o) => !o),
-    { group: "Global" },
+    { enabled: commandPaletteEnabled, group: "Global" },
   );
 
   useEffect(() => {
@@ -152,6 +153,7 @@ export function CommandPalette() {
           isDiscoveryCapabilityEnabled(capabilityDiscovery, capability),
         isWorkspaceAllowed: (workspaceKey) =>
           authz ? authz.isWorkspaceAllowed(workspaceKey) : true,
+        isFeatureEnabled: (featureFlag) => flags[featureFlag],
         isWorkspaceEnabled: (workspaceKey: WorkspaceKey) => {
           const workspace = WORKSPACES[workspaceKey];
           return workspace.featureFlag ? flags[workspace.featureFlag] : true;
@@ -169,6 +171,10 @@ export function CommandPalette() {
   const workspaceSurfaceItems = surfaceEntries.filter(
     (surface) => surface.command.group === "workspaceSurfaces",
   );
+
+  if (!commandPaletteEnabled) {
+    return null;
+  }
 
   return (
     <CommandDialog

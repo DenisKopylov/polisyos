@@ -682,8 +682,8 @@ product, package, schema, baseline, finding content, or disposition.
 three `sw.ts` Workbox pairs are among the six explicitly navigation-only
 TypeScript refs, so no gate turns on them. C21c closed the remaining structured
 binding class and historically unblocked C19-R1 on that axis; after R1's
-forward revert, C19-R2 is the current unblocked successor (its other audit
-waits still govern).
+forward revert, C19-R2 restored the candidate and landed the C21 consumer
+repair together with the flag gates.
 
 ### DS5-C21d — retire migration bindings and relocate unique constructs
 
@@ -781,6 +781,28 @@ successful timing samples:
 | dashboard architecture/dependency cruise | `4.62, 4.78, 5.57, 9.20` | `9.20` | `19 s` |
 | canonical report writer | no successful sample (`19.44 RED`, `39.60 RED`) | `86.97` | `174 s` |
 
+The landed C19-R2 successor used the same regime. It restored the reviewed R1
+candidate, repaired the governed C21 census consumer, and admitted these final
+terminal GREEN samples; the C21, bootstrap-navigation, and actual-route-object
+REDs remain behavioral receipts in the journal rather than successful timing
+samples:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused frontend C21 census consumer | `49.90, 49.14` | `49.90` | `100 s` |
+| focused dashboard/component tests | `2.49, 2.82, 9.45, 10.05, 10.18` | `82.27` | `165 s` |
+| dashboard typecheck | `12.70, 12.83` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `31.68, 32.19` | `86.84` | `174 s` |
+| dashboard production build | `18.46` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `4.33` | `9.20` | `19 s` |
+| canonical report writer | `34.16, 34.35` | `86.97` | `174 s` |
+| full frontend module | `132.59` | `373.94` | `748 s` |
+| disposition corruption battery | `98.83` | `276.89` | `554 s` |
+| status-retirement module | `52.60` | `168.65` | `338 s` |
+| status checker/corruption | `20.83` | `42.54` | `86 s` |
+| Atlas checker/corruption | `71.08` | `156.60` | `314 s` |
+| full Atlas module | `335.18` | `1338.89` | `2678 s` |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -873,6 +895,7 @@ A deferral or debt row's closure signal conforms to the register's established i
 
 - **Closure signals:** the governing bar is the schema's `nonEmptyString` plus the register's simple sibling rows, never a prior deferral.
 - **Mechanism-round breaker:** the breaker detects evidence that the mechanism is wrong, not mechanism-byte churn as an end in itself. A fix round triggered by a failing behavioral test, governed RED, or independent review mechanism finding consumes it. Zero-mechanism-byte test/receipt/documentation rounds remain free. A static-only lint, format, or typing-hygiene repair may change mechanism bytes without consuming a round only when scoped diffs prove no test outcome or governed artifact byte changed; dead/dropped logic is behavioral and consumes a round.
+- **P40 review-bucket rule:** before acting on a Blocking or Important review finding, classify it as a new class, the same class one level deeper, or a worked example of an already-declared class. Repair the first class instance. At the second same-class instance, widen to the quantity the property needs or declare a bounded residual with its falsifier and prove the closing capability absent; later worked examples consume no round and trigger no code.
 - **AST rules:** the governing bar is direct syntax or construction sites; their output states the indirect-flow residual rather than claiming to close it. `tsc` is the authority-slot enforcement engine.
 - **Sizing:** stop for a new bespoke mechanism at any line count. N instances of an established mechanism scale linearly and are measured per mechanism, not rejected by their aggregate line count.
 - **Implementation boundaries:** the plan states the boundary; every review finding or implementation constraint cites its governing artifact; an invented boundary is refused.
@@ -915,7 +938,7 @@ first continuously numbered `-R1` successor.
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 11 | stopped mechanism re-cut | C17b-R3 / 11; R2 candidate preserved after two repair rounds |
 | C18b | 5 | 12 | landed | C18b-R2 / 12; R1 checkpoint restored and verified |
-| C19 | 13 | 14 | R1 stopped at round breaker | C19-R2 / 14; C21 census consumer repair is the fourteenth mechanism path |
+| C19 | 13 | 14 | landed | C19-R2 / 14; C21 census consumer repair is the fourteenth mechanism path |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
 C01b/C01c are the separately authorized `636645bec` re-cut. C06 retains its
@@ -1432,9 +1455,9 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C17b-R1/R2/R3 | persistence construction census | R2 recomputed the complete 574-source / 36-site resolver set, but independent review disproved its per-site causal owner binding | preserved candidate `ca1400c55`; forward revert `eb97981c4`; round-3 review | `stopped_for_recut` after two mechanism repair rounds | C17b-R3, same cap 11 |
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
-| C19-R1/R2 | three flag gates and collaboration retirement | R1's candidate evidence is preserved but its live gates are forward-reverted; the governed C21 census consumer rejects relocation by exact structural identity instead of the ratified hybrid rule | candidate `9b87f0e09`; forward revert `33ea792b5`; round-3 C21 consumer review | `stopped_for_recut` after two independent mechanism repair rounds | C19-R2, same mechanism cap 14 |
+| C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C17b-R3, C19-R2 |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C17b-R3 |
 
 **Entry standing census (recomputed and independently reconciled at
 `324996652`, structurally refreshed through C17b-R2 revert `eb97981c4`):**
@@ -1443,9 +1466,9 @@ rows plus the two stopped C13a predecessor records), `31/31` execution-plane
 rows, all `28` C07–C20 status-heading occurrences collapsing to `24` base
 cluster groups, `48/48` expected-commit rows, branch ancestry, and every
 cluster status paragraph. In the commissioned chain, C18b-R2 landed,
-C17b-R2 stopped for the same-cap R3
-mechanism re-cut, and C19-R1 stopped for the same-cap C19-R2 successor after
-its third independent mechanism finding. Outside that chain, the executable-and-unentered set is exactly
+C17b-R2 stopped for the same-cap R3 mechanism re-cut, and C19-R2 lands the
+restored flag gates plus the C21 consumer repair. Outside that chain, the
+executable-and-unentered set is exactly
 `C07a`, `C09a-R1`, `C09b-R1`, `C11b-R1`, and `C15b-R1`. `C07b`, `C10-R1`,
 C15a's structured verdict/status-chip plane, and `C17a-R1` remain
 blocked-on-another-plan and are carried into C20 as named owner debt rather
@@ -1455,8 +1478,8 @@ The post-C17b-R2 refresh walked the same complete Markdown denominators and
 returned `25 / 23 / 2 / 31 / 28 / 24 / 48`; ancestry added landed C18b-R2
 `8bb10a611`, stopped candidate `ca1400c55`, and forward revert `eb97981c4`.
 The standing delta is C18b-R2 landed, C17b-R2 stopped for same-cap R3, and
-C19-R1 stopped for same-cap R2. The complete census is refreshed again in the
-C19 stop record and final chain hand-back.
+C19-R2 landed. The complete census is refreshed again at each later cluster
+landing and in the final hand-back.
 
 Reproduce those Markdown denominators from the `policy-engine/` root with the
 repository venv; this reads the complete named tables and all C07–C20 status
@@ -2392,10 +2415,27 @@ rollout flag true and a flag cannot satisfy permission.
 keyboard entry; collaboration key and environment surface are retired; all
 four disposition decisions carry successor/consumer or deletion evidence.
 
+**R2 landing outcome:** R2 restored the sixteen-path R1 checkpoint byte-for-
+byte, then made the governed C21 reference-count consumer compare collision-
+safe hybrid-key multisets while retaining multiplicity and fail-closed legacy,
+mixed, and unmappable modes. The real `runsRoutes` causal child, bootstrap and
+loaded tab navigation, palette/shortcut, WhatIf rail/workbench, strict cached
+manifest, and permission-separation witnesses are GREEN. The report writer is
+byte-idempotent and the complete serialized governed wave is GREEN. This
+cluster repairs a C21d consumer exposed by C19; it does not re-adjudicate C21d.
+
+**Recorded source-shape finding:** adding a standalone top-level flag hook in
+`RunDetailLayout.tsx` shifted a `ReturnStatement` ordinal and relocated four
+identical-token `Badge` identities. Co-declaring the hook with the existing
+authz hook preserved all seven governed hybrid keys exactly. Statement ordinal
+is therefore a real collision-family sensitivity for the next cluster editing
+this file; only the reviewed C06 content hash moved, with no C21 identity,
+readiness, diagnostic, or count re-anchor.
+
 **Preserved stopped candidate:** `9b87f0e09 DS5-C19-R1 preserve stopped
 flag-gate candidate`, forward-reverted by `33ea792b5`.
 
-**Expected successor commit:** `DS5-C19-R2 wire and retire D5 flags`.
+**Landing commit subject:** `DS5-C19-R2 wire and retire D5 flags`.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
@@ -2408,7 +2448,7 @@ JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
 by another plan. It remains unopened while `C07a`, `C09a-R1`, `C09b-R1`,
-`C11b-R1`, `C15b-R1`, `C17b-R3`, or `C19-R2` remains unclosed as a
+`C11b-R1`, `C15b-R1`, or `C17b-R3` remains unclosed as a
 local DS5 prerequisite.
 `C07b`, `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1`
 are carried as named debt with their owning plans and do not become C20
@@ -2487,7 +2527,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C17b-R1/R2/R3 | R1 stopped on the mandatory plan path; R2 candidate `ca1400c55` stopped after two repair rounds and was forward-reverted; `DS5-C17b-R3 govern persistence construction` | 11 |
 | C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
-| C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; `DS5-C19-R2 wire and retire D5 flags` | 14 |
+| C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; R2 landed as `DS5-C19-R2 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
 | C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |

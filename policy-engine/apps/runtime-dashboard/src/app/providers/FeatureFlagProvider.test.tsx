@@ -51,6 +51,18 @@ function FeatureFlagRenderProbe({ observed }: { observed: boolean[] }) {
   return null;
 }
 
+function C19FlagProbe() {
+  return (
+    <output data-testid="c19-flags">
+      {JSON.stringify({
+        causal: useFeatureFlag("enableCausalGraph"),
+        commandPalette: useFeatureFlag("enableCommandPalette"),
+        whatIf: useFeatureFlag("enableWhatIfAnalysis"),
+      })}
+    </output>
+  );
+}
+
 function PermissionFloorProbe() {
   const authz = useAuthz();
   const composerEnabled = useFeatureFlag("enableScenarioComposer");
@@ -219,6 +231,40 @@ describe("FeatureFlagProvider", () => {
       url: "/flags.json",
       version: FEATURE_FLAG_MANIFEST_VERSION,
     });
+  });
+
+  it("delivers all three false C19 rollout values from the strict scoped cache", async () => {
+    useAuthMeMock.mockReturnValue(readyIdentity("tenant-a", "user-a"));
+    window.localStorage.setItem(
+      FEATURE_FLAG_MANIFEST_CACHE_KEY,
+      JSON.stringify({
+        ...strictManifest({
+          enableCausalGraph: false,
+          enableCommandPalette: false,
+          enableWhatIfAnalysis: false,
+        }),
+        registryVersion: FEATURE_FLAG_MANIFEST_VERSION,
+        tenantId: "tenant-a",
+        userId: "user-a",
+      }),
+    );
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("network down"),
+    );
+
+    render(
+      <AuthzProvider>
+        <FeatureFlagProvider remoteUrl="/flags.json">
+          <C19FlagProbe />
+        </FeatureFlagProvider>
+      </AuthzProvider>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("c19-flags")).toHaveTextContent(
+        JSON.stringify({ causal: false, commandPalette: false, whatIf: false }),
+      ),
+    );
   });
 
   it("reports remote failures without cache as an error state", async () => {

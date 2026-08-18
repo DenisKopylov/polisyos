@@ -4235,3 +4235,88 @@
   not entered and still needs executable-unentered C07a, C09a-R1, C09b-R1,
   C11b-R1 and C15b-R1 plus C17b-R3 and C19-R2; C07b, C10-R1, the C15a
   structured plane and C17a-R1 remain carried external-plan debt.
+
+## 2026-08-18 — DS5-C19-R2 landed the flag gates and repaired the C21 census consumer
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at `24cebe3ca`, 99
+  commits ahead of `main`, clean, with the register family free. Root restored
+  all sixteen paths of stopped checkpoint `9b87f0e09`; all sixteen blobs read
+  back byte-identical before R2 work. The final P39 accounting is fourteen
+  mechanism paths (the thirteen dashboard paths plus the disposition checker)
+  and seven mandatory companions (owner test, C06 baseline manifest,
+  register, status inventory, generated report, plan, journal), exactly 21.
+- P40 was applied before every review action. The C21 consumer defect is the
+  same P29/P31/P33/P38 class one level deeper than C21d's ratified move rule,
+  and belongs to the governed consumer rather than C19's flag mechanism; it
+  consumes no C19 round. The later test-helper and actual-route-object gaps are
+  successive worked examples of that declared proxy-gate class. Because the
+  real batch validator and real route object exist, both were omissions rather
+  than bounded residuals and were closed by widening the witnesses.
+- The unmodified restored census first produced the intended governed RED:
+  `census-browser-signing-protected-live:reference_count`, exit 1, real
+  `34.79 s`, with stored and live multiplicity both 28 but one structural move.
+  The repaired consumer compares `Counter` multisets of C21d hybrid keys;
+  legacy remains exact-order, mixed identity modes and unmappable references
+  fail closed, and duplicates retain observation plus count drift. Owner-test
+  GREEN receipts were `2/2` in `49.90 s` and the final `3/3` in `49.14 s`.
+- The bootstrap-navigation falsifier removed the real predicate while keeping
+  metadata and produced RED `1/1`, exit 1, real `3.03 s`; restoration was GREEN
+  in `2.49 s`. Independent review then identified the same proxy-gate class in
+  the deep-link test: rendering `RunCausalFeatureGate` directly did not prove
+  `RUN_TAB_COMPONENTS.causal` consumed it. Mutating that production map back to
+  `RunCausalTab` produced RED in `3.52 s`; the widened witness extracts and
+  renders the actual `runsRoutes` child, then passed `1/1` in `2.82 s`.
+- Final source receipts under local macOS, installed dependencies and captured
+  exit were: the six focused suites `89/89` in `10.18 s` (earlier terminal
+  GREEN freezes `9.45 s` and `10.05 s`), dashboard typecheck `12.70 s`
+  (earlier `12.83 s`), exact thirteen-file ESLint `31.68 s` (earlier
+  `32.19 s`), build `18.46 s`, and dependency cruise `4.33 s` with 1030
+  modules / 4198 dependencies / zero violations. The plan records every new
+  successful sample and recomputes every executed lane ceiling.
+- The source-shape repair is a finding in its own right. A standalone top-level
+  flag hook shifted a `ReturnStatement` ordinal and re-anchored four
+  identical-token `Badge` identities. Co-declaring it with the existing authz
+  hook restored all seven hybrid keys without changing hook order. R2 then
+  moved only the reviewed C06 `RunDetailLayout.tsx` content hash to
+  `82b2e331a2375c49a853abcb992876e0abe514aea54add14550a47256b98b69e`;
+  no C21 identity, readiness, diagnostic, or count value moved.
+- The parsed governed allowlist remained exact: only the four C19 flag rows
+  and `census-collaboration-delete` differ in the register; status moves only
+  its dependent DS19 hash and the scanner-derived `FeatureFlagDisposition`
+  source span `19 -> 18`; the report is canonical output. Register SHA-256 is
+  `303aa04da9920380ad41b365ca6a97da9aa7ef7fa43df20cb4a55b2703109f34`.
+  The first report write changed `87e8700b…` to
+  `05df0797c845ec3b39d42ed1554bcd1fae1cb48c0b3dc97f3483590a43043811`
+  in `34.16 s`; the second write took `34.35 s` and retained the exact hash.
+  Parsed totals remain 261 roots / 9 censuses / 62 supplemental findings;
+  dispositions `18/186/25/16/16` and strangles `57/152/52` are unchanged.
+- Serialized governed receipts, each with the explicit repository 3.14 venv,
+  venv-first child resolution, uptime pair and captured terminal exit, were:
+  full frontend `96/96` in `132.59 s`; disposition checker/baseline/corruption
+  PASS in `98.83 s`; status module `38/38` in `52.60 s`; status corruption PASS
+  in `20.83 s`; Atlas checker/corruption PASS in `71.08 s`; and full Atlas
+  `34/34` in `335.18 s`. All are below their predeclared ceilings. The full
+  frontend module's nested negative fixture printed two expected inner loader
+  errors; the outer owner module terminated GREEN, so those lines are witness
+  output rather than a product failure or nonreceipt.
+- Tooling nonreceipts supplied no product evidence and changed no governed
+  byte: the executable SDD helper lacked its execute bit and succeeded when
+  invoked through `bash`; one broad `rg P40 .` produced truncated noisy JSON;
+  a readback reused zsh's special `path` variable and hid `git`; and the first
+  C21 RED invocation narrowed `PATH` enough to hide `node` and exited before a
+  test. Each was corrected without admitting its output. Behavioral REDs are
+  evidence but are excluded from successful-run p95 samples.
+- P37 provenance is `recomputed` for the source/test counts, parsed register
+  totals, hashes, timing arithmetic, and governed results;
+  `independently_reconciled` for the candidate restore, C21 hybrid property,
+  route-object binding, and committed-range review; no gate relies on a
+  consumer-asserted or institutionally supplied predicate. C23 constants,
+  rows, refs, and rationale are byte-excluded; DS8/DS9/DS14 semantics are not
+  claimed. The eight-owner/sixteen-literal duplication finding remains
+  registered.
+- **Terminal classification: `landed`.** Commit subject is
+  `DS5-C19-R2 wire and retire D5 flags`; the exact branch SHA, ahead count and
+  21-path readback are reported after commit. The register family is free at
+  the landing boundary. C20 is not entered; it still needs C07a, C09a-R1,
+  C09b-R1, C11b-R1, C15b-R1 and C17b-R3. C07b, C10-R1, the C15a structured
+  plane and C17a-R1 remain named external-plan debt.

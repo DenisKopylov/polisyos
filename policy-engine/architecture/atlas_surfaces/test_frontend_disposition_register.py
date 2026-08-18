@@ -3972,14 +3972,91 @@ class DS5LineAddressCensusTests(unittest.TestCase):
 
     def test_c21b_validator_replays_migrated_protected_probe_identities(self) -> None:
         """The live probe consumer compares canonical C21a identities, not navigation lines."""
-        migrated = json.loads(
-            checker._c21b_surgical_identity_text(REGISTER_PATH.read_text(encoding="utf-8"))
-        )
-        errors = checker.validate_register(migrated, live_probes=True, report_parity=False)
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        errors = checker.validate_register(data, live_probes=True, report_parity=False)
         probe_suffix = "census-browser-signing-protected-live:reference_count"
         self.assertEqual(
             [],
             [error for error in errors if error.endswith(probe_suffix)],
+        )
+
+    def test_c21b_protected_probe_retains_hybrid_identity_multiplicity(self) -> None:
+        """A duplicated protected construct remains drift even when its content relocates."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        source_path = "apps/runtime-dashboard/src/features/runs/route.tsx"
+        target_path = checker.REPO_ROOT / source_path
+        original = target_path.read_text(encoding="utf-8")
+        duplicated = (
+            original
+            + "\nexport const c19DuplicateProtectedRoutes = [\n"
+            + '  "public/decisions/:signedId",\n'
+            + '  "public/decisions/:signedId",\n'
+            + "] as const;\n"
+        )
+        original_read_text = Path.read_text
+
+        def read_text_override(path: Path, *args: object, **kwargs: object) -> str:
+            if path == target_path:
+                return duplicated
+            return original_read_text(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "read_text", new=read_text_override):
+            errors = checker.validate_register(
+                data,
+                live_probes=True,
+                report_parity=False,
+            )
+
+        probe_suffix = "census-browser-signing-protected-live:reference_count"
+        self.assertIn(
+            "census_observation_drift:" + probe_suffix,
+            errors,
+        )
+        self.assertIn(
+            "census_expected_count_drift:" + probe_suffix,
+            errors,
+        )
+
+    def test_c21b_probe_mode_preserves_legacy_and_fails_closed_on_invalid_modes(self) -> None:
+        """Legacy equality stays exact while mixed and unmappable identity probes fail closed."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        census = next(
+            row
+            for row in data["reference_censuses"]
+            if row["census_id"] == "census-browser-signing-protected-live"
+        )
+        identity_reference = census["probes"][0]["observed_refs"][0]
+
+        self.assertEqual(
+            (True, None),
+            checker._probe_observation_matches_stored_mode(
+                ["apps/runtime-dashboard/src/example.ts:1"],
+                ["apps/runtime-dashboard/src/example.ts:1"],
+            ),
+        )
+        self.assertEqual(
+            (False, None),
+            checker._probe_observation_matches_stored_mode(
+                ["apps/runtime-dashboard/src/example.ts:1"],
+                ["apps/runtime-dashboard/src/example.ts:2"],
+            ),
+        )
+        self.assertEqual(
+            (None, "census_identity_mode_mixed"),
+            checker._probe_observation_matches_stored_mode(
+                [identity_reference, "apps/runtime-dashboard/src/example.ts:1"],
+                ["apps/runtime-dashboard/src/example.ts:1"],
+            ),
+        )
+        self.assertEqual(
+            (
+                None,
+                "census_identity_observation_unmappable:README.md:1",
+            ),
+            checker._probe_observation_matches_stored_mode(
+                [identity_reference],
+                ["README.md:1"],
+            ),
         )
 
     def test_c21b_real_gate_ignores_moved_construct_and_rejects_rename(self) -> None:

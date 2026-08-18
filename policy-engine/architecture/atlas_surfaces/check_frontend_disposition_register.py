@@ -5921,13 +5921,13 @@ def _c21c_surgical_identity_text(text: str) -> str:
     return migrated
 
 
-def _probe_observation_for_stored_mode(
+def _probe_observation_matches_stored_mode(
     stored: Sequence[str], observed: Sequence[str]
-) -> tuple[list[str] | None, str | None]:
-    """Project a live probe into its committed legacy or C21a identity mode."""
+) -> tuple[bool | None, str | None]:
+    """Compare a live probe with its committed legacy or C21d identity mode."""
     identity_flags = ["#ts-identity=" in reference for reference in stored]
     if not any(identity_flags):
-        return list(observed), None
+        return list(observed) == list(stored), None
     if not all(identity_flags):
         return None, "census_identity_mode_mixed"
     anchors = []
@@ -5937,10 +5937,15 @@ def _probe_observation_for_stored_mode(
             return None, f"census_identity_observation_unmappable:{reference}"
         anchors.append(anchor)
     try:
-        identities = _typescript_reference_identities_from_anchors(anchors)
+        stored_identities = [
+            _typescript_reference_identity_record(reference) for reference in stored
+        ]
+        observed_identities = _typescript_reference_identities_from_anchors(anchors)
     except ValueError as exc:
         return None, str(exc)
-    return [identity["encoded_identity"] for identity in identities], None
+    stored_keys = Counter(_typescript_reference_hybrid_keys(stored_identities))
+    observed_keys = Counter(_typescript_reference_hybrid_keys(observed_identities))
+    return observed_keys == stored_keys, None
 
 
 def _ds2_links(
@@ -8130,14 +8135,14 @@ def validate_register(
         for census in data["reference_censuses"]:
             for probe in census["probes"]:
                 observed = _recompute_probe(probe)
-                comparable, mode_error = _probe_observation_for_stored_mode(
+                observation_matches, mode_error = _probe_observation_matches_stored_mode(
                     probe["observed_refs"], observed
                 )
                 if mode_error:
                     errors.append(
                         f"{mode_error}:{census['census_id']}:{probe['kind']}"
                     )
-                elif comparable != probe["observed_refs"]:
+                elif not observation_matches:
                     errors.append(f"census_observation_drift:{census['census_id']}:{probe['kind']}")
                 if len(observed) != probe["expected_count"]:
                     errors.append(f"census_expected_count_drift:{census['census_id']}:{probe['kind']}")

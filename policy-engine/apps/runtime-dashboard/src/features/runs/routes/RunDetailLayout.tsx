@@ -4,6 +4,7 @@ import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { getRunReviewTabPermission } from "@/app/authz/permissions";
+import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
@@ -92,12 +93,14 @@ function runDetailProvenance(
 function RunBootstrapState({ runId }: { runId: string }) {
   const { t } = useI18n();
   const capabilitiesQuery = useCapabilities();
-  const authz = useMaybeAuthz();
+  const authz = useMaybeAuthz(),
+    { flags } = useFeatureFlags();
   const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
       return permission ? (authz ? authz.can(permission) : true) : true;
     },
+    isFeatureEnabled: (featureFlag) => flags[featureFlag],
   });
 
   return (
@@ -151,7 +154,8 @@ function RunInspectorContent() {
   const { runId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const authz = useMaybeAuthz();
+  const authz = useMaybeAuthz(),
+    { flags } = useFeatureFlags();
   const summary = useRunInspector();
   const decisionPacket = useMemo(
     () => buildRunReportSnapshot(summary, []),
@@ -199,6 +203,7 @@ function RunInspectorContent() {
       const permission = getRunReviewTabPermission(tab);
       return permission ? (authz ? authz.can(permission) : true) : true;
     },
+    isFeatureEnabled: (featureFlag) => flags[featureFlag],
   });
   const legacySearch = parseRunDetailLegacySearchParams(location.search);
   const canOpenEvidence = authz ? authz.can("evidence.view") : true;

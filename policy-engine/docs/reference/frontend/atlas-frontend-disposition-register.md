@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **27770**
-- Application lines deleted: **19976**
-- Net application LOC reduction: **-7794**
+- Application lines added: **28085**
+- Application lines deleted: **20001**
+- Net application LOC reduction: **-8084**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -194,10 +194,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 | Unit | Decision | Consumer slice | Rationale |
 | --- | --- | --- | --- |
-| `flag-enable-causal-graph` | `wire_disposition` | `DS5` | The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate. |
-| `flag-enable-collaboration` | `retire_disposition` | `DS5` | The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity. |
-| `flag-enable-command-palette` | `wire_disposition` | `DS5` | The live palette must consume its existing key as a genuine launch gate. |
-| `flag-enable-what-if-analysis` | `wire_disposition` | `DS5` | The surviving server-backed workbench needs one real whole-surface exposure gate. |
+| `flag-enable-causal-graph` | `wire_disposition` | `DS5` | C19 wires enableCausalGraph through the direct-route gate, run-detail tab filtering, and causal command-palette entries; focused route and palette tests prove a false flag hides the route, normal tab, root, and descendants while permissions remain independent. The client loader may prime data before the context gate redirects, but no causal surface is exposed. |
+| `flag-enable-collaboration` | `retire_disposition` | `DS5` | C19 removes enableCollaboration from the canonical manifest keys and registry; the environment-boundary test proves the retired key is rejected atomically, while the refreshed zero registry-entry census proves no live construction remains. The separate enableReviewCollaboration authz override is unchanged. |
+| `flag-enable-command-palette` | `wire_disposition` | `DS5` | C19 gates both CommandPalette mounting and global shortcut registration with enableCommandPalette; focused layout and palette tests prove a false flag removes UI and keyboard entry without changing permission authority. |
+| `flag-enable-what-if-analysis` | `wire_disposition` | `DS5` | C19 gates the AppShell counterfactual rail and the Overview scenario workbench with enableWhatIfAnalysis; focused layout and run-detail tests prove a false flag removes both surfaces and cannot grant or replace permission. |
 
 ### Subunits and structural findings
 
@@ -519,7 +519,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `flag-enable-runs-workspace` | `flag-enable-runs-workspace` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-scenario-composer` | `flag-enable-scenario-composer` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-causal-graph` | `flag-enable-causal-graph` | 0 | `wire_disposition` | `not_applicable` | `DS5` | `—` |
-| `flag-enable-collaboration` | `flag-enable-collaboration` | 0 | `retire_disposition` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-collaboration` | `flag-enable-collaboration` | 0 | `retire_disposition` | `not_applicable` | `DS5` | `census-collaboration-delete` |
 | `flag-enable-command-palette` | `flag-enable-command-palette` | 0 | `wire_disposition` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-what-if-analysis` | `flag-enable-what-if-analysis` | 0 | `wire_disposition` | `not_applicable` | `DS5` | `—` |
 | `flag-auth-review-collaboration` | `flag-auth-review-collaboration` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -565,6 +565,13 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `24cebe3ca DS5 record C19 flag-gate recut stop`
+- `33ea792b5 Revert "DS5-C19-R1 preserve stopped flag-gate candidate"`
+- `9b87f0e09 DS5-C19-R1 preserve stopped flag-gate candidate`
+- `a447c9721 DS5 record C17b persistence census recut stop`
+- `eb97981c4 Revert "DS5-C17b-R2 preserve stopped persistence census candidate"`
+- `ca1400c55 DS5-C17b-R2 preserve stopped persistence census candidate`
+- `8bb10a611 DS5-C18b-R2 bind flag sources to strict registry`
 - `593ad6170 DS5 reconcile executable standings`
 - `324996652 DS5 record C18b governed recut stop`
 - `1464feee1 Revert "DS5-C18b-R1 checkpoint strict flag closeout recut"`

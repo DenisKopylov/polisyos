@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
 OPERATION = "persist_atlas_evidence"
 HEALTH_OPERATION = "persist_atlas_health_metrics"
+READINESS_OPERATION = "persist_atlas_surface_readiness_claims"
 RAW_REPORT_KIND = "atlas_evidence_raw_runner_report"
 RAW_REPORT_INPUT_ROLE = "runner_report"
 PAYLOAD_KIND = "atlas_evidence_verification_payload"
@@ -80,6 +81,53 @@ HEALTH_IMPLEMENTATION_PATHS = (
     "uv.lock",
 )
 HEALTH_INSTRUMENT_PATHS = HEALTH_IMPLEMENTATION_PATHS[:3]
+READINESS_REPORT_KIND = "atlas_surface_readiness_claim_report"
+READINESS_REPORT_SCHEMA = {
+    "id": "polisyos.atlas.surface-readiness-claim-report",
+    "version": "1.0.0",
+}
+READINESS_PROJECTION_KIND = "atlas_surface_readiness_claim_projection"
+READINESS_PROJECTION_SCHEMA = {
+    "id": "polisyos.atlas.surface-readiness-claim-projection",
+    "version": "1.0.0",
+}
+READINESS_REPORT_INPUT_ROLE = "claim_report"
+READINESS_PRODUCER_SCRIPT = (
+    "apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs"
+)
+READINESS_RECONCILER_SOURCE = (
+    "apps/runtime-dashboard/src/test/evidence/"
+    "atlasSurfaceReadinessReconciliation.ts"
+)
+READINESS_TEST_PATH = (
+    "apps/runtime-dashboard/src/test/evidence/"
+    "atlasSurfaceReadinessReconciliation.test.ts"
+)
+READINESS_LEDGER_PATH = (
+    "architecture/atlas_surfaces/live-application-readiness-ledger.json"
+)
+READINESS_SCHEMA_PATH = (
+    "architecture/atlas_surfaces/surface-readiness-ledger.schema.json"
+)
+READINESS_ROUTE_SOURCE = "apps/runtime-dashboard/src/app/routes/routes.tsx"
+READINESS_ROUTE_TEST = "apps/runtime-dashboard/src/app/routes/routes.test.tsx"
+READINESS_RECONCILER_COMPONENT = (
+    "polisyos.atlas.surface_readiness_reconciler@1.0.0"
+)
+READINESS_ADMISSION_COMPONENT = (
+    "polisyos.atlas.surface_readiness_admission@1.0.0"
+)
+READINESS_IMPLEMENTATION_PATHS = (
+    READINESS_RECONCILER_SOURCE,
+    READINESS_TEST_PATH,
+    READINESS_PRODUCER_SCRIPT,
+    "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+    HEALTH_SOURCE_VALIDATOR,
+    READINESS_LEDGER_PATH,
+    READINESS_SCHEMA_PATH,
+    READINESS_ROUTE_SOURCE,
+    READINESS_ROUTE_TEST,
+)
 HEALTH_METRIC_IDS = (
     "primitive_adoption",
     "fail_closed_fidelity",
@@ -161,10 +209,15 @@ def _read_request() -> dict[str, Any]:
 
 def _validate_request(request: dict[str, Any]) -> None:
     operation = request.get("operation")
-    if operation == HEALTH_OPERATION:
+    if operation in {HEALTH_OPERATION, READINESS_OPERATION}:
         if set(request) != {"operation"}:
+            label = (
+                "health-metric"
+                if operation == HEALTH_OPERATION
+                else "surface-readiness"
+            )
             raise AtlasEvidencePersistenceError(
-                "health-metric request keys must be exactly ['operation']; "
+                f"{label} request keys must be exactly ['operation']; "
                 f"got {sorted(request)}"
             )
         return
@@ -1149,6 +1202,473 @@ def _run_health_metric_producer(
     )
 
 
+def _require_keys(value: Mapping[str, Any], expected: set[str], *, field: str) -> None:
+    if set(value) != expected:
+        raise AtlasEvidencePersistenceError(
+            f"{field} keys must be exactly {sorted(expected)}; got {sorted(value)}"
+        )
+
+
+def _require_lower_sha256(value: object, *, field: str) -> str:
+    if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise AtlasEvidencePersistenceError(f"{field} must be lowercase SHA-256")
+    return value
+
+
+def _readiness_source_ref(path: str, role: str) -> dict[str, str]:
+    return {
+        "path": path,
+        "sha256": hashlib.sha256(
+            (_policy_engine_root() / path).read_bytes()
+        ).hexdigest(),
+        "role": role,
+    }
+
+
+def _expected_readiness_claims(
+    source_projection: Mapping[str, Any],
+) -> list[dict[str, str]]:
+    ledger = json.loads(
+        (_policy_engine_root() / READINESS_LEDGER_PATH).read_text(encoding="utf-8"),
+        object_pairs_hook=_reject_duplicate_keys,
+        parse_constant=_reject_non_json_constant,
+    )
+    if not isinstance(ledger, dict) or not isinstance(ledger.get("entries"), list):
+        raise AtlasEvidencePersistenceError(
+            "validated readiness owner must contain an entries array"
+        )
+    entries = ledger["entries"]
+    readiness_projection = source_projection.get("readiness")
+    if (
+        not isinstance(readiness_projection, dict)
+        or readiness_projection.get("entry_count") != len(entries)
+    ):
+        raise AtlasEvidencePersistenceError(
+            "validated readiness population changed before admission"
+        )
+
+    claims: list[dict[str, str]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise AtlasEvidencePersistenceError(
+                "validated readiness owner contains a non-object entry"
+            )
+        surface_id = entry["surface_id"]
+        title = entry["title"]
+        if entry["maturity"] == "stable":
+            claims.append(
+                {
+                    "claim_id": f"{surface_id}:maturity:stable",
+                    "surface_id": surface_id,
+                    "title": title,
+                    "dimension": "maturity",
+                    "declared_value": "stable",
+                }
+            )
+        if entry["readiness_state"] == "implemented":
+            claims.append(
+                {
+                    "claim_id": f"{surface_id}:readiness_state:implemented",
+                    "surface_id": surface_id,
+                    "title": title,
+                    "dimension": "readiness_state",
+                    "declared_value": "implemented",
+                }
+            )
+    return claims
+
+
+def _expected_route_assertion(claim: Mapping[str, str]) -> str | None:
+    if claim["dimension"] != "readiness_state":
+        return None
+    prefix = "route-redirect-"
+    surface_id = claim["surface_id"]
+    if not surface_id.startswith(prefix):
+        return None
+    legacy_path = f"/{surface_id.removeprefix(prefix)}"
+    if re.fullmatch(r"/[a-z0-9/-]+ to /[a-z0-9/-]+", claim["title"]) is None:
+        return None
+    if not claim["title"].startswith(f"{legacy_path} to "):
+        return None
+    return (
+        "APP_ROUTES wraps app routes with the shell and follows legacy redirect "
+        f"from '{legacy_path}'"
+    )
+
+
+def _require_readiness_source_ref(
+    value: object,
+    *,
+    expected: Mapping[str, str],
+    field: str,
+) -> None:
+    if value != dict(expected):
+        raise AtlasEvidencePersistenceError(f"{field} source reference mismatch")
+
+
+def _require_observed_readiness_basis(
+    claim: Mapping[str, Any],
+    expected_claim: Mapping[str, str],
+    *,
+    source_validator_observation: Mapping[str, Any],
+    node_executable: Path,
+    node_version: str,
+) -> None:
+    basis = claim.get("basis")
+    if not isinstance(basis, dict):
+        raise AtlasEvidencePersistenceError("readiness claim basis must be an object")
+    _require_keys(
+        basis,
+        {
+            "kind",
+            "observation",
+            "owner_validation",
+            "canonical_check",
+            "source_refs",
+        },
+        field="observed readiness basis",
+    )
+    if basis["kind"] != "observed_by_reconciler":
+        raise AtlasEvidencePersistenceError(
+            "closed readiness producer may emit only observed_by_reconciler rows"
+        )
+
+    observation = basis["observation"]
+    if not isinstance(observation, dict):
+        raise AtlasEvidencePersistenceError("claim observation must be an object")
+    _require_keys(observation, {"status", "reason"}, field="claim observation")
+    observation_status = observation["status"]
+    if observation_status not in {
+        "observed",
+        "not_observed",
+        "observation_unavailable",
+    }:
+        raise AtlasEvidencePersistenceError("claim observation status is outside the contract")
+    if observation_status == "observed" and observation["reason"] is not None:
+        raise AtlasEvidencePersistenceError("positive observation must not carry a reason")
+    if observation_status != "observed" and (
+        not isinstance(observation["reason"], str) or not observation["reason"]
+    ):
+        raise AtlasEvidencePersistenceError(
+            "negative or unavailable observation must carry a reason"
+        )
+    expected_provenance = (
+        "not_established"
+        if observation_status == "observation_unavailable"
+        else "recomputed"
+    )
+    if claim.get("predicate_provenance") != expected_provenance:
+        raise AtlasEvidencePersistenceError(
+            "claim predicate provenance does not match observation availability"
+        )
+
+    owner_validation = basis["owner_validation"]
+    if not isinstance(owner_validation, dict):
+        raise AtlasEvidencePersistenceError("owner validation must be an object")
+    expected_owner_validation = {
+        "predicate_provenance": "recomputed",
+        "report_sha256": source_validator_observation["stdout_sha256"],
+        "validator_ref": _readiness_source_ref(
+            HEALTH_SOURCE_VALIDATOR,
+            "canonical_owner_validator",
+        ),
+    }
+    if owner_validation != expected_owner_validation:
+        raise AtlasEvidencePersistenceError(
+            "claim owner validation does not bind the fixed canonical validator"
+        )
+
+    canonical_check = basis["canonical_check"]
+    if not isinstance(canonical_check, dict):
+        raise AtlasEvidencePersistenceError("canonical check must be an object")
+    _require_keys(
+        canonical_check,
+        {
+            "check_id",
+            "executable",
+            "report_sha256",
+            "assertion_name",
+            "assertion_status",
+            "test_ref",
+        },
+        field="canonical check",
+    )
+    is_stable = expected_claim["dimension"] == "maturity"
+    expected_check_id = (
+        "surface-readiness.stable.maturity-prerequisite"
+        if is_stable
+        else "runtime-dashboard.route-redirect.behavior"
+    )
+    if canonical_check["check_id"] != expected_check_id:
+        raise AtlasEvidencePersistenceError("canonical check identity mismatch")
+    expected_executable = {
+        "path": str(node_executable),
+        "sha256": hashlib.sha256(node_executable.read_bytes()).hexdigest(),
+        "version": node_version,
+    }
+    if canonical_check["executable"] != expected_executable:
+        raise AtlasEvidencePersistenceError(
+            "canonical check executable provenance mismatch"
+        )
+    report_sha256 = canonical_check["report_sha256"]
+    if report_sha256 is not None:
+        _require_lower_sha256(report_sha256, field="canonical check report_sha256")
+    expected_test_ref = (
+        _readiness_source_ref(
+            READINESS_RECONCILER_SOURCE,
+            "unavailable_stable_observer_declaration",
+        )
+        if is_stable
+        else _readiness_source_ref(
+            READINESS_ROUTE_TEST,
+            "canonical_behavior_check",
+        )
+    )
+    _require_readiness_source_ref(
+        canonical_check["test_ref"],
+        expected=expected_test_ref,
+        field="canonical check",
+    )
+
+    assertion_name = canonical_check["assertion_name"]
+    assertion_status = canonical_check["assertion_status"]
+    expected_assertion = _expected_route_assertion(expected_claim)
+    if is_stable:
+        if (
+            observation_status != "observation_unavailable"
+            or observation["reason"] != "canonical_stable_observer_not_registered"
+            or report_sha256 is not None
+            or assertion_name is not None
+            or assertion_status is not None
+        ):
+            raise AtlasEvidencePersistenceError(
+                "stable claim must fail closed while its canonical observer is absent"
+            )
+    elif expected_assertion is None:
+        if (
+            observation_status != "observation_unavailable"
+            or observation["reason"] != "canonical_check_not_registered"
+            or assertion_name is not None
+            or assertion_status is not None
+        ):
+            raise AtlasEvidencePersistenceError(
+                "unregistered implemented claim must be observation_unavailable"
+            )
+    else:
+        if assertion_name != expected_assertion:
+            raise AtlasEvidencePersistenceError(
+                "canonical assertion does not bind the gated readiness claim"
+            )
+        allowed_pairs = {
+            "observed": "passed",
+            "not_observed": "failed",
+            "observation_unavailable": "skipped",
+        }
+        expected_assertion_status = allowed_pairs[observation_status]
+        if assertion_status != expected_assertion_status and not (
+            observation_status == "observation_unavailable"
+            and assertion_status is None
+            and observation["reason"]
+            in {
+                "canonical_assertion_missing",
+                "canonical_assertion_ambiguous",
+                "canonical_route_harness_failed",
+                "canonical_route_report_invalid",
+                "canonical_route_report_missing",
+            }
+        ):
+            raise AtlasEvidencePersistenceError(
+                "claim observation and canonical assertion disagree"
+            )
+
+    expected_source_refs = [
+        _readiness_source_ref(
+            READINESS_LEDGER_PATH,
+            "complete_readiness_owner",
+        ),
+        _readiness_source_ref(READINESS_SCHEMA_PATH, "readiness_owner_schema"),
+    ]
+    if is_stable:
+        expected_source_refs.extend(
+            [
+                expected_test_ref,
+                _readiness_source_ref(
+                    READINESS_PRODUCER_SCRIPT,
+                    "closed_reconciler_launcher",
+                ),
+            ]
+        )
+    else:
+        expected_source_refs.extend(
+            [
+                _readiness_source_ref(
+                    READINESS_ROUTE_SOURCE,
+                    "runtime_route_owner",
+                ),
+                expected_test_ref,
+                _readiness_source_ref(
+                    READINESS_RECONCILER_SOURCE,
+                    "closed_claim_reconciler",
+                ),
+                _readiness_source_ref(
+                    READINESS_PRODUCER_SCRIPT,
+                    "closed_reconciler_launcher",
+                ),
+            ]
+        )
+    if basis["source_refs"] != expected_source_refs:
+        raise AtlasEvidencePersistenceError(
+            "claim basis does not bind the complete canonical source set"
+        )
+
+
+def _require_readiness_report(
+    value: object,
+    source_projection: Mapping[str, Any],
+    source_validator_observation: Mapping[str, Any],
+    *,
+    node_executable: Path,
+    node_version: str,
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise AtlasEvidencePersistenceError(
+            "fixed readiness reconciler must emit one JSON object"
+        )
+    _require_keys(value, {"report_schema", "producer", "claims"}, field="claim report")
+    if value["report_schema"] != READINESS_REPORT_SCHEMA:
+        raise AtlasEvidencePersistenceError("claim report schema mismatch")
+
+    producer = value["producer"]
+    if not isinstance(producer, dict):
+        raise AtlasEvidencePersistenceError("claim report producer must be an object")
+    expected_producer = {
+        "producer_id": "polisyos.atlas.surface_readiness_reconciler",
+        "producer_version": "1.0.0",
+        "implementation_ref": _readiness_source_ref(
+            READINESS_RECONCILER_SOURCE,
+            "closed_claim_reconciler",
+        ),
+    }
+    if producer != expected_producer:
+        raise AtlasEvidencePersistenceError("claim report producer provenance mismatch")
+
+    claims = value["claims"]
+    if not isinstance(claims, list):
+        raise AtlasEvidencePersistenceError("claim report claims must be an array")
+    expected_claims = _expected_readiness_claims(source_projection)
+    if len(claims) != len(expected_claims):
+        raise AtlasEvidencePersistenceError(
+            "claim report does not enumerate the complete gated owner set"
+        )
+    seen: set[str] = set()
+    for index, (claim, expected_claim) in enumerate(
+        zip(claims, expected_claims, strict=True)
+    ):
+        if not isinstance(claim, dict):
+            raise AtlasEvidencePersistenceError(f"readiness claim {index} is not an object")
+        _require_keys(
+            claim,
+            {
+                "claim_id",
+                "surface_id",
+                "title",
+                "dimension",
+                "declared_value",
+                "predicate_provenance",
+                "basis",
+            },
+            field=f"readiness claim {index}",
+        )
+        for field, expected_value in expected_claim.items():
+            if claim[field] != expected_value:
+                raise AtlasEvidencePersistenceError(
+                    f"readiness claim {index} does not bind owner field {field}"
+                )
+        claim_id = claim["claim_id"]
+        if claim_id in seen:
+            raise AtlasEvidencePersistenceError(f"duplicate readiness claim: {claim_id}")
+        seen.add(claim_id)
+        _require_observed_readiness_basis(
+            claim,
+            expected_claim,
+            source_validator_observation=source_validator_observation,
+            node_executable=node_executable,
+            node_version=node_version,
+        )
+    return value
+
+
+def _run_readiness_reconciler(
+) -> tuple[
+    bytes,
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
+    producer_script = _policy_engine_root() / READINESS_PRODUCER_SCRIPT
+    node_locator, node_executable, node_version = _trusted_node()
+    source_projection, source_validator_observation = _health_source_projection()
+    result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
+        [str(node_executable), str(producer_script)],
+        cwd=dashboard_root,
+        check=False,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        env=HEALTH_CHILD_ENV,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        raise AtlasEvidencePersistenceError(
+            f"fixed surface-readiness reconciler failed ({result.returncode}): {stderr}"
+        )
+    raw_report = result.stdout
+    if not raw_report:
+        raise AtlasEvidencePersistenceError(
+            "fixed surface-readiness reconciler emitted no claim report"
+        )
+    try:
+        decoded = json.loads(
+            raw_report.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_non_json_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise AtlasEvidencePersistenceError(
+            "fixed surface-readiness reconciler emitted invalid UTF-8 JSON"
+        ) from exc
+    report = _require_readiness_report(
+        decoded,
+        source_projection,
+        source_validator_observation,
+        node_executable=node_executable,
+        node_version=node_version,
+    )
+    observation = {
+        "executable": str(node_executable),
+        "allowed_locator": str(node_locator),
+        "executable_sha256": hashlib.sha256(node_executable.read_bytes()).hexdigest(),
+        "executable_version": node_version,
+        "script": READINESS_PRODUCER_SCRIPT,
+        "script_sha256": hashlib.sha256(producer_script.read_bytes()).hexdigest(),
+        "stdout_sha256": hashlib.sha256(raw_report).hexdigest(),
+        "environment": {
+            "mode": "fixed_minimal_allowlist",
+            "inherited_names": [],
+            "fixed": HEALTH_CHILD_ENV,
+            "denied_prefixes": list(HEALTH_DENIED_ENV_PREFIXES),
+        },
+    }
+    return (
+        raw_report,
+        report,
+        observation,
+        source_projection,
+        source_validator_observation,
+    )
+
+
 def _revision_byte_status(revision: str, paths: set[str]) -> dict[str, Any]:
     """Compare product-relative current bytes with their recorded Git revision."""
 
@@ -1382,6 +1902,187 @@ def persist_atlas_health_metrics() -> dict[str, Any]:
     }
 
 
+def persist_atlas_surface_readiness_claims() -> dict[str, Any]:
+    """Run the closed per-claim reconciler and persist its audit projection.
+
+    The caller selects only this operation. Report bytes, process status, basis,
+    roots, and executables are all fixed and observed inside this operation.
+    No aggregate readiness result is constructed or persisted.
+    """
+
+    (
+        raw_report,
+        report,
+        producer_observation,
+        source_projection,
+        source_validator_observation,
+    ) = _run_readiness_reconciler()
+    implementation_provenance = _capture_paths_provenance(
+        READINESS_IMPLEMENTATION_PATHS
+    )
+    _ensure_worktree_import_root()
+
+    from polisyos.core.artifacts import InputRef, PutOptions, SchemaInfo
+
+    store = _build_store()
+    report_producer = _producer(
+        implementation_provenance,
+        component=READINESS_RECONCILER_COMPONENT,
+    )
+    projection_producer = _producer(
+        implementation_provenance,
+        component=READINESS_ADMISSION_COMPONENT,
+    )
+    report_digest = hashlib.sha256(raw_report).hexdigest()
+    report_ref = store.put_bytes(
+        raw_report,
+        PutOptions(
+            kind=READINESS_REPORT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=READINESS_REPORT_SCHEMA["id"],
+                version=READINESS_REPORT_SCHEMA["version"],
+            ),
+            producer=report_producer,
+            inputs=[],
+            governance=_governance(),
+        ),
+    )
+    report_verification = store.verify(report_ref.artifact_id)
+    _assert_verification(report_verification, label="surface-readiness claim report")
+    report_manifest = store.get_manifest(report_ref.artifact_id)
+    _assert_manifest(
+        report_manifest,
+        kind=READINESS_REPORT_KIND,
+        schema_name=READINESS_REPORT_SCHEMA["id"],
+        schema_version=READINESS_REPORT_SCHEMA["version"],
+        expected_inputs=[],
+        expected_producer=report_producer,
+        expect_canon=False,
+    )
+    resolved_report_bytes = store.get_bytes(report_ref.artifact_id)
+    if resolved_report_bytes != raw_report:
+        raise AtlasEvidencePersistenceError(
+            "resolved readiness claim report differs from reconciler stdout"
+        )
+    resolved_report = _require_readiness_report(
+        json.loads(
+            resolved_report_bytes.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_non_json_constant,
+        ),
+        source_projection,
+        source_validator_observation,
+        node_executable=Path(producer_observation["executable"]),
+        node_version=producer_observation["executable_version"],
+    )
+    if resolved_report != report:
+        raise AtlasEvidencePersistenceError(
+            "resolved readiness claim report changed after admission"
+        )
+
+    stored_projection = {
+        "projection_schema": READINESS_PROJECTION_SCHEMA,
+        "claim_report_ref": {
+            "artifact_id": str(report_ref.artifact_id),
+            "kind": READINESS_REPORT_KIND,
+            "media_type": "application/json",
+            "schema_id": READINESS_REPORT_SCHEMA["id"],
+            "schema_version": READINESS_REPORT_SCHEMA["version"],
+        },
+        "claim_report_sha256": report_digest,
+        "claims": resolved_report["claims"],
+        "verifier": {
+            "verifier_id": "polisyos.atlas.surface_readiness_admission",
+            "verifier_version": "1.0.0",
+            "predicate_provenance": "recomputed",
+            "implementation_ref": _readiness_source_ref(
+                "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+                "closed_claim_admission",
+            ),
+        },
+        "authority": {
+            "classification": "governed_audit_projection",
+            "authoritative_for": ["surface_readiness_claim_basis_audit"],
+            "may_not_use_for": [
+                "aggregate_reconciliation",
+                "component_maturity",
+                "design_authority",
+                "policy_authority",
+                "promotion",
+                "publication",
+                "runtime_authority",
+                "stable",
+            ],
+        },
+    }
+    projection_ref = store.put_json(
+        stored_projection,
+        PutOptions(
+            kind=READINESS_PROJECTION_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=READINESS_PROJECTION_SCHEMA["id"],
+                version=READINESS_PROJECTION_SCHEMA["version"],
+            ),
+            producer=projection_producer,
+            inputs=[
+                InputRef(
+                    artifact_id=report_ref.artifact_id,
+                    role=READINESS_REPORT_INPUT_ROLE,
+                )
+            ],
+            governance=_governance(),
+        ),
+        canon_spec=_canon_spec(),
+    )
+    projection_verification = store.verify(projection_ref.artifact_id)
+    _assert_verification(
+        projection_verification,
+        label="surface-readiness claim projection",
+    )
+    expected_lineage = [
+        (str(report_ref.artifact_id), READINESS_REPORT_INPUT_ROLE)
+    ]
+    projection_manifest = store.get_manifest(projection_ref.artifact_id)
+    _assert_manifest(
+        projection_manifest,
+        kind=READINESS_PROJECTION_KIND,
+        schema_name=READINESS_PROJECTION_SCHEMA["id"],
+        schema_version=READINESS_PROJECTION_SCHEMA["version"],
+        expected_inputs=expected_lineage,
+        expected_producer=projection_producer,
+    )
+    resolved_projection = _resolve_json(
+        store,
+        projection_ref.artifact_id,
+        label="surface-readiness claim projection",
+    )
+    if resolved_projection != stored_projection:
+        raise AtlasEvidencePersistenceError(
+            "resolved readiness claim projection differs from stored input"
+        )
+
+    return {
+        "operation": READINESS_OPERATION,
+        "claim_report_ref": report_ref.model_dump(mode="json"),
+        "projection_ref": projection_ref.model_dump(mode="json"),
+        "claim_report_manifest_input": None,
+        "projection_manifest_input": {
+            "artifact_id": expected_lineage[0][0],
+            "role": expected_lineage[0][1],
+        },
+        "resolved_claim_report": {
+            "artifact_id": str(report_ref.artifact_id),
+            "report": resolved_report,
+        },
+        "resolved_projection": {
+            "artifact_id": str(projection_ref.artifact_id),
+            "projection": resolved_projection,
+        },
+    }
+
+
 def _emit(value: object) -> None:
     sys.stdout.write(
         json.dumps(
@@ -1396,17 +2097,17 @@ def _emit(value: object) -> None:
 
 
 def _fail(exc: Exception, *, operation: str) -> NoReturn:
-    _emit(
-        {
-            "ok": False,
-            "operation": operation,
-            "error": {
-                "code": "atlas_evidence_persistence_failed",
-                "type": type(exc).__name__,
-                "message": str(exc),
-            },
-        }
-    )
+    error = {
+        "operation": operation,
+        "error": {
+            "code": "atlas_evidence_persistence_failed",
+            "type": type(exc).__name__,
+            "message": str(exc),
+        },
+    }
+    if operation != READINESS_OPERATION:
+        error["ok"] = False
+    _emit(error)
     raise SystemExit(1)
 
 
@@ -1416,11 +2117,13 @@ def main() -> None:
     try:
         request = _read_request()
         requested_operation = request.get("operation")
-        if requested_operation == HEALTH_OPERATION:
-            operation = HEALTH_OPERATION
+        if requested_operation in {HEALTH_OPERATION, READINESS_OPERATION}:
+            operation = requested_operation
         _validate_request(request)
         if operation == HEALTH_OPERATION:
             result = persist_atlas_health_metrics()
+        elif operation == READINESS_OPERATION:
+            result = persist_atlas_surface_readiness_claims()
         else:
             raw_report = _decode_raw_report(request["raw_report_base64"])
             result = persist_atlas_evidence(raw_report, request["payload"], request["receipt"])

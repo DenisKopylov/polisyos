@@ -2752,23 +2752,38 @@ and cold closeout remain unproved.
   provenance and typed migration lineage, and a test with `from_repo` made unreachable must still
   execute the real owner path byte-identically across fresh and incompatible durable histories.
 
-  **STANDING RECORDED (Rev 44, measured 2026-08-18 at 44276ccd5): no_executable_witness.** **P37
-  `recomputed`:** against `N10-DEPTHN-AMBIENT-AUTHORITY-1`, the complete source denominator is ten
-  `_for_verification` injections across five governed tool producers; the complete AST census of
-  all 2,391 test Python files found four direct `from_repo`-unreachable producer nodes and zero node
-  that executes a real governed owner across both fresh and incompatible durable histories and
-  compares its bytes. All four were run: the generation-cycle and N9 writer nodes terminated
-  `PASSED`, while N10a terminated `FAILED` before the firewall at
-  `cycle_substrate_l6_bundle_content_mismatch` and Depth-N terminated `FAILED` before it at the
-  missing required `sessions_by_node_ref` argument. Source inspection
-  shows isolated non-authorizing injection at every enumerated producer and production still uses
-  `from_repo`, but source presence cannot earn `closed`, and neither precondition failure
-  demonstrates `open`; the precise capability state is `semantic_test_missing`. The smallest
-  correct closure at current source is one parameterized real-owner test over the five-producer
-  denominator that supplies current L6/session prerequisites, makes `from_repo` unreachable, runs
-  fresh and incompatible durable histories byte-identically, and verifies bound verification
-  provenance plus typed migration lineage. This verdict authorizes no repair, reissue, or
-  cold-closeout inference.
+  **STANDING RECORDED (executed 2026-08-18 at 66d08f287): four of five `closed`; Depth-N
+  `open`. This explicitly supersedes the Rev 44 `no_executable_witness` verdict.** **P37
+  `recomputed`:** one parameterized witness has five separately reported cases over the inherited
+  complete denominator of five governed tool producers; the inherited Rev 44 counts of ten
+  `_for_verification` injections and 2,391 test Python files were not re-derived. Each case ran at
+  one detached checkout path first with a real empty canonical `.polisyos` authority history and
+  then with a valid durable alternate-registry history whose canonical reopen terminated
+  `ledger_scope_binding_mismatch`; the two history-tree digests differed, each digest and file
+  count remained byte-identical across its owner run, and `from_repo` was replaced during that run
+  by the named red `from_repo_reached:<producer>:<history>`. N9 promotion terminated `PASSED` over
+  three receipts, N6 generation-cycle `PASSED` over two, N10a second-domain `PASSED` over four, and
+  N11 confidence-ledger `PASSED` over four checks: their fresh/incompatible bytes were identical,
+  every emitted row revalidated as verification-bound and non-promotable through the production
+  `verification_receipt_cannot_be_consumer_promotable` invariant or its N11 typed equivalent, and
+  the producer-owned semantic/replay/migration lineage validators passed. N10a compares the
+  producer-owned comparison-projection bytes bound by its live manifest and
+  `comparison_content_hash`, not the raw persisted artifact with deliberately projected-out
+  operational leaves. Depth-N reached the same discriminator with three verification-only,
+  non-consumer receipts and a valid typed authority-source migration receipt, then terminated
+  `FAILED` because its raw owner bytes differed at exactly
+  `/domain_run/terminal/costed_plan/canonical_planner_report/generated_at`
+  (`2026-08-18T17:50:43Z` versus `2026-08-18T17:51:32Z`); that named case is demonstrably `open`,
+  not a precondition failure and not `blocked_on_src`. The final serialized shared-host invocation
+  used a 5,100-second outer ceiling and per-history ceilings of 300/300/600/600/600 seconds in
+  producer order, terminating four `PASSED`, one `FAILED` in 808.88 seconds. Across the entry,
+  mechanism-debug and final waves, the execution ledger records all ten permitted targeted pytest
+  invocations whose wall time exceeded 60 seconds as consumed; the earlier 180-second timeout with
+  zero changed bytes is excluded as a non-receipt. Entry re-verification supplied the current
+  canonical L6 fixture and N10a reached its firewall and `PASSED` without an edit; the Depth-N
+  `sessions_by_node_ref` prerequisite was repaired test-side and its focused node `PASSED` in
+  25.17 seconds. No forbidden-root change or `blocked_on_src` finding exists. This verdict
+  authorizes no artifact reissue, cold-closeout, `GY-DEFC-9`, or N11-suffix inference.
 
 - **GY-DEF10 — Depth-N admission compares controlled clock fields before canonical
   preservation.** Owner: **Depth-N controlled replay admission comparator**. A first writer pass

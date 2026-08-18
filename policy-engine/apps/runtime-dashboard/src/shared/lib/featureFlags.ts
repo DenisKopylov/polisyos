@@ -2,7 +2,6 @@ export const FEATURE_FLAG_KEYS = [
   "enableAtlasV2",
   "enableCausalGraph",
   "enableClerkMode",
-  "enableCollaboration",
   "enableCommandPalette",
   "enableDarkMode",
   "enableLexKnowledge",
@@ -17,13 +16,13 @@ export type FeatureFlagKey = (typeof FEATURE_FLAG_KEYS)[number];
 export type FeatureFlags = Record<FeatureFlagKey, boolean>;
 export type FeatureFlagOverrides = Partial<FeatureFlags>;
 export type FeatureFlagDisposition = "WIRE" | "RETIRE";
-export type FeatureFlagLifecycle = "live" | "awaiting_c19";
+export type FeatureFlagLifecycle = "live";
 
 type FeatureFlagRegistryEntry = {
   defaultEnabled: true;
   disposition: FeatureFlagDisposition;
   status: FeatureFlagLifecycle;
-  target: "existing" | "C19";
+  target: "existing";
 };
 
 /** Canonical D5 registry; feature flags are not runtime permissions. */
@@ -37,8 +36,8 @@ export const FEATURE_FLAG_REGISTRY = {
   enableCausalGraph: {
     defaultEnabled: true,
     disposition: "WIRE",
-    status: "awaiting_c19",
-    target: "C19",
+    status: "live",
+    target: "existing",
   },
   enableClerkMode: {
     defaultEnabled: true,
@@ -46,17 +45,11 @@ export const FEATURE_FLAG_REGISTRY = {
     status: "live",
     target: "existing",
   },
-  enableCollaboration: {
-    defaultEnabled: true,
-    disposition: "RETIRE",
-    status: "awaiting_c19",
-    target: "C19",
-  },
   enableCommandPalette: {
     defaultEnabled: true,
     disposition: "WIRE",
-    status: "awaiting_c19",
-    target: "C19",
+    status: "live",
+    target: "existing",
   },
   enableDarkMode: {
     defaultEnabled: true,
@@ -97,8 +90,8 @@ export const FEATURE_FLAG_REGISTRY = {
   enableWhatIfAnalysis: {
     defaultEnabled: true,
     disposition: "WIRE",
-    status: "awaiting_c19",
-    target: "C19",
+    status: "live",
+    target: "existing",
   },
 } as const satisfies Record<FeatureFlagKey, FeatureFlagRegistryEntry>;
 

@@ -3385,13 +3385,13 @@
         "ds1_entry_id": "raw-fetch-flag-manifest",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_strict_flag_manifest_use_as_is",
-      "rationale": "C18b routes remote, window, props, environment, and identity-scoped cache inputs through the strict C18a registry with atomic typed diagnostics; rollout state controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "raw-fetch-collab-activity",
@@ -3503,20 +3503,12 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "strangled",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_feature_flag_load_interaction_state",
-      "successor": {
-        "unit_id": "dashboard-feature-flag-load-interaction-state",
-        "consumer_refs": [
-          "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
-          "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.test.tsx",
-          "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx"
-        ]
-      },
-      "rationale": "C18b replaces the local feature-flag status union with a branded interaction-only load state; consumers project its label for presentation, while permissions remain server-issued and independent of rollout exposure."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "status-runs-live",
@@ -4292,13 +4284,13 @@
         "ds1_entry_id": "flag-enable-atlas-v2",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-clerk-mode",
@@ -4306,13 +4298,13 @@
         "ds1_entry_id": "flag-enable-clerk-mode",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-dark-mode",
@@ -4320,13 +4312,13 @@
         "ds1_entry_id": "flag-enable-dark-mode",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-lex-knowledge",
@@ -4334,13 +4326,13 @@
         "ds1_entry_id": "flag-enable-lex-knowledge",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-narrative-view",
@@ -4348,13 +4340,13 @@
         "ds1_entry_id": "flag-enable-narrative-view",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-platform-health",
@@ -4362,13 +4354,13 @@
         "ds1_entry_id": "flag-enable-platform-health",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-runs-workspace",
@@ -4376,13 +4368,13 @@
         "ds1_entry_id": "flag-enable-runs-workspace",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-scenario-composer",
@@ -4390,13 +4382,13 @@
         "ds1_entry_id": "flag-enable-scenario-composer",
         "ds2_adoption_ids": []
       },
-      "disposition": "use_as_is",
-      "strangle_status": "not_applicable",
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
       "owner": "team-design",
-      "owner_slice": "DS5",
+      "owner_slice": "DS1",
       "decision_date": "2026-07-17",
-      "seed_rule": "ds5_c18b_live_rollout_flag_use_as_is",
-      "rationale": "C18a and C18b retain this live rollout key through the strict twelve-key registry and its existing production consumer; it controls exposure only and cannot grant a runtime permission."
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
     },
     {
       "unit_id": "flag-enable-causal-graph",

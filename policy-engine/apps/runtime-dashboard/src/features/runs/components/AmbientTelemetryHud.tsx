@@ -151,7 +151,7 @@ export function AmbientTelemetryHud({
             {t("phase32.telemetry.flagCount", {
               value: formatNumber(enabledFlagCount),
               source,
-              status: status.label,
+              status,
             })}
           </strong>
         </div>

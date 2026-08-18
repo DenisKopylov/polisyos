@@ -124,7 +124,7 @@ initial path census]`
 | --- | ---: | ---: | --- |
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
-| Item 4 | 0 | 2 | not started |
+| Item 4 | 2 | 0 | both pre-writer acceptance findings corrected; delta review pending |
 | Item 5 | n/a | single cold allowance unspent | not authorized yet |
 
 ## Execution receipts
@@ -204,5 +204,301 @@ The source/test mechanism is six paths, `1,126` added and `155` removed lines: F
 The larger test body is the genuine two-environment plus Depth-N process witness, not a split
 mechanism. The confidence artifact remains the seventh pending mechanism path. `[P37: recomputed]`
 
-Items 1–3 are source-frozen. Item 4 is now eligible for an exact pre-write declaration; no confidence
-writer and no cold N11 run has started. `[P37: recomputed]`
+Items 1–3 are source-frozen. Item 4 is now eligible for an exact pre-write declaration; no governed
+confidence writer and no cold N11 run has started. `[P37: recomputed]`
+
+## Item 4 confidence transition declaration — before the governed writer
+
+### Non-governed candidate receipt
+
+The first ignored-candidate launch selected the canonical checkout's interpreter rather than the
+worktree interpreter. Depth-N rejected that loader binding after `20.017421` wrapper seconds with
+`wrong_interpreter_resolved`; exit was `1`, the candidate was absent, and tracked bytes were
+unchanged. This was an invocation non-receipt: it consumed neither a mechanism repair round nor the
+cold N11 allowance. `[P37: recomputed]`
+
+The corrected launch used this worktree's `.venv/bin/python`, this worktree's `src`, and the canonical
+environment only as a dependency site. The ignored candidate writer ran under the inherited
+`6,497.873368` s contention ceiling and completed in `1,010.954235` wrapper seconds with child and
+wrapper exit `0`, no timeout, and a clean process group. The producer terminal was `status=pass`,
+`issues=[]`, `byte_stable_passes=2`, cold/warm byte-identical, `50` corrupt-field cases, a started
+second pass, and no worker termination. Its own wall time was `1,000.112831` s: first derivation
+`963.821595` s and cache-hit derivation `20.8113` s. All `54/54` unique objective-progress ordinals,
+one through 54, completed through the second `stage_complete`. `[P37: recomputed for the execution,
+terminal, and complete ordinal denominator; institutionally_supplied for the inherited ceiling and
+contention allowance]`
+
+The successful receipt's meta/stdout/stderr SHA-256 values are respectively
+`163dc0bb31e8bbb6bde8e367ffa1229f5118ac71334b26fa96ee8c0d52c071d3`,
+`1bc837dfacf51e61db84d00abac6f30400f7d545e2240aa07f1784d1c5a8ea70`, and
+`44d7e4bacfdd8a87966c42389f4797cb06578df61c2058e828f442a836243db9`.
+The frozen and candidate artifacts are both `977,814` bytes. Frozen file/content identities are
+`a9aed0395f4760e55650d531ce7a8a53620026adbe2e204c6e61b6f7e7b06753` /
+`sha256:0ad9c383ffc2cc9dbd944dde6a330af94f4452f3b2914d7541f65f4aa5564709`;
+candidate identities are
+`4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9` /
+`sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71`.
+Both artifacts independently pass their internal validator with zero issues. `[P37: recomputed]`
+
+### Complete source and pin denominators
+
+The runtime-owned deployment denominator is exactly `2,562` paths: `2,560` recursive
+`src/polisyos/**/*.py` files plus `pyproject.toml` and `uv.lock`. Its frozen/current map hashes are
+`b2145704abb279d00ee6c9b3c1e30b41391087a2b19d01035a3d37e775f0781e` and
+`54220d3fa7d1702e1c5e98b527dcc72d0a61ca699ad7d43823667a1c2c3ee140`.
+Exactly `4/2,562` paths changed, with no path-set change: `pyproject.toml`,
+`src/polisyos/data_forge/read_api/catalog.py`,
+`src/polisyos/foundry/methods/catalog/snapshot.py`, and `uv.lock`. The owner recomputes the current
+deployment identity as
+`policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f`,
+replacing frozen
+`policy-engine-deployment:sha256:44a3bd6dbfa8b3ea8f6115a65c4bc2aee98de38181209352433396090293ba1d`.
+`[P37: recomputed]`
+
+The conservative authority-source census adds all `424` recursive `tools/**/*.py` paths, for
+`2,986/2,986` frozen/current paths. Its frozen/current map hashes are
+`aa369b893ceb15a01cf611038e755ff2547b57e3499000b151fc0a6586b52b44` and
+`a7544221985ae0872e2fbd867c864e91d6dc834451e09f150809326b5b8635cb`.
+Exactly `15/2,986` existing paths changed; zero were added or deleted:
+
+1. `pyproject.toml`
+2. `src/polisyos/data_forge/read_api/catalog.py`
+3. `src/polisyos/foundry/methods/catalog/snapshot.py`
+4. `tools/cli.py`
+5. `tools/lib/timing.py`
+6. `tools/quality/testing/build_review_package.py`
+7. `tools/quality/validation/check_layer3_gy_acquisition_contract.py`
+8. `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py`
+9. `tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`
+10. `tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py`
+11. `tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py`
+12. `tools/quality/validation/check_layer3_gy_promotion_contract.py`
+13. `tools/quality/validation/check_layer3_gy_second_domain_pack.py`
+14. `tools/quality/validation/check_layer3_gy_value_gate_contract.py`
+15. `uv.lock`
+
+The candidate's sealed owner import closure consumes six of those changed modules directly:
+`polisyos.data_forge.read_api.catalog`, `polisyos.foundry.methods.catalog.snapshot`,
+`tools.lib.timing`, Depth-N, N10a, and N8. Each frozen and candidate declared/resolved source identity
+equals the corresponding byte hash. The remaining census members are recorded but do not enter this
+owner's resolved import closure. `[P37: recomputed for both complete path denominators, the changed
+set, and the six-member intersection]`
+
+The complete pin denominator is `453`: all `449` recursive policy-design-case JSON files, the
+confidence TOML, catalog DuckDB, L5 registry, and ignored candidate. The canonical pin-map hash is
+`fdae0adc10bac79f40af5878804ec9be17ad52f8299ae7aab3303b92d9847ff3`.
+No other path class is present in the pin map. `[P37: recomputed]`
+
+### Complete recursive leaf disposition
+
+Frozen and candidate each contain exactly `14,162` recursive scalar/empty-container leaves and
+exactly `111` null leaves. Their path sets are equal. Exactly `143/14,162` existing leaves change,
+`14,019/14,162` are byte-canonical equal, and zero leaves are added or deleted. The complete delta
+JSONL SHA is `06695a9a3faa4023dfa1e2a48051df107d32bd35e284acb23c7e2199a273fe12`.
+Every changed row has this exhaustive disposition: `[P37: recomputed]`
+
+| Disposition | Rows | Complete evidence |
+| --- | ---: | --- |
+| Direct deployment identity | 6 | Four projection fields plus declared/resolved `confidence-ledger-loaded-runtime`; all six old/new values equal the frozen/current owner deployment identities. |
+| Direct source identity | 12 | Declared/resolved pairs for six changed owner-closure modules; every value equals its source byte hash. |
+| Owner membership identity | 1 | `consumed_inputs.membership_sha256`, dependent on the complete sealed membership. |
+| Owner projection identity | 4 | The owner `projection_sha256` plus three risk-scope references that exactly equal it old and new. |
+| Dependent projection/receipt identity | 119 | Every row is an internally validated `*_hash` field downstream of the changed owner/deployment identities. |
+| Artifact self-identity | 1 | `artifact_content_hash`, recomputed by the internal artifact validator. |
+| **Total** | **143** | **Zero unclassified, non-identity, semantic, denominator, or structural rows.** |
+
+The row-by-row disposition JSONL SHA is
+`212a9477b06c2c1c1e6d3afb0282d296e3cf53af7e3456b23054388b9b35d22a`; its disposition-manifest
+content hash is `sha256:6d5efefe73ff78912eae9e560652fa3f292491aa6e3e640d53a165435fe5e284`.
+The measurement-manifest content hash is
+`sha256:fa3be4ebb660334bf833e5c70529b277c612ea0642ac715bf9ab56b89176d432`
+and its file SHA is `49bb6cfbffc1e854b88625544046058fffcdee71603fa077adfda7ec78094bb5`.
+The four comparison keys `comparison_admission_manifest`, `comparison_content_hash`,
+`comparison_projection_schema_version`, and `comparison_rule_version` have zero occurrences in both
+artifacts. `[P37: recomputed]`
+
+### Independent pre-writer review and both Item 4 repair rounds
+
+One read-only terra review returned two mechanism findings. Blocking: the prose declaration was not
+consumed by an executable acceptance gate, so a post-declaration source or pin change could produce
+a different passing output. Important: the canonical writer writes its selected output after byte
+stability but before its later exact-output, stored-validation, and corrupt-field checks, and does not
+restore that output after a later failure. These findings consume Item 4 repair rounds one and two;
+zero remain. A further Blocking or Important Item 4 finding is the registered third-finding stop.
+`[P37: independently_reconciled]`
+
+The correction is one ignored, hash-bound acceptance consumer. It loads the declaration below from
+the **committed** journal blob, requires the journal worktree bytes to equal that blob, binds its own
+script hash, verifies branch/clean attachment and the exact committed delta since source freeze,
+recomputes both complete source maps, all 453 pins, the current deployment identity, internal
+validators, and every leaf disposition, then runs the canonical writer against an ignored stage.
+Only a passing writer terminal and an exact staged-candidate match permit atomic promotion to the
+governed path. It recomputes the entire declaration after staging and again after promotion. A
+pre-promotion failure cannot change the governed file; a post-promotion failure atomically restores
+the captured preimage. The consumer itself, not writer prose, owns the acceptance decision. Its
+positive and restoration branches passed isolated ignored-file probes; syntax and Ruff checks are
+green. `[P37: recomputed]`
+
+The second read-only luna reconciliation independently reproduced all `143/143` leaf dispositions,
+both source denominators and changed sets, every direct source binding, current deployment identity,
+all `453/453` pins, and both zero-issue internal validations, with no mechanism finding. The first
+reviewer's Minor claim that the successful candidate stderr bytes were absent is disproved by direct
+readback: the retained file is `20,961` bytes and hashes to the exact value already recorded above.
+`[P37: independently_reconciled for the second review; recomputed for stderr presence, size, and
+hash]`
+
+### Accepted-write rule declared before launch
+
+The canonical writer is accepted only if all of these predicates hold: it writes only to the ignored
+stage; exits `0` with `status=pass`, zero issues, two byte-stable passes, cold/warm identity, all 50
+corrupt cases, a clean process group, and complete `1..54` objective progress; staged bytes equal the
+declared candidate exactly; the observed `143/143` leaf rows and row-by-row dispositions equal the
+declaration exactly; the confidence artifact is the sole changed member of all `453` pins after
+promotion; both complete source maps remain unchanged; all four comparison-key counts remain zero;
+both leaf/null denominators remain `14,162/111`; and every frozen, staged, candidate, and governed
+internal validation remains green. Any mismatch rejects the write; only the acceptance consumer may
+promote, and any post-promotion mismatch restores the exact frozen preimage. Acceptance is
+`not_established` until the consumer, canonical staged writer, and post-write audit finish. `[P37:
+institutionally_supplied for the acceptance rule; not_established for the future outcome]`
+
+The following is the machine-readable declaration consumed from this committed journal. `[P37:
+recomputed for every value; institutionally_supplied for the acceptance predicates]`
+
+<!-- GY-DEFC-9-CONFIDENCE-DECLARATION-BEGIN -->
+```json
+{
+  "acceptance_consumer_sha256": "d2526839ecf8280b3464de5385777ccca1d4f16f09625a95d3e591ee7eaf96f0",
+  "artifacts": {
+    "candidate": {
+      "artifact_content_hash": "sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71",
+      "bytes": 977814,
+      "leaf_count": 14162,
+      "null_leaf_count": 111,
+      "sha256": "4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9"
+    },
+    "comparison_key_occurrences": {
+      "comparison_admission_manifest": {"candidate": 0, "frozen": 0},
+      "comparison_content_hash": {"candidate": 0, "frozen": 0},
+      "comparison_projection_schema_version": {"candidate": 0, "frozen": 0},
+      "comparison_rule_version": {"candidate": 0, "frozen": 0}
+    },
+    "delta": {
+      "added_count": 0,
+      "changed_count": 143,
+      "deleted_count": 0,
+      "jsonl_sha256": "06695a9a3faa4023dfa1e2a48051df107d32bd35e284acb23c7e2199a273fe12",
+      "row_count": 143
+    },
+    "disposition": {
+      "candidate_deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+      "category_counts": {
+        "artifact_self_identity": 1,
+        "dependent_projection_identity": 119,
+        "direct_deployment_identity": 6,
+        "direct_source_identity": 12,
+        "owner_membership_identity": 1,
+        "owner_projection_identity": 4
+      },
+      "direct_source_member_count": 6,
+      "direct_source_members": [
+        "module:polisyos.data_forge.read_api.catalog",
+        "module:polisyos.foundry.methods.catalog.snapshot",
+        "module:tools.lib.timing",
+        "module:tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+        "module:tools.quality.validation.check_layer3_gy_second_domain_pack",
+        "module:tools.quality.validation.check_layer3_gy_value_gate_contract"
+      ],
+      "disposition_jsonl_sha256": "212a9477b06c2c1c1e6d3afb0282d296e3cf53af7e3456b23054388b9b35d22a",
+      "frozen_deployment_identity": "policy-engine-deployment:sha256:44a3bd6dbfa8b3ea8f6115a65c4bc2aee98de38181209352433396090293ba1d"
+    },
+    "frozen": {
+      "artifact_content_hash": "sha256:0ad9c383ffc2cc9dbd944dde6a330af94f4452f3b2914d7541f65f4aa5564709",
+      "bytes": 977814,
+      "leaf_count": 14162,
+      "null_leaf_count": 111,
+      "sha256": "a9aed0395f4760e55650d531ce7a8a53620026adbe2e204c6e61b6f7e7b06753"
+    }
+  },
+  "authority_source_scope": {
+    "added_count": 0,
+    "changed_count": 15,
+    "changed_paths": [
+      "pyproject.toml",
+      "src/polisyos/data_forge/read_api/catalog.py",
+      "src/polisyos/foundry/methods/catalog/snapshot.py",
+      "tools/cli.py",
+      "tools/lib/timing.py",
+      "tools/quality/testing/build_review_package.py",
+      "tools/quality/validation/check_layer3_gy_acquisition_contract.py",
+      "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+      "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+      "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+      "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+      "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+      "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+      "uv.lock"
+    ],
+    "current_map_sha256": "a7544221985ae0872e2fbd867c864e91d6dc834451e09f150809326b5b8635cb",
+    "current_path_count": 2986,
+    "deleted_count": 0,
+    "frozen_map_sha256": "aa369b893ceb15a01cf611038e755ff2547b57e3499000b151fc0a6586b52b44",
+    "frozen_path_count": 2986
+  },
+  "branch": "codex/gy-defc-9-n11-suffix",
+  "candidate_path": ".tmp/gy-defc-9/confidence/measurement/candidate/layer3_gy_confidence_ledger_contract.json",
+  "committed_delta_after_source_freeze": [
+    "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
+  ],
+  "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+  "deployment_source_scope": {
+    "added_count": 0,
+    "changed_count": 4,
+    "changed_paths": [
+      "pyproject.toml",
+      "src/polisyos/data_forge/read_api/catalog.py",
+      "src/polisyos/foundry/methods/catalog/snapshot.py",
+      "uv.lock"
+    ],
+    "current_map_sha256": "54220d3fa7d1702e1c5e98b527dcc72d0a61ca699ad7d43823667a1c2c3ee140",
+    "current_path_count": 2562,
+    "deleted_count": 0,
+    "frozen_map_sha256": "b2145704abb279d00ee6c9b3c1e30b41391087a2b19d01035a3d37e775f0781e",
+    "frozen_path_count": 2562
+  },
+  "frozen_source_commit": "5b2c2173b17ce8b68b65c6846607c6c22ea94f98",
+  "governed_output_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+  "pins": {
+    "postwrite": {
+      "changed_paths": [
+        "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+      ],
+      "count": 453,
+      "map_sha256": "05187beeffe6a0a09be577f9bdb142437b2c9d2568cd9bc9da99fadda9da9839"
+    },
+    "prewrite": {
+      "count": 453,
+      "map_sha256": "fdae0adc10bac79f40af5878804ec9be17ad52f8299ae7aab3303b92d9847ff3"
+    }
+  },
+  "schema_version": "policyos.gy_defc_9.confidence_transition_declaration.v1",
+  "source_commit": "d9a0beb90e354f0389da7b777130a550d0e04594",
+  "writer": {
+    "ceiling_seconds": 6497.873368,
+    "required_terminal": {
+      "byte_stable_passes": 2,
+      "cold_warm_byte_identical": true,
+      "corrupt_field_case_count": 50,
+      "issues": [],
+      "objective_progress_ordinal_count": 54,
+      "objective_progress_ordinal_max": 54,
+      "objective_progress_ordinals_complete": true,
+      "process_group_clean": true,
+      "second_pass_started": true,
+      "status": "pass",
+      "worker_terminated": false
+    }
+  }
+}
+```
+<!-- GY-DEFC-9-CONFIDENCE-DECLARATION-END -->

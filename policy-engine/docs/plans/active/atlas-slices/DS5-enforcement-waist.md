@@ -109,7 +109,7 @@ architecture guardrails.
    as owner, while the higher master and this mission assign tenant/user/expiry
    cache discipline to DS5. DS5 owns only that cross-cutting storage-discipline
    sublayer and its live migrations; the domain capabilities and their root
-   rows remain with the named slices. C14a-C17b-R1 attach isolation evidence without
+   rows remain with the named slices. C14a-C17b-R2 attach isolation evidence without
    falsely claiming those domain features rebound. The stale review-attention
    row receives DS4 deletion evidence and a fresh census, not a resurrected
    implementation.
@@ -202,9 +202,9 @@ byte-unmodified. Any new identity is red.
 | locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 1 live store; the deleted queue survives only as an upgrade tombstone | composer drafts enveloped; promotion queue barred |
-| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R1 migrate the live units plus composer |
+| authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R2 migrate the live units plus composer |
 | persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1 excludes causal `edges[].status`; C16b-R2 excludes stored dispute actor/status and rederives reviewer/open interaction state |
-| persistence API census | current 35 symbol-resolved sites / 14 production files: 25 Web Storage, 5 Zustand, 5 IndexedDB | historical pre-C13a/C15a receipt was 41/14; C17b-R1 must remeasure its clean entry |
+| persistence API census | last admitted 35 symbol-resolved sites / 14 production files: 25 Web Storage, 5 Zustand, 5 IndexedDB | stale after C17a-R2/C18a; post-C18b-R2 denominator is `not_established` until C17b-R2 reruns the declaration resolver |
 | DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
 
 The historical 9/5 fetch and six-store denominators remain provenance facts,
@@ -573,12 +573,12 @@ NODE
 ```
 
 Historical recorded output: `41` sites / `14` files; Web Storage `23`, Zustand
-`5`, IndexedDB `13`. C17b-R1 reruns this declaration-resolved API set and
+`5`, IndexedDB `13`. C17b-R2 reruns this declaration-resolved API set and
 remeasures it at its clean entry after C13a-C16b-R2; it does not infer payload
 semantics from method or field names.
 
 The surface and store commands are bounded structural censuses, not future lint
-implementations. C01a records its measured declaration set; C12a and C17b-R1 replace
+implementations. C01a records its measured declaration set; C12a and C17b-R2 replace
 their entry receipts with direct construction-site registries. None becomes a
 claim about arbitrary program behavior.
 
@@ -611,13 +611,13 @@ generated debt rows persist 130 nested address slots / 36 files. Paths below are
 | C16a-R1 | `features/runs/routes/tabs/CausalTab.tsx`; `features/runs/routes/tabs/CausalTab.test.tsx` | yes: `features/runs/routes/tabs/CausalTab.tsx` → `c14a-local-state-envelope-owner-debt` `[2]:301` |
 | C16b-R1 | `features/runs/domain/disputes.ts`; `features/runs/domain/disputes.test.ts`; `features/runs/components/DisputeRegistryPanel.tsx`; `[new focused DisputeRegistryPanel test path not named]` | yes: `features/runs/domain/disputes.ts` → `c14a-local-state-envelope-owner-debt` `[3]:109` |
 | C17a-R2 | `features/runs/domain/operatorCraft.ts`; `features/runs/domain/operatorCraft.test.ts`; `features/runs/components/OperatorCraftPanel.tsx`; `features/runs/components/AmbientTelemetryHud.tsx`; `app/offline/authorityLocalState.ts` + test | yes: C21 creation identities for both panels are re-derived after scoped Authz wiring; no line-padding/stale identity reuse |
-| C17b-R1 | `architecture/atlas_surfaces/check_frontend_disposition_register.py`; `architecture/atlas_surfaces/test_frontend_disposition_register.py`; `[new DS5 TypeScript AST scanner path not named]`; `[new DS5 TypeScript AST checker path not named]`; `[new DS5 TypeScript AST test path not named]` | no — |
+| C17b-R1/R2 | shared TypeScript scanner/checker/test; disposition register/schema/checker/test/report; status inventory; plan/journal | no — |
 | C18a | `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | no — |
-| C18b-R1 | `app/providers/FeatureFlagProvider.tsx`; `app/providers/FeatureFlagProvider.test.tsx` | no — |
+| C18b-R1/R2 | flag registry + test; provider + test; `AmbientTelemetryHud.tsx`; register/status/report; plan/journal; R2 adds the two governed owner tests | yes: HUD retains one existing `census-browser-signing-protected-live` identity; zero payload reanchor |
 | C19-R1 | `app/layout/AppShell.tsx`; `app/layout/layoutSurfaces.test.tsx`; `app/surfaces/surfaceRegistry.ts`; `features/runs/route.tsx`; `features/runs/routes/runDetailSurfaces.test.tsx`; `features/runs/routes/tabs/OverviewTab.tsx`; `features/commandPalette/CommandPalette.tsx`; `features/commandPalette/CommandPalette.test.tsx`; `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | yes: `features/runs/route.tsx` → `census-browser-signing-protected-live` `[18]:151`; `features/runs/routes/tabs/OverviewTab.tsx` → `authority-presentation-badge-governance-issue-severity` `[3]:185` |
 | C20 | `architecture/atlas_surfaces/test_atlas_enforcement.py` | no — |
 
-Five of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; C21b's migration target is that no migrated gate fails on move alone. The stale C14a descriptor navigation at `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended C13a `deleteComposerDraftRecord` moved from line 90 at `653f12d08^` to line 13 at `653f12d08`. C21a closes only the reusable TypeScript mechanism: a pathRef-form encoded identity binds typed AST role/discriminator plus declaration/export chain and normalized tokens; creation may use a line hint, but validation never binds it. Move-only is green; missing/renamed, ambiguity, and content rewrite are red; C08 whole-file hashes remain independent. P29/P31/P32/P33/P35/P37 apply; no disposition row. GY-DEF13 is an address-versus-identity parallel only, not this mechanism or closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
+Six of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; C21b's migration target is that no migrated gate fails on move alone. The stale C14a descriptor navigation at `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended C13a `deleteComposerDraftRecord` moved from line 90 at `653f12d08^` to line 13 at `653f12d08`. C21a closes only the reusable TypeScript mechanism: a pathRef-form encoded identity binds typed AST role/discriminator plus declaration/export chain and normalized tokens; creation may use a line hint, but validation never binds it. Move-only is green; missing/renamed, ambiguity, and content rewrite are red; C08 whole-file hashes remain independent. P29/P31/P32/P33/P35/P37 apply; no disposition row. GY-DEF13 is an address-versus-identity parallel only, not this mechanism or closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
 
 ### DS5-C21a — TypeScript reference identity mechanism
 
@@ -715,12 +715,20 @@ whole-second execution ceiling is `ceil(2 * p95)`:
 | Lane | Valid samples (seconds) | nearest-rank p95 | binding ceiling |
 | --- | --- | ---: | ---: |
 | full Atlas module | `253.72, 326.71, 395.5, 422, 462, 465.9, 605, 626, 731, 751.90, 754, 1338.89` | `1338.89` | `2678 s` |
-| full frontend module | `144.9, 151.7, 216.2, 222.2, 248.03, 282.3, 290.6, 325.94, 373.94` | `373.94` | `748 s` |
-| disposition corruption battery | `100.8, 107.64, 114.2, 136.97, 150.5, 195.99, 215.1, 235.50, 249, 276.89` | `276.89` | `554 s` |
-| status-retirement module | `48.66, 52.6, 67.2, 73.2, 75.4, 102.3, 120.79, 168.65` | `168.65` | `400 s` retained (`2*p95 = 337.3 s`) |
-| focused dashboard/component tests (R6 family) | `1.79, 5.00, 8.50, 25.40, 25.76, 82.27` | `82.27` | `165 s` (`ceil(2*p95)`) |
-| dashboard typecheck (R6 family) | `78.40, 241` | `241` | `482 s` (`ceil(2*p95)`) |
-| scoped dashboard ESLint | `6.10, 6.39, 7.00, 12.705, 17.79, 57.16, 71.95, 86.84` | `86.84` | `174 s` (`ceil(2*p95)`) |
+| full frontend module | `114.15, 115.22, 144.9, 151.7, 155.37, 188, 216.2, 222.2, 248.03, 282.3, 290.6, 325.94, 373.94` | `373.94` | `748 s` |
+| disposition corruption battery | `95.14, 100.8, 107.52, 107.64, 114.2, 115.25, 136.97, 150.5, 159, 195.99, 215.1, 235.50, 249, 276.89` | `276.89` | `554 s` |
+| status-retirement module | `48.13, 48.66, 52.6, 67.2, 73.2, 75.4, 83, 102.3, 120.79, 168.65` | `168.65` | `338 s` |
+| status checker/corruption | `16.96, 17.49, 28, 42.54` | `42.54` | `86 s` |
+| Atlas checker/corruption | `60.08, 60.51, 60.56, 106, 156.60` | `156.60` | `314 s` |
+| focused dashboard/component tests (R6 family) | `1.79, 5.00, 8.50, 25.40, 82.27` | `82.27` | `165 s` |
+| focused feature/flag tests | `1.24, 1.27, 1.30, 1.31, 1.86, 1.91, 2.06, 2.36, 2.39, 2.40, 2.43, 2.95, 3.15, 4.02, 6.14` | `6.14` | `13 s` |
+| dashboard typecheck | `12, 12.50, 12.74, 13.73, 13.9, 14, 14.2, 14.24, 14.43, 15.65, 17.70, 17.88, 17.96, 18.57, 19.08, 19.14, 19.24, 19.94, 21.78, 22, 22.32, 25.61, 27, 27.40, 41.29, 43.31, 56.95, 67.31, 78.40, 241` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `4.93, 5.35, 5.46, 6.10, 6.23, 6.39, 6.55, 7.00, 7.86, 8.16, 8.32, 12.705, 17.79, 21.02, 21.46, 21.71, 21.73, 21.82, 23, 25.9, 27.33, 34, 41.69, 51.12, 57.16, 64.38, 66.58, 67.04, 68.04, 71.95, 72.20, 86.84, 113.55` | `86.84` | `174 s` |
+| dashboard production build | `18, 18.55, 19.20, 22.66, 23.32, 25.9, 31, 33.13, 34, 37.52, 37.52, 57.45` | `57.45` | `115 s` |
+| canonical report writer | `34.91, 34.96, 36.20, 36.47, 42.33, 50.22, 58, 60, 69.21, 73.88, 76.34, 86.97` | `86.97` | `174 s` |
+| dashboard architecture/dependency cruise | `4.36` | `4.36` | `9 s` |
+| status semantic derivation (no-write) | `12.42` | `12.42` | `25 s` |
+| C21 identity validation (no-write) | `1.70` | `1.70` | `4 s` |
 
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
@@ -854,8 +862,8 @@ first continuously numbered `-R1` successor.
 | C16a | 5 | 7 | no-fit | C16a-R1 / 7 |
 | C16b | 7 | 10 | stopped structural re-cut | C16b-R2 / 10 |
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
-| C17b | 9 | 10 | no-fit | C17b-R1 / 10 |
-| C18b | 5 | 6 | no-fit | C18b-R1 / 6 |
+| C17b | 9 | 11 | stopped structural re-cut | C17b-R2 / 11 after C18b-R2 |
+| C18b | 5 | 12 | stopped structural re-cut | C18b-R2 / 12; R1 cap-10 checkpoint preserved then reverted |
 | C19 | 13 | 14 | no-fit | C19-R1 / 14 |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
@@ -874,7 +882,7 @@ single-owner frontend generated-artifact strangle.
 | 47 status rows + authority presentation census | C01a-C01c | preserve 15/0 estate and exact generated provenance; account 2 branded props/6 uses plus 2 branded direct sites, 39 typed debt descriptors (12 prop boundaries + 27 direct-`Badge` groups), 5 benign prop groups and all 103 benign direct sites; forbid enumerated escape syntax only on branded paths; prove issuer exhaustiveness/novelty |
 | architecture baseline/recurrence receipts | C02 | zero remains zero; real custom and dependency-cruiser violations fail even with marker bytes intact |
 | `raw-fetch-auth-refresh`, `raw-fetch-auth-initial`, `raw-fetch-auth-replay` | C03b-R1 | bounded `use_as_is` inside the typed auth transport owner plus symbol-bound exemption and corrupt sibling negative |
-| `raw-fetch-flag-manifest` | C03b-R1 | bounded `use_as_is` inside the strict registry adapter; C18a-C18b-R1 supply the consumer semantics |
+| `raw-fetch-flag-manifest` | C03b-R1 | bounded `use_as_is` inside the strict registry adapter; C18a-C18b-R2 supply the consumer semantics |
 | `transport-ws-review` | C03b-R1 | remains `bridge_missing`; typed constructor classification does not close N018 authentication/degradation |
 | DS1 raw-transport historical receipt | C03a-R1 | add typed drift row: DS1 9 fetches/5 files versus live 5 fetches/3 files and 7 raw constructors/5 files; close only when the executable direct-call census matches |
 | hardcoded capability fallback / `cache-query-memory` | C04a-R1-C04b then C11a-C12b-R1 | fallback removed in C04a-R1 and its construction sites guarded in C04b; root transitions only after cacheable/never-cache/operational/debt classes are derived and enforced |
@@ -887,7 +895,7 @@ single-owner frontend generated-artifact strangle.
 | composed/recomputed status verification | C06 then C10-R1-C12b-R1 | C06 retains `g4-complete-audience-projection-contract` as typed producer debt; deferred C10-R1 waits on that owner plan before any nominal request-scoped boundary contract; C11a-C12b-R1 own the one migrated query's cache revalidation and the source-bound debt ratchet, and no cluster makes a source-wide arithmetic claim |
 | `cache-query-memory` | C12a-C12b-R1 | rebound only for the governed builder, one C11a-C11b-R1 consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
 | `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b-R1 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
-| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R1 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
+| `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R2 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
 | four flag disposition rows | C18a-C19-R1 | strict registry then provider wiring; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
 | 21 historical DS5 readiness rows vs 17 live DS5 roots | C20 | update only supported chain fields; deleted/handoff rows stay honest; no denominator collapse |
 
@@ -900,7 +908,7 @@ single-owner frontend generated-artifact strangle.
 - **W2 — C06-C10-R1:** generated waist, audience denial, N010, and composition.
   Full runtime contract, focused HTTP, generated-client, dashboard, and scanner
   gates.
-- **W3 — C11a-C17b-R1:** query cache, offline action, and four bounded local-state
+- **W3 — C11a-C17b-R2:** query cache, offline action, and four bounded local-state
   families.
   Full dashboard suite, browser cache/offline tests, architecture, and zero-new
   baseline comparison.
@@ -1370,9 +1378,9 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`; focused domain/panel witnesses | R2 current landing; register free after commit | none |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
-| C17b-R1 | persistence construction census | real persistence construction calls emit bytes; lint/census governs them | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:488,570-573,652-655,689,775,814`; `DS5-C17b-R1` measured denominator | executable | none |
+| C17b-R1/R2 | persistence construction census | R1's ten mandatory governed paths omit the now-required timing-plan path; no post-C18b resolver census exists | path pricing + `not_established` denominator | stopped_for_recut | C18b-R2, then C17b-R2 / 11 |
 | C18a | strict exposure registry | `resolveFeatureFlags` and defaults emit typed `FeatureFlags`, though permissively | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297` | executable | none |
-| C18b-R1 | contextual flag source binding | provider emits merged flags and cached manifest today | `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-55,68-131` | executable | none |
+| C18b-R1/R2 | contextual flag source binding | R1 source/governed candidate is preserved at `52ab21cf6`, but owner receipts pin stale `13/55`; R2 must close at `12/56` | provider/registry/HUD witnesses; two governed owner tests | stopped_for_recut | C18b-R2 / 12 |
 | C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; causal graph, palette, WhatIf, and retirement are executable subrows | `apps/runtime-dashboard/src/shared/lib/featureFlags.ts:97-110,290-297`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx:37-145`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
 | C20 | final ledger/corruption/architect receipt | requires closure of executable/debt clusters first | `DS5-C20` acceptance; all preceding blocked/debt rows | blocked-on-another-cluster | all preceding executable/debt clusters |
@@ -2114,18 +2122,23 @@ register/status/report receipts; C21 identities are re-derived, not line-padded.
 
 **Expected commit:** `DS5-C17a-R2 partition operator craft local state`.
 
-### DS5-C17b-R1 — source-bind persistence construction and reconcile stores
+### DS5-C17b-R1/R2 — source-bind persistence construction and reconcile stores
 
-**Measured set:** exactly 9 governed/checker paths plus journal = 10; cap 10:
+**Measured stop and successor:** R1's 9 governed/checker paths plus journal fill
+cap 10:
 shared DS5 TypeScript AST scanner/checker/test, disposition
 register/schema/checker/test + generated report,
 `architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
-C17b-R1 records the
+The binding instruction requires each new terminal duration and recomputed
+ceiling in this plan, making it an unavoidable eleventh path. No path is
+droppable; R1 is `stopped_for_recut`, and C17b-R2 / cap 11 runs only after
+C18b-R2. C17b-R2 records the
 existing WhatIf deletion and a fresh zero-path/zero-import census for the
-DS4-deleted review-attention unit. The current C16 entry persistence universe is
-35 declaration-resolved sites / 14 production files: 25 Web Storage, 5 Zustand
-and 5 IndexedDB. C17b-R1 reruns the identical census at its
-clean post-C17a-R1 boundary and records the exact source-derived delta before a
+DS4-deleted review-attention unit. The last admitted persistence universe was
+35 declaration-resolved sites / 14 production files, but it predates
+C17a-R2/C18a and is stale. The post-C18b-R2 denominator is `not_established`:
+no resolver census ran in this stopped session. C17b-R2 reruns the identical
+census at its clean entry and records the exact source-derived delta before a
 negative; a new authority family or edit need outside these governed paths
 triggers the sizing stop.
 
@@ -2161,14 +2174,15 @@ paths are closed by C13a/C15a/C16a-R1; dispute status is nominal
 codec inputs. Unbranded semantic equivalents remain C01a owner debt, not a
 universal storage-flow claim.
 
-**Expected commit:** `DS5-C17b-R1 govern persistence construction`.
+**Expected commit:** `DS5-C17b-R2 govern persistence construction`.
 
 ### DS5-C18a — strict D5 exposure registry
 
 **Measured set:** exactly 2 implementation paths plus journal = 3; cap 3:
 feature-flag registry/test and journal. There are 12 current keys and four
 missing consumers. Provider wiring and governed row transitions are isolated in
-C18b-R1 so neither child exceeds the binding C00 cap.
+C18b-R2; the first closeout measurement proved the combined boundary requires
+two governed owner-receipt tests beyond the cap-10 source/artifact set.
 
 **Red first:** `test_strict_flag_registry_rejects_unknown_or_wrong_type_input`.
 Parser inputs model remote, window, props, cache and environment variants,
@@ -2180,16 +2194,20 @@ typed diagnostic and refuses partial merge; the registry API accepts only typed
 rollout state and cannot accept RuntimePermission. This closes the pure
 registry/validator unit only. Live source binding, observable provider
 diagnostics and version/expiry/scope cache behavior remain explicitly
-`consumer_missing` until C18b-R1.
+`consumer_missing` until C18b-R2.
 
 **Expected commit:** `DS5-C18a make flag exposure registry strict`.
 
-### DS5-C18b-R1 — bind every flag source to the strict registry
+### DS5-C18b-R1/R2 — bind every flag source to the strict registry
 
-**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
-cap 6: feature-flag provider + test, frontend disposition register + generated
-reference report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
-and journal.
+**Measured stop and successor:** R1's reviewed source/artifact set was exactly
+ten paths. The full status module proved its owner test still pins
+`current_authored=13` and `55` exemptions rather than the required `12/56`;
+the full Atlas owner test separately pins `13`. No cap-preserving substitution
+is honest. R1 is `stopped_for_recut`; R2 cap 12 adds only
+`test_status_retirement_inventory.py` and `test_atlas_enforcement.py` to the
+existing ten. The checkpoint is `52ab21cf6`; `1464feee1` forward-reverts it so
+the register family remains free pending R2.
 
 **Red first:** `test_every_flag_source_uses_strict_registry_and_scoped_cache`.
 Remote, window, props, cache and environment sources must all enter through the
@@ -2203,7 +2221,7 @@ diagnostic; the cache is version/tenant/user/expiry bound. The four
 `consumer_missing` disposition rows remain open until C19-R1, but their producer
 and strict-consumer evidence plus the generated report land here.
 
-**Expected commit:** `DS5-C18b-R1 bind flag sources to strict registry`.
+**Expected commit:** `DS5-C18b-R2 bind flag sources to strict registry`.
 
 ### DS5-C19-R1 — wire three flags and retire collaboration
 
@@ -2307,9 +2325,9 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
 | C16b-R1/R2 | R1 stopped on omitted scope fixture; `DS5-C16b-R2 partition dispute interaction state` | 10 |
 | C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |
-| C17b-R1 | `DS5-C17b-R1 govern persistence construction` | 10 |
+| C17b-R1/R2 | R1 stopped on the mandatory plan path; `DS5-C17b-R2 govern persistence construction` | 11 |
 | C18a | `DS5-C18a make flag exposure registry strict` | 3 |
-| C18b-R1 | `DS5-C18b-R1 bind flag sources to strict registry` | 6 |
+| C18b-R1/R2 | R1 stopped on two omitted owner receipts; `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
@@ -2399,7 +2417,7 @@ backend test path.
   producer-side integrate-contracts.
 - No theorem that a storage caller classified arbitrary unbranded payload
   meaning correctly. C13a/C15a/C16a-R1/C16b-R2 close all six measured status
-  paths before C17b-R1
+  paths before C17b-R2
   enforces registered constructors, nominal envelopes and concrete codecs.
   Semantic equivalents outside nominal authority types remain attached to the
   C01a typed owner debt rather than being claimed as universally detected.

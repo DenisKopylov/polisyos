@@ -3773,3 +3773,85 @@
   unchanged provider compatibility suite at `21 / 21`, exit `0`, real
   `3.15 s / 165 s`, under the same local installed-dependency single-worker
   regime. The register family remains free.
+
+## DS5-C18b-R1 — checkpointed structural closeout stop
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at `94e2c8ca0`, 88
+  commits ahead of `main`. The reviewed source phase occupied the declared ten
+  paths only: registry/test, provider/test, HUD, register, status inventory,
+  report, plan, and journal. Its final source review was GO with strict
+  twelve-key admission, typed diagnostics, scoped/time/version-bound cache,
+  collision-free identity remount, branded `InteractionState`, and the
+  two-direction permission/rollout negative. Fresh terminal receipts under the
+  local macOS installed-dependency regime were focused `32/32` (`2.36 s`),
+  typecheck `14.43 s`, exact ESLint `21.46 s`, architecture/dependency cruise
+  `4.36 s` over 1,030 modules / 4,190 dependencies, and build `19.20 s`, all
+  exit `0`.
+- Behavioral REDs retained in the checkpoint: raw scoped-cache/source failures
+  (`4/8`, `2.14 s`); branded-status/cache-diagnostic migration (`8/9`,
+  `4.12 s`); delimiter-colliding identity paint (`9/10`, `3.80 s`); hostile
+  identity/diagnostic/environment intake (`26/29`, `2.71 s`, expected unhandled
+  rejection); and hostile rejected Proxy / injected null / terminal-auth state
+  (`29/32`, `3.44 s`, expected unhandled rejection). Their corresponding final
+  greens are preserved with the source in checkpoint `52ab21cf6`.
+- Governed derivation used the repository venv interpreter explicitly. The
+  no-write status scan was green in `12.42 s` and derived only
+  `FeatureFlagDisposition` (`RETIRE / WIRE`). The honest prepatch checker was
+  RED in `12.26 s` with `live_status_denominator_drift`,
+  `registered_status_definition_missing:status-feature-flag`, and
+  `unregistered_semantic_definition:FeatureFlagDisposition`. Parsed surgical
+  validation admitted exactly nine `use_as_is/not_applicable` rollout roots,
+  the strangled branded load-state successor, and only the declared status
+  denominator/hash/exemption movement. Register receipts were `261/62/9`,
+  dispositions `18/186/25/16/16`, strangle `57/152/52`; its candidate SHA was
+  `4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f`.
+  C21 stayed `156 occurrences / 129 distinct`, with the sole HUD identity and
+  zero errors (`1.70 s`).
+- The report writer was byte-idempotent: `34.96 s` then `34.91 s`, both exit
+  `0`, stable candidate SHA
+  `868a9f722b1d646bf0f3b66a3f7eb060c5aeb3e09cbd23885cf63d595874a5c6`.
+  Serialized full frontend was `94/94`, exit `0`, real `115.22 s`; disposition
+  baseline/corruption verification was green, exit `0`, real `107.52 s`.
+- The next required lane established the stop. Full status was RED `36/38`,
+  exit `1`, real `52.35 s`: its owner test pins `current_authored=13` and `55`
+  exemptions while the validator-required result is `12/56`. Independent
+  read-only audit found the full Atlas owner test separately pins
+  `current_authored_statuses=13`. Keeping the old numbers would require a fake
+  current status, removal of a real semantic row, scanner evasion, or a lying
+  summary. The remaining status-checker/Atlas-checker/full-Atlas lanes were not
+  run after this structural result; the RED duration is censored and not a
+  timing sample. Successful lane samples and nearest-rank ceilings are
+  recomputed in the plan, including the correction that the historical
+  `25.76 s` focused R6 run was RED rather than a valid timing sample.
+- **Terminal classification: `stopped_for_recut`.** C18b-R1 cannot land at cap
+  `10`; full governed closeout requires `C18b-R2 / cap 12`, adding only
+  `test_status_retirement_inventory.py` and `test_atlas_enforcement.py`.
+  Cap `11` would knowingly carry the second owner RED into C20 and violate
+  closed-before-next ordering. The exact candidate is preserved append-only at
+  `52ab21cf6`; forward-revert `1464feee1` restores all ten product/governed
+  paths, so the register family is free. C17b-R1, C19-R1, and C20 were not
+  entered; the DS16 C23 rows/constants/rationale remain untouched and no C23
+  end state is claimed. The standing duplication result remains `16 literals /
+  8 owners`; this stopped candidate introduced no owner.
+- Tooling nonreceipts, all read-only/no-byte or pre-test: unsupported Vitest
+  `--minWorkers` ran no tests; one `rg` used non-PCRE `\0`; one jq query used
+  invalid `.$defs`; one jq count expression applied `sort` before correcting
+  precedence; the cap-audit helper first looked for the venv from the worktree
+  root and exited `127`; and one later `rg` command embedded a Markdown
+  backtick, causing zsh to attempt command `6` before the corrected literal
+  search. None is a product result or timing sample.
+- A read-only C17b preflight, performed only to price the next boundary, found
+  its existing ten paths are already mandatory and the newly binding plan
+  timing update would be an eleventh. No declaration-resolving census ran, so
+  the earlier `35/14` and the static `36/15` prediction are not receipts; C17b
+  remains unentered and must be measured only after an explicit cap-11 recut.
+- Independent stop-package review was initially NO-GO `0 Critical / 2
+  Important / 1 Moderate`: the plan still called the stale `35/14` denominator
+  current and C17b-R1/cap10 executable; the successful `12.42 s` status
+  derivation and `1.70 s` C21 validation lacked timing rows; and the collision
+  sentence still said five of ten after HUD made it six. The plan now binds
+  C17b-R2/cap11 after C18b-R2, labels the unmeasured denominator
+  `not_established`, records both timing lanes, and corrects the complete
+  collision count. The review's first read-only `rg` pattern embedded Markdown
+  backticks and caused zsh to attempt commands `10` and `12`; the literal
+  rerun succeeded and no bytes changed.

@@ -4549,3 +4549,122 @@
   unentered. Whether its former C07a prerequisite becomes carried owner debt is
   `not_established`: the commission and standing another-plan rule disagree,
   so the hand-back requests an architect ruling instead of selecting one.
+
+## 2026-08-19 — DS5-C09a-R1 entry re-cut admits the canonical decision owner
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at C07a stop record
+  `a22cbb0be10795d8e0f017bf919b0448068447a5`, 102 commits ahead of `main`,
+  clean, with the register family free. C08b-R2 `edb8e045f` is an ancestor, so
+  the identity prerequisite is discharged. The complete N010 denominator is
+  11 direct default-allow expressions in six production consumers: C09a owns
+  `4/3` (`WorkspaceBoundary` 1, `Sidebar` 2, `Header` 1), while C09b retains
+  `7/3` (`InterfaceModeProvider` 1, `CommandPalette` 2,
+  `RunDetailLayout` 4).
+- Independent entry review found that the written branded
+  `unknown | verified` decision requires the canonical Authz owner and its
+  test, and that `routeBoundaries.test.tsx` plus `layoutSurfaces.test.tsx`
+  encode the old absent-provider allow precondition. P40 classifies this as a
+  new declaration/owner-cut class; repair consumes C09a mechanism round 1. The
+  truthful P39 fence is 11 mechanism paths—owner+test, three consumers, two
+  induced fixtures, one new cross-surface witness, and scanner/checker/test—
+  plus five mandatory register/report/inventory/plan/journal companions. The
+  mechanism fits cap 11; no successor split is authorized.
+- The governed prestate is register `373033ccdaa2324df8d1b61cfb49ca6d7f6223da20360167bcbc0f7a1e11b7c5`,
+  generated report `8fe67e8673a45ca2d009914cd38c7c38776ae5b58b15344470e20d41d706a1ea`,
+  and status inventory `2ec8b1a8e2ffa8dc6b43c02fbe893d81449d3897e681b5d4b98f2e97140c86f2`.
+  C21 has one protected Header Badge identity; zero re-anchor is only an entry
+  expectation and must be re-derived after source freeze. C23, readiness,
+  baseline, i18n, DS8, DS9 and DS14 remain excluded.
+- One read-only search was a tooling non-receipt: Markdown backticks embedded
+  in an unquoted `rg` pattern caused zsh command substitution (`unknown:
+  command not found`). Its output was not used; bounded literal searches and
+  direct source inspection established the facts above. No product test,
+  scanner, writer, staged or governed byte moved at entry.
+
+## 2026-08-19 — DS5-C09a-R1 stopped at the P40 round breaker
+
+- Root opened exactly the declared eleven-path mechanism after the entry
+  re-cut. Red-first evidence was real: the corrected two-suite dashboard run
+  was `0/3`, exit 1, `4.20s`, because the branded decision/API and guarded
+  surfaces did not exist; the TypeChecker-backed Atlas test was RED in
+  `20.64s` because `_authz_default_allow_errors` did not exist. The canonical
+  owner then issued a frozen private-symbol `unknown | verified` decision only
+  for settled current identity, three application-chrome consumers required
+  its verified branch, existing absent-provider fixtures were re-anchored, and
+  a declaration-resolved scanner pinned the exact seven-expression C09b
+  residual with multiplicity. A no-write derivation returned the full `7/3`
+  residual in `20.23s` (`P37: recomputed`).
+- Candidate verification before review was GREEN under the local macOS,
+  installed-dependencies, shared-host regime: four focused dashboard suites
+  `22/22` in `14.64s` (earlier terminal greens `22/22` in `7.44s` and owner
+  `3/3` in `6.46s`), dashboard typecheck `31.13s` (earlier terminal green
+  `21.36s`), exact eight-file ESLint `51.70s` (earlier terminal green
+  `47.43s`), and the real focused Atlas scanner test `49.36s` (earlier green
+  `49.20s`). Each exited 0; REDs and non-receipts are excluded from timing
+  samples. Nearest-rank recomputation leaves focused dashboard `p95=82.27s /
+  ceiling=165s`, typecheck `78.40/157`, and ESLint `86.84/174`; the two new
+  focused Atlas scanner samples establish `49.36/99`. The no-write semantic
+  derivation row becomes `20.23/41`.
+- Regime precision: each terminal command used `/usr/bin/time -p`, an uptime
+  pair and a captured exit. Root serialized the TypeChecker/scanner-heavy
+  parents; the non-contended dashboard test/type/lint lanes ran in parallel as
+  permitted by the execution doctrine. `P37: recomputed` covers the complete
+  N010 denominator, scanner residual and nearest-rank timing arithmetic;
+  `P37: independently_reconciled` covers branch attachment, candidate/revert
+  path equality, post-revert source equality and governed hashes.
+- Non-receipts were retained rather than promoted: the first dashboard attempt
+  omitted `RUN_DETAIL_TAB_REGISTRY` from a test mock and collected no new-suite
+  tests (exit 1; elapsed `not_established`; command changed zero bytes and its
+  output was not used); a later `21/22` run exposed an unmocked Telemetry
+  dependency through `PageErrorBoundary` (exit 1, `7.53s`, zero command-written
+  bytes); and the first post-implementation Atlas fixture referenced
+  nonexistent `checker.REPO_ROOT` (exit 1, `20.31s`, zero command-written
+  bytes). The first Prettier check used one wrong relative scanner path while
+  correctly identifying four format targets (exit 2, `0.92s`, check-only), and
+  whole-file `ruff check` / `ruff format --check` probes returned exit 1 in
+  `0.06s` / `<0.01s`, reporting 227 pre-existing findings and two would-format
+  modules; both were rejected as non-delta receipts and wrote zero bytes. The
+  initial typecheck's private-brand literal widening was a real static RED
+  (exit 2, `21.85s`), not a timing sample; pinning the literal closed it before
+  the final green wave. All tooling non-receipts carry `P37: not_established`
+  for product evidence.
+- P40 stopped further repair. Round 1 was the new entry declaration/owner-cut
+  class. The scanner reviewer then found a second new class: direct canonical
+  hook calls, one-step aliases/destructures and a true consequent evade the
+  bounded collector; that consumes round 2. An independent source reviewer
+  then found the third distinct new mechanism class: `Sidebar` clerk links to
+  `commandCenter` and `runsDecisions` are permission-bearing chrome but depend
+  only on derived `isClerk`, not a current verified workspace decision. The
+  cross-surface witness fixed `isClerk=false`, so it did not exercise that
+  branch. This third finding hits the round breaker; neither review finding was
+  patched.
+- The exact stopped candidate is `f240db1b730a8619a6597c4b4af7690e673f8bc8`
+  with eleven mechanism paths: Authz owner+test, new cross-surface test, Header,
+  Sidebar, both induced existing fixtures, WorkspaceBoundary, and the shared
+  scanner/checker/test. It is forward-reverted by
+  `c64b03dea`; only this plan and journal move in the stop record. The candidate
+  would have moved the protected Header Badge line `115→117` and Authz status
+  spans, but no C21 or status re-anchor is authorized after revert.
+- Governed readback is byte-identical to entry: register
+  `373033ccdaa2324df8d1b61cfb49ca6d7f6223da20360167bcbc0f7a1e11b7c5`,
+  generated report
+  `8fe67e8673a45ca2d009914cd38c7c38776ae5b58b15344470e20d41d706a1ea`,
+  and status inventory
+  `2ec8b1a8e2ffa8dc6b43c02fbe893d81449d3897e681b5d4b98f2e97140c86f2`.
+  `DS1-N010` remains `still_required`; the complete current denominator remains
+  11 expressions / six production consumers (`P37: recomputed`). C23,
+  readiness, baseline, i18n, DS8, DS9 and DS14 are unchanged. The registered
+  eight-owner duplication finding remains open. The register family is free.
+- **Terminal classification: `stopped_for_recut`.** Successor `C09a-R2`, cap
+  11, retains the same mechanism cut. It must close the bounded direct-syntax
+  class, declare the arbitrary-indirect-flow residual/falsifier, and bind both
+  clerk links to current verified workspace decisions with clerk-mode
+  loading/error/refetch witnesses. Independent standing review falsified the
+  commission's supplied C09b independence: C09b's acceptance consumes the
+  branded API, cross-surface witness and syntax gate present only in reverted
+  candidate `f240db1b7`, while its cap excludes those owner paths. C09b is
+  therefore `blocked_on_another_cluster` until C09a-R2, with no C09b mechanism
+  round consumed; weakening its acceptance was rejected. C11b-R1 and C15b-R1
+  remain independent and executable. C20 remains unentered and requires
+  C09a-R2, C09b-R1, C11b-R1 and C15b-R1, while C07a's
+  prerequisite-versus-carried-debt ruling remains `not_established`.

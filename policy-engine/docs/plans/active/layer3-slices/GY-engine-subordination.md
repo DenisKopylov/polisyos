@@ -3191,6 +3191,15 @@ and cold closeout remain unproved.
   in `docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
   independently_reconciled]`
 
+  **GY-DEFC-9 execution standing (2026-08-18).** This member is closed on
+  `codex/gy-defc-9-n11-suffix`: Foundry owns the fail-closed governed projection while raw ambient
+  facts and custody identity remain intact; every N8 comparison path consumes it. Two real discovery
+  environments differing in example-extension importability both return zero governing issues, and
+  the internally rehashed governed-count control remains red with
+  `catalog_builtin_discovery_manifest_mismatch`. The frozen N8 artifact is byte-identical. `[P37:
+  recomputed for the mechanism, complete comparison-path census, two-environment witness, negative
+  control, and artifact identity]`
+
 - **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
   2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
   the shared PDC identity boundary rather than adding another validator-local normalizer.
@@ -3476,6 +3485,13 @@ and cold closeout remain unproved.
   governed-red case is required before closure, otherwise its behavior remains `not_established`.
   `[P37: institutionally_supplied]`
 
+  **GY-DEFC-9 execution standing (2026-08-18).** This defect is closed on
+  `codex/gy-defc-9-n11-suffix`: N10a consumes `governing_issues` from the typed N8 result, not the
+  legacy tuple or an issue-code allowlist. Both real ambient postures leave N10a green; the governed
+  control fails N10a and Depth-N with its named N8 code. All five frozen N10a artifacts remain
+  byte-identical. `[P37: recomputed for the typed consumer, behavioral witnesses, and complete
+  five-artifact denominator]`
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -3539,6 +3555,18 @@ and cold closeout remain unproved.
   mechanism. The complete plan is
   `docs/superpowers/plans/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
   institutionally_supplied for the counting rule; recomputed for the initial path census]`
+
+  **Execution standing (2026-08-18): STOPPED BEFORE ITEM 5.** Items 1–3 are green and source-frozen;
+  Item 4 reissued only the confidence artifact and binds deployment identity
+  `policy-engine-deployment:sha256:f05a816f…5983955f`. Item 5 consumed both repair rounds on two
+  pre-launch authorization findings, closed both, and then stopped on the independently found third
+  Important mechanism defect, `cold_ceiling_enforcement_binding_gap`: the inner harness admits a
+  ceiling value, but a separately parameterized outer wrapper owns the enforcing timer. This is a
+  `P37`/`P38` authorization–enforcement split, classified before stop as required. No cold N11 child
+  ran; the one-cold allowance is unspent, and the task's P30 objective is `not_established`. Exact
+  receipts and the three-finding ledger are in the execution journal. `[P37:
+  independently_reconciled for the third finding; recomputed for Items 1–4, cold-run absence, and
+  allowance non-use; not_established for the cold objective]`
 
 - **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
   omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:

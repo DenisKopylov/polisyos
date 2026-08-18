@@ -124,8 +124,8 @@ initial path census]`
 | --- | ---: | ---: | --- |
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
-| Item 4 | 2 | 0 | both pre-writer findings closed by delta review; accepted writer pending |
-| Item 5 | n/a | single cold allowance unspent | not authorized yet |
+| Item 4 | 2 | 0 | both pre-writer findings closed; accepted writer green |
+| Item 5 | 3 | 0 | stopped before cold on the classified third finding; allowance unspent |
 
 ## Execution receipts
 
@@ -550,3 +550,184 @@ Item 4 is green and committed at `8ae3facde…`. Its two repair rounds are spent
 occurred. The single Item 5 cold N11 allowance remains unspent; the confidence writer is Item 4's
 deployment reissue, not the registered N11 live-contract run. `[P37: recomputed for commit/readback
 and allowance use; institutionally_supplied for item classification]`
+
+## Item 5 cold authorization review — stopped before launch
+
+The post-Item-4 N8 catalog check exited `0` with `status=pass`; N10a exited `0` with
+`status=pass, issues=[]`; and the confidence artifact's internal validator returned
+`status=pass, issues=[]` while binding deployment identity
+`policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f`.
+The already-frozen real two-environment witness remains the behavioral authorization for N8, N10a,
+and Depth-N ambient-green/governed-red semantics; no mechanism source changed after that witness.
+`[P37: recomputed for the three post-reissue checks and source history; recomputed in the committed
+test receipt for the behavioral witness]`
+
+An independent terra review found two Important defects in the first ignored cold harness: its
+branch/HEAD arguments and start-time pin snapshot did not consume the approved preflight basis, and
+its complete milestone trace was recorded but not a pass predicate. These are two Item 5 mechanism
+findings, so both repair rounds are consumed. The corrected harness consumes the content-bound
+preflight below, requires its complete `11/11` expected pin map at launch, derives the exact launch
+HEAD as the single commit after the basis and requires that commit to change only this journal, and
+requires the exact 28-name/28-ordinal sequence ending in `frozen_contract_derived`. A third Blocking
+or Important Item 5 finding will preserve and stop this item. `[P37: independently_reconciled for the
+findings; recomputed for the correction; institutionally_supplied for the round rule]`
+
+The basis preflight ran at clean attached head `1a16ecef7c130ec509e101d520b02f8b48318b7c`
+with the worktree-local interpreter and source. It returned `status=pass, issues=[]` in `1.402877`
+seconds with all three cold invocation counters at zero. Its retained receipt hashes to
+`fbbe2b4ff4dbd35512f2b466e7781e42864f2dbbd3a531e0e8b71545cc3afede`; its complete 11-member pin
+map hashes to `2c83d99d67e8f4aad6a436408457d3cf390d95597e71d064d3a529f4db1b1c4f`
+under compact sorted JSON. The corrected harness and outer ceiling wrapper hash to
+`ab56abeb39c4fe0d84e95ef459def9079e05f445436ab91e97aee6f1c69407fb` and
+`86d111fa98ff96bcc8aef32218dab70a186d9bb65af0b5f8e7b64f44759ee2bc`;
+both pass syntax validation, and the harness passes Ruff. `[P37: recomputed]`
+
+The candidate launch would have required this block to be committed as the sole path changed after
+the basis, followed by a passing post-commit preflight and a delta review with no third material
+finding. That condition was not met. The block below is preserved as the rejected candidate
+admission and has `status=stopped_third_finding`, which the harness refuses. The cold outcome remains
+`not_established`; no cold build exists at this point. `[P37: institutionally_supplied for the
+allowance and round rule; recomputed for the rejected status and run absence; not_established for the
+cold outcome]`
+
+<!-- GY-DEFC-9-COLD-AUTHORIZATION-BEGIN -->
+```json
+{
+  "basis_preflight_path": ".tmp/gy-defc-9/cold-n11/preflight-receipt.json",
+  "basis_preflight_sha256": "fbbe2b4ff4dbd35512f2b466e7781e42864f2dbbd3a531e0e8b71545cc3afede",
+  "branch": "codex/gy-defc-9-n11-suffix",
+  "catalog_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+  "ceiling_seconds": 4693.1186,
+  "governed_output_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+  "harness_path": ".tmp/gy-defc-9/single_cold_n11.py",
+  "harness_sha256": "ab56abeb39c4fe0d84e95ef459def9079e05f445436ab91e97aee6f1c69407fb",
+  "invocation_counts": {
+    "build_live_contract": 1,
+    "clear_owner_bundle_cache": 1,
+    "validate_payload": 1
+  },
+  "l5_path": "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+  "milestones": [
+    "confidence_registry_loaded",
+    "owner_pre_derivation_fence_started",
+    "owner_pre_derivation_fence_complete",
+    "n10_owner_recomputation_started",
+    "n10_owner_recomputation_complete",
+    "n13b_owner_recomputation_started",
+    "n13b_owner_recomputation_complete",
+    "n10_owner_projection_complete",
+    "n13b_owner_projection_complete",
+    "owner_post_derivation_fence_started",
+    "owner_post_derivation_fence_complete",
+    "owner_bundle_fence_validated",
+    "owner_bundle_loaded",
+    "n10_evidence_accounting_started",
+    "n10_evidence_accounting_complete",
+    "n13b_passport_accounting_started",
+    "n13b_passport_accounting_complete",
+    "real_ledger_receipt_validated",
+    "n9_live_projection_validated",
+    "n12_live_projection_validated",
+    "conformance_ledger_started",
+    "conformance_check_executed",
+    "conformance_ledger_receipt_validated",
+    "confidence_ledger_receipts_validated",
+    "real_semantic_projection_complete",
+    "conformance_semantic_projection_complete",
+    "frozen_consumer_projections_complete",
+    "frozen_contract_derived"
+  ],
+  "pin_denominator": 11,
+  "pins": {
+    "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json": {
+      "bytes": 977814,
+      "sha256": "4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9"
+    },
+    "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json": {
+      "bytes": 2193438,
+      "sha256": "155f01a877d7327281531115fee88764b7615e411830c8ec6109f375aa5b615e"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_census.json": {
+      "bytes": 73888,
+      "sha256": "ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json": {
+      "bytes": 567935,
+      "sha256": "9b78cad2693a163debfe8f4f77f26a01c77b177d1777f83b6352bede58be67f7"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json": {
+      "bytes": 21053,
+      "sha256": "361434b07fcdad7b1965c1899335b99c1b441034e5b8752c4645544f4b1fd98f"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_pack.json": {
+      "bytes": 252598,
+      "sha256": "169df14ab4fbc8f853f937e08d1c218066682d6f8fd5945219d9866d07cda2e2"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json": {
+      "bytes": 4665,
+      "sha256": "688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d"
+    },
+    "architecture/policy_design_case/layer3_gy_value_gate_contract.json": {
+      "bytes": 106118,
+      "sha256": "c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303"
+    },
+    "architecture/production_quality/confidence_ledger.toml": {
+      "bytes": 8144,
+      "sha256": "f337fc1ef5a40daec98f8970a64cd85721b55590b93f452503c4c5a7fa49942b"
+    },
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json": {
+      "bytes": 2112,
+      "sha256": "90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff"
+    },
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb": {
+      "bytes": 1320693760,
+      "sha256": "4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7"
+    }
+  },
+  "receipt_parent": ".tmp/gy-defc-9/cold-n11",
+  "repo_root": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
+  "schema_version": "policyos.gy_defc_9.cold_n11_authorization.v1",
+  "status": "stopped_third_finding",
+  "wrapper_path": ".tmp/gy-defc-9/run_with_ceiling.py",
+  "wrapper_sha256": "86d111fa98ff96bcc8aef32218dab70a186d9bb65af0b5f8e7b64f44759ee2bc"
+}
+```
+<!-- GY-DEFC-9-COLD-AUTHORIZATION-END -->
+
+### Mandatory third-finding stop
+
+Delta review independently closed both prior Important findings, then found a third Important Item 5
+mechanism defect. The inner harness checks that its inert `--ceiling-seconds` argument equals
+`4,693.118600`, but only `run_with_ceiling.py` enforces termination; that outer wrapper accepts an
+independent arbitrary ceiling and arbitrary child command and never consumes the authorization
+block. The divergent case is outer `999999` plus inner `4693.118600`: every inner authorization gate
+can pass while the actual enforcing timer exceeds the sanctioned ceiling. This is the new
+`cold_ceiling_enforcement_binding_gap`, an instance of the already named `P37`/`P38` class: the
+authority predicate is `consumer_asserted`, and the implementation checks a stand-in rather than the
+timer that decides termination. It is not another artifact moving for a registered mechanism.
+`[P37: independently_reconciled for the finding and divergent case; recomputed from both harnesses
+for the enforcement split; consumer_asserted for the unbound outer timer]`
+
+Per the binding two-round rule, the third material finding is classified and Item 5 stops without a
+third repair. The ignored harness and rejected authorization are preserved; neither is a tracked
+mechanism delivery. No cold N11 child was launched, all 11 governed/external pin bytes remain at the
+authorized preflight identities, and the single cold allowance is unspent. The P30 objective “a cold
+N11 live-contract validation returns zero issues” is therefore `not_established`, not failed and not
+closed. A redundant focused five-test recheck launched during review later left no running process,
+but its terminal output handle was not retained, so its result is a tooling non-receipt and is not
+used as evidence. `[P37: institutionally_supplied for the stop consequence; recomputed for cold-run
+absence, pin readback, and process absence; not_established for the cold objective and redundant test
+terminal]`
+
+A final preflight-only negative probe consumed the rejected block and exited `1` in `1.517715`
+seconds with first exception `cold_n11_authorization_value_invalid:status`; cache clear, live build,
+and validation counts were all zero. Its ignored receipt hashes to
+`c3ae3d6ec67feb5ede30ba464f99292b853b437cf101722c5ce3eaa61ea10d34`. This is a fail-closed
+admission witness, not a cold invocation. `[P37: recomputed]`
+
+The active-plan edit audit finds only the three authorized standing-entry hunks. The complete first
+seven physical lines hash to `56b8f32775a3cfefdb443f2d180a854ac7d131f79bcf392f01f56e100a439660`,
+byte-identical to task-base `main` at `3fde27f0d`; no `Rev` text or line 7 byte moved on this branch.
+The moving `main` ref is now `68bb34762` and its architect-owned Rev-45 line hashes differently, so
+the branch does not copy it or merge mid-task. `[P37: recomputed for both hashes, the three-hunk
+denominator, branch diff, and current main ref; institutionally_supplied for the no-merge rule]`

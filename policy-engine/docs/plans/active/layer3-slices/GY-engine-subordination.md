@@ -3173,6 +3173,24 @@ and cold closeout remain unproved.
   rebaseline the manifest — are the closures this entry already forbids. Owner of the repair is
   `GY-DEFC-9`.
 
+  **GY-DEFC-9 settled disposition (2026-08-18).** The historical environment discriminator is
+  `not_established`; inventing one after the freeze would be a rebaseline and is refused. Ambient
+  posture remains recorded in full, including import failures and `unbound_inputs`, and remains
+  protected by the raw custody identity as diagnostic evidence. It is no longer a governed replay
+  prerequisite. The governed comparison projection admits exclusion only from a structurally valid
+  non-governing admission; absent, malformed or contradictory admission fails closed. `[P37:
+  institutionally_supplied for the ruling; not_established for the historical discriminator]`
+
+  The pre-implementation census walked the complete `32/32` recorded and `32/32` live
+  `predicate_provenance` rows: all rows were mappings with unique names, and exactly
+  `ambient.discovered_component_membership` differed (`not_established → recomputed`) while both
+  sides declared `decisive: false` and `quarantine`. Its placement is therefore established as an
+  ambient finding, not guessed from the whole-list code. The three direct ambient mismatch codes are
+  ambient findings; governed predicate rows remain governing; raw `provenance_id` drift is a derived
+  consequence that must stop firing rather than be excluded. The complete row disposition is frozen
+  in `docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  independently_reconciled]`
+
 - **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
   2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
   the shared PDC identity boundary rather than adding another validator-local normalizer.
@@ -3450,6 +3468,14 @@ and cold closeout remain unproved.
   governed N8 difference still returns `n8_value_contract_invalid` carrying its code. `P29`: one
   witness that must stay green and one that must go red.
 
+  **GY-DEFC-9 accepted consumer contract (2026-08-18).** N8 returns a typed result with
+  `governing_issues` and `ambient_findings`. N10a decides the bridge only from the governing subset,
+  without an issue-code allowlist; ambient findings remain visible through the typed result and N8
+  CLI and do not alter frozen N10a receipt bytes. Missing or malformed structural admission is a
+  governing failure. Depth-N inheritance is not assumed: a Depth-N-level ambient-green and
+  governed-red case is required before closure, otherwise its behavior remains `not_established`.
+  `[P37: institutionally_supplied]`
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -3498,6 +3524,21 @@ and cold closeout remain unproved.
   **Closure signal:** two environments differing **only** in ambient plugin-import posture both verify
   N8 and N10a green; a governed-input change still fails with its named code; and one cold N11
   completes live-contract validation with zero issues.
+
+  **GY-DEFC-9 execution registration (2026-08-18, superseding only this entry's task ordering).**
+  Items 1 and 2 ship together through the Foundry governed projection and typed N8/N10a result. Item
+  3 takes the non-decisive-by-construction branch recorded under `GY-DEF14`. Item 4 reissues only the
+  confidence-ledger deployment identity to bind the current committed source closure, after an exact
+  delta declaration; N8 and N10a artifacts remain byte-identical. Item 5 is the single cold N11 run,
+  authorized only after Items 1–4 are green. `[P37: institutionally_supplied]`
+
+  `P39` mechanism cost is three source paths, three mirrored test paths, and the reissued confidence
+  artifact. Mandatory record companions are the new implementation plan, execution journal, and
+  these standing paragraphs inside `GY-DEF14`, `GY-DEF16`, and `GY-DEFC-9`. A measured need for an
+  additional test path expands the mechanism set; it does not justify weakening or splitting the
+  mechanism. The complete plan is
+  `docs/superpowers/plans/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  institutionally_supplied for the counting rule; recomputed for the initial path census]`
 
 - **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
   omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:

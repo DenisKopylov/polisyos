@@ -618,10 +618,11 @@ generated debt rows persist 130 nested address slots / 36 files. Paths below are
 | C17b-R1/R2/R3 | shared TypeScript scanner/checker/test; disposition register/schema/checker/test/report; status inventory; plan/journal | no — |
 | C18a | `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | no — |
 | C18b-R1/R2 | flag registry + test; provider + test; `AmbientTelemetryHud.tsx`; register/status/report; plan/journal; R2 adds the two governed owner tests | yes: HUD retains one existing `census-browser-signing-protected-live` identity; zero payload reanchor |
-| C19-R1 | `app/layout/AppShell.tsx`; `app/layout/layoutSurfaces.test.tsx`; `app/surfaces/surfaceRegistry.ts`; `features/runs/route.tsx`; `features/runs/routes/runDetailSurfaces.test.tsx`; `features/runs/routes/tabs/OverviewTab.tsx`; `features/commandPalette/CommandPalette.tsx`; `features/commandPalette/CommandPalette.test.tsx`; `shared/lib/featureFlags.ts`; `shared/lib/featureFlags.test.ts` | yes: `features/runs/route.tsx` → `census-browser-signing-protected-live` `[18]:151`; `features/runs/routes/tabs/OverviewTab.tsx` → `authority-presentation-badge-governance-issue-severity` `[3]:185` |
+| C19-R1/R2 | R1's 13 mechanism paths add `FeatureFlagProvider.test.tsx`, `runDetailTabs.ts`, and `RunDetailLayout.tsx` to the ten-path entry set; R2 adds the disposition checker as mechanism path 14 and its owner test/baseline binding as mandatory companions | yes: route's protected string relocates without semantic change, but the live census consumer exact-compares regenerated structural identity; RunDetailLayout/Overview authority identities remain valid after source-shape repair |
 | C20 | `architecture/atlas_surfaces/test_atlas_enforcement.py` | no — |
 
-Six of ten is many: **first** repair the class; C13b-R1/C16a-R1/C16b-R1/C17a-R1/C19-R1 wait and no later cluster enters. File:line navigates; C21b's migration target is that no migrated gate fails on move alone. The stale C14a descriptor navigation at `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended C13a `deleteComposerDraftRecord` moved from line 90 at `653f12d08^` to line 13 at `653f12d08`. C21a closes only the reusable TypeScript mechanism: a pathRef-form encoded identity binds typed AST role/discriminator plus declaration/export chain and normalized tokens; creation may use a line hint, but validation never binds it. Move-only is green; missing/renamed, ambiguity, and content rewrite are red; C08 whole-file hashes remain independent. P29/P31/P32/P33/P35/P37 apply; no disposition row. GY-DEF13 is an address-versus-identity parallel only, not this mechanism or closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
+Six of ten is many: **first** repair the class; the current remaining successor
+on this axis is C19-R2. File:line navigates; C21b's migration target is that no migrated gate fails on move alone. The stale C14a descriptor navigation at `offlineQueueRepository.ts:80` names `loadComposerDraftRecord`; the intended C13a `deleteComposerDraftRecord` moved from line 90 at `653f12d08^` to line 13 at `653f12d08`. C21a closes only the reusable TypeScript mechanism: a pathRef-form encoded identity binds typed AST role/discriminator plus declaration/export chain and normalized tokens; creation may use a line hint, but validation never binds it. Move-only is green; missing/renamed, ambiguity, and content rewrite are red; C08 whole-file hashes remain independent. P29/P31/P32/P33/P35/P37 apply; no disposition row. GY-DEF13 is an address-versus-identity parallel only, not this mechanism or closure. Duplication: 0 unjustified same-source/same-concept pairs in 34 resolved paths; producer/adapter/consumer are distinct; six unnamed roles unevaluable.
 
 ### DS5-C21a — TypeScript reference identity mechanism
 
@@ -679,9 +680,10 @@ product, package, schema, baseline, finding content, or disposition.
 
 **Sequencing receipt:** C21b-R1 migrated 10 of the 13 collision pairs. The
 three `sw.ts` Workbox pairs are among the six explicitly navigation-only
-TypeScript refs, so no gate turns on them. C21c closes the remaining structured
-binding class; C13b-R1, C16a-R1, C16b-R1, C17a-R1, and C19-R1 are therefore
-unblocked on the line-address axis (their other audit waits still govern).
+TypeScript refs, so no gate turns on them. C21c closed the remaining structured
+binding class and historically unblocked C19-R1 on that axis; after R1's
+forward revert, C19-R2 is the current unblocked successor (its other audit
+waits still govern).
 
 ### DS5-C21d — retire migration bindings and relocate unique constructs
 
@@ -763,6 +765,21 @@ timing sample, never a GREEN mechanism receipt:
 | --- | ---: | ---: | ---: |
 | focused frontend persistence receipts | `22.17, 41.70, 52.44` | `52.44` | `105 s` |
 | focused Atlas persistence receipt | `58.68, 108.80 RED, 116.91` | `116.91` | `234 s` |
+
+The stopped C19-R1 attempt used the same local-macOS, installed-dependency,
+captured-exit regime. Ceiling recomputation admits successful terminal runs;
+behavioral REDs and tooling nonreceipts remain recorded evidence but are not
+successful timing samples:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused dashboard/component tests | `6.15, 6.30, 8.74, 10.74, 10.74, 11.13, 11.23, 11.31, 11.40` | `82.27` | `165 s` |
+| focused feature/flag tests | `1.59` | `6.14` | `13 s` |
+| dashboard typecheck | `13.52, 13.66, 14.74, 14.74, 17.10, 21.42, 21.43` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `32.41, 39.04, 43.10, 47.25, 48.73` | `86.84` | `174 s` |
+| dashboard production build | `19.89, 20.18, 39.25` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `4.62, 4.78, 5.57, 9.20` | `9.20` | `19 s` |
+| canonical report writer | no successful sample (`19.44 RED`, `39.60 RED`) | `86.97` | `174 s` |
 
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
@@ -898,7 +915,7 @@ first continuously numbered `-R1` successor.
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 11 | stopped mechanism re-cut | C17b-R3 / 11; R2 candidate preserved after two repair rounds |
 | C18b | 5 | 12 | landed | C18b-R2 / 12; R1 checkpoint restored and verified |
-| C19 | 13 | 14 | no-fit | C19-R1 / 14 after C18b-R2; C17b-R2's terminal stop does not block it |
+| C19 | 13 | 14 | R1 stopped at round breaker | C19-R2 / 14; C21 census consumer repair is the fourteenth mechanism path |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
 C01b/C01c are the separately authorized `636645bec` re-cut. C06 retains its
@@ -930,7 +947,7 @@ single-owner frontend generated-artifact strangle.
 | `cache-query-memory` | C12a-C12b-R1 | rebound only for the governed builder, one C11a-C11b-R1 consumer and a source-derived debt ratchet; 65 direct constructions and 41 producers remain fingerprint-bound typed debt unless independently proven operational; every authority-like producer debt names owner field, contract and owner slice, never timestamp inference |
 | `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b-R1 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
 | `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R3 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
-| four flag disposition rows | C18a-C19-R1 | strict registry then provider wiring; causal/palette/what-if rebound to real whole-surface gates; collaboration retired and absent |
+| four flag disposition rows | C18a-C19-R2 | strict registry then provider wiring; R1 candidate proved the gates but stopped before governed admission; R2 closes the C21 consumer and flag rows together |
 | 21 historical DS5 readiness rows vs 17 live DS5 roots | C20 | update only supported chain fields; deleted/handoff rows stay honest; no denominator collapse |
 
 ### Wave boundaries
@@ -1415,9 +1432,9 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C17b-R1/R2/R3 | persistence construction census | R2 recomputed the complete 574-source / 36-site resolver set, but independent review disproved its per-site causal owner binding | preserved candidate `ca1400c55`; forward revert `eb97981c4`; round-3 review | `stopped_for_recut` after two mechanism repair rounds | C17b-R3, same cap 11 |
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
-| C19-R1 | three flag gates and collaboration retirement | the strict live-source/provider interface is landed; route, deep-link and keyboard gates remain | C18b-R2 acceptance; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable and unentered; C17b-R2 stop is not a dependency | none |
+| C19-R1/R2 | three flag gates and collaboration retirement | R1's candidate evidence is preserved but its live gates are forward-reverted; the governed C21 census consumer rejects relocation by exact structural identity instead of the ratified hybrid rule | candidate `9b87f0e09`; forward revert `33ea792b5`; round-3 C21 consumer review | `stopped_for_recut` after two independent mechanism repair rounds | C19-R2, same mechanism cap 14 |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C17b-R3, C19-R1 |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C17b-R3, C19-R2 |
 
 **Entry standing census (recomputed and independently reconciled at
 `324996652`, structurally refreshed through C17b-R2 revert `eb97981c4`):**
@@ -1427,8 +1444,8 @@ rows, all `28` C07–C20 status-heading occurrences collapsing to `24` base
 cluster groups, `48/48` expected-commit rows, branch ancestry, and every
 cluster status paragraph. In the commissioned chain, C18b-R2 landed,
 C17b-R2 stopped for the same-cap R3
-mechanism re-cut, and C19-R1 remains executable because it depends on C18b-R2,
-not C17b. Outside that chain, the executable-and-unentered set is exactly
+mechanism re-cut, and C19-R1 stopped for the same-cap C19-R2 successor after
+its third independent mechanism finding. Outside that chain, the executable-and-unentered set is exactly
 `C07a`, `C09a-R1`, `C09b-R1`, `C11b-R1`, and `C15b-R1`. `C07b`, `C10-R1`,
 C15a's structured verdict/status-chip plane, and `C17a-R1` remain
 blocked-on-another-plan and are carried into C20 as named owner debt rather
@@ -1438,8 +1455,8 @@ The post-C17b-R2 refresh walked the same complete Markdown denominators and
 returned `25 / 23 / 2 / 31 / 28 / 24 / 48`; ancestry added landed C18b-R2
 `8bb10a611`, stopped candidate `ca1400c55`, and forward revert `eb97981c4`.
 The standing delta is C18b-R2 landed, C17b-R2 stopped for same-cap R3, and
-C19-R1 still executable. The complete census is refreshed again at final
-chain hand-back after C19.
+C19-R1 stopped for same-cap R2. The complete census is refreshed again in the
+C19 stop record and final chain hand-back.
 
 Reproduce those Markdown denominators from the `policy-engine/` root with the
 repository venv; this reads the complete named tables and all C07–C20 status
@@ -2337,25 +2354,34 @@ the benign control.
 **Acceptance:** every live flag source feeds the strict C18a registry; the
 provider exposes only the parsed typed state and an observable invalid-source
 diagnostic; the cache is version/tenant/user/expiry bound. The four
-`consumer_missing` disposition rows remain open until C19-R1, but their producer
+`consumer_missing` disposition rows remain open until C19-R2, but their producer
 and strict-consumer evidence plus the generated report land here.
 
 **Landing outcome:** the exact cap-12 set restores the independently reviewed
 checkpoint, closes the status/Atlas owner receipts at `12/56`, and passes the
 full governed wave. Commit subject: `DS5-C18b-R2 bind flag sources to strict registry`.
 
-### DS5-C19-R1 — wire three flags and retire collaboration
+### DS5-C19-R1/R2 — wire three flags and retire collaboration
 
-**Measured set:** exactly 13 implementation/governed paths plus journal = 14;
-cap 14: `AppShell.tsx` +
-`layoutSurfaces.test.tsx`; `surfaceRegistry.ts`; `features/runs/route.tsx` +
-`runDetailSurfaces.test.tsx`; `OverviewTab.tsx`; command palette + test; flag
-registry + test; frontend disposition register + generated reference report;
-and `architecture/atlas_surfaces/status-retirement-inventory.json`. The generic disposition checker and corruption probes are reused
-byte-unmodified. The run-detail test is
-the registry and direct-route negative, so `surfaceRegistry.test.ts` is not a
-second edited proof. The surviving server-backed WhatIf workbench remains five
-files and has one Overview consumer; no local WhatIf store returns.
+**Measured stop and successor:** R1 used 13 mechanism paths under cap 14: the
+ten-path entry set plus the strict-cache provider test and the run-detail tab
+domain/layout consumers required to remove the normal-tab bypass. Mandatory
+companions were register/report/status/plan/journal. Round 1 fixed that bypass;
+round 2 strangled the exported `awaiting_c19` lifecycle. The next independent
+review found the protected-signing census still exact-compares regenerated
+structural identities although C21d's real validator accepts unique hybrid
+relocation. This is a third material instance of P29/P31/P33/P38, so R1 is
+`stopped_for_recut`. Candidate `9b87f0e09` is preserved and forward-reverted
+by `33ea792b5`.
+
+C19-R2 keeps mechanism cap 14 and adds the disposition checker as path 14. Its
+owner test and the C06 `RunDetailLayout.tsx` resolution-content hash are P39
+mandatory companions, not new mechanisms; together with the five existing
+companions the truthful landing set is 21 paths. The census gate must compare
+collision-safe hybrid-key multisets with multiplicity, while renamed/content/
+duplicate cases remain RED. The existing run-detail test also proves false
+causal state in both bootstrap and loaded navigation. No C23, DS8, DS9, DS14,
+baseline diagnostic/count, or readiness value moves.
 
 **Red first:** `test_false_flag_blocks_route_deep_link_keyboard_and_cached_manifest`.
 Run separately for causal graph, command palette and WhatIf. Collaboration key
@@ -2366,7 +2392,10 @@ rollout flag true and a flag cannot satisfy permission.
 keyboard entry; collaboration key and environment surface are retired; all
 four disposition decisions carry successor/consumer or deletion evidence.
 
-**Expected commit:** `DS5-C19-R1 wire and retire D5 flags`.
+**Preserved stopped candidate:** `9b87f0e09 DS5-C19-R1 preserve stopped
+flag-gate candidate`, forward-reverted by `33ea792b5`.
+
+**Expected successor commit:** `DS5-C19-R2 wire and retire D5 flags`.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
@@ -2379,7 +2408,7 @@ JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
 by another plan. It remains unopened while `C07a`, `C09a-R1`, `C09b-R1`,
-`C11b-R1`, `C15b-R1`, `C18b-R2`, `C17b-R3`, or `C19-R1` remains unclosed as a
+`C11b-R1`, `C15b-R1`, `C17b-R3`, or `C19-R2` remains unclosed as a
 local DS5 prerequisite.
 `C07b`, `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1`
 are carried as named debt with their owning plans and do not become C20
@@ -2458,7 +2487,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C17b-R1/R2/R3 | R1 stopped on the mandatory plan path; R2 candidate `ca1400c55` stopped after two repair rounds and was forward-reverted; `DS5-C17b-R3 govern persistence construction` | 11 |
 | C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
-| C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
+| C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; `DS5-C19-R2 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
 | C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |

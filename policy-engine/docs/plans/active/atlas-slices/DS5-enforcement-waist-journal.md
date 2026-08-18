@@ -4122,3 +4122,116 @@
   C18b-R2, not C17b, so it remains executable and is next. C20 remains blocked
   by C17b-R3 plus its other executable clusters. The eight-owner duplication
   finding remains registered.
+
+## 2026-08-18 — DS5-C19-R1 stopped at the third independent mechanism finding
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at C17b stop record
+  `a447c9721`, 96 commits ahead of `main`, clean, with the register family free.
+  Root re-read the C19 acceptance and held the register family alone. The
+  complete source mechanism measured 13 paths: the ten-path entry set plus
+  `FeatureFlagProvider.test.tsx`, `runDetailTabs.ts`, and
+  `RunDetailLayout.tsx`. Register/report/status/plan/journal were P39 mandatory
+  companions; the mechanism remained within cap 14.
+- RED-first behavior was real. The initial six-suite wave failed `59/66` in
+  `9.62 s` on seven absent gates. The first implementation still failed
+  `65/66` in `9.69 s` on the explicit false-causal redirect. A review fixture
+  then failed before the property in `3.14 s` because its provider mock was
+  incomplete; that is a test-fixture nonreceipt. The corrected real
+  `run-tab-link-causal` witness was RED in `2.57 s` against the ordinary tab
+  bypass. After the repair, the affected navigation set passed `39/39` in
+  `6.15 s`, and independent replay passed `39/39` in `6.30 s`.
+- Mechanism review round 1 found that route/deep-link and palette gates did not
+  remove the ordinary run-detail tab. The repair carries each surface's
+  optional feature flag through `RunInspectorTabConfig` and filters both
+  bootstrap and loaded navigation conjunctively with capability and permission.
+  A false flag never grants or rewrites a permission. The bounded residual is
+  named: the router loader may prime causal data before the client-context
+  redirect, but no route, tab, palette, shortcut, rail, workbench, or surface
+  content is exposed.
+- Mechanism review round 2 found an unstrangled predecessor contract:
+  `FeatureFlagLifecycle` still admitted `awaiting_c19` and the private target
+  admitted `C19` after every live registry row had moved. The type assertion was
+  RED under typecheck, exit `2`, real `10.73 s`, with the old literal in the
+  diagnostic. Narrowing to `live/existing` made focused feature flags `19/19`
+  GREEN in `1.59 s` and typecheck GREEN in `13.66 s`; delta review returned GO.
+- The complete P35/P37 TypeScript-AST census walked exactly `574` production
+  TS/TSX sources. The historical twelve-key set resolved to eleven WIRE keys
+  and one RETIRE key: production occurrence/file counts were AtlasV2 `4/4`,
+  causal `4/2`, Clerk `1/1`, collaboration `0/0`, command palette `2/2`, dark
+  `1/1`, Lex `1/1`, narrative `1/1`, platform health `1/1`, runs workspace
+  `1/1`, scenario composer `1/1`, and WhatIf `2/2`. The separate
+  `enableReviewCollaboration` authz override remained untouched. Three earlier
+  census attempts were tooling nonreceipts: inline Node quoting failed; a
+  relative `/src/` filter returned a false zero; and a plain-object
+  `constructor` key broke the accumulator. None supplied a count or changed a
+  byte.
+- The final source freeze passed `88/88` in `11.40 s`, dashboard typecheck in
+  `14.74 s`, exact thirteen-file ESLint in `39.04 s`, production build in
+  `19.89 s` with only the inherited chunk advisory, and architecture/dependency
+  cruise in `4.78 s` with zero violations. The plan records every successful
+  terminal sample and recomputes nearest-rank successful-run ceilings; the
+  architecture ceiling moves to `19 s`, while focused `165 s`, feature `13 s`,
+  typecheck `157 s`, ESLint `174 s`, build `115 s`, and report writer `174 s`
+  remain. A prior `88/88` product run completed in `10.97 s` but its wrapper
+  assigned zsh's readonly `status` and exited `1`; it is a tooling nonreceipt,
+  not a successful timing sample.
+- The surgical prewriter state was internally exact. Only four flag rationales
+  and the existing collaboration census moved in the register; the structural
+  `enableCollaboration: {` probe recomputed zero while the intentional parser
+  negative remained. Root/census and disposition/strangle totals stayed
+  `261/9`, `18/186/25/16/16`, and `57/152/52`. Status changed only the dependent
+  register SHA and the scanner-derived `FeatureFlagDisposition` source span
+  `19 -> 18`. All four C23 rows/constants/rationale were excluded.
+- The first canonical writer produced a governed RED, exit `1`, real `19.44 s`:
+  four unchanged RunDetailLayout Badges became unclassified because a separate
+  hook statement shifted their collision-family structural context. A real AST
+  comparison proved the old co-declaration retained all seven known identities;
+  the behavior-neutral co-declaration restored the full `163`-site authority
+  scan to zero errors in `15.50 s`, and independent delta review returned GO.
+  This governed RED is recorded, not admitted as a successful writer sample.
+- The next canonical writer returned RED, exit `1`, real `39.60 s`, on exactly
+  two bindings: `census-browser-signing-protected-live:reference_count` and the
+  C06 `RunDetailLayout.tsx` resolution-content hash. The baseline finding is an
+  induced content re-anchor, not a diagnostic/count rebaseline: only the frozen
+  consumer-byte SHA may follow a reviewed source change. It remains successor
+  work together with an explicit false bootstrap-nav witness.
+- The census RED exposed the round-breaking mechanism defect. Stored and live
+  sets each contain `28` protected references. Exactly one route identity moved:
+  path, role, discriminator, declaration chain, normalized token hash, count,
+  and multiplicity were unchanged; only structural path
+  `FirstStatement:37 -> FirstStatement:39` moved. The stored identity validator
+  accepts that unique relocation under C21d's ratified hybrid rule, but the
+  governed census consumer regenerates full identities and exact-compares them.
+  This is the same P29/P31/P33/P38 class as a witness passing over a gate that
+  does not consume its mechanism, not a new class and not an identity merge.
+- That independent finding is the third material mechanism review after rounds
+  1 and 2, so the binding round breaker stopped R1 before another writer or any
+  expensive governed wave. C19-R2 remains mechanism cap 14: the disposition
+  checker is mechanism path 14; its owner test and the C06 content-binding
+  manifest are mandatory companions. The truthful landing set is 21 paths.
+  It must compare hybrid-key multisets with multiplicity and keep rename,
+  content, ambiguity, duplicate and count drift RED; no raw line or manual
+  identity re-anchor is permitted.
+- The exact 16-path stopped candidate was preserved append-only as
+  `9b87f0e09 DS5-C19-R1 preserve stopped flag-gate candidate` and forward-
+  reverted by `33ea792b5`. Readback against entry is empty for all dashboard,
+  register, status and report paths. Restored artifact SHA-256 values are
+  register `4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f`,
+  status `7f1341a50bfd3c452184e609bf1b03f16e16c1516be6e7dc89eb5eaa0c723863`,
+  report `005da38063504debe984a06b0516601fadc183811e48a8bd512574ba4823c632`,
+  baseline `215b1882bc8dd7fbafad8e2394e5f203c703cc96eb225f1d19ebcf7220e4bc00`,
+  and readiness `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+- The final standing refresh reran the plan's complete Markdown census after
+  the forward revert and returned `25 / 23 / 2 / 31 / 28 / 24 / 48`: all cap
+  records / audited writer records / stopped predecessors / execution-plane
+  rows / C07-C20 heading occurrences / base groups / expected-commit rows.
+  P37 provenance is `recomputed` for the table counts and
+  `independently_reconciled` for candidate/revert ancestry. The chain outcome
+  is C18b-R2 landed, C17b-R2 stopped for R3, and C19-R1 stopped for R2.
+- **Terminal classification: `stopped_for_recut`.** Candidate `9b87f0e09` is
+  preserved evidence, `33ea792b5` is the forward revert, and successor is
+  C19-R2 at the same mechanism cap 14. The register family is free. The
+  eight-owner/sixteen-literal duplication finding remains registered. C20 is
+  not entered and still needs executable-unentered C07a, C09a-R1, C09b-R1,
+  C11b-R1 and C15b-R1 plus C17b-R3 and C19-R2; C07b, C10-R1, the C15a
+  structured plane and C17a-R1 remain carried external-plan debt.

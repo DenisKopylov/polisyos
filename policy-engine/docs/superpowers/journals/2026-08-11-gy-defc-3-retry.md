@@ -3266,3 +3266,118 @@ inspectable stdout/meta receipt. Under P34 it is therefore **unresolved, not exc
 The focused test must be run and receipted after the timing-lane merge before it can be called a completed
 isolation proof. `[P37: independently_reconciled for classification and missing-receipt finding;
 recomputed for the fixture/source inspection]`
+
+## GY-DEFC-8 final execution, timing-lane reconciliation, and N8 stop
+
+### Accepted confidence receipt committed before further work
+
+The accepted confidence-ledger artifact and its four already-earned producer receipts were committed
+at `5b2c2173b17ce8b68b65c6846607c6c22ea94f98` before any reconciliation or further execution. The
+committed artifact is byte-identical to the declared candidate. A fresh HEAD-to-worktree recursive
+readback reproduced `12,546` absent→present, `0` present→absent, and `128` existing→existing leaf
+transitions (`12,674` total), with `111` explicit null leaves. `[P37: recomputed]`
+
+### Main reconciliation — committed, source-only with respect to governed data
+
+The supplied `main` SHA `88210076e` was an immediate parent of the locally measured `main`
+`21ae2ba65fc0da2be2ff96ac0ccf4e299bae2663`; the one additional commit is docs-only. This corrects
+the prompt's SHA without changing the requested relationship. From merge base `c1a89b6cf`, current
+`main` has `0` paths under `policy-engine/src/`; the ordinary merge at
+`e3c533d9142947803e8b9adb215c86815e487d91` has parents
+`5b2c2173…` and `21ae2ba65…`, and adds `0` `policy-engine/src/**` paths relative to its lane parent.
+`[P37: recomputed]`
+
+The nine overlap paths were resolved by retaining main's coherent DI timing implementation and the
+lane's strict malformed-record guard, then preserving both intents in the four validators: their
+existing bodies plus each literal `TIMING_HEALTHY_TERMINAL_EXIT_CODES` corrupt terminal declaration.
+The generic timing-mode test exposed a pre-existing classifier omission for N10a's
+`--measure-write-transition`; adding the `measure` action prefix produced a red-to-green focused
+test. The complete post-merge timing suite and unified-CLI suite are green; targeted Ruff is green.
+`[P37: recomputed for tests/lint; independently_reconciled for the merge-resolution review]`
+
+The merge fence first had a scratch-harness non-receipt: it tried to read the outer receipt object as
+a raw snapshot and raised `KeyError: pdc_entries`. The ignored byte-only harness was corrected before
+retry. The valid post-merge comparison proves all `509/509` physical PDC paths and the complete
+`453/453` confidence receipt basis byte-identical: PDC entry digest
+`3b8c92f7dde6d5efafe99ad14493688b9b1994ceb0772d36c89c04d215e3d389` and confidence-basis digest
+`54c49c7b6403a1cf6569cb5e0d1c568cb705ca26abf0f830d9b5f543af2f7dab` are equal before/after.
+No governed byte moved in the merge. `[P37: recomputed]`
+
+`git diff --cached --check` while preparing the merge reported trailing whitespace in inherited main
+research Markdown only; none was in the five manually resolved timing/doc conflict paths. It was
+not reformatted in this lane. This is a merge-quality non-receipt, not a governed or source semantic
+change. `[P37: recomputed]`
+
+### P34 synthetic timing isolation — completed
+
+The first focused post-merge invocation was an environment non-receipt: direct use of the root venv
+failed the repository interpreter fence with `WrongInterpreterResolvedError` before test logic ran.
+The worktree's deleted inherited `.venv` was preserved in ignored scratch; its usable local bootstrap
+was likewise preserved, and `.venv` was linked recoverably to the fully provisioned root environment.
+The resulting interpreter fence passes while `polisyos` and `tools` import from this worktree. No
+source or governed artifact changed. `[P37: recomputed]`
+
+With that preflight-valid bridge, the exact focused
+`test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination` terminal is green.
+Its retained stdout SHA-256 is
+`982767fef1d1a73f80d67f52a09e75b15d201135af848366c6390918efb8a11f`; the only output is the inherited
+Python 3.14 fork warning. This completes the isolation proof: the historical `0.5` s fixture was a
+synthetic harness-budget artifact, not a product-source regression or a demonstrated host-contention
+failure. `[P37: recomputed for the new terminal; independently_reconciled for the causal classification]`
+
+### Post-merge N10a/N8 pre-cold boundary — RED, no cold run
+
+The first serialized post-merge N10a `--check` ran under its contended `148.544336` s operational
+ceiling (current catalog basis `max_observed`, not p95). It stopped in `18.393150291` s, child/wrapper
+exit `1/1`, with the sole issue `stage_gap_triage_drift:n8_transport_tuple_hardcode`; its pack pin is
+byte-identical. This is a real pre-cold RED, not an allowed corrupt-field terminal. `[P37: recomputed
+for the terminal/pin; institutionally_supplied for the contention regime]`
+
+The causal check is the N8 catalog-provenance validator. Under the current preflight-valid root
+environment it ran in `13.060315042` s and returned five fail-closed issues:
+`catalog_ambient_discovery_manifest_mismatch`, `catalog_ambient_component_manifest_mismatch`,
+`catalog_ambient_unbound_input_manifest_mismatch`, `catalog_predicate_provenance_mismatch`, and
+`catalog_provenance_manifest_mismatch`. The frozen N8 receipt records an ambient discovery count of
+`389`, no added component, manifest
+`component_discovery_manifest_2b8eea44cd138069e8fb6ec8b3f435a9a677dbc1b1d53d0c4d22fb740b48f70a`,
+and an `example.weighted_average` `ModuleNotFoundError`. The live recomputation has count `390`, adds
+`example.summary.weighted_average@1.0.0`, manifest
+`component_discovery_manifest_fea6e14cfde94e7ebdc0a91eee5f1ff8d821e939e75f53b5626dc9865e57933c`,
+and resolves that entry point from the root environment's editable example package. Its live
+provenance ID is `method_catalog_provenance_e630af38e7bf8d7fbc0fe1cbd473fe87ffacf41fb3a97cdcbe1d6e727d23b89d`
+rather than frozen `method_catalog_provenance_8b24b2b394460ef1537ce385a2eff920484a390118a8cda2b4f2a5666f7e7597`.
+`[P37: recomputed]`
+
+This is **ambient entry-point/runtime provenance drift**, outside the null-versus-absent projection
+axis and outside the merged timing source: `check_layer3_gy_value_gate_contract.py` and all four N8/
+N10a governed artifacts are byte-identical to their pre-merge versions. A reversible A/B probe against
+one other available worktree environment also remained RED, but with a distinct runtime-package and
+backend-identity mismatch; the two measured environments therefore do not supply an authoritative
+green environment for the frozen receipt. The original inherited venv no longer has a Python executable.
+`[P37: recomputed for byte comparisons and probes; independently_reconciled for classification]`
+
+N8 provenance is a governing prerequisite of the N10a check, so a corrupt lane on this invalid base
+would not be a P29 verifier witness; it could report universal RED from the baseline failure rather
+than from the mutations. The remaining three validator lanes, N10a corrupt lane, final posture, and
+the single authorized cold N11 were therefore **not launched**. The cold allowance remains unspent.
+The smallest correct closure is to reconcile the live entry-point/runtime environment with the frozen
+N8 provenance contract, or authorize and declare the resulting N8-family provenance reissue; neither
+is performed here. `[P37: recomputed for failed prerequisite and non-launch readback;
+independently_reconciled for the stop classification; institutionally_supplied for the cold allowance]`
+
+### Architecture guardrail — known negative unchanged
+
+The direct read-only guardrail check completed in `15.303116542` s at child/wrapper `1/1`, no timeout,
+with empty stderr and stdout SHA-256
+`73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb`, exactly the retained known
+negative. Its complete residual set is the same five deep-import edges under
+`src/polisyos/runtime/http/**`; no baseline was synchronized. `[P37: recomputed]`
+
+### Orchestration note
+
+Root alone performed the artifact readback, ordinary merge, environment bridge, serialized checks,
+and guardrail run. Read-only review lanes supplied merge, validator, and guardrail protocol findings;
+their returned conclusions were independently reconciled before execution. No producer write occurred
+after the confidence reissue, no governed value was restored or altered, and no external process was
+treated as a reason to wait or abort. `[P37: consumer_asserted for dispatch ownership;
+recomputed for command receipts and repository readback]`

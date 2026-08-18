@@ -113,6 +113,8 @@ packages/*/node_modules/
 *.db
 *.pkl
 !data/academic_gold/claim_gold.jsonl
+# Salvaged tool-timing records are committed evidence, not a local data artifact.
+!docs/superpowers/timing-evidence/*.jsonl
 !src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/*.csv
 !tests/_data/data_forge/non_lex_split/**/*.duckdb
 !tests/_data/checkpoint_compat/**/*.pkl

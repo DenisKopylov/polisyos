@@ -12,6 +12,14 @@ from time import perf_counter as _timing_perf_counter
 
 _TIMING_STARTED_AT = _timing_perf_counter()
 
+# Completed-work terminals per mode, owned here because this module's own return mapping is the
+# only place that knows them. ``--corrupt-field-drift-check`` reports "fail" when every expected
+# mutation was DETECTED (the correct outcome) and exits 1; exit 2 means a mutation was missed.
+# Every other mode keeps the default {0}. See the exit mapping at the foot of this file.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import ast
 import asyncio

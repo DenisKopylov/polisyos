@@ -32,6 +32,7 @@ claims live in the linked child reference pages.
 | [Public Surface](public-surface.md)                                  | Explicit supported package entrypoints and compatibility classes                                       |
 | [Generated Artifacts](generated-artifacts.md)                        | Authoritative source map, regeneration commands, and freshness rules                                   |
 | [Policy Design Case Failure And Repair Patterns](policy-design-case-failure-patterns.md) | Agent-facing anti-pattern and correct-pattern register for governance, evidence, runtime-quality, and PDC closeout |
+| [Policy-Operations Research Pipeline](policy-operations-research-pipeline.md) | The seven stages from commission to ratified decision — branch topology, per-stage contracts and verdict vocabularies, the rules binding every stage, and delivery discipline |
 | [Policy Design Case Capability Ratchet](policy-design-case-capability-ratchet.md) | W1.A capability reality report, debt algebra, purpose multipliers, readiness bands, and burn-down templates |
 | [Policy Design Case Layer 3 Grounding Inventory](policy-design-case-layer3-grounding-inventory.md) | G0 pre-adapter audit surface for v2 discovery/search readiness, zero adapter admission, health metrics, no-hardcode gates, and ADR-0175 |
 | [Policy Design Case Layer 3 Substrate Grounding](policy-design-case-layer3-substrate-grounding.md) | G1 EXPERT/MACHINE audit surface for substrate grounding, SourceContract v2 binding, L1/L5/L6 search health, and acquisition gap routing |

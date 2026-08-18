@@ -3999,3 +3999,44 @@ wave is neither a timeout nor a result and supplies no test-count, timing, or
 shared-host receipt. No Playwright lane ran. No C03/C04/C06, C13, C14, DS8
 print, scenario-composer instability, frontend disposition register/checker,
 or foreign `catalog.py` byte was touched.
+
+## DS6-C10-R2 threat-model entry — 2026-08-18
+
+C10-R2 continues in the existing isolated worktree
+`.worktrees/atlas-ds6-c10r1` on attached branch
+`codex/atlas-ds6-c10r1-readiness-reconciliation`. At entry, current `main`
+resolved to `66d08f2871eee7e36e2af19d8a7c1bde557e63ad`; the required ancestor check
+proved `f6374868456dc45bedf197e53701bd83d7921daa` is in its history. The complete
+commit census was three commits after `f63748684`—the registered standing, GY
+Rev 44, and the data-forge catalog cache change—rather than the brief's
+two-commit shorthand. The branch merged that verified `main` at
+`7fa48a9d9089c12eaee5db21d094857e885761fc`. These ancestry and commit-count
+claims are `recomputed`; the merge changed no C10 path.
+
+Before the first R2 mechanism edit, the complete `main..HEAD` path census
+recomputed eight C10 paths. Under P39, five are mechanism paths: the typed
+per-claim reconciler, persistence/admission adapter, fixed MJS launcher,
+canonical-owner validator, and semantic/CI witnesses. The three mandatory
+record companions held outside the cap are this journal, the DS6 plan, and the
+governed reviewer reference. The published split is therefore **5/16
+mechanism paths plus 3 companions**, with all eight paths enumerated and no
+mechanism split across commits.
+
+R2 changes the contract by declaring the threat model, so its mechanism-round
+counter begins fresh at **0/2**. Every future Blocking/Important review finding
+is classified in writing before action. Caller/report/exit-code/status/basis,
+self-attested-field, or sibling-consumer evidence entering the reconciler is
+an **intake** finding and can consume a repair round. A further Vite/Vitest
+module, loader-resolution, Node-binary, or kernel-integrity example is a
+**runner-integrity** limitation example: it is folded into the declared
+limitation and does not trigger a code repair or consume a round. Ambiguity
+between those buckets stops for a ruling rather than being guessed.
+
+The canonical owner validator completed over its full source and schema and
+reported 261 readiness rows; a complete enumeration of those rows found five
+`readiness_state=implemented` claims and zero `maturity=stable` claims. Those
+three counts are `recomputed`, not sampled. The post-merge, pre-edit focused
+baseline completed at 27/27 tests in one file, with Vitest duration 48.06 s and
+`/usr/bin/time -p` wall 49.16 s (`user 46.62`, `sys 6.92`). This scoped run is
+a source baseline, not an aggregate readiness outcome and not the deferred
+whole-suite receipt.

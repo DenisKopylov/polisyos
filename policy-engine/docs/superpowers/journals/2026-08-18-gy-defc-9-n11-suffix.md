@@ -329,7 +329,8 @@ zero remain. A further Blocking or Important Item 4 finding is the registered th
 
 The correction is one ignored, hash-bound acceptance consumer. It loads the declaration below from
 the **committed** journal blob, requires the journal worktree bytes to equal that blob, binds its own
-script hash, verifies branch/clean attachment and the exact committed delta since source freeze,
+script hash plus the exact dedicated root/stage/receipt paths, verifies branch/clean attachment and
+the exact committed delta since source freeze,
 recomputes both complete source maps, all 453 pins, the current deployment identity, internal
 validators, and every leaf disposition, then runs the canonical writer against an ignored stage.
 Only a passing writer terminal and an exact staged-candidate match permit atomic promotion to the
@@ -367,7 +368,7 @@ recomputed for every value; institutionally_supplied for the acceptance predicat
 <!-- GY-DEFC-9-CONFIDENCE-DECLARATION-BEGIN -->
 ```json
 {
-  "acceptance_consumer_sha256": "d2526839ecf8280b3464de5385777ccca1d4f16f09625a95d3e591ee7eaf96f0",
+  "acceptance_consumer_sha256": "3ec502279c2b93462d7c19b59cdbeadcd44196dbae49c8114aa09d7a2d9b15d0",
   "artifacts": {
     "candidate": {
       "artifact_content_hash": "sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71",
@@ -481,8 +482,11 @@ recomputed for every value; institutionally_supplied for the acceptance predicat
       "map_sha256": "fdae0adc10bac79f40af5878804ec9be17ad52f8299ae7aab3303b92d9847ff3"
     }
   },
+  "receipt_dir": ".tmp/gy-defc-9/confidence/accepted-write",
+  "repo_root": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
   "schema_version": "policyos.gy_defc_9.confidence_transition_declaration.v1",
   "source_commit": "d9a0beb90e354f0389da7b777130a550d0e04594",
+  "stage_path": ".tmp/gy-defc-9/confidence/accepted-write/stage/layer3_gy_confidence_ledger_contract.json",
   "writer": {
     "ceiling_seconds": 6497.873368,
     "required_terminal": {

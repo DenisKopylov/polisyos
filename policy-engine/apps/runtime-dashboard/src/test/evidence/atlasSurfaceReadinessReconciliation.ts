@@ -42,6 +42,9 @@ const RECONCILER_SOURCE =
   "apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.ts";
 const RECONCILER_SCRIPT =
   "apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs";
+const VITE_ENTRY =
+  "apps/runtime-dashboard/node_modules/vite/dist/node/index.js";
+const VITE_PACKAGE = "apps/runtime-dashboard/node_modules/vite/package.json";
 
 const CHILD_ENV = {
   HOME: "/var/empty",
@@ -396,6 +399,7 @@ const reportSchema = z
         producer_id: z.literal(PRODUCER_ID),
         producer_version: z.literal(PRODUCER_VERSION),
         implementation_ref: sourceRefSchema,
+        vite_loader: runnerSchema,
       })
       .strict(),
     claims: z.array(atlasSurfaceReadinessClaimSchema),
@@ -445,6 +449,23 @@ function sourceRefFromBytes(
     sha256: sha256Bytes(value),
     role,
   };
+}
+
+function resolvedViteLoader(policyEngineRoot: string) {
+  const entryPath = realpathSync(path.join(policyEngineRoot, VITE_ENTRY));
+  const packageValue = z
+    .object({ version: nonEmptyString })
+    .loose()
+    .parse(
+      JSON.parse(
+        readFileSync(path.join(policyEngineRoot, VITE_PACKAGE), "utf8"),
+      ) as unknown,
+    );
+  return runnerSchema.parse({
+    path: entryPath,
+    sha256: sha256Bytes(readFileSync(entryPath)),
+    version: packageValue.version,
+  });
 }
 
 function parseJson(value: Uint8Array): unknown {
@@ -666,6 +687,40 @@ async function runCanonicalRouteMatrix(
         timeout: 45_000,
       },
     );
+    let runnerUnchanged = false;
+    try {
+      const currentEntry = realpathSync(
+        path.join(dashboardRoot, "node_modules/vitest/vitest.mjs"),
+      );
+      const currentPackage = z
+        .object({ version: nonEmptyString })
+        .loose()
+        .parse(
+          JSON.parse(
+            readFileSync(
+              path.join(path.dirname(currentEntry), "package.json"),
+              "utf8",
+            ),
+          ) as unknown,
+        );
+      runnerUnchanged =
+        currentEntry === runner.path &&
+        sha256Bytes(readFileSync(currentEntry)) === runner.sha256 &&
+        currentPackage.version === runner.version;
+    } catch {
+      runnerUnchanged = false;
+    }
+    if (!runnerUnchanged) {
+      return {
+        reportSha256: null,
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
+        unavailableReason: "canonical_route_runner_changed",
+        assertions: new Map(),
+      };
+    }
     const sourcesUnchanged =
       sha256Bytes(readFileSync(path.join(policyEngineRoot, ROUTE_SOURCE))) ===
         routeSourceRef.sha256 &&
@@ -1035,7 +1090,7 @@ function claimFor(
   entry: ReadinessEntry,
   dimension: "maturity" | "readiness_state",
   ownerValidation: ReturnType<typeof runOwnerValidation>,
-  routeRun: RouteRun,
+  routeRun: RouteRun | null,
 ): AtlasSurfaceReadinessClaim {
   if (dimension === "maturity") {
     const basis = unavailableStableBasis(policyEngineRoot, ownerValidation);
@@ -1050,6 +1105,12 @@ function claimFor(
     });
   }
 
+  if (routeRun === null) {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_route_run_missing",
+      "implemented claim construction requires the closed route run",
+    );
+  }
   const basis = observedBasisFor(
     policyEngineRoot,
     entry,
@@ -1068,6 +1129,25 @@ function claimFor(
         : "recomputed",
     basis,
   });
+}
+
+/** Exercise the real stable producer arm without adding a claim to the owner. */
+export function buildAtlasStableReadinessNegativeControl(): AtlasSurfaceReadinessClaim {
+  const dashboardRoot = process.cwd();
+  const policyEngineRoot = path.resolve(dashboardRoot, "../..");
+  const ownerValidation = runOwnerValidation(policyEngineRoot);
+  return claimFor(
+    policyEngineRoot,
+    {
+      surface_id: "synthetic-stable-negative-control",
+      title: "Synthetic stable negative control",
+      readiness_state: "not_implemented",
+      maturity: "stable",
+    },
+    "maturity",
+    ownerValidation,
+    null,
+  );
 }
 
 /** Run the fixed canonical owners and return only separately based claim rows. */
@@ -1112,6 +1192,7 @@ export async function reconcileAtlasSurfaceReadinessClaims(): Promise<AtlasSurfa
         RECONCILER_SOURCE,
         "closed_claim_reconciler",
       ),
+      vite_loader: resolvedViteLoader(policyEngineRoot),
     },
     claims,
   });
@@ -1254,32 +1335,4 @@ export function parseAtlasSurfaceReadinessClaim(
     );
   }
   return claim;
-}
-
-export type AtlasSurfaceReadinessCiCode =
-  | "canonical_claim_not_observed"
-  | "claim_observation_unavailable"
-  | "cited_report_not_observation";
-
-/** Apply the CI gate to one row. The caller alone may conjoin row failures. */
-export function assertAtlasSurfaceReadinessClaimForCi(value: unknown): void {
-  const claim = parseClaimShape(value);
-  if (claim.basis.kind === "consistent_with_cited_report") {
-    throw new AtlasSurfaceReadinessContractError(
-      "cited_report_not_observation",
-      `${claim.claim_id} cites a consistent report but is not observed`,
-    );
-  }
-  if (claim.basis.observation.status === "observation_unavailable") {
-    throw new AtlasSurfaceReadinessContractError(
-      "claim_observation_unavailable",
-      `${claim.claim_id} could not be observed: ${claim.basis.observation.reason}`,
-    );
-  }
-  if (claim.basis.observation.status === "not_observed") {
-    throw new AtlasSurfaceReadinessContractError(
-      "canonical_claim_not_observed",
-      `${claim.claim_id} was canonically observed not to hold`,
-    );
-  }
 }

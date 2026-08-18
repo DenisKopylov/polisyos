@@ -9,10 +9,10 @@ import { afterAll, describe, expect, it } from "vitest";
 import { APP_ROUTES } from "@/app/routes/routes";
 
 import {
-  assertAtlasSurfaceReadinessClaimForCi,
   assertValidatedReadinessOwnerBytes,
   AtlasSurfaceReadinessContractError,
   type AtlasSurfaceReadinessClaim,
+  buildAtlasStableReadinessNegativeControl,
   buildConsistentWithCitedReportClaim,
   inspectAtlasRuntimeRedirect,
   parseAtlasSurfaceReadinessClaim,
@@ -34,7 +34,12 @@ interface ProjectionResult {
   projection_manifest_input: { artifact_id: string; role: string };
   resolved_claim_report: {
     artifact_id: string;
-    report: { claims: AtlasSurfaceReadinessClaim[] };
+    report: {
+      claims: AtlasSurfaceReadinessClaim[];
+      producer: {
+        vite_loader: { path: string; sha256: string; version: string };
+      };
+    };
   };
   resolved_projection: {
     artifact_id: string;
@@ -151,13 +156,38 @@ function observedVariant(
   };
 }
 
-function gateCode(value: unknown): string | null {
+function gateCode(value: unknown, citedReport?: Uint8Array): string | null {
   try {
-    assertAtlasSurfaceReadinessClaimForCi(value);
+    assertClaimObservationForCi(value, citedReport);
     return null;
   } catch (error) {
     expect(error).toBeInstanceOf(AtlasSurfaceReadinessContractError);
     return (error as AtlasSurfaceReadinessContractError).code;
+  }
+}
+
+function assertClaimObservationForCi(
+  value: unknown,
+  citedReport?: Uint8Array,
+): void {
+  const claim = parseAtlasSurfaceReadinessClaim(value, citedReport);
+  if (claim.basis.kind === "consistent_with_cited_report") {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_report_not_observation",
+      `${claim.claim_id} cites a consistent report but is not observed`,
+    );
+  }
+  if (claim.basis.observation.status === "observation_unavailable") {
+    throw new AtlasSurfaceReadinessContractError(
+      "claim_observation_unavailable",
+      `${claim.claim_id} could not be observed: ${claim.basis.observation.reason}`,
+    );
+  }
+  if (claim.basis.observation.status === "not_observed") {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_claim_not_observed",
+      `${claim.claim_id} was canonically observed not to hold`,
+    );
   }
 }
 
@@ -171,25 +201,30 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
   const persisted = asProjectionResult(
     invokePersistence({ operation: OPERATION }, casRoot),
   );
-  const independentlyDiscoveredClaims =
+  const independentlyDiscoveredGates =
     persisted.resolved_projection.projection.claims.map(
-      (claim) => [claim.claim_id, claim] as const,
+      (claim) =>
+        [
+          claim.claim_id,
+          claim,
+          () => assertClaimObservationForCi(claim),
+        ] as const,
     );
 
   it("enumerates the complete gated owner set through the admitted projection", () => {
     expect(persisted.operation).toBe(OPERATION);
-    expect(independentlyDiscoveredClaims).toHaveLength(5);
+    expect(independentlyDiscoveredGates).toHaveLength(5);
   });
 
-  it.each(independentlyDiscoveredClaims)(
+  it.each(independentlyDiscoveredGates)(
     "CI independently gates %s without changing artifact bytes",
-    (_claimId, claim) => {
+    (_claimId, claim, admittedGate) => {
       const artifactsWithoutGate = JSON.stringify({
         report: persisted.resolved_claim_report.report,
         projection: persisted.resolved_projection.projection,
       });
 
-      expect(() => assertAtlasSurfaceReadinessClaimForCi(claim)).not.toThrow();
+      expect(admittedGate).not.toThrow();
       expect(claim).toMatchObject({
         predicate_provenance: "recomputed",
         basis: {
@@ -243,6 +278,14 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
       "report_schema",
     ]);
     expect(
+      Object.keys(persisted.resolved_claim_report.report.producer).sort(),
+    ).toEqual([
+      "implementation_ref",
+      "producer_id",
+      "producer_version",
+      "vite_loader",
+    ]);
+    expect(
       Object.keys(persisted.resolved_projection.projection).sort(),
     ).toEqual([
       "authority",
@@ -281,7 +324,7 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
     ).toThrow(
       expect.objectContaining({ code: "cited_report_content_mismatch" }),
     );
-    expect(gateCode(cited)).toBe("cited_report_not_observation");
+    expect(gateCode(cited, bytes)).toBe("cited_report_not_observation");
   });
 
   it("rejects cited pass with canonical findings under its named mismatch", () => {
@@ -384,6 +427,25 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
         .digest("hex"),
       version: packageValue.version,
     });
+
+    const viteEntryPath = realpathSync(
+      path.join(process.cwd(), "node_modules/vite/dist/node/index.js"),
+    );
+    const vitePackage = JSON.parse(
+      readFileSync(
+        path.join(process.cwd(), "node_modules/vite/package.json"),
+        "utf8",
+      ),
+    ) as { version: string };
+    expect(persisted.resolved_claim_report.report.producer.vite_loader).toEqual(
+      {
+        path: viteEntryPath,
+        sha256: createHash("sha256")
+          .update(readFileSync(viteEntryPath))
+          .digest("hex"),
+        version: vitePackage.version,
+      },
+    );
   });
 
   it("content-binds the exact validated owner bytes before enumeration", () => {
@@ -433,25 +495,88 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
   });
 
   it("gates the zero-instance stable arm identically to implemented", () => {
-    const implementedNegative = observedVariant(
+    const stableUnavailable = buildAtlasStableReadinessNegativeControl();
+    const implementedUnavailable = observedVariant(
       observedClaim(persisted),
-      "not_observed",
+      "observation_unavailable",
     );
-    const stableNegative = {
-      ...(implementedNegative as Record<string, unknown>),
-      claim_id: "synthetic-stable-negative-control:maturity:stable",
-      surface_id: "synthetic-stable-negative-control",
-      title: "Synthetic stable negative control",
-      dimension: "maturity",
-      declared_value: "stable",
-    };
 
-    expect(parseAtlasSurfaceReadinessClaim(stableNegative)).toMatchObject({
+    expect(stableUnavailable).toMatchObject({
       dimension: "maturity",
       declared_value: "stable",
+      predicate_provenance: "not_established",
+      basis: {
+        kind: "observed_by_reconciler",
+        observation: {
+          status: "observation_unavailable",
+          reason: "canonical_stable_observer_not_registered",
+        },
+        canonical_check: {
+          check_id: "surface-readiness.stable.maturity-prerequisite",
+        },
+      },
     });
-    expect(gateCode(stableNegative)).toBe(gateCode(implementedNegative));
-    expect(gateCode(stableNegative)).toBe("canonical_claim_not_observed");
+    expect(gateCode(stableUnavailable)).toBe(gateCode(implementedUnavailable));
+    expect(gateCode(stableUnavailable)).toBe("claim_observation_unavailable");
+
+    const dashboardRoot = process.cwd();
+    const policyEngineRoot = path.resolve(dashboardRoot, "../..");
+    const admissionWitness = `
+import importlib.util
+import json
+import sys
+
+module_path = sys.argv[1]
+spec = importlib.util.spec_from_file_location("atlas_evidence_persistence", module_path)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+claim = json.load(sys.stdin)
+source_projection, source_observation = module._health_source_projection()
+_, node_executable, node_version = module._trusted_node()
+expected_claim = {
+    "claim_id": claim["claim_id"],
+    "surface_id": claim["surface_id"],
+    "title": claim["title"],
+    "dimension": claim["dimension"],
+    "declared_value": claim["declared_value"],
+}
+module._require_observed_readiness_basis(
+    claim,
+    expected_claim,
+    source_projection=source_projection,
+    source_validator_observation=source_observation,
+    node_executable=node_executable,
+    node_version=node_version,
+)
+print(json.dumps({"stable_basis": "admitted_as_unavailable"}))
+`;
+    const admission = spawnSync(
+      path.join(policyEngineRoot, ".venv/bin/python"),
+      [
+        "-I",
+        "-c",
+        admissionWitness,
+        path.join(dashboardRoot, "scripts/persist_atlas_evidence.py"),
+      ],
+      {
+        cwd: policyEngineRoot,
+        encoding: "utf8",
+        env: {
+          HOME: "/var/empty",
+          LANG: "C",
+          LC_ALL: "C",
+          PATH: "/usr/bin:/bin",
+          TZ: "UTC",
+        },
+        input: JSON.stringify(stableUnavailable),
+        timeout: 30_000,
+      },
+    );
+    expect(admission).toMatchObject({ status: 0, stderr: "" });
+    expect(JSON.parse(admission.stdout)).toEqual({
+      stable_basis: "admitted_as_unavailable",
+    });
   });
 
   it("rejects a row with no basis or a second basis-shaped field", () => {
@@ -477,6 +602,8 @@ import copy
 import importlib.util
 import json
 import sys
+import tempfile
+from pathlib import Path
 
 validator_path = sys.argv[1]
 spec = importlib.util.spec_from_file_location("atlas_health_validator", validator_path)
@@ -504,6 +631,18 @@ for candidate, expected in (
         messages.append(str(error))
     else:
         raise SystemExit(f"constraint escaped: {expected}")
+
+with tempfile.TemporaryDirectory() as directory:
+    duplicate_json = Path(directory) / "duplicate.json"
+    duplicate_json.write_text('{"entries": [], "entries": []}', encoding="utf-8")
+    try:
+        module._load_json(duplicate_json)
+    except module.AtlasHealthSourceError as error:
+        if "duplicate JSON key: entries" not in str(error):
+            raise SystemExit(f"wrong duplicate-key rejection: {error}")
+        messages.append(str(error))
+    else:
+        raise SystemExit("duplicate JSON key escaped")
 print(json.dumps({"clean": "accepted", "targeted_rejections": messages}))
 `;
     const result = spawnSync(
@@ -534,7 +673,7 @@ print(json.dumps({"clean": "accepted", "targeted_rejections": messages}))
       targeted_rejections: string[];
     };
     expect(report.clean).toBe("accepted");
-    expect(report.targeted_rejections).toHaveLength(2);
+    expect(report.targeted_rejections).toHaveLength(3);
   });
 
   it.each(["report", "exit_code", "basis", "root", "script"])(

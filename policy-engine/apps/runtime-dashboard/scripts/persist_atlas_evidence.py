@@ -1374,6 +1374,24 @@ def _expected_vitest_runner() -> dict[str, str]:
     }
 
 
+def _expected_vite_loader() -> dict[str, str]:
+    dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
+    package_root = dashboard_root / "node_modules/vite"
+    entry = (package_root / "dist/node/index.js").resolve(strict=True)
+    package = json.loads(
+        (package_root / "package.json").read_text(encoding="utf-8"),
+        object_pairs_hook=_reject_duplicate_keys,
+        parse_constant=_reject_non_json_constant,
+    )
+    if not isinstance(package, dict) or not isinstance(package.get("version"), str):
+        raise AtlasEvidencePersistenceError("resolved Vite package has no version")
+    return {
+        "path": str(entry),
+        "sha256": hashlib.sha256(entry.read_bytes()).hexdigest(),
+        "version": package["version"],
+    }
+
+
 def _require_readiness_source_ref(
     value: object,
     *,
@@ -1673,6 +1691,7 @@ def _require_observed_readiness_basis(
                     "canonical_route_harness_failed",
                     "canonical_route_report_invalid",
                     "canonical_route_report_missing",
+                    "canonical_route_runner_changed",
                     "canonical_route_sources_changed",
                 }
                 if observation_reason not in allowed_unavailable_reasons:
@@ -1695,6 +1714,7 @@ def _require_observed_readiness_basis(
                     )
                 if observation_reason in {
                     "canonical_route_report_missing",
+                    "canonical_route_runner_changed",
                     "canonical_route_sources_changed",
                 } and (runner is None or report_sha256 is not None):
                     raise AtlasEvidencePersistenceError(
@@ -1773,6 +1793,7 @@ def _require_readiness_report(
             READINESS_RECONCILER_SOURCE,
             "closed_claim_reconciler",
         ),
+        "vite_loader": _expected_vite_loader(),
     }
     if producer != expected_producer:
         raise AtlasEvidencePersistenceError("claim report producer provenance mismatch")
@@ -1835,6 +1856,8 @@ def _run_readiness_reconciler(
     dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
     producer_script = _policy_engine_root() / READINESS_PRODUCER_SCRIPT
     node_locator, node_executable, node_version = _trusted_node()
+    node_sha256 = hashlib.sha256(node_executable.read_bytes()).hexdigest()
+    vite_loader = _expected_vite_loader()
     source_projection, source_validator_observation = _health_source_projection()
     result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
         [str(node_executable), str(producer_script)],
@@ -1844,6 +1867,14 @@ def _run_readiness_reconciler(
         capture_output=True,
         env=HEALTH_CHILD_ENV,
     )
+    if hashlib.sha256(node_executable.read_bytes()).hexdigest() != node_sha256:
+        raise AtlasEvidencePersistenceError(
+            "allowlisted Node executable changed during readiness reconciliation"
+        )
+    if _expected_vite_loader() != vite_loader:
+        raise AtlasEvidencePersistenceError(
+            "Vite module loader changed during readiness reconciliation"
+        )
     if result.returncode != 0:
         stderr = result.stderr.decode("utf-8", errors="replace").strip()
         raise AtlasEvidencePersistenceError(
@@ -1874,7 +1905,7 @@ def _run_readiness_reconciler(
     observation = {
         "executable": str(node_executable),
         "allowed_locator": str(node_locator),
-        "executable_sha256": hashlib.sha256(node_executable.read_bytes()).hexdigest(),
+        "executable_sha256": node_sha256,
         "executable_version": node_version,
         "script": READINESS_PRODUCER_SCRIPT,
         "script_sha256": hashlib.sha256(producer_script.read_bytes()).hexdigest(),

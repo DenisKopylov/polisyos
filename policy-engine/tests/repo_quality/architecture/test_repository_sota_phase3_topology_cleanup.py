@@ -202,7 +202,9 @@ def test_phase2a_workspace_boundary_is_collapsed_to_policy_engine_root() -> None
     assert not (WORKSPACE_ROOT / "renovate.json").exists()
 
     for dirname in PHASE2A_SINGLETON_DIRS:
-        assert _named_dirs(WORKSPACE_ROOT, dirname) == [REPO_ROOT / dirname]
+        # Generated/ignored roots may be absent in a clean checkout. If present,
+        # their only valid location is the canonical policy-engine root.
+        assert set(_named_dirs(WORKSPACE_ROOT, dirname)) <= {REPO_ROOT / dirname}
 
 
 def test_phase2b_build_and_cache_umbrellas_are_canonical() -> None:

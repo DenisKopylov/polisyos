@@ -93,7 +93,7 @@ Guardrails:
 | `causal-dowhy`     | `dowhy` 0.13 depends on an older `cvxpy` path; it stays isolated behind a compatibility extra.                                      |
 | `causal-bcf`       | `stochtree` often needs OpenMP and host tuning, especially on macOS.                                                                |
 | `rag-local`        | Local embedding stacks pull native runtimes such as `onnxruntime`; keep them opt-in.                                                |
-| `table-extraction` | PDF extraction stacks can be heavyweight and may require host OCR/rendering tooling depending on workload.                          |
+| Table extraction   | Not exposed as a project extra on Python 3.14. Released `marker-pdf`/`surya-ocr` versions pin Pillow below the Python 3.14-supported line; the marker-based table-extraction path remains fail-closed until a compatible upstream release is governed and verified. |
 | `security`         | Security and privacy packages are intentionally opt-in so local onboarding does not silently drag in large NLP or cloud SDK stacks. |
 | `multi-tenant`     | Requires a real PostgreSQL surface in practice; Python dependencies alone are not the whole story.                                  |
 | `agent-sim`        | Visualization helpers (`plotly`, `streamlit`) are optional and do not belong in the base runtime path.                              |
@@ -104,3 +104,4 @@ Guardrails:
 - Keep compatibility extras narrow and name them explicitly when they exist to isolate upstream conflicts.
 - Avoid creating milestone or one-off umbrella extras unless they expose a stable workflow tier.
 - Do not place platform-specific backends in the base install when a CPU-safe path already exists.
+- Do not advertise an optional extra whose released dependency chain cannot install on the supported Python baseline. Preserve the feature boundary as unavailable/fail-closed until the upstream chain is compatible.

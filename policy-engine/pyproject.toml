@@ -104,7 +104,9 @@ causal-full = [
   "zepid>=0.9",
   "y0>=0.2,<0.3",
 ]
-table-extraction = ["marker-pdf>=0.3.0"]
+# The released marker-pdf/surya chain pins Pillow <11, which does not support
+# the Python 3.14 workspace baseline. Keep table extraction fail-closed until
+# an upstream release supports the baseline; do not expose a no-op extra.
 solvers = ["ortools>=9.8", "pulp>=2.8"]
 methods-full = [
   "policy-engine[analytics]",
@@ -164,7 +166,9 @@ test = [
   "pytest-xdist>=3.6.1",
   "hypothesis>=6.0.0",
   "rdflib>=7.0.0",
+  "policy-engine[ml]",
   "policy-engine[runtime-http]",
+  "policy-engine[solvers]",
 ]
 dev = [
   "policy-engine[docs]",

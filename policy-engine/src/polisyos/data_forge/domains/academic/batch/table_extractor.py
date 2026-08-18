@@ -1,7 +1,7 @@
 """Optional table extraction from academic PDFs.
 
-Dependencies (marker-pdf) are OPTIONAL — only installed on server.
-Falls back gracefully when not available.
+Dependencies (marker-pdf) are OPTIONAL and are not exposed by the project on
+the Python 3.14 baseline. The adapter falls back gracefully when unavailable.
 """
 
 from __future__ import annotations

@@ -100,7 +100,7 @@ jobs:
           mkdir -p /tmp/release-assets
           cp _build/dist/* /tmp/release-assets/
           tar -C _build/apps/runtime-dashboard/dist -czf "/tmp/release-assets/runtime-dashboard-dist-${VERSION}.tar.gz" .
-          (cd /tmp/release-assets && sha256sum * > SHA256SUMS)
+          (cd /tmp/release-assets && sha256sum -- ./* > SHA256SUMS)
 
       - name: Check release artifact size policy
         run: |

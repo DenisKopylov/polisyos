@@ -124,7 +124,7 @@ initial path census]`
 | --- | ---: | ---: | --- |
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
-| Item 4 | 2 | 0 | both pre-writer acceptance findings corrected; delta review pending |
+| Item 4 | 2 | 0 | both pre-writer findings closed by delta review; accepted writer pending |
 | Item 5 | n/a | single cold allowance unspent | not authorized yet |
 
 ## Execution receipts
@@ -337,8 +337,17 @@ Only a passing writer terminal and an exact staged-candidate match permit atomic
 governed path. It recomputes the entire declaration after staging and again after promotion. A
 pre-promotion failure cannot change the governed file; a post-promotion failure atomically restores
 the captured preimage. The consumer itself, not writer prose, owns the acceptance decision. Its
-positive and restoration branches passed isolated ignored-file probes; syntax and Ruff checks are
+committed-declaration preflight is green; its atomic promotion/restoration primitive passed a
+consumer-specific ignored probe. Consumer/probe hashes are `3ec502279c2b…b15d0` and
+`96d00fed8c7d…c984`; the retained probe receipt hashes to `a559e479317a…c10`, records
+`promoted=true`, `restored=true`, and rebinds the exact preimage hash. Syntax and Ruff checks are
 green. `[P37: recomputed]`
+
+The post-correction delta review independently loaded the committed declaration and consumer,
+reconciled the passing preflight, and closed both prior mechanism findings. It returned no new
+Blocking or Important finding, so the third-finding stop did not trigger. Its only Minor asked for
+an attributable consumer-specific branch receipt; the probe above supplies it without consuming a
+repair round. `[P37: independently_reconciled for closure; recomputed for the Minor receipt fix]`
 
 The second read-only luna reconciliation independently reproduced all `143/143` leaf dispositions,
 both source denominators and changed sets, every direct source binding, current deployment identity,

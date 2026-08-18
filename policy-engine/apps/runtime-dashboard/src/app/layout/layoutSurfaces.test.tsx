@@ -11,7 +11,6 @@ const {
   setLocaleMock,
   toggleThemeMock,
   useCapabilitiesMock,
-  useAuthzDecisionMock,
   useFeatureFlagsMock,
   useHealthMock,
   useInterfaceModeMock,
@@ -33,7 +32,6 @@ const {
   toggleThemeMock: vi.fn(),
   useDensityMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
-  useAuthzDecisionMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
   useHealthMock: vi.fn(),
   useInterfaceModeMock: vi.fn(),
@@ -43,10 +41,6 @@ const {
   useRunScenariosMock: vi.fn(),
   useRuntimeApiIncidentMock: vi.fn(),
   useThemeMock: vi.fn(),
-}));
-
-vi.mock("@/app/authz/AuthzProvider", () => ({
-  useAuthzDecision: () => useAuthzDecisionMock(),
 }));
 
 vi.mock("@/api/hooks/useCapabilities", () => ({
@@ -165,12 +159,6 @@ describe("layout surfaces", () => {
     toggleThemeMock.mockReset();
     cycleDensityMock.mockReset();
     useCapabilitiesMock.mockReset();
-    useAuthzDecisionMock.mockReset();
-    useAuthzDecisionMock.mockReturnValue({
-      can: () => true,
-      isWorkspaceAllowed: () => true,
-      kind: "verified",
-    });
     useCapabilitiesMock.mockReturnValue({
       data: {
         features: [
@@ -466,19 +454,17 @@ describe("layout surfaces", () => {
   it("renders unavailable watch posture instead of guessing blocked runs", () => {
     useRunsSampleMock.mockReturnValueOnce({
       data: {
-        runs: [{ run_id: "run-opaque", status: "blocked_by_external_owner" }],
+        runs: [
+          { run_id: "run-opaque", status: "blocked_by_external_owner" },
+        ],
       },
     });
 
     renderWithRouter(<Sidebar />, "/");
 
     expect(screen.getByText("common.unavailable")).toBeInTheDocument();
-    expect(
-      screen.queryByText("shell.watchStatusBlocked"),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("shell.watchStatusStable"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("shell.watchStatusBlocked")).not.toBeInTheDocument();
+    expect(screen.queryByText("shell.watchStatusStable")).not.toBeInTheDocument();
   });
 
   it("uses native radio inputs for the mode toggle with tab and arrow keyboard support", async () => {

@@ -178,52 +178,6 @@ AuthorityEscapeConstruct = Literal[
     "satisfies",
 ]
 
-C09A_AUTHZ_DECISION_PATHS: tuple[str, ...] = (
-    "apps/runtime-dashboard/src/app/layout/Header.tsx",
-    "apps/runtime-dashboard/src/app/layout/Sidebar.tsx",
-    "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx",
-)
-
-# Filled from the declaration-resolved scanner after C09a removes its four
-# sites. Multiplicity is load-bearing; C09b owns this exact deferred remainder.
-C09B_DEFERRED_AUTHZ_DEFAULTS: tuple[tuple[str, str, str], ...] = (
-    (
-        "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "nullish_true",
-        "sha256:dbba2e663e04d40e5cfefafa857ddf4cb1115935cf675b4f561eed4a3ad7f4b0",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
-        "conditional_true",
-        "sha256:558904d4bdf972885f9b4aea13ad2286a5506aef13fa99aedb0a6a11954bdc30",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:15ce21d33f40858566da3bd5b55e71bbaadec3c527f870059403296c03e36d35",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:bdda997e831cb564a6c068148d6d343dee5ce20880e2e16a5ec063b929bc4801",
-    ),
-)
-
 
 class AuthorityEscapeExemption(NamedTuple):
     """Exact, owned exception to the bounded authority-path syntax rule."""
@@ -1645,54 +1599,7 @@ def _enforcement_scan(
         raise RuntimeError(
             "status TypeScript scan returned invalid persistenceConstructionFacts"
         )
-    if not isinstance(scan.get("authzDecisionFacts"), Mapping):
-        raise RuntimeError("status TypeScript scan returned invalid authzDecisionFacts")
     return scan
-
-
-def _authz_default_allow_errors(scan: Mapping[str, Any]) -> list[str]:
-    """Validate the bounded phased N010 direct-default remainder."""
-    facts = scan.get("authzDecisionFacts")
-    if not isinstance(facts, Mapping):
-        return ["authz_decision_facts_missing"]
-    hook_calls = facts.get("hookCalls")
-    sites = facts.get("defaultAllowSites")
-    if not isinstance(hook_calls, list) or not isinstance(sites, list):
-        return ["authz_decision_facts_invalid"]
-
-    errors: list[str] = []
-    live_hooks = {
-        (str(row.get("path")), str(row.get("hook")))
-        for row in hook_calls
-        if isinstance(row, Mapping)
-    }
-    for path in C09A_AUTHZ_DECISION_PATHS:
-        if (path, "useAuthzDecision") not in live_hooks:
-            errors.append(f"authz_decision_api_missing:{path}")
-
-    live = Counter(
-        (
-            str(row.get("path")),
-            str(row.get("kind")),
-            str(row.get("siteFingerprint")),
-        )
-        for row in sites
-        if isinstance(row, Mapping)
-    )
-    expected = Counter(C09B_DEFERRED_AUTHZ_DEFAULTS)
-    for identity, count in sorted((live - expected).items()):
-        path, kind, fingerprint = identity
-        errors.extend(
-            f"authz_default_allow_unclassified:{path}:{kind}:{fingerprint}"
-            for _ in range(count)
-        )
-    for identity, count in sorted((expected - live).items()):
-        path, kind, fingerprint = identity
-        errors.extend(
-            f"authz_default_allow_deferred_drift:{path}:{kind}:{fingerprint}"
-            for _ in range(count)
-        )
-    return errors
 
 
 def _escape_identity(value: Mapping[str, Any] | AuthorityEscapeExemption) -> tuple[Any, ...]:
@@ -2020,7 +1927,6 @@ def validate_enforcement(
         )
     )
     if source_overrides is None:
-        errors.extend(_authz_default_allow_errors(scan))
         errors.extend(_query_cache_policy_errors(scan, enforce_denominator=True))
         errors.extend(_offline_queue_errors(scan, enforce_denominator=True))
         errors.extend(

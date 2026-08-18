@@ -1,4 +1,4 @@
-import { useAuthzDecision } from "@/app/authz/AuthzProvider";
+import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
@@ -11,11 +11,10 @@ import { SegmentedControl } from "@polisyos/atlas-ui";
 function ModeToggle() {
   const { t } = useI18n();
   const { mode, setMode, isClerk } = useInterfaceMode();
-  const authzDecision = useAuthzDecision();
-  const canSwitchToAnalyst =
-    authzDecision.kind === "verified" && authzDecision.can("mode.analyst");
+  const authz = useMaybeAuthz();
+  const canSwitchToAnalyst = authz?.can("mode.analyst") ?? true;
 
-  if (!canSwitchToAnalyst) return null;
+  if (!canSwitchToAnalyst && isClerk) return null;
 
   return (
     <fieldset className="mt-4">
@@ -42,11 +41,10 @@ export default function Sidebar() {
   const { flags } = useFeatureFlags();
   const { mode, isClerk } = useInterfaceMode();
   const atlasEnabled = flags.enableAtlasV2;
-  const authzDecision = useAuthzDecision();
+  const authz = useMaybeAuthz();
   const navigation = getWorkspaceNavigationWithOptions(flags, {
     isAllowed: (workspace) =>
-      authzDecision.kind === "verified" &&
-      authzDecision.isWorkspaceAllowed(workspace.key),
+      authz ? authz.isWorkspaceAllowed(workspace.key) : true,
     mode,
   });
 

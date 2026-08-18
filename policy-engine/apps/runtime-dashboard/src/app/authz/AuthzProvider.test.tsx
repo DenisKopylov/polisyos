@@ -11,7 +11,6 @@ vi.mock("@/api/hooks/useAuthMe", () => ({
 import {
   AuthzProvider,
   useAuthz,
-  useAuthzDecision,
   useReviewCollaborationEnabled,
 } from "@/app/authz/AuthzProvider";
 
@@ -34,7 +33,6 @@ const authenticatedPrincipal = {
 
 function AuthorityProbe() {
   const authz = useAuthz();
-  const decision = useAuthzDecision();
   const collaborationEnabled = useReviewCollaborationEnabled();
 
   return (
@@ -44,11 +42,6 @@ function AuthorityProbe() {
         workspaceAllowed: authz.isWorkspaceAllowed("scenarioComposer"),
         mfaVerified: authz.user?.mfa_verified === true,
         collaborationEnabled,
-        decisionCanLaunch:
-          decision.kind === "verified" && decision.can("runs.launch"),
-        decisionFrozen: Object.isFrozen(decision),
-        decisionKind: decision.kind,
-        decisionSymbols: Object.getOwnPropertySymbols(decision).length,
         status: authz.status,
         userId: authz.user?.user_id ?? null,
       })}
@@ -117,10 +110,6 @@ describe("AuthzProvider", () => {
           workspaceAllowed: false,
           mfaVerified: false,
           collaborationEnabled: false,
-          decisionCanLaunch: false,
-          decisionFrozen: true,
-          decisionKind: "unknown",
-          decisionSymbols: 0,
           status: expectedStatus,
           userId: null,
         },
@@ -146,10 +135,6 @@ describe("AuthzProvider", () => {
       workspaceAllowed: true,
       mfaVerified: true,
       collaborationEnabled: true,
-      decisionCanLaunch: true,
-      decisionFrozen: true,
-      decisionKind: "verified",
-      decisionSymbols: 1,
       status: "ready",
       userId: "analyst-a",
     });

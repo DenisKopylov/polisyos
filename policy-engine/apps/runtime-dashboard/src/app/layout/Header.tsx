@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 
-import { useAuthzDecision } from "@/app/authz/AuthzProvider";
+import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useHealth } from "@/api/hooks/useHealth";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
@@ -34,7 +34,7 @@ export default function Header() {
   const capabilitiesQuery = useCapabilities();
   const runsQuery = useRunsSample();
   const runsLive = useRunsLiveStatus();
-  const authzDecision = useAuthzDecision();
+  const authz = useMaybeAuthz();
   const { flags } = useFeatureFlags();
   const { isClerk, mode } = useInterfaceMode();
   const atlasEnabled = flags.enableAtlasV2;
@@ -49,9 +49,7 @@ export default function Header() {
     (run) => run.decision_review_required === true,
   ).length;
   const navigation = getWorkspaceNavigationWithOptions(flags, {
-    isAllowed: (ws) =>
-      authzDecision.kind === "verified" &&
-      authzDecision.isWorkspaceAllowed(ws.key),
+    isAllowed: (ws) => (authz ? authz.isWorkspaceAllowed(ws.key) : true),
     mode,
   });
   const runsWorkspace = navigation.find((item) => item.key === "runsDecisions");

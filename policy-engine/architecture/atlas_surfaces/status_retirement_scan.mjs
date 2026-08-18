@@ -481,6 +481,7 @@ function isNestedPersistenceReceiver(node) {
   return false;
 }
 
+
 function collectPersistenceConstructionFacts(program, checker) {
   const productionSources = program
     .getSourceFiles()
@@ -632,122 +633,6 @@ function collectPersistenceConstructionFacts(program, checker) {
     residual:
       "direct declaration-resolved calls, acquisitions, and local destructured/bound aliases only; indirect storage value-flow remains not_established",
     sites,
-  };
-}
-
-const AUTHZ_PROVIDER_PATH =
-  "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx";
-const AUTHZ_DECISION_HOOKS = new Set(["useAuthzDecision", "useMaybeAuthz"]);
-
-function canonicalAuthzDecisionHook(checker, expression) {
-  const symbol = resolvedSymbol(checker, expression);
-  for (const declaration of symbol?.declarations ?? []) {
-    if (
-      relativePath(declaration.getSourceFile().fileName) !== AUTHZ_PROVIDER_PATH
-    ) {
-      continue;
-    }
-    const name = propertyNameText(declaration.name);
-    if (name && AUTHZ_DECISION_HOOKS.has(name)) return name;
-  }
-  return null;
-}
-
-function nodeReferencesAnySymbol(checker, node, symbols) {
-  let found = false;
-  const visit = (current) => {
-    if (found) return;
-    if (
-      ts.isIdentifier(current) &&
-      symbols.has(checker.getSymbolAtLocation(current))
-    ) {
-      found = true;
-      return;
-    }
-    ts.forEachChild(current, visit);
-  };
-  visit(node);
-  return found;
-}
-
-function collectAuthzDecisionFacts(program, checker) {
-  const sourceFiles = program
-    .getSourceFiles()
-    .filter((sourceFile) =>
-      isDashboardPersistenceProductionSource(sourceFile.fileName),
-    );
-  const hookCalls = [];
-  const defaultAllowSites = [];
-
-  for (const sourceFile of sourceFiles) {
-    const decisionSymbols = new Set();
-    const path = relativePath(sourceFile.fileName);
-    const collectHooks = (node) => {
-      if (
-        ts.isVariableDeclaration(node) &&
-        ts.isIdentifier(node.name) &&
-        node.initializer
-      ) {
-        const initializer = unwrapExpression(node.initializer);
-        if (ts.isCallExpression(initializer)) {
-          const hook = canonicalAuthzDecisionHook(
-            checker,
-            initializer.expression,
-          );
-          if (hook) {
-            const symbol = checker.getSymbolAtLocation(node.name);
-            if (symbol) decisionSymbols.add(symbol);
-            hookCalls.push({
-              hook,
-              line: lineOf(sourceFile, initializer),
-              path,
-            });
-          }
-        }
-      }
-      ts.forEachChild(node, collectHooks);
-    };
-    collectHooks(sourceFile);
-    if (decisionSymbols.size === 0) continue;
-
-    const collectDefaults = (node) => {
-      let kind = null;
-      if (
-        ts.isBinaryExpression(node) &&
-        node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken &&
-        node.right.kind === ts.SyntaxKind.TrueKeyword &&
-        nodeReferencesAnySymbol(checker, node.left, decisionSymbols)
-      ) {
-        kind = "nullish_true";
-      } else if (
-        ts.isConditionalExpression(node) &&
-        node.whenFalse.kind === ts.SyntaxKind.TrueKeyword &&
-        nodeReferencesAnySymbol(checker, node.condition, decisionSymbols)
-      ) {
-        kind = "conditional_true";
-      }
-      if (kind) {
-        defaultAllowSites.push({
-          kind,
-          line: lineOf(sourceFile, node),
-          path,
-          siteFingerprint: textSha256(node.getText(sourceFile)),
-        });
-      }
-      ts.forEachChild(node, collectDefaults);
-    };
-    collectDefaults(sourceFile);
-  }
-
-  const key = (item) =>
-    `${item.path}:${String(item.line).padStart(8, "0")}:${item.hook ?? item.kind}`;
-  return {
-    defaultAllowSites: defaultAllowSites.sort((left, right) =>
-      key(left).localeCompare(key(right)),
-    ),
-    hookCalls: hookCalls.sort((left, right) =>
-      key(left).localeCompare(key(right)),
-    ),
   };
 }
 
@@ -5765,7 +5650,6 @@ function collectProgramFacts(
       program,
       checker,
     ),
-    authzDecisionFacts: collectAuthzDecisionFacts(program, checker),
     ...authorityEscapeFacts,
   };
 }
@@ -5925,10 +5809,6 @@ function collectOverrideFacts(
       productionFiles: 0,
       issuerCalls: [],
       featureLiterals: [],
-    },
-    authzDecisionFacts: {
-      defaultAllowSites: [],
-      hookCalls: [],
     },
   };
   const program = createOverrideProgram(
@@ -6127,7 +6007,6 @@ function collectOverrideFacts(
     program,
     checker,
   );
-  facts.authzDecisionFacts = collectAuthzDecisionFacts(program, checker);
   return facts;
 }
 

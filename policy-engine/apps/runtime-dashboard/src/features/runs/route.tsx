@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import type { AppRouteModule } from "@/app/routes/contracts";
 import {
@@ -10,7 +10,6 @@ import {
 } from "@/app/routes/loaders";
 import { TabBoundary } from "@/app/routes/TabBoundary";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
-import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import {
   buildRunCompareHref,
   buildRunDeckHref,
@@ -66,20 +65,10 @@ const RunAgentsTab = lazy(
 );
 const RunDebugTab = lazy(() => import("@/features/runs/routes/tabs/DebugTab"));
 
-export function RunCausalFeatureGate() {
-  const enabled = useFeatureFlag("enableCausalGraph");
-  const { runId } = useParams();
-  return enabled ? (
-    <RunCausalTab />
-  ) : (
-    <Navigate replace to={runId ? `/runs/${runId}/overview` : "/runs"} />
-  );
-}
-
 const RUN_TAB_COMPONENTS = {
   agents: RunAgentsTab,
   artifacts: RunArtifactsTab,
-  causal: RunCausalFeatureGate,
+  causal: RunCausalTab,
   debug: RunDebugTab,
   evidence: RunEvidenceTab,
   governance: RunGovernanceTab,

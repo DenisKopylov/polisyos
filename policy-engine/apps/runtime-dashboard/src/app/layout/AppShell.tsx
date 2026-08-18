@@ -6,7 +6,6 @@ import { AppMobileNav } from "@/app/layout/AppMobileNav";
 import { ConnectedTemporalScrubber } from "@/app/layout/ConnectedTemporalScrubber";
 import { GlobalRuntimeBanner } from "@/app/layout/GlobalRuntimeBanner";
 import type { CounterfactualMode } from "@/app/providers/scenario-scope";
-import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
 import { CommandPalette } from "@/features/commandPalette";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -70,14 +69,13 @@ function CounterfactualShellRail({ runId }: { runId: string }) {
 
 export default function AppShell({ children }: PropsWithChildren) {
   const { t } = useI18n();
-  const { flags } = useFeatureFlags();
   const isMobile = useIsMobile();
   const location = useLocation();
   const runId = resolveRunId(location.pathname);
 
   return (
     <div className="atlas-shell-frame" data-testid="app-shell">
-      {flags.enableCommandPalette ? <CommandPalette /> : null}
+      <CommandPalette />
       <TrustInspector />
       <a
         href="#main-content"
@@ -95,9 +93,7 @@ export default function AppShell({ children }: PropsWithChildren) {
               className={runId ? "mb-2" : "mb-4"}
               runId={runId}
             />
-            {runId && flags.enableWhatIfAnalysis ? (
-              <CounterfactualShellRail runId={runId} />
-            ) : null}
+            {runId ? <CounterfactualShellRail runId={runId} /> : null}
             <main id="main-content" className="shell-main" tabIndex={-1}>
               {children}
             </main>

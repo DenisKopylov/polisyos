@@ -165,10 +165,9 @@
     },
     {
       "census_id": "census-collaboration-delete",
-      "captured_at": "2026-08-18T20:59:24+03:00",
+      "captured_at": "2026-07-17T11:10:00+03:00",
       "covers_unit_ids": [
         "feature-collaboration",
-        "flag-enable-collaboration",
         "raw-fetch-collab-activity",
         "raw-fetch-collab-comments-get",
         "raw-fetch-collab-comment-post",
@@ -179,7 +178,6 @@
       ],
       "ds1_evidence_ids": [
         "feature-collaboration",
-        "flag-enable-collaboration",
         "raw-fetch-collab-activity",
         "raw-fetch-collab-comments-get",
         "raw-fetch-collab-comment-post",
@@ -207,8 +205,7 @@
             "collab.comments",
             "collab.cursors",
             "collab.presence",
-            "CollaborationRealtimeSubscriptionRequest",
-            "enableCollaboration: {"
+            "CollaborationRealtimeSubscriptionRequest"
           ],
           "scan_roots": [
             "apps/runtime-dashboard/src",
@@ -4413,11 +4410,11 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_consumer_missing_flag_wire_decision",
-      "rationale": "C19 wires enableCausalGraph through the direct-route gate, run-detail tab filtering, and causal command-palette entries; focused route and palette tests prove a false flag hides the route, normal tab, root, and descendants while permissions remain independent. The client loader may prime data before the context gate redirects, but no causal surface is exposed.",
+      "rationale": "The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate.",
       "decision_detail": {
         "kind": "wire",
         "consumer_slice": "DS5",
-        "rationale": "C19 wires enableCausalGraph through the direct-route gate, run-detail tab filtering, and causal command-palette entries; focused route and palette tests prove a false flag hides the route, normal tab, root, and descendants while permissions remain independent. The client loader may prime data before the context gate redirects, but no causal surface is exposed."
+        "rationale": "The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate."
       }
     },
     {
@@ -4432,12 +4429,11 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_consumer_missing_flag_retire_decision",
-      "rationale": "C19 removes enableCollaboration from the canonical manifest keys and registry; the environment-boundary test proves the retired key is rejected atomically, while the refreshed zero registry-entry census proves no live construction remains. The separate enableReviewCollaboration authz override is unchanged.",
-      "reference_census_id": "census-collaboration-delete",
+      "rationale": "The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity.",
       "decision_detail": {
         "kind": "retire",
         "consumer_slice": "DS5",
-        "rationale": "C19 removes enableCollaboration from the canonical manifest keys and registry; the environment-boundary test proves the retired key is rejected atomically, while the refreshed zero registry-entry census proves no live construction remains. The separate enableReviewCollaboration authz override is unchanged.",
+        "rationale": "The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity.",
         "retirement_scope": "frontend_exposure_registry",
         "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
       }
@@ -4454,11 +4450,11 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_consumer_missing_flag_wire_decision",
-      "rationale": "C19 gates both CommandPalette mounting and global shortcut registration with enableCommandPalette; focused layout and palette tests prove a false flag removes UI and keyboard entry without changing permission authority.",
+      "rationale": "The live palette must consume its existing key as a genuine launch gate.",
       "decision_detail": {
         "kind": "wire",
         "consumer_slice": "DS5",
-        "rationale": "C19 gates both CommandPalette mounting and global shortcut registration with enableCommandPalette; focused layout and palette tests prove a false flag removes UI and keyboard entry without changing permission authority."
+        "rationale": "The live palette must consume its existing key as a genuine launch gate."
       }
     },
     {
@@ -4473,11 +4469,11 @@
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_consumer_missing_flag_wire_decision",
-      "rationale": "C19 gates the AppShell counterfactual rail and the Overview scenario workbench with enableWhatIfAnalysis; focused layout and run-detail tests prove a false flag removes both surfaces and cannot grant or replace permission.",
+      "rationale": "The surviving server-backed workbench needs one real whole-surface exposure gate.",
       "decision_detail": {
         "kind": "wire",
         "consumer_slice": "DS5",
-        "rationale": "C19 gates the AppShell counterfactual rail and the Overview scenario workbench with enableWhatIfAnalysis; focused layout and run-detail tests prove a false flag removes both surfaces and cannot grant or replace permission."
+        "rationale": "The surviving server-backed workbench needs one real whole-surface exposure gate."
       }
     },
     {

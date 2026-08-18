@@ -5,7 +5,6 @@ import {
   type SurfacePermissionKey,
 } from "@/app/surfaces/surfaceRegistry";
 import { isCapabilityEnabled } from "@/shared/lib/capabilities";
-import type { FeatureFlagKey } from "@/shared/lib/featureFlags";
 
 export type RunDetailTabPermission = Extract<
   SurfacePermissionKey,
@@ -14,7 +13,6 @@ export type RunDetailTabPermission = Extract<
 export type RunDetailTab = RunDetailSurfaceKey;
 
 export type RunInspectorTabConfig = {
-  featureFlag?: FeatureFlagKey;
   key: RunDetailTab;
   labelKey: string;
   legacyAliases: readonly string[];
@@ -26,7 +24,6 @@ export type RunInspectorTabConfig = {
 
 export const RUN_DETAIL_TAB_REGISTRY: readonly RunInspectorTabConfig[] =
   RUN_DETAIL_SURFACES.map((surface) => ({
-    featureFlag: surface.featureFlag,
     key: surface.id.replace("runs.", "") as RunDetailTab,
     labelKey: surface.labelKey,
     legacyAliases: surface.legacyAliases ?? surface.aliases,
@@ -50,16 +47,12 @@ export function getVisibleRunInspectorTabs(
   manifest: CapabilityManifestPayload | undefined,
   options?: {
     canAccessTab?: (tab: RunDetailTab) => boolean;
-    isFeatureEnabled?: (featureFlag: FeatureFlagKey) => boolean;
   },
 ) {
   return RUN_DETAIL_TAB_REGISTRY.filter(
     (tab) =>
-      (!tab.featureFlag ||
-        options?.isFeatureEnabled?.(tab.featureFlag) !== false) &&
       (tab.requiredCapabilities ?? []).every((capability) =>
         isCapabilityEnabled(manifest, capability),
-      ) &&
-      (options?.canAccessTab ? options.canAccessTab(tab.key) : true),
+      ) && (options?.canAccessTab ? options.canAccessTab(tab.key) : true),
   );
 }

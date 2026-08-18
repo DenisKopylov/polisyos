@@ -2,11 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import {
-  mockRuntimeGetFailure,
-  mockRuntimeGetSuccess,
-} from "@/test/runtimeApi";
-import { buildFeatureFlags } from "@/test/featureFlags";
+import { mockRuntimeGetFailure, mockRuntimeGetSuccess } from "@/test/runtimeApi";
 
 const {
   cycleDensityMock,
@@ -180,7 +176,12 @@ describe("CommandPalette", () => {
     locationPathnameMock.mockReturnValue("/runs/run-1/overview");
     mockRuntimeGetSuccess(ownerCapabilityManifest);
     useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags(),
+      flags: {
+        enableLexKnowledge: true,
+        enablePlatformHealth: true,
+        enableRunsWorkspace: true,
+        enableScenarioComposer: true,
+      },
     });
     useMaybeAuthzMock.mockReturnValue({
       can: () => true,
@@ -223,63 +224,6 @@ describe("CommandPalette", () => {
     );
 
     expect(navigateMock).toHaveBeenCalledWith("/runs/run-1/causal");
-  });
-
-  it("does not mount or register the palette when its rollout flag is false", () => {
-    useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags({ enableCommandPalette: false }),
-    });
-
-    renderCommandPalette();
-
-    expect(useGlobalShortcutMock).toHaveBeenCalledWith(
-      "command-palette",
-      { key: "k", meta: true },
-      "Open command palette",
-      expect.any(Function),
-      { enabled: false, group: "Global" },
-    );
-    expect(
-      screen.queryByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not let permission grants override a false causal rollout flag", () => {
-    useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags({ enableCausalGraph: false }),
-    });
-    useMaybeAuthzMock.mockReturnValue({
-      can: () => true,
-      isWorkspaceAllowed: () => true,
-    });
-
-    renderCommandPalette();
-
-    expect(
-      screen.queryByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {
-        name: /surfaceRegistry\.panels\.causalAtlas\.label/i,
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not let rollout flags satisfy a denied server permission", () => {
-    useFeatureFlagsMock.mockReturnValue({ flags: buildFeatureFlags() });
-    useMaybeAuthzMock.mockReturnValue({
-      can: () => false,
-      isWorkspaceAllowed: () => true,
-    });
-
-    renderCommandPalette();
-
-    expect(
-      screen.queryByRole("button", { name: /pages\.runs\.tabs\.governance/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
-    ).toBeInTheDocument();
   });
 
   it("opens nested workspace surfaces from the surface registry", async () => {

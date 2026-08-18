@@ -10,7 +10,6 @@ import {
   readStrictCachedFeatureFlagManifest,
   writeStrictCachedFeatureFlagManifest,
 } from "@/shared/lib/featureFlags";
-import type { FeatureFlagLifecycle } from "@/shared/lib/featureFlags";
 
 const cacheScope = { tenantId: "tenant-c18a", userId: "user-c18a" };
 
@@ -479,12 +478,12 @@ describe("featureFlags", () => {
     ).toMatchObject({ ok: false, diagnostic: { code: "cache_serialization_failed" } });
   });
 
-  it("retires collaboration and exposes only the eleven wired manifest keys", () => {
-    expectTypeOf<FeatureFlagLifecycle>().toEqualTypeOf<"live">();
+  it("exposes the complete literal registry with eleven wire dispositions and one retirement", () => {
     expect(FEATURE_FLAG_KEYS).toEqual([
       "enableAtlasV2",
       "enableCausalGraph",
       "enableClerkMode",
+      "enableCollaboration",
       "enableCommandPalette",
       "enableDarkMode",
       "enableLexKnowledge",
@@ -498,6 +497,7 @@ describe("featureFlags", () => {
       enableAtlasV2: true,
       enableCausalGraph: true,
       enableClerkMode: true,
+      enableCollaboration: true,
       enableCommandPalette: true,
       enableDarkMode: true,
       enableLexKnowledge: true,
@@ -507,36 +507,20 @@ describe("featureFlags", () => {
       enableScenarioComposer: true,
       enableWhatIfAnalysis: true,
     });
-    expect(Object.values(FEATURE_FLAG_REGISTRY)).toHaveLength(11);
+    expect(Object.values(FEATURE_FLAG_REGISTRY)).toHaveLength(12);
     expect(
       Object.values(FEATURE_FLAG_REGISTRY).filter(
         (entry) => entry.disposition === "WIRE",
       ),
     ).toHaveLength(11);
+    expect(FEATURE_FLAG_REGISTRY.enableCollaboration).toMatchObject({
+      disposition: "RETIRE",
+      target: "C19",
+    });
     expect(
       Object.values(FEATURE_FLAG_REGISTRY).filter(
         (entry) => entry.status === "live",
       ),
-    ).toHaveLength(11);
-    expect(
-      new Set(Object.values(FEATURE_FLAG_REGISTRY).map((entry) => entry.target)),
-    ).toEqual(new Set(["existing"]));
-  });
-
-  it("rejects the retired collaboration key atomically at the environment boundary", () => {
-    vi.stubEnv(
-      "VITE_FEATURE_FLAGS_MANIFEST",
-      JSON.stringify(
-        strictManifest({ enableCollaboration: false, enableDarkMode: false }),
-      ),
-    );
-
-    expect(readEnvironmentFeatureFlagManifest()).toMatchObject({
-      state: "present",
-      result: {
-        ok: false,
-        diagnostic: { code: "unknown_feature_flag" },
-      },
-    });
+    ).toHaveLength(8);
   });
 });

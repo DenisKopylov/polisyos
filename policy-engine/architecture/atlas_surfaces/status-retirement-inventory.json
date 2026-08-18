@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:303aa04da9920380ad41b365ca6a97da9aa7ef7fa43df20cb4a55b2703109f34"
+      "sha256": "sha256:4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -3668,8 +3668,8 @@
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
-        "start_line": 18,
-        "end_line": 18,
+        "start_line": 19,
+        "end_line": 19,
         "declaration_name": "FeatureFlagDisposition"
       },
       "literal_members": ["RETIRE", "WIRE"],

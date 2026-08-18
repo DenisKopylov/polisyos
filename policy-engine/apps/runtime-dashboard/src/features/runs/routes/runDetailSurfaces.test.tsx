@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -6,7 +6,6 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
-import { buildFeatureFlags } from "@/test/featureFlags";
 
 const ownerCapabilityManifest = {
   features: [
@@ -89,7 +88,6 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
 }));
 
 vi.mock("@/app/providers/FeatureFlagProvider", () => ({
-  useFeatureFlag: (key: string) => Boolean(useFeatureFlagsMock().flags[key]),
   useFeatureFlags: (...args: unknown[]) => useFeatureFlagsMock(...args),
 }));
 
@@ -299,7 +297,6 @@ vi.mock("@/features/runs/routes/useRunDetailSummary", async () => {
 });
 
 import RunComparePage from "@/features/runs/routes/RunComparePage";
-import { RunCausalFeatureGate } from "@/features/runs/route";
 import RunDeckPage from "@/features/runs/routes/RunDeckPage";
 import RunDetailLayout from "@/features/runs/routes/RunDetailLayout";
 import RunReportPage from "@/features/runs/routes/RunReportPage";
@@ -542,10 +539,13 @@ describe("run detail surfaces", () => {
 
     window.localStorage.clear();
     useTelemetryReadyMarkMock.mockReset();
-    useFeatureFlagsMock.mockReset();
     useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags(),
-      isEnabled: () => true,
+      flags: {
+        atlasCommandPalette: true,
+        atlasNestedSurfaces: true,
+      },
+      isEnabled: (key: string) =>
+        key === "atlasCommandPalette" || key === "atlasNestedSurfaces",
       source: "props",
       status: "ready",
     });
@@ -784,22 +784,6 @@ describe("run detail surfaces", () => {
 
     expect(await screen.findByTestId("outlet-overview")).toBeInTheDocument();
     expect(screen.getByTestId("run-tab-link-overview")).toBeInTheDocument();
-  });
-
-  it("removes the causal tab entry when its rollout flag is false", async () => {
-    const flags = buildFeatureFlags({ enableCausalGraph: false });
-    useFeatureFlagsMock.mockReturnValue({
-      diagnostic: null,
-      flags,
-      isEnabled: (key: keyof typeof flags) => flags[key],
-      source: "props",
-      status: { label: "ready" },
-    });
-
-    renderNestedRunDetail("/runs/run-1/overview");
-
-    expect(await screen.findByTestId("outlet-overview")).toBeInTheDocument();
-    expect(screen.queryByTestId("run-tab-link-causal")).not.toBeInTheDocument();
   });
 
   it("renders required-state and action branches in RunDetailLayout", async () => {
@@ -1279,60 +1263,6 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("causal-graph-canvas")).toHaveTextContent(
       "3:1:0",
     );
-  });
-
-  it("blocks a causal deep link when the rollout flag is false and restores it when true", async () => {
-    const renderGate = () => {
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false } },
-      });
-      return render(
-        <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={["/runs/run-1/causal"]}>
-            <Suspense fallback={<div>loading</div>}>
-              <Routes>
-                <Route
-                  path="/runs/:runId/causal"
-                  element={<RunCausalFeatureGate />}
-                />
-                <Route
-                  path="/runs/:runId/overview"
-                  element={<div data-testid="causal-rollout-unavailable" />}
-                />
-              </Routes>
-            </Suspense>
-          </MemoryRouter>
-        </QueryClientProvider>,
-      );
-    };
-
-    useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags({ enableCausalGraph: false }),
-    });
-    const blocked = renderGate();
-    expect(
-      await screen.findByTestId("causal-rollout-unavailable"),
-    ).toBeInTheDocument();
-    expect(screen.queryByTestId("causal-atlas-editor")).not.toBeInTheDocument();
-    blocked.unmount();
-
-    useFeatureFlagsMock.mockReturnValue({ flags: buildFeatureFlags() });
-    renderGate();
-    expect(
-      await screen.findByTestId("causal-atlas-editor"),
-    ).toBeInTheDocument();
-  });
-
-  it("removes the overview what-if workbench when its rollout flag is false", () => {
-    useFeatureFlagsMock.mockReturnValue({
-      flags: buildFeatureFlags({ enableWhatIfAnalysis: false }),
-    });
-
-    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
-
-    expect(
-      screen.queryByTestId("overview-scenario-workbench"),
-    ).not.toBeInTheDocument();
   });
 
   it("renders AgentsTab and GovernanceTab through lazy panels", async () => {

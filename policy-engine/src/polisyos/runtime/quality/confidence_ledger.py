@@ -40,6 +40,9 @@ from polisyos.pdc import PromotionObligationClass
 
 CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.registry.v1"
 CONFIDENCE_LEDGER_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.v1"
+N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION = (
+    "policyos.runtime.quality.confidence_ledger.n9_promotion_semantic_projection.v1"
+)
 CONDITIONAL_VALIDITY_CLAUSE = (
     "P(false promotion | maintained assumptions) <= delta is conditional on obligation "
     "completeness + validator soundness (the spec's A4 = our open P29)."
@@ -890,6 +893,106 @@ class ConfidenceLedgerSemanticReceiptProjection(_StrictModel):
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class N9PromotionSemanticLedgerProjection(_StrictModel):
+    """Stable promotion lineage emitted from a fully verified live ledger.
+
+    The raw N9 certificate remains the byte-complete custody record.  This
+    projection is the producer-owned comparison identity for its semantic
+    event history; it deliberately omits deployment- and CAS-local locators.
+    """
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    projection_rule_version: Literal[N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION]
+    projection_scope: Literal["n9_promotion_semantic_receipt"]
+    authority_provenance: SessionAuthorityProvenance
+    risk_scope: ConfidenceRiskBudgetScope
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_profile_id: str = Field(min_length=1)
+    schedule_profile_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    budget_delta: RationalSpec
+    budget_delta_decimal: str
+    root_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    events: tuple[ConfidenceLedgerSemanticEvent, ...]
+    checks: tuple[ConfidenceLedgerSemanticCheck, ...]
+    head_event_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    total_spend: RationalSpec
+    total_spend_decimal: str
+    within_budget: bool
+    good_event_clause: Literal[GOOD_EVENT_CLAUSE]
+    conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
+    maintained_assumptions: tuple[
+        Literal["obligation_completeness", "validator_soundness"], ...
+    ]
+    projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _semantic_lineage_is_content_bound(self) -> N9PromotionSemanticLedgerProjection:
+        if self.scope_id != self.risk_scope.scope_id:
+            raise ValueError("n9_semantic_projection_scope_binding_invalid")
+        root_values = _n9_semantic_ledger_root_values(
+            receipt=self,
+            risk_scope=self.risk_scope,
+        )
+        if self.root_projection_hash != _content_hash(root_values):
+            raise ValueError("n9_semantic_projection_root_hash_drift")
+        head_projection_hash = self.root_projection_hash
+        current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
+        filtration_by_request: dict[str, str] = {}
+        for event in self.events:
+            request_key = event.check.request_key
+            if event.event_type == "prepared" or (
+                request_key not in filtration_by_request
+                and event.check.outcome == "preflight_refusal"
+            ):
+                if request_key in filtration_by_request:
+                    raise ValueError("n9_semantic_projection_duplicate_preparation")
+                filtration_by_request[request_key] = head_projection_hash
+            if request_key not in filtration_by_request:
+                raise ValueError("n9_semantic_projection_missing_preparation")
+            if event.check.filtration_projection_hash != filtration_by_request[request_key]:
+                raise ValueError("n9_semantic_projection_filtration_drift")
+            expected_claim_hash = _semantic_claim_execution_projection_hash_from_projection(
+                event.check
+            )
+            if event.check.claim_execution_projection_hash != expected_claim_hash:
+                raise ValueError("n9_semantic_claim_execution_projection_hash_drift")
+            expected_check_hash = _content_hash(
+                event.check.model_dump(mode="json", exclude={"check_projection_hash"})
+            )
+            if event.check.check_projection_hash != expected_check_hash:
+                raise ValueError("n9_semantic_check_projection_hash_drift")
+            event_values = event.model_dump(mode="json", exclude={"event_projection_hash"})
+            if event.parent_event_projection_hash != head_projection_hash:
+                raise ValueError("n9_semantic_event_parent_drift")
+            if event.event_projection_hash != _content_hash(event_values):
+                raise ValueError("n9_semantic_event_projection_hash_drift")
+            current_checks[request_key] = event.check
+            head_projection_hash = event.event_projection_hash
+        checks = tuple(current_checks[key] for key in sorted(current_checks))
+        if self.checks != checks:
+            raise ValueError("n9_semantic_projection_current_check_drift")
+        if self.head_event_projection_hash != head_projection_hash:
+            raise ValueError("n9_semantic_projection_head_hash_drift")
+        if self.total_spend != _rational_spec(
+            sum((check.spend.fraction for check in self.checks), Fraction())
+        ):
+            raise ValueError("n9_semantic_projection_total_spend_drift")
+        if self.total_spend_decimal != _fraction_display(self.total_spend.fraction):
+            raise ValueError("n9_semantic_projection_total_spend_decimal_drift")
+        if self.within_budget is not (
+            self.total_spend.fraction <= self.budget_delta.fraction
+        ):
+            raise ValueError("n9_semantic_projection_budget_outcome_drift")
+        expected_projection_hash = _content_hash(
+            self.model_dump(mode="json", exclude={"projection_hash"})
+        )
+        if self.projection_hash != expected_projection_hash:
+            raise ValueError("n9_semantic_projection_hash_drift")
+        return self
+
+
 class N9PromotionLedgerRow(_StrictModel):
     """Typed promotion-claim row; other certificate roles are not projected."""
 
@@ -940,6 +1043,13 @@ class N9PromotionCertificateProjection(_StrictModel):
     conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
     maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> N9PromotionCertificateProjection:
+        expected = _content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_promotion_projection_hash_drift")
+        return self
 
 
 class N12EpochReferenceProjection(_StrictModel):
@@ -3213,6 +3323,33 @@ def _semantic_claim_execution_projection_hash(
     )
 
 
+def _semantic_claim_execution_projection_hash_from_projection(
+    check: ConfidenceLedgerSemanticCheck,
+) -> str:
+    """Recompute a semantic claim binding from its persisted full preimage."""
+
+    return _content_hash(
+        {
+            "scope_id": check.scope_id,
+            "request_fingerprint": check.request_fingerprint,
+            "claim_ref": check.claim_ref,
+            "null_ref": check.null_ref,
+            "claim_scope_ref": check.claim_scope_ref,
+            "data_window_ref": check.data_window_ref,
+            "filtration_projection_hash": check.filtration_projection_hash,
+            "certificate_role": check.certificate_role,
+            "claim_polarity": check.claim_polarity,
+            "execution_id": check.execution_id,
+            "execution_ordinal": check.execution_ordinal,
+            "schedule_query_index": check.schedule_query_index,
+            "reserved_alpha": check.spend,
+            "registry_content_hash": check.registry_content_hash,
+            "instrument_definition_hash": check.instrument_definition_hash,
+            "proof_profile_hash": check.proof_profile_hash,
+        }
+    )
+
+
 def _semantic_check_projection(
     check: ConfidenceLedgerCheck,
     *,
@@ -3307,6 +3444,88 @@ def _semantic_ledger_root_values(
     }
 
 
+def _n9_semantic_ledger_root_values(
+    *,
+    receipt: ConfidenceLedgerReceipt | N9PromotionSemanticLedgerProjection,
+    risk_scope: ConfidenceRiskBudgetScope,
+) -> dict[str, Any]:
+    """Return the stable N9 ledger root without physical deployment locators."""
+
+    return {
+        "schema_version": receipt.schema_version,
+        "projection_rule_version": N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION,
+        "projection_scope": "n9_promotion_semantic_receipt",
+        "authority_provenance": receipt.authority_provenance,
+        "risk_scope": risk_scope,
+        "scope_id": receipt.scope_id,
+        "registry_content_hash": receipt.registry_content_hash,
+        "schedule_profile_id": receipt.schedule_profile_id,
+        "schedule_profile_hash": receipt.schedule_profile_hash,
+        "schedule_projection_hash": receipt.schedule_projection_hash,
+        "budget_delta": receipt.budget_delta,
+        "budget_delta_decimal": receipt.budget_delta_decimal,
+        "conditionality_clause": receipt.conditionality_clause,
+        "maintained_assumptions": receipt.maintained_assumptions,
+    }
+
+
+def _project_semantic_event_lineage(
+    receipt: ConfidenceLedgerReceipt,
+    *,
+    root_projection_hash: str,
+    error_prefix: str,
+) -> tuple[
+    tuple[ConfidenceLedgerSemanticEvent, ...],
+    tuple[ConfidenceLedgerSemanticCheck, ...],
+    str,
+]:
+    """Project one validated physical event chain onto stable semantic lineage."""
+
+    head_projection_hash = root_projection_hash
+    filtration_by_request: dict[str, str] = {}
+    current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
+    projected_events: list[ConfidenceLedgerSemanticEvent] = []
+    for event in receipt.events:
+        request_key = event.check.request_key
+        if event.event_type == "prepared" or (
+            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
+        ):
+            if request_key in filtration_by_request:
+                raise ConfidenceLedgerError(f"{error_prefix}_duplicate_preparation")
+            filtration_by_request[request_key] = head_projection_hash
+        try:
+            filtration_projection_hash = filtration_by_request[request_key]
+        except KeyError as exc:  # pragma: no cover - live receipt validation owns this guard.
+            raise ConfidenceLedgerError(f"{error_prefix}_missing_preparation") from exc
+        projected_check = _semantic_check_projection(
+            event.check,
+            filtration_projection_hash=filtration_projection_hash,
+        )
+        event_values: dict[str, Any] = {
+            "event_type": event.event_type,
+            "revision": event.revision,
+            "parent_event_projection_hash": head_projection_hash,
+            "check": projected_check,
+        }
+        event_values["event_projection_hash"] = _content_hash(event_values)
+        projected_event = ConfidenceLedgerSemanticEvent.model_validate(event_values)
+        projected_events.append(projected_event)
+        current_checks[request_key] = projected_check
+        head_projection_hash = projected_event.event_projection_hash
+    live_current = {check.request_key: check for check in receipt.checks}
+    if set(live_current) != set(current_checks):  # pragma: no cover - receipt validation guard.
+        raise ConfidenceLedgerError(f"{error_prefix}_current_check_denominator_drift")
+    for request_key, live_check in live_current.items():
+        expected = _semantic_check_projection(
+            live_check,
+            filtration_projection_hash=filtration_by_request[request_key],
+        )
+        if expected != current_checks[request_key]:  # pragma: no cover - validation guard.
+            raise ConfidenceLedgerError(f"{error_prefix}_current_check_drift")
+    checks = tuple(current_checks[key] for key in sorted(current_checks))
+    return tuple(projected_events), checks, head_projection_hash
+
+
 def project_confidence_ledger_semantic_receipt(
     receipt: ConfidenceLedgerReceipt | Mapping[str, object],
     *,
@@ -3337,52 +3556,15 @@ def project_confidence_ledger_semantic_receipt(
         projection_scope=projection_scope,
     )
     root_projection_hash = _content_hash(root_values)
-    head_projection_hash = root_projection_hash
-    filtration_by_request: dict[str, str] = {}
-    current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
-    projected_events: list[ConfidenceLedgerSemanticEvent] = []
-    for event in validated.events:
-        request_key = event.check.request_key
-        if event.event_type == "prepared" or (
-            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
-        ):
-            if request_key in filtration_by_request:
-                raise ConfidenceLedgerError("semantic_projection_duplicate_preparation")
-            filtration_by_request[request_key] = head_projection_hash
-        try:
-            filtration_projection_hash = filtration_by_request[request_key]
-        except KeyError as exc:  # pragma: no cover - live receipt validation owns this guard.
-            raise ConfidenceLedgerError("semantic_projection_missing_preparation") from exc
-        projected_check = _semantic_check_projection(
-            event.check,
-            filtration_projection_hash=filtration_projection_hash,
-        )
-        event_values: dict[str, Any] = {
-            "event_type": event.event_type,
-            "revision": event.revision,
-            "parent_event_projection_hash": head_projection_hash,
-            "check": projected_check,
-        }
-        event_values["event_projection_hash"] = _content_hash(event_values)
-        projected_event = ConfidenceLedgerSemanticEvent.model_validate(event_values)
-        projected_events.append(projected_event)
-        current_checks[request_key] = projected_check
-        head_projection_hash = projected_event.event_projection_hash
-    live_current = {check.request_key: check for check in validated.checks}
-    if set(live_current) != set(current_checks):  # pragma: no cover - receipt validation guard.
-        raise ConfidenceLedgerError("semantic_projection_current_check_denominator_drift")
-    for request_key, live_check in live_current.items():
-        expected = _semantic_check_projection(
-            live_check,
-            filtration_projection_hash=filtration_by_request[request_key],
-        )
-        if expected != current_checks[request_key]:  # pragma: no cover - receipt validation guard.
-            raise ConfidenceLedgerError("semantic_projection_current_check_drift")
-    checks = tuple(current_checks[key] for key in sorted(current_checks))
+    projected_events, checks, head_projection_hash = _project_semantic_event_lineage(
+        validated,
+        root_projection_hash=root_projection_hash,
+        error_prefix="semantic_projection",
+    )
     values: dict[str, Any] = {
         **root_values,
         "root_projection_hash": root_projection_hash,
-        "events": tuple(projected_events),
+        "events": projected_events,
         "checks": checks,
         "head_event_projection_hash": head_projection_hash,
         "total_spend": validated.total_spend,
@@ -3392,6 +3574,44 @@ def project_confidence_ledger_semantic_receipt(
     }
     values["projection_hash"] = _content_hash(values)
     return ConfidenceLedgerSemanticReceiptProjection.model_validate(values)
+
+
+def project_n9_promotion_semantic_ledger(
+    receipt: ConfidenceLedgerReceipt | Mapping[str, object],
+    *,
+    session: ConfidenceLedgerSession,
+) -> N9PromotionSemanticLedgerProjection:
+    """Project a verified N9 ledger onto stable claim and filtration semantics."""
+
+    validated = validate_confidence_ledger_receipt(receipt, session=session)
+    risk_scope = session.risk_scope
+    if risk_scope.authority_purpose != "n9_promotion":
+        raise ConfidenceLedgerError("n9_semantic_projection_scope_authority_mismatch")
+    if validated.scope_id != risk_scope.scope_id:
+        raise ConfidenceLedgerError("n9_semantic_projection_scope_binding_invalid")
+    root_values = _n9_semantic_ledger_root_values(
+        receipt=validated,
+        risk_scope=risk_scope,
+    )
+    root_projection_hash = _content_hash(root_values)
+    events, checks, head_projection_hash = _project_semantic_event_lineage(
+        validated,
+        root_projection_hash=root_projection_hash,
+        error_prefix="n9_semantic_projection",
+    )
+    values: dict[str, Any] = {
+        **root_values,
+        "root_projection_hash": root_projection_hash,
+        "events": events,
+        "checks": checks,
+        "head_event_projection_hash": head_projection_hash,
+        "total_spend": validated.total_spend,
+        "total_spend_decimal": validated.total_spend_decimal,
+        "within_budget": validated.within_budget,
+        "good_event_clause": validated.good_event_clause,
+    }
+    values["projection_hash"] = _content_hash(values)
+    return N9PromotionSemanticLedgerProjection.model_validate(values)
 
 
 def project_n9_promotion_certificate(
@@ -5366,6 +5586,7 @@ __all__ = [
     "ConfidenceRiskBudgetScope",
     "N9PromotionCertificateProjection",
     "N9PromotionLedgerRow",
+    "N9PromotionSemanticLedgerProjection",
     "N12EpochReferenceProjection",
     "OwnerCertificateBinding",
     "OwnerCertificateEvidence",
@@ -5376,6 +5597,7 @@ __all__ = [
     "load_confidence_ledger_registry",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
+    "project_n9_promotion_semantic_ledger",
     "project_n12_epoch_reference",
     "recompute_confidence_owner_evidence_hash",
     "recompute_confidence_owner_projection_hash",
@@ -5393,7 +5615,9 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
     _IMPORT_TIME_DEPLOYMENT_BASELINE,
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
 ) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+
 _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
+
 (
     _IMPORT_TIME_LOADED_CODE_MANIFEST,
     _IMPORT_TIME_LOADED_CODE_CONSISTENT,

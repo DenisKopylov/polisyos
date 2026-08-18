@@ -88,7 +88,9 @@ def test_generation_cycle_check_revalidates_forged_embedded_receipt() -> None:
     )
 
     assert report["status"] == "fail"
-    assert "embedded_promotion_receipt_revalidation_failed" in _issue_codes(report)
+    assert "embedded_promotion_receipt_semantic_projection_drift" in _issue_codes(
+        report
+    )
 
 
 def test_generation_cycle_check_rejects_rehashed_stale_live_field() -> None:

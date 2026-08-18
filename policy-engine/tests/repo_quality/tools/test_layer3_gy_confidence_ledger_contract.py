@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import faulthandler
 import json
 import os
@@ -727,6 +728,219 @@ def test_real_capstone_and_admission_denominator_are_accounted(
     assert checker.validate_payload(contract, expected=contract)["status"] == "pass"
 
 
+def test_n11_required_nullable_null_survives_all_projection_boundaries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+
+    construction = owner.artifact_projection(contract)
+    route = construction["owner_bundle_projection"]["n10"]["routes"][0]
+    assert "row_addressable_variable" in route
+    assert route["row_addressable_variable"] is None
+    assert checker.validate_payload(contract, expected=contract) == {
+        "status": "pass",
+        "issues": [],
+    }
+
+    serialized = checker.contract_bytes(contract)
+    serialized_payload = json.loads(serialized)
+    serialized_route = serialized_payload["owner_bundle_projection"]["n10"]["routes"][0]
+    assert "row_addressable_variable" in serialized_route
+    assert serialized_route["row_addressable_variable"] is None
+    reparsed = checker._parse_contract_bytes(serialized)
+    assert checker.contract_bytes(reparsed) == serialized
+
+    assert {
+        (rule.applies_to, rule.reason): rule.top_level_fields
+        for rule in owner.exclusion_rules
+    } == {
+        (
+            "artifact_and_identity",
+            "non_governing_verification_identity",
+        ): frozenset(
+            {
+                "comparison_content_hash",
+                "comparison_projection_schema_version",
+                "comparison_rule_version",
+            }
+        ),
+        ("identity_only", "recursive_self_identity"): frozenset(
+            {"artifact_content_hash"}
+        ),
+    }
+
+
+def test_n11_construction_and_validation_share_identity_projection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+
+    assert contract.artifact_content_hash == checker.gy_content_hash(
+        owner.identity_projection(contract)
+    )
+    assert checker.validate_payload(contract, expected=contract) == {
+        "status": "pass",
+        "issues": [],
+    }
+
+
+def test_n11_non_null_comparison_identity_remains_diagnosable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    payload = contract.model_dump(mode="json", exclude_none=False)
+    payload["comparison_content_hash"] = "sha256:" + "f" * 64
+    payload["artifact_content_hash"] = checker.gy_content_hash(
+        owner.identity_projection(payload)
+    )
+
+    report = checker.validate_payload(payload)
+
+    assert report["status"] == "fail"
+    assert "confidence_verification_projection_remains_governing" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "comparison_content_hash",
+        "comparison_projection_schema_version",
+        "comparison_rule_version",
+    ],
+)
+def test_n11_explicit_null_comparison_identity_fails_both_intakes(
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    payload = owner.artifact_projection(contract)
+    payload[field] = None
+
+    report = checker.validate_payload(payload)
+
+    assert report["status"] == "fail"
+    assert "confidence_verification_projection_remains_governing" in {
+        issue["code"] for issue in report["issues"]
+    }
+    with pytest.raises(
+        RuntimeError,
+        match="confidence_verification_projection_remains_governing",
+    ):
+        checker._parse_contract_bytes(json.dumps(payload).encode("utf-8"))
+
+
+def test_n11_round_trip_preserves_complete_required_null_denominator(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    artifact_payload = owner.artifact_projection(contract)
+    required_null_paths: list[tuple[str | int, ...]] = []
+    for path in _null_leaf_paths(artifact_payload):
+        without_null = copy.deepcopy(artifact_payload)
+        _delete_path(without_null, path)
+        try:
+            checker.FrozenConfidenceLedgerContract.model_validate(without_null)
+        except checker.ValidationError as exc:
+            if any(
+                tuple(error["loc"]) == path and error["type"] == "missing"
+                for error in exc.errors()
+            ):
+                required_null_paths.append(path)
+
+    serialized = checker.contract_bytes(contract)
+    serialized_payload = json.loads(serialized)
+    reparsed = checker._parse_contract_bytes(serialized)
+    reparsed_payload = owner.artifact_projection(reparsed)
+    artifact_null_paths = set(_null_leaf_paths(artifact_payload))
+    assert artifact_null_paths == set(_null_leaf_paths(serialized_payload))
+    assert artifact_null_paths == set(_null_leaf_paths(reparsed_payload))
+    assert len(required_null_paths) == 36
+    for path in required_null_paths:
+        assert _path_value(serialized_payload, path) is None
+        assert _path_value(reparsed_payload, path) is None
+    assert checker.contract_bytes(reparsed) == serialized
+
+
+def test_n11_absent_required_nullable_member_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    payload = owner.artifact_projection(contract)
+    missing_path = (
+        "owner_bundle_projection",
+        "n10",
+        "routes",
+        0,
+        "row_addressable_variable",
+    )
+    _delete_path(payload, missing_path)
+    checker._set_confidence_contract_identities(payload)
+
+    report = checker.validate_payload(payload)
+
+    assert report["status"] == "fail"
+    assert report["issues"][0]["code"] == "schema_invalid"
+    assert "owner_bundle_projection.n10.routes.0.row_addressable_variable" in report[
+        "issues"
+    ][0]["error"]
+    assert "type=missing" in report["issues"][0]["error"]
+    with pytest.raises(RuntimeError, match="schema_invalid") as exc_info:
+        checker._parse_contract_bytes(json.dumps(payload).encode("utf-8"))
+    assert isinstance(exc_info.value.__cause__, checker.ValidationError)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "location", "error_type"),
+    [
+        ("unknown", "unexpected_nullable", "extra_forbidden"),
+        (
+            "malformed",
+            "universality.unseen_instrument_probe.execution_ordinal",
+            "none_required",
+        ),
+        (
+            "coercible",
+            "accounted_run.n10_route_count",
+            "int_type",
+        ),
+    ],
+)
+def test_n11_unknown_or_malformed_representation_stays_governing(
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    location: str,
+    error_type: str,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    payload = owner.artifact_projection(contract)
+    if mutation == "unknown":
+        payload["unexpected_nullable"] = None
+        checker._set_confidence_contract_identities(payload)
+    elif mutation == "malformed":
+        payload["universality"]["unseen_instrument_probe"]["execution_ordinal"] = "null"
+        checker._set_confidence_contract_identities(payload)
+    else:
+        payload["accounted_run"]["n10_route_count"] = "3"
+
+    report = checker.validate_payload(payload)
+
+    assert report["status"] == "fail"
+    assert report["issues"][0]["code"] == "schema_invalid"
+    assert location in report["issues"][0]["error"]
+    assert f"type={error_type}" in report["issues"][0]["error"]
+    with pytest.raises(RuntimeError, match="schema_invalid"):
+        checker._parse_contract_bytes(json.dumps(payload).encode("utf-8"))
+
+
 def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -782,6 +996,27 @@ def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
     assert row.owner_projection_hash is not None
     report = checker.validate_payload(contract, expected=contract)
     assert report["status"] == "pass", report["issues"]
+
+
+def test_confidence_contract_keeps_comparison_identity_non_governing() -> None:
+    payload = json.loads((POLICY_ENGINE_ROOT / checker.OUTPUT_PATH).read_text(encoding="utf-8"))
+    shifted = copy.deepcopy(payload)
+    projection = shifted["real_ledger_projection"]
+    projection["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    projection["projection_hash"] = checker._ledger_content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    checker._set_confidence_contract_identities(payload)
+    checker._set_confidence_contract_identities(shifted)
+
+    comparison_fields = (
+        checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.exclusion_rule(
+            reason="non_governing_verification_identity"
+        ).top_level_fields
+    )
+    assert comparison_fields.isdisjoint(payload)
+    assert comparison_fields.isdisjoint(shifted)
+    assert payload["artifact_content_hash"] != shifted["artifact_content_hash"]
 
 
 @pytest.mark.parametrize(
@@ -1063,9 +1298,7 @@ def test_rehashed_projection_authority_fields_turn_red(
     projection["projection_hash"] = checker._ledger_content_hash(
         {key: item for key, item in projection.items() if key != "projection_hash"}
     )
-    payload["artifact_content_hash"] = checker.gy_content_hash(
-        {key: item for key, item in payload.items() if key != "artifact_content_hash"}
-    )
+    checker._set_confidence_contract_identities(payload)
 
     report = checker.validate_payload(payload)
 
@@ -1089,9 +1322,7 @@ def test_n12_root_binding_is_independent_of_n9_projection(
     n9["projection_hash"] = checker._ledger_content_hash(
         {key: item for key, item in n9.items() if key != "projection_hash"}
     )
-    payload["artifact_content_hash"] = checker.gy_content_hash(
-        {key: item for key, item in payload.items() if key != "artifact_content_hash"}
-    )
+    checker._set_confidence_contract_identities(payload)
 
     report = checker.validate_payload(payload)
 
@@ -1112,9 +1343,7 @@ def test_rehashed_projection_edge_hash_turns_red(monkeypatch: pytest.MonkeyPatch
     )
     payload = json.loads(checker.contract_bytes(contract))
     payload["projection_edges"][0]["producer_projection_hash"] = "sha256:" + "7" * 64
-    payload["artifact_content_hash"] = checker.gy_content_hash(
-        {key: item for key, item in payload.items() if key != "artifact_content_hash"}
-    )
+    checker._set_confidence_contract_identities(payload)
 
     report = checker.validate_payload(payload)
 
@@ -1143,6 +1372,11 @@ def test_confidence_ledger_writer_is_byte_stable_and_corruptions_turn_red(
     assert corruption_report["status"] == "pass"
     assert tuple(row["case_id"] for row in corruption_report["results"]) == (
         checker.CORRUPT_FIELD_MUTATION_IDS
+    )
+    assert all(
+        "artifact_content_hash_drift"
+        not in {issue["code"] for issue in row["issues"]}
+        for row in corruption_report["results"]
     )
 
 
@@ -1905,6 +2139,45 @@ def test_normal_byte_stability_path_uses_killable_worker(
     assert derived_bytes == payload
 
 
+def test_monitored_derivation_names_missing_required_null_schema(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    owner = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER
+    contract = _projection_witness_contract(monkeypatch)
+    payload = owner.artifact_projection(contract)
+    _delete_path(
+        payload,
+        (
+            "owner_bundle_projection",
+            "n10",
+            "routes",
+            0,
+            "row_addressable_variable",
+        ),
+    )
+    checker._set_confidence_contract_identities(payload)
+    invalid_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
+    monkeypatch.setattr(
+        checker,
+        "_run_closeout_worker",
+        lambda *_args, **_kwargs: {
+            "first_bytes": invalid_bytes,
+            "second_bytes": invalid_bytes,
+            "profiling_stop": False,
+            "worker_error": None,
+        },
+    )
+
+    with pytest.raises(RuntimeError, match="schema_invalid") as exc_info:
+        checker._derive_byte_stable_contract(
+            POLICY_ENGINE_ROOT,
+            catalog_path=CATALOG_PATH,
+            l5_path=L5_PATH,
+        )
+
+    assert isinstance(exc_info.value.__cause__, checker.ValidationError)
+
+
 def test_objectively_progressing_cold_worker_may_exceed_two_x_without_termination(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1921,12 +2194,12 @@ def test_objectively_progressing_cold_worker_may_exceed_two_x_without_terminatio
     monkeypatch.setitem(
         checker._HISTORICAL_STAGE_SECONDS,
         "cold_owner_derivation",
-        0.5,
+        1.0,
     )
     monkeypatch.setitem(
         checker._HISTORICAL_STAGE_SECONDS,
         "cache_hit_derivation",
-        0.5,
+        1.0,
     )
     report_owner_progress = adapter._report_owner_progress
 
@@ -2037,6 +2310,52 @@ def _warm_bundle(monkeypatch: pytest.MonkeyPatch) -> adapter.OwnerEvidenceBundle
         catalog_path=CATALOG_PATH,
         l5_path=L5_PATH,
     )
+
+
+_PROJECTION_WITNESS_CONTRACT: checker.FrozenConfidenceLedgerContract | None = None
+
+
+def _projection_witness_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> checker.FrozenConfidenceLedgerContract:
+    global _PROJECTION_WITNESS_CONTRACT
+    if _PROJECTION_WITNESS_CONTRACT is None:
+        bundle = _warm_bundle(monkeypatch)
+        monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: bundle)
+        _PROJECTION_WITNESS_CONTRACT = checker.build_live_contract(
+            POLICY_ENGINE_ROOT,
+            catalog_path=CATALOG_PATH,
+            l5_path=L5_PATH,
+        )
+    return _PROJECTION_WITNESS_CONTRACT
+
+
+def _null_leaf_paths(
+    value: object,
+    path: tuple[str | int, ...] = (),
+) -> Iterator[tuple[str | int, ...]]:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            yield from _null_leaf_paths(child, (*path, key))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            yield from _null_leaf_paths(child, (*path, index))
+    elif value is None:
+        yield path
+
+
+def _delete_path(payload: object, path: tuple[str | int, ...]) -> None:
+    parent = payload
+    for segment in path[:-1]:
+        parent = parent[segment]  # type: ignore[index]
+    del parent[path[-1]]  # type: ignore[index]
+
+
+def _path_value(payload: object, path: tuple[str | int, ...]) -> object:
+    value = payload
+    for segment in path:
+        value = value[segment]  # type: ignore[index]
+    return value
 
 
 class _ProjectionValue:

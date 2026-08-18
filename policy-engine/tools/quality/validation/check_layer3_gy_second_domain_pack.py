@@ -57,8 +57,18 @@ from polisyos.data_requirement import (
     DataRequirementSpec,
 )
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    GyComparisonAdmission,
+    GyComparisonProjectionPlan,
     SearchTerminalKind,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
+    gy_comparison_content_hash,
     gy_content_hash,
+    is_gy_content_hash_excluded_field,
     reconcile_gy_operational_leaves,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -109,6 +119,12 @@ from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     load_l6_intervention_substrate,
     resolve_intervention_lever,
+)
+from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
 )
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
@@ -189,11 +205,39 @@ ARTIFACT_OUTPUTS = (
     GAP_REPORT_OUTPUT,
 )
 
+_ARTIFACT_WRITE_SPECS = (
+    (CENSUS_OUTPUT, "census", "census_content_hash", "exact_or_operational_reconciled"),
+    (PACK_OUTPUT, "pack", "manifest_content_hash", "declared_live_rederived"),
+    (
+        SMOKE_PROBLEM_OUTPUT,
+        "smoke_problem",
+        "smoke_problem_content_hash",
+        "exact_or_operational_reconciled",
+    ),
+    (
+        CYCLE_TRACE_OUTPUT,
+        "cycle_trace",
+        "trace_content_hash",
+        "producer_comparison_reconciled",
+    ),
+    (GAP_REPORT_OUTPUT, "gaps", "gap_report_content_hash", "declared_live_rederived"),
+)
+_WRITE_TRANSITION_SCHEMA_VERSION = "policyos.gy.n10a.write_transition.v1"
+
 _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
     "census_content_hash": frozenset({"runtime_metrics"}),
     "manifest_content_hash": frozenset({"runtime_metrics"}),
     "trace_content_hash": frozenset({"runtime_metrics"}),
 }
+
+_COMPARISON_IDENTITY_FIELDS = frozenset(
+    {
+        "comparison_content_hash",
+        "comparison_admission_manifest",
+        "comparison_projection_schema_version",
+        "comparison_rule_version",
+    }
+)
 
 _TASK_SCOPE_ALLOWED_EXACT = frozenset(
     {
@@ -477,6 +521,7 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
     _validate_artifact_hash(pack, "manifest_content_hash", issues)
     _validate_artifact_hash(smoke_problem, "smoke_problem_content_hash", issues)
     _validate_artifact_hash(cycle_trace, "trace_content_hash", issues)
+    issues.extend(_cycle_trace_comparison_identity_issues(cycle_trace))
     _validate_artifact_hash(gaps, "gap_report_content_hash", issues)
 
     if pack.get("census_content_hash") != census.get("census_content_hash"):
@@ -666,6 +711,10 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     mutated_gaps["gaps"] = [_with_content_hash(gap, "gap_content_hash") for gap in gap_records]
     corrupted["gaps"] = _with_content_hash(mutated_gaps, "gap_report_content_hash")
     corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"]["gap_report_content_hash"]
+    _set_cycle_trace_comparison_identity(
+        corrupted["cycle_trace"],
+        _cycle_trace_plan_from_manifest(corrupted["cycle_trace"]),
+    )
     corrupted["cycle_trace"] = _with_content_hash(
         corrupted["cycle_trace"],
         "trace_content_hash",
@@ -759,9 +808,9 @@ def _smoke_terminal_corruption_bundles(
     _rehash_smoke_terminal_mutation(terminal_status)
 
     promotion_boundary = copy.deepcopy(bundle)
-    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"][
-        "reason"
-    ] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    promotion_boundary["cycle_trace"]["generation_cycle_run"]["promotion_port"]["reason"] = (
+        "confidence_ledger_refused:ledger_scope_binding_mismatch"
+    )
     _rehash_smoke_terminal_mutation(promotion_boundary)
 
     return [
@@ -773,14 +822,16 @@ def _smoke_terminal_corruption_bundles(
 def _rehash_smoke_terminal_mutation(bundle: dict[str, Any]) -> None:
     """Refresh the trace and pack identities downstream of a smoke mutation."""
 
+    _set_cycle_trace_comparison_identity(
+        bundle["cycle_trace"],
+        _cycle_trace_plan_from_manifest(bundle["cycle_trace"]),
+    )
     bundle["cycle_trace"] = _with_content_hash(
         bundle["cycle_trace"],
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"][
-        "trace_content_hash"
-    ]
+    bundle["pack"]["cycle_trace_content_hash"] = bundle["cycle_trace"]["trace_content_hash"]
     bundle["pack"] = _with_content_hash(
         bundle["pack"],
         "manifest_content_hash",
@@ -980,11 +1031,14 @@ def write(
     *,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
+    expected_transition_manifest: Mapping[str, Any] | None = None,
+    persist: bool = True,
 ) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
     started = time.monotonic()
     root = repo_root.resolve()
+    _require_n10a_source_scope_clean(root)
     bundle = build_live_bundle(
         root,
         allow_live_n4_capture=allow_live_n4_capture,
@@ -1002,6 +1056,14 @@ def write(
             ),
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
+    artifact_transitions = _prepare_artifact_write_transitions(bundle, root)
+    transition_manifest = _artifact_write_transition_manifest(root, artifact_transitions)
+    if persist:
+        if expected_transition_manifest is None:
+            raise ValueError("n10a_expected_transition_manifest_required")
+        expected = _parse_artifact_write_transition_manifest(expected_transition_manifest)
+        if expected != transition_manifest:
+            raise ValueError("n10a_expected_transition_manifest_mismatch")
     by_path = {
         CENSUS_OUTPUT: bundle["census"],
         PACK_OUTPUT: bundle["pack"],
@@ -1009,14 +1071,18 @@ def write(
         CYCLE_TRACE_OUTPUT: bundle["cycle_trace"],
         GAP_REPORT_OUTPUT: bundle["gaps"],
     }
-    for relative_path, payload in by_path.items():
-        path = root / relative_path
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
+    if persist:
+        for relative_path, payload in by_path.items():
+            path = root / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
+        "artifact_transitions": artifact_transitions,
+        "transition_manifest": transition_manifest,
+        "write_performed": persist,
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -2470,6 +2536,7 @@ def _build_cycle_trace(
         DesignGenerationOrganRun,
         dict[str, Any],
         dict[str, Any],
+        tuple[GyComparisonAdmission, ...],
     ]:
         capture_metrics: dict[str, Any] = {}
         captured_organ_run: DesignGenerationOrganRun | None = None
@@ -2527,7 +2594,9 @@ def _build_cycle_trace(
         )
         from polisyos.runtime.quality.promotion_sequence import (
             CanonicalN9PromotionPort,
+            CanonicalPromotionReceipt,
             N9DesignProblemBinding,
+            admit_canonical_promotion_receipt_for_comparison,
             confidence_risk_scope_for_problem,
         )
 
@@ -2557,6 +2626,25 @@ def _build_cycle_trace(
                 min_cycles=2,
                 max_cycles=1,
             )
+            summaries = {
+                summary.candidate_id: summary for summary in run_result.candidate_summaries
+            }
+            admissions: list[GyComparisonAdmission] = []
+            for receipt_payload in run_result.promotion_port.receipts:
+                receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+                summary = summaries.get(receipt.candidate_id)
+                if summary is None:
+                    raise ValueError("n10a_promotion_candidate_owner_binding_invalid")
+                admissions.append(
+                    admit_canonical_promotion_receipt_for_comparison(
+                        receipt,
+                        repo_root=root,
+                        confidence_ledger_session=session,
+                        candidate_summary=summary,
+                        design_problem=problem,
+                        value_receipt=summary.value_receipt,
+                    )
+                )
         if generation_port.last_organ_run is None:
             raise ValueError("education_n4_owner_replay_not_attempted")
         replay_projection = _n4_owner_result_projection(generation_port.last_organ_run)
@@ -2583,9 +2671,10 @@ def _build_cycle_trace(
             generation_port.last_organ_run,
             active_capture,
             capture_metrics,
+            tuple(admissions),
         )
 
-    run_result, organ_run, active_capture, capture_metrics = asyncio.run(run())
+    run_result, organ_run, active_capture, capture_metrics, admissions = asyncio.run(run())
     stage_attempts = _cycle_stage_attempts(
         run_result=run_result,
         organ_run=organ_run,
@@ -2604,10 +2693,14 @@ def _build_cycle_trace(
     )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
+    run_plan = build_gy_comparison_projection_plan(run_payload, admissions=admissions)
     runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
-    n6_validation_evidence = _n6_single_terminal_gap_closure(normalized_run)
+    n6_validation_evidence = _n6_single_terminal_gap_closure(
+        normalized_run,
+        comparison_plan=run_plan,
+    )
     trace_identity = {
         "substrate_input_content_hash": (cycle_substrate_context.substrate_input_content_hash),
         "world_model_record_content_hash": (
@@ -2658,11 +2751,14 @@ def _build_cycle_trace(
             ),
         },
     }
+    plan = build_gy_comparison_projection_plan(payload, admissions=admissions)
+    _set_cycle_trace_comparison_identity(payload, plan)
     trace = _with_content_hash(
         payload,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
+    trace = _reconcile_frozen_cycle_trace(trace, root, plan)
     if not allow_live_n4_capture and n4_capture_journal is None:
         _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
     return trace
@@ -4105,15 +4201,20 @@ def _stage_1_gap_triage(
 
 def _n6_single_terminal_gap_closure(
     run: GenerationCycleRun,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
     """Prove N6 accepts one coherent terminal by invoking its live validator."""
 
     validation_issues = list(validate_generation_cycle_run(run))
     cycle_count = len(run.cycles)
     terminal_kind = run.cycles[0].terminal_kind if cycle_count == 1 else None
-    run_content_hash = _hash(run.model_dump(mode="json"))
+    run_comparison_content_hash = _n6_comparison_content_hash(
+        run.model_dump(mode="json"),
+        comparison_plan,
+    )
     receipt_payload = {
-        "run_content_hash": run_content_hash,
+        "run_content_hash": run_comparison_content_hash,
         "cycle_count": cycle_count,
         "terminal_kind": terminal_kind,
         "validation_issues": validation_issues,
@@ -4132,14 +4233,14 @@ def _n6_single_terminal_gap_closure(
 
 
 def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Separate nondeterministic N6 elapsed time from the replay-visible trace."""
+    """Separate N6 operational fields through the canonical GY hash owner."""
 
     normalized = copy.deepcopy(dict(payload))
     cycle_metrics: list[dict[str, Any]] = []
     cycles = _list_of_mappings(normalized.get("cycles"))
     for index, cycle in enumerate(cycles):
         value_port = _mapping(cycle.get("value_port"))
-        if "wall_time_ms" in value_port:
+        if "wall_time_ms" in value_port and is_gy_content_hash_excluded_field("wall_time_ms"):
             cycle_metrics.append(
                 {"cycle_index": index, "value_port_wall_time_ms": value_port["wall_time_ms"]}
             )
@@ -4148,7 +4249,7 @@ def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any
     normalized["cycles"] = cycles
     top_level_value_port = _mapping(normalized.get("value_port"))
     top_level_metric = top_level_value_port.get("wall_time_ms")
-    if "wall_time_ms" in top_level_value_port:
+    if "wall_time_ms" in top_level_value_port and is_gy_content_hash_excluded_field("wall_time_ms"):
         top_level_value_port["wall_time_ms"] = 0.0
         normalized["value_port"] = top_level_value_port
     return normalized, {
@@ -4289,7 +4390,10 @@ def _build_gap_report(
     }
     stage_attempts = _mapping(cycle_trace.get("stage_attempts"))
     n6_validation_evidence = _n6_single_terminal_gap_closure(
-        GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run")))
+        GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run"))),
+        comparison_plan=_cycle_trace_plan_from_manifest(cycle_trace).relative_to(
+            ("generation_cycle_run",)
+        ),
     )
     stage_receipts = {
         "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
@@ -5741,7 +5845,10 @@ def _validate_stage_1_cycle_receipts(
             issues.append({"code": "n8_transport_gap_receipt_drift"})
     try:
         n6_validation_evidence = _n6_single_terminal_gap_closure(
-            GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run")))
+            GenerationCycleRun.model_validate(_mapping(cycle_trace.get("generation_cycle_run"))),
+            comparison_plan=_cycle_trace_plan_from_manifest(cycle_trace).relative_to(
+                ("generation_cycle_run",)
+            ),
         )
     except (TypeError, ValueError) as exc:
         issues.append(
@@ -6383,6 +6490,241 @@ def _load_frozen_bundle(root: Path) -> dict[str, Any]:
     }
 
 
+def _prepare_artifact_write_transitions(
+    bundle: Mapping[str, Any],
+    root: Path,
+) -> list[dict[str, Any]]:
+    """Validate and account for the complete five-output legacy transition.
+
+    Every existing artifact must first prove its old self-identity. Census and
+    the smoke problem admit only an equal semantic identity (ordinary volatile
+    leaves may already have been reconciled). The cycle trace is reconciled by
+    its producer-bound comparison plan. Pack and gap records are declared-live
+    derivatives whose complete leaf deltas are returned for the caller's
+    predeclared-delta gate; they are never silently treated as reconciled.
+    """
+
+    receipts: list[dict[str, Any]] = []
+    for relative_path, bundle_key, hash_field, mode in _ARTIFACT_WRITE_SPECS:
+        path = root / relative_path
+        if not path.is_file():
+            raise ValueError(f"n10a_frozen_artifact_missing:{relative_path}")
+        frozen = _read_json(path)
+        live = _mapping(bundle.get(bundle_key))
+        frozen_issues: list[dict[str, Any]] = []
+        _validate_artifact_hash(frozen, hash_field, frozen_issues)
+        if frozen_issues:
+            raise ValueError(
+                "n10a_frozen_artifact_integrity_failed:"
+                + relative_path
+                + ":"
+                + ",".join(sorted(str(issue.get("code")) for issue in frozen_issues))
+            )
+        live_issues: list[dict[str, Any]] = []
+        _validate_artifact_hash(live, hash_field, live_issues)
+        if live_issues:
+            raise ValueError(
+                "n10a_live_artifact_integrity_failed:"
+                + relative_path
+                + ":"
+                + ",".join(sorted(str(issue.get("code")) for issue in live_issues))
+            )
+        if mode == "exact_or_operational_reconciled" and (
+            frozen.get(hash_field) != live.get(hash_field)
+        ):
+            raise ValueError(f"n10a_fixed_member_semantic_drift:{relative_path}")
+        changed_leaves = _changed_leaf_pointers(frozen, live)
+        receipts.append(
+            {
+                "changed_leaf_count": len(changed_leaves),
+                "changed_leaves": changed_leaves,
+                "legacy_content_hash": frozen.get(hash_field),
+                "live_content_hash": live.get(hash_field),
+                "mode": mode,
+                "output": relative_path,
+            }
+        )
+    if tuple(receipt["output"] for receipt in receipts) != ARTIFACT_OUTPUTS:
+        raise ValueError("n10a_artifact_transition_denominator_drift")
+    return receipts
+
+
+def _artifact_write_transition_manifest(
+    root: Path,
+    transitions: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Return the source-bound manifest that must be approved before writing."""
+
+    _require_n10a_source_scope_clean(root)
+    payload: dict[str, Any] = {
+        "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
+        "source_head": _git(root, "rev-parse", "HEAD"),
+        "source_scope_content_hash": _n10a_source_scope_content_hash(root),
+        "artifacts": [{str(key): value for key, value in row.items()} for row in transitions],
+    }
+    payload["manifest_content_hash"] = _hash(payload)
+    return _parse_artifact_write_transition_manifest(payload)
+
+
+def _parse_artifact_write_transition_manifest(value: object) -> dict[str, Any]:
+    """Strictly parse one complete, source-bound five-output expectation."""
+
+    if not isinstance(value, Mapping) or set(value) != {
+        "artifacts",
+        "manifest_content_hash",
+        "schema_version",
+        "source_head",
+        "source_scope_content_hash",
+    }:
+        raise ValueError("n10a_expected_transition_manifest_invalid")
+    source_head = value.get("source_head")
+    source_scope_content_hash = value.get("source_scope_content_hash")
+    rows = value.get("artifacts")
+    if (
+        value.get("schema_version") != _WRITE_TRANSITION_SCHEMA_VERSION
+        or not isinstance(source_head, str)
+        or re.fullmatch(r"[0-9a-f]{40}", source_head) is None
+        or not isinstance(source_scope_content_hash, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", source_scope_content_hash) is None
+        or not isinstance(rows, list)
+        or len(rows) != len(_ARTIFACT_WRITE_SPECS)
+    ):
+        raise ValueError("n10a_expected_transition_manifest_invalid")
+    parsed_rows: list[dict[str, Any]] = []
+    for row, spec in zip(rows, _ARTIFACT_WRITE_SPECS, strict=True):
+        if not isinstance(row, Mapping) or set(row) != {
+            "changed_leaf_count",
+            "changed_leaves",
+            "legacy_content_hash",
+            "live_content_hash",
+            "mode",
+            "output",
+        }:
+            raise ValueError("n10a_expected_transition_manifest_invalid")
+        leaves = row.get("changed_leaves")
+        legacy_hash = row.get("legacy_content_hash")
+        live_hash = row.get("live_content_hash")
+        if (
+            row.get("output") != spec[0]
+            or row.get("mode") != spec[3]
+            or not isinstance(leaves, list)
+            or any(not isinstance(leaf, str) or not leaf.startswith("/") for leaf in leaves)
+            or leaves != sorted(set(leaves))
+            or type(row.get("changed_leaf_count")) is not int
+            or row.get("changed_leaf_count") != len(leaves)
+            or not isinstance(legacy_hash, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", legacy_hash) is None
+            or not isinstance(live_hash, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", live_hash) is None
+        ):
+            raise ValueError("n10a_expected_transition_manifest_invalid")
+        parsed_rows.append({str(key): item for key, item in row.items()})
+    payload = {
+        "schema_version": _WRITE_TRANSITION_SCHEMA_VERSION,
+        "source_head": source_head,
+        "source_scope_content_hash": source_scope_content_hash,
+        "artifacts": parsed_rows,
+    }
+    expected_hash = _hash(payload)
+    if value.get("manifest_content_hash") != expected_hash:
+        raise ValueError("n10a_expected_transition_manifest_hash_drift")
+    return {**payload, "manifest_content_hash": expected_hash}
+
+
+def _require_n10a_source_scope_clean(root: Path) -> None:
+    """Reject tracked or untracked source/tool drift before measuring or writing."""
+
+    drift = _git(
+        root,
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--",
+        "src/polisyos",
+        "tools",
+    )
+    if drift:
+        raise ValueError("n10a_source_scope_not_clean")
+
+
+def _n10a_source_scope_content_hash(root: Path) -> str:
+    """Bind all importable source/tool bytes, including an untracked shadow file."""
+
+    digest = hashlib.sha256()
+    file_count = 0
+    for source_root in (root / "src" / "polisyos", root / "tools"):
+        for path in sorted(source_root.rglob("*")):
+            if (
+                not path.is_file()
+                or "__pycache__" in path.parts
+                or path.suffix in {".pyc", ".pyo"}
+            ):
+                continue
+            relative = path.relative_to(root).as_posix().encode("utf-8")
+            content = path.read_bytes()
+            digest.update(len(relative).to_bytes(8, "big"))
+            digest.update(relative)
+            digest.update(len(content).to_bytes(8, "big"))
+            digest.update(content)
+            file_count += 1
+    if file_count == 0:
+        raise ValueError("n10a_source_scope_empty")
+    return "sha256:" + digest.hexdigest()
+
+
+def _changed_leaf_pointers(previous: object, current: object) -> list[str]:
+    """Return every changed scalar/empty-container leaf as a canonical pointer."""
+
+    missing = object()
+    changed: list[str] = []
+
+    def pointer(path: tuple[str | int, ...]) -> str:
+        if not path:
+            return "/"
+        return "/" + "/".join(
+            str(part).replace("~", "~0").replace("/", "~1") for part in path
+        )
+
+    def leaves(value: object, path: tuple[str | int, ...]) -> None:
+        if isinstance(value, Mapping) and value:
+            for key in sorted(value, key=str):
+                leaves(value[key], (*path, str(key)))
+            return
+        if isinstance(value, (list, tuple)) and value:
+            for index, item in enumerate(value):
+                leaves(item, (*path, index))
+            return
+        changed.append(pointer(path))
+
+    def walk(left: object, right: object, path: tuple[str | int, ...]) -> None:
+        if isinstance(left, Mapping) and isinstance(right, Mapping):
+            for key in sorted(set(left) | set(right), key=str):
+                left_value = left.get(key, missing)
+                right_value = right.get(key, missing)
+                child_path = (*path, str(key))
+                if left_value is missing:
+                    leaves(right_value, child_path)
+                elif right_value is missing:
+                    leaves(left_value, child_path)
+                else:
+                    walk(left_value, right_value, child_path)
+            return
+        if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+            for index in range(max(len(left), len(right))):
+                if index >= len(left):
+                    leaves(right[index], (*path, index))
+                elif index >= len(right):
+                    leaves(left[index], (*path, index))
+                else:
+                    walk(left[index], right[index], (*path, index))
+            return
+        if left != right:
+            changed.append(pointer(path))
+
+    walk(previous, current, ())
+    return sorted(set(changed))
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -6412,6 +6754,142 @@ def _with_content_hash(
         key: value for key, value in normalized.items() if key not in set(excluded_fields)
     }
     return {**normalized, field: _hash(content_bound)}
+
+
+def _n6_comparison_content_hash(
+    payload: Mapping[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    return gy_comparison_content_hash(
+        _json_value(payload),
+        comparison_plan=plan,
+    )
+
+
+def _cycle_trace_comparison_content_hash(
+    payload: Mapping[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    stable = {
+        str(key): value
+        for key, value in payload.items()
+        if key != "trace_content_hash" and key not in _COMPARISON_IDENTITY_FIELDS
+    }
+    return _n6_comparison_content_hash(stable, plan)
+
+
+def _set_cycle_trace_comparison_identity(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> None:
+    payload["comparison_admission_manifest"] = plan.manifest
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _cycle_trace_comparison_content_hash(payload, plan)
+
+
+def _reconcile_frozen_cycle_trace(
+    live: Mapping[str, Any],
+    repo_root: Path,
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
+    path = repo_root / CYCLE_TRACE_OUTPUT
+    if not path.is_file():
+        return dict(live)
+    frozen = _read_json(path)
+    if frozen.get("trace_content_hash") != _hash(
+        {
+            key: value
+            for key, value in frozen.items()
+            if key not in {"trace_content_hash", "runtime_metrics"}
+        }
+    ):
+        raise ValueError("gy_cycle_trace_legacy_content_hash_drift")
+    if not _frozen_cycle_trace_comparison_identity_admissible(frozen, plan):
+        raise ValueError("gy_cycle_trace_comparison_admission_manifest_drift")
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"trace_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
+    if not isinstance(reconciled, dict):  # pragma: no cover - both inputs are mappings
+        raise ValueError("gy_cycle_trace_comparison_projection_invalid")
+    _set_cycle_trace_comparison_identity(reconciled, plan)
+    return _with_content_hash(
+        reconciled,
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+
+
+def _frozen_cycle_trace_comparison_identity_admissible(
+    frozen: Mapping[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 trace custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == (
+        _cycle_trace_comparison_content_hash(frozen, legacy_plan)
+    )
+
+
+def _cycle_trace_comparison_identity_issues(
+    payload: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    try:
+        plan = _cycle_trace_plan_from_manifest(payload)
+    except ValueError as exc:
+        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
+    else:
+        if payload.get("comparison_content_hash") != _cycle_trace_comparison_content_hash(
+            payload,
+            plan,
+        ):
+            issues.append({"code": "comparison_content_hash_drift"})
+    return issues
+
+
+def _cycle_trace_plan_from_manifest(
+    payload: Mapping[str, Any],
+) -> GyComparisonProjectionPlan:
+    return build_gy_comparison_projection_plan_from_manifest(
+        payload,
+        manifest=payload.get("comparison_admission_manifest"),
+        owner_rule_registry={
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+            )
+        },
+    )
 
 
 def _content_bound_canonical_json(payload: Mapping[str, Any]) -> str:
@@ -6472,7 +6950,7 @@ def _json_value(value: Any) -> Any:
     if hasattr(value, "item") and not isinstance(value, str):
         try:
             return _json_value(value.item())
-        except (AttributeError, ValueError):
+        except AttributeError, ValueError:
             pass
     return value
 
@@ -6586,36 +7064,86 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--measure-write-transition", action="store_true")
+    parser.add_argument("--expected-transition-manifest", type=Path)
     parser.add_argument("--capture-stage1-n4", action="store_true")
     parser.add_argument("--accept-stage1-n4-journal", type=Path)
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
-    selected = sum(
+    capture_selected = sum(
         bool(value)
         for value in (
-            args.check,
-            args.write,
             args.capture_stage1_n4,
             args.accept_stage1_n4_journal is not None,
-            args.rederive_audit,
-            args.corrupt_field_drift_check,
         )
     )
-    if selected != 1:
-        parser.error("select exactly one action")
+    if args.measure_write_transition:
+        incompatible = any(
+            (args.check, args.write, args.rederive_audit, args.corrupt_field_drift_check)
+        )
+        if incompatible or capture_selected > 1:
+            parser.error("select exactly one action")
+    else:
+        selected = sum(
+            bool(value)
+            for value in (
+                args.check,
+                args.write,
+                args.capture_stage1_n4,
+                args.accept_stage1_n4_journal is not None,
+                args.rederive_audit,
+                args.corrupt_field_drift_check,
+            )
+        )
+        if selected != 1:
+            parser.error("select exactly one action")
+    writer_selected = bool(
+        not args.measure_write_transition
+        and (
+            args.write
+            or args.capture_stage1_n4
+            or args.accept_stage1_n4_journal is not None
+        )
+    )
+    if writer_selected != (args.expected_transition_manifest is not None):
+        parser.error(
+            "writer actions require --expected-transition-manifest; measurement forbids it"
+        )
     root = args.repo_root.resolve()
     try:
-        if args.accept_stage1_n4_journal is not None:
+        expected_manifest = (
+            _read_json(args.expected_transition_manifest.resolve())
+            if args.expected_transition_manifest is not None
+            else None
+        )
+        if args.measure_write_transition:
+            report = write(
+                root,
+                allow_live_n4_capture=args.capture_stage1_n4,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+                persist=False,
+            )
+        elif args.accept_stage1_n4_journal is not None:
             report = write(
                 root,
                 n4_capture_journal=args.accept_stage1_n4_journal,
+                expected_transition_manifest=expected_manifest,
             )
         elif args.capture_stage1_n4:
-            report = write(root, allow_live_n4_capture=True)
+            report = write(
+                root,
+                allow_live_n4_capture=True,
+                expected_transition_manifest=expected_manifest,
+            )
         elif args.write:
-            report = write(root)
+            report = write(
+                root,
+                allow_live_n4_capture=args.capture_stage1_n4,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+                expected_transition_manifest=expected_manifest,
+            )
         elif args.rederive_audit:
             report = rederive_audit(root)
         elif args.corrupt_field_drift_check:

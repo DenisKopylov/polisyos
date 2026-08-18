@@ -11,11 +11,13 @@ the single N6/N9 sequence over those owners, not a second champion or G4 engine.
 from __future__ import annotations
 
 import ast
+import copy
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
+from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -27,6 +29,8 @@ from polisyos.pdc import (
     AuthorityBoundary,
     AuthorityDerivationTrace,
     EvidenceBasis,
+    GyComparisonAdmission,
+    GyComparisonOwnerRule,
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
@@ -39,6 +43,8 @@ from polisyos.pdc import (
     evaluate_s7_mandate_delegation_promotion_gate,
     evaluate_s8_value_posture_promotion_gate,
     gy_content_hash,
+    gy_recorded_content_hash,
+    is_gy_declared_non_authority_block,
 )
 from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
     Layer2S6BlindSpotPostureInput,
@@ -55,10 +61,13 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
     N9PromotionCertificateProjection,
+    N9PromotionLedgerRow,
+    N9PromotionSemanticLedgerProjection,
     PredictableClaimSpec,
     PromotionCertificateOffer,
     load_confidence_ledger_registry,
     project_n9_promotion_certificate,
+    project_n9_promotion_semantic_ledger,
     recompute_confidence_owner_projection_hash,
     validate_confidence_ledger_receipt,
 )
@@ -259,6 +268,7 @@ class CanonicalPromotionReceipt(_StrictModel):
     confidence_ledger_head_ref: str = Field(min_length=1, max_length=500)
     confidence_ledger_receipt_id: str = Field(pattern=r"^confidence-ledger:sha256:[0-9a-f]{64}$")
     confidence_ledger_projection: N9PromotionCertificateProjection
+    confidence_ledger_semantic_projection: N9PromotionSemanticLedgerProjection | None = None
     computed_authority_boundary: AuthorityBoundary
     authority_derivation_trace: AuthorityDerivationTrace | None = None
     gate_outcome_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -290,6 +300,62 @@ class CanonicalPromotionReceipt(_StrictModel):
             != self.confidence_ledger_receipt_id
         ):
             raise ValueError("promotion_receipt_confidence_ledger_locator_mismatch")
+        semantic = self.confidence_ledger_semantic_projection
+        if semantic is not None:
+            projection = self.confidence_ledger_projection
+            if (
+                semantic.authority_provenance != projection.authority_provenance
+                or semantic.risk_scope != projection.risk_scope
+                or semantic.scope_id != projection.scope_id
+                or semantic.registry_content_hash != projection.registry_content_hash
+                or semantic.schedule_projection_hash != projection.schedule_projection_hash
+                or semantic.total_spend != projection.total_spend
+                or semantic.total_spend_decimal != projection.total_spend_decimal
+                or semantic.budget_delta != projection.budget_delta
+                or semantic.budget_delta_decimal != projection.budget_delta_decimal
+                or semantic.within_budget is not projection.within_budget
+                or semantic.good_event_clause != projection.good_event_clause
+                or semantic.conditionality_clause != projection.conditionality_clause
+                or semantic.maintained_assumptions != projection.maintained_assumptions
+            ):
+                raise ValueError("promotion_receipt_semantic_ledger_binding_mismatch")
+            raw_rows = sorted(
+                (
+                    row.model_dump(
+                        mode="json",
+                        exclude={"check_id", "claim_execution_binding_hash"},
+                    )
+                    for row in projection.promotion_rows
+                ),
+                key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")),
+            )
+            semantic_rows = sorted(
+                (
+                    {
+                        "obligation_class": check.obligation_class,
+                        "instrument_id": check.instrument_id,
+                        "instrument_family": check.instrument_family,
+                        "certificate_ref": check.certificate_ref,
+                        "certificate_role": check.certificate_role,
+                        "claim_polarity": check.claim_polarity,
+                        "execution_status": check.execution_status,
+                        "outcome": check.outcome,
+                        "execution_ordinal": check.execution_ordinal,
+                        "execution_id": check.execution_id,
+                        "spend": check.spend.model_dump(mode="json"),
+                        "spend_decimal": check.spend_decimal,
+                        "anytime_valid": check.anytime_valid,
+                        "supports_obligation": check.supports_obligation,
+                        "eligible_for_promotion": check.eligible_for_promotion,
+                    }
+                    for check in semantic.checks
+                    if check.certificate_role == "promotion"
+                    and check.claim_polarity == "false_accept"
+                ),
+                key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")),
+            )
+            if raw_rows != semantic_rows:
+                raise ValueError("promotion_receipt_semantic_ledger_row_mismatch")
         if self.promoted and self.authority_derivation_trace is None:
             raise ValueError("promoted_receipt_requires_authority_derivation_trace")
         if self.promoted and self.status != "grounded_partial_admissible":
@@ -317,6 +383,226 @@ class CanonicalPromotionReceipt(_StrictModel):
         ):
             raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
         return self
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v1"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v2"
+)
+
+_PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
+_PROMOTION_RECEIPT_LINEAGE_FIELDS = frozenset(
+    {
+        "confidence_ledger_scope_ref",
+        "confidence_ledger_head_id",
+        "confidence_ledger_head_ref",
+        "confidence_ledger_receipt_id",
+        "gate_outcome_hash",
+        "trace_content_hash",
+    }
+)
+_PROMOTION_CERTIFICATE_LINEAGE_FIELDS = frozenset(
+    {
+        "deployment_identity",
+        "scope_id",
+        "scope_anchor_ref",
+        "ledger_root_id",
+        "ledger_root_ref",
+        "head_event_id",
+        "head_event_ref",
+        "ledger_receipt_id",
+        "ledger_receipt_ref",
+        "projection_hash",
+    }
+)
+_PROMOTION_LEDGER_ROW_LINEAGE_FIELDS = frozenset(
+    {
+        "check_id",
+        "execution_ordinal",
+        "execution_id",
+        "claim_execution_binding_hash",
+    }
+)
+_PROMOTION_RISK_SPEND_LINEAGE_FIELDS = frozenset({"n11_confidence_ledger_ref"})
+_PROMOTION_TRACE_LINEAGE_FIELDS = frozenset(
+    {
+        "applicability_result_ref",
+        "gate_outcome_hash",
+        "confidence_ledger_scope_ref",
+        "confidence_ledger_head_id",
+        "confidence_ledger_receipt_id",
+        "confidence_ledger_projection_hash",
+        "trace_content_hash",
+    }
+)
+
+
+def _project_typed_fields(
+    payload: Mapping[str, Any],
+    *,
+    model_type: type[BaseModel],
+    lineage_fields: frozenset[str],
+    context: str,
+) -> dict[str, Any]:
+    """Remove a typed lineage partition while every new field stays governing."""
+
+    model_fields = frozenset(model_type.model_fields)
+    if not lineage_fields <= model_fields:
+        raise RuntimeError(f"{context}_lineage_partition_schema_drift")
+    if frozenset(payload) != model_fields:
+        raise ValueError(f"{context}_typed_payload_shape_drift")
+    return {str(key): item for key, item in payload.items() if key not in lineage_fields}
+
+
+def _canonical_promotion_receipt_legacy_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Reproduce the v1 projection solely for an owner-bound legacy migration.
+
+    This projector is not registered for new manifests or admissions.  Its
+    only caller compares all legacy governing fields before the live producer
+    may attach the new semantic ledger lineage.
+    """
+
+    receipt = CanonicalPromotionReceipt.model_validate(value)
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    full_payload = receipt.model_dump(mode="json")
+    projected = _project_typed_fields(
+        full_payload,
+        model_type=CanonicalPromotionReceipt,
+        lineage_fields=(
+            _PROMOTION_RECEIPT_LINEAGE_FIELDS
+            | frozenset({"confidence_ledger_semantic_projection"})
+        ),
+        context="promotion_receipt",
+    )
+    projected["owner_projection"] = _project_typed_fields(
+        full_payload["owner_projection"],
+        model_type=CanonicalPromotionOwnerProjection,
+        lineage_fields=_PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS,
+        context="promotion_owner_projection",
+    )
+    full_certificate = full_payload["confidence_ledger_projection"]
+    certificate = _project_typed_fields(
+        full_certificate,
+        model_type=N9PromotionCertificateProjection,
+        lineage_fields=_PROMOTION_CERTIFICATE_LINEAGE_FIELDS,
+        context="promotion_certificate_projection",
+    )
+    certificate["promotion_rows"] = [
+        _project_typed_fields(
+            row,
+            model_type=N9PromotionLedgerRow,
+            lineage_fields=_PROMOTION_LEDGER_ROW_LINEAGE_FIELDS,
+            context="promotion_ledger_row",
+        )
+        for row in full_certificate["promotion_rows"]
+    ]
+    projected["confidence_ledger_projection"] = certificate
+
+    for obligation in projected["obligations"]:
+        risk_spend = obligation.get("risk_spend")
+        if not isinstance(risk_spend, dict):
+            continue
+        obligation["risk_spend"] = _project_typed_fields(
+            risk_spend,
+            model_type=PromotionRiskSpendRecord,
+            lineage_fields=_PROMOTION_RISK_SPEND_LINEAGE_FIELDS,
+            context="promotion_obligation_risk_spend",
+        )
+        ledger_ref = risk_spend.get("n11_confidence_ledger_ref")
+        if isinstance(ledger_ref, str):
+            obligation["evidence_refs"] = [
+                ref for ref in obligation["evidence_refs"] if ref != ledger_ref
+            ]
+
+    projected["risk_spend"]["spend_records"] = [
+        _project_typed_fields(
+            spend_record,
+            model_type=PromotionRiskSpendRecord,
+            lineage_fields=_PROMOTION_RISK_SPEND_LINEAGE_FIELDS,
+            context="promotion_risk_spend_record",
+        )
+        for spend_record in full_payload["risk_spend"]["spend_records"]
+    ]
+
+    full_trace = full_payload.get("authority_derivation_trace")
+    if isinstance(full_trace, dict):
+        trace = _project_typed_fields(
+            full_trace,
+            model_type=AuthorityDerivationTrace,
+            lineage_fields=_PROMOTION_TRACE_LINEAGE_FIELDS,
+            context="promotion_authority_trace",
+        )
+        trace["calibration_refs"] = [
+            ref
+            for ref in full_trace.get("calibration_refs", [])
+            if not str(ref).startswith("confidence-check:")
+        ]
+        projected["authority_derivation_trace"] = trace
+    return projected
+
+
+def canonical_promotion_receipt_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project a verified receipt onto its v2 producer-owned semantics.
+
+    The complete raw receipt remains the custody record. Physical ledger
+    locators are non-decisive only when the confidence-ledger producer's full
+    semantic event lineage is present and content-valid.
+    """
+
+    receipt = CanonicalPromotionReceipt.model_validate(value)
+    semantic = receipt.confidence_ledger_semantic_projection
+    if semantic is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    projected = _canonical_promotion_receipt_legacy_semantic_projection(value)
+    projected["confidence_ledger_semantic_projection"] = semantic.model_dump(mode="json")
+    return projected
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_legacy_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
+    projector=canonical_promotion_receipt_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+class _CanonicalPromotionComparisonProof:
+    """Opaque capability issued only after the live promotion owner validates."""
+
+    __slots__ = ("__weakref__",)
+
+    def __init__(self) -> None:
+        raise TypeError("canonical_promotion_comparison_proof_owner_required")
+
+
+_ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS: WeakKeyDictionary[
+    _CanonicalPromotionComparisonProof, GyComparisonAdmission
+] = WeakKeyDictionary()
+
+
+def _issue_canonical_promotion_comparison_proof(
+    admission: GyComparisonAdmission,
+) -> _CanonicalPromotionComparisonProof:
+    proof = object.__new__(_CanonicalPromotionComparisonProof)
+    _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS[proof] = admission
+    return proof
 
 
 class LegacyPromotionStrangleReceipt(_StrictModel):
@@ -639,6 +925,10 @@ def _run_n9_promotion_port_batch(
         final_ledger_receipt,
         session=confidence_ledger_session,
     )
+    final_ledger_semantic_projection = project_n9_promotion_semantic_ledger(
+        final_ledger_receipt,
+        session=confidence_ledger_session,
+    )
     receipts = [
         _rebind_promotion_receipt_to_ledger_head(
             receipt,
@@ -646,6 +936,7 @@ def _run_n9_promotion_port_batch(
             registry=confidence_ledger_session.registry,
             ledger_receipt=final_ledger_receipt,
             ledger_projection=final_ledger_projection,
+            ledger_semantic_projection=final_ledger_semantic_projection,
         )
         for receipt, promotion_input in receipts_with_inputs
     ]
@@ -1147,6 +1438,7 @@ def _build_promotion_receipt_from_owners(
     registry: ConfidenceLedgerRegistry,
     ledger_receipt: ConfidenceLedgerReceipt,
     ledger_projection: N9PromotionCertificateProjection,
+    ledger_semantic_projection: N9PromotionSemanticLedgerProjection,
     cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
     base_obligations: tuple[PromotionObligationRecord, ...] | None = None,
 ) -> CanonicalPromotionReceipt:
@@ -1215,6 +1507,7 @@ def _build_promotion_receipt_from_owners(
         confidence_ledger_head_ref=ledger_projection.head_event_ref,
         confidence_ledger_receipt_id=ledger_projection.ledger_receipt_id,
         confidence_ledger_projection=ledger_projection,
+        confidence_ledger_semantic_projection=ledger_semantic_projection,
         computed_authority_boundary=boundary,
         authority_derivation_trace=trace,
         gate_outcome_hash=gate_hash,
@@ -1333,11 +1626,16 @@ def _run_promotion_sequence_with_bound_session(
         ledger_receipt,
         session=confidence_ledger_session,
     )
+    ledger_semantic_projection = project_n9_promotion_semantic_ledger(
+        ledger_receipt,
+        session=confidence_ledger_session,
+    )
     return _build_promotion_receipt_from_owners(
         promotion_input,
         registry=confidence_ledger_session.registry,
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
+        ledger_semantic_projection=ledger_semantic_projection,
         cg2_attempt=cg2_attempt,
         base_obligations=obligations,
     )
@@ -1350,6 +1648,7 @@ def _rebind_promotion_receipt_to_ledger_head(
     registry: ConfidenceLedgerRegistry,
     ledger_receipt: ConfidenceLedgerReceipt,
     ledger_projection: N9PromotionCertificateProjection,
+    ledger_semantic_projection: N9PromotionSemanticLedgerProjection,
 ) -> CanonicalPromotionReceipt:
     """Recompute one candidate decision against the batch's final ledger head."""
 
@@ -1359,6 +1658,7 @@ def _rebind_promotion_receipt_to_ledger_head(
         registry=registry,
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
+        ledger_semantic_projection=ledger_semantic_projection,
     )
 
 
@@ -1435,6 +1735,131 @@ def _validate_canonical_promotion_receipt_for_verification(
         confidence_ledger_session=confidence_ledger_session,
         expected_authority_provenance="verification",
     )
+
+
+def admit_canonical_promotion_receipt_for_comparison(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path,
+    confidence_ledger_session: ConfidenceLedgerSession,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
+) -> GyComparisonAdmission:
+    """Return a comparison admission after full verification-owner replay.
+
+    The returned value is ephemeral.  It binds one exact live receipt to the
+    typed structural projection owned here; it is never serialized into a
+    governed artifact and cannot be reconstructed from a provenance string or a
+    self-computed projection hash.
+    """
+
+    parsed = (
+        receipt
+        if isinstance(receipt, CanonicalPromotionReceipt)
+        else CanonicalPromotionReceipt.model_validate(receipt)
+    )
+    issues = _validate_canonical_promotion_receipt_for_verification(
+        parsed,
+        repo_root=repo_root,
+        confidence_ledger_session=confidence_ledger_session,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+    )
+    if issues:
+        raise ValueError(
+            "promotion_comparison_admission_failed:"
+            + json.dumps(issues, sort_keys=True, default=str)
+        )
+    payload = parsed.model_dump(mode="json")
+    # Exercise the projection while the validating session is still live.
+    canonical_promotion_receipt_semantic_projection(payload)
+
+    def migrate_legacy(
+        previous: Mapping[str, object],
+        current: Mapping[str, object],
+    ) -> Mapping[str, object]:
+        """Attach only this live proof's semantic lineage to legacy custody."""
+
+        try:
+            current_receipt = CanonicalPromotionReceipt.model_validate(current)
+            if current_receipt != parsed:
+                raise ValueError("live_receipt_drift")
+            previous_receipt = CanonicalPromotionReceipt.model_validate(previous)
+            if previous_receipt.confidence_ledger_semantic_projection is not None:
+                return previous
+            if (
+                _canonical_promotion_receipt_legacy_semantic_projection(previous)
+                != _canonical_promotion_receipt_legacy_semantic_projection(current)
+            ):
+                raise ValueError("legacy_governing_projection_drift")
+            semantic = parsed.confidence_ledger_semantic_projection
+            if semantic is None:  # pragma: no cover - v2 projector above owns this guard.
+                raise ValueError("semantic_projection_missing")
+            migrated = {str(key): copy.deepcopy(item) for key, item in previous.items()}
+            migrated["confidence_ledger_semantic_projection"] = semantic.model_dump(mode="json")
+            migrated_receipt = CanonicalPromotionReceipt.model_validate(migrated)
+            migrated_payload = migrated_receipt.model_dump(mode="json")
+            if (
+                canonical_promotion_receipt_semantic_projection(migrated_payload)
+                != canonical_promotion_receipt_semantic_projection(current)
+            ):
+                raise ValueError("migrated_semantic_projection_drift")
+            return migrated_payload
+        except (TypeError, ValueError) as exc:
+            raise ValueError("promotion_legacy_comparison_semantic_mismatch") from exc
+
+    return GyComparisonAdmission(
+        owner_rule=CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+        source_content_hash=gy_recorded_content_hash(payload),
+        projector=canonical_promotion_receipt_semantic_projection,
+        action=CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.action,
+        predicate_provenance=(
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.predicate_provenance
+        ),
+        legacy_migrator=migrate_legacy,
+    )
+
+
+def prove_canonical_promotion_receipt_for_comparison(
+    receipt: CanonicalPromotionReceipt | Mapping[str, Any],
+    *,
+    repo_root: Path,
+    confidence_ledger_session: ConfidenceLedgerSession,
+    candidate_summary: CandidateSummary | None = None,
+    design_problem: DesignProblem | None = None,
+    value_receipt: ValueGateReceipt | None = None,
+) -> object:
+    """Issue an opaque proof after the canonical live comparison admission.
+
+    The proof is process-local and cannot be reconstructed from public
+    ``GyComparisonAdmission`` fields. Consumers must return it to this module
+    for unwrapping, preserving the live session/candidate validation boundary.
+    """
+
+    admission = admit_canonical_promotion_receipt_for_comparison(
+        receipt,
+        repo_root=repo_root,
+        confidence_ledger_session=confidence_ledger_session,
+        candidate_summary=candidate_summary,
+        design_problem=design_problem,
+        value_receipt=value_receipt,
+    )
+    return _issue_canonical_promotion_comparison_proof(admission)
+
+
+def canonical_promotion_comparison_admission_from_proof(
+    proof: object,
+) -> GyComparisonAdmission:
+    """Resolve one owner-issued proof to its exact comparison admission."""
+
+    if type(proof) is not _CanonicalPromotionComparisonProof:
+        raise ValueError("canonical_promotion_comparison_proof_invalid")
+    admission = _ISSUED_CANONICAL_PROMOTION_COMPARISON_PROOFS.get(proof)
+    if admission is None:
+        raise ValueError("canonical_promotion_comparison_proof_invalid")
+    return admission
 
 
 def _require_canonical_verification_registry(
@@ -1515,6 +1940,7 @@ def _validate_promotion_receipt_with_bound_session(
         issues.append({"code": "promotion_value_owner_binding_invalid"})
     session = confidence_ledger_session
     validated_ledger: ConfidenceLedgerReceipt | None = None
+    expected_semantic_projection: N9PromotionSemanticLedgerProjection | None = None
     try:
         if session is None:
             session = _open_projected_confidence_ledger_session(
@@ -1528,6 +1954,10 @@ def _validate_promotion_receipt_with_bound_session(
             session=session,
         )
         expected_projection = project_n9_promotion_certificate(
+            validated_ledger,
+            session=session,
+        )
+        expected_semantic_projection = project_n9_promotion_semantic_ledger(
             validated_ledger,
             session=session,
         )
@@ -1545,6 +1975,11 @@ def _validate_promotion_receipt_with_bound_session(
         and receipt.confidence_ledger_projection != expected_projection
     ):
         issues.append({"code": "confidence_ledger_projection_drift"})
+    if (
+        expected_semantic_projection is not None
+        and receipt.confidence_ledger_semantic_projection != expected_semantic_projection
+    ):
+        issues.append({"code": "confidence_ledger_semantic_projection_drift"})
     if (
         receipt.risk_spend.total_declared_delta
         != float(receipt.confidence_ledger_projection.total_spend.fraction)
@@ -1799,13 +2234,19 @@ def _validate_promotion_receipt_with_bound_session(
         ):
             issues.append({"code": "authority_trace_confidence_ledger_mismatch"})
     expected_receipt: CanonicalPromotionReceipt | None = None
-    if validated_ledger is not None and expected_projection is not None and session is not None:
+    if (
+        validated_ledger is not None
+        and expected_projection is not None
+        and expected_semantic_projection is not None
+        and session is not None
+    ):
         try:
             expected_receipt = _build_promotion_receipt_from_owners(
                 replay_input,
                 registry=session.registry,
                 ledger_receipt=validated_ledger,
                 ledger_projection=expected_projection,
+                ledger_semantic_projection=expected_semantic_projection,
                 cg2_attempt=replay_cg2_attempt,
                 base_obligations=replay_base_obligations,
             )
@@ -2641,7 +3082,9 @@ __all__ = [
     "LegacyPromotionStrangleReceipt",
     "N9DesignProblemBinding",
     "PromotionCertificateOffer",
+    "canonical_promotion_comparison_admission_from_proof",
     "confidence_risk_scope_for_problem",
+    "prove_canonical_promotion_receipt_for_comparison",
     "recompute_authority_trace_hash",
     "run_canonical_promotion_sequence",
     "validate_canonical_promotion_receipt",

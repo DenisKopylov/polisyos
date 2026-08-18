@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib
 import inspect
 import json
@@ -26,6 +27,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerError,
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
+    N9PromotionCertificateProjection,
     OwnerCertificateEvidence,
     OwnerCertificateVerification,
     PredictableClaimSpec,
@@ -3110,6 +3112,26 @@ def test_n9_projection_excludes_conformance_and_non_promotion_rows(
     n9 = project_n9_promotion_certificate(session.receipt(), session=session)
 
     assert n9.promotion_rows == ()
+
+
+def test_n9_projection_model_rejects_stale_self_hash_and_unknown_fields(
+    sessions: _SessionFactory,
+) -> None:
+    session = sessions()
+    projection = project_n9_promotion_certificate(session.receipt(), session=session)
+    payload = projection.model_dump(mode="json")
+
+    assert N9PromotionCertificateProjection.model_validate(payload) == projection
+
+    tampered = copy.deepcopy(payload)
+    tampered["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
+    with pytest.raises(ValueError, match="projection_hash"):
+        N9PromotionCertificateProjection.model_validate(tampered)
+
+    unrecognized = copy.deepcopy(payload)
+    unrecognized["projection_scope"] = "untrusted_verification_extension"
+    with pytest.raises(ValueError, match="literal_error"):
+        N9PromotionCertificateProjection.model_validate(unrecognized)
 
 
 def test_n12_projection_carries_explicit_epoch_placeholders(

@@ -33,10 +33,13 @@ assert_universality_preflight(REPO_ROOT)
 
 from polisyos.pdc import (
     ArtifactRef,
+    GyComparisonAdmission,
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
+    build_gy_comparison_projection_plan,
     gy_content_hash,
+    gy_recorded_content_hash,
 )  # noqa: E402
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     build_coupling_graph,
@@ -1316,6 +1319,487 @@ def _complete_universality_payload() -> tuple[Any, dict[str, Any]]:
     return validator, payload
 
 
+def _recording_receipts(recording: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return the complete ordered receipt denominator from one recording fixture."""
+
+    return [
+        receipt
+        for node in recording["compiled_run"]["recursive_run"]["nodes"]
+        for receipt in node["cycle_run"]["promotion_port"]["receipts"]
+    ]
+
+
+def _fixture_receipt_semantic_projection(receipt: dict[str, Any]) -> dict[str, Any]:
+    """Project either side of the governed v1-to-v2 fixture transition.
+
+    The production owner never admits v1 without a live migrator. These
+    structural recording tests deliberately isolate the root walker from that
+    separately exercised promotion-owner seam while the frozen artifact is v1.
+    """
+
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    if receipt.get("confidence_ledger_semantic_projection") is None:
+        return promotion._canonical_promotion_receipt_legacy_semantic_projection(
+            receipt
+        )
+    return promotion.canonical_promotion_receipt_semantic_projection(receipt)
+
+
+def _manual_receipt_comparison_admissions(
+    recording: dict[str, Any],
+) -> tuple[GyComparisonAdmission, ...]:
+    """Mint test tokens with the exact canonical owner vocabulary."""
+
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+    return tuple(
+        GyComparisonAdmission(
+            owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+            source_content_hash=gy_recorded_content_hash(receipt),
+            projector=_fixture_receipt_semantic_projection,
+            action=owner.action,
+            predicate_provenance=owner.predicate_provenance,
+        )
+        for receipt in _recording_receipts(recording)
+    )
+
+
+def _allow_manual_receipt_proofs_for_projection_test(
+    monkeypatch: pytest.MonkeyPatch,
+    validator: Any,
+) -> None:
+    """Isolate structural projection tests from the separately tested owner capability."""
+
+    def _unwrap(value: object) -> GyComparisonAdmission:
+        if not isinstance(value, GyComparisonAdmission):
+            raise ValueError("test_receipt_proof_invalid")
+        return value
+
+    monkeypatch.setattr(
+        validator,
+        "canonical_promotion_comparison_admission_from_proof",
+        _unwrap,
+    )
+    monkeypatch.setattr(
+        validator,
+        "canonical_promotion_receipt_semantic_projection",
+        _fixture_receipt_semantic_projection,
+    )
+
+
+def _refresh_recording_hashes(recording: dict[str, Any]) -> None:
+    """Refresh the four typed enclosing identities after a receipt-fixture change."""
+
+    recursive_run = recording["compiled_run"]["recursive_run"]
+    recursive_run["content_hash"] = gy_content_hash(
+        {
+            key: value
+            for key, value in recursive_run.items()
+            if key != "content_hash"
+        }
+    )
+    compiled_run = recording["compiled_run"]
+    compiled_run["content_hash"] = gy_content_hash(
+        {
+            key: value
+            for key, value in compiled_run.items()
+            if key != "content_hash"
+        }
+    )
+    recording["compiled_run_content_hash"] = compiled_run["content_hash"]
+    recording["recording_content_hash"] = gy_content_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
+
+
+def _change_all_operational_clocks(value: object) -> None:
+    """Perturb each clock without changing the fixture's structural shape."""
+
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key.endswith("_at") and isinstance(item, str):
+                value[key] = "2026-08-12T12:00:00Z"
+            elif key.endswith("_wall_time_ms") and isinstance(item, (int, float)):
+                value[key] = 999.0
+            else:
+                _change_all_operational_clocks(item)
+    elif isinstance(value, list):
+        for item in value:
+            _change_all_operational_clocks(item)
+
+
+def _verification_lineage_variant(recording: dict[str, Any]) -> dict[str, Any]:
+    """Return a strictly valid recording with only session lineage and clocks changed."""
+
+    changed = copy.deepcopy(recording)
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    for index, receipt in enumerate(_recording_receipts(changed), start=1):
+        expected_projection = _fixture_receipt_semantic_projection(receipt)
+        certificate = receipt["confidence_ledger_projection"]
+        certificate["deployment_identity"] = (
+            "policy-engine-deployment:sha256:" + str(index) * 64
+        )
+        certificate["projection_hash"] = gy_content_hash(
+            {
+                key: value
+                for key, value in certificate.items()
+                if key != "projection_hash"
+            }
+        )
+        receipt["gate_outcome_hash"] = "sha256:" + str(index + 1) * 64
+        if receipt["trace_content_hash"] is not None:
+            receipt["trace_content_hash"] = "sha256:" + str(index + 2) * 64
+        assert (
+            _fixture_receipt_semantic_projection(receipt)
+            == expected_projection
+        )
+    _change_all_operational_clocks(changed)
+    _refresh_recording_hashes(changed)
+    return changed
+
+
+def test_controlled_recording_comparison_preserves_full_frozen_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Session lineage and clocks compare equal while complete custody bytes survive."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    frozen_full = copy.deepcopy(payload["proof_recordings"]["first_vertical"])
+    frozen = validator._without_authority_source_migration_receipt(frozen_full)
+    live = _verification_lineage_variant(frozen)
+    live_receipt_proofs = _manual_receipt_comparison_admissions(live)
+
+    live_admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=live_receipt_proofs,
+    )
+    live_plan = build_gy_comparison_projection_plan(
+        live,
+        admissions=(live_admission,),
+    )
+    reconciled = validator._reconcile_controlled_recording(
+        frozen,
+        live,
+        comparison_plan=live_plan,
+        role="first_vertical",
+        admission_arm="migrated",
+    )
+    frozen_admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=live_receipt_proofs,
+        aligned_recording=frozen,
+    )
+    frozen_plan = build_gy_comparison_projection_plan(
+        frozen,
+        admissions=(frozen_admission,),
+    )
+    full_admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=live_receipt_proofs,
+        aligned_recording=frozen_full,
+    )
+    full_plan = build_gy_comparison_projection_plan(
+        frozen_full,
+        admissions=(full_admission,),
+    )
+
+    assert live_plan.project(live) == frozen_plan.project(frozen)
+    assert reconciled == frozen
+    assert json.dumps(reconciled, sort_keys=True) == json.dumps(
+        frozen,
+        sort_keys=True,
+    )
+    assert full_plan.preserve_admitted_blocks(frozen_full, frozen_full) == frozen_full
+    assert full_plan.project(frozen_full)["authority_source_admission"]
+    assert _recording_receipts(reconciled)
+    assert all(
+        receipt["confidence_ledger_projection"]["authority_provenance"]
+        == "verification"
+        for receipt in _recording_receipts(reconciled)
+    )
+
+
+def test_aligned_recording_migration_uses_proof_bound_receipt_source(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Artifact reconciliation reuses the live receipts proven before alignment."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    frozen = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+    live = _verification_lineage_variant(frozen)
+    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
+    owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+    strict_proofs: list[GyComparisonAdmission] = []
+    for receipt in _recording_receipts(live):
+        proof_bound = copy.deepcopy(receipt)
+
+        def _migrate(
+            previous: dict[str, object],
+            current: dict[str, object],
+            *,
+            expected: dict[str, object] = proof_bound,
+        ) -> dict[str, object]:
+            if current != expected:
+                raise ValueError("live_receipt_drift")
+            return copy.deepcopy(previous)
+
+        strict_proofs.append(
+            GyComparisonAdmission(
+                owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+                source_content_hash=gy_recorded_content_hash(receipt),
+                projector=_fixture_receipt_semantic_projection,
+                action=owner.action,
+                predicate_provenance=owner.predicate_provenance,
+                legacy_migrator=_migrate,
+            )
+        )
+
+    recording_admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=tuple(strict_proofs),
+        aligned_recording=frozen,
+    )
+    plan = build_gy_comparison_projection_plan(
+        frozen,
+        admissions=(recording_admission,),
+    )
+
+    assert plan.preserve_admitted_blocks(frozen, frozen) == frozen
+    forged_current = copy.deepcopy(frozen)
+    _change_all_operational_clocks(forged_current)
+    _refresh_recording_hashes(forged_current)
+    with pytest.raises(
+        ValueError,
+        match="controlled_recording_legacy_comparison_semantic_mismatch",
+    ) as exc_info:
+        plan.preserve_admitted_blocks(frozen, forged_current)
+    assert exc_info.value.__cause__ is not None
+    assert str(exc_info.value.__cause__) == "controlled_recording_aligned_current_drift"
+
+
+def test_artifact_reconciliation_reissues_recording_authority_envelopes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A root migration must rebind its authority envelope and sibling route."""
+
+    validator, frozen = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    role = "first_vertical"
+    live = copy.deepcopy(frozen)
+    live_recording = _verification_lineage_variant(
+        live["proof_recordings"][role]
+    )
+    live["proof_recordings"][role] = live_recording
+    owner = validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
+    recording_admission = GyComparisonAdmission(
+        owner_rule=validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE,
+        source_content_hash=gy_recorded_content_hash(live_recording),
+        projector=validator._controlled_recording_verification_semantic_projection,
+        action=owner.action,
+        predicate_provenance=owner.predicate_provenance,
+        legacy_migrator=lambda _previous, current: copy.deepcopy(dict(current)),
+    )
+    plan = build_gy_comparison_projection_plan(
+        live,
+        admissions=(recording_admission,),
+    )
+
+    stale_issues = validator._authority_source_admission_issues(
+        live_recording,
+        replayed_domain_run=live["domain_runs"][role],
+        expected_role=role,
+    )
+    assert "authority_source_recording_base_binding_mismatch" in stale_issues
+    assert "authority_source_admission_compiled_binding_mismatch" in stale_issues
+
+    reconciled = validator._reconcile_artifact_records(frozen, live, plan)
+    reconciled_recording = reconciled["proof_recordings"][role]
+    reconciled_route = reconciled["domain_runs"][role]
+
+    assert reconciled_recording["recording_content_hash"] == (
+        reconciled_route["recording_content_hash"]
+    )
+    assert not validator._authority_source_admission_issues(
+        reconciled_recording,
+        replayed_domain_run=reconciled_route,
+        expected_role=role,
+    )
+    assert not validator.validate_payload(reconciled)["issues"]
+
+
+def test_controlled_recording_comparison_keeps_governing_input_red(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An admitted verification projection cannot hide a governing input change."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    frozen = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+    live = copy.deepcopy(frozen)
+    live["compiler_recording"]["raw_request"] += " governing change"
+    _refresh_recording_hashes(live)
+    admission = validator._admit_controlled_recording_for_comparison(
+        live,
+        role="first_vertical",
+        receipt_proofs=_manual_receipt_comparison_admissions(live),
+    )
+    plan = build_gy_comparison_projection_plan(live, admissions=(admission,))
+
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="authority_source_controlled_replay_recording_drift",
+    ):
+        validator._reconcile_controlled_recording(
+            frozen,
+            live,
+            comparison_plan=plan,
+            role="first_vertical",
+            admission_arm="migrated",
+        )
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        pytest.param(None, id="absent"),
+        pytest.param([], id="malformed"),
+        pytest.param(["verification", "canonical_repo"], id="mixed"),
+        pytest.param("unknown", id="unrecognized"),
+    ],
+)
+def test_controlled_recording_comparison_declaration_fails_closed(
+    declaration: object,
+) -> None:
+    """Absent, malformed, mixed, or unrecognized provenance cannot mint admission."""
+
+    validator, payload = _complete_universality_payload()
+    recording = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+    receipt = _recording_receipts(recording)[0]
+    certificate = receipt["confidence_ledger_projection"]
+    if declaration is None:
+        certificate.pop("authority_provenance")
+    else:
+        certificate["authority_provenance"] = declaration
+    certificate["projection_hash"] = gy_content_hash(
+        {
+            key: value
+            for key, value in certificate.items()
+            if key != "projection_hash"
+        }
+    )
+    _refresh_recording_hashes(recording)
+
+    with pytest.raises((ValidationError, ValueError)):
+        validator._admit_controlled_recording_for_comparison(
+            recording,
+            role="first_vertical",
+            receipt_proofs=_manual_receipt_comparison_admissions(recording),
+        )
+
+
+def test_controlled_recording_rejects_self_rehashed_detached_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A coherent self-rehash cannot reuse an admission bound to different raw bytes."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    frozen = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+    frozen_admissions = _manual_receipt_comparison_admissions(frozen)
+    forged = _verification_lineage_variant(frozen)
+
+    with pytest.raises(ValueError, match="gy_comparison_live_admission_unbound"):
+        validator._admit_controlled_recording_for_comparison(
+            forged,
+            role="first_vertical",
+            receipt_proofs=frozen_admissions,
+        )
+
+
+def test_controlled_recording_rejects_manually_minted_receipt_admission() -> None:
+    """Canonical-looking public admission metadata is not live owner proof."""
+
+    validator, payload = _complete_universality_payload()
+    recording = validator._without_authority_source_migration_receipt(
+        payload["proof_recordings"]["first_vertical"]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="canonical_promotion_comparison_proof_invalid",
+    ):
+        validator._admit_controlled_recording_for_comparison(
+            recording,
+            role="first_vertical",
+            receipt_proofs=_manual_receipt_comparison_admissions(recording),
+        )
+
+
+def test_depth_receipt_proofs_delegate_to_live_canonical_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The Depth bridge cannot replace the canonical receipt proof factory."""
+
+    validator, payload = _complete_universality_payload()
+    control = import_module(
+        "polisyos.runtime.http.services.control.generation_cycle"
+    )
+    compiled = control.CompiledRecursiveGenerationCycleRun.model_validate(
+        payload["proof_recordings"]["first_vertical"]["compiled_run"]
+    )
+    sessions = {node.node_ref: object() for node in compiled.recursive_run.nodes}
+    calls: list[tuple[object, object, object]] = []
+
+    def _prove(
+        receipt: object,
+        *,
+        repo_root: Path,
+        confidence_ledger_session: object,
+        candidate_summary: object,
+        value_receipt: object,
+    ) -> object:
+        assert repo_root == REPO_ROOT
+        assert candidate_summary.candidate_id == receipt.candidate_id
+        assert value_receipt == candidate_summary.value_receipt
+        proof = object()
+        calls.append((proof, confidence_ledger_session, candidate_summary))
+        return proof
+
+    monkeypatch.setattr(
+        validator,
+        "prove_canonical_promotion_receipt_for_comparison",
+        _prove,
+    )
+
+    proofs = validator._depth_compiled_receipt_comparison_proofs(
+        compiled,
+        sessions_by_node_ref=sessions,
+        repo_root=REPO_ROOT,
+    )
+
+    assert proofs == tuple(call[0] for call in calls)
+    assert len(proofs) == 3
+    assert {call[1] for call in calls} == set(sessions.values())
+
+
 _PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
         "Design a policy to improve average household income and MSME survival in "
@@ -2468,6 +2952,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     context_hash = "sha256:" + "1" * 64
     live_hash = "sha256:" + "3" * 64
     calls: dict[str, Any] = {}
+    legacy_migration_calls = 0
 
     class _Problem:
         def model_dump(self, *, mode: str) -> dict[str, str]:
@@ -2638,6 +3123,49 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     monkeypatch.setattr(validator, "_n4_owner_projection", lambda value: {})
     monkeypatch.setattr(validator, "_assert_n4_cycle_binding", lambda *args: None)
     monkeypatch.setattr(validator, "_project_domain_run", _project)
+    pdc_module = import_module("polisyos.pdc")
+
+    def _fixture_recording_projector(value: dict[str, object]) -> object:
+        return pdc_module.strip_gy_volatile_fields(value)
+
+    def _fixture_recording_admission(
+        source_recording: dict[str, Any],
+        *,
+        role: str,
+        receipt_proofs: tuple[object, ...],
+        aligned_recording: dict[str, Any] | None = None,
+    ) -> GyComparisonAdmission:
+        del role, receipt_proofs
+        target = aligned_recording or source_recording
+
+        def _migrate_once(
+            previous: dict[str, object],
+            current: dict[str, object],
+        ) -> dict[str, object]:
+            del current
+            nonlocal legacy_migration_calls
+            legacy_migration_calls += 1
+            if legacy_migration_calls > 1:
+                raise ValueError("depth_recording_legacy_migrator_called_twice")
+            return copy.deepcopy(previous)
+
+        return GyComparisonAdmission(
+            owner_rule="test.depth.recording_projection.v1",
+            source_content_hash=gy_recorded_content_hash(target),
+            projector=_fixture_recording_projector,
+            legacy_migrator=_migrate_once,
+        )
+
+    monkeypatch.setattr(
+        validator,
+        "_depth_compiled_receipt_comparison_proofs",
+        lambda *args, **kwargs: (),
+    )
+    monkeypatch.setattr(
+        validator,
+        "_admit_controlled_recording_for_comparison",
+        _fixture_recording_admission,
+    )
 
     recording: dict[str, Any] = {
         "schema_version": "policyos.layer3.gy.n10.domain_run_recording.v1",
@@ -2681,7 +3209,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         },
     }
     historical_run["content_hash"] = validator._semantic_hash(historical_run)
-    domain_run, normalized = await validator._domain_run_and_normalized_recording(
+    domain_run, normalized, _ = await validator._domain_run_and_normalized_recording(
         tmp_path,
         role="education",
         recording=recording,
@@ -2713,7 +3241,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         "canonical_planner_report"
     ]["generated_at"] = "2026-08-09T10:49:01Z"
 
-    replayed_domain_run, replayed_recording = (
+    replayed_domain_run, replayed_recording, _ = (
         await validator._domain_run_and_normalized_recording(
             tmp_path,
             role="education",
@@ -2724,8 +3252,10 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
 
     assert replayed_recording == normalized
     assert replayed_domain_run == domain_run
+    assert legacy_migration_calls == 1
 
     live_payload["recursive_run"]["nodes"][0]["node_ref"] = "design://changed-secret"
+    legacy_migration_calls = 0
     with pytest.raises(validator.UniversalityContractError) as exc_info:
         await validator._domain_run_and_normalized_recording(
             tmp_path,
@@ -4099,7 +4629,11 @@ async def test_complete_payload_persists_normalized_recordings(
         role: str,
         recording: dict[str, Any],
         historical_domain_run: dict[str, Any] | None = None,
-    ) -> tuple[dict[str, Any], dict[str, Any]]:
+    ) -> tuple[
+        dict[str, Any],
+        dict[str, Any],
+        tuple[GyComparisonAdmission, ...],
+    ]:
         assert repo_root == tmp_path
         assert recording is not source[role]
         assert historical_domain_run == historical[role]
@@ -4115,7 +4649,12 @@ async def test_complete_payload_persists_normalized_recordings(
             "role": role,
             "recording_content_hash": f"normalized-{role}",
         }
-        return run, normalized
+        admission = GyComparisonAdmission(
+            owner_rule="test.normalized.recording.v1",
+            source_content_hash=gy_recorded_content_hash(normalized),
+            projector=lambda value: dict(value),
+        )
+        return run, normalized, (admission,)
 
     monkeypatch.setattr(
         validator,
@@ -4127,8 +4666,18 @@ async def test_complete_payload_persists_normalized_recordings(
         "_domain_run_and_normalized_recording",
         _rederive,
     )
+    monkeypatch.setattr(
+        validator,
+        "_controlled_recording_receipt_blocks",
+        lambda *args, **kwargs: (("/fixture", {}),),
+    )
+    monkeypatch.setattr(
+        validator,
+        "_depth_summary_comparison_admissions",
+        lambda *args, **kwargs: (),
+    )
 
-    payload = await validator._complete_payload_from_recordings(
+    payload, _ = await validator._complete_payload_from_recordings(
         tmp_path,
         recordings=source,
         historical_domain_runs=historical,
@@ -4841,6 +5390,15 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
         "fabricated_terminal",
     ]
     assert {case["status"] for case in report["cases"]} == {"red"}
+    promotion_scope = next(
+        case
+        for case in report["cases"]
+        if case["mutation_id"] == "promotion_authority_scope"
+    )
+    assert promotion_scope["detection_phase"] == "identity_recomputation"
+    assert promotion_scope["observed_issue_codes"] == [
+        "depth_verification_summary_shape_invalid"
+    ]
 
 
 def test_corrupt_drift_refuses_missing_or_invalid_baseline(tmp_path: Path) -> None:
@@ -4887,8 +5445,8 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     prior = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4898,18 +5456,18 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
         },
         "runtime_metrics": {"lane": "cached", "elapsed_seconds": 2.0},
     }
+    validator._set_artifact_identities(prior, comparison_plan)
     current = copy.deepcopy(prior)
-    current["domain_runs"]["first_vertical"]["generated_at"] = (
-        "2026-07-15T01:00:00Z"
-    )
+    current["domain_runs"]["first_vertical"]["generated_at"] = "2026-07-15T01:00:00Z"
     current["domain_runs"]["first_vertical"]["wall_time_ms"] = 99.0
     current["runtime_metrics"]["elapsed_seconds"] = 100.0
+    validator._set_artifact_identities(current, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(current),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(current), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -4930,8 +5488,8 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     prior = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4939,8 +5497,8 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
             }
         },
     }
+    validator._set_artifact_identities(prior, comparison_plan)
     current = {
-        "contract_content_hash": "sha256:" + "2" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-16T00:00:00Z",
@@ -4948,12 +5506,13 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
             }
         },
     }
+    validator._set_artifact_identities(current, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(current),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(current), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -4964,9 +5523,7 @@ def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
     data = validator.write_payload(tmp_path, output)
     written = json.loads(data)
 
-    assert written["domain_runs"]["first_vertical"] == current["domain_runs"][
-        "first_vertical"
-    ]
+    assert written["domain_runs"]["first_vertical"] == current["domain_runs"]["first_vertical"]
 
 
 def test_rederive_audit_compares_semantics_without_clock_drift(
@@ -4977,8 +5534,8 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
+    comparison_plan = validator.GyComparisonProjectionPlan(entries=())
     committed = {
-        "contract_content_hash": "sha256:" + "1" * 64,
         "domain_runs": {
             "first_vertical": {
                 "generated_at": "2026-07-15T00:00:00Z",
@@ -4986,10 +5543,10 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
             }
         },
     }
+    validator._set_artifact_identities(committed, comparison_plan)
     live = copy.deepcopy(committed)
-    live["domain_runs"]["first_vertical"]["generated_at"] = (
-        "2026-07-15T01:00:00Z"
-    )
+    live["domain_runs"]["first_vertical"]["generated_at"] = "2026-07-15T01:00:00Z"
+    validator._set_artifact_identities(live, comparison_plan)
     output.parent.mkdir(parents=True)
     output.write_text(json.dumps(committed), encoding="utf-8")
     monkeypatch.setattr(
@@ -4999,8 +5556,8 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
     )
     monkeypatch.setattr(
         validator,
-        "build_live_payload",
-        lambda *args, **kwargs: copy.deepcopy(live),
+        "_build_live_payload_with_plan",
+        lambda *args, **kwargs: (copy.deepcopy(live), comparison_plan),
     )
     monkeypatch.setattr(
         validator,
@@ -5012,6 +5569,206 @@ def test_rederive_audit_compares_semantics_without_clock_drift(
         "status": "pass",
         "issues": [],
     }
+
+
+def test_depth_n_verification_summary_shape_fails_closed() -> None:
+    validator = _universality_contract_validator()
+    summary = validator._with_depth_promotion_summary_identity(
+        {
+            "node_ref": "node://verification",
+            "status": "not_promoted",
+            "reason": "verification_n9_sequence_non_consumer",
+            "receipt_count": 1,
+            "authority_provenance": ["verification"],
+            "all_receipts_non_consumer": True,
+            "certified_candidate_ids": [],
+        },
+        projection_scope="depth_n_compiled_verification_promotion_summary",
+    )
+    assert validator._depth_verification_summary_shape_valid(summary)
+
+    mixed = copy.deepcopy(summary)
+    mixed["authority_provenance"] = ["verification", "canonical_repo"]
+    assert not validator._depth_verification_summary_shape_valid(mixed)
+
+    unrecognized = copy.deepcopy(summary)
+    unrecognized["authority_provenance"] = ["untrusted_verification_extension"]
+    assert not validator._depth_verification_summary_shape_valid(unrecognized)
+
+    absent = copy.deepcopy(summary)
+    absent.pop("authority_provenance")
+    assert not validator._depth_verification_summary_shape_valid(absent)
+
+
+def test_depth_n_summary_admission_requires_parent_projection_and_receipt_denominator() -> None:
+    """A summary cannot self-attest past its validated full-receipt parents."""
+
+    validator = _universality_contract_validator()
+    payload: dict[str, object] = {"domain_runs": {}, "proof_recordings": {}}
+    counts: dict[str, int] = {}
+    for index, role in enumerate(validator.PLAIN_LANGUAGE_PROOF_REQUESTS):
+        node_ref = f"node://{role}/{index}"
+        compiled_run = {
+            "recursive_run": {
+                "authority_scope": "contract_testing",
+                "nodes": [
+                    {
+                        "node_ref": node_ref,
+                        "cycle_run": {
+                            "promotion_port": {
+                                "status": "not_promoted",
+                                "reason": "verification_n9_sequence_non_consumer",
+                                "receipts": [
+                                    {
+                                        "consumer_promotable": False,
+                                        "confidence_ledger_projection": {
+                                            "authority_provenance": "verification"
+                                        },
+                                    }
+                                ],
+                                "certified_candidate_ids": [],
+                            }
+                        },
+                    }
+                ],
+            }
+        }
+        compiled_projection = validator._compiled_authority_source_projection(compiled_run)
+        stage_summary = {
+            "all_receipts_non_consumer": True,
+            "attempted": True,
+            "authority_provenance": ["verification"],
+            "authority_scope": "contract_testing",
+            "certified_candidate_ids": [],
+            "owner": "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+            "reason": "verification_n9_sequence_non_consumer",
+            "receipt_count": 1,
+            "status": "not_promoted",
+        }
+        payload["proof_recordings"][role] = {
+            "compiled_run": compiled_run,
+            "authority_source_admission": {
+                "authority_projection": copy.deepcopy(compiled_projection)
+            },
+            "authority_source_migration_receipt": {
+                "replayed_authority_projection": copy.deepcopy(compiled_projection)
+            },
+        }
+        payload["domain_runs"][role] = {"stage_trace": {"promotion": stage_summary}}
+        counts[role] = 1
+
+    admissions = validator._depth_summary_comparison_admissions(
+        payload,
+        receipt_counts_by_role=counts,
+    )
+    assert len(admissions) == len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert all(admission.action == "exclude" for admission in admissions)
+    assert all(
+        admission.predicate_provenance == "independently_reconciled"
+        for admission in admissions
+    )
+
+    first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
+    parent_shift = copy.deepcopy(payload)
+    parent_shift["proof_recordings"][first_role]["authority_source_admission"][
+        "authority_projection"
+    ]["promotions"][0]["receipt_count"] = 2
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="depth_summary_parent_receipt_binding_invalid",
+    ):
+        validator._depth_summary_comparison_admissions(
+            parent_shift,
+            receipt_counts_by_role=counts,
+        )
+
+    wrong_counts = {**counts, first_role: 2}
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="depth_summary_receipt_denominator_mismatch",
+    ):
+        validator._depth_summary_comparison_admissions(
+            payload,
+            receipt_counts_by_role=wrong_counts,
+        )
+
+
+def test_depth_outer_plan_composes_recording_roots_with_stage_summaries_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Root admission owns embedded summaries; only stage summaries remain siblings."""
+
+    validator, payload = _complete_universality_payload()
+    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
+    recording_admissions = []
+    receipt_counts: dict[str, int] = {}
+    for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS:
+        recording = payload["proof_recordings"][role]
+        receipt_counts[role] = len(_recording_receipts(recording))
+        recording_admissions.append(
+            validator._admit_controlled_recording_for_comparison(
+                recording,
+                role=role,
+                receipt_proofs=_manual_receipt_comparison_admissions(recording),
+            )
+        )
+    summary_admissions = validator._depth_summary_comparison_admissions(
+        payload,
+        receipt_counts_by_role=receipt_counts,
+    )
+
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=tuple(recording_admissions) + summary_admissions,
+    )
+    projected = plan.project(payload)
+
+    assert len(plan.manifest) == 2 * len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert all(
+        "promotions"
+        not in projected["proof_recordings"][role]["authority_source_admission"][
+            "authority_projection"
+        ]
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        "promotions"
+        not in projected["proof_recordings"][role][
+            "authority_source_migration_receipt"
+        ]["replayed_authority_projection"]
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        not validator._CONTROLLED_RECORDING_ADMISSION_COMPARISON_IDENTITIES
+        & set(projected["proof_recordings"][role]["authority_source_admission"])
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert all(
+        not validator._CONTROLLED_RECORDING_MIGRATION_COMPARISON_IDENTITIES
+        & set(
+            projected["proof_recordings"][role][
+                "authority_source_migration_receipt"
+            ]
+        )
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    )
+    assert plan.preserve_admitted_blocks(payload, payload) == payload
+
+    first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
+    tampered = copy.deepcopy(payload["proof_recordings"][first_role])
+    tampered["authority_source_admission"]["authority_projection"]["promotions"][
+        0
+    ]["receipt_count"] += 1
+    _refresh_recording_hashes(tampered)
+    with pytest.raises(
+        ValueError,
+        match="controlled_recording_summary_admission_binding_invalid",
+    ):
+        validator._admit_controlled_recording_for_comparison(
+            tampered,
+            role=first_role,
+            receipt_proofs=_manual_receipt_comparison_admissions(tampered),
+        )
 
 
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:

@@ -527,6 +527,303 @@ def test_writer_preserves_routing_time_only_for_same_semantic_trace(
     )
 
 
+def test_writer_accounts_for_all_five_legacy_outputs_before_write(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No member of the N10a output group can bypass legacy hash/delta accounting."""
+
+    live: dict[str, object] = {}
+    for relative_path, bundle_key, hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        allowed_exclusions = (
+            ["runtime_metrics"]
+            if hash_field
+            in {"census_content_hash", "manifest_content_hash", "trace_content_hash"}
+            else []
+        )
+        payload = second_domain_pack._with_content_hash(
+            {
+                "artifact": bundle_key,
+                "content_hash_excluded_fields": allowed_exclusions,
+                "value": "frozen",
+            },
+            hash_field,
+            excluded_fields=allowed_exclusions,
+        )
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        live[bundle_key] = copy.deepcopy(payload)
+
+    for bundle_key, hash_field in (
+        ("pack", "manifest_content_hash"),
+        ("cycle_trace", "trace_content_hash"),
+        ("gaps", "gap_report_content_hash"),
+    ):
+        candidate = copy.deepcopy(live[bundle_key])
+        candidate["value"] = "live"
+        live[bundle_key] = second_domain_pack._with_content_hash(
+            candidate,
+            hash_field,
+            excluded_fields=("runtime_metrics",)
+            if hash_field in {"manifest_content_hash", "trace_content_hash"}
+            else (),
+        )
+
+    receipts = second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+    assert tuple(receipt["output"] for receipt in receipts) == (
+        second_domain_pack.ARTIFACT_OUTPUTS
+    )
+    assert {receipt["mode"] for receipt in receipts} == {
+        "declared_live_rederived",
+        "exact_or_operational_reconciled",
+        "producer_comparison_reconciled",
+    }
+    assert {
+        receipt["output"]
+        for receipt in receipts
+        if receipt["changed_leaf_count"] > 0
+    } == {
+        second_domain_pack.PACK_OUTPUT,
+        second_domain_pack.CYCLE_TRACE_OUTPUT,
+        second_domain_pack.GAP_REPORT_OUTPUT,
+    }
+
+    live["runtime_metrics"] = {"query_timings_seconds": {}}
+    monkeypatch.setattr(
+        second_domain_pack,
+        "build_live_bundle",
+        lambda *_args, **_kwargs: copy.deepcopy(live),
+    )
+    monkeypatch.setattr(second_domain_pack, "validate_bundle_payloads", lambda *_args: [])
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: "" if args[0] == "status" else "a" * 40,
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_n10a_source_scope_content_hash",
+        lambda _root: "sha256:" + "b" * 64,
+    )
+    before = {
+        relative_path: (tmp_path / relative_path).read_bytes()
+        for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
+    }
+    measurement = second_domain_pack.write(tmp_path, persist=False)
+    assert measurement["status"] == "pass"
+    assert measurement["write_performed"] is False
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    forged = copy.deepcopy(measurement["transition_manifest"])
+    pack_row = forged["artifacts"][1]
+    pack_row["changed_leaves"] = sorted(
+        [*pack_row["changed_leaves"], "/not-produced-by-measurement"]
+    )
+    pack_row["changed_leaf_count"] = len(pack_row["changed_leaves"])
+    forged["manifest_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in forged.items()
+            if key != "manifest_content_hash"
+        }
+    )
+    with pytest.raises(ValueError, match="n10a_expected_transition_manifest_mismatch"):
+        second_domain_pack.write(
+            tmp_path,
+            expected_transition_manifest=forged,
+        )
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    accepted = second_domain_pack.write(
+        tmp_path,
+        expected_transition_manifest=measurement["transition_manifest"],
+    )
+    assert accepted["status"] == "pass"
+    assert accepted["write_performed"] is True
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: (
+            " M tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+            if args[0] == "status"
+            else "a" * 40
+        ),
+    )
+    with pytest.raises(ValueError, match="n10a_source_scope_not_clean"):
+        second_domain_pack.write(tmp_path, persist=False)
+
+    census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
+    corrupt = json.loads(census_path.read_text(encoding="utf-8"))
+    corrupt["value"] = "corrupt-with-stale-hash"
+    census_path.write_text(json.dumps(corrupt), encoding="utf-8")
+    with pytest.raises(ValueError, match="n10a_frozen_artifact_integrity_failed"):
+        second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("modifier", "expected"),
+    [
+        (
+            ["--capture-stage1-n4"],
+            {"allow_live_n4_capture": True, "n4_capture_journal": None},
+        ),
+        (
+            ["--accept-stage1-n4-journal", "capture.json"],
+            {
+                "allow_live_n4_capture": False,
+                "n4_capture_journal": Path("capture.json"),
+            },
+        ),
+    ],
+)
+def test_measure_transition_supports_each_capture_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    modifier: list[str],
+    expected: dict[str, object],
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    def fake_write(_root: Path, **kwargs: object) -> dict[str, object]:
+        calls.append(dict(kwargs))
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(second_domain_pack, "write", fake_write)
+
+    assert (
+        second_domain_pack.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--measure-write-transition",
+                *modifier,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
+    assert calls == [{**expected, "persist": False}]
+
+
+def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:
+    """A bare provenance declaration remains governing at the N10a bridge."""
+
+    first = {
+        "cycles": [
+            {
+                "value_port": {"wall_time_ms": 12.5},
+                "promotion_port": {
+                    "receipts": [
+                        {
+                            "confidence_ledger_projection": {
+                                "authority_provenance": "verification",
+                                "deployment_identity": "deployment-a",
+                                "checks": [{"check_id": "check-a", "status": "refused"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ],
+        "value_port": {"wall_time_ms": 20.0},
+    }
+    second = copy.deepcopy(first)
+    second["cycles"][0]["value_port"]["wall_time_ms"] = 99.0
+    projection = second["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    projection["authority_provenance"] = ["verification"]
+    projection["deployment_identity"] = "deployment-b"
+    projection["checks"][0]["check_id"] = "check-b"
+
+    first_normalized, first_metrics = second_domain_pack._normalize_n6_run_payload(first)
+    second_normalized, second_metrics = second_domain_pack._normalize_n6_run_payload(second)
+    empty_plan = second_domain_pack.GyComparisonProjectionPlan(entries=())
+
+    assert second_domain_pack._hash(first_normalized) != second_domain_pack._hash(second_normalized)
+    assert second_domain_pack._n6_comparison_content_hash(
+        first_normalized,
+        empty_plan,
+    ) != second_domain_pack._n6_comparison_content_hash(second_normalized, empty_plan)
+    assert first_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 12.5}
+    ]
+    assert second_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 99.0}
+    ]
+    assert (
+        first_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-a"
+    )
+    assert (
+        second_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-b"
+    )
+
+    governing = copy.deepcopy(second_normalized)
+    governing_projection = governing["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    governing_projection["authority_provenance"] = ["verification", "canonical_repo"]
+    governing_shift = copy.deepcopy(governing)
+    governing_shift["cycles"][0]["promotion_port"]["receipts"][0]["confidence_ledger_projection"][
+        "deployment_identity"
+    ] = "deployment-c"
+    assert second_domain_pack._hash(governing) != second_domain_pack._hash(governing_shift)
+
+
+def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity(
+    live_bundle: dict[str, object],
+) -> None:
+    frozen = json.loads(
+        (REPO_ROOT / second_domain_pack.CYCLE_TRACE_OUTPUT).read_text(encoding="utf-8")
+    )
+    trace = live_bundle["cycle_trace"]
+    assert trace["comparison_admission_manifest"]
+    frozen_receipts = frozen["generation_cycle_run"]["promotion_port"]["receipts"]
+    live_receipts = trace["generation_cycle_run"]["promotion_port"]["receipts"]
+    for frozen_receipt, live_receipt in zip(
+        frozen_receipts,
+        live_receipts,
+        strict=True,
+    ):
+        migrated = copy.deepcopy(live_receipt)
+        semantic = migrated.pop("confidence_ledger_semantic_projection")
+        assert migrated == frozen_receipt
+        assert semantic["projection_scope"] == "n9_promotion_semantic_receipt"
+    assert all(receipt["confidence_ledger_projection"] for receipt in live_receipts)
+
+    plan = second_domain_pack._cycle_trace_plan_from_manifest(trace)
+    assert trace["comparison_content_hash"] == (
+        second_domain_pack._cycle_trace_comparison_content_hash(trace, plan)
+    )
+    governing_shift = copy.deepcopy(trace)
+    governing_shift["generation_cycle_run"]["candidate_summaries"][0]["front"] = "decision"
+    assert second_domain_pack._cycle_trace_comparison_content_hash(
+        trace,
+        plan,
+    ) != second_domain_pack._cycle_trace_comparison_content_hash(
+        governing_shift,
+        plan,
+    )
+
+
 def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -574,9 +871,9 @@ def test_rederive_audit_applies_writer_operational_normalization_before_comparis
     live = copy.deepcopy(frozen)
     live["census"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
     live["cycle_trace"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    live["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ] = "2026-07-15T00:00:00Z"
     monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
     monkeypatch.setattr(
         second_domain_pack,
@@ -607,9 +904,7 @@ def test_routing_time_preservation_does_not_manufacture_missing_runtime_property
         }
     }
     live = copy.deepcopy(frozen)
-    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-        "generated_at"
-    ]
+    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"]["generated_at"]
 
     with pytest.raises(ValueError, match="gy_operational_reconciliation_shape_mismatch"):
         second_domain_pack.reconcile_gy_operational_leaves(frozen, live)
@@ -1325,8 +1620,7 @@ def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
 
     assert removed["status"] == "pass"
     assert (
-        "promotion_verification_boundary:"
-        "smoke_promotion_verification_boundary_invalid"
+        "promotion_verification_boundary:smoke_promotion_verification_boundary_invalid"
     ) in missing
 
 
@@ -1832,9 +2126,7 @@ def test_smoke_trace_requires_isolated_verification_promotion(
     """A typed terminal cannot retain an ambient authority-state result."""
 
     corrupted = copy.deepcopy(live_bundle)
-    promotion = corrupted["cycle_trace"]["generation_cycle_run"][
-        "promotion_port"
-    ]
+    promotion = corrupted["cycle_trace"]["generation_cycle_run"]["promotion_port"]
     promotion["reason"] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
 
     codes = {

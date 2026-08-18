@@ -31,10 +31,19 @@ from typing import Any
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     AuthorityBoundary,
+    GyComparisonAdmission,
+    GyComparisonProjectionPlan,
     PromotionObligationClass,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
+    gy_comparison_content_hash,
     gy_content_hash,
 )
 from polisyos.pdc._impl.layer2_design_search import (
@@ -65,18 +74,30 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionInput,
     CanonicalPromotionReceipt,
     LegacyPromotionStrangleReceipt,
     N9DesignProblemBinding,
     _run_canonical_promotion_sequence_for_verification,
-    _validate_canonical_promotion_receipt_for_verification,
+    admit_canonical_promotion_receipt_for_comparison,
     confidence_risk_scope_for_problem,
 )
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
+
+_COMPARISON_IDENTITY_FIELDS = {
+    "comparison_admission_manifest",
+    "comparison_content_hash",
+    "comparison_projection_schema_version",
+    "comparison_rule_version",
+}
+
 _SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_no_self_promotion_guard",
     "source_flip_non_anytime_preflight_guard",
@@ -117,7 +138,7 @@ def _run_with_isolated_confidence_ledger(
     *,
     scenario_id: str,
     promotion_input: CanonicalPromotionInput,
-) -> CanonicalPromotionReceipt:
+) -> tuple[CanonicalPromotionReceipt, GyComparisonAdmission]:
     """Replay one synthetic scenario against a fresh deterministic N11 scope."""
 
     risk_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
@@ -133,29 +154,34 @@ def _run_with_isolated_confidence_ledger(
             promotion_input,
             confidence_ledger_session=session,
         )
-        issues = _validate_canonical_promotion_receipt_for_verification(
+        admission = admit_canonical_promotion_receipt_for_comparison(
             receipt,
             repo_root=repo_root,
             confidence_ledger_session=session,
         )
-        if issues:
-            raise RuntimeError(
-                "canonical_n9_replay_invalid: " + json.dumps(issues, sort_keys=True, default=str)
-            )
-        return receipt
+        return receipt, admission
 
 
 def build_payload(repo_root: Path) -> dict[str, Any]:
     """Build the frozen N9 payload from Lane-0 contract certificates."""
 
+    payload, _ = _build_payload_with_comparison_plan(repo_root)
+    return payload
+
+
+def _build_payload_with_comparison_plan(
+    repo_root: Path,
+) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
+    """Build N9 plus the ephemeral owner-bound comparison plan."""
+
     started = time.monotonic()
     contract_input = _promotion_input()
-    contract_refusal = _run_with_isolated_confidence_ledger(
+    contract_refusal, contract_refusal_admission = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="contract-lane-anytime-refusal",
         promotion_input=contract_input,
     )
-    production_shadow = _run_with_isolated_confidence_ledger(
+    production_shadow, production_shadow_admission = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="production-honest-shadow",
         promotion_input=contract_input.model_copy(
@@ -169,7 +195,7 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
             }
         ),
     )
-    non_promotable = _run_with_isolated_confidence_ledger(
+    non_promotable, non_promotable_admission = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="non-promotable-contract-stamp",
         promotion_input=contract_input,
@@ -235,10 +261,19 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
             "mutation_ids": list(_SOURCE_FLIP_MUTATION_IDS),
         },
     }
-    payload["behavioral_mutations"] = _behavioral_mutations(payload)
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(
+            contract_refusal_admission,
+            production_shadow_admission,
+            non_promotable_admission,
+        ),
+    )
+    payload["behavioral_mutations"] = _behavioral_mutations(payload, plan)
     payload["capture_wall_time_seconds"] = round(time.monotonic() - started, 6)
+    _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
-    return payload
+    return payload, plan
 
 
 def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -253,6 +288,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         issues.append({"code": "scope_insufficient_promotion_policy_drift"})
     if payload.get("delta_caveat") != CONDITIONAL_VALIDITY_CLAUSE:
         issues.append({"code": "conditionality_clause_drift"})
+    issues.extend(_comparison_identity_issues(payload))
     expected_hash = _contract_content_hash(payload)
     if payload.get("contract_content_hash") != expected_hash:
         issues.append(
@@ -426,9 +462,11 @@ def write(repo_root: Path) -> None:
 def build_contract_json_for_write(repo_root: Path) -> str:
     """Return byte-stable canonical JSON for the reissued N9 contract."""
 
-    payload = build_payload(repo_root)
+    payload, plan = _build_payload_with_comparison_plan(repo_root)
     payload.pop("capture_wall_time_seconds", None)
+    _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
+    payload = _reconcile_frozen_contract(repo_root, payload, plan)
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
@@ -591,7 +629,10 @@ def _validate_n11_projection(
         )
 
 
-def _behavioral_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _behavioral_mutations(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> list[dict[str, Any]]:
     mutations = {
         "ledger_projection_hand_edit": _mutate_ledger_projection,
         "gate_outcome_drift": _mutate_gate_hash,
@@ -605,7 +646,7 @@ def _behavioral_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     for mutation_id, mutator in mutations.items():
         mutated = copy.deepcopy(payload)
         mutator(mutated)
-        report = validate_payload_without_mutation_check(mutated)
+        report = validate_payload_without_mutation_check(mutated, plan)
         reports.append(
             {
                 "mutation_id": mutation_id,
@@ -616,13 +657,28 @@ def _behavioral_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return reports
 
 
-def validate_payload_without_mutation_check(payload: dict[str, Any]) -> dict[str, Any]:
+def validate_payload_without_mutation_check(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
     """Core payload check used by behavioral mutations to avoid recursion."""
 
     stripped = copy.deepcopy(payload)
     stripped["behavioral_mutations"] = [
         {"mutation_id": item, "status": "red"} for item in _BEHAVIORAL_MUTATION_IDS
     ]
+    try:
+        _set_comparison_identity(stripped, plan)
+    except ValueError as exc:
+        return {
+            "status": "fail",
+            "issues": [
+                {
+                    "code": "comparison_projection_rejected_mutation",
+                    "error": str(exc),
+                }
+            ],
+        }
     stripped["contract_content_hash"] = _contract_content_hash(stripped)
     return validate_payload(stripped)
 
@@ -739,6 +795,117 @@ def _contract_content_hash(payload: dict[str, Any]) -> str:
         key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     return gy_content_hash(stable)
+
+
+def _comparison_content_hash(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        comparison_plan=plan,
+    )
+
+
+def _reconcile_frozen_contract(
+    repo_root: Path,
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        return live
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
+        raise ValueError("promotion_legacy_contract_content_hash_drift")
+    if not _frozen_comparison_identity_admissible(frozen, plan):
+        raise ValueError("promotion_comparison_admission_manifest_drift")
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("promotion_contract_comparison_projection_invalid")
+    _set_comparison_identity(reconciled, plan)
+    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
+    return reconciled
+
+
+def _frozen_comparison_identity_admissible(
+    frozen: dict[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 comparison custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == _comparison_content_hash(
+        frozen,
+        legacy_plan,
+    )
+
+
+def _set_comparison_identity(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> None:
+    payload["comparison_admission_manifest"] = plan.manifest
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload, plan)
+
+
+def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    manifest = payload.get("comparison_admission_manifest")
+    try:
+        plan = build_gy_comparison_projection_plan_from_manifest(
+            payload,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+                )
+            },
+        )
+    except ValueError as exc:
+        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
+    else:
+        if payload.get("comparison_content_hash") != _comparison_content_hash(payload, plan):
+            issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 
 def _obligation_detail(

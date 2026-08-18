@@ -2635,7 +2635,7 @@ async def test_k_sim_does_not_shrink_k_world() -> None:
 
 @pytest.mark.asyncio
 async def test_generation_cycle_contract_mutations_turn_red() -> None:
-    payload = contract.load_contract_payload(REPO_ROOT)
+    payload = await contract.build_live_payload(REPO_ROOT)
     report = contract.validate_payload(payload)
 
     assert report["status"] == "pass", report["issues"]
@@ -2671,6 +2671,18 @@ def test_generation_cycle_contract_write_payload_is_byte_stable() -> None:
 
     assert first == second
     assert "capture_wall_time_seconds" not in first
+    payload = json.loads(first)
+    assert contract.validate_payload(payload)["status"] == "pass"
+    receipt = payload["generation_cycle_run"]["promotion_port"]["receipts"][0]
+    assert receipt["confidence_ledger_projection"]["authority_provenance"] == "verification"
+    assert receipt["confidence_ledger_projection"]["deployment_identity"]
+    assert payload["comparison_admission_manifest"]
+
+    governing_shift = copy.deepcopy(payload)
+    governing_shift["denominators"]["counts"]["terminal_kinds"] += 1
+    issue_codes = {issue["code"] for issue in contract.validate_payload(governing_shift)["issues"]}
+    assert "full_denominator_curated_subset" in issue_codes
+    assert "contract_content_hash_drift" in issue_codes
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:

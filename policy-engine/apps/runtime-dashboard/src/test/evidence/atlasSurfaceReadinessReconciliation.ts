@@ -4,6 +4,8 @@ import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { isValidElement } from "react";
+import { Navigate, type RouteObject } from "react-router-dom";
 import { z } from "zod";
 
 export const ATLAS_SURFACE_READINESS_REPORT_SCHEMA = {
@@ -19,8 +21,15 @@ export const ATLAS_SURFACE_READINESS_PROJECTION_SCHEMA = {
 export const ATLAS_SURFACE_READINESS_PERSISTENCE_OPERATION =
   "persist_atlas_surface_readiness_claims" as const;
 
+export const ATLAS_CITED_SURFACE_READINESS_REPORT_SCHEMA = {
+  id: "polisyos.atlas.cited-surface-readiness-report",
+  version: "1.0.0",
+} as const;
+
 const PRODUCER_ID = "polisyos.atlas.surface_readiness_reconciler";
 const PRODUCER_VERSION = "1.0.0";
+const CITED_REPORT_VERIFIER_ID =
+  "polisyos.atlas.cited_report_consistency_verifier";
 const READINESS_LEDGER =
   "architecture/atlas_surfaces/live-application-readiness-ledger.json";
 const READINESS_SCHEMA =
@@ -68,6 +77,57 @@ const ownerValidationSchema = z
   })
   .strict();
 
+const runnerSchema = z
+  .object({
+    path: nonEmptyString,
+    sha256,
+    version: nonEmptyString,
+  })
+  .strict();
+
+const runtimeRouteSchema = z
+  .object({
+    status: z.enum(["matched", "mismatched", "unavailable"]),
+    reason: identity.nullable(),
+    declared_from: nonEmptyString,
+    declared_to: nonEmptyString,
+    observed_to: nonEmptyString.nullable(),
+    replace: z.boolean().nullable(),
+  })
+  .strict()
+  .superRefine((fact, context) => {
+    if (
+      fact.status === "matched" &&
+      (fact.reason !== null ||
+        fact.observed_to !== fact.declared_to ||
+        fact.replace !== true)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["status"],
+        message:
+          "matched runtime redirect must bind target and replace semantics",
+      });
+    }
+    if (fact.status !== "matched" && fact.reason === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message: "non-matching runtime redirect must carry a reason",
+      });
+    }
+    if (
+      fact.status === "unavailable" &&
+      (fact.observed_to !== null || fact.replace !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["status"],
+        message: "unavailable runtime redirect cannot invent observed facts",
+      });
+    }
+  });
+
 const canonicalCheckSchema = z
   .object({
     check_id: identity,
@@ -78,9 +138,11 @@ const canonicalCheckSchema = z
         version: nonEmptyString,
       })
       .strict(),
+    runner: runnerSchema.nullable(),
     report_sha256: sha256.nullable(),
     assertion_name: nonEmptyString.nullable(),
     assertion_status: z.enum(["passed", "failed", "skipped"]).nullable(),
+    runtime_route: runtimeRouteSchema.nullable(),
     test_ref: sourceRefSchema,
   })
   .strict();
@@ -115,29 +177,56 @@ const observedBasisSchema = z
   .strict()
   .superRefine((basis, context) => {
     const assertionStatus = basis.canonical_check.assertion_status;
+    const reportSha256 = basis.canonical_check.report_sha256;
+    const runner = basis.canonical_check.runner;
+    const runtimeRoute = basis.canonical_check.runtime_route;
     const observationStatus = basis.observation.status;
-    if (observationStatus === "observed" && assertionStatus !== "passed") {
-      context.addIssue({
-        code: "custom",
-        path: ["canonical_check", "assertion_status"],
-        message: "an observed claim requires its canonical assertion to pass",
-      });
-    }
-    if (observationStatus === "not_observed" && assertionStatus !== "failed") {
-      context.addIssue({
-        code: "custom",
-        path: ["canonical_check", "assertion_status"],
-        message: "a negative observation requires a completed failed assertion",
-      });
-    }
     if (
-      observationStatus === "observation_unavailable" &&
-      assertionStatus === "failed"
+      observationStatus === "observed" &&
+      (assertionStatus !== "passed" || runtimeRoute?.status !== "matched")
     ) {
       context.addIssue({
         code: "custom",
         path: ["canonical_check", "assertion_status"],
-        message: "a completed failed assertion is a negative observation",
+        message: "observed_without_positive_canonical_facts",
+      });
+    }
+    if (
+      observationStatus === "not_observed" &&
+      assertionStatus !== "failed" &&
+      runtimeRoute?.status !== "mismatched"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["canonical_check", "assertion_status"],
+        message: "negative_without_negative_canonical_fact",
+      });
+    }
+    if (
+      observationStatus === "observation_unavailable" &&
+      (assertionStatus === "passed" || assertionStatus === "failed")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["canonical_check", "assertion_status"],
+        message: "unavailable_with_completed_assertion",
+      });
+    }
+    if (
+      observationStatus !== "observation_unavailable" &&
+      reportSha256 === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["canonical_check", "report_sha256"],
+        message: "completed_observation_without_report",
+      });
+    }
+    if (observationStatus !== "observation_unavailable" && runner === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["canonical_check", "runner"],
+        message: "completed_observation_without_runner",
       });
     }
   });
@@ -146,6 +235,25 @@ const citedFindingSchema = z
   .object({
     code: identity,
     message: nonEmptyString,
+  })
+  .strict();
+
+const citedReportSchema = z
+  .object({
+    report_schema: z
+      .object({
+        id: z.literal(ATLAS_CITED_SURFACE_READINESS_REPORT_SCHEMA.id),
+        version: z.literal(ATLAS_CITED_SURFACE_READINESS_REPORT_SCHEMA.version),
+      })
+      .strict(),
+    producer: z
+      .object({
+        producer_id: identity,
+        producer_version: nonEmptyString,
+      })
+      .strict(),
+    execution_status: z.enum(["pass", "fail", "incomplete"]),
+    findings: z.array(citedFindingSchema),
   })
   .strict();
 
@@ -170,8 +278,8 @@ const citedBasisSchema = z
       .strict(),
     verifier: z
       .object({
-        verifier_id: identity,
-        verifier_version: nonEmptyString,
+        verifier_id: z.literal(CITED_REPORT_VERIFIER_ID),
+        verifier_version: z.literal(PRODUCER_VERSION),
         predicate_provenance: z.literal("recomputed"),
       })
       .strict(),
@@ -270,7 +378,7 @@ const citedClaimSchema = z
     }
   });
 
-export const atlasSurfaceReadinessClaimSchema = z.union([
+const atlasSurfaceReadinessClaimSchema = z.union([
   observedClaimSchema,
   citedClaimSchema,
 ]);
@@ -327,8 +435,67 @@ function sourceRef(
   };
 }
 
+function sourceRefFromBytes(
+  relativePath: string,
+  role: string,
+  value: Uint8Array,
+) {
+  return {
+    path: relativePath,
+    sha256: sha256Bytes(value),
+    role,
+  };
+}
+
 function parseJson(value: Uint8Array): unknown {
   return JSON.parse(Buffer.from(value).toString("utf8")) as unknown;
+}
+
+interface ReadinessEntry {
+  surface_id: string;
+  title: string;
+  readiness_state: string;
+  maturity: string;
+}
+
+interface ValidatedReadinessOwner {
+  entries: ReadinessEntry[];
+}
+
+/** Bind the exact enumerated owner bytes to the full validator's source digest. */
+export function assertValidatedReadinessOwnerBytes(
+  ownerBytes: Uint8Array,
+  validatedSha256: string,
+  validatedEntryCount: number,
+): ValidatedReadinessOwner {
+  if (sha256Bytes(ownerBytes) !== sha256.parse(validatedSha256)) {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_owner_bytes_changed",
+      "readiness owner bytes changed after full-schema validation",
+    );
+  }
+  const owner = z
+    .object({
+      entries: z.array(
+        z
+          .object({
+            surface_id: identity,
+            title: nonEmptyString,
+            readiness_state: nonEmptyString,
+            maturity: nonEmptyString,
+          })
+          .loose(),
+      ),
+    })
+    .loose()
+    .parse(parseJson(ownerBytes));
+  if (owner.entries.length !== validatedEntryCount) {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_owner_population_mismatch",
+      "validated owner population changed before claim enumeration",
+    );
+  }
+  return owner;
 }
 
 function runOwnerValidation(policyEngineRoot: string) {
@@ -354,13 +521,38 @@ function runOwnerValidation(policyEngineRoot: string) {
   const projection = parseJson(result.stdout ?? new Uint8Array());
   const parsedProjection = z
     .object({
-      readiness: z.object({ entry_count: z.number().int().positive() }).loose(),
+      readiness: z
+        .object({
+          entry_count: z.number().int().positive(),
+          source_refs: z.array(sourceRefSchema).min(2),
+        })
+        .loose(),
     })
     .loose()
     .parse(projection);
+  const readinessLedgerRef = parsedProjection.readiness.source_refs.find(
+    (reference) => reference.path === READINESS_LEDGER,
+  );
+  const readinessSchemaRef = parsedProjection.readiness.source_refs.find(
+    (reference) => reference.path === READINESS_SCHEMA,
+  );
+  if (readinessLedgerRef === undefined || readinessSchemaRef === undefined) {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_owner_validation_unavailable",
+      "full owner validator did not bind the readiness owner and schema",
+    );
+  }
+  const owner = assertValidatedReadinessOwnerBytes(
+    readFileSync(path.join(policyEngineRoot, READINESS_LEDGER)),
+    readinessLedgerRef.sha256,
+    parsedProjection.readiness.entry_count,
+  );
   return {
     entryCount: parsedProjection.readiness.entry_count,
+    ledgerRef: { ...readinessLedgerRef, role: "complete_readiness_owner" },
+    owner,
     reportSha256: sha256Bytes(result.stdout ?? new Uint8Array()),
+    schemaRef: { ...readinessSchemaRef, role: "readiness_owner_schema" },
     validatorRef: sourceRef(
       policyEngineRoot,
       SOURCE_VALIDATOR,
@@ -373,20 +565,80 @@ type RouteAssertionStatus = "passed" | "failed" | "skipped";
 
 interface RouteRun {
   reportSha256: string | null;
+  routeSourceRef: z.infer<typeof sourceRefSchema>;
+  routeTestRef: z.infer<typeof sourceRefSchema>;
+  runner: z.infer<typeof runnerSchema> | null;
+  runtimeRoutes: RouteObject[] | null;
   unavailableReason: string | null;
   assertions: Map<string, RouteAssertionStatus[]>;
 }
 
-function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
+async function runCanonicalRouteMatrix(
+  dashboardRoot: string,
+): Promise<RouteRun> {
+  const policyEngineRoot = path.resolve(dashboardRoot, "../..");
+  const routeSourceBytes = readFileSync(
+    path.join(policyEngineRoot, ROUTE_SOURCE),
+  );
+  const routeTestBytes = readFileSync(path.join(policyEngineRoot, ROUTE_TEST));
+  const routeSourceRef = sourceRefFromBytes(
+    ROUTE_SOURCE,
+    "runtime_route_owner",
+    routeSourceBytes,
+  );
+  const routeTestRef = sourceRefFromBytes(
+    ROUTE_TEST,
+    "canonical_behavior_check",
+    routeTestBytes,
+  );
   let vitestEntry: string;
+  let runner: z.infer<typeof runnerSchema> | null = null;
   try {
     vitestEntry = realpathSync(
       path.join(dashboardRoot, "node_modules/vitest/vitest.mjs"),
     );
+    const packageValue = z
+      .object({ version: nonEmptyString })
+      .loose()
+      .parse(
+        JSON.parse(
+          readFileSync(
+            path.join(path.dirname(vitestEntry), "package.json"),
+            "utf8",
+          ),
+        ) as unknown,
+      );
+    runner = {
+      path: vitestEntry,
+      sha256: sha256Bytes(readFileSync(vitestEntry)),
+      version: packageValue.version,
+    };
   } catch {
     return {
       reportSha256: null,
+      routeSourceRef,
+      routeTestRef,
+      runner: null,
+      runtimeRoutes: null,
       unavailableReason: "canonical_route_harness_failed",
+      assertions: new Map(),
+    };
+  }
+  let runtimeRoutes: RouteObject[];
+  try {
+    const runtimeModule = await import("@/app/routes/routes");
+    if (!Array.isArray(runtimeModule.APP_ROUTES)) {
+      throw new TypeError("APP_ROUTES is not an array");
+    }
+    runtimeRoutes = runtimeModule.APP_ROUTES;
+  } catch {
+    return {
+      reportSha256: null,
+      routeSourceRef,
+      routeTestRef,
+      runner,
+      runtimeRoutes: null,
+      unavailableReason: "canonical_runtime_route_import_failed",
       assertions: new Map(),
     };
   }
@@ -414,9 +666,29 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
         timeout: 45_000,
       },
     );
+    const sourcesUnchanged =
+      sha256Bytes(readFileSync(path.join(policyEngineRoot, ROUTE_SOURCE))) ===
+        routeSourceRef.sha256 &&
+      sha256Bytes(readFileSync(path.join(policyEngineRoot, ROUTE_TEST))) ===
+        routeTestRef.sha256;
+    if (!sourcesUnchanged) {
+      return {
+        reportSha256: null,
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
+        unavailableReason: "canonical_route_sources_changed",
+        assertions: new Map(),
+      };
+    }
     if (result.error !== undefined) {
       return {
         reportSha256: null,
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
         unavailableReason: "canonical_route_harness_failed",
         assertions: new Map(),
       };
@@ -424,6 +696,10 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
     if (result.status === null) {
       return {
         reportSha256: null,
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
         unavailableReason: "canonical_route_harness_failed",
         assertions: new Map(),
       };
@@ -435,6 +711,10 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
     } catch {
       return {
         reportSha256: null,
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
         unavailableReason: "canonical_route_report_missing",
         assertions: new Map(),
       };
@@ -446,6 +726,10 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
     } catch {
       return {
         reportSha256: sha256Bytes(reportBytes),
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
         unavailableReason: "canonical_route_report_invalid",
         assertions: new Map(),
       };
@@ -473,6 +757,10 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
     if (!reportResult.success) {
       return {
         reportSha256: sha256Bytes(reportBytes),
+        routeSourceRef,
+        routeTestRef,
+        runner,
+        runtimeRoutes,
         unavailableReason: "canonical_route_report_invalid",
         assertions: new Map(),
       };
@@ -497,6 +785,10 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
     }
     return {
       reportSha256: sha256Bytes(reportBytes),
+      routeSourceRef,
+      routeTestRef,
+      runner,
+      runtimeRoutes,
       unavailableReason: null,
       assertions,
     };
@@ -505,14 +797,9 @@ function runCanonicalRouteMatrix(dashboardRoot: string): RouteRun {
   }
 }
 
-interface ReadinessEntry {
-  surface_id: string;
-  title: string;
-  readiness_state: string;
-  maturity: string;
-}
-
-function routeAssertionName(entry: ReadinessEntry): string | null {
+function routeDeclaration(
+  entry: Pick<ReadinessEntry, "surface_id" | "title">,
+): { from: string; to: string } | null {
   if (!entry.surface_id.startsWith("route-redirect-")) {
     return null;
   }
@@ -521,7 +808,82 @@ function routeAssertionName(entry: ReadinessEntry): string | null {
   if (titleMatch === null || titleMatch[1] !== legacyPath) {
     return null;
   }
-  return `APP_ROUTES wraps app routes with the shell and follows legacy redirect from '${legacyPath}'`;
+  return { from: titleMatch[1], to: titleMatch[2] };
+}
+
+function routeAssertionName(entry: ReadinessEntry): string | null {
+  const declaration = routeDeclaration(entry);
+  if (declaration === null) {
+    return null;
+  }
+  return `APP_ROUTES wraps app routes with the shell and follows legacy redirect from '${declaration.from}'`;
+}
+
+/** Inspect both endpoints against the imported runtime route objects. */
+export function inspectAtlasRuntimeRedirect(
+  entry: Pick<ReadinessEntry, "surface_id" | "title">,
+  runtimeRoutes: RouteObject[] | null,
+): z.infer<typeof runtimeRouteSchema> | null {
+  const declaration = routeDeclaration(entry);
+  if (declaration === null) {
+    return null;
+  }
+  if (runtimeRoutes === null) {
+    return runtimeRouteSchema.parse({
+      status: "unavailable",
+      reason: "canonical_runtime_route_import_failed",
+      declared_from: declaration.from,
+      declared_to: declaration.to,
+      observed_to: null,
+      replace: null,
+    });
+  }
+  const rootRoutes = runtimeRoutes.filter((route) => route.path === "/");
+  const matchingRoutes =
+    rootRoutes.length === 1
+      ? (rootRoutes[0]?.children?.filter(
+          (route) => route.path === declaration.from.slice(1),
+        ) ?? [])
+      : [];
+  if (matchingRoutes.length !== 1) {
+    return runtimeRouteSchema.parse({
+      status: "unavailable",
+      reason:
+        matchingRoutes.length === 0
+          ? "canonical_runtime_route_missing"
+          : "canonical_runtime_route_ambiguous",
+      declared_from: declaration.from,
+      declared_to: declaration.to,
+      observed_to: null,
+      replace: null,
+    });
+  }
+  const element = matchingRoutes[0]?.element;
+  if (!isValidElement(element)) {
+    return runtimeRouteSchema.parse({
+      status: "mismatched",
+      reason: "canonical_runtime_route_not_navigate",
+      declared_from: declaration.from,
+      declared_to: declaration.to,
+      observed_to: null,
+      replace: null,
+    });
+  }
+  const props = element.props as { replace?: unknown; to?: unknown };
+  const observedTo = typeof props.to === "string" ? props.to : null;
+  const replace = typeof props.replace === "boolean" ? props.replace : null;
+  const matched =
+    element.type === Navigate &&
+    observedTo === declaration.to &&
+    replace === true;
+  return runtimeRouteSchema.parse({
+    status: matched ? "matched" : "mismatched",
+    reason: matched ? null : "canonical_runtime_route_target_mismatch",
+    declared_from: declaration.from,
+    declared_to: declaration.to,
+    observed_to: observedTo,
+    replace,
+  });
 }
 
 function observedBasisFor(
@@ -531,6 +893,10 @@ function observedBasisFor(
   routeRun: RouteRun,
 ) {
   const assertionName = routeAssertionName(entry);
+  const runtimeRoute = inspectAtlasRuntimeRedirect(
+    entry,
+    routeRun.runtimeRoutes,
+  );
   const statuses =
     assertionName === null
       ? []
@@ -539,7 +905,7 @@ function observedBasisFor(
   let reason: string | null;
   let assertionStatus: RouteAssertionStatus | null;
 
-  if (assertionName === null) {
+  if (assertionName === null || runtimeRoute === null) {
     status = "observation_unavailable";
     reason = "canonical_check_not_registered";
     assertionStatus = null;
@@ -547,6 +913,14 @@ function observedBasisFor(
     status = "observation_unavailable";
     reason = routeRun.unavailableReason;
     assertionStatus = null;
+  } else if (runtimeRoute.status === "unavailable") {
+    status = "observation_unavailable";
+    reason = runtimeRoute.reason;
+    assertionStatus = null;
+  } else if (runtimeRoute.status === "mismatched") {
+    status = "not_observed";
+    reason = runtimeRoute.reason;
+    assertionStatus = statuses.length === 1 ? statuses[0] : null;
   } else if (statuses.length !== 1) {
     status = "observation_unavailable";
     reason =
@@ -583,20 +957,18 @@ function observedBasisFor(
         sha256: sha256Bytes(readFileSync(realpathSync(process.execPath))),
         version: process.version,
       },
+      runner: routeRun.runner,
       report_sha256: routeRun.reportSha256,
       assertion_name: assertionName,
       assertion_status: assertionStatus,
-      test_ref: sourceRef(
-        policyEngineRoot,
-        ROUTE_TEST,
-        "canonical_behavior_check",
-      ),
+      runtime_route: runtimeRoute,
+      test_ref: routeRun.routeTestRef,
     },
     source_refs: [
-      sourceRef(policyEngineRoot, READINESS_LEDGER, "complete_readiness_owner"),
-      sourceRef(policyEngineRoot, READINESS_SCHEMA, "readiness_owner_schema"),
-      sourceRef(policyEngineRoot, ROUTE_SOURCE, "runtime_route_owner"),
-      sourceRef(policyEngineRoot, ROUTE_TEST, "canonical_behavior_check"),
+      ownerValidation.ledgerRef,
+      ownerValidation.schemaRef,
+      routeRun.routeSourceRef,
+      routeRun.routeTestRef,
       sourceRef(policyEngineRoot, RECONCILER_SOURCE, "closed_claim_reconciler"),
       sourceRef(
         policyEngineRoot,
@@ -630,9 +1002,11 @@ function unavailableStableBasis(
         sha256: sha256Bytes(readFileSync(executable)),
         version: process.version,
       },
+      runner: null,
       report_sha256: null,
       assertion_name: null,
       assertion_status: null,
+      runtime_route: null,
       test_ref: sourceRef(
         policyEngineRoot,
         RECONCILER_SOURCE,
@@ -640,8 +1014,8 @@ function unavailableStableBasis(
       ),
     },
     source_refs: [
-      sourceRef(policyEngineRoot, READINESS_LEDGER, "complete_readiness_owner"),
-      sourceRef(policyEngineRoot, READINESS_SCHEMA, "readiness_owner_schema"),
+      ownerValidation.ledgerRef,
+      ownerValidation.schemaRef,
       sourceRef(
         policyEngineRoot,
         RECONCILER_SOURCE,
@@ -697,39 +1071,13 @@ function claimFor(
 }
 
 /** Run the fixed canonical owners and return only separately based claim rows. */
-export function reconcileAtlasSurfaceReadinessClaims(): AtlasSurfaceReadinessReport {
+export async function reconcileAtlasSurfaceReadinessClaims(): Promise<AtlasSurfaceReadinessReport> {
   const dashboardRoot = process.cwd();
   const policyEngineRoot = path.resolve(dashboardRoot, "../..");
   const ownerValidation = runOwnerValidation(policyEngineRoot);
-  const readiness = z
-    .object({
-      entries: z.array(
-        z
-          .object({
-            surface_id: identity,
-            title: nonEmptyString,
-            readiness_state: nonEmptyString,
-            maturity: nonEmptyString,
-          })
-          .loose(),
-      ),
-    })
-    .loose()
-    .parse(
-      JSON.parse(
-        readFileSync(path.join(policyEngineRoot, READINESS_LEDGER), "utf8"),
-      ) as unknown,
-    );
-  if (readiness.entries.length !== ownerValidation.entryCount) {
-    throw new AtlasSurfaceReadinessContractError(
-      "canonical_owner_population_mismatch",
-      "validated owner population changed before claim enumeration",
-    );
-  }
-
-  const routeRun = runCanonicalRouteMatrix(dashboardRoot);
+  const routeRun = await runCanonicalRouteMatrix(dashboardRoot);
   const claims: AtlasSurfaceReadinessClaim[] = [];
-  for (const entry of readiness.entries) {
+  for (const entry of ownerValidation.owner.entries) {
     if (entry.maturity === "stable") {
       claims.push(
         claimFor(
@@ -769,16 +1117,74 @@ export function reconcileAtlasSurfaceReadinessClaims(): AtlasSurfaceReadinessRep
   });
 }
 
-/** Parse one independently reportable claim and enforce its exact basis. */
-export function parseAtlasSurfaceReadinessClaim(
-  value: unknown,
+/** Resolve actual cited bytes into a reportable, never-observation basis. */
+export function buildConsistentWithCitedReportClaim(
+  claimValue: unknown,
+  citedReportBytes: Uint8Array,
 ): AtlasSurfaceReadinessClaim {
+  const claim = parseClaimShape(claimValue);
+  const report = citedReportSchema.parse(parseJson(citedReportBytes));
+  if (report.execution_status === "pass" && report.findings.length > 0) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_pass_with_findings",
+      "cited_pass_with_findings",
+    );
+  }
+  if (report.execution_status !== "pass" && report.findings.length === 0) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_nonpass_without_findings",
+      "cited_nonpass_without_findings",
+    );
+  }
+  const digest = sha256Bytes(citedReportBytes);
+  return parseAtlasSurfaceReadinessClaim(
+    {
+      claim_id: claim.claim_id,
+      surface_id: claim.surface_id,
+      title: claim.title,
+      dimension: claim.dimension,
+      declared_value: claim.declared_value,
+      predicate_provenance: "institutionally_supplied",
+      basis: {
+        kind: "consistent_with_cited_report",
+        artifact: {
+          artifact_id: `sha256:${digest}`,
+          sha256: digest,
+          media_type: "application/json",
+          schema_id: report.report_schema.id,
+          schema_version: report.report_schema.version,
+        },
+        producer: {
+          ...report.producer,
+          predicate_provenance: "institutionally_supplied",
+        },
+        verifier: {
+          verifier_id: CITED_REPORT_VERIFIER_ID,
+          verifier_version: PRODUCER_VERSION,
+          predicate_provenance: "recomputed",
+        },
+        execution_status: report.execution_status,
+        findings: report.findings,
+      },
+    },
+    citedReportBytes,
+  );
+}
+
+function parseClaimShape(value: unknown): AtlasSurfaceReadinessClaim {
   const result = atlasSurfaceReadinessClaimSchema.safeParse(value);
   if (!result.success) {
-    const namedMismatch = result.error.issues.find(
-      (issue) =>
-        issue.message === "cited_pass_with_findings" ||
-        issue.message === "cited_nonpass_without_findings",
+    const namedCodes = new Set([
+      "cited_pass_with_findings",
+      "cited_nonpass_without_findings",
+      "unavailable_with_completed_assertion",
+      "completed_observation_without_report",
+      "completed_observation_without_runner",
+      "observed_without_positive_canonical_facts",
+      "negative_without_negative_canonical_fact",
+    ]);
+    const namedMismatch = result.error.issues.find((issue) =>
+      namedCodes.has(issue.message),
     );
     if (namedMismatch !== undefined) {
       throw new AtlasSurfaceReadinessContractError(
@@ -791,6 +1197,65 @@ export function parseAtlasSurfaceReadinessClaim(
   return result.data;
 }
 
+/** Parse one reportable claim, resolving actual cited bytes when that basis is used. */
+export function parseAtlasSurfaceReadinessClaim(
+  value: unknown,
+  citedReportBytes?: Uint8Array,
+): AtlasSurfaceReadinessClaim {
+  const claim = parseClaimShape(value);
+  if (claim.basis.kind !== "consistent_with_cited_report") {
+    return claim;
+  }
+  if (citedReportBytes === undefined) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_report_bytes_required",
+      "a cited basis is not reportable until its exact artifact bytes are resolved",
+    );
+  }
+  const report = citedReportSchema.parse(parseJson(citedReportBytes));
+  if (report.execution_status === "pass" && report.findings.length > 0) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_pass_with_findings",
+      "cited_pass_with_findings",
+    );
+  }
+  if (report.execution_status !== "pass" && report.findings.length === 0) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_nonpass_without_findings",
+      "cited_nonpass_without_findings",
+    );
+  }
+  const digest = sha256Bytes(citedReportBytes);
+  const expectedBasis = citedBasisSchema.parse({
+    kind: "consistent_with_cited_report",
+    artifact: {
+      artifact_id: `sha256:${digest}`,
+      sha256: digest,
+      media_type: "application/json",
+      schema_id: report.report_schema.id,
+      schema_version: report.report_schema.version,
+    },
+    producer: {
+      ...report.producer,
+      predicate_provenance: "institutionally_supplied",
+    },
+    verifier: {
+      verifier_id: CITED_REPORT_VERIFIER_ID,
+      verifier_version: PRODUCER_VERSION,
+      predicate_provenance: "recomputed",
+    },
+    execution_status: report.execution_status,
+    findings: report.findings,
+  });
+  if (JSON.stringify(claim.basis) !== JSON.stringify(expectedBasis)) {
+    throw new AtlasSurfaceReadinessContractError(
+      "cited_report_content_mismatch",
+      "cited basis does not resolve to the supplied artifact bytes",
+    );
+  }
+  return claim;
+}
+
 export type AtlasSurfaceReadinessCiCode =
   | "canonical_claim_not_observed"
   | "claim_observation_unavailable"
@@ -798,7 +1263,7 @@ export type AtlasSurfaceReadinessCiCode =
 
 /** Apply the CI gate to one row. The caller alone may conjoin row failures. */
 export function assertAtlasSurfaceReadinessClaimForCi(value: unknown): void {
-  const claim = parseAtlasSurfaceReadinessClaim(value);
+  const claim = parseClaimShape(value);
   if (claim.basis.kind === "consistent_with_cited_report") {
     throw new AtlasSurfaceReadinessContractError(
       "cited_report_not_observation",

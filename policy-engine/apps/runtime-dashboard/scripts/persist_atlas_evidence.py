@@ -1225,11 +1225,57 @@ def _readiness_source_ref(path: str, role: str) -> dict[str, str]:
     }
 
 
+def _validated_readiness_source_ref(
+    source_projection: Mapping[str, Any],
+    path: str,
+    role: str,
+) -> dict[str, str]:
+    readiness = source_projection.get("readiness")
+    if not isinstance(readiness, dict) or not isinstance(readiness.get("source_refs"), list):
+        raise AtlasEvidencePersistenceError(
+            "validated readiness projection has no source references"
+        )
+    matches = [
+        reference
+        for reference in readiness["source_refs"]
+        if isinstance(reference, dict) and reference.get("path") == path
+    ]
+    if len(matches) != 1:
+        raise AtlasEvidencePersistenceError(
+            f"validated readiness projection does not bind exactly one {path}"
+        )
+    reference = matches[0]
+    digest = _require_lower_sha256(
+        reference.get("sha256"),
+        field=f"validated readiness source {path}",
+    )
+    if hashlib.sha256((_policy_engine_root() / path).read_bytes()).hexdigest() != digest:
+        raise AtlasEvidencePersistenceError(
+            f"validated readiness source bytes changed after validation: {path}"
+        )
+    return {"path": path, "sha256": digest, "role": role}
+
+
 def _expected_readiness_claims(
     source_projection: Mapping[str, Any],
 ) -> list[dict[str, str]]:
+    ledger_ref = _validated_readiness_source_ref(
+        source_projection,
+        READINESS_LEDGER_PATH,
+        "complete_readiness_owner",
+    )
+    _validated_readiness_source_ref(
+        source_projection,
+        READINESS_SCHEMA_PATH,
+        "readiness_owner_schema",
+    )
+    ledger_bytes = (_policy_engine_root() / READINESS_LEDGER_PATH).read_bytes()
+    if hashlib.sha256(ledger_bytes).hexdigest() != ledger_ref["sha256"]:
+        raise AtlasEvidencePersistenceError(
+            "validated readiness owner bytes changed before enumeration"
+        )
     ledger = json.loads(
-        (_policy_engine_root() / READINESS_LEDGER_PATH).read_text(encoding="utf-8"),
+        ledger_bytes.decode("utf-8"),
         object_pairs_hook=_reject_duplicate_keys,
         parse_constant=_reject_non_json_constant,
     )
@@ -1296,6 +1342,38 @@ def _expected_route_assertion(claim: Mapping[str, str]) -> str | None:
     )
 
 
+def _expected_route_declaration(
+    claim: Mapping[str, str],
+) -> tuple[str, str] | None:
+    expected_assertion = _expected_route_assertion(claim)
+    if expected_assertion is None:
+        return None
+    match = re.fullmatch(
+        r"(?P<source>/[a-z0-9/-]+) to (?P<target>/[a-z0-9/-]+)",
+        claim["title"],
+    )
+    if match is None:
+        return None
+    return match.group("source"), match.group("target")
+
+
+def _expected_vitest_runner() -> dict[str, str]:
+    dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
+    entry = (dashboard_root / "node_modules/vitest/vitest.mjs").resolve(strict=True)
+    package = json.loads(
+        (entry.parent / "package.json").read_text(encoding="utf-8"),
+        object_pairs_hook=_reject_duplicate_keys,
+        parse_constant=_reject_non_json_constant,
+    )
+    if not isinstance(package, dict) or not isinstance(package.get("version"), str):
+        raise AtlasEvidencePersistenceError("resolved Vitest package has no version")
+    return {
+        "path": str(entry),
+        "sha256": hashlib.sha256(entry.read_bytes()).hexdigest(),
+        "version": package["version"],
+    }
+
+
 def _require_readiness_source_ref(
     value: object,
     *,
@@ -1310,6 +1388,7 @@ def _require_observed_readiness_basis(
     claim: Mapping[str, Any],
     expected_claim: Mapping[str, str],
     *,
+    source_projection: Mapping[str, Any],
     source_validator_observation: Mapping[str, Any],
     node_executable: Path,
     node_version: str,
@@ -1386,9 +1465,11 @@ def _require_observed_readiness_basis(
         {
             "check_id",
             "executable",
+            "runner",
             "report_sha256",
             "assertion_name",
             "assertion_status",
+            "runtime_route",
             "test_ref",
         },
         field="canonical check",
@@ -1410,9 +1491,18 @@ def _require_observed_readiness_basis(
         raise AtlasEvidencePersistenceError(
             "canonical check executable provenance mismatch"
         )
+    runner = canonical_check["runner"]
+    if runner is not None and runner != _expected_vitest_runner():
+        raise AtlasEvidencePersistenceError(
+            "canonical check Vitest runner provenance mismatch"
+        )
     report_sha256 = canonical_check["report_sha256"]
     if report_sha256 is not None:
         _require_lower_sha256(report_sha256, field="canonical check report_sha256")
+        if runner is None:
+            raise AtlasEvidencePersistenceError(
+                "canonical report digest has no bound Vitest runner"
+            )
     expected_test_ref = (
         _readiness_source_ref(
             READINESS_RECONCILER_SOURCE,
@@ -1432,14 +1522,24 @@ def _require_observed_readiness_basis(
 
     assertion_name = canonical_check["assertion_name"]
     assertion_status = canonical_check["assertion_status"]
+    if assertion_status not in {None, "passed", "failed", "skipped"}:
+        raise AtlasEvidencePersistenceError("canonical assertion status is outside the contract")
+    if assertion_status is not None and (runner is None or report_sha256 is None):
+        raise AtlasEvidencePersistenceError(
+            "canonical assertion fact has no bound runner and report"
+        )
+    runtime_route = canonical_check["runtime_route"]
     expected_assertion = _expected_route_assertion(expected_claim)
+    expected_declaration = _expected_route_declaration(expected_claim)
     if is_stable:
         if (
             observation_status != "observation_unavailable"
             or observation["reason"] != "canonical_stable_observer_not_registered"
+            or runner is not None
             or report_sha256 is not None
             or assertion_name is not None
             or assertion_status is not None
+            or runtime_route is not None
         ):
             raise AtlasEvidencePersistenceError(
                 "stable claim must fail closed while its canonical observer is absent"
@@ -1450,43 +1550,168 @@ def _require_observed_readiness_basis(
             or observation["reason"] != "canonical_check_not_registered"
             or assertion_name is not None
             or assertion_status is not None
+            or runtime_route is not None
         ):
             raise AtlasEvidencePersistenceError(
                 "unregistered implemented claim must be observation_unavailable"
             )
     else:
+        if expected_declaration is None:
+            raise AtlasEvidencePersistenceError("canonical route declaration could not be derived")
         if assertion_name != expected_assertion:
             raise AtlasEvidencePersistenceError(
                 "canonical assertion does not bind the gated readiness claim"
             )
-        allowed_pairs = {
-            "observed": "passed",
-            "not_observed": "failed",
-            "observation_unavailable": "skipped",
-        }
-        expected_assertion_status = allowed_pairs[observation_status]
-        if assertion_status != expected_assertion_status and not (
-            observation_status == "observation_unavailable"
-            and assertion_status is None
-            and observation["reason"]
-            in {
-                "canonical_assertion_missing",
-                "canonical_assertion_ambiguous",
-                "canonical_route_harness_failed",
-                "canonical_route_report_invalid",
-                "canonical_route_report_missing",
-            }
+        if not isinstance(runtime_route, dict):
+            raise AtlasEvidencePersistenceError("canonical runtime route fact must be an object")
+        _require_keys(
+            runtime_route,
+            {
+                "status",
+                "reason",
+                "declared_from",
+                "declared_to",
+                "observed_to",
+                "replace",
+            },
+            field="canonical runtime route fact",
+        )
+        source_path, target_path = expected_declaration
+        if (
+            runtime_route["declared_from"] != source_path
+            or runtime_route["declared_to"] != target_path
         ):
             raise AtlasEvidencePersistenceError(
-                "claim observation and canonical assertion disagree"
+                "canonical runtime route fact does not bind both declared endpoints"
+            )
+        runtime_status = runtime_route["status"]
+        if runtime_status not in {"matched", "mismatched", "unavailable"}:
+            raise AtlasEvidencePersistenceError(
+                "canonical runtime route status is outside the contract"
+            )
+        if runtime_status == "matched" and runtime_route != {
+            "status": "matched",
+            "reason": None,
+            "declared_from": source_path,
+            "declared_to": target_path,
+            "observed_to": target_path,
+            "replace": True,
+        }:
+            raise AtlasEvidencePersistenceError(
+                "matched runtime route does not bind target and replace semantics"
+            )
+        if runtime_status != "matched" and (
+            not isinstance(runtime_route["reason"], str) or not runtime_route["reason"]
+        ):
+            raise AtlasEvidencePersistenceError("non-matching runtime route must carry a reason")
+        if runtime_status == "unavailable" and (
+            runtime_route["observed_to"] is not None or runtime_route["replace"] is not None
+        ):
+            raise AtlasEvidencePersistenceError(
+                "unavailable runtime route cannot invent observed facts"
+            )
+        if runtime_status == "mismatched" and (
+            (
+                runtime_route["observed_to"] is not None
+                and not isinstance(runtime_route["observed_to"], str)
+            )
+            or (
+                runtime_route["replace"] is not None
+                and not isinstance(runtime_route["replace"], bool)
+            )
+        ):
+            raise AtlasEvidencePersistenceError(
+                "mismatched runtime route carries malformed observed facts"
             )
 
+        if observation_status != "observation_unavailable" and (
+            runner is None or report_sha256 is None
+        ):
+            raise AtlasEvidencePersistenceError(
+                "completed observation must bind runner and report digest"
+            )
+        if observation_status == "observed" and not (
+            assertion_status == "passed" and runtime_status == "matched"
+        ):
+            raise AtlasEvidencePersistenceError("observed claim lacks positive canonical facts")
+        if observation_status == "not_observed" and not (
+            assertion_status == "failed" or runtime_status == "mismatched"
+        ):
+            raise AtlasEvidencePersistenceError(
+                "negative observation lacks a completed negative fact"
+            )
+        if observation_status == "observation_unavailable" and assertion_status in {
+            "passed",
+            "failed",
+        }:
+            raise AtlasEvidencePersistenceError(
+                "unavailable observation cannot coexist with a completed assertion"
+            )
+
+        observation_reason = observation["reason"]
+        if observation_status == "not_observed":
+            expected_reason = (
+                runtime_route["reason"]
+                if runtime_status == "mismatched"
+                else "canonical_assertion_failed"
+            )
+            if observation_reason != expected_reason:
+                raise AtlasEvidencePersistenceError(
+                    "negative observation reason does not match its canonical fact"
+                )
+        elif observation_status == "observation_unavailable":
+            if runtime_status == "unavailable":
+                if observation_reason != runtime_route["reason"]:
+                    raise AtlasEvidencePersistenceError(
+                        "unavailable observation reason does not match runtime fact"
+                    )
+            else:
+                allowed_unavailable_reasons = {
+                    "canonical_assertion_ambiguous",
+                    "canonical_assertion_missing",
+                    "canonical_assertion_skipped",
+                    "canonical_route_harness_failed",
+                    "canonical_route_report_invalid",
+                    "canonical_route_report_missing",
+                    "canonical_route_sources_changed",
+                }
+                if observation_reason not in allowed_unavailable_reasons:
+                    raise AtlasEvidencePersistenceError(
+                        "unavailable observation reason is not produced by the fixed route run"
+                    )
+                if (observation_reason == "canonical_assertion_skipped") != (
+                    assertion_status == "skipped"
+                ):
+                    raise AtlasEvidencePersistenceError(
+                        "skipped assertion and unavailable reason disagree"
+                    )
+                if observation_reason in {
+                    "canonical_assertion_ambiguous",
+                    "canonical_assertion_missing",
+                    "canonical_route_report_invalid",
+                } and (runner is None or report_sha256 is None):
+                    raise AtlasEvidencePersistenceError(
+                        "report-derived unavailability has no bound runner and report"
+                    )
+                if observation_reason in {
+                    "canonical_route_report_missing",
+                    "canonical_route_sources_changed",
+                } and (runner is None or report_sha256 is not None):
+                    raise AtlasEvidencePersistenceError(
+                        "pre-report unavailability contradicts runner/report provenance"
+                    )
+
     expected_source_refs = [
-        _readiness_source_ref(
+        _validated_readiness_source_ref(
+            source_projection,
             READINESS_LEDGER_PATH,
             "complete_readiness_owner",
         ),
-        _readiness_source_ref(READINESS_SCHEMA_PATH, "readiness_owner_schema"),
+        _validated_readiness_source_ref(
+            source_projection,
+            READINESS_SCHEMA_PATH,
+            "readiness_owner_schema",
+        ),
     ]
     if is_stable:
         expected_source_refs.extend(
@@ -1591,6 +1816,7 @@ def _require_readiness_report(
         _require_observed_readiness_basis(
             claim,
             expected_claim,
+            source_projection=source_projection,
             source_validator_observation=source_validator_observation,
             node_executable=node_executable,
             node_version=node_version,

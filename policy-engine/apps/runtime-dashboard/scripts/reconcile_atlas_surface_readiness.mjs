@@ -22,7 +22,8 @@ if (process.argv.length !== 2) {
     const reconcilerModule = await server.ssrLoadModule(
       "/src/test/evidence/atlasSurfaceReadinessReconciliation.ts",
     );
-    const report = reconcilerModule.reconcileAtlasSurfaceReadinessClaims();
+    const report =
+      await reconcilerModule.reconcileAtlasSurfaceReadinessClaims();
     process.stdout.write(`${JSON.stringify(report)}\n`);
   } catch (error) {
     process.stderr.write(

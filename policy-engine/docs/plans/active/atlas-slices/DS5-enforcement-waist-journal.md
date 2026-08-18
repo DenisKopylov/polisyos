@@ -4021,3 +4021,104 @@
   executable with its post-C18b resolver denominator still `not_established`;
   C19-R1 is executable but ordered after C17b-R2. The register family is free
   immediately after this commit.
+
+## 2026-08-18 — DS5-C17b-R2 stopped after the persistence-binding round budget
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at C18b-R2
+  `8bb10a611`, 93 commits ahead of `main`, clean, with the register family
+  free. Root read the C17b section before mutation and held the register family
+  alone. The exact cap-11 path set remained the shared TypeScript scanner;
+  Atlas checker/test; disposition register/schema/checker/test/generated
+  report; status inventory; plan; and journal. The source candidate touched
+  only the first seven paths; no product, report, status-inventory, readiness,
+  baseline, C23, DS8, DS9, DS14, i18n, backend, or other-lane byte moved.
+- P35/P37 entry census was `recomputed` with the installed TypeScript compiler
+  and declaration resolver over all `574` production TS/TSX sources, excluding
+  tests, stories and `src/test`: `36` construction sites in `15` files, split
+  `26` Web Storage / `5` Zustand / `5` IndexedDB. This corrects the stale
+  admitted `35/14` by `+1` site / `+1` file. The logical-family delta was zero;
+  the candidate classified its complete site set `14` scoped authority / `18`
+  interaction benign / `4` rollout-cache pending and found `9` canonical
+  factory calls. These remain candidate count receipts only. The gate property,
+  a causal per-site authority-owner relation, is `not_established` and none of
+  these rows was admitted to the landed register.
+- RED-first and non-vacuity evidence used the real compiler packet and real
+  gates. Missing direct Storage sites, raw structural writes and review-
+  attention resurrection produced exact unregistered-site/census REDs; moved
+  source fingerprints, resolved declaration/operation/site drift, duplicate
+  rows, class changes, benign-owner reason and factory receipt corruption were
+  named REDs. Import matching was repaired from basename suffix comparison to
+  compiler/normalized alias or importer-relative identity; a same-basename
+  unrelated module became a negative. The round-2 remove-property probe changed
+  the binding intersection to a union while keeping ordinary markers and made
+  the raw-key and raw-payload subtests fail `2`, exit `1`, real `108.80 s`; it
+  is a captured terminal RED and therefore remains a timing sample, never a
+  GREEN mechanism receipt. Restoring the intersection made the focused Atlas
+  persistence receipt GREEN `1/1`, real `116.91 s`.
+- Terminal GREEN receipts under the recorded local-macOS, installed-dependency,
+  venv-explicit, captured-exit regime were: focused frontend import `1/1` in
+  `41.70 s`; focused frontend static receipt `1/1` in `22.17 s`; their combined
+  wave `2/2` in `52.44 s`; an earlier focused Atlas persistence receipt in
+  `58.68 s`; and final focused Atlas persistence `1/1` in `116.91 s`.
+  `git diff --check`, Python compilation and Node syntax checks were GREEN.
+  The plan admits the frontend samples at nearest-rank p95 `52.44 s` / ceiling
+  `105 s` and Atlas samples `58.68`, `108.80 RED`, `116.91` at p95 `116.91 s`
+  / ceiling `234 s`. Only killed, timed-out or lost-terminal runs are excluded.
+- Mechanism review round 1 found that scoped sites borrowed any factory merely
+  present in the same file, plus unresolved alias/destructuring/bind/call
+  variants. The first repair added content-bound factory receipts and expanded
+  the resolver/witness set. Round 2 found the join was still per-file rather
+  than per-site: a raw write in `useChatStore.ts` could retain the factory
+  markers and be coherently refreshed as scoped. The second repair introduced
+  per-site binding receipts and remove-property/keep-marker tests.
+- Round-3 independent review then falsified that repaired mechanism in four
+  concrete ways. A bound caller propagated its factory to every resolved callee,
+  so an unrelated provider could borrow authority; any acquisition in a bound
+  function inherited all function bindings even when unused; the expression
+  graph unioned all assignments rather than the last dominating definition, so
+  owner-derived key/payload variables reassigned raw still passed; and Composer
+  bootstrap accepted broad reachable-function binding instead of the exact
+  `openOfflineDb`/upgrade chain. A separate independent mutation changed a
+  scoped row's `store_owner` and registered codec to another valid owner while
+  keeping its factory receipt; both static and Atlas joins stayed green because
+  no live owner-path equality existed. These are Blocking/High instances of the
+  already registered P33/P37/P38 class, not a new class.
+- The required successor mechanism is explicit and remains inside cap 11:
+  scanner-produced argument→parameter, return/configured-property and receiver
+  edges carrying one factory identity; last-dominating-definition proof with
+  ambiguity failing closed; acquisition bound only when that provider feeds the
+  owner-derived key/payload operation; exact Composer transport/bootstrap
+  edges; and live equality from every referenced factory receipt path to
+  `store_owner`. Coherently refreshed same-function raw acquisition,
+  reassignment, unrelated-provider and unrelated-bootstrap REDs must fail on
+  authority-binding/owner drift after ordinary fingerprints and digests are
+  updated. This is `C17b-R3`, same cap 11, not a sizing recut.
+- The exact seven-path candidate was preserved append-only as `ca1400c55
+  DS5-C17b-R2 preserve stopped persistence census candidate`. Root then
+  forward-reverted it as `eb97981c4`; a complete tree comparison against
+  C18b-R2 `8bb10a611` was empty. Thus no candidate register/schema/checker byte
+  survives, report and status inventory never moved, C23 constants/rows stayed
+  untouched, and the register family is free.
+- The complete standing denominator was refreshed at `eb97981c4`, not inferred
+  from the entry snapshot: all `25` cap-table records (`23` audited writer +
+  `2` stopped predecessors), `31` execution-plane rows, `28` C07–C20 heading
+  occurrences / `24` base groups, and `48` expected-commit rows. Relative to
+  entry, C18b-R2 is landed, C17b-R2 is stopped for same-cap R3, C19-R1 remains
+  executable, and the other executable/external-debt sets are unchanged. P37
+  provenance is `recomputed` for table counts and `independently_reconciled`
+  for commit ancestry.
+- Tooling nonreceipts, none admitted as product evidence: one unittest command
+  named nonexistent class `FrontendDispositionRegisterTests` and exited `1` in
+  `0.16 s`; a direct `jsonschema` call lacked the registry for a relative schema
+  reference and raised `Unresolvable`; one static command was launched from the
+  dashboard directory and could not resolve `.venv`/architecture paths; an
+  early helper called nonexistent `_load_inventory`; and one validation command
+  yielded without a terminal receipt and was rerun. All were read-only or
+  failed before mutation, and no governed writer was launched.
+- **Terminal classification: `stopped_for_recut`.** Two mechanism repair rounds
+  were consumed; the third Blocking/High review finding triggered the binding
+  stop. Candidate `ca1400c55` is the preserved evidence and `eb97981c4` the
+  forward revert. Successor is C17b-R3 / cap 11. C19-R1 depends on landed
+  C18b-R2, not C17b, so it remains executable and is next. C20 remains blocked
+  by C17b-R3 plus its other executable clusters. The eight-owner duplication
+  finding remains registered.

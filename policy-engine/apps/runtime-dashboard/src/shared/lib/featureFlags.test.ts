@@ -4,15 +4,10 @@ import {
   FEATURE_FLAG_MANIFEST_CACHE_KEY,
   FEATURE_FLAG_MANIFEST_VERSION,
   FEATURE_FLAG_REGISTRY,
-  normalizeFeatureFlagManifest,
-  normalizeFeatureFlagOverrides,
   parseFeatureFlagManifest,
-  readCachedFeatureFlagManifest,
+  readEnvironmentFeatureFlagManifest,
   readInjectedFeatureFlagManifest,
-  readInjectedFeatureFlags,
   readStrictCachedFeatureFlagManifest,
-  resolveFeatureFlags,
-  writeCachedFeatureFlagManifest,
   writeStrictCachedFeatureFlagManifest,
 } from "@/shared/lib/featureFlags";
 
@@ -28,6 +23,7 @@ const strictManifest = (flags: Record<string, boolean>) => ({
 describe("featureFlags", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     delete window.__RUNTIME_DASHBOARD_FLAGS__;
     window.localStorage.removeItem(FEATURE_FLAG_MANIFEST_CACHE_KEY);
   });
@@ -98,6 +94,30 @@ describe("featureFlags", () => {
       result: {
         ok: false,
         diagnostic: { code: "forbidden_auth_pseudo_key" },
+      },
+    });
+  });
+
+  it("treats an explicit null injected manifest as present invalid input", () => {
+    window.__RUNTIME_DASHBOARD_FLAGS__ = null as unknown as Record<string, unknown>;
+
+    expect(readInjectedFeatureFlagManifest()).toMatchObject({
+      state: "present",
+      result: {
+        ok: false,
+        diagnostic: { code: "invalid_feature_flag_manifest" },
+      },
+    });
+  });
+
+  it("treats an empty environment manifest as present invalid input", () => {
+    vi.stubEnv("VITE_FEATURE_FLAGS_MANIFEST", "   ");
+
+    expect(readEnvironmentFeatureFlagManifest()).toMatchObject({
+      state: "present",
+      result: {
+        ok: false,
+        diagnostic: { code: "invalid_feature_flag_manifest" },
       },
     });
   });
@@ -456,27 +476,6 @@ describe("featureFlags", () => {
         cacheScope,
       ),
     ).toMatchObject({ ok: false, diagnostic: { code: "cache_serialization_failed" } });
-  });
-
-  it("retains the legacy wrappers until C18b removes their permissive predecessor", () => {
-    expect(
-      normalizeFeatureFlagOverrides({ enableDarkMode: "false", ignoredKey: true }),
-    ).toEqual({ enableDarkMode: false });
-    expect(normalizeFeatureFlagOverrides("all_on")).toEqual(
-      Object.fromEntries(FEATURE_FLAG_KEYS.map((key) => [key, true])),
-    );
-    window.__RUNTIME_DASHBOARD_FLAGS__ = { enableRunsWorkspace: "false" };
-    expect(readInjectedFeatureFlags()).toEqual({ enableRunsWorkspace: false });
-    expect(
-      resolveFeatureFlags({ enableDarkMode: false }).enableDarkMode,
-    ).toBe(false);
-
-    const legacyManifest = normalizeFeatureFlagManifest(
-      { flags: { enableDarkMode: false }, ttlMs: 60_000, updatedAt: Date.now(), version: 2 },
-      "remote",
-    );
-    writeCachedFeatureFlagManifest(legacyManifest!);
-    expect(readCachedFeatureFlagManifest()).toMatchObject({ version: 2 });
   });
 
   it("exposes the complete literal registry with eleven wire dispositions and one retirement", () => {

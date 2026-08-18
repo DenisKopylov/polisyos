@@ -1498,7 +1498,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         self.assertEqual(
             {
-                "current_authored_statuses": 13,
+                "current_authored_statuses": 12,
                 "ds1_status_rows": 47,
                 "semantic_retirement_debt": 0,
             },

@@ -726,9 +726,29 @@ whole-second execution ceiling is `ceil(2 * p95)`:
 | scoped dashboard ESLint | `4.93, 5.35, 5.46, 6.10, 6.23, 6.39, 6.55, 7.00, 7.86, 8.16, 8.32, 12.705, 17.79, 21.02, 21.46, 21.71, 21.73, 21.82, 23, 25.9, 27.33, 34, 41.69, 51.12, 57.16, 64.38, 66.58, 67.04, 68.04, 71.95, 72.20, 86.84, 113.55` | `86.84` | `174 s` |
 | dashboard production build | `18, 18.55, 19.20, 22.66, 23.32, 25.9, 31, 33.13, 34, 37.52, 37.52, 57.45` | `57.45` | `115 s` |
 | canonical report writer | `34.91, 34.96, 36.20, 36.47, 42.33, 50.22, 58, 60, 69.21, 73.88, 76.34, 86.97` | `86.97` | `174 s` |
-| dashboard architecture/dependency cruise | `4.36` | `4.36` | `9 s` |
+| dashboard architecture/dependency cruise | `4.36, 4.38` | `4.38` | `9 s` |
 | status semantic derivation (no-write) | `12.42` | `12.42` | `25 s` |
-| C21 identity validation (no-write) | `1.70` | `1.70` | `4 s` |
+| C21 identity validation (no-write) | `1.70, 2.64` | `2.64` | `6 s` |
+
+The C18b-R2 admissions use the same regime and complete the recomputation input:
+
+| Lane | New successful sample (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused feature/flag tests | `2.78` | `6.14` | `13 s` |
+| dashboard typecheck | `15.64` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `21.63` | `86.84` | `174 s` |
+| dashboard production build | `18.75` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `4.38` | `4.38` | `9 s` |
+| focused status owner receipts | `12.45` | `12.45` | `25 s` |
+| focused Atlas owner receipt | `33.30` | `33.30` | `67 s` |
+| C21 identity validation (no-write) | `2.64` | `2.64` | `6 s` |
+| canonical report writer | `34.44, 34.69` | `86.97` | `174 s` |
+| full frontend module | `111.62` | `373.94` | `748 s` |
+| disposition corruption battery | `94.43` | `276.89` | `554 s` |
+| status-retirement module | `57.36` | `168.65` | `338 s` |
+| status checker/corruption | `18.91` | `42.54` | `86 s` |
+| Atlas checker/corruption | `62.66` | `156.60` | `314 s` |
+| full Atlas module | `404.11` | `1338.89` | `2678 s` |
 
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
@@ -863,7 +883,7 @@ first continuously numbered `-R1` successor.
 | C16b | 7 | 10 | stopped structural re-cut | C16b-R2 / 10 |
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
 | C17b | 9 | 11 | stopped structural re-cut | C17b-R2 / 11 after C18b-R2 |
-| C18b | 5 | 12 | stopped structural re-cut | C18b-R2 / 12; R1 cap-10 checkpoint preserved then reverted |
+| C18b | 5 | 12 | landed | C18b-R2 / 12; R1 checkpoint restored and verified |
 | C19 | 13 | 14 | no-fit | C19-R1 / 14 after C18b-R2 |
 
 The audited writer set is exactly these 23 rows; C20 is not a writer. C01a/
@@ -1378,12 +1398,12 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `78ea7c3d7`; final verification `a1e6ebcdc`; focused domain/panel witnesses | landed; register family free | none |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
-| C17b-R1/R2 | persistence construction census | R1's ten mandatory governed paths omit the now-required timing-plan path; no post-C18b resolver census exists | path pricing + `not_established` denominator | stopped_for_recut | C18b-R2, then C17b-R2 / 11 |
+| C17b-R1/R2 | persistence construction census | C18b-R2 supplies the strict rollout-cache boundary; the post-C18b resolver census remains `not_established` until this cluster runs | C18b-R2 acceptance; path pricing | executable and unentered | none |
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
-| C18b-R1/R2 | contextual flag source binding | R1 source/governed candidate is preserved at `52ab21cf6`, but owner receipts pin stale `13/55`; R2 must close at `12/56` | provider/registry/HUD witnesses; two governed owner tests | stopped_for_recut | C18b-R2 / 12 |
-| C19-R1 | three flag gates and collaboration retirement | flag producers and scenario-capability route/hooks exist; C18b-R2 supplies the strict live-source/provider interface consumed here | `DS5-C18b-R2` acceptance; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts`; `apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx`; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | blocked-on-another-cluster; executable after C18b-R2 | C18b-R2 |
+| C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
+| C19-R1 | three flag gates and collaboration retirement | the strict live-source/provider interface is landed; route, deep-link and keyboard gates remain | C18b-R2 acceptance; `apps/runtime-dashboard/src/features/runs/route.tsx:184-236` | executable and unentered; ordered after C17b-R2 | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C18b-R2, C17b-R2, C19-R1 |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; another-plan blockers are named carried debt, not prerequisites | `DS5-C20` acceptance; complete standing census below | blocked-on-another-cluster | C07a, C09a-R1, C09b-R1, C11b-R1, C15b-R1, C17b-R2, C19-R1 |
 
 **Standing census (recomputed and independently reconciled at `324996652`):**
 the complete walk covered all `25` cap-table records (`23/23` audited writer
@@ -2270,7 +2290,9 @@ diagnostic; the cache is version/tenant/user/expiry bound. The four
 `consumer_missing` disposition rows remain open until C19-R1, but their producer
 and strict-consumer evidence plus the generated report land here.
 
-**Expected commit:** `DS5-C18b-R2 bind flag sources to strict registry`.
+**Landing outcome:** the exact cap-12 set restores the independently reviewed
+checkpoint, closes the status/Atlas owner receipts at `12/56`, and passes the
+full governed wave. Commit subject: `DS5-C18b-R2 bind flag sources to strict registry`.
 
 ### DS5-C19-R1 — wire three flags and retire collaboration
 
@@ -2385,7 +2407,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |
 | C17b-R1/R2 | R1 stopped on the mandatory plan path; `DS5-C17b-R2 govern persistence construction` | 11 |
 | C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
-| C18b-R1/R2 | R1 stopped on two omitted owner receipts; `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
+| C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1 | `DS5-C19-R1 wire and retire D5 flags` | 14 |
 | C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |

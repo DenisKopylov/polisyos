@@ -3941,3 +3941,83 @@
   available-skills catalog's `openai-curated-remote` path was used. Neither
   output was admitted as product or census evidence, and neither changed a
   tracked byte.
+
+## 2026-08-18 — DS5-C18b-R2 bind flag sources to the strict registry
+
+- Entry was attached `codex/atlas-ds5-enforcement-waist` at standing-reconcile
+  commit `593ad6170`, 92 ahead of `main`, clean, with the register family free.
+  The `52ab21cf6` R1 checkpoint and its `1464feee1` forward revert were
+  `institutionally_supplied`; a complete blob comparison
+  `independently_reconciled` the eight non-owner candidate paths before root
+  restored them. Seven non-generated blobs matched exactly; the generated
+  report was regenerated canonically for the advanced branch history.
+- The exact cap-12 landing set is the provider and test, flag registry and
+  test, `AmbientTelemetryHud.tsx`, register, status inventory, generated
+  report, the two governed owner tests, plan, and journal. No readiness,
+  baseline, schema, checker, C23 constant/root, DS8, DS9, DS14, i18n, backend,
+  or other-lane byte entered the set.
+- RED-first owner receipts were behavioral: the two focused status assertions
+  failed `2/2`, exit `1`, real `12.67 s`, on stale `13/55` versus live
+  `12/56`; the focused Atlas assertion failed `1/1`, exit `1`, real `35.21 s`,
+  on stale `13` versus live `12`. Those RED durations are censored, not timing
+  samples. The minimal owner repair changes only status `13→12`, exemptions
+  `55→56`, and Atlas `13→12`; focused GREEN receipts were `2/2` in `12.45 s`
+  and `1/1` in `33.30 s`.
+- The restored mechanism was accepted unread only after fresh terminal GREEN:
+  flag/registry/provider `32/32` in `2.78 s`; dashboard typecheck `15.64 s`;
+  exact five-file ESLint `21.63 s`; production build `18.75 s` (existing chunk
+  advisory only); architecture/dependency cruise `4.38 s`, `1,030` modules /
+  `4,190` dependencies / zero violations. Regime for every duration here is
+  local macOS, installed dependencies, venv-first child interpreter, captured
+  terminal exit, and one root-owned scanner-heavy parent at a time.
+- P37 predicates are explicit. Strict-source/cache behavior is
+  `independently_reconciled` by the restored RED/GREEN suite and two fresh
+  independent source reviews; identity scope is `independently_reconciled`
+  from the canonical parsed auth query rather than permission context; parsed
+  register/status arithmetic is `recomputed`; the checkpoint relationship is
+  `independently_reconciled`. Unknown, partial, stale, future, cross-scope and
+  wrong-version inputs fail closed; remote diagnostics survive cache fallback;
+  the collision-free tuple key keeps legal tenant/user pairs distinct; public
+  load state is branded `InteractionState`; a rollout flag cannot grant a
+  server permission and a permission cannot turn on a false flag.
+- The complete no-write C21 walk was GREEN in `2.64 s`: `156` occurrences /
+  `129` distinct identities, exactly one HUD identity, zero validation errors,
+  and zero payload reanchor. The measured C18b register allowlist was exactly
+  ten units: eight live rollout rows plus `raw-fetch-flag-manifest` become
+  `use_as_is/not_applicable`, and `status-feature-flag` remains
+  `rebind_pending` but becomes `strangled` with its branded successor. C19's
+  four decision rows and the auth pseudo-row stayed byte-stable.
+- Parsed governed receipts are `261` roots / `62` supplemental / `9` censuses;
+  dispositions `18/186/25/16/16`; strangle `57/152/52`. Status is
+  current-named/current-inline/current-total/retired `8/10/18/28`, authored
+  `12`, DS1 `47`, and semantic exemptions `56`; the only semantic addition is
+  `semantic-feature-flags-feature-flag-disposition`, and only the DS19 source
+  hash follows the register. Register SHA-256 is `4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f`;
+  status SHA-256 is `7f1341a50bfd3c452184e609bf1b03f16e16c1516be6e7dc89eb5eaa0c723863`.
+- The canonical report writer was GREEN twice, `34.44 s` and `34.69 s`, with
+  stable SHA-256 `005da38063504debe984a06b0516601fadc183811e48a8bd512574ba4823c632`.
+  Baseline and readiness remained byte-identical at
+  `215b1882bc8dd7fbafad8e2394e5f203c703cc96eb225f1d19ebcf7220e4bc00`
+  and `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+- The serialized governed wave was terminal GREEN: frontend `94/94` in
+  `111.62 s`; disposition baseline/corruption `94.43 s`; status `38/38` in
+  `57.36 s`; status checker/corruption `18.91 s`; Atlas checker/corruption
+  `62.66 s`; full Atlas owner module `34/34` in `404.11 s`. Nested RED output
+  emitted by frontend corruption controls was accepted only because the parent
+  finished `94/94`, exit `0`. Every new successful duration is admitted in the
+  plan's nearest-rank recomputation; the C21 ceiling alone moved `4→6 s`.
+- Independent mechanism and artifact reviews both returned GO with zero
+  Critical/Important/Minor findings. They re-read the strict source boundary,
+  scoped cache, hostile getter/diagnostic containment, branded load state,
+  permission separation, HUD projection, exact owner constants, parsed
+  allowlists, C23 exclusion, and the pending mandatory plan/journal companions.
+- Tooling nonreceipt: one multi-hunk `apply_patch` failed atomically when its
+  final context did not match; it changed zero bytes and was split into exact
+  anchored patches. No timeout, killed process, lost terminal, rebaseline,
+  merge, push, rebase, stash, or unowned writer occurred.
+- **Terminal classification: `landed`.** C18b-R2 consumes no mechanism repair
+  round beyond R1's already reviewed repairs. The eight-owner / sixteen-literal
+  duplication finding stays registered and no owner is added. C17b-R2 is now
+  executable with its post-C18b resolver denominator still `not_established`;
+  C19-R1 is executable but ordered after C17b-R2. The register family is free
+  immediately after this commit.

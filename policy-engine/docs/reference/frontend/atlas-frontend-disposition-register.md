@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **26011**
-- Application lines deleted: **19602**
-- Net application LOC reduction: **-6409**
+- Application lines added: **27770**
+- Application lines deleted: **19976**
+- Net application LOC reduction: **-7794**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -100,9 +100,9 @@ No merge or push is performed.
 | Disposition | Root units |
 | --- | ---: |
 | `deleted` | 18 |
-| `rebind_pending` | 195 |
+| `rebind_pending` | 186 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 7 |
+| `use_as_is` | 16 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -457,7 +457,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `raw-fetch-auth-refresh` | `raw-fetch-auth-refresh` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `raw-fetch-auth-initial` | `raw-fetch-auth-initial` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `raw-fetch-auth-replay` | `raw-fetch-auth-replay` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
-| `raw-fetch-flag-manifest` | `raw-fetch-flag-manifest` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `raw-fetch-flag-manifest` | `raw-fetch-flag-manifest` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `raw-fetch-collab-activity` | `raw-fetch-collab-activity` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `raw-fetch-collab-comments-get` | `raw-fetch-collab-comments-get` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `raw-fetch-collab-comment-post` | `raw-fetch-collab-comment-post` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
@@ -465,7 +465,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `raw-fetch-telemetry` | `raw-fetch-telemetry` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `status-auth-session` | `status-auth-session` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-offline-queue-item` | `status-offline-queue-item` | 0 | `deleted` | `strangled` | `DS1` | `census-c13a-authority-replay-delete` |
-| `status-feature-flag` | `status-feature-flag` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-feature-flag` | `status-feature-flag` | 0 | `rebind_pending` | `strangled` | `DS5` | `dashboard-feature-flag-load-interaction-state` |
 | `status-runs-live` | `status-runs-live` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-draft-identification-display` |
 | `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-pipeline-progress-state` |
@@ -510,14 +510,14 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-route-loader` | `status-inline-route-loader` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-depth-n-cycle-board-governed-projection` |
 | `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
-| `flag-enable-atlas-v2` | `flag-enable-atlas-v2` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-clerk-mode` | `flag-enable-clerk-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-dark-mode` | `flag-enable-dark-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-lex-knowledge` | `flag-enable-lex-knowledge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-narrative-view` | `flag-enable-narrative-view` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-platform-health` | `flag-enable-platform-health` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-runs-workspace` | `flag-enable-runs-workspace` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `flag-enable-scenario-composer` | `flag-enable-scenario-composer` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `flag-enable-atlas-v2` | `flag-enable-atlas-v2` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-clerk-mode` | `flag-enable-clerk-mode` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-dark-mode` | `flag-enable-dark-mode` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-lex-knowledge` | `flag-enable-lex-knowledge` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-narrative-view` | `flag-enable-narrative-view` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-platform-health` | `flag-enable-platform-health` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-runs-workspace` | `flag-enable-runs-workspace` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
+| `flag-enable-scenario-composer` | `flag-enable-scenario-composer` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-causal-graph` | `flag-enable-causal-graph` | 0 | `wire_disposition` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-collaboration` | `flag-enable-collaboration` | 0 | `retire_disposition` | `not_applicable` | `DS5` | `—` |
 | `flag-enable-command-palette` | `flag-enable-command-palette` | 0 | `wire_disposition` | `not_applicable` | `DS5` | `—` |
@@ -565,6 +565,12 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `593ad6170 DS5 reconcile executable standings`
+- `324996652 DS5 record C18b governed recut stop`
+- `1464feee1 Revert "DS5-C18b-R1 checkpoint strict flag closeout recut"`
+- `52ab21cf6 DS5-C18b-R1 checkpoint strict flag closeout recut`
+- `94e2c8ca0 DS5-C18a make flag exposure registry strict`
+- `a1e6ebcdc DS5-C16b-R2 record final verification`
 - `0cfcf6690 DS5-C16b-R2 bind dispute scope snapshot`
 - `78ea7c3d7 DS5-C16b-R2 partition dispute interaction state`
 - `e5a190261 DS5-C16b-R1 record structural recut`

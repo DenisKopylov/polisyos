@@ -22,7 +22,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:37aac42c82d340cdc1c8eddee6efc7aeadb2017640da97fee3bcbf1871678e05"
+      "sha256": "sha256:4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -35,10 +35,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 9,
+    "current_named": 8,
     "current_inline": 10,
-    "current_total": 19,
-    "retired_definitions": 27,
+    "current_total": 18,
+    "retired_definitions": 28,
     "already_deleted": 1
   },
   "entries": [
@@ -118,7 +118,7 @@
     {
       "unit_id": "status-feature-flag",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
         "start_line": 26,
@@ -3659,6 +3659,28 @@
       ],
       "protected_source_paths": [
         "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-feature-flags-feature-flag-disposition",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "start_line": 19,
+        "end_line": 19,
+        "declaration_name": "FeatureFlagDisposition"
+      },
+      "literal_members": ["RETIRE", "WIRE"],
+      "type_expression": "\"WIRE\" | \"RETIRE\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C18",
+      "rationale": "C18's complete wire-or-retire registry classifies rollout exposure disposition; it is neither runtime status nor authority, and no flag may grant a permission.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/featureFlags.test.ts",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c18a--strict-d5-exposure-registry"
       ],
       "does_not_change_ds1_denominator": true
     }

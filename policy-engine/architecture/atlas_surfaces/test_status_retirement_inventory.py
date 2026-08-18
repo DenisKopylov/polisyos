@@ -68,7 +68,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         self.assertIsInstance(scan["authoritySinkDeclarations"], list)
         self.assertEqual(
             {
-                "current_authored": 13,
+                "current_authored": 12,
                 "ds1_rows": 47,
                 "semantic_retirement_debt": 0,
             },
@@ -242,7 +242,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 if row["candidate_id"] in C21_RETIRED_IDS
             )
         )
-        self.assertEqual(55, len(rows))
+        self.assertEqual(56, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
         live_c22_rows = {
             row["candidate_id"]

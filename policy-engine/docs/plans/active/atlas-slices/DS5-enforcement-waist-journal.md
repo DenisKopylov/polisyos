@@ -3773,3 +3773,184 @@
   unchanged provider compatibility suite at `21 / 21`, exit `0`, real
   `3.15 s / 165 s`, under the same local installed-dependency single-worker
   regime. The register family remains free.
+
+## DS5-C18b-R1 — strict source binding and scoped provider strangle (source phase)
+
+- Pattern pass: P01/P02/P04/P05/P07/P08/P09/P10/P28/P29/P31/P32/P33/P35/P37.
+  The C18a parser was a `consumer_missing` boundary because the live provider
+  still read permissive wrappers: per-key environment variables, coercion,
+  partial merge, and an unscoped cache writer could all bypass strict admission.
+  This source phase makes the provider one strict intake/consumer and removes
+  every predecessor export/private helper. Its correct pattern is canonical
+  defaults plus `absent | present(parsed result)` at each source, a typed
+  diagnostic projection, and the strict cache owner only.
+- Identity and authority: cache scope is constructed only from the settled
+  `useAuthMe` receipt that `AuthzProvider` itself treats as ready, using its
+  `tenant_id` and `user_id`; importing the Authz context directly created a
+  linted provider cycle. The scope key remounts provider state, so A state
+  cannot render through B, and the effect checks its abort signal before strict
+  write. The raw `FeatureFlagStatus` union has been
+  replaced by internal `InteractionState`; context retains the public
+  `ready`/`loading`/`error` label projection. Rollout remains separate from
+  authorization: the focused witness uses a real `AuthzProvider`, proves a true
+  flag cannot grant denied `runs.launch`, proves permission cannot turn a false
+  flag on, and rejects a permission-like unknown key with a typed diagnostic.
+- RED first: after test-only expansion, focused provider Vitest was `4/8`
+  failing, exit `1`, real `2.14 s / 165 s`. The expected failures were raw
+  unscoped cache persistence, partial application of an invalid remote payload,
+  remote paint/write before identity readiness, and tenant-A cache reuse after
+  tenant-B remount. One preliminary invocation with unsupported
+  `--minWorkers` exited `1` before running tests; it is a tooling nonreceipt.
+- GREEN receipts: focused strict registry/provider suite was `24/24`, exit
+  `0`, real `1.91 s / 165 s`; dashboard typecheck was exit `0`, real `14.2 s /
+  482 s`. The C18a registry remains twelve literal keys, `11 WIRE / 1 RETIRE`:
+  the eight existing live wires remain measured producer evidence, while causal
+  graph, command palette, WhatIf and collaboration remain C19
+  `consumer_missing`; the auth pseudo-source remains outside this vocabulary.
+  The inherited composer duplication duty remains `16 literals / 8 owners` and
+  this source phase introduces none.
+- Artifact declaration before writer: the frontend disposition register,
+  generated frontend reference report, and status-retirement inventory have
+  **zero source-phase byte delta**. The status-feature-flag transition,
+  membership, and semantic exemption are scanner-derived post-freeze only; no
+  guessed JSON/report line update is admitted. No writer, scanner, generated
+  artifact tool, staging, or commit ran. The two `.env.example` `VITE_FF_*`
+  documentation examples remain outside the explicit ten-path cap and are a
+  recorded cap-bound nonreceipt; live TypeScript per-key sources are zero.
+
+### Pre-freeze governance repair — branded status projection and cache diagnostic retention
+
+- Accepted source finding: projecting `status` as a raw label union recreated
+  the retired local vocabulary despite an internal `InteractionState`. C18b-R1
+  is therefore explicitly recut from cap `9` to cap `10`: the sole live status
+  consumer, `AmbientTelemetryHud.tsx`, now projects `status.label`; context
+  exposes the branded `FeatureFlagLoadState` object. No second label-union
+  exemption exists. This is the source-level status repair; the inventory/report
+  transition remains scanner-derived after the freeze.
+- Accepted source finding: a bad remote payload with a valid strict scoped
+  cache previously replaced the typed remote diagnostic with `null`. Cache
+  fallback now retains the remote/network typed diagnostic while using only the
+  admitted cache bytes. The new focused behavioral witness was RED alongside
+  the status-object consumer migration (`8/9` failures, exit `1`, real
+  `4.12 s / 165 s`; the seven unrelated status-label assertions were expected
+  API-migration failures). GREEN focused registry/provider suite is `25/25`,
+  exit `0`, real `1.86 s / 165 s`; dashboard typecheck is exit `0`, real
+  `13.9 s / 482 s`; exact five-file ESLint is exit `0`, real `25.9 s / 174 s`.
+  Production dashboard build is exit `0`, real `25.9 s / 300 s`, with only its
+  pre-existing chunk-size advisory. No writer, scanner, generated-artifact
+  tool, stage, or commit ran.
+
+### C18b final source-review repair and pre-writer declaration
+
+- The apparent direct-Authz alternative was rejected by the exact static import
+  chain `FeatureFlagProvider -> AuthzProvider -> permissions/workspaces ->
+  InterfaceModeProvider -> FeatureFlagProvider`. The implemented cache-scope
+  gate reuses the canonical schema-parsed `useAuthMe` query and exactly matches
+  AuthzProvider's success/non-fetching/data predicate. Its P37 admission label is
+  `independently_reconciled`; AuthzProvider remains the sole permission
+  projection and the real two-direction permission-floor witness is unchanged.
+  This paragraph supersedes the earlier unqualified “linted”/public-label prose:
+  the provider exposes branded `FeatureFlagLoadState`, and only the HUD projects
+  `.label`.
+- P33 delimiter RED: the raw NUL-concatenated remount key let the real colliding
+  identities `(tenant="tenant\0segment", user="user-a")` and
+  `(tenant="tenant", user="segment\0user-a")` paint A's cached false flag once
+  under B. Provider Vitest was `9/10`, exit `1`, real `3.80 s / 165 s`; the
+  injective JSON tuple repair was `10/10`, exit `0`, real `2.95 s / 165 s`, and
+  independent review then passed the combined `26/26` in `4.02 s / 165 s`.
+- First hostile-boundary review was NO-GO on identity/diagnostic re-reads and
+  empty environment input. The refined behavioral RED was `26/29`, exit `1`,
+  real `2.71 s / 165 s`, with one expected unhandled rejection; an earlier
+  equivalent oracle was `26/29`, exit `1`, real `3.87 s`. The repair snapshots
+  tenant/user once inside containment, snapshots a rejected error diagnostic
+  once, and treats only undefined environment input as absent. GREEN was
+  `29/29`, exit `0`, real `2.40 s / 165 s`. Intermediate typecheck and scoped
+  ESLint were terminal green at `12.50 s / 482 s` and `21.02 s / 174 s`.
+- Delta review found the sibling hostile rejected-Proxy escape, injected null
+  treated absent, and terminal identity failure falsely held at loading. The
+  real RED was `29/32`, exit `1`, real `3.44 s / 165 s`, including the expected
+  unhandled Proxy rejection. Moving `instanceof` into containment, applying the
+  same undefined-only source rule, and projecting a typed branded error/no-fetch
+  state produced `32/32`, exit `0`, real `2.39 s / 165 s`. Final root typecheck,
+  five-file ESLint, and production build are green at `12.74 s / 482 s`,
+  `21.71 s / 174 s`, and `19.20 s` respectively; the build transformed 3,886
+  modules and emitted only the inherited chunk advisory. Independent final
+  review is GO `0 Critical / 0 Important / 0 Moderate`: `32/32` in `2.36 s`,
+  typecheck `14.43 s`, ESLint `21.46 s`, and architecture/dependency-cruise
+  `4.36 s` over 1,030 modules / 4,190 dependencies, all terminal green under
+  the local macOS, installed-dependency, single-process/captured-exit regime.
+- Tooling nonreceipts, no bytes moved: one root read-only `rg` used `\0` in a
+  non-PCRE pattern and exited on an unsupported backreference; the governed
+  audit's first read-only jq query used invalid `.$defs` syntax before its
+  corrected quoted-key query. Neither is a product signal or timing sample.
+  Four stale C18a “future C18b” docstrings were corrected in-place; live
+  TypeScript `VITE_FF_*` predecessor use remains zero and the two inert
+  `.env.example` lines remain recorded cap-bound documentation debt.
+- **Declared governed artifact delta before any writer:** exactly nine roots
+  (`raw-fetch-flag-manifest` plus the eight live flag rows) become
+  `use_as_is/not_applicable` under DS5; `status-feature-flag` stays
+  `rebind_pending`, becomes `strangled`, and gains only the branded
+  `dashboard-feature-flag-load-interaction-state` successor with provider,
+  provider-test, and HUD refs. The four C19 roots and auth pseudo-root remain
+  byte-identical. Expected register receipts are roots/supplemental/censuses
+  `261/62/9`, dispositions `18/186/25/16/16`, and strangle
+  `57/152/52`. Status changes only the dependent DS19 hash, retires the old
+  feature-flag definition (`current_named 9->8`, `current_total 19->18`,
+  `retired 27->28`), and adds the one present `FeatureFlagDisposition`
+  non-status exemption (`55->56`). The canonical writer may change only the
+  generated report. Baseline, readiness, DS1 pin, C19/auth rows, and all C21
+  bytes remain fixed; the one HUD identity must validate inside the unchanged
+  `156 occurrences / 129 distinct` corpus. Register family is now occupied by
+  the root-owned C18b writer wave.
+
+### C18b governed closeout — measured cap stop
+
+- The no-write status scan ran under the recorded local macOS,
+  installed-dependency, explicit repository-venv-interpreter regime: exit `0`,
+  real `12.42 s`. It derived no status definitions and exactly one semantic
+  candidate, `FeatureFlagDisposition` at `featureFlags.ts:19`, with members
+  `RETIRE / WIRE`. The honest prepatch status checker was RED, exit `1`, real
+  `12.26 s`, with the named `live_status_denominator_drift`,
+  `registered_status_definition_missing:status-feature-flag`, and
+  `unregistered_semantic_definition:FeatureFlagDisposition` errors.
+- The surgical parsed allowlist admitted exactly the ten declared register
+  roots and no sibling row, plus only the DS19 hash, denominator movement,
+  retired predecessor, and one named semantic exemption in the status
+  inventory. Register receipts are roots/supplemental/censuses `261/62/9`,
+  dispositions `18/186/25/16/16`, and strangle `57/152/52`; the register SHA is
+  `4c1d0611c00f83cfe7bd170a67d0d5baaa1fc5b913628bdd052df93fc920498f`.
+  A no-write C21 validation retained `156` occurrences / `129` distinct
+  identities, found the sole HUD identity, and returned zero errors in
+  `1.70 s`; no C21 byte moved.
+- The canonical report writer was byte-idempotent: exit `0`, real `34.96 s`,
+  then exit `0`, real `34.91 s`, with stable report SHA
+  `868a9f722b1d646bf0f3b66a3f7eb060c5aeb3e09cbd23885cf63d595874a5c6`.
+  The serialized full frontend module was `94/94`, exit `0`, real `115.22 s`;
+  disposition check + baseline bytes + corruption probes were green, exit `0`,
+  real `107.52 s`. Every Python parent used `.venv/bin/python` with venv-first
+  `PATH`; scanner-heavy parents did not overlap.
+- The next required lane exposed a structural declaration defect rather than a
+  product regression. The full status module was RED, `36/38`, exit `1`, real
+  `52.35 s`: `test_status_retirement_inventory.py` still hardcodes
+  `current_authored=13` and `55` semantic rows, while the scanner-derived,
+  validator-required state is `12` and `56`. Read-only package audit then found
+  the full Atlas owner receipt independently hardcoded at
+  `test_atlas_enforcement.py:1501` as `current_authored_statuses=13`.
+  Retaining `13/55` would require a fake current status, deleting a real
+  semantic row, scanner evasion, or a lying summary; none is an admissible
+  cap-preserving substitution.
+- **Terminal classification: `stopped_for_recut`.** C18b-R1 cannot close at its
+  exact cap `10`. Because governed closeout requires both full status and full
+  Atlas modules green, the measured successor is `C18b-R2 / cap 12`, adding
+  only `architecture/atlas_surfaces/test_status_retirement_inventory.py` and
+  `architecture/atlas_surfaces/test_atlas_enforcement.py` to the existing ten.
+  Cap `11` would update the status owner receipt but knowingly carry an Atlas
+  owner RED until C20, contradicting closed-before-next ordering. The remaining
+  status-checker, Atlas-checker, and full-Atlas commands were not run once this
+  structural stop was established; no lane exceeded its ceiling, let alone
+  twice. C17b-R1, C19-R1, and C20 were not entered.
+- Tooling nonreceipts, no product bytes moved: one corrected read-only `jq`
+  count expression applied `sort` before fixing operator precedence; the
+  cap-audit helper first looked for `.venv/bin/python` from the worktree root
+  and exited `127`, then reran from `policy-engine/` with the pinned venv.
+  Neither is a timing sample or product failure.

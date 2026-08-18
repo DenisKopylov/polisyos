@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 export const FEATURE_FLAG_KEYS = [
   "enableAtlasV2",
   "enableCausalGraph",
@@ -490,23 +488,23 @@ export function parseFeatureFlagManifest(
   }
 }
 
-/** Reads the raw environment manifest without changing the legacy live wrapper. */
+/** Reads the environment manifest through the strict feature-flag boundary. */
 export function readEnvironmentFeatureFlagManifest(): FeatureFlagSourceReadResult {
   const rawValue = import.meta.env.VITE_FEATURE_FLAGS_MANIFEST;
-  if (!rawValue || !rawValue.trim()) {
+  if (rawValue === undefined) {
     return { state: "absent" };
   }
   return { state: "present", result: parseFeatureFlagManifest(rawValue, "env") };
 }
 
-/** Reads injected flags through the strict parser for the future C18b consumer. */
+/** Reads injected flags through the strict feature-flag boundary. */
 export function readInjectedFeatureFlagManifest(): FeatureFlagSourceReadResult {
   try {
     if (typeof window === "undefined") {
       return { state: "absent" };
     }
     const rawValue = window.__RUNTIME_DASHBOARD_FLAGS__;
-    if (rawValue == null) {
+    if (rawValue === undefined) {
       return { state: "absent" };
     }
     return {
@@ -524,7 +522,7 @@ export function readInjectedFeatureFlagManifest(): FeatureFlagSourceReadResult {
   }
 }
 
-/** Reads a scoped cache entry through the strict parser for the future C18b consumer. */
+/** Reads a scoped cache entry through the strict feature-flag boundary. */
 export function readStrictCachedFeatureFlagManifest(
   cacheScope?: FeatureFlagCacheScope,
 ): FeatureFlagSourceReadResult {
@@ -582,7 +580,7 @@ export function readStrictCachedFeatureFlagManifest(
   }
 }
 
-/** Writes only strict, scoped cache envelopes for the future C18b consumer. */
+/** Writes only strict cache envelopes bound to the supplied identity scope. */
 export function writeStrictCachedFeatureFlagManifest(
   manifest: NormalizedFeatureFlagManifest,
   cacheScope?: FeatureFlagCacheScope,
@@ -687,212 +685,6 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = Object.fromEntries(
   FEATURE_FLAG_KEYS.map((key) => [key, FEATURE_FLAG_REGISTRY[key].defaultEnabled]),
 ) as FeatureFlags;
 
-const featureFlagManifestEnvelopeSchema = z
-  .object({
-    flags: z.unknown().optional(),
-    ttlMs: z.number().int().positive().optional(),
-    ttl_ms: z.number().int().positive().optional(),
-    updatedAt: z.number().int().positive().optional(),
-    updated_at: z.number().int().positive().optional(),
-    version: z.number().int().positive().optional(),
-  })
-  .loose();
-
-function coerceLegacyBooleanFlag(rawValue: unknown): boolean | undefined {
-  if (typeof rawValue === "boolean") {
-    return rawValue;
-  }
-  if (typeof rawValue === "number") {
-    return rawValue !== 0;
-  }
-  if (typeof rawValue !== "string") {
-    return undefined;
-  }
-  const normalized = rawValue.trim().toLowerCase();
-  if (normalized === "true" || normalized === "1" || normalized === "on") {
-    return true;
-  }
-  if (normalized === "false" || normalized === "0" || normalized === "off") {
-    return false;
-  }
-  return undefined;
-}
-
-function buildLegacyProfile(enabled: boolean): FeatureFlagOverrides {
-  return Object.fromEntries(
-    FEATURE_FLAG_KEYS.map((key) => [key, enabled]),
-  ) as FeatureFlagOverrides;
-}
-
-function readLegacyFeatureFlagProfile(rawValue: unknown): FeatureFlagOverrides | null {
-  if (typeof rawValue !== "string") {
-    return null;
-  }
-  const normalized = rawValue.trim().toLowerCase();
-  if (normalized === "all_on" || normalized === "all-on") {
-    return buildLegacyProfile(true);
-  }
-  if (normalized === "all_off" || normalized === "all-off") {
-    return buildLegacyProfile(false);
-  }
-  return null;
-}
-
-function readLegacyBooleanFlag(rawValue: string | undefined, fallback: boolean): boolean {
-  if (rawValue == null || rawValue.trim() === "") {
-    return fallback;
-  }
-  return rawValue.trim().toLowerCase() === "true";
-}
-
-function parseLegacyFeatureFlagManifest(rawValue: string | undefined): unknown {
-  if (!rawValue || !rawValue.trim()) {
-    return null;
-  }
-  const profile = readLegacyFeatureFlagProfile(rawValue);
-  if (profile) {
-    return profile;
-  }
-  try {
-    return JSON.parse(rawValue) as unknown;
-  } catch {
-    return null;
-  }
-}
-
-/** Legacy live wrapper retained until C18b binds strict parse diagnostics to consumers. */
-export function normalizeFeatureFlagOverrides(rawValue: unknown): FeatureFlagOverrides {
-  const profile = readLegacyFeatureFlagProfile(rawValue);
-  if (profile) {
-    return profile;
-  }
-  if (!rawValue || typeof rawValue !== "object") {
-    return {};
-  }
-  const source = rawValue as Record<string, unknown>;
-  const overrides: FeatureFlagOverrides = {};
-  for (const key of FEATURE_FLAG_KEYS) {
-    const nextValue = coerceLegacyBooleanFlag(source[key]);
-    if (nextValue !== undefined) {
-      overrides[key] = nextValue;
-    }
-  }
-  return overrides;
-}
-
-const LEGACY_ENV_DEFAULT_OVERRIDES: FeatureFlags = {
-  enableAtlasV2: readLegacyBooleanFlag(import.meta.env.VITE_FF_ATLAS_V2, true),
-  enableCausalGraph: readLegacyBooleanFlag(import.meta.env.VITE_FF_CAUSAL_GRAPH, true),
-  enableClerkMode: readLegacyBooleanFlag(import.meta.env.VITE_FF_CLERK_MODE, true),
-  enableCollaboration: readLegacyBooleanFlag(import.meta.env.VITE_FF_COLLABORATION, true),
-  enableCommandPalette: readLegacyBooleanFlag(
-    import.meta.env.VITE_FF_COMMAND_PALETTE,
-    true,
-  ),
-  enableDarkMode: readLegacyBooleanFlag(import.meta.env.VITE_FF_DARK_MODE, true),
-  enableLexKnowledge: readLegacyBooleanFlag(import.meta.env.VITE_FF_LEX_KNOWLEDGE, true),
-  enableNarrativeView: readLegacyBooleanFlag(import.meta.env.VITE_FF_NARRATIVE_VIEW, true),
-  enablePlatformHealth: readLegacyBooleanFlag(
-    import.meta.env.VITE_FF_PLATFORM_HEALTH,
-    true,
-  ),
-  enableRunsWorkspace: readLegacyBooleanFlag(import.meta.env.VITE_FF_RUNS_WORKSPACE, true),
-  enableScenarioComposer: readLegacyBooleanFlag(
-    import.meta.env.VITE_FF_SCENARIO_COMPOSER,
-    true,
-  ),
-  enableWhatIfAnalysis: readLegacyBooleanFlag(import.meta.env.VITE_FF_WHAT_IF_ANALYSIS, true),
-};
-
-export const ENV_FEATURE_FLAG_OVERRIDES: FeatureFlagOverrides = {
-  ...LEGACY_ENV_DEFAULT_OVERRIDES,
-  ...normalizeFeatureFlagOverrides(
-    parseLegacyFeatureFlagManifest(import.meta.env.VITE_FEATURE_FLAGS_MANIFEST),
-  ),
-};
-
-export function readInjectedFeatureFlags(): FeatureFlagOverrides {
-  if (typeof window === "undefined") {
-    return {};
-  }
-  return normalizeFeatureFlagOverrides(window.__RUNTIME_DASHBOARD_FLAGS__);
-}
-
 export function hasFeatureFlagOverrides(overrides?: FeatureFlagOverrides) {
   return Boolean(overrides && Object.keys(overrides).length > 0);
-}
-
-export function normalizeFeatureFlagManifest(
-  rawValue: unknown,
-  source: "cache" | "remote",
-): NormalizedFeatureFlagManifest | null {
-  if (!rawValue || typeof rawValue !== "object") {
-    const flags = normalizeFeatureFlagOverrides(rawValue);
-    if (!hasFeatureFlagOverrides(flags)) {
-      return null;
-    }
-    return {
-      flags,
-      source,
-      ttlMs: FEATURE_FLAG_CACHE_TTL_MS,
-      updatedAt: Date.now(),
-      version: FEATURE_FLAG_MANIFEST_VERSION,
-    };
-  }
-  const parsed = featureFlagManifestEnvelopeSchema.safeParse(rawValue);
-  if (!parsed.success) {
-    return null;
-  }
-  const payload = parsed.data;
-  const flags = normalizeFeatureFlagOverrides(payload.flags ?? rawValue);
-  if (!hasFeatureFlagOverrides(flags)) {
-    return null;
-  }
-  return {
-    flags,
-    source,
-    ttlMs: payload.ttlMs ?? payload.ttl_ms ?? FEATURE_FLAG_CACHE_TTL_MS,
-    updatedAt: payload.updatedAt ?? payload.updated_at ?? Date.now(),
-    version: payload.version ?? FEATURE_FLAG_MANIFEST_VERSION,
-  };
-}
-
-export function readCachedFeatureFlagManifest() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  const rawValue = window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY);
-  if (!rawValue) {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(rawValue) as unknown;
-    const manifest = normalizeFeatureFlagManifest(parsed, "cache");
-    if (!manifest || Date.now() - manifest.updatedAt > manifest.ttlMs) {
-      return null;
-    }
-    return manifest;
-  } catch {
-    return null;
-  }
-}
-
-export function writeCachedFeatureFlagManifest(manifest: NormalizedFeatureFlagManifest) {
-  if (typeof window === "undefined") {
-    return;
-  }
-  window.localStorage.setItem(
-    FEATURE_FLAG_MANIFEST_CACHE_KEY,
-    JSON.stringify(manifest),
-  );
-}
-
-export function resolveFeatureFlags(
-  ...sources: Array<FeatureFlagOverrides | undefined>
-): FeatureFlags {
-  return {
-    ...DEFAULT_FEATURE_FLAGS,
-    ...ENV_FEATURE_FLAG_OVERRIDES,
-    ...Object.assign({}, ...sources),
-  };
 }

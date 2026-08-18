@@ -4105,3 +4105,47 @@ paths—the reconciler, persistence/admission, and semantic witnesses—and all
 three mandatory companions. The unchanged fixed launcher and canonical-owner
 validator remain part of the reviewed five-path mechanism. Thus the P39 measure
 remains **5/16 mechanisms plus 3 companions**, not a six-path redefinition.
+
+### R2 frozen-candidate review batch and round-1 classification
+
+Three independent adversaries reviewed frozen candidate
+`c1354ec7a9664ae86275b025fb2a0c4dc0726d79` against its entry record
+`cb0273ba4`. The authority/intake reviewer returned one Important finding: the
+single `attestation_scope` sentence says that every row's fact came from
+running the canonical check, but the live synthetic `stable` arm correctly
+emits `observation_unavailable` with no runner, report, assertion, or route.
+Python nevertheless admits that internally contradictory sentence. This is
+classified **bucket A — intake mechanism**: a persisted self-attestation is
+false for one admitted producer arm. It is not runner-code integrity. The
+classification was made before repair, and it consumes fresh R2 mechanism
+repair round **1/2**.
+
+The semantics/three-state and CAS/projection reviewers returned no additional
+Blocking or Important intake finding. Both independently reproduced the
+modified-transitive-chunk scenario already named
+`transitive-runner-closure-unbound`. Each reproduction is classified **bucket
+B — runner-integrity limitation**: it changes code loaded behind the bound
+entry without introducing caller/report/exit/status/basis or sibling-consumer
+intake. Under the R2 ruling, those worked examples are folded into the declared
+limitation, trigger no code change, and consume no repair round. The complete
+batch therefore consumes one round, not three. These classifications and the
+review findings are `independently_reconciled`; the root's bucket assignment is
+`recomputed` from the finding scenarios and the R2 boundary.
+
+Round-1 repair keeps one required sentence but makes its subject the admitted
+row rather than a necessarily completed claim check: this process runs every
+available applicable canonical check itself and records an unavailable claim
+check as unavailable. The stable witness now also pins `runner`,
+`report_sha256`, `assertion_name`, `assertion_status`, and `runtime_route` to
+null. In the TDD red, that real stable row still carried the old contradictory
+sentence and the targeted witness failed 1/1 with 32 skipped tests. After the
+TypeScript producer, Python admission constant, plan, and reference moved to
+the truthful exact value, the same witness completed 1/1 with 32 skipped.
+
+The repaired complete C10 semantic denominator completed **33/33 tests in 1/1
+file**, with Vitest duration 22.01 s and `/usr/bin/time -p` wall 22.58 s
+(`user 26.17`, `sys 3.31`). The app TypeScript project, scoped two-file ESLint
+population, Ruff over both Python mechanism paths, Python compilation, and
+`git diff --check` each exited 0. These repair receipts are `recomputed`. They
+are scoped source verification, not an aggregate readiness result and not the
+deferred whole-suite receipt.

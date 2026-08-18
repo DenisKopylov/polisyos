@@ -118,10 +118,10 @@ READINESS_ADMISSION_COMPONENT = (
     "polisyos.atlas.surface_readiness_admission@2.0.0"
 )
 READINESS_OBSERVED_ATTESTATION_SCOPE = (
-    "observed_by_reconciler attests intake closure: the fact was produced by this process "
-    "running the canonical check through a closed path with no report, exit code, status, "
-    "or basis supplied by a caller; it does not attest that the runner's code was unmodified "
-    "on disk."
+    "observed_by_reconciler attests intake closure: this process produced the row through "
+    "a closed path by running each available applicable canonical check itself and recording "
+    "any unavailable claim check as unavailable; no report, exit code, status, or basis was "
+    "supplied by a caller, and runner code being unmodified on disk is not attested."
 )
 READINESS_IMPLEMENTATION_PATHS = (
     READINESS_RECONCILER_SOURCE,

@@ -25,10 +25,11 @@ does not yet promote it to controlling CI/audit authority.
 `observed_by_reconciler` attests intake closure. Every such persisted row
 carries `attestation_scope` with this exact one-sentence value:
 
-> observed_by_reconciler attests intake closure: the fact was produced by this
-> process running the canonical check through a closed path with no report,
-> exit code, status, or basis supplied by a caller; it does not attest that the
-> runner's code was unmodified on disk.
+> observed_by_reconciler attests intake closure: this process produced the row
+> through a closed path by running each available applicable canonical check
+> itself and recording any unavailable claim check as unavailable; no report,
+> exit code, status, or basis was supplied by a caller, and runner code being
+> unmodified on disk is not attested.
 
 The required field is part of report and projection schema `2.0.0`; Python
 admission rejects a missing or different value. It is a per-row statement and

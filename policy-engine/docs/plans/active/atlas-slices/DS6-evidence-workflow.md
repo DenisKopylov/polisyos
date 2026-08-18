@@ -619,12 +619,12 @@ and is never split across commits to fit.
 
 **C10-R2 declared threat model.** Every `observed_by_reconciler` basis persists
 the exact `attestation_scope` value: “observed_by_reconciler attests intake
-closure: the fact was produced by this process running the canonical check
-through a closed path with no report, exit code, status, or basis supplied by a
-caller; it does not attest that the runner's code was unmodified on disk.” This
-is one per-row intake statement, not a runner-integrity claim or aggregate
-status. Report and projection schemas are versioned `2.0.0` for the new
-required field.
+closure: this process produced the row through a closed path by running each
+available applicable canonical check itself and recording any unavailable
+claim check as unavailable; no report, exit code, status, or basis was supplied
+by a caller, and runner code being unmodified on disk is not attested.” This is
+one per-row intake statement, not a runner-integrity claim or aggregate status.
+Report and projection schemas are versioned `2.0.0` for the new required field.
 
 **Named residual — `transitive-runner-closure-unbound`.** Classification:
 declared bounded runner-integrity limitation. Closure owner:

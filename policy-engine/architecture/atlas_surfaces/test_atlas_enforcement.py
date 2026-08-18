@@ -75,6 +75,96 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
 
+    def test_unknown_authz_decision_never_defaults_authority_surface_to_allow(
+        self,
+    ) -> None:
+        """Bind the phased N010 default set to the real decision API imports."""
+        inventory = checker.status_checker._load_json(
+            checker.status_checker.INVENTORY_PATH
+        )
+        live_scan = checker._enforcement_scan(
+            None,
+            inventory=inventory,
+            validate_override_diagnostics=False,
+        )
+        self.assertEqual([], checker._authz_default_allow_errors(live_scan))
+        facts = live_scan["authzDecisionFacts"]
+        self.assertEqual(7, len(facts["defaultAllowSites"]))
+        self.assertEqual(
+            {
+                "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": 1,
+                "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx": 2,
+                "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": 4,
+            },
+            {
+                path: sum(
+                    site["path"] == path for site in facts["defaultAllowSites"]
+                )
+                for path in {site["path"] for site in facts["defaultAllowSites"]}
+            },
+        )
+
+        workspace_path = (
+            "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx"
+        )
+        workspace_source = (
+            checker.status_checker.REPO_ROOT / workspace_path
+        ).read_text(
+            encoding="utf-8"
+        )
+        safe = (
+            'const workspaceAllowed =\n'
+            '    authzDecision.kind === "verified" &&\n'
+            "    authzDecision.isWorkspaceAllowed(workspaceKey);"
+        )
+        unsafe = (
+            'const workspaceAllowed =\n'
+            '    authzDecision.kind === "verified"\n'
+            "      ? authzDecision.isWorkspaceAllowed(workspaceKey)\n"
+            "      : true;"
+        )
+        self.assertIn(safe, workspace_source)
+        unsafe_scan = checker._enforcement_scan(
+            {workspace_path: workspace_source.replace(safe, unsafe, 1)},
+            inventory=inventory,
+            validate_override_diagnostics=True,
+            include_dashboard_program_roots=True,
+        )
+        self.assertTrue(
+            any(
+                error.startswith(
+                    "authz_default_allow_unclassified:"
+                    f"{workspace_path}:conditional_true:"
+                )
+                for error in checker._authz_default_allow_errors(unsafe_scan)
+            ),
+            checker._authz_default_allow_errors(unsafe_scan),
+        )
+
+        lookalike_path = (
+            "apps/runtime-dashboard/src/shared/lib/authzDecisionLookalike.ts"
+        )
+        lookalike_scan = checker._enforcement_scan(
+            {
+                lookalike_path: (
+                    "function useAuthzDecision() { return undefined; }\n"
+                    "const authz = useAuthzDecision();\n"
+                    "export const allowed = authz?.can('runs.launch') ?? true;\n"
+                )
+            },
+            inventory=inventory,
+            validate_override_diagnostics=True,
+            include_dashboard_program_roots=True,
+        )
+        self.assertFalse(
+            any(
+                site["path"] == lookalike_path
+                for site in lookalike_scan["authzDecisionFacts"][
+                    "defaultAllowSites"
+                ]
+            )
+        )
+
     def test_raw_local_state_envelope_cannot_be_issued_or_written(self) -> None:
         """Execute the scoped local-state runtime witness instead of grepping it."""
         self.assertEqual([], checker._authority_local_state_runtime_errors())

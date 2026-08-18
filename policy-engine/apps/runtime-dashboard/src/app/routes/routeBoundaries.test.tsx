@@ -7,13 +7,19 @@ const {
   isRouteErrorResponseMock,
   useCapabilitiesMock,
   useFeatureFlagsMock,
+  useAuthzDecisionMock,
   useRouteErrorMock,
 } = vi.hoisted(() => ({
   isCapabilityEnabledMock: vi.fn(),
   isRouteErrorResponseMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
   useRouteErrorMock: vi.fn(),
+}));
+
+vi.mock("@/app/authz/AuthzProvider", () => ({
+  useAuthzDecision: () => useAuthzDecisionMock(),
 }));
 
 vi.mock("react-router-dom", async () => {
@@ -73,6 +79,12 @@ import { buildFeatureFlags } from "@/test/featureFlags";
 
 describe("route boundaries", () => {
   beforeEach(() => {
+    useAuthzDecisionMock.mockReset();
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => true,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
     isCapabilityEnabledMock.mockReset();
     isCapabilityEnabledMock.mockReturnValue(true);
     isRouteErrorResponseMock.mockReset();

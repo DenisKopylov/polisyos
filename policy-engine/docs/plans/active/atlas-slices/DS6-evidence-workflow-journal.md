@@ -3885,3 +3885,67 @@ the combined health test remained 31/32 because its revision-byte control
 expected dirty `pyproject.toml`/`uv.lock` paths on a clean committed base. It is
 not a C10 finding or round. No source repair had begun when this classification
 was recorded.
+
+## DS6-C10-R1 mechanism review round 2 — 2026-08-18
+
+The round-1 repair candidate is preserved at
+`2c1df24b4b8e19a8edf1ea6d2c1d000fc045f84d`. It still changed exactly the four
+then-declared mechanism paths. Before review, the root focused run recomputed
+27/27 C10 semantic witnesses in 25.18 seconds, the app TypeScript project
+returned exit 0, scoped ESLint and Ruff returned exit 0, Python compilation and
+`git diff --check` returned exit 0, and the branch readback found the stable
+control plus the cited-byte and runtime-import bindings in that commit. These
+are `recomputed` candidate receipts, not a reconciliation outcome.
+
+Three independent read-only terra/luna reviews inspected that same frozen
+commit before any next edit, so they form mechanism round 2 rather than three
+rounds. Two reviewers independently falsified the exported CI helper by
+supplying a shape-valid positive observation with fabricated runner/report
+hashes; it returned green without resolving the closed persistence result.
+This Blocking/Important mechanism finding consumes round **2/2**. It is an
+instance of the already named
+`canonical-runner-provenance-and-single-intake-gap`, now at a sibling CI
+consumer, with P31/P32 authority-by-shape. The final permitted repair removes
+that public claim-shaped intake and makes each CI case look up its row only in
+the admitted projection produced by the fixed operation.
+
+The same frozen review returned one Important P29/P33 test finding with no
+mechanism-round effect: the synthetic `stable` test merely relabelled an
+implemented negative, so deleting the actual stable producer arm would not
+make it red. The final test must construct the row through the real stable
+producer branch, make the real Python stable admission accept only its
+unavailable basis, and then observe the distinct unavailable CI code.
+
+The remaining review claims were classified before repair:
+
+- Vite loader provenance was unbound. This is another instance of the existing
+  canonical-runner provenance class and is accepted for repair, together with
+  pre/post content checks for ordinary Node and Vitest mutation.
+- Duplicate JSON object names were accepted by the reused canonical-owner
+  validator. Python admission already rejects them in the ledger, but not in
+  the schema; this is a new P32 ambiguous-source class and is accepted for a
+  generic parser-level rejection plus a real `_load_json` witness.
+- Treating any nonzero Vitest suite exit as every row's negative/unavailable
+  fact is classified as a non-finding under the changed contract. A different
+  test or cleanup failure is a conjunction over unrelated assertions; copying
+  it onto each passing row recreates the refused aggregate. The owned per-row
+  assertion status remains the fact.
+- Persisting the raw Vitest suite report is classified as a non-finding. The
+  report is internal runner transport; the exact extracted row fact, runner,
+  test/source identities, and provenance are already content-addressed in the
+  claim report. Persisting the suite-level `success` conjunction would violate
+  the CI-only boundary.
+- A malicious concurrent swap-and-restore of installed Node/Vitest bytes is
+  outside the repository gate's threat model. The final repair detects
+  ordinary between-phase mutation with pre/post hashes; host immutability
+  remains an execution-regime assumption, never an artifact claim.
+
+The reviewers' reported focused reruns were independently reconciled as 27/27
+in 25.79 and 26.7 seconds; they are semantic-suite receipts, not a readiness
+PASS. No review changed a tracked byte. Adding the already reused
+`validate_atlas_health_sources.py` parser to the mechanism is declared before
+touch under P39: the mechanism measure becomes **5/16**, the mandatory
+companions remain three, and the complete cut becomes **eight paths**. The
+budget is exhausted. Any Blocking or Important mechanism finding against the
+next frozen candidate is classified as a third-round finding, preserved, and
+stopped without another repair.

@@ -561,15 +561,17 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: C10-R1 mechanism repair round 1/2 entered 2026-08-18 from current
-`main` `f63748684`; the first frozen candidate is preserved at `b0e557c04` and
-its findings are being repaired as one batch.** This is a fresh two-round
+**Status: C10-R1 final permitted mechanism repair entered 2026-08-18 from
+current `main` `f63748684`; the first candidate is preserved at `b0e557c04`
+and the round-1 repair candidate at `2c1df24b4`.** This is a fresh two-round
 mechanism budget
 because the contract changed from one aggregate reconciliation Boolean to one
 separately based row per gated top-level claim. The preserved stopped attempt
 at `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
 `a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only; none of its
-source is continued. The fresh budget is 1/2 consumed.
+source is continued. The fresh budget is **2/2 consumed**. Any Blocking or
+Important mechanism finding against the final repair is a third-round finding:
+classify it, preserve the candidate, and stop without another repair.
 
 **C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
 `PV-K01` is ratified for public verification: it requires separately
@@ -604,14 +606,16 @@ existence from their canonical owners, independently reconcile them, persist
 the reconciliation receipt, fail CI for `stable`/`implemented` overclaim, and
 surface the result in the governed audit/reference projection.
 
-**C10-R1 P39 entry measure.** The cap applies to four mechanism paths: the
+**C10-R1 P39 entry measure.** The cap initially applied to four mechanism paths: the
 typed per-claim reconciler, its semantic/CI test, the fixed launcher, and the
 existing persistence/projection adapter. Three mandatory record companions are
 named and held outside that count: this plan, the DS6 journal, and the reviewer
-reference. The mechanism measure is therefore 4/16 and the complete candidate
-cut is seven paths. A newly discovered mechanism path is remeasured before it
-is touched; a mechanism set above 16 stops for a ruling and is never split
-across commits to fit.
+reference. Round 2 found ambiguous duplicate-key intake at the already reused
+canonical-owner validator, so that validator is declared as a fifth mechanism
+path before repair. The current mechanism measure is therefore **5/16** and the
+complete candidate cut is eight paths. A newly discovered mechanism path is
+remeasured before it is touched; a mechanism set above 16 stops for a ruling
+and is never split across commits to fit.
 
 The gated unit is one row for each top-level `maturity=stable` or
 `readiness_state=implemented` claim. Each row carries exactly one discriminated
@@ -646,6 +650,32 @@ owner-probe specificity and aggregate-key heuristic are test findings, not
 mechanism rounds. All are repaired together before the second candidate is
 reviewed; a Blocking or Important mechanism finding on that candidate consumes
 round 2.
+
+The three independent reviews of frozen round-1 repair candidate `2c1df24b4`
+form mechanism round 2 because no source changed between them. Round 2 found
+one accepted Blocking/Important mechanism class: the exported CI helper parsed
+a caller-fabricated `observed_by_reconciler` shape and could return green
+without resolving the closed persistence result. That is a new sibling
+instance of the already named
+`canonical-runner-provenance-and-single-intake-gap`, with P31/P32 at the CI
+consumer. The final repair removes that sibling intake; CI discovers each row
+only from the admitted projection returned by the fixed operation.
+
+The same batch accepts loader/source hardening as instances of that old class:
+bind the Vite module loader plus pre/post Node and Vitest bytes, and make the
+canonical validator reject duplicate JSON keys before schema interpretation.
+The stable negative control finding is P29/P33 test incompleteness, not a
+mechanism round: it must construct the synthetic row through the actual stable
+producer arm and exercise the real Python admission constraint. Two review
+proposals are classified as non-findings under the changed contract. A nonzero
+suite exit beside a passing row assertion is an unrelated-test conjunction and
+must not be copied onto every row; the owned per-row assertion fact governs.
+The raw suite report is an internal runner transport, while the exact per-row
+fact and its provenance are the persisted claim basis; persisting the suite's
+aggregate `success` would violate the CI-only conjunction boundary. A
+swap-and-restore by a concurrent writer with control of installed executables
+remains outside this repository gate's threat model, while ordinary mutation
+is closed by pre/post content checks.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 

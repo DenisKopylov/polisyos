@@ -1490,6 +1490,39 @@ its cap and make policy interpret contention as a product regression. The C16
 receipts explicitly record the released shared-host regime rather than erasing
 that distinction.
 
+## Slice standing (recorded 2026-08-18)
+
+**DS6's executable set is exhausted. The slice is `blocked_on_another_plan`, not closed, and its
+closure cluster `C14` is deliberately not entered.**
+
+Landed: `C00`, `C01`, `C01-R1`, `C02`, `C05`, `C07`, `C08`, `C09`, `C11`, `C12`, `C13` (verification
+only), `C15-R1`, `C16`, `C18`, and `C10-R2`, which landed in `main` at `fa1f3e4d0` after `C10-R1`
+stopped under the mechanism-round breaker. `C17` is superseded by `C18` and stays unentered.
+
+Every remaining cluster is blocked on a slice DS6 does not own:
+
+| cluster | blocker | owning slice |
+| --- | --- | --- |
+| `C03`, `C04`, `C06` | the governed writes stay descriptive until the register owners are released | DS5, at `C21` |
+| `C13` governed transition | a print repair, an independently established semantic-non-overlap result, and two consecutive stable no-update captures | DS8 |
+| `C14` | all of the above | — |
+
+**Reopening is fully specified and needs no re-derivation.** When DS5-C21 releases the owners, `C03`,
+`C04` and `C06` run as three separate append-only transitions, each beginning by rereading current
+owners and content-hash anchors. When DS8 supplies its repair and the two stable captures, `C13`'s
+governed transition follows. `C14` closes after both.
+
+**Carried out of the slice, with owners:**
+
+- `transitive-runner-closure-unbound` — `absent/unallocated`. `observed_by_reconciler` attests intake
+  closure, not runner integrity under local code modification. Closing it needs an out-of-band runner
+  identity, which a falsifier over all `9,870` tracked files showed does not exist here.
+- The `C11` clean-worktree test pin, registered in the Atlas master plan's inherited-Vitest-failures
+  row. It is a **defect in that test**, not a non-receipt: the measurement succeeded and the
+  expectation is wrong.
+- The `scenario composer dark theme` visual-lane instability, and the DS8 A4 print baseline, both
+  under their own owners.
+
 ## Not yet
 
 - No typed contrast row or i18n baseline removal until DS5 releases the

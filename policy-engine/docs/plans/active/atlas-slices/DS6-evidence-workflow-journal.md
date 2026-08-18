@@ -3826,3 +3826,62 @@ an empty `non_revision_paths` list. No C10 path or tracked byte existed yet, so
 this is a pre-existing clean-worktree C11 test nonreceipt, not a C10 result or a
 consumed mechanism round. It is not repaired or excluded here without a scoped
 ruling.
+
+## DS6-C10-R1 mechanism review round 1 — 2026-08-18
+
+The first mechanism candidate is preserved at
+`b0e557c04b920aa8bb0d81b6c09dd198ad76bafc`. It changed exactly the four
+predeclared mechanism paths, so the P39 measure remains **4/16**; the later
+reviewer-reference commit `2120daeebbf72a5b130c4f6dcd0a05f19be24d09`
+changes one mandatory companion outside that count. Focused pre-review
+verification was 20/20 C10 semantic tests, 10/10 nested canonical route tests,
+TypeScript app/tools projects exit 0, scoped ESLint exit 0, Ruff check exit 0,
+and `git diff --check` exit 0. Those are candidate receipts, not review
+closure.
+
+Three independent read-only terra/luna reviews inspected the same frozen
+candidate before any repair. They are one mechanism round, not three: a round
+is a candidate-and-repair cycle, and no source changed between reviews. The
+fresh counter is therefore **1/2 consumed**. Findings and classifications:
+
+- Blocking, old class instance:
+  `canonical-runner-provenance-and-single-intake-gap`. The operation bound the
+  Node executable and canonical test source but not the resolved
+  `node_modules/vitest/vitest.mjs` entry, version, and bytes.
+- Important, old class instance: `non-bidirectional-status-contract`. The
+  exported observed-basis schema allowed `observation_unavailable` with a
+  passed assertion, and completed observations did not require a non-null
+  runner-report digest.
+- Blocking, new C10-R1 CI-boundary class: one discovered Vitest test looped
+  across every row, creating a hidden conjunction before the Vitest/CI process
+  exit. The artifact-independence test only proved non-mutation, not one
+  separately discovered gate result per row.
+- Important, new P37/P38 integrity class: both Node and Python validated one
+  owner read, then enumerated a later loosely read owner using only cardinality
+  equality. A same-cardinality post-validation mutation could therefore sever
+  owner validation from the enumerated bytes.
+- Important, new P32 class: `consistent_with_cited_report` accepted a
+  hash-shaped artifact declaration and supplied facts without resolving and
+  digesting actual cited bytes. Its CI ineligibility prevented authority
+  escalation but did not make the basis name true.
+- Important test finding, no mechanism-round effect: the owner corruption
+  witness checked probe names after accepting any validator error, rather than
+  proving the clean owner and each targeted property-specific red through the
+  real validator.
+- Minor test finding, no mechanism-round effect: aggregate absence used a key
+  regex that could miss a differently named field; the repair must assert the
+  complete allowed report/projection shapes.
+
+The root pre-repair audit added one new P38 mechanism case to the same batch:
+the route assertion name bound `/launch` (and its four siblings) but did not
+bind the ledger title's declared target. A same-source, different-target title
+could therefore stay `observed` against the real route test. The repair must
+inspect the imported runtime route object and bind both declared endpoints as
+well as the behavioral assertion.
+
+The focused C10 suite and both reviewer diagnostic runs changed no tracked
+byte. One reviewer repeated the known pre-existing C11 clean-tree nonreceipt:
+the combined health test remained 31/32 because its revision-byte control
+expected dirty `pyproject.toml`/`uv.lock` paths on a clean committed base. It is
+not a C10 finding or round. No source repair had begun when this classification
+was recorded.

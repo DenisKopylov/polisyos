@@ -561,13 +561,15 @@ with `producer_missing`, `artifact_missing`, `bridge_missing`, actual-evidence
 
 ### Task 10 — DS6-C10: reconcile the surface-readiness ledger in CI
 
-**Status: C10-R1 entered 2026-08-18 from current `main` `f63748684`; source and
-verification are in progress.** This is a fresh two-round mechanism budget
+**Status: C10-R1 mechanism repair round 1/2 entered 2026-08-18 from current
+`main` `f63748684`; the first frozen candidate is preserved at `b0e557c04` and
+its findings are being repaired as one batch.** This is a fresh two-round
+mechanism budget
 because the contract changed from one aggregate reconciliation Boolean to one
 separately based row per gated top-level claim. The preserved stopped attempt
 at `573be959890f8e35f72e846e0a37b6eac5fc4396` and its forward revert
 `a7ae9189147d012fd8a3c80d741ed5c330787672` remain evidence only; none of its
-source is continued. The fresh budget is 0/2 consumed.
+source is continued. The fresh budget is 1/2 consumed.
 
 **C10-R1 refused mechanism — recorded, not entered in the C11/C18 session.**
 `PV-K01` is ratified for public verification: it requires separately
@@ -629,6 +631,21 @@ name, never surfaced in the projection or the reviewer reference, and never
 carried as a receipt outcome, provenance label, or aggregate status. Its
 falsifier deletes the CI exit-code calculation and proves that every persisted
 artifact and projection byte retains the same per-row information.
+
+The three independent reviews of frozen candidate `b0e557c04` form one
+mechanism round because no repair occurred between them. Round 1 classified
+the unbound resolved Vitest entry and one-way observed status/facts relation as
+new instances of the already named
+`canonical-runner-provenance-and-single-intake-gap` and
+`non-bidirectional-status-contract`. New classes were a hidden row conjunction
+inside one Vitest case, a validated-owner/read-later TOCTOU gap, and cited
+artifact consistency asserted from hash-shaped fields without resolving the
+cited bytes. A root pre-repair P38 audit also found that the assertion identity
+bound the legacy source path but not the ledger-declared redirect target. The
+owner-probe specificity and aggregate-key heuristic are test findings, not
+mechanism rounds. All are repaired together before the second candidate is
+reviewed; a Blocking or Important mechanism finding on that candidate consumes
+round 2.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 

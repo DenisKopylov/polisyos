@@ -281,3 +281,81 @@ broader generated-owner source closure has 1,992 members and contains the four s
 the tool writer. P37: each membership and denominator is `recomputed`; the source-freeze reviewers
 independently reconciled the changed-path classification. The confidence artifact therefore remains
 deliberately byte-identical and stale for the later joint-lane reissue.
+
+## Pre-writer artifact transition declaration
+
+The source-phase 600 s executor ceiling above was never the Depth writer's governing budget. The
+committed timing catalog already carries the lane-owned Depth `--write` recommendation
+`7,320.872024` s, derived before this lane from three serialized Depth samples. Two early contended
+shadow attempts used the wrong 600 s harness cap and produced no candidate; both are non-receipts and
+neither changes the catalog or supplies a duration. A noncanonical Lane-0 run then produced an 8,951
+byte pending payload, and one canonical launch omitted the required synchronous provenance preflight;
+both terminated before the governed candidate operation and are excluded.
+
+With the synchronous preflight ordered correctly and all five upstream candidate artifacts staged in
+a disposable branch-attached shadow clone, the governed Depth writer returned a 2,268,318 byte
+candidate in 1,100.709022 s under contention. That launch recorded kernel load averages but omitted the
+literal pre-run `uptime` string, so its duration is regime evidence only. A second canonical write used
+the catalog ceiling and a literal `uptime` pair (`6.84/6.56/5.51` to `3.81/5.45/5.41`), completed in
+1,048.502441 s, and reproduced the first candidate byte-for-byte at
+`sha256:280986fc48977b948bd95068e3554958fb6112470fe1d9de82eb9cce795edf64`.
+Promotion and generation independently reproduced their candidates byte-for-byte in 10.331204 s and
+19.779163 s. The N10a producer's two non-persisting contended derivations completed in 396.011913 s and
+364.30 s and returned the same five-output transition manifest and candidate bytes. None of these
+contended durations is promoted into a clean p95.
+
+The complete declared transition is committed separately as
+`2026-08-19-gy-gap1-artifact-transition-declaration.json`. It is bound to mechanism head
+`1de11b8bdd486556f05f3347988e0e1e6dcbf5d8`, 3,286 source/tool files at
+`sha256:f37a518b34668cad3063a0e4cb1e9094e41e70f1903e7d91033398406741e516`, and a
+914-file / 47,112,213-byte governed-output preimage at
+`sha256:66c51f365c3d8f4284cfca33f00059f05f3a7c959d4b4ab45b0d87d7e4e29d68`. The denominator is
+the union of all tracked files reached by the 437 generated-artifact registry specs and all 509
+tracked Policy Design Case files: 713 and 509 members respectively, 308 in their intersection. Two
+independent implementations agree on all four counts and the byte total. This widens the byte audit
+past the generation-cycle artifact's measured registry omission and covers all 46 statically declared
+validator outputs plus all 50 outputs returned by the one dynamic GX validator.
+
+The declaration pins 908 protected files byte-for-byte, including the deferred confidence ledger,
+the N10a census, and the N10a smoke problem. Its six permitted movements are:
+
+| Governed output | Leaves | Candidate bytes | Candidate SHA-256 |
+| --- | ---: | ---: | --- |
+| promotion contract | 525 | 183,066 | `27277bf5eb6db1c09154eff58b6b8a302d46625fc551cd3c2d679abdb4ef19e8` |
+| generation-cycle contract | 304 | 183,254 | `80527a78bbbcefeef6b2eabaac965ec7fac392d6425ca1e2f33622d796166d14` |
+| second-domain cycle trace | 770 | 603,649 | `8a2337e1b481a0afc129dd5a97e60ce4632687b81213f83c4b6d7c5d50c6aa3f` |
+| second-domain pack | 3 | 252,598 | `74bb27a236edadc53d6522fcd2c28562d2e2bf79090a7516edb9a18ced39dea4` |
+| second-domain free-grow gaps | 5 | 21,053 | `237873f8989f405bff266b7a87a33e6602f7f5813fa555cd111eeff316a7143c` |
+| depth-N universality contract | 1,837 | 2,268,318 | `280986fc48977b948bd95068e3554958fb6112470fe1d9de82eb9cce795edf64` |
+
+The declared total is exactly 3,444 canonical JSON leaves. Manifest content identity is
+`sha256:1d3193bb0161f4f930edd6f415b6ecd77e5cf5fbde76875135ed6aa2afb7a67e`; the
+746,866-byte manifest file is
+`sha256:e00726953716e4d474b3f150912b8079b161b52806196f72a2682f0964db5a44`.
+Acceptance remains `not_established` until each canonical writer returns and a raw-byte readback proves
+all six candidate hashes, every declared leaf set, and all 908 protected preimages exactly.
+
+The candidate-overlay population remains 26 receipts. Nineteen current receipts validate as v3 and
+seven historical Depth recordings remain raw v1 custody. Exactly three current promotion-writer
+receipts carry the two additive decisive rows: the final distribution is 23 receipts of 15 rows and
+three of 17, 396 rows total, with 285 `class_gate`, six `decisive_predicate`, and 105 historical rows
+whose pre-identity shape is retained. P37: every count is `recomputed`; an independent recursive
+object walk is required again after accepted writes.
+
+P40 companion classification: the missing machine-readable six-output declaration was the same P39
+artifact-custody class one level deeper, so the companion widened to the complete transition rather
+than adding six local prose patches. The generation artifact's absence from the registry was the
+second registry/validator-denominator finding; ladder repair stops, the registry is not patched in
+this lane, and the byte mechanism widens to registry expansion union the complete tracked PDC set.
+An intermediate claim of 51 dynamic GX outputs was a worked example of that declared denominator
+class: the live owner and an independent reconstruction both return 50 (`2 × (5 inputs + 20
+reports)`). These are companion findings and consume no GY-GAP1 mechanism round.
+
+The pre-writer artifact review then found the second occurrence of that P39 custody/denominator
+class one level deeper: allowed paths were product-root-relative while protected paths were
+workspace-root-relative, and the aggregate hash recipe was implicit. P40 forbids another local
+patch. The declaration therefore widened as one schema: every one of the 914 paths is now a POSIX
+path relative to the declared Policy Engine product root, absolute and `..` paths are forbidden,
+and the exact canonical-JSON, raw-file, source-scope length-prefix, artifact-scope, and manifest
+preimages are part of the declaration. The earlier manifest identities are superseded before any
+writer ran. This companion widening consumes no mechanism round.

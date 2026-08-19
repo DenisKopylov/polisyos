@@ -2551,6 +2551,26 @@ being written here. Fixing them is a separate decision.
   violation of the ratified `S0-K06`, with the silent-versus-declared distinction load-bearing: the
   defect is that the resolution is silent, not that a default exists. No repair attempt has been
   made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 673e81706): closed.** The repair chose an
+  exception rather than a declared-unknown carrier because both production consumers immediately
+  require a concrete plugin and expose no limitation channel; the intentional UA defaults remain
+  explicit at configuration and function boundaries. The direct resolver witness first terminated
+  `FFF`, exit `1`, for `None`, whitespace, and `DE`; a real worker witness then independently
+  terminated `FFF`, exit `1`, for the same inputs, exposing an upstream `or "UA"` substitution and
+  a broad unsupported-ruleset fallback before registry validation. The final five named nodes
+  terminated `.........`, exit `0`, after one registry-owned normalizer was consumed by plugin
+  construction and by every structurer entry before fallback, while the worker passed the raw code.
+  Explicit `UA` and `EU` remained green. Both review findings were P40 `same class one level deeper`;
+  the second stopped instance repair and widened the mechanism to the shared boundary, so GY-DEF1
+  closes at mechanism round 0 with both rounds unused. A complete AST walk over all 56 Python files
+  in the legal-batch source tree found the two plugin-resolution calls and the one structurer call;
+  a complete textual walk reconciled the same calls plus their definitions. The canonical confidence
+  owner resolved `120` modules / `120` unique paths, exactly equal to its frozen tuple, and none of
+  the three source, two test, plan, or journal paths is in that authority import closure. This
+  verdict authorizes only fail-closed jurisdiction resolution on the legal-corpus route; it does not
+  remove declared UA defaults, adjudicate separate claim/postprocess metadata defaults, reissue or
+  check the confidence artifact, or state full-suite health.
 - **GY-DEF2 — a tenant-private CAS reference reaches the public export bundle.** Owner:
   **publication / runtime-quality**. `runtime/quality/public_export.py`
   sanitises what it *builds* (authority envelopes via `_fingerprint()`, `tenant_redacted: True`,

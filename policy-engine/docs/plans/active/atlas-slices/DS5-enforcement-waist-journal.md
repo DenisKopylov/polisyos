@@ -5627,3 +5627,229 @@
   insufficient for release. Accepted C20 is the handoff prerequisite, and
   shared owners release only after a later DS5 merge to `main`. Current value:
   `DS6 release_status: not_released`.
+
+## 2026-08-19 — DS5-C20 slice-base debt-attribution correction
+
+### Ruling and measurement fence
+
+- C20 remains landed at `5ac5cee63` with its mechanism green at 0/2 rounds.
+  This task neither reopens nor reruns that mechanism. The architect corrected
+  only the attribution falsifier: a closure compares a red with the slice's
+  own base `c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`, not C20's later entry
+  `700e3aa14`. P40 classification is a P35/P37/P38 evidence-denominator record
+  correction, not a mechanism finding; it consumes no round.
+- `c1a89b6cf` is not an ancestor of the landed tree; their merge base is
+  `5e648230204d5972d7d159aaffd50cb427ba3e81`. Every claim below therefore uses
+  exact tree bytes rather than ancestry. The full tree delta is 407 paths:
+  35 under `policy-engine/src/polisyos` (34 Python plus one README) and 87
+  under `policy-engine/apps/runtime-dashboard`. P37 provenance is
+  `recomputed` for commands/counts/intersections,
+  `independently_reconciled` for introducing commits,
+  `institutionally_supplied` for registered owner tuples, and
+  `not_established` wherever no receipt distinguishes the candidate causes.
+  A named cluster is therefore the first execution-observed DS5 candidate
+  transition, not a strict linear post-base commit or exclusive line-level
+  causation claim.
+- The authorized write set is exactly this journal, the DS5 plan, and the C20
+  closure record. No product, test, register, generated report, status
+  inventory, baseline, readiness ledger, C23, visual snapshot, or i18n byte is
+  authorized. Repair costs below are measurements, not selected dispositions.
+
+### Storybook provider composition — DS5-owned
+
+- Base command:
+  `corepack pnpm --dir apps/runtime-dashboard run test:storybook`. Exact
+  archive `c1a89b6cf` passed 44/44 files and 97/97 stories, exit 0 in `69 s`.
+  Path-normalized stdout SHA-256 is
+  `9e2d95eab376feb2be670d62e1419520ece82a6e53bbc074f39255d936e424af`;
+  normalized stderr is
+  `60b66692a14ee32f1d3a68344fba5b1155ebf340124dd1c798289650727fcfae`.
+- The complete command-input denominator is 342 files, including 14 direct
+  command metadata entries; 15 intersect the 407-path DS5 delta. The
+  denominator receipt itself has SHA-256
+  `fdb8db256e9197b8de7b25a83d6cd66efacfc6bc327fef53b8567d72f8fd4842`.
+- Exact replay at C18b-R2 `8bb10a611db9d445be1ecc241c8b8067e450a5f9`
+  failed 97/97 in `47 s` with `No QueryClient set`; normalized stdout SHA-256
+  is `0ef0b4b79e6c6cb1106e8b522bd74fc9a97e4adb08e4c49fb3fed3323f938fb6`.
+  That candidate introduces `useAuthMe` into `FeatureFlagProvider` while the
+  decorator remains unchanged, so cluster-level attribution is
+  `ds5_own / C18b-R2`.
+- Repair-cost proof, performed only in the archive: add the canonical
+  `QueryClientProvider` around the existing decorator tree in the sole path
+  `apps/runtime-dashboard/.storybook/preview.tsx`; 97/97 then pass in `65 s`.
+  The cut is one path, no governed artifact/baseline re-anchor, with focused
+  verification measured at `65 s`. No repair was applied.
+
+### Component locale baseline — DS5-owned
+
+- Base command:
+  `corepack pnpm --dir apps/runtime-dashboard exec vitest run --reporter=json
+  --outputFile=/tmp/ds5_c20_slice_base.8dQMCr/vitest.raw.json --maxWorkers=1`.
+  Exact base collected 312 files / 893 tests: 890 passed and only the three
+  named DS6 parity identities failed. Raw JSON SHA-256 is
+  `9f6a24a3230c28f8ac83e0198bec9d57259938fd676334c31feeb43d8c2cf339`;
+  normalized SHA-256 is
+  `77c78740fb6fa08b866b766f8a7d956f06b88398b2e0fc672356cf8c0dfd09c8`.
+  The `1163 s` terminal is contended attribution evidence, not a clean p95
+  sample.
+- The complete conservative owner-input family is 1,063 tracked dashboard
+  TS/TSX/CSS/JSON/config/package/lock files; 82 intersect the DS5 delta. The
+  current exact repair census used the same Vitest form, exit 1 in `728.49 s`,
+  raw JSON SHA-256
+  `12597aacfe21850c79377e1d01e3eb32da08851e56d6f9133f5ec2db1c4b8fa8`.
+  It enumerates 321 files / 1,048 tests, 987 passed / 61 failed, split exactly
+  as three DS6, 56 DS5 default-locale, and two DS5-era non-locale failures.
+- C05a-R1 `3976c79aa3baac30da93cc26540066a4d300903b` changes
+  `DEFAULT_LOCALE` from `en` to `uk` and is the first exact replay that
+  reproduces the locale class. The 56 locale failures are therefore
+  `ds5_own / C05a-R1`. The two additional failures in
+  `features/runs/routes/useRunDetailSummary.test.tsx` and
+  `shared/ui/temporal/temporalArchitecture.test.ts` are DS5-era by the green
+  slice-base denominator, but their exact introducer/repair is
+  `not_established`.
+- Repair-cost frontier: at least 12 test paths. The shared harness
+  `apps/runtime-dashboard/src/test/render.tsx` covers only 45 of the 52
+  harness/provider failures. Seven direct-provider tests do not import it:
+  `PublicSectorReadinessPanel.test.tsx`, `ScientificDepthPanel.test.tsx`,
+  `FeatureAsyncBoundary.test.tsx`, `ProvenanceStrip.test.tsx`,
+  `responsiveTokenParity.test.tsx`, `TrustInspector.test.tsx`, and
+  `TrustViewAuthority.test.tsx`. Four raw-render tests are additional:
+  `features/artifacts/bureaucratic/BureaucraticArtifactView.a11y.test.tsx`,
+  `features/artifacts/bureaucratic/BureaucraticArtifactView.test.tsx`,
+  `features/artifacts/reading-view/MarginNotes.test.tsx`, and
+  `features/artifacts/reading-view/MonographLayout.test.tsx`. A product-provider
+  API disposition could change this cut and is not selected. The two non-locale
+  frontier paths need a separate diagnosis. There is no snapshot or governed-
+  artifact re-anchor; full verification is measured at `728.49 s`, while
+  implementation duration is `not_established`. No repair was applied.
+
+### Accessibility — DS5-owned
+
+- Base command:
+  `CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --dir apps/runtime-dashboard run
+  test:a11y`. Exact base passed 85/85 component and 21/21 page checks, exit 0
+  in `383.54 s`; raw stdout SHA-256 is
+  `2faa69681c43e8070b5bab4138be0d4fad0817a758e746e80cf3cb7d8eeff76d`.
+- The complete conservative falsifier denominator is all 9,589 tracked
+  `policy-engine` paths; 235 intersect the DS5 delta. The executed frontier is
+  84 component specs, four page specs, and nine config/setup inputs.
+- Exact C05a-R1 replay passed 85/85 components and 18/21 pages in `379.32 s`.
+  The three failures are the keyboard journey and the two English
+  screen-reader expectations; raw SHA-256 is
+  `a8f65d5e53e0200f2f308caa9ed2aa3be288299d7f4b339d1fe967d0859be7de`.
+  Those three are `ds5_own / C05a-R1`. The corrected exact C09a-R2
+  `6002d1eab` retry passes 85/85 components and fails the same four page
+  identities in `348.44 s`, exit 1; raw SHA-256 is
+  `0c74a334ae56bdc1b9731ab05ac5ed2fffc590cc4b0a3d75093c357cadf21722`.
+  It is the first executed boundary containing the fourth route-readiness
+  failure, so that failure is `ds5_own / C09a-R2`; C09b was not replayed.
+- The observed failure-path frontier is
+  `src/test/a11y/keyboard-journeys.spec.ts`,
+  `src/test/a11y/screen-reader-snapshots.spec.ts`, and
+  `e2e/a11y/routes.a11y.spec.ts`. Candidate dispositions include pinning an
+  English test locale versus changing the locale assertions, and supplying a
+  verified fixture versus changing route lifecycle; this task does not choose.
+  A shared-helper edit would expose 20 call sites in 16 files plus the helper-
+  definition path, 17 tracked files total, and require a separate recut.
+  No snapshot/governed re-anchor is established; full verification is measured
+  at `383.54 s`, while implementation duration and final repair paths are
+  `not_established`. No repair was applied.
+
+### Visual baselines — 16 DS5-owned; one inherited DS8 identity
+
+- Base command:
+  `corepack pnpm --dir apps/runtime-dashboard run test:visual`. Exact base
+  passed 17/18 in `184 s`, exit 1 only for the known DS8 run-detail A4 print
+  identity; raw stdout SHA-256 is
+  `f6b37f9ef217440e8b4a1c52f173a5d08a2993a3b2e8a6f5e128baf9c3077066`.
+  C20 passed 1/18 and failed 17 in `218.61 s`; raw SHA-256 is
+  `ada7bae917a6f6d83e433b2b9199e9ff936efecfb9c383c69238718affa24131`.
+  Therefore the delta is exactly 16 DS5-owned identities plus one inherited
+  DS8 identity.
+- The narrow identity denominator is 23 spec/snapshot/config paths and has
+  zero DS5 intersection, proving that identity-file intersection is a P38
+  proxy for rendered behavior. The conservative executable-input denominator
+  is 6,872 paths, 134 of which intersect DS5. C05a-R1 is the locale
+  contributor, C18b-R2 is the three-Storybook-identity provider contributor,
+  and C09b-R1 `700e3aa14` is the verified-authz/mode contributor. Residual
+  per-identity geometric attribution is `not_established` without additional
+  intermediate replays.
+- The closure artifact enumerates all 16 exact test titles and conditional PNG
+  basenames. The base receipt cwd is
+  `/tmp/ds5c20_visual_base_manual/policy-engine`, with no environment override;
+  raw evidence is `/tmp/ds5c20_visual_base_owner_exact.raw.log`. The complete
+  governed search denominator is 721 files across
+  `architecture/atlas_surfaces`, `architecture/policy_design_case`,
+  `architecture/production_quality`, and `docs/reference`; all 16 PNG
+  basenames have zero references. The generic DS6 `evidence-visual` row cites
+  only the spec and remains `semantic_test_missing`. One fuzzy human-title
+  search collides with an unrelated `run detail overview/` prefix, so the
+  exact PNG-basename result—not title-substring zero—governs.
+- Minimum baseline-compatible repair: two test-environment paths,
+  `e2e/runtime-dashboard.visual.spec.ts` for explicit English plus verified
+  analyst fixture and `.storybook/preview.tsx` for the Query client. The
+  alternative, only if current renders are architect-adjudicated intended, is
+  a reviewed re-anchor of exactly 16 `golden_snapshot` PNGs, excluding the DS8
+  A4 identity. No register/status/readiness/C23 byte moves. Verification is
+  measured at `184 s` base / `218.61 s` C20; implementation duration is
+  `not_established`. No disposition was selected.
+
+### Import policy / exception lifecycle — genuinely inherited
+
+- Direct owner command:
+  `uv run python tools/quality/lint/lint_imports.py --policy
+  architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml`.
+  Slice base and C20 both exit 1 in `115 s` / `96 s` on the same 90 semantic
+  violations: 78 `ARCH001`, five `ARCH002`, four `ARCH004`, three `ARCH006`;
+  84 expired rows span 23 exception IDs. Eighty-eight rows are byte-identical;
+  two preserve the same import and differ only by source line. Their
+  line-normalized multiset is byte-identical at SHA-256
+  `b95cb9f0b929e1c2d0ab36bbaaf3975a8bd5ae20c12927367140332a5a859a7b`.
+- The semantic-owner denominator is 2,567 paths and the execution denominator
+  2,569; both intersect DS5 at 34. Reproduction of the actual violation
+  multiset despite that nonempty intersection establishes external
+  `team-architecture` / `@architecture-owners` debt. The older 100-row/
+  `03ad3f…` claim has no retained reproducible normalizer and is
+  `not_established`; it is superseded by this 90-row owner receipt.
+
+### Settled lanes, nonreceipts, carried set and handoff
+
+- Deep-import was not rerun. The architect verified it on current `main` and
+  two unrelated GY lanes reproduced the same stdout SHA-256
+  `73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb`.
+  ABI schema-catalog attribution was also not rerun: DS5 changes zero paths
+  under `docs/reference/ir/**` or at
+  `tools/quality/diagnostics/gen_schema.py`. Both remain external debt with
+  their registered owners.
+- Tooling nonreceipts are retained and supply no product claim: root first
+  allowed zsh to expand a colon-suffixed ref variable, then queried Git from
+  the product directory without the required `policy-engine/` prefix; corrected
+  literal/prefixed reads replaced both. Storybook's first offline install hit
+  an archive-without-`.git` prepare hook; the accepted offline install/test is
+  separate. Accessibility first collided on fixed ports, C05a's first replay
+  timed out, and C09a's first page server timed out; corrected base, C05a, and
+  C09a retry runs are the receipts. Two visual attempts timed out/contended on the same fixed
+  ports before the accepted serialized replay. Import-policy's first partial
+  archive and the unretained historical 100-row normalizer are nonreceipts.
+- Final record verification first placed pre-commit's `-c` option before its
+  `run` subcommand; pre-commit rejected that shell invocation, so it is a
+  tooling nonreceipt. The corrected Markdown-lint invocation reached the owner
+  and reported 15 existing findings outside every changed hunk (the journal
+  diff begins at line 5,630; the plan's changed hunks begin at 947); it is a
+  baseline RED, not a task pass. The closure artifact itself is lint-clean.
+- External carried debt remains C07a, C07b, C10-R1, C15a's structured
+  verdict/status-chip plane, C17a-R1, the eight-owner duplication finding,
+  C17b-R3's owner-flow residual, architecture deep-import, the 90-row import-
+  policy/exception lifecycle, ABI schema catalog, three DS6 locale-parity
+  identities, and the DS8 A4 visual identity, each with the owner recorded in
+  the closure artifact. DS5 now carries as its own: C18b Storybook composition;
+  C05a's 56 component-locale failures and three accessibility failures;
+  C09a-R2's route-readiness accessibility failure; two component failures
+  with exact introducer `not_established`; and 16 visual identities with the
+  proven contributor set plus residual per-identity attribution stated above.
+- The C23/DS16 non-claim is unchanged: four
+  `c23_containment_root_drift`, four `successor_on_non_rebound`, and four
+  `rebound_consumer_missing`; no C23 byte moved. The release ruling is also
+  unchanged: C21 is insufficient, accepted C20 is prerequisite, and owners
+  release to DS6 only after DS5 merges to `main`. Current value remains
+  `DS6 release_status: not_released`.

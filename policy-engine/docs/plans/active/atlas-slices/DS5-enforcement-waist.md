@@ -944,11 +944,23 @@ the admitted command receipts.
 | CI parity | `30.20` | inherited RED | non-green debt receipt; excluded |
 | runtime API client type/lint/test/format/architecture | `1.81, 2.26, 0.62, 1.29, 0.43` | PASS (`4/4` tests) | `300 s executor_declared`; contended, excluded from clean p95 |
 | dashboard lint / enforcement / architecture / typecheck / build | `124.24, 80.49, 10.65, 24.36, 44.74` | PASS | existing `174/314/19/157/115 s` lane ceilings; contended, excluded |
-| dashboard component JSON / comparator | `514.59, 60.57` | inherited RED / exact failure set | `748/78 s`; excluded |
-| dashboard Storybook | `21.09` | inherited RED | `748 s`; excluded |
-| dashboard accessibility rerun | `187.93` | inherited RED, `17/21` | `748 s`; excluded |
-| dashboard visual | `218.61` | inherited RED, `1/18` | `748 s`; excluded |
+| dashboard component JSON / comparator | `514.59, 60.57` | historical C20-observed RED; later exact `728.49 s` census classifies 58 beyond DS6 as DS5-owned | `748/78 s`; excluded |
+| dashboard Storybook | `21.09` | historical C20-observed RED; slice-base correction classifies it as DS5-owned C18b debt | `748 s`; excluded |
+| dashboard accessibility rerun | `187.93` | historical C20-observed RED, `17/21`; slice base is 21/21 | `748 s`; excluded |
+| dashboard visual | `218.61` | historical split RED, `1/18`; 16 DS5-owned plus one inherited DS8 identity | `748 s`; excluded |
 | Atlas UI lint / architecture / typecheck / test | `4.74, 0.83, 3.07, 10.53` | PASS (`85/85` tests) | `300 s executor_declared`; contended, excluded from clean p95 |
+
+The slice-base attribution correction adds read-only replay observations. They
+ran under the shared-host regime and are evidence for attribution/repair cost,
+not clean p95 samples:
+
+| Slice-base attribution lane | Terminal observation (seconds) | result | budget treatment |
+| --- | ---: | --- | --- |
+| Storybook at `c1a89b6cf` / C18b-R2 / one-path proof patch | `69, 47, 65` | `97/97` PASS / `97/97` FAIL / `97/97` PASS | contended; excluded from clean p95 |
+| component JSON at `c1a89b6cf` / current repair census | `1163, 728.49` | only three DS6 failures / 58 DS5-era failures beyond DS6 | contended; excluded from clean p95 |
+| accessibility at `c1a89b6cf` / C05a-R1 / C09a-R2 | `383.54, 379.32, 348.44` | `85/85 + 21/21` PASS / `85/85 + 18/21` / `85/85 + 17/21` | fixed-port serialized; excluded from clean p95 |
+| visual at `c1a89b6cf` / current C20 | `184, 218.61` | `17/18` with DS8-only RED / `1/18` | fixed-port serialized; excluded from clean p95 |
+| direct import-policy owner at `c1a89b6cf` / current C20 | `115, 96` | identical 90-row semantic RED | attribution receipt; no clean local lane budget established |
 
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
@@ -1610,7 +1622,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | reviewed candidate projection was preserved at `4c20818c3`, forward-reverted at `7ee283762`, then canonically regenerated on the resumed branch | candidate/revert range; two byte-idempotent resumed writer receipts | landed by the containing C20 commit | none; deep-import drift is carried external-owner debt |
-| C20 | final ledger/corruption/architect receipt | the real-owner meta-sweep is restored byte-exact; the complete battery distinguishes DS5 greens from reproduced, disjoint inherited reds | C20 closure record; C09a-R2/C09b-R1 receipts; entry-base falsifiers and carried-owner table | landed at 0/2 mechanism rounds by the containing commit | none; accepted handoff plus merge to `main` is the later release predicate |
+| C20 | final ledger/corruption/architect receipt | the real-owner meta-sweep is restored byte-exact; the complete battery is re-attributed against slice base `c1a89b6cf`, distinguishing external debt from DS5-owned closure debt | C20 closure record; C09a-R2/C09b-R1 receipts; slice-base replays, repair-cost census and corrected carried-owner table | landed at 0/2 mechanism rounds by the containing commit | none; accepted handoff plus merge to `main` is the later release predicate |
 
 **Standing census (entry denominator recomputed and independently reconciled at
 `324996652`, structurally refreshed through the containing C15b commit):**
@@ -2819,23 +2831,26 @@ fail while benign siblings pass. The meta-test imports and executes the real
 registered corruption witnesses; it does not merely search for their names.
 
 **Terminal classification:** landed by the containing commit at 0/2 C20
-mechanism rounds. The architect's resumed-pass ruling establishes that a
-repository-wide gate already red at task entry, owned outside the cut, and
-provably disjoint from the task's complete changed-path set is inherited debt,
-not a blocker for the non-owning slice. C20 reproduces the architecture red
-from clean entry `700e3aa14` and the resumed tree with byte-identical stdout;
-its exact five-path candidate intersects the 2,561-path direct edge-collector
-denominator at zero, and its complete wider CLI input family is also disjoint.
-The closure record carries the eight edge deltas under
-`team-architecture` / `@architecture-owners` and successor
-`architecture-deep-import-baseline-reconciliation`; it does not call the gate
-green or rebaseline it.
+mechanism rounds. The earlier resumed-pass ruling used C20 entry
+`700e3aa14` and correctly proved that the five-path C20 mechanism did not
+create the deep-import red. The corrected closure rule is stronger: inherited
+attribution is replayed at the slice's own base
+`c1a89b6cf0c63573abad6b0ca8374e16b78c47dd`. That exact-tree comparison spans
+407 changed paths, including 35 under `src/polisyos` and 87 in the dashboard.
 
-The same standing rule is applied, with explicit input equality and
-changed-path disjointness, to the other inherited full-battery reds. P40
-classifies each external-owner class NEW once and its individual failures as
-WORKED EXAMPLES. No finding is against the C20 corruption mechanism, so no
-round is consumed and no cap recut is required.
+The slice-base replays leave deep-import, import-policy/exception, and ABI
+catalog debt with their external owners, plus the three DS6 locale-parity and
+one DS8 A4 identities. They reclassify Storybook provider composition, 58
+component-test failures, four accessibility failures, and 16 visual failures
+as DS5-owned closure debt. First execution-observed DS5 candidate transitions
+are C18b-R2 for Storybook, C05a-R1 for 56 locale and three accessibility failures, C09a-R2 for the
+fourth route-readiness failure, and C05a-R1, C18b-R2, and C09b-R1 for
+identified visual classes; the two non-locale component failures and residual
+geometric visual identities retain `not_established` per-cluster attribution. The
+closure record contains commands, output identities, denominators,
+intersections, and repair-cost frontiers. This P35/P37/P38 record correction
+does not change the landed C20 mechanism, consume a P40 mechanism round, or
+authorize a repair/rebaseline.
 
 **Acceptance:** established for DS5. The restored test is byte-identical to
 stopped candidate `4c20818c3` and retains its reviewed 1/1 real-owner
@@ -2948,19 +2963,21 @@ corepack pnpm --dir packages/atlas-ui run typecheck
 corepack pnpm --dir packages/atlas-ui run test
 ```
 
-The production build, typecheck, DS5-owned/touched tests, generated-client
-contract and architecture gates owned by DS5 must be absolute green for
-landing. A repository-wide gate already red at clean task entry, outside the
-declared ownership, and provably disjoint from the task's complete changed-path
-set is carried inherited debt under the architect's resumed C20 ruling; its
-red is reproduced, owner and successor named, and no rebaseline or pass is
-claimed. The earlier expected-red allowance for only three DS6 parity
-identities and one DS8 A4 print identity is subordinate to that stronger
-two-falsifier rule, not silently broadened. The JSON component command is run
-separately and its governed comparator must enumerate every additional
-identity. Missing/timed-out JSON remains a nonreceipt. `test_auth_api.py` is
-run read-only as shared authorization coverage; it is not a sixth editable
-backend test path.
+The production build, typecheck, generated-client contract, and focused gates
+owned by each implementation cluster remain absolute. At closure, every
+repository-wide red is replayed against the slice base, not merely C20 entry:
+a semantically identical red that reproduces is inherited; a red absent there
+is DS5-owned debt even when C20's five paths are disjoint. Every replay also
+enumerates its complete or explicitly conservative owner-input denominator and
+DS5 intersection. Empty intersection is direct noninterference evidence; a
+nonempty intersection requires an independently reconciled semantic-output
+identity, as the 90-row import-policy replay provides, or attribution remains
+`not_established`. Each debt is owner-named and costed without calling it green
+or selecting repair versus registered successor. The JSON
+component command runs separately and its governed comparator enumerates every
+additional identity. Missing/timed-out JSON remains a nonreceipt.
+`test_auth_api.py` is read-only shared authorization coverage, not a sixth
+editable backend test path.
 
 ## Explicit Not yet
 
@@ -2969,10 +2986,12 @@ backend test path.
   `main`; current `DS6 release_status` is `not_released`. The carried set is
   C07a, C07b, C10-R1, C15a's structured verdict/status-chip producer plane,
   C17a-R1, the registered eight-owner duplication finding, C17b-R3's declared
-  owner-flow residual, and the inherited architecture deep-import,
-  import-policy/exception, ABI schema-catalog, dashboard component-locale,
-  Storybook-provider, accessibility and visual-baseline debts enumerated with
-  owners and successors in the closure artifact.
+  owner-flow residual, and external architecture deep-import,
+  import-policy/exception and ABI schema-catalog debt. DS5 additionally carries
+  its own measured component-locale, Storybook-provider, accessibility and
+  16-identity visual debt pending architect disposition; the closure artifact
+  enumerates their first execution-observed DS5 candidates, residual unknowns,
+  owners and repair costs.
 - No C23/DS16 reconciliation. The four roots, `C23_SUCCESSOR_REFS`, and
   `C23_RATIONALE` remain unchanged. The literal transition yields four
   `c23_containment_root_drift` plus four `successor_on_non_rebound`; the

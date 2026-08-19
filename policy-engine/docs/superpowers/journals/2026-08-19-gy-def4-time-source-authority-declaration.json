@@ -6,7 +6,7 @@
     "unchanged_family_output_remains_byte_identical",
     "all_outputs_outside_declared_family_remain_byte_identical",
     "pointer_bound_inbound_targets_remain_byte_identical",
-    "gy_gap1_declared_artifact_intersection_remains_empty",
+    "gy_gap1_live_writer_output_intersection_remains_empty",
     "plan_line_7_remains_byte_identical"
   ],
   "base_head": "bedd4750331846257d412e41d478c0b33321094a",
@@ -15,7 +15,6 @@
   "family_id": "policy-design-case-layer3-time-source-authority",
   "gy_gap1_disjointness": {
     "current_head_before_gy_def4_write": "9ba6935d0",
-    "declared_artifact_intersection": [],
     "declared_artifact_outputs": [
       "architecture/policy_design_case/layer3_gy_promotion_contract.json",
       "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
@@ -31,8 +30,15 @@
       "src/polisyos/runtime/quality/promotion_sequence.py",
       "tools/quality/validation/check_layer3_gy_promotion_contract.py"
     ],
+    "gy_def4_declared_write_outputs": [
+      "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+      "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+    ],
+    "live_writer_output_intersection": [],
     "measurement": "exact_path_set_intersection",
-    "source": "docs/superpowers/journals/2026-08-19-gy-gap1-artifact-transition-declaration.json"
+    "source_commit": "9ba6935d074134e565aac7ededb79f03cddf5208",
+    "source_file_sha256": "sha256:e00726953716e4d474b3f150912b8079b161b52806196f72a2682f0964db5a44",
+    "source_ref": "9ba6935d074134e565aac7ededb79f03cddf5208:policy-engine/docs/superpowers/journals/2026-08-19-gy-gap1-artifact-transition-declaration.json"
   },
   "inbound_reference_census": {
     "content_hash_pinned": [],

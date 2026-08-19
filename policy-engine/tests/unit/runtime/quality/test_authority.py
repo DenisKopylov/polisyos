@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.runtime.http.services.temporal import (
+    build_time_source_consistency_audit_projection,
+)
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeError,
     ConsumedInputMember,
@@ -80,13 +84,34 @@ def _time_source_projection(
     projection_kind: str = _TIME_SOURCE_PROJECTION_KIND,
     producer_ref: str = _TIME_SOURCE_PRODUCER_REF,
     projection_scope: str = _TIME_SOURCE_PROJECTION_SCOPE,
-) -> dict[str, str]:
-    return {
-        "projection_kind": projection_kind,
-        "producer_ref": producer_ref,
-        "projection_scope": projection_scope,
-        "mismatch_disposition": disposition,
-    }
+) -> dict[str, object]:
+    base = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
+    projection = build_time_source_consistency_audit_projection(
+        catalog_watermark=base,
+        source_observed_at=base,
+        source_published_at=base,
+        source_updated_at=base,
+        ingested_at=base,
+        effective_time=base,
+        legal_valid_time=base,
+        transaction_time=base,
+        as_of_time=base,
+        replay_time=base,
+        run_started_at=base,
+        run_finished_at=base + timedelta(seconds=5),
+        node_started_at=base,
+        node_finished_at=base + timedelta(seconds=1),
+        retention_or_expiry=base + timedelta(days=30),
+    ).model_dump(mode="json")
+    projection.update(
+        {
+            "projection_kind": projection_kind,
+            "producer_ref": producer_ref,
+            "projection_scope": projection_scope,
+            "mismatch_disposition": disposition,
+        }
+    )
+    return projection
 
 
 def _time_source_decision(payload: dict[str, object]):
@@ -126,7 +151,10 @@ def test_foreign_nested_legacy_disposition_contributes_no_time_source_pass() -> 
     assert decision.time_source_dispositions == []
 
 
-@pytest.mark.parametrize("disposition", ["admitted", "renamed_consistent"])
+@pytest.mark.parametrize(
+    "disposition",
+    ["admitted", "renamed_consistent", "CONSISTENT", " consistent "],
+)
 def test_declared_projection_rejects_legacy_or_unknown_disposition(
     disposition: str,
 ) -> None:
@@ -140,6 +168,22 @@ def test_declared_projection_rejects_legacy_or_unknown_disposition(
     assert decision.status == "downgraded"
     assert decision.visible_downgrade is True
     assert decision.reason == "time_source_envelope_obligation"
+
+
+def test_declared_projection_recomputes_consistency_instead_of_trusting_markers() -> None:
+    projection = _time_source_projection("consistent")
+    projection["source_observed_at"] = "2100-01-01T00:00:00Z"
+    payload = {
+        **_surface_authority_payload(),
+        "foreign_payload": {"nested": projection},
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "downgraded"
+    assert decision.time_source_dispositions == [
+        "invalid:time_source_consistency_contract_invalid"
+    ]
 
 
 def test_legacy_time_source_model_name_is_not_an_accepted_alias() -> None:

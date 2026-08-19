@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 pytest.importorskip("fastapi")
@@ -9,6 +11,9 @@ from fastapi.testclient import TestClient
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.runtime.http.app import create_runtime_api_app
+from polisyos.runtime.http.services.temporal import (
+    build_time_source_consistency_audit_projection,
+)
 
 FIXTURE_SECRET = "sk-routefixture1234567890"  # noqa: S105
 FIXTURE_EMAIL = "policy.fixture@example.org"
@@ -89,20 +94,31 @@ def test_raw_and_manifest_artifact_surfaces_block_secret_pii(tmp_path) -> None:
 def test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export(
     tmp_path,
 ) -> None:
+    base = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
+    projection = build_time_source_consistency_audit_projection(
+        catalog_watermark=base,
+        source_observed_at=base + timedelta(days=1),
+        source_published_at=base,
+        source_updated_at=base,
+        ingested_at=base,
+        effective_time=base,
+        legal_valid_time=base,
+        transaction_time=base,
+        as_of_time=base,
+        replay_time=base,
+        run_started_at=base,
+        run_finished_at=base + timedelta(seconds=5),
+        node_started_at=base,
+        node_finished_at=base + timedelta(seconds=1),
+        retention_or_expiry=base + timedelta(days=30),
+    )
+    assert projection.mismatch_disposition == "inconsistent"
     ref, app = _app_with_surface_payload(
         tmp_path,
         {
             **_authority_payload(),
             "fixture": "stale-watermark-bypass",
-            "time_source_projection": {
-                "projection_kind": "time_source_consistency_audit_projection",
-                "producer_ref": (
-                    "polisyos.runtime.http.services.temporal."
-                    "build_time_source_consistency_audit_projection"
-                ),
-                "projection_scope": "catalog_source_runtime_time_role_consistency",
-                "mismatch_disposition": "inconsistent",
-            },
+            "time_source_projection": projection.model_dump(mode="json"),
         },
     )
 

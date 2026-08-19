@@ -271,7 +271,10 @@ def test_time_source_consistency_projection_marks_missing_roles_insufficient() -
     assert audit.mismatch_disposition == "insufficient_evidence"
 
 
-@pytest.mark.parametrize("unknown_disposition", ["admitted", "renamed_consistent"])
+@pytest.mark.parametrize(
+    "unknown_disposition",
+    ["admitted", "renamed_consistent", "CONSISTENT", " consistent "],
+)
 def test_time_source_consistency_projection_rejects_unknown_disposition(
     unknown_disposition: str,
 ) -> None:

@@ -7,8 +7,6 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict
-
 from polisyos.core.contracts.runtime import (
     QuantityCoverageEntry,
     QuantityCoverageSummary,
@@ -27,17 +25,9 @@ from polisyos.core.contracts.runtime import (
 )
 from polisyos.runtime.http.errors import RuntimeHTTPError, conflict, unprocessable_entity
 from polisyos.runtime.quality.authority import (
-    TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION,
-    TIME_SOURCE_CONSISTENCY_PRODUCER_REF,
-    TIME_SOURCE_CONSISTENCY_PROJECTION_KIND,
-    TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE,
-    TIME_SOURCE_CONSISTENT_DISPOSITION,
-    TIME_SOURCE_INCONSISTENT_DISPOSITION,
-    TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION,
+    TimeSourceConsistencyAuditProjection,
     TimeSourceConsistencyDisposition,
-    TimeSourceConsistencyProducerRef,
-    TimeSourceConsistencyProjectionKind,
-    TimeSourceConsistencyProjectionScope,
+    resolve_time_source_consistency_disposition,
 )
 
 if TYPE_CHECKING:
@@ -69,36 +59,6 @@ _WORLD_TEMPORAL_TABLES: tuple[str, ...] = (
     "world.quality_reports",
     "world.trust_assessments",
 )
-
-
-class TimeSourceConsistencyAuditProjection(BaseModel):
-    """Projection-only consistency audit for artifact source and runtime time roles."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    projection_kind: TimeSourceConsistencyProjectionKind = (
-        TIME_SOURCE_CONSISTENCY_PROJECTION_KIND
-    )
-    producer_ref: TimeSourceConsistencyProducerRef = TIME_SOURCE_CONSISTENCY_PRODUCER_REF
-    projection_scope: TimeSourceConsistencyProjectionScope = (
-        TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE
-    )
-    catalog_watermark: str | None = None
-    source_observed_at: str | None = None
-    source_published_at: str | None = None
-    source_updated_at: str | None = None
-    ingested_at: str | None = None
-    effective_time: str | None = None
-    legal_valid_time: str | None = None
-    transaction_time: str | None = None
-    as_of_time: str | None = None
-    replay_time: str | None = None
-    run_started_at: str | None = None
-    run_finished_at: str | None = None
-    node_started_at: str | None = None
-    node_finished_at: str | None = None
-    retention_or_expiry: str | None = None
-    mismatch_disposition: TimeSourceConsistencyDisposition
 
 
 def build_time_source_consistency_audit_projection(
@@ -667,49 +627,7 @@ def _format_time_role(value: datetime | None) -> str | None:
 def _time_source_mismatch_disposition(
     times: Mapping[str, datetime | None],
 ) -> TimeSourceConsistencyDisposition:
-    catalog_watermark = times["catalog_watermark"]
-    source_times = (
-        times["source_observed_at"],
-        times["source_published_at"],
-        times["source_updated_at"],
-    )
-    if catalog_watermark is None:
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    if any(source_time is None for source_time in source_times):
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    if any(source_time > catalog_watermark for source_time in source_times if source_time):
-        return TIME_SOURCE_INCONSISTENT_DISPOSITION
-
-    legal_valid_time = times["legal_valid_time"]
-    as_of_time = times["as_of_time"]
-    replay_time = times["replay_time"]
-    if legal_valid_time is None or as_of_time is None or replay_time is None:
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    if legal_valid_time > as_of_time or legal_valid_time > replay_time:
-        return TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION
-
-    run_started_at = times["run_started_at"]
-    run_finished_at = times["run_finished_at"]
-    if run_started_at is None or run_finished_at is None:
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    if run_finished_at < run_started_at:
-        return TIME_SOURCE_INCONSISTENT_DISPOSITION
-
-    node_started_at = times["node_started_at"]
-    node_finished_at = times["node_finished_at"]
-    if node_started_at is None or node_finished_at is None:
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    if node_finished_at < node_started_at:
-        return TIME_SOURCE_INCONSISTENT_DISPOSITION
-
-    retention_or_expiry = times["retention_or_expiry"]
-    if retention_or_expiry is None:
-        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
-    visibility_cutoff = max(as_of_time, replay_time, run_finished_at, node_finished_at)
-    if retention_or_expiry < visibility_cutoff:
-        return TIME_SOURCE_INCONSISTENT_DISPOSITION
-
-    return TIME_SOURCE_CONSISTENT_DISPOSITION
+    return resolve_time_source_consistency_disposition(times)
 
 
 def _timeline_summary(

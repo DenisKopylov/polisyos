@@ -6065,13 +6065,17 @@ def _n8_transport_gap_closure(
 
     from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
-    issues = n8.validate_payload(payload)
-    if issues:
+    validation = n8.validate_payload_result(payload)
+    if validation.governing_issues:
         return {
             "closed": False,
             "reason_code": "n8_value_contract_invalid",
             "issue_codes": sorted(
-                {str(issue.get("code") or "") for issue in issues if issue.get("code")}
+                {
+                    str(issue.get("code") or "")
+                    for issue in validation.governing_issues
+                    if issue.get("code")
+                }
             ),
             "receipt_ref": None,
         }

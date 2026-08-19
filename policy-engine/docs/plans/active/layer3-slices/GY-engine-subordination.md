@@ -3250,6 +3250,47 @@ and cold closeout remain unproved.
   rebaseline the manifest — are the closures this entry already forbids. Owner of the repair is
   `GY-DEFC-9`.
 
+  **GY-DEFC-9 settled disposition (2026-08-18).** The historical environment discriminator is
+  `not_established`; inventing one after the freeze would be a rebaseline and is refused. Ambient
+  posture remains recorded in full, including import failures and `unbound_inputs`, and remains
+  protected by the raw custody identity as diagnostic evidence. It is no longer a governed replay
+  prerequisite. The governed comparison projection admits exclusion only from a structurally valid
+  non-governing admission; absent, malformed or contradictory admission fails closed. `[P37:
+  institutionally_supplied for the ruling; not_established for the historical discriminator]`
+
+  The pre-implementation census walked the complete `32/32` recorded and `32/32` live
+  `predicate_provenance` rows: all rows were mappings with unique names, and exactly
+  `ambient.discovered_component_membership` differed (`not_established → recomputed`) while both
+  sides declared `decisive: false` and `quarantine`. Its placement is therefore established as an
+  ambient finding, not guessed from the whole-list code. The three direct ambient mismatch codes are
+  ambient findings; governed predicate rows remain governing; raw `provenance_id` drift is a derived
+  consequence that must stop firing rather than be excluded. The complete row disposition is frozen
+  in `docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  independently_reconciled]`
+
+  **GY-DEFC-9 execution standing (2026-08-18).** This member is closed on
+  `codex/gy-defc-9-n11-suffix`: Foundry owns the fail-closed governed projection while raw ambient
+  facts and custody identity remain intact; every N8 comparison path consumes it. Two real discovery
+  environments differing in example-extension importability both return zero governing issues, and
+  the internally rehashed governed-count control remains red with
+  `catalog_builtin_discovery_manifest_mismatch`. The frozen N8 artifact is byte-identical. `[P37:
+  recomputed for the mechanism, complete comparison-path census, two-environment witness, negative
+  control, and artifact identity]`
+
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran this member's
+  canonical consumer: N8 returned `0`, `status=pass`, `scope=catalog_provenance`, and
+  `ambient_findings=[]` in `11.349281` s. The cold child then stopped in its measurement-harness
+  capability gate before milestone 1 and before any owner build. That terminal neither exercises nor
+  reopens this closed member; the frozen N8 artifact remains one of the `11/11` byte-stable pins.
+  `[P37: recomputed]`
+
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding authorized preflight re-ran N8 in
+  `12.631764` wrapper seconds and returned `0`, `status=pass`, `scope=catalog_provenance`, with
+  `ambient_findings=[]`. The cold child then completed all `28/28` milestones and returned zero
+  validation issues. The N8 artifact stayed byte-identical across the complete `11/11` pin
+  denominator, so the cold result confirms rather than reopens this member: ambient observations
+  remain fully recorded, diagnostic and non-governing. `[P37: recomputed]`
+
 - **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
   2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
   the shared PDC identity boundary rather than adding another validator-local normalizer.
@@ -3542,6 +3583,33 @@ and cold closeout remain unproved.
   governed N8 difference still returns `n8_value_contract_invalid` carrying its code. `P29`: one
   witness that must stay green and one that must go red.
 
+  **GY-DEFC-9 accepted consumer contract (2026-08-18).** N8 returns a typed result with
+  `governing_issues` and `ambient_findings`. N10a decides the bridge only from the governing subset,
+  without an issue-code allowlist; ambient findings remain visible through the typed result and N8
+  CLI and do not alter frozen N10a receipt bytes. Missing or malformed structural admission is a
+  governing failure. Depth-N inheritance is not assumed: a Depth-N-level ambient-green and
+  governed-red case is required before closure, otherwise its behavior remains `not_established`.
+  `[P37: institutionally_supplied]`
+
+  **GY-DEFC-9 execution standing (2026-08-18).** This defect is closed on
+  `codex/gy-defc-9-n11-suffix`: N10a consumes `governing_issues` from the typed N8 result, not the
+  legacy tuple or an issue-code allowlist. Both real ambient postures leave N10a green; the governed
+  control fails N10a and Depth-N with its named N8 code. All five frozen N10a artifacts remain
+  byte-identical. `[P37: recomputed for the typed consumer, behavioral witnesses, and complete
+  five-artifact denominator]`
+
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran N10a over the complete
+  pack and returned `0`, `status=pass`, `issues=[]` in `14.158655` wrapper seconds. The later cold
+  terminal occurred before milestone 1 in the measurement-harness capability gate, so it does not
+  reopen this typed-consumer closure; all five frozen N10a artifacts remain byte-identical.
+  `[P37: recomputed]`
+
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding preflight re-ran N10a over the
+  complete pack and returned `0`, `status=pass`, `issues=[]` in `15.106248` wrapper seconds. The
+  authorized cold child subsequently completed the exact `28/28` milestone sequence and returned
+  zero validation issues. The typed governing subset remained the bridge decision and all five
+  frozen N10a artifacts stayed byte-identical. `[P37: recomputed]`
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -3590,6 +3658,90 @@ and cold closeout remain unproved.
   **Closure signal:** two environments differing **only** in ambient plugin-import posture both verify
   N8 and N10a green; a governed-input change still fails with its named code; and one cold N11
   completes live-contract validation with zero issues.
+
+  **GY-DEFC-9 execution registration (2026-08-18, superseding only this entry's task ordering).**
+  Items 1 and 2 ship together through the Foundry governed projection and typed N8/N10a result. Item
+  3 takes the non-decisive-by-construction branch recorded under `GY-DEF14`. Item 4 reissues only the
+  confidence-ledger deployment identity to bind the current committed source closure, after an exact
+  delta declaration; N8 and N10a artifacts remain byte-identical. Item 5 is the single cold N11 run,
+  authorized only after Items 1–4 are green. `[P37: institutionally_supplied]`
+
+  `P39` mechanism cost is three source paths, three mirrored test paths, and the reissued confidence
+  artifact. Mandatory record companions are the new implementation plan, execution journal, and
+  these standing paragraphs inside `GY-DEF14`, `GY-DEF16`, and `GY-DEFC-9`. A measured need for an
+  additional test path expands the mechanism set; it does not justify weakening or splitting the
+  mechanism. The complete plan is
+  `docs/superpowers/plans/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  institutionally_supplied for the counting rule; recomputed for the initial path census]`
+
+  **Execution standing (2026-08-18): STOPPED BEFORE ITEM 5.** Items 1–3 are green and source-frozen;
+  Item 4 reissued only the confidence artifact and binds deployment identity
+  `policy-engine-deployment:sha256:f05a816f…5983955f`. Item 5 consumed both repair rounds on two
+  pre-launch authorization findings, closed both, and then stopped on the independently found third
+  Important mechanism defect, `cold_ceiling_enforcement_binding_gap`: the inner harness admits a
+  ceiling value, but a separately parameterized outer wrapper owns the enforcing timer. This is a
+  `P37`/`P38` authorization–enforcement split, classified before stop as required. No cold N11 child
+  ran; the one-cold allowance is unspent, and the task's P30 objective is `not_established`. Exact
+  receipts and the three-finding ledger are in the execution journal. `[P37:
+  independently_reconciled for the third finding; recomputed for Items 1–4, cold-run absence, and
+  allowance non-use; not_established for the cold objective]`
+
+  **Superseding Item 5 standing (2026-08-19): COLD ALLOWANCE SPENT, OBJECTIVE NOT ESTABLISHED.** The
+  P40 widening bound the retained preflight, exact six-commit history, zero-argument launcher,
+  worktree interpreter/source, canonical inputs, complete `11/11` pins, command/environment, and the
+  outer timer. Its required conflicting-parameter falsifier and six companion behavioral probes are
+  green. Two invocations refused before `Popen` and are preflight non-receipts: first the N10a
+  multiline-JSON parser proxy, then Python-mode strict parsing in place of the confidence owner's
+  JSON path. Both were corrected append-only; neither consumed the cold allowance. `[P37:
+  recomputed]`
+
+  At clean attached head `0f6c88add`, the final preflight was green for N8, N10a, confidence internal
+  validation, both idle-process censuses, and all `11/11` pins. The authorized child then started and
+  returned `1` after `5.017609` s, without timeout or process leak, on
+  `cold_n11_launch_capability_invalid`. Its complete milestone trace is `[]` over `28/28` authorized
+  names and its clear/build/validate counts are `0/0/0`; it terminated before ordinal 1,
+  `confidence_registry_loaded`. The allowance is spent, and no repair or relaunch is authorized.
+  `[P37: recomputed]`
+
+  Terminal classification is the new harness class `cold_launch_parent_identity_proxy` (`P38`). The
+  gate uses literal Darwin `ps` command text as a proxy for authorized parent provenance; a separate
+  probe proves an authorized venv interpreter is rendered as the framework executable path. The cold
+  receipt does not retain the observed parent text or a per-conjunct mismatch, so the exact terminal
+  conjunct remains `not_established`; the probe demonstrates the class without supplying causal
+  attribution. Items 1–4 stay closed and deployment identity remains `f05a816f…5983955f`, but the
+  N11 suffix is **not closed**, `GY-DEF15` is still unexercised cold, zero-issue cold live validation
+  is `not_established`, and cold closeout is incomplete. Full terminal receipts and the complete pin
+  denominator are in the execution journal. `[P37: recomputed for the proxy divergence, terminal,
+  and Items 1–4; not_established for the exact conjunct and every cold-validation claim]`
+
+  **Final superseding closure (2026-08-19): OBJECTIVE MET; N11 SUFFIX CLOSED.** The corrected
+  allowance boundary classifies both earlier `0/28`, `0/0/0` terminals as pre-milestone
+  non-receipts. The ignored harness removed Darwin `ps` text from the decision and retained it as a
+  false, non-decisive diagnostic; inherited-FD-plus-per-launch-nonce is the parentage predicate. Its
+  two-direction falsifier refuses a missing capability and a wrong nonce with return `71`, while the
+  real launcher pipe admits all `15/15` decisive conjuncts. The preserved falsifier receipt is
+  SHA-256 `048217478b07acc5741365d495d21c59c57321e0bea6dd8067df7a9690d34c76`.
+  `[P37: recomputed]`
+
+  At clean attached head `69f3fa39a`, authorization fingerprint `2a008360…d9d7e`, the launch
+  preflight found both process censuses empty, all three short checks green, and all `11/11` pins
+  exact. The single counted cold run reached milestone 1 and completed the exact `28/28` sequence
+  through `frozen_contract_derived`; clear/build/validate ran exactly `1/1/1`. The child returned
+  `status=pass`, `issue_count=0`, `issues=[]`, with the `977,814` governed bytes byte-equal to the
+  live object. Child wall time was `1,019.478574` s and wrapper wall time was `1,025.936140` s under
+  the authorization-derived `4,693.118600` s ceiling, with no timeout, signal or process leak. The
+  complete `11/11` pin denominator and git identity stayed byte-identical. Receipt SHA-256 is
+  `d53184b800266080a83298f3fc64a291e838e59f2b90b0424e1944358484eb86`.
+  `[P37: recomputed]`
+
+  This meets the registered `GY-DEFC-9` P30 objective, closes the N11 suffix, and exercises the
+  `GY-DEF15` null-versus-absent projection successfully cold. `GY-N11` may now claim this exact
+  authorized fresh-process derivation, byte-equal live validation and zero-issue suffix result at
+  the bound head and inputs. It does **not** claim blanket completion of the broader cold closeout,
+  universality outside this bound environment/input set, privilege-separated launcher provenance,
+  publication or deployment, or any result for `GY-N12`, `GY-N13a/b`, `GY-GAP1`–`GY-GAP4` or
+  `GY-INFRA-3`; those remain governed by their own acceptance records. `[P37:
+  institutionally_supplied for the claim boundary; not_established for every excluded objective]`
 
 - **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
   omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:

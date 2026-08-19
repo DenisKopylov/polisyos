@@ -687,7 +687,7 @@
     "authority_flow_falsifier": "const storage = provider(); storage.setItem(...) preserves a resolved Storage.setItem site while changing the unproved owner-instance flow",
     "authority_flow_required_capability": "sound whole-program interprocedural data/control-flow with reaching definitions and owner-instance identity",
     "authority_flow_capability_status": "absent/unallocated",
-    "rows_sha256": "sha256:d258c8a2b16512cebb9f604644deefdfbd8ab6feb866ca48f875c2e26b610713",
+    "rows_sha256": "sha256:4a6e514ff066e9fd1f472d8f4c0e22a4fe4056d4f215c7ef0add3c312fcdc527",
     "sites": [
       {
         "site_id": "storage-site-82510a28616480aab3bb2b282ff9e6b7d0a82a8e1c48b63e1c2a15a44de2df2b",
@@ -779,7 +779,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
         "operation": "getItem",
         "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "source_fingerprint": "sha256:ac7fe67b8caea038fa67cf8ccff265cfa428ce25374c45dcb73d2f8bc1a83123",
+        "source_fingerprint": "sha256:eca12f9d8aa37c40bb3e5942ce737459c8d6bf10ba2a7436438ae051d70bd882",
         "site_fingerprint": "sha256:0fe71b65d6fa5d433e5499b80eaf4599e48cc4e60b1c076f30385530de965f88",
         "classification": "interaction_benign",
         "benign_reason": "ui_preference"
@@ -790,7 +790,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
         "operation": "setItem",
         "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "source_fingerprint": "sha256:ac7fe67b8caea038fa67cf8ccff265cfa428ce25374c45dcb73d2f8bc1a83123",
+        "source_fingerprint": "sha256:eca12f9d8aa37c40bb3e5942ce737459c8d6bf10ba2a7436438ae051d70bd882",
         "site_fingerprint": "sha256:3db64878e593688e5b514e58192b4a9917e065387f9c6a3c54d484b04fe8d812",
         "classification": "interaction_benign",
         "benign_reason": "ui_preference"

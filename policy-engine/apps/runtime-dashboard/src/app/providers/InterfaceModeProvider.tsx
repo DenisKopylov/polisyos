@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 
 export type InterfaceMode = "clerk" | "analyst";
@@ -42,8 +42,9 @@ function readStoredMode(): InterfaceMode | null {
 
 export function InterfaceModeProvider({ children }: PropsWithChildren) {
   const clerkModeEnabled = useFeatureFlag("enableClerkMode");
-  const authz = useMaybeAuthz();
-  const canUseAnalyst = authz?.can("mode.analyst") ?? true;
+  const authzDecision = useAuthzDecision();
+  const canUseAnalyst =
+    authzDecision.kind === "verified" && authzDecision.can("mode.analyst");
 
   const [mode, setModeState] = useState<InterfaceMode>(() => {
     if (!clerkModeEnabled) return "analyst";

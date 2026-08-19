@@ -190,45 +190,10 @@ C09A_AUTHZ_DIRECT_SYNTAX_RESIDUAL = (
     "parameter, and interprocedural authorization value-flow remains not_established"
 )
 
-# Filled from the declaration-resolved scanner after C09a removes its four
-# sites. Multiplicity is load-bearing; C09b owns this exact deferred remainder.
-C09B_DEFERRED_AUTHZ_DEFAULTS: tuple[tuple[str, str, str], ...] = (
-    (
-        "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "nullish_true",
-        "sha256:dbba2e663e04d40e5cfefafa857ddf4cb1115935cf675b4f561eed4a3ad7f4b0",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
-        "conditional_true",
-        "sha256:558904d4bdf972885f9b4aea13ad2286a5506aef13fa99aedb0a6a11954bdc30",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:cd7b5a3a7b7fafc24d45d32661a9ca6a4a5a490ae51ad233425b157faf6b7afa",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:15ce21d33f40858566da3bd5b55e71bbaadec3c527f870059403296c03e36d35",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "conditional_true",
-        "sha256:bdda997e831cb564a6c068148d6d343dee5ce20880e2e16a5ec063b929bc4801",
-    ),
-)
+# C09b closes the declaration-resolved direct-default remainder. Any later
+# canonical decision importer that reintroduces a bounded unsafe default is
+# therefore unclassified and fails the generic gate.
+C09B_DEFERRED_AUTHZ_DEFAULTS: tuple[tuple[str, str, str], ...] = ()
 
 
 class AuthorityEscapeExemption(NamedTuple):

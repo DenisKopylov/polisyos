@@ -5189,3 +5189,219 @@
   or untracked path; staged `git diff --check` is green. The commit command
   rechecks the attached branch in the same mutation before creating the
   containing commit.
+
+### C09b-R1 entry census and corrected fence (2026-08-19)
+
+- Branch readback is attached and clean at `6002d1eab`, the containing
+  C09a-R2 commit; committed-range review was GO and the register family is
+  free. C09b's real dependency on the branded C09a decision API is therefore
+  satisfied (`recomputed`).
+- The complete TypeChecker-owner denominator is seven deferred direct-default
+  sites across three consumers: InterfaceModeProvider `1`, CommandPalette `2`,
+  and RunDetailLayout `4` (`recomputed`). The inherited measured set omitted
+  the checker and owner test whose seven-site constant must become zero, the
+  mandatory plan, and a live mobile-chrome sibling. Under P39 the exact cut is
+  eight mechanism paths plus six mandatory companions, 14 total; mechanism
+  cap 8 still fits.
+- The eight mechanisms are InterfaceModeProvider, CommandPalette,
+  RunDetailLayout, AppMobileNav, the cross-surface Authz decision test, the
+  actual loaded/bootstrap run-detail test, and the Atlas checker/test pair.
+  The induced CommandPalette importer-mock re-anchor, register, generated
+  report, status inventory, plan and journal are forced companions.
+- P40 before action: the seven scheduled default expressions are worked
+  examples of the already-declared bounded direct-syntax class. AppMobileNav's
+  workspace links derived from `isClerk` alone are the same derived-mode chrome
+  class one level deeper than C09a's Sidebar finding. The smallest closing
+  capability—`AuthzDecision` plus `isWorkspaceAllowed`—exists in this
+  repository, so a bounded residual would be dishonest; widen to the complete
+  direct mobile-chrome quantity. No fresh new-class round is consumed.
+- Parsed pre-writer allowlist (`recomputed`): rederive only the two
+  InterfaceModeProvider storage-site source fingerprints; keep DS1-N010
+  `still_required` and empty; update only the status inventory's DS19 hash;
+  regenerate only the canonical report. RunDetailLayout has one protected C21
+  Badge identity and its hybrid key/content must remain exact. Baseline,
+  readiness, C23 and every other C21 identity are forbidden deltas.
+- A read-only search used an unquoted zsh `*Mode*.test.tsx` glob and exited on
+  `no matches found`. It changed no byte and supplied no evidence; the
+  subsequent explicit-path census is the receipt.
+
+### C09b-R1 red-first source and review waves
+
+- The final nonvacuous behavioral RED was four failed surfaces / 52 controls
+  green in `10 s / 165 s`: absent-provider mode remained analyst, mobile
+  workspace links remained exposed, palette permission/workspace entries were
+  visible, and loaded run governance/evidence controls remained available.
+  Two earlier test attempts are retained as test-design nonreceipts: stored
+  clerk mode masked the absent-provider mode branch, and capability loading
+  masked a palette permission branch. Tightening those inputs produced the
+  four real failures before any source byte changed.
+- The TypeChecker owner RED emitted exactly the seven unclassified deferred
+  sites in `15 s / 99 s`. Its first post-fix run crossed the tool's initial
+  yield and the session handle was not retained; the unseen outcome is a
+  tooling nonreceipt. The identical rerun was GREEN `1/1`, exit 0, in
+  `45.88 s / 99 s`, and still retains the unsafe mutation, declaration
+  lookalike, direct-syntax variants, multiplicity and declared indirect-flow
+  residual.
+- The implementation consumes `useAuthzDecision` in InterfaceModeProvider,
+  CommandPalette and both RunDetail branches; only `kind=verified` may answer
+  permission predicates. AppMobileNav binds every direct link to its named
+  workspace and filters it through the same verified decision. Fixed
+  appearance actions and permission-free run tabs/report/deck remain outside
+  the authority predicate.
+- Initial GREEN was four suites `56/56` in `9 s / 165 s`; post-format source
+  receipts were `56/56` in `14 s`, typecheck `17 s / 157 s`, and exact
+  eight-file ESLint found five direct-DOM test selectors in `36 s`. That lint
+  result is a test-harness RED, not product evidence; role-based Testing
+  Library queries repaired it and exact ESLint was GREEN in `32.85 s / 174 s`.
+- A scoped Ruff formatter nevertheless rewrote hundreds of unrelated lines in
+  the two Python owner files, matching the registered formatter hazard. Root
+  discarded the formatter output and reconstructed both files from HEAD with
+  only the empty deferred tuple and zero-site assertion; the broad rewrite is
+  a tooling nonreceipt. `git diff --check` is green.
+- Independent scanner review returned GO. Source review found no product
+  escape but found a NEW test-only keyboard-entry nonvacuity class, then the
+  SAME CLASS ONE LEVEL DEEPER for the separate bootstrap branch. Per the
+  commission, test repairs consume no mechanism round. The counted
+  cross-surface test now opens the actual palette through the captured shortcut
+  callback and covers actual AppMobileNav; the actual run suite covers loaded
+  and bootstrap unknown states. Final focused coverage is `55/55`, exit 0, in
+  `9.92 s / 165 s`.
+- Fence review correctly rejected classifying two new negative suites as P39
+  companions. Root used its consolidation option rather than a recut: mobile
+  and keyboard witnesses moved into the already-counted cross-surface path;
+  `layoutSurfaces.test.tsx` returned byte-exact to HEAD; and
+  `CommandPalette.test.tsx` retains only its forced branded-hook mock re-anchor.
+  The honest fence is eight mechanisms plus six companions, 14 total.
+- The final exact-file ESLint first rejected only the cross-surface harness:
+  `isDiscoveryCapabilityEnabled` called a hoisted mock whose `use...` name made
+  the hook rule treat it as a React hook. P40 classifies that as test-scaffolding
+  naming, not a product or scanner mechanism class; a non-hook-named delegate
+  closed it without changing the witness. The terminal source freeze is four
+  suites `55/55`, exit 0, `9.67 s / 165 s`; an additional three-suite subset is
+  `42/42`, exit 0, `11.46 s / 165 s`; typecheck is exit 0,
+  `15.93 s / 157 s`; and exact seven-file ESLint is exit 0,
+  `30.19 s / 174 s`. The lint RED and reviewer-only durations are excluded from
+  the admitted timing samples.
+- Final source/checker SHA-256 values (`recomputed`) are InterfaceModeProvider
+  `eca12f9d8aa37c40bb3e5942ce737459c8d6bf10ba2a7436438ae051d70bd882`,
+  CommandPalette `c3d3245bf7d0076339cdf1d6b04a706c2e64632cf76ae4cbe4720f644ed78164`,
+  RunDetailLayout `ba004a8f8dfed5c19380c3b3730a190fcb179a69640987b016327f09ec8f1768`,
+  AppMobileNav `a3c3fcafc9750589e301da61d189aa3dc56ed6097018bf3fa39152b4e59333e9`,
+  the cross-surface test `8e37ce170376ed7e04365dd58e3b356183c076c1e751f63e1b987bf2cfaa9f0f`,
+  run-detail test `a52d27a021b96b8dce4f1ad5a2498cfab158cfbb29ba952d3b55fcb91ac39e98`,
+  Atlas checker `c1789d5f50b024be4b9205cc5924f7601b020aaa7340dc4442287af5476e13d8`,
+  owner test `64e9699847b3feee39e9138dc03a5960159339a2a9f0d17c521c3b2b158f08d8`,
+  and the forced palette fixture
+  `90ce18d30ab17bb9ecc2ce13240123f97d1177303f8663b29aa9e2f2c6742534`.
+  `git diff --check` is green and the source-phase porcelain is exactly those
+  nine code/test/checker paths plus plan/journal; no governed byte is yet
+  changed and the register family remains free.
+
+### C09b-R1 governed companion correction
+
+- The first canonical report-writer invocation exited 1 in `38.37 s / 174 s`
+  after writing its projection and named exactly two stale owner receipts:
+  `storage_construction_rows_digest_drift` and
+  `baseline_lint_resolution_content_hash_drift:C06:apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx`.
+  This is the owner gate distinguishing the property from the entry allowlist;
+  its report bytes are a failed-attempt projection and are not an idempotence
+  receipt.
+- P40 classifies both as the known P39 induced-receipt class, not a C09b
+  mechanism finding or round. The exact mechanism remains eight paths under
+  cap 8. Mandatory companions increase from six to seven and the landing fence
+  from 14 to 15: the baseline manifest joins the existing fixture,
+  register/report/status, plan and journal companions. Splitting either digest
+  from the mechanism would make the owner validator fail closed.
+- The surgical parsed delta is now exactly the two InterfaceModeProvider
+  `source_fingerprint` leaves plus their canonical `rows_sha256`, and exactly
+  the C06 RunDetailLayout consumer `sha256` in the baseline. The recomputed
+  storage rows digest is
+  `sha256:4a6e514ff066e9fd1f472d8f4c0e22a4fe4056d4f215c7ef0add3c312fcdc527`;
+  the baseline consumer hash is
+  `ba004a8f8dfed5c19380c3b3730a190fcb179a69640987b016327f09ec8f1768`;
+  the resulting register hash is
+  `db6d7ed1f8385a7f2ac6df68eb9251761fe4f8877af866ddc97c57151e7ae412`
+  and the status inventory pins only that DS19 value. Readiness, C23, all other
+  baseline fields and the protected RunDetail C21 identity remain forbidden.
+- After those owner receipts were rederived, the canonical writer completed
+  twice with explicit child exit 0 in `37.81 s / 174 s` and
+  `37.96 s / 174 s`. Both emitted 261 roots, 10 reference censuses,
+  61 supplemental findings, 23 seeded negatives, and the complete 574-source
+  / 36-site / 15-file storage census (`22 interaction_benign`,
+  `14 scoped_authority`). The report SHA-256 was byte-identical before and
+  after the second writer at
+  `4206aa9ebb80cc7bbc17395f0fb24b9ece52c27748a169b97937646e06e255e7`.
+  The failed `38.37 s` projection remains a nonreceipt and is excluded.
+- Final no-write owners are GREEN: status exit 0 in `13.17 s / 86 s`
+  (`12` current-authored, `56` exemptions, zero retirement debt), and frontend
+  register exit 0 in `38.12 s / 78 s` with the same complete denominators.
+  Final governed SHA-256 values are register
+  `db6d7ed1f8385a7f2ac6df68eb9251761fe4f8877af866ddc97c57151e7ae412`,
+  report `4206aa9ebb80cc7bbc17395f0fb24b9ece52c27748a169b97937646e06e255e7`,
+  status `499ffed561ea75e0f19528519b01cc9ed7bcd9a8f7572e3b580c7f0acc1e3dfb`,
+  and baseline
+  `10b8dfe08a2d83c5fa59caf5d0fd215a8ec3fd8e85447b402ad2a9f0b4deb5d3`.
+  Readiness stays byte-exact at
+  `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+- Independent parsed artifact review returned GO: register has exactly three
+  changed leaves, baseline one, and status one; the protected RunDetail C21
+  identity remains `ReturnStatement:33` with normalized hash
+  `bdb1a661045078ca64d5c31700e3cd3dbe42f63e3c2b365ce396c682309e7cfe`.
+  A docs/timing reviewer classified the initially missing successful-writer
+  record as a NEW documentation-receipt class. It consumes no mechanism round;
+  these receipts and timing samples close it.
+
+### C09b-R1 final-freeze repair, wave, and landing fence
+
+- The first Atlas checker/corruption parent stopped in `37.81 s / 314 s` on
+  `architecture_live_graph_red:{dashboard-custom,dependency-cruiser,dependency-cruiser-summary}`.
+  The direct architecture command then named the exact edge: the new app-layer
+  cross-surface test imported `CommandPalette` through its implementation path
+  instead of the existing `@/features/commandPalette` public barrel. P40
+  classifies this as a NEW test-scaffolding architecture-boundary class, not an
+  authorization mechanism finding; test corrections consume no mechanism
+  round. The failed Atlas parent and the `1.07 s` direct architecture RED are
+  nonreceipts and excluded from timing samples.
+- The one-line barrel repair preserves the same real component and keyboard
+  witness. Delta review returned GO. Fresh source gates are `55/55`, exit 0,
+  `13.37 s / 165 s`; typecheck exit 0, `16.79 s / 157 s`; exact ESLint exit 0,
+  `32.10 s / 174 s`; and architecture/dependency cruise exit 0,
+  `4.44 s / 19 s`, over 1,032 modules / 4,223 edges with no violation. The
+  cross-surface test's final SHA-256 is
+  `8e37ce170376ed7e04365dd58e3b356183c076c1e751f63e1b987bf2cfaa9f0f`.
+- Because source changed after the wave began, root reran the writer and every
+  expensive lane once on the final freeze. The second writer pair is exit 0 in
+  `38.58 s / 174 s` and `38.58 s / 174 s`, byte-idempotent at the unchanged
+  report hash `4206aa9e…e255e7`.
+- The serialized final wave is fully GREEN under the declared shared-host
+  regime: frontend owner `101/101`, `153.03 s / 748 s`; disposition corruption
+  PASS, `97.92 s / 554 s`; status `38/38`, `49.27 s / 338 s`; status corruption
+  PASS, `17.65 s / 86 s`; Atlas checker/corruption PASS,
+  `60.46 s / 314 s`; and full Atlas `36/36`, `415.63 s / 2678 s`.
+  The frontend module's printed loader errors are its deliberate nested
+  corruption children; the owning process exited 0. Production build is GREEN
+  in `18.96 s / 115 s` with 3,886 transformed modules / 108 PWA entries and
+  only the existing chunk advisory. The earlier successful pre-repair frontend,
+  disposition, status and status-corruption terminals remain admitted timing
+  samples but are superseded as acceptance evidence by this final wave.
+- Final governed hashes remain register `db6d7ed1…e7ae412`, report
+  `4206aa9e…e255e7`, status `499ffed5…1e3dfb`, and baseline
+  `10b8dfe0…deb5d3`; readiness stays `4b64f092…e2ae13`. Parsed deltas and the
+  protected RunDetail C21 identity remain exactly as independently reviewed.
+  Final porcelain is exactly 15 paths = eight mechanisms plus seven P39
+  companions, `git diff --check` is green, and no C23 byte is present.
+- C09b-R1 has no mechanism-round finding and lands at 0/2 in the containing
+  commit. Only branch readback and committed-range review classify it `landed`
+  and release the register family; that readback then opens C20.
+- A final exact-path Ruff **check** (not formatter) reported 230 inherited
+  repository-style findings across the two long-lived Atlas unittest owner
+  modules, including pre-existing `unittest` assertion and subprocess rules.
+  It changed no byte and does not distinguish this two-line owner delta, so it
+  is a baseline-red tooling nonreceipt, not a C09b product result. Exact
+  Prettier over the seven dashboard paths and `git diff --check` are GREEN;
+  the real owner module and corruption executions above are the Python
+  behavioral receipts.
+- Explicit staging readback contains exactly the 15 declared paths, with no
+  unstaged or untracked path; staged `git diff --check` is green. The commit
+  mutation rechecks the attached `codex/atlas-ds5-enforcement-waist` branch in
+  the same command and names every staged path through this exact index.

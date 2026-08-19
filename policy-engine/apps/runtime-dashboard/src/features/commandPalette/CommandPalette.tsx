@@ -24,7 +24,7 @@ import {
   isDiscoveryCapabilityEnabled,
   useCapabilityDiscovery,
 } from "@/api/hooks/useCapabilities";
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
   CommandEmpty,
@@ -107,7 +107,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const authz = useMaybeAuthz();
+  const authzDecision = useAuthzDecision();
   const capabilityDiscovery = useCapabilityDiscovery();
   const { flags } = useFeatureFlags();
   const { t } = useI18n();
@@ -148,11 +148,12 @@ export function CommandPalette() {
     () =>
       getCommandPaletteSurfaceEntries({
         canAccessPermission: (permission) =>
-          authz ? authz.can(permission) : true,
+          authzDecision.kind === "verified" && authzDecision.can(permission),
         hasCapability: (capability) =>
           isDiscoveryCapabilityEnabled(capabilityDiscovery, capability),
         isWorkspaceAllowed: (workspaceKey) =>
-          authz ? authz.isWorkspaceAllowed(workspaceKey) : true,
+          authzDecision.kind === "verified" &&
+          authzDecision.isWorkspaceAllowed(workspaceKey),
         isFeatureEnabled: (featureFlag) => flags[featureFlag],
         isWorkspaceEnabled: (workspaceKey: WorkspaceKey) => {
           const workspace = WORKSPACES[workspaceKey];
@@ -160,7 +161,7 @@ export function CommandPalette() {
         },
         runId: currentRunId,
       }),
-    [authz, capabilityDiscovery, currentRunId, flags],
+    [authzDecision, capabilityDiscovery, currentRunId, flags],
   );
   const navigationItems = surfaceEntries.filter(
     (surface) => surface.command.group === "navigation",

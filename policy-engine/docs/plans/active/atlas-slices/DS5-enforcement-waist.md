@@ -891,6 +891,27 @@ from successful samples:
 | Atlas checker/corruption | `60.63` | `156.60` | `314 s` |
 | full Atlas module | `375.04` | `1338.89` | `2678 s` |
 
+The C09b-R1 source freeze used the same declared local shared-host regime.
+Behavioral/lint REDs, reviewer-only durations and tooling nonreceipts remain
+journal-only and are excluded from successful samples:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused dashboard/component tests | `9.46, 9.67, 9.92, 11.46, 13.37, 13.84` | `82.27` | `165 s` |
+| dashboard typecheck | `15.06, 15.93, 16.79, 17.19` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `30.19, 32.10, 32.85` | `86.84` | `174 s` |
+| focused Atlas scanner test | `45.88` | `49.36` | `99 s` |
+| canonical report writer | `37.81, 37.96, 38.58, 38.58` | `86.97` | `174 s` |
+| frontend register no-write | `38.12` | `38.95` | `78 s` |
+| dashboard production build | `18.96` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `4.44` | `9.20` | `19 s` |
+| full frontend module | `149.91, 153.03` | `373.94` | `748 s` |
+| disposition corruption battery | `97.92, 98.41` | `276.89` | `554 s` |
+| status-retirement module | `49.27, 54.39` | `168.65` | `338 s` |
+| status checker/corruption | `13.17, 17.41, 17.65` | `42.54` | `86 s` |
+| Atlas checker/corruption | `60.46` | `156.60` | `314 s` |
+| full Atlas module | `415.63` | `1338.89` | `2678 s` |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -1011,7 +1032,7 @@ first continuously numbered `-R1` successor.
 | C07 | 26 | 25 | re-cut; C07a stopped at entry | C07a waits on an owner-authorized single-owner migration for `runtime-dashboard-api-types`; C07b records the blocked debt, and no source was restored |
 | C08b | 10 | 11 | R1 superseded | C08b-R2 / 7 landed at `edb8e045f` |
 | C09a | 10 | 11 | R1 stopped; R2 landed | C09a-R2 / 11 in its containing commit; candidate `f240db1b7`, revert `c64b03dea` |
-| C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
+| C09b | 7 | 15 total / 8 mechanism | P39 corrected | C09b-R1 / mechanism cap 8 |
 | C10 | 7 | 8 | no-fit | C10-R1 / 8 (DEFERRED) |
 | C11b | 9 | 10 | landed | C11b-R1 / 10; 9 mechanism + 7 mandatory companions under P39 |
 | C12b | 9 | 10 | landed | C12b-R1 / 10 at `53fe8a84c` |
@@ -1527,7 +1548,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C08b-R2 | fail-closed `/auth/me` consumption | runtime response exists and client query consumes it | `edb8e045f`; `src/polisyos/runtime/http/routes/auth.py:59-82`; `apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42-82` | landed | none |
 | C08b-D1 | auth-session revision partition | no relevant identity revision producer in OpenAPI/apps/packages/runtime HTTP | `0b811e884`; complete absence: `rg -n -i -e 'auth_session_revision' -e 'auth.*session.*revision' -e 'session.*revision.*auth' -e 'identity.*revision' -e 'revision.*identity' schemas/runtime_api_v1.openapi.json apps/runtime-dashboard packages/runtime-api-client src/polisyos/runtime/http --glob '*.{json,ts,tsx,py}'` (0) | debt-only record landed; producer debt remains | none |
 | C09a-R1/R2 | chrome default deny | C08b-R2 supplies settled identity; R2 closes R1's bounded direct-syntax and clerk-link gaps | R1 candidate `f240db1b7`; forward revert `c64b03dea`; R2 source/governed receipts below | landed by the containing C09a-R2 commit; 0/2 fresh new-class rounds | none |
-| C09b-R1 | mode/run default deny | C09a-R2 now supplies the branded decision API, cross-surface test and bounded syntax gate | C09a-R2 containing commit; C09b acceptance below | executable and unentered | none |
+| C09b-R1 | mode/run default deny | C09a-R2 supplies the branded decision API, cross-surface test and bounded syntax gate | C09b source/governed receipts below | landed by the containing C09b-R1 commit; 0/2 mechanism rounds | none |
 | C10-R1 | weakest-boundary presentation | no routed complete G4 producer; C05b implementation debt also remains | `docs/reference/frontend/atlas-frontend-disposition-register.md:221`; C05b-D2 above | blocked-on-another-plan | `team-runtime-quality` G4 projection owner plan |
 | C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `c8c7a291c`; `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | landed | none |
 | C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed and C11b carries its runtime-issued observation to the run surface | `c8c7a291c`; `DS5-C11b-R1` acceptance; 55/55 focused and governed closeout receipts | landed at `4edcf96be`; register family free | none |
@@ -1551,7 +1572,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a is carried owner debt under the architect ruling | `DS5-C20` acceptance; complete standing census below; C09a-R2 receipts | blocked-on-another-cluster | C09b-R1 |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a is carried owner debt under the architect ruling | `DS5-C20` acceptance; complete standing census below; C09a-R2/C09b-R1 receipts | executable after the containing C09b-R1 commit | none |
 
 **Standing census (entry denominator recomputed and independently reconciled at
 `324996652`, structurally refreshed through the containing C15b commit):**
@@ -1561,10 +1582,9 @@ rows, all `28` C07–C20 status-heading occurrences collapsing to `24` base
 cluster groups, `48/48` expected-commit rows, branch ancestry, and every
 cluster status paragraph. In the commissioned chain, C18b-R2, C19-R2 and
 C17b-R3 landed, while C17b-R2 stopped for the same-cap R3 mechanism re-cut.
-Outside that chain, C11b-R1, C15b-R1 and C09a-R2 land in
-their plan-bearing commits. The executable-and-unentered set is now exactly
-`C09b-R1`; its real API/gate dependency is satisfied by C09a-R2 without
-weakening its acceptance. C07a is
+Outside that chain, C11b-R1, C15b-R1, C09a-R2 and C09b-R1 land in
+their plan-bearing commits. The executable-and-unentered implementation set is
+empty after the containing C09b-R1 commit, so C20 may enter. C07a is
 `blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
 owner tuple; C07b records the same unresolved single-owner migration debt but
 is not its executable owner. `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1` remain
@@ -1967,11 +1987,44 @@ readback. This measured dependency supersedes the commission's supplied
 independence claim; it consumes no C09b mechanism round and does not weaken the
 acceptance.
 
-**Measured set:** exactly 7 implementation/governed paths plus journal = 8;
-cap 8: `InterfaceModeProvider.tsx`, `CommandPalette.tsx`,
-`RunDetailLayout.tsx`, the C09a-R2-C09b-R1 cross-surface behavioral test,
-frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
+**R1 entry remeasurement (2026-08-19):** the inherited seven-path cut omitted
+the owner checker/test whose deferred-site receipt moves, the mandatory plan,
+and a live sibling mobile-chrome consumer. Under P39 the bounded mechanism is
+exactly eight paths, which fits cap 8: `InterfaceModeProvider.tsx`,
+`CommandPalette.tsx`, `RunDetailLayout.tsx`, `AppMobileNav.tsx`, the
+C09a-R2-C09b-R1 cross-surface behavioral test, the actual-component
+`runDetailSurfaces.test.tsx` loaded/bootstrap witness, and the shared
+`check_atlas_enforcement.py` / `test_atlas_enforcement.py` checker and owner
+test. The seven mandatory companion paths are the induced
+`CommandPalette.test.tsx` importer-mock re-anchor, the frontend disposition
+register (including its storage rows-digest leaf), the generated report, the
+status-retirement inventory, the C06 baseline manifest, this plan and the journal,
+for 15 landing paths. The dedicated palette test adds no new C09b property;
+keyboard behavior lives in the counted cross-surface witness. The report
+owner's first fail-closed projection exposed the aggregate rows digest and C06
+content binding missed by the entry census; P39 prices both as induced receipts,
+not mechanism scope.
+
+The complete entry denominator is seven deferred direct-default sites across
+three consumers: one InterfaceMode nullish default, two CommandPalette
+conditional defaults and four RunDetail conditional defaults. All seven are
+worked examples of C09a-R2's declared bounded direct-syntax class. Independent
+review also found AppMobileNav exposing permission-bearing workspace links from
+`isClerk` alone. P40 classifies that as the same derived-mode chrome class one
+level deeper than the Sidebar finding. The repository has the branded decision
+and workspace predicate needed to close it, so the mechanism widens to the
+complete direct mobile-chrome quantity rather than declaring a residual. No
+fresh new-class round is consumed at entry.
+
+**Pre-writer artifact allowlist:** only the two InterfaceModeProvider
+interaction-benign storage-census rows may receive the same rederived source
+fingerprint and their aggregate rows digest may be rederived; DS1-N010 remains
+`still_required` with no affected unit. The status inventory may change only
+its DS19 register hash, the C06 baseline only RunDetailLayout's consumer
+content hash, and the generated report only through its canonical writer.
+RunDetailLayout's sole stored C21 Badge identity must remain byte-identical
+under a shape-preserving hook edit. Readiness, C23, every other baseline field
+and every other C21 identity are excluded.
 
 **Red first:** extend
 `test_unknown_authz_decision_never_defaults_authority_surface_to_allow` over
@@ -1983,6 +2036,18 @@ commits now require current verified identity; the existing bounded syntax gate
 automatically covers the latter importers. No permission-bearing mode, command
 or run surface treats unknown as allow; register/report evidence lands with the
 three consumers.
+
+**R1 landing outcome:** all seven deferred sites are absent from the real
+TypeChecker census, AppMobileNav's sibling workspace links consume the same
+verified decision, and actual mode/keyboard/loaded/bootstrap witnesses retain
+their permission-free controls. The report writer is byte-idempotent; frontend
+is `101/101`, status is `38/38`, Atlas is `36/36`, and every corruption parent,
+build and architecture cruise is green on the final freeze. Parsed governed
+movement is exactly the two InterfaceMode source fingerprints plus their rows
+digest, the induced C06 RunDetail consumer hash, and the status DS19 hash. Four
+independent source/fence/artifact/docs reviews returned GO. C09b-R1 lands at
+0/2 mechanism rounds in its containing 15-path commit and releases the register
+family after committed-range readback.
 
 **Expected commit:** `DS5-C09b-R1 default deny modes and run surfaces`.
 
@@ -2665,8 +2730,9 @@ their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
-by another plan. It remains unopened while `C09b-R1` remains unclosed as the
-only local DS5 prerequisite. C07a's 2026-08-19
+by another plan. The containing C09b-R1 commit closes the final local DS5
+implementation prerequisite, so C20 is executable after its committed-range
+review. C07a's 2026-08-19
 entry stop reclassifies it from executable to `blocked_on_another_owner`
 against the registered `runtime-dashboard-api-types` owner tuple; C07b is the
 blocked DS5 debt record rather than the executable owner. The
@@ -2727,7 +2793,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C08b-R2 | `DS5-C08b-R2 fail closed on unsettled identity` | 7 |
 | C08b-D1 | `DS5-C08b-D1 record auth-session revision producer debt` | 7 |
 | C09a-R1/R2 | R1 candidate `f240db1b7` stopped and was forward-reverted; R2 lands as `DS5-C09a-R2 default deny application chrome` | 11 |
-| C09b-R1 | `DS5-C09b-R1 default deny modes and run surfaces` | 8 |
+| C09b-R1 | `DS5-C09b-R1 default deny modes and run surfaces` | 15 total / mechanism cap 8 |
 | C10-R1 | `DS5-C10-R1 present owner-composed weakest boundary` (DEFERRED) | 8 |
 | C11a | `DS5-C11a derive governed cache posture` | 5 |
 | C11b-R1 | lands in this plan-bearing commit: `DS5-C11b-R1 render governed cache posture` | 10 |

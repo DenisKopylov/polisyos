@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **29116**
-- Application lines deleted: **20046**
-- Net application LOC reduction: **-9070**
+- Application lines added: **29734**
+- Application lines deleted: **20070**
+- Net application LOC reduction: **-9664**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -215,8 +215,8 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `storage-site-2812777f4bad3bbbb26690108c006a75d57f72239510ac3fbdda785573596818` | `scoped_authority` | `idb::delete` / `delete` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/composerDraftDb.ts` | `1b6e8c724e4c` / `2da9793449f4` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
 | `storage-site-a65e9e41c63f480c9ff8f0d4ac322385a2e87c49d48b805e536f350d8a0a9fc9` | `scoped_authority` | `idb::openDB` / `openDB` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/db.ts` | `52f77e69ca89` / `2c26efab04f7` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
 | `storage-site-a0b9ca9ee8a58915ac642421094f802a3c8420ad57955ccf83a99af37560905c` | `scoped_authority` | `idb::createObjectStore` / `createObjectStore` | `apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts` | `apps/runtime-dashboard/src/app/offline/db.ts` | `52f77e69ca89` / `d07aa1e764e5` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `composer-draft-v1`; authority flow `not_established` |
-| `storage-site-16fd635bf34fe09f73e3b44a31ccfafad75156b796e8859f9b9cbc538cfe0e14` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `ac7fe67b8cae` / `0fe71b65d6fa` | `ui_preference` |
-| `storage-site-23548efc36e0219011a48a6724ae68ec5d4628af0defc812fc01201a99791e92` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `ac7fe67b8cae` / `3db64878e593` | `ui_preference` |
+| `storage-site-16fd635bf34fe09f73e3b44a31ccfafad75156b796e8859f9b9cbc538cfe0e14` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `eca12f9d8aa3` / `0fe71b65d6fa` | `ui_preference` |
+| `storage-site-23548efc36e0219011a48a6724ae68ec5d4628af0defc812fc01201a99791e92` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx` | `eca12f9d8aa3` / `3db64878e593` | `ui_preference` |
 | `storage-site-0dbde606ec251f4e52ff7fd880f30e052ecf4c6e079a27e5687507cc88c2c8f7` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `bf14023a0a5f` / `62482b685c28` | `theme` |
 | `storage-site-a74c7659e6f35601921ba6be48de09e484a5f29177a651ea035a32920d370a93` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx` | `bf14023a0a5f` / `51e3d2952a4f` | `theme` |
 | `storage-site-329d8de4da47acace6e2e32e15aa05598bed6e289730277a0e5fdc5f96d2a73d` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx` | `1ab5964b99bc` / `3d0568d4c661` | `ui_preference` |
@@ -610,6 +610,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `6002d1eab DS5-C09a-R2 default deny application chrome`
 - `91600981c DS5-C15b-R1 mount Clerk identity hydration`
 - `4edcf96be DS5-C11b-R1 render governed cache posture`
 - `8f59d4c4c DS5 record C09a default-deny recut stop`

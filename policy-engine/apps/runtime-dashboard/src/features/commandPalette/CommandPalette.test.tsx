@@ -15,6 +15,7 @@ const {
   toggleThemeMock,
   useFeatureFlagsMock,
   useGlobalShortcutMock,
+  useAuthzDecisionMock,
   useMaybeAuthzMock,
 } = vi.hoisted(() => ({
   cycleDensityMock: vi.fn(),
@@ -23,6 +24,7 @@ const {
   toggleThemeMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
   useGlobalShortcutMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
   useMaybeAuthzMock: vi.fn(),
 }));
 
@@ -45,6 +47,7 @@ vi.mock("react-router-dom", async () => {
 });
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
+  useAuthzDecision: () => useAuthzDecisionMock(),
   useMaybeAuthz: () => useMaybeAuthzMock(),
 }));
 
@@ -176,6 +179,7 @@ describe("CommandPalette", () => {
     toggleThemeMock.mockReset();
     useFeatureFlagsMock.mockReset();
     useGlobalShortcutMock.mockReset();
+    useAuthzDecisionMock.mockReset();
     useMaybeAuthzMock.mockReset();
     locationPathnameMock.mockReturnValue("/runs/run-1/overview");
     mockRuntimeGetSuccess(ownerCapabilityManifest);
@@ -185,6 +189,11 @@ describe("CommandPalette", () => {
     useMaybeAuthzMock.mockReturnValue({
       can: () => true,
       isWorkspaceAllowed: () => true,
+    });
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => true,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
     });
   });
 
@@ -270,6 +279,11 @@ describe("CommandPalette", () => {
     useMaybeAuthzMock.mockReturnValue({
       can: () => false,
       isWorkspaceAllowed: () => true,
+    });
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => false,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
     });
 
     renderCommandPalette();

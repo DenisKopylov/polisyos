@@ -22,6 +22,7 @@ const ownerCapabilityManifest = {
 const {
   renderArtifactViewerMock,
   useArtifactContentMock,
+  useAuthzDecisionMock,
   useAuthzMock,
   useCapabilitiesMock,
   useCompareCandidatesMock,
@@ -48,6 +49,7 @@ const {
 } = vi.hoisted(() => ({
   renderArtifactViewerMock: vi.fn(),
   useArtifactContentMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
   useAuthzMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useCompareCandidatesMock: vi.fn(),
@@ -96,6 +98,7 @@ vi.mock("@/app/providers/FeatureFlagProvider", () => ({
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
   AuthzProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuthzDecision: () => useAuthzDecisionMock(),
   useAuthz: () => useAuthzMock(),
   useMaybeAuthz: () => useAuthzMock(),
   usePermission: (...args: unknown[]) => usePermissionMock(...args),
@@ -563,6 +566,11 @@ describe("run detail surfaces", () => {
         user_id: "reviewer-a",
       },
     });
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => true,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
@@ -842,6 +850,76 @@ describe("run detail surfaces", () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
     expect(await screen.findByTestId("run-replan-link")).toBeInTheDocument();
+  });
+
+  it("denies protected run controls while keeping permission-free run chrome", async () => {
+    useAuthzMock.mockReturnValue(null);
+    useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        pipeline: {
+          evaluator: { scores: { total_score: 0.5 }, verdict: "REPLAN_NEEDED" },
+          preflight: { diagnostics: [{}], ready_to_run: false },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(
+      await screen.findByTestId("run-tab-link-overview"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("run-tab-link-causal")).toBeInTheDocument();
+    expect(screen.getByTestId("run-tab-link-artifacts")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("run-tab-link-governance"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("run-tab-link-evidence"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "pages.runs.openEvidence" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "pages.runs.openEvidence" }),
+    ).toBeDisabled();
+    expect(screen.getByTestId("run-replan-link")).toBeDisabled();
+    expect(
+      screen.getByRole("link", { name: "pages.runs.auditReport" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "pages.runs.openDeck" }),
+    ).toBeInTheDocument();
+  });
+
+  it("denies protected bootstrap tabs while keeping fixed bootstrap tabs", async () => {
+    useAuthzMock.mockReturnValue(null);
+    useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: null,
+        runBootstrapPending: true,
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const navigation = await screen.findByTestId("run-tab-nav");
+    expect(
+      within(navigation).getByText("pages.runs.tabs.overview"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByText("pages.runs.tabs.causal"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByText("pages.runs.tabs.artifacts"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).queryByText("pages.runs.tabs.governance"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(navigation).queryByText("pages.runs.tabs.evidence"),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps novel owner grades neutral and does not infer replanning from their labels", async () => {

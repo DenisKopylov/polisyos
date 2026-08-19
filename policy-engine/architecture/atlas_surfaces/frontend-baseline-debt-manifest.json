@@ -2172,7 +2172,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "roles": ["consumer"],
-        "sha256": "82b2e331a2375c49a853abcb992876e0abe514aea54add14550a47256b98b69e"
+        "sha256": "ba004a8f8dfed5c19380c3b3730a190fcb179a69640987b016327f09ec8f1768"
       },
       {
         "cluster_id": "C06",

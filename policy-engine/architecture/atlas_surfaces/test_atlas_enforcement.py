@@ -89,20 +89,8 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         self.assertEqual([], checker._authz_default_allow_errors(live_scan))
         facts = live_scan["authzDecisionFacts"]
-        self.assertEqual(7, len(facts["defaultAllowSites"]))
-        self.assertEqual(
-            {
-                "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": 1,
-                "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx": 2,
-                "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": 4,
-            },
-            {
-                path: sum(
-                    site["path"] == path for site in facts["defaultAllowSites"]
-                )
-                for path in {site["path"] for site in facts["defaultAllowSites"]}
-            },
-        )
+        self.assertEqual([], facts["defaultAllowSites"])
+        self.assertEqual((), checker.C09B_DEFERRED_AUTHZ_DEFAULTS)
 
         workspace_path = (
             "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx"

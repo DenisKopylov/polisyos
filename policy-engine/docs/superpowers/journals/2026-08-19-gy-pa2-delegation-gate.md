@@ -163,3 +163,140 @@ recorded refusal, one accepted raw influence summaries, and one accepted the old
 An attempted `--timeout=30` run returned exit `4` because pytest-timeout is not installed; it changed
 no bytes and is a tooling non-receipt. The measured 12.27 s run under four-lane 1.6–2.0x contention
 sets a 30 s per-node review timeout for environments that provide the plugin. `[P37: recomputed]`
+
+## Mechanism delivery receipt
+
+The mechanism now has a strict `AgentActionIntent`, signed `AgentActionAdmissionBundle`, frozen
+`AgentActionEffectBinding`, replay-linked `AgentActionAuthorityDecision`, and composition-root
+`AgentActionAuthorityGateway`. The gateway owns exact CAS, durable event-log, idempotency-store,
+signature-verifier, mandate-contract/admission-ref mappings, effect bindings, and the exact DS20
+`BoundActionPermissionVerification` captured at request construction. A dispatch candidate cannot
+supply or select its own envelope, source contract, admission, clock, permission proof, or gateway;
+the producer resolves signed artifacts from owner mappings in one ambient scope, content-binds the
+operation/invocation/intent/effect/permission inputs, and recomputes all five conjuncts. The live
+clock is read once for the decision and again immediately before the effect. `[P37: recomputed]`
+
+Every refusal is a completed governed result: the same decision schema as an allow carries
+`outcome=refused`, replay refs, predicate provenance, refusal reasons, and its typed
+`HumanDecisionRequest`; it is written, content-hash checked, reconciled, reloaded, and tied to a
+durable event before `AgentActionAuthorityRefused` is raised. Allows are likewise persisted and then
+single-use consumed before the registered handler is called. The only out-of-envelope override is a
+mandate-owner-signed `HumanDecisionRecord` whose request link, exact invocation binding, TTL/role,
+and all five rights are revalidated. Memory, input influence, and tool-ledger surfaces are admitted
+only through the signed bundle and are candidate-firewall checked. `[P37: recomputed and
+independently_reconciled]`
+
+`DelegationContract` now has a symmetric schema discriminator: v1 rejects owner/envelope extensions
+and retains byte-stable legacy serialization, v2 requires both a mandate owner and envelope data,
+and unknown versions fail closed. The guarded predicate is data-defined: action kinds remain opaque
+validated strings, owner-declared envelope rows are iterated generically, a new
+`counterfactual_probe_v17` row works without mechanism code changes, and a caller-invented kind not
+present in the owner contract records a refusal. `draft` alone has the required audience/externality
+shape and grants no authority. `[P29/P35/P37: recomputed]`
+
+## Post-edit governed-artifact receipt
+
+All six frozen S7/readiness artifacts were re-read after the final source change. Their sizes and
+SHA-256 values are exactly the six values in the pre-edit table above: 2,168 / 7,164 / 1,278 / 3,957
+/ 47,839 / 3,080 bytes and no hash changed. The Layer-2 readiness validator again returned
+`status=pass`, zero issues, all S7 precision/recall/integrity metrics 1.0, and exit `0` in 12.36 s.
+No governed byte moved. `[P37: recomputed]`
+
+One early measurement command accidentally assigned zsh's special `path` variable, removed the
+command search path for that process, and exited `127` before reading or writing a governed byte.
+The corrected command used `artifact_path`; the failed invocation is a tooling non-receipt, not an
+artifact finding.
+
+## Structural denominator correction and bounded residual
+
+**Append-only correction:** the earlier `2,559` tracked-Python / `50` AST / `48` text figures are
+superseded and must not be cited. Independent review classified that numeric receipt as a new P35
+documentation/inventory class, not a mechanism finding. The exact PA2 base contains 2,560 tracked
+`src/polisyos/**/*.py` files; final HEAD contains 2,561 because PA2 adds the producer module.
+
+At final source pin `132bcf00736f01ab961908b3fe967dd2c10ac181`, one script consumed the complete
+sorted `git ls-files src/polisyos` Python denominator, parsed all 2,561 files, and selected `ast.Call`
+nodes whose method is `get|post|head` and whose receiver terminal is `session` or ends in
+`_session`. It found 49 bounded direct-session sites. An independent line scanner for
+`session\.(get|post|head)\s*\(` found 50 candidates. Set reconciliation produced
+`AST-minus-text = ∅`; the sole text-only row is
+`src/polisyos/fabric/connectors/testing/simulator.py:314`, a docstring explaining simulated session
+calls. The reconciled bounded direct-session denominator is therefore 49. `[P35: complete tracked
+file denominator and independent set reconciliation]`
+
+That 49-site set is still not the property “all external effects.” `ToolRegistry` accepts arbitrary
+callables and the repository has multiple network, process, database, queue, and socket effect
+families with no owner-authenticated common intake. The declared P38 residual was falsified on final
+HEAD with a signed/allowed binding labelled `search` whose handler invoked a real registered
+`data_request` tool: output was `actual_registered_effects=['DATA_REQUEST']`, then the zero-effect
+assertion failed, exit `1`, in 14.60 s. The first ad-hoc harness load failed before reaching the
+mechanism because Python 3.14 requires a dynamically loaded dataclass module to be registered in
+`sys.modules`; the corrected replay above is the receipt. This is the same exact-effect-binding
+class one level deeper at rounds 2/2, so P40 forbids another per-instance repair. `GY-PA2-COV-1`
+remains `bridge_missing` / `implemented_but_not_orchestrated`, and universal coverage remains
+`not_established`. The smallest closing capability is one server-owned external-effect intake with
+authenticated adapter/deployment identity, plus an AST/import sink census reconciled against a
+runtime registry/transport harness. `[P37: not_established; P38 falsified]`
+
+## DS20 permission denominator and reuse receipt
+
+The permission denominator is DS20's one owner, not a PA2 list: `RuntimePermission` has exactly 33
+unique members/values. The focused server-vocabulary stability test, live OpenAPI enum projection
+test, and generated-client union comparison all passed (3 tests, exit `0`, 65.69 s under the
+four-lane contention regime). PA2 stores and rechecks the exact required/granted enum values and
+resource digest from the request-owned `BoundActionPermissionVerification`; it never infers
+permission from the DS20 audit event and never mints a new permission. `[P35/P37: independently
+reconciled]`
+
+## Final P40 review ledger
+
+The widened owner intake closed the round-1 caller-resolver/recorder class; the v1/v2 discriminator
+closed the round-2 schema-identity class. Later reviews found two same-class deeper cases: a
+caller-supplied historical clock and a well-typed caller-minted DS20 proof. Both were folded into the
+quantity of the existing repair: producer-owned live clock reads now occur at decision and
+immediately before effect, and the gateway now captures the exact composition-root DS20 object and
+canonical hash, which the signed admission also binds. Their behavioural reds pass. Artifact review
+returned GO with all governed hashes unchanged; authority API review returned GO for both widened
+repairs and found no new Blocking/Important class. The callable-semantics P38 residual above remains
+the declared bounded limit. Final mechanism rounds are **2/2**. `[P40: independently_reconciled]`
+
+## Duplication and phantom findings — report only
+
+A complete set comparison found 33 server-owned `RuntimePermission` values and 15 hand-authored
+dashboard `PERMISSION_KEYS`: 12 overlap and 21 server values are absent from the dashboard list.
+The 12 overlapping literals are P27 canonical-owner duplication/projection drift risk; PA2 did not
+repair them. The remaining dashboard-only values are `collaboration.comment`,
+`collaboration.share`, and `collaboration.view`. They occur only in the dashboard permission list,
+have no server `RuntimePermission`, and match none of the 91 committed OpenAPI paths. They are not a
+duplicated server vocabulary; they are `producer_missing` orphan/phantom permissions.
+
+The handed historical `/api/v1/collaboration/*` UI transport does not reproduce in current source:
+the dashboard now opens `/api/v1/review/live`, and the server owns that WebSocket at the
+`/api/v1/review` router plus `/live`. The orphan permission literals remain disconnected from that
+transport. This is DS4/DS5 debt and was reported without repair. `[P35: complete set comparison]`
+
+## Targeted verification receipt
+
+- The final PA2 behavioural file expanded to 32 parametrized cases and passed, exit `0`, in 24.28 s.
+  Its refusal witnesses cover wrong role, TTL at decision and immediately before effect, search ↛
+  data request, memory/input/tool admission, caller envelope provenance, draft scope, forged owner
+  artifacts/proofs, replay, malformed DS20 data, recording failure/wrong receipt, and single-use.
+  Every refusal helper checks zero effects and a reconciled durable refusal artifact.
+- The existing mandate-bounded-delegation unit file passed 14 tests, exit `0`, in 31.43 s. The
+  readiness validator passed in 12.36 s. The six corpus-backed S7 tests remain unavailable in this
+  fresh worktree because the repository's untracked `production_data/manifest.json` is absent; that
+  earlier combined run failed before the touched models and no other lane's data was borrowed.
+- Ruff on every changed Python/test path passed; `py_compile` and the Core-root facade import probe
+  passed. No full pytest run was performed, as required.
+- The final architecture guardrail ran in 42.69 s and returned exit `1` only for six deep-import
+  additions and three removals in `runtime/http/services/channel_contracts.py`, the two Lex control
+  services, `scientist/orchestration/engine/checkpoint.py`, `runtime/http/execution_policy.py`, and
+  `runtime/http/routes/runs.py`. PA2's initially reported three edges are absent after routing through
+  the existing Core root and runtime security facades. The exact scanner was replayed from an
+  isolated archive of base `bedd47503` (including `.github`) and reproduced the same deep-import
+  diff and exit `1`; the PA2 changed-path intersection with those paths is empty. This is therefore
+  a P41 inherited architecture red. No baseline was synced and no exception was added.
+
+No frontend surface was built. The GY-DEF4 overlap file
+`src/polisyos/runtime/quality/authority.py` is not in the PA2 diff. Line 7 of the GY plan was not
+changed.

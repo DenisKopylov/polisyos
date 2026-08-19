@@ -2475,6 +2475,22 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   contracts. **Done when:** a click by the wrong role / after TTL fails; search-authority does not
   grant data_request; a memory record masquerading as a policy fact does not pass the gate.
   `P26`/`P05`.
+  **STANDING RECORDED (2026-08-19):** the replay-linked PA2 producer, persisted allow/refusal
+  artifact, owner-scoped guarded dispatcher, v2 mandate-owner envelope, five-rights override, and
+  behavioural refusal suite are present. The producer consumes DS20's exact server-owned
+  `BoundActionPermissionVerification`; it does not create a second permission vocabulary. Within
+  the guarded adapter, wrong-role/expired decisions, search→data-request widening, and unadmitted
+  memory/tool/input influence all record a refusal before raising and produce zero effects; the
+  envelope-removal mutation is decisive while an owner-declared new action row free-grows. This is
+  **not universal external-effect closure**: the repository has no single owner-authenticated
+  transport/tool intake, and a search-labelled Python handler can still perform a data request.
+  Standing is therefore `producer_present` + `artifact_present` + `verification_present`, but
+  `implemented_but_not_orchestrated` / `bridge_missing` for the universal claim, with effect-site
+  coverage `not_established` under `GY-PA2-COV-1`; the smallest closure is one server-owned external
+  effect intake with authenticated adapter identity plus reconciled static/runtime sink censuses.
+  P40 rounds ended **2/2**; this same-class P38 residual is recorded, not hidden or instance-patched.
+  All six governed S7/readiness artifacts remained byte-identical, no frontend surface was built,
+  and `runtime/quality/authority.py` was not touched.
 - **GY-PA3 — Compression-loss ledger producer (orchestration authority-delta; M38 / CPA-R23).**
   build-new producer closing the named G6 gap (G6 emits prompt/tool/search/orchestration/replay
   ledgers but **no compression ledger**). Every load-bearing orchestration choice

@@ -6,7 +6,7 @@ import json
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final, Literal
+from typing import Any, Final, Literal, Protocol
 
 from pydantic import (
     BaseModel,
@@ -18,9 +18,6 @@ from pydantic import (
 )
 
 from polisyos.core import canon
-
-if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactID, ArtifactStore
 
 EvidenceClass = Literal[
     "authority_bearing",
@@ -173,6 +170,14 @@ _PROJECTION_PROVENANCE = frozenset(
         "runtime_projection",
     }
 )
+
+
+class _ArtifactSurfaceStore(Protocol):
+    def get_bytes(self, artifact_id: object) -> bytes: ...
+
+    def get_manifest(self, artifact_id: object) -> object: ...
+
+    def verify(self, artifact_id: object) -> object: ...
 
 
 class TimeSourceConsistencyAuditProjection(BaseModel):
@@ -1073,8 +1078,8 @@ def authority_surface_decision(
     artifact_ref_or_route: str | None = None,
     secret_pii_scope: str | None = None,
     block_on_secret_findings: bool = True,
-    artifact_store: ArtifactStore | None = None,
-    artifact_id: ArtifactID | None = None,
+    artifact_store: _ArtifactSurfaceStore | None = None,
+    artifact_id: object | None = None,
     require_cas_integrity: bool = False,
     enforce_time_source: bool = True,
     enforce_s12: bool = True,
@@ -1386,8 +1391,8 @@ def _authority_boundary_surface_decision(
 def _surface_authority_payload(
     payload: object,
     *,
-    artifact_store: ArtifactStore | None,
-    artifact_id: ArtifactID | None,
+    artifact_store: _ArtifactSurfaceStore | None,
+    artifact_id: object | None,
 ) -> object:
     """Resolve the authority carrier for a surface without replacing scan bytes."""
 

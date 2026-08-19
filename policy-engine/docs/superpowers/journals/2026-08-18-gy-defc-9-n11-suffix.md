@@ -759,9 +759,10 @@ The required conflicting-parameter falsifier supplied outer ceiling `999999` and
 command. The wrapper returned `64` before `Popen`; the unauthorized marker was absent. Two additional
 behavioral probes prove that an arbitrary command with the dedicated worktree as cwd is detected
 without an issue-code/process-name allowlist and that TERM followed by KILL removes a surviving
-descendant after its leader exits. Three boundary probes also reject a changed retained-receipt hash,
-an authorization history that omits the plan companion, and a multiline JSON report treated as a
-single-line fragment. All six tests passed in `0.648` s; the
+descendant after its leader exits. Four boundary probes also reject a changed retained-receipt hash,
+an authorization history that omits the plan companion, a multiline JSON report treated as a
+single-line fragment, and Python-mode strict parsing in place of the confidence owner's JSON-mode
+parser. All seven tests passed in `7.280` s; the
 deterministic retained falsifier receipt hashes to
 `66d478262ce330b19ff2a5c138cbc36528ddd1261bc7c356d3b9b55ac992737b`.
 Ruff and bytecode compilation pass for all three ignored files. `[P37: recomputed]`
@@ -778,7 +779,7 @@ capability absence; not_established for hostile-same-user provenance; institutio
 the cooperative execution boundary and continue ruling]`
 
 The ignored wrapper and child hash to
-`9961e51099b7598d9cdb0ea961e396fcb24b38182f359868789915c1595d7332` and
+`002f90f81eda96897676ee0f10960fae6b239046831fe5b3b95c4c538bc28315` and
 `f21d8d2605d2b87b70f1bd5cf7f85c4a11bccf8e64e865136207f347f559ff44`.
 The first committed v2 admission failed closed before preflight because its product-relative journal
 path did not equal Git's worktree-root-relative diff path. This same-class coordinate example consumed
@@ -801,6 +802,17 @@ document, and a refused preflight now removes every authorization-owned output i
 child process starts. `[P37: recomputed for both zero exit codes, the retained timing identity, the
 exit-78 terminal, and the no-Popen control flow]`
 
+The next exact v3 invocation also exited `78` before `Popen`. Its N8/N10a checks were already green;
+the confidence wrapper then called `FrozenConfidenceLedgerContract.model_validate(raw, strict=True)`
+in Python mode, which rejected the artifact's JSON arrays at all `24` tuple/dataclass boundaries.
+That was a proxy for, not the owner's internal validation. The repair now calls the confidence
+owner's exact `_parse_contract_bytes()` JSON path and then `validate_payload(raw, expected=parsed)`;
+the behavioral test passes against the committed `977,814`-byte artifact with
+`status=pass, issues=[]` and deployment identity `f05a816f…`. The generalized refusal cleanup left all eight
+authorized outputs absent. This invocation is another preflight non-receipt; the cold allowance
+remains unspent. `[P37: recomputed for the exit-78 terminal, 24-field denominator, owner-path
+behavioral test, and absent-output census]`
+
 The block below authorizes exactly one launch only when committed as this journal's sole direct child
 of the named basis. Before that commit, the cold result remains `not_established` and no allowance is
 spent. `[P37: recomputed]`
@@ -813,7 +825,7 @@ spent. `[P37: recomputed]`
       "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
     ],
     "direct_parent": true,
-    "head": "cc198b2a4c657a6c37b7f13507fc8c19ed8a0c4a"
+    "head": "5416139659b9929fdb871c1243904996736511d9"
   },
   "branch": "codex/gy-defc-9-n11-suffix",
   "checks": [
@@ -944,7 +956,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/run_with_ceiling.py",
-    "sha256": "9961e51099b7598d9cdb0ea961e396fcb24b38182f359868789915c1595d7332"
+    "sha256": "002f90f81eda96897676ee0f10960fae6b239046831fe5b3b95c4c538bc28315"
   },
   "milestones": [
     "confidence_registry_loaded",

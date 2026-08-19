@@ -125,7 +125,7 @@ initial path census]`
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
 | Item 4 | 2 | 0 | both pre-writer findings closed; accepted writer green |
-| Item 5 | 0 | 2 | cold allowance spent; child red at the capability gate before milestone 1; no relaunch |
+| Item 5 | 0 | 2 | prior terminal reclassified as a pre-milestone non-receipt; proxy removed; cold allowance intact |
 
 ## Execution receipts
 
@@ -825,7 +825,7 @@ spent. `[P37: recomputed]`
       "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
     ],
     "direct_parent": true,
-    "head": "5416139659b9929fdb871c1243904996736511d9"
+    "head": "d894f0bd834b1bd0d1e25ae04bdaa741085867d5"
   },
   "branch": "codex/gy-defc-9-n11-suffix",
   "checks": [
@@ -888,7 +888,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/single_cold_n11.py",
-    "sha256": "f21d8d2605d2b87b70f1bd5cf7f85c4a11bccf8e64e865136207f347f559ff44"
+    "sha256": "883d417d58b647a9cde7c0f23e7b06ab15f0ad2049c2ef6c120df5c5a0c535cb"
   },
   "environment": {
     "mode": "exact",
@@ -920,14 +920,14 @@ spent. `[P37: recomputed]`
       "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
       "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": "true",
       "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": "true",
-      "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-timing.jsonl",
+      "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v2-timing.jsonl",
       "POLISYOS_TOOLS_TIMING_REGIME": "contended",
       "POLISYOS_TOOLS_TIMING_RETENTION": "2000",
       "PYTHONDONTWRITEBYTECODE": "1",
       "PYTHONHASHSEED": "0",
       "PYTHONNOUSERSITE": "1",
       "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine:/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
-      "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-runtime-tmp",
+      "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v2-runtime-tmp",
       "USER": "deniskopylov"
     }
   },
@@ -956,7 +956,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/run_with_ceiling.py",
-    "sha256": "002f90f81eda96897676ee0f10960fae6b239046831fe5b3b95c4c538bc28315"
+    "sha256": "36c1da1b6e061eb99864c554d16e3131397492452dc31f0e1aa90ba900b7598e"
   },
   "milestones": [
     "confidence_registry_loaded",
@@ -989,14 +989,14 @@ spent. `[P37: recomputed]`
     "frozen_contract_derived"
   ],
   "outputs": {
-    "cold_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-receipt.json",
-    "launch_lock": ".tmp/gy-defc-9/cold-n11/authorized-20260819-launch-lock.json",
-    "meta": ".tmp/gy-defc-9/cold-n11/authorized-20260819-meta.json",
-    "preflight_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-preflight.json",
-    "runtime_tmp": ".tmp/gy-defc-9/cold-n11/authorized-20260819-runtime-tmp",
-    "stderr": ".tmp/gy-defc-9/cold-n11/authorized-20260819-stderr.log",
-    "stdout": ".tmp/gy-defc-9/cold-n11/authorized-20260819-stdout.jsonl",
-    "timing_log": ".tmp/gy-defc-9/cold-n11/authorized-20260819-timing.jsonl"
+    "cold_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-receipt.json",
+    "launch_lock": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-launch-lock.json",
+    "meta": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-meta.json",
+    "preflight_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-preflight.json",
+    "runtime_tmp": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-runtime-tmp",
+    "stderr": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-stderr.log",
+    "stdout": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-stdout.jsonl",
+    "timing_log": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-timing.jsonl"
   },
   "pin_denominator": 11,
   "pins": {
@@ -1172,3 +1172,47 @@ remains `policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8
 `GY-N11` may claim those warm/identity closures only; it may not claim the N11 suffix closed, a cold
 zero-issue live validation, a cold exercise of `GY-DEF15`, or cold closeout completion. `[P37:
 recomputed for Items 1–4 and the warm checks; not_established for every cold claim]`
+
+## Superseding Item 5 ruling — pre-milestone non-receipt and proxy-free authorization
+
+The architect's corrected 2026-08-19 boundary supersedes only the allowance classification above. A
+launch counts against the single cold allowance when it reaches milestone 1; any terminal before
+milestone 1 with zero governed bytes changed and clear/build/validate counts `0/0/0` is a
+non-receipt. The preserved `08cee4…` child receipt has `0/28` milestones, `0/0/0` operations and
+`11/11` byte-identical pins, so the cold allowance is intact and Item 5 retains both mechanism
+rounds. Its historical generic capability exception remains `not_established` at the conjunct level;
+the old receipt is preserved rather than rewritten. `[P37: institutionally_supplied for the corrected
+allowance predicate; recomputed for the terminal, operation, milestone and complete pin denominators;
+not_established for the historical failed conjunct]`
+
+The repaired ignored harness removes literal Darwin `ps` command text from the admission decision.
+Parent command text remains a recorded diagnostic with `decisive=false`; the inherited one-use file
+descriptor, authorization-bound public token and per-launch nonce carry the 15 decisive conjuncts.
+Every one records `expected`, `observed`, `matched`, `decisive` and `provenance` on both pass and
+refusal, and the child stores that complete record before propagating a refusal. The cooperative
+same-user residual already declared for this scratch harness remains bounded; no privilege-separated
+supervisor exists in this lane and the ruling does not reopen it. `[P37: recomputed for the mechanism;
+institutionally_supplied for the bounded cooperative model]`
+
+The two-direction behavioral falsifier at ignored receipt
+`.tmp/gy-defc-9/cold-n11/capability-falsifier-receipt.json` is `15,623` bytes, SHA-256
+`df42d52dc99cb9ebd0a5c374d9adc3ce1d9e611e9a8c16b3aabcd8e93f4afb1d`. A fresh child without the
+inherited FD refused with return `71`; a child carrying the real wrapper pipe token but the wrong
+nonce also refused with only `nonce_sha256` red; the same transport with the correct nonce admitted
+with all `15/15` decisive conjuncts green while the `ps` diagnostic was false and non-decisive. The
+complete ignored harness suite is `9/9` green and bytecode compilation passes. Two independent
+read-only reviews returned GO with no Blocking or Important finding; Ruff is absent from this
+worktree interpreter, so its attempted invocation is a tooling non-receipt. This is the existing
+P40/P38 class widened to the property, not a new repair round. `[P37: recomputed for the falsifier,
+complete conjunct denominator, suite and compile; independently_reconciled for both reviews]`
+
+The authorization block above now binds the frozen ignored launcher SHA-256
+`36c1da1b6e061eb99864c554d16e3131397492452dc31f0e1aa90ba900b7598e`, child SHA-256
+`883d417d58b647a9cde7c0f23e7b06ab15f0ad2049c2ef6c120df5c5a0c535cb`, direct parent
+`d894f0bd834b1bd0d1e25ae04bdaa741085867d5`, authorization fingerprint
+`ef3c2a27391af3c249701c5538e4a7e963ca107b11d91c2f0681f894ab3929c9`, and eight new
+`authorized-20260819-v2-*` output paths. The complete `8/8` output denominator plus the timing lock is
+absent; every earlier terminal output remains present and untouched. The enforcing timer remains the
+authorization-derived `4,693.118600` s and the three short checks, exact `11` pins and exact `28`
+milestones are unchanged. The launch is authorized only after this journal-only direct-child commit
+is cleanly attached and dynamic admission revalidates it. `[P37: recomputed]`

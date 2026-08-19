@@ -51,12 +51,14 @@ every behavioral producer/consumer remain byte-identical outside the docstring.
 
 ## Reconciled obligation population before GY-GAP1
 
-Two independent structural walkers over all 1,170 tracked JSON files (zero parse failures) agree on
-26 receipt-shaped objects, 390 obligation records, distribution `{15: 26}`, maximum `(class, gate)`
-multiplicity 1, and zero repeated pairs. The earlier 19/285 census intentionally selected only
-current v2 owner-bound receipts. The remaining seven receipts / 105 records are v1 historical
-recordings preserved under the depth-N universality artifact; the full blast-radius population is
-therefore 26/390.
+At the pre-declaration source census, two independent structural walkers over all 1,170 tracked JSON
+files (zero parse failures) agreed on 26 receipt-shaped objects, 390 obligation records, distribution
+`{15: 26}`, maximum `(class, gate)` multiplicity 1, and zero repeated pairs. Committing the later
+transition-declaration companion raises the current tracked-JSON denominator to 1,171 without adding
+an obligation receipt, so the current population remains 26/390. The earlier 19/285 census
+intentionally selected only current v2 owner-bound receipts. The remaining seven receipts / 105
+records are v1 historical recordings preserved under the depth-N universality artifact; the full
+blast-radius population is therefore 26/390.
 
 Distribution by persisted artifact:
 
@@ -154,13 +156,15 @@ in this lane.
 ### Reconciled census commands
 
 Two independent complete walkers—one Python structural visitor and one `jq` recursive-object walk
-aggregated independently by `awk`—read all 1,170 tracked JSON files with no parse failure and agreed:
-26 receipts / 390 rows; `{15: 26}`; maximum pair multiplicity one; zero repeated class/gate pairs;
-19 v2 receipts / 285 rows plus seven historical v1 receipts / 105 rows. The 19 count was therefore
-the current owner-bound scope, while 26 is the full persisted blast-radius scope. The reproducing
-commands enumerate paths from `git ls-files -z -- '*.json'`, recursively select non-empty
-`obligations` arrays whose rows carry `obligation_class` and `gate_id`, and aggregate receipt count,
-row count, schema, artifact, and maximum pair multiplicity; neither command searches a sampled path.
+aggregated independently by `awk`—read all 1,170 JSON files in the pre-declaration source census with
+no parse failure and agreed: 26 receipts / 390 rows; `{15: 26}`; maximum pair multiplicity one; zero
+repeated class/gate pairs; 19 v2 receipts / 285 rows plus seven historical v1 receipts / 105 rows. The
+tracked transition-declaration companion makes the current file denominator 1,171, still with zero
+parse failures and the same 26/390 obligation population. The 19 count was therefore the current
+owner-bound scope, while 26 is the full persisted blast-radius scope. The reproducing commands
+enumerate paths from `git ls-files -z -- '*.json'`, recursively select non-empty `obligations` arrays
+whose rows carry `obligation_class` and `gate_id`, and aggregate receipt count, row count, schema,
+artifact, and maximum pair multiplicity; neither command searches a sampled path.
 
 The following first walker reproduces the complete population when run from the repository root;
 the `cd policy-engine` is part of the denominator and excludes the repository-level Renovate JSON:
@@ -300,9 +304,11 @@ the catalog ceiling and a literal `uptime` pair (`6.84/6.56/5.51` to `3.81/5.45/
 1,048.502441 s, and reproduced the first candidate byte-for-byte at
 `sha256:280986fc48977b948bd95068e3554958fb6112470fe1d9de82eb9cce795edf64`.
 Promotion and generation independently reproduced their candidates byte-for-byte in 10.331204 s and
-19.779163 s. The N10a producer's two non-persisting contended derivations completed in 396.011913 s and
-364.30 s and returned the same five-output transition manifest and candidate bytes. None of these
-contended durations is promoted into a clean p95.
+19.779163 s. The earlier same-byte N10a "repeat" is not an independent reproducibility receipt: the
+producer owns a module-level cycle-trace cache, and a later fresh-process falsifier produced different
+live identities from the same source and governed inputs. Its two contended durations, 396.011913 s and
+364.30 s, remain regime observations only. None of these contended durations is promoted into a clean
+p95.
 
 The complete declared transition is committed separately as
 `2026-08-19-gy-gap1-artifact-transition-declaration.json`. It is bound to mechanism head
@@ -359,3 +365,65 @@ path relative to the declared Policy Engine product root, absolute and `..` path
 and the exact canonical-JSON, raw-file, source-scope length-prefix, artifact-scope, and manifest
 preimages are part of the declaration. The earlier manifest identities are superseded before any
 writer ran. This companion widening consumes no mechanism round.
+
+## Artifact-writer refusal and stopped hand-back
+
+The guarded accepted-writer wave began clean and branch-attached at
+`f332387bb8aea29020b81014c2f6003c6e9c334f`. Its literal pre-run `uptime` recorded load averages
+`2.77 / 2.98 / 3.96`, so every duration is `regime=contended`. Promotion completed in 10.149752 s and
+matched its declared 183,066-byte candidate at
+`sha256:27277bf5eb6db1c09154eff58b6b8a302d46625fc551cd3c2d679abdb4ef19e8`.
+Generation completed in 17.807984 s and matched its declared 183,254-byte candidate at
+`sha256:80527a78bbbcefeef6b2eabaac965ec7fac392d6425ca1e2f33622d796166d14`.
+N10a reached its transition-manifest comparison and refused with
+`n10a_expected_transition_manifest_mismatch`; because the exception did not return the owner's own
+duration, it supplies no N10a timing sample. The guard restored all seven possible writer targets,
+and a readback showed a clean tree at the same attached branch and head. No candidate from that wave
+was accepted.
+
+A fresh-process, non-persisting falsifier then staged only the exact promotion and generation
+candidates in a disposable branch-attached clone. It completed in 224.437990 s under the literal
+contended `uptime` pair `3.68 / 3.54 / 3.86` to `4.84 / 4.41 / 4.16`. The approved and fresh manifests
+had the same source head, the same 3,286-file source-scope identity
+`sha256:f37a518b34668cad3063a0e4cb1e9094e41e70f1903e7d91033398406741e516`,
+the same five legacy content hashes, the same changed-leaf counts, and the same changed-leaf sets.
+Their live identities nevertheless diverged:
+
+| Output | Approved live content hash | Fresh-process live content hash |
+| --- | --- | --- |
+| N10a cycle trace | `sha256:a452f1e7c55eeacd1eac602f756accc92048f9c4a01060120cd45529bb9871dd` | `sha256:38db953fc810c59626eeaaed2e53464ca2c54e7727fbe24170116456b2fe3278` |
+| N10a pack | `sha256:6746e54a33a6c0325752af1c9964d64330b72b48dc8bd58a41241934d1750d49` | `sha256:aeae5c8d4a1eb276f8dfae8d0a2f2ec9fa7cfd12fc584a3ce35470da73dae9b3` |
+| N10a gap report | `sha256:83672e47d3b7dbcd0490ef54c808e9da367c709d6506935057d1bab47dca83db` | `sha256:33a4f74180ed132a4f82d2ff569ec972056a7a83d156a4575b2c4c4c46b9c594` |
+
+The approved N10a transition-manifest identity was
+`sha256:d6f2c6e79e2b5e10b2f4eb95e0d8b8c39810abb38634eae12615a21ec6d61729`;
+the fresh identity was
+`sha256:967fb1b868183468036316149aaa970a5156fa9a59a545c8a40f1c202818b396`.
+P37 provenance for every comparison above is `recomputed`.
+
+The independent freeze audit localized the divergence. `_build_cycle_trace` constructs
+`GenerationCycleController` without a governed `generated_at`; the acquisition planner therefore
+resolves `_utc(None)` from the live clock. The resulting
+`generation_cycle_run.cycles[0].acquisition_routing_report.generated_at` is inside the trace content
+identity, while only `runtime_metrics` is operationally excluded. The saved candidate carries
+`2026-08-19T16:02:51Z`; the frozen artifact carries `2026-08-13T10:03:43Z`. The module-level
+`_CYCLE_TRACE_CACHE` explains why a same-process second call can repeat the first bytes without
+re-deriving time. The falsifier is the fresh process above: keep source, governed inputs, legacy
+preimages, and leaf denominator fixed; the live manifest changes. Supplying a governed deterministic
+operation time, or defining an owner-level operational reconciliation for this field, is the
+smallest mechanism that would close this new class; neither is wired into the N10a writer here.
+
+P40 classification: **new mechanism class — uncontrolled runtime time is content-bound by the writer
+manifest**. This is not the source-authenticity residual and not another P39 declaration-denominator
+example. It arrived after the two permitted GY-GAP1 mechanism rounds were consumed, so the lane stops
+without repairing, rebaselining, or running another writer. The declared transition was six files /
+3,444 leaves; the observed **accepted** transition is zero files / zero leaves. All 908 protected
+preimages, including the deliberately stale confidence ledger, the N10a census, and the N10a smoke
+problem, remain byte-identical.
+
+GY-DEF5 is closed at mechanism round 0/2. GY-GAP1 is stopped at artifact freeze after mechanism round
+2/2 on the new uncontrolled-runtime-time finding and remains open as a governed capability. Its
+source-level acceptance witness does pass: one decisive obligation instance removed, class
+denominator total and green, authority-band result red. That source witness does not override the
+failed governed-artifact freeze. Plan line 7 remains byte-identical at
+`f88d113f34f339f14d333cdd3fe6459cf0e73d449ec3bb5f026567276a14aa37`.

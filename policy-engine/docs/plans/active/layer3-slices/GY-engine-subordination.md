@@ -4003,7 +4003,7 @@ nothing.
   either first-milestone path. Rev 43 removed its objective block when a cold owner derivation reached
   `owner_bundle_loaded`. It has never been entered.
 
-  **STANDING IMPLEMENTED, ARTIFACT FREEZE PENDING (2026-08-19, GY-GAP1): mechanism round 2/2.**
+  **STANDING STOPPED AT ARTIFACT FREEZE (2026-08-19, GY-GAP1): mechanism rounds exhausted 2/2.**
   The runtime now adds a second obligation-row kind, `decisive_predicate`, whose instance identity is
   deterministically re-derived from the generation owner's governed predicate content and the bound
   N9 run scope. It does **not** make the fifteen class-gate obligations instance-granular: the current
@@ -4011,8 +4011,14 @@ nothing.
   remains one. The closure signal is the ratified acceptance test, not a broader granularity claim:
   remove one decisive obligation instance, keep the 15-class denominator total and green, and the
   authority result turns red with `decisive_obligation_omitted`. The live-session OM-01 witness now
-  exercises that exact path; governed artifact reissue and the final verification freeze remain
-  pending at this standing.
+  exercises that exact source path. The governed artifact freeze did not pass: with source head,
+  source-scope hash, legacy hashes, changed-leaf counts and changed-leaf sets held fixed, a fresh N10a
+  process minted live `acquisition_routing_report.generated_at` and changed the trace, pack and gap
+  identities. P40 classifies uncontrolled runtime time in the writer manifest as a **new mechanism
+  class** after rounds 1/2 and 2/2 were already consumed. The stop rule therefore binds: no repair or
+  rebaseline was attempted, the guarded writer restored every candidate, and the declared six-file /
+  3,444-leaf transition has an observed accepted delta of zero files / zero leaves. GY-GAP1 remains
+  open as a governed capability; the partial source mechanism does not constitute closure.
 - **GY-GAP2 — the confidence ledger has no cross-scope composition.** Owner: **runtime/quality
   (confidence ledger / the N11 lane)**. `promotion_sequence.confidence_risk_scope_for_problem`
   keys the budget on `owner_scope_key = f"design-problem:{binding.design_problem_id}"` and its

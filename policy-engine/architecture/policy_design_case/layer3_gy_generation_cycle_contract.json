@@ -92,13 +92,30 @@
       "status": "red"
     }
   ],
+  "comparison_admission_manifest": [
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/0",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v2",
+      "predicate_provenance": "recomputed"
+    },
+    {
+      "action": "project",
+      "json_pointer": "/generation_cycle_run/promotion_port/receipts/1",
+      "owner_rule": "polisyos.runtime.quality.promotion_sequence.canonical_promotion_receipt_verification_projection.v2",
+      "predicate_provenance": "recomputed"
+    }
+  ],
+  "comparison_content_hash": "sha256:c6bfe0e6c9b662321ba0385eb9dac33a6a8a92e7c86a4e66bfdb3ea839c2a54e",
+  "comparison_projection_schema_version": "policyos.gy.comparison_projection.v2",
+  "comparison_rule_version": "policyos.gy.non_authority_verification.v3",
   "compute_economics": {
     "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
     "lane": "Lane-0",
     "non_cached_run_visibility": "rederive_audit_only",
     "owner_io": "zero"
   },
-  "contract_content_hash": "sha256:fee24a58ce1cb9b287427c615ef0e7ed45be79ed8242625af8c9b25d73fb8a36",
+  "contract_content_hash": "sha256:396ab437e3b86f07f30fae850741109a9caf0ac2523259ab81d284928e65346b",
   "contract_id": "policyos.runtime.generation_cycle_controller",
   "denominators": {
     "counts": {
@@ -272,6 +289,7 @@
           "seed"
         ],
         "grounding": {
+          "acquisition_requirement": null,
           "adversarial_validation_ref": "cg4_quarantine_1111111111111111",
           "candidate_id": "candidate_lane0_cycle_001",
           "cgf_certificate_refs": [
@@ -560,7 +578,303 @@
       },
       {
         "acquisition_receipt": null,
-        "acquisition_routing_report": null,
+        "acquisition_routing_report": {
+          "acquisition_records": [
+            {
+              "accepted_deficit_ref": null,
+              "acquisition_id": "acquisition:n7-routing:industrial_resilience_retooling:1:requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "authority_boundary": {
+                "authoritative_for": [
+                  "gap_detected",
+                  "eligible_strategies",
+                  "ineligible_strategies",
+                  "voi_ranking_considered",
+                  "decision_owner",
+                  "terminal_disposition",
+                  "producer_expected",
+                  "calibration_feedback_target"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "source_family_satisfaction",
+                  "data_quality",
+                  "method_validity",
+                  "participation_representativeness",
+                  "claim_support",
+                  "closeout_pass"
+                ]
+              },
+              "authority_level": "research",
+              "blocker_ref": null,
+              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+              "commit_authority": "advisory_recommendation_only",
+              "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+              "decision_owner": "runtime_planner",
+              "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+              "eligible_strategies": [
+                "production_snapshot_build",
+                "rerun",
+                "accepted_deficit"
+              ],
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2.json",
+              "gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "gap_type": "data_snapshot_release",
+              "ineligible_strategies": [
+                "academic_retrieval",
+                "agency_request",
+                "closeout_block",
+                "consultation",
+                "legal_corpus_expansion",
+                "method_remediation",
+                "proxy_with_degraded_authority",
+                "public_registry",
+                "publish_with_limitation",
+                "source_contract_remediation",
+                "survey"
+              ],
+              "ineligible_strategy_records": [
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "academic_retrieval",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "agency_request",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "closeout_block",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "consultation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "legal_corpus_expansion",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "method_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "proxy_with_degraded_authority",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "public_registry",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "publish_with_limitation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "source_contract_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "survey",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "limitation_ref": null,
+              "mandatory_gate_refs": [
+                "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+              ],
+              "mandatory_gate_state": "none",
+              "missing_requirement_fields": [
+                "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+              ],
+              "next_actions": [
+                {
+                  "action": "build_production_snapshot",
+                  "blocks_closeout": false,
+                  "commit_required": false,
+                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2.json",
+                  "message": "Acquire or remediate evidence via production_snapshot_build for grounding-claim:candidate_lane0_cycle_002.",
+                  "owner": "polisyos.runtime.quality.acquisition_planner",
+                  "producer_expected": "data_forge.snapshot",
+                  "strategy": "production_snapshot_build"
+                }
+              ],
+              "planner_posture": "advisory",
+              "producer_expected": "data_forge.snapshot",
+              "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+              "public_projection_effect": "no_public_effect_until_producer_output",
+              "recommended_strategy": "production_snapshot_build",
+              "requirement_family": "data_requirement",
+              "requirement_gap_ref": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+              "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "runtime_event_ref": "event://runtime/acquisition/n7-routing-industrial-resilience-retooling-1/requirement-gap-data-requirement-grounding-coverage-bd10feec5a91b6f2",
+              "scenario_requirement_refs": [
+                "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+              ],
+              "schema_version": "policyos.runtime.acquisition_planner.v1",
+              "status": "ready",
+              "strategy_records": [
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "build_production_snapshot",
+                  "strategy": "production_snapshot_build",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "rerun",
+                  "strategy": "rerun",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "accept_deficit",
+                  "strategy": "accepted_deficit",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "terminal_disposition": "acquire",
+              "voi_ranking_ref": null
+            }
+          ],
+          "adr_refs": [
+            "ADR-0166"
+          ],
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "capability_reality_status": "implemented",
+          "generated_at": "2026-07-05T00:00:00Z",
+          "pattern_refs": [
+            "P01",
+            "P09",
+            "P10"
+          ],
+          "run_id": "n7-routing:industrial_resilience_retooling:1",
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "pass",
+          "summary": {
+            "accepted_deficit": 0,
+            "acquire": 1,
+            "blocked": 0,
+            "eligible_strategy_count": 3,
+            "ineligible_strategy_count": 11,
+            "limited": 0,
+            "record_count": 1,
+            "rerun": 0
+          }
+        },
         "candidate_ids": [
           "candidate_lane0_cycle_002"
         ],
@@ -593,6 +907,50 @@
           "lever:resilience_grant:adversarial_validate:shadow_bound"
         ],
         "grounding": {
+          "acquisition_requirement": {
+            "authority_level": "research",
+            "calibration_feedback_ref": null,
+            "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+            "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+            "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+            "gap_type": "data_snapshot_release",
+            "limitation_permitted": false,
+            "mandatory_gate_refs": [
+              "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+            ],
+            "mandatory_gate_state": "none",
+            "metadata": {
+              "acquisition_family": "COV",
+              "authority_level": "research",
+              "authority_purpose": "routing_only",
+              "candidate_binding": {
+                "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "candidate_id": "candidate_lane0_cycle_002",
+                "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+              },
+              "evidence_refs": [],
+              "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+              "issue_codes": [
+                "candidate_cgf_proposal_id_mismatch",
+                "candidate_cgf_raw_hash_mismatch"
+              ],
+              "satisfaction_status": "unsatisfied",
+              "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "source": "cgf_grounding_coverage"
+            },
+            "missing_requirement_fields": [
+              "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+            ],
+            "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+            "requirement_family": "data_requirement",
+            "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+            "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+            "scenario_requirement_refs": [
+              "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+              "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+            ],
+            "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+          },
           "adversarial_validation_ref": null,
           "candidate_id": "candidate_lane0_cycle_002",
           "cgf_certificate_refs": [],
@@ -606,7 +964,7 @@
             "candidate_cgf_raw_hash_mismatch"
           ],
           "quarantine_action": "none",
-          "report_ref": null,
+          "report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
           "status": "grounding_unavailable"
         },
         "introduced_grammar_elements": [
@@ -621,16 +979,14 @@
           "consumed_counterexample_refs": [
             "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
           ],
-          "decision": "human_decision",
+          "decision": "acquire",
           "decision_id": "gy.n6.refinement.industrial_resilience_retooling.002",
           "decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
           "governance_decision_class": null,
-          "governance_decision_class_ref": "governance://gy/n6/industrial_resilience_retooling/terminal/002",
-          "governance_refs": [
-            "governance://gy/n6/industrial_resilience_retooling/terminal/002"
-          ],
+          "governance_decision_class_ref": null,
+          "governance_refs": [],
           "next_candidate_ref": null,
-          "reason": "terminal_requires_escalation:a_spec_gap; terminal=a_spec_gap",
+          "reason": "terminal_requires_escalation:acquisition_required; terminal=acquisition_required",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
           "stakes_band": "moderate",
           "value_of_information": {
@@ -650,14 +1006,11 @@
         },
         "revision_driver": "counterexample",
         "revision_request": {
-          "new_grammar_elements": [
-            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
-          ],
-          "next_candidate_ref": "candidate://pending/9c596e3b9ad92bc5",
+          "new_grammar_elements": [],
+          "next_candidate_ref": "candidate://pending/d7eb7cd271341e36",
           "next_grammar_elements": [
             "seed",
-            "lever:resilience_grant:adversarial_validate:shadow_bound",
-            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
+            "lever:resilience_grant:adversarial_validate:shadow_bound"
           ],
           "previous_candidate_ref": "candidate_lane0_cycle_002",
           "previous_grammar_elements": [
@@ -743,25 +1096,71 @@
             "runtime_hints": {
               "generation_cycle_grammar": [
                 "seed",
-                "lever:resilience_grant:adversarial_validate:shadow_bound",
-                "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
+                "lever:resilience_grant:adversarial_validate:shadow_bound"
               ],
               "generation_cycle_revision": {
-                "new_grammar_elements": [
-                  "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
-                ],
+                "new_grammar_elements": [],
                 "previous_candidate_ref": "candidate_lane0_cycle_002",
-                "revision_strategy": "spec_gap_reframe",
+                "revision_strategy": "acquire_or_elicit",
                 "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
                 "strategy_payload": {
+                  "acquisition_request": {
+                    "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                    "cycle_index": 1,
+                    "driver": "candidate_cgf_proposal_id_mismatch",
+                    "network_policy": "record_replay_required_for_routine_check",
+                    "reentry": "same_generation_cycle_index",
+                    "request_kind": "owner_grounding_evidence",
+                    "requirement_gap": {
+                      "authority_level": "research",
+                      "calibration_feedback_ref": null,
+                      "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+                      "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+                      "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                      "gap_type": "data_snapshot_release",
+                      "limitation_permitted": false,
+                      "mandatory_gate_refs": [
+                        "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+                      ],
+                      "mandatory_gate_state": "none",
+                      "metadata": {
+                        "acquisition_family": "COV",
+                        "authority_level": "research",
+                        "authority_purpose": "routing_only",
+                        "candidate_binding": {
+                          "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "candidate_id": "candidate_lane0_cycle_002",
+                          "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+                        },
+                        "evidence_refs": [],
+                        "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                        "issue_codes": [
+                          "candidate_cgf_proposal_id_mismatch",
+                          "candidate_cgf_raw_hash_mismatch"
+                        ],
+                        "satisfaction_status": "unsatisfied",
+                        "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                        "source": "cgf_grounding_coverage"
+                      },
+                      "missing_requirement_fields": [
+                        "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+                      ],
+                      "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                      "requirement_family": "data_requirement",
+                      "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+                      "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                      "scenario_requirement_refs": [
+                        "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                        "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+                      ],
+                      "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+                    }
+                  },
                   "issue": "candidate_cgf_proposal_id_mismatch",
                   "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                  "spec_gap": {
-                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                    "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
-                  },
-                  "strategy": "spec_gap_reframe",
-                  "terminal_kind": "a_spec_gap"
+                  "strategy": "acquire_or_elicit",
+                  "terminal_kind": "acquisition_required"
                 }
               }
             },
@@ -776,18 +1175,67 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.industrial_resilience_retooling.002",
-          "revision_strategy": "spec_gap_reframe",
+          "revision_strategy": "acquire_or_elicit",
           "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-          "source_terminal_kind": "a_spec_gap",
+          "source_terminal_kind": "acquisition_required",
           "strategy_payload": {
+            "acquisition_request": {
+              "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+              "cycle_index": 1,
+              "driver": "candidate_cgf_proposal_id_mismatch",
+              "network_policy": "record_replay_required_for_routine_check",
+              "reentry": "same_generation_cycle_index",
+              "request_kind": "owner_grounding_evidence",
+              "requirement_gap": {
+                "authority_level": "research",
+                "calibration_feedback_ref": null,
+                "claim_ref": "grounding-claim:candidate_lane0_cycle_002",
+                "compiled_requirement_ref": "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1",
+                "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                "gap_type": "data_snapshot_release",
+                "limitation_permitted": false,
+                "mandatory_gate_refs": [
+                  "runtime-requirement:grounding-coverage:bd10feec5a91b6f2:v1"
+                ],
+                "mandatory_gate_state": "none",
+                "metadata": {
+                  "acquisition_family": "COV",
+                  "authority_level": "research",
+                  "authority_purpose": "routing_only",
+                  "candidate_binding": {
+                    "candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    "candidate_id": "candidate_lane0_cycle_002",
+                    "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85"
+                  },
+                  "evidence_refs": [],
+                  "grounding_report_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                  "issue_codes": [
+                    "candidate_cgf_proposal_id_mismatch",
+                    "candidate_cgf_raw_hash_mismatch"
+                  ],
+                  "satisfaction_status": "unsatisfied",
+                  "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                  "source": "cgf_grounding_coverage"
+                },
+                "missing_requirement_fields": [
+                  "grounding_relation_or_owner_lever:candidate_lane0_cycle_002"
+                ],
+                "producer_output_ref": "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e",
+                "requirement_family": "data_requirement",
+                "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:bd10feec5a91b6f2",
+                "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                "scenario_requirement_refs": [
+                  "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
+                  "sha256:9acf519272615c0e59f39850f6a9514e05c105d08d64da0e63757909b432df9e"
+                ],
+                "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+              }
+            },
             "issue": "candidate_cgf_proposal_id_mismatch",
             "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-            "spec_gap": {
-              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-              "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
-            },
-            "strategy": "spec_gap_reframe",
-            "terminal_kind": "a_spec_gap"
+            "strategy": "acquire_or_elicit",
+            "terminal_kind": "acquisition_required"
           }
         },
         "search_iteration": {
@@ -797,7 +1245,7 @@
           ],
           "iteration_id": "gy.n6.iteration.industrial_resilience_retooling.002",
           "refinement_decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
-          "status": "governance_required"
+          "status": "acquisition_required"
         },
         "selected_candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "selected_candidate_ref": "candidate_lane0_cycle_002",
@@ -821,7 +1269,7 @@
           "status": "simulation_blocked",
           "uncertainty_kind": null
         },
-        "terminal_kind": "a_spec_gap",
+        "terminal_kind": "acquisition_required",
         "value_port": {
           "acquisition_requirement": null,
           "authority_blockers": [
@@ -847,10 +1295,10 @@
           "candidate_id": "candidate_lane0_cycle_002",
           "next_action": "escalate",
           "priority": 0.46,
-          "reason": "terminal_requires_escalation:a_spec_gap",
+          "reason": "terminal_requires_escalation:acquisition_required",
           "scheduler_action": "reject",
           "scheduler_reason": "roi_below_threshold",
-          "terminal_kind": "a_spec_gap"
+          "terminal_kind": "acquisition_required"
         }
       }
     ],
@@ -884,7 +1332,7 @@
     },
     "promotion_port": {
       "certified_candidate_ids": [],
-      "reason": "canonical_n9_sequence_returned_shadow",
+      "reason": "verification_n9_sequence_non_consumer",
       "receipts": [
         {
           "authority_derivation_trace": null,
@@ -912,13 +1360,572 @@
             ],
             "posture": "governed",
             "rule_version_refs": [
-              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
             ],
             "source_authority": "deterministic_producer"
           },
+          "confidence_ledger_head_id": "confidence-event:sha256:532d62b21be628ec0332657248828631bf2630fab245b16ab1ed64e0542b7563",
+          "confidence_ledger_head_ref": "sha256:a5fe2fc49b921ecdc980bd487d3d715729553d12456958aeb8d6d369e7dbdfb1",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:60b71f4ab86bca134201bda01f911c3e7a08bbb4ae0707ebc96dfd52930bad68",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:532d62b21be628ec0332657248828631bf2630fab245b16ab1ed64e0542b7563",
+            "head_event_ref": "sha256:a5fe2fc49b921ecdc980bd487d3d715729553d12456958aeb8d6d369e7dbdfb1",
+            "ledger_receipt_id": "confidence-ledger:sha256:8efa45c346815878a54791039feb17e8d215cacde72e7267d8f589af33367422",
+            "ledger_receipt_ref": "sha256:59b2adfe3c8d5a58ec68be72509af2baad8d471689dd06539c2223dfd0be6715",
+            "ledger_root_id": "confidence-ledger-root:sha256:a80901a92fb15e890481ce1fdc34983d808a2096671f9e7e85df86e5394b2c51",
+            "ledger_root_ref": "sha256:5d72622c985e045f69b32db1ca2337d6dcff1f2095b20fb965b86b64e13bd0b8",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:f65383d8f56befe03590460b4bcb650d5e666b45b128412ea75a2590f4356262",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:0e328382f55eb160bc6b73015072996c237802c215b3f1660b467c9a2e9c82e7",
+                "claim_execution_binding_hash": "sha256:8c25e87b0e753920bbfd6acc6af829c00a545a5310708011c4d5dddf8c2b9494",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:253350a9b02d71e8bc36990fedfd8ce0a765d3503c73e202c037e57ae2d4587b",
+                "claim_execution_binding_hash": "sha256:e1e39699e79001509b435493f4eaca6ac7b8b320d6397fb692dc1aa89af6311c",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:b8679932322fe5f80d1d08bf52d772207035bf21b1b57850fd367225b5910925",
+                "claim_execution_binding_hash": "sha256:91c2d80e49c6c9fc54bcc4f650def1ab2ecbcb7928794221bd9079aad98e4f3c",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6dc39806bfaeb22042667d2cc19682ae8b58ccf37827b3ceaeb6d9f46d7d5c10",
+                "claim_execution_binding_hash": "sha256:95e56ba917174251f3511513d58f6dd2577ff3c9b8383df5f599f804a28a0d2f",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:9f466188daf6310fbbf01d1229e966aff7c822cecce5dbb5388eaff452504e77",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:8efa45c346815878a54791039feb17e8d215cacde72e7267d8f589af33367422",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+          "confidence_ledger_semantic_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "checks": [
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_fixed_time_calibration_candidate",
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:90160f66d25f9759305d4208d3075470cde0d413773aee7d50dac95d07957de4",
+                "claim_execution_projection_hash": "sha256:0a00fcebc3b5bbbd172f2b0dcd07f366608572958d6d339f831c274e02221ff4",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_001/calibration-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                "data_window_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: non_anytime_valid",
+                "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                "proof_profile_id": "fixed_time_ineligible",
+                "refusal_code": "non_anytime_valid",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:cbeacc3b58489cbf4cb25e6d78de74648a3409f0a46b1c919c3edb5c1a54e49b",
+                "request_key": "n9://candidate_lane0_cycle_001/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_001/binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_data_trust_promotion_candidate",
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:8ba1cf56fe39417d78f417d2020b415df58ae07bf04b01b00c84218705bfddcb",
+                "claim_execution_projection_hash": "sha256:6fc4259a6cf56d24b0cfcf2321476f644542500d9a758448f0ec35d964b05a83",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_001/data-trust-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                "data_window_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: owner_theorem_unavailable",
+                "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                "proof_profile_id": "owner_theorem_unavailable",
+                "refusal_code": "owner_theorem_unavailable",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:6f9a9f78dad9eb3c74ad8215d4d51b8832c6762887392fb7f54674b63e7744a2",
+                "request_key": "n9://candidate_lane0_cycle_001/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_001/binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_fixed_time_calibration_candidate",
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:42a4872ccfdde78622adbb47668c1058b3a85826fb9b8a5a8e1346b3259136f9",
+                "claim_execution_projection_hash": "sha256:9b508e848f6bb38a26ec0a9d21a627afaeb4585448be82f0ed2dbe5ed539e0da",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_002/calibration-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                "data_window_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: non_anytime_valid",
+                "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                "proof_profile_id": "fixed_time_ineligible",
+                "refusal_code": "non_anytime_valid",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:b82be9656102e8d964e8e654b4622f6e95e6ea52ca6b918df36611f2bc9b3d3f",
+                "request_key": "n9://candidate_lane0_cycle_002/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_002/binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_data_trust_promotion_candidate",
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:d711c6b7d3ba18d115514ce937b82a6f7d310c2c95daebb3cf5cd7561fb8d824",
+                "claim_execution_projection_hash": "sha256:5d7c78bc785074c11a7d1ee007c03f31df6c7fd33b910f19197801134c4eeacc",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_002/data-trust-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                "data_window_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: owner_theorem_unavailable",
+                "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                "proof_profile_id": "owner_theorem_unavailable",
+                "refusal_code": "owner_theorem_unavailable",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:6053d0e985d2a4a0193d44138836a78bfd51a6ede81c8518c2dfbeda46287efd",
+                "request_key": "n9://candidate_lane0_cycle_002/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_002/binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "events": [
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_fixed_time_calibration_candidate",
+                  "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:90160f66d25f9759305d4208d3075470cde0d413773aee7d50dac95d07957de4",
+                  "claim_execution_projection_hash": "sha256:0a00fcebc3b5bbbd172f2b0dcd07f366608572958d6d339f831c274e02221ff4",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_001/calibration-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                  "data_window_ref": "n8://calibration/candidate_lane0_cycle_001",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                  "instrument_family": "confidence_interval",
+                  "instrument_id": "fixed_time_confidence_interval",
+                  "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                  "obligation_class": "calibration",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: non_anytime_valid",
+                  "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                  "proof_profile_id": "fixed_time_ineligible",
+                  "refusal_code": "non_anytime_valid",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:cbeacc3b58489cbf4cb25e6d78de74648a3409f0a46b1c919c3edb5c1a54e49b",
+                  "request_key": "n9://candidate_lane0_cycle_001/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_001/binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                "revision": 1
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_data_trust_promotion_candidate",
+                  "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:8ba1cf56fe39417d78f417d2020b415df58ae07bf04b01b00c84218705bfddcb",
+                  "claim_execution_projection_hash": "sha256:6fc4259a6cf56d24b0cfcf2321476f644542500d9a758448f0ec35d964b05a83",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_001/data-trust-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                  "data_window_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                  "instrument_family": "e_process",
+                  "instrument_id": "owner_verified_e_process",
+                  "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                  "obligation_class": "data",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: owner_theorem_unavailable",
+                  "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                  "proof_profile_id": "owner_theorem_unavailable",
+                  "refusal_code": "owner_theorem_unavailable",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:6f9a9f78dad9eb3c74ad8215d4d51b8832c6762887392fb7f54674b63e7744a2",
+                  "request_key": "n9://candidate_lane0_cycle_001/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_001/binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "revision": 2
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_fixed_time_calibration_candidate",
+                  "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:42a4872ccfdde78622adbb47668c1058b3a85826fb9b8a5a8e1346b3259136f9",
+                  "claim_execution_projection_hash": "sha256:9b508e848f6bb38a26ec0a9d21a627afaeb4585448be82f0ed2dbe5ed539e0da",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_002/calibration-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                  "data_window_ref": "n8://calibration/candidate_lane0_cycle_002",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                  "instrument_family": "confidence_interval",
+                  "instrument_id": "fixed_time_confidence_interval",
+                  "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                  "obligation_class": "calibration",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: non_anytime_valid",
+                  "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                  "proof_profile_id": "fixed_time_ineligible",
+                  "refusal_code": "non_anytime_valid",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:b82be9656102e8d964e8e654b4622f6e95e6ea52ca6b918df36611f2bc9b3d3f",
+                  "request_key": "n9://candidate_lane0_cycle_002/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_002/binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "revision": 3
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_data_trust_promotion_candidate",
+                  "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:d711c6b7d3ba18d115514ce937b82a6f7d310c2c95daebb3cf5cd7561fb8d824",
+                  "claim_execution_projection_hash": "sha256:5d7c78bc785074c11a7d1ee007c03f31df6c7fd33b910f19197801134c4eeacc",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_002/data-trust-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                  "data_window_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                  "instrument_family": "e_process",
+                  "instrument_id": "owner_verified_e_process",
+                  "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                  "obligation_class": "data",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: owner_theorem_unavailable",
+                  "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                  "proof_profile_id": "owner_theorem_unavailable",
+                  "refusal_code": "owner_theorem_unavailable",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:6053d0e985d2a4a0193d44138836a78bfd51a6ede81c8518c2dfbeda46287efd",
+                  "request_key": "n9://candidate_lane0_cycle_002/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_002/binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:6d6da66f0b39d32c2d409a0b516f06834fafbd3b4ddc1f79f0f7080da1099e2b",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "revision": 4
+              }
+            ],
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_projection_hash": "sha256:6d6da66f0b39d32c2d409a0b516f06834fafbd3b4ddc1f79f0f7080da1099e2b",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:2790e52d5d4ab2e124163cac31672c04fadec0e7ba48ec37935a3589c04a9f01",
+            "projection_rule_version": "policyos.runtime.quality.confidence_ledger.n9_promotion_semantic_projection.v1",
+            "projection_scope": "n9_promotion_semantic_receipt",
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "root_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+            "schedule_profile_hash": "sha256:4fb4463caee1e68ac66ba73b2ede29f77b31025b22627556b5ece51094df9120",
+            "schedule_profile_id": "default_basel_square",
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
           "consumer_promotable": false,
           "gate_outcome_hash": "sha256:c9d587cc9938b76d320c841ccc3307d3da3891c62f9559fbaeae2c56424db348",
-          "non_promotable_reason": null,
+          "non_promotable_reason": "verification_only_replay",
           "obligations": [
             {
               "detail": "Strict N9 input model validated with extra fields forbidden.",
@@ -1088,6 +2095,61 @@
               "status": "failed"
             }
           ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "completed_shadow_only",
+              "candidate_id": "candidate_lane0_cycle_001",
+              "certified_by_n9": false,
+              "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 0,
+              "front": "quarantine",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": "shadow_bound",
+              "grounding_score": 0.2,
+              "grounding_source": "cgf_firewall",
+              "grounding_status": "grounded_shadow",
+              "high_proxy": true,
+              "low_grounding": true,
+              "proxy_score": 0.91,
+              "quarantine_action": "adversarial_validate",
+              "value_blockers": [
+                "value_gate_pending_n8"
+              ],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.74
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "industrial_resilience_retooling",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.industrial_resilience_retooling.candidate_lane0_cycle_001",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:ec8ccfc430fa89ab95e4e435064d1dd7673617b0c1a23c9b0d1f3cc575bb2848",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
           "promoted": false,
           "promotion_lane": "unresolved",
           "refusal_reasons": [
@@ -1104,12 +2166,33 @@
           ],
           "risk_spend": {
             "budget_delta": 0.01,
-            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
-            "spend_records": [],
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:0e328382f55eb160bc6b73015072996c237802c215b3f1660b467c9a2e9c82e7",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:253350a9b02d71e8bc36990fedfd8ce0a765d3503c73e202c037e57ae2d4587b",
+                "obligation_class": "data"
+              }
+            ],
             "total_declared_delta": 0.0,
             "within_budget": true
           },
-          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
           "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
           "status": "shadow",
           "terminal_kind": "grounded_abstention",
@@ -1143,13 +2226,572 @@
             ],
             "posture": "governed",
             "rule_version_refs": [
-              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
             ],
             "source_authority": "deterministic_producer"
           },
+          "confidence_ledger_head_id": "confidence-event:sha256:532d62b21be628ec0332657248828631bf2630fab245b16ab1ed64e0542b7563",
+          "confidence_ledger_head_ref": "sha256:a5fe2fc49b921ecdc980bd487d3d715729553d12456958aeb8d6d369e7dbdfb1",
+          "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "deployment_identity": "policy-engine-deployment:sha256:60b71f4ab86bca134201bda01f911c3e7a08bbb4ae0707ebc96dfd52930bad68",
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_id": "confidence-event:sha256:532d62b21be628ec0332657248828631bf2630fab245b16ab1ed64e0542b7563",
+            "head_event_ref": "sha256:a5fe2fc49b921ecdc980bd487d3d715729553d12456958aeb8d6d369e7dbdfb1",
+            "ledger_receipt_id": "confidence-ledger:sha256:8efa45c346815878a54791039feb17e8d215cacde72e7267d8f589af33367422",
+            "ledger_receipt_ref": "sha256:59b2adfe3c8d5a58ec68be72509af2baad8d471689dd06539c2223dfd0be6715",
+            "ledger_root_id": "confidence-ledger-root:sha256:a80901a92fb15e890481ce1fdc34983d808a2096671f9e7e85df86e5394b2c51",
+            "ledger_root_ref": "sha256:5d72622c985e045f69b32db1ca2337d6dcff1f2095b20fb965b86b64e13bd0b8",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:f65383d8f56befe03590460b4bcb650d5e666b45b128412ea75a2590f4356262",
+            "projection_scope": "n9_promotion_certificate",
+            "promotion_rows": [
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:0e328382f55eb160bc6b73015072996c237802c215b3f1660b467c9a2e9c82e7",
+                "claim_execution_binding_hash": "sha256:8c25e87b0e753920bbfd6acc6af829c00a545a5310708011c4d5dddf8c2b9494",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:253350a9b02d71e8bc36990fedfd8ce0a765d3503c73e202c037e57ae2d4587b",
+                "claim_execution_binding_hash": "sha256:e1e39699e79001509b435493f4eaca6ac7b8b320d6397fb692dc1aa89af6311c",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:b8679932322fe5f80d1d08bf52d772207035bf21b1b57850fd367225b5910925",
+                "claim_execution_binding_hash": "sha256:91c2d80e49c6c9fc54bcc4f650def1ab2ecbcb7928794221bd9079aad98e4f3c",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "check_id": "confidence-check:sha256:6dc39806bfaeb22042667d2cc19682ae8b58ccf37827b3ceaeb6d9f46d7d5c10",
+                "claim_execution_binding_hash": "sha256:95e56ba917174251f3511513d58f6dd2577ff3c9b8383df5f599f804a28a0d2f",
+                "claim_polarity": "false_accept",
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_anchor_ref": "sha256:9f466188daf6310fbbf01d1229e966aff7c822cecce5dbb5388eaff452504e77",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
+          "confidence_ledger_receipt_id": "confidence-ledger:sha256:8efa45c346815878a54791039feb17e8d215cacde72e7267d8f589af33367422",
+          "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+          "confidence_ledger_semantic_projection": {
+            "authority_provenance": "verification",
+            "budget_delta": {
+              "denominator": 100,
+              "numerator": 1
+            },
+            "budget_delta_decimal": "0.01",
+            "checks": [
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_fixed_time_calibration_candidate",
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:90160f66d25f9759305d4208d3075470cde0d413773aee7d50dac95d07957de4",
+                "claim_execution_projection_hash": "sha256:0a00fcebc3b5bbbd172f2b0dcd07f366608572958d6d339f831c274e02221ff4",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_001/calibration-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                "data_window_ref": "n8://calibration/candidate_lane0_cycle_001",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: non_anytime_valid",
+                "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                "proof_profile_id": "fixed_time_ineligible",
+                "refusal_code": "non_anytime_valid",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:cbeacc3b58489cbf4cb25e6d78de74648a3409f0a46b1c919c3edb5c1a54e49b",
+                "request_key": "n9://candidate_lane0_cycle_001/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_001/binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_data_trust_promotion_candidate",
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:8ba1cf56fe39417d78f417d2020b415df58ae07bf04b01b00c84218705bfddcb",
+                "claim_execution_projection_hash": "sha256:6fc4259a6cf56d24b0cfcf2321476f644542500d9a758448f0ec35d964b05a83",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_001/data-trust-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                "data_window_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: owner_theorem_unavailable",
+                "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                "proof_profile_id": "owner_theorem_unavailable",
+                "refusal_code": "owner_theorem_unavailable",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:6f9a9f78dad9eb3c74ad8215d4d51b8832c6762887392fb7f54674b63e7744a2",
+                "request_key": "n9://candidate_lane0_cycle_001/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_001/binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_fixed_time_calibration_candidate",
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:42a4872ccfdde78622adbb47668c1058b3a85826fb9b8a5a8e1346b3259136f9",
+                "claim_execution_projection_hash": "sha256:9b508e848f6bb38a26ec0a9d21a627afaeb4585448be82f0ed2dbe5ed539e0da",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_002/calibration-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                "data_window_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                "instrument_family": "confidence_interval",
+                "instrument_id": "fixed_time_confidence_interval",
+                "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                "obligation_class": "calibration",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: non_anytime_valid",
+                "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                "proof_profile_id": "fixed_time_ineligible",
+                "refusal_code": "non_anytime_valid",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:b82be9656102e8d964e8e654b4622f6e95e6ea52ca6b918df36611f2bc9b3d3f",
+                "request_key": "n9://candidate_lane0_cycle_002/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_002/binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              },
+              {
+                "anytime_valid": false,
+                "certificate_class": "n8_data_trust_promotion_candidate",
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "certificate_route_hash": null,
+                "check_projection_hash": "sha256:d711c6b7d3ba18d115514ce937b82a6f7d310c2c95daebb3cf5cd7561fb8d824",
+                "claim_execution_projection_hash": "sha256:5d7c78bc785074c11a7d1ee007c03f31df6c7fd33b910f19197801134c4eeacc",
+                "claim_polarity": "false_accept",
+                "claim_ref": "n9://candidate/candidate_lane0_cycle_002/data-trust-promotion",
+                "claim_scope_ref": "n9://obligation-binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                "data_window_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "deterministic_proof": false,
+                "eligible_for_promotion": false,
+                "execution_id": null,
+                "execution_ordinal": null,
+                "execution_status": "refused",
+                "filtration_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "good_event_id": null,
+                "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                "instrument_family": "e_process",
+                "instrument_id": "owner_verified_e_process",
+                "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                "obligation_class": "data",
+                "outcome": "preflight_refusal",
+                "owner_binding": null,
+                "owner_invocation_claim_projection_hash": null,
+                "proof_detail": "preflight refused: owner_theorem_unavailable",
+                "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                "proof_profile_id": "owner_theorem_unavailable",
+                "refusal_code": "owner_theorem_unavailable",
+                "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                "request_fingerprint": "sha256:6053d0e985d2a4a0193d44138836a78bfd51a6ede81c8518c2dfbeda46287efd",
+                "request_key": "n9://candidate_lane0_cycle_002/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_002/binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                "schedule_query_index": null,
+                "schema_version": "policyos.runtime.confidence_ledger.v1",
+                "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                "spend": {
+                  "denominator": 1,
+                  "numerator": 0
+                },
+                "spend_decimal": "0",
+                "supports_obligation": false
+              }
+            ],
+            "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+            "events": [
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_fixed_time_calibration_candidate",
+                  "certificate_ref": "n8://calibration/candidate_lane0_cycle_001",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:90160f66d25f9759305d4208d3075470cde0d413773aee7d50dac95d07957de4",
+                  "claim_execution_projection_hash": "sha256:0a00fcebc3b5bbbd172f2b0dcd07f366608572958d6d339f831c274e02221ff4",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_001/calibration-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                  "data_window_ref": "n8://calibration/candidate_lane0_cycle_001",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                  "instrument_family": "confidence_interval",
+                  "instrument_id": "fixed_time_confidence_interval",
+                  "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                  "obligation_class": "calibration",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: non_anytime_valid",
+                  "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                  "proof_profile_id": "fixed_time_ineligible",
+                  "refusal_code": "non_anytime_valid",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:cbeacc3b58489cbf4cb25e6d78de74648a3409f0a46b1c919c3edb5c1a54e49b",
+                  "request_key": "n9://candidate_lane0_cycle_001/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_001/binding/sha256:d6225144354236d8c398bc37215b4fc91a02b3fcb2a7edfde536793e779dfeac",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+                "revision": 1
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_data_trust_promotion_candidate",
+                  "certificate_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:8ba1cf56fe39417d78f417d2020b415df58ae07bf04b01b00c84218705bfddcb",
+                  "claim_execution_projection_hash": "sha256:6fc4259a6cf56d24b0cfcf2321476f644542500d9a758448f0ec35d964b05a83",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_001/data-trust-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                  "data_window_ref": "n8://data-trust/candidate_lane0_cycle_001",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                  "instrument_family": "e_process",
+                  "instrument_id": "owner_verified_e_process",
+                  "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                  "obligation_class": "data",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: owner_theorem_unavailable",
+                  "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                  "proof_profile_id": "owner_theorem_unavailable",
+                  "refusal_code": "owner_theorem_unavailable",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:6f9a9f78dad9eb3c74ad8215d4d51b8832c6762887392fb7f54674b63e7744a2",
+                  "request_key": "n9://candidate_lane0_cycle_001/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_001/binding/sha256:a0ee94606b3b711962f317c70db156d44a1b8e203ca3252d15111592eafd1d0c",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:fdd16b909f0ac2dd9672bb33e6b61faefcf7192f67c59dce51d92c7c404040d4",
+                "revision": 2
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_fixed_time_calibration_candidate",
+                  "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:42a4872ccfdde78622adbb47668c1058b3a85826fb9b8a5a8e1346b3259136f9",
+                  "claim_execution_projection_hash": "sha256:9b508e848f6bb38a26ec0a9d21a627afaeb4585448be82f0ed2dbe5ed539e0da",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_002/calibration-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                  "data_window_ref": "n8://calibration/candidate_lane0_cycle_002",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:0a8bcc5a71b5183803668e66e1b77af5177571e1760c4d9cdd6d506531bf29f4",
+                  "instrument_family": "confidence_interval",
+                  "instrument_id": "fixed_time_confidence_interval",
+                  "null_ref": "n9://null/calibration-claim-not-promotion-valid",
+                  "obligation_class": "calibration",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: non_anytime_valid",
+                  "proof_profile_hash": "sha256:060cedb583ef605424eb2150e36483c376540cb61f30967463ef8fdf203f6852",
+                  "proof_profile_id": "fixed_time_ineligible",
+                  "refusal_code": "non_anytime_valid",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:b82be9656102e8d964e8e654b4622f6e95e6ea52ca6b918df36611f2bc9b3d3f",
+                  "request_key": "n9://candidate_lane0_cycle_002/calibration/n8_fixed_time_calibration_candidate/n8://calibration/candidate_lane0_cycle_002/binding/sha256:d0349fcb813b032db2b1451cc267e27332e63ed56a08f68276b8ee27ea258108",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:f2b8789b76245aa18af896cdf3cec8c6fa993744051ba8f3a89841e17465ff09",
+                "revision": 3
+              },
+              {
+                "check": {
+                  "anytime_valid": false,
+                  "certificate_class": "n8_data_trust_promotion_candidate",
+                  "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                  "certificate_role": "promotion",
+                  "certificate_route_hash": null,
+                  "check_projection_hash": "sha256:d711c6b7d3ba18d115514ce937b82a6f7d310c2c95daebb3cf5cd7561fb8d824",
+                  "claim_execution_projection_hash": "sha256:5d7c78bc785074c11a7d1ee007c03f31df6c7fd33b910f19197801134c4eeacc",
+                  "claim_polarity": "false_accept",
+                  "claim_ref": "n9://candidate/candidate_lane0_cycle_002/data-trust-promotion",
+                  "claim_scope_ref": "n9://obligation-binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                  "data_window_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                  "deterministic_proof": false,
+                  "eligible_for_promotion": false,
+                  "execution_id": null,
+                  "execution_ordinal": null,
+                  "execution_status": "refused",
+                  "filtration_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                  "good_event_id": null,
+                  "instrument_definition_hash": "sha256:61c7f46f29bdc57256bad55fda32a2a400a6787d750ff882b696a8c2e2e2dd42",
+                  "instrument_family": "e_process",
+                  "instrument_id": "owner_verified_e_process",
+                  "null_ref": "n9://null/data-trust-claim-not-promotion-valid",
+                  "obligation_class": "data",
+                  "outcome": "preflight_refusal",
+                  "owner_binding": null,
+                  "owner_invocation_claim_projection_hash": null,
+                  "proof_detail": "preflight refused: owner_theorem_unavailable",
+                  "proof_profile_hash": "sha256:b6df41b0133950c65a059d9ac62154f831fbe70cc6a9e6aeadd85beddd4eed09",
+                  "proof_profile_id": "owner_theorem_unavailable",
+                  "refusal_code": "owner_theorem_unavailable",
+                  "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                  "request_fingerprint": "sha256:6053d0e985d2a4a0193d44138836a78bfd51a6ede81c8518c2dfbeda46287efd",
+                  "request_key": "n9://candidate_lane0_cycle_002/data/n8_data_trust_promotion_candidate/n8://data-trust/candidate_lane0_cycle_002/binding/sha256:3ec28bfbfd8853e2c37814dd7165315a84b4cb9128a95f0fea6ef610eb5f5759",
+                  "schedule_query_index": null,
+                  "schema_version": "policyos.runtime.confidence_ledger.v1",
+                  "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+                  "spend": {
+                    "denominator": 1,
+                    "numerator": 0
+                  },
+                  "spend_decimal": "0",
+                  "supports_obligation": false
+                },
+                "event_projection_hash": "sha256:6d6da66f0b39d32c2d409a0b516f06834fafbd3b4ddc1f79f0f7080da1099e2b",
+                "event_type": "completed",
+                "parent_event_projection_hash": "sha256:6d97d15cf7edf1c8889fb495717b5695c0fe5c1fff07f9a42b393fa871d71cd7",
+                "revision": 4
+              }
+            ],
+            "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+            "head_event_projection_hash": "sha256:6d6da66f0b39d32c2d409a0b516f06834fafbd3b4ddc1f79f0f7080da1099e2b",
+            "maintained_assumptions": [
+              "obligation_completeness",
+              "validator_soundness"
+            ],
+            "projection_hash": "sha256:2790e52d5d4ab2e124163cac31672c04fadec0e7ba48ec37935a3589c04a9f01",
+            "projection_rule_version": "policyos.runtime.quality.confidence_ledger.n9_promotion_semantic_projection.v1",
+            "projection_scope": "n9_promotion_semantic_receipt",
+            "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+            "risk_scope": {
+              "authority_purpose": "n9_promotion",
+              "epoch_ref": null,
+              "model_ref": null,
+              "owner_projection_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "owner_scope_key": "design-problem:industrial_resilience_retooling",
+              "rule_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+              "schema_ref": "policyos.runtime.design_problem.v1",
+              "scope_owner_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
+            },
+            "root_projection_hash": "sha256:928cf3bb1096a17525653301430f70938780bc0c2b46026bbedbe3378e573cf7",
+            "schedule_profile_hash": "sha256:4fb4463caee1e68ac66ba73b2ede29f77b31025b22627556b5ece51094df9120",
+            "schedule_profile_id": "default_basel_square",
+            "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
+            "schema_version": "policyos.runtime.confidence_ledger.v1",
+            "scope_id": "confidence-risk-scope:sha256:50915941f72e0c5cdc72d92dd532002a913234944292ddfbf760b1cb1892d78c",
+            "total_spend": {
+              "denominator": 1,
+              "numerator": 0
+            },
+            "total_spend_decimal": "0",
+            "within_budget": true
+          },
           "consumer_promotable": false,
           "gate_outcome_hash": "sha256:0a49d2ee3cbf076e19b81091bccb4e050863fd78a8a043bc349fa2c2a064e87e",
-          "non_promotable_reason": null,
+          "non_promotable_reason": "verification_only_replay",
           "obligations": [
             {
               "detail": "Strict N9 input model validated with extra fields forbidden.",
@@ -1319,6 +2961,61 @@
               "status": "failed"
             }
           ],
+          "owner_projection": {
+            "admissibility": true,
+            "candidate_summary": {
+              "adversarial_validation_status": "not_required",
+              "candidate_id": "candidate_lane0_cycle_002",
+              "certified_by_n9": false,
+              "content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "counterexample_ref": null,
+              "current_valid": false,
+              "cycle_index": 1,
+              "front": "research",
+              "generation_channel": "n4_owner",
+              "grounding_disposition": null,
+              "grounding_score": 0.0,
+              "grounding_source": "grounding_unavailable",
+              "grounding_status": "grounding_unavailable",
+              "high_proxy": false,
+              "low_grounding": true,
+              "proxy_score": 0.31,
+              "quarantine_action": "none",
+              "value_blockers": [
+                "value_gate_pending_n8"
+              ],
+              "value_decision_grade": null,
+              "value_ref": null,
+              "value_status": "value_pending_n8",
+              "voi_estimate": 0.22
+            },
+            "certificate_offers": [],
+            "credal_reference": null,
+            "declared_authority_transform": {},
+            "design_problem_binding": {
+              "design_problem_id": "industrial_resilience_retooling",
+              "model_spec_ref": null,
+              "problem_content_hash": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+              "problem_schema_version": "policyos.runtime.design_problem.v1"
+            },
+            "effective_independence": true,
+            "force_proof_timeout": false,
+            "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+            "grounding_decision_certificate": null,
+            "operation_invocation_id": "n9.industrial_resilience_retooling.candidate_lane0_cycle_002",
+            "producer_root_classes": [
+              "deterministic_producer"
+            ],
+            "producer_root_refs": [],
+            "projection_hash": "sha256:e6760253e909d25396f348060a96d2c5519d762a2cc7ca044bcb454f2afca55e",
+            "s6_blind_spot_posture": null,
+            "s7_delegation_posture": null,
+            "s8_value_posture": null,
+            "schema_version": "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1",
+            "value_receipt": null,
+            "verifier_refs": [],
+            "world_model_record": null
+          },
           "promoted": false,
           "promotion_lane": "unresolved",
           "refusal_reasons": [
@@ -1335,12 +3032,33 @@
           ],
           "risk_spend": {
             "budget_delta": 0.01,
-            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
-            "spend_records": [],
+            "caveat": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29). Exact rational spend in the bound N11 confidence-ledger projection is authoritative; these floats are display-only.",
+            "spend_records": [
+              {
+                "certificate_ref": "n8://calibration/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "fixed_time_confidence_interval",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:b8679932322fe5f80d1d08bf52d772207035bf21b1b57850fd367225b5910925",
+                "obligation_class": "calibration"
+              },
+              {
+                "certificate_ref": "n8://data-trust/candidate_lane0_cycle_002",
+                "certificate_role": "promotion",
+                "claim_polarity": "false_accept",
+                "declared_delta_spend": 0.0,
+                "deterministic_proof": false,
+                "instrument": "owner_verified_e_process",
+                "n11_confidence_ledger_ref": "confidence-check:sha256:6dc39806bfaeb22042667d2cc19682ae8b58ccf37827b3ceaeb6d9f46d7d5c10",
+                "obligation_class": "data"
+              }
+            ],
             "total_declared_delta": 0.0,
             "within_budget": true
           },
-          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v2",
           "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
           "status": "shadow",
           "terminal_kind": "grounded_abstention",
@@ -1365,8 +3083,8 @@
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
-        "src/polisyos/runtime/quality/workspace/loop.py:905",
-        "src/polisyos/runtime/quality/workspace/loop.py:937"
+        "src/polisyos/runtime/quality/workspace/loop.py:898",
+        "src/polisyos/runtime/quality/workspace/loop.py:930"
       ],
       "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
       "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
@@ -1477,10 +3195,10 @@
         "candidate_id": "candidate_lane0_cycle_002",
         "next_action": "escalate",
         "priority": 0.46,
-        "reason": "terminal_requires_escalation:a_spec_gap",
+        "reason": "terminal_requires_escalation:acquisition_required",
         "scheduler_action": "reject",
         "scheduler_reason": "roi_below_threshold",
-        "terminal_kind": "a_spec_gap"
+        "terminal_kind": "acquisition_required"
       }
     ]
   },
@@ -1496,8 +3214,8 @@
   ],
   "strangle_receipt": {
     "allowed_fixture_callers": [
-      "src/polisyos/runtime/quality/workspace/loop.py:905",
-      "src/polisyos/runtime/quality/workspace/loop.py:937"
+      "src/polisyos/runtime/quality/workspace/loop.py:898",
+      "src/polisyos/runtime/quality/workspace/loop.py:930"
     ],
     "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
     "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",

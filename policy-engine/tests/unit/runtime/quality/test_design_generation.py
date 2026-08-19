@@ -5,6 +5,7 @@ import copy
 import json
 import os
 import subprocess
+import sys
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -56,6 +57,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayUsage,
 )
+from tools.quality.validation import capture_layer3_gy_design_generation_replay as capture
 from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
 from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
@@ -1458,6 +1460,244 @@ async def test_n4_replay_refuses_owner_emitted_effective_config_drift(
         await contract._run_live_generation(REPO_ROOT, recording=recording)
 
 
+def test_n4_current_wmr_rebind_preserves_historical_recording_and_raw_bytes() -> None:
+    historical = copy.deepcopy(_recordings()[0])
+    historical_before = copy.deepcopy(historical)
+    owner_projection = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "world_model_record_id": "world_model_record_11c3b1cb30a20018",
+        "world_model_record_content_hash": "sha256:11c3b1cb30a20018" + "1" * 48,
+        "producer_ref": (
+            "polisyos.runtime.quality.data_state_substrate."
+            "build_production_data_state_world_model_record"
+        ),
+    }
+
+    [reissued], receipt = contract._reissue_recordings_to_current_wmr(
+        [historical],
+        owner_projection=owner_projection,
+    )
+
+    assert historical == historical_before
+    assert capture._parse_args([]).world_model_record_ref is None
+    assert (
+        capture._resolve_capture_world_model_record_ref(
+            owner_projection,
+            requested=None,
+        )
+        == owner_projection["world_model_record_id"]
+    )
+    with pytest.raises(
+        RuntimeError,
+        match="gy_n4_capture_world_model_record_ref_not_current",
+    ):
+        capture._resolve_capture_world_model_record_ref(
+            owner_projection,
+            requested="world_model_record_a258fda4b7ceffd0",
+        )
+    assert reissued["world_model_record_ref"] == owner_projection["world_model_record_id"]
+    assert reissued["recording_content_hash"] != historical["recording_content_hash"]
+    assert reissued["response"] == historical["response"]
+    assert reissued["responses"] == historical["responses"]
+    assert reissued["capture_summary"] == historical["capture_summary"]
+    assert receipt["recordings"] == [
+        {
+            "historical_recording_content_hash": historical["recording_content_hash"],
+            "historical_world_model_record_ref": historical["world_model_record_ref"],
+            "preserved_non_wmr_projection_hash": contract.gy_content_hash(
+                {
+                    key: value
+                    for key, value in historical.items()
+                    if key not in {"recording_content_hash", "world_model_record_ref"}
+                }
+            ),
+            "recording_id": historical["recording_id"],
+            "reissued_recording_content_hash": reissued["recording_content_hash"],
+            "reissued_world_model_record_ref": owner_projection["world_model_record_id"],
+        }
+    ]
+    contract._validate_recording_fixture(reissued)
+
+
+def test_n4_current_wmr_rebind_rejects_forged_owner_projection() -> None:
+    historical = copy.deepcopy(_recordings()[0])
+    owner_projection = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "world_model_record_id": "world_model_record_11c3b1cb30a20018",
+        "world_model_record_content_hash": "sha256:11c3b1cb30a20018" + "1" * 48,
+        "producer_ref": "owner.current",
+    }
+    _reissued, receipt = contract._reissue_recordings_to_current_wmr(
+        [historical],
+        owner_projection=owner_projection,
+    )
+    forged = copy.deepcopy(receipt)
+    forged["owner_projection"]["world_model_record_id"] = (
+        "world_model_record_ffffffffffffffff"
+    )
+    forged["owner_projection"]["world_model_record_content_hash"] = (
+        "sha256:" + "f" * 64
+    )
+    forged["owner_projection_content_hash"] = contract.gy_content_hash(
+        forged["owner_projection"]
+    )
+    forged["content_hash"] = contract.gy_content_hash(
+        {key: value for key, value in forged.items() if key != "content_hash"}
+    )
+
+    issues = contract._current_wmr_reissue_receipt_issues(
+        {"current_wmr_reissue_receipt": forged},
+        [historical],
+        owner_projection=owner_projection,
+    )
+
+    assert {issue["code"] for issue in issues} == {
+        "current_wmr_reissue_receipt_owner_projection_drift"
+    }
+
+
+def test_n4_current_wmr_rebind_rejects_non_wmr_drift() -> None:
+    historical = copy.deepcopy(_recordings()[0])
+    reissued = copy.deepcopy(historical)
+    reissued["world_model_record_ref"] = "world_model_record_11c3b1cb30a20018"
+    reissued["model_id"] = "forged-model"
+    reissued["recording_content_hash"] = contract.gy_content_hash(
+        {
+            key: value
+            for key, value in reissued.items()
+            if key != "recording_content_hash"
+        }
+    )
+
+    with pytest.raises(RuntimeError, match="gy_n4_current_wmr_reissue_non_wmr_drift"):
+        contract._assert_wmr_only_recording_reissue(historical, reissued)
+
+
+def test_n4_current_wmr_rebind_rejects_raw_response_tamper() -> None:
+    tampered = copy.deepcopy(_recordings()[0])
+    tampered["responses"][0]["raw_response"] += "\n"
+    owner_projection = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "world_model_record_id": "world_model_record_11c3b1cb30a20018",
+        "world_model_record_content_hash": "sha256:11c3b1cb30a20018" + "1" * 48,
+        "producer_ref": "owner.current",
+    }
+
+    with pytest.raises(RuntimeError, match="gy_n4_recording_raw_response_hash_mismatch"):
+        contract._reissue_recordings_to_current_wmr(
+            [tampered],
+            owner_projection=owner_projection,
+        )
+
+
+@pytest.mark.parametrize(
+    ("recordings", "expected_error"),
+    [
+        ([], "gy_n4_replay_recording_denominator_missing"),
+        (["not-a-recording"], "gy_n4_recording_member_invalid:0"),
+    ],
+)
+def test_n4_recording_fixture_denominator_fails_closed(
+    tmp_path: Path,
+    recordings: list[object],
+    expected_error: str,
+) -> None:
+    fixture_path = tmp_path / contract.RECORDING_FIXTURE_PATH
+    fixture_path.parent.mkdir(parents=True)
+    fixture_path.write_text(
+        json.dumps({"recordings": recordings}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeError, match=expected_error):
+        contract._load_recordings(tmp_path)
+
+
+@pytest.mark.parametrize("recordings", [[], ["not-a-recording"]])
+def test_n4_validate_rejects_stale_payload_when_recording_denominator_is_invalid(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    recordings: list[object],
+) -> None:
+    fixture_path = tmp_path / contract.RECORDING_FIXTURE_PATH
+    fixture_path.parent.mkdir(parents=True)
+    fixture_path.write_text(
+        json.dumps({"recordings": recordings}),
+        encoding="utf-8",
+    )
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text(
+        json.dumps(
+            {
+                "behavioral_mutations": [
+                    {"mutation_id": mutation_id, "status": "red"}
+                    for mutation_id in (
+                        "recorded_raw_response_hash_mismatch",
+                        "exact_match_restored_rejects_cgf_payoff",
+                        "adapter_authored_axis_injected",
+                        "normalization_warrant_dropped",
+                        "disposition_diverges_from_certificate_verdict",
+                    )
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+    monkeypatch.setattr(contract, "_frozen_payoff_receipt_issues", lambda _payload: [])
+    monkeypatch.setattr(contract, "_mutation_reports", lambda _payload: [])
+
+    report = contract.validate(tmp_path)
+
+    assert report["status"] == "fail"
+    assert {
+        "recording_fixture_integrity_failed",
+        "current_wmr_reissue_receipt_verification_blocked",
+    }.issubset({issue["code"] for issue in report["issues"]})
+
+
+def test_n4_capture_module_import_has_no_runtime_environment_side_effects() -> None:
+    probe_environment = {
+        key: value
+        for key, value in os.environ.items()
+        if key not in capture.DEFAULT_ENV
+    }
+    probe_environment.update(
+        {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPATH": f"{REPO_ROOT / 'src'}:{REPO_ROOT}",
+        }
+    )
+    probe = (
+        "import json, os\n"
+        f"keys = {list(capture.DEFAULT_ENV)!r}\n"
+        "before = {key: os.environ.get(key) for key in keys}\n"
+        "import tools.quality.validation.capture_layer3_gy_design_generation_replay\n"
+        "after = {key: os.environ.get(key) for key in keys}\n"
+        "print(json.dumps({'before': before, 'after': after}, sort_keys=True))\n"
+    )
+
+    completed = subprocess.run(
+        (sys.executable, "-c", probe),
+        cwd=REPO_ROOT,
+        env=probe_environment,
+        text=True,
+        capture_output=True,
+        timeout=120,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    observed = json.loads(completed.stdout)
+    assert observed["before"] == dict.fromkeys(capture.DEFAULT_ENV)
+    assert observed["after"] == observed["before"]
+
+
 def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1929,6 +2169,19 @@ def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
         "domain": "prompt_size_emission_probe",
     }
     monkeypatch.setattr(contract, "_load_recordings", lambda _repo_root: [recording])
+    monkeypatch.setattr(
+        contract,
+        "_resolve_current_wmr_owner_projection",
+        lambda _repo_root: {"owner": "separately_verified_test_seam"},
+    )
+    monkeypatch.setattr(
+        contract,
+        "_reissue_recordings_to_current_wmr",
+        lambda recordings, *, owner_projection: (
+            recordings,
+            {"owner_projection": owner_projection},
+        ),
+    )
 
     async def _measured_result(*args: object, **kwargs: object) -> object:
         del args, kwargs

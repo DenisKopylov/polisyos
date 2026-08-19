@@ -650,8 +650,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_b797e2d5d8d18bff",
-        "final_content_hash": "sha256:b797e2d5d8d18bfff24feea9ed3ba428388016b3f187c1e0c3817c5787b8fc1d",
+        "final_certificate_id": "cg3_cert_b6d5bf815fe228ff",
+        "final_content_hash": "sha256:b6d5bf815fe228ffe5762725e1f0850f513a0bf6e739429dfa03545a1ee7de6d",
         "reentered_gate": "CG3",
         "result_id": "cg5.attack.self_supplied_high_trust_edge",
         "trusted_claimed_resolution": false
@@ -763,8 +763,8 @@
     "acquire_loop": {
       "before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_f29db99276f10e54",
-        "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+        "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+        "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -870,20 +870,20 @@
         "blockers": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+            "blocker_id": "cg5_blocker_449b9d7d137bc78d",
             "blocker_type": "mechanism_witness_missing",
             "evidence": {
               "decision": "acquire_then_decide"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "mechanism_witness_required",
             "source_field": "decisive_reason"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+            "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
             "blocker_type": "mechanism_witness",
             "evidence": {
               "evidence": {
@@ -897,14 +897,14 @@
               "status": "open"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "mechanism_witness",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+            "blocker_id": "cg5_blocker_017c5248ef4b54ee",
             "blocker_type": "data_trust",
             "evidence": {
               "evidence_ref": null,
@@ -915,94 +915,90 @@
               "trust_floor": 0.5
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
             "mapping_status": "mapped",
             "obligation_or_axis": "data_trust",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_ac19a432286fe837",
+            "blocker_id": "cg5_blocker_0ffea261396eaaf6",
             "blocker_type": "novel_candidate_handoff",
             "evidence": {
               "decision": "novel_candidate"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "decisive_reason"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+            "blocker_id": "cg5_blocker_dc636b39310d04ca",
             "blocker_type": "operator_registered_lever",
             "evidence": {
               "operator": "regional_resilience_credit"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": "operator_registered_lever",
             "source_field": "open_obligations"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_be40bddf95e73155",
+            "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
             "blocker_type": "no_unresolved_critical_axis",
             "evidence": {
               "critical_contradictions": [
                 "op",
-                "target",
-                "do_value",
-                "scope",
-                "population",
-                "outcome",
+                "sign",
                 "effect_path"
               ],
               "unresolved_critical_axes": []
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "gate_certificate_id": "cg2_cert_aa5355ae33352fe6",
             "mapping_status": "mapped",
             "obligation_or_axis": "no_unresolved_critical_axis",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_22bb6256c16a9288",
+            "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
             "blocker_type": "novel-candidate",
             "evidence": {
               "recommended_transition": "handoff_RT3"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+            "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+            "blocker_id": "cg5_blocker_4708304c99d9d67d",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "gate_certificate_id": "cg1_cert_29d9f28597e7bb67",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
@@ -1011,18 +1007,18 @@
         "candidates": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+            "blocker_id": "cg5_blocker_449b9d7d137bc78d",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
-              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_f29db99276f10e54",
-              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+              "blocker_id": "cg5_blocker_449b9d7d137bc78d",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1047,18 +1043,18 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+            "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
-              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_f29db99276f10e54",
-              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+              "blocker_id": "cg5_blocker_7e6cb93b345d35aa",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1083,18 +1079,18 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+            "blocker_id": "cg5_blocker_017c5248ef4b54ee",
             "decisiveness": {
               "action_family": "acquire_data",
-              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
-              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_certificate_id": "cg3_cert_8f824867be3fa996",
+              "after_content_hash": "sha256:8f824867be3fa9966d4b32d701a86ad050acadc2a6c019011b0d9b54bb6f40ce",
               "after_disposition": "admit_new_lever",
               "after_reason": "all_obligations_closed",
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_f29db99276f10e54",
-              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+              "before_content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+              "blocker_id": "cg5_blocker_017c5248ef4b54ee",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
@@ -1119,7 +1115,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_ac19a432286fe837",
+            "blocker_id": "cg5_blocker_0ffea261396eaaf6",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1127,10 +1123,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_ac19a432286fe837",
+              "blocker_id": "cg5_blocker_0ffea261396eaaf6",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1151,7 +1147,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+            "blocker_id": "cg5_blocker_dc636b39310d04ca",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1159,10 +1155,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+              "blocker_id": "cg5_blocker_dc636b39310d04ca",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1183,7 +1179,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_be40bddf95e73155",
+            "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1191,10 +1187,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_certificate_id": "cg2_cert_aa5355ae33352fe6",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_be40bddf95e73155",
+              "blocker_id": "cg5_blocker_5a2e723b6a1a665b",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1215,7 +1211,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_22bb6256c16a9288",
+            "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -1223,10 +1219,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_22bb6256c16a9288",
+              "blocker_id": "cg5_blocker_7d89b08d1965a3e4",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1247,7 +1243,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+            "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1255,10 +1251,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+              "blocker_id": "cg5_blocker_4c64b60594ee8bdc",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1279,7 +1275,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+            "blocker_id": "cg5_blocker_4708304c99d9d67d",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -1287,10 +1283,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_certificate_id": "cg1_cert_29d9f28597e7bb67",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+              "blocker_id": "cg5_blocker_4708304c99d9d67d",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -1311,7 +1307,7 @@
           }
         ],
         "case_id": "cg5.acquire.mechanism_missing",
-        "certificate_id": "cg5_cert_e7626f8ba5667d34",
+        "certificate_id": "cg5_cert_91c097fc5299ec56",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -1331,7 +1327,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15",
+        "content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -1352,15 +1348,15 @@
           "only_gate_reentry_advances_case": true
         },
         "production_authoritative": false,
-        "reference_epoch": "kref:09b6349c4ee0bfef",
-        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "reference_epoch": "kref:956b076b990299fe",
+        "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
         "remaining_candidate_action": "cheap_verify",
         "schema_version": "policyos.runtime.grounding_action_certificate.v1",
         "selected_action": "acquire_data",
         "selected_ticket": {
           "action_family": "acquire_data",
-          "blocker_id": "cg5_blocker_bfc22f2002d24a99",
-          "content_hash": "sha256:01ab7251d99f4cf2bb72fdf1d1adc3a0bbeada49dd0513134d9ef3d6f5a16fff",
+          "blocker_id": "cg5_blocker_449b9d7d137bc78d",
+          "content_hash": "sha256:6ce1229e1b73dfd5b38439d543d86127b0e5da7d65d660125be8a9b93d31068f",
           "integration_status": "handoff_artifact_gy_n7_direct_intake_not_wired",
           "needed_result": [
             "mechanism_witness_required"
@@ -1371,41 +1367,41 @@
             "integration_gap": "GY-N7 direct intake is not wired in CG5; owner-shaped data must return and re-enter gates.",
             "target_blocker": {
               "action_family": "acquire_data",
-              "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+              "blocker_id": "cg5_blocker_449b9d7d137bc78d",
               "blocker_type": "mechanism_witness_missing",
               "evidence": {
                 "decision": "acquire_then_decide"
               },
               "gate": "CG3",
-              "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+              "gate_certificate_id": "cg3_cert_e8627f6d3cf6a52f",
               "mapping_status": "mapped",
               "obligation_or_axis": "mechanism_witness_required",
               "source_field": "decisive_reason"
             }
           },
           "target_surface": "GY-N7.grounding_acquisition",
-          "ticket_id": "cg5_ticket_01ab7251d99f4cf2",
+          "ticket_id": "cg5_ticket_6ce1229e1b73dfd5",
           "ticket_kind": "acquisition_ticket"
         },
         "selection_reason": "minimal_cost_decisive_dominates_abstain",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_a23eb58a590a8a9e",
-            "content_hash": "sha256:a23eb58a590a8a9e585890799e7858408b178c66b6806008330a3adcb40ebd77",
+            "certificate_id": "cg1_cert_29d9f28597e7bb67",
+            "content_hash": "sha256:29d9f28597e7bb670146040e2fb6b676df58aa66f1d8ae9552261f3185f3bb15",
             "disposition": "novel-candidate",
             "gate": "CG1",
             "reason": "handoff_RT3"
           },
           {
-            "certificate_id": "cg2_cert_9495fd8d268db008",
-            "content_hash": "sha256:9495fd8d268db00858fbf0cb6ba5d7949955599c99fdfb8ed447636f2ea984b1",
+            "certificate_id": "cg2_cert_aa5355ae33352fe6",
+            "content_hash": "sha256:aa5355ae33352fe6c9430ec3c42ff15b20ce4ca3bbfca4a8e2b71eeb69495bf2",
             "disposition": "novel_candidate",
             "gate": "CG2",
             "reason": "novel_candidate_handoff"
           },
           {
-            "certificate_id": "cg3_cert_f29db99276f10e54",
-            "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+            "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+            "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
             "disposition": "acquire_then_decide",
             "gate": "CG3",
             "reason": "mechanism_witness_missing"
@@ -1420,8 +1416,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_773c677bd3218d2a",
-        "final_content_hash": "sha256:773c677bd3218d2a3299ef618c61f4215523054a34bb26baefc487264633e9a5",
+        "final_certificate_id": "cg3_cert_3d58e966bbd753fe",
+        "final_content_hash": "sha256:3d58e966bbd753fea077dd42b3a649d40858940c1fc37353b387b6b2b68b63f8",
         "reentered_gate": "CG3",
         "result_id": "cg5.acquire.result.reference_only",
         "trusted_claimed_resolution": false
@@ -1522,14 +1518,14 @@
         "blockers": [
           {
             "action_family": "adversarial_validate",
-            "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+            "blocker_id": "cg5_blocker_8e41e5e328adb331",
             "blocker_type": "proxy_gap_quarantine",
             "evidence": {
               "causal_evidence_score": 0.0,
               "causal_evidence_threshold": 0.5,
               "cg2_decision": "novel_candidate",
               "cg3_decision": "non_new",
-              "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
               "disposition": "quarantine",
               "low_evidence_reasons": [
                 "direct_mechanism_edge_absent_or_open",
@@ -1537,18 +1533,18 @@
                 "denotation_match_absent",
                 "admission_obligations_open"
               ],
-              "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+              "matched_surface_atom_id": "cg0_atom_f9cbad6daba5c6a2",
               "not_admissible_while_quarantined": true,
               "not_bindable_while_quarantined": true,
               "proposal_id": "cg5.cg4.proxy_gap",
               "quarantine_action": "adversarial_validate",
-              "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "risk_id": "cg4_proxy_gap_aa321ab822093b67",
               "surface_affinity_score": 0.833333,
               "surface_affinity_threshold": 0.62,
               "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
             },
             "gate": "CG4",
-            "gate_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+            "gate_certificate_id": "cg4_proxy_gap_aa321ab822093b67",
             "mapping_status": "mapped",
             "obligation_or_axis": "quarantine",
             "source_field": "proxy_gap_risk.quarantine_action"
@@ -1557,25 +1553,25 @@
         "candidates": [
           {
             "action_family": "adversarial_validate",
-            "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+            "blocker_id": "cg5_blocker_8e41e5e328adb331",
             "decisiveness": {
               "action_family": "adversarial_validate",
-              "after_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
-              "after_content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "after_certificate_id": "cg4_proxy_gap_aa321ab822093b67",
+              "after_content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
               "after_disposition": "cg4_adversarial_validation_recorded",
               "after_reason": "adversarial_validate",
               "authoritative": false,
-              "before_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
-              "before_content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "before_certificate_id": "cg4_proxy_gap_aa321ab822093b67",
+              "before_content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
               "before_disposition": "quarantine",
-              "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+              "blocker_id": "cg5_blocker_8e41e5e328adb331",
               "counterfactual": true,
               "decisive": true,
               "flipped": true,
               "gate": "CG4",
               "owner_shaped_resolution": {
-                "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
-                "proxy_gap_risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+                "content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
+                "proxy_gap_risk_id": "cg4_proxy_gap_aa321ab822093b67",
                 "quarantine_action": "adversarial_validate",
                 "redacted_payload": true
               },
@@ -1594,7 +1590,7 @@
           }
         ],
         "case_id": "cg5.cg4.proxy_gap",
-        "certificate_id": "cg5_cert_39ac953299512921",
+        "certificate_id": "cg5_cert_19aec5c9b7f0e8a7",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -1614,7 +1610,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:39ac953299512921b79f59e9fadb8cc21f752a3363f88c28043ab8b71b9f8532",
+        "content_hash": "sha256:19aec5c9b7f0e8a7011937342c9ae789b2e7709fc62bf5a744efd7c35262cbad",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -1635,15 +1631,15 @@
           "only_gate_reentry_advances_case": true
         },
         "production_authoritative": false,
-        "reference_epoch": "kref:09b6349c4ee0bfef",
-        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "reference_epoch": "kref:956b076b990299fe",
+        "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
         "remaining_candidate_action": "adversarial_validate",
         "schema_version": "policyos.runtime.grounding_action_certificate.v1",
         "selected_action": "adversarial_validate",
         "selected_ticket": {
           "action_family": "adversarial_validate",
-          "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
-          "content_hash": "sha256:6a53199f1056cef4d3fe1e00babaa1ccef14528053fe78cee255c922d20ec4c2",
+          "blocker_id": "cg5_blocker_8e41e5e328adb331",
+          "content_hash": "sha256:cd5b10e0079479106aff434ce416225c3b933ead4e79dcbe74745e168d1e2025",
           "integration_status": "real_cg4_harness_route",
           "needed_result": [
             "CG4_adversarial_validation_record"
@@ -1653,14 +1649,14 @@
             "case_id": "cg5.cg4.proxy_gap",
             "target_blocker": {
               "action_family": "adversarial_validate",
-              "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+              "blocker_id": "cg5_blocker_8e41e5e328adb331",
               "blocker_type": "proxy_gap_quarantine",
               "evidence": {
                 "causal_evidence_score": 0.0,
                 "causal_evidence_threshold": 0.5,
                 "cg2_decision": "novel_candidate",
                 "cg3_decision": "non_new",
-                "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+                "content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
                 "disposition": "quarantine",
                 "low_evidence_reasons": [
                   "direct_mechanism_edge_absent_or_open",
@@ -1668,32 +1664,32 @@
                   "denotation_match_absent",
                   "admission_obligations_open"
                 ],
-                "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+                "matched_surface_atom_id": "cg0_atom_f9cbad6daba5c6a2",
                 "not_admissible_while_quarantined": true,
                 "not_bindable_while_quarantined": true,
                 "proposal_id": "cg5.cg4.proxy_gap",
                 "quarantine_action": "adversarial_validate",
-                "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+                "risk_id": "cg4_proxy_gap_aa321ab822093b67",
                 "surface_affinity_score": 0.833333,
                 "surface_affinity_threshold": 0.62,
                 "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
               },
               "gate": "CG4",
-              "gate_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "gate_certificate_id": "cg4_proxy_gap_aa321ab822093b67",
               "mapping_status": "mapped",
               "obligation_or_axis": "quarantine",
               "source_field": "proxy_gap_risk.quarantine_action"
             }
           },
           "target_surface": "CG4.grounding_phrasing_defense",
-          "ticket_id": "cg5_ticket_6a53199f1056cef4",
+          "ticket_id": "cg5_ticket_cd5b10e007947910",
           "ticket_kind": "adversarial_validation_ticket"
         },
         "selection_reason": "minimal_cost_decisive_dominates_abstain",
         "source_certificates": [
           {
-            "certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
-            "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+            "certificate_id": "cg4_proxy_gap_aa321ab822093b67",
+            "content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
             "disposition": "quarantine",
             "gate": "CG4",
             "reason": "adversarial_validate"
@@ -1711,7 +1707,7 @@
         "final_certificate_id": null,
         "final_content_hash": null,
         "reentered_gate": "CG4",
-        "result_id": "cg4_proxy_gap_fe321a6d02b85969.cg5_result_reference",
+        "result_id": "cg4_proxy_gap_aa321ab822093b67.cg5_result_reference",
         "trusted_claimed_resolution": false
       },
       "risk": {
@@ -1719,7 +1715,7 @@
         "causal_evidence_threshold": 0.5,
         "cg2_decision": "novel_candidate",
         "cg3_decision": "non_new",
-        "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+        "content_hash": "sha256:aa321ab822093b676efbb8aba8ed01ccd07048f3a085b5e1a2156743805aafe3",
         "disposition": "quarantine",
         "low_evidence_reasons": [
           "direct_mechanism_edge_absent_or_open",
@@ -1727,12 +1723,12 @@
           "denotation_match_absent",
           "admission_obligations_open"
         ],
-        "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+        "matched_surface_atom_id": "cg0_atom_f9cbad6daba5c6a2",
         "not_admissible_while_quarantined": true,
         "not_bindable_while_quarantined": true,
         "proposal_id": "cg5.cg4.proxy_gap",
         "quarantine_action": "adversarial_validate",
-        "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+        "risk_id": "cg4_proxy_gap_aa321ab822093b67",
         "surface_affinity_score": 0.833333,
         "surface_affinity_threshold": 0.62,
         "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
@@ -1833,169 +1829,169 @@
         "blockers": [
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+            "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
             "blocker_type": "unknown",
             "evidence": {
               "recommended_transition": "shadow"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+            "blocker_id": "cg5_blocker_142c36f8cb908a60",
             "blocker_type": "op",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "op",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_82601a4b04a16ece",
+            "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
             "blocker_type": "target",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "target",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_26b755ff003cc495",
+            "blocker_id": "cg5_blocker_c1f2db22d406cb40",
             "blocker_type": "do_value",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "do_value",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+            "blocker_id": "cg5_blocker_5e7c3b3940394c15",
             "blocker_type": "sign",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "sign",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+            "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
             "blocker_type": "params",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "params",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_959a04969847d00d",
+            "blocker_id": "cg5_blocker_7919730420eac73d",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+            "blocker_id": "cg5_blocker_08f5e3911803aafe",
             "blocker_type": "scope",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "scope",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_b576f55aaf892db1",
+            "blocker_id": "cg5_blocker_54e96ef09ea54f04",
             "blocker_type": "population",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "population",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+            "blocker_id": "cg5_blocker_05c82090ce4f4499",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+            "blocker_id": "cg5_blocker_c7457affcfbb635c",
             "blocker_type": "outcome",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "outcome",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4427ce65783a62a5",
+            "blocker_id": "cg5_blocker_be99c5def063295e",
             "blocker_type": "effect_path",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "effect_path",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+            "blocker_id": "cg5_blocker_8664b4bc091256ba",
             "blocker_type": "estimand",
             "evidence": {
               "selected_relation": "unknown"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "gate_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
             "mapping_status": "mapped",
             "obligation_or_axis": "estimand",
             "source_field": "unresolved_axes"
@@ -2004,7 +2000,7 @@
         "candidates": [
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+            "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2012,10 +2008,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+              "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2036,7 +2032,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+            "blocker_id": "cg5_blocker_142c36f8cb908a60",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2044,10 +2040,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+              "blocker_id": "cg5_blocker_142c36f8cb908a60",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2068,7 +2064,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_82601a4b04a16ece",
+            "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2076,10 +2072,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_82601a4b04a16ece",
+              "blocker_id": "cg5_blocker_e0e3f98c2771bd4f",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2100,7 +2096,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_26b755ff003cc495",
+            "blocker_id": "cg5_blocker_c1f2db22d406cb40",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2108,10 +2104,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_26b755ff003cc495",
+              "blocker_id": "cg5_blocker_c1f2db22d406cb40",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2132,7 +2128,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+            "blocker_id": "cg5_blocker_5e7c3b3940394c15",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2140,10 +2136,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+              "blocker_id": "cg5_blocker_5e7c3b3940394c15",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2164,7 +2160,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+            "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2172,10 +2168,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+              "blocker_id": "cg5_blocker_cadb459bdfe5d71e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2196,7 +2192,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_959a04969847d00d",
+            "blocker_id": "cg5_blocker_7919730420eac73d",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2204,10 +2200,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_959a04969847d00d",
+              "blocker_id": "cg5_blocker_7919730420eac73d",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2228,7 +2224,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+            "blocker_id": "cg5_blocker_08f5e3911803aafe",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2236,10 +2232,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+              "blocker_id": "cg5_blocker_08f5e3911803aafe",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2260,7 +2256,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_b576f55aaf892db1",
+            "blocker_id": "cg5_blocker_54e96ef09ea54f04",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2268,10 +2264,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_b576f55aaf892db1",
+              "blocker_id": "cg5_blocker_54e96ef09ea54f04",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2292,7 +2288,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+            "blocker_id": "cg5_blocker_05c82090ce4f4499",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2300,10 +2296,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+              "blocker_id": "cg5_blocker_05c82090ce4f4499",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2324,7 +2320,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+            "blocker_id": "cg5_blocker_c7457affcfbb635c",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2332,10 +2328,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+              "blocker_id": "cg5_blocker_c7457affcfbb635c",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2356,7 +2352,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_4427ce65783a62a5",
+            "blocker_id": "cg5_blocker_be99c5def063295e",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2364,10 +2360,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_4427ce65783a62a5",
+              "blocker_id": "cg5_blocker_be99c5def063295e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2388,7 +2384,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+            "blocker_id": "cg5_blocker_8664b4bc091256ba",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2396,10 +2392,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
               "before_content_hash": null,
               "before_disposition": "unknown",
-              "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+              "blocker_id": "cg5_blocker_8664b4bc091256ba",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2420,7 +2416,7 @@
           }
         ],
         "case_id": "cg5.cheap_verify.structural_only",
-        "certificate_id": "cg5_cert_b52d09a66e699b84",
+        "certificate_id": "cg5_cert_dbaf95c7c49bb428",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -2440,7 +2436,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:b52d09a66e699b843204e0c8be7052c23824dacd44aee33c9ebdaa4aa7864b40",
+        "content_hash": "sha256:dbaf95c7c49bb4284be100d609716d1f5b3ed2d2975d9e9fc2658bb1e15cbc9a",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -2461,15 +2457,15 @@
           "only_gate_reentry_advances_case": true
         },
         "production_authoritative": false,
-        "reference_epoch": "kref:09b6349c4ee0bfef",
-        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "reference_epoch": "kref:956b076b990299fe",
+        "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
         "remaining_candidate_action": "elicit_human",
         "schema_version": "policyos.runtime.grounding_action_certificate.v1",
         "selected_action": "abstain",
         "selected_ticket": {
           "action_family": "abstain",
-          "blocker_id": "cg5_blocker_e4f34928f2daa80c",
-          "content_hash": "sha256:2ecb63903b11816da7ca015d1e0f195cfea368cda1ca8966a5abd1f92d372964",
+          "blocker_id": "cg5_blocker_c7f9df9e0fc110a9",
+          "content_hash": "sha256:01724390bab5cfe06b24a5041f55e608a065cfdd6e7171ab40a03dba2d374ee8",
           "integration_status": "terminal_for_this_round",
           "needed_result": [],
           "no_resolution_claim": true,
@@ -2478,14 +2474,14 @@
             "remaining_candidate_action": "elicit_human"
           },
           "target_surface": "CG5.round_closeout",
-          "ticket_id": "cg5_ticket_2ecb63903b11816d",
+          "ticket_id": "cg5_ticket_01724390bab5cfe0",
           "ticket_kind": "abstain_record"
         },
         "selection_reason": "abstain_no_decisive_action",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_22789862ef0bdb4e",
-            "content_hash": "sha256:22789862ef0bdb4eb5295eee13238c08e428017277f436f2168bfdbbe42af53d",
+            "certificate_id": "cg1_cert_c38fb5d4a5ee3cc7",
+            "content_hash": "sha256:c38fb5d4a5ee3cc7b0b348311073bb65bb5f1f9d055d0f2668c983c40a67fe20",
             "disposition": "unknown",
             "gate": "CG1",
             "reason": "shadow"
@@ -2512,8 +2508,8 @@
     "low_voi_high_cost_abstain": {
       "before": {
         "acquisition_blocker": "admissibility_required",
-        "certificate_id": "cg3_cert_445640a900ff8646",
-        "content_hash": "sha256:445640a900ff8646caffed7c6d9cb6765c4dc423418a6fbb1f26d0a0c14eafe7",
+        "certificate_id": "cg3_cert_d01e5ec415358951",
+        "content_hash": "sha256:d01e5ec415358951f385ebdd9eca50f973ac9a0c36387a87be6d6daae8623d6d",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "acquire_then_decide",
@@ -2618,126 +2614,122 @@
         "blockers": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+            "blocker_id": "cg5_blocker_505227a5dfc4ae31",
             "blocker_type": "open_obligation",
             "evidence": {
               "decision": "acquire_then_decide"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_445640a900ff8646",
+            "gate_certificate_id": "cg3_cert_d01e5ec415358951",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility_required",
             "source_field": "decisive_reason"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_88207a6596566a7b",
+            "blocker_id": "cg5_blocker_0bab15ce63e6306e",
             "blocker_type": "admissibility",
             "evidence": {
               "admissibility": "candidate_unverified"
             },
             "gate": "CG3",
-            "gate_certificate_id": "cg3_cert_445640a900ff8646",
+            "gate_certificate_id": "cg3_cert_d01e5ec415358951",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_3967f2f371034de2",
+            "blocker_id": "cg5_blocker_af21ad09c3578d68",
             "blocker_type": "novel_candidate_handoff",
             "evidence": {
               "decision": "novel_candidate"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "decisive_reason"
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+            "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
             "blocker_type": "admissibility_closed",
             "evidence": {
               "admissibility": "candidate_unverified"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "admissibility_closed",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_d465d9f4368301e7",
+            "blocker_id": "cg5_blocker_d885f9f26f07b34b",
             "blocker_type": "operator_registered_lever",
             "evidence": {
               "operator": "regional_resilience_credit"
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "operator_registered_lever",
             "source_field": "open_obligations"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+            "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
             "blocker_type": "no_unresolved_critical_axis",
             "evidence": {
               "critical_contradictions": [
                 "op",
-                "target",
-                "do_value",
-                "scope",
-                "population",
-                "outcome",
+                "sign",
                 "effect_path"
               ],
               "unresolved_critical_axes": []
             },
             "gate": "CG2",
-            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "gate_certificate_id": "cg2_cert_d1c7c6ca00e82654",
             "mapping_status": "mapped",
             "obligation_or_axis": "no_unresolved_critical_axis",
             "source_field": "open_obligations"
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+            "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
             "blocker_type": "novel-candidate",
             "evidence": {
               "recommended_transition": "handoff_RT3"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": null,
             "source_field": "selected_relation"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_52731a97e5602678",
+            "blocker_id": "cg5_blocker_c95b006c1c517bcc",
             "blocker_type": "unit",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": "unit",
             "source_field": "unresolved_axes"
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+            "blocker_id": "cg5_blocker_43840542ad731e2c",
             "blocker_type": "time",
             "evidence": {
               "selected_relation": "novel-candidate"
             },
             "gate": "CG1",
-            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "gate_certificate_id": "cg1_cert_c01bf1af238a6b0d",
             "mapping_status": "mapped",
             "obligation_or_axis": "time",
             "source_field": "unresolved_axes"
@@ -2746,7 +2738,7 @@
         "candidates": [
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+            "blocker_id": "cg5_blocker_505227a5dfc4ae31",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2754,10 +2746,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+              "blocker_id": "cg5_blocker_505227a5dfc4ae31",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2778,7 +2770,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_88207a6596566a7b",
+            "blocker_id": "cg5_blocker_0bab15ce63e6306e",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2786,10 +2778,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_88207a6596566a7b",
+              "blocker_id": "cg5_blocker_0bab15ce63e6306e",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2810,7 +2802,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_3967f2f371034de2",
+            "blocker_id": "cg5_blocker_af21ad09c3578d68",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2818,10 +2810,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_3967f2f371034de2",
+              "blocker_id": "cg5_blocker_af21ad09c3578d68",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2842,7 +2834,7 @@
           },
           {
             "action_family": "elicit_human",
-            "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+            "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
             "decisiveness": {
               "action_family": "elicit_human",
               "after_certificate_id": null,
@@ -2850,10 +2842,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_certificate_id": "cg3_cert_d01e5ec415358951",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+              "blocker_id": "cg5_blocker_2ecb4d8e97110ada",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2874,7 +2866,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_d465d9f4368301e7",
+            "blocker_id": "cg5_blocker_d885f9f26f07b34b",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2882,10 +2874,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_d465d9f4368301e7",
+              "blocker_id": "cg5_blocker_d885f9f26f07b34b",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2906,7 +2898,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+            "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2914,10 +2906,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_certificate_id": "cg2_cert_d1c7c6ca00e82654",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+              "blocker_id": "cg5_blocker_0e1f2fa8ffbb310f",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2938,7 +2930,7 @@
           },
           {
             "action_family": "acquire_data",
-            "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+            "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
             "decisiveness": {
               "action_family": "acquire_data",
               "after_certificate_id": null,
@@ -2946,10 +2938,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "acquire_then_decide",
-              "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+              "blocker_id": "cg5_blocker_9ba9d94644f9d1d6",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -2970,7 +2962,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_52731a97e5602678",
+            "blocker_id": "cg5_blocker_c95b006c1c517bcc",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -2978,10 +2970,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_52731a97e5602678",
+              "blocker_id": "cg5_blocker_c95b006c1c517bcc",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -3002,7 +2994,7 @@
           },
           {
             "action_family": "cheap_verify",
-            "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+            "blocker_id": "cg5_blocker_43840542ad731e2c",
             "decisiveness": {
               "action_family": "cheap_verify",
               "after_certificate_id": null,
@@ -3010,10 +3002,10 @@
               "after_disposition": null,
               "after_reason": null,
               "authoritative": false,
-              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_certificate_id": "cg1_cert_c01bf1af238a6b0d",
               "before_content_hash": null,
               "before_disposition": "novel-candidate",
-              "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+              "blocker_id": "cg5_blocker_43840542ad731e2c",
               "counterfactual": true,
               "decisive": false,
               "flipped": false,
@@ -3034,7 +3026,7 @@
           }
         ],
         "case_id": "cg5.low_voi.high_cost",
-        "certificate_id": "cg5_cert_4dc9857b46564bcc",
+        "certificate_id": "cg5_cert_ad850898969fe347",
         "cold_start_assumptions": {
           "action_budget": 3,
           "cost_currency": null,
@@ -3054,7 +3046,7 @@
           ],
           "success_probability_provenance": "cold_start_unknown_set_valued"
         },
-        "content_hash": "sha256:4dc9857b46564bcc25e9768321c8a6c5bd4e598776549d895ef1b1f772b1513f",
+        "content_hash": "sha256:ad850898969fe3474fc68a08d5ee071e56b928d1eec9f1a33efaf99c0b131958",
         "deferred_voi_fields": {
           "deferred_to": [
             "multi_action_EVSI",
@@ -3075,15 +3067,15 @@
           "only_gate_reentry_advances_case": true
         },
         "production_authoritative": false,
-        "reference_epoch": "kref:a00408c5dc6536cf",
-        "reference_hash": "sha256:a00408c5dc6536cf44f86006bb2029528a7f9828760a6c67f8fd0e006da67c2e",
+        "reference_epoch": "kref:e4a36261b6fa62c0",
+        "reference_hash": "sha256:e4a36261b6fa62c07dc7afd4c984f862247205f7d3355106c1626155eecde79e",
         "remaining_candidate_action": "elicit_human",
         "schema_version": "policyos.runtime.grounding_action_certificate.v1",
         "selected_action": "abstain",
         "selected_ticket": {
           "action_family": "abstain",
-          "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
-          "content_hash": "sha256:e0d1e2b92cfb4c6a9119b79388522882e168316991bf2f1efce41b499d261a0c",
+          "blocker_id": "cg5_blocker_505227a5dfc4ae31",
+          "content_hash": "sha256:c827771f9c0f8557ccf33f3ad5788e735f654933bd8a4e8332d269ec498857fd",
           "integration_status": "terminal_for_this_round",
           "needed_result": [],
           "no_resolution_claim": true,
@@ -3092,28 +3084,28 @@
             "remaining_candidate_action": "elicit_human"
           },
           "target_surface": "CG5.round_closeout",
-          "ticket_id": "cg5_ticket_e0d1e2b92cfb4c6a",
+          "ticket_id": "cg5_ticket_c827771f9c0f8557",
           "ticket_kind": "abstain_record"
         },
         "selection_reason": "abstain_no_decisive_action",
         "source_certificates": [
           {
-            "certificate_id": "cg1_cert_afafb93b123b4e74",
-            "content_hash": "sha256:afafb93b123b4e74625f148a7bfb7db556d33ecf18daa371c69b814ad3855d55",
+            "certificate_id": "cg1_cert_c01bf1af238a6b0d",
+            "content_hash": "sha256:c01bf1af238a6b0d3fe0adf01b3645f931b83fd19372a537f277037d0da645c4",
             "disposition": "novel-candidate",
             "gate": "CG1",
             "reason": "handoff_RT3"
           },
           {
-            "certificate_id": "cg2_cert_98fe0e22b0108576",
-            "content_hash": "sha256:98fe0e22b0108576ba948f6014bd8d2ed28ca4739d74f7d76fe9f6ea9c8b4031",
+            "certificate_id": "cg2_cert_d1c7c6ca00e82654",
+            "content_hash": "sha256:d1c7c6ca00e82654745f585db3b2769cd0bd9156891190eebf937a8984cd8d03",
             "disposition": "novel_candidate",
             "gate": "CG2",
             "reason": "novel_candidate_handoff"
           },
           {
-            "certificate_id": "cg3_cert_445640a900ff8646",
-            "content_hash": "sha256:445640a900ff8646caffed7c6d9cb6765c4dc423418a6fbb1f26d0a0c14eafe7",
+            "certificate_id": "cg3_cert_d01e5ec415358951",
+            "content_hash": "sha256:d01e5ec415358951f385ebdd9eca50f973ac9a0c36387a87be6d6daae8623d6d",
             "disposition": "acquire_then_decide",
             "gate": "CG3",
             "reason": "open_obligation"
@@ -3124,8 +3116,8 @@
     },
     "no_positive_writability_proof": {
       "acquisition_blocker": "mechanism_witness_required",
-      "certificate_id": "cg3_cert_f37508320dcd52fb",
-      "content_hash": "sha256:f37508320dcd52fb2be1068f43e3e57fd57697b8b0dd11ae14e35484e0b8c0d9",
+      "certificate_id": "cg3_cert_0d13e500836912d3",
+      "content_hash": "sha256:0d13e500836912d342a59b0348fd8474dde025f534606c7037346aaea2bda41a",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -3141,7 +3133,7 @@
   },
   "contract_id": "policyos.runtime.grounding_active_controller_rt7",
   "counterfactual_containment": {
-    "captured_counterfactual_admit_certificate_id": "cg3_cert_43e2482230ec4a55",
+    "captured_counterfactual_admit_certificate_id": "cg3_cert_8f824867be3fa996",
     "counterfactual_edge_ids": [
       "cg5_counterfactual_cells_distress_score_cells_output",
       "cg5_counterfactual_cells_distress_score_cells_output",
@@ -3151,15 +3143,15 @@
     "redaction_holds": true,
     "reference_edge_count_after": 791994,
     "reference_edge_count_before": 791994,
-    "reference_hash_after": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
-    "reference_hash_before": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "reference_hash_after": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
+    "reference_hash_before": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
     "reference_untouched_after_planning": true,
     "registry_patch_resolution": {
       "applied": false,
-      "certificate_patch_id": "cg3_patch_39492639389a4f9a",
+      "certificate_patch_id": "cg3_patch_71affa05b93849e0",
       "patch": null,
       "reason": "admission_re_resolution_mismatch",
-      "recomputed_certificate_id": "cg3_cert_2860f27dd225d624",
+      "recomputed_certificate_id": "cg3_cert_30e99c97a54902ef",
       "recomputed_patch_id": null
     }
   },
@@ -3170,9 +3162,9 @@
     "status": "deferred_not_fabricated"
   },
   "determinism": {
-    "first_content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15",
+    "first_content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32",
     "same_content_hash": true,
-    "second_content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15"
+    "second_content_hash": "sha256:91c097fc5299ec56b9ecccb460181daccf141b5fe32cc46d6f13ef016618de32"
   },
   "forged_inputs_fail_closed": {
     "claimed_resolution_reentry": {
@@ -3182,8 +3174,8 @@
       "after_reason": "mechanism_witness_missing",
       "before_disposition": "acquire_then_decide",
       "false_bind_or_admit": false,
-      "final_certificate_id": "cg3_cert_a671fc5f3e1ba2b1",
-      "final_content_hash": "sha256:a671fc5f3e1ba2b1bc0bbc74bda1318396465cc2bbb699bf6c11b1673498d09a",
+      "final_certificate_id": "cg3_cert_0209b364eada29c9",
+      "final_content_hash": "sha256:0209b364eada29c9a5a833c6801210469c189df9a29d73c0c8733f7a7132d42f",
       "reentered_gate": "CG3",
       "result_id": "cg5.forged.claim_only",
       "trusted_claimed_resolution": false
@@ -3223,8 +3215,8 @@
     "acquire_loop": {
       "bounded_before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_f29db99276f10e54",
-        "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+        "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+        "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -3243,8 +3235,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_773c677bd3218d2a",
-        "final_content_hash": "sha256:773c677bd3218d2a3299ef618c61f4215523054a34bb26baefc487264633e9a5",
+        "final_certificate_id": "cg3_cert_3d58e966bbd753fe",
+        "final_content_hash": "sha256:3d58e966bbd753fea077dd42b3a649d40858940c1fc37353b387b6b2b68b63f8",
         "reentered_gate": "CG3",
         "result_id": "cg5.acquire.result.reference_only",
         "trusted_claimed_resolution": false
@@ -3253,8 +3245,8 @@
       "false_bind_rederived_by_full_gate": true,
       "full_before": {
         "acquisition_blocker": "mechanism_witness_required",
-        "certificate_id": "cg3_cert_bb6a3ad0ad13da92",
-        "content_hash": "sha256:bb6a3ad0ad13da92035b496a3cc9c8ffae931d68eca7dc89ed6b454b55675cd5",
+        "certificate_id": "cg3_cert_5c710c296c0cd93b",
+        "content_hash": "sha256:5c710c296c0cd93b79940b0c12c0b35e82f7aa274ffba901cfcabb114560cf4e",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "acquire_then_decide",
@@ -3268,15 +3260,15 @@
       },
       "full_gate_rederivation": {
         "acquisition_blocker": null,
-        "certificate_id": "cg3_cert_f48134cda8a44982",
-        "content_hash": "sha256:f48134cda8a44982d5b86b21c65a2943dcc573b1f275ca0562f4ae58e97b081c",
+        "certificate_id": "cg3_cert_a75c6279db38d5a6",
+        "content_hash": "sha256:a75c6279db38d5a6aa824cd148bd99764ca951acb77d5347b5e2b561ed37efde",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
         "decisive_reason": "all_obligations_closed",
         "mechanism_status": "closed",
         "open_obligations": [],
-        "registry_patch_id": "cg3_patch_122b0b41d45c0ff6"
+        "registry_patch_id": "cg3_patch_86adc151e55c85fb"
       },
       "full_reentry": {
         "action_family": "acquire_data",
@@ -3285,8 +3277,8 @@
         "after_reason": "all_obligations_closed",
         "before_disposition": "acquire_then_decide",
         "false_bind_or_admit": false,
-        "final_certificate_id": "cg3_cert_32d948deee84160b",
-        "final_content_hash": "sha256:32d948deee84160bd51b3589f885944724ae4bddd8b53b4691946d5c94710e35",
+        "final_certificate_id": "cg3_cert_e49cf4120efb8474",
+        "final_content_hash": "sha256:e49cf4120efb84743cd525c068e4f7f68086ec5f61c703bc374073e467b89018",
         "reentered_gate": "CG3",
         "result_id": "cg5.full.acquire.result.reference_only",
         "trusted_claimed_resolution": false
@@ -3384,12 +3376,12 @@
     "component_versions": {
       "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
       "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
-      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
-      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+      "L6": "sha256:5e10244a19f700a155bc2a0b4f59eb4b0c3128488c999d48514d0dd9393224d3",
+      "WMR": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf"
     },
     "edge_count": 791994,
-    "reference_epoch": "kref:09b6349c4ee0bfef",
-    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9"
+    "reference_epoch": "kref:956b076b990299fe",
+    "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f"
   },
   "reuse_existing_owners": [
     "CG0 CredalReference",

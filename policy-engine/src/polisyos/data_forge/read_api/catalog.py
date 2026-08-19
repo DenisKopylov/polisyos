@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
+import shutil
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ._lazy import lazy_dir, load_lazy_export
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 _CATALOG_DOMAIN = "polisyos.data_forge.domains.catalog"
 _EXPORTS = {
@@ -220,6 +227,59 @@ def __dir__() -> list[str]:
     return lazy_dir(globals(), _EXPORTS)
 
 
+def _catalog_graph_cache_root() -> Path:
+    """Resolve the root holding content-addressed catalog graphs."""
+
+    override = os.environ.get("POLISYOS_CACHE_HOME")
+    if override:
+        base = Path(override).expanduser()
+    else:
+        xdg = os.environ.get("XDG_CACHE_HOME")
+        base = Path(xdg).expanduser() if xdg else Path.home() / ".cache" / "polisyos"
+    return base / "catalog-graphs"
+
+
+def _catalog_graph_cache_key(*, kind: str, records: Sequence[object]) -> str:
+    """Derive the content key identifying a built catalog graph.
+
+    The key covers both the records the graph is built from and the builder
+    module that writes them, so a cache hit is indistinguishable from a rebuild.
+    """
+
+    from polisyos.data_forge.domains.catalog.batch import graph_builder
+
+    digest = hashlib.sha256(kind.encode("utf-8"))
+    builder_source = Path(graph_builder.__file__)
+    digest.update(builder_source.read_bytes())
+    for record in records:
+        digest.update(record.model_dump_json().encode("utf-8"))  # type: ignore[attr-defined]
+        digest.update(b"\x00")
+    return digest.hexdigest()[:32]
+
+
+def _cached_catalog_graph_root(*, cache_key: str, build: Callable[[Path], None]) -> Path:
+    """Return the content-addressed root for ``cache_key``, building it once.
+
+    The graph is built into a staging directory and published with an atomic
+    rename, so a visible root is always a complete build and concurrent callers
+    converge on a single copy instead of leaking one temporary tree per call.
+    """
+
+    root = _catalog_graph_cache_root() / cache_key
+    if root.is_dir():
+        return root
+    root.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=f".staging-{cache_key}-", dir=root.parent))
+    try:
+        build(staging)
+        os.replace(staging, root)
+    except OSError:
+        shutil.rmtree(staging, ignore_errors=True)
+        if not root.is_dir():
+            raise
+    return root
+
+
 def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> object:
     """Build the committed GY Slice-0 fixture catalog graph for runtime bindings."""
 
@@ -238,13 +298,6 @@ def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> 
         module_name=__name__,
         namespace=globals(),
     )
-    root = (
-        Path(graph_root)
-        if graph_root is not None
-        else Path(tempfile.mkdtemp(prefix="polisyos-gy-slice0-catalog-"))
-    )
-    root.mkdir(parents=True, exist_ok=True)
-    db_path = root / "catalog.duckdb"
     records = [
         DatasetRecord(
             id="catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
@@ -605,11 +658,20 @@ def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> 
             ],
         ),
     ]
-    build_graph(
-        records=iter(records),
-        db_path=db_path,
-    )
-    return dataset_catalog_graph_cls(db_path=db_path, index_dir=root)
+
+    def build(target: Path) -> None:
+        build_graph(records=iter(records), db_path=target / "catalog.duckdb")
+
+    if graph_root is not None:
+        root = Path(graph_root)
+        root.mkdir(parents=True, exist_ok=True)
+        build(root)
+    else:
+        root = _cached_catalog_graph_root(
+            cache_key=_catalog_graph_cache_key(kind="gy-slice0-fixture", records=records),
+            build=build,
+        )
+    return dataset_catalog_graph_cls(db_path=root / "catalog.duckdb", index_dir=root)
 
 
 def build_production_data_contract_catalog_graph(
@@ -658,15 +720,20 @@ def build_production_data_contract_catalog_graph(
         raise FileNotFoundError(
             f"no production data contracts/source bindings found under {curated_root}"
         )
-    root = (
-        Path(graph_root)
-        if graph_root is not None
-        else Path(tempfile.mkdtemp(prefix="polisyos-production-data-catalog-"))
-    )
-    root.mkdir(parents=True, exist_ok=True)
-    db_path = root / "catalog.duckdb"
-    build_graph(records=iter(records), db_path=db_path)
-    return dataset_catalog_graph_cls(db_path=db_path, index_dir=root)
+
+    def build(target: Path) -> None:
+        build_graph(records=iter(records), db_path=target / "catalog.duckdb")
+
+    if graph_root is not None:
+        root = Path(graph_root)
+        root.mkdir(parents=True, exist_ok=True)
+        build(root)
+    else:
+        root = _cached_catalog_graph_root(
+            cache_key=_catalog_graph_cache_key(kind="production-data-contracts", records=records),
+            build=build,
+        )
+    return dataset_catalog_graph_cls(db_path=root / "catalog.duckdb", index_dir=root)
 
 
 def _production_contract_dataset_record(

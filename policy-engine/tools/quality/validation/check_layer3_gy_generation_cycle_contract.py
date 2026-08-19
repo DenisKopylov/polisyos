@@ -3,6 +3,19 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
+# Completed-work terminals per mode, owned here because this module's own return mapping is the
+# only place that knows them. ``corrupt_field_drift_check`` reports "fail" when the mutation was
+# DETECTED (the correct outcome) and "pass" when it survived, while ``main`` exits
+# ``0 if status == "pass" else 1`` -- so this lane's healthy terminal is exit 1 and its DEFECT
+# terminal is exit 0. The default {0} would admit exactly the failures and reject the good runs.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import asyncio
 import copy
@@ -13,11 +26,26 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, get_args
 
 from pydantic import ValidationError
 
-from polisyos.pdc import SearchTerminalKind, gy_content_hash
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    GyComparisonAdmission,
+    GyComparisonProjectionPlan,
+    SearchTerminalKind,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
+    gy_comparison_content_hash,
+    gy_content_hash,
+)
+from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -43,12 +71,33 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+    CanonicalN9PromotionPort,
+    CanonicalPromotionReceipt,
+    N9DesignProblemBinding,
+    admit_canonical_promotion_receipt_for_comparison,
+    canonical_promotion_receipt_semantic_projection,
+    confidence_risk_scope_for_problem,
+)
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
 _FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "capture_wall_time_seconds"}
+
+_COMPARISON_IDENTITY_FIELDS = {
+    "comparison_admission_manifest",
+    "comparison_content_hash",
+    "comparison_projection_schema_version",
+    "comparison_rule_version",
+}
+
 _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "revision_not_terminal_driven",
     "retry_without_new_grammar_admitted",
@@ -141,14 +190,24 @@ class _GenerationResult:
     grounding_dispositions: tuple[_GroundingDisposition, ...]
 
 
+@dataclass(frozen=True)
+class _VerificationReplayContext:
+    """Live owners and isolated ledger retained for deep committed validation."""
+
+    session: ConfidenceLedgerSession
+    problem: DesignProblem
+    run: GenerationCycleRun
+    comparison_admissions: tuple[GyComparisonAdmission, ...]
+    comparison_plan: GyComparisonProjectionPlan
+
+
 class _Lane0GenerationPort:
     """Scripted proposer over real N6 controller semantics, with CGF-shaped records."""
 
     async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> _GenerationResult:
         grammar = tuple(problem.runtime_hints.get("generation_cycle_grammar", ()))
         if cycle_index > 0 and any(
-            "repair:search_ceiling_repair_required" in item
-            or "adversarial_validate" in item
+            "repair:search_ceiling_repair_required" in item or "adversarial_validate" in item
             for item in grammar
         ):
             candidate = _Candidate(
@@ -219,19 +278,44 @@ def load_contract_payload(repo_root: Path) -> dict[str, Any]:
 async def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Build the frozen Lane-0 payload by exercising the real N6 controller."""
 
+    with TemporaryDirectory(prefix="gy-n6-verification-") as temp_dir:
+        payload, _ = await _build_live_payload_in_verification_namespace(
+            repo_root,
+            state_root=Path(temp_dir),
+        )
+        return payload
+
+
+async def _build_live_payload_in_verification_namespace(
+    repo_root: Path,
+    *,
+    state_root: Path,
+) -> tuple[dict[str, Any], _VerificationReplayContext]:
+    """Run real N6 owners with only N11 CAS/state redirected to temporary storage."""
+
     started = time.monotonic()
+    problem = _design_problem()
+    binding = N9DesignProblemBinding.from_problem(problem)
+    session = ConfidenceLedgerSession._for_verification(
+        repo_root,
+        risk_scope=confidence_risk_scope_for_problem(binding),
+        artifact_store=FileSystemCAS(state_root / "cas"),
+        state_root=state_root / "state",
+    )
     controller = GenerationCycleController(
         generation_port=_Lane0GenerationPort(),
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
+        promotion_port=CanonicalN9PromotionPort._for_verification(
+            repo_root=repo_root,
+            confidence_ledger_session=session,
+        ),
         repo_root=repo_root,
         generated_at=_FIXED_GENERATED_AT,
     )
     run = await controller.run(
-        _design_problem(),
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
+        problem,
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
         min_cycles=2,
         max_cycles=3,
     )
@@ -288,10 +372,159 @@ async def build_live_payload(repo_root: Path) -> dict[str, Any]:
         },
     }
     payload["fail_closed_probes"] = _fail_closed_reports(payload)
-    payload["behavioral_mutations"] = _mutation_reports(payload)
+    revalidation_issues, admissions = _embedded_promotion_comparison_admissions(
+        run,
+        repo_root=repo_root,
+        session=session,
+        problem=problem,
+    )
+    if revalidation_issues:
+        raise RuntimeError(
+            "n6_verification_replay_invalid: " + json.dumps(revalidation_issues, sort_keys=True)
+        )
+    plan = build_gy_comparison_projection_plan(payload, admissions=admissions)
+    payload["behavioral_mutations"] = _mutation_reports(payload, plan)
     payload["capture_wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
+    _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
-    return payload
+    context = _VerificationReplayContext(
+        session=session,
+        problem=problem,
+        run=run,
+        comparison_admissions=admissions,
+        comparison_plan=plan,
+    )
+    return payload, context
+
+
+def _promotion_receipt_denominator_issue(
+    run: GenerationCycleRun,
+) -> dict[str, Any] | None:
+    expected = tuple(summary.candidate_id for summary in run.candidate_summaries)
+    actual = tuple(
+        str(receipt.get("candidate_id") or "") for receipt in run.promotion_port.receipts
+    )
+    if actual == expected and actual:
+        return None
+    return {
+        "code": "embedded_promotion_receipt_denominator_mismatch",
+        "expected": list(expected),
+        "actual": list(actual),
+    }
+
+
+def _embedded_promotion_revalidation_issues(
+    run: GenerationCycleRun,
+    *,
+    context: _VerificationReplayContext,
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Reconcile frozen receipts with fresh, owner-validated semantics."""
+
+    del repo_root
+    issues: list[dict[str, Any]] = []
+    denominator_issue = _promotion_receipt_denominator_issue(run)
+    if denominator_issue is not None:
+        issues.append(denominator_issue)
+    live_receipts: dict[str, CanonicalPromotionReceipt] = {}
+    for payload in context.run.promotion_port.receipts:
+        receipt = CanonicalPromotionReceipt.model_validate(payload)
+        live_receipts[receipt.candidate_id] = receipt
+    if len(context.comparison_admissions) != len(live_receipts):
+        issues.append({"code": "embedded_promotion_live_admission_denominator_mismatch"})
+        return issues
+    for index, payload in enumerate(run.promotion_port.receipts):
+        try:
+            frozen_receipt = CanonicalPromotionReceipt.model_validate(payload)
+        except (ValidationError, ValueError) as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_receipt_invalid"],
+                    "error": str(exc),
+                }
+            )
+            continue
+        live_receipt = live_receipts.get(frozen_receipt.candidate_id)
+        if live_receipt is None:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_candidate_owner_binding_invalid"],
+                }
+            )
+            continue
+        if canonical_promotion_receipt_semantic_projection(
+            frozen_receipt.model_dump(mode="json")
+        ) != canonical_promotion_receipt_semantic_projection(
+            live_receipt.model_dump(mode="json")
+        ):
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_semantic_projection_drift",
+                    "receipt_index": index,
+                }
+            )
+    return issues
+
+
+def _embedded_promotion_comparison_admissions(
+    run: GenerationCycleRun,
+    *,
+    repo_root: Path,
+    session: ConfidenceLedgerSession,
+    problem: DesignProblem,
+) -> tuple[list[dict[str, Any]], tuple[GyComparisonAdmission, ...]]:
+    """Revalidate every embedded receipt and return exact live admissions."""
+
+    issues: list[dict[str, Any]] = []
+    admissions: list[GyComparisonAdmission] = []
+    expected_summaries = {summary.candidate_id: summary for summary in run.candidate_summaries}
+    for index, receipt_payload in enumerate(run.promotion_port.receipts):
+        try:
+            receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+        except (ValidationError, ValueError) as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_receipt_invalid"],
+                    "error": str(exc),
+                }
+            )
+            continue
+        summary = expected_summaries.get(receipt.candidate_id)
+        if summary is None:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": ["promotion_candidate_owner_binding_invalid"],
+                }
+            )
+            continue
+        try:
+            admission = admit_canonical_promotion_receipt_for_comparison(
+                receipt,
+                repo_root=repo_root,
+                confidence_ledger_session=session,
+                candidate_summary=summary,
+                design_problem=problem,
+                value_receipt=summary.value_receipt,
+            )
+        except ValueError as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_revalidation_failed",
+                    "receipt_index": index,
+                    "issue_codes": [str(exc).partition(":")[0]],
+                }
+            )
+        else:
+            admissions.append(admission)
+    return issues, tuple(admissions)
 
 
 def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -334,6 +567,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(probe, dict) or probe.get("status") != "fail_closed":
                 issues.append({"code": "fail_closed_probe_not_closed", "probe": probe})
     expected_hash = _contract_content_hash(payload)
+    issues.extend(_comparison_identity_issues(payload))
     if payload.get("contract_content_hash") != expected_hash:
         issues.append(
             {
@@ -366,6 +600,20 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
     except (ValidationError, ValueError) as exc:
         issues.append({"code": "generation_cycle_run_invalid", "error": str(exc)})
         return issues
+    denominator_issue = _promotion_receipt_denominator_issue(run)
+    if denominator_issue is not None:
+        issues.append(denominator_issue)
+    for index, receipt_payload in enumerate(run.promotion_port.receipts):
+        try:
+            CanonicalPromotionReceipt.model_validate(receipt_payload)
+        except (ValidationError, ValueError) as exc:
+            issues.append(
+                {
+                    "code": "embedded_promotion_receipt_invalid",
+                    "receipt_index": index,
+                    "error": str(exc),
+                }
+            )
     issues.extend(validate_generation_cycle_run(run))
     positive = payload.get("positive_gate")
     if not isinstance(positive, dict):
@@ -399,8 +647,11 @@ def validate(repo_root: Path) -> dict[str, Any]:
     if not path.is_file():
         issues.append({"code": "generation_cycle_contract_missing", "path": OUTPUT_PATH})
     else:
-        committed = json.loads(path.read_text(encoding="utf-8"))
-        issues.extend(validate_payload(committed)["issues"])
+        committed_report = _validate_committed_contract_text(
+            repo_root,
+            path.read_text(encoding="utf-8"),
+        )
+        issues.extend(committed_report["issues"])
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -419,10 +670,86 @@ def write(repo_root: Path) -> None:
 def build_contract_json_for_write(repo_root: Path) -> str:
     """Return byte-stable JSON for the frozen N6 contract artifact."""
 
-    payload = asyncio.run(build_live_payload(repo_root))
-    payload.pop("capture_wall_time_seconds", None)
-    payload["contract_content_hash"] = _contract_content_hash(payload)
-    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    with TemporaryDirectory(prefix="gy-n6-verification-") as temp_dir:
+        payload, context = asyncio.run(
+            _build_live_payload_in_verification_namespace(
+                repo_root,
+                state_root=Path(temp_dir),
+            )
+        )
+    return _canonical_contract_json(
+        payload,
+        repo_root=repo_root,
+        comparison_plan=context.comparison_plan,
+    )
+
+
+def _canonical_contract_json(
+    payload: dict[str, Any],
+    *,
+    repo_root: Path,
+    comparison_plan: GyComparisonProjectionPlan,
+) -> str:
+    """Render the one canonical UTF-8 JSON representation used for byte checks."""
+
+    normalized = copy.deepcopy(payload)
+    normalized.pop("capture_wall_time_seconds", None)
+    _set_comparison_identity(normalized, comparison_plan)
+    normalized["contract_content_hash"] = _contract_content_hash(normalized)
+    normalized = _reconcile_frozen_contract(repo_root, normalized, comparison_plan)
+    return json.dumps(normalized, indent=2, sort_keys=True) + "\n"
+
+
+def _validate_committed_contract_text(
+    repo_root: Path,
+    committed_text: str,
+) -> dict[str, Any]:
+    """Deeply rederive owners and compare exact canonical UTF-8 bytes."""
+
+    try:
+        committed_payload = json.loads(committed_text)
+    except json.JSONDecodeError as exc:
+        return {
+            "status": "fail",
+            "issues": [{"code": "generation_cycle_contract_invalid_json", "error": str(exc)}],
+        }
+    report = validate_payload(committed_payload)
+    issues = list(report["issues"])
+    with TemporaryDirectory(prefix="gy-n6-committed-check-") as temp_dir:
+        expected_payload, context = asyncio.run(
+            _build_live_payload_in_verification_namespace(
+                repo_root,
+                state_root=Path(temp_dir),
+            )
+        )
+        run_payload = committed_payload.get("generation_cycle_run")
+        if isinstance(run_payload, dict):
+            try:
+                committed_run = GenerationCycleRun.model_validate(run_payload)
+            except ValidationError, ValueError:
+                committed_run = None
+            if committed_run is not None:
+                issues.extend(
+                    _embedded_promotion_revalidation_issues(
+                        committed_run,
+                        context=context,
+                        repo_root=repo_root,
+                    )
+                )
+        expected_text = _canonical_contract_json(
+            expected_payload,
+            repo_root=repo_root,
+            comparison_plan=context.comparison_plan,
+        )
+    if committed_text.encode("utf-8") != expected_text.encode("utf-8"):
+        issues.append(
+            {
+                "code": "generation_cycle_contract_canonical_bytes_drift",
+                "expected_hash": gy_content_hash(json.loads(expected_text)),
+                "actual_hash": gy_content_hash(committed_payload),
+            }
+        )
+    return {"status": "pass" if not issues else "fail", "issues": issues}
 
 
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
@@ -430,9 +757,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     corrupted = copy.deepcopy(load_contract_payload(repo_root))
-    corrupted["generation_cycle_run"]["cycles"][1]["selected_candidate_content_hash"] = (
-        corrupted["generation_cycle_run"]["cycles"][0]["selected_candidate_content_hash"]
-    )
+    corrupted["generation_cycle_run"]["cycles"][1]["selected_candidate_content_hash"] = corrupted[
+        "generation_cycle_run"
+    ]["cycles"][0]["selected_candidate_content_hash"]
     report = validate_payload(corrupted)
     if report["status"] == "fail":
         return {
@@ -498,15 +825,16 @@ def _positive_gate(run: GenerationCycleRun) -> dict[str, Any]:
     }
 
 
-def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _mutation_reports(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> list[dict[str, Any]]:
     mutations = {
         "revision_not_terminal_driven": _mutate_revision_not_terminal_driven,
         "retry_without_new_grammar_admitted": _mutate_no_new_grammar,
         "voi_scheduler_ignored_fixed_cycle_count": _mutate_ignored_voi,
         "single_pass_fixture_survives_as_production_cycle": _mutate_strangle_drift,
-        "proxy_gap_candidate_promoted_without_adversarial_validate": (
-            _mutate_proxy_gap_decision
-        ),
+        "proxy_gap_candidate_promoted_without_adversarial_validate": (_mutate_proxy_gap_decision),
         "decision_front_admitted_non_current_valid": _mutate_non_current_decision,
         "grounding_bypassed_cgf_firewall": _mutate_grounding_bypass,
         "coverage_depends_on_llm": _mutate_fallback_promoted,
@@ -519,6 +847,8 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     for mutation_id, mutator in mutations.items():
         mutated = copy.deepcopy(payload)
         mutator(mutated)
+        _set_comparison_identity(mutated, plan)
+        mutated["contract_content_hash"] = _contract_content_hash(mutated)
         report = _validate_payload_core(mutated)
         reports.append(
             {
@@ -621,9 +951,9 @@ def _mutate_k_sim_shrank_world(payload: dict[str, Any]) -> None:
 
 
 def _mutate_full_denominator_subset(payload: dict[str, Any]) -> None:
-    payload["denominators"]["scheduling_actions"] = payload["denominators"][
-        "scheduling_actions"
-    ][:-1]
+    payload["denominators"]["scheduling_actions"] = payload["denominators"]["scheduling_actions"][
+        :-1
+    ]
 
 
 def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -663,9 +993,9 @@ def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     )
     reports.append({"probe_id": "candidate_owner_target_missing", "status": "fail_closed"})
     unknown_voi = copy.deepcopy(payload)
-    unknown_voi["generation_cycle_run"]["cycles"][0]["voi_decision"][
-        "scheduler_action"
-    ] = "unknown_owner_action"
+    unknown_voi["generation_cycle_run"]["cycles"][0]["voi_decision"]["scheduler_action"] = (
+        "unknown_owner_action"
+    )
     if any(
         issue.get("code") == "unknown_voi_action_not_fail_closed"
         for issue in _validate_payload_core(unknown_voi)
@@ -782,11 +1112,120 @@ def _design_problem() -> DesignProblem:
 
 def _contract_content_hash(payload: dict[str, Any]) -> str:
     stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
+        key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     return gy_content_hash(stable)
+
+
+def _comparison_content_hash(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        comparison_plan=plan,
+    )
+
+
+def _reconcile_frozen_contract(
+    repo_root: Path,
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        return live
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
+        raise ValueError("generation_cycle_legacy_contract_content_hash_drift")
+    if not _frozen_comparison_identity_admissible(frozen, plan):
+        raise ValueError("generation_cycle_comparison_admission_manifest_drift")
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("generation_cycle_contract_comparison_projection_invalid")
+    _set_comparison_identity(reconciled, plan)
+    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
+    return reconciled
+
+
+def _frozen_comparison_identity_admissible(
+    frozen: dict[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 comparison custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == _comparison_content_hash(
+        frozen,
+        legacy_plan,
+    )
+
+
+def _set_comparison_identity(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> None:
+    payload["comparison_admission_manifest"] = plan.manifest
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload, plan)
+
+
+def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    manifest = payload.get("comparison_admission_manifest")
+    try:
+        plan = build_gy_comparison_projection_plan_from_manifest(
+            payload,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+                )
+            },
+        )
+    except ValueError as exc:
+        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
+    else:
+        if payload.get("comparison_content_hash") != _comparison_content_hash(payload, plan):
+            issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -823,4 +1262,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

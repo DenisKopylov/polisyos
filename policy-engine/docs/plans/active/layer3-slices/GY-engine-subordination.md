@@ -4,7 +4,7 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-07-20 (Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
+revised: 2026-08-19 (Rev 48 — THREE OF THE FOUR REPOSITORY DEFECTS ARE CLOSED; GY-DEF4 STOPS ON A GOVERNED ARTIFACT AND STAYS OPEN. Landed at merge b07148239 [16 paths, ZERO under architecture/]. GY-DEF2 closed at round 0 - the only member of its cohort crossing the PUBLIC boundary and the only one failing on main today. Verified independently by the architect with the same node id on both sides: FAILED on main, passed on the branch. Its two review findings were the same class one level deeper, so the repair widened to an INVARIANT OVER THE PROPERTY rather than a third field patch - every ref-shaped caller token is collected from keys AND values, every artifact-derived public projection is sanitized generically, and the whole export fails if any collected token survives anywhere in the assembled bundle. That is the closure signal's third clause satisfied by construction rather than by an allow-list that happens to cover today's fields. GY-DEF1 closed at round 0 with a raised ValueError, chosen because both production callers require a concrete plugin immediately and have no declared-unknown channel; two upstream sightings of the same silent-substitution class moved the repair to a SHARED NORMALIZATION BOUNDARY - the worker no longer manufactures UA and validation precedes the structurer's generic fallback - instead of per-site patches. GY-DEF3 closed at round 1: the one new P37 class was caller-controlled scope admission, and five later findings [direct producers, the sibling worker entry, malformed scope metadata, restore ordering] were the same class at depth, absorbed by a single ambient-scope intake; round 2 unused. A tenant or cell mismatch now leaves node counters and the trace byte-identical, which is the behavioural closure the row demanded rather than the presence of a field. P40 IS WHY ALL THREE CAME IN AT 0/0/1 - nine review findings across the lane and only one consumed a round; the rest were classified as same-class depth and closed by widening. ARCHITECT ERROR RECORDED: GY-DEF4 is NOT a mechanism failure. Its adopted repair, prescribed by the Custody Time Model §7, renames TimeSourceEnvelopeAudit and removes the admitted token, while the live owner serializes BOTH into architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json. The commissioning brief forbade moving governed artifact bytes in order to keep the lane light and parallel, so the constraint and the adopted fix are incompatible by construction. The executor stopped rather than fixing around it, which is correct; the mis-scoping is mine. GY-DEF4 is re-routed to a lane that can perform a declared-delta governed reissue. MEASURED BEFORE MERGE, and it is why no reissue is owed here: none of the changed src/polisyos paths - public_export.py, checkpoint.py, jurisdictions/__init__.py, workflows/builder.py among sixteen - is bound by the frozen deployment identity, so neither the confidence artifact nor yesterday's cold receipt is staled by this lane. CARRIED SEPARATELY: GY-DEF2-TRIAGE-1 - that test was silently red on main, unquarantined and absent from ci_tiers, so the full-suite lane is not being triaged. The lane recorded it and correctly did not repair it. | 2026-08-19 (Rev 47 — THE N11 SUFFIX IS CLOSED. GY-DEFC-9 landed at merge 18f081933 [10 paths, line 7 untouched by the lane]. The authorized cold run returned ZERO ISSUES: 28/28 milestones through frozen_contract_derived, child return 0, exactly one cache clear / one live build / one validation, 1,019.478574 s under a 4,693.118600 s ceiling, all 11 pins byte-identical, governed and live contracts byte-equal at 977,814 bytes. owner_bundle_loaded is milestone 13 at 1,001.974843 s; milestones 14-28 ARE the suffix that went RED on 2026-08-14 at artifact_content_hash_drift, became GY-DEF15, was repaired in GY-DEFC-8 and had NEVER been exercised cold until now. ARCHITECT VERIFICATION on main after the merge, independent of the executor's report: N8 --check-catalog-provenance returns status=pass with its four ambient differences reported as ambient_findings and catalog_predicate_provenance_mismatch carrying its own predicate ambient.discovered_component_membership; N10a --check returns status=pass in 7.961863 s; catalog_provenance_manifest_mismatch no longer fires at all. Both REDs that had been STANDING CONDITIONS OF MAIN since 2026-08-10 are closed. GY-DEF14 member one and GY-DEF16 are closed with standings recorded. Item 3 was DECIDED rather than deferred - ambient posture is non-decisive by construction, fully retained as diagnostic evidence, and the historical discriminator stays not_established because constructing one post hoc would be a rebaseline. The ps-text parentage proxy was REMOVED, not repaired: parentage is decided by the inherited FD and per-launch nonce alone, the ps rendering survives as a non-decisive diagnostic, and the falsifier holds in both directions [missing capability refuses, wrong nonce refuses on the nonce conjunct alone, the real launcher admits at 15/15]. ARCHITECT CORRECTION RECORDED, and without it this task would have failed twice: the non-receipt definition was keyed on TIMEOUT when the operative predicate is whether the run MEASURED ITS SUBJECT. Two launches terminated at ~5 s before milestone 1, with 0/28, zero clears/builds/validations and zero moved bytes, on gates living only in untracked scratch; under the old wording each would have spent the one allowance while proving nothing. Recorded as non-receipts, the second NAMED ITS OWN BOUNDARY - cold_n11_child_environment_not_authorized - because every admission conjunct now records expected, observed, matched, decisive and provenance, so one further launch sufficed instead of another investigation cycle. The corrected rule stands: a run terminating before its first milestone with zero governed bytes moved and zero measured operations performed is a NON-RECEIPT however it terminated; an allowance counts runs that REACH MILESTONE 1. WHAT GY-N11 CLAIMS - this authorized fresh-process derivation, its byte-equal validation and its complete suffix trace at the bound head and inputs. WHAT IT DOES NOT - broader cold-closeout completion, universality beyond those bindings, privilege-separated launcher provenance [the declared residual: these local guards are cooperative, not a security boundary], publication, or any N12/N13/GAP/INFRA outcome. STANDING AFTER THIS REVISION: no active line remains in the GY defect registry. Open are GY-DEF1-GY-DEF5 [now unblocked, no artifact reissue is in flight], GY-DI1, GY-GAP1, GY-GAP2 [blocked_on_product_decision] and GY-GAP3. GY-GAP1 is the successor of record - open, unblocked since Rev 43, never entered, carrying an executable acceptance test since Rev 25, and still the one registered gap on the critical path to a first governed promotion. | 2026-08-19 (Rev 46 — SIXTEEN REGISTRY ENTRIES NOW STATE THEIR OWN STANDING. Transcription only: no decision, no repair, no reissue, no scope change, and no closed task edited. WHY IT WAS NEEDED, measured rather than felt - the registry holds 33 entries and 18 carried NO standing marker of any recognized form, so their state could be learned only by reading this 57,000-character frontmatter line. That is the same silence that produced the GY-DEF7-GY-DEF12 census wave, still present in 18 other entries a month later. The 15 that DID carry standings are almost exactly the ones that passed through that wave or through a DEFC execution; nothing that escaped an audit ever acquired one. SECOND-ORDER FINDING - the marker forms were inconsistent [STANDING RECORDED, CLOSED, EXECUTED, Execution standing, Standing after execution] and two entries the architect wrote used **Result:** and **Delivered:**, which are not standing markers at all, so no tool could ever have found them. Rev 46 adopts ONE form, STANDING RECORDED (Rev N, ...), for every entry it touches. EVIDENCE - every one of the 18 had revision-history evidence [no-history=0], so this was transcription and not investigation; the standings carry their source revisions and, where recorded, their commits. NOTABLE STANDINGS RECOVERED: GY-DI4 was registered at the WRONG SEVERITY and its Rev-41 closure carries the real finding - of 15 modules defining corrupt_field_drift_check SEVEN are inverted and in SIX of the seven detected maps to exit 1, so the old ok-if-exit-0 predicate admitted exactly the runs where corruption ESCAPED detection. GY-DEF6 is closed on the SOURCE-DEFECT axis only, at e708e8f77, explicitly without moving the 389/389 denominator, which is why the environment axis survived to become GY-DEF13 and GY-DEF14. GY-DEF2 is the only member of its cohort that is NOT latent - it crosses the public boundary and its test fails on main today, unskipped and in no baseline manifest. GY-GAP2 stands blocked_on_product_decision, not open-and-unscheduled. GY-GAP1 is open, unblocked since Rev 43, never entered, and still the one registered gap on the critical path to a first governed promotion. DELIBERATELY NOT TOUCHED - GY-DEF16 and GY-DEFC-9 remain silent because the live codex/gy-defc-9-n11-suffix lane owns those two entries; they are transcribed when it lands. METHOD NOTE for the successor: the population was cross-checked against a second independently derived count before any of this was written, because in this same exercise three self-consistent counts were each wrong - a sum that balances validates arithmetic over whatever population you found, never the population itself. | 2026-08-18 (Rev 45 — GY-DEF9 IS CLOSED and with it the whole GY-DEF7-GY-DEF12 cascade. Landed at merge c5aeeedcc from branch codex/gy-def9-verification-witness [2 commits, exactly 3 paths, ZERO under src/polisyos, tools or architecture, line 7 byte-identical because the lane wrote only its standing paragraph]. Rev 44 typed GY-DEF9 no_executable_witness - wiring present, nothing exercising it. It is exercised now: ONE parameterized witness runs each of the five governed producers against a fresh AND a registry-binding-incompatible canonical durable history with from_repo replaced by a named failing path, and compares the owner's bytes. Five of five closed - N9 over 3 receipts, N6 over 2, N10a over 4, Depth-N over 3, N11 over 4 checks - with both histories byte-distinct and unchanged by every owner. THE WAVE'S REAL LESSON IS A WITHDRAWN MEASUREMENT, not the five greens. Depth-N first compared RAW owner bytes and failed only at canonical_planner_report/generated_at, 17:50:43Z against 17:51:32Z - the gap between two sequential replays. A clock leaf records WHEN a replay ran, not WHICH history it ran against, so raw-byte equality was a P38 proxy for GY-DEF9's governed-output property and could demonstrate neither open nor blocked_on_src; recorded as open it would have sent a successor task chasing a timestamp and polluted this defect's record with a non-instance. The corrected case consumes the GyComparisonProjectionPlan built from the live producer-returned comparison admission - the same contract Depth-N's OWN governed validator and the N10a witness already consume - with no test-authored normalization, allowlist, denylist or subset, and passed in 78.83 s with all three receipts, both history terminals, the from_repo trap and migration lineage checked BEFORE the byte comparison. The standing preserves both measurements rather than flipping a verdict. TWO REV-44 MEASUREMENTS SUPERSEDED BY MEASUREMENT: N10a's cycle_substrate_l6_bundle_content_mismatch did NOT reproduce on this base [reached its discriminator and passed in 233.49 s, no repair required], and Depth-N's missing sessions_by_node_ref was a genuine test-side prerequisite, repaired test-side. CLASS CONSEQUENCE: with DEF10 closed at 431bcd798 in Rev 37 and DEF7/DEF8/DEF11/DEF12 in Rev 44, all six cascade defects now carry recorded evidence, so GY-DEFC-1's five-condition Done-when is fully accounted for - its Rev-31 standing answered two of five and the silence over the rest is closed. ARCHITECT NOTE: the executor counted the review's record-wording findings [ceiling identity, source pin] as mechanism round 1 of 2; under this plan's own rule a round is consumed only by a Blocking or Important finding against the MECHANISM, so that count is conservative and is left standing rather than corrected. WHAT THIS DOES NOT DELIVER - no artifact reissue, no cold-closeout or N11-suffix inference, and no GY-DEFC-9 scope ruling; DEFC-9 remains the single active GY line, and its items 1-2 [GY-DEF14 member one and GY-DEF16] are all that stand between the N11 suffix and the cold run. | 2026-08-18 (Rev 44 — P37 `recomputed` standing audit at main `44276ccd5` — positive control `GY-DEF10` is CLOSED [5/5 property-discriminating nodes green; two whole-artifact byte-proxy nodes excluded under P38]; negative control `GY-DEF14` member one is OPEN [`--check-catalog-provenance` exit 1 with all five recorded codes; N10a `--check` exit 1 with `stage_gap_triage_drift:n8_transport_tuple_hardcode`]. Verdicts — `GY-DEF7` closed; `GY-DEF8` closed; `GY-DEF9` no_executable_witness; `GY-DEF11` closed; `GY-DEF12` closed. The silence hid four unrecorded closures and one landed repair whose full semantic witness is missing; it hid no demonstrated open defect, but it was not merely an all-closed omission. This records standing only — no repair, reissue, rebaseline, `GY-DEFC-9` scope ruling or cold-closeout ruling. | 2026-08-18 (Rev 43 — branch codex/gy-defc-3-retry LANDED in main at merge 70a3f3d15 [61 commits, 29 paths, Ruff green on all 22 Python paths], and it carries the largest result this family has produced. ON 2026-08-14, IN GY-DEFC-6, A COLD OWNER DERIVATION REACHED owner_bundle_loaded FOR THE FIRST TIME - milestone 13 of 28, at 1,055.290051 s inside a 1,066.900077 s wrapper under a 4,693.118600 s ceiling, all eleven pins byte-identical and no N11 artifact written. The P30 objective that named GY-DEFC-1 through GY-DEFC-6 IS CLOSED and must never name a successor again; per B5 it removes the objective block on GY-N12, GY-N13a/b, GY-GAP1 and GY-INFRA-3 Step 1, and GY-N11 leaves built_not_closed with its acceptance milestone reached and a SUFFIX open. The same call went RED at cold_n11_live_validation_failed / artifact_content_hash_drift, which is GY-DEF15 - canonical identity had no owner for the null-versus-absent representation axis, distinct from GY-DEF10's field-exclusion axis, which stays closed at 431bcd798. GY-DEFC-8 registered DEF15 in its own pre-fix commit before any source byte moved, ran the blocking census that selected the ZERO-MOVE branch [509 files walked, 13 whole-root identities reproduced], landed one shared projection owner at 2789b49ea consumed by construction, validation, serialization, reparse and corruption rehash, and reissued the confidence ledger on an exact 12,674/12,674 declared delta with 111 nulls and 36/36 required nullables surviving round trip. Five artifact reissues now stand across DEFC-4..8 - promotion, generation, N10a, Depth 6,095/6,095 and confidence - each matching a delta declared BEFORE its writer ran. GY-DEFC-7 and GY-DEFC-8 are REGISTERED RETROACTIVELY here, and the registration debt is named as a defect in its own right - two tasks ran to completion while this plan held zero entries for them, which guarantees the ratchet because every reader then measures the successor against the previous attempt. ARCHITECT ERROR RECORDED - Rev 37 re-typed GY-DEF14 as a class with at least two members and GY-DEFC-4's scope then covered exactly one; member one, the ambient block inside the N8 value-gate comparison, entered NO scope in DEFC-4 through DEFC-8, and could not have been reached by the predicate repair because that comparison is not a content-hash exclusion at all but a hard-coded nine-field equality at check_layer3_gy_value_gate_contract.py:3473-3505, in a file holding zero references to gy_waist or authority_provenance. Five successive tasks met that boundary and re-classified it as environment each time. Naming a class and scoping one member leaves the other with the APPEARANCE of ownership and none of the substance. Measured on CLEAN main 2026-08-18, so this is a standing condition of the repository and not a branch effect - N8 --check-catalog-provenance exits 1 in 21.3 s with five codes and N10a --check exits 1 in 10.9 s with the single stage_gap_triage_drift, both identical before and after the merge; the live component_discovery_manifest_fea6e14c is the SAME id DEF14 recorded on 2026-08-10; the record CANNOT DISCRIMINATE the two environments because catalog_entry_point_distribution_manifest_mismatch is absent from the issue set, so every recorded entry-point field is equal across them; NO environment on this machine reproduces the frozen posture, the canonical venv having carried the example extension since 2026-05-08, three months before the 2026-08-10 freeze; and the existing --reissue-catalog-provenance guard STRUCTURALLY REFUSES this drift, so authorizing a reissue is not an available capability. GY-DEF16 registered - _n8_transport_gap_closure at check_layer3_gy_second_domain_pack.py:5952-5970 collapses ANY N8 issue into n8_value_contract_invalid, so an ambient posture the same payload declares non-governing decides a governed gate two validators away; this is the amplifier that makes DEF14 member one fatal rather than cosmetic, and the causal link the DEFC-8 stop labelled independently_reconciled is recomputed. GY-DEFC-9 registered as ONE ENUMERATED MARATHON with a NEW objective - a cold N11 live-contract validation returns zero issues - carrying DEF14 member one, DEF16, the unowned environment-reproducibility decision, and the single cold run, with the successor measured against that registration and never against DEFC-8. WHAT THIS DOES NOT DELIVER - the N11 suffix is NOT closed, the DEF15 owner has never been exercised by a cold run, and N8 and N10a remain RED on main until GY-DEFC-9 lands. | 2026-08-17 (Rev 42 — the two non-blocking items CARRIED by the Rev-27 GY-INFRA-2 closure are now closed on branch codex/gy-di-timing-lane [32cfdfac3, 1c6e36067; 13 python files, ZERO under src/polisyos/**]. GY-INFRA-2 ITSELF IS NOT RE-CLOSED - it was executed and merged at e089f508b on 2026-08-08 and its Rev-27 standing is unchanged. ARCHITECT ERROR RECORDED: this work was commissioned as "GY-INFRA-2 Part A and Part B" while the plan already said executed and merged; the brief was false in both halves and the cause was a reading window - the section was opened twice and closed five lines short of its own status line. Carried item 1, the single-sample p95, closed AND GENERALIZED: a nearest-rank p95 picks index ceil(0.95n)-1, which IS n-1 for every n<=19, so the two first separate at n=20 - measured on the committed catalog, 0 of 22 lanes reach 20 samples, 16 rest on a single sample, and ALL 22 store a measured_p95_ms equal to max(samples_ms), not the 16 the Rev-27 note carried. Every published p95 in this repository was a MAXIMUM WEARING A PERCENTILE NAME - E14(a) inverted, a P38 instance in a label. Closure is relabelling not blanking, since blanking discards real ceilings that are honest as maxima: every lane now carries budget_basis p95 [n>=20] / max_observed [1-19] / declared [n=0], published_p95_ms stays None unless the basis is p95, and the stored schema is untouched because those rows are cited evidence. WHAT THIS DOES NOT DELIVER: no lane publishes a real p95 today and none is close, so E14(a) is closed in its own wording - an unmeasured budget is a finding - and NOT in the reading that the expensive lanes now have measured p95 budgets. Carried item 2, the delta package not stating its own omissions, closed: delta packages carry a delta_scope section rendered BEFORE anything it qualifies, naming includes, excludes, that ABSENCE IS NOT EVIDENCE the excluded material is unchanged or correct, and the rebuild command; deterministic by construction so the byte-identical rebuild guarantee holds; +897 bytes, SCHEMA_VERSION 1->2, receipt regenerated by fixture replay with commit ids identical. Verified on a real range: full 202,311 bytes - inside the 182-220 KB band that exhausted reviewer quota in N11 and DS4 - against a 19,605-byte delta. EXECUTOR ERROR RECOVERED AND RECORDED: a tracked 1,041-line tool and its test file were overwritten by a Write without a collision check, caught from a sibling failed import and restored from HEAD before any commit; architect-verified as +38/-8 and +86/-2 against main, additive rather than a rewrite. | Rev 41 — GY-DI2, GY-DI3 and GY-DI4 are ALL CLOSED on branch codex/gy-di-timing-lane [15b41f960, ee44c5e8d, ec1a8f055, 7e745391f; 15 files, ZERO under src/, so no artifact replay was priced]. GY-DI4 WAS REGISTERED AT THE WRONG SEVERITY and the correction is the lane's real finding: across all 15 modules defining corrupt_field_drift_check, SEVEN are inverted rather than one, and in SIX of the seven the mapping is detected -> exit 1 while not-detected -> exit 0, so the old predicate "ok if exit_code == 0" ADMITTED EXACTLY THE RUNS WHERE CORRUPTION ESCAPED DETECTION and rejected every run where the drift check worked. The predicate was inverted, not approximate; second_domain_pack returns 1|2 and never 0, which is why the single registered instance read as a lost-sample problem. Closure puts TIMING_HEALTHY_TERMINAL_EXIT_CODES in each tool module, read by AST without importing, default {0} - refusing both forbidden shortcuts [no hard-coded lane list, no widening to any-non-zero]. GY-DI3 closed with a DECLARED VARIATION: the log stays ignored at .polisyos-tools/ and evidence is protected by PROMOTION into docs/superpowers/timing-evidence/ cited from source_refs, because the log is host-specific and would churn across worktrees - "ignored" was never the defect, "ignored AND under /tmp" was; retention 200 -> 2000 reasoned from 32 known lanes with cost measured [520 KB, 18.7 ms per append]. GY-DI2 closed with the join rule STATED not invented [timing_key == tool:mode], the effective catalog as committed rows UNION log-derived lanes, and report-timing naming unbudgeted lanes at the point of use including second_domain_pack:write - the missing row that cost GY-DEFC-3 its execution. THE SUBSTRATE WAS ALREADY LOST AND THE LOSS IS PERMANENT: 18 records across 16 files were salvaged, but the six serialized write samples behind the cited p95 of 426.3 s [one survives at 815.7 s, contended], the "19 lanes / 15 absent" extent, and GY-DI4's corrupt-lane range are gone. Those three numbers remain as CITED HISTORY and must not be re-quoted as measurements. The contention multiplier 1.6-2.0x therefore stays ARCHITECT-SUPPLIED with every historical sample honestly regime=unknown - ratified W4-K01 applied by the executor to the architect's own number, unprompted. Architect defect recorded [P38, architect side]: the brief supplied "9 salvageable records" from find -name timing.jsonl; the true set is 18 across 16 files, because POLISYOS_TOOLS_TIMING_LOG makes the path configurable - a filename is a proxy for "this is a timing log" and misclassifies exactly where the path was overridden. | Rev 40 — GY-GAP4 EXECUTED and landed as producer_input_landed at 1b096b222 [branch codex/gy-gap4-run-terminality, head b662d8a81, 16 files]. Terminality ships as the closed three-state type terminal | non_terminal | not_established, independent of the open status vocabulary, with RunSummary.run_terminality REQUIRED so unknown cannot serialize as non-terminal — the constitutive property enforced at the type and not by convention. The SSE sibling is CLOSED rather than registered: its contract moved to v2, it consumes the same fact, and the status-substring parser is removed, so the parallel owner is gone [P27]. OWNER CORRECTED BY MEASUREMENT: the emitter is core run lifecycle [core/run/context.py start/finalize plus owner-validated recovery], not runtime/quality, which named the projection. Three review rounds each found real fail-closed gaps before landing — an unbound terminal event could stop SSE, cached runs could skip journal recovery, recovery's tenant/cell/ref binding was too weak, a second manifest ref could pass "already finalized", valid-but-wrong journal shapes could escape, and optional audit failures were not isolated per exception class — and a schema-provenance MUTATION PROBE confirmed the witness tests the property rather than a marker. One review found that run_dir MAY BE AN ALIAS, so its basename is not the run identity; identity was rebound to the producer-emitted RUN_STARTED, which is the address-versus-identity class appearing in run directory paths. ARCHITECT VERSIONING RULING: the asymmetry of an SSE v1→v2 bump beside a REST required-field addition with no bump is CORRECT — the SSE event shape changed and its parser was deleted so a live v1 consumer would misread, while a response field is additive for any reader tolerant of unknown fields and every generated consumer is rebuilt from the snapshot — but it carries the obligation to NAME the assumption it rests on, that every consumer of this schema tolerates unknown response fields, because an unrecorded assumption holding up a compatibility claim is a supplied predicate in a gate. Downstream stays explicit: DS5 clients bridge_missing, DS7 consumer_missing until it consumes the generated enum with its no-re-derivation negative; the CAS trace_ref and recovery audit fanout do not yet carry the terminal event and the audit assembler and canary derivations are registered tails. PLAN-HISTORY NOTE, and the lesson is the architect's: the branch was cut from c1a89b6cf, which predates the GY-GAP4 row because Rev 36–39 were UNCOMMITTED, so the executor had to reconstruct the registration from its commission — it refused to import the dirty working tree and said so rather than fabricating plan history, which was correct. AN UNCOMMITTED PLAN EDIT IS NOT A PLAN. | Rev 39 — GY-DEFC-5 EXECUTED: THREE of four members reissued and closed, Depth stopped on a BORROWED cap, and both the Depth accepted-reissue and the cold-N11 allowance remain unspent. The recording owner landed at 7a259daa6 after three review rounds that closed SIX authority defects before any writer ran [a public token imitating canonical metadata, an issued proof retargetable by mutating its stored admission, unbound child-summary admissions, claim_execution_binding_hash dropping governing inputs, a double-called migrator, stale authority envelopes after migration]. Every accepted delta was declared BEFORE its writer and matched on the first accepted write — promotion 604/604, generation 740/740, N10a 2,832/2,832 — with all four verifications green per artifact. The confidence re-probe confirmed the mechanic hypothesis and refuted its outcome: n8_transport_gap_receipt_drift is GONE and the lane now fails earlier at n10_capstone_invalid on the NEW v2 comparison schema, so B3 stands for a clearer reason. DEPTH'S STOP IS NOT THE PRODUCER: the bespoke live census was capped at 1,695.177568s, which is Depth's REDERIVE-AUDIT 2xp95 — a SIBLING LANE'S budget — while the census has zero successful samples of its own and had already reached a completed semantic terminal at 1,329.4s before the fixes that made it do strictly more work. Two cap terminations with zero changed bytes are GY-DI2 in its THIRD occurrence, and B4 keyed on "its recomputed budget" without the architect checking the lane had one. GY-DI2 AMENDED with the measurement that explains it: every catalogued cap was taken SERIALIZED and the host no longer is, with contention measured at 1.6-2.0x consistently across both programmes [N10a writer 420.56 to 821.34s, N10a measurement 459.01 to 753.08s, Atlas module 395.5 to 754s], so a sample must record its REGIME, a cap applied under contention carries the allowance, and a lane with no successful sample of its own has NO budget — it gets a declared ceiling recorded as supplied, never a sibling's. ONE NEW TASK, GY-DEFC-6: drop the census, close Depth through the producer's own budgeted non-persisting measurement path, then the one cold N11 — roughly 1.6 hours of remaining runtime, because the repairs are done. | Rev 38 — GY-DEFC-4 EXECUTED: THREE of four members reissued and closed, the fourth stopped at the authorized second-mechanism boundary, and the cold-N11 allowance is deliberately still unspent. Landings 7d02818a0 promotion, 482c204d9 generation, d15681e5d N10a, ba18ad7d7 Depth stop; head ba18ad7d7, 20 commits ahead, 27-path delta. EVERY accepted delta matched its PRE-DECLARED set exactly — 21/21, 12/12, and 0/3/0/25/8 across N10a's five outputs — with all three verifications green per artifact and every corrupt lane closing at its contract green of exit 1. Both pre-authorized branches fired with NO architect round trip [B3 on the confidence-ledger probe, B1 on the census correction], which is what §5 was written for. The Depth stop is THE FIRST IN THIS FAMILY THAT IS THE RULE WORKING RATHER THAN AN ARCHITECT INSTRUCTION FAILING: zero changed bytes, 873.977626s, exit 1, and GY-DEFC-2's instrumentation fired IN ANGER for the first time and named it precisely — 84 leaves [5 operational, 75 verification-session lineage, 4 enclosing identities] on the first_vertical/migrated arm, inside the controlled-RECORDING comparator which knows only global clock exclusions. Same class, different layer, different owner, therefore a second mechanism and a correct §6(b) stop. GY-DEF14 gains a THIRD MEMBER at the recording layer, and its radius is CORRECTED DOWNWARD by the source-bound census against the repaired owner: 4 artifacts, 28 owner-plan entries, 889 comparison leaves — not the 3,721-3,799 the trial counterfactual predicted — because the typed projection keeps every governing semantic and removes only producer-validated session lineage; a counterfactual over a trial predicate is blast-radius evidence, never a repair projection. The landed design is STRONGER than the closure as the architect wrote it and is now the standard: three independent reviews found three distinct authority leaks in "exclude it from the compared identity" before any writer ran [a block vanishing on a SELF-DECLARED field, a forged N9-shaped mapping SELF-ADMITTING by recomputing its own hash, and the persisted manifest SELF-AUTHORIZING exclude], so custody identity [the ordinary hash still binds every retained byte] is now separated from an opt-in comparison identity admitted only through the canonical receipt owner. ONE NEW TASK, GY-DEFC-5, the recording-layer dual, with a binding evidence-based sequencing rule: DO NOT SPEND THE COLD N11 BEFORE DEPTH CLOSES, because N11 failed at authority_source_controlled_replay_recording_drift at 1,569.635s in Rev 31 and every boundary that has masked that point since is now repaired, so a run launched today would reproduce the Depth measurement at the price of the only allowance held. ALSO CARRIED: B3 retired the confidence ledger on a probe taken BEFORE the source batch and BEFORE N10a's reissue, on the very stale-receipt code N10a then closed — that member is un-re-measured, not established as blocked, and re-probing costs 112 seconds. | Rev 37 — GY-DEFC-3 EXECUTED, its reissue REJECTED, and the objective is now owned by GY-DEFC-4 with both scarce allowances still unused. Settled by execution: the posture reproduces [27.931s, exit 0, stdout SHA identical to the prior accepted receipt] and the canonical writer completes in 420.560466s exit 0 — inside even the WRONG first cap of 526.392s that killed it — so NO PRODUCER REGRESSION EXISTS and both earlier kills are contention non-receipts. The reissue moved 133 leaves of which 124 fell outside the authorized N8 cascade while no denominator, comparison/admission field, transport covariate, proof hash or ambient identity moved; the executor rejected it and restored all five outputs byte-for-byte. THE REJECTION WAS RIGHT AND BETTER THAN THE ARCHITECT'S FENCE, which enumerated negatives while the executor applied the positive specification — standing rule now: acceptance is against a delta DECLARED BEFORE THE RUN, never against a list of prohibitions, because a prohibition list cannot be complete. GY-DEF14 is RE-TYPED to a CLASS with two members and its mechanism is measured: gy_waist.py:166 is_gy_content_hash_excluded_field decides exclusion BY FIELD NAME ALONE and cannot express that a block declares itself non-authority, while promotion_sequence.py:301-304 already enforces exactly that declaration. Its predicate contract is fixed [excluded only if EVERY declared provenance is non-authority; any authority element keeps the block governing; absent, empty, malformed or unrecognized is GOVERNING; scalar and list forms are one declaration; derived from the payload, never from a field list]. Measured blast radius from a 353/353 census with every self-hash reproducing: FIVE artifacts, 23 blocks, 3,721 leaves — the architect's earlier 4/353 was a grep over the scalar literal that MISSED Depth-N's nine list-form declarations, and the census supersedes it. Batch risk recorded before entry: confidence_ledger:write has NO successful sample in the log [three attempts, all exit 1] and Depth-N dominates cost at p95 2,471.3s. GY-DEF10 is CLOSED at 431bcd798 and Rev 30's "normalizer lives only in a validator" is STALE — the architect re-used it without re-measuring and the executor refuted it with evidence; a measured claim in a plan expires when a commit lands against it. ONE NEW STANDING PATTERN, P38 in §3.5.14 — a gate that turns on a PROXY misclassifies exactly at its own boundary, with four measured instances across both programmes [exit-code-as-completion, field-name-as-non-decisive, file:line-as-identity, mechanism-byte-rounds-as-wrong-design]; its corollary binds the architect: a stop rule keyed to a number, list or directory the architect supplied is itself a proxy gate, and five stops in the GY-DEFC-3 family were caused that way. | Rev 36 — the GY-DEFC-3 retry LANDED GY-DI2 and STOPPED before the expensive wave on a contradiction the ARCHITECT authored, the second in this one task. GY-DI2 is CLOSED at 1b34c7f6c and closed as a CLASS: the effective timing catalog is derived from every successful exact tool-and-mode lane in the recorded log with the repository catalog retained only as a fallback, malformed records fail closed before any budget is minted, a catalogued row with no executable timeout is no longer treated as a budget, and report-timing names every observed lane without an accepted budget in JSON, text and Markdown — 22 repository lanes, 37 effective, 27 observed, 19 successful, 6 unbudgeted, with N10a write now budgeted at its own 852,699.146 ms. The wave did not run because Rev 35 §2 excludes every non-zero exit from samples while §3 requires N10a's corrupt-field lane — WHOSE GREEN IS EXIT 1 — to run at its now-catalogued budget; the executor correctly refused to satisfy both, made no positive compliance claim, and escalated. RULED, and the ruling is the new row GY-DI4: admission is COMPLETION, NOT SUCCESS — a duration is a sample iff the run reached the lane's own terminal decision and that terminal is one the lane's contract declares a completed-work outcome, while a harness kill, a signal death, a skip and a malformed record are never admissible whatever the code, so GY-INFRA-3 Step 0 stands and is now stated by its cause, that a killed run's duration measures the CAP and not the lane. Grounded in code and not in the architect's say-so: check_layer3_gy_second_domain_pack.py:736 sets status = fail if not missing else pass and :6634 returns 1 if status == fail else 2, so exit 1 means every expected mutation was detected and exit 2 means one was missed. NOT a licence to admit exit 1 generally — architecture.guardrails:default carries 14 exit-1 records that are real failures with truncated workloads, and of the six lanes the repaired report calls unbudgeted TWO are right and FOUR are wrong. GY-DI3 AMENDED and its priority raised: the exposure is the ENVIRONMENT, not the log — the receipt-equivalent dependency set the cold chain needs lives under /private/tmp too, so a reboot erases the ability to EXECUTE and not merely to measure, and GY-DEF14 is what makes that environment non-trivial to rebuild. GY-DEFC-3 continues under a DECLARED 300s hang fence for the corrupt lane [supplied, labelled, not written into the catalog] plus one new rejection rule the architect measured against the frozen artifact, which carries the non-importing plugin posture discovery_error:entry_point:example.weighted_average:ModuleNotFoundError and manifest_id 2b8eea44…: if ambient_discovery.manifest_id or provenance_id MOVE in the reissue that is an environment mismatch and NOT a legitimate delta, and accepting it would be a GY-DEF14 rebaseline in disguise. A cheap gate exists and GY-DI2 has just catalogued it — value_gate_contract:check-catalog-provenance at a 227.856s budget, exit 0 required before the 852.7s writer is launched. ONE NEW GAP, GY-GAP4: producer-signed run terminality has been owned by this lane since 2026-08-01 with DS7 as its blocking consumer, and the routing never landed — the string appears 4 times in the Atlas master plan and 0 times here, the second instance of GY-GAP3's finding that routing a capability to a lane which does not own it leaves it unowned, this time with a dated consumer. ALSO CORRECTED, against the architect's own first reading: GY-DI3's loss is the LOG and not the ability to execute — /private/tmp/gy-def13-main.SeLIYb measures 156KB of symlinks into the durable .venv and the posture lives in an in-repo worktree, so only the 32KB timing log is irreplaceable and the operational rule until closure is to copy it before any reboot. Budgets in that log encode CONTENTION: on a 16GB/8-core host already 9GB into swap the same N10a write ranged 194.9-426.3s [2.2x], so a cap is valid only under comparable load and no memory-heavy lane may overlap the writer or the cold run. | Rev 35 — GY-DEFC-3 STOPPED before its outcome fork and the cause is NOT the producer. Its canonical N10a writer was killed twice, at 526.392s and 726.805376s, with ZERO changed leaves both times. Neither cap belonged to the lane: the timing catalog holds only second_domain_pack:rederive-audit and NO write lane, so both budgets were reconstructed from rederive-audit — the second is exactly 2 x 363.4s, that lane maximum. The data existed all along: /tmp/polisyos-tools/timing.jsonl holds SIX successful write runs [194.9, 233.1, 292.9, 334.6, 397.5, 426.3 seconds, all exit 0], so p95 is 426.3s and the E9 budget is 852.7s — the run was killed 126 SECONDS BEFORE ITS OWN GOVERNED BUDGET. No performance regression is established. TWO NEW DEBT ROWS. GY-DI2: the log carries successful samples for 19 lanes and 15 are ABSENT from the catalog, because the catalog was populated from a REQUESTED subset while nothing surfaces which lane is missing until a task guesses a budget and pays for the guess — GY-INFRA-2 Part A failing in exactly the way it was built to prevent; closure is to derive catalogued lanes from the recorded log and to name uncatalogued-but-observed lanes at the point of use, NOT to hand-add the one missing row. GY-DI3: tools/lib/timing.py writes that log to /tmp, so a reboot erases the measurement substrate Part A exists to accumulate and with it the only evidence separating a slow environment from a producer regression. ALSO RULED, because the ambiguity was the architect's: a timeout with zero changed bytes is a NON-RECEIPT, not a run — the one-reissue fence means one ACCEPTED reissue, so GY-DEFC-3 invoking the writer twice was correct and its reviewers who read it as one invocation were wrong. GY-DEFC-3 is retried with a zero step: catalog the 15 missing lanes from the log, then run N10a write at 852.7s, then one cold N11. | Rev 34 — GY-DEF13 MERGED at ec4a9f091 and verified by the architect against the merged tree: both editable entries carry direct_url_sha256 null, the governed denominator is untouched at 389/389 method_catalog_9483326427331f16, and the central witness passed — two checkout paths give different raw direct_url.json hashes [1f5c1d vs d14f53c] and identical null bindings, manifest id, provenance id and artifact SHA, while a real content change in a non-editable distribution still fails with its named code. Its cold N11 ran 138.988216s and the three catalog manifest-mismatch codes are GONE; it now stops at n8_transport_gap_receipt_drift, correctly classified as downstream_frozen_receipt_reissue_required and NOT a new source defect. TWO NEW ROWS, no sequenced or closed task edited. GY-DEF14 is the SIBLING of GY-DEF13 — there the decisive quantity was an ADDRESS, here it is AMBIENT STATE THE DESIGN ITSELF SAYS DOES NOT GOVERN: ambient_discovery.unbound_inputs records the reference environment plugin-import posture and that content feeds manifest_id and provenance_id which the comparison checks, while the SAME block carries included_in_governed_denominator false, fail_closed_action quarantine, added_component_ids empty and overlap 389 of 389 — ambient contributed NOTHING to the governed set and its incidental errors still decide the gate. Measured: a live recomputation reproduces the GY-DEF13 fix and the denominator exactly yet yields manifest fea6e14c and provenance e630af38 against frozen 2b8eea44 and 8b24b2b3, so the chain runs only in a specially reconstructed environment. GY-DEFC-3 continues the GY-DEFC-1 objective unchanged [a cold owner derivation reaches owner_bundle_loaded]: a canonical N10a five-artifact reissue then ONE cold N11, sequenced AHEAD of GY-DEF14 deliberately for information — we are one or two steps from an objective blocked for a week, reaching it once even inside the reconstructed environment tells us whether the chain is otherwise sound, and GY-DEF14 needs another surgical reissue anyway which can absorb the manifest changes in one pass afterwards. Stop rule unchanged: one reissue, one cold run, a new class STOPS the task. | Rev 33 — GY-DEF13 EXECUTED: editable installs retain an explicit not_established source-byte closure while installer-chosen address and serialization bytes no longer enter identity; non-editable distributions remain content-bound. The binding-semantics reissue is reproducible from main and a sibling worktree despite distinct raw direct_url.json hashes, all five behavioral witnesses are green, and the governed 389/389 denominator is unchanged. The sole cold N11 call ran 138.988216s and exited 1 after passing the N8 catalog-provenance boundary, at N10a's n8_transport_gap_receipt_drift before owner_bundle_loaded. Class registered as downstream_frozen_receipt_reissue_required, not a new source defect: N10a's canonical writer must reissue the intentionally dependent transport receipt and enclosing hashes, described but NOT performed under the one-run stop rule. | Rev 32 — GY-DEFC-2 EXECUTED and merged: drift failures on the embedded-recording path now report recursive leaf paths, frozen/live operand roles with SHA-256 identities, recording role and admission arm, without raw values; two independent reviews each found a real boundary defect [a trusted string prefix that could smuggle raw detail, and annotations not enforcing runtime type so a duck-typed object could cross] and both were closed with a typed diagnostic on the exception chain, exact runtime-class enforcement, and no governed public-surface expansion. Its verdict is not_established and correct: the single cold N11 call ran 104.592529s and exited at n10_capstone_provenance_unstable BEFORE the embedded-recording comparator. ONE NEW DEFECT, GY-DEF13, found by the architect while adjudicating that result, and it is THE NEXT TASK because it blocks the whole cold closeout: catalog_provenance binds direct_url_sha256, which hashes direct_url.json, whose content for an EDITABLE install is an absolute filesystem path plus installer-chosen key order and whitespace. Measured on main: live sha256:1f5c1d0c against frozen sha256:b8bd6145 — MISMATCH, so MAIN CANNOT VERIFY ITS OWN FROZEN ARTIFACT because the manifest was produced in a worktree and binds that worktree path. Stated exactly: the manifest binds the ADDRESS and the packaging metadata FORMATTING while honestly declaring source_byte_closure not_established for the same entry — it binds what does not matter and declares it cannot bind what does. GY-DEFC-1 architecture is RIGHT and one member of its declared set is the WRONG QUANTITY. This is P37 INVERTED: not a predicate declared where it should be constructed, but a predicate constructed over the wrong quantity, so the gate fails closed on differences carrying no semantic content. Forbidden closures include rebaselining the frozen hash [it ping-pongs exactly as 3c16857f8 did] and normalising the path to a placeholder while still gating on it. | Rev 31 — GY-DEFC-1 EXECUTED and its standing recorded: the two class owners LANDED [merged e18861d12] but the objective did NOT. catalog_provenance v1 makes P37 machine-enforced data — predicate_admission_policy admits only recomputed/independently_reconciled, governed_discovery.unbound_inputs is empty, ambient discovery is recorded and excluded with fail_closed_action quarantine, runtime_backend_identity binds the backend fingerprints — and the seal covers 2,088 members with ZERO decisive asserted/supplied/unestablished predicates. Depth-N passed for the FIRST time at 2,452.360s. The denominator is unchanged. N11 failed at authority_source_controlled_replay_recording_drift after 1,569.635s before owner_bundle_loaded. ONE NEW TASK, GY-DEFC-2, in the same out-of-sequence defects block; no sequenced or closed task edited. Its objective, named as an objective [P30]: a drift failure states what changed. The diagnosis merged at 8d87624db returned not_established CORRECTLY and first resolved the standing puzzle: Depth-N direct green and N11 red are NOT the same comparison — the Depth writer took v1 recordings with no admission and wrote v2 with admission_kind=migrated, and N11 was then the FIRST paid live replay of the admitted-v2 branch, so the direct path exercised MIGRATION while the failing path exercised REPLAY OF MIGRATION OUTPUT. One error string, two code paths; the earlier same-signal-therefore-same-defect reading was P36. It could go no further because the failure emits recording_content_hash — a DERIVED SYMPTOM — retaining neither operand role nor changed leaf, which is exactly what discriminates GY-DEF10-incomplete from a seventh class. The reframe that makes GY-DEFC-2 worth doing on its own terms: a failure path that reports a symptom and retains neither role nor changed leaf IS ITSELF A DEFECT, so the instrumentation is a permanent improvement to failure reporting rather than a throwaway probe — and this project has already paid a full session for that opacity once. BINDING STOP RULE: classify, do not repair; the repair is a separate decision taken knowing what to fix, and rebaseline remains forbidden. | Rev 30 — ONE NEW CLOSURE TASK, GY-DEFC-1, registered in the out-of-sequence defects block; no sequenced or closed task edited. Objective, named as an objective and not a mechanism [P30]: a cold owner derivation reaches owner_bundle_loaded. This is the single critical path in the GY lane — GY-INFRA-3 Step 1, GY-GAP1 and every N-series closeout queue behind it. The structural reading is why it is one task and not six repairs: GY-DEF7-GY-DEF12 are instances of TWO questions plus one integrity rule. WHAT DID THIS COMPUTATION CONSUME — GY-DEF6 [closed], GY-DEF9, GY-DEF11, GY-DEF8 and the refuted GY-INFRA-2 Part C key are five instances of a missing CONSUMED-SET owner. WHAT DOES EQUAL MEAN FOR THIS ARTIFACT — GY-DEF7 and GY-DEF10 are two instances of a missing CANONICAL-PROJECTION owner, and the evidence that the owner is absent rather than bypassed is measured: exclude={content_hash}/{record_hash} is declared independently at 10 call sites across 7 modules, every model carries its own _content_hash_matches_payload, and the comparison normalizer _preserve_operational_values lives only in a validator at check_layer3_gy_depth_n_universality_contract.py:6748 rather than with the artifact it normalizes. Identity is declared per call site; comparability is declared once in the wrong layer. GY-DEF12 is the integrity of the first answer — a declared member can be rebound between declaration and use — and closes by binding member IDENTITY rather than name. Two engineering deliverables therefore, not six patches, plus a P31/P35 census of every governed producer read of process or environment state before any repair. Economics fixed from the GY-DEF6 measurement: that cascade found its defects ONE AT A TIME at roughly a session round each and reached 46/81 bookkeeping commits [57%] against the 47% churn E11 was built to prevent, so this task repairs all known classes in ONE source batch and runs the chain ONCE, keeping the freeze boundary and batch discipline while dropping the per-event ledger ceremony. BINDING STOP RULE: a seventh defect class exposed by that single run STOPS the task — register and report, do not repair and re-run; a second cascade is forbidden. | Rev 29 — GY-DEF6 closed on the SOURCE-DEFECT axis at e708e8f77 without changing the recorded 389/389 denominator; the COLD-CLOSEOUT CAPABILITY axis remains BLOCKED because the terminal N11 writer failed before owner_bundle_loaded. Six distinct cascade defects GY-DEF7–GY-DEF12 are registered outside the main sequence with evidence and smallest correct closure, and the E11 trial is recorded negative: 46/81 cascade commits [57%] were bookkeeping versus GY-N11's 17/36 [47%], so retain the freeze/batch discipline but do NOT wire the per-event gate into 41 validator entrypoints. | Rev 28 — GY-INFRA-3 Step 0 executed and its verdict adopted; ONE NEW DEFECT, GY-DEF6, registered in the out-of-sequence defects block and NO sequenced or closed task edited. Step 0 delivered the diagnosis but NOT a healthy cold profile: the one permitted cold --check ran 297.938s and failed closed again before any owner bundle returned, with nested provenance stability at 174.321s [77.859% of the observed N10 call] returning drifted, so N13b, both projections, the post-fence, the owner return, the cache-hit pass and ALL mode-specific work stay not_established and are explicitly NOT zero. GY-DEF6 is the live blocker and the architect quantified it beyond the delivered diagnosis: the N8 method denominator is a function of the ENVIRONMENT, not the repository — record before 3c16857f8 was 390/390/method_catalog_3240b5a4637e46b8, the record now is 389/389/method_catalog_9483326427331f16, and a live recomputation on 2026-08-08 returns 390/390/method_catalog_3240b5a4637e46b8, byte-identical to the PRE-rebaseline record with snapshot_stable true on both sides. So this is not nondeterminism but a one-method delta that is deterministic within an environment and different across environments, and rebaselining is the WRONG repair because it ping-pongs the record rather than converging. P37 in production code: the gate turns on a predicate supplied by the ambient environment [include_entry_points and include_dev_scan] while the frozen record binds none of its identity. DECISIONS on GY-INFRA-3: Step 1 [mode consolidation] is DEFERRED — not for want of an estimate but because its acceptance test, consolidated == six-process byte-for-byte, is UNRUNNABLE while the six-process baseline fails closed. Step 2 [E11 enforcement] PROCEEDS NOW and must land BEFORE the GY-DEF6 repair: it is the only one of the three not blocked by the drift, its expected value was already an order of magnitude above the cache [~10h per incident against ~80min per cycle], and the GY-DEF6 repair is precisely the change that triggers the E11 failure mode — producer fix, reissue N8, reissue N10a, full-chain replay with reviews arriving mid-flight. Order is fixed: Step 2, then GY-DEF6, then repeat Step 0 on a healthy path, then decide Step 1. | Rev 27 — GY-INFRA-2 executed and merged at e089f508b: A and B green [41 GY validators persist direct-entry timings; a 22-lane budget catalog with measured p95 and E9 2x timeouts; a repo-owned full/delta review packager with a replayable 43,897 to 899 byte ratio receipt], C CLOSED NEGATIVE at Gate 0 as its own Done-when permits, zero bytes under src/polisyos/** so no E12 identity moved and no replay was owed. ONE NEW TASK, GY-INFRA-3, in the same out-of-sequence 3.5.7 block and NO closed task edited: the objective Part C aimed at [stop paying the cold owner-bundle build six times per closeout cycle, 1h37m at measured p95 against a 2.3-4.0s in-process second derivation] survives its negative, because Gate 0 refuted ONE ROUTE and not the objective. Diagnosis recorded in the row so it is not repeated: the plan cited the wrong cache object [P36], mandated the authority import closure as the key when that closure omits every dynamic producer while the module already carried a CONTENT fence with pre/post fail-closed checks [E12 binds what an artifact IS, a cache key must bind what the computation CONSUMED], specified a witness set that is internally unsatisfiable against the deployment baseline, and — the deepest layer — NAMED THE TASK BY ITS MECHANISM, putting Gate 0 inside a title that had already chosen the answer, so a negative gate could only kill the task and never redirect it [P30 raised from modules to tasks]. This is P37: the gate was specified while the predicate it turns on was declared, not constructed. The real cause of six payments is build_parser()'s add_mutually_exclusive_group(required=True) — the repository already has the key, the fence, the fail-closed check and a proven in-process cache, and lacks only a lifetime longer than one process. Step 0 is BLOCKING and verified live: the Gate-0 cold attempt failed closed in n10_capstone_provenance_unstable, and main changed ONLY documentation between the task base 4b9e76f20 and 109ba3f44 — 0 files under policy-engine/src and 0 under architecture/policy_design_case/ — so the derivation inputs are byte-identical and the drift is live on main. A cycle that cannot complete cannot be accelerated. | Rev 26 — the public-verification and disclosure kernel PV-K01–PV-K09 is RATIFIED [docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md], the third act after Stage-0 custody and INT-wave claim semantics; its subject is what a public PROOF and a public PROJECTION may mean. Consequences INSIDE this plan, and NO closed task is edited — annotations attach only to the out-of-sequence registered-gaps block and to GY-N12. ONE NEW GAP, GY-GAP3: ratified PV-K07 [prefix discipline, the accepted no-number claim over a versioned declared release family under custody] presupposes an append-only transcript carrying membership, chronology, current heads, model/rule versions, inputs and verifier dispositions — and a complete search of policy-engine/src for release_family, release_transcript, disclosure_transcript and controlled_release returns ZERO files. Consequence stated plainly: PV-K07 is ratified but NOT ISSUABLE, so the wave ratified a statement this repository cannot yet make. Two corrections to the consolidation are carried by the act and recorded in the gap row: the label is absent/unallocated and NOT contract_only [which presupposes an admitted contract that does not exist — and mislabelled capability maturity was the single blocking finding of EACH of this wave's two audits], and the owner is the GY-N12 lane with GY-PA3 as consumer, NOT "GY-PA3 plus custody integration" — GY-PA3 is scoped here as a compression-loss ledger, not a release-history transcript, and routing an unowned capability to a lane that does not own it leaves it unowned. GY-N12 gains the matching rider: the release-family transcript is the same append-only shape N12 already owns for epochs, so consume it rather than creating a second chronology owner [INT-K05/P27/P28], with two release-specific properties that must survive — deleting or post-hoc narrowing a controlled release FAILS the check, and an unknown external copy LIMITS the claim rather than being treated as complete or as a full block. Standing: INT-R7 GO_WITH_REVISIONS with its independent closure gate now met at 3883b454; INT-R8 accepted_narrow_scope at controlling head 286ade10, verified CONFORMS at 8a0847ff. The wave's own structural result is unchanged from Rev 25 and now doubly confirmed: no active research remains on either first-milestone path — what is left is engineering [nine items in existing lanes, including GY-GAP1 and now GY-GAP3] and institutional evidence. | Rev 25 — the INT-wave claim-semantics kernel INT-K01–INT-K08 is RATIFIED [docs/system-design-decisions/int-wave-claim-semantics-ratification.md], a separate decision from the Stage-0 custody kernel because its subject is what a NUMBER may mean, not who owns a claim. Consequences INSIDE this plan, and NO closed task is edited — annotations attach only to the out-of-sequence registered-gaps block and to GY-N12 and later. GY-GAP1 gains the executable acceptance test the gap previously lacked [remove one decisive obligation INSTANCE, keep the class denominator total, the authority result must turn red] and is flagged as the one registered gap sitting on the critical path to a first governed promotion, because the INT-R1 seam maps known_incomplete to NO-GO. GY-GAP2 is re-typed from open-and-unscheduled to BLOCKED-ON-PRODUCT-DECISION: under the ratified K06 a first promotion carries CUSTODY without a risk number, so no consumer needs a family number today, and the gap activates only if the architect later decides a surface must carry one; its implementation constraints are now fixed by K04 [membership and chronology declared before result-bearing execution; local caps enforced prospectively; the owner reproduces membership, chronology and current heads] and K05 [per-problem scope identity untouched, no parent scope, no second ledger]. GY-N12 gains an INT-R1 reissue rider: a missed obligation discovered after issuance is a revision trigger whose cascade is challenge → invalidation → new epoch → reissue, append-only, with the old arithmetic remaining historically reproducible while current authority is withdrawn. GY-DEF5's narrowed disposition is confirmed by the ratified K01 and remains a docstring fix. The wave's structural result, recorded here because it re-prioritizes this plan: the critical path to a first public governed promotion no longer runs through any open research — INT-GAP-01, INT-GAP-02 and GY-GAP2 are all off it, and what remains is institutional evidence plus GY-GAP1. | Rev 24 — GY-GAP2 arithmetic correction, raised by the INT-R10 independent audit and verified against live source. The gap is UNCHANGED and still real — no family declaration, no chronology verifier, no aggregate current-head projection, so nothing canonical composes several confidence scopes. What was wrong is the arithmetic characterization: Rev 23 said three scopes each start "at ordinal 0 with a fresh δ", implying an available family risk of 3δ. That conflates a scope's ROOT BUDGET with what a check ALLOCATES. The Basel-square kernel allocates α_t = δ · obligation_weight · schedule_mass · (6/π²)/(t+1)², and the coefficient is chosen so the series telescopes to exactly δ · weight · mass; since no live pool carries weight 1 [the seven are 1/5, 3/20, 1/5, 3/20, 1/10, 1/10, 1/10], one scope's total scheduled risk is STRICTLY BELOW δ and three scopes are far below 3δ. The error was inherited from the INT-R9 audit's own phrasing and propagated four documents deep before the INT-R10 audit caught it — an audit's wording becomes downstream authority, so audits need the same enumerate-don't-generalize discipline as orientation packs. Direction of the error is SAFE: the system is more conservative than the earlier wording implied, never less. The exact constant depends on which pool carries the single live e-process; pinning it belongs to the INT-R10 revision and no figure is quoted here. | Rev 23 — repository findings measured by the Wave-2 INT-R1/INT-R9 research audits recorded OUTSIDE the main sequence, verified against live source at d152565dc; this block records and schedules nothing. One new DEFECT: GY-DEF5, the obligation enum's docstring calls itself the "Universal N9 obligation-class denominator" — the INT-R1 research read the enum itself as a Rule-12 capability-gating defect, its audit NARROWED that to the word "Universal" [INT-R1-G-001], and the narrowed reading is what is recorded: a governed versioned denominator participating in a gate is legitimate, but describing it as universal asserts a closed world that INT-R1's impossibility result shows we cannot establish. Claim defect, not behaviour defect — the enum must NOT be opened or dissolved. NEW BLOCK "Registered gaps", a third category distinct from defects and debt — capabilities the repository does not have, which downstream research has now proved are needed: GY-GAP1, PromotionObligationRecord carries obligation_class + gate_id and NO instance identifier, so deleting one decisive obligation instance while its class stays populated is unrepresentable and the INT-R1 OM-01 falsifier cannot execute [INT-R1-H-002]; GY-GAP2, the confidence ledger keys its budget on design-problem:<design_problem_id> as "the only N11 risk scope admissible for one N9 problem binding" and has NO cross-scope composition at all [grep for cross_scope/family_wise/parent_scope returns nothing], so any protocol evaluating several design problems under one declared bound has no canonical arithmetic — this is precisely what made INT-R9 NO_GO, since three fresh cases open three scopes each at ordinal 0 with a full delta [INT-R9-C-001/D-001]. N11 is NOT wrong: per-problem non-resettable scopes are the right primitive and scope identity must not be weakened; composition simply was never needed until now. | Rev 22 — the Stage-0 custody kernel S0-K01–S0-K16 is RATIFIED [docs/system-design-decisions/stage0-custody-kernel-ratification.md] and OPS-R4 is adopted as the Custody Time Model [docs/system-design-decisions/policy-design-custody-time-model.md], the fourth layer of the causal OS beside data/GY-S, grounding/CGF and search/RACE-HOG-PODS. Thirteen statements ratified as written; three amended: K01 takes S0-GAP-01's "PolicyOS custody subject" naming, K14's oracle-independence is scoped to VERIFICATION claims [a same-code rebuild stays legal and proves consistency], and K06 gains the band split — fail-closed binds protected actions/published claims/custody facts while the candidate band may work under a DECLARED unknown, so silent substitution is the violation and a declared assumption is not. Consequences INSIDE this plan, no task scope change: the registered defects are re-typed from "found" to violations of a ratified rule — GY-DEF1 violates K06 [with the silent-vs-declared distinction now sharpening its closure signal], GY-DEF3 violates K06/K11, GY-DEF4 violates K05/K07 and its fix is now fully specified by CTM §7 [remove the literal "admitted" from mismatch_disposition; use consistent/inconsistent/insufficient_evidence/blocked_for_owner_review], so closure needs no design. Also accepted: OPS-R15 SCORING is blocked until S0-GAP-02 delivers an independent oracle [designing it under K13/K15 is not blocked], and content-hash-keyed caches survive K12 because E1 reproduces COMPUTATION, not ADMISSIBILITY. The constitution is not amended — nothing in the kernel conflicts with the twelve Organizing Rules. | Rev 21 — four live repository defects registered OUTSIDE the main sequence as GY-DEF1/2/3, surfaced by the Stage-0 research cross-audit [research branches on origin, unmerged] and each independently re-verified on current main before recording: GY-DEF1 unknown/absent jurisdiction silently resolves to UkrainianJurisdiction via three fallbacks, in the L3 legal-corpus production lane, latent until a config omits or mistypes the code; GY-DEF2 a tenant-private CAS ref in the caller payload reaches the public export bundle - the only one crossing the public boundary and NOT latent, its test fails on main today, and that test is neither skipped nor recorded in any baseline manifest, so the full-suite lane is not being triaged; GY-DEF3 CheckpointMetadata carries no tenant/cell binding, latent enabler blocking the S0-K06/K11 closure H2 needs; GY-DEF4 a temporal HTTP diagnostic mints the literal "admitted" that runtime/quality/authority.py gates on as the implicit pass - direction is safe by default since unknown values fall into the obligation branch, but the collector accepts that key from any nested Mapping and the two modules are coupled only by a duplicated string literal. The block records and schedules nothing; fixing is a separate decision. | Rev 20 — GY-N11 economics lessons folded into §3.5.7 as E11–E12 and one registered debt row, measured mid-flight, no in-flight scope change: E11 freeze-source-then-review-then-replay-once [reviews that arrive after an artifact freeze re-price the whole chain: in N11 one post-freeze repair produced 7 consecutive full-chain reissues, and 17 of 36 commits / 47% were pure receipt churn]; E12 bind artifact identity to the authority import closure, not the source tree [2,553 files bound vs the 120-module closure already derived in the same module = 21x over-binding]; new GY-DI1 debt row registers the narrowing as its own reviewed slice, since it changes authority-binding semantics. Both are sequencing/scoping rules — they reduce nothing that is verified. | Rev 19 — identity-decision audit of all post-N11 scope [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: Phase-6 identity & INT-R4 research-input rider; O1 performativity cause-class typing; O3 self-confirmation red-first negative; Phase-7 gains the OPS-R15 custody-capstone linkage + INT-R9 first-promotion-protocol gate; cross-cutting suspension-forward-compatibility note on acquisition_required terminals. | Rev 18 — deep-research distillation §6.5 adoption, sequenced strictly after the in-flight GY-N11: GY-N12 gains the post-publication perturbation-cascade + P29 δ-conditional rider [M36/M25]; three new post-N11 Phase-5 authority producers GY-PA1 NormativeAuthorizationRecord / GY-PA2 D3 delegation gate / GY-PA3 compression-loss ledger [M33/M37/M38]; earlier through 2026-07-08)
 revision: 15
 slice: GY
 scope: cross-slice
@@ -14,6 +14,8 @@ depends_on:
   - docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
   - docs/system-design-decisions/policy-design-best-in-class-operating-model.md
   - docs/system-design-decisions/policy-design-search-target-spec.md
+  - docs/system-design-decisions/stage0-custody-kernel-ratification.md
+  - docs/system-design-decisions/policy-design-custody-time-model.md
   - docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md
   - docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md
   - docs/reference/policy-design-case-failure-patterns.md
@@ -226,7 +228,7 @@ N2/N4/N6/N7/N8/N9/N11/N12. Decision doc:
 `docs/reference/`. **Status: the entire CG block executed and closed honest (2026-07-03).**
 
 **Revision 14 (2026-07-04; restored 2026-07-08 — same loss).** Codified the **compute-economics
-gates** (new §3.5.7, E1–E10) distilled from the GY-N4 saga (a correct closure cost ~4h because the
+gates** (new §3.5.7, E1–E14 — E11–E14 + GY-INFRA-2 added Rev 20 from GY-N11) distilled from the GY-N4 saga (a correct closure cost ~4h because the
 full world was rebuilt in every validator/probe/unit run), plus the **GY-INFRA-1** build task
 (content-hash world cache proven byte-identical cold≡warm + one-process sweep-runner + heartbeats)
 and compute-economics riders on N5–N10. **Status: GY-INFRA-1 executed and closed (warm closeout
@@ -664,7 +666,7 @@ four — so the implementer builds to them on the first pass instead of rediscov
 rounds. Verification stays **targeted** (§Commands; blast-radius + recomputing validators + ruff +
 guardrails), never full pytest.
 
-### 3.5.7 Compute-economics gates (the GY-N4 lesson — binding for every task with expensive shared state or a live provider; restored Rev 15)
+### 3.5.7 Compute-economics gates (the GY-N4 lesson, extended by GY-N11 — binding for every task with expensive shared state, a live provider, or content-bound artifacts; restored Rev 15, E11–E14 + GY-INFRA-2 added Rev 20)
 
 Distilled from the GY-N4 saga: a **correct** closure cost ~4 hours because the full world
 (CredalReference + 792k-edge FTS index + composed WMR) was rebuilt in every validator/probe/unit
@@ -691,10 +693,236 @@ O0–O3, and every closeout sweep:
    recorded historical → stop + profile. Never kill a progressing cold build.
 10. **E10 Diagnose from already-paid evidence first** — build the failure table from data on disk
     before any fresh run.
+11. **E11 Freeze the source, then review, then replay — once (the GY-N11 lesson; NEW, Rev 20).**
+    Where artifacts are content-bound to source, the replay is the expensive act and **every source
+    edit re-prices it**. Order is therefore binding: complete implementation → run **all**
+    independent reviews against the **exact source** → apply every accepted repair → *then* replay
+    the receipt chain a single time. Never freeze artifacts before the reviews that could invalidate
+    them. **Measured cost of getting this backwards in GY-N11:** reviews ran after
+    `450bc31f3` "finalize deployment-bound receipts", returned three NO-GO findings, forced one
+    source repair (`86a79fe96`), and that repair alone produced **seven** consecutive full-chain
+    reissue commits. Across the slice, **17 of 36 commits (47%) were pure receipt churn**, and the
+    frozen-artifact diff (16,002 insertions / 12,685 deletions across 23 JSONs) rivalled the source
+    diff. The reviews were right and worth running — they were run at the wrong point. Corollary:
+    once source is frozen, a *cosmetic* finding (import ordering, docstring, naming) is **recorded
+    as debt, never fixed**; a blocking finding is **batched** with any others so the replay is paid
+    once.
+12. **E12 Bind artifact identity to the authority closure, not the source tree (NEW, Rev 20).**
+    A deployment/source identity that hashes a whole tree makes every unrelated edit invalidate
+    every bound receipt. Bind to the **transitive static import closure of the authority entry
+    module** — the set that can actually change the computation — and prove the closure is derived,
+    not enumerated. **Measured in GY-N11:** `_deployment_relative_paths` binds **2,553** files
+    (`src/polisyos/**/*.py`), while `_resolve_authority_import_closure`, *in the same module*,
+    already computes the real **120**-module closure — a **21×** over-binding. Only three artifacts
+    are deployment-bound (N9, generation-cycle, N11), but each costs ≈1.5–2 h of cold recomputation,
+    so any source byte anywhere in the tree bought that bill. Fairness note for future reviewers:
+    over-binding is not the same as a wrong replay — GY-N11's `polisyos/fabric/__init__.py` edit
+    *was* inside the 120-module closure and its replay was legitimate. Narrowing the identity
+    changes authority semantics, so it is a **planned slice with review + one replay**, never an
+    in-flight optimization.
+
+13. **E13 Serialize the contended resource, not the whole session (NEW, Rev 20).** "One validator at a
+    time" is binding **only for the lanes that actually share state**: the composed-WMR / DuckDB
+    scratch (`.tmp/gy-s-composed-wmr-world`, FTS index, owner caches), any writer touching the same
+    canonical artifact, and the source-flip harness (it mutates tracked bytes). Everything that
+    touches none of those — lint, typecheck, package/unit logic tests (Lane 0), production build,
+    architecture/dependency checks, read-only censuses — **may run in parallel with a long owner
+    replay**. **Measured in GY-N11:** the slice idled every other lane through an 80-minute Fork-B
+    census and repeatedly through ~950 s owner derivations, because the rule was written without a
+    resource list. A slice that serializes a non-contending lane is paying for nothing; a slice that
+    parallelizes a contending one corrupts shared scratch. Name the contended set in the task plan.
+14. **E14 The verification harness is itself measured and bounded (NEW, Rev 20).** Three sub-rules,
+    each from an observed loss:
+    (a) **Measured timeouts.** Each slice measures every suite's wall time **once** and sets explicit
+    per-suite timeouts from that baseline. An unmeasured default timeout that kills a healthy run is
+    a **harness finding**, not a product signal — the run→timeout→non-receipt→rerun loop cost DS4 and
+    N11 repeated full suites. E5 makes overrun a finding; E14(a) makes *unmeasured* budgets one too.
+    (b) **Delta-only re-review.** The first independent review reads the full package; **every
+    re-review after a fix reads the fix delta only**, with the original findings as its checklist.
+    N11 and DS4 both lost reviewer runs mid-flight to quota exhaustion on 182 KB / 220 KB packages;
+    DS4 did it right exactly once (a 28 KB delta package) — that is the rule, not the exception.
+    (c) **Silent polling.** Poll long runs without narration; report only a state change (stage
+    complete + receipt, RED, or stop condition), one line. **Measured in GY-N11:** per-minute
+    "still healthy / still CPU-active" messages drove ~15 context compactions in one session, each
+    risking state loss and re-derivation. E9 requires heartbeat *evidence*, never heartbeat *prose*.
 
 **Never loosen a §3.5.6 correctness gate to satisfy an economics one** — a warm/cached run is
 legitimate only because it is content-identical to the cold rebuild, and the cold closeout still
-runs.
+runs. **E11–E14 are sequencing, scoping, and harness rules — they never reduce what is verified**,
+only when the verification is paid for, what legitimately triggers it, and how it is observed.
+
+**GY-INFRA-2 — three pure-economics improvements (NEW, Rev 20; C is measurement-gated).**
+Owner: **runtime/quality lane**. Sequence **after GY-N11 merges** — never under a running agent.
+None of the three changes what any validator verifies. **Execute A → B → C:** A and B touch
+`tools/` only and trigger **no artifact replay**; C changes `src/polisyos/**`, so under E12 it moves
+the deployment identity and re-prices N9 → generation-cycle → N11 (≈1.5–2 h). C last means the
+replay is paid once (E11), and A/B survive a negative Gate 0.
+
+- **A — persist and publish validator timings.** The validators already measure themselves (E5; the
+  N11 checker alone carries ~40 duration records) but the numbers are printed and lost, so every
+  slice rediscovers them by hitting a default timeout → non-receipt → rerun. Reuse
+  `tools/lib/timing.py` (`ToolRunRecord`, JSONL + retention, percentiles, `DEFAULT_TIMING_BUDGETS_MS`).
+  **Caveat:** GY validators are standalone scripts, essentially unregistered in the CLI registry —
+  this is extend-existing, and whichever integration is chosen **must not change how plans and
+  prompts invoke them**. Publish measured p95 budgets for the expensive lanes. Closes E14(a).
+- **B — delta-review packager.** E14(b) is a rule with no tool; 182 KB / 220 KB packages exhausted
+  reviewer quota mid-review in both the DS4 and N11 lanes, and DS4's correct 28 KB delta was built by
+  hand with a session plugin that then vanished. Deliver a repo-owned tool producing a full package
+  for a range and a **delta** package carrying the prior findings as its checklist
+  (`tools/ops_runners/data/build_expert_review_bundle.py` is a pattern to read).
+- **C — persist the E1 owner cache across processes.** E1's cache is
+  `self._world_cache: dict[str, object]` (`.../quality/generation_cycle.py:1540`) — in-memory only,
+  so each separate closeout process re-pays the cold build. **N11, one cycle:** 1,086 + 951 + 951 +
+  937 + 975 + 952 s ≈ **1 h 52 m**, while the *in-process* second derivation costs **2.3–4.0 s** — a
+  **~240×** ratio paid six times per cycle, over several cycles; with a cross-process cache ≈ **17
+  min**. **Gate 0, mandatory before implementation:** profile which components dominate
+  (CredalReference / 792k-edge DuckDB FTS index / composed WMR) and which are serializable —
+  measured, not assumed. **A negative spike closes C honestly**; do not ship a partial cache that
+  persists the cheap parts and still pays for the expensive one. **Binding conditions:** key on the
+  **authority import closure** (E12, never a file tree); **fail closed** on any key/content
+  mismatch — a cache believed without recomputation is the §3.5.6-gate-2 "trusted JSON" hole;
+  atomic writes; the **Lane-2 cold closeout still runs uncached, once** (E3). Nothing is weakened:
+  E1 already contracts a hit as identical to a rebuild by construction, and `--check` independence
+  is about refusing the *artifact's recorded values*, not the provenance of owner state.
+  **Witnesses:** cross-process hit ≡ cold build byte-identically; a byte inside the closure misses;
+  a byte **outside** it hits (the negative control **GY-DI1** records as missing — closing it here
+  updates that row); forged/truncated/foreign-identity entries fail closed; racing writers leave no
+  torn entry.
+
+**Done when:** A and B committed green; C either committed with all witnesses green and `cold ≡ warm`
+proven, or closed with a written negative Gate-0 finding and its numbers; closeout wall time reported
+before and after; and **no semantic denominator anywhere changes**.
+
+**Status (Rev 27): executed and merged at `e089f508b`.** A and B green — 41 GY validators persist
+direct-entry timings, a 22-lane budget catalog carries measured p95 with E9 `2x` timeouts, and a
+repo-owned full/delta review packager ships with a replayable `43,897`→`899` byte ratio receipt.
+**C closed NEGATIVE at Gate 0**, as this Done-when permits. Zero bytes under `src/polisyos/**`
+changed, so no E12 identity moved and **no replay was owed**. Carried non-blocking: the
+`historical.gy-n10-cg1-l2-census` lane budgets a `/tmp` command that does not exist; 16 of 22 lanes
+are single-sample, so their `p95` **is** that sample and `report-timing` does not print the sample
+count; the retained-formatter-debt count is three where `ruff format` reports four. **The catalog is
+a lookup, not a gate** — `recommended_timeout_ms` appears only in validation and rendering, and
+`run_timed_suite.py` calls `subprocess.run(...)` with no `timeout=`; the saving is avoided
+kill-and-rerun, and it materializes only while the discipline is followed.
+
+**Rev 42 — the two carried non-blocking items above are now CLOSED. `GY-INFRA-2` itself is not
+re-closed and its Rev-27 standing stands unchanged.** Branch `codex/gy-di-timing-lane`, commits
+`32cfdfac3` and `1c6e36067`; 13 changed Python files, **zero under `src/polisyos/**`**, so again no
+E12 identity moved and no replay was owed.
+
+**Architect error, recorded because it cost an agent cycle.** This work was commissioned as
+"`GY-INFRA-2` Part A and Part B" while the status block directly above already reads *executed and
+merged at `e089f508b`* (2026-08-08, 53 files). The brief's premise was false in both halves — the
+executor found the persistence path already present in all 41 validators and the review packager
+already shipped at 1,041 lines with its own tests — and it measured that before building rather than
+building over it. **The failure was mine and it was a reading window:** the section was opened twice
+this session and closed five lines short of its own status line. A plan is only a record of what is
+done if the reader reaches the line that says so.
+
+**Carried item 1 — the single-sample `p95` — closed, and generalized in the closing.** Rev 27
+carried that "16 of 22 lanes are single-sample, so their `p95` **is** that sample". The arithmetic is
+worse than the note: a nearest-rank p95 picks index `ceil(0.95n) - 1`, which **is `n - 1` for every
+`n ≤ 19`**, so the two first separate only at `n = 20`. Measured on the committed catalog: **0 of 22
+lanes reach 20 samples, 16 rest on a single sample, and all 22 store a `measured_p95_ms` equal to
+`max(samples_ms)`** — not 16 of 22 but every one of them. Every published "p95" in this repository
+was a maximum wearing a percentile's name, which is `E14(a)` inverted and a `P38` instance in a label.
+**Closure is relabelling, not blanking** — blanking would discard real ceilings that are honest as
+maxima. Each lane now carries `budget_basis` ∈ `p95` (`n ≥ 20`) · `max_observed` (`1–19`, and it *is*
+the maximum) · `declared` (`n = 0`, the `GY-DI2` path), and `published_p95_ms` stays `None` unless the
+basis is `p95`. The stored schema is untouched: those rows are cited evidence.
+**What this does NOT deliver, stated so it is not read as delivered:** no lane publishes a real p95
+today and none is close — zero have 20 samples, the expensive lanes run for minutes, and the
+substrate was lost with `GY-DI3`. `E14(a)` is therefore closed in its own wording — *an unmeasured
+budget is a finding* — and **not** in the reading "the expensive lanes now have measured p95 budgets".
+
+**Carried item 2 — the delta package did not state what it omits — closed.** The packager shipped at
+Rev 27; a reader could infer the boundary only from `base_commit`. Delta packages now carry a
+`delta_scope` section rendered **before anything it qualifies**, naming what is included, what is
+excluded, that **absence is not evidence that the excluded material is unchanged or correct**, and the
+command to rebuild the full package. Deterministic by construction — no timestamps, paths or
+environment — so the byte-identical rebuild guarantee holds. Cost measured: `+897` bytes;
+`SCHEMA_VERSION` `1 → 2`; the ratio receipt regenerated by replaying the test's own fixtures, whose
+commit ids came back identical, confirming only package bytes moved. Verified on a real range from
+this branch: full `202,311` bytes — inside the `182`–`220` KB band that exhausted reviewer quota in
+N11 and DS4 — against a `19,605`-byte delta.
+
+**Executor error, recovered, recorded.** A tracked 1,041-line tool and its 25-test file were
+overwritten by a `Write` that did not first check for a collision; the executor caught it from a
+sibling module's failed import and restored both from `HEAD` before committing. Architect-verified:
+the two files differ from `main` by `+38/−8` and `+86/−2` — additive, not a rewrite. Nothing was
+committed in the broken state. The cause is worth keeping beside the architect error above: the brief
+described the tool as something to *deliver*, so the executor took a filename from the description
+instead of measuring the directory — the one place in the task where it did not measure first.
+
+**GY-INFRA-3 — recover the speedup Part C was aimed at, by the route Gate 0 left open (NEW,
+Rev 27).** Owner: **runtime/quality lane**. **The objective, stated as an objective and not as a
+mechanism:** *stop paying the cold owner-bundle build six times per closeout cycle* — `951 + 1,173 +
+952 + 975 + 937 + 844` s ≈ **1 h 37 m** at the measured p95, against an in-process second derivation
+of **2.3–4.0 s**. Part C's negative refuted **one route** (cross-process persistence); it did not
+touch the objective, and this row exists so the objective has a home. Sequenced **after** the GY plan's
+current lane, never under a running agent.
+
+- **Why C could not have succeeded as specified — three layers, recorded so the next task does not
+  repeat them.** (1) *Wrong object* — the row cited `self._world_cache` at `generation_cycle.py:1540`;
+  the live attribute is `_boundary_world_cache` at `:993` and it only dedupes an already-supplied
+  `WorldModelRecord` inside one value-port. The real hit/miss boundary is the `@lru_cache(maxsize=4)`
+  on `_load_owner_bundle_cached` in `tools/quality/validation/layer3_gy_confidence_ledger_contract.py`
+  (`P36`). (2) *Worse key than the one already present* — the row mandated the **authority import
+  closure** (E12), which resolves `120` modules and omits **every** dynamic producer
+  (`generation_cycle`, `credal_reference`, `grounding_relation`, `intervention_substrate`,
+  `data_state_substrate`), because late-bound producers are unreachable from a static closure; the
+  module meanwhile already carries `_owner_cache_fence`, a **content** fence read from the real input
+  artifacts, evaluated before *and* after derivation and failing closed as
+  `owner_cache_fence_changed_during_derivation`. **E12 binds what an artifact IS; a cache key must
+  bind what the computation CONSUMED** — the same rule, transplanted, became wrong. (3) *The task was
+  named by its mechanism* — "persist the E1 owner cache across processes" put Gate 0 **inside** a
+  title that had already chosen the answer, so a negative gate could only kill the task and never
+  redirect it. `P30` raised from modules to tasks: name the row by the objective it owns. The
+  specified witness set is also internally unsatisfiable — the deployment baseline separately hashes
+  all `src/polisyos/**/*.py`, so "a byte **outside** the closure hits" collides with the refusal a
+  deployment-identity change must produce. This is `P37`: the gate was specified while the predicate
+  it turns on — that the key covers the inputs — was **declared**, not constructed.
+- **What the repository already has.** Content-derived key, pre/post-derivation fence, fail-closed on
+  change, a proven in-process cache, and `clear_owner_bundle_cache()` for tests. Everything C was
+  asked to build exists **except a lifetime longer than one process** — and the reason it is one
+  process is `build_parser()`'s `add_mutually_exclusive_group(required=True)` over the seven modes.
+  The cost is not a missing cache; it is a CLI that forbids the existing cache from ever being hit
+  twice.
+- **Step 0 — the live drift, and it blocks everything.** The one Gate-0 cold attempt failed closed
+  after `147.703` s in `n10_capstone_provenance_unstable` (`catalog_method_denominator_drift`;
+  `stage_gap_triage_drift` at `gap_id=n8_transport_tuple_hardcode`). Verified since: `main` changed
+  **only documentation** between the GY-INFRA-2 base `4b9e76f20` and `109ba3f44` — `0` files under
+  `policy-engine/src`, `0` under `architecture/policy_design_case/` — so the derivation inputs are
+  byte-identical and **the drift is live on `main`**. A cycle that cannot complete cannot be
+  accelerated. Step 0 determines whether this is a real regression or a stale recorded capstone, and
+  it doubles as the **healthy cold profile Part C never obtained**.
+- **Step 1 — mode consolidation, the main move.** Allow several modes in one process against one
+  owner bundle. `tools/` only; **no `src/polisyos/**` byte, therefore no E12 identity move and no
+  replay**. *Estimated, and marked as an inference rather than a measurement:* the six modes span
+  `844`–`1,173` s — a `~1.4x` spread across radically different jobs (a field-corruption probe versus
+  a full artifact write), which is the signature of one large shared fixed cost plus small variable
+  cost. Shared part ≈ `840`–`950` s, so a consolidated cycle lands near `18`–`25` min. Step 0's
+  progress-milestone split converts this inference into a number. **The deliverable is the
+  differential test, not the speedup:** run all modes six-process and consolidated, compare outputs
+  **byte-for-byte**, and any mode that diverges stays a separate process. Mutation modes
+  (`--corrupt-field-drift-check`, `--source-flip-mutations`) and `--cold-rederive` are the expected
+  divergers and must not be assumed safe. This is E1's `cold ≡ warm` contract applied at the process
+  boundary instead of the persistence boundary.
+- **Step 2 — enforce E11, which is worth more than the cache.** One post-freeze repair in GY-N11
+  produced **7** consecutive full-chain reissues and `17/36` commits of pure receipt churn: at
+  `~97` min a cycle that is `~10` h per incident, against the `~80` min a cache saves per cycle. E11
+  is stated as a rule and enforced by nothing. GY-INFRA-2's Part B packager now makes enforcement
+  buildable — a freeze marker plus a tool that refuses a post-freeze finding into the current wave and
+  batches it instead.
+- **Step 3 — cross-process persistence, only if 0–2 leave a real gap.** Then keyed on
+  `_owner_cache_fence` (content), **never** an import closure, and with a witness set rewritten to be
+  satisfiable against the deployment baseline.
+
+**Done when:** Step 0 delivers either a healthy cold profile with the owner-build/mode-work split, or
+a named, reproduced diagnosis of the drift with its owner — measured, not inferred; Steps 1–2 are
+re-decided **on that evidence** rather than on this row's estimates; anything landed proves
+`consolidated ≡ six-process` byte-for-byte per mode, or excludes that mode; and **no semantic
+denominator anywhere changes**.
 
 ### 3.5.8 Domain/method-family genericity gates (the GY-N8 lesson — binding for every task downstream of the first vertical; NEW, Rev 15)
 
@@ -885,6 +1113,88 @@ Acceptance constraints:
 A task that only stubs/mocks/summarizes a finding and leaves the row green without a
 complete chain (`producer -> persisted artifact/event -> bridge -> consumer -> surface
 -> semantic/negative test`) is a P01/P10 failure, even if its local tests pass.
+
+### 3.5.13 Work preservation and history discipline (the DS5 lesson — binding for every task in both programmes; NEW, Rev 20)
+
+Two incidents in a single Atlas slice put **reviewed, completed** work where git does not protect
+it. Neither was a reasoning failure; both were storage-and-history failures, and both were partly
+caused by how the instruction was written. Five rules:
+
+1. **W1 Uncommitted work is not storage.** Commit at every clean boundary. A `git stash` is a
+   transient for the next few minutes, never a place to leave work across a stop, a handoff, or a
+   context compaction. **Measured:** DS5 left 1,236 insertions of independently reviewed plan work
+   in `stash@{0}` across an entire session with a rejected commit still at HEAD — net output of that
+   session was zero.
+2. **W2 Branch history is append-only.** Forbidden outright: `rebase` in any form, `reset --hard`,
+   `reset` onto an ancestor, `push --force`, `filter-branch`, `stash drop`/`clear`, and any
+   `checkout` that moves HEAD off current work. **The single exception:** `git commit --amend` on
+   the **immediately preceding commit**, authored in this session, not yet handed to a reviewer.
+   **Measured (corrected 2026-08-02 after reading the *branch* reflog):** a `rebase` left the DS5
+   **worktree in detached HEAD** at `b67084dd6` while its branch ref stood two commits ahead at
+   `24e66b44c`. The branch never lost anything — its reflog shows forward-only motion — but the
+   agent worked for a session against a stale HEAD, missing its own plan re-cut and a typed debt
+   row. **The sharp lesson is detectability:** a detached worktree is invisible in ordinary output —
+   `git log --oneline -1` and `git status --short` both look normal. Only `git status -sb` or
+   `git symbolic-ref -q HEAD` reveal it, and a commit made there is orphaned from the branch.
+   **Every task therefore verifies branch attachment, not just cleanliness, at session start and
+   before every commit.**
+3. **W3 A validator demanding a clean tree is satisfied by committing, never by stashing.** Several
+   canonical writers (capstone, depth-N) refuse a dirty tree. That is a legitimate fence and the
+   correct response is a commit at the clean boundary. Stashing to satisfy it is how reviewed work
+   ends up unprotected — it happened in both the GY-N11 and DS5 lanes.
+4. **W4 Lost or unexpected history is an architect stop, not a self-repair.** An agent that finds
+   HEAD, the branch, or the working tree in an unexpected state **stops and reports**. The reflog is
+   what makes these incidents recoverable; it is not a guarantee, and improvised recovery is how a
+   recoverable incident becomes a permanent one.
+5. **W5 Never name a commit hash in a plan instruction.** Name the **relationship** ("the
+   immediately preceding commit you authored"), never a fixed SHA. **Measured:** the DS5 plan said
+   in four places that `b67084dd6` "is amended down". True when written; impossible after a
+   legitimate recovery moved HEAD past it — and following it literally would have required exactly
+   the history rewrite that caused the loss. Architect instructions therefore prefer **forward-only**
+   framing ("land the reduction as a commit") over commit-targeted framing ("amend commit X down"):
+   same outcome, no time-bomb. **Corollary:** after any history-affecting recovery, re-read the task
+   plan for instructions that referenced the pre-recovery state, and correct them in the next
+   commit.
+
+**Instruction-design lesson carried with these rules (applies to the architect, not the executor):**
+DS5 was given "no merge, no push, no rebase" as one clause. That bundles a **publication** rule with
+a **history** rule; a literal executor honored the salient half and dropped the other. **Rules with
+different motivations get separate lines and their own stated reason.** A rule an executor cannot
+infer the purpose of will be followed only in the shape it was written.
+
+### 3.5.14 `P38` — a gate that turns on a proxy misclassifies exactly at its own boundary (NEW, Rev 37; four measured instances, both programmes)
+
+**The pattern.** A gate is built to decide some property. It is implemented against a *stand-in* for
+that property — something cheap and adjacent. The stand-in agrees with the property almost
+everywhere, and disagrees **precisely at the boundary the gate exists to police**, so the gate is
+confidently wrong exactly when it matters and green everywhere it does not.
+
+**Measured instances, 2026-08-03 → 2026-08-11:**
+
+| Gate | Property it decides | Proxy it turns on | Where the proxy is wrong |
+| --- | --- | --- | --- |
+| timing-sample admission (`GY-DI4`) | did the run complete its own work | `exit_code == 0` | a lane whose contract declares green at exit `1` |
+| content-hash exclusion (`GY-DEF14`) | is this block non-decisive | the field's **name** | a block that declares itself non-authority in a sibling field |
+| disposition evidence (`DS5-LINE-ADDRESS-01`) | which construct does this finding bind | `file:line` | the construct moved, or the line now names a different construct |
+| two-fix breaker (DS5 C21b) | is the mechanism wrong | rounds that change mechanism **bytes** | a lint diagnostic on code whose behaviour is unchanged |
+
+**Why it recurs.** The proxy is almost always the thing that is *already computable at the gate's
+call site*: an exit code the harness already has, a field name already in hand, a line number the AST
+already emits, a diff the tooling already produces. Constructing the real predicate needs context the
+call site does not yet carry — which is `P37` (a predicate declared where it should be constructed)
+seen from the consumer's end rather than the producer's.
+
+**Standing rule.** Before writing or accepting a gate, state the property in one sentence, state what
+the implementation actually tests, and **name one case where they diverge**. If no divergent case can
+be constructed, the implementation is the property. If one can, either the gate consults the context
+that distinguishes them, or the divergence is recorded as a declared, bounded limitation — never left
+implicit. This applies to procedural rules in a plan exactly as it applies to code: the breaker
+instance above was a rule *this plan authored*, not a defect in the repository.
+
+**Corollary for architect instructions.** A stop rule keyed to a number, a list, or a directory the
+architect supplied is a proxy gate by construction. Key stop rules to the **property** — "stop if
+something changed that the named mechanism does not explain" — never to the architect's arithmetic.
+Five stops in the `GY-DEFC-3` family were caused this way.
 
 ## 4. The two-ring waist — full type schemas (canonical-owner map in §3.5.2)
 
@@ -1951,7 +2261,28 @@ re-architecting.
   **P29 rider:** the δ-accounting this epoch layer gates is complete only **relative to the declared
   obligation set** — OpenWorldRisk must carry that conditional; an unconditional "risk ≤ δ" is
   false (this is the INT-R1 obligation-completeness dependency, not a solved property).
-  `P07`/`P08`/`P29`.
+  **Missed-obligation reissue rider (Rev 25, ratified `INT-K01`/`INT-K02`; extends the P29 rider
+  above from a caveat into a trigger).** "Obligation-completeness alarm" is already in this task's
+  revision-trigger list; the ratified kernel fixes what the alarm *means* and what the cascade must
+  preserve. An obligation discovered **after** issuance is not evidence that the earlier arithmetic
+  was miscomputed — under `INT-K01` completeness was only ever relative to a **declared basis**, so
+  discovery moves the basis rather than falsifying the computation. The cascade is therefore
+  challenge → invalidation → **new epoch** → reissue under the widened basis, append-only: the
+  superseded certificate stays **historically reproducible under its own closure epoch and its own
+  declared set**, while its **current authority is withdrawn**. Never rewrite the old numbers to
+  match the new basis — that would destroy the evidence of what was known when, and it is the
+  append-only law (`S0-K08`) applied to coverage. Under `INT-K02` every reissued statement carries
+  the widened declared set and the relative-basis rider visibly; a `delta` that changed only because
+  the basis widened must not be projectable as a *better* result.
+  **Release-family transcript rider (Rev 26, ratified `PV-K07`; see `GY-GAP3`).** The controlled
+  release-family transcript that `PV-K07` presupposes is **the same append-only shape this task
+  already owns** for epochs: declared membership, chronology, current heads, append-only correction,
+  and no rewrite of a superseded result. Consume that shape rather than building a second chronology
+  owner — the ratified `INT-K05`/`P27`/`P28` discipline applies here exactly as it does to the
+  confidence ledger. Two properties are specific to the release case and must survive: deleting or
+  post-hoc narrowing a controlled release **fails** the check rather than passing it, and an unknown
+  **external** copy **limits** the claim rather than being silently treated as complete or as a full
+  block. `P07`/`P08`/`P29`.
 - **GY-N13a — Acquisition-layer reality census (data + sampled-live probes; NEW, Rev 16).**
   census task, GY-0-class, zero engine-behavior change. The acquisition layer exists but is dark
   to the runtime: the DCAT catalog (`production_data/datasets_full_phase3full_20260327_183054/
@@ -2156,6 +2487,1756 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   goes red; a low-`k_eff` selected set presented as broad consensus goes red; a framing-narrowing
   that changes governance burden without a recorded delta goes red. Feeds Atlas DS14 + INT-R8.
   `P05`/`P10`/`P14`.
+
+#### Registered debt — artifact identity over-binding (NEW, Rev 20; measured during GY-N11)
+
+- **GY-DI1 — narrow deployment identity to the authority import closure.** Owner: **runtime/quality
+  lane**. States: `producer_present`, `scope_too_broad`, `semantic_test_missing`.
+  **Measured:** `_deployment_relative_paths` (`src/polisyos/runtime/quality/confidence_ledger.py`)
+  binds **2,553** files — every `.py` under `src/polisyos` plus `pyproject.toml`/`uv.lock` — while
+  `_resolve_authority_import_closure`, **in the same module**, already derives the true **120**-module
+  static import closure of the ledger entry point. That is a **21×** over-binding. Three artifacts
+  are deployment-bound (N9, generation-cycle, N11) at ≈1.5–2 h of cold recomputation each, so an
+  edit to any of the other ~2,400 files re-prices the full replay for no semantic reason.
+  **Direction of the defect (classified by the N11 slice, and load-bearing for priority):
+  over-binding is *conservative* — it can falsely WITHDRAW authority and irreversibly poison an
+  active ledger scope, but it can never falsely GRANT it.** This is a false-withdrawal and
+  replay/governance-cost defect, not an unsafe-authority-grant defect. Read it that way when
+  scheduling: it is expensive and it degrades availability, and it is **not** a security hole.
+  The `semantic_test_missing` state is precise — the current tests carry no unrelated-drift
+  negative control, so nothing proves today that an edit outside the closure leaves identity
+  unchanged.
+  **Why it is debt and not an in-flight fix:** narrowing the identity *changes what the authority
+  binding means*, so it needs its own red-first slice, independent review, and exactly one replay —
+  doing it opportunistically inside another task would be the very P32 shortcut the ledger exists to
+  prevent. **Done when:** deployment identity is the derived transitive closure (never an enumerated
+  file list); a file inside the closure changing turns the receipt red; a file outside it changing
+  does **not**; a forged/rehashed closure manifest fails closed; and the closure is proven to include
+  every module the authority path actually imports (the GY-N11 review found an earlier three-file
+  hand-picked identity that missed the CAS/atomic modules — the fix is derivation, not a longer list).
+  **Do not read this row as "GY-N11 replayed unnecessarily":** its `polisyos/fabric/__init__.py` edit
+  *was* inside the 120-module closure, and that replay was legitimate. `P29`/`P32`; §3.5.7 E12.
+
+#### Registered defects — surfaced by the Stage-0 research audits (NEW, Rev 21; verified 2026-08-02)
+
+**Outside the main sequence. This block records; it schedules nothing.** These are live
+repository defects, not research conclusions — the Stage-0 cross-audit matrix classified them
+`repository_fix_separate`, and each was **independently re-verified on current `main`** before
+being written here. Fixing them is a separate decision.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): registered, never entered.**
+  Registered in Rev 20 as a debt row, because narrowing deployment identity to the authority import
+  closure changes authority-binding semantics and therefore needs its own reviewed slice. It has one
+  revision-history mention and no execution attempt since. `E12` currently lives as a rule in §3.5.7,
+  not as a mechanism in code. This records standing only and schedules nothing.
+
+- **GY-DEF1 — unknown jurisdiction silently becomes Ukrainian.** Owner: **Data Forge legal /
+  security**. `data_forge/domains/legal/batch/jurisdictions/__init__.py:15-17` has **three**
+  fallbacks in five lines: `code=None → "UA"`, empty/whitespace `→ "UA"`, and
+  `_REGISTRY.get(normalized, UkrainianJurisdiction)` for any unregistered code. There is no
+  fail-closed path. Callers: `legal/batch/pipeline.py:119`, `legal/batch/structurer.py:1342` —
+  the L3 corpus production lane. A request for German law is served by the Ukrainian plugin.
+  **Direction:** wrong-law application, i.e. output labelled for a jurisdiction it was not
+  computed under. **Currently latent** — it fires only when a config omits or mistypes the code;
+  scoping that is part of the fix. **Violates ratified S0-K06** (`stage0-custody-kernel-ratification.md`
+  §4.3): the violation is the *silent substitution* of a concrete jurisdiction for an unknown
+  one — a **declared** assumption (`assumed: UA, declared default`) carried forward as a typed
+  limitation would not be. **Closure signal:** an unregistered/absent code raises or resolves to
+  a declared-unknown carrier rather than silently to `UkrainianJurisdiction`, and a red-first
+  test proves it for `None`, `""`, and an unknown code.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open.** Registered in Rev 21
+  among four live repository defects surfaced by the Stage-0 research cross-audit and each
+  independently re-verified on current `main` before recording. Re-typed in Rev 22 from "found" to a
+  violation of the ratified `S0-K06`, with the silent-versus-declared distinction load-bearing: the
+  defect is that the resolution is silent, not that a default exists. No repair attempt has been
+  made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 673e81706): closed.** The repair chose an
+  exception rather than a declared-unknown carrier because both production consumers immediately
+  require a concrete plugin and expose no limitation channel; the intentional UA defaults remain
+  explicit at configuration and function boundaries. The direct resolver witness first terminated
+  `FFF`, exit `1`, for `None`, whitespace, and `DE`; a real worker witness then independently
+  terminated `FFF`, exit `1`, for the same inputs, exposing an upstream `or "UA"` substitution and
+  a broad unsupported-ruleset fallback before registry validation. The final five named nodes
+  terminated `.........`, exit `0`, after one registry-owned normalizer was consumed by plugin
+  construction and by every structurer entry before fallback, while the worker passed the raw code.
+  Explicit `UA` and `EU` remained green. Both review findings were P40 `same class one level deeper`;
+  the second stopped instance repair and widened the mechanism to the shared boundary, so GY-DEF1
+  closes at mechanism round 0 with both rounds unused. A complete AST walk over all 56 Python files
+  in the legal-batch source tree found the two plugin-resolution calls and the one structurer call;
+  a complete textual walk reconciled the same calls plus their definitions. The canonical confidence
+  owner resolved `120` modules / `120` unique paths, exactly equal to its frozen tuple, and none of
+  the three source, two test, plan, or journal paths is in that authority import closure. This
+  verdict authorizes only fail-closed jurisdiction resolution on the legal-corpus route; it does not
+  remove declared UA defaults, adjudicate separate claim/postprocess metadata defaults, reissue or
+  check the confidence artifact, or state full-suite health.
+- **GY-DEF2 — a tenant-private CAS reference reaches the public export bundle.** Owner:
+  **publication / runtime-quality**. `runtime/quality/public_export.py`
+  sanitises what it *builds* (authority envelopes via `_fingerprint()`, `tenant_redacted: True`,
+  welfare scalars) but passes the caller's payload through verbatim: a private ref placed in
+  `runtime_quality_refs.policy_grounding_matrix_ref` lands in the bundle. **This is the only one
+  of the three that crosses the public boundary, and it is not latent** —
+  `tests/unit/runtime/quality/test_multi_tenant_shared_cas.py::test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_projection`
+  **fails on current main**. Failure class: optimistic envelope completeness — the redactor
+  assumes it knows every ref-bearing field. **Closure signal:** the payload is scanned for
+  private-ref shapes rather than allow-listed, that test passes, and a new nested ref location
+  added to the fixture still fails closed.
+  **Governance finding carried with it:** that test is **not** skipped, xfailed, or recorded in
+  any baseline debt manifest or `ci_tiers` — it is silently red, which means the full-suite lane
+  is not being triaged. That gap is worth its own look independent of the defect.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, and it is the only one
+  of its cohort that is not latent.** Registered in Rev 21. It is the single member crossing the
+  **public** boundary, its test **fails on `main` today**, and that test is neither skipped nor
+  recorded in any baseline manifest — so the full-suite lane is not being triaged. No repair attempt
+  has been made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 068aab9df): closed.** The inherited
+  `test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_projection` first
+  terminated `FAILED` on the raw caller ref, then terminated `PASSED` (`1 passed in 4.81s`, exit
+  `0`) after one generic caller-ref scan and final public-emission invariant were wired. The witness
+  introduces ref shapes at a previously unseen nested value, nested mapping key, top-level artifact
+  key, and authority-boundary value that is copied into a derived decision; all are absent from the
+  full rendered bundle while the declared public source ref and authority-envelope fingerprints
+  remain. Two independent-review Important findings were both P40 `same class one level deeper`, so
+  consumed zero mechanism rounds; the mechanism was widened first from values to serialized keys
+  and then to every artifact-derived projection plus a generic fail-closed whole-bundle check. The
+  final terra delta review returned no finding. The canonical confidence owner freshly resolved
+  `120` modules / `120` unique paths, equal to its separately frozen import-time tuple; none of the
+  source, test, plan, or journal paths in this commit is in that authority import closure. This
+  verdict authorizes only GY-DEF2's caller-payload redaction closure in the public-export builder. It
+  does not repair the separately carried silent-red triage finding, reissue or check the confidence
+  artifact, authorize another public surface, or state full-suite health.
+- **GY-DEF3 — checkpoints carry no tenant/cell binding.** Owner: **control plane / security**,
+  informs OPS-R1/OPS-R3. `scientist/orchestration/engine/checkpoint.py` `CheckpointMetadata`
+  carries `run_id`, `workflow_id`, `workflow_fingerprint`, `fsm_phase`, `cache_entry_refs`,
+  `changed_paths` — and **no tenant or cell**. **Latent and conditional:** it is an enabler, not
+  a live leak — it means a future resume path cannot verify tenant scope from the checkpoint
+  itself. **Violates ratified S0-K06 and S0-K11** — scope closure before authority use, and
+  action-specific reproof before a protected action; it blocks the closure H2 will need.
+  **Closure signal:** a checkpoint restored under a mismatched tenant fails closed before any
+  protected action.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, latent enabler.**
+  Registered in Rev 21: `CheckpointMetadata` carries no tenant/cell binding, blocking the
+  `S0-K06`/`S0-K11` closure that H2 needs. Re-typed in Rev 22 as a violation of the ratified kernel
+  rather than a bare finding. No repair attempt has been made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 42957f826): closed.** Checkpoint schema
+  `1.2` carries tenant/cell scope, every sync/async producer and runtime restore reconciles it at one
+  shared ambient-scope intake, every incremental chain member is bound to that scope, and all five
+  workflow builders transport it. Resume validates the latest artifact before history repair,
+  materialization, context/event construction, or runner dispatch; both remote activity entrypoints
+  validate before store/`RunContext` construction, node discovery, node execution, or merge. The
+  final ten named pytest nodes printed `..............` (`14 passed`, exit `0`, `8.980387708` s):
+  tenant/cell mismatch preserved protected node counters and trace bytes, same-scope resume
+  succeeded, direct sync/async producers rejected asserted foreign scope, omitted scope was captured,
+  foreign incremental ancestry failed, and colluding, malformed, and parser-short-circuit worker
+  transports all reached zero protected effects. One independent-review P40 `new class` finding
+  consumed mechanism round 1; its producer, sibling-worker, malformed-input, and parser-order
+  sightings were the same class one level deeper and were folded into the shared-owner widening.
+  Terra's final complete production census returned commit-ready; round 2 remains unused. The
+  canonical confidence owner freshly resolved `120` modules / `120` unique paths, equal to its
+  separately frozen import-time tuple; none of this commit's seven mechanism paths or two record
+  companions is in that authority import closure. This verdict authorizes only GY-DEF3 checkpoint
+  scope closure at the exercised local and distributed boundaries. It does not establish a new
+  remote authentication carrier, full-suite health, confidence-artifact freshness beyond this
+  measured non-membership, publication, or any GY-DEF4 repair.
+
+- **GY-DEF4 — a temporal diagnostic mints the authority pass token (found by OPS-R4, verified
+  2026-08-02).** Owner: **runtime/quality + runtime/http** (consumer and producer).
+  `runtime/http/services/temporal.py::_time_source_mismatch_disposition` returns honest
+  diagnostic categories on every failing path (`block:…`, `obligation:missing_time_role:…`) but
+  its **success path returns the bare literal `"admitted"`** — admission vocabulary minted by an
+  HTTP-layer projection. `runtime/quality/authority.py:889-892` then **gates** on those values:
+  `block:` is one branch, `obligation:` or anything `!= "admitted"` is another, so `"admitted"`
+  is the implicit pass. **Direction is safe by default** — an unknown or renamed value falls into
+  the obligation branch, i.e. fail-closed — so this is *not* an unsafe grant in the general case,
+  and it should not be prioritized as one. **The sharp edge is elsewhere:**
+  `_collect_time_source_dispositions` recursively walks **any** `Mapping` for the key
+  `mismatch_disposition`, so any nested payload carrying that key with value `"admitted"`
+  contributes a pass token, and producer and consumer are coupled only by a duplicated string
+  literal across a module boundary. **Violates ratified S0-K05/S0-K07** (no authority by
+  observation, transport, or projection). **The fix is already specified** — the adopted Custody
+  Time Model (`docs/system-design-decisions/policy-design-custody-time-model.md` §7) prescribes
+  treating `TimeSourceEnvelopeAudit` as projection-only, narrowing and renaming it
+  (`TimeSourceConsistencyAuditProjection`), and **removing `admitted` from
+  `mismatch_disposition`** in favour of `consistent` / `inconsistent` / `insufficient_evidence` /
+  `blocked_for_owner_review`. Closure needs no design work, only the edit and its negatives.
+  **Closure signal:** the pass token is one shared typed constant rather than a literal repeated
+  in two modules; the collector accepts a disposition only from a declared producer and scope
+  rather than any nested key match; and a foreign payload carrying
+  `mismatch_disposition: "admitted"` contributes no pass.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, and explicitly not an
+  unsafe grant.** Registered in Rev 21 and re-typed in Rev 22. The direction is safe by default —
+  unknown values fall into the obligation branch — but the collector accepts the `admitted` key from
+  any nested `Mapping`, and the two modules are coupled only by a duplicated literal. It should not
+  be prioritized as an unsafe grant; the defect is the coupling, not the direction.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 07f5fd6ab): stopped.** The lane stopped
+  before a mechanism edit because the adopted repair necessarily moves a governed artifact, which
+  this task explicitly forbids. Static witness terminal `witness_exit=0`: the canonical owner
+  imports `TimeSourceEnvelopeAudit`, serializes all three projections, emits
+  `TimeSourceEnvelopeAudit.__name__`, and checks the clean token `admitted`; the committed governed
+  artifact has SHA-256 `185e57267a69f6de542e0cbc1491779649897da4001cd4bacd120e6436203574`
+  and contains exactly those old model/token values. A compliant rename to
+  `TimeSourceConsistencyAuditProjection` plus `consistent` therefore cannot leave its bytes fixed;
+  retaining an alias or legacy token would retain the defect. Independent terra review confirmed
+  the stop as a P40 **new class** at mechanism round 0 and independently confirmed that the current
+  recursive collector admits a foreign nested `mismatch_disposition: admitted`. No repair, test,
+  governed writer/validator, confidence check/reissue, or architecture byte ran or moved. The only
+  changed paths are this standing and the shared journal; the canonical confidence owner resolved
+  `120` modules / `120` unique paths, equal to its frozen tuple, and neither companion is in the
+  authority import closure. This verdict authorizes only the recorded stop; GY-DEF4 remains open and
+  the stop blocks none of GY-DEF1, GY-DEF2, or GY-DEF3.
+- **GY-DEF5 — the obligation enum claims the world in its docstring (found by the INT-R1 audit,
+  verified 2026-08-03).** Owner: **pdc waist**. `pdc/_impl/gy_waist.py:219` reads
+  `"""Universal N9 obligation-class denominator."""`. The INT-R1 research first read the enum as
+  a Rule-12 capability-gating enumeration — i.e. the *enum* is the defect; its independent audit
+  **narrowed that verdict** (`INT-R1-G-001`) and the narrowed reading is the one recorded here:
+  a versioned, governed denominator vocabulary participating in a gate is **legitimate** under
+  Rule 12's explicit exemption. **The defect is the word `Universal`, not the enum.** A denominator
+  that partitions *what N9 checks* is honest; the same denominator described as *universal*
+  asserts a closed world, which INT-R1's impossibility result shows PolicyOS cannot establish
+  from its own search. **Direction: a claim defect, not a behaviour defect** — nothing computes
+  differently today, and the enum must **not** be opened, dissolved, or made discoverable in
+  response to this row. **Closure signal:** the docstring states the scope it actually
+  denominates (the declared N9 obligation language at its rule version), no repository text
+  presents the enum as the set of obligations that exist in the world, and the confidence
+  ledger's totality check keeps its current meaning unchanged.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, and narrowed to a
+  docstring.** Registered in Rev 23. The INT-R1 research read the enum itself as a Rule-12
+  capability-gating defect; its independent audit **narrowed** that to the word `Universal`
+  (`INT-R1-G-001`), and Rev 25 confirmed the narrowed disposition against the ratified `K01`. It
+  remains a docstring fix. No repair attempt has been made.
+
+- **GY-DEF6 — the N8 method denominator is a function of the ENVIRONMENT, not the repository
+  (found by GY-INFRA-3 Step 0, quantified by the architect 2026-08-08).** Owner: **Foundry
+  catalog/discovery boundary**, with the N8 tool as producer/reissuer and the architecture record
+  downstream. **This is the live blocker on every closeout: a cold owner derivation fails closed
+  before any owner bundle returns, so no GY cycle can complete on an affected machine.**
+  `foundry/methods/catalog/__init__.py:117-126` registers with `include_builtins=True`,
+  **`include_entry_points=True`** and **`include_dev_scan=True`** — two of the three inputs are
+  ambient (installed entry-point distributions; a filesystem scan driven by
+  `POLISYOS_PACKS_PATHS`, `core/components/discovery.py:462-477`) — while the frozen denominator
+  object in `architecture/policy_design_case/layer3_gy_value_gate_contract.json` stores **none** of
+  their identity: not one entry-point distribution, not a development-root byte, not a
+  runtime/discovery manifest. `check_layer3_gy_value_gate_contract.py:3309-3330` then compares the
+  frozen record against a fresh `_catalog_denominators_cached()` (`:564-612`) which establishes
+  equality only between **two snapshots inside one process**.
+  **Measured, not inferred — three points, one method apart:**
+
+  | | `registered_method_count` / `catalog_entry_count` | `catalog_snapshot_id` |
+  | --- | ---: | --- |
+  | record **before** `3c16857f8` | 390 / 390 | `method_catalog_3240b5a4637e46b8` |
+  | record **now** (set by `3c16857f8`) | 389 / 389 | `method_catalog_9483326427331f16` |
+  | **live recomputation, 2026-08-08** | **390 / 390** | **`method_catalog_3240b5a4637e46b8`** |
+
+  The live value is **byte-identical to the pre-rebaseline record**, and `snapshot_stable` is
+  `true` on both sides — so this is **not nondeterminism**. It is deterministic *within* an
+  environment and different *across* environments, by exactly one method. `3c16857f8`
+  ("fix(gy): rebaseline the N11 receipt chain") took a record correct for environment A and rewrote
+  it to environment B's answer; A now fails permanently.
+  **The critical consequence, recorded so it is not repeated: rebaselining is the WRONG repair and
+  is the one that will be reached for again.** It does not converge — it ping-pongs the record
+  between environments, and each rebaseline breaks whichever machine did not produce it.
+  A complete enumeration of `3c16857f8..f9f25d408` over `pyproject.toml`,
+  `core/components/discovery.py`, `foundry/extensions/**` and `foundry/methods/**` returns
+  **0 paths** (path denominator `0`, file-type denominator `0`): no declared repository source
+  subset can bind the change. **This is `P37` in production code** — the gate turns on a predicate
+  ("the recomputation identifies the same source set as the record") that is supplied by the
+  ambient environment rather than constructed by the procedure; same-process snapshot stability is
+  used as if it were cross-process provenance. **Closure signal:** the boundary produces and binds a
+  controlled discovery manifest (entry-point distribution identities, development-scan roots and
+  bytes, relevant runtime/backend package identity) and **fails closed on an unbound ambient
+  input**; only then is N8 rederived and reissued, and only then the dependent N10a trace/gap
+  records. Acceptable narrower alternative: make the denominator a function of **builtins only**
+  and declare entry-point and dev-scan contributions as separate, separately-bound members.
+  **Forbidden closures:** reissuing N10a alone, editing a count, hard-coding one machine's
+  discovery result, or another rebaseline. **Sequencing:** the repair moves `src/polisyos/**`, so
+  under `E12` it moves the deployment identity and re-prices the chain — it must not land before
+  `E11` enforcement exists (`GY-INFRA-3` Step 2), or the repair that unblocks everything pays the
+  seven-reissue tax itself.
+
+  **`defect_standing`: GY-DEF6 is CLOSED.** The accepted narrower repair at `e708e8f77` makes the
+  governed denominator a function of a controlled, manifest-bound builtins-only registry and
+  records ambient entry-point/development discovery as a separate quarantined member. Five §7
+  witnesses are green: the cheap denominator binds its declared inputs; a changed ambient input
+  produces named provenance mismatches rather than count drift, independently re-verified against
+  frozen source `e708e8f77`; independent processes reproduce the declared denominator; unbound
+  ambient input is `quarantined_unbound`; and every decisive
+  denominator predicate carries the required P37 classification. The governed value stayed
+  **`389/389` / `method_catalog_9483326427331f16`** — the recorded value. The number did not move;
+  the previously hidden environment did. No rebaseline occurred.
+
+  **`capability_standing`: the cold closeout chain is STILL BLOCKED.** The sixth witness — a cold
+  owner derivation reaches `owner_bundle_loaded` — is not established. The terminal N11 attempt
+  failed after `512.873833` seconds at
+  `authority_source_controlled_replay_recording_drift`, before the owner bundle returned. The
+  failure changed; the practical consequence did not. This source-defect closure therefore does
+  **not** state or imply that GY closeouts are unblocked.
+
+##### GY-DEF6 cascade defects (NEW, Rev 29; observed in the source-frozen E11 lane 2026-08-08–09)
+
+**Outside the GY-DEF6 closure and outside the main sequence. This block records; it schedules and
+repairs nothing.** Each row was surfaced by a real writer, recomputing checker, or independently
+bound review while trying to replay the GY-DEF6 dependency chain. Standing is deliberately
+two-axis: a source repair may exist on the isolated successor branch while its governed artifact
+and cold closeout remain unproved.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): closed on the source-defect
+  axis at `e708e8f77` (Rev 29), and closed on that axis only.** Registered in Rev 28 after Step 0
+  delivered the diagnosis but not a healthy cold profile — the one permitted cold `--check` ran
+  `297.938` s and failed closed again before any owner bundle returned. The Rev-29 closure explicitly
+  **did not change the recorded `389/389` denominator**, which is why the environment axis survived it
+  and later became `GY-DEF13` and `GY-DEF14`.
+
+- **GY-DEF7 — N10a rederive compares bytes before applying the writer's operational
+  normalization.** Owner: **N10a second-domain pack validator**.
+  `check_layer3_gy_second_domain_pack.py::rederive_audit` built the live five-artifact bundle and
+  compared it directly, while `write()` first applies the canonical
+  `_preserve_frozen_operational_metrics` seam. The real rederive returned
+  `owner_rederive_drift` for `cycle_trace`; the only difference was an operational
+  `acquisition_routing_report.generated_at` value the writer itself preserves. **Evidence:**
+  `N10A-REDERIVE-1`; a canonical writer/checker asymmetry, not semantic artifact drift.
+  **Smallest correct closure:** validate the raw live bundle, then apply the writer-owned
+  operational normalization immediately before exact comparison; an operational-only mutation
+  must close and a status/content mutation must remain named red. A candidate repair exists only
+  on `codex/gy-def6-e11`; this row makes no delivery or cascade-closure claim.
+
+  **STANDING RECORDED (Rev 44, measured 2026-08-18 at 44276ccd5): closed.** **P37
+  `recomputed`:** against `N10A-REDERIVE-1`, the full tracked denominator was 2,391 Python files
+  under `tests/` (2,284
+  test-named files), 2,560 under `src/` and 424 under `tools/`; it contains one direct N10a
+  `rederive_audit` node, five direct canonical-normalizer callers and one live status-mutation
+  node. The executed current-signal nodes
+  `test_rederive_audit_applies_writer_operational_normalization_before_comparison`,
+  `test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape` and
+  `test_routing_time_preservation_does_not_manufacture_missing_runtime_property` each terminated
+  `PASSED`:
+  operational-only movement closed, while content and removed/added shape remained named red.
+  **P37 `not_established`:** the permitted live `--rederive-audit` was separately a non-receipt,
+  exit `1` at `canonical_loaded_runtime_mismatch` before the N10a comparison. **P37
+  `recomputed`:** the untouched foreign working copy of `data_forge/read_api/catalog.py` hashes to
+  `a0a1618b…`, while the decisive frozen member and main blob both bind `ed26d268…`. The branch
+  candidate itself did not merge:
+  `c88593cc1` is an ancestor of `ba5946ebc` but not `e18861d12`; a non-identical implementation
+  and the behavioural tests landed independently at `431bcd798`, which is an ancestor of
+  `e18861d12` and main. This closes only the DEF7 comparator asymmetry; it does not authorize an
+  artifact reissue or claim a clean live rederive, `GY-DEFC-9`, or cold-closeout standing.
+
+- **GY-DEF8 — Depth-N unchanged-context replay preserves stale compiled-run bytes.** Owner:
+  **Depth-N universality recording owner**. The unchanged-context branch reused the prior
+  `compiled_run` wholesale. N11 exposed the consequence after `497.418045` seconds as
+  `n10_capstone_recompute_failed:proof_n4_owner_projection_replay_drift`. Replacing those bytes by
+  rebuilding a fresh-looking recording would discard the append-only predecessor chain and
+  launder historical compiler/N4 evidence. **Evidence:** `N11-OWNER-PROJECTION-1` and the existing
+  recursive `historical_context_rebind_receipt` contract. **Smallest correct closure:** replace the
+  compiled run through the canonical owner and attach a typed, content-bound
+  authority-source-migration receipt that binds the prior recording, prior receipt chain,
+  unchanged compiler/N4/context/terminal semantics, exact allowed changed paths, and the new
+  non-authorizing projection. Deleting or relabelling the predecessor link after rehashing must
+  fail closed.
+
+  **STANDING RECORDED (Rev 44, measured 2026-08-18 at 44276ccd5): closed.** **P37
+  `recomputed`:** against `N11-OWNER-PROJECTION-1`, a complete walk of all 2,391 test Python files
+  found four DEF8-signal semantic nodes. The current owner witness
+  `test_normalized_recording_replaces_ambient_compiled_run_bytes` passed and exercised replacement
+  through the canonical owner, the typed content-bound migration receipt, retained compiler/N4/
+  context and prior-receipt lineage, the non-authorizing projection, and rehashed deletion,
+  relabelling and historical-compiler forgery negatives; it and the static-admission and
+  live-pre-replay nodes each terminated `PASSED`. The fourth node terminated `FAILED` with
+  `KeyError: historical_context_rebind_receipt`, but
+  it is a P38 non-discriminator against the current owner: the complete canonical denominator is
+  three proof recordings out of three, all carrying `authority_source_migration_receipt` and zero
+  carrying that obsolete top-level proxy, while the passing owner witness mutates the current
+  receipt and its nested predecessor link directly. The verdict authorizes only DEF8's recorded
+  replacement/lineage signal; it does not reissue any recording or state `GY-DEFC-1`,
+  `GY-DEFC-9`, or cold-closeout standing.
+
+- **GY-DEF9 — governed N10a/Depth-N producers read undeclared durable authority history.** Owner:
+  **generation-cycle promotion injection at frozen recomputation boundaries**. Default
+  `CanonicalN9PromotionPort` construction reached `ConfidenceLedgerSession.from_repo`, making
+  ignored `.polisyos` root/head/deployment history a hidden input. The same source/problem yielded
+  canonical-shadow receipts on fresh state and `ledger_scope_binding_mismatch` with zero receipts
+  on retained pre-E12 state. **Evidence:** `N10-DEPTHN-AMBIENT-AUTHORITY-1`; Depth-N rederive failed
+  after `2560.62` seconds and a diagnostic writer was stopped after `623.64` seconds rather than
+  freezing one machine's history. **Smallest correct closure:** every governed proof/recompute
+  producer explicitly injects a fresh isolated, non-authorizing `_for_verification` promotion
+  session; production authority entrypoints retain `from_repo`. The artifact must bind verification
+  provenance and typed migration lineage, and a test with `from_repo` made unreachable must still
+  execute the real owner path byte-identically across fresh and incompatible durable histories.
+
+  **STANDING RECORDED (corrected execution 2026-08-18 against product source at 3af775d8e, using
+  the working-tree witness delta bound by this standing's commit): `closed`, five of five governed
+  producers. This explicitly supersedes both the Rev 44 `no_executable_witness` verdict and the
+  first witness's four-closed/Depth-N-open standing.** **P37 `recomputed`:** one parameterized
+  witness has five separately reported cases over the inherited complete denominator of five
+  governed tool producers; the inherited Rev 44 counts of ten `_for_verification`
+  injections and 2,391 test Python files were not re-derived. Each case ran at one detached checkout
+  path first with a real empty canonical `.polisyos` authority history and then with a valid durable
+  alternate-registry history whose canonical reopen terminated `ledger_scope_binding_mismatch`;
+  the two history-tree digests differed, each digest and file count remained byte-identical across
+  its owner run, and `from_repo` was replaced during that run by the named red
+  `from_repo_reached:<producer>:<history>`. N9 promotion terminated `PASSED` over three receipts, N6
+  generation-cycle `PASSED` over two, N10a second-domain `PASSED` over four, and N11
+  confidence-ledger `PASSED` over four checks: their fresh/incompatible governed bytes were
+  identical, every emitted row revalidated as verification-bound and non-promotable through the
+  production `verification_receipt_cannot_be_consumer_promotable` invariant or its N11 typed
+  equivalent, and the producer-owned semantic/replay/migration lineage validators passed. N10a
+  compares the producer-owned comparison-projection bytes bound by its live manifest and
+  `comparison_content_hash`, not raw operational bytes. The first Depth-N measurement reached all
+  three verification-only, non-consumer receipts and its valid typed authority-source migration
+  receipt, but compared raw owner bytes and terminated `FAILED` only at
+  `/domain_run/terminal/costed_plan/canonical_planner_report/generated_at`
+  (`2026-08-18T17:50:43Z` versus `2026-08-18T17:51:32Z`). That clock leaf records when the two
+  sequential replays ran, not which durable history they ran against, so raw-byte equality was a
+  P38 proxy for GY-DEF9's governed-output property and could demonstrate neither `open` nor
+  `blocked_on_src`. The corrected Depth-N case consumes the `GyComparisonProjectionPlan` built from
+  the live producer-returned comparison admission — the same producer-owned contract consumed by
+  Depth-N's own governed validator and by the N10a witness — and compares that plan's complete
+  projected owner bytes without a test-authored field normalization, allowlist, denylist, or
+  subset. It terminated `PASSED` over all three receipts in 78.83 seconds (`real 80.06`) under the
+  serialized `shared_host_concurrent_gy_defc9` regime; the executed command had an external
+  300-second wrapper cap classified `executor_declared`, while the reusable case retained its
+  existing 600-second per-history safety timeout. Fresh and incompatible projected bytes were
+  identical after the history, `from_repo`, provenance, non-promotability and migration-lineage
+  discriminators all passed. The Rev 44 N10a
+  `cycle_substrate_l6_bundle_content_mismatch` did not reproduce on this base: with the checkout's
+  canonical data available, the node reached its discriminator and `PASSED` in 233.49 seconds, so
+  no repair was required; this measurement supersedes that part of Rev 44. The Depth-N
+  `sessions_by_node_ref` prerequisite was repaired test-side and its focused node `PASSED` in 25.17
+  seconds. The architect correction itself consumed no mechanism repair round; independent review's
+  ceiling-identity and source-versus-witness-pin findings consumed round 1 of 2. No forbidden-root
+  change or `blocked_on_src` finding exists. This verdict authorizes no artifact reissue,
+  cold-closeout, `GY-DEFC-9`, or N11-suffix inference.
+
+- **GY-DEF10 — Depth-N admission compares controlled clock fields before canonical
+  preservation.** Owner: **Depth-N controlled replay admission comparator**. A first writer pass
+  completed in `886.14` seconds, but the byte-stability pass failed after `577.74` seconds at
+  `authority_source_controlled_replay_recording_drift`. Per role, the differing leaves were three
+  `generated_at` timestamps and two `value_port.wall_time_ms` values already excluded from GY
+  semantic hashes and already preserved by the outer writer. **Evidence:**
+  `DEPTHN-CONTROLLED-CLOCK-1`. **Smallest correct closure:** after equal independently recomputed
+  semantic recording hashes, use the canonical operational-value preservation owner before the
+  exact admission comparison; added/removed leaves, shape changes, or any non-operational semantic
+  change stay named red. Hash-only comparison or pinned timestamps are forbidden.
+
+  **CLOSED at `431bcd798`, verified against live source 2026-08-11.** The canonical operational
+  projection owner exists in `src/polisyos/pdc/_impl/gy_waist.py` — `strip_gy_volatile_fields` (`:176`),
+  `gy_content_hash` (`:190`), `gy_artifact_self_identity_projection` (`:200`) and
+  `reconcile_gy_operational_leaves` (`:219`) — and both Depth-N and N10a consume it; five focused
+  behavioural tests pass. **Rev 30's measured claim that the normalizer "lives only in a validator at
+  `check_layer3_gy_depth_n_universality_contract.py:6748`" is STALE**, and the architect re-used it in
+  a `GY-DEFC-4` adjudication without re-measuring; the executor refuted it with evidence, which is the
+  correct handling. Recorded because it is the transferable part: **a measured claim in a plan expires
+  the moment a commit lands against it, and an architect adjudication is a claim, not an instruction.**
+
+- **GY-DEF11 — deployment identity depends on Python import chronology.** Owner:
+  **confidence-ledger E12 deployment-identity manifest**. The declared authority closure contained
+  120 repository modules, but `_loaded_code_manifest()` silently skipped members absent from
+  `sys.modules`: N11-first captured 90 while a Depth-like order captured 94, producing different
+  deployment identities from the same source. Frozen Depth receipts carried a third late-import
+  identity. The N11 write failed after `512.873833` seconds before `owner_bundle_loaded` when those
+  identities met. **Evidence:** `N11-IMPORT-ORDER-IDENTITY-1`; this is an undeclared semantic input,
+  not an operational clock. **Smallest correct closure:** derive one complete, sorted authority
+  denominator; load/resolve every member before a second-pass manifest capture; require exact
+  closure membership; and prove two fresh interpreters with N11-first and Depth-first imports
+  produce one identity. Missing closure members and changed live code must fail with
+  `canonical_loaded_runtime_mismatch`; import-order pinning or artifact rebaseline is forbidden.
+
+  **STANDING RECORDED (Rev 44, measured 2026-08-18 at 44276ccd5): closed.** **P37
+  `recomputed`:** against `N11-IMPORT-ORDER-IDENTITY-1`, a complete walk of all 2,391 test Python
+  files found four exact DEF11 closure nodes, and all four passed in the targeted batch (batch
+  terminal `exit 0`, five dots including the separate DEF12 node). Two fresh interpreters with
+  confidence-first and Depth-first order each
+  asserted `manifest_keys == closure` and returned one identity; missing membership and both
+  changed-live-code orders returned `canonical_loaded_runtime_mismatch`. The denominator is the
+  runtime-resolved closure itself, not the historical 120-member count or a sampled list. This
+  closes only import-order-independent complete-manifest admission at current main; it does not
+  authorize an artifact reissue or any `GY-DEFC-9` or cold-closeout claim.
+
+- **GY-DEF12 — preloaded authority callables can be rebound before manifest admission.** Owner:
+  **confidence-ledger live-code admission shared by authority and verification sessions**. The
+  complete-closure repair for GY-DEF11 still accepted a preloaded function replaced before ledger
+  import: the manifest changed identity but reported consistency, and both session modes admitted
+  it. Independent freeze-59 reviews returned `ARCH-REBOUND-CALLABLE-ADMISSION-1` and
+  `QUALITY-REBOUND-CALLABLE-ADMISSION-1`. Further probes extended the class to module functions,
+  exact class/descriptor slots, property accessor roles, decorated wrappers, and `lru_cache`
+  policy. **Smallest correct closure:** enumerate loader-owned slots generically and bind
+  `(owner path, binding name, descriptor kind, callable role)` to the loader declaration's
+  qualname, source first line, normalized code hash, and typed wrapper policy; both admission modes
+  consume the same fail-closed predicate. A foreign replacement, local-local swap, deletion,
+  classmethod/staticmethod swap, getter/setter swap, wrapper removal, or cache-policy rewrite must
+  fail while its marker strings remain. `codex/gy-def6-e11` contains an explicitly unreviewed WIP
+  at `ba5946ebc`; it opens no E11 cycle and establishes no defect or capability closure.
+
+  **STANDING RECORDED (Rev 44, measured 2026-08-18 at 44276ccd5): closed.** **P37
+  `recomputed`:** against `ARCH-REBOUND-CALLABLE-ADMISSION-1`, the complete walk of all 2,391 test
+  Python files found one direct dual-admission callable-rebinding node; its terminal was `PASSED`
+  after executing all eleven declared mutation cases against
+  both verification and authority sessions, with each child returning
+  `canonical_loaded_runtime_mismatch` while marker strings remained. The unreviewed
+  `ba5946ebc` WIP remains only on `codex/gy-def6-e11` and is not an ancestor of `e18861d12` or
+  main; main instead carries a non-identical implementation and its exhaustive witness through
+  `431bcd798`/`e18861d12` (the source patch IDs differ). This closes only the shared live-callable
+  admission signal; it does not validate the WIP branch, reissue an artifact, or state
+  `GY-DEFC-9` or cold-closeout standing.
+
+- **GY-DEFC-1 — restore a completable cold closeout (closure task for `GY-DEF7`–`GY-DEF12`; NEW,
+  Rev 30).** Owner: **runtime/quality**. **Named by its objective, not its mechanism** (`P30`):
+  *a cold owner derivation reaches `owner_bundle_loaded`.* This is the single critical path in the
+  GY lane — `GY-INFRA-3` Step 1's differential test, `GY-GAP1`'s ratified acceptance test and every
+  N-series closeout all queue behind it.
+
+  **The structural reading, and it is why this is a closure task rather than six repairs.** The six
+  registered defects are instances of **two** questions plus one integrity rule:
+
+  | Question | Instances | Missing owner |
+  | --- | --- | --- |
+  | **What did this computation consume?** | `GY-DEF6` (closed — ambient discovery), `GY-DEF9` (undeclared durable authority history), `GY-DEF11` (import chronology; only `sys.modules` residents entered the closure), `GY-DEF8` (a fast path keyed on context alone), and the refuted `GY-INFRA-2` Part C key (authority import closure omitting every dynamic producer) | a **consumed-set owner** — declare, bind, verify, fail closed on an unbound member |
+  | **What does *equal* mean for this artifact?** | `GY-DEF7` (audit compared pre-normalization while the writer compared post), `GY-DEF10` (hash-excluded clock leaves entered the admission comparison) | a **canonical-projection owner** per artifact type, consumed by the writer and by every verifier |
+  | *(integrity of the first answer)* | `GY-DEF12` — a declared member can be rebound between declaration and use | bind member **identity**, not name |
+
+  **Measured evidence that the second owner is missing, not merely bypassed:** `exclude={"content_hash"}` /
+  `exclude={"record_hash"}` is declared independently at **10 call sites across 7 modules**
+  (`foundry/methods/components/value_evidence.py`, `foundry/methods/selection/advisor.py`,
+  `ir/analytics/uncertainty.py`, `runtime/quality/{grounding_bind,generation_cycle,confidence_ledger,intervention_substrate}.py`),
+  each model carries its own `_content_hash_matches_payload`, and the comparison normalizer
+  `_preserve_operational_values` lives **only in `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py:6748`** —
+  in a validator, not with the artifact it normalizes. Identity is declared per call site;
+  comparability is declared once, in the wrong layer, and applied at some sites only. **A per-site
+  repair reopens at the next site** (`P31`).
+
+  **Two engineering deliverables, therefore, not six patches.** (1) One consumed-set owner,
+  generalizing the instrument that closed `GY-DEF6`: a governed computation declares its complete
+  input set — source closure, ambient discovery, authority history, process/environment state —
+  binds each member's identity, and **fails closed on any unbound or substituted member**. (2) One
+  canonical-projection owner: the comparable form belongs to the **artifact**, and writer and
+  verifier both compare through it, so no comparison site can re-derive what equality means.
+
+  **And the census that makes this a class closure (`P31`/`P35`):** before repairing, enumerate every
+  governed producer's reads of process or environment state — not only the three already found. The
+  search space includes at minimum working directory, environment variables beyond
+  `POLISYOS_PACKS_PATHS`, locale and encoding, filesystem iteration order, wall clock, installed
+  distribution versions, `sys.path` order and temporary-directory state. A complete command per
+  candidate, with its denominator, decides each one.
+
+  **Economics, fixed from the `GY-DEF6` measurement.** That cascade discovered its defects **one at a
+  time** — run the chain, fail, repair, re-run — at roughly one session round each, and its E11
+  bookkeeping reached `46/81` commits (`57%`) against the `47%` churn E11 was built to prevent. This
+  task inverts that: **all known classes are repaired in one source batch, then the chain runs
+  once.** Keep the freeze boundary and the batch discipline — both caught real provenance-forgery
+  findings before a replay was paid — and drop the per-event ledger ceremony.
+
+  **Binding stop rule:** if the single chain run exposes a **seventh** defect class, **stop**. Register
+  it and report; do not repair and re-run. A second cascade is forbidden.
+
+  **Starting state:** `codex/gy-def6-e11` at `ba5946ebc` carries twelve source-repair commits across
+  eight files, five artifact reissues, and an explicitly unreviewed WIP for `GY-DEF12`. It is
+  evidence and a starting point, not a closure; nothing on it is reverted and nothing on it is
+  claimed. `main` at `fe840d3ab` carries the `GY-DEF6` repair without those reissues, so its receipt
+  chain is stale against its own source — that staleness is this task's opening condition.
+
+  **Done when:** the two owners exist and are consumed by every site the census names; `GY-DEF7`–
+  `GY-DEF12` each close against their recorded closure signals; a cold owner derivation reaches
+  `owner_bundle_loaded`; the receipt chain is reissued once and green; and **no governed denominator
+  or semantic value changes** — a rebaseline of any recorded number remains forbidden.
+
+  **Standing after execution (merged `e18861d12`, diagnosis merged `8d87624db`): the two class
+  owners landed; the objective did NOT.** `catalog_provenance` v1 makes `P37` machine-enforced data —
+  `predicate_admission_policy` admits only `recomputed`/`independently_reconciled`,
+  `governed_discovery.unbound_inputs` is `[]`, ambient discovery is recorded and excluded with
+  `fail_closed_action: quarantine`, and `runtime_backend_identity` binds the backend fingerprints.
+  The seal covers **2,088** members (2,084 `recomputed`, 4 `independently_reconciled`, **zero**
+  decisive asserted/supplied/unestablished). **Depth-N passed for the first time** — `2,452.360` s,
+  no issues. The denominator is unchanged. N11 failed at
+  `authority_source_controlled_replay_recording_drift` after `1,569.635` s, before
+  `owner_bundle_loaded`, so no N11 artifact was written and its receipt stays stale. Successor work
+  is `GY-DEFC-2`.
+
+- **GY-DEFC-2 — make drift failures self-describing, then classify the N11 boundary once (NEW,
+  Rev 31).** Owner: **runtime/quality**. **Named by its objective** (`P30`): *a drift failure states
+  what changed.* Classification of the N11 boundary is the first thing that objective buys, not the
+  task's mechanism.
+
+  **Why it exists.** The `GY-DEFC-1` diagnosis (`8d87624db`) returned **`not_established`**, correctly.
+  It resolved the standing puzzle first: Depth-N direct passing and N11 failing with the same code are
+  **not the same comparison** — the Depth writer took `v1` recordings carrying no admission and wrote
+  `v2` with `admission_kind=migrated`; N11 then consumed those newly written `v2` recordings and was
+  **the first paid live replay of the admitted-`v2` branch**. The direct green exercised *migration*;
+  the red exercised *replay of migration's output*. One error string, two code paths, and the earlier
+  "same signal, therefore same defect" reading was `P36`.
+  It could go no further because the failure emits `recording_content_hash` — **a derived symptom** —
+  while retaining **neither the role nor the changed leaf**, which is exactly what discriminates
+  `GY-DEF10` incompletely closed (the canonical projection not reaching the `v2` site) from a
+  **seventh class** (a semantic member changing only on the admitted-`v2` / cold-worker route).
+
+  **The reframe that makes this worth doing on its own terms.** A failure path that reports a symptom
+  and retains neither operand role nor changed leaf **is itself a defect**: every future drift here is
+  equally opaque, and this project has now paid a full session for that opacity once. The
+  instrumentation is a **permanent improvement to the validator's failure reporting**, not a
+  throwaway probe — which is why the row is named for it rather than for the classification it
+  enables.
+
+  **Scope.** The embedded-recording comparison's error path emits operand role, the changed leaf path,
+  and both sides' identities. Small: one validator's failure reporting. Then **one** instrumented
+  single-pass cold N11 owner derivation — the discriminator the diagnosis named — at the measured
+  `2,346,559` ms (`2x` p95) budget; the failing run took `1,569.635` s. If that does not isolate it,
+  the named fallback is the same trace in a paired direct-process and spawned-worker envelope.
+
+  **Binding stop rule: classify, do not repair.** The deliverable is the classification with its
+  evidence. Whichever verdict lands — `GY-DEF10` incompletely closed, or a seventh class registered
+  with its row content — the repair is a separate decision with its own budget, taken knowing what to
+  fix. Rebaseline of any recorded value remains forbidden, as in `GY-DEF6` and `GY-DEFC-1`.
+
+  **Done when:** a drift failure on this path names its operand role, its changed leaf and both
+  identities; one instrumented cold N11 run is executed and its result recorded with its receipt; the
+  boundary is classified as `GY-DEF10-incomplete` / seventh class / `not_established` **with the next
+  discriminator named**; the instrumentation is landed and reviewed regardless of which verdict lands;
+  and **no governed denominator or semantic value changes**.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): executed and merged in
+  Rev 32.** Registered in Rev 31 with its objective named as an objective (`P30`): *a drift failure
+  states what changed.* Delivered: drift failures on the embedded-recording path now report recursive
+  leaf paths, frozen and live operand roles with SHA-256 identities, the recording role and the
+  admission arm — **without raw values**. Rev 38 records that this instrumentation fired in anger for
+  the first time and paid for itself, naming the Depth failure precisely enough to classify without a
+  second probe run.
+
+- **GY-DEF13 — the provenance manifest binds an address, not an identity (found by the architect
+  while adjudicating `GY-DEFC-2`, measured 2026-08-10).** Owner: **Foundry catalog/discovery
+  boundary**, same owner as `GY-DEF6`. **This is the live blocker on the cold closeout and therefore
+  the next task**: `GY-N12`, `GY-N13a/b`, `GY-GAP1` and `GY-INFRA-3` Step 1 all queue behind it.
+
+  `catalog_provenance.ambient_discovery.entry_points[].direct_url_sha256` hashes the installed
+  distribution's `direct_url.json`. For an **editable** install that file's content is
+  `{"url":"file:///…/policy-engine","dir_info":{"editable":true}}` — **an absolute filesystem path**,
+  plus key order and whitespace chosen by whichever installer wrote it. So the frozen denominator is
+  bound to *where the repository was checked out* and *how the packaging metadata happened to be
+  serialised*.
+
+  **Measured, and the consequence is not hypothetical.** Live from the main checkout:
+  `sha256:1f5c1d0ccf967bae9c171d6e71d57bffffc2b40958bfef5dc7e375fb02199a4b`. Frozen in
+  `architecture/policy_design_case/layer3_gy_value_gate_contract.json`:
+  `sha256:b8bd61452925df72f15ac88dac58f4723c965ef93faee5b3c34c2921c1f762ec`. **MISMATCH — `main`
+  cannot verify its own frozen artifact.** The manifest was produced in a worktree and binds that
+  worktree's path. `GY-DEFC-2`'s single cold N11 call consequently failed at `104.592529` s with
+  `catalog_ambient_discovery_manifest_mismatch`, `catalog_entry_point_distribution_manifest_mismatch`
+  and `catalog_provenance_manifest_mismatch`, **before reaching the embedded-recording comparator** —
+  which is why that task's verdict is `not_established` rather than a classification.
+
+  **The defect stated exactly:** the manifest **binds the address and the packaging metadata's
+  formatting while honestly declaring `source_byte_closure: "not_established"`** for the same entry.
+  It binds what does not matter and declares it cannot bind what does. `GY-DEFC-1`'s architecture is
+  **right** — declare the consumed set, bind it, fail closed, `P37` as machine-enforced data — and
+  **one member of that declared set is the wrong quantity**. This is `P37` inverted: not a predicate
+  declared where it should be constructed, but a predicate **constructed over the wrong quantity**,
+  so the gate fails closed on differences that carry no semantic content.
+
+  **Smallest correct closure:** for an editable install, record the fact and the reason its bytes
+  cannot be content-bound — which the manifest already expresses as
+  `source_byte_closure: "not_established"` — and **do not gate on its install path or on installer
+  metadata formatting**. Where a distribution *can* be content-bound (non-editable, wheel-installed),
+  binding it stays correct and stays. **Forbidden closures:** rebaselining the frozen hash to this
+  machine's value (it ping-pongs exactly as `3c16857f8` did for the denominator); normalising the path
+  to a placeholder while still gating on it; widening the comparison to "ignore mismatches".
+
+  **Closure signal:** the same source verifies from two different checkout paths — a worktree and the
+  main tree — while a genuine code change in a bound distribution still fails; and the cold path
+  passes N8 catalog-provenance validation and reaches N10a's canonical transport-gap receipt
+  comparison. `P29`: prove it behaviourally, with a path-change witness that must stay green and a
+  content-change witness that must go red.
+
+  **Execution standing (`f015e6631`, 2026-08-10): `defect_standing = closed`; the cold-closeout
+  capability remains blocked.** Editable installs now retain `source_byte_closure: not_established`
+  while their installer-chosen address/serialization is absent from identity; non-editable bytes
+  remain bound. Two real editable installs of this source, at the main path and a sibling worktree,
+  had different raw `direct_url.json` hashes but derived the same discovery-manifest ID, catalog-
+  provenance ID and frozen-artifact SHA-256, and both catalog-provenance checks passed. The five
+  behavioral witnesses, including the marker-preserving source flip, are green. `[P37:
+  independently_reconciled]`
+
+  The one cold N11 call ran `138.988216` s and exited `1`: the earlier N8 catalog-provenance mismatch
+  codes were absent, and the run reached N10a's receipt comparison, which failed closed at
+  `n8_transport_gap_receipt_drift`; the outer N11 envelope reported
+  `n10_capstone_provenance_unstable` before `owner_bundle_loaded`. `[P37: recomputed]` The class is
+  **`downstream_frozen_receipt_reissue_required`**, not a new source defect: the recomputed N8
+  transport receipt preserves both proof hashes and every covariate while its intentionally bound
+  N8 contract identity and derived receipt ref move. `[P37: independently_reconciled]`
+
+  **Next closure, described but not performed:** invoke N10a's canonical writer once to reissue its
+  five declared artifacts from the now-valid N8 contract, require only the N8 transport-gap receipt
+  and ordinary dependent trace/pack hashes to move, and make its live/frozen check green before any
+  later cold N11 attempt. Do not weaken the comparison, alter the N8 denominator or semantic value,
+  or rebaseline N11. Whether that reissue passes is `[P37: not_established]`; the
+  `GY-DEF6`-cascade / `GY-DEFC-2` one-run stop rule forbids performing it in `GY-DEF13`.
+
+- **GY-DEF14 — the ambient block is declared non-governing and is decisive anyway (found by the
+  architect while verifying `GY-DEF13`, measured 2026-08-10).** Owner: **Foundry catalog/discovery
+  boundary**, same owner as `GY-DEF6` and `GY-DEF13`. **Sibling of `GY-DEF13`**: there the decisive
+  quantity was an *address*; here it is *ambient state that the design itself says does not govern*.
+
+  `catalog_provenance.ambient_discovery.unbound_inputs` records
+  `"discovery_error:entry_point:example.weighted_average:ModuleNotFoundError"` — the reference
+  environment's **plugin-import posture** — and that content feeds `ambient_discovery.manifest_id`
+  and `provenance_id`, which the comparison checks. **Measured:** a live recomputation on the merged
+  tree reproduces the `GY-DEF13` fix exactly (`direct_url_sha256: null` on both editable entries) and
+  the governed denominator exactly (`389/389` / `method_catalog_9483326427331f16`), yet yields
+  `component_discovery_manifest_fea6e14c…` and `method_catalog_provenance_e630af38…` against the
+  frozen `…2b8eea44…` and `…8b24b2b3…`, because the example plugin imports here and did not in the
+  environment the artifact was frozen in.
+
+  **The contradiction is inside one block.** The same `ambient_discovery` carries
+  `admission: {included_in_governed_denominator: false, fail_closed_action: "quarantine"}`,
+  `added_component_ids: []`, `component_count: 389` and `overlap_component_count: 389` — so ambient
+  discovery contributed **nothing** to the governed set by the design's own accounting, and its
+  incidental errors still decide the gate.
+
+  **Operational consequence:** the chain runs only in a specially reconstructed environment.
+  `GY-DEF13` had to build a "receipt-equivalent" interpreter that preserved the frozen plugin-import
+  posture in order to run at all, and every later step inherits that construction.
+
+  **Smallest correct closure:** ambient discovery stays **recorded in full** — it is real evidence and
+  its removal would be a regression — but its incidental content must not enter a decisive identity.
+  Derive the compared identity from what the block declares as governing, and keep ambient facts
+  reportable and non-decisive, consistent with the `admission` policy already written beside them.
+  **Forbidden closures:** deleting or truncating `unbound_inputs`; rebaselining the manifest ids to
+  this machine's values; widening the comparison to ignore ambient differences generally.
+
+  **Closure signal:** two environments differing **only** in ambient plugin-import posture produce the
+  same compared identity and both verify, while a change in a governed input still fails with its
+  named code. `P29`: an ambient-difference witness that must stay green and a governed-difference
+  witness that must go red.
+
+  **RE-TYPED Rev 37 — this is a CLASS with at least two members, and its mechanism is now measured.**
+  Member two was found by `GY-DEFC-3`'s accepted-but-rejected reissue: the N10a trace embeds a
+  confidence-ledger projection whose `authority_provenance` is `"verification"` — a declaration the
+  design already enforces at `src/polisyos/runtime/quality/promotion_sequence.py:301-304`
+  (`verification_receipt_cannot_be_consumer_promotable`) — and its **run-scoped identities enter the
+  frozen governed content anyway**. Same structure as the ambient block: declared non-governing,
+  decisive in fact.
+
+  **The mechanism, one sentence:** `src/polisyos/pdc/_impl/gy_waist.py:166`
+  `is_gy_content_hash_excluded_field(key: str)` decides exclusion **by field name alone** and
+  structurally cannot express "this block does not decide because it declares itself non-authority".
+  This is `P38` (§3.5.14) in the hash owner.
+
+  **Predicate contract for the closure** (settled before code): a block is excluded **only if every
+  declared provenance is non-authority**; any authority element keeps the whole block governing; an
+  absent, empty, malformed or unrecognized declaration is **governing**; scalar and list forms are the
+  same declaration in two shapes. Exclusion is **derived from the payload's own declaration**, never
+  from a list of field names or leaf paths.
+
+  **Measured blast radius (executor census, `353/353` artifacts walked, every current self-hash
+  reproducing its committed value):** **5** artifacts move, **23** blocks, **3,721** scalar leaves —
+  confidence ledger `4/1,023` · Depth-N universality `10/1,564` · generation cycle `2/212` · promotion
+  contract `3/210` · N10a cycle trace `4/712`. The architect's earlier `4/353` was a grep over the
+  scalar literal and **missed Depth-N's nine list-form declarations**; the census supersedes it.
+  Reissuing those five in one enumerated batch is **not** the forbidden cascade — a cascade discovers
+  a reissue after each run; this names them all before any of them.
+
+  **Batch risk recorded before entry:** `check_layer3_gy_confidence_ledger:write` has **no successful
+  sample in the timing log** (three attempts, all exit `1`), so one of the five owners has an unproven
+  writer. Probe it first, at zero cost to the batch. Depth-N dominates the cost at `p95 2,471.3` s
+  (`E9` budget `4,942.5` s) against N10a's `426.3`/`852.7` s.
+
+  **THIRD MEMBER and corrected radius (Rev 38, measured by `GY-DEFC-4`).** The class has a member at
+  the **recording layer**, one level earlier than the artifact layer: Depth's controlled-recording
+  comparator knows only global clock exclusions, so a transient verification session decides admission
+  there too. Measured with **zero changed bytes** — `873.977626` s, exit `1`, before/after SHA
+  identical — and named precisely by `GY-DEFC-2`'s instrumentation: `84` leaves (`5` operational, `75`
+  verification-session lineage, `4` enclosing identities) on the `first_vertical / migrated` arm.
+  Different owner, different layer, therefore a **second mechanism** and the correct `§6(b)` stop.
+
+  **The radius shrank once the predicate was built properly.** The trial counterfactual predicted
+  `3,721`–`3,799` leaves across five artifacts; the source-bound census against the *repaired* owner
+  measures **4 artifacts, 28 owner-plan entries, 889 comparison leaves**, because the typed projection
+  **keeps every governing semantic** and removes only producer-validated session lineage. Record the
+  difference as the finding it is: a counterfactual over a trial predicate is blast-radius evidence,
+  never a repair projection.
+
+  **Design outcome, stronger than the closure as originally written and now the standard.** The
+  architect asked only that the block be excluded from the compared identity. Three independent
+  reviews found three distinct authority leaks in that formulation before any writer ran — a block
+  vanishing from the generic hash on a **self-declared** field; a forged N9-shaped mapping
+  **self-admitting** by recomputing its own hash; and the persisted comparison manifest
+  **self-authorizing** `exclude`. The landed seam separates **custody identity** (the ordinary content
+  hash still binds every retained byte) from an **opt-in comparison identity** admitted only through
+  the canonical receipt/owner proof. Evidence integrity is preserved by construction, which the
+  original wording did not guarantee.
+
+  **RE-MEASURED Rev 43 by the architect — member one was never inside any task's scope, and it is
+  now what blocks the successor.** The Rev-37 re-typing named a class with at least two members;
+  `GY-DEFC-4`'s scope then covered exactly one — the hash-owner predicate and its bridge in
+  `check_layer3_gy_second_domain_pack.py`. Member one, the ambient block inside the **N8 value-gate**
+  comparison, entered no scope in `GY-DEFC-4` through `GY-DEFC-8`. **Verified:**
+  `check_layer3_gy_value_gate_contract.py` holds **zero** references to `gy_waist`,
+  `is_gy_content_hash_excluded_field` or `authority_provenance`, and the landed branch touches
+  **zero** `value_gate` paths — the predicate repair structurally could not reach it, because this
+  comparison is not a content-hash exclusion at all but a hard-coded nine-field equality at
+  `check_layer3_gy_value_gate_contract.py:3473-3505`. Five successive tasks met this boundary and
+  re-classified it as "environment" each time. **Architect error:** naming a class and scoping one
+  member leaves the other member with the *appearance* of ownership and none of the substance.
+
+  **Four measurements on clean `main`, 2026-08-18.**
+
+  1. `check_layer3_gy_value_gate_contract.py --check-catalog-provenance` exits `1` in `21.3` s with
+     `catalog_ambient_discovery_manifest_mismatch`, `catalog_ambient_component_manifest_mismatch`,
+     `catalog_ambient_unbound_input_manifest_mismatch`, `catalog_predicate_provenance_mismatch`,
+     `catalog_provenance_manifest_mismatch`. Live `component_discovery_manifest_fea6e14c…` is the
+     **same** id this entry recorded on 2026-08-10 against frozen `…2b8eea44…`. Three independent
+     measurements, eight days, one result. `[P37: recomputed]`
+  2. `check_layer3_gy_second_domain_pack.py --check` exits `1` in `10.9` s with the single issue
+     `stage_gap_triage_drift:n8_transport_tuple_hardcode`. Both REDs are therefore standing
+     conditions of `main`, present with no branch merged and no source of this family changed.
+     `[P37: recomputed]`
+  3. **The record cannot discriminate the two environments.**
+     `catalog_entry_point_distribution_manifest_mismatch` is **absent** from the issue set in the
+     executor's run and in the architect's, so `distribution_name`, `distribution_version`,
+     `entry_points_sha256`, `editable_install` and `direct_url_sha256` are equal across them. The
+     records say the environments are identical; the derived identity says they differ. After
+     `GY-DEF13` both editable entries additionally carry `source_byte_closure: "not_established"` —
+     the record declares it cannot pin the source bytes and derives a decisive identity anyway.
+     `[P37: recomputed]`
+  4. **No environment on this machine reproduces the frozen posture.** The canonical root `.venv`
+     has had `polisyos_foundry_method_example` editable-installed since **2026-05-08**, three months
+     before the artifact was frozen on **2026-08-10** at `f015e6631` — so the freeze did not happen
+     there. The only other GY-lane environment, `.worktrees/gy-def13-path-witness/policy-engine/.venv`,
+     has no Python executable and no install of that package at all, so it would yield a **third**
+     posture, not the frozen one. `[P37: recomputed for the install dates and site-packages contents;
+     not_established for which environment produced the freeze]`
+
+  **The existing reissue mechanism structurally refuses this drift.**
+  `--reissue-catalog-provenance` (`check_layer3_gy_value_gate_contract.py:4268`) was built for exactly
+  one drift — the path-dependent `direct_url_sha256` of `GY-DEF13`. It rewrites **only** `manifest_id`,
+  recomputes `provenance_id`, and then requires `expected_provenance == live_provenance`; with
+  `component_count` `389 → 390`, a non-empty `added_component_ids` and a changed `unbound_inputs` it
+  raises `catalog_provenance_reissue_unrelated_ambient_drift`, and it fails earlier still on
+  reproducing the historical manifest id. So "authorize an N8-family reissue" is **not an available
+  capability**; supplying it means widening the guard, which is this entry's third forbidden closure.
+  `[P37: recomputed from the guard source]`
+
+  **Standing:** the artifact has not verified in the canonical environment at any point since it was
+  written. Both closures an executor can reach from here — reconstruct the broken environment, or
+  rebaseline the manifest — are the closures this entry already forbids. Owner of the repair is
+  `GY-DEFC-9`.
+
+  **GY-DEFC-9 settled disposition (2026-08-18).** The historical environment discriminator is
+  `not_established`; inventing one after the freeze would be a rebaseline and is refused. Ambient
+  posture remains recorded in full, including import failures and `unbound_inputs`, and remains
+  protected by the raw custody identity as diagnostic evidence. It is no longer a governed replay
+  prerequisite. The governed comparison projection admits exclusion only from a structurally valid
+  non-governing admission; absent, malformed or contradictory admission fails closed. `[P37:
+  institutionally_supplied for the ruling; not_established for the historical discriminator]`
+
+  The pre-implementation census walked the complete `32/32` recorded and `32/32` live
+  `predicate_provenance` rows: all rows were mappings with unique names, and exactly
+  `ambient.discovered_component_membership` differed (`not_established → recomputed`) while both
+  sides declared `decisive: false` and `quarantine`. Its placement is therefore established as an
+  ambient finding, not guessed from the whole-list code. The three direct ambient mismatch codes are
+  ambient findings; governed predicate rows remain governing; raw `provenance_id` drift is a derived
+  consequence that must stop firing rather than be excluded. The complete row disposition is frozen
+  in `docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  independently_reconciled]`
+
+  **GY-DEFC-9 execution standing (2026-08-18).** This member is closed on
+  `codex/gy-defc-9-n11-suffix`: Foundry owns the fail-closed governed projection while raw ambient
+  facts and custody identity remain intact; every N8 comparison path consumes it. Two real discovery
+  environments differing in example-extension importability both return zero governing issues, and
+  the internally rehashed governed-count control remains red with
+  `catalog_builtin_discovery_manifest_mismatch`. The frozen N8 artifact is byte-identical. `[P37:
+  recomputed for the mechanism, complete comparison-path census, two-environment witness, negative
+  control, and artifact identity]`
+
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran this member's
+  canonical consumer: N8 returned `0`, `status=pass`, `scope=catalog_provenance`, and
+  `ambient_findings=[]` in `11.349281` s. The cold child then stopped in its measurement-harness
+  capability gate before milestone 1 and before any owner build. That terminal neither exercises nor
+  reopens this closed member; the frozen N8 artifact remains one of the `11/11` byte-stable pins.
+  `[P37: recomputed]`
+
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding authorized preflight re-ran N8 in
+  `12.631764` wrapper seconds and returned `0`, `status=pass`, `scope=catalog_provenance`, with
+  `ambient_findings=[]`. The cold child then completed all `28/28` milestones and returned zero
+  validation issues. The N8 artifact stayed byte-identical across the complete `11/11` pin
+  denominator, so the cold result confirms rather than reopens this member: ambient observations
+  remain fully recorded, diagnostic and non-governing. `[P37: recomputed]`
+
+- **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
+  2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
+  the shared PDC identity boundary rather than adding another validator-local normalizer.
+
+  A canonical projection has two independent axes. The first decides **which fields are excluded**;
+  `strip_gy_volatile_fields` / `gy_content_hash` already owns that decision. The second decides
+  **how a present nullable value is represented**, including the distinction between an explicit
+  `null` and an absent member. That representation axis has no owner. Consequently, two call sites
+  over the same typed object can each follow their local rule and still disagree about its bytes and
+  identity.
+
+  **GY-DEF10 stays closed at `431bcd798`.** DEF10 repaired the first axis: canonical operational-leaf
+  exclusion and reconciliation. DEF15 is adjacent because both concern canonical projection, but it
+  does not refute or reopen DEF10; the existing owner is correct on the axis it owns. DEF15 supplies
+  the missing representation owner for one artifact family.
+
+  Two measured instances prove one class. In the cold N11 suffix, construction embedded a content
+  hash over a dump retaining nested nulls while validation recomputed after `exclude_none=True`,
+  producing `artifact_content_hash_drift`; the frozen same-family discriminator is
+  `62df18eb…f225` null-retained versus `fb4c9c33…4005` null-omitted. In the public ledger writer,
+  serialization omitted exactly `36/36` required-nullable fields and the immediate reparse rejected
+  them as missing before any candidate was written. The first instance is hash-construction versus
+  validation; the second is serialization versus reparse.
+
+  **Smallest correct closure:** one shared N11 projection owns representation and is consumed by
+  construction, hash validation, serialization, reparse, and corruption rehash. It declares rather
+  than infers both exclusion sets and their reasons: the three comparison identity fields are
+  deliberately non-governing, and the self-hash is excluded only while computing that hash. Required
+  nullable members remain present as explicit `null`; genuinely absent, malformed, or unrecognized
+  members remain governing and fail closed.
+
+  **Closure signal:** a required-nullable `null` survives construction, validation, serialization,
+  and reparse byte-identically; construction and validation derive one identity; all measured
+  `36/36` fields survive round trip; genuine absence fails with its named diagnostic; and malformed
+  or unrecognized representation remains governing. The complete governed-artifact blast radius is
+  measured before source changes; until that census completes, which stored artifacts move is
+  `not_established`.
+
+  **CLOSED (Rev 43) by `GY-DEFC-8` at `2789b49ea`, with its cold verification still unspent.** The
+  blocking census ran first and selected the **zero-move** branch: all `509` governed-directory files
+  walked, all `13` whole-root identities reproduced, `12` null-retained and one null-free, and the
+  proposed owner reproduces all `13` — so the confidence ledger was the only artifact the repair could
+  move. The shared owner is consumed by construction, identity validation, serialization, reparse and
+  corruption rehash; the `GY-DEF10` hash owner is unchanged. Six witnesses failed red-first on the
+  missing owner before any producer work. An independent review then caught a real fail-open at the
+  shared intake — a coercible raw `"3"` normalized before identity comparison — closed by strict
+  JSON-mode validation, which preserves valid arrays while rejecting coercible scalars; all eight
+  boundary cases green. The accepted reissue matched its declaration exactly at `12,674/12,674` with
+  an empty protected set, `111` explicit nulls and the `36/36` required-nullable subset surviving
+  round trip, followed by green `--check` (`1,083.481` s), cold rederive (`1,077.555` s) and `50/50`
+  corrupt mutations with zero survivors. **What is not delivered:** the repair has never been
+  exercised by a cold N11 — the run that would prove the suffix closes was not launched. That
+  verification belongs to `GY-DEFC-9`.
+
+- **GY-DEFC-3 — reissue the downstream receipt chain and reach `owner_bundle_loaded` (NEW, Rev 34).**
+  Owner: **runtime/quality**. **Named by the objective it continues** (`P30`), unchanged since
+  `GY-DEFC-1`: *a cold owner derivation reaches `owner_bundle_loaded`.*
+
+  **Why it is small.** `GY-DEF13`'s cold N11 call cleared the catalog-provenance mismatches and
+  stopped at `n8_transport_gap_receipt_drift`, wrapped as `n10_capstone_provenance_unstable`. That is
+  **not a defect**: transport covariates and proof hashes are unchanged, and only N8's legitimately
+  reissued contract hash (`…578db9` → `…ad12c4`) and its dependent N10a receipt ref moved. A frozen
+  downstream receipt pinning a **content identity** went stale because the content legitimately
+  changed — the designed behaviour, whose canonical producer already exists. The step is a canonical
+  N10a five-artifact reissue, then one cold N11.
+
+  **Sequenced ahead of `GY-DEF14` deliberately, for information.** The objective has been blocked for
+  a week and we are one or two steps from it. Reaching `owner_bundle_loaded` once — even inside the
+  reconstructed environment — tells us whether the chain is otherwise sound, and that is knowledge
+  obtainable no other way. `GY-DEF14`'s repair requires another surgical reissue regardless and can
+  absorb the manifest changes in one pass afterwards.
+
+  **Binding stop rule, unchanged:** one reissue, one cold run. A **new** class stops the task —
+  register it with evidence and its smallest correct closure described, and do not repair or re-run.
+  Rebaseline of any recorded value remains forbidden.
+
+  **Done when:** N10a is reissued through its canonical writer with the semantic delta inspected leaf
+  by leaf; one cold N11 runs and its outcome is recorded with its receipt; and either
+  `owner_bundle_loaded` is reached — **the first time** — or the new boundary is classified and
+  registered. **No governed denominator or semantic value changes.**
+
+  **EXECUTED and SUPERSEDED by `GY-DEFC-4` (Rev 37); both scarce allowances remain UNUSED.** What it
+  established, all `recomputed`: the receipt-equivalent posture reproduces (`27.931` s, exit `0`,
+  stdout SHA identical to the prior accepted receipt); **the canonical writer completes in
+  `420.560466` s, exit `0`** — inside even the *wrong* first cap of `526.392` s that killed it under
+  load, so **no producer regression exists** and the two earlier kills are fully explained as
+  contention non-receipts; and the reissue was **rejected** on a `133`-leaf delta of which `124` fell
+  outside the authorized N8 cascade, with no denominator, comparison/admission field, transport
+  covariate, proof hash or ambient identity moving. The five outputs were restored byte-for-byte.
+  **The rejection was correct and better than the architect's fence**, which enumerated *negatives*
+  while the executor applied the *positive* specification — now the standing rule: **acceptance is
+  against a delta declared before the run, never against a list of prohibitions**, because a
+  prohibition list cannot be complete.
+
+- **GY-DEFC-4 — `GY-DEF14` as a class, with the measured batch, then the cold run (NEW, Rev 37).**
+  Owner: **runtime/quality**, with the Foundry catalog/discovery boundary as co-owner of the predicate.
+  **Named by the objective it continues** (`P30`), unchanged since `GY-DEFC-1`: *a cold owner
+  derivation reaches `owner_bundle_loaded`.*
+  **Scope:** the `GY-DEF14` predicate contract above, its bridge at
+  `check_layer3_gy_second_domain_pack.py:4126`/`:2598` (`_normalize_n6_run_payload` declares its own
+  exclusion set instead of delegating to the owner), the five enumerated reissues in ascending cost
+  order, and **one** cold N11. `GY-DEF10` is explicitly **not** in this batch — it is closed.
+  **Sequencing:** probe the unproven confidence-ledger writer first; then the contract in writing;
+  then one frozen source batch with its reviews (`E11`); then the census re-run as the acceptance
+  test — predicted removed leaves must equal observed, per artifact; then the reissues, each with a
+  delta declared before its writer runs; then the posture gate and the cold run.
+  **Stop rule, stated as a property rather than a count:** *something changed that the predicate does
+  not explain.* One more artifact moving for the **same** mechanism is a correction to record and
+  proceed; a hash moving for a reason the contract cannot name is a stop. A cascade remains forbidden;
+  rebaseline of any recorded value remains forbidden.
+
+  **EXECUTED (Rev 38): three of four members closed, the fourth stopped at the authorized boundary.**
+  Landings `7d02818a0` promotion, `482c204d9` generation, `d15681e5d` N10a, `ba18ad7d7` Depth stop
+  receipt; head `ba18ad7d7`, 20 commits ahead, a 27-path delta with `src/polisyos/data_forge/**`
+  absent. **Every accepted delta matched its pre-declared set exactly** — promotion `21/21`,
+  generation `12/12`, N10a `0/3/0/25/8` across five outputs — with all three verifications green per
+  artifact and each corrupt lane closing at its contract green of exit `1` with every mutation
+  detected. **Both pre-authorized branches fired without an architect round trip**: `B3` on the
+  confidence-ledger probe (exit `1` at `111.920627` s) and `B1` on the census correction. **This is
+  the first stop in the family that is the rule working rather than an architect instruction failing.**
+
+  **`GY-DEFC-2`'s instrumentation fired in anger for the first time and paid for itself.** Rev 32
+  recorded that it never had; here it named the Depth failure precisely enough to classify without a
+  second probe run — operand role, changed-leaf census and admission arm, with no raw values. The
+  reframe that justified building it (a failure path retaining neither role nor changed leaf is itself
+  a defect) is now evidenced rather than argued.
+
+  **Carried correction for the successor:** `B3` retired the confidence ledger on a probe taken
+  **before** the source batch and **before** N10a's reissue, and its failure code was
+  `n8_transport_gap_receipt_drift` — precisely the stale-downstream-receipt class N10a's reissue then
+  closed. That member is *not* established as blocked; it is un-re-measured. Re-probe costs `112` s.
+
+- **GY-DEFC-5 — the recording-level comparison owner, then Depth, then the cold run (NEW, Rev 38).**
+  Owner: **runtime/quality**. **Named by the objective it continues** (`P30`), unchanged.
+  **Scope:** the recording-layer dual of the artifact-layer owner `GY-DEFC-4` landed — full raw-record
+  preservation, a versioned **opt-in** comparison projection, admission only through the canonical
+  receipt/owner proof with live session and candidate validation, never a self-declared field and
+  never a self-recomputed hash. Assume the recording layer carries the same three authority leaks the
+  artifact layer did until a witness says otherwise. Then the re-probed confidence ledger if `§1`
+  reopens it, then Depth, then **one** cold N11.
+  **Binding sequencing, and it is evidence-based rather than cautious:** *do not spend the cold N11
+  before Depth closes.* `GY-N11` failed at `authority_source_controlled_replay_recording_drift` at
+  `1,569.635` s (Rev 31) and was the first paid live replay of the admitted-v2 branch (Rev 32); Depth
+  has now failed in that same comparator on that same `migrated` arm. Every earlier boundary that
+  masked it — catalog provenance, `n10_capstone_provenance_unstable`, `n8_transport_gap_receipt_drift`
+  — is repaired, so a cold run launched now would reach the recording comparator and reproduce what
+  the `873.977626` s Depth measurement already established, at the price of the only allowance held.
+  **Stop rule, as a property:** something changed that the recording contract does not explain. A
+  **third** bespoke mechanism beyond the artifact and recording owners is the architect's call.
+
+  **EXECUTED (Rev 39): three of four members closed; Depth stopped on a BORROWED cap.** The recording
+  owner landed at `7a259daa6` after three review rounds that closed **six** authority defects before
+  any writer — a public token imitating canonical metadata, an issued proof retargetable by mutating
+  its stored admission, unbound child-summary admissions, `claim_execution_binding_hash` dropping
+  governing inputs, a double-called migrator, and stale authority envelopes after migration. Reissues,
+  each matching a delta declared **before** its writer and on the first accepted write: promotion
+  `604/604`, generation `740/740`, N10a `2,832/2,832`, all four verifications green per artifact.
+  The confidence-ledger re-probe confirmed the architect's mechanic hypothesis and refuted its
+  outcome: `n8_transport_gap_receipt_drift` is **gone**, and the lane now fails earlier at
+  `n10_capstone_invalid` on the **new v2 comparison schema**, so `B3` stands for a different and
+  clearer reason. Depth's accepted-reissue and the cold-N11 allowance are **unused**.
+  **Why Depth stopped, and it is not the producer:** the executor's bespoke live census was capped at
+  `1,695.177568` s — Depth's **rederive-audit** `2 x p95`, a **sibling lane's** budget — while the
+  census itself has zero successful samples of its own. It reached a completed semantic terminal at
+  `1,329.4` s before the fixes and does strictly more work after them. Two cap terminations with zero
+  changed bytes are therefore `GY-DI2` in its third occurrence, not a lane overrun; `B4` keyed on
+  "its recomputed budget" without the architect checking that the lane had one.
+
+- **GY-DEFC-6 — close Depth through the producer's own measurement path, then the cold run (NEW,
+  Rev 39).** Owner: **runtime/quality**. Objective unchanged (`P30`).
+  **Scope:** drop the bespoke census — its pre-verification is already paid for by three successful
+  reissues through the same owner, and the same evidence comes from the producer's **non-persisting
+  measurement mode**, which *is* budgeted (`4,942.540412` s cap against a measured `873.977626` s).
+  Then declare the delta, spend the one accepted Depth reissue, run its three verifications, and run
+  the **one** cold N11 (`2,346,559` ms). Remaining runtime is roughly `1.6` hours; the repairs are
+  done.
+  **Binding:** apply the §3.5.7 contention allowance below to every cap before launch. A lane with no
+  successful sample of its own gets a **declared** ceiling recorded as supplied, never a sibling's.
+
+  **EXECUTED (Rev 43): the objective is CLOSED — a cold owner derivation reached
+  `owner_bundle_loaded` on 2026-08-14, and the same call then exposed the suffix.** Depth closed
+  first, on the first accepted write, with exact declared/observed equality `6,095/6,095`, an empty
+  protected-set intersection, all external pins unchanged, four closure receipts, and a corrupt
+  terminal catching `18/18` mutations with zero survivors. The single authorized cold invocation then
+  ran from clean attached head `ca9bc59b0` in a fresh interpreter, calling `clear_owner_bundle_cache()`
+  exactly once and `build_live_contract()` exactly once against the explicit `1,320,693,760`-byte
+  catalog and explicit L5 registry. It completed without timeout in `1,066.900077` s under a
+  `4,693.118600` s ceiling; **`owner_bundle_loaded` is milestone 13 of 28, at `1,055.290051` s.** All
+  eleven pins stayed byte-identical, the tree stayed clean, and no N11 artifact was written.
+  "First time" is not inferred from one journal: a census of all `19` tracked superpowers journals
+  finds `15` prior textual mentions across six files, every prior runtime claim negative, and six
+  actual cold attempts since 2026-08-08 of which the first five stopped before this milestone.
+  `[P37: recomputed for the trace, counts, pins and non-write; independently_reconciled for the
+  cross-journal census]`
+
+  **Consequence, and it is the largest in this family.** The `P30` objective that named `GY-DEFC-1`
+  through `GY-DEFC-6` is closed and **must never name another successor**. Per `B5` it removes the
+  objective block on `GY-N12`, `GY-N13a/b`, `GY-GAP1` and `GY-INFRA-3` Step 1. `GY-N11` leaves
+  `built_not_closed`: its acceptance milestone is reached while a **suffix** remains open. The suffix
+  is where the same call went RED — `cold_n11_live_validation_failed:[{"code":
+  "artifact_content_hash_drift"}]` — a new class, registered above as `GY-DEF15` and **not** repaired
+  in this task. `[P37: recomputed for the milestone and the open suffix; institutionally_supplied for
+  the dependency consequence; not_established for suffix closure]`
+
+- **GY-DEFC-7 — classify the confidence-ledger drift and re-probe (executed 2026-08-16; REGISTERED
+  RETROACTIVELY in Rev 43).** Owner: **runtime/quality**. **Registration debt recorded as such:** this
+  task and `GY-DEFC-8` ran to completion while carrying **zero** entries in this plan. Commissioning a
+  task that the plan does not name means its scope, its stop rule and its result exist only in a
+  journal, and every later reader measures the successor against the previous attempt instead of
+  against a registration — the ratchet, structurally guaranteed.
+  **Result:** the blocker moved and the writer stayed RED. `n8_transport_gap_receipt_drift` is **gone**
+  — the stale-downstream-receipt class N10a's reissue closed — and the lane now fails earlier at
+  `n10_capstone_invalid` on the new v2 comparison schema, so `B3` stands for a different and clearer
+  reason. Closeout enumerated the complete `29`-path branch denominator (SHA-256 `8bac628a…fd556`
+  over sorted name-status rows) with an **empty** intersection against the complete six-path guardrail
+  denominator; Ruff green on all `22` Python paths; the architecture guardrail reproduced its known
+  negative byte-for-byte at stdout identity `73b53d0a…d1559fb` with no baseline sync. `tools/cli.py`
+  and `tools/lib/timing.py` were shown to be **inherited** members of the pre-task delta rather than
+  task edits, by blob equality at the start ref. `[P37: recomputed]`
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): executed 2026-08-16, blocker
+  moved, writer still RED.** Registered retroactively in Rev 43 together with `GY-DEFC-8`, and the
+  registration debt was recorded as a defect in its own right — both tasks ran to completion while
+  this plan held zero entries for them. Result: `n8_transport_gap_receipt_drift` is **gone**, the
+  stale-downstream-receipt class that N10a's reissue closed, and the lane now fails earlier at
+  `n10_capstone_invalid` on the new v2 comparison schema, so `B3` stands for a different and clearer
+  reason.
+
+- **GY-DEFC-8 — close the null-versus-absent projection axis (executed 2026-08-16–18; REGISTERED
+  RETROACTIVELY in Rev 43).** Owner: **runtime/quality**. Landed in `main` at merge `70a3f3d15`;
+  branch `codex/gy-defc-3-retry`, `61` commits, `29` paths, Ruff green on all `22` Python paths.
+  **Delivered:** `GY-DEF15` registered in its own pre-fix commit `3f9c817b2` before any source byte
+  moved; the blocking zero-move census; the shared N11 projection owner at `2789b49ea`; the accepted
+  confidence-ledger reissue and its four producer receipts at `5b2c2173b` — all recorded under
+  `GY-DEF15` above. Also delivered: an ordinary merge of measured `main` `21ae2ba65` at `e3c533d91`
+  correcting the prompt's supplied SHA (`88210076e` is its docs-only parent), resolving nine overlap
+  paths as a real integration — `main`'s DI timing implementation plus this lane's strict
+  malformed-record guard — and closing an **inherited** mode-classifier omission where N10a's
+  `--measure-write-transition` was unclassified by the shared timing parser; the merge fence proved
+  all `509/509` PDC paths and the `453/453` confidence basis byte-identical before and after. The P34
+  synthetic-timing isolation completed green once a preflight-valid environment was restored,
+  establishing the `0.5` s fixture as a synthetic harness-budget artifact rather than a source
+  regression or a demonstrated contention failure. `[P37: recomputed]`
+
+  **The stop is correct and its framing is not.** Refusing a corrupt lane on a red base is right — it
+  would report universal RED from the baseline rather than from its mutations, which is not a `P29`
+  witness — and the second cold allowance is unspent. But the stop is written as a boundary **this
+  branch** reached. It is not: clean `main` reproduces both REDs with the same codes, measured by the
+  architect at Rev 43. **Correction to one `P37` label:** the causal link from the N8 posture to the
+  N10a RED is recorded `independently_reconciled`; it is `recomputed`. The mechanism is registered
+  below as `GY-DEF16`.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): executed 2026-08-16–18 and
+  landed in `main` at merge `70a3f3d15`.** Registered retroactively in Rev 43. Delivered `GY-DEF15` in
+  its own pre-fix commit `3f9c817b2`, the zero-move blast-radius census, the shared N11 projection
+  owner at `2789b49ea`, and the accepted confidence-ledger reissue at `5b2c2173b` on an exact
+  `12,674/12,674` declared delta. Stopped before the second cold N11 at a RED N8 catalog provenance —
+  a standing condition of `main`, not a branch effect, and the finding that became `GY-DEF16`.
+
+- **GY-DEF16 — an ambient N8 issue is amplified into a governed N10a failure (found by the architect
+  2026-08-18 while adjudicating the `GY-DEFC-8` stop).** Owner: **the N10a validator**, with the
+  Foundry catalog/discovery boundary as co-owner of the typed result. **Sibling of `GY-DEF14`, and the
+  reason member one is fatal rather than cosmetic.**
+
+  `_n8_transport_gap_closure` (`check_layer3_gy_second_domain_pack.py:5952-5970`) calls
+  `n8.validate_payload(payload)` and, on **any** non-empty issue set, returns
+  `closed: False, reason_code: "n8_value_contract_invalid"`. It cannot distinguish a governed failure
+  from an ambient one that the *same payload's* `admission` block already declares
+  `included_in_governed_denominator: false`. The full chain, recomputed:
+
+  ```
+  ambient plugin-import posture
+    → 5 issues in validate_payload
+      → _n8_transport_gap_closure: closed=False, undifferentiated
+        → n8_transport_tuple_hardcode drops out of expected_closed
+          → stage_gap_triage_drift → N10a --check RED → the cold run is unreachable
+  ```
+
+  Without this call site the drift would stop at N8 and be reportable. With it, an environment fact
+  decides a governed gate two validators away. Same family as `GY-DEF14`'s mechanism and the same
+  `P38` shape (§3.5.14): a predicate constructed over the wrong quantity — here the **whole** issue
+  set rather than its governing subset.
+
+  **Smallest correct closure:** the caller consumes a **typed** N8 result. Governed issues fail closed
+  exactly as now; issues that are ambient-only are reported and do not decide the bridge; the
+  discrimination is derived from the payload's own `admission` declaration, never from a list of issue
+  codes. **Forbidden closures:** an allowlist of issue codes; ignoring N8 issues generally; making the
+  bridge closure independent of N8.
+  **Closure signal:** an ambient-only N8 difference leaves the bridge closed and N10a green, while a
+  governed N8 difference still returns `n8_value_contract_invalid` carrying its code. `P29`: one
+  witness that must stay green and one that must go red.
+
+  **GY-DEFC-9 accepted consumer contract (2026-08-18).** N8 returns a typed result with
+  `governing_issues` and `ambient_findings`. N10a decides the bridge only from the governing subset,
+  without an issue-code allowlist; ambient findings remain visible through the typed result and N8
+  CLI and do not alter frozen N10a receipt bytes. Missing or malformed structural admission is a
+  governing failure. Depth-N inheritance is not assumed: a Depth-N-level ambient-green and
+  governed-red case is required before closure, otherwise its behavior remains `not_established`.
+  `[P37: institutionally_supplied]`
+
+  **GY-DEFC-9 execution standing (2026-08-18).** This defect is closed on
+  `codex/gy-defc-9-n11-suffix`: N10a consumes `governing_issues` from the typed N8 result, not the
+  legacy tuple or an issue-code allowlist. Both real ambient postures leave N10a green; the governed
+  control fails N10a and Depth-N with its named N8 code. All five frozen N10a artifacts remain
+  byte-identical. `[P37: recomputed for the typed consumer, behavioral witnesses, and complete
+  five-artifact denominator]`
+
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran N10a over the complete
+  pack and returned `0`, `status=pass`, `issues=[]` in `14.158655` wrapper seconds. The later cold
+  terminal occurred before milestone 1 in the measurement-harness capability gate, so it does not
+  reopen this typed-consumer closure; all five frozen N10a artifacts remain byte-identical.
+  `[P37: recomputed]`
+
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding preflight re-ran N10a over the
+  complete pack and returned `0`, `status=pass`, `issues=[]` in `15.106248` wrapper seconds. The
+  authorized cold child subsequently completed the exact `28/28` milestone sequence and returned
+  zero validation issues. The typed governing subset remained the bridge decision and all five
+  frozen N10a artifacts stayed byte-identical. `[P37: recomputed]`
+
+  **STANDING RECORDED (Rev 47): closed by `GY-DEFC-9`, landed at merge `18f081933`.** The amplifier is
+  gone: `_n8_transport_gap_closure` no longer collapses any N8 issue into `n8_value_contract_invalid`.
+  N10a consumes a **typed** result and decides only from `governing_issues`, with the discrimination
+  derived from the payload's own `admission` declaration and **no issue-code allowlist**. Verified by
+  the architect on `main` after the merge: N10a `--check` returns `status=pass` in `7.961863` s, and
+  N8 `--check-catalog-provenance` returns `status=pass` while still reporting its four ambient
+  differences as `ambient_findings` — including `catalog_predicate_provenance_mismatch` carrying its
+  own predicate, `ambient.discovered_component_membership`, the single row the 32/32 census found
+  differing. `catalog_provenance_manifest_mismatch` no longer fires at all, which is the closure
+  signal for the derived consequence rather than an exclusion.
+
+- **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
+  then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
+  catalog/discovery boundary as co-owner of items 1 and 2.
+  **Named by a NEW objective, because the old one is closed** (`P30`): *a cold N11 live-contract
+  validation returns zero issues.* `owner_bundle_loaded` is reached; it may not name a successor
+  again.
+
+  **Why this is registered as one enumerated marathon rather than another step.** `GY-DEFC-1` through
+  `GY-DEFC-8` each carried the same objective one step further and each discovered its next blocker
+  only after paying for the previous one — eight tasks, three of them ending on the *same* boundary,
+  re-classified as "environment" each time because no registration named it. The complete remaining
+  set is therefore enumerated **here, before the task starts**, and the executor is measured against
+  **this registration**, never against `GY-DEFC-8`.
+
+  **The set, in dependency order.**
+
+  1. **`GY-DEF14` member one** — the ambient block decides the compared identity at
+     `check_layer3_gy_value_gate_contract.py:3473-3505`. Derive the compared identity from what the
+     block declares as governing; keep ambient facts recorded in full and non-decisive. The three
+     forbidden closures in that entry stand, and "authorize a reissue" is not among the options
+     because the existing reissue guard refuses this drift.
+  2. **`GY-DEF16`** — the amplifier. Repairing 1 without 2 leaves N10a red on the next ambient
+     difference; repairing 2 without 1 leaves N8 red. Both, or neither.
+  3. **Environment reproducibility, and this is the item with no owner yet.** The frozen record
+     contains no field that discriminates the environment that produced it from the one that fails
+     it — measured in `GY-DEF14` above. Either name and record the discriminating input, or accept
+     that the ambient block is non-decisive by construction and stop recording a posture nothing can
+     reproduce. **Deciding this is in scope; deferring it is not** — it is what has kept the chain
+     runnable only in a specially reconstructed environment since `GY-DEF13`, and that environment no
+     longer exists.
+  4. **The cold run**, authorized only after 1–3 are green, verifying the `GY-DEF15` owner that has
+     never been exercised cold.
+
+  **Explicitly NOT in this task**, so nothing is silently absorbed: `GY-DEF1`–`GY-DEF5`,
+  `GY-GAP1`–`GY-GAP4`, and any `GY-N12`/`GY-N13` work the closed objective has now unblocked.
+
+  **Stop rule, as a property rather than a count:** a defect appears in the suffix that the shared
+  projection owner cannot name. One more artifact moving for a mechanism already named is a
+  correction to record and proceed; a hash moving for a reason no registered contract can name is a
+  stop. Rebaseline of any recorded value remains forbidden; a cascade remains forbidden.
+
+  **Binding on the allowance:** items 1–3 are source and validator work with no cold cost. The cold
+  N11 is spent **once**, after they are green, and a timeout with zero changed bytes is a
+  non-receipt, not the spent allowance.
+
+  **Closure signal:** two environments differing **only** in ambient plugin-import posture both verify
+  N8 and N10a green; a governed-input change still fails with its named code; and one cold N11
+  completes live-contract validation with zero issues.
+
+  **GY-DEFC-9 execution registration (2026-08-18, superseding only this entry's task ordering).**
+  Items 1 and 2 ship together through the Foundry governed projection and typed N8/N10a result. Item
+  3 takes the non-decisive-by-construction branch recorded under `GY-DEF14`. Item 4 reissues only the
+  confidence-ledger deployment identity to bind the current committed source closure, after an exact
+  delta declaration; N8 and N10a artifacts remain byte-identical. Item 5 is the single cold N11 run,
+  authorized only after Items 1–4 are green. `[P37: institutionally_supplied]`
+
+  `P39` mechanism cost is three source paths, three mirrored test paths, and the reissued confidence
+  artifact. Mandatory record companions are the new implementation plan, execution journal, and
+  these standing paragraphs inside `GY-DEF14`, `GY-DEF16`, and `GY-DEFC-9`. A measured need for an
+  additional test path expands the mechanism set; it does not justify weakening or splitting the
+  mechanism. The complete plan is
+  `docs/superpowers/plans/2026-08-18-gy-defc-9-n11-suffix.md`. `[P37:
+  institutionally_supplied for the counting rule; recomputed for the initial path census]`
+
+  **Execution standing (2026-08-18): STOPPED BEFORE ITEM 5.** Items 1–3 are green and source-frozen;
+  Item 4 reissued only the confidence artifact and binds deployment identity
+  `policy-engine-deployment:sha256:f05a816f…5983955f`. Item 5 consumed both repair rounds on two
+  pre-launch authorization findings, closed both, and then stopped on the independently found third
+  Important mechanism defect, `cold_ceiling_enforcement_binding_gap`: the inner harness admits a
+  ceiling value, but a separately parameterized outer wrapper owns the enforcing timer. This is a
+  `P37`/`P38` authorization–enforcement split, classified before stop as required. No cold N11 child
+  ran; the one-cold allowance is unspent, and the task's P30 objective is `not_established`. Exact
+  receipts and the three-finding ledger are in the execution journal. `[P37:
+  independently_reconciled for the third finding; recomputed for Items 1–4, cold-run absence, and
+  allowance non-use; not_established for the cold objective]`
+
+  **Superseding Item 5 standing (2026-08-19): COLD ALLOWANCE SPENT, OBJECTIVE NOT ESTABLISHED.** The
+  P40 widening bound the retained preflight, exact six-commit history, zero-argument launcher,
+  worktree interpreter/source, canonical inputs, complete `11/11` pins, command/environment, and the
+  outer timer. Its required conflicting-parameter falsifier and six companion behavioral probes are
+  green. Two invocations refused before `Popen` and are preflight non-receipts: first the N10a
+  multiline-JSON parser proxy, then Python-mode strict parsing in place of the confidence owner's
+  JSON path. Both were corrected append-only; neither consumed the cold allowance. `[P37:
+  recomputed]`
+
+  At clean attached head `0f6c88add`, the final preflight was green for N8, N10a, confidence internal
+  validation, both idle-process censuses, and all `11/11` pins. The authorized child then started and
+  returned `1` after `5.017609` s, without timeout or process leak, on
+  `cold_n11_launch_capability_invalid`. Its complete milestone trace is `[]` over `28/28` authorized
+  names and its clear/build/validate counts are `0/0/0`; it terminated before ordinal 1,
+  `confidence_registry_loaded`. The allowance is spent, and no repair or relaunch is authorized.
+  `[P37: recomputed]`
+
+  Terminal classification is the new harness class `cold_launch_parent_identity_proxy` (`P38`). The
+  gate uses literal Darwin `ps` command text as a proxy for authorized parent provenance; a separate
+  probe proves an authorized venv interpreter is rendered as the framework executable path. The cold
+  receipt does not retain the observed parent text or a per-conjunct mismatch, so the exact terminal
+  conjunct remains `not_established`; the probe demonstrates the class without supplying causal
+  attribution. Items 1–4 stay closed and deployment identity remains `f05a816f…5983955f`, but the
+  N11 suffix is **not closed**, `GY-DEF15` is still unexercised cold, zero-issue cold live validation
+  is `not_established`, and cold closeout is incomplete. Full terminal receipts and the complete pin
+  denominator are in the execution journal. `[P37: recomputed for the proxy divergence, terminal,
+  and Items 1–4; not_established for the exact conjunct and every cold-validation claim]`
+
+  **Final superseding closure (2026-08-19): OBJECTIVE MET; N11 SUFFIX CLOSED.** The corrected
+  allowance boundary classifies both earlier `0/28`, `0/0/0` terminals as pre-milestone
+  non-receipts. The ignored harness removed Darwin `ps` text from the decision and retained it as a
+  false, non-decisive diagnostic; inherited-FD-plus-per-launch-nonce is the parentage predicate. Its
+  two-direction falsifier refuses a missing capability and a wrong nonce with return `71`, while the
+  real launcher pipe admits all `15/15` decisive conjuncts. The preserved falsifier receipt is
+  SHA-256 `048217478b07acc5741365d495d21c59c57321e0bea6dd8067df7a9690d34c76`.
+  `[P37: recomputed]`
+
+  At clean attached head `69f3fa39a`, authorization fingerprint `2a008360…d9d7e`, the launch
+  preflight found both process censuses empty, all three short checks green, and all `11/11` pins
+  exact. The single counted cold run reached milestone 1 and completed the exact `28/28` sequence
+  through `frozen_contract_derived`; clear/build/validate ran exactly `1/1/1`. The child returned
+  `status=pass`, `issue_count=0`, `issues=[]`, with the `977,814` governed bytes byte-equal to the
+  live object. Child wall time was `1,019.478574` s and wrapper wall time was `1,025.936140` s under
+  the authorization-derived `4,693.118600` s ceiling, with no timeout, signal or process leak. The
+  complete `11/11` pin denominator and git identity stayed byte-identical. Receipt SHA-256 is
+  `d53184b800266080a83298f3fc64a291e838e59f2b90b0424e1944358484eb86`.
+  `[P37: recomputed]`
+
+  This meets the registered `GY-DEFC-9` P30 objective, closes the N11 suffix, and exercises the
+  `GY-DEF15` null-versus-absent projection successfully cold. `GY-N11` may now claim this exact
+  authorized fresh-process derivation, byte-equal live validation and zero-issue suffix result at
+  the bound head and inputs. It does **not** claim blanket completion of the broader cold closeout,
+  universality outside this bound environment/input set, privilege-separated launcher provenance,
+  publication or deployment, or any result for `GY-N12`, `GY-N13a/b`, `GY-GAP1`–`GY-GAP4` or
+  `GY-INFRA-3`; those remain governed by their own acceptance records. `[P37:
+  institutionally_supplied for the claim boundary; not_established for every excluded objective]`
+
+- **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
+  omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:
+  **runtime/quality — the `GY-INFRA-2` timing lane.** This is the `GY-INFRA-2` carried caveat coming
+  due, and it **already cost one task its execution**.
+
+  **What happened.** `GY-DEFC-3`'s canonical N10a writer was killed twice at `526.392` s and
+  `726.805376` s with **zero changed leaves**. Neither cap belonged to the lane: the catalog contains
+  only `quality.validation.check_layer3_gy_second_domain_pack:rederive-audit` (one sample, `263` s),
+  **no `write` lane at all**, so both budgets were reconstructed from `rederive-audit` — the second is
+  exactly `2 x 363.4` s, that lane's own maximum.
+
+  **The data existed the whole time.** `/tmp/polisyos-tools/timing.jsonl` holds **six successful
+  `write` runs** — `194.9`, `233.1`, `292.9`, `334.6`, `397.5`, `426.3` s, all exit `0` — so the lane's
+  `p95` is `426.3` s and its `E9` budget is **`852.7` s**. **The run was killed `126` s before its own
+  governed budget.** No performance regression is established; the executional blocker is fully
+  explained by a missing catalog row.
+
+  **Amended Rev 39 — every catalogued cap was measured SERIALIZED, and the host no longer is.** Under
+  the standing decision to run lanes in parallel rather than wait for host quiet, contention is
+  measured at **`1.6`–`2.0x`** and it is consistent across both programmes: N10a writer
+  `420.56` → `821.34` s (`1.95x`), N10a measurement `459.01` → `753.08` s (`1.64x`), the Atlas module
+  `395.5` → `754` s (`1.91x`). A cap derived from a serialized sample will therefore manufacture
+  cap non-receipts under the current policy — which is what stopped `GY-DEFC-5`'s Depth member.
+  **Two consequences, both binding:** a sample records the **regime** it was measured in, and a cap
+  applied under contention carries the allowance. **A lane with no successful sample of its own has no
+  budget at all** — it gets a *declared* ceiling recorded as supplied, never a sibling lane's, which
+  is the original `GY-DI2` defect reappearing one level up.
+
+  **Measured extent:** the log carries successful samples for **19** lanes; **15 are absent from the
+  catalog**, including `value_gate_contract` `write`/`check`/`check-catalog-provenance`,
+  `composition_artifacts:write` and `n13b_acquisition_contract:check` — every one of them over a
+  minute.
+
+  **Root cause, stated so it is not repaired at the instance:** the catalog was populated from a
+  **requested** subset, and `report-timing` says so honestly
+  (`Budget catalog scope: requested_expensive_lanes_only`) — but **nothing surfaces which lane is
+  missing until a task guesses a budget and pays for the guess.** This is `GY-INFRA-2` Part A's
+  purpose failing in exactly the way Part A was built to prevent: a slice rediscovering a duration by
+  hitting a timeout.
+
+  **Smallest correct closure:** derive catalogued lanes from the recorded log rather than from a
+  requested list, so a lane with real samples is never absent; and make a **missing lane visible at
+  the point of use** — `report-timing` naming any lane observed in the log but absent from the
+  catalog, so an executor knows its budget is unbudgeted before it spends one. **Forbidden closures:**
+  hand-adding only the N10a write row and calling the class closed; inflating a cap to make a run fit;
+  treating a killed run as a duration sample (`GY-INFRA-3` Step 0 — a killed run is a non-receipt, not
+  a sample).
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): closed, then amended, then
+  closed again.** First closed **as a class** in Rev 36 at `1b34c7f6c` — the effective timing catalog
+  is derived from every successful exact tool-and-mode lane in the recorded log, the repository
+  catalog is a fallback only, malformed records fail closed before any budget is minted, and
+  report-timing names every observed lane without an accepted budget. Amended in Rev 39 with the
+  measurement that explains its third occurrence: every catalogued cap was taken **serialized** while
+  the host no longer is, contention measured at `1.6`–`2.0x` across both programmes. Finally closed in
+  Rev 41 on branch `codex/gy-di-timing-lane`, with the join rule stated rather than invented
+  (`timing_key == tool:mode`) and `second_domain_pack:write` named — the missing row that cost
+  `GY-DEFC-3` its execution.
+
+- **GY-DI3 — the persisted timing record is not persistent.** Owner: same lane. `tools/lib/timing.py`
+  writes the direct-entry log to `/tmp/polisyos-tools/timing.jsonl`. The six `write` samples that
+  diagnose `GY-DI2` survive only because `/tmp` has not been cleared since 2026-08-08. **A reboot
+  erases the measurement substrate that `GY-INFRA-2` Part A exists to accumulate**, and with it the
+  only evidence distinguishing a slow environment from a producer regression. **Closure:** a durable,
+  repository-appropriate location with an explicit retention rule; the log is diagnostic evidence, not
+  scratch. Registered separately from `GY-DI2` because they have different owners' fixes and either
+  can land alone.
+
+  **Amended Rev 36 — the loss is the log, and it is now measured.** The architect's first reading, that
+  a reboot erases the *ability to execute*, was **overstated and is corrected here**: measured
+  2026-08-11, `/private/tmp/gy-def13-main.SeLIYb` is **156 KB of symlinks** into the durable
+  `policy-engine/.venv`, and the plugin-import posture lives in the in-repo worktree
+  `.worktrees/gy-def13-path-witness`, so the execution environment is regenerable from the `GY-DEF13`
+  journal recipe. What is **not** regenerable is `/private/tmp/polisyos-tools/timing.jsonl` — **32 KB**
+  carrying every budget this plan now quotes, including the six N10a `write` samples. **Operational
+  rule until closure:** copy that file before any reboot. Scope and priority otherwise unchanged.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): closed in Rev 41 with a
+  declared variation.** Registered in Rev 35: `tools/lib/timing.py` wrote the log to `/tmp`, so a
+  reboot erased the measurement substrate and with it the only evidence separating a slow environment
+  from a producer regression. Closed with the variation recorded rather than hidden — the log stays
+  ignored at `.polisyos-tools/` and evidence is protected by **promotion** into
+  `docs/superpowers/timing-evidence/` cited from `source_refs`.
+
+- **GY-DI4 — the timing lane derives lane health from a proxy that the lane's own contract contradicts
+  (measured by the architect 2026-08-11 while adjudicating the `GY-DEFC-3` retry).** Owner: same lane.
+  This is Rev 35 §2's own wording coming due one section later, and it **stopped the retry's expensive
+  wave before its writer** — the second architect-authored contradiction in that task.
+
+  **What happened.** Rev 35 §2 excludes every non-zero-exit record from duration samples, while §3
+  requires N10a's corrupt-field lane — **whose green is exit `1`** — to run at its now-catalogued
+  budget. Both cannot hold. The executor refused to satisfy them by widening the predicate on the spot,
+  made no positive compliance claim, and escalated. That was correct.
+
+  **The predicate is wrong, and the lane's contract says so in code.**
+  `tools/quality/validation/check_layer3_gy_second_domain_pack.py:736` sets
+  `status = "fail" if not missing else "pass"`, and `:6634` returns `1 if status == "fail" else 2`. So
+  exit `1` means **every expected mutation was detected** and exit `2` means one was **missed**. The
+  inversion is deliberate and it is the lane's own declared semantics.
+
+  **The rule, stated by its reason:** a duration is an admissible sample iff the run reached the lane's
+  **own terminal decision** and that terminal is one the lane's contract declares a completed-work
+  outcome. Admission is **completion, not success**. Never admissible whatever the exit code: a
+  harness/timeout kill, a signal death, a skip (`status=skipped`, `exit 78`, `duration 0`), a malformed
+  record. `GY-INFRA-3` Step 0 stands and is now stated by its cause — **a killed run's duration measures
+  the cap, not the lane**.
+
+  **Not a licence to admit exit `1` generally**, and the counter-example is in `GY-DI2`'s own report:
+  `architecture.guardrails:default` carries **14** exit-`1` records that are real failures on the
+  deep-import baseline drift, with durations `15`–`85` s scattered by failure point — truncated
+  workloads that measure nothing. Of the six lanes the repaired report names unbudgeted, **two are
+  right** (guardrails, the `check-udf-perf` skip) and **four are wrong** (the four
+  `corrupt-field-drift-check` lanes).
+
+  **Measured, N10a's corrupt lane:** five healthy completed runs at `13.403`, `13.466`, `14.522`,
+  `19.605`, `24.675` s and one `exit 2` at `14.153` s (2026-08-09T09:47 — a real detection failure of
+  that moment, correctly excluded).
+
+  **Smallest correct closure:** a **declared healthy-terminal set per lane at the tool-declaration
+  layer**, default `{0}`, consumed by the sample-admission predicate; harness termination, signals and
+  skips remain inadmissible under every declaration; and every catalog row records **which predicate
+  admitted its samples**, so a widened predicate is visible rather than silent. **Forbidden closures:**
+  inferring the set from the log; letting the task that needs a budget choose it; widening `exit 1`
+  globally; admitting a truncated failure as a sample.
+
+  **This is `P37` inside the timing lane:** the predicate is *supplied* by the harness while authority
+  over what "healthy" means lives in each validator's own return mapping.
+
+  **Standing: `GY-DI2`, `GY-DI3` and `GY-DI4` are ALL CLOSED (Rev 41, branch
+  `codex/gy-di-timing-lane`, four commits `15b41f960` · `ee44c5e8d` · `ec1a8f055` · `7e745391f`;
+  15 files, ZERO under `src/`, so no artifact replay was priced).** Architect-verified independently:
+  the seven declarations, 79 targeted tests green, ruff clean, the salvage denominator reproduced, and
+  the `architecture.guardrails` RED confirmed pre-existing (it fails entirely in
+  `src/polisyos/runtime/http/**`, which this branch does not touch).
+
+  **`GY-DI4` was registered at the wrong severity, and the correction is the lane's real finding.**
+  The row above describes losing good samples. Measured across all 15 modules defining
+  `corrupt_field_drift_check`: **7 are inverted, not 1** — and in **6 of the 7** the mapping is
+  `detected → status "fail" → exit 1` and `not detected → status "pass" → exit 0`
+  (`check_layer3_gy_acquisition_contract.py:399-421,1070`). So `"ok" if exit_code == 0` did not merely
+  drop healthy runs: it **admitted exactly the runs where corruption escaped detection and rejected
+  every run where the drift check worked.** The predicate was inverted, not approximate. `second_domain_pack`
+  is the outlier that returns `1|2` and never `0`, which is why the single registered instance read as
+  a lost-sample problem.
+  **Closure shape:** `TIMING_HEALTHY_TERMINAL_EXIT_CODES` (mode → healthy exit codes) declared in each
+  tool module and read by AST **without importing**, defaulting to `{0}`. Both forbidden shortcuts were
+  refused — no hard-coded lane list, no widening to "any non-zero". Proved on the salvaged records: the
+  two exit-`1` corrupt-drift runs flip to admitted, `architecture.guardrails` exit-`1` stays rejected,
+  and a killed run stays rejected even under a maximally wide declaration. A separate pre-existing
+  defect was closed in passing — `--reissue-catalog-provenance` matched no action prefix and recorded
+  under mode `default`, i.e. the wrong lane.
+
+  **`GY-DI3` closed with a declared variation from this row's wording.** The default moves to
+  `<policy-engine>/.polisyos-tools/timing.jsonl` — already reserved and ignored in both `.gitignore`
+  files, so no new mechanism — and retention goes `200 → 2000`, reasoned from a measurement (32 known
+  lanes; at 200 one busy lane evicts every other lane's only sample) with the cost measured, not
+  assumed (520 KB, 18.7 ms per append at full retention). **The variation:** this row says the log is
+  evidence, not scratch; the closure keeps the log *ignored* and protects evidence by **promotion** —
+  a sample justifying a budget is copied into `docs/superpowers/timing-evidence/` and cited from
+  `source_refs`. Accepted: the log is host-specific and would churn across worktrees; "ignored" was
+  never the defect, "ignored **and under `/tmp`**" was. A blanket `*.jsonl` ignore in
+  `policy-engine/.gitignore` — the same defect class — was found and negated for that directory only.
+  Known limitation, stated not hidden: the log is module-anchored and therefore per-worktree; sharing
+  still needs `POLISYOS_TOOLS_TIMING_LOG`.
+
+  **`GY-DI2` closed.** Join rule stated rather than invented: `timing_key == f"{tool}:{mode}"`, the one
+  the catalog loader already enforces (log records carry `tool` and `mode` but no `timing_key`).
+  Committed rows keep their cited journal excerpts; the **effective** catalog is committed rows ∪
+  log-derived lanes, so a lane with real samples is never absent. `report-timing` now names the
+  unbudgeted lanes at the point of use — including `check_layer3_gy_second_domain_pack:write`, the
+  missing row that cost `GY-DEFC-3` its execution. Contention rule carried: records gain `regime`
+  (**supplied** via `POLISYOS_TOOLS_TIMING_REGIME`, never inferred), catalog rows gain required
+  `regime` and `sample_admission_predicate`, and a lane with no admitted sample gets **no cap** and is
+  marked `ceiling_is_declared` rather than inheriting a sibling's.
+
+  **The substrate this lane exists to accumulate was already lost, and the loss is permanent.**
+  `/tmp/polisyos-tools/timing.jsonl` was gone before the work began. 18 records across 16 files were
+  salvaged from run directories into `docs/superpowers/timing-evidence/`, each preserving its source
+  line byte-for-byte with path and line number. **What did not survive:** the six serialized `write`
+  samples behind the cited p95 of `426.3` s (one survives, at `815.7` s, contended), the
+  "19 lanes / 15 absent" extent measurement, and `GY-DI4`'s corrupt-lane range. **Those three numbers
+  remain in this plan as cited history and are no longer independently checkable** — they are not
+  re-derivable and must not be re-quoted as measurements.
+  Consequently the contention multiplier `1.6`–`2.0x` was **not** re-measured — no paired
+  serialized/contended runs survive — every historical sample is honestly `regime=unknown`, and the
+  multiplier stays **architect-supplied**. That is ratified `W4-K01` applied by the executor to the
+  architect's own number, unprompted.
+
+  **Architect defect recorded (`P38`, architect side).** The brief supplied "9 salvageable records"
+  from `find -name 'timing.jsonl'`. The true set is **18 records across 16 files**: because
+  `POLISYOS_TOOLS_TIMING_LOG` makes the path configurable, seven files hold timing records under
+  run-specific names. **A filename is a proxy for "this is a timing log" and misclassifies exactly
+  where the path was overridden** — the denominator had to be record *shape*, not name. The executor
+  measured it, reported the divergence as a finding, and proceeded on its own number, which is what
+  the brief instructed.
+
+A fifth matrix row (Atlas readiness panels minting `approvalReady` locally) is **already
+tracked** as the DS16 producer-binding debt after DS4-C23 contained it; it is not repeated here.
+
+#### Registered gaps — measured by the Wave-2 INT-R1/INT-R9 audits (NEW, Rev 23; verified 2026-08-03)
+
+**Outside the main sequence, and distinct from both blocks above.** These are neither defects
+(nothing behaves wrongly) nor debt (nothing was built suboptimally). They are **capabilities the
+repository does not have, which downstream research has now proved are needed** — measured
+against live source at `d152565dc`, each with a reality-bar label. Recording them schedules
+nothing.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): closed in Rev 41, and it was
+  registered at the wrong severity.** Ruled in Rev 36: admission is **completion, not success** — a
+  duration is a sample only if the run reached the lane's own terminal decision and that terminal is
+  one the lane's contract declares a completed-work outcome; a harness kill, a signal death, a skip
+  and a malformed record are never admissible. The Rev-41 closure carries the lane's real finding:
+  across all `15` modules defining `corrupt_field_drift_check`, **seven** are inverted rather than
+  one, and in **six of the seven** the mapping is detected → exit `1`, so the old predicate
+  "ok if `exit_code == 0`" admitted exactly the runs where corruption escaped detection.
+
+- **GY-GAP1 — obligation records carry no instance identity.** Owner: **runtime/quality + pdc
+  waist**. `PromotionObligationRecord` carries `obligation_class`, `gate_id`, `status`, `reason`,
+  `owner_ref`, `detail`, `evidence_refs`, `risk_spend`, `semantic_scope` — and **no identifier for
+  an individual obligation**. Obligations are represented at class-and-gate granularity.
+  **Consequence:** deleting one *decisive obligation instance* while its class stays populated is
+  unrepresentable, so the INT-R1 mutation fixture `OM-01` — the falsifier that is supposed to turn
+  the δ-proof red when a decisive obligation is removed — **cannot execute against the current
+  runtime** (`INT-R1-H-002`). Labels: `producer_missing` for instance-granular obligations,
+  `semantic_test_missing` for the mutation itself. **Closure signal:** a single obligation instance
+  can be removed from a run, the class denominator stays total, and the δ-proof still turns red.
+  **Ratified acceptance test + priority (Rev 25, `INT-K01`/`INT-K02`).** The closure signal above is
+  now this gap's **binding acceptance test**, stated so an implementer can execute it without
+  further design: *remove exactly one decisive obligation instance from a run; the class denominator
+  must stay total and green; the authority-band result must turn red.* Note what this test is — it
+  is §3.5.6's fourth gate (the contract must mutate the **decisive** validation property)
+  instantiated for obligations, so it inherits that gate's discipline instead of inventing one.
+  **This is the one registered gap on the critical path to a first governed promotion.** The INT-R1
+  seam maps `known_incomplete` and materially unresolved `open_world_unresolved` to NO-GO, so a real
+  first promotion must reach an honest coverage disposition — and that is unrepresentable while
+  obligations exist only at class-and-gate granularity. Scheduling belongs to a task at GY-N12 or
+  later; this row still schedules nothing.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, unblocked, and on the
+  critical path.** Registered in Rev 23. Rev 25 gave it the executable acceptance test it previously
+  lacked — *remove one decisive obligation **instance**, keep the class denominator total, and the
+  authority result must turn red* — and flagged it as the one registered gap sitting on the critical
+  path to a first governed promotion. Rev 26 doubly confirmed that no active research remains on
+  either first-milestone path. Rev 43 removed its objective block when a cold owner derivation reached
+  `owner_bundle_loaded`. It has never been entered.
+- **GY-GAP2 — the confidence ledger has no cross-scope composition.** Owner: **runtime/quality
+  (confidence ledger / the N11 lane)**. `promotion_sequence.confidence_risk_scope_for_problem`
+  keys the budget on `owner_scope_key = f"design-problem:{binding.design_problem_id}"` and its
+  docstring calls it *"the only N11 risk scope admissible for one N9 problem binding"*;
+  `ConfidenceRiskBudgetScope` is *"Stable owner scope for one non-resettable risk budget"* —
+  non-resettable **within** a scope. A search of the ledger for `cross_scope` / `family_wise` /
+  `parent_scope` returns **nothing**: no owner declares how several scopes compose.
+  **Consequence:** any protocol that evaluates more than one design problem under a single
+  declared risk bound has no canonical arithmetic to appeal to. This is exactly what made INT-R9
+  `NO_GO` — three newly authored cases are three design problems, so a fully rule-compliant
+  executor opens three separate scopes and stops at the first positive (`INT-R9-C-001`,
+  `INT-R9-D-001`).
+  **Arithmetic correction (2026-08-03, `INT-R10` audit).** An earlier wording of this row — and
+  the INT-R9 audit phrasing it inherited — said the three scopes each start "at ordinal 0 with a
+  fresh δ", implying an available family risk of `3δ`. **That conflates a scope's root budget with
+  what a check actually allocates, and it is wrong.** A scope's root `budget_delta` is δ, but the
+  Basel-square kernel allocates
+  `α_t = δ · obligation_weight · schedule_mass · (6/π²) / (t+1)²`, and the coefficient is chosen
+  so the series **telescopes**. The weight that enters is the **expanded per-class** weight — the
+  pool weight divided across the classes in that pool — and in the live registry its maximum is
+  **`3/20`**, on `calibration`, the only singleton pool with that weight. The pathwise envelope
+  over *any* adaptive sequence of executed classes in one scope is therefore
+  `Σ_t α_t < δ · (3/20) · mass`: **one scope's total scheduled risk is strictly below δ**, and
+  three scopes sit below `(9/20)·δ` — that is, **below a single δ**, not at `3δ`. This is an
+  envelope, not a realized figure: it assumes nothing about dependence, realized spend, or
+  post-outcome cap choice. Restating its exact mathematical content is the INT-R10 revision's job. **The gap itself is unchanged and still real:** there is no
+  family declaration, no chronology verifier, and no aggregate current-head projection, so nothing
+  canonical composes several scopes at all. Only the arithmetic characterization was wrong, and it
+  was wrong in the *safe* direction — the system is more conservative than the earlier wording
+  implied, never less.
+  **Read this correctly: N11 is not wrong.** Per-problem non-resettable scopes are the right
+  primitive; the gap is that *composition over a family of scopes was never needed until now*, so
+  no one declared it. Do not "fix" the ledger by weakening scope identity. Label:
+  `contract_missing`. **Closure signal:** a family event over N problem scopes composes to a
+  declared bound that a verifier can re-derive from live source, three fresh scopes cannot each
+  take an unaccounted full δ, and the mechanism extends the canonical ledger rather than adding a
+  second one (`P27`/`P28`).
+  **Re-typed BLOCKED-ON-PRODUCT-DECISION (Rev 25, `INT-K04`/`INT-K05`/`INT-K06`).** The gap is
+  unchanged and still real, but it is **no longer waiting on anything the project currently needs**.
+  Ratified `INT-K06` establishes that a first governed promotion may carry a **custody claim with no
+  risk number at all** — prospectivity, firstness, sealing, no substitution, chronology,
+  adjudication, dissent, published negatives — so no consumer requires a family number today, and
+  the Atlas DS12 default is explicitly *no number*. This gap therefore activates **only** if the
+  architect later decides a surface must carry a family number; until then it is off the critical
+  path and must not be scheduled ahead of `GY-GAP1`. Two ratified statements now fix its
+  implementation constraints in advance, so activation needs no fresh design debate:
+  **`INT-K04`** — the exact reached-member event is declared, valid local caps are fixed and
+  **enforced before member execution**, their sum is within the declared family bound, and the
+  canonical owner can reproduce membership, chronology, current heads and assumptions; prose
+  asserting a cumulative budget is not an invariant. **`INT-K05`** — per-problem scope identity is
+  the correct primitive and is not weakened, merged, or replaced to obtain composition; a family
+  relation is a reproducible declaration/projection over existing roots and receipts **inside the
+  same confidence owner**, never a parent risk scope and never a second ledger. If a family number
+  is ever wanted for **outcome-dependent** continuation, `INT-K07` additionally blocks it until the
+  dormant research `INT-GAP-01` delivers a selection-valid local theorem — engineering this gap
+  alone would not suffice.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history):
+  `blocked_on_product_decision`.** Registered in Rev 23: the confidence ledger keys its budget on
+  `design-problem:<design_problem_id>` and has **no** cross-scope composition at all. Rev 24 corrected
+  its arithmetic against live source, raised by the INT-R10 independent audit, leaving the gap
+  unchanged and still real. Rev 25 re-typed it from open-and-unscheduled to
+  **blocked-on-product-decision**: under the ratified `K06` a first promotion carries custody without
+  a risk number, so no consumer needs a family number today, and the gap activates only if a surface
+  is later required to carry one.
+- **GY-GAP3 — there is no controlled release-family transcript owner (NEW, Rev 26; measured by the
+  INT-R7/INT-R8 wave).** Owner: **runtime/quality — the GY-N12 lane** for the transcript primitive,
+  with **GY-PA3 as consumer**. Ratified `PV-K07` (prefix discipline) presupposes a **versioned
+  declared release family under custody**: an append-only transcript carrying membership,
+  chronology, current heads, model and rule versions, inputs and verifier dispositions, reproducible
+  offline, in which deleting or post-hoc narrowing controlled history cannot manufacture a pass.
+  **Evidence:** a complete search of `policy-engine/src` for `release_family`, `release_transcript`,
+  `disclosure_transcript` and `controlled_release` returns **zero files**.
+  **Consequence:** `PV-K07` is ratified but **not issuable**. The wave ratified a statement the
+  repository cannot yet make, and this row is the reason.
+  **Label: `absent/unallocated` — deliberately NOT `contract_only`.** The INT-R7/R8 consolidation
+  classified it `contract_only` and routed it to "GY-PA3 plus custody integration"; the ratification
+  act corrects both (`int-r7-r8-public-verification-and-disclosure-ratification.md` §6.2).
+  `contract_only` presupposes an admitted type or contract with no producer — none exists, INT-R8
+  only *proposes* one. Note that mislabelling capability maturity was the **single blocking finding
+  of each of this wave's two audits**; the same discipline applies to the consolidation itself.
+  **Why GY-N12 and not GY-PA3.** GY-PA3 is scoped in this plan as a *compression-loss ledger
+  producer*, not a release-history transcript. N12 already owns append-only epoch, currentness and
+  reissue — the same shape — so extending it creates no second chronology owner (`INT-K05`,
+  `P27`/`P28`). Routing an unowned capability to a lane that does not own it leaves it unowned.
+  **Closure signal:** a declared release family can be opened, its membership and chronology
+  reproduced from live source, its current head projected, a controlled release deleted from the
+  record **fails** the check rather than passing it, and an unknown external copy **limits** the
+  claim rather than being treated as complete — all without a second chronology or status owner.
+  **Does not authorize:** a transcript schema, storage representation, custody owner appointment,
+  release policy, retention rule, or any numerical disclosure claim.
+
+  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, `absent/unallocated`.**
+  Registered in Rev 26 as the one new gap of the INT-R7/R8 ratification wave: `PV-K07` prefix
+  discipline is ratified but **not issuable**, because it presupposes a controlled release-family
+  transcript that returns zero source hits. Its annotations attach only to this out-of-sequence block
+  and to `GY-N12`, which owns the append-only shape it needs. It has never been entered.
+
+- **GY-GAP4 — no producer-signed run terminality, and this lane was never told it owns it (NEW,
+  Rev 36; measured 2026-08-11).** Owner: **runtime/quality**. `RunSummary` exposes open status text
+  plus `finished_at` and **no producer-signed terminal fact** (`runtime/http/routes/runs.py:179`;
+  `types.ts:9240/9258/9284`), while the runtime SSE sibling still derives terminality from status
+  substrings. The Atlas plan reassigned this to the runtime/GY lane on 2026-08-01 with **DS7 as the
+  blocking first consumer** — and the routing never landed: the string appears **4 times in the Atlas
+  master plan and 0 times in this plan**, so the owner lane has had no row for ten days. **This is the
+  second instance of the `GY-GAP3` finding** — routing an unowned capability to a lane that does not
+  own it leaves it unowned — and this one has a **dated consumer**: DS7 opens the moment DS5 closes.
+  **Closure:** project a producer-signed terminal/completion fact through the generated `RunSummary`
+  and the governed event contracts. **Negative control, owned by the consumer:** DS7 may not
+  re-derive terminality, and novel status labels stay opaque. **Does not authorize:** opening or
+  ordering the status vocabulary.
+
+  **EXECUTED (Rev 40) — standing `producer_input_landed` at `1b096b222`, branch
+  `codex/gy-gap4-run-terminality`, head `b662d8a81`, 16 files.** **Owner corrected by measurement:**
+  the emitting owner is **core run lifecycle** (`core/run/context.py` start/finalize plus
+  owner-validated recovery), with **runtime HTTP as projection/SSE consumer**, **DS5 as the
+  generated-client bridge** and **Atlas DS7 as the dashboard consumer** — the Rev-36 attribution to
+  `runtime/quality` named the projection, not the producer.
+
+  **Required semantics as landed.** Terminality is the closed three-state knowledge type
+  `terminal | non_terminal | not_established`, **independent of the open status vocabulary**. The
+  adapter admits the exact core lifecycle event/value pairs, binds trace identity and recovery
+  manifests, makes **terminal absorbing**, and degrades malformed, conflicting, foreign or absent
+  facts to `not_established`. **`RunSummary.run_terminality` is required, so unknown cannot serialize
+  as non-terminal** — the constitutive property, enforced at the type rather than by convention.
+  Novel status labels remain opaque in both directions.
+
+  **The SSE sibling is CLOSED, not registered.** Its contract moved to v2, it consumes the same fact,
+  and the status-substring parser is **removed** — the parallel owner is gone (`P27`), which is
+  better than the registration the task authorized as a fallback.
+
+  **Witnesses** cover active non-terminal, finalized under a novel status label, factless legacy
+  unknown, malformed/foreign/non-owner/conflicting facts, exact CAS/manifest/provenance/scope
+  binding, terminal regression, recovery identity/ref/cache binding, mandatory local-trace
+  durability, and both directions of SSE status opacity. A schema-provenance **mutation probe**
+  confirmed the witness tests the property and not a marker. Three review rounds each found real
+  fail-closed gaps before landing; one found that **`run_dir` may be an alias, so its basename is not
+  the run identity** — identity was rebound to the producer-emitted `RUN_STARTED`, which is this
+  repository's address-versus-identity class (`P38` family) appearing in run directory paths.
+
+  **Versioning ruling (architect, Rev 40).** SSE bumped v1→v2 while REST added a **required**
+  response field with no bump. **The asymmetry is correct**: the SSE event shape changed and its
+  parser was deleted, so a live v1 consumer would misread, whereas adding a field to a response is
+  additive for any reader that tolerates unknown fields and every generated consumer is rebuilt from
+  the snapshot. **The obligation the asymmetry carries is to NAME the assumption it rests on** —
+  *every consumer of this schema tolerates unknown response fields* — because an unrecorded
+  assumption holding up a compatibility claim is a supplied predicate in a gate.
+
+  **Downstream standing, explicit:** DS5 generated clients are `bridge_missing` (the runtime client
+  and dashboard type generators must be regenerated); DS7 is `consumer_missing` until it consumes the
+  generated enum and its negative rejects every `status` / `finished_at` / event-name-presence
+  re-derivation. No dashboard or generated-client byte was edited in this lane. **Registered tails,
+  not silently complete:** the CAS `trace_ref` and the recovery audit-chain fanout do not yet carry
+  the terminal event (the local trace used by HTTP does), and the audit assembler and canary
+  derivations remain open.
+
+  **Plan-history note.** The executing branch was cut from `c1a89b6cf`, which **predates this row**
+  because the Rev 36–39 edits were uncommitted at the time. The agent refused to import the dirty
+  working tree, reconstructed the registration from its commission, and marked it as such rather than
+  fabricating Rev 36–39 bytes. That was correct. The measured content is folded here, the branch's
+  plan copy is withdrawn to keep one owner for this file, and the operative lesson is the architect's:
+  **an uncommitted plan edit is not a plan** — it forces an executor to reconstruct what already
+  exists.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

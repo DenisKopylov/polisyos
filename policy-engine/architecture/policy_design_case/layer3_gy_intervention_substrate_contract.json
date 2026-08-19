@@ -1,7 +1,7 @@
 {
   "artifact_kind": "runtime.quality.intervention_substrate_lift",
   "behavior_report": {
-    "bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+    "bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
     "case_count": 11,
     "cases": [
       {
@@ -12,7 +12,7 @@
           "details": [
             {
               "knob_id": "budget_allocation_multiplier",
-              "owner_atom_id": "atom_a08df3131fc4a8ff",
+              "owner_atom_id": "atom_8634a08aa7d68212",
               "status": "bound",
               "target_world_slots": [
                 "government.balance"
@@ -20,7 +20,7 @@
             },
             {
               "knob_id": "procurement_shock_intensity",
-              "owner_atom_id": "atom_b416fe0ad00d9e89",
+              "owner_atom_id": "atom_ab39ac4598c1c9b3",
               "status": "bound",
               "target_world_slots": [
                 "cells.distress_score"
@@ -28,7 +28,7 @@
             },
             {
               "knob_id": "tax_relief_rate",
-              "owner_atom_id": "atom_f5e09465fe1dc607",
+              "owner_atom_id": "atom_6cffe9b4465fc15e",
               "status": "bound",
               "target_world_slots": [
                 "global.tax_rate"
@@ -44,7 +44,7 @@
         "actual": "real_knob_domain_and_manifest_slot_bound",
         "case_id": "knob_in_domain_resolves_world_slot",
         "detail": {
-          "content_hash": "sha256:e673b413611faf0248dfa789b6899f87135b9b3c5a616862b79406bd7f973929",
+          "content_hash": "sha256:f4649d64774faf8c61c24aa28e1569141665d0fcb8946bc8c2d35cbf7c39456e",
           "domain": {
             "kind": "range",
             "max_value": 2.0,
@@ -54,8 +54,8 @@
           },
           "operator_kind": "budget_allocation_multiplier",
           "owner_resolution": {
-            "atom_content_hash": "sha256:836f98ac79f1ca13369da867fdf1bc88b56e3e104c8591875c44e420edf27429",
-            "atom_id": "atom_836f98ac79f1ca13",
+            "atom_content_hash": "sha256:f8ecd23f65d679ea2944ee9e23cb8481108be10d13511da26dd7189177327e22",
+            "atom_id": "atom_f8ecd23f65d679ea",
             "target_slot_bindings": [
               {
                 "entity_scope": "global",
@@ -65,12 +65,12 @@
                 "unit": "usd"
               }
             ],
-            "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-            "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+            "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+            "world_model_record_id": "world_model_record_11c3b1cb30a20018"
           },
           "parameter_value": 1.25,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
-          "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
           "target_world_slots": [
             "government.balance"
           ]
@@ -127,9 +127,9 @@
         "case_id": "law_bound_lever_traces_l3_threshold_and_blocks_violation",
         "detail": {
           "admitted": {
-            "content_hash": "sha256:5def293d283a4c2d847f022b96e956993c649ab88084d912a9226ce7b9c426a8",
+            "content_hash": "sha256:c280bf996f20dd58edaf6def52a0aa440b51303eb192f46bd3e8c61ba2f41033",
             "knob": {
-              "content_hash": "sha256:0b4b0cd013cd756e96bc5b3aa3b854eb17f93005d9167451ec9c9d5eea2f02d2",
+              "content_hash": "sha256:fb321650e525c9f7ba62b5e7ace10ac974dbb29e1b6765c9a26b45d35267652e",
               "domain": {
                 "kind": "range",
                 "max_value": 2.0,
@@ -139,8 +139,8 @@
               },
               "operator_kind": "budget_allocation_multiplier",
               "owner_resolution": {
-                "atom_content_hash": "sha256:5a7c84fc5ba1e227e4deb0c8f69a48934c5bb725db4203f2e9beb2a64ac2a102",
-                "atom_id": "atom_5a7c84fc5ba1e227",
+                "atom_content_hash": "sha256:219ed3bd6a7be6c9ca9b8e9c73ec5f420e6b3b3ac22876e771b069d1a1cdcc57",
+                "atom_id": "atom_219ed3bd6a7be6c9",
                 "target_slot_bindings": [
                   {
                     "entity_scope": "global",
@@ -150,12 +150,12 @@
                     "unit": "usd"
                   }
                 ],
-                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+                "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+                "world_model_record_id": "world_model_record_11c3b1cb30a20018"
               },
               "parameter_value": 0.24,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
-              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
               "target_world_slots": [
                 "government.balance"
               ]
@@ -194,9 +194,9 @@
             "threshold_id": "a5429abb6621acb11ed10b20"
           },
           "blocked": {
-            "content_hash": "sha256:44f5ca037589207eda025ea681fca51a0273e2a5e7c2ad9e74d27c8f7e11a8b2",
+            "content_hash": "sha256:d581e66fb033f3c21cc22ed7ca347d46b8031f4e3f709fce66b6762d984fb38a",
             "knob": {
-              "content_hash": "sha256:50f0f133ff76c5386232c39eef2b4abffbd5b3873b6b5d2c622a189f9ff36634",
+              "content_hash": "sha256:78d48e5b804d22878723988210ffb86ad0560ac1e27964845743b0ca1c643521",
               "domain": {
                 "kind": "range",
                 "max_value": 2.0,
@@ -206,8 +206,8 @@
               },
               "operator_kind": "budget_allocation_multiplier",
               "owner_resolution": {
-                "atom_content_hash": "sha256:b47886b7bae23a46ade6f6f325786d53c836697e8fe0c56695f8867dedc877b0",
-                "atom_id": "atom_b47886b7bae23a46",
+                "atom_content_hash": "sha256:43bf3cd50eac6d35d543e355319a2bbc01c1f7b610dc22d0fd600223a4f16fa8",
+                "atom_id": "atom_43bf3cd50eac6d35",
                 "target_slot_bindings": [
                   {
                     "entity_scope": "global",
@@ -217,12 +217,12 @@
                     "unit": "usd"
                   }
                 ],
-                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+                "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+                "world_model_record_id": "world_model_record_11c3b1cb30a20018"
               },
               "parameter_value": 0.26,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
-              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
               "target_world_slots": [
                 "government.balance"
               ]
@@ -283,11 +283,11 @@
                 "causal.inference.did.staggered@1.0.0",
                 "causal.inference.did.standard@1.0.0"
               ],
-              "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+              "content_hash": "sha256:3bccd78e29526169a5d1587a5e0d11246d2a9af9ce352eed32926c9339188a24",
               "family": "budget_flows",
               "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
               "reason_code": null,
-              "registry_method_count": 390,
+              "registry_method_count": 389,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
               "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
               "status": "routed",
@@ -308,11 +308,11 @@
                 "microsim.static.static_microsim@1.0.0",
                 "survey.demography.demographic_consistency@1.0.0"
               ],
-              "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+              "content_hash": "sha256:2a0431de5633265368a5e4e6199c3ffafaf14a9507f1227cb080ee1066e3321a",
               "family": "household_distribution",
               "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
               "reason_code": null,
-              "registry_method_count": 390,
+              "registry_method_count": 389,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
               "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
               "status": "routed",
@@ -324,11 +324,11 @@
               "candidate_method_fqns": [
                 "ml.survival.survival_analysis@1.0.0"
               ],
-              "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+              "content_hash": "sha256:27749549785eb632cddf01d24b366da9f0cb21b4fd0814a76dbb0e778d0ef6cb",
               "family": "firm_fundamentals",
               "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
               "reason_code": null,
-              "registry_method_count": 390,
+              "registry_method_count": 389,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
               "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
               "status": "routed",
@@ -349,11 +349,11 @@
                 "causal.dynamic.q_learning.q_learning@1.0.0",
                 "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
               ],
-              "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+              "content_hash": "sha256:2c9ffed4c8505fa16ce2072fe6c74da629172cc075dba3aad42394bc3ada0b51",
               "family": "procurement_flows",
               "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
               "reason_code": null,
-              "registry_method_count": 390,
+              "registry_method_count": 389,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
               "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
               "status": "routed",
@@ -375,11 +375,11 @@
           "candidate_method_fqns": [
             "bayesian.nonparametric.bart_regression@1.0.0"
           ],
-          "content_hash": "sha256:7d68abe145e2049d82cdc1543a45705eab7f819bc99ebbc21454ba0b7ec2df73",
+          "content_hash": "sha256:26f433761a44e78795f53776fc4dc7eb61d0738553b652596534e1174c166618",
           "family": "python314_unavailable_route_family",
           "manifest_route_hash": "sha256:8ae17ef8096a3be958750055f818c50c8ccc37a37cc3b9d8aa41bd396a8b3309",
           "reason_code": "method_unavailable_python314",
-          "registry_method_count": 390,
+          "registry_method_count": 389,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
           "selected_method_fqn": null,
           "status": "blocked",
@@ -396,9 +396,9 @@
         "case_id": "free_grow_knob_law_family_routes",
         "detail": {
           "law": {
-            "content_hash": "sha256:ad06b11e5bdbc4a2a02029649ae5c36c931bf59b7ee399d93b08f7743e3fc541",
+            "content_hash": "sha256:5f1034f22d7e8523a4b531567b2350c36e657706b0e508981b411512423c6456",
             "knob": {
-              "content_hash": "sha256:99b78fbd35df2907c417926c0609bcba3e02a630507d2e8b3f9aee00932aeb67",
+              "content_hash": "sha256:23427b6590544cdfbe7b5adf74d64ea888e93c05d701f77eea459505669db1e6",
               "domain": {
                 "kind": "range",
                 "max_value": 0.4,
@@ -408,8 +408,8 @@
               },
               "operator_kind": "future_child_benefit_intensity",
               "owner_resolution": {
-                "atom_content_hash": "sha256:6f0da3bfc28beb86aa85027adf1ba9b7ae541497512677da721148cd0c691db5",
-                "atom_id": "atom_6f0da3bfc28beb86",
+                "atom_content_hash": "sha256:398dbcd310d205c9f1b7444d90366771c2ac6cf3886537e3d00e0a42f05ae276",
+                "atom_id": "atom_398dbcd310d205c9",
                 "target_slot_bindings": [
                   {
                     "entity_scope": "per_cell",
@@ -419,12 +419,12 @@
                     "unit": null
                   }
                 ],
-                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+                "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+                "world_model_record_id": "world_model_record_11c3b1cb30a20018"
               },
               "parameter_value": 0.2,
               "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
-              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
               "target_world_slots": [
                 "household_cells.transfer_intensity"
               ]
@@ -463,7 +463,7 @@
             "threshold_id": "00000109f781085bd1736cf1"
           },
           "lever": {
-            "content_hash": "sha256:99b78fbd35df2907c417926c0609bcba3e02a630507d2e8b3f9aee00932aeb67",
+            "content_hash": "sha256:23427b6590544cdfbe7b5adf74d64ea888e93c05d701f77eea459505669db1e6",
             "domain": {
               "kind": "range",
               "max_value": 0.4,
@@ -473,8 +473,8 @@
             },
             "operator_kind": "future_child_benefit_intensity",
             "owner_resolution": {
-              "atom_content_hash": "sha256:6f0da3bfc28beb86aa85027adf1ba9b7ae541497512677da721148cd0c691db5",
-              "atom_id": "atom_6f0da3bfc28beb86",
+              "atom_content_hash": "sha256:398dbcd310d205c9f1b7444d90366771c2ac6cf3886537e3d00e0a42f05ae276",
+              "atom_id": "atom_398dbcd310d205c9",
               "target_slot_bindings": [
                 {
                   "entity_scope": "per_cell",
@@ -484,12 +484,12 @@
                   "unit": null
                 }
               ],
-              "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
-              "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+              "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+              "world_model_record_id": "world_model_record_11c3b1cb30a20018"
             },
             "parameter_value": 0.2,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
-            "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+            "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
             "target_world_slots": [
               "household_cells.transfer_intensity"
             ]
@@ -499,11 +499,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0"
             ],
-            "content_hash": "sha256:0d8f92c9129385af60d83560019b14f6ebe574478920442e1eb84ce279cef166",
+            "content_hash": "sha256:d65d734f8e50ce1b116f80f258685221bc78bfd2bcf020b21507559ac76ee040",
             "family": "future_budget_flows",
             "manifest_route_hash": "sha256:a73b1432edde1ac4935e43a178b15cfce39b8051ba4c1cc746555502afad7fec",
             "reason_code": null,
-            "registry_method_count": 390,
+            "registry_method_count": 389,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
             "status": "routed",
@@ -580,7 +580,7 @@
               }
             }
           ],
-          "scenario_templates_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json"
+          "scenario_templates_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json"
         },
         "expected": "l6_agent_sim_registered_in_s0_and_scenario_templates_registered"
       }
@@ -625,11 +625,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0"
             ],
-            "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+            "content_hash": "sha256:3bccd78e29526169a5d1587a5e0d11246d2a9af9ce352eed32926c9339188a24",
             "family": "budget_flows",
             "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
             "reason_code": null,
-            "registry_method_count": 390,
+            "registry_method_count": 389,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
             "status": "routed",
@@ -650,11 +650,11 @@
               "microsim.static.static_microsim@1.0.0",
               "survey.demography.demographic_consistency@1.0.0"
             ],
-            "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+            "content_hash": "sha256:2a0431de5633265368a5e4e6199c3ffafaf14a9507f1227cb080ee1066e3321a",
             "family": "household_distribution",
             "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
             "reason_code": null,
-            "registry_method_count": 390,
+            "registry_method_count": 389,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
             "status": "routed",
@@ -666,11 +666,11 @@
             "candidate_method_fqns": [
               "ml.survival.survival_analysis@1.0.0"
             ],
-            "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+            "content_hash": "sha256:27749549785eb632cddf01d24b366da9f0cb21b4fd0814a76dbb0e778d0ef6cb",
             "family": "firm_fundamentals",
             "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
             "reason_code": null,
-            "registry_method_count": 390,
+            "registry_method_count": 389,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
             "status": "routed",
@@ -691,11 +691,11 @@
               "causal.dynamic.q_learning.q_learning@1.0.0",
               "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
             ],
-            "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+            "content_hash": "sha256:2c9ffed4c8505fa16ce2072fe6c74da629172cc075dba3aad42394bc3ada0b51",
             "family": "procurement_flows",
             "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
             "reason_code": null,
-            "registry_method_count": 390,
+            "registry_method_count": 389,
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
             "status": "routed",
@@ -713,7 +713,7 @@
         "details": [
           {
             "knob_id": "budget_allocation_multiplier",
-            "owner_atom_id": "atom_a08df3131fc4a8ff",
+            "owner_atom_id": "atom_8634a08aa7d68212",
             "status": "bound",
             "target_world_slots": [
               "government.balance"
@@ -721,7 +721,7 @@
           },
           {
             "knob_id": "procurement_shock_intensity",
-            "owner_atom_id": "atom_b416fe0ad00d9e89",
+            "owner_atom_id": "atom_ab39ac4598c1c9b3",
             "status": "bound",
             "target_world_slots": [
               "cells.distress_score"
@@ -729,7 +729,7 @@
           },
           {
             "knob_id": "tax_relief_rate",
-            "owner_atom_id": "atom_f5e09465fe1dc607",
+            "owner_atom_id": "atom_6cffe9b4465fc15e",
             "status": "bound",
             "target_world_slots": [
               "global.tax_rate"
@@ -1403,11 +1403,11 @@
             "causal.inference.did.staggered@1.0.0",
             "causal.inference.did.standard@1.0.0"
           ],
-          "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+          "content_hash": "sha256:3bccd78e29526169a5d1587a5e0d11246d2a9af9ce352eed32926c9339188a24",
           "family": "budget_flows",
           "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
           "reason_code": null,
-          "registry_method_count": 390,
+          "registry_method_count": 389,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
           "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
           "status": "routed",
@@ -1428,11 +1428,11 @@
             "microsim.static.static_microsim@1.0.0",
             "survey.demography.demographic_consistency@1.0.0"
           ],
-          "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+          "content_hash": "sha256:2a0431de5633265368a5e4e6199c3ffafaf14a9507f1227cb080ee1066e3321a",
           "family": "household_distribution",
           "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
           "reason_code": null,
-          "registry_method_count": 390,
+          "registry_method_count": 389,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
           "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
           "status": "routed",
@@ -1444,11 +1444,11 @@
           "candidate_method_fqns": [
             "ml.survival.survival_analysis@1.0.0"
           ],
-          "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+          "content_hash": "sha256:27749549785eb632cddf01d24b366da9f0cb21b4fd0814a76dbb0e778d0ef6cb",
           "family": "firm_fundamentals",
           "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
           "reason_code": null,
-          "registry_method_count": 390,
+          "registry_method_count": 389,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
           "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
           "status": "routed",
@@ -1469,11 +1469,11 @@
             "causal.dynamic.q_learning.q_learning@1.0.0",
             "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
           ],
-          "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+          "content_hash": "sha256:2c9ffed4c8505fa16ce2072fe6c74da629172cc075dba3aad42394bc3ada0b51",
           "family": "procurement_flows",
           "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
           "reason_code": null,
-          "registry_method_count": 390,
+          "registry_method_count": 389,
           "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
           "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
           "status": "routed",
@@ -1491,7 +1491,7 @@
       "details": [
         {
           "knob_id": "budget_allocation_multiplier",
-          "owner_atom_id": "atom_a08df3131fc4a8ff",
+          "owner_atom_id": "atom_8634a08aa7d68212",
           "status": "bound",
           "target_world_slots": [
             "government.balance"
@@ -1499,7 +1499,7 @@
         },
         {
           "knob_id": "procurement_shock_intensity",
-          "owner_atom_id": "atom_b416fe0ad00d9e89",
+          "owner_atom_id": "atom_ab39ac4598c1c9b3",
           "status": "bound",
           "target_world_slots": [
             "cells.distress_score"
@@ -1507,7 +1507,7 @@
         },
         {
           "knob_id": "tax_relief_rate",
-          "owner_atom_id": "atom_f5e09465fe1dc607",
+          "owner_atom_id": "atom_6cffe9b4465fc15e",
           "status": "bound",
           "target_world_slots": [
             "global.tax_rate"

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.grounding_bind import (
     GroundingDecisionCertificate,
@@ -1108,12 +1109,8 @@ def recompute_grounding_admission_content_hash(
 ) -> str:
     """Recompute a CG3 admission certificate hash from its body."""
 
-    if isinstance(certificate_or_payload, Mapping):
-        payload = json.loads(json.dumps(certificate_or_payload, sort_keys=True))
-    else:
-        payload = certificate_or_payload.model_dump(mode="json")
+    payload = serialization.artifact_self_identity_projection(certificate_or_payload)
     payload.pop("certificate_id", None)
-    payload.pop("content_hash", None)
     return gy_content_hash(payload)
 
 
@@ -1122,12 +1119,8 @@ def recompute_registry_patch_content_hash(
 ) -> str:
     """Recompute a registry patch content hash."""
 
-    if isinstance(patch_or_payload, Mapping):
-        payload = json.loads(json.dumps(patch_or_payload, sort_keys=True))
-    else:
-        payload = patch_or_payload.model_dump(mode="json")
+    payload = serialization.artifact_self_identity_projection(patch_or_payload)
     payload.pop("patch_id", None)
-    payload.pop("content_hash", None)
     return gy_content_hash(payload)
 
 
@@ -1136,12 +1129,8 @@ def recompute_admission_ledger_content_hash(
 ) -> str:
     """Recompute a CG3 admission ledger content hash."""
 
-    if isinstance(ledger_or_payload, Mapping):
-        payload = json.loads(json.dumps(ledger_or_payload, sort_keys=True))
-    else:
-        payload = ledger_or_payload.model_dump(mode="json")
+    payload = serialization.artifact_self_identity_projection(ledger_or_payload)
     payload.pop("ledger_id", None)
-    payload.pop("content_hash", None)
     return gy_content_hash(payload)
 
 

@@ -10,10 +10,39 @@ _REGISTRY: dict[str, type[JurisdictionPlugin]] = {
 }
 
 
+def normalize_jurisdiction_code(code: str | None) -> str:
+    """Normalize and validate one explicitly declared jurisdiction code.
+
+    Args:
+        code: Jurisdiction code supplied by the caller.
+
+    Returns:
+        The normalized registered code.
+
+    Raises:
+        ValueError: If the code is absent, blank, or unregistered.
+    """
+    normalized = code.strip().upper() if code is not None else ""
+    if not normalized:
+        raise ValueError("jurisdiction code is required")
+    if normalized not in _REGISTRY:
+        raise ValueError(f"unsupported jurisdiction code: {normalized}")
+    return normalized
+
+
 def get_jurisdiction_plugin(code: str | None) -> JurisdictionPlugin:
-    """Return jurisdiction plugin."""
-    normalized = str(code or "UA").strip().upper() or "UA"
-    plugin_cls = _REGISTRY.get(normalized, UkrainianJurisdiction)
+    """Return the plugin for one explicitly declared jurisdiction code.
+
+    Args:
+        code: Jurisdiction code supplied by the caller.
+
+    Returns:
+        The registered jurisdiction plugin.
+
+    Raises:
+        ValueError: If the code is absent, blank, or unregistered.
+    """
+    plugin_cls = _REGISTRY[normalize_jurisdiction_code(code)]
     return plugin_cls()
 
 
@@ -22,4 +51,5 @@ __all__ = [
     "JurisdictionPlugin",
     "UkrainianJurisdiction",
     "get_jurisdiction_plugin",
+    "normalize_jurisdiction_code",
 ]

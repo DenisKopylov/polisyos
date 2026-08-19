@@ -12,9 +12,9 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
@@ -28,6 +28,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -39,7 +44,7 @@ logger = get_logger(__name__)
 
 
 CHECKPOINT_KIND = "scientist.checkpoint"
-CHECKPOINT_SCHEMA_VERSION = "1.1"
+CHECKPOINT_SCHEMA_VERSION = "1.2"
 CHECKPOINT_HEAD_FILENAME = "checkpoint_head.json"
 CHECKPOINT_HISTORY_FILENAME = "checkpoint_history.json"
 RUN_LOCK_FILENAME = "run.lock"
@@ -132,6 +137,52 @@ class CheckpointMetadataConflictError(CheckpointCorruptedError):
     """Local checkpoint metadata files disagree on the latest committed state."""
 
 
+class CheckpointScopeMismatchError(CheckpointError):
+    """Checkpoint scope does not match the active protected execution scope."""
+
+    default_category = ErrorCategory.VALIDATION
+
+
+def _active_checkpoint_scope() -> tuple[str | None, str | None]:
+    """Resolve tenant/cell scope from the active authenticated execution context."""
+
+    access_scope = get_current_access_scope_or_none()
+    tenant_id = get_current_tenant_id_or_none()
+    cell_id = get_current_cell_id()
+    if access_scope is not None:
+        if tenant_id is not None and tenant_id != access_scope.tenant_id:
+            raise CheckpointScopeMismatchError("active checkpoint tenant scope mismatch")
+        if (
+            cell_id is not None
+            and access_scope.cell_id is not None
+            and cell_id != access_scope.cell_id
+        ):
+            raise CheckpointScopeMismatchError("active checkpoint cell scope mismatch")
+        tenant_id = tenant_id or access_scope.tenant_id
+        cell_id = cell_id if cell_id is not None else access_scope.cell_id
+    return tenant_id, cell_id
+
+
+def _reconcile_checkpoint_scope(
+    tenant_id: str | None,
+    cell_id: str | None,
+    *,
+    capture_active_when_unset: bool,
+    operation: str,
+) -> tuple[str | None, str | None]:
+    """Bind a claimed checkpoint scope to the ambient execution scope."""
+
+    if cell_id is not None and tenant_id is None:
+        raise CheckpointScopeMismatchError(f"{operation} scope mismatch")
+    active_scope = _active_checkpoint_scope()
+    claimed_scope = (tenant_id, cell_id)
+    if capture_active_when_unset and claimed_scope == (None, None):
+        return active_scope
+    if claimed_scope != active_scope:
+        raise CheckpointScopeMismatchError(f"{operation} scope mismatch")
+    return active_scope
+
+
 class CheckpointMetadata(BaseModel):
     """Replay metadata recorded after a node commits a recoverable workflow transition."""
 
@@ -139,6 +190,8 @@ class CheckpointMetadata(BaseModel):
 
     schema_version: str = Field(CHECKPOINT_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     run_id: str
+    tenant_id: str | None = Field(default=None, min_length=1)
+    cell_id: str | None = Field(default=None, min_length=1)
     sequence_number: int = Field(ge=0)
     completed_node_alias: str
     completed_node_id: str
@@ -156,6 +209,26 @@ class CheckpointMetadata(BaseModel):
     trace_id: str | None = None
     span_id: str | None = None
     research_dag_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _validate_tenant_cell_scope(self) -> Self:
+        if self.cell_id is not None and self.tenant_id is None:
+            raise ValueError("checkpoint cell_id requires tenant_id")
+        return self
+
+
+def _validate_checkpoint_scope(
+    metadata: CheckpointMetadata,
+    *,
+    expected_scope: tuple[str | None, str | None],
+    chain_member: bool = False,
+) -> None:
+    actual_scope = (metadata.tenant_id, metadata.cell_id)
+    if actual_scope == expected_scope:
+        return
+    if chain_member:
+        raise CheckpointCorruptedError("checkpoint chain scope mismatch")
+    raise CheckpointScopeMismatchError("checkpoint scope mismatch")
 
 
 class CheckpointArtifact(BaseModel):
@@ -532,6 +605,8 @@ class CASCheckpointHook:
         store_config: ArtifactStoreConfig | None = None,
         sequence_start: int = 0,
         checkpoint_policy: CheckpointPolicy = "strict",
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
         initial_cache_entry_refs: list[ArtifactRef] | None = None,
         initial_completed_nodes: list[str] | None = None,
         gc_policy: CheckpointGCPolicy | None = None,
@@ -546,6 +621,12 @@ class CASCheckpointHook:
         self._run_dir = run_dir
         self._sequence = sequence_start
         self._policy = normalize_checkpoint_policy(checkpoint_policy)
+        self._tenant_id, self._cell_id = _reconcile_checkpoint_scope(
+            tenant_id,
+            cell_id,
+            capture_active_when_unset=True,
+            operation="checkpoint hook",
+        )
         self._cache_entry_refs: list[ArtifactRef] = list(initial_cache_entry_refs or [])
         self._completed_nodes: list[str] = _dedupe_aliases(initial_completed_nodes or [])
         self._gc_policy = gc_policy or CheckpointGCPolicy()
@@ -587,6 +668,8 @@ class CASCheckpointHook:
                 workflow_fingerprint=workflow_fingerprint,
                 fsm_phase=str(state.params.get("phase", "UNKNOWN")),
                 cache_entry_refs=list(self._cache_entry_refs),
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
                 previous_state=self._previous_state,
                 previous_checkpoint_ref=self._previous_checkpoint_ref,
                 previous_chain_depth=self._previous_chain_depth,
@@ -692,6 +775,8 @@ class CASCheckpointHook:
                 workflow_fingerprint=workflow_fingerprint,
                 fsm_phase=str(state.params.get("phase", "UNKNOWN")),
                 cache_entry_refs=list(self._cache_entry_refs),
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
                 previous_state=self._previous_state,
                 previous_checkpoint_ref=self._previous_checkpoint_ref,
                 previous_chain_depth=self._previous_chain_depth,
@@ -783,6 +868,8 @@ class CASCheckpointHook:
         return {
             **metadata,
             "run_dir": str(self._run_dir),
+            "tenant_id": self._tenant_id,
+            "cell_id": self._cell_id,
             "sequence_start": self._sequence,
             "checkpoint_policy": self._policy,
             "cache_entry_refs": [ref.model_dump(mode="json") for ref in self._cache_entry_refs],
@@ -817,6 +904,19 @@ def restore_checkpoint_hook_from_runtime_metadata(
     """Reconstruct a CAS checkpoint hook from serialized runtime metadata."""
     if not isinstance(metadata, dict):
         return None
+
+    tenant_id = metadata.get("tenant_id")
+    cell_id = metadata.get("cell_id")
+    if tenant_id is not None and (not isinstance(tenant_id, str) or not tenant_id.strip()):
+        raise CheckpointScopeMismatchError("checkpoint runtime scope mismatch")
+    if cell_id is not None and (not isinstance(cell_id, str) or not cell_id.strip()):
+        raise CheckpointScopeMismatchError("checkpoint runtime scope mismatch")
+    _reconcile_checkpoint_scope(
+        tenant_id,
+        cell_id,
+        capture_active_when_unset=False,
+        operation="checkpoint runtime restore",
+    )
 
     run_dir = metadata.get("run_dir")
     if not isinstance(run_dir, str) or not run_dir.strip():
@@ -863,6 +963,8 @@ def restore_checkpoint_hook_from_runtime_metadata(
         store_config=store_config,
         sequence_start=max(0, int(metadata.get("sequence_start", 0) or 0)),
         checkpoint_policy=normalize_checkpoint_policy(metadata.get("checkpoint_policy", "strict")),
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         initial_cache_entry_refs=cache_entry_refs,
         initial_completed_nodes=list(metadata.get("completed_nodes", [])),
         gc_policy=gc_policy,
@@ -961,6 +1063,8 @@ def _checkpoint_payload(
     run_id: str,
     state: dict[str, Any] | None,
     *,
+    tenant_id: str | None,
+    cell_id: str | None,
     sequence_number: int,
     completed_node_alias: str,
     completed_node_id: str,
@@ -979,6 +1083,8 @@ def _checkpoint_payload(
         metadata=CheckpointMetadata(
             schema_version=CHECKPOINT_SCHEMA_VERSION,
             run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             sequence_number=sequence_number,
             completed_node_alias=completed_node_alias,
             completed_node_id=completed_node_id,
@@ -1010,12 +1116,20 @@ def create_checkpoint(
     workflow_fingerprint: str,
     fsm_phase: str,
     cache_entry_refs: list[ArtifactRef],
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
     previous_state: dict[str, Any] | None = None,
     previous_checkpoint_ref: ArtifactRef | None = None,
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
 ) -> CreatedCheckpoint:
     """Create checkpoint."""
+    tenant_id, cell_id = _reconcile_checkpoint_scope(
+        tenant_id,
+        cell_id,
+        capture_active_when_unset=True,
+        operation="checkpoint write",
+    )
     t0 = time.perf_counter()
     snapshot_mode: CheckpointSnapshotMode = "full"
     base_checkpoint_ref: ArtifactRef | None = None
@@ -1041,6 +1155,8 @@ def create_checkpoint(
     checkpoint = _checkpoint_payload(
         run_id,
         state_payload,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         sequence_number=sequence_number,
         completed_node_alias=completed_node_alias,
         completed_node_id=completed_node_id,
@@ -1091,12 +1207,20 @@ async def create_checkpoint_async(
     workflow_fingerprint: str,
     fsm_phase: str,
     cache_entry_refs: list[ArtifactRef],
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
     previous_state: dict[str, Any] | None = None,
     previous_checkpoint_ref: ArtifactRef | None = None,
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
 ) -> CreatedCheckpoint:
     """Create a checkpoint without blocking the active event loop."""
+    tenant_id, cell_id = _reconcile_checkpoint_scope(
+        tenant_id,
+        cell_id,
+        capture_active_when_unset=True,
+        operation="checkpoint write",
+    )
     t0 = time.perf_counter()
     snapshot_mode: CheckpointSnapshotMode = "full"
     base_checkpoint_ref: ArtifactRef | None = None
@@ -1122,6 +1246,8 @@ async def create_checkpoint_async(
     checkpoint = _checkpoint_payload(
         run_id,
         state_payload,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         sequence_number=sequence_number,
         completed_node_alias=completed_node_alias,
         completed_node_id=completed_node_id,
@@ -1444,6 +1570,7 @@ def materialize_checkpoint_state(
     checkpoint_ref: ArtifactRef,
     *,
     _seen_refs: set[str] | None = None,
+    _expected_scope: tuple[str | None, str | None] | None = None,
 ) -> dict[str, Any]:
     """Resolve full state for a checkpoint, following any incremental chain."""
 
@@ -1464,6 +1591,17 @@ def materialize_checkpoint_state(
     except (ValidationError, ValueError, TypeError) as exc:
         raise CheckpointCorruptedError(f"checkpoint artifact payload is invalid: {exc}") from exc
 
+    checkpoint_scope = (checkpoint.metadata.tenant_id, checkpoint.metadata.cell_id)
+    if _expected_scope is None:
+        expected_scope = checkpoint_scope
+    else:
+        _validate_checkpoint_scope(
+            checkpoint.metadata,
+            expected_scope=_expected_scope,
+            chain_member=True,
+        )
+        expected_scope = _expected_scope
+
     if checkpoint.metadata.snapshot_mode == "full":
         if checkpoint.state is None:
             raise CheckpointCorruptedError("full checkpoint is missing state payload")
@@ -1478,6 +1616,7 @@ def materialize_checkpoint_state(
         store,
         checkpoint.base_checkpoint_ref,
         _seen_refs=seen_refs,
+        _expected_scope=expected_scope,
     )
     return _apply_state_delta(base_state, checkpoint.state_delta)
 
@@ -1487,13 +1626,13 @@ def resolve_latest_checkpoint(
     run_id: str,
     *,
     run_dir: Path | None = None,
+    expected_scope: tuple[str | None, str | None] | None = None,
 ) -> tuple[CheckpointHead, CheckpointArtifact] | None:
     """Resolve latest checkpoint."""
     run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
     head = load_checkpoint_head(run_dir)
     if head is None:
         return None
-    _reconcile_checkpoint_history(run_dir, head=head)
 
     try:
         checkpoint = load_checkpoint(store, head.checkpoint_ref)
@@ -1507,13 +1646,23 @@ def resolve_latest_checkpoint(
         raise CheckpointCorruptedError(
             "checkpoint sequence mismatch between checkpoint_head.json and artifact"
         )
+    if expected_scope is not None:
+        _validate_checkpoint_scope(
+            checkpoint.metadata,
+            expected_scope=expected_scope,
+        )
     mismatches = _checkpoint_head_artifact_mismatches(head, checkpoint)
     if mismatches:
         raise CheckpointCorruptedError(
             "checkpoint metadata mismatch between checkpoint_head.json and artifact: "
             + ", ".join(mismatches)
         )
-    materialized_state = materialize_checkpoint_state(store, head.checkpoint_ref)
+    _reconcile_checkpoint_history(run_dir, head=head)
+    materialized_state = materialize_checkpoint_state(
+        store,
+        head.checkpoint_ref,
+        _expected_scope=(checkpoint.metadata.tenant_id, checkpoint.metadata.cell_id),
+    )
     return head, checkpoint.model_copy(update={"state": materialized_state})
 
 
@@ -1670,10 +1819,16 @@ def resume_from_checkpoint(
 
     policy = normalize_checkpoint_policy(checkpoint_policy)
     checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+    active_scope = _active_checkpoint_scope()
     run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
     lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
     try:
-        resolved = resolve_latest_checkpoint(store, run_id, run_dir=run_dir)
+        resolved = resolve_latest_checkpoint(
+            store,
+            run_id,
+            run_dir=run_dir,
+            expected_scope=active_scope,
+        )
         if resolved is None:
             raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
         head, checkpoint = resolved
@@ -1682,7 +1837,6 @@ def resume_from_checkpoint(
             checkpoint.metadata.schema_version,
             CHECKPOINT_SCHEMA_VERSION,
         )
-
         restored_state = ExperimentState.model_validate(checkpoint.state)
 
         workflow_spec = workflow or default_workflow_spec()
@@ -1752,6 +1906,8 @@ def resume_from_checkpoint(
             run_dir=run_dir,
             sequence_start=head.sequence_number + 1,
             checkpoint_policy=policy,
+            tenant_id=checkpoint.metadata.tenant_id,
+            cell_id=checkpoint.metadata.cell_id,
             initial_cache_entry_refs=checkpoint.metadata.cache_entry_refs,
             initial_completed_nodes=checkpoint.metadata.completed_nodes,
             initial_checkpoint_ref=head.checkpoint_ref,
@@ -1840,6 +1996,7 @@ __all__ = [
     "CheckpointPolicy",
     "CheckpointResumeStrategy",
     "CheckpointSchemaError",
+    "CheckpointScopeMismatchError",
     "CheckpointSnapshotMode",
     "CheckpointStore",
     "CheckpointWriteResult",

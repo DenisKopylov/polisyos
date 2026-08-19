@@ -3,6 +3,19 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
+# Completed-work terminals per mode, owned here because this module's own return mapping is the
+# only place that knows them. ``corrupt_field_drift_check`` reports "fail" when the drift was
+# DETECTED (the correct outcome) and "pass" when it was missed, while ``main`` exits
+# ``0 if status == "pass" else 1`` -- so this lane's healthy terminal is exit 1 and its DEFECT
+# terminal is exit 0. The default {0} would admit exactly the failures and reject the good runs.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import ast
 import copy
@@ -93,6 +106,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     world_model_record_content_hash,
 )
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = (
     "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
@@ -1779,4 +1793,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

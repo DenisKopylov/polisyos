@@ -8,12 +8,15 @@ reported through `DiscoveryReport`.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
+import re
 import sys
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
@@ -87,6 +90,177 @@ DEFAULT_DEV_SCAN_ROOT: Path | None = None
 DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
 BuiltinComponentLoader = Callable[[], object]
 BuiltinLoaderSpec = BuiltinComponentLoader | tuple[str, BuiltinComponentLoader]
+PredicateProvenanceClassification = Literal[
+    "recomputed",
+    "independently_reconciled",
+    "consumer_asserted",
+    "institutionally_supplied",
+    "not_established",
+]
+
+
+@dataclass(slots=True, frozen=True)
+class DiscoveryPredicateProvenance:
+    """Freeze how one load-bearing discovery predicate was established."""
+
+    predicate: str
+    classification: PredicateProvenanceClassification
+
+    def as_dict(self) -> dict[str, str]:
+        """Return a canonical JSON-compatible representation."""
+        return {
+            "predicate": self.predicate,
+            "classification": self.classification,
+        }
+
+
+@dataclass(slots=True, frozen=True)
+class DiscoveryEntryPointIdentity:
+    """Bind one enumerated entry point to its installed distribution identity."""
+
+    group: str
+    name: str
+    value: str
+    distribution_name: str | None
+    distribution_version: str | None
+    entry_points_sha256: str | None
+    direct_url_sha256: str | None
+    editable_install: bool | None
+    source_byte_closure: PredicateProvenanceClassification
+
+    @property
+    def distribution_identity_is_bound(self) -> bool:
+        """Return whether installed distribution metadata identifies the declaration."""
+        return all(
+            (
+                self.distribution_name,
+                self.distribution_version,
+                self.entry_points_sha256,
+            )
+        )
+
+    def as_dict(self) -> dict[str, str | bool | None]:
+        """Return a canonical JSON-compatible representation."""
+        return {
+            "group": self.group,
+            "name": self.name,
+            "value": self.value,
+            "distribution_name": self.distribution_name,
+            "distribution_version": self.distribution_version,
+            "entry_points_sha256": self.entry_points_sha256,
+            "direct_url_sha256": self.direct_url_sha256,
+            "editable_install": self.editable_install,
+            "source_byte_closure": self.source_byte_closure,
+        }
+
+
+@dataclass(slots=True, frozen=True)
+class DiscoveryDevScanRootIdentity:
+    """Bind one declared development-scan root before loading its declarations."""
+
+    root: str
+    exists: bool
+    path_kind: str
+    candidate_count: int
+
+    def as_dict(self) -> dict[str, str | bool | int]:
+        """Return a canonical JSON-compatible representation."""
+        return {
+            "root": self.root,
+            "exists": self.exists,
+            "path_kind": self.path_kind,
+            "candidate_count": self.candidate_count,
+        }
+
+
+@dataclass(slots=True, frozen=True)
+class DiscoveryDevScanFileIdentity:
+    """Content-bind one development declaration file consumed by discovery."""
+
+    root: str
+    path: str
+    byte_count: int
+    sha256: str
+
+    def as_dict(self) -> dict[str, str | int]:
+        """Return a canonical JSON-compatible representation."""
+        return {
+            "root": self.root,
+            "path": self.path,
+            "byte_count": self.byte_count,
+            "sha256": self.sha256,
+        }
+
+
+@dataclass(slots=True, frozen=True)
+class DiscoveryComponentIdentity:
+    """Bind one winning component declaration and its discovery source."""
+
+    component_id: str
+    metadata_sha256: str
+    source_type: str
+    location: str
+    group: str | None
+    entry_point: str | None
+
+    def as_dict(self) -> dict[str, str | None]:
+        """Return a canonical JSON-compatible representation."""
+        return {
+            "component_id": self.component_id,
+            "metadata_sha256": self.metadata_sha256,
+            "source_type": self.source_type,
+            "location": self.location,
+            "group": self.group,
+            "entry_point": self.entry_point,
+        }
+
+
+@dataclass(slots=True, frozen=True)
+class ComponentDiscoveryManifest:
+    """Bind discovered inputs and name any source closure not established."""
+
+    schema_version: str
+    manifest_id: str
+    entry_point_groups: tuple[str, ...]
+    builtin_loaders: tuple[str, ...]
+    dev_scan_enabled: bool
+    duplicate_policy: str
+    dev_scan_wins_over_entry_points: bool
+    entry_points: tuple[DiscoveryEntryPointIdentity, ...]
+    dev_scan_roots: tuple[DiscoveryDevScanRootIdentity, ...]
+    dev_scan_files: tuple[DiscoveryDevScanFileIdentity, ...]
+    components: tuple[DiscoveryComponentIdentity, ...]
+    unbound_inputs: tuple[str, ...]
+    predicate_provenance: tuple[DiscoveryPredicateProvenance, ...]
+
+    @property
+    def is_bound(self) -> bool:
+        """Return whether every load-bearing source predicate was established."""
+        admissible = {"recomputed", "independently_reconciled"}
+        return not self.unbound_inputs and all(
+            row.classification in admissible for row in self.predicate_provenance
+        )
+
+    def as_dict(self) -> dict[str, object]:
+        """Return the canonical content plus its derived ``manifest_id``."""
+        return {"manifest_id": self.manifest_id, **self.content_payload()}
+
+    def content_payload(self) -> dict[str, object]:
+        """Return the canonical payload whose SHA-256 derives ``manifest_id``."""
+        return {
+            "schema_version": self.schema_version,
+            "entry_point_groups": list(self.entry_point_groups),
+            "builtin_loaders": list(self.builtin_loaders),
+            "dev_scan_enabled": self.dev_scan_enabled,
+            "duplicate_policy": self.duplicate_policy,
+            "dev_scan_wins_over_entry_points": self.dev_scan_wins_over_entry_points,
+            "entry_points": [row.as_dict() for row in self.entry_points],
+            "dev_scan_roots": [row.as_dict() for row in self.dev_scan_roots],
+            "dev_scan_files": [row.as_dict() for row in self.dev_scan_files],
+            "components": [row.as_dict() for row in self.components],
+            "unbound_inputs": list(self.unbound_inputs),
+            "predicate_provenance": [row.as_dict() for row in self.predicate_provenance],
+        }
 
 
 @dataclass(slots=True, frozen=True)
@@ -144,6 +318,7 @@ class DiscoveryReport:
     duplicates: list[DiscoveryDuplicate] = field(default_factory=list)
     errors: list[DiscoveryError] = field(default_factory=list)
     sources_processed: int = 0
+    manifest: ComponentDiscoveryManifest | None = None
 
     @property
     def success(self) -> bool:
@@ -154,20 +329,41 @@ class DiscoveryReport:
 class _EntryPointSource:
     group: str
     errors: list[DiscoveryError] = field(default_factory=list)
+    entry_points: list[DiscoveryEntryPointIdentity] = field(default_factory=list)
+    enumeration_established: bool = False
 
     def discover(self) -> Iterator[DiscoveredComponent]:
         self.errors.clear()
-        return iter(_discover_group(group=self.group, errors=self.errors))
+        self.entry_points.clear()
+        self.enumeration_established = False
+        return iter(
+            _discover_group(
+                group=self.group,
+                errors=self.errors,
+                identities=self.entry_points,
+                owner_source=self,
+            )
+        )
 
 
 @dataclass(slots=True)
 class _DevPathSource:
     path: Path
     errors: list[DiscoveryError] = field(default_factory=list)
+    root_identity: DiscoveryDevScanRootIdentity | None = None
+    file_identities: list[DiscoveryDevScanFileIdentity] = field(default_factory=list)
 
     def discover(self) -> Iterator[DiscoveredComponent]:
         self.errors.clear()
-        return iter(_discover_dev_path(self.path, errors=self.errors))
+        self.root_identity = None
+        self.file_identities.clear()
+        return iter(
+            _discover_dev_path(
+                self.path,
+                errors=self.errors,
+                source=self,
+            )
+        )
 
 
 @dataclass(slots=True)
@@ -287,6 +483,14 @@ def discover_components(
             item.source.location,
         ),
     )
+    report.manifest = _build_discovery_manifest(
+        sources=sources,
+        report=report,
+        selected_groups=selected_groups,
+        include_dev_scan=include_dev_scan,
+        precedence=precedence_policy,
+        duplicate_policy=duplicate_policy,
+    )
     return report
 
 
@@ -381,7 +585,13 @@ def _choose_preferred(
     return left
 
 
-def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[DiscoveredComponent]:
+def _discover_group(
+    *,
+    group: str,
+    errors: list[DiscoveryError],
+    identities: list[DiscoveryEntryPointIdentity],
+    owner_source: _EntryPointSource,
+) -> list[DiscoveredComponent]:
     discovered: list[DiscoveredComponent] = []
     expected_kind = ENTRY_POINT_KIND_BY_GROUP.get(group)
 
@@ -397,9 +607,23 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
             )
         )
         return discovered
+    owner_source.enumeration_established = True
 
-    for ep in sorted(group_eps, key=lambda item: (item.name, item.value)):
-        source = DiscoverySourceInfo(
+    identified_entry_points = [(_entry_point_identity(ep, group=group), ep) for ep in group_eps]
+    identified_entry_points.sort(
+        key=lambda item: (
+            item[0].group,
+            item[0].name,
+            item[0].value,
+            item[0].distribution_name or "",
+            item[0].distribution_version or "",
+            item[0].entry_points_sha256 or "",
+            item[0].direct_url_sha256 or "",
+        )
+    )
+    for identity, ep in identified_entry_points:
+        identities.append(identity)
+        discovery_source = DiscoverySourceInfo(
             source_type="entry_point",
             location=f"{ep.module}:{ep.attr}" if hasattr(ep, "module") else ep.value,
             group=group,
@@ -452,7 +676,7 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
                 DiscoveredComponent(
                     metadata=metadata_obj,
                     component=component,
-                    source=source,
+                    source=discovery_source,
                 )
             )
 
@@ -461,14 +685,14 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
 
 def _default_dev_scan_paths() -> list[Path]:
     paths: list[Path] = []
-    if DEFAULT_DEV_SCAN_ROOT is not None and DEFAULT_DEV_SCAN_ROOT.exists():
+    if DEFAULT_DEV_SCAN_ROOT is not None:
         paths.append(DEFAULT_DEV_SCAN_ROOT)
 
     env_raw = os.getenv("POLISYOS_PACKS_PATHS", "").strip()
     if env_raw:
         for item in env_raw.split(os.pathsep):
             candidate = Path(item.strip())
-            if candidate.exists():
+            if item.strip():
                 paths.append(candidate)
 
     unique: dict[Path, None] = {}
@@ -477,27 +701,74 @@ def _default_dev_scan_paths() -> list[Path]:
     return list(unique.keys())
 
 
-def _discover_dev_path(path: Path, *, errors: list[DiscoveryError]) -> list[DiscoveredComponent]:
+def _discover_dev_path(
+    path: Path,
+    *,
+    errors: list[DiscoveryError],
+    source: _DevPathSource,
+) -> list[DiscoveredComponent]:
     discovered: list[DiscoveredComponent] = []
 
-    candidates: list[Path] = []
-    if path.is_file() and path.name == "components.py":
-        candidates.append(path)
-    elif (path / "components.py").is_file():
-        candidates.append(path / "components.py")
-    elif path.is_dir():
-        for child in sorted(path.iterdir(), key=lambda item: item.name):
-            if child.is_dir() and (child / "components.py").is_file():
-                candidates.append(child / "components.py")
+    resolved_root = path.resolve()
+    candidates = _dev_component_candidates(path)
+    source.root_identity = DiscoveryDevScanRootIdentity(
+        root=str(resolved_root),
+        exists=path.exists(),
+        path_kind=("file" if path.is_file() else "directory" if path.is_dir() else "missing"),
+        candidate_count=len(candidates),
+    )
 
     for components_file in candidates:
-        source = DiscoverySourceInfo(
+        try:
+            contributed_bytes = components_file.read_bytes()
+        except OSError as exc:
+            errors.append(
+                DiscoveryError(
+                    source="dev_scan",
+                    item=str(components_file),
+                    error_type=type(exc).__name__,
+                    message=str(exc),
+                )
+            )
+            continue
+        contributed_sha256 = _sha256_bytes(contributed_bytes)
+        source.file_identities.append(
+            DiscoveryDevScanFileIdentity(
+                root=str(resolved_root),
+                path=str(components_file.resolve()),
+                byte_count=len(contributed_bytes),
+                sha256=contributed_sha256,
+            )
+        )
+        discovery_source = DiscoverySourceInfo(
             source_type="dev_scan",
             location=str(components_file),
         )
         module_name = _module_name_for_path(components_file)
         module = _load_module_from_file(components_file, module_name=module_name, errors=errors)
         if module is None:
+            continue
+        try:
+            loaded_sha256 = _sha256_bytes(components_file.read_bytes())
+        except OSError as exc:
+            errors.append(
+                DiscoveryError(
+                    source="dev_scan",
+                    item=str(components_file),
+                    error_type=type(exc).__name__,
+                    message=str(exc),
+                )
+            )
+            continue
+        if loaded_sha256 != contributed_sha256:
+            errors.append(
+                DiscoveryError(
+                    source="dev_scan",
+                    item=str(components_file),
+                    error_type="DevScanBytesChanged",
+                    message="components.py changed while discovery was loading it",
+                )
+            )
             continue
 
         declared = getattr(module, "__polisyos_components__", None)
@@ -528,11 +799,293 @@ def _discover_dev_path(path: Path, *, errors: list[DiscoveryError]) -> list[Disc
                 DiscoveredComponent(
                     metadata=component.metadata,
                     component=component,
-                    source=source,
+                    source=discovery_source,
                 )
             )
 
     return discovered
+
+
+def _dev_component_candidates(path: Path) -> list[Path]:
+    candidates: list[Path] = []
+    if path.is_file() and path.name == "components.py":
+        candidates.append(path)
+    elif path.is_dir() and (path / "components.py").is_file():
+        candidates.append(path / "components.py")
+    elif path.is_dir():
+        for child in sorted(path.iterdir(), key=lambda item: item.name):
+            if child.is_dir() and (child / "components.py").is_file():
+                candidates.append(child / "components.py")
+    return candidates
+
+
+def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdentity:
+    distribution = getattr(ep, "dist", None)
+    distribution_name: str | None = None
+    distribution_version: str | None = None
+    entry_points_sha256: str | None = None
+    direct_url_sha256: str | None = None
+    editable_install: bool | None = None
+    if distribution is not None:
+        metadata_obj = getattr(distribution, "metadata", None)
+        metadata_get = getattr(metadata_obj, "get", None)
+        if callable(metadata_get):
+            raw_name = metadata_get("Name")
+            if raw_name:
+                distribution_name = re.sub(
+                    r"[-_.]+",
+                    "-",
+                    str(raw_name).strip().lower(),
+                )
+        raw_version = getattr(distribution, "version", None)
+        if raw_version:
+            distribution_version = str(raw_version)
+        read_text = getattr(distribution, "read_text", None)
+        if callable(read_text):
+            try:
+                entry_points_text = read_text("entry_points.txt")
+            except (OSError, UnicodeError):
+                entry_points_text = None
+            if entry_points_text is not None:
+                entry_points_sha256 = _sha256_bytes(str(entry_points_text).encode("utf-8"))
+            try:
+                direct_url_text = read_text("direct_url.json")
+            except (OSError, UnicodeError):
+                direct_url_text = None
+            if direct_url_text is not None:
+                try:
+                    direct_url_payload = json.loads(str(direct_url_text))
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    direct_url_payload = None
+                if isinstance(direct_url_payload, dict):
+                    dir_info = direct_url_payload.get("dir_info")
+                    if isinstance(dir_info, dict) and isinstance(dir_info.get("editable"), bool):
+                        editable_install = bool(dir_info["editable"])
+                # An editable direct URL is an installer-chosen address, not content identity.
+                # Record the editable posture while leaving its source-byte closure unestablished.
+                if editable_install is not True:
+                    direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
+    return DiscoveryEntryPointIdentity(
+        group=group,
+        name=str(getattr(ep, "name", "")),
+        value=str(getattr(ep, "value", "")),
+        distribution_name=distribution_name,
+        distribution_version=distribution_version,
+        entry_points_sha256=entry_points_sha256,
+        direct_url_sha256=direct_url_sha256,
+        editable_install=editable_install,
+        # Python entry-point factories may depend on arbitrary editable source,
+        # transitive imports, and process state. Distribution metadata names that
+        # input but cannot content-bind it. Governed consumers must quarantine it.
+        source_byte_closure="not_established",
+    )
+
+
+def _build_discovery_manifest(
+    *,
+    sources: Sequence[_EntryPointSource | _DevPathSource | _BuiltinLoaderSource],
+    report: DiscoveryReport,
+    selected_groups: Sequence[str],
+    include_dev_scan: bool,
+    precedence: DiscoveryPrecedencePolicy,
+    duplicate_policy: DuplicatePolicy,
+) -> ComponentDiscoveryManifest:
+    entry_points = tuple(
+        sorted(
+            (
+                identity
+                for source in sources
+                if isinstance(source, _EntryPointSource)
+                for identity in source.entry_points
+            ),
+            key=lambda row: (
+                row.group,
+                row.name,
+                row.value,
+                row.distribution_name or "",
+                row.distribution_version or "",
+                row.entry_points_sha256 or "",
+                row.direct_url_sha256 or "",
+            ),
+        )
+    )
+    dev_scan_roots = tuple(
+        source.root_identity
+        for source in sources
+        if isinstance(source, _DevPathSource) and source.root_identity is not None
+    )
+    dev_scan_files = tuple(
+        sorted(
+            (
+                identity
+                for source in sources
+                if isinstance(source, _DevPathSource)
+                for identity in source.file_identities
+            ),
+            key=lambda row: (row.root, row.path),
+        )
+    )
+    components = tuple(
+        DiscoveryComponentIdentity(
+            component_id=str(row.metadata.component_id),
+            metadata_sha256=_sha256_json(row.metadata.model_dump(mode="json")),
+            source_type=row.source.source_type,
+            location=row.source.location,
+            group=row.source.group,
+            entry_point=row.source.entry_point,
+        )
+        for row in report.components
+    )
+    builtin_loaders = tuple(
+        source.name for source in sources if isinstance(source, _BuiltinLoaderSource)
+    )
+    unbound_inputs: list[str] = []
+    entry_point_sources = [source for source in sources if isinstance(source, _EntryPointSource)]
+    for source in entry_point_sources:
+        if not source.enumeration_established:
+            unbound_inputs.append(f"entry_point_group_enumeration_not_established:{source.group}")
+    for row in entry_points:
+        if not row.distribution_identity_is_bound:
+            unbound_inputs.append(
+                "entry_point_distribution_identity_not_established:"
+                f"{row.group}:{row.name}:{row.value}"
+            )
+        if row.source_byte_closure not in {"recomputed", "independently_reconciled"}:
+            unbound_inputs.append(
+                "entry_point_source_byte_closure_not_established:"
+                f"{row.group}:{row.name}:{row.value}"
+            )
+    for row in dev_scan_roots:
+        if not row.exists:
+            unbound_inputs.append(f"dev_scan_root_not_found:{row.root}")
+    for error in report.errors:
+        unbound_inputs.append(
+            f"discovery_error:{error.source}:{error.item or '<unknown>'}:{error.error_type}"
+        )
+    unbound_inputs = sorted(dict.fromkeys(unbound_inputs))
+    entry_point_enumeration_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if all(source.enumeration_established for source in entry_point_sources)
+        else "not_established"
+    )
+    entry_points_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if all(row.distribution_identity_is_bound for row in entry_points)
+        else "not_established"
+    )
+    entry_point_source_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if all(
+            row.source_byte_closure in {"recomputed", "independently_reconciled"}
+            for row in entry_points
+        )
+        else "not_established"
+    )
+    dev_bytes_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if all(row.exists for row in dev_scan_roots)
+        and not any(item.startswith("discovery_error:dev_scan:") for item in unbound_inputs)
+        else "not_established"
+    )
+    component_classification: PredicateProvenanceClassification = (
+        "recomputed" if not report.errors else "not_established"
+    )
+    dev_sources = [source for source in sources if isinstance(source, _DevPathSource)]
+    dev_root_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if all(source.root_identity is not None for source in dev_sources)
+        else "not_established"
+    )
+    dev_import_classification: PredicateProvenanceClassification = (
+        "not_established" if dev_scan_files else "recomputed"
+    )
+    if dev_import_classification == "not_established":
+        unbound_inputs.append("development_scan_import_closure_not_established")
+        unbound_inputs.sort()
+    predicate_provenance = (
+        DiscoveryPredicateProvenance("source_policy", "recomputed"),
+        DiscoveryPredicateProvenance(
+            "entry_point_group_enumeration",
+            entry_point_enumeration_classification,
+        ),
+        DiscoveryPredicateProvenance(
+            "entry_point_distribution_identity",
+            entry_points_classification,
+        ),
+        DiscoveryPredicateProvenance(
+            "entry_point_source_byte_closure",
+            entry_point_source_classification,
+        ),
+        DiscoveryPredicateProvenance(
+            "development_scan_root_membership",
+            dev_root_classification,
+        ),
+        DiscoveryPredicateProvenance(
+            "development_scan_contributed_bytes",
+            dev_bytes_classification,
+        ),
+        DiscoveryPredicateProvenance(
+            "development_scan_import_closure",
+            dev_import_classification,
+        ),
+        DiscoveryPredicateProvenance("duplicate_precedence", "recomputed"),
+        DiscoveryPredicateProvenance(
+            "discovered_component_membership",
+            component_classification,
+        ),
+    )
+    payload: dict[str, object] = {
+        "schema_version": "policyos.component_discovery_manifest.v1",
+        "entry_point_groups": list(selected_groups),
+        "builtin_loaders": list(builtin_loaders),
+        "dev_scan_enabled": include_dev_scan,
+        "duplicate_policy": duplicate_policy.value,
+        "dev_scan_wins_over_entry_points": precedence.dev_scan_wins_over_entry_points,
+        "entry_points": [row.as_dict() for row in entry_points],
+        "dev_scan_roots": [row.as_dict() for row in dev_scan_roots],
+        "dev_scan_files": [row.as_dict() for row in dev_scan_files],
+        "components": [row.as_dict() for row in components],
+        "unbound_inputs": unbound_inputs,
+        "predicate_provenance": [row.as_dict() for row in predicate_provenance],
+    }
+    manifest_id = _component_discovery_manifest_id(payload)
+    return ComponentDiscoveryManifest(
+        schema_version="policyos.component_discovery_manifest.v1",
+        manifest_id=manifest_id,
+        entry_point_groups=tuple(selected_groups),
+        builtin_loaders=builtin_loaders,
+        dev_scan_enabled=include_dev_scan,
+        duplicate_policy=duplicate_policy.value,
+        dev_scan_wins_over_entry_points=precedence.dev_scan_wins_over_entry_points,
+        entry_points=entry_points,
+        dev_scan_roots=dev_scan_roots,
+        dev_scan_files=dev_scan_files,
+        components=components,
+        unbound_inputs=tuple(unbound_inputs),
+        predicate_provenance=predicate_provenance,
+    )
+
+
+def _sha256_bytes(value: bytes) -> str:
+    return "sha256:" + hashlib.sha256(value).hexdigest()
+
+
+def _sha256_json(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return _sha256_bytes(encoded)
+
+
+def _component_discovery_manifest_id(content_payload: object) -> str:
+    """Derive the canonical identity of full discovery-manifest content."""
+
+    return "component_discovery_manifest_" + _sha256_json(content_payload).removeprefix(
+        "sha256:"
+    )
 
 
 def _coerce_builtin_loader_spec(spec: BuiltinLoaderSpec) -> tuple[str, BuiltinComponentLoader]:

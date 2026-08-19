@@ -312,7 +312,9 @@ class _EmptyGenerationPort:
         cycle_index: int,
     ) -> _GenerationResult:
         del problem, cycle_index
-        return _GenerationResult(status="generation_unavailable", candidates=(), surrogate_rankings=())
+        return _GenerationResult(
+            status="generation_unavailable", candidates=(), surrogate_rankings=()
+        )
 
 
 class _LegacyOnlyGenerationPort:
@@ -366,9 +368,7 @@ class _CgfGenerationPort:
             if self._proxy_gap
             else None,
             cg4_quarantine_handoff_hash="sha256:" + "e" * 64 if self._proxy_gap else None,
-            cg5_action_certificate_id="cg5_action_deadbeefdeadbeef"
-            if self._proxy_gap
-            else None,
+            cg5_action_certificate_id="cg5_action_deadbeefdeadbeef" if self._proxy_gap else None,
             cg5_action_content_hash="sha256:" + "f" * 64 if self._proxy_gap else None,
         )
         disposition = _GroundingDisposition(
@@ -520,9 +520,7 @@ async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
     assert cycle.grounding.grounding_source == "cgf_firewall"
     assert cycle.grounding.grounding_disposition == "novel_cg3"
     assert cycle.grounding.acquisition_requirement is not None
-    assert cycle.grounding.acquisition_requirement.metadata["source"] == (
-        "cgf_grounding_coverage"
-    )
+    assert cycle.grounding.acquisition_requirement.metadata["source"] == ("cgf_grounding_coverage")
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.acquisition_routing_report is not None
     assert cycle.acquisition_routing_report.status == "pass"
@@ -550,13 +548,9 @@ async def test_mixed_n4_result_keeps_non_binding_disposition_in_denominator() ->
         "candidate_mixed_bound",
         "gy_n4.unbound",
     }
-    assert {summary.generation_channel for summary in run.candidate_summaries} == {
-        "n4_owner"
-    }
+    assert {summary.generation_channel for summary in run.candidate_summaries} == {"n4_owner"}
     unbound = next(
-        summary
-        for summary in run.candidate_summaries
-        if summary.candidate_id == "gy_n4.unbound"
+        summary for summary in run.candidate_summaries if summary.candidate_id == "gy_n4.unbound"
     )
     assert unbound.content_hash == "sha256:" + "a" * 64
     assert unbound.grounding_disposition == "novel_cg3"
@@ -569,8 +563,7 @@ class _FabricatedPromotionPort:
             status="certified_current_valid",
             certified_candidate_ids=tuple(summary.candidate_id for summary in summaries),
             receipts=tuple(
-                _n9_receipt(summary.candidate_id, consumer_promotable=True)
-                for summary in summaries
+                _n9_receipt(summary.candidate_id, consumer_promotable=True) for summary in summaries
             ),
         )
 
@@ -890,9 +883,7 @@ def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() 
     """A valid refusal from another problem cannot act as shaped world identity."""
 
     problem, context = _lane0_cycle_context()
-    _other_problem, other_context = _lane0_cycle_context(
-        runtime_hints={"probe": "another-context"}
-    )
+    _other_problem, other_context = _lane0_cycle_context(runtime_hints={"probe": "another-context"})
     candidate = SimpleNamespace(
         candidate_id="candidate_unbound_cross_context",
         status="candidate_unbound",
@@ -940,8 +931,7 @@ def _canonical_strict_world_case() -> tuple[
     matched = tuple(
         problem
         for problem in problems
-        if gy_content_hash(problem.model_dump(mode="json"))
-        == candidate.atom.problem_frame_ref
+        if gy_content_hash(problem.model_dump(mode="json")) == candidate.atom.problem_frame_ref
     )
     assert len(matched) == 1
     problem = matched[0]
@@ -949,8 +939,7 @@ def _canonical_strict_world_case() -> tuple[
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     assert registry.content_hash == world.substrate_registry_ref.content_hash
     selected_hashes = tuple(
-        entry.entry_content_hash
-        for entry in world.substrate_registry_ref.resolved_entries
+        entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
     )
     substrate_input_hash = gy_content_hash(
         {
@@ -988,9 +977,7 @@ def _canonical_context_case_with_runtime_hints(
     base_problem, base_context, base_candidate = _canonical_strict_world_case()
     problem = base_problem.model_copy(update={"runtime_hints": runtime_hints})
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-    atom_draft = base_candidate.atom.model_copy(
-        update={"problem_frame_ref": problem_ref}
-    )
+    atom_draft = base_candidate.atom.model_copy(update={"problem_frame_ref": problem_ref})
     atom = atom_draft.model_copy(
         update={"content_hash": intervention_atom_content_hash(atom_draft)}
     )
@@ -1000,12 +987,8 @@ def _canonical_context_case_with_runtime_hints(
     substrate_input_hash = gy_content_hash(
         {
             "design_problem_ref": problem_ref,
-            "substrate_registry_content_hash": (
-                base_context.substrate_registry_content_hash
-            ),
-            "world_model_record_content_hash": (
-                base_context.world_model_record_content_hash
-            ),
+            "substrate_registry_content_hash": (base_context.substrate_registry_content_hash),
+            "world_model_record_content_hash": (base_context.world_model_record_content_hash),
             "selected_registry_entry_hashes": selected_hashes,
         }
     )
@@ -1139,9 +1122,7 @@ def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
     )
 
     _problem_value, context, candidate = _canonical_strict_world_case()
-    draft = candidate.atom.model_copy(
-        update={"problem_frame_ref": "sha256:" + "9" * 64}
-    )
+    draft = candidate.atom.model_copy(update={"problem_frame_ref": "sha256:" + "9" * 64})
     atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
     atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
 
@@ -1176,9 +1157,7 @@ def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() ->
     """A model-constructed atom with a stale hash fails closed at the port."""
 
     problem, context, canonical_candidate = _canonical_strict_world_case()
-    atom = canonical_candidate.atom.model_copy(
-        update={"content_hash": "sha256:" + "0" * 64}
-    )
+    atom = canonical_candidate.atom.model_copy(update={"content_hash": "sha256:" + "0" * 64})
     candidate = SimpleNamespace(candidate_id="candidate_tampered_atom", atom=atom)
 
     observation = JointSimulationPort(
@@ -1208,9 +1187,7 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
         outcome="employment_retention",
         policy_slot_ids=("global.tax_rate",),
         substrate_registry=request_registry,
-        selected_registry_entry_hashes=(
-            request_registry.entries[0].entry_content_hash,
-        ),
+        selected_registry_entry_hashes=(request_registry.entries[0].entry_content_hash,),
     )
     request = JointSimulationRequest.model_construct(
         world_model_record_ref=request_world.world_model_record_id,
@@ -1262,13 +1239,10 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
     base_problem, base_context, _base_candidate = _canonical_strict_world_case()
     n4_payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
         ).read_text(encoding="utf-8")
     )
-    candidate_payload = n4_contract.first_shadow_bound_recorded_candidate(
-        n4_payload
-    )
+    candidate_payload = n4_contract.first_shadow_bound_recorded_candidate(n4_payload)
     atom = InterventionAtomBinding.model_validate(candidate_payload["atom"])
     mismatched_atom = atom.model_copy(
         update={"world_model_record_ref": "world_model_record_0123456789abcdef"}
@@ -1332,20 +1306,14 @@ def test_explicit_request_nested_atom_missing_slot_fails_world_identity() -> Non
             "normalized_from": None,
         }
     )
-    nested_atom = draft.model_copy(
-        update={"content_hash": intervention_atom_content_hash(draft)}
-    )
-    nested_atom = InterventionAtomBinding.model_validate(
-        nested_atom.model_dump(mode="python")
-    )
+    nested_atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    nested_atom = InterventionAtomBinding.model_validate(nested_atom.model_dump(mode="python"))
     request = JointSimulationRequest.model_construct(
         world_model_record_ref=context.world_model_record.world_model_record_id,
         world_model_record=context.world_model_record,
         intervention_atoms=(nested_atom,),
     )
-    problem = problem.model_copy(
-        update={"runtime_hints": {"joint_simulation_request": request}}
-    )
+    problem = problem.model_copy(update={"runtime_hints": {"joint_simulation_request": request}})
     calls: list[object] = []
 
     observation = JointSimulationPort(
@@ -1402,8 +1370,13 @@ def test_joint_port_cache_key_tracks_canonical_registry_content(
     assert first.world_model_record is not None
     assert second.world_model_record is not None
     assert first.world_model_record.content_hash != second.world_model_record.content_hash
-    assert first.world_model_record.substrate_registry_ref.content_hash == first_registry.content_hash
-    assert second.world_model_record.substrate_registry_ref.content_hash == second_registry.content_hash
+    assert (
+        first.world_model_record.substrate_registry_ref.content_hash == first_registry.content_hash
+    )
+    assert (
+        second.world_model_record.substrate_registry_ref.content_hash
+        == second_registry.content_hash
+    )
 
 
 def test_joint_port_revalidates_context_before_reusing_wmr() -> None:
@@ -1425,11 +1398,7 @@ def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
     """A WMR-looking string cannot substitute for a resolved owner object."""
 
     problem = _problem("shaped_wmr_ref").model_copy(
-        update={
-            "runtime_hints": {
-                "world_model_record_ref": "world_model_record_0123456789abcdef"
-            }
-        }
+        update={"runtime_hints": {"world_model_record_ref": "world_model_record_0123456789abcdef"}}
     )
     candidate = _Candidate(
         candidate_id="candidate_shaped_wmr",
@@ -1468,9 +1437,7 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
         grounding_port=_AcquisitionGrounding(),
         value_port=PendingN8ValuePort(),
         promotion_port=_NoPromotionPort(),
-        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
-            artifacts_by_requirement={}
-        ),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=REPO_ROOT,
     ).run(
         _problem("missing_canonical_registry"),
@@ -1531,9 +1498,9 @@ def test_boundary_wmr_uses_injected_registry_and_problem_scope(
     assert record.tx_time_scope == "2026-07-12"
     assert "watershed_communities" in record.population_scope
     assert record.substrate_registry_ref.content_hash == registry.content_hash
-    assert {
-        item.entry_content_hash for item in record.substrate_registry_ref.resolved_entries
-    } == {registry.entries[0].entry_content_hash}
+    assert {item.entry_content_hash for item in record.substrate_registry_ref.resolved_entries} == {
+        registry.entries[0].entry_content_hash
+    }
     assert not record.fabric_world_ref.snapshot_root.startswith("/")
     assert "UA" not in json.dumps(record.model_dump(mode="json"))
 
@@ -1700,8 +1667,7 @@ def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[st
 
     payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
         ).read_text(encoding="utf-8")
     )
     for result in payload["generation_results"]:
@@ -1712,11 +1678,9 @@ def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[st
         }
         for candidate in result.get("candidates") or ():
             disposition = dispositions.get(candidate.get("candidate_id"))
-            if (
-                disposition is not None
-                and disposition.get("shadow_atom_content_hash")
-                == candidate.get("atom", {}).get("content_hash")
-            ):
+            if disposition is not None and disposition.get(
+                "shadow_atom_content_hash"
+            ) == candidate.get("atom", {}).get("content_hash"):
                 return result, candidate
     raise AssertionError("missing content-matched real N4 candidate")
 
@@ -1724,8 +1688,7 @@ def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[st
 def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
     cg4_payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/grounding_phrasing_defense_contract.json"
+            REPO_ROOT / "architecture/policy_design_case/grounding_phrasing_defense_contract.json"
         ).read_text(encoding="utf-8")
     )
     handoff = next(
@@ -1749,7 +1712,11 @@ def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
         **(disposition.get("certificate_chain") or {}),
         "quarantine_handoff": handoff,
     }
-    return {"status": "generated", "candidates": [candidate], "grounding_dispositions": [disposition]}, candidate
+    return {
+        "status": "generated",
+        "candidates": [candidate],
+        "grounding_dispositions": [disposition],
+    }, candidate
 
 
 @pytest.mark.asyncio
@@ -1773,8 +1740,14 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
         "candidate_cycle_1",
         "candidate_cycle_2",
     ]
-    assert run.cycles[1].selected_candidate_content_hash != run.cycles[0].selected_candidate_content_hash
-    assert run.cycles[1].driven_by_counterexample_ref == run.cycles[0].counterexample.counterexample_ref
+    assert (
+        run.cycles[1].selected_candidate_content_hash
+        != run.cycles[0].selected_candidate_content_hash
+    )
+    assert (
+        run.cycles[1].driven_by_counterexample_ref
+        == run.cycles[0].counterexample.counterexample_ref
+    )
     assert run.cycles[0].revision_request.revision_strategy == "adversarial_validate"
     assert run.cycles[0].revision_request.new_grammar_elements == (
         "lever:grant:adversarial_validate:missing_supporting_data",
@@ -1782,9 +1755,10 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert run.cycles[1].introduced_grammar_elements == (
         "lever:grant:adversarial_validate:missing_supporting_data",
     )
-    assert generator.problems[1].runtime_hints["generation_cycle_revision"][
-        "revision_strategy"
-    ] == "adversarial_validate"
+    assert (
+        generator.problems[1].runtime_hints["generation_cycle_revision"]["revision_strategy"]
+        == "adversarial_validate"
+    )
     assert run.cycles[1].revision_driver == "counterexample"
     assert run.cycles[0].voi_decision.next_action == "advance"
     assert run.cycles[-1].voi_decision.next_action in {"stop", "escalate"}
@@ -1880,7 +1854,9 @@ async def test_revision_changes_when_prior_terminal_changes() -> None:
     )
 
     search_run = await search_controller.run(_problem(), budget_state=_budget(), max_cycles=1)
-    acquisition_run = await acquisition_controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    acquisition_run = await acquisition_controller.run(
+        _problem(), budget_state=_budget(), max_cycles=1
+    )
 
     assert search_run.cycles[0].terminal_kind == "search_ceiling_repair_required"
     assert acquisition_run.cycles[0].terminal_kind == "acquisition_required"
@@ -2240,7 +2216,7 @@ def test_real_cg4_proxy_gap_shape_routes_to_quarantine() -> None:
     assert fronts.quarantine.candidate_ids == (summary.candidate_id,)
 
 
-def test_decision_front_positive_and_proxy_conflict_paths_stay_live() -> None:
+def test_raw_dict_promotion_receipt_cannot_enter_decision_front() -> None:
     current_valid = CandidateSummary(
         candidate_id="candidate_current_valid",
         content_hash="sha256:" + "2" * 64,
@@ -2283,7 +2259,8 @@ def test_decision_front_positive_and_proxy_conflict_paths_stay_live() -> None:
     )
     fronts = _derive_fronts(tuple(promoted))
 
-    assert fronts.decision.candidate_ids == ("candidate_current_valid",)
+    assert fronts.decision.candidate_ids == ()
+    assert fronts.research.candidate_ids == ("candidate_current_valid",)
     assert fronts.quarantine.candidate_ids == ("candidate_conflict",)
 
 
@@ -2348,9 +2325,7 @@ def test_nonbinding_resolution_cannot_become_promotion_eligible() -> None:
         PromotionPortObservation(
             status="certified_current_valid",
             certified_candidate_ids=(nonbinding.candidate_id,),
-            receipts=(
-                _n9_receipt(nonbinding.candidate_id, consumer_promotable=True),
-            ),
+            receipts=(_n9_receipt(nonbinding.candidate_id, consumer_promotable=True),),
         ),
     )
     fronts = _derive_fronts(tuple(projected))
@@ -2429,8 +2404,7 @@ class _DataGapValuePort:
                     metric_binding_count=0,
                     observation_count=0,
                     coverage_ref=(
-                        "repo://production_data/dataset_catalog.duckdb#variable/"
-                        "firm_survival"
+                        "repo://production_data/dataset_catalog.duckdb#variable/firm_survival"
                     ),
                 ),
                 authority_level=problem.authority_profile.requested_authority_level,
@@ -2489,8 +2463,7 @@ class _RepointedDataGapValuePort:
                     metric_binding_count=0,
                     observation_count=0,
                     coverage_ref=(
-                        "repo://production_data/dataset_catalog.duckdb#variable/"
-                        "firm_survival"
+                        "repo://production_data/dataset_catalog.duckdb#variable/firm_survival"
                     ),
                 ),
                 authority_level=problem.authority_profile.requested_authority_level,
@@ -2568,14 +2541,11 @@ async def test_fabricated_single_cycle_unreachable_terminal_combination_is_red()
         value_port=_DataGapValuePort(),
     )
     run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
-    fabricated_cycle = run.cycles[0].model_copy(
-        update={"terminal_kind": "frontier_stable"}
-    )
+    fabricated_cycle = run.cycles[0].model_copy(update={"terminal_kind": "frontier_stable"})
     fabricated_run = run.model_copy(update={"cycles": (fabricated_cycle,)})
 
     issue_codes = {
-        str(issue.get("code"))
-        for issue in validate_generation_cycle_run(fabricated_run)
+        str(issue.get("code")) for issue in validate_generation_cycle_run(fabricated_run)
     }
 
     assert "incoherent_single_terminal_state" in issue_codes
@@ -2591,9 +2561,7 @@ async def test_empty_completed_cycle_run_is_red() -> None:
     ).run(_problem(), budget_state=_budget(), max_cycles=1)
 
     empty = run.model_copy(update={"cycles": ()})
-    issue_codes = {
-        str(issue.get("code")) for issue in validate_generation_cycle_run(empty)
-    }
+    issue_codes = {str(issue.get("code")) for issue in validate_generation_cycle_run(empty)}
 
     assert "cycle_denominator_empty" in issue_codes
 
@@ -2633,26 +2601,20 @@ async def test_typed_value_world_knowledge_gap_routes_without_renaming_blocker()
     run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
     cycle = run.cycles[0]
 
-    assert cycle.value_port.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
-    )
+    assert cycle.value_port.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.revision_request.revision_strategy == "acquire_or_elicit"
     acquisition = cycle.revision_request.strategy_payload["acquisition_request"]
     assert acquisition["requirement_gap"]["requirement_gap_id"] == (
         "requirement-gap:data_requirement:value-input-world-knowledge"
     )
-    assert acquisition["requirement_gap"]["metadata"]["satisfaction_status"] == (
-        "unsatisfied"
-    )
+    assert acquisition["requirement_gap"]["metadata"]["satisfaction_status"] == ("unsatisfied")
     assert cycle.acquisition_routing_report is not None
     assert cycle.acquisition_receipt is None
     assert cycle.acquisition_routing_report.status == "pass"
     assert len(cycle.acquisition_routing_report.acquisition_records) == 1
     record = cycle.acquisition_routing_report.acquisition_records[0]
-    assert record.compiled_requirement_ref == (
-        "runtime-requirement:value-input-world-knowledge:v1"
-    )
+    assert record.compiled_requirement_ref == ("runtime-requirement:value-input-world-knowledge:v1")
     assert record.claim_ref == "value-claim:candidate_cgf_shadow"
     assert record.terminal_disposition.value == "acquire"
 
@@ -2673,13 +2635,12 @@ async def test_k_sim_does_not_shrink_k_world() -> None:
 
 @pytest.mark.asyncio
 async def test_generation_cycle_contract_mutations_turn_red() -> None:
-    payload = contract.load_contract_payload(REPO_ROOT)
+    payload = await contract.build_live_payload(REPO_ROOT)
     report = contract.validate_payload(payload)
 
     assert report["status"] == "pass", report["issues"]
     mutation_statuses = {
-        item["mutation_id"]: item["status"]
-        for item in payload["behavioral_mutations"]
+        item["mutation_id"]: item["status"] for item in payload["behavioral_mutations"]
     }
     assert mutation_statuses == {
         "revision_not_terminal_driven": "red",
@@ -2710,6 +2671,18 @@ def test_generation_cycle_contract_write_payload_is_byte_stable() -> None:
 
     assert first == second
     assert "capture_wall_time_seconds" not in first
+    payload = json.loads(first)
+    assert contract.validate_payload(payload)["status"] == "pass"
+    receipt = payload["generation_cycle_run"]["promotion_port"]["receipts"][0]
+    assert receipt["confidence_ledger_projection"]["authority_provenance"] == "verification"
+    assert receipt["confidence_ledger_projection"]["deployment_identity"]
+    assert payload["comparison_admission_manifest"]
+
+    governing_shift = copy.deepcopy(payload)
+    governing_shift["denominators"]["counts"]["terminal_kinds"] += 1
+    issue_codes = {issue["code"] for issue in contract.validate_payload(governing_shift)["issues"]}
+    assert "full_denominator_curated_subset" in issue_codes
+    assert "contract_content_hash_drift" in issue_codes
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:
@@ -2737,8 +2710,7 @@ def test_generation_cycle_strangle_receipt_counts_new_production_caller(tmp_path
     )
     caller.parent.mkdir(parents=True)
     caller.write_text(
-        "def execute(loop):\n"
-        "    return loop.run_fixture('ua_msme_credit_worldbank_measurement')\n",
+        "def execute(loop):\n    return loop.run_fixture('ua_msme_credit_worldbank_measurement')\n",
         encoding="utf-8",
     )
 

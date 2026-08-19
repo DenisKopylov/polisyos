@@ -44,6 +44,23 @@ ProvenanceKind = Literal[
     "legacy_rejected",
 ]
 SameInputClosureStatus = Literal["closed", "not_closed", "mismatched", "blocked"]
+ConsumedInputMemberKind = Literal[
+    "source",
+    "artifact",
+    "environment",
+    "authority_history",
+    "runtime_abi",
+    "loader_binding",
+    "filesystem",
+    "session",
+]
+PredicateProvenanceClass = Literal[
+    "recomputed",
+    "independently_reconciled",
+    "consumer_asserted",
+    "institutionally_supplied",
+    "not_established",
+]
 ValidationStatus = Literal["pass", "fail", "blocked", "not_applicable"]
 BlockingStatus = Literal["non_blocking", "blocking", "non_overridable"]
 AuthorityRootCauseClass = Literal[
@@ -468,6 +485,60 @@ class SameInputClosure(BaseModel):
         )
 
 
+class ConsumedInputMember(BaseModel):
+    """One declared and resolved authority input consumed by a runtime owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    member_id: str = Field(min_length=1)
+    member_kind: ConsumedInputMemberKind
+    declared_identity: str = Field(min_length=1)
+    resolved_identity: str | None = None
+    predicate_class: PredicateProvenanceClass
+    decisive: bool = True
+
+    @field_validator("member_id", "declared_identity", "resolved_identity")
+    @classmethod
+    def _strip_member_text(cls, value: str | None) -> str | None:
+        return _optional_text(value)
+
+    def membership_key(self) -> tuple[str, str]:
+        """Return the stable kind-qualified member identity."""
+
+        return (self.member_kind, self.member_id)
+
+
+class SealedConsumedInputSet(BaseModel):
+    """Closed consumed-input membership bound to an existing input closure."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    same_input_closure: SameInputClosure
+    members: tuple[ConsumedInputMember, ...]
+    membership_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_resolved_membership(self) -> SealedConsumedInputSet:
+        """Prevent construction of a seal that did not resolve its members."""
+
+        _assert_closed_consumed_input_closure(self.same_input_closure)
+        resolved_members = _normalise_consumed_input_members(self.members)
+        if resolved_members != self.members:
+            raise ValueError("consumed_input_members_not_sorted")
+        expected = _consumed_input_membership_sha256(
+            self.same_input_closure,
+            resolved_members,
+        )
+        if self.membership_sha256 != expected:
+            raise ValueError("consumed_input_membership_mismatch")
+        return self
+
+
+_UNTRUSTED_DECISIVE_PREDICATE_CLASSES = frozenset(
+    {"consumer_asserted", "institutionally_supplied", "not_established"}
+)
+
+
 class EvidenceAuthorityEnvelope(BaseModel):
     """Authority-bearing evidence metadata emitted beside runtime evidence."""
 
@@ -742,6 +813,112 @@ def assert_same_input_closure(
                 evidence_id=envelope.evidence_id,
             )
     return first
+
+
+def seal_consumed_input_set(
+    *,
+    closure: SameInputClosure,
+    members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+) -> SealedConsumedInputSet:
+    """Resolve, sort, and content-bind the complete authority input set."""
+
+    _assert_closed_consumed_input_closure(closure)
+    resolved_members = _normalise_consumed_input_members(members)
+    membership_sha256 = _consumed_input_membership_sha256(closure, resolved_members)
+    return SealedConsumedInputSet(
+        same_input_closure=closure,
+        members=resolved_members,
+        membership_sha256=membership_sha256,
+    )
+
+
+def assert_consumed_input_reuse(
+    sealed: SealedConsumedInputSet,
+    *,
+    closure: SameInputClosure,
+    fresh_members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+) -> SealedConsumedInputSet:
+    """Fail closed unless a fresh complete input set exactly matches its seal."""
+
+    _assert_closed_consumed_input_closure(closure)
+    if closure.identity_tuple() != sealed.same_input_closure.identity_tuple():
+        raise AuthorityEnvelopeError(
+            "consumed_input_closure_mismatch",
+            f"closure_id={closure.closure_id}",
+        )
+    resolved_members = _normalise_consumed_input_members(fresh_members)
+    expected_by_key = {member.membership_key(): member for member in sealed.members}
+    actual_by_key = {member.membership_key(): member for member in resolved_members}
+    for key in sorted(expected_by_key.keys() - actual_by_key.keys()):
+        _raise_consumed_input_error("consumed_input_member_missing", key)
+    for key in sorted(actual_by_key.keys() - expected_by_key.keys()):
+        _raise_consumed_input_error("consumed_input_member_extra", key)
+    for key in sorted(expected_by_key):
+        if actual_by_key[key] != expected_by_key[key]:
+            _raise_consumed_input_error("consumed_input_member_substituted", key)
+    actual_sha256 = _consumed_input_membership_sha256(closure, resolved_members)
+    if actual_sha256 != sealed.membership_sha256:
+        raise AuthorityEnvelopeError(
+            "consumed_input_membership_mismatch",
+            f"expected={sealed.membership_sha256} actual={actual_sha256}",
+        )
+    return sealed
+
+
+def _normalise_consumed_input_members(
+    members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+) -> tuple[ConsumedInputMember, ...]:
+    """Validate decisive predicates and return exact sorted member membership."""
+
+    by_key: dict[tuple[str, str], ConsumedInputMember] = {}
+    for raw_member in members:
+        member = ConsumedInputMember.model_validate(raw_member)
+        key = member.membership_key()
+        if key in by_key:
+            _raise_consumed_input_error("consumed_input_member_duplicate", key)
+        if member.resolved_identity is None:
+            _raise_consumed_input_error("consumed_input_member_unresolved", key)
+        if member.declared_identity != member.resolved_identity:
+            _raise_consumed_input_error("consumed_input_member_substituted", key)
+        if member.decisive and member.predicate_class in _UNTRUSTED_DECISIVE_PREDICATE_CLASSES:
+            _raise_consumed_input_error(
+                "consumed_input_decisive_predicate_untrusted",
+                key,
+            )
+        by_key[key] = member
+    return tuple(by_key[key] for key in sorted(by_key))
+
+
+def _consumed_input_membership_sha256(
+    closure: SameInputClosure,
+    members: tuple[ConsumedInputMember, ...],
+) -> str:
+    """Return the canonical identity hash for one resolved input closure."""
+
+    return canon.fingerprint(
+        {
+            "same_input_closure": closure.identity_tuple(),
+            "members": [member.model_dump(mode="json") for member in members],
+        },
+        prefix=True,
+    )
+
+
+def _assert_closed_consumed_input_closure(closure: SameInputClosure) -> None:
+    """Require the existing closure owner to have a closed content identity."""
+
+    if closure.status != "closed" or not closure.closure_sha256:
+        raise AuthorityEnvelopeError(
+            "same_input_closure_not_closed",
+            f"closure_id={closure.closure_id}",
+        )
+
+
+def _raise_consumed_input_error(code: str, key: tuple[str, str]) -> None:
+    """Raise one member-named fail-closed consumed-input error."""
+
+    member_kind, member_id = key
+    raise AuthorityEnvelopeError(code, f"member={member_kind}:{member_id}")
 
 
 def classify_authority_role(envelope: AuthorityEnvelopeInput) -> AuthorityRole:
@@ -2001,20 +2178,25 @@ __all__ = [
     "AuthorityRootCauseClass",
     "AuthoritySurfaceDecision",
     "BlockingStatus",
+    "ConsumedInputMember",
+    "ConsumedInputMemberKind",
     "EvidenceAuthorityEnvelope",
     "EvidenceClass",
     "GovernanceMetadata",
     "OutcomeReplayLevelProof",
     "OutcomeReplayProof",
+    "PredicateProvenanceClass",
     "ProducerIdentity",
     "ProductionLoopRunProof",
     "ProvenanceKind",
     "SameInputClosure",
     "SameInputClosureStatus",
+    "SealedConsumedInputSet",
     "ValidationStatus",
     "assert_authority_bearing",
     "assert_authority_purpose_allowed",
     "assert_capability_binding_purpose_allowed",
+    "assert_consumed_input_reuse",
     "assert_runtime_emitted",
     "assert_same_input_closure",
     "authority_envelope_json_schema",
@@ -2026,6 +2208,7 @@ __all__ = [
     "classify_authority_failure",
     "classify_authority_role",
     "deserialize_authority_envelope",
+    "seal_consumed_input_set",
     "serialize_authority_envelope",
     "write_authority_envelope_json_schema",
 ]

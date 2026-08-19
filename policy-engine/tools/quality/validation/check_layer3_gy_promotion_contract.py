@@ -3,6 +3,19 @@
 
 from __future__ import annotations
 
+from time import perf_counter as _timing_perf_counter
+
+_TIMING_STARTED_AT = _timing_perf_counter()
+
+# Completed-work terminals per mode, owned here because this module's own return mapping is the
+# only place that knows them. ``corrupt_field_drift_check`` reports "fail" when the drift was
+# DETECTED (the correct outcome) and "pass" when it was missed, while ``main`` exits
+# ``0 if status == "pass" else 1`` -- so this lane's healthy terminal is exit 1 and its DEFECT
+# terminal is exit 0. The default {0} would admit exactly the failures and reject the good runs.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import copy
 import json
@@ -12,20 +25,35 @@ import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import (
+    GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
+    GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
+    GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    PROMOTION_RISK_CONDITIONALITY_CAVEAT,
     AuthorityBoundary,
+    GyComparisonAdmission,
+    GyComparisonProjectionPlan,
     PromotionObligationClass,
-    PromotionRiskSpendRecord,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
+    gy_comparison_content_hash,
     gy_content_hash,
 )
 from polisyos.pdc._impl.layer2_design_search import (
     Layer2S6BlindSpotPostureInput,
     Layer2S7DelegationPostureInput,
     Layer2S8ValuePostureInput,
+)
+from polisyos.runtime.quality.confidence_ledger import (
+    CONDITIONAL_VALIDITY_CLAUSE,
+    ConfidenceLedgerSession,
 )
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -46,39 +74,55 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionInput,
     CanonicalPromotionReceipt,
     LegacyPromotionStrangleReceipt,
-    run_canonical_promotion_sequence,
-    validate_canonical_promotion_receipt,
+    N9DesignProblemBinding,
+    _run_canonical_promotion_sequence_for_verification,
+    admit_canonical_promotion_receipt_for_comparison,
+    confidence_risk_scope_for_problem,
 )
+from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
+
+_COMPARISON_IDENTITY_FIELDS = {
+    "comparison_admission_manifest",
+    "comparison_content_hash",
+    "comparison_projection_schema_version",
+    "comparison_rule_version",
+}
+
 _SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_no_self_promotion_guard",
-    "source_flip_real_calibration_refusal",
+    "source_flip_non_anytime_preflight_guard",
     "source_flip_real_transport_refusal",
     "source_flip_cg2_owner_call_removed",
     "source_flip_g4_owner_resolution_removed",
     "source_flip_timeout_to_favorable",
     "source_flip_lower_boundary_meet",
     "source_flip_non_promotable_bind_stamp",
-    "source_flip_n6_contract_lane_consumer",
+    "source_flip_n6_ledger_revalidation_removed",
     "source_flip_vacuous_scope_autopass",
     "source_flip_scope_insufficient_authority_guard",
     "source_flip_invented_measurement_marker_reintroduced",
     "source_flip_unseen_shape_panel_coupling",
     "source_flip_live_champion_path",
-    "source_flip_trace_recompute_guard",
-    "source_flip_delta_budget_guard",
+    "source_flip_confidence_projection_recompute_guard",
+    "source_flip_ledger_bypass_guard",
 )
 _BEHAVIORAL_MUTATION_IDS: tuple[str, ...] = (
-    "trace_hand_edit",
+    "ledger_projection_hand_edit",
     "gate_outcome_drift",
-    "positive_not_promoted",
+    "fixed_time_refusal_laundered",
     "vacuous_scope_pass",
     "risk_budget_ignored",
+    "conditionality_clause_deleted",
     "strangle_drift",
 )
 
@@ -89,19 +133,73 @@ def declared_outputs() -> list[str]:
     return [OUTPUT_PATH]
 
 
+def _run_with_isolated_confidence_ledger(
+    repo_root: Path,
+    *,
+    scenario_id: str,
+    promotion_input: CanonicalPromotionInput,
+) -> tuple[CanonicalPromotionReceipt, GyComparisonAdmission]:
+    """Replay one synthetic scenario against a fresh deterministic N11 scope."""
+
+    risk_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
+    with TemporaryDirectory(prefix=f"gy-n9-{scenario_id}-") as temp_dir:
+        state_root = Path(temp_dir)
+        session = ConfidenceLedgerSession._for_verification(
+            repo_root,
+            risk_scope=risk_scope,
+            artifact_store=FileSystemCAS(state_root / "cas"),
+            state_root=state_root / "state",
+        )
+        receipt = _run_canonical_promotion_sequence_for_verification(
+            promotion_input,
+            confidence_ledger_session=session,
+        )
+        admission = admit_canonical_promotion_receipt_for_comparison(
+            receipt,
+            repo_root=repo_root,
+            confidence_ledger_session=session,
+        )
+        return receipt, admission
+
+
 def build_payload(repo_root: Path) -> dict[str, Any]:
     """Build the frozen N9 payload from Lane-0 contract certificates."""
 
+    payload, _ = _build_payload_with_comparison_plan(repo_root)
+    return payload
+
+
+def _build_payload_with_comparison_plan(
+    repo_root: Path,
+) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
+    """Build N9 plus the ephemeral owner-bound comparison plan."""
+
     started = time.monotonic()
-    positive = run_canonical_promotion_sequence(_promotion_input())
-    production_shadow = run_canonical_promotion_sequence(
-        _promotion_input(
-            candidate_summary=_summary(current_valid=False, grounding_status="grounded_shadow"),
-            grounding_decision_certificate=None,
-            credal_reference=None,
-        )
+    contract_input = _promotion_input()
+    contract_refusal, contract_refusal_admission = _run_with_isolated_confidence_ledger(
+        repo_root,
+        scenario_id="contract-lane-anytime-refusal",
+        promotion_input=contract_input,
     )
-    non_promotable = run_canonical_promotion_sequence(_promotion_input())
+    production_shadow, production_shadow_admission = _run_with_isolated_confidence_ledger(
+        repo_root,
+        scenario_id="production-honest-shadow",
+        promotion_input=contract_input.model_copy(
+            update={
+                "candidate_summary": _summary(
+                    current_valid=False,
+                    grounding_status="grounded_shadow",
+                ),
+                "grounding_decision_certificate": None,
+                "credal_reference": None,
+            }
+        ),
+    )
+    non_promotable, non_promotable_admission = _run_with_isolated_confidence_ledger(
+        repo_root,
+        scenario_id="non-promotable-contract-stamp",
+        promotion_input=contract_input,
+    )
     payload: dict[str, Any] = {
         "schema_version": GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
         "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
@@ -110,6 +208,8 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
             "src/polisyos/pdc/_impl/gy_waist.py",
             "src/polisyos/pdc/_impl/layer2_design_search.py",
             "src/polisyos/runtime/quality/promotion_sequence.py",
+            "src/polisyos/runtime/quality/confidence_ledger.py",
+            "architecture/production_quality/confidence_ledger.toml",
             "src/polisyos/runtime/quality/generation_cycle.py",
             "src/polisyos/runtime/quality/grounding_bind.py",
             "src/polisyos/core/contracts/value_outer_set.py",
@@ -123,7 +223,8 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
             ],
             "target_correct_pattern": (
                 "single N6/N9 sequence over Ring-2 waist, CGF/CG2, N8 value/calibration/"
-                "transport, authority meet, S6/S7/S8, and G4 record refs"
+                "transport, authority meet, S6/S7/S8, G4 record refs, and the N11 "
+                "current-head confidence-ledger projection"
             ),
             "missing_capability_labels": ["surface_out_of_scope"],
             "acceptance_signal": "frozen_receipt_validates_rederive_audit_and_source_flips_red",
@@ -134,37 +235,45 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
             "n6_port": "src/polisyos/runtime/quality/generation_cycle.py",
             "n8_value_receipt": "src/polisyos/runtime/quality/generation_cycle.py",
             "cg2_promotability": "src/polisyos/runtime/quality/grounding_bind.py",
+            "n11_confidence_ledger": "src/polisyos/runtime/quality/confidence_ledger.py",
             "scientist_champion_strangled": "src/polisyos/scientist/methods/search/judge_stack.py",
         },
         "obligation_denominator": _obligation_denominator(),
         "scope_insufficient_promotion_policy": _scope_insufficient_promotion_policy(),
-        "contract_lane_positive": positive.model_dump(mode="json"),
+        "contract_lane_anytime_refusal": contract_refusal.model_dump(mode="json"),
         "production_honest_shadow": production_shadow.model_dump(mode="json"),
         "non_promotable_contract_stamp": non_promotable.model_dump(mode="json"),
-        "strangle_receipt": LegacyPromotionStrangleReceipt.recompute(
-            repo_root
-        ).model_dump(mode="json"),
+        "strangle_receipt": LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
+            mode="json"
+        ),
         "compute_economics": {
-            "lane0_sequence_logic": "synthetic_contract_certificates",
+            "lane0_sequence_logic": (
+                "synthetic_contract_certificates_with_non_authority_n11_replay"
+            ),
             "e1_cached_obligation_solves": True,
-            "routine_check": "frozen_receipt_only_no_live_rederivation",
+            "routine_check": "canonical_owner_recomputation_and_exact_byte_comparison",
             "cold_rederive_lane": "--rederive-audit",
             "wall_time_recorded_by_validator": True,
         },
-        "delta_caveat": (
-            "The delta claim is conditional on obligation completeness and validator soundness; "
-            "pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. "
-            "Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs."
-        ),
+        "delta_caveat": CONDITIONAL_VALIDITY_CLAUSE,
         "source_flip_mutation_harness": {
             "mode": "--source-flip-mutations",
             "mutation_ids": list(_SOURCE_FLIP_MUTATION_IDS),
         },
     }
-    payload["behavioral_mutations"] = _behavioral_mutations(payload)
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(
+            contract_refusal_admission,
+            production_shadow_admission,
+            non_promotable_admission,
+        ),
+    )
+    payload["behavioral_mutations"] = _behavioral_mutations(payload, plan)
     payload["capture_wall_time_seconds"] = round(time.monotonic() - started, 6)
+    _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
-    return payload
+    return payload, plan
 
 
 def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -177,6 +286,9 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         issues.append({"code": "obligation_denominator_drift"})
     if payload.get("scope_insufficient_promotion_policy") != _scope_insufficient_promotion_policy():
         issues.append({"code": "scope_insufficient_promotion_policy_drift"})
+    if payload.get("delta_caveat") != CONDITIONAL_VALIDITY_CLAUSE:
+        issues.append({"code": "conditionality_clause_drift"})
+    issues.extend(_comparison_identity_issues(payload))
     expected_hash = _contract_content_hash(payload)
     if payload.get("contract_content_hash") != expected_hash:
         issues.append(
@@ -186,26 +298,34 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
                 "actual": payload.get("contract_content_hash"),
             }
         )
-    positive = _receipt_from_payload(payload, "contract_lane_positive", issues)
+    contract_refusal = _receipt_from_payload(
+        payload,
+        "contract_lane_anytime_refusal",
+        issues,
+    )
     production_shadow = _receipt_from_payload(payload, "production_honest_shadow", issues)
     non_promotable = _receipt_from_payload(payload, "non_promotable_contract_stamp", issues)
-    if positive is not None:
-        issues.extend(validate_canonical_promotion_receipt(positive))
-        if not positive.promoted:
-            issues.append({"code": "contract_lane_positive_not_promoted"})
-        if positive.promotion_lane != "contract_testing":
-            issues.append({"code": "contract_lane_positive_missing_lane_stamp"})
-        if positive.consumer_promotable:
-            issues.append({"code": "contract_lane_positive_launderable"})
-        if positive.non_promotable_reason != "non_production_anchor_scope":
-            issues.append({"code": "contract_lane_positive_missing_non_promotable_stamp"})
-        if not positive.authority_derivation_trace:
-            issues.append({"code": "contract_lane_trace_missing"})
-        if not positive.risk_spend.within_budget:
-            issues.append({"code": "contract_lane_risk_spend_over_budget"})
+    if contract_refusal is not None:
+        _validate_n11_projection(
+            contract_refusal,
+            receipt_key="contract_lane_anytime_refusal",
+            issues=issues,
+        )
+        if contract_refusal.promoted:
+            issues.append({"code": "fixed_time_refusal_promoted"})
+        if contract_refusal.promotion_lane != "contract_testing":
+            issues.append({"code": "contract_lane_refusal_missing_lane_stamp"})
+        if contract_refusal.consumer_promotable:
+            issues.append({"code": "contract_lane_refusal_launderable"})
+        if contract_refusal.non_promotable_reason != "verification_only_replay":
+            issues.append({"code": "contract_lane_refusal_missing_non_promotable_stamp"})
+        if contract_refusal.authority_derivation_trace is not None:
+            issues.append({"code": "refused_contract_lane_minted_trace"})
+        if "calibration:single_obligation_fail" not in contract_refusal.refusal_reasons:
+            issues.append({"code": "fixed_time_refusal_missing_typed_calibration_refusal"})
         scope_gaps = {
             obligation.obligation_class
-            for obligation in positive.obligations
+            for obligation in contract_refusal.obligations
             if obligation.status.value == "scope_insufficient"
         }
         expected_scope_gaps = {
@@ -215,24 +335,36 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         if scope_gaps != expected_scope_gaps:
             issues.append(
                 {
-                    "code": "contract_lane_scope_gap_denominator_drift",
+                    "code": "contract_lane_refusal_scope_gap_denominator_drift",
                     "expected": sorted(item.value for item in expected_scope_gaps),
                     "actual": sorted(item.value for item in scope_gaps),
                 }
             )
     if production_shadow is not None:
-        issues.extend(validate_canonical_promotion_receipt(production_shadow))
+        _validate_n11_projection(
+            production_shadow,
+            receipt_key="production_honest_shadow",
+            issues=issues,
+        )
         if production_shadow.promoted:
             issues.append({"code": "production_shadow_promoted"})
         if "identification:single_obligation_fail" not in production_shadow.refusal_reasons:
             issues.append({"code": "production_shadow_missing_typed_grounding_refusal"})
         if "measurement:scope_insufficient" not in production_shadow.refusal_reasons:
             issues.append({"code": "production_shadow_missing_measurement_scope_refusal"})
+        if "calibration:single_obligation_fail" not in production_shadow.refusal_reasons:
+            issues.append({"code": "production_shadow_missing_calibration_refusal"})
     if non_promotable is not None:
-        issues.extend(validate_canonical_promotion_receipt(non_promotable))
+        _validate_n11_projection(
+            non_promotable,
+            receipt_key="non_promotable_contract_stamp",
+            issues=issues,
+        )
+        if non_promotable.promoted:
+            issues.append({"code": "non_promotable_contract_stamp_promoted"})
         if non_promotable.consumer_promotable:
             issues.append({"code": "non_promotable_bind_laundered"})
-        if non_promotable.non_promotable_reason != "non_production_anchor_scope":
+        if non_promotable.non_promotable_reason != "verification_only_replay":
             issues.append({"code": "non_promotable_bind_reason_missing"})
     strangle = payload.get("strangle_receipt")
     if not isinstance(strangle, dict) or strangle.get("status") != "strangled":
@@ -257,7 +389,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def validate(repo_root: Path) -> dict[str, Any]:
-    """Validate the committed frozen receipt only."""
+    """Recompute the canonical contract and reject frozen-byte drift."""
 
     started = time.monotonic()
     path = repo_root / OUTPUT_PATH
@@ -267,7 +399,18 @@ def validate(repo_root: Path) -> dict[str, Any]:
             "issues": [{"code": "promotion_contract_missing", "path": OUTPUT_PATH}],
             "wall_time_seconds": round(time.monotonic() - started, 6),
         }
-    report = validate_payload(json.loads(path.read_text(encoding="utf-8")))
+    committed_json = path.read_text(encoding="utf-8")
+    report = validate_payload(json.loads(committed_json))
+    expected_json = build_contract_json_for_write(repo_root)
+    if committed_json != expected_json:
+        report["issues"].append(
+            {
+                "code": "promotion_contract_canonical_drift",
+                "expected_hash": gy_content_hash(json.loads(expected_json)),
+                "actual_hash": gy_content_hash(json.loads(committed_json)),
+            }
+        )
+        report["status"] = "fail"
     report["wall_time_seconds"] = round(time.monotonic() - started, 6)
     return report
 
@@ -288,10 +431,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     payload = json.loads((repo_root / OUTPUT_PATH).read_text(encoding="utf-8"))
-    payload["contract_lane_positive"]["authority_derivation_trace"]["trace_content_hash"] = _hash(
-        "9"
-    )
-    payload["contract_lane_positive"]["trace_content_hash"] = _hash("9")
+    del payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"][
+        "conditionality_clause"
+    ]
     report = validate_payload(payload)
     if report["status"] == "fail":
         return {
@@ -314,10 +456,18 @@ def write(repo_root: Path) -> None:
 
     path = repo_root / OUTPUT_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
-    payload = build_payload(repo_root)
+    path.write_text(build_contract_json_for_write(repo_root), encoding="utf-8")
+
+
+def build_contract_json_for_write(repo_root: Path) -> str:
+    """Return byte-stable canonical JSON for the reissued N9 contract."""
+
+    payload, plan = _build_payload_with_comparison_plan(repo_root)
     payload.pop("capture_wall_time_seconds", None)
+    _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    payload = _reconcile_frozen_contract(repo_root, payload, plan)
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
 def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
@@ -354,20 +504,149 @@ def _receipt_from_payload(
         return None
 
 
-def _behavioral_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _validate_n11_projection(
+    receipt: CanonicalPromotionReceipt,
+    *,
+    receipt_key: str,
+    issues: list[dict[str, Any]],
+) -> None:
+    """Validate the exact narrow N11 projection carried by one N9 receipt."""
+
+    projection = receipt.confidence_ledger_projection
+    if projection.authority_provenance != "verification":
+        issues.append(
+            {
+                "code": "confidence_ledger_replay_provenance_drift",
+                "receipt_key": receipt_key,
+            }
+        )
+    expected_gate_hash = gy_content_hash(
+        [item.model_dump(mode="json") for item in receipt.obligations]
+    )
+    if receipt.gate_outcome_hash != expected_gate_hash:
+        issues.append(
+            {
+                "code": "gate_outcome_hash_drift",
+                "receipt_key": receipt_key,
+            }
+        )
+    expected_projection_hash = gy_content_hash(
+        projection.model_dump(mode="json", exclude={"projection_hash"})
+    )
+    if projection.projection_hash != expected_projection_hash:
+        issues.append(
+            {
+                "code": "confidence_ledger_projection_hash_drift",
+                "receipt_key": receipt_key,
+            }
+        )
+    if projection.conditionality_clause != CONDITIONAL_VALIDITY_CLAUSE:
+        issues.append(
+            {
+                "code": "confidence_ledger_conditionality_clause_drift",
+                "receipt_key": receipt_key,
+            }
+        )
+    if projection.maintained_assumptions != (
+        "obligation_completeness",
+        "validator_soundness",
+    ):
+        issues.append(
+            {
+                "code": "confidence_ledger_assumption_denominator_drift",
+                "receipt_key": receipt_key,
+            }
+        )
+    if (
+        receipt.risk_spend.caveat != PROMOTION_RISK_CONDITIONALITY_CAVEAT
+        or receipt.risk_spend.total_declared_delta != float(projection.total_spend.fraction)
+        or receipt.risk_spend.budget_delta != float(projection.budget_delta.fraction)
+        or receipt.risk_spend.within_budget is not projection.within_budget
+    ):
+        issues.append(
+            {
+                "code": "risk_spend_not_derived_from_confidence_ledger",
+                "receipt_key": receipt_key,
+            }
+        )
+    if projection.total_spend.numerator != 0 or not projection.within_budget:
+        issues.append(
+            {
+                "code": "fixed_time_refusal_spend_invalid",
+                "receipt_key": receipt_key,
+            }
+        )
+    rows = tuple(
+        row
+        for row in projection.promotion_rows
+        if row.obligation_class == PromotionObligationClass.CALIBRATION
+    )
+    if len(rows) != 1:
+        issues.append(
+            {
+                "code": "calibration_ledger_row_denominator_mismatch",
+                "receipt_key": receipt_key,
+                "actual": len(rows),
+            }
+        )
+        return
+    row = rows[0]
+    if (
+        row.instrument_id != "fixed_time_confidence_interval"
+        or row.execution_status != "refused"
+        or row.outcome != "preflight_refusal"
+        or row.anytime_valid
+        or row.eligible_for_promotion
+        or row.spend.numerator != 0
+    ):
+        issues.append(
+            {
+                "code": "fixed_time_calibration_not_fail_closed",
+                "receipt_key": receipt_key,
+            }
+        )
+    calibration = next(
+        (
+            item
+            for item in receipt.obligations
+            if item.obligation_class == PromotionObligationClass.CALIBRATION
+        ),
+        None,
+    )
+    spend = calibration.risk_spend if calibration is not None else None
+    if (
+        spend is None
+        or spend.n11_confidence_ledger_ref != row.check_id
+        or spend.certificate_ref != row.certificate_ref
+        or spend.instrument != row.instrument_id
+        or spend.declared_delta_spend != float(row.spend.fraction)
+    ):
+        issues.append(
+            {
+                "code": "calibration_obligation_ledger_binding_invalid",
+                "receipt_key": receipt_key,
+            }
+        )
+
+
+def _behavioral_mutations(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> list[dict[str, Any]]:
     mutations = {
-        "trace_hand_edit": _mutate_trace_hash,
+        "ledger_projection_hand_edit": _mutate_ledger_projection,
         "gate_outcome_drift": _mutate_gate_hash,
-        "positive_not_promoted": _mutate_positive_not_promoted,
+        "fixed_time_refusal_laundered": _mutate_fixed_time_refusal,
         "vacuous_scope_pass": _mutate_vacuous_scope_pass,
         "risk_budget_ignored": _mutate_risk_budget,
+        "conditionality_clause_deleted": _mutate_conditionality_clause,
         "strangle_drift": _mutate_strangle,
     }
     reports: list[dict[str, Any]] = []
     for mutation_id, mutator in mutations.items():
         mutated = copy.deepcopy(payload)
         mutator(mutated)
-        report = validate_payload_without_mutation_check(mutated)
+        report = validate_payload_without_mutation_check(mutated, plan)
         reports.append(
             {
                 "mutation_id": mutation_id,
@@ -378,34 +657,52 @@ def _behavioral_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return reports
 
 
-def validate_payload_without_mutation_check(payload: dict[str, Any]) -> dict[str, Any]:
+def validate_payload_without_mutation_check(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
     """Core payload check used by behavioral mutations to avoid recursion."""
 
     stripped = copy.deepcopy(payload)
     stripped["behavioral_mutations"] = [
         {"mutation_id": item, "status": "red"} for item in _BEHAVIORAL_MUTATION_IDS
     ]
+    try:
+        _set_comparison_identity(stripped, plan)
+    except ValueError as exc:
+        return {
+            "status": "fail",
+            "issues": [
+                {
+                    "code": "comparison_projection_rejected_mutation",
+                    "error": str(exc),
+                }
+            ],
+        }
     stripped["contract_content_hash"] = _contract_content_hash(stripped)
     return validate_payload(stripped)
 
 
-def _mutate_trace_hash(payload: dict[str, Any]) -> None:
-    payload["contract_lane_positive"]["authority_derivation_trace"]["trace_content_hash"] = _hash(
-        "8"
+def _mutate_ledger_projection(payload: dict[str, Any]) -> None:
+    payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"]["projection_hash"] = (
+        _hash("8")
     )
-    payload["contract_lane_positive"]["trace_content_hash"] = _hash("8")
 
 
 def _mutate_gate_hash(payload: dict[str, Any]) -> None:
-    payload["contract_lane_positive"]["gate_outcome_hash"] = _hash("7")
+    payload["contract_lane_anytime_refusal"]["gate_outcome_hash"] = _hash("7")
 
 
-def _mutate_positive_not_promoted(payload: dict[str, Any]) -> None:
-    payload["contract_lane_positive"]["promoted"] = False
+def _mutate_fixed_time_refusal(payload: dict[str, Any]) -> None:
+    row = payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"][
+        "promotion_rows"
+    ][0]
+    row["anytime_valid"] = True
+    row["eligible_for_promotion"] = True
 
 
 def _mutate_vacuous_scope_pass(payload: dict[str, Any]) -> None:
-    for obligation in payload["contract_lane_positive"]["obligations"]:
+    for obligation in payload["contract_lane_anytime_refusal"]["obligations"]:
         if obligation["obligation_class"] == PromotionObligationClass.EFFECT.value:
             obligation["status"] = "satisfied"
             obligation["reason"] = None
@@ -415,7 +712,13 @@ def _mutate_vacuous_scope_pass(payload: dict[str, Any]) -> None:
 
 
 def _mutate_risk_budget(payload: dict[str, Any]) -> None:
-    payload["contract_lane_positive"]["risk_spend"]["within_budget"] = False
+    payload["contract_lane_anytime_refusal"]["risk_spend"]["within_budget"] = False
+
+
+def _mutate_conditionality_clause(payload: dict[str, Any]) -> None:
+    del payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"][
+        "conditionality_clause"
+    ]
 
 
 def _mutate_strangle(payload: dict[str, Any]) -> None:
@@ -489,11 +792,120 @@ def _scope_insufficient_promotion_policy() -> dict[str, str]:
 
 def _contract_content_hash(payload: dict[str, Any]) -> str:
     stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
+        key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     return gy_content_hash(stable)
+
+
+def _comparison_content_hash(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_comparison_content_hash(
+        stable,
+        comparison_plan=plan,
+    )
+
+
+def _reconcile_frozen_contract(
+    repo_root: Path,
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> dict[str, Any]:
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        return live
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
+        raise ValueError("promotion_legacy_contract_content_hash_drift")
+    if not _frozen_comparison_identity_admissible(frozen, plan):
+        raise ValueError("promotion_comparison_admission_manifest_drift")
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
+    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
+        raise ValueError("promotion_contract_comparison_projection_invalid")
+    _set_comparison_identity(reconciled, plan)
+    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
+    return reconciled
+
+
+def _frozen_comparison_identity_admissible(
+    frozen: dict[str, Any],
+    live_plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Accept only absent/current or exactly self-validating v1 comparison custody."""
+
+    manifest = frozen.get("comparison_admission_manifest")
+    if manifest in (None, live_plan.manifest):
+        return True
+    if (
+        frozen.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
+        or frozen.get("comparison_rule_version")
+        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+    ):
+        return False
+    try:
+        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+                )
+            },
+        )
+    except ValueError:
+        return False
+    return frozen.get("comparison_content_hash") == _comparison_content_hash(
+        frozen,
+        legacy_plan,
+    )
+
+
+def _set_comparison_identity(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> None:
+    payload["comparison_admission_manifest"] = plan.manifest
+    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
+    payload["comparison_content_hash"] = _comparison_content_hash(payload, plan)
+
+
+def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if (
+        payload.get("comparison_projection_schema_version")
+        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+    ):
+        issues.append({"code": "comparison_projection_schema_version_invalid"})
+    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
+        issues.append({"code": "comparison_rule_version_invalid"})
+    manifest = payload.get("comparison_admission_manifest")
+    try:
+        plan = build_gy_comparison_projection_plan_from_manifest(
+            payload,
+            manifest=manifest,
+            owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+                )
+            },
+        )
+    except ValueError as exc:
+        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
+    else:
+        if payload.get("comparison_content_hash") != _comparison_content_hash(payload, plan):
+            issues.append({"code": "comparison_content_hash_drift"})
+    return issues
 
 
 def _obligation_detail(
@@ -581,8 +993,8 @@ def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, A
 
 def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
     test_file = "tests/unit/runtime/quality/test_promotion_sequence.py"
-    n6_test_file = "tests/unit/runtime/quality/test_generation_cycle.py"
     source = "src/polisyos/runtime/quality/promotion_sequence.py"
+    confidence_source = "src/polisyos/runtime/quality/confidence_ledger.py"
     generation_source = "src/polisyos/runtime/quality/generation_cycle.py"
     return (
         _SourceFlipCase(
@@ -595,19 +1007,28 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new='        if False and self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:\n            raise ValueError("authority_transform hints cannot self-promote")',
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_no_self_promotion_rejected_by_trace_guard"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_no_self_promotion_rejected_by_trace_guard"
+            ),
         ),
         _SourceFlipCase(
-            mutation_id="source_flip_real_calibration_refusal",
-            guard="N8 calibration receipt must pass",
+            mutation_id="source_flip_non_anytime_preflight_guard",
+            guard="non-anytime-valid proof profiles must fail before execution",
             replacements=(
                 _SourceFlipReplacement(
-                    relative_path=source,
-                    old='    if receipt.calibration_receipt.status != "pass":',
-                    new='    if False and receipt.calibration_receipt.status != "pass":',
+                    relative_path=confidence_source,
+                    old='    if profile.proof_kernel_id == "ineligible_v1":',
+                    new='    if False and profile.proof_kernel_id == "ineligible_v1":',
+                ),
+                _SourceFlipReplacement(
+                    relative_path=confidence_source,
+                    old="    if not profile.deterministic and not profile.anytime_valid:",
+                    new="    if False and not profile.deterministic and not profile.anytime_valid:",
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_uncalibrated_candidate_stays_shadow"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_real_transport_refusal",
@@ -619,7 +1040,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new='    if False and receipt.transport_receipt.status == "blocked":',
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_untransportable_candidate_stays_shadow"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_untransportable_candidate_stays_shadow"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_cg2_owner_call_removed",
@@ -632,7 +1055,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
             ),
             probe_command=_pytest_probe(
-                f"{test_file}::test_fully_grounded_contract_lane_promotes_with_trace_and_spend"
+                f"{test_file}::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow"
             ),
         ),
         _SourceFlipCase(
@@ -662,7 +1085,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new="    if False and promotion_input.force_proof_timeout:",
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_timeout_unknown_never_promotes_or_fabricates_block"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_timeout_unknown_never_promotes_or_fabricates_block"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_lower_boundary_meet",
@@ -670,11 +1095,19 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=source,
-                    old='        value_grade = (\n            "advisory_admissible" if decision.promotable else "unsupported"\n        )',
-                    new='        value_grade = (\n            "decision_admissible" if decision.promotable else "unsupported"\n        )',
+                    old=(
+                        '        value_grade = "advisory_admissible" '
+                        'if decision.promotable else "unsupported"'
+                    ),
+                    new=(
+                        '        value_grade = "decision_admissible" '
+                        'if decision.promotable else "unsupported"'
+                    ),
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_lower_boundary_wins_over_optimistic_declared_transform"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_lower_boundary_wins_over_optimistic_declared_transform"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_non_promotable_bind_stamp",
@@ -691,17 +1124,33 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             ),
         ),
         _SourceFlipCase(
-            mutation_id="source_flip_n6_contract_lane_consumer",
-            guard="N6 refuses contract-lane N9 receipts for DecisionFront",
+            mutation_id="source_flip_n6_ledger_revalidation_removed",
+            guard="N6 revalidates the typed N9/N11 receipt before DecisionFront",
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=generation_source,
-                    old='            and receipt.get("consumer_promotable") is True\n            and receipt.get("promotion_lane") == "production"\n            and not receipt.get("non_promotable_reason")',
-                    new="            and True\n            and True\n            and True",
+                    old=(
+                        "        if validate_canonical_promotion_receipt(\n"
+                        "            parsed,\n"
+                        "            candidate_summary=summary,\n"
+                        "            design_problem=problem,\n"
+                        "            value_receipt=summary.value_receipt,\n"
+                        "        ):\n"
+                        "            return False"
+                    ),
+                    new=(
+                        "        if False and validate_canonical_promotion_receipt(\n"
+                        "            parsed,\n"
+                        "            candidate_summary=summary,\n"
+                        "            design_problem=problem,\n"
+                        "            value_receipt=summary.value_receipt,\n"
+                        "        ):\n"
+                        "            return False"
+                    ),
                 ),
             ),
             probe_command=_pytest_probe(
-                f"{n6_test_file}::test_contract_lane_n9_receipt_cannot_enter_decision_front"
+                f"{test_file}::test_failed_obligation_cannot_be_relabelled_into_decision_front"
             ),
         ),
         _SourceFlipCase(
@@ -714,7 +1163,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new='            False and obligation.status == PromotionObligationStatus.SATISFIED\n            and obligation.semantic_scope == "scope_insufficient"',
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_scope_insufficient_obligation_does_not_vacuously_pass"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_scope_insufficient_obligation_does_not_vacuously_pass"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_scope_insufficient_authority_guard",
@@ -722,8 +1173,13 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=source,
-                    old="        if self.promoted and scope_gaps and (",
-                    new="        if False and self.promoted and scope_gaps and (",
+                    old=("        if (\n            self.promoted\n            and scope_gaps"),
+                    new=(
+                        "        if (\n"
+                        "            False\n"
+                        "            and self.promoted\n"
+                        "            and scope_gaps"
+                    ),
                 ),
             ),
             probe_command=_pytest_probe(
@@ -738,7 +1194,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     relative_path=source,
                     old="    del receipt",
                     new=(
-                        '    if receipt is not None and '
+                        "    if receipt is not None and "
                         'receipt.value_outer_set.calibration_scope.get("measurement_status"):\n'
                         "        return _satisfied_obligation(\n"
                         "            obligation_class=PromotionObligationClass.MEASUREMENT,\n"
@@ -764,7 +1220,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new="    _assert_panel_specific_value_receipt(receipt)",
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_unseen_non_panel_value_receipt_flows_unchanged"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_unseen_non_panel_value_receipt_flows_unchanged"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="source_flip_live_champion_path",
@@ -776,31 +1234,51 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     new='    return ("src/polisyos/scientist/methods/search/judge_stack.py:1648",)',
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_reintroduced_champion_path_turns_strangle_receipt_red"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_reintroduced_champion_path_turns_strangle_receipt_red"
+            ),
         ),
         _SourceFlipCase(
-            mutation_id="source_flip_trace_recompute_guard",
-            guard="AuthorityDerivationTrace hash recomputation",
+            mutation_id="source_flip_confidence_projection_recompute_guard",
+            guard="N11 promotion projection must be recomputed from the current ledger head",
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=source,
-                    old="        if trace.trace_content_hash != expected_hash or receipt.trace_content_hash != expected_hash:",
-                    new="        if False and (trace.trace_content_hash != expected_hash or receipt.trace_content_hash != expected_hash):",
+                    old="        and receipt.confidence_ledger_projection != expected_projection",
+                    new=(
+                        "        and False\n"
+                        "        and receipt.confidence_ledger_projection != expected_projection"
+                    ),
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_hand_edited_derivation_trace_is_rejected"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_hand_edited_confidence_projection_is_rejected"
+            ),
         ),
         _SourceFlipCase(
-            mutation_id="source_flip_delta_budget_guard",
-            guard="declared delta budget must hold",
+            mutation_id="source_flip_ledger_bypass_guard",
+            guard="a satisfied probabilistic obligation must bind an eligible N11 row",
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=source,
-                    old="    if not risk_spend.within_budget:",
-                    new="    if False and not risk_spend.within_budget:",
+                    old=(
+                        "        if (\n"
+                        "            obligation.status == PromotionObligationStatus.SATISFIED\n"
+                        "            and ledger_required\n"
+                        "            and not any("
+                    ),
+                    new=(
+                        "        if (\n"
+                        "            False\n"
+                        "            and obligation.status == PromotionObligationStatus.SATISFIED\n"
+                        "            and ledger_required\n"
+                        "            and not any("
+                    ),
                 ),
             ),
-            probe_command=_pytest_probe(f"{test_file}::test_delta_spend_budget_is_enforced"),
+            probe_command=_pytest_probe(
+                f"{test_file}::test_probabilistic_certificate_bypassing_ledger_is_rejected"
+            ),
         ),
     )
 
@@ -817,6 +1295,17 @@ def _output_tail(output: str, *, max_lines: int = 20) -> str:
 def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
     reference, decision = _cg2_contract_bind()
     kwargs: dict[str, Any] = {
+        "design_problem_binding": N9DesignProblemBinding(
+            design_problem_id="frozen_n9_contract",
+            problem_content_hash=gy_content_hash(
+                {
+                    "design_problem_id": "frozen_n9_contract",
+                    "schema_version": "policyos.runtime.design_problem.frozen-n9.v1",
+                }
+            ),
+            model_spec_ref=None,
+            problem_schema_version="policyos.runtime.design_problem.frozen-n9.v1",
+        ),
         "candidate_summary": _summary(),
         "value_receipt": _value_receipt(),
         "grounding_decision_certificate": decision,
@@ -828,14 +1317,6 @@ def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
             "requested_evidence_kind": "transport",
             "requested_decision_grade": "advisory_admissible",
         },
-        "risk_spends": (
-            PromotionRiskSpendRecord(
-                obligation_class=PromotionObligationClass.CALIBRATION,
-                certificate_ref="n8://calibration",
-                instrument="s10_calibration",
-                declared_delta_spend=0.001,
-            ),
-        ),
     }
     kwargs.update(overrides)
     return CanonicalPromotionInput(**kwargs)
@@ -961,9 +1442,7 @@ def _cg2_contract_bind() -> tuple[CredalReference, GroundingDecisionCertificate]
         }
     )
     payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
-    payload["certificate_id"] = (
-        f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    )
+    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
     return reference, GroundingDecisionCertificate.model_validate(payload)
 
 
@@ -1282,4 +1761,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+
+    raise SystemExit(
+        run_timed_entrypoint(
+            main,
+            script_path=__file__,
+            argv=sys.argv[1:],
+            started_perf_counter=_TIMING_STARTED_AT,
+        )
+    )

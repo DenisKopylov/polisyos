@@ -219,8 +219,8 @@
     },
     "dense_embeddings": "deferred_by_CG0_backend_gate",
     "reference_edge_count": 791994,
-    "reference_epoch": "kref:09b6349c4ee0bfef",
-    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "reference_epoch": "kref:956b076b990299fe",
+    "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
     "registered_l6_operator_count": 3,
     "relation_universe": [
       "exact",
@@ -305,17 +305,17 @@
       },
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg1_counter_12940b83253a2f8a",
-        "cg1_counter_232cc031fdea7862"
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_20e060bee17e885c",
-      "content_hash": "sha256:20e060bee17e885c26ef14d505f8525e77b6bf430c30fef71b8856ea3b822833",
+      "certificate_id": "cg1_cert_3147824a5ee5a3c1",
+      "content_hash": "sha256:3147824a5ee5a3c131047eea6a39247ca44112255b79304934772f91dc2760da",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "in_lever_space",
@@ -350,17 +350,17 @@
       "axis_relations": {},
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg1_counter_07efde91c8de2b2c",
-        "cg1_counter_0f6aef90c790d964"
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_b1f957ceacdccd7c",
-      "content_hash": "sha256:b1f957ceacdccd7c8a96fdba61aaf9586578234d96a41cf07ce2c9a1f3051d8f",
+      "certificate_id": "cg1_cert_abc8c447f79d73ad",
+      "content_hash": "sha256:abc8c447f79d73ad93542144f9ee747ae5c42bbae6a7ef96a70865fe8299003d",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "out_of_lever",
@@ -393,13 +393,13 @@
         "signature.target == household_cells.transfer_intensity",
         "signature.outcome == household_cells.disposable_income",
         "signature.estimand == average_treatment_effect",
-        "slot_exists(household_cells.transfer_intensity, kref:09b6349c4ee0bfef)",
+        "slot_exists(household_cells.transfer_intensity, kref:956b076b990299fe)",
         "unit_compatible(unitless, household_cells.transfer_intensity)",
         "lex_applicable(tax_relief_statute)",
         "method.treatment == do_AST(firms.labor_count, household_cells.transfer_intensity)",
         "method.outcome in effect_bundle(firms.labor_count)",
         "admissibility_passed_or_candidate_shadow",
-        "version_current(kref:09b6349c4ee0bfef)"
+        "version_current(kref:956b076b990299fe)"
       ]
     },
     "data_only_free_grow": {
@@ -430,17 +430,17 @@
       },
       "candidate_atom_count": 35,
       "candidate_atom_ids": [
-        "cg0_atom_f6d1290f174fd149",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg1_counter_07efde91c8de2b2c"
+        "cg0_atom_a9daadfbf1c752bb",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg1_counter_3e8d1486cc3c1e1f"
       ],
-      "certificate_id": "cg1_cert_b3a21dfeabe368b4",
-      "content_hash": "sha256:b3a21dfeabe368b46ef3556c9dd5d67ccb1d7f284a2c2416eb34d6f1eef400b1",
+      "certificate_id": "cg1_cert_0ce75c3ce9e61b01",
+      "content_hash": "sha256:0ce75c3ce9e61b012c0c7c185c527ae222e6dbdf730ef6ccaea612f55171a606",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "in_lever_space",
@@ -464,9 +464,9 @@
       "unsat_core_if_any": []
     },
     "deterministic_certificate": {
-      "first_content_hash": "sha256:77d625e568ef4b1a4e1f458b40b081cf6498e48502460a15ea243cd9b7137dcd",
+      "first_content_hash": "sha256:9c6309ed610e34c117fe1a05857dbf7cee53b33cfaabc2f32cfc8338140f256a",
       "same_content_hash": true,
-      "second_content_hash": "sha256:77d625e568ef4b1a4e1f458b40b081cf6498e48502460a15ea243cd9b7137dcd"
+      "second_content_hash": "sha256:9c6309ed610e34c117fe1a05857dbf7cee53b33cfaabc2f32cfc8338140f256a"
     },
     "fake_atom_not_exact": {
       "adversarial_countercandidate_reasons": [
@@ -481,17 +481,17 @@
       "axis_relations": {},
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg1_counter_07efde91c8de2b2c",
-        "cg1_counter_0f6aef90c790d964"
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_a2c202d93331c931",
-      "content_hash": "sha256:a2c202d93331c931b6b56d5ae0f096d88e9f01c9931872dbd4cec93c88d6b498",
+      "certificate_id": "cg1_cert_dea4c86a66862486",
+      "content_hash": "sha256:dea4c86a668624867600ebb64f2e0a2b19e4c9617b7ed2e144ce816f91503395",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "out_of_lever",
@@ -517,10 +517,10 @@
         "signature.target == fake.world_slot",
         "signature.outcome == fake.outcome",
         "signature.estimand == average_treatment_effect",
-        "slot_exists(fake.world_slot, kref:09b6349c4ee0bfef)",
+        "slot_exists(fake.world_slot, kref:956b076b990299fe)",
         "unit_compatible(unitless, fake.world_slot)",
         "admissibility_passed_or_candidate_shadow",
-        "version_current(kref:09b6349c4ee0bfef)"
+        "version_current(kref:956b076b990299fe)"
       ]
     },
     "false_analog_minimal_swap_set": {
@@ -555,17 +555,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg1_counter_12940b83253a2f8a",
-            "cg1_counter_232cc031fdea7862"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_0cc32776d186ac6b",
-          "content_hash": "sha256:0cc32776d186ac6b0506c170afa493a27f1dd469e5d868cb1807117a94f0133f",
+          "certificate_id": "cg1_cert_7a6dd1512a344169",
+          "content_hash": "sha256:7a6dd1512a344169bf6c0edff44a3f4e60b72d76bb04018899b1fccea1913cd6",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [],
@@ -574,27 +574,7 @@
           "false_analog_result_count": 33,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_87eea362b750d159",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -605,7 +585,16 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -616,7 +605,7 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_d351089b76f8af37",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -627,25 +616,39 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_12940b83253a2f8a",
-              "critical_contradictions": [
-                "sign"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_232cc031fdea7862",
-              "critical_contradictions": [
-                "estimand"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_2db2facdebf3d9e9",
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
               "critical_contradictions": [
                 "effect_path",
                 "op",
                 "outcome",
                 "scope",
+                "sign",
                 "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_255d208fd339d75f",
+              "critical_contradictions": [
+                "do_value"
               ]
             }
           ],
@@ -697,17 +700,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 32,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg1_counter_12940b83253a2f8a",
-            "cg1_counter_232cc031fdea7862",
-            "cg1_counter_2db2facdebf3d9e9",
-            "cg1_counter_394ecde2db295cbb"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc",
+            "cg1_counter_b73d68f4a9a70114",
+            "cg1_counter_c08d16c995dece76"
           ],
-          "certificate_id": "cg1_cert_59f226a871981d04",
-          "content_hash": "sha256:59f226a871981d04cefd92f5e2b3f8a933bc80dcea406fbe91b35a181bd3fe4c",
+          "certificate_id": "cg1_cert_0963c1d5f4756564",
+          "content_hash": "sha256:0963c1d5f475656490f28c3b4641adb788341f2af43efdfba20ed62bb726d09b",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -718,13 +721,19 @@
           "false_analog_result_count": 31,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
-                "estimand"
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
               ]
             },
             {
-              "atom_id": "cg0_atom_87eea362b750d159",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
               "critical_contradictions": [
                 "effect_path",
                 "estimand",
@@ -734,7 +743,7 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "atom_id": "cg0_atom_d351089b76f8af37",
               "critical_contradictions": [
                 "effect_path",
                 "estimand",
@@ -746,7 +755,22 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
+              "critical_contradictions": [
+                "estimand"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
               "critical_contradictions": [
                 "effect_path",
                 "estimand",
@@ -758,38 +782,15 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_12940b83253a2f8a",
-              "critical_contradictions": [
-                "estimand",
-                "sign"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_2db2facdebf3d9e9",
-              "critical_contradictions": [
-                "effect_path",
-                "estimand",
-                "op",
-                "outcome",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_394ecde2db295cbb",
-              "critical_contradictions": [
-                "effect_path",
-                "estimand",
-                "op",
-                "outcome",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_42d3712a078bb495",
+              "atom_id": "cg1_counter_255d208fd339d75f",
               "critical_contradictions": [
                 "do_value",
+                "estimand"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_2c1c9d139d698cb2",
+              "critical_contradictions": [
                 "effect_path",
                 "estimand",
                 "op",
@@ -845,17 +846,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg1_counter_12940b83253a2f8a",
-            "cg1_counter_232cc031fdea7862"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_3f3e923313b70959",
-          "content_hash": "sha256:3f3e923313b70959e452c0b4f4348c8d33a72bdf70c23fb72d2c1f5343e14dae",
+          "certificate_id": "cg1_cert_1f17e7217ec1b06e",
+          "content_hash": "sha256:1f17e7217ec1b06e28c96db727bbf7997c8d225231efc8d109921b08e0c67587",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -867,34 +868,7 @@
           "false_analog_result_count": 34,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
-              "critical_contradictions": [
-                "effect_path",
-                "op"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_87eea362b750d159",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -905,7 +879,16 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -916,7 +899,7 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_d351089b76f8af37",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -927,19 +910,41 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
               "critical_contradictions": [
                 "effect_path",
                 "op",
-                "sign"
+                "outcome",
+                "scope",
+                "sign",
+                "target"
               ]
             },
             {
-              "atom_id": "cg1_counter_232cc031fdea7862",
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
               "critical_contradictions": [
                 "effect_path",
-                "estimand",
                 "op"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
               ]
             }
           ],
@@ -989,17 +994,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg1_counter_12940b83253a2f8a",
-            "cg1_counter_232cc031fdea7862"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_d351089b76f8af37",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_788e5f418ce7f43c",
-          "content_hash": "sha256:788e5f418ce7f43ce49b35eab0afc94e83b13522fe6a490d05366ca5a51b1bc0",
+          "certificate_id": "cg1_cert_cda07e93af111af5",
+          "content_hash": "sha256:cda07e93af111af54da795e9de64b3ce52403ff2b8546cd97cb75f89122b15de",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -1011,35 +1016,7 @@
           "false_analog_result_count": 34,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
-              "critical_contradictions": [
-                "effect_path",
-                "outcome"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_87eea362b750d159",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1049,7 +1026,17 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1060,7 +1047,7 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_d351089b76f8af37",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1070,19 +1057,40 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
               "critical_contradictions": [
                 "effect_path",
+                "op",
                 "outcome",
-                "sign"
+                "scope",
+                "sign",
+                "target"
               ]
             },
             {
-              "atom_id": "cg1_counter_232cc031fdea7862",
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
               "critical_contradictions": [
                 "effect_path",
-                "estimand",
                 "outcome"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "population",
+                "scope",
+                "target"
               ]
             }
           ],
@@ -1130,17 +1138,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg1_counter_07efde91c8de2b2c",
-            "cg1_counter_0f6aef90c790d964"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_730b1d1daa642d9c",
-          "content_hash": "sha256:730b1d1daa642d9cc6c37357609edc8dcf8d0d864fa76b202e69fa514f43eb24",
+          "certificate_id": "cg1_cert_f7ca23a1945e19c3",
+          "content_hash": "sha256:f7ca23a1945e19c3870e708bd213f9ec319365d453c42d2c9b0c40a7936dca2e",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -1155,69 +1163,26 @@
           "false_analog_result_count": 33,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "population",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_87eea362b750d159",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
-              "critical_contradictions": [
-                "population",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "population",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
                 "population",
                 "scope"
               ]
             },
             {
-              "atom_id": "cg1_counter_07efde91c8de2b2c",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
               "critical_contradictions": [
-                "do_value",
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
+              "critical_contradictions": [
                 "effect_path",
                 "op",
                 "outcome",
@@ -1228,12 +1193,51 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_0f6aef90c790d964",
+              "atom_id": "cg0_atom_d351089b76f8af37",
+              "critical_contradictions": [
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
               "critical_contradictions": [
                 "effect_path",
                 "op",
                 "outcome",
+                "population",
+                "scope",
                 "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "population",
+                "scope",
                 "target"
               ]
             }
@@ -1283,17 +1287,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg1_counter_07efde91c8de2b2c",
-            "cg1_counter_0f6aef90c790d964"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_fbc123da445f7dda",
-          "content_hash": "sha256:fbc123da445f7ddab9233d015f53b1aa3128515e09dd2f7ab75a91792549e2fc",
+          "certificate_id": "cg1_cert_b285d402a7b6398c",
+          "content_hash": "sha256:b285d402a7b6398c974de2dd465c63fad56660c19849d92dae84681592019591",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -1304,7 +1308,27 @@
           "false_analog_result_count": 33,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1314,66 +1338,44 @@
               ]
             },
             {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "atom_id": "cg0_atom_d351089b76f8af37",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
               "critical_contradictions": [
                 "sign"
               ]
             },
             {
-              "atom_id": "cg0_atom_87eea362b750d159",
+              "atom_id": "cg1_counter_00d46b4de8930d26",
               "critical_contradictions": [
                 "effect_path",
-                "op",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "population",
                 "scope",
                 "sign",
                 "target"
               ]
             },
             {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "population",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_07efde91c8de2b2c",
-              "critical_contradictions": [
-                "do_value",
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg1_counter_0f6aef90c790d964",
+              "atom_id": "cg1_counter_019ad59c4699f5a7",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1428,17 +1430,17 @@
           "bad_safe_result_atom_ids": [],
           "candidate_atom_count": 34,
           "candidate_atom_ids": [
-            "cg0_atom_49ebedb62a306a73",
-            "cg0_atom_87eea362b750d159",
-            "cg0_atom_f82e3d10b2450b34",
-            "cg0_atom_9808aa7bda80c304",
-            "cg0_atom_1d77bc8514fa3d95",
-            "cg0_atom_aec60c9e0d200e7a",
-            "cg1_counter_12940b83253a2f8a",
-            "cg1_counter_232cc031fdea7862"
+            "cg0_atom_f9cbad6daba5c6a2",
+            "cg0_atom_afe0ff3e2320d5c1",
+            "cg0_atom_6dbc797a71108a9c",
+            "cg0_atom_d351089b76f8af37",
+            "cg0_atom_ce6a9cdfe3d0373f",
+            "cg0_atom_dcfc77275c7f9873",
+            "cg1_counter_e2e01e9055054a1e",
+            "cg1_counter_8fae8551c117c6dc"
           ],
-          "certificate_id": "cg1_cert_6bb9e2a7f0f8dd74",
-          "content_hash": "sha256:6bb9e2a7f0f8dd74d0186174af670cbee6e8854cae818cbeb1d535df4354c226",
+          "certificate_id": "cg1_cert_5e0acccec9732609",
+          "content_hash": "sha256:5e0acccec9732609c4abf230bcd1aaa3a2a416d91a8ab290858c6915be2a94a4",
           "contradictory_atom_vetoed": true,
           "coverage_sufficient": true,
           "critical_contradictions": [
@@ -1450,56 +1452,7 @@
           "false_analog_result_count": 34,
           "false_analog_results": [
             {
-              "atom_id": "cg0_atom_1d77bc8514fa3d95",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_49ebedb62a306a73",
-              "critical_contradictions": [
-                "effect_path",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_87eea362b750d159",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_9808aa7bda80c304",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "population",
-                "scope",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_aec60c9e0d200e7a",
-              "critical_contradictions": [
-                "effect_path",
-                "op",
-                "outcome",
-                "scope",
-                "sign",
-                "target"
-              ]
-            },
-            {
-              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "atom_id": "cg0_atom_6dbc797a71108a9c",
               "critical_contradictions": [
                 "effect_path",
                 "op",
@@ -1509,18 +1462,70 @@
               ]
             },
             {
-              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "atom_id": "cg0_atom_afe0ff3e2320d5c1",
               "critical_contradictions": [
                 "effect_path",
+                "op",
                 "sign",
                 "target"
               ]
             },
             {
-              "atom_id": "cg1_counter_232cc031fdea7862",
+              "atom_id": "cg0_atom_ce6a9cdfe3d0373f",
               "critical_contradictions": [
                 "effect_path",
-                "estimand",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_d351089b76f8af37",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_dcfc77275c7f9873",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f9cbad6daba5c6a2",
+              "critical_contradictions": [
+                "effect_path",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_00d46b4de8930d26",
+              "critical_contradictions": [
+                "effect_path",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_04d32e1ac42af29b",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
                 "target"
               ]
             }
@@ -1575,17 +1580,17 @@
       "axis_relations": {},
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg1_counter_07efde91c8de2b2c",
-        "cg1_counter_0f6aef90c790d964"
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_eda30eb268208231",
-      "content_hash": "sha256:eda30eb268208231cf4b791b311c9fb45c2527a62dcfd81b75d2c286111fc0a1",
+      "certificate_id": "cg1_cert_65c35c3e404e0be8",
+      "content_hash": "sha256:65c35c3e404e0be84af4832829474863d240a6b495271eaf70fb07966bbb0e7b",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "in_lever_space",
@@ -1618,7 +1623,7 @@
         "signature.target == government.balance",
         "signature.outcome == government.balance",
         "signature.estimand == average_treatment_effect",
-        "slot_exists(government.balance, kref:09b6349c4ee0bfef)",
+        "slot_exists(government.balance, kref:956b076b990299fe)",
         "allowed_target_type(tax_relief_rate, government.balance)",
         "knob_maps_to(tax_relief_rate, government.balance)",
         "params_in_operator_schema(tax_relief_rate)",
@@ -1628,7 +1633,7 @@
         "method.treatment == do_AST(government.balance, government.balance)",
         "method.outcome in effect_bundle(government.balance)",
         "admissibility_passed_or_candidate_shadow",
-        "version_current(kref:09b6349c4ee0bfef)"
+        "version_current(kref:956b076b990299fe)"
       ]
     },
     "gy_k_witness_only": {
@@ -1659,17 +1664,17 @@
       },
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg1_counter_07efde91c8de2b2c",
-        "cg1_counter_0f6aef90c790d964"
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_08fc02b4cc0d92cb",
-      "content_hash": "sha256:08fc02b4cc0d92cb774962e8f290a80c8bf4cf729e5da0ef4875f7db3f1460b0",
+      "certificate_id": "cg1_cert_0456ebfd4fdba1bf",
+      "content_hash": "sha256:0456ebfd4fdba1bfbce39b1c67ebb8ebc23e74422a3a7fc51a2aca4cb21431ee",
       "coverage_sufficient": true,
       "critical_contradictions": [
         "sign"
@@ -1719,17 +1724,17 @@
       },
       "candidate_atom_count": 34,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73",
-        "cg0_atom_1d77bc8514fa3d95",
-        "cg0_atom_87eea362b750d159",
-        "cg0_atom_9808aa7bda80c304",
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg0_atom_f82e3d10b2450b34",
-        "cg1_counter_07efde91c8de2b2c",
-        "cg1_counter_0f6aef90c790d964"
+        "cg0_atom_f9cbad6daba5c6a2",
+        "cg0_atom_6dbc797a71108a9c",
+        "cg0_atom_d351089b76f8af37",
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg0_atom_dcfc77275c7f9873",
+        "cg0_atom_afe0ff3e2320d5c1",
+        "cg1_counter_e2e01e9055054a1e",
+        "cg1_counter_8fae8551c117c6dc"
       ],
-      "certificate_id": "cg1_cert_411bdf762a5e5e8d",
-      "content_hash": "sha256:411bdf762a5e5e8d2837ed99e04faca48c3565561ed5f9cb9dbd71245bc57727",
+      "certificate_id": "cg1_cert_f22215d1923295dc",
+      "content_hash": "sha256:f22215d1923295dcf1a4b8cf5894399ee593daea946c3f6ce9c18bb41587ea15",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "exact_string_match": false,
@@ -1752,11 +1757,11 @@
       "axis_relations": {},
       "candidate_atom_count": 1,
       "candidate_atom_ids": [
-        "cg0_atom_49ebedb62a306a73"
+        "cg0_atom_f9cbad6daba5c6a2"
       ],
-      "candidate_id": "candidate_6c4c225a4ce4961a",
-      "certificate_id": "cg1_cert_8ce062a94c0fb31a",
-      "content_hash": "sha256:8ce062a94c0fb31a6922ab2bba330b186a89db0daaca01b63a16a1f458f3a795",
+      "candidate_id": "candidate_1780e03c9a5c8cb8",
+      "certificate_id": "cg1_cert_e02e6fbe32f47fe8",
+      "content_hash": "sha256:e02e6fbe32f47fe819eb6d58345a35756d6713a4fb6072c2ee7c044e75892439",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "frozen_receipt": true,
@@ -1815,17 +1820,17 @@
       },
       "candidate_atom_count": 8,
       "candidate_atom_ids": [
-        "cg0_atom_aec60c9e0d200e7a",
-        "cg1_counter_1037228d776398f6",
-        "cg1_counter_12dec8ae8e1128a3",
-        "cg1_counter_25b3c4b62072219a",
-        "cg1_counter_6434ad12b9b9bb0a",
-        "cg1_counter_96893e90ec1578b0",
-        "cg1_counter_de00b2ea087db951",
-        "cg1_counter_eec0a2d0ca819b40"
+        "cg0_atom_ce6a9cdfe3d0373f",
+        "cg1_counter_5c5a8b43e99686cc",
+        "cg1_counter_ef9626875aeab4dc",
+        "cg1_counter_f0928b2a3b3ed02f",
+        "cg1_counter_c2e087c74be2ee97",
+        "cg1_counter_4f94de804eedce99",
+        "cg1_counter_912fd4057380ba6b",
+        "cg1_counter_cb2707eb7f9deba4"
       ],
-      "certificate_id": "cg1_cert_fa33d962ccb511ac",
-      "content_hash": "sha256:fa33d962ccb511ac5051a6022cc24700992cade79ab059b9375eddd241cc8ad3",
+      "certificate_id": "cg1_cert_acac057cdc58629f",
+      "content_hash": "sha256:acac057cdc58629f938a8763d97cc99f1ee82a06d628dde39933e831401affea",
       "coverage_sufficient": true,
       "critical_contradictions": [],
       "known_space_verdict": "in_lever_space",

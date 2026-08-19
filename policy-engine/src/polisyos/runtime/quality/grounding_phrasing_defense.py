@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.grounding_admission import GroundingAdmissionEngine
 from polisyos.runtime.quality.grounding_bind import GroundingBindGate
@@ -864,7 +865,7 @@ def recompute_proxy_gap_risk_content_hash(
 ) -> str:
     """Recompute a proxy-gap risk content hash."""
 
-    payload = _payload_without_identity(risk_or_payload, id_fields=("risk_id", "content_hash"))
+    payload = _payload_without_identity(risk_or_payload, id_field="risk_id")
     return gy_content_hash(payload)
 
 
@@ -875,7 +876,7 @@ def recompute_quarantine_handoff_content_hash(
 
     payload = _payload_without_identity(
         handoff_or_payload,
-        id_fields=("handoff_id", "content_hash"),
+        id_field="handoff_id",
     )
     return gy_content_hash(payload)
 
@@ -883,14 +884,10 @@ def recompute_quarantine_handoff_content_hash(
 def _payload_without_identity(
     value: BaseModel | Mapping[str, Any],
     *,
-    id_fields: tuple[str, str] = ("certificate_id", "content_hash"),
+    id_field: str = "certificate_id",
 ) -> dict[str, Any]:
-    if isinstance(value, Mapping):
-        payload = json.loads(json.dumps(value, sort_keys=True))
-    else:
-        payload = value.model_dump(mode="json")
-    for field in id_fields:
-        payload.pop(field, None)
+    payload = serialization.artifact_self_identity_projection(value)
+    payload.pop(id_field, None)
     return payload
 
 

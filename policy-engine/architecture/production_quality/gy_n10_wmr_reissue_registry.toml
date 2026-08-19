@@ -1,0 +1,7 @@
+schema_version = "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
+
+[[reissues]]
+historical_wmr_content_hash = "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+reissued_wmr_content_hash = "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf"
+owner = "polisyos.runtime.quality.intervention_substrate.production_composed_world_model_record"
+reason = "n13b_default_unit_registry_free_grow_reissued_the_composed_world_owner"

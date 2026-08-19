@@ -16,6 +16,10 @@ _LAZY_IMPORTS = {
         "FoundryExtensionRegistryReport",
     ),
     "MethodRegistry": ("polisyos.foundry.extensions.registry", "MethodRegistry"),
+    "UnboundFoundryDiscoveryInputError": (
+        "polisyos.foundry.extensions.registry",
+        "UnboundFoundryDiscoveryInputError",
+    ),
     "bootstrap_foundry_method_registry": (
         "polisyos.foundry.extensions.registry",
         "bootstrap_foundry_method_registry",
@@ -23,6 +27,10 @@ _LAZY_IMPORTS = {
     "bootstrap_builtin_foundry_method_family": (
         "polisyos.foundry.extensions.registry",
         "bootstrap_builtin_foundry_method_family",
+    ),
+    "controlled_builtin_foundry_method_registry_scope": (
+        "polisyos.foundry.extensions.registry",
+        "controlled_builtin_foundry_method_registry_scope",
     ),
     "build_foundry_method_components_index": (
         "polisyos.foundry.extensions.discovery",
@@ -64,8 +72,10 @@ __all__ = [
     "FoundryMethodComponent",
     "FoundryMethodPlugin",
     "MethodRegistry",
+    "UnboundFoundryDiscoveryInputError",
     "bootstrap_builtin_foundry_method_family",
     "bootstrap_foundry_method_registry",
+    "controlled_builtin_foundry_method_registry_scope",
     "build_foundry_method_components_index",
     "component_for_method",
     "discover_foundry_method_components",

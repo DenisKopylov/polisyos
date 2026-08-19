@@ -4,7 +4,7 @@ status: ACTIVE - Revision 3 grounded in Phase-A measured reality; activation sat
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-08-01 (Revision 3.6 - DS4 CLOSED & MERGED 7f450eb7b after architect review: lint 75->0, architecture 36->0 in both engines, status retirement 19->0, temporal-cursor and a11y-census closed; realized 89-component disposition is 27 package / 41 rebind / 18 use-as-is / 3 retire, superseding the pre-Ruling-3 35/42/12 plan - later slices quote the realized split. Closure is baseline-red by design: 3 DS6 i18n parity failures and an honest 17/18 visual with the DS8 print red byte-unmodified. Six debts inserted into the inherited-debt table with owners and executable closure signals: three DS5 canonical-waist vocabularies with generated-client anchors + single swap modules (the register's flag_for_architect_insertion_at_c20 action, now discharged); run-lifecycle-terminal-fact REASSIGNED from the closed DS3 to the runtime/GY lane with DS7 as blocking consumer and a no-re-derivation negative; DS16 readiness/scientific producer binding; DS8 adjacent-print-export; DS6 i18n parity x3 + four axe-`incomplete` contrast clusters (architect-registered because DS4 left them as prose only). DS5 and DS6 gain explicit inherited entry contracts; DS5 is the sole unblocked Phase-B lane. | Revision 3.5 - DS4 stop-law resolution: re-cut authorized as slice clusters C21-C23 (bounded retirement / structural adapters / readiness-scientific containment), and DS16 gains the inherited producer-binding debt for PublicSectorReadiness + ScientificDepth, which DS4-C23 only contains. | Revision 3.4 - identity-decision audit of all post-DS4 slices [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: DS5 gains the previously-unapplied §6.5 manifest row [M31·M6·M29 weakest-boundary/one-lattice/recompute-not-pin lints] + the INT-R6 semantic-ID locale rule; DS6's honesty-comprehension protocol seeded as the INT-R3 behavioral benchmark joining the stable bar for interactive authority surfaces; DS11 posture anchored in the ratified custodial identity + anti-role negative; DS12's gate extended with the before-first-public-record research inputs INT-R1/R7/R8 + pre-registered INT-R9; DS15 renders non-data gap routes typed [INT-R2]; DS17 renders the δ obligation-set conditional chip [COND(P29)/INT-R1]. | Revision 3.3 - deep-research distillation §6.5 adoption, sequenced strictly after the in-flight DS4: augment bullets on DS9 [M34·M37 delegation packet + contestability-proven], DS12 [M10·M34·M35 + the P29 "risk ≤ δ relative to the declared obligation set" public-claim rider], DS14 [M38·M13 compression-loss surface + cross-projection disclosure budget], DS16 [M16·M23·M24·M26·M33 full-structure/incomparable/authorization], DS18 [M25·M36 perturbation cascade + supersede-not-silent-edit]; their backend producer duals are GY-PA1/PA2/PA3 in the GY plan; the "Rev 18" tag in those bullets cross-references the distillation ledger's move-series, not the Atlas revision number. | Revision 3.2 - DS20 + DS20-B server authorization floor CLOSED & MERGED 03ebc1ce8; typed cross-fence limitations B3/B5/scorecard/Helm registered as debt with owners; DS4 remains the sole active Phase-B parallel lane)
+revised: 2026-08-19 (Revision 3.19 - D4 AMENDED AS D4-A1 BY ARCHITECT DECISION, reversing its primary/baseline relation: en is the PRIMARY locale and authored source of truth, uk is a TRANSLATION of it however accurate, ru unchanged as legacy_continuity_frozen. D4 ratified uk primary on 2026-07-16 at 7b6933770 and said no slice may loosen it - which is precisely why this took an architect decision and not a slice. ARCHITECT CORRECTION RECORDED alongside it: I first read DS5's C05a-R1 locale-default flip as a scope overrun, citing that cluster's one-line summary instead of the ratified decision governing it. That is P36. C05a-R1 implemented D4 AS RATIFIED and is not at fault, and DS5's 56 component failures, 3 accessibility failures and its locale-driven visual identities are the ratified posture meeting verification written against the pre-D4 one - exactly the mechanical follow-up D4's own text predicted. D4-A1 INVERTS that follow-up: verification written against an en default is restored to correctness rather than updated, so the expected effect is that those surfaces return to green rather than needing 56 assertions and 16 snapshot identities re-anchored. That is a HYPOTHESIS to measure, not a plan - the amendment's blast radius is measured before implementation. Also carried from the DS5-C20 attribution audit under P41: Storybook composition is DS5-owned with a proven one-path 65-second repair, the route-readiness accessibility failure is C09a-R2's, two component failures have not_established introducers, and import-policy is confirmed genuinely external at 90 violations [corrected from 100] with the same normalized hash at the slice base despite 34 of 2,567 intersecting inputs. | 2026-08-18 (Revision 3.18 - DS6 CARRIED DEBT recorded at the programme level so it does not live only inside the slice file. DS6's executable set is EXHAUSTED and the slice is blocked_on_another_plan, NOT closed; C14 is deliberately unentered because closing a slice while executable work waits elsewhere is the overclaim DS6 exists to prevent. C10-R2 landed at fa1f3e4d0 - every gated readiness claim now carries its own separately reported basis, no aggregate reconciliation verdict is emitted anywhere, and the CI exit code is the only place a conjunction over rows exists. Three debts survive with named owners: C03/C04/C06 on the DS5-C21 register release, C13's governed transition on a DS8 print repair plus two consecutive stable no-update captures, and transitive-runner-closure-unbound as absent/unallocated after a falsifier over all 9,870 tracked files found no out-of-band runner identity in this repository. Two Start-Now Ladder rows added so the reopening conditions surface where run-order is decided. Also registered in the inherited-Vitest row: atlas-health-metric-replay-pins-uncommitted-paths, where atlasHealthMetrics.test.ts:649 pins pyproject.toml and uv.lock as non-revision paths and is therefore permanently red on a clean checkout - a P38 defect in the test, not a non-receipt, since the measurement succeeded and the expectation is wrong. | 2026-08-18 (Revision 3.17 - the DS16 INHERITED OBLIGATION recorded in Revision 3.16 is CORRECTED: its stated end state is NOT SATISFIABLE and following it produces checker errors, not zero. Measured on codex/atlas-ds5-enforcement-waist at 94e2c8ca0: _validate_c23_containment_roots pins disposition == rebind_pending for every C23 root, so moving the four rows out of it yields four c23_containment_root_drift plus four successor_on_non_rebound [eight errors], while the minimal variant yields four rebound_consumer_missing because ds16SuccessorContainment.test.ts does not exist on the DS5 branch. The pair goes green ONLY in the merged tree, so this is a POST-MERGE reconciliation belonging to the DS16 merge, not a DS5 task; DS5 records it at C20 as a named non-claim. Also corrected: the anchors :1484/:3410 were DS16-branch coordinates - on DS5 the same symbols are at :5558 and :7966, so cite the SYMBOL, not the line. | Revision 3.16 - DS16 AUTHORITY HALF CLOSED as blocked_on_ds5 on branch codex/atlas-ds16-value-grammar; slice plan at docs/plans/active/atlas-slices/. The DS4-C23 producer binding is DELIVERED and its outcome is not the one the DS16 section anticipated: all ELEVEN inventory families - the record's "readiness composition" collapses six distinct builders into one phrase - have NO runtime producer at all, measured with positive controls, so the binding is a typed contract of eleven REGISTERED REFUSALS served over a new additive endpoint [+411/-0], with completeness enforced by a validator that raises on a dropped member. Both panels bound, the C23 containment witness retired with a strangle proof, MACHINE twin with parity read from the RENDERED DOM. THE GRAMMAR BODY COULD NOT LAND HERE and the reason is structural: DS16 surfaces render refusals and carry ZERO quantity references, so nothing is unit-bearing to chip and nothing derived to open a recipe for - C08/C09 have real exercised substrate [32 call sites on build_derivation_recipe] with zero served and could be bridged tomorrow to no consumer here, while ValueOuterSet is unfoundable [only construction is an empty placeholder, .compare has zero callers]. Re-entry condition stated as a PROPERTY: a surface exists that renders values rather than refusals, arriving with DS7. SEQUENCING CORRECTION: the slice table and section gate DS16 on DS4 while the Start-Now ladder groups its value grammar under "DS5 closed" - BOTH ARE PARTLY RIGHT, DS4 defines the grammar and does not let it land. VOCABULARY CORRECTION: the section provenance triple conflates two enums - deployment_update is a BranchMode member, the provenance enum is ObservationProvenanceClass with FOUR members [observed, proxy, derived, model_output], and the served provenance_class carries ParticipationProvenanceClass [ADR-0167, different owner, same field name]. DS5 INHERITS a written obligation: it owns check_frontend_disposition_register.py which pins C23_SUCCESSOR_REFS, so DS5 reconciles the four rebind_pending rows and the stale C23_RATIONALE; the exact end state is recorded in the DS5 section. DS5 lands BEFORE the DS16 branch. | Revision 3.15 - DS5-LINE-ADDRESS-01 is CLOSED and the five waiting clusters are unblocked. C21b-R1 at ceccb0746 [after the append-only restore 055345536] and C21c at db6c4c350 complete the migration; the architect independently reproduced the final census as 270 total refs, 161 TypeScript identities, 6 structured identities and 15 navigation-only line refs across 11 files, and 161+6+15=182 is exactly the pre-migration line-bearing corpus, so nothing is unaccounted. The decisive property is WITNESSED rather than asserted: the real migrated construct moved with NO register update and the full validator returned no errors, while renaming the same construct returned typescript_reference_binding_missing_or_renamed. Both breaker diagnostics adjudicated as non-behavioural on their actual dataflow - F841 was one dead store with zero reads, E731 a capture-free lambda - which is the repaired P38 predicate working on its first use. C21c's own review caught a real P32/P37 escape before landing, a forged absolute or .. source path passing suffix checks and binding outside the repository root, closed with a canonical repo-relative predicate. Sequencing: 10 of 13 collision pairs migrated, the remaining three Workbox refs navigation-only, so C13b-R1, C16a-R1, C16b-R1, C17a-R1 and C19-R1 all proceed. ONE NEW DEBT ROW from DS6, registered by the architect because it would otherwise be prose only: the i18n plural rule covers only {count} and every other interpolated numeric variable escapes the gate, measured in a message DS6-C01-R1 had just certified - P38 in the i18n gate. It does NOT hold DS6-C03's repaired transition, because the registered debt was the three overBudget signatures and this is an adjacent class the rule never covered. | Revision 3.14 - the class repair is executing and one of this plan's OWN procedural rules turned out to be the defect. DS5-C21a LANDED at 015fb8f08; C21b completed its migration - 161 refs moved to encoded #ts-identity bindings, all 161 carrying a discriminator, residual exactly 21 :line refs accounted for as 6 navigation, 6 Python prose and 9 structured/markdown owned by C21c - and was then PRESERVED at 3b0b721a4 and forward-reverted at f0e138d6b under the two-fix breaker, because a final Ruff pass found an unused local and an assigned lambda and repairing either changes checker bytes. That stop was correct in FORM and the rule was wrong in PREDICATE: the breaker exists to detect a wrong MECHANISM and counts rounds that change mechanism BYTES, so RC1 and RC2 consumed it legitimately while a lint diagnostic on working code carries none of that signal. ONE NEW STANDING PATTERN, P38, defined once in the GY plan §3.5.14 and binding on both programmes - a gate that turns on a PROXY misclassifies exactly at its own boundary - with four measured instances, two of them here: file:line as construct identity, and mechanism-byte rounds as evidence of a wrong design. The breaker predicate is REPAIRED in the Execution Doctrine: a round consumes it when triggered by a failing behavioural test, an independent review finding or a governed RED; a round triggered SOLELY by a non-behavioural static diagnostic does not, provided no test outcome and no governed artifact byte changes and that is PROVEN, and never when the diagnostic marks real dead logic. C21b is therefore restored rather than re-cut, and C21c - one mechanism for the 5 JSON and 1 TOML gated refs, Markdown and Python staying navigational - follows it. DS6 runs in parallel on its own light half and owns shared/i18n exclusively. | Revision 3.13 - DS5 landed C13a-R3 at 653f12d08 and its collision census RE-SEQUENCED the slice's internal queue by measurement: 5 of 10 remaining executable clusters touch line-bound evidence [11 files, 13 cluster-file-row pairs], so the DS5-LINE-ADDRESS-01 class repair now runs FIRST and C13b-R1, C16a-R1, C16b-R1, C17a-R1 and C19-R1 wait. NO task scope change and NO closed slice is edited; the annotations land on the Start-Now Ladder and on the Execution Doctrine. The rule is narrow and it is the transferable part: a file:line reference is legitimate as NAVIGATION and wrong as BINDING - a row may cite a line so a human can find the finding, and no gate may fail because the line moved, while the C08 whole-content baseline hashes stay legitimate because they bind identity. Its cause is measured inside one checker: check_frontend_disposition_register.py mints references as path plus current AST line and then compares them byte-for-byte against a descriptor constant, so C13a legitimately moving a surviving operation from line 80 to line 13 invalidated another cluster's evidence and forced the cross-fence repair that cost C13a its cap. TWO architect measurements are carried into the repair because the landed registration does not state them: the corpus must be partitioned BY RESOLVABLE IDENTITY KIND - of 182 refs carrying a line across 73 files in observed_refs plus evidence_refs, 173 are TS/PY and symbol-resolvable, 5 are JSON, 3 Markdown and 1 TOML, where a JSON or TOML line resolves to a key path and never to a symbol, so this is up to FOUR mechanisms and each bespoke mechanism is its own cluster under the standing sizing bar; and the migration denominator is the GATED subset, not the corpus, because a ref no gate compares stays prose and costs nothing. Note the same-week parallel and record it once: in the GY lane GY-DEF13 bound an absolute filesystem path so main could not verify its own artifact, and here disposition evidence binds a line number - two lanes, one defect, the gate turns on an ADDRESS. ONE NEW INFRASTRUCTURE ROW, DS-INFRA-2: the Atlas lane has a measured-timeout LAW since Revision 3.7 and NO measurement substrate, because the governed gates run through pytest/npm and never enter the repository timing log, which holds zero Atlas lanes - measured this round, a full Atlas module was KILLED at 393.15s with no failures and then closed terminal green at 754.20s under a second ceiling. That is GY-DI2 in Atlas clothing in the same week, and its binding negatives are inherited from the GY ruling GY-DI4: a killed run is a non-receipt and never a duration sample, admission is COMPLETION and not success, and no ceiling is enlarged mid-run to make a run fit, and a measured budget encodes CONTENTION so heavy lanes are scheduled and never overlapped. ALSO CLOSED, a routing that had never reached its owner: run-lifecycle-terminal-fact was reassigned to the runtime/GY lane on 2026-08-01 with DS7 as blocking consumer, and measured 2026-08-11 the string appeared 4x in this plan and 0x in the GY plan, so it is now registered there as GY-GAP4 and the debt row points at it. | Revision 3.12 - the public-verification and disclosure kernel PV-K01-PV-K09 is RATIFIED [docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md], the third act after Stage-0 custody and INT-wave claim semantics; its subject is what a public PROOF and a public PROJECTION may mean. NO task scope changes and NO closed slice is edited - the annotation lands only on DS12, whose gate has not opened; DS13, DS14 and GY-PA3 are named routing consumers but are deliberately left unannotated until their contracts are nearer. The headline for this plan: ALL FOUR of DS12's named research inputs are now closeable AS RESEARCH INPUTS - INT-R1 and INT-R9 ratified 2026-08-04, INT-R7 GO_WITH_REVISIONS with its independent closure gate met at 3883b454, INT-R8 accepted_narrow_scope verified CONFORMS at 286ade10, and the R7/R8 seam adjudicated item by item in both directions and holding. The DS12 GATE ITSELF IS UNCHANGED AND CLOSED: research-input closure is not implementation readiness, custody, institutional competence or publication authority, and the first governed promotion plus DS11 are still required. Binding consumption constraints added: consume the verification VECTOR and never a signature Boolean [PV-K01]; a present evidentiary failure never edits the past, so withdrawn-but-verifiable is first-class [PV-K02]; the inherited public-salt 32-bit FNV token is a LIVE DEFECT rather than a weak checksum and its strangling now has a ratified basis [PV-K01/K03]; reuse the real 2,103-line public_export.py producer, which is bridge_missing and not producer_missing; semantic parity is use-relative conservative protected-query parity and never byte equality, with three categorical blockers - bare delta, hidden negative terminal, missing constitutive step - and a link to the full record does NOT repair a misleading summary [PV-K04/K05]; no canonical numerical disclosure claim, the refusal being premise-relative and NOT an impossibility theorem since determinism is explicitly not the obstruction [PV-K08]; and every future proof candidate must discharge the proof-metadata channel, where key identifiers, certificate paths, log positions, witness sets and proof sizes can reconstruct protected content through the proof machinery itself [PV-K09]. One new dependency is visible to this slice: PV-K07 prefix discipline is ratified but NOT ISSUABLE until GY-GAP3 [controlled release-family transcript, registered in the GY plan Rev 26] closes, so DS12 must not present a release history as governed while that owner is absent. | Revision 3.11 - the INT-wave claim-semantics kernel INT-K01-INT-K08 is RATIFIED [docs/system-design-decisions/int-wave-claim-semantics-ratification.md], a separate decision from the Stage-0 custody kernel because its subject is what a NUMBER may mean. NO task scope changes and NO closed slice is edited - the annotation lands only on DS12, whose gate has not opened. DS12 is the wave's largest product consumer and gains four binding constraints plus one settled default. Its INT-R9 gate input is DISCHARGED and resolved to a NONNUMERIC protocol: INT-R9 was amended to Option B [result-informed repair kept, therefore every sequence-level number withdrawn] and independently verified CONFORMS_WITH_GAPS with both carried gaps closed. So DS12 publishes a CUSTODY claim about firstness - prospectivity, sealing, no prohibited substitution, chronology, adjudication, dissent, published negatives - which is checkable and falsifiable and carries no probability at all [INT-K06]; every rendered delta carries its declared obligation set and the relative-basis rider, which ratifies and sharpens the existing Rev-18 P29 rider from a hedge into part of the claim's meaning [INT-K02]; coverage outcomes feed the EXISTING status lattice with no coverage-specific lattice and no bounded_complete shortcut, since issuance needs constructed independence that is dormant research not pending engineering [INT-K01/K03]; and a terminal refusal, void, dispute or exhaustion is a COMPLETED governed result that no deadline or quota may convert into permission to weaken the gate - the surface may publish that it waited [INT-K08]. Architect default settled: DS12 does NOT need a number and should not ask for one, because asking would activate GY-GAP2 engineering and INT-GAP-01 research simultaneously [the protocol keeps adaptive repair, INT-K07] for less than the custody claim already delivers. DS17 is deliberately UNCHANGED - Revision 3.10 recorded the honest steady state correctly before the research proved it had to be that way. | Revision 3.10 - INT-R1 delivered and independently audited, and it settles what the DS17 delta-conditional bullet was waiting for. No task scope changes. INT-R1's result is accepted_narrow_scope carrying a formal IMPOSSIBILITY finding: while an unobserved decisive obligation remains admissible, no finite trace certifies global obligation completeness, so bounded_complete is always relative to a declared closure basis and obligation language, never to the world. Its audit adds the operative constraint - independence is specified but NOT constructed, so the pinned repository cannot issue bounded_complete at all today [INT-R1-D-003]. Therefore DS17's open_world_unresolved chip is NO LONGER a placeholder pending research: it is the honest STEADY STATE until an independent producer, scorer and governance record exist, and DS17 must render it as a settled position with its reason rather than a loading state. When a value does become issuable it renders WITH its basis - declared scope, obligation-language version, cutoff, unknown remainder, TTL - because a bounded_complete shown bare is the same P29 failure as a bare delta. The typed refusal is the deliverable; the value is not owed. | Revision 3.9 - the Stage-0 custody kernel S0-K01-S0-K16 is RATIFIED [docs/system-design-decisions/stage0-custody-kernel-ratification.md]. Two statements are Atlas-binding and both restate laws this plan already carries, so NO task scope changes: S0-K07 [projection cannot mint authority - publication owners produce governed projections, Atlas renders them and must not create, upgrade or resolve authority, and must preserve operator attribution plus current/stale/corrected/superseded/withdrawn meaning as the canonical owner supplied it] and S0-K05 [no authority by observation, transport, or projection]. One consequence lands in the inherited-debt table: the readiness / scientific-depth producer binding row is re-typed from contained defect to a BREACH OF A RATIFIED RULE - DS4-C23 deleted the two dashboard-local synthesis graphs and renders the panels constant unavailable, which contains but does not close it; DS16 remains the owner and its closure signal is unchanged. Also adopted alongside: the Custody Time Model [docs/system-design-decisions/policy-design-custody-time-model.md], whose reuse map states the Atlas rule as "Atlas projects but never owns temporal truth" - relevant to DS15/DS17/DS18 temporal surfaces when they open. | Revision 3.8 - DS-INFRA-1 added to the Execution Doctrine [measured 2026-08-02 on main, warm deps]: typecheck 60.7s across three tsc runs with no --incremental anywhere while running at every cluster boundary and again inside build; full lint >7min cold because _cache is per-worktree so every new slice worktree pays cold once - the wall DS4 kept recording as a tooling non-receipt; quantity:coverage 10.5s with no --cache at all. Three content-hash-invalidated fixes [incremental tsconfigs, --cache on quantity, shared _cache]; sequenced after DS5 merges because it edits tsconfig*.json and package.json inside DS5's fence. Explicitly declined: Playwright workers:1/fullyParallel:false stays [determinism over speed], and cross-process ts.Program reuse is a gated candidate, not part of the task. Done when before/after times are recorded and EVERY denominator is unchanged. | Revision 3.7 - verification-economics doctrine added [Atlas dual of GY plan §3.5.7 E11/E13/E14, measured across DS4/DS5/GY-N11]: freeze-source-then-review-then-run-the-wave-once [a post-freeze review re-prices the whole wave: GY-N11 paid 7 consecutive full-chain reissues for one repair, 47% of its commits were pure receipt churn]; serialize the CONTENDED resource only [Atlas contended set = Playwright/visual, Storybook runner, fixed-port dev server, same governed atlas_surfaces artifact - ESLint/typecheck/Vitest-logic/build/architecture run in parallel]; measured per-suite timeouts as a slice obligation [DS4 repeatedly lost full Vitest and full ESLint to the default ~90s ceiling]; delta-only re-review [182KB/220KB packages exhausted reviewer quota mid-flight in both lanes; DS4's 28KB delta package is the rule]; silent polling [~15 context compactions in one GY-N11 session from per-minute prose]. These change when verification is paid for and how it is observed - they reduce nothing that is verified. | Revision 3.6 - DS4 CLOSED & MERGED 7f450eb7b after architect review: lint 75->0, architecture 36->0 in both engines, status retirement 19->0, temporal-cursor and a11y-census closed; realized 89-component disposition is 27 package / 41 rebind / 18 use-as-is / 3 retire, superseding the pre-Ruling-3 35/42/12 plan - later slices quote the realized split. Closure is baseline-red by design: 3 DS6 i18n parity failures and an honest 17/18 visual with the DS8 print red byte-unmodified. Six debts inserted into the inherited-debt table with owners and executable closure signals: three DS5 canonical-waist vocabularies with generated-client anchors + single swap modules (the register's flag_for_architect_insertion_at_c20 action, now discharged); run-lifecycle-terminal-fact REASSIGNED from the closed DS3 to the runtime/GY lane with DS7 as blocking consumer and a no-re-derivation negative; DS16 readiness/scientific producer binding; DS8 adjacent-print-export; DS6 i18n parity x3 + four axe-`incomplete` contrast clusters (architect-registered because DS4 left them as prose only). DS5 and DS6 gain explicit inherited entry contracts; DS5 is the sole unblocked Phase-B lane. | Revision 3.5 - DS4 stop-law resolution: re-cut authorized as slice clusters C21-C23 (bounded retirement / structural adapters / readiness-scientific containment), and DS16 gains the inherited producer-binding debt for PublicSectorReadiness + ScientificDepth, which DS4-C23 only contains. | Revision 3.4 - identity-decision audit of all post-DS4 slices [governed by docs/system-design-decisions/policyos-identity-and-custody-boundary.md]: DS5 gains the previously-unapplied §6.5 manifest row [M31·M6·M29 weakest-boundary/one-lattice/recompute-not-pin lints] + the INT-R6 semantic-ID locale rule; DS6's honesty-comprehension protocol seeded as the INT-R3 behavioral benchmark joining the stable bar for interactive authority surfaces; DS11 posture anchored in the ratified custodial identity + anti-role negative; DS12's gate extended with the before-first-public-record research inputs INT-R1/R7/R8 + pre-registered INT-R9; DS15 renders non-data gap routes typed [INT-R2]; DS17 renders the δ obligation-set conditional chip [COND(P29)/INT-R1]. | Revision 3.3 - deep-research distillation §6.5 adoption, sequenced strictly after the in-flight DS4: augment bullets on DS9 [M34·M37 delegation packet + contestability-proven], DS12 [M10·M34·M35 + the P29 "risk ≤ δ relative to the declared obligation set" public-claim rider], DS14 [M38·M13 compression-loss surface + cross-projection disclosure budget], DS16 [M16·M23·M24·M26·M33 full-structure/incomparable/authorization], DS18 [M25·M36 perturbation cascade + supersede-not-silent-edit]; their backend producer duals are GY-PA1/PA2/PA3 in the GY plan; the "Rev 18" tag in those bullets cross-references the distillation ledger's move-series, not the Atlas revision number. | Revision 3.2 - DS20 + DS20-B server authorization floor CLOSED & MERGED 03ebc1ce8; typed cross-fence limitations B3/B5/scorecard/Helm registered as debt with owners; DS4 remains the sole active Phase-B parallel lane)
 last_reviewed: 2026-07-20
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
@@ -199,7 +199,7 @@ and subordination, not greenfield building.**
 | Publication | `publicationPacket.ts` (~1.4k lines): Toulmin maps and projection normalization; three run-detail builders produce a packet and exactly one link emits a payload + public-salt 32-bit FNV hash in the URL; browser recomputation alone renders `Verified` | forgeable by construction; structural validator does not bind packet hash; private-data scan is not on the builder path; no server signing/verifier/public-record producer or persisted public dependency | DS1, DS12 |
 | Authz | `/api/v1/auth/me` with 12 server permission keys; client has 15 and workspace/tab gating; selected handlers enforce tenant ownership; coarse path/role OPA is optional | **29/29 POST operations have no action-permission or step-up dependency**; resource is bound after OPA reads it; client-only collaboration permission delta ×3; fixture identity and 11-permission UI placeholder fail open; production approval accepts self-asserted reviewer/signature | DS5, DS9 |
 | Offline | Workbox precaches static assets and denies API caching; IndexedDB has exactly composer drafts + promotion queue; approve/reject is the only queued mutation class and is optimistically finalized/replayed | no live state/permission/step-up/tenant/epoch revalidation; six authority-looking local caches lack tenant+user+expiry+epoch binding; cache freshness rendering absent | DS1, DS5 |
-| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | **D4 RATIFIED 2026-07-16** (`7b6933770`): `uk` primary + `en` baseline + **`ru` = `legacy_continuity_frozen`, not used, not deleted**. **D4-A1 AMENDED 2026-08-19** (Atlas Revision 3.19, `bedd47503`) and reverses only the primary/translation relation: `en` is the primary locale and authored source of truth; `uk` is its translation, however accurate; `ru` is unchanged. C05a-R1 correctly implemented the prior ratification and is not at fault; the locale verification fallout is D4's predicted mechanical follow-up. | DS5, DS6, DS12 |
+| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | **D4 RATIFIED 2026-07-16** (`7b6933770`): `uk` primary + `en` baseline + **`ru` = `legacy_continuity_frozen`, not used, not deleted**. The gate is discharged — DS5's locale/semantic-ID lint and DS12's locale claims may proceed against the ratified posture, and no slice may loosen it. Open work is mechanical, not decisional: `parity.test.ts` still enforces full en/ru/uk key parity and must move to the frozen-set rule (**DS6**, with the 3 inherited `overBudget` failures)  **D4-A1 AMENDED 2026-08-19 by architect decision, and this REVERSES D4's primary/baseline relation**: `en` is the **primary** locale and the authored source of truth; `uk` is a **translation** of it, however accurate; `ru` is unchanged as `legacy_continuity_frozen`. Reason: a translation relation makes the authored language primary and the rest derived — `uk primary` inverted that and made English content a translation of Ukrainian, which is not how this product is authored. D4's own "no slice may loosen it" stands and is why only an architect decision can amend it. CONSEQUENCE, and it inverts the follow-up work D4 anticipated: verification written against an `en` default is **restored to correctness**, not updated. DS5's `C05a-R1` implemented D4 **as ratified** and is not at fault; its 56 component, 3 accessibility and locale-driven visual failures are the ratified posture meeting verification written against the prior one. The blast radius of this amendment is measured before implementation, not assumed. | DS5, DS6, DS12 |
 | Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | DS0 selects future one-way DTCG generation and sunsets hand-maintained TS authority; v15 values/modes remain unadmitted until DS2 and no migration occurs before DS4 | DS2, DS4 |
 | Agent surface | `features/clerk` is an app-level interface mode over `POST /control/runs/nl`; live path launches a run and consumes SSE status only; persisted store/renderers contain structured verdict/confidence/diff and `AIDiffView` | structured response and diff have no live producer (`producer_missing`) and would launder candidates if wired as-is; duplicate direct `/` index route is redundant; G6 contracts and storage partition absent | DS1, DS14 |
 | Realtime & off-contract endpoints | two real `include_in_schema=False` SSE routes; real review WS hub with three channels; collaboration client declares four REST pairs + four WS channels | review WS browser-auth bridge is absent/undocumented; collaboration server producers are absent, but the whole feature is orphaned so current live UX does not call them; every admitted channel lacks one governed registry | DS1, DS3, DS5 |
@@ -307,6 +307,148 @@ A deliverable that traces to none of the three generators is out of scope
   LIVE** (`architecture/atlas_surfaces/frontend-disposition-register.json` +
   standalone checker): 261 units — 15 deleted, 200 `rebind_pending`, 25
   `retire`, 16 `wire`, 5 `use_as_is`.
+- **Work preservation and history discipline (Revision 3.8; the DS5 lesson — full statement
+  in GY plan §3.5.13 and `AGENTS.md`).** Two incidents in one slice put **reviewed,
+  completed** work where git does not protect it. Neither was a reasoning failure.
+  - **Uncommitted work is not storage.** Commit at every clean boundary. A stash is a
+    transient for minutes, never a place to leave work across a stop, a handoff, or a
+    context compaction. DS5 left 1,236 insertions of independently reviewed plan work in
+    `stash@{0}` for a whole session while a rejected commit sat at HEAD.
+  - **Branch history is append-only.** No `rebase`, `reset --hard`, `reset` onto an
+    ancestor, `push --force`, `stash drop`/`clear`, or any `checkout` that moves HEAD off
+    current work. **One exception:** `--amend` on the immediately preceding commit you
+    authored this session and have not handed to review. A `rebase` left the DS5 **worktree
+    in detached HEAD** two commits behind its own branch; the branch ref never lost anything
+    (its reflog is forward-only), but a full session ran against the stale HEAD. **A detached
+    worktree is invisible in ordinary output** — `git log -1` and `git status --short` look
+    normal; only `git status -sb` or `git symbolic-ref -q HEAD` show it, and a commit made
+    there is orphaned. Verify branch attachment, not just cleanliness, at session start and
+    before every commit.
+  - **A validator demanding a clean tree is satisfied by committing, not stashing.** That
+    fence is legitimate; stashing to clear it is how reviewed work ends up unprotected.
+  - **Unexpected history is an architect stop, not a self-repair.** The reflog makes these
+    recoverable; improvised recovery is how a recoverable incident becomes permanent.
+  - **No plan instruction names a commit hash** — name the relationship ("the immediately
+    preceding commit you authored"). The DS5 plan said in four places that `b67084dd6` "is
+    amended down"; true when written, impossible after a legitimate recovery moved HEAD past
+    it, and literally following it would have required the very rewrite that caused the loss.
+    Architect instructions prefer **forward-only** framing ("land the reduction as a commit").
+    After any history-affecting recovery, re-read the task plan for instructions that
+    referenced the pre-recovery state and correct them in the next commit.
+- **Verification economics (Revision 3.7; measured across DS4/DS5 and the GY-N11 lane —
+  the Atlas dual of GY §3.5.7 E11/E13/E14).** These rules change **when** verification is
+  paid for and **how** it is observed. They reduce nothing that is verified; a slice that
+  cites them to skip a gate has misread them.
+  - **Freeze the source, then review, then re-run the expensive lanes — once.** Reviews run
+    against the exact source **before** the slice pays for its full gate wave. A review that
+    lands after the wave re-prices the whole wave: in GY-N11 one post-freeze repair produced
+    **seven** consecutive full-chain reissues, and 17 of 36 commits (47%) were pure receipt
+    churn. After the freeze, a **cosmetic** finding (import order, naming, docstring) is
+    recorded as debt; a **blocking** one is batched with any others so the wave is paid once.
+  - **Serialize the contended resource, not the session.** Name the contended set in the task
+    plan. For Atlas it is: the Playwright browser/visual-snapshot lane, the Storybook runner,
+    a dev server on a fixed port, and any writer touching the same governed
+    `architecture/atlas_surfaces/**` artifact. **Everything else runs in parallel** — ESLint,
+    typecheck, Vitest logic files, the production build, architecture/dependency-cruiser
+    checks, read-only censuses. DS4 and the GY lane both idled non-contending work through
+    long runs because the rule was written without a resource list.
+  - **Measured timeouts are a slice obligation.** Measure each suite's wall time **once** and
+    set explicit per-suite timeouts from that baseline. DS4 repeatedly hit the default ~90 s
+    ceiling on full Vitest and full ESLint, recorded honest non-receipts, and re-ran them —
+    the loop was pure loss. An **unmeasured** budget that kills a healthy run is a harness
+    finding, not a product signal. (Recording the non-receipt was correct; leaving the budget
+    unmeasured was not.)
+  - **Delta-only re-review.** The first independent review reads the full package; **every
+    re-review after a fix reads the fix delta only**, with the original findings as its
+    checklist. DS4 and GY-N11 both lost reviewer runs mid-flight to quota exhaustion on
+    182 KB / 220 KB packages; DS4 did it right exactly once (a 28 KB delta package) — that is
+    the rule, not the exception.
+  - **Silent polling.** Poll long runs without narration; report only a state change — stage
+    complete with its receipt, a RED, or a stop condition — one line each. Per-minute
+    "still running" prose drove ~15 context compactions in a single GY-N11 session, each one
+    risking state loss and re-derivation. Heartbeat **evidence** is required; heartbeat
+    **prose** is waste.
+- **DS-INFRA-1 — restore incrementality where it is provably safe (Revision 3.8; measured
+  2026-08-02).** Owner: **team-design / frontend infra**. **Sequence after DS5 merges** — it
+  edits `apps/runtime-dashboard/tsconfig*.json` and `package.json`, which are inside DS5's
+  writable fence. Not a surface slice; it ships no product change and no test change.
+  **Measured on main with warm dependencies:** `typecheck` **60.7 s** — three separate
+  `tsc --noEmit` runs with **no `--incremental` anywhere**, and it runs at every cluster
+  boundary *and again inside `build`*; full `lint` **>7 min cold** (it does pass
+  `--cache`, but `_cache` is per-worktree so **every new slice worktree pays cold once** —
+  this is the wall DS4 repeatedly hit and recorded as a tooling non-receipt);
+  `quantity:coverage` **10.5 s with no `--cache` at all**, and DS4 ran it constantly against
+  the 75-violation debt.
+  **Three changes, all content-hash-invalidated and therefore semantics-preserving:**
+  (a) `--incremental` + `tsBuildInfoFile` on the three tsconfigs — the largest lever, a
+  warm typecheck should fall to seconds; (b) `--cache --cache-location` on
+  `quantity:coverage`; (c) move `_cache` to a shared location so a fresh worktree starts
+  warm, as uv and pnpm already do at user level (their caches are content-keyed, so
+  cross-branch sharing is safe by construction).
+  **Explicitly declined — do not "optimize" these:** Playwright `workers: 1` /
+  `fullyParallel: false` is deliberate — parallel browsers destabilize visual snapshots and
+  a11y routes share dev-server state (DS5 already hit an order-dependent connector
+  bootstrap); trading determinism for speed is out of scope. Cross-process reuse of the
+  custom scanners' `ts.Program` is a **gated candidate**, not part of this task: a stale
+  Program view is the §3.5.6-gate-2 "trusted JSON" class and needs its own measurement gate
+  and fail-closed conditions (the GY-INFRA-2 Part C shape).
+  **Done when:** before/after wall times are recorded for typecheck, full lint, and
+  `quantity:coverage`, and **every denominator is unchanged** — same Vitest file/test
+  counts, same lint diagnostic set, same architecture violations, same governance numbers.
+  A single changed denominator means the change was not semantics-preserving and is reverted.
+- **DS-INFRA-2 — the Atlas lane has a measured-timeout LAW and no measurement SUBSTRATE
+  (Revision 3.13; measured 2026-08-11 during DS5-C13a-R3).** Owner: **team-design / frontend
+  infra**. Documentation-only registration; it ships no product change.
+  **The law already exists** — Revision 3.7 makes measured per-suite timeouts a slice
+  obligation, after DS4 repeatedly lost full Vitest and full ESLint to the default ~90 s
+  ceiling. **Nothing accumulates the measurements.** The Atlas governed gates run through
+  `pytest`/`npm`, never through `tools/cli.py`, so they never enter the repository timing log —
+  it holds **zero** Atlas lanes. Every executor therefore guesses its ceiling and pays for the
+  guess.
+  **Measured this round, in one session:** the full Atlas enforcement module was killed at
+  **`393.15` s with no failures** — a non-receipt, not a red — and then closed **terminal green
+  at `754.20` s** under a second, larger ceiling; several other gates additionally lost their
+  terminal receipts to overlapping scanner-heavy parents. Durable measurements now in hand:
+  full Atlas `754.20` s, status-retirement module `135.663` s, disposition corruption battery
+  `119.66` s, production build `47.29` s, focused dashboard behavior `14.417` s.
+  **This is the GY lane's `GY-DI2` in Atlas clothing, in the same week.** There, a canonical
+  writer was killed twice under budgets reconstructed from a different lane while its own six
+  successful samples sat unused in the log; here, a module is killed under a guessed ceiling
+  because no log exists at all. `GY-INFRA-2` Part A was built to prevent exactly this, and the
+  transferable statement is that **a slice obligation without an accumulating substrate is not
+  an obligation** — it is a re-discovery tax paid once per executor.
+  **Closure:** a durable per-lane budget substrate for the Atlas gates — measured `p95` with a
+  `2 x` recommended timeout, derived from **recorded successful runs** rather than a requested
+  list, with any lane observed but unbudgeted **named at the point of use** so an executor
+  learns its budget is a guess *before* spending one. **Binding negatives, inherited from the
+  GY ruling (`GY-DI4`):** a killed run is a **non-receipt, never a duration sample**; admission
+  is **completion, not success**, so a lane whose contract declares a non-zero healthy terminal
+  is budgeted from its own completed runs while a genuinely failing lane stays unbudgeted; no
+  ceiling is enlarged mid-run to make a run fit. **A measured budget encodes CONTENTION and is
+  valid only under comparable load** — this host is 16 GB / 8 cores and was already 9 GB into
+  swap when both spreads above were recorded (Atlas `393`→`754` s, GY's N10a write
+  `194.9`–`426.3` s, `1.9x` and `2.2x` on identical work), so a memory-heavy lane running beside
+  a governed lane does not merely slow it: it can push it past a cap the rules then read as a
+  genuine regression. Heavy lanes are scheduled, never overlapped. **Sequence:** with `DS-INFRA-1`, after DS5
+  merges — but the measured ceilings above are usable **immediately** as declared, labelled
+  supplied values by any slice that needs one today.
+- **`P38` — a gate that turns on a proxy misclassifies exactly at its own boundary
+  (Revision 3.14; defined once, in the GY plan §3.5.14, and binding on both programmes).**
+  Four measured instances between 2026-08-03 and 2026-08-11, two of them in this plan's lane:
+  `DS5-LINE-ADDRESS-01` binds evidence by `file:line` when the property is *which construct*, and
+  **DS5's own two-fix breaker** counts rounds that change mechanism bytes when the property is
+  *is the mechanism wrong* — the latter cost C21b a completed migration over an unused local and an
+  assigned lambda. **Repaired breaker predicate, binding on every DS slice:** a round consumes the
+  breaker when it is triggered by *evidence that the mechanism is wrong* — a failing behavioural
+  test, an independent review finding, or a governed RED. A round triggered **solely by a
+  non-behavioural static diagnostic** does **not** consume it, provided it changes no test outcome
+  and no governed artifact byte and that is **proven**; the exemption never covers a diagnostic that
+  marks real dead or dropped logic, which is a mechanism finding like any other. The existing
+  "zero mechanism bytes is free" clause is unchanged.
+  **Standing rule when writing any gate:** state the property, state what the implementation tests,
+  and name one case where they diverge. No divergent case means the implementation is the property;
+  a divergent case means the gate consults the distinguishing context or records the divergence as a
+  declared, bounded limitation.
 - **Baseline-relative gating (Revision 3.1; the DS19 lesson).** Where main
   carries measured inherited debt, a slice's toolchain gates are: **absolute
   green** for typecheck, production build, and every test the slice owns or
@@ -441,7 +583,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS9 | Human decision integrity | DS8; DS20 | C |
 | DS10 | Capability discovery | DS5 + disposition-ledger/census content | C |
 | DS15 | Acquisition routes & data-pool growth surfaces | DS7; read parts after **GY-N13a accepted**, live loop after **GY-N13b** | C |
-| DS16 | Value, uncertainty & derived-data grammar | DS4; value parts live NOW, derived parts after **GY-N13b** | C |
+| DS16 | Value, uncertainty & derived-data grammar | **AUTHORITY HALF CLOSED 2026-08-18** (`blocked_on_ds5`, branch `codex/atlas-ds16-value-grammar`); grammar body deferred to a successor gated on **DS7** — `DS4` defines the grammar but does not let it land | C |
 | DS17 | Confidence-ledger & risk-spend surface | DS7; **GY-N11 closed** | C/D |
 | DS18 | Epoch & staleness chrome | DS4; **GY-N12 closed** | C/D |
 | DS11 | Trust/docs posture | DS9; DS6 | D |
@@ -476,8 +618,10 @@ bounded agent.
 
 | Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (Phase A + DS19 + DS3 + DS20 + **DS4 all closed & merged**; the typed HTTP waist, the server authorization floor, and the rebound status grammar are live) | **DS5** (enforcement waist) is the sole unblocked Phase-B lane and starts with three ready inputs: DS20's 33-value server-projected permission vocabulary (audience mapping), DS4's **three typed waist debts with exact generated-client anchors and single swap modules** (see the debt table), and the Rev-3.4 §6.5 lint row (M31·M6·M29) + INT-R6 semantic-ID rule. **DS6** (evidence workflow) is also unblocked by DS4 and owns the two remaining DS4-handed evidence debts (i18n parity ×3, axe-`incomplete` contrast ×4). |
+| **Now** (Phase A + DS19 + DS3 + DS20 + **DS4 all closed & merged**; the typed HTTP waist, the server authorization floor, and the rebound status grammar are live) | **DS5 is mid-slice and its internal queue was re-sequenced by measurement on 2026-08-11 (Revision 3.13): the `DS5-LINE-ADDRESS-01` class repair runs FIRST, ahead of `C13b-R1` and the four other colliding clusters.** The decision was made on the number, not on preference — the complete collision census found **5 of 10** remaining executable clusters touching line-bound evidence (11 files, 13 cluster-file-row pairs), so paying a stop and a re-cut five more times is worse than paying the fix once. The rule it implements is narrow: **a `file:line` reference is legitimate as navigation and wrong as binding** — a row may cite a line so a human can find the finding, and no gate may fail because the line moved. Architect measurement carried into the repair, because the landed registration does not state it: of the `182` refs carrying `:line` across `73` files in `observed_refs` + `evidence_refs`, **`173` are TS/PY (symbol-resolvable), `5` are JSON, `3` Markdown, `1` TOML** — a JSON or TOML line resolves to a key path, never to a symbol, so that is up to **four mechanisms and not one**, and under the standing sizing bar each bespoke mechanism is its own cluster. The migration denominator is the **gated** subset, not the corpus. **`DS5-LINE-ADDRESS-01` is CLOSED (Revision 3.15, verified against the branch by the architect).** `C21a` `015fb8f08` established the TypeScript reference identity; `C21b-R1` `ceccb0746` (after the append-only restore `055345536` of checkpoint `3b0b721a4`) migrated the TypeScript corpus; `C21c` `db6c4c350` migrated the gated structured refs. **Independently reproduced final census: `270` total refs, `161` TypeScript identities, `6` structured identities, `15` navigation-only `:line` refs across 11 files** — and `161 + 6 + 15 = 182`, exactly the line-bearing corpus measured before the migration, so nothing is unaccounted. **The decisive property is witnessed, not asserted:** the real migrated construct moved with **no register update** and the full validator returned no errors, while renaming that same construct returned `typescript_reference_binding_missing_or_renamed`. **Sequencing result: 10 of 13 collision pairs are migrated and the remaining three Workbox refs are navigation-only, so `C13b-R1`, `C16a-R1`, `C16b-R1`, `C17a-R1` and `C19-R1` are all unblocked on this axis.** C21c's own review round caught a real `P32`/`P37` escape before landing — a forged absolute or `..` source path passing suffix checks and binding outside the repository root — closed with a canonical repo-relative predicate and its adversarial witnesses. **DS6 runs in parallel** and owns `apps/runtime-dashboard/src/shared/i18n/**` exclusively; the register, baseline manifest, status inventory, checker, its test and the generated report stay DS5's while C21 is in flight. **DS5** remains the critical-path Phase-B lane and started with three ready inputs: DS20's 33-value server-projected permission vocabulary (audience mapping), DS4's **three typed waist debts with exact generated-client anchors and single swap modules** (see the debt table), and the Rev-3.4 §6.5 lint row (M31·M6·M29) + INT-R6 semantic-ID rule. **DS6** (evidence workflow) is also unblocked by DS4 and owns the two remaining DS4-handed evidence debts (i18n parity ×3, axe-`incomplete` contrast ×4). |
 | **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
+| **DS5-`C21` register released** | DS6 `C03`/`C04`/`C06` — the three append-only register transitions DS6 is currently blocked on. |
+| **DS8 print repair + two stable captures** | DS6 `C13` governed transition, then `C14` closes DS6. |
 | **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
 | **GY-N13b closed** | DS15 live loop (approve-acquisition → world-growth → re-entry), passports/quarantine; DS16 derived-data provenance (derivation certificates, basis chips). |
 | **GY-N11 / GY-N12 closed** | DS17 δ-surfaces / DS18 epoch chrome. |
@@ -507,6 +651,8 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | --- | --- | --- | --- |
 | ~~`policyos/quantity-must-be-wrapped` lint violations~~ | ~~75 errors across 22 untouched files~~ | **DS4** | **CLOSED** (7f450eb7b): 0 errors / 0 files across C06 20 + C07 37 + C08 18 exact resolutions; the rule was never weakened; live JSON comparator passes |
 | Inherited Vitest failures | **5 → 3.** Closed: a11y coverage census (DS4-C12 added the real companion, no allowlist), temporal-cursor (DS4-C09 injected a test clock, product time meaning unchanged). **Open: 3 i18n parity** (`panels.agentPipeline.overBudget` en/uk/ru, one file) | i18n parity → **DS6** (Ruling 2 reassigned it from DS5; register class `i18n-count-message-parity`) | DS6 closes-or-re-specifies red-first; the baseline comparator accepts these three signatures and rejects any new identity |
+| **`atlas-health-metric-replay-pins-uncommitted-paths`** (registered by the architect 2026-08-18 while landing DS6-C10-R2) | `atlasHealthMetrics.test.ts:649` asserts `pyproject.toml` and `uv.lock` appear in `replay.non_revision_paths` — it pins a transient working-tree state as a governed expectation. Those files were uncommitted on the DS6 branch when C11 measured them and are committed in `main` since `fa708f2bc`, so the assertion is **permanently red on a clean checkout**. `P38`: revision status stands in for membership in the persistence-implementation set; the two agreed while the files were uncommitted and diverge now. It is a defect in the test, not a non-receipt — the measurement succeeded and the expectation is wrong. | **DS6** owns the test; the repair is to assert the implementation set directly rather than through revision status | open, carried at the DS6 slice standing |
+| **`i18n-plural-rule-covers-only-`{count}`** (registered by the architect 2026-08-11 while verifying DS6-C01-R1; the repair itself is correct and this is an *adjacent* class the rule never covered, so it does **not** hold C03's `baseline-test-i18n-count-debt → repaired` transition) | `parity.test.ts`'s collector keys on the literal `{count`, so **every other interpolated numeric variable escapes the gate entirely** — `{blocked}`, `{total}`, `{position}`. Measured consequence in a message C01-R1 just certified: `pages.dashboard.narrativeAttentionBody` still renders `{blocked} заблокованих packet`, which at `blocked = 1` needs `1 заблокований packet`. This is `P38` in the i18n gate — the property is *is this message plural-safe*, the test is *does it contain `{count`*. Second, smaller item folded here: the `panels.reviewCollaboration.reviewers` exemption is justified from its **caller** (`participants.length > 1`, `solo` for singular) and nothing fails if that caller changes | **DS6** — C01 has consumed both mechanism rounds, so this is a new continuously-numbered re-cut, never a third round | DS6 censuses every `en`/`uk` message carrying a non-`{count}` interpolated variable, adjudicates each against the words that agree with it, and widens the rule to a declared set of numeric variables; separately the `reviewers` exemption either gains a witness binding its caller guard or is marked `declared, unenforced` |
 | ~~Dashboard architecture-layer violations~~ | ~~36 violations across 28 files~~ | **DS4** severing, **DS5** lint enforcement | **CLOSED** (7f450eb7b): 0 violations in *both* engines (custom checker + dependency-cruiser over 1,019 modules / 4,150 edges) via C06 13 + C09 7 + C10 1 + C11 9 + C13 5 + C18 1. Note DS4 does **not** claim an independently measured 23→0 API/app denominator — Phase A never left a provenance-bound 23-item manifest; the governed claim is 36→0. **DS5 still owes the recurrence lints** |
 | Worktree tooling gap | agent worktrees carry invalid `.venv`s (Playwright/py tooling non-receipts in DS1/DS19) | ops note — every future slice prompt | slices declare their toolchain baseline gate up front (the DS19 pattern) |
 | Control-plane fixture drift | 2 pre-existing test failures in `tests/unit/runtime/http/test_control_api.py`-adjacent run-control paths (`DecisionMonitoringContract` rejects fixture fields; reproduced on pre-DS3 base in isolation) | **runtime/GY lane** (the contract's owner) — not an Atlas surface debt | the owner reconciles fixture vs contract red-first; DS3's focused selections exclude exactly these two, documented |
@@ -517,8 +663,8 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | DS20-B Helm policy mirror | the Helm chart carries a separate stale copy of the OPA policy; the canonical `ops/policy/policies/**` Rego is DS20-current, the Helm mirror was outside the extended fence | **ops / deploy lane** | the deploy lane regenerates the Helm mirror from the canonical Rego (or removes the duplicate in favor of the canonical source) |
 | aiohttp Fabric connector cleanup | two unclosed `aiohttp` session/connector diagnostics surface from the authorized `discover_data_sources`/`resolve_data_needs` handler witnesses opening Fabric connector pools (not a test failure; DS20 added no HTTP bypass) | **GY / fabric lane** (connector lifecycle owner) | the fabric lane closes the connector-pool lifecycle; not an Atlas surface debt |
 | **DS4 three canonical-waist vocabularies** (registered 2026-08-01; the register rows carry `master_inherited_debt_action = flag_for_architect_insertion_at_c20`, i.e. this insertion) | three vocabularies the generated client does not project, each already reduced to **one** presentation-only swap module that renders novel owner labels as explicit `unrecognized` and exports no value-level constants: **CGF disposition** (`canonicalRuntimeApiClient.ts:516`; `types.ts:5850-5879` `GenerationCycleDispositionPayload`) → `shared/ui/compounds/cgfDispositionPresentation.ts`; **decision grade** (missing `DecisionGrade` export; client export block `333-394`) → `shared/ui/compounds/decisionGradePresentation.ts`; **cache-age lattice** (`canonicalRuntimeApiClient.ts:737`; `types.ts:8164-8182` `ProjectionFreshness`) → `shared/ui/temporal/cacheAgePresentation.ts`. Authority: `architecture/atlas_surfaces/ds4-waist-debt-register.json`; estate denominator effect **none** | **DS5** (waist) | DS5 supplies each closed union through the generated client and swaps it in at the single named module; **the two negatives per module survive** (novel label → explicit `unrecognized`; module exports no vocabulary constants). Terminal kinds and evidence classes stay opaque extensions end to end — DS5 does not close or order them |
-| **`run-lifecycle-terminal-fact`** — producer-signed run terminality | `RunSummary` exposes open status text + `finished_at` but **no producer-signed terminal fact**; the runtime SSE sibling still derives terminality from status substrings. DS4-C22b removed all dashboard-side lifecycle guessing, so polling/optimistic/Clerk/run surfaces now bind to `finished_at` and render labels opaquely. Anchors: `runtime/http/routes/runs.py:179`, `canonicalRuntimeApiClient.ts:865`, `types.ts:9240/9258/9284` | **runtime / GY lane** — *reassigned by the architect 2026-08-01 from the register's `owner_slice: DS3`, which is closed & merged and cannot execute it*; **DS7** is the blocking first consumer | the runtime lane projects a producer-signed terminal/completion fact through the generated `RunSummary` and the governed event contracts; DS7 consumes that fact and **may not re-derive terminality** (its negative control); novel status labels remain opaque; the C22 semantic negatives and the DS5 ownership lint stay green. The receiving slice updates the register row's `owner_slice` when it opens |
-| **Readiness / scientific-depth producer binding** | `PublicSectorReadinessPanel` and `ScientificDepthPanel` had dashboard-local synthesis minting unsigned readiness and scientific-composition values; DS4-C23 physically deleted both synthesis graphs and renders the panels constant `unavailable` / no-input. States: `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | **DS16** (already carried in the DS16 section, Rev 3.5) | every named value resolves to a generated field or a registered typed refusal, and the C23 containment negatives (two no-input panels, exactly three prop-less mounts, zero reachability to the deleted graphs, six AST corruption witnesses) remain green |
+| **`run-lifecycle-terminal-fact`** — producer-signed run terminality | `RunSummary` exposes open status text + `finished_at` but **no producer-signed terminal fact**; the runtime SSE sibling still derives terminality from status substrings. DS4-C22b removed all dashboard-side lifecycle guessing, so polling/optimistic/Clerk/run surfaces now bind to `finished_at` and render labels opaquely. Anchors: `runtime/http/routes/runs.py:179`, `canonicalRuntimeApiClient.ts:865`, `types.ts:9240/9258/9284` | **runtime / GY lane** — *reassigned by the architect 2026-08-01 from the register's `owner_slice: DS3`, which is closed & merged and cannot execute it*; **DS7** is the blocking first consumer. **Revision 3.13: the reassignment had never reached the owner** — measured 2026-08-11, this string appeared 4x here and **0x in the GY plan**, so it is now registered there as **`GY-GAP4`** (Rev 36) and the routing is closed at both ends | the runtime lane projects a producer-signed terminal/completion fact through the generated `RunSummary` and the governed event contracts; DS7 consumes that fact and **may not re-derive terminality** (its negative control); novel status labels remain opaque; the C22 semantic negatives and the DS5 ownership lint stay green. The receiving slice updates the register row's `owner_slice` when it opens |
+| **Readiness / scientific-depth producer binding** | `PublicSectorReadinessPanel` and `ScientificDepthPanel` had dashboard-local synthesis minting unsigned readiness and scientific-composition values; DS4-C23 physically deleted both synthesis graphs and renders the panels constant `unavailable` / no-input. States: `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing`. **Re-typed 2026-08-02: this is a breach of ratified `S0-K07` — projection cannot mint authority** (`docs/system-design-decisions/stage0-custody-kernel-ratification.md`); dashboard-local synthesis of an unsigned readiness value is the prohibited case exactly, and DS4-C23 **contained** it without closing it | **DS16** (already carried in the DS16 section, Rev 3.5) | every named value resolves to a generated field or a registered typed refusal, and the C23 containment negatives (two no-input panels, exactly three prop-less mounts, zero reachability to the deleted graphs, six AST corruption witnesses) remain green |
 | **`adjacent-print-export` — run-detail A4 print regression** | the global `a[href]::after` print rule emits the full long signed public-decision URL into the report, overlapping content and preventing a stable A4 capture: expected 724×2113, actual 770×13229. The committed expectation is **byte-unmodified**; the visual suite is honestly **17/18**, not suppressed, skipped, quarantined, retried, or tolerance-widened | **DS8** (product repair, `team-design`); **DS6** owns independent visual + semantic verification | no generated link URL overlaps the report **and** two consecutive no-update real-browser A4 captures are stable; until then the run-detail expectation may not count green |
 | **Four axe-`incomplete` contrast clusters** (registered by the architect 2026-08-01 — DS4 recorded them honestly in its closure/journal but left **no machine-readable row**, so this table is their authority until DS6 creates one) | axe reports these foregrounds as `incomplete` — neither violations nor passes — because translucent/gradient ancestors defeat computed contrast: **C01** neutral `Badge` variant; **C06** `ProvenancePopover` + `ProvenanceMiniGraph`; **C09** `TimeSemanticsLabel` inheritance; **C14** `CandidateFrame`, `NegativeCertificateCard`, `WeakestLinkExplainer`. They are not suppressed and not counted green; the automated a11y denominator (85/85 component, 21/21 browser) is green *around* them | **DS6** (a11y evidence owner) | DS6 lands a real-browser **opaque-background probe** that computes a WCAG-AA contrast result for each named source identity without attributing an `incomplete` node to the source, and creates the typed register row so the class survives the next census |
 
@@ -614,12 +760,12 @@ Canonical governing record:
 `codex/atlas-ds0-source-of-truth` and awaits architect review. **D4 was
 RATIFIED the same day** (`7b6933770`, owner `@DenisKopylov`; recorded
 `ratified` in `docs/brand/ATLAS_SOURCE_OF_TRUTH.md` §D4 and pinned in the
-disposition register's DS0 source block, `decision_date: 2026-07-16`).
-**D4-A1 amended that decision on 2026-08-19** (Atlas Revision 3.19,
-`bedd47503`): `en` is the authored primary, `uk` is its translation, and
-**`ru` UI catalog remains `legacy_continuity_frozen` — not used, not
-deleted**. The 2026-06-11 draft and the original primary/baseline relation are
-superseded; no slice may loosen the amended posture.
+disposition register's DS0 source block, `decision_date: 2026-07-16`): `uk`
+primary Ukraine-facing, `en` baseline/fallback, **`ru` UI catalog
+`legacy_continuity_frozen` — not used, not deleted** (retained in-tree,
+excluded from active locale exposure and from any public locale-support
+claim). The 2026-06-11 DS0 draft's "frozen-but-served" wording is superseded.
+Loosening the ratified posture is out of scope for every slice.
 
 - **Goal:** one canonical design source of truth and the governing decisions
   every later slice references.
@@ -750,14 +896,77 @@ superseded; no slice may loosen the amended posture.
 
 #### DS5 — Enforcement Waist: Lints, Audience Mapping, Cache Discipline
 
+- **INHERITED OBLIGATION from DS16 (registered 2026-08-18; corrected by the architect the same day
+  after measuring it against DS5's own checker) — this is a POST-MERGE reconciliation, and neither
+  branch can discharge it alone.** DS16 retired `readinessScientificContainment.test.ts` and bound
+  both panels, which leaves the disposition register pointing at a deleted file. The first
+  registration named DS5 as owner because the pinning checker is DS5's. That is where the checker
+  lives, but it is **not** a task DS5 can execute, and the end state first recorded here was **not
+  satisfiable**: following it produces checker errors, not zero. Measured on
+  `codex/atlas-ds5-enforcement-waist` at `94e2c8ca0`:
+
+  | fact | anchor on the DS5 branch |
+  | --- | --- |
+  | `C23_ROOT_IDS` — the four rows | `check_frontend_disposition_register.py:5549` |
+  | `C23_SUCCESSOR_REFS` — third entry still the retired test | `:5558` |
+  | `C23_RATIONALE` — still "until DS16 provides…" | `:5563` |
+  | exact-equality compare on `consumer_refs` | `:7966` |
+  | generic existence check on `consumer_refs` | `:7339` |
+
+  The anchors `:1484` / `:3410` in the first registration are **DS16-branch coordinates**; on DS5 the
+  same symbols sit at `:5558` and `:7966`. Cite the symbol, not the line.
+
+  **Why the first end state fails.** `_validate_c23_containment_roots` pins
+  `disposition == "rebind_pending"` for every root and compares `consumer_refs` for exact equality;
+  the generic path additionally existence-checks each `consumer_ref` under
+  `rebind_pending and strangled`, and emits `successor_on_non_rebound` when a successor survives any
+  other disposition. Against those three guards:
+
+  1. Following the instruction literally — change the third ref **and** move the four rows out of
+     `rebind_pending` while keeping their successor blocks — yields four
+     `c23_containment_root_drift` plus four `successor_on_non_rebound`: **eight errors**.
+  2. The minimal variant — change the third ref and leave the rows in `rebind_pending` — yields four
+     `rebound_consumer_missing`, because `ds16SuccessorContainment.test.ts` **does not exist on the
+     DS5 branch**; it exists only on `codex/atlas-ds16-value-grammar`: **four errors**.
+  3. Removing the successor blocks to escape (1) contradicts the same validator's
+     `successor.unit_id == C23_SUCCESSOR_ID` requirement.
+
+  **Correct disposition.** The pair goes green only in the **merged** tree, where the successor test
+  file and the pinning checker coexist. Merge order is unchanged — DS5 lands first — so the
+  reconciliation belongs to the **DS16 merge**, editing DS5's checker at that point.
+
+  - **DS5 must not touch** the four C23 rows, `C23_SUCCESSOR_REFS`, or `C23_RATIONALE`. At C20 it
+    records this as a named non-claim in the closure's explicit "what is not claimed" section,
+    carrying the error identifiers above, so the successor inherits a proven statement rather than a
+    guess.
+  - **The DS16 reconciliation** then changes the third `C23_SUCCESSOR_REFS` entry to
+    `ds16SuccessorContainment.test.ts`, rewrites `C23_RATIONALE` to the delivered state — its own
+    condition, *"until DS16 provides producer-signed fields or registered typed refusal"*, is
+    satisfied by the registered typed refusal — and **leaves the four rows in `rebind_pending`**,
+    which is what the validator requires and what the successor block presupposes. Both closure
+    conditions are already established on the DS16 branch: real consumer — panels bound to
+    `useRunAuthorityValues` rendering typed refusals with behavioural proof; strangled — minting
+    modules deleted at `bc1d01001`, witness retired in the rewire commit, successor covering 10 of 11
+    ancestor corruptions with the one gap declared.
+
+  **Also inherited:** `census_observation_drift:census-browser-signing-protected-live:reference_count`
+  is a **coordinate move, not a membership change** — `quantityDecisionProducerHarness.tsx:139 → :148`,
+  byte-identical line content, count unchanged at `28`. DS16 deliberately did not bump it because DS5
+  is replacing line-numbered census references with content-addressed identity tokens, which removes
+  this drift class structurally; it resolves on that migration rather than by editing a number.
+  **Merge ordering:** DS5 lands **before** the DS16 branch — DS5 carries `+2,372` lines of the same
+  register DS16 edited (measured at `94e2c8ca0`; `+2,315` was the figure at first registration), so
+  the later DS16 merges the more it costs.
+
 - **Goal:** the laws become mechanical. **(Revision 3 re-cut: the server-side
   authorization half — per-permission deny, step-up, fixture prohibition,
   OPA resource binding — moved to DS20; DS1 measured it as systemic (29/29
   mutating operations) and it must not wait behind the status grammar. DS5
   consumes DS20's single permission vocabulary.)**
 - **Gate:** DS4 (**closed & merged 7f450eb7b**); DS20 vocabulary; DS1 reports
-  (cache policy). **All gates are now satisfied — DS5 is the sole unblocked
-  Phase-B lane.**
+  (cache policy). **All gates are satisfied — DS5 is the critical-path Phase-B
+  lane. DS6 is independently unblocked by DS4 and may run in parallel** (its
+  paths are the evidence harness and i18n; DS5 must not take DS6's work).
 - **Inherited entry contract from DS4 (registered 2026-08-01 — read this before
   scoping):** DS4 hands DS5 **three canonical-waist vocabularies the generated
   client does not project**, each already narrowed to exactly **one**
@@ -780,10 +989,96 @@ superseded; no slice may loosen the amended posture.
   DS5 does not close or order them. DS5 also inherits the **architecture
   recurrence lints**: DS4 severed 36→0 in both engines, and the DS5 battery is
   what makes the class unrepeatable.
+- **Fence authorization (architect, 2026-08-01 — granted at the DS5-C00 stop
+  gate).** DS5's C00 correctly refused to widen its own fence and stopped: the
+  slice must regenerate the typed client, but the original writable list named
+  only `src/polisyos/runtime/http/**` and omitted both the generated snapshot in
+  between and the mirrored contract tests. That omission made a *governed
+  obligation* a fence violation —
+  `architecture/generated_artifacts.toml` declares
+  `schemas/runtime_api_v1.openapi.json` with
+  `source_of_truth = "src/polisyos/runtime/http/**"`, `commit_policy =
+  "committed"`, `stale_output_behavior = "fail"`, and a freshness rule requiring
+  regeneration whenever runtime routes or DTOs change; the client
+  (`packages/runtime-api-client/**`) in turn declares the snapshot as *its*
+  source of truth. Both ends of that chain were writable and the middle was not.
+  **Now admitted, narrowly:** (a) `policy-engine/schemas/runtime_api_v1.openapi.json`
+  **exclusively through the registered exporter** (`regenerate_commands` in
+  `generated_artifacts.toml`) — any hand-authored diff to any `schemas/**` path
+  is a STOP; (b) exactly five existing mirrored tests under
+  `policy-engine/tests/unit/runtime/http/` —
+  `test_authorization_audience_denials.py`,
+  `test_runtime_permission_vocabulary.py`, `test_governed_projection_api.py`,
+  `test_governed_projection_service.py`,
+  `test_runtime_api_contract_hardening.py` — edited only for the DS5 HTTP/schema
+  contract, in the same commits as their HTTP models and generated output. Any
+  sixth backend test path is a STOP. Verified disjoint from the concurrent GY
+  `runtime/quality` lane.
+- **Enforcement-mechanism ruling (architect, 2026-08-02 — binding on every DS5
+  lint).** DS5-C01 was stopped after three independent NO-GO reviews, each
+  finding a *new* bypass class in a whole-program TypeScript dataflow analyzer
+  (points-to, heap identity, CFG, abrupt completion, closures, HOFs — 1,609
+  scanner lines). Three reviews finding three new classes is not an
+  implementation-quality signal; it is proof the **mechanism** is wrong. Deciding
+  "no unauthorized value reaches this sink by any path" is undecidable over real
+  TypeScript, so a scanner that claims that invariant is P31/P33 — an optimistic
+  completeness envelope that licenses false confidence.
+  **The sound mechanism already exists and DS4 built it.**
+  `packages/atlas-ui/src/primitives/AuthorityBadge.tsx` defines
+  `AuthorityPresentation` as a branded type keyed by a **module-private, never
+  exported** `unique symbol`; `createPresentation` is module-private; only three
+  exported factories issue it, each deriving clothing from a *generated owner DTO
+  field* rather than a caller-selected tone; runtime guards reject
+  `fixture_only`, reject labels absent from the owner list, `Object.freeze` the
+  result, and record issuance in a `WeakSet`; exhaustiveness is already compiled
+  in via `satisfies Record<OperatorProjectionLabel["state"], BadgeTone>`. A raw
+  unauthorized string therefore **cannot** be assigned to
+  `AuthorityBadge.presentation` — TypeScript's assignability check, which *is*
+  sound, rejects it regardless of how the value flowed. The decisive evidence is
+  the third reviewer's own refutation witness: all six carriers (dynamic-key
+  spread, computed key, assignment destructuring, component alias, `Array.map`,
+  module-level JSX) require an explicit `cast(...)` assertion to reach the sink.
+  That is the brand working, defeated only by an enumerable escape hatch.
+  **Therefore every DS5 lint is re-cut onto this shape:** put the obligation in
+  the **type system** (branded authority values, module-private issuers,
+  compile-time exhaustiveness against generated unions) and let `tsc` be the
+  enforcement engine; reduce the bespoke checker to **decidable, local, syntactic
+  invariants** — the brand is constructed only inside authorized modules; no
+  `as` / `as unknown as` / `any` / `@ts-ignore` / `@ts-expect-error` / unsafe
+  `satisfies` on authority paths except through *typed, enumerated* exemptions;
+  adapters bind exhaustively and return explicit `unrecognized` for runtime-novel
+  values. **State the residual honestly:** the brand is compile-time, the
+  escape-hatch lint is syntactic, runtime novelty is the adapters' job — DS5
+  claims those three, and does not claim a complete flow invariant. No DS5 lint
+  may reassert one.
+- **Execution-order law (architect, 2026-08-02 — added after the ruling above was
+  over-applied).** The mechanism ruling binds each lint **when that lint is
+  built**; it is not a licence to re-derive the whole plan before writing code.
+  Read literally as a task, it produced a session with **zero net output**: the
+  slice plan grew 1,104 → 1,902 lines across ~15 independent plan reviews while
+  HEAD stayed on a rejected commit and the work sat in a stash. That is the
+  *over-specified-contract gravity well* and P01 contract-only capability — the
+  exact anti-patterns this programme distilled. Three rules follow, binding on
+  every Atlas slice.
+  **(1) Re-derive at entry, not ahead.** A cluster's mechanism re-derivation
+  happens in that cluster's own commit, when it is entered. Planning a cluster
+  you are not about to execute is deferred work, not progress.
+  **(2) Plan-only commits are capped.** After a slice's C00 is committed, a
+  plan-only commit is allowed **once** per architect ruling that forces one.
+  Every other commit must change product or test code. Plan prose has no
+  fixpoint — code does (its tests pass) — so unbounded review of a document
+  converges on nothing. Independent review remains mandatory for **code**;
+  for plan text it is **one round**, scoped to the cluster about to be entered.
+  **(3) A downstream owner gap never halts upstream clusters.** Pre-sized
+  clusters exist to execute independently. When cluster N hits a canonical-owner
+  gap, record it as a typed integrate-debt row with its owner and closure signal,
+  **defer cluster N**, and continue with the clusters that do not depend on it.
+  Halting the slice is correct only when the gap blocks the cluster actually in
+  hand.
 - **Producer & bridge work (in-slice):** the **audience↔permission mapping**
   over DS20's server-projected vocabulary; the three waist unions above;
   weakest-boundary/status composition exposed in the schema where not yet
-  projected; client regeneration.
+  projected; client regeneration through the registered exporter.
 - **Deliverables:** the `[to build]` lints from laws 8/9/10/12 —
   unauthorized-status-enum lint, no-hand-written-authority-fetch lint (the 9
   known production calls in 5 files are its first targets, with typed exemptions
@@ -866,6 +1161,25 @@ superseded; no slice may loosen the amended posture.
   join the `stable` bar for every **interactive authority surface** (DS7/DS9/DS15–DS18).
   DS6 owns the instrument; the benchmark's content arrives from INT-R3, not invented here.
 - **Not yet:** no product surfaces; DS6 measures, it does not ship screens.
+- **CARRIED DEBT (Rev 3.18, recorded 2026-08-18) — DS6's executable set is exhausted and the
+  slice is `blocked_on_another_plan`, NOT closed.** `C14`, its own closure cluster, is deliberately
+  unentered: closing it while executable work waits elsewhere is the overclaim this slice exists to
+  prevent. Landed through `C10-R2` at `fa1f3e4d0`. Three debts survive the slice and each has a
+  named owner, so none of this is re-derived when DS6 reopens:
+  - **`C03`/`C04`/`C06` wait on DS5-`C21`.** The governed writes stay descriptive until the register
+    owners are released. They then run as three separate append-only transitions, each rereading
+    current owners and content-hash anchors at entry.
+  - **`C13`'s governed transition waits on DS8** — a print repair, an independently established
+    semantic-non-overlap result, and two consecutive stable no-update captures. `C13`'s verification
+    half is already landed; only the transition is held.
+  - **`transitive-runner-closure-unbound` is `absent/unallocated`.** `observed_by_reconciler` attests
+    intake closure, not runner integrity under local code modification. Closing it needs an
+    out-of-band runner identity; a falsifier over all `9,870` tracked files found none in this
+    repository, so the label is earned rather than assumed.
+  - Also open under their own owners: the `atlas-health-metric-replay-pins-uncommitted-paths` test
+    defect in the inherited-Vitest row above, the `scenario composer dark theme` visual-lane
+    instability, and the DS8 A4 print baseline.
+  **Order on reopening:** DS5-`C21` → `C03`/`C04`/`C06`; DS8 repair → `C13`; then `C14` closes DS6.
 
 ### Phase C — Workspace Surfaces
 
@@ -1072,6 +1386,85 @@ superseded; no slice may loosen the amended posture.
   them is red). Contestability is proven (real recourse to a competent, change-authorized reviewer),
   not an "Appeal here" link. Any third-party model/data behind the claim carries a **graded
   supplier-evidence envelope** (vendor-run eval ≠ independent; "no incident found" ≠ "no incidents").
+- **Ratified claim-semantics constraints (Revision 3.11; `INT-K01`–`INT-K08`,
+  `docs/system-design-decisions/int-wave-claim-semantics-ratification.md`).** The INT-wave kernel is
+  ratified, and DS12 is its largest product consumer. Four constraints bind this slice, and one
+  architectural default is settled in its favour.
+  - **The `INT-R9` gate input is discharged, and it resolved to a *nonnumeric* protocol.** The
+    first-promotion protocol was amended to **Option B** — result-informed repair is kept, so every
+    sequence-level number is withdrawn — and its independent conformance verification returned
+    `CONFORMS_WITH_GAPS` with both gaps closed. The pre-registration requirement in the gate above
+    is unchanged; what changed is what pre-registration buys. DS12 consumes a **custody** claim.
+  - **What DS12 may publish about firstness (`INT-K06`).** A bounded custody and anti-selection
+    statement: prospectivity, firstness, substitutions, chronology, adjudication, deviations,
+    negative terminals, publication, correction — and the statement that no prohibited substitution
+    was found in the governed record. It may **not** be projected as statistical family control,
+    population performance, compliance, competence, or production readiness. This is a real public
+    claim, checkable and falsifiable; it simply carries no probability.
+  - **Every rendered `delta` carries its declared set (`INT-K02`).** A public δ must identify the
+    declared obligation set and maintained assumptions and visibly carry the relative-basis rider.
+    This ratifies and sharpens the Rev-18 P29 rider above: the conditional is not stylistic hedging,
+    it is part of the claim's meaning, and a bare δ is not a smaller claim but a different and false
+    one.
+  - **No new lattice, no shortcut (`INT-K01`, `INT-K03`).** Coverage outcomes feed the **existing**
+    status lattice; DS12 introduces no coverage-specific lattice. `bounded_complete` is **not
+    issuable** and is not a fallback for an unresolved coverage disposition — issuing it requires
+    constructed independence, which is dormant research (`INT-GAP-02`), not pending engineering.
+  - **Architect default, settled: DS12 does not need a number, and should not ask for one.** A
+    numeric first-promotion family claim would activate `GY-GAP2` (engineering: family declaration,
+    chronology verifier, aggregate current-head projection) **and** `INT-GAP-01` (research: a
+    selection-valid theorem for outcome-dependent repair) simultaneously, because the protocol keeps
+    adaptive repair (`INT-K07`). The cost is disproportionate to what the number would add over the
+    custody claim. Reopening this default is an architect decision, not a slice decision.
+  - **`INT-K08` binds the empty case.** If the first-promotion protocol terminates with refusal,
+    void, dispute, or exhaustion without promotion, that is a **completed** governed result. No
+    launch deadline, success quota, substitution, or public compression may turn it into permission
+    to weaken this slice's gate or hide the chronology. Per Rule 5 the public surface waits honestly
+    — and under `INT-K08` it may also *say* that it waited, which is itself publishable.
+- **Ratified public-verification and disclosure constraints (Revision 3.12; `PV-K01`–`PV-K09`,
+  `docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md`).**
+  The INT-R7/INT-R8 wave closed and its nine invariants are ratified. DS12 is their primary
+  consumer, and the practical headline is about this slice's **gate**:
+  - **All four named research inputs are now closeable as research inputs.** `INT-R1` and `INT-R9`
+    were ratified 2026-08-04; `INT-R7` is `GO_WITH_REVISIONS` with its independent closure gate met
+    (controlling head `3883b454`); `INT-R8` is `accepted_narrow_scope`, independently verified
+    `CONFORMS` (controlling head `286ade10`). The seam between R7 and R8 was adjudicated item by
+    item in both directions and holds. **The DS12 gate itself is unchanged and remains closed** —
+    research-input closure is not implementation readiness, custody, institutional competence, or
+    publication authority, and the gate still requires the first governed promotion and DS11.
+  - **Consume the verification vector, never a signature Boolean (`PV-K01`).** A valid signature
+    supports issuer-issuance authenticity and nothing more. Issuer issuance, projection
+    faithfulness, public-history establishment, durable verifiability, current authority,
+    status-snapshot selection and evidence obtainability are **separately falsifiable** and must be
+    separately reportable. This is what makes the citizen surface useful rather than merely strict:
+    it can say *which* dimension failed.
+  - **Never let a present failure edit the past (`PV-K02`).** Withdrawal, revocation, supersession
+    or stale currentness make current authority false without erasing a historically authentic
+    record; historical authenticity never establishes current authority. `withdrawn-but-verifiable`
+    is a first-class outcome this surface must render.
+  - **The forged-packet negative control now has a ratified basis (`PV-K01`, `PV-K03`).** The
+    inherited public-salt 32-bit FNV token is recomputed over attacker-selectable content; it is a
+    `live_defect`, not a weak checksum. Strangle it so no recomputed packet can render a governed
+    positive, and never let projection, transport or possession mint authority.
+  - **Reuse the real producer (`bridge_missing`, not `producer_missing`).**
+    `runtime/quality/public_export.py` is a real 2,103-line producer with no proof, evaluator or
+    production route. Connect it; do not erase or duplicate it.
+  - **Projection semantics (`PV-K04`, `PV-K05`).** Semantic parity is use-relative conservative
+    protected-query parity, not byte equality: reduce detail, never amplify truth, certainty,
+    authority, currency or permission. Three omissions block categorically — a bare `delta` without
+    its declared basis, a hidden negative terminal, and a no-number custody claim missing a
+    constitutive step. A link to the full record does **not** repair a misleading visible summary.
+  - **No number, and the default is settled (`PV-K08`).** No canonical numerical disclosure claim
+    may be projected. The refusal is premise-relative, not an impossibility theorem — determinism
+    is explicitly *not* the obstruction — but the premises do not exist here and DS12 does not need
+    a number.
+  - **Any proof candidate must discharge the metadata channel (`PV-K09`).** Key identifiers,
+    certificate paths, transparency-log positions, witness sets and proof-object sizes can
+    reconstruct protected content through the proof machinery itself. A candidate that cannot show
+    a proved-safe treatment under the declared model is blocked — and only that candidate.
+  - **One dependency is newly visible:** `PV-K07` prefix discipline is ratified but **not issuable**
+    until `GY-GAP3` (controlled release-family transcript) closes. DS12 must not present a release
+    history as governed while that owner is absent.
 - **Not yet:** one record published well beats many published loosely;
   dispute/consultation/history surfaces arrive in DS13.
 
@@ -1220,8 +1613,43 @@ superseded; no slice may loosen the amended posture.
   refusal; the DS4 containment negatives stay green afterwards. This is
   value/uncertainty semantics, which is why it is not DS4 work.
 - **Not yet:** no transform-planner UI (the GY plan defers transform chains);
-  single-transform provenance only; the DS4-C23 producer binding above is
-  DS16-owned but not started.
+  single-transform provenance only.
+- **Status (2026-08-18) — the authority half is CLOSED; the grammar body is not.** Branch
+  `codex/atlas-ds16-value-grammar`, slice plan
+  `docs/plans/active/atlas-slices/DS16-value-uncertainty-and-derived-data-grammar.md`.
+  **The DS4-C23 producer binding is delivered**, and its outcome is not the one this section
+  anticipated: all **eleven** inventory families — the record's "readiness composition" collapses six
+  distinct builders into one phrase — have **no runtime producer at all**, measured with positive
+  controls. So the binding is a typed contract of **eleven registered refusals**, each carrying its
+  reason code and owning surface, served over `GET /api/v1/runs/{run_id}/authority-values`, with
+  completeness enforced by a validator that raises on a dropped member. Both panels are bound, the
+  `C23` containment witness is retired with a strangle proof, and the MACHINE twin ships with parity
+  read from the rendered DOM.
+- **The grammar body could not land here, and the reason is structural rather than a shortfall.**
+  DS16's own surfaces render refusals and carry **zero** quantity references, so there is nothing
+  unit-bearing to attach a basis chip to and nothing derived to open a recipe for. `C08` and `C09`
+  have **real, exercised substrate** — `BasisSignature`/`BasisAttribute`/`BasisParameterBinding` and
+  `DerivationRecipe`/`DerivationCertificate`, the latter with 32 call sites on
+  `build_derivation_recipe` — and **zero served**; they could be bridged tomorrow and still have no
+  consumer here. `ValueOuterSet` is different again: its only construction in the whole source tree is
+  an empty placeholder and `.compare()` has zero callers, so bridging it would serve a placeholder.
+  **Re-entry condition, stated as a property:** a surface exists that renders values rather than
+  refusals — arriving with **DS7** on real capstone data.
+- **Sequencing correction, and it is a finding about this plan.** The slice table and this section
+  gate DS16 on `DS4`; the Start-Now ladder groups its value grammar under "DS5 closed". **Both are
+  partly right:** `DS4` is the correct gate for *defining* the grammar, and it is insufficient for
+  *landing* it. Read the two together, not as a contradiction to resolve in favour of one.
+- **Vocabulary correction, measured and load-bearing.** This section's provenance triple
+  `observed`/`derived`/`deployment_update` **conflates two enums**: `deployment_update` is a
+  `BranchMode` member (world-branch semantics), not a provenance class. The provenance enum is
+  `ObservationProvenanceClass` with **four** members — `observed`, `proxy`, `derived`, `model_output` —
+  and the fourth is the "class-(iv) model output" this section's own negative polices. Worse for a
+  consumer: the `provenance_class` that **is** served carries `ParticipationProvenanceClass`
+  (ADR-0167, grades A–D, owned by `participation_requirement/`) — the **same field name, a different
+  vocabulary, a different owner**. `ObservationProvenanceClass` is served nowhere under any name.
+- **`OuterSetValue`** is built, proven against the slice's negatives, a11y-clean and has **zero
+  production importers** — a finished component awaiting a surface, recorded as such and deliberately
+  not mounted over a refusal string.
 
 #### DS17 — Confidence-Ledger & Risk-Spend Surface
 
@@ -1248,6 +1676,20 @@ superseded; no slice may loosen the amended posture.
   `open_world_unresolved` state. A δ number displayed without its conditional is the
   surface-level P29 and fails the semantic test — the ledger's math is only as complete
   as the obligations the system knows.
+  **INT-R1 has now landed (2026-08-03) and it changes what this bullet was waiting for.** Its
+  result is `accepted_narrow_scope` with a formal *impossibility* finding: while an unobserved
+  decisive obligation remains admissible, no finite trace can certify global obligation
+  completeness — so the envelope's `bounded_complete` is always **relative to a declared closure
+  basis and obligation language**, never to the world. Its independent audit adds the operative
+  constraint: independence is specified but **not constructed**, therefore the pinned repository
+  **cannot issue `bounded_complete` at all** today (`INT-R1-D-003`). Two consequences for DS17,
+  neither of which is a wait: (1) `open_world_unresolved` stops being a placeholder pending
+  research and becomes the **honest steady state** until an independent producer, scorer, and
+  governance record exist — DS17 must render it as a settled position with its reason, not as a
+  loading state; and (2) when a coverage value does become issuable, the chip renders it **with
+  its basis** — declared scope, obligation-language version, cutoff, unknown remainder, TTL — and
+  a `bounded_complete` shown without that basis is the same P29 failure as a bare δ. The typed
+  refusal is the deliverable here; the value is not owed.
 - **Not yet:** no public δ claims before DS12; the view is REVIEWER/EXPERT
   accounting, not a marketing score.
 

@@ -18,6 +18,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -40,6 +41,7 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingEnginePolicy,
     GroundingRelationCertificate,
     GroundingRelationEngine,
+    grounding_candidate_semantic_sort_key,
     parse_n4_proposal,
 )
 
@@ -516,14 +518,13 @@ def recompute_grounding_benchmark_scoreboard_hash(
 ) -> str:
     """Recompute scoreboard content hash."""
 
-    payload = (
-        scoreboard_or_payload.model_dump(mode="json")
+    source = (
+        scoreboard_or_payload
         if isinstance(scoreboard_or_payload, BaseModel)
         else _json_ready(scoreboard_or_payload)
     )
-    body = dict(_mapping(payload))
+    body = serialization.artifact_self_identity_projection(source)
     body.pop("benchmark_id", None)
-    body.pop("content_hash", None)
     return gy_content_hash(_without_volatile_latency(body))
 
 
@@ -1190,7 +1191,13 @@ def _lexical_decision(
             latency_ms=_elapsed_ms(start),
             notes=("duckdb_fts_no_hit",),
         )
-    selected = sorted(candidates, key=lambda item: (-item.retrieval_score, item.atom_id))[0]
+    selected = sorted(
+        candidates,
+        key=lambda item: (
+            -item.retrieval_score,
+            grounding_candidate_semantic_sort_key(item),
+        ),
+    )[0]
     return _decision(
         case,
         "lexical_similarity_duckdb_fts_top1",

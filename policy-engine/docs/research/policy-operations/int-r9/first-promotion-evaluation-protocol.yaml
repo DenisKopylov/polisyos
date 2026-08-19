@@ -1,0 +1,61 @@
+# INT-R9 structured protocol artifact retired after independent audit.
+#
+# This file intentionally contains comments only.
+# A standard YAML parser must return an empty/null document.
+# It is not a protocol, schema, configuration, state machine, registry, fixture manifest,
+# conformance profile, owner contract, or implementation input.
+#
+# Research task: INT-R9
+# Amendment branch: research/int-r9-amendment
+# Amendment baseline: 978e6b958c5c86d41f8fcbeff45b8d533c8c7b8d
+# Independent audit: research/int-r9-independent-audit@a09128e6b914292597054b82bda2701d541b1fea
+# Bound INT-R10: research/int-r10-revision@a334f7d844733bfd17f1857a4cb56fbf219378ef
+# Bound amended INT-R1: research/int-r1-amendment@66baff37c7f566fc770377ba6c66a8dc7b517ce0
+# Result standing: accepted_narrow_scope for a nonnumeric anti-selection and custody protocol.
+# Current execution readiness: blocked.
+#
+# Why the former 852-line mapping was removed rather than merely disclaimed:
+# - it fixed protocol identifiers and versions;
+# - it fixed counts for slots, case pairs, panel members, and alternates;
+# - it enumerated state names, blockers, votes, outcomes, and transitions;
+# - it specified enough fields and literals to be loaded as a de facto contract;
+# - it encoded a family-wise accounting claim that the canonical owner did not implement;
+# - it preceded closure of adaptive repair, materiality, INT-R1, denominator, and independence seams.
+#
+# The amended research choice is Option B:
+# - result-bearing implementation repair may occur between slots;
+# - the sequence is therefore explicitly adaptive;
+# - all anti-selection chronology and publication requirements remain;
+# - INT-R9 makes no sequence-level numeric false-promotion claim;
+# - separate local confidence receipts remain separate;
+# - no field in this file may recreate a cumulative scope, spend, ordinal, delta, or family projection.
+#
+# Canonical sources and commissioned owners remain outside this file:
+# - N9 and the waist own runtime promotion and obligation semantics;
+# - the confidence ledger owns local risk scopes and receipts;
+# - any later family projection requires a separately accepted canonical owner extension under INT-R10;
+# - amended INT-R1 supplies ObligationCoverageEnvelope semantics;
+# - S0-GAP-02 supplies generic oracle/evaluator custody, or may be replaced only by an expressly
+#   governed canonical supersession;
+# - existing closeout/currentness owners and Atlas project the one status/public surface;
+# - the existing metric owner, not INT-R9, defines useful_design_rate denominator membership.
+#
+# Human-readable research sources:
+# - ../int-r9-first-promotion-evaluation-protocol.md
+# - contamination-census.md
+# - state-machine-and-artifact-contracts.md
+# - fixture-specifications.md
+# - amendment-ledger.md
+#
+# Open consolidation decisions intentionally absent from machine-readable form:
+# - final finite pool and slot counts;
+# - materiality owner mapping;
+# - institutional independence evidence threshold;
+# - S0-GAP-02 implementation mechanism;
+# - canonical useful-design metric mapping;
+# - future family-cap/family-projection design, if any;
+# - production schemas, packages, services, APIs, enums, transitions, and migrations.
+#
+# Authoritative for: nothing machine-executable.
+# May not use for: implementation, conformance, benchmark passage, authority, capability,
+# production readiness, family risk, metric definition, schema generation, or owner appointment.

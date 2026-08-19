@@ -13,6 +13,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common import serialization
 from polisyos.common.timestamps import utc_now
 from polisyos.core.contracts.execution_plan import (
     BudgetSpec,
@@ -460,7 +461,7 @@ class MethodSelectionReceipt(BaseModel):
             for row in self.ranked_alternatives
         ):
             raise ValueError("value_method_selection_trace_non_finite_score")
-        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        payload = serialization.artifact_self_identity_projection(self)
         if self.content_hash != _method_selection_receipt_content_hash(payload):
             raise ValueError("value_method_selection_receipt_content_hash_mismatch")
         return self
@@ -783,26 +784,51 @@ def reachable_value_method_fqns(
     *,
     registry: MethodRegistry | None = None,
     include_unavailable: bool = True,
+    catalog_snapshot: MethodCatalogSnapshot | None = None,
 ) -> tuple[str, ...]:
-    """Return the registry-derived value-method denominator for N8 selection."""
+    """Return the registry-derived value-method denominator for N8 selection.
 
-    reg = registry or MethodRegistry.get_instance()
-    try:
-        from polisyos.foundry.methods import ensure_all_methods_registered
+    Args:
+        registry: Registry whose exact membership is evaluated.
+        include_unavailable: Include cataloged methods whose runtime is unavailable.
+        catalog_snapshot: Optional already-admitted snapshot. When supplied, the
+            selector verifies exact registry membership and performs no discovery.
 
-        ensure_all_methods_registered(reg)
-    except Exception as exc:
-        raise FoundryMethodError(
-            "The complete value-method registry could not be resolved.",
-            code="value_method_registry_unavailable",
-        ) from exc
-    try:
-        catalog = build_method_catalog_snapshot(registry=reg)
-    except Exception as exc:
-        raise FoundryMethodError(
-            "The complete value-method catalog could not be resolved.",
-            code="value_method_catalog_unavailable",
-        ) from exc
+    Returns:
+        Sorted FQNs whose real method contracts expose value projection.
+
+    Raises:
+        FoundryMethodError: If discovery/catalog construction fails or a supplied
+            controlled snapshot does not match the registry.
+    """
+
+    reg = registry if registry is not None else MethodRegistry.get_instance()
+    if catalog_snapshot is None:
+        try:
+            from polisyos.foundry.methods import ensure_all_methods_registered
+
+            ensure_all_methods_registered(reg)
+        except Exception as exc:
+            raise FoundryMethodError(
+                "The complete value-method registry could not be resolved.",
+                code="value_method_registry_unavailable",
+            ) from exc
+        try:
+            catalog = build_method_catalog_snapshot(registry=reg)
+        except Exception as exc:
+            raise FoundryMethodError(
+                "The complete value-method catalog could not be resolved.",
+                code="value_method_catalog_unavailable",
+            ) from exc
+    else:
+        catalog = catalog_snapshot
+        registry_fqns = tuple(entry.fqn for entry in reg.snapshot().entries())
+        catalog_fqns = tuple(entry.fqn for entry in catalog.entries)
+        if registry_fqns != catalog_fqns:
+            raise FoundryMethodError(
+                "The controlled value-method catalog does not match its registry.",
+                code="value_method_catalog_registry_mismatch",
+            )
     methods = tuple(
         entry.fqn
         for entry in catalog.entries

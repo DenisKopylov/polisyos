@@ -672,7 +672,7 @@ def _extract_provisions_worker(payload: dict) -> list[dict]:
     text = str(payload.get("text", ""))
     spans = extract_provisions(
         text,
-        jurisdiction=str(payload.get("jurisdiction") or "UA"),
+        jurisdiction=payload.get("jurisdiction"),
         doc_type=str(payload.get("doc_type") or ""),
         doc_name=str(payload.get("doc_name") or ""),
         publisher=str(payload.get("publisher") or ""),

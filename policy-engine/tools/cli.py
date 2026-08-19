@@ -22,12 +22,16 @@ from tools.lib.output import (
 from tools.lib.preflight import PreflightStatus, run_preflight
 from tools.lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
 from tools.lib.timing import (
+    MIN_SAMPLES_FOR_P95,
     append_timing_record,
+    load_timing_budget_catalog,
     make_timing_record,
     read_timing_records,
+    summarize_timing_budget_lanes,
     summarize_timing_records,
     timed_tool_run,
     timing_log_from_env,
+    uncatalogued_timing_lanes,
 )
 from tools.registry import (
     categories,
@@ -39,6 +43,10 @@ from tools.registry import (
 )
 
 EX_CONFIG = 78
+# Catalogued lanes are no longer a requested subset: the committed rows carry cited evidence, and
+# every further lane the recorded log has seen is derived from it and reported alongside, so a lane
+# with real samples is never simply absent.
+TIMING_BUDGET_CATALOG_SCOPE = "committed_rows_plus_log_derived_lanes"
 
 
 def _write_result(result: ToolResult, output_format: OutputFormat, *, stderr: bool = False) -> None:
@@ -83,9 +91,17 @@ def _append_timing_record(
     append_timing_record(timing_path, record)
 
 
-def _summary_payload(limit: int, timing_log: Path) -> dict[str, object]:
+def _summary_payload(
+    limit: int,
+    timing_log: Path,
+    *,
+    include_unmeasured: bool = False,
+) -> dict[str, object]:
     records = read_timing_records(timing_log)
     summaries = summarize_timing_records(records)
+    catalog = load_timing_budget_catalog()
+    lane_summaries = summarize_timing_budget_lanes(records, catalog)
+    uncatalogued = uncatalogued_timing_lanes(records, catalog)
     top_summaries = sorted(
         summaries,
         key=lambda summary: (-summary.average_duration_ms, summary.tool),
@@ -94,10 +110,28 @@ def _summary_payload(limit: int, timing_log: Path) -> dict[str, object]:
         "timing_log": str(timing_log),
         "record_count": len(records),
         "tool_count": len(summaries),
+        "timing_budget_catalog_scope": TIMING_BUDGET_CATALOG_SCOPE,
+        "uncatalogued_lanes": [
+            {
+                "timing_key": lane.timing_key,
+                "tool": lane.tool,
+                "mode": lane.mode,
+                "admitted_samples": len(lane.samples_ms),
+                "measured_p95_ms": lane.measured_p95_ms,
+                "recommended_timeout_ms": lane.recommended_timeout_ms,
+                "regime": lane.regime,
+                "ceiling_is_declared": lane.ceiling_is_declared,
+                "budget_basis": lane.budget_basis,
+                "published_p95_ms": lane.published_p95_ms,
+                "max_observed_ms": lane.max_observed_ms,
+            }
+            for lane in uncatalogued
+        ],
         "summaries": [
             {
                 "tool": summary.tool,
                 "category": summary.category,
+                "latest_mode": summary.latest_mode,
                 "runs": summary.runs,
                 "failures": summary.failures,
                 "skipped": summary.skipped,
@@ -110,6 +144,32 @@ def _summary_payload(limit: int, timing_log: Path) -> dict[str, object]:
             }
             for summary in top_summaries
         ],
+        "lane_summaries": [
+            {
+                "timing_key": summary.timing_key,
+                "tool": summary.tool,
+                "mode": summary.mode,
+                "command": summary.command,
+                "measured_p95_ms": summary.measured_p95_ms,
+                "recommended_timeout_ms": summary.recommended_timeout_ms,
+                "source_refs": list(summary.source_refs),
+                "state": summary.state,
+                "local_runs": summary.local_runs,
+                "local_failures": summary.local_failures,
+                "latest_duration_ms": summary.latest_duration_ms,
+                "over_budget_runs": summary.over_budget_runs,
+                "budget_basis": summary.budget_basis,
+                "published_p95_ms": summary.published_p95_ms,
+                "max_observed_ms": summary.max_observed_ms,
+                "catalog_sample_count": summary.catalog_sample_count,
+            }
+            for summary in lane_summaries
+            if include_unmeasured or summary.state != "unmeasured"
+        ],
+        "min_samples_for_p95": MIN_SAMPLES_FOR_P95,
+        "lanes_publishing_a_p95": sum(
+            1 for summary in lane_summaries if summary.budget_basis == "p95"
+        ),
     }
 
 
@@ -117,14 +177,41 @@ def _render_timing_text(payload: dict[str, object]) -> str:
     lines = [
         f"Timing log: {payload['timing_log']}",
         f"Recorded runs: {payload['record_count']} across {payload['tool_count']} tools",
+        f"Budget catalog scope: {payload['timing_budget_catalog_scope']}",
         "",
-        "Slowest tools by average duration:",
+        "Lanes observed in the log but ABSENT from the budget catalog (unbudgeted):",
     ]
+    uncatalogued = payload["uncatalogued_lanes"]
+    assert isinstance(uncatalogued, list)
+    if not uncatalogued:
+        lines.append("- none")
+    for item in uncatalogued:
+        assert isinstance(item, dict)
+        basis = item["budget_basis"]
+        if basis == "declared":
+            advice = "no admitted sample - a ceiling must be DECLARED and recorded as supplied"
+        elif basis == "p95":
+            advice = (
+                f"p95={float(item['published_p95_ms']):.1f}ms from "
+                f"{int(item['admitted_samples'])} admitted sample(s), regime={item['regime']}"
+            )
+        else:
+            advice = (
+                f"max_observed={float(item['max_observed_ms']):.1f}ms from "
+                f"{int(item['admitted_samples'])} admitted sample(s) "
+                f"(too few for a p95), regime={item['regime']}"
+            )
+        lines.append(f"- {item['timing_key']}: {advice}")
+    lines.extend(
+        [
+            "",
+            "Slowest tools by average duration:",
+        ]
+    )
     summaries = payload["summaries"]
     assert isinstance(summaries, list)
     if not summaries:
         lines.append("- none")
-        return "\n".join(lines) + "\n"
 
     for item in summaries:
         assert isinstance(item, dict)
@@ -133,15 +220,49 @@ def _render_timing_text(payload: dict[str, object]) -> str:
         if budget is not None:
             over_budget_runs = int(item.get("over_budget_runs") or 0)
             budget_text = f", budget={float(budget):.1f}ms, over_budget={over_budget_runs}"
+        # The same discipline as the lane table: a nearest-rank p95 over fewer than
+        # MIN_SAMPLES_FOR_P95 runs is arithmetically the maximum, so it is labelled as one.
+        tail_label = "p95" if int(item["runs"]) >= MIN_SAMPLES_FOR_P95 else "max"
         lines.append(
             "- "
             f"{item['tool']}: avg={float(item['average_duration_ms']):.1f}ms, "
-            f"p95={float(item['p95_duration_ms']):.1f}ms, "
+            f"mode={item['latest_mode']}, "
+            f"{tail_label}={float(item['p95_duration_ms']):.1f}ms, "
             f"latest={float(item['latest_duration_ms']):.1f}ms, "
             f"runs={int(item['runs'])}, failures={int(item['failures'])}, "
             f"skipped={int(item['skipped'])}, status={item['latest_status']}"
             f"{budget_text}"
         )
+    lane_summaries = payload["lane_summaries"]
+    assert isinstance(lane_summaries, list)
+    if lane_summaries:
+        lines.extend(
+            [
+                "",
+                f"Budget lanes (a p95 is published only at >= {payload['min_samples_for_p95']} "
+                f"admitted samples; {payload['lanes_publishing_a_p95']} lane(s) qualify):",
+            ]
+        )
+        for item in lane_summaries:
+            assert isinstance(item, dict)
+            basis = item["budget_basis"]
+            if basis == "p95":
+                ceiling = f"p95={item['published_p95_ms']}"
+            elif basis == "max_observed":
+                ceiling = (
+                    f"max_observed={item['max_observed_ms']} "
+                    f"(n={int(item['catalog_sample_count'])}, too few for a p95)"
+                )
+            else:
+                ceiling = "no admitted sample - ceiling must be DECLARED as supplied"
+            lines.append(
+                "- "
+                f"{item['timing_key']}: state={item['state']}, "
+                f"basis={basis}, {ceiling}, "
+                f"timeout={item['recommended_timeout_ms']}, "
+                f"local_runs={item['local_runs']}, "
+                f"over_budget={item['over_budget_runs']}"
+            )
     return "\n".join(lines) + "\n"
 
 
@@ -152,9 +273,11 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         f"- Timing log: `{payload['timing_log']}`",
         f"- Recorded runs: {payload['record_count']}",
         f"- Distinct tools: {payload['tool_count']}",
+        f"- Budget catalog scope: `{payload['timing_budget_catalog_scope']}`",
+        f"- Unbudgeted lanes observed in the log: {len(payload['uncatalogued_lanes'])}",
         "",
-        "| Tool | Avg (ms) | P95 (ms) | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Tool | Mode | Avg (ms) | Tail (ms) | Runs | Latest (ms) | Failures | Skipped | Budget (ms) | Over budget |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     summaries = payload["summaries"]
     assert isinstance(summaries, list)
@@ -162,10 +285,66 @@ def _render_timing_markdown(payload: dict[str, object]) -> str:
         assert isinstance(item, dict)
         budget = item.get("budget_ms")
         lines.append(
-            f"| `{item['tool']}` | {float(item['average_duration_ms']):.1f} | "
-            f"{float(item['p95_duration_ms']):.1f} | {float(item['latest_duration_ms']):.1f} | "
+            f"| `{item['tool']}` | {item['latest_mode']} | {float(item['average_duration_ms']):.1f} | "
+            f"{float(item['p95_duration_ms']):.1f} | {int(item['runs'])} | "
+            f"{float(item['latest_duration_ms']):.1f} | "
             f"{int(item['failures'])} | {int(item['skipped'])} | "
             f"{('-' if budget is None else f'{float(budget):.1f}')} | {int(item['over_budget_runs'])} |"
+        )
+    lane_summaries = payload["lane_summaries"]
+    assert isinstance(lane_summaries, list)
+    if lane_summaries:
+        lines.extend(
+            [
+                "",
+                "## Measured Budget Lanes",
+                "",
+                f"A p95 is published only for lanes with at least "
+                f"{payload['min_samples_for_p95']} admitted samples; below that the ceiling is the",
+                "observed **maximum** and is labelled as such.",
+                "",
+                "| Lane | State | Basis | Samples | Ceiling (ms) | Recommended timeout (ms) | Local runs | Over budget |",
+                "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for item in lane_summaries:
+            assert isinstance(item, dict)
+            ceiling = (
+                item["published_p95_ms"]
+                if item["budget_basis"] == "p95"
+                else item["max_observed_ms"]
+            )
+            lines.append(
+                f"| `{item['timing_key']}` | {item['state']} | {item['budget_basis']} | "
+                f"{int(item['catalog_sample_count'])} | "
+                f"{ceiling if ceiling is not None else '-'} | "
+                f"{item['recommended_timeout_ms'] if item['recommended_timeout_ms'] is not None else '-'} | "
+                f"{item['local_runs']} | {item['over_budget_runs']} |"
+            )
+    uncatalogued = payload["uncatalogued_lanes"]
+    assert isinstance(uncatalogued, list)
+    lines.extend(
+        [
+            "",
+            "## Unbudgeted Lanes Observed In The Log",
+            "",
+            "A lane here has run but has no catalogued budget. A lane with no admitted sample of",
+            "its own gets a **declared** ceiling recorded as supplied - never a sibling's.",
+            "",
+            "| Lane | Admitted samples | P95 (ms) | Recommended timeout (ms) | Regime | Ceiling |",
+            "| --- | ---: | ---: | ---: | --- | --- |",
+        ]
+    )
+    if not uncatalogued:
+        lines.append("| _none_ | - | - | - | - | - |")
+    for item in uncatalogued:
+        assert isinstance(item, dict)
+        lines.append(
+            f"| `{item['timing_key']}` | {int(item['admitted_samples'])} | "
+            f"{item['measured_p95_ms'] if item['measured_p95_ms'] is not None else '-'} | "
+            f"{item['recommended_timeout_ms'] if item['recommended_timeout_ms'] is not None else '-'} | "
+            f"{item['regime']} | "
+            f"{'declared' if item['ceiling_is_declared'] else 'measured'} |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -404,19 +583,25 @@ def graph_command(graph_format: str) -> None:
     default=None,
     help="Optional markdown summary output path for CI job summaries/artifacts.",
 )
+@click.option(
+    "--include-unmeasured",
+    is_flag=True,
+    help="Include catalog lanes with no literal measurement samples.",
+)
 def report_timing_command(
     timing_log: Path | None,
     output_format: str,
     limit: int,
     summary_markdown: Path | None,
+    include_unmeasured: bool,
 ) -> None:
     """Summarize recent tool timing records and budget overruns."""
 
     target = timing_log or timing_log_from_env()
-    if target is None or not target.exists():
-        raise click.ClickException(f"Timing log not found: {target}")
+    if target is None:
+        raise click.ClickException("No timing log path is configured")
 
-    payload = _summary_payload(limit, target)
+    payload = _summary_payload(limit, target, include_unmeasured=include_unmeasured)
     if summary_markdown is not None:
         atomic_write_text(summary_markdown, _render_timing_markdown(payload))
         click.echo(f"Wrote {summary_markdown}", err=True)

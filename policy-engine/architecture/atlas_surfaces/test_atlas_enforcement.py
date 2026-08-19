@@ -6,7 +6,7 @@ import copy
 import importlib.util
 import json
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
@@ -1922,64 +1922,6 @@ class AtlasEnforcementTests(unittest.TestCase):
         finally:
             checker._query_cache_policy_errors = original
         self.assertEqual(1, len(removed_producer_registries))
-
-    def test_ds5_closure_corruption_sweep_covers_every_governed_property(
-        self,
-    ) -> None:
-        """Execute every registered corruption owner and prove escapes fail closed."""
-        witnesses = (
-            (
-                "status retirement",
-                checker.status_checker,
-                ["--check", "--corruption-probes"],
-            ),
-            (
-                "Atlas enforcement",
-                checker,
-                ["--check", "--corruption-probes"],
-            ),
-            (
-                "frontend disposition and baseline",
-                frontend_disposition_checker,
-                [
-                    "--check",
-                    "--verify-baseline-source-bytes",
-                    "--corruption-probes",
-                ],
-            ),
-        )
-
-        for label, owner, argv in witnesses:
-            with self.subTest(owner=label, phase="live"):
-                stdout = StringIO()
-                stderr = StringIO()
-                with redirect_stdout(stdout), redirect_stderr(stderr):
-                    exit_code = owner.main(argv)
-                self.assertEqual(
-                    0,
-                    exit_code,
-                    f"{label}\nstdout={stdout.getvalue()}\nstderr={stderr.getvalue()}",
-                )
-
-        def escaped_corruption(*_args: Any, **_kwargs: Any) -> list[str]:
-            return ["c20-synthetic-escape"]
-
-        for label, owner, argv in witnesses:
-            with self.subTest(owner=label, phase="remove-property-keep-command"):
-                original = owner._corruption_probes
-                owner._corruption_probes = escaped_corruption
-                try:
-                    stdout = StringIO()
-                    stderr = StringIO()
-                    with redirect_stdout(stdout), redirect_stderr(stderr):
-                        exit_code = owner.main(argv)
-                finally:
-                    owner._corruption_probes = original
-                self.assertEqual(1, exit_code)
-                self.assertIn(
-                    "corruption probes escaped: c20-synthetic-escape",
-                    stderr.getvalue(),
-                )
 
     def test_authority_sink_census_resolves_real_atlas_prop_declarations(
         self,

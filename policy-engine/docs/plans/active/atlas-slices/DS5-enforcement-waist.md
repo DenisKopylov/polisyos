@@ -912,6 +912,22 @@ journal-only and are excluded from successful samples:
 | Atlas checker/corruption | `60.46` | `156.60` | `314 s` |
 | full Atlas module | `415.63` | `1338.89` | `2678 s` |
 
+The stopped C20 attempt ran under the same shared-host regime. Only terminal
+successes enter the nearest-rank sample set; the missing-path Ruff launch and
+absolute architecture RED are nonreceipts:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| C20 owner-CLI corruption meta-sweep | `228.72` | `228.72` | `458 s` |
+| canonical report writer | `43.84, 54.04` | `86.97` | `174 s` |
+| status checker/corruption | `18.19` | `42.54` | `86 s` |
+| Atlas checker/corruption | `60.67` | `156.60` | `314 s` |
+| disposition corruption battery | `98.69` | `276.89` | `554 s` |
+| full Atlas owner module | `698.99` | `1338.89` | `2678 s` |
+| focused runtime HTTP tests | `85.79` | `85.79` | `172 s` |
+| scoped runtime HTTP Ruff | `0.04` | `0.04` | `1 s` |
+| runtime API contract | `8.18` | `8.18` | `17 s` |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -1571,8 +1587,8 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
-| C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a is carried owner debt under the architect ruling | `DS5-C20` acceptance; complete standing census below; C09a-R2/C09b-R1 receipts | executable after the containing C09b-R1 commit | none |
+| C20 | generated frontend reference | reviewed candidate projection was preserved at `4c20818c3` and forward-reverted at `7ee283762` | candidate/revert range; canonical report receipts | blocked_on_another_owner | `team-architecture` reconciliation of `architecture/baselines/imports/deep_import.json` against the live runtime graph |
+| C20 | final ledger/corruption/architect receipt | local mechanisms reached the closure battery, whose absolute architecture gate exposed inherited baseline drift | C20 stop record; C09a-R2/C09b-R1 receipts; eight-edge provenance below | blocked_on_another_owner at 0/2 mechanism rounds | `architecture-deep-import-baseline-reconciliation`, then retry the same cap-6 C20 cut |
 
 **Standing census (entry denominator recomputed and independently reconciled at
 `324996652`, structurally refreshed through the containing C15b commit):**
@@ -1584,7 +1600,10 @@ cluster status paragraph. In the commissioned chain, C18b-R2, C19-R2 and
 C17b-R3 landed, while C17b-R2 stopped for the same-cap R3 mechanism re-cut.
 Outside that chain, C11b-R1, C15b-R1, C09a-R2 and C09b-R1 land in
 their plan-bearing commits. The executable-and-unentered implementation set is
-empty after the containing C09b-R1 commit, so C20 may enter. C07a is
+empty after the containing C09b-R1 commit, so C20 entered. Its absolute
+architecture guardrail then exposed pre-existing generated-baseline drift and
+blocked closure; that owner stop does not reopen any landed DS5 mechanism.
+C07a is
 `blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
 owner tuple; C07b records the same unresolved single-owner migration debt but
 is not its executable owner. `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1` remain
@@ -2722,12 +2741,15 @@ flag-gate candidate`, forward-reverted by `33ea792b5`.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
-**Measured set:** exactly 6 files; cap 6: this plan, DS5 journal, new closure,
+**Measured set:** a declared six-path fence; cap 6: this plan, DS5 journal, new closure,
 `live-application-readiness-ledger.json`, the generated frontend disposition
 reference document, and
 `architecture/atlas_surfaces/test_atlas_enforcement.py`. Disposition/status/waist rows and hashes transition in
 their owning implementation/regeneration clusters, never as a C20 tail. All
-JSON edits are surgical and idempotent.
+JSON edits are surgical and idempotent. The readiness ledger is a frozen,
+content-bound DS1 snapshot, so its C20 allowlist is empty. The preserved
+candidate truthfully changed five paths; its forward revert restored every
+pre-C20 product and governed byte.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
 by another plan. The containing C09b-R1 commit closes the final local DS5
@@ -2741,6 +2763,18 @@ another-owner/another-plan blockers as debt. The architect's closing-pass
 ruling settles C07a as carried debt, not a C20 prerequisite. `C07b`, `C10-R1`, C15a's structured verdict/status-chip
 plane, and `C17a-R1` otherwise remain carried as named debt with their owning
 plans. This ruling does not narrow C20's corruption or non-claim battery.
+
+The containing C09b commit is `700e3aa14`; committed-range review over
+`6002d1eab..700e3aa14` returned GO on the clean attached branch with exactly
+15 paths (8 mechanism + 7 P39 companions), no C23 byte, and the reviewed
+governed hashes. That receipt released the register family and opened C20.
+
+**Release ruling:** C21 completion is insufficient because later DS5 clusters
+continued to write the shared owner family. C20 is the architect-handoff
+prerequisite, but actual DS6 owner release occurs only when an accepted DS5
+branch merges to `main`; DS6 must then reread current owners and hashes before
+C03/C04/C06. This unmerged branch records
+`DS6 release_status: not_released`.
 
 **Red first:**
 `test_ds5_closure_corruption_sweep_covers_every_governed_property` executes the
@@ -2760,12 +2794,32 @@ flag, unbound/unscoped flag source, and flag/permission substitution must each
 fail while benign siblings pass. The meta-test imports and executes the real
 registered corruption witnesses; it does not merely search for their names.
 
-**Acceptance:** final clean-tree receipt table is complete; every touched row
-has evidence and truthful capability state; baseline debt has zero new
-identity; fence/lock/generated diffs are exact; independent review has no open
-Important/Critical finding; closure explicitly lists what is not claimed.
+**Terminal classification:** `blocked_on_another_owner`, with zero C20
+mechanism rounds consumed. The real architecture guardrail is absolute for
+landing and exited nonzero on eight pre-existing deep-import baseline deltas:
+three stale baseline edges and five live unbaselined edges. The relevant
+source, policy, guardrail and baseline bytes were already present at execution
+base `5e648230` and clean pre-C20 HEAD `700e3aa14`; no C20 path feeds that
+collector. P40 classifies one NEW external-owner class—stale generated
+deep-import baseline—and the eight edge deltas as WORKED EXAMPLES. The
+registered owner is `team-architecture` / `@architecture-owners`.
 
-**Expected commit:** `DS5-C20 close enforcement waist for architect review`.
+The successor prerequisite is
+`architecture-deep-import-baseline-reconciliation`: adjudicate every edge,
+regenerate the baseline through its canonical owner, and make the guardrail
+green. Rebaselining inside C20 is forbidden, and runtime source/package-policy
+repair is outside the cut. C20 then retries the same cap-6 mechanism; no cap
+recut is needed.
+
+**Acceptance:** not established. The stopped candidate `4c20818c3` proved the
+local meta-corruption mechanism and recorded the bounded handoff, but the
+closure battery stopped at its first absolute red gate. Forward revert
+`7ee283762` restored the pre-C20 product and governed state; this docs-only
+record leaves the register family free.
+
+**Stopped candidate:** `4c20818c3 DS5-C20 preserve
+architecture-baseline-red closure candidate`, forward-reverted by
+`7ee283762`.
 
 ## Expected cluster commits
 
@@ -2815,7 +2869,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; R2 landed as `DS5-C19-R2 wire and retire D5 flags` | 14 |
-| C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
+| C20 | stopped `blocked_on_another_owner`; preserved candidate `4c20818c3`, revert `7ee283762`; retry after `architecture-deep-import-baseline-reconciliation` | same cap `6` |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
 | C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |
 | C21c | `DS5-C21c bind gated JSON and TOML references` | 7 |
@@ -2832,7 +2886,7 @@ python3 architecture/atlas_surfaces/check_atlas_enforcement.py --check --corrupt
 python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --verify-baseline-source-bytes --corruption-probes
 python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement architecture.atlas_surfaces.test_frontend_baseline_debt_manifest architecture.atlas_surfaces.test_frontend_disposition_register architecture.atlas_surfaces.test_status_retirement_inventory
 uv run --extra runtime --extra ml pytest tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_auth_api.py -q
-uv run ruff check src/polisyos/runtime/http/audience_permissions.py src/polisyos/runtime/http/authorization.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py
+uv run ruff check src/polisyos/runtime/http/authorization.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py
 uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
 uv run polisyos-tools architecture guardrails check
 python3 -m tools.cli workspace verify --backend-only
@@ -2864,7 +2918,7 @@ corepack pnpm --dir packages/atlas-ui run test
 ```
 
 The production build, typecheck, DS5-owned/touched tests, generated-client
-contract and architecture gates are absolute green. Full component/visual gates
+contract and architecture gates must be absolute green for landing. Full component/visual gates
 are honest baseline-red only for the exact three DS6 parity identities and the
 one DS8 A4 print identity; no new failure or re-baseline is accepted.
 The JSON component command is therefore an expected nonzero receipt only when
@@ -2876,6 +2930,18 @@ backend test path.
 
 ## Explicit Not yet
 
+- C20 is not landed and DS5 is not closed. The carried set remains C07a,
+  C07b, C10-R1, C15a's structured verdict/status-chip producer plane,
+  C17a-R1, the registered eight-owner duplication finding, and C17b-R3's
+  declared owner-flow residual, plus the external
+  `architecture-deep-import-baseline-reconciliation` prerequisite exposed by
+  the stopped C20 battery.
+- No C23/DS16 reconciliation. The four roots, `C23_SUCCESSOR_REFS`, and
+  `C23_RATIONALE` remain unchanged. The literal transition yields four
+  `c23_containment_root_drift` plus four `successor_on_non_rebound`; the
+  minimal successor-ref variant yields four `rebound_consumer_missing`
+  because `apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts`
+  is absent. That is post-merge DS16 work.
 - No merge, push, rebase, CI change, deployment claim, or backend-engine work.
 - No claim that arbitrary TypeScript behavior has been completely analyzed.
   DS5 claims compile-time branded-slot assignability, the bounded syntactic

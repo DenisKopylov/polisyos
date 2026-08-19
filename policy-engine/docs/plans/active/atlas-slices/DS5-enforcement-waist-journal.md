@@ -5405,3 +5405,83 @@
   unstaged or untracked path; staged `git diff --check` is green. The commit
   mutation rechecks the attached `codex/atlas-ds5-enforcement-waist` branch in
   the same command and names every staged path through this exact index.
+
+### C09b committed-range closeout and C20 entry
+
+- Branch readback after C09b is clean and attached at
+  `700e3aa145ae0d8666440a1e524a24bc150a59a5`, subject
+  `DS5-C09b-R1 default deny modes and run surfaces`. Independent committed-range
+  review over `6002d1eab..700e3aa14` returned GO on exactly 15 paths = eight
+  mechanisms plus seven P39 companions, with no C23 byte. C09b is `landed` at
+  0/2 mechanism rounds and released the register family for C20.
+- C20 declared two mechanisms—the real-owner corruption meta-test and new
+  closure artifact—plus four P39 companions: plan, journal, generated report,
+  and readiness ledger. A complete 21-row DS5 readiness walk proved that the
+  ledger is a frozen DS1 snapshot with an empty C20 byte allowlist. It remained
+  byte-identical at `4b64f092…e2ae13`; the candidate truthfully changed five
+  paths inside the six-path fence.
+- RED first was the absent named closure test, exit 1 in `0.23 s`. GREEN was
+  1/1 in `228.72 s`: the new test executes all three real owner CLIs and then
+  injects the same marker-preserving escaped corruption into each real owner;
+  every CLI returns nonzero. Independent mechanism/fence review returned GO.
+- The canonical report writer passed in `43.84 s` and `54.04 s`, explicit exit
+  0, byte-idempotent in the candidate at
+  `597b4c242161dbd15f5db7c4f08aec68c3706d6ec794d239c9224e229f27828b`.
+
+### C20 serialized battery and external-owner stop
+
+- Every command ran separately with a declared ceiling, shared-host regime,
+  `/usr/bin/time -p`, uptime pair, and explicit child exit. Status
+  checker/corruption passed in `18.19 s`; Atlas checker/corruption in `60.67 s`;
+  frontend disposition/baseline corruption in `98.69 s`; four owner unittest
+  modules passed `207/207` in `698.99 s`; focused runtime HTTP passed in
+  `85.79 s` with one declared skip; corrected live-path Ruff passed in `0.04 s`;
+  and the runtime API contract passed in `8.18 s`. The unittest parent's nested
+  loader diagnostics were deliberate corruption-child output; parent exit 0.
+- The first Ruff launch exited 1 in `0.12 s` before checking code because the
+  inherited battery named reverted C07a path
+  `src/polisyos/runtime/http/audience_permissions.py`. It is a tooling
+  nonreceipt and its duration is excluded; the plan now names the live path
+  set. A later read-only `rg` pattern containing Markdown backticks caused zsh
+  to attempt command `main`; that output was discarded and a safe literal
+  query supplied the record. It is likewise a tooling nonreceipt.
+- The absolute architecture gate, `uv run polisyos-tools architecture
+  guardrails check`, exited 1 in `15.61 s`. It reported three stale baseline
+  edges—`execution_policy -> core.security.identity`, `routes.runs ->
+  core.artifacts.ids`, `routes.runs -> core.canon`—and five live unbaselined
+  edges—`channel_contracts -> core.artifacts.manifest`, `channel_contracts ->
+  core.contracts.decision_validity`, `lex_pipeline -> lex.knowledge.store`,
+  `lex_search_projection -> core.contracts.runtime`, and
+  `lex_search_projection -> lex.knowledge.types`. The battery stopped at this
+  first absolute red gate; remaining commands were not launched and are not
+  passes.
+- P37 is `independently_reconciled`: execution base `5e648230` and clean C20
+  entry `700e3aa14` have zero delta under `src/polisyos`,
+  `architecture/imports`, `architecture/baselines/imports/deep_import.json`, or
+  `tools/devx/architecture/guardrails.py`. The source edges entered via
+  `e1931dc3372`, `6c0f32cadb`, `952a52a442`, and `a92fcce6ee`; baseline commit
+  `93bb89288b` predates their convergence. No C20 path feeds the collector.
+- P40 classification before terminal action: one **NEW CLASS**, stale generated
+  deep-import baseline; all eight deltas are WORKED EXAMPLES. This is not a C20
+  mechanism defect and consumes no round. Blind sync/rebaseline is forbidden,
+  exceptions cannot cure the earlier byte comparison, and runtime source or
+  package-policy repair is outside the cut.
+- Terminal classification is `blocked_on_another_owner` at 0/2. The owner is
+  `team-architecture` / `@architecture-owners`; the blocking artifact is
+  `architecture/baselines/imports/deep_import.json` plus edge adjudication.
+  Successor prerequisite `architecture-deep-import-baseline-reconciliation`
+  must adjudicate every edge, run the canonical generator, and prove a green
+  guardrail. C20 then retries the same cap 6; no recut.
+- The exact five-path stopped candidate is preserved at
+  `4c20818c3933d4a31b74c7c9e4ea64c1257bb830`; append-only forward revert
+  `7ee2837627a766c9d0105374aeb69b52fda4498e` restores all pre-C20 product and
+  governed bytes. This containing commit lands only plan, journal, and the
+  closure stop record. Register family hashes are therefore restored to C09b:
+  register `db6d7ed1…e7ae412`, report `4206aa9e…e255e7`, status
+  `499ffed5…1e3dfb`, baseline `10b8dfe0…deb5d3`, readiness
+  `4b64f092…e2ae13`.
+- C20 and DS5 are not closed. The C23/DS16 error families and carried owner
+  debts are enumerated in the stop record. C21 completion remains insufficient
+  for release; a later accepted C20 handoff plus DS5 merge to `main` is the
+  shared-owner release condition. This branch remains
+  `DS6 release_status: not_released`.
